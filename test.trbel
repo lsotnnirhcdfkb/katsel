@@ -1,0 +1,45 @@
+// Searchh 0.0 sepcification
+// in "Learn x in y minutes"-esque form
+// because I'm too lazy to write it the correct specification way
+
+// Comments
+// This is a comment
+// This is also a comment
+/* and this
+is a
+multiline comment          */           /*and this one tooo*/
+
+/* no, they do not /* nest */ // or they can if you want them to
+this is not part of the comment */ // This line will throw an error
+
+
+// defining variables
+x = 1; // statements need semicolons
+y = x + 1;
+
+w = v = 1; // grouped as w = (v = 1), which sets both v and w to 1
+
+// assignment operators
+x = 1;
+x += 10; // is equivalent to x = x + 10;
+x -= 5; // is equivalent to x = x - 5;
+x *= 2; // is equivalent to x = x * 2;
+x /= 2; // is equivalent to x = x / 2;
+
+// these work like in C
+x++;
+x--;
+++x; 
+--x; 
+
+// order of operations
+z = 5 + 2 - 6 * 5 / 2 + 6 * 4 / 8 * x;
+z2 = (5 + 2 - 6) * 5 / (2 + 6 * 4 / 8) * x;
+
+// printing values with the builtin print statement
+print x; // should print 6
+print y; // should print 2
+print z; // should print 10
+print z2; // should print 6
+print w; // should print 1
+print v; // should print 1
