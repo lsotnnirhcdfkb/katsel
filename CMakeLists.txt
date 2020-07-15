@@ -4,6 +4,6 @@ project(cTRBEL
     DESCRIPTION "The C++ LLVM-Based Compiler Implementation of the TRBEL Language"    
     LANGUAGES CXX)
     
-set(CMAKE_CXX_STANDARD 17)
+# set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(src)

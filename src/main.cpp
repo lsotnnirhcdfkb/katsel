@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
 
+#include "lexer.h"
+
 std::string readFile(char *filename) {
     std::ifstream filein;
     filein.open(filename);
@@ -25,7 +27,25 @@ std::string readFile(char *filename) {
 }
 
 void compileFile(char *filename) {
-    std::string contents (readFile(filename));
+    std::string source (readFile(filename));
+
+    LexerNS::startLexer();
+
+    while (true) {
+        Token currentToken = LexerNS::nextToken();
+
+        std::cout << currentToken.line << "| (" << currentToken.type << ") " << source.substr(currentToken.start, currentToken.length) << std::endl;
+
+        if (currentToken.type == TokenType::EOF_) {
+            break;
+        }
+    }
+
+    // int returnCode = parse(source);
+
+    // if (returnCode != 0) {
+    //     exit(returnCode);
+    // }
 }
 
 int main(int argc, char *argv[]) {
@@ -37,6 +57,6 @@ int main(int argc, char *argv[]) {
             "\n"
             "file - the main file to compile\n" << std::endl;
     }
-
     return 0;
+
 }
