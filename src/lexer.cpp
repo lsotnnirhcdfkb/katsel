@@ -1,23 +1,7 @@
 #include "lexer.h"
 
-struct Lexer {
-    size_t start;
-    size_t length;
-    size_t line;
-};
+Lexer::Lexer(std::string source) : start(0), length(0), line(1), source(source) { }
 
-Lexer lexer;
-
-namespace LexerNS {
-    void startLexer() {
-        lexer.start = 0;
-        lexer.length = 0;
-        lexer.line = 1;
-    }
-
-    Token nextToken() {
-
-    }
+Token Lexer::nextToken() {
 
 }
-

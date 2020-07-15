@@ -62,9 +62,17 @@ struct Token {
     int column;
 };
 
-namespace LexerNS {
-    void startLexer();
+class Lexer {
+public:
+    size_t start;
+    size_t length;
+    size_t line;
+
+    std::string source;
+
+    Lexer(std::string source);
+    
     Token nextToken();
-}
+};
 
 #endif

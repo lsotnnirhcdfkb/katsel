@@ -29,10 +29,10 @@ std::string readFile(char *filename) {
 void compileFile(char *filename) {
     std::string source (readFile(filename));
 
-    LexerNS::startLexer();
+    Lexer lexer (source);
 
     while (true) {
-        Token currentToken = LexerNS::nextToken();
+        Token currentToken = lexer.nextToken();
 
         std::cout << currentToken.line << "| (" << currentToken.type << ") " << source.substr(currentToken.start, currentToken.length) << std::endl;
 
