@@ -34,7 +34,11 @@ void compileFile(char *filename) {
     while (true) {
         Token currentToken = lexer.nextToken();
 
-        std::cout << currentToken.line << "| (" << currentToken.type << ") " << source.substr(currentToken.start, currentToken.length) << std::endl;
+        if (currentToken.type == TokenType::ERROR) {
+            std::cout << "(Error token \"" << currentToken.message << "\") ";
+        }
+
+        std::cout << currentToken.line << ":" << currentToken.column << ", " << std::distance(currentToken.start, currentToken.end) << " | (" << currentToken.type << ") \"" << std::string(currentToken.start, currentToken.end) << "\"" << std::endl;
 
         if (currentToken.type == TokenType::EOF_) {
             break;
@@ -53,7 +57,7 @@ int main(int argc, char *argv[]) {
         // Compile file
         compileFile(argv[1]);
     } else {
-        std::cout << "Usage: ctrbelc <file>\n"
+        std::cout << "Usage: " << argv[0] << " <file>\n"
             "\n"
             "file - the main file to compile\n" << std::endl;
     }

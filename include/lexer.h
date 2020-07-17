@@ -11,8 +11,8 @@ enum TokenType {
     MINUS,
     PLUS,
     SEMICOLON,
-    DIVIDE,
-    MULTIPLY,
+    SLASH,
+    ASTERISK,
 
     NOT,
     NOTEQUAL,
@@ -50,13 +50,16 @@ enum TokenType {
     IF,
     ELSE,
 
-    EOF_
+    EOF_,
+    ERROR
 };
 
 struct Token {
     TokenType type;
-    size_t start;
-    size_t length;
+    std::string::iterator start;
+    std::string::iterator end;
+
+    std::string message;
 
     int line;
     int column;
@@ -64,15 +67,24 @@ struct Token {
 
 class Lexer {
 public:
-    size_t start;
-    size_t length;
-    size_t line;
+    std::string::iterator start;
+    std::string::iterator end;
+    int line;
+    int column;
 
-    std::string source;
+    std::string::iterator srcend;
 
-    Lexer(std::string source);
+    Lexer(std::string &source);
     
     Token nextToken();
+
+private:
+    bool atEnd();
+    char advance();
+    char peek();
+
+    Token makeErrorToken(std::string message);
+    Token makeToken(TokenType type);
 };
 
 #endif
