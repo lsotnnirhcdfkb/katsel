@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
         // Compile file
         compileFile(argv[1]);
     } else {
-        std::cout << "Usage: ctrbelc <file>\n"
+        std::cout << "Usage: coxianc <file>\n"
             "\n"
             "file - the main file to compile\n" << std::endl;
     }
