@@ -20,7 +20,7 @@ std::string readFile(char *filename) {
     
         return contents;
     } else {
-        std::cout << "Could not open file" << std::endl;
+        std::cerr << "Could not open file" << std::endl;
         return nullptr;
     }
 
@@ -57,9 +57,10 @@ int main(int argc, char *argv[]) {
         // Compile file
         compileFile(argv[1]);
     } else {
-        std::cout << "Usage: " << argv[0] << " <file>\n"
+        std::cerr << "Usage: " << argv[0] << " <file>\n"
             "\n"
             "file - the main file to compile\n" << std::endl;
+        return 1;
     }
     return 0;
 

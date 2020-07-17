@@ -28,6 +28,19 @@ Token Lexer::nextToken() {
                 case '/':
                     if (peekpeek() == '/') { // check if this is a comment
                         while (peek() != '\n' && !atEnd()) advance();
+                    } else if (peekpeek() == '*') { // multiline comment
+                        // while next two characters are not * and /
+                        while ((peek() != '*' || peekpeek() != '/') && !atEnd()) {
+                            if (peek() == '\n') {
+                                ++line;
+                                column = 1;
+                            }
+
+                            advance();
+                        }
+
+                        advance(); // advance twice to consume the * and /
+                        advance();
                     } else {
                         atWhitespace = false;
                     }
