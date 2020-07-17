@@ -2,6 +2,14 @@
 
 Lexer::Lexer(std::string &source) : start(source.begin()), end(source.begin()), line(1), column(1), srcend(source.end()){ }
 
+bool isDigit(char c) {
+    return c >= '0' && c <= '9';
+}
+
+bool isAlpha(char c) {
+    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_';
+}
+
 Token Lexer::nextToken() {
     start = end;
 
@@ -20,8 +28,7 @@ Token Lexer::nextToken() {
                     break;
 
                 case '\n':
-                    ++line;
-                    column = 1;
+                    nextLine();
                     advance();
                     break;
 
@@ -31,11 +38,7 @@ Token Lexer::nextToken() {
                     } else if (peekpeek() == '*') { // multiline comment
                         // while next two characters are not * and /
                         while ((peek() != '*' || peekpeek() != '/') && !atEnd()) {
-                            if (peek() == '\n') {
-                                ++line;
-                                column = 1;
-                            }
-
+                            if (peek() == '\n') nextLine();
                             advance();
                         }
 
@@ -57,10 +60,9 @@ Token Lexer::nextToken() {
         }
     }
 
+    start = end; // put this before so if file ends with whitespace then the whitespace is not included in the EOF token
     if (atEnd()) // if file ends with whitespace
         return makeToken(TokenType::EOF_);
-    
-    start = end;
 
     char c = advance();
 
@@ -80,6 +82,29 @@ Token Lexer::nextToken() {
         case '=': return makeToken(match('=') ? TokenType::DOUBLEEQUAL : TokenType::EQUAL);
         case '>': return makeToken(match('=') ? TokenType::GREATEREQUAL : TokenType::GREATER);
         case '<': return makeToken(match('=') ? TokenType::LESSEQUAL : TokenType::LESS);
+
+        case 'c': // check for char literal
+            if (match('\'') || match('"')) { // should consume quote
+                char startingQuote = consumed();
+                advance(); // consume character
+
+                if (!match(startingQuote)) return makeErrorToken("Error lexing: unterminated single-character literal");
+
+                return makeToken(TokenType::CHAR);
+            }
+            break;
+
+        case '"':
+        case '\'':
+            // c is the starting string thing
+            while (peek() != c && !atEnd()) {
+                if (peek() == '\n') nextLine();
+                advance();
+            }
+
+            if (atEnd()) return makeErrorToken("Error lexing: unterminated string literal");
+            advance(); // consume closing quote/apostrophe
+            return makeToken(TokenType::STRING);
     }
 
     return makeErrorToken("Error lexing: unexpected character");
@@ -111,6 +136,10 @@ char Lexer::peek() {
     return *(end);
 }
 
+char Lexer::consumed() {
+    return *(end - 1);
+}
+
 char Lexer::peekpeek() {
     return *(end + 1);
 }
@@ -133,4 +162,9 @@ Token Lexer::makeToken(TokenType type) {
     token.column = column - 1;
 
     return token;
+}
+
+void Lexer::nextLine() {
+    ++line;
+    column = 1;
 }

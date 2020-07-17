@@ -32,11 +32,14 @@ enum TokenType {
     LESS,
     LESSEQUAL,
 
+    // need to do from here
+
     AND,
     OR,
 
     IDENTIFIER,
 
+    CHAR,
     STRING,
     INTEGER,
     FLOAT,
@@ -93,9 +96,12 @@ private:
     char advance();
     char peek();
     char peekpeek();
+    char consumed();
 
     Token makeErrorToken(std::string message);
     Token makeToken(TokenType type);
+
+    void nextLine();
 };
 
 #endif

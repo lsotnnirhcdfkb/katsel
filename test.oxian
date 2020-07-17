@@ -28,6 +28,11 @@ x--;
 z = 5 + 2 - 6 * 5 / 2 + 6 * 4 / 8 * x;
 z2 = (5 + 2 - 6) * 5 / (2 + 6 * 4 / 8) * x;
 
+str1 = 'alskdjf';
+str2 = "sfkajweoaisd";
+ch1 = c'a';
+ch2 = c"p";
+
 // printing values with the builtin print statement
 print x; // should print 6
 print y; // should print 2
