@@ -5,7 +5,7 @@ Lexer::Lexer(std::string &source) : start(source.begin()), end(source.begin()), 
 Token Lexer::nextToken() {
     start = end;
 
-    if (atEnd())
+    if (atEnd()) // don't parse tokens
         return makeToken(TokenType::EOF_);
 
     {
@@ -21,6 +21,7 @@ Token Lexer::nextToken() {
 
                 case '\n':
                     ++line;
+                    column = 1;
                     advance();
                     break;
 
@@ -36,8 +37,15 @@ Token Lexer::nextToken() {
                     atWhitespace = false;
                     break;
             }
+
+            if (atEnd()) {
+                atWhitespace = false;
+            }
         }
     }
+
+    if (atEnd()) // if file ends with whitespace
+        return makeToken(TokenType::EOF_);
     
     start = end;
 
@@ -50,8 +58,8 @@ Token Lexer::nextToken() {
         case '.': return makeToken(TokenType::PERIOD);
         case ';': return makeToken(TokenType::SEMICOLON);
 
-        case '+': return makeToken(match('=') ? TokenType::PLUSEQUAL : TokenType::PLUS);
-        case '-': return makeToken(match('=') ? TokenType::MINUSEQUAL : TokenType::MINUS);
+        case '+': return makeToken(match('=') ? TokenType::PLUSEQUAL : (match('+') ? TokenType::DOUBLEPLUS : TokenType::PLUS));
+        case '-': return makeToken(match('=') ? TokenType::MINUSEQUAL : (match('-') ? TokenType::DOUBLEMINUS : TokenType::MINUS));
         case '*': return makeToken(match('=') ? TokenType::MULTEQUAL : TokenType::MULT);
         case '/': return makeToken(match('=') ? TokenType::DIVEQUAL : TokenType::DIV);
 

@@ -15,6 +15,9 @@ enum TokenType {
     MULT,
     DIV,
 
+    DOUBLEPLUS,
+    DOUBLEMINUS,
+
     PLUSEQUAL,
     MINUSEQUAL,
     MULTEQUAL,
