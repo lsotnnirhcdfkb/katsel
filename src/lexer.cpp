@@ -1,6 +1,6 @@
 #include "lexer.h"
 
-Lexer::Lexer(std::string &source) : start(source.begin()), end(source.begin()), line(1), column(1), srcend(source.end()){ }
+Lexer::Lexer(std::string &source) : start(source.begin()), end(source.begin()), nextline(1), nextcolumn(1), line(1), column(1), srcend(source.end()){ }
 
 TokenType Lexer::checkKeyword(int start, std::string compareTo, TokenType type) {
   if (std::string(this->start + start, end) == compareTo) {
@@ -88,6 +88,9 @@ Token Lexer::nextToken() {
     }
 
     start = end; // put this before so if file ends with whitespace then the whitespace is not included in the EOF token
+    line = nextline;
+    column = nextcolumn;
+
     if (atEnd()) // if file ends with whitespace
         return makeToken(TokenType::EOF_);
 
@@ -237,7 +240,7 @@ bool Lexer::match(char c) {
 }
 
 char Lexer::advance() {
-    ++column;
+    ++nextcolumn;
 
     return *(end++);
 }
@@ -275,8 +278,8 @@ Token Lexer::makeToken(TokenType type) {
 }
 
 void Lexer::nextLine() {
-    ++line;
-    column = 1;
+    ++nextline;
+    nextcolumn = 1;
 }
 
 

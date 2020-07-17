@@ -90,8 +90,11 @@ class Lexer {
 public:
     std::string::iterator start;
     std::string::iterator end;
+
     int line;
     int column;
+    int nextline;
+    int nextcolumn;
 
     std::string::iterator srcend;
 
