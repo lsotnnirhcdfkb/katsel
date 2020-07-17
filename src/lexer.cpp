@@ -8,25 +8,76 @@ Token Lexer::nextToken() {
     if (atEnd())
         return makeToken(TokenType::EOF_);
 
+    {
+        bool atWhitespace = true;
+        while (atWhitespace) {
+            char c = peek();
+            switch (c) {
+                case '\r':
+                case ' ':
+                case '\t':
+                    advance();
+                    break;
+
+                case '\n':
+                    ++line;
+                    advance();
+                    break;
+
+                case '/':
+                    if (peekpeek() == '/') { // check if this is a comment
+                        while (peek() != '\n' && !atEnd()) advance();
+                    } else {
+                        atWhitespace = false;
+                    }
+                    break;
+
+                default:
+                    atWhitespace = false;
+                    break;
+            }
+        }
+    }
+    
+    start = end;
+
     char c = advance();
 
     switch (c) {
-        case '(': return makeToken(TokenType::OPAREN); break;
-        case ')': return makeToken(TokenType::CPAREN); break;
-        case ',': return makeToken(TokenType::COMMA); break;
-        case '.': return makeToken(TokenType::PERIOD); break;
-        case '-': return makeToken(TokenType::MINUS); break;
-        case '+': return makeToken(TokenType::PLUS); break;
-        case ';': return makeToken(TokenType::SEMICOLON); break;
-        case '/': return makeToken(TokenType::SLASH); break;
-        case '*': return makeToken(TokenType::ASTERISK); break;
+        case '(': return makeToken(TokenType::OPAREN);
+        case ')': return makeToken(TokenType::CPAREN);
+        case ',': return makeToken(TokenType::COMMA);
+        case '.': return makeToken(TokenType::PERIOD);
+        case ';': return makeToken(TokenType::SEMICOLON);
+
+        case '+': return makeToken(match('=') ? TokenType::PLUSEQUAL : TokenType::PLUS);
+        case '-': return makeToken(match('=') ? TokenType::MINUSEQUAL : TokenType::MINUS);
+        case '*': return makeToken(match('=') ? TokenType::MULTEQUAL : TokenType::MULT);
+        case '/': return makeToken(match('=') ? TokenType::DIVEQUAL : TokenType::DIV);
+
+        case '!': return makeToken(match('=') ? TokenType::NOTEQUAL : TokenType::NOT);
+        case '=': return makeToken(match('=') ? TokenType::DOUBLEEQUAL : TokenType::EQUAL);
+        case '>': return makeToken(match('=') ? TokenType::GREATEREQUAL : TokenType::GREATER);
+        case '<': return makeToken(match('=') ? TokenType::LESSEQUAL : TokenType::LESS);
     }
 
     return makeErrorToken("Error lexing: unexpected character");
 }
 
 bool Lexer::atEnd() {
-    return start + 1 == srcend;
+    return end + 1 == srcend;
+}
+
+bool Lexer::match(char c) {
+    if (atEnd())
+        return false;
+
+    if (peek() == c) {
+        advance();
+        return true;
+    }
+
+    return false;
 }
 
 char Lexer::advance() {
@@ -37,6 +88,10 @@ char Lexer::advance() {
 
 char Lexer::peek() {
     return *(end);
+}
+
+char Lexer::peekpeek() {
+    return *(end + 1);
 }
 
 Token Lexer::makeErrorToken(std::string message) {

@@ -8,11 +8,17 @@ enum TokenType {
     CPAREN,
     COMMA,
     PERIOD,
-    MINUS,
-    PLUS,
     SEMICOLON,
-    SLASH,
-    ASTERISK,
+
+    PLUS,
+    MINUS,
+    MULT,
+    DIV,
+
+    PLUSEQUAL,
+    MINUSEQUAL,
+    MULTEQUAL,
+    DIVEQUAL,
 
     NOT,
     NOTEQUAL,
@@ -80,8 +86,10 @@ public:
 
 private:
     bool atEnd();
+    bool match(char c);
     char advance();
     char peek();
+    char peekpeek();
 
     Token makeErrorToken(std::string message);
     Token makeToken(TokenType type);

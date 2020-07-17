@@ -1,17 +1,9 @@
-// Searchh 0.0 sepcification
-// in "Learn x in y minutes"-esque form
-// because I'm too lazy to write it the correct specification way
-
 // Comments
 // This is a comment
 // This is also a comment
 /* and this
 is a
 multiline comment          */           /*and this one tooo*/
-
-/* no, they do not /* nest */ // or they can if you want them to
-this is not part of the comment */ // This line will throw an error
-
 
 // defining variables
 x = 1; // statements need semicolons
