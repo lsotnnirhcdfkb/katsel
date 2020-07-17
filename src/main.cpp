@@ -110,10 +110,13 @@ void compileFile(char *filename) {
         if (currentToken.type == TokenType::ERROR) {
             std::cout << "(Error token \"" << currentToken.message << "\") ";
         }
+        
+        std::string location = std::to_string(currentToken.line) + ":" + std::to_string(currentToken.column) + " | ";
+        location.insert(location.begin(), 10 - location.size(), ' ');
+        std::cout << location;
 
-        std::cout << currentToken.line << ":" << currentToken.column << ", " << std::distance(currentToken.start, currentToken.end) << " | (";
         printTokenType(currentToken.type);
-        std::cout << ") \"" << std::string(currentToken.start, currentToken.end) << "\"" << std::endl;
+        std::cout << ": \"" << std::string(currentToken.start, currentToken.end) << "\"" << std::endl;
 
         if (currentToken.type == TokenType::EOF_) {
             break;
