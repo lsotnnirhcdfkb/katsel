@@ -1,2 +1,2 @@
-# cTRBEL
-The C++ LLVM-Based Compiler Implementation of the TRBEL Language
+# COxian
+The C++ LLVM-Based Compiler Implementation of the Oxian Language
