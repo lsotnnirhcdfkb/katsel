@@ -2,6 +2,7 @@
 #define LEXERH_INCLUDED
 
 #include <string>
+#include <iostream>
 
 enum TokenType {
     OPAREN,
@@ -23,7 +24,6 @@ enum TokenType {
     MULTEQUAL,
     DIVEQUAL,
 
-    NOT,
     NOTEQUAL,
     EQUAL,
     DOUBLEEQUAL,
@@ -32,8 +32,13 @@ enum TokenType {
     LESS,
     LESSEQUAL,
 
+    NOT,
     AND,
     OR,
+    BITNOT,
+    BITAND,
+    BITOR,
+    BITXOR,
 
     IDENTIFIER,
 
@@ -64,6 +69,7 @@ enum TokenType {
     FOR,
     IF,
     ELSE,
+    SWITCH,
 
     EOF_,
     ERROR
@@ -94,6 +100,7 @@ public:
     Token nextToken();
 
 private:
+    TokenType checkKeyword(int start, std::string compareTo, TokenType type);
     bool atEnd();
     bool match(char c);
     char advance();

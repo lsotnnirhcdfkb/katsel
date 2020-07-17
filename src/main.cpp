@@ -47,7 +47,6 @@ void printTokenType(TokenType type) {
         case MULTEQUAL: std::cout << "MULTEQUAL"; break;
         case DIVEQUAL: std::cout << "DIVEQUAL"; break;
 
-        case NOT: std::cout << "NOT"; break;
         case NOTEQUAL: std::cout << "NOTEQUAL"; break;
         case EQUAL: std::cout << "EQUAL"; break;
         case DOUBLEEQUAL: std::cout << "DOUBLEEQUAL"; break;
@@ -56,10 +55,13 @@ void printTokenType(TokenType type) {
         case LESS: std::cout << "LESS"; break;
         case LESSEQUAL: std::cout << "LESSEQUAL"; break;
 
-        // need to do from here
-
+        case NOT: std::cout << "NOT"; break;
         case AND: std::cout << "AND"; break;
         case OR: std::cout << "OR"; break;
+        case BITNOT: std::cout << "BITNOT"; break;
+        case BITAND: std::cout << "BITAND"; break;
+        case BITOR: std::cout << "BITOR"; break;
+        case BITXOR: std::cout << "BITXOR"; break;
 
         case IDENTIFIER: std::cout << "IDENTIFIER"; break;
 
@@ -90,6 +92,7 @@ void printTokenType(TokenType type) {
         case FOR: std::cout << "FOR"; break;
         case IF: std::cout << "IF"; break;
         case ELSE: std::cout << "ELSE"; break;
+        case SWITCH: std::cout << "SWITCH"; break;
 
         case EOF_: std::cout << "EOF_"; break;
         case ERROR: std::cout << "ERROR"; break;

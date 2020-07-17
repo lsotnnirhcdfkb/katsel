@@ -2,6 +2,14 @@
 
 Lexer::Lexer(std::string &source) : start(source.begin()), end(source.begin()), line(1), column(1), srcend(source.end()){ }
 
+TokenType Lexer::checkKeyword(int start, std::string compareTo, TokenType type) {
+  if (std::string(this->start + start, end) == compareTo) {
+    return type;
+  }
+
+  return TokenType::IDENTIFIER;
+}
+
 bool isDigit(char c) {
     return c >= '0' && c <= '9';
 }
@@ -116,6 +124,50 @@ Token Lexer::nextToken() {
         }
 
         return makeToken(inttype);
+    } else if (isAlpha(c)) {
+        while (isAlpha(peek()) || isDigit(peek())) advance();
+
+        TokenType idenType = TokenType::IDENTIFIER;
+
+        switch (c) {
+            case 'c': idenType = checkKeyword(1, "lass", TokenType::CLASS); break;
+            case 'e': idenType = checkKeyword(1, "lse", TokenType::ELSE); break;
+            case 'i': idenType = checkKeyword(1, "f", TokenType::IF); break;
+            case 'p': idenType = checkKeyword(1, "rint", TokenType::PRINT); break;
+            case 'r': idenType = checkKeyword(1, "eturn", TokenType::RETURN); break;
+            case 's': idenType = checkKeyword(1, "witch", TokenType::SWITCH); break;
+            case 'v': idenType = checkKeyword(1, "oid", TokenType::VOID); break;
+            case 'w': idenType = checkKeyword(1, "hile", TokenType::WHILE); break;
+
+            case 'f': 
+                if (std::distance(start, end) > 1) {
+                    switch (*(start + 1)) {
+                        case 'a': idenType = checkKeyword(2, "lse", TokenType::FALSE); break;
+                        case 'o': idenType = checkKeyword(2, "r", TokenType::FOR); break;
+                    }
+                }
+                break;
+
+            case 'n':
+                if (std::distance(start, end) > 1) {
+                    switch (*(start + 1)) {
+                        case 'a': idenType = checkKeyword(2, "mespace", TokenType::NAMESPACE); break;
+                        case 'u': idenType = checkKeyword(2, "ll", TokenType::NULL_); break;
+                    }
+                }
+                break;
+
+            case 't':
+                if (std::distance(start, end) > 1) {
+                    switch (*(start + 1)) {
+                        case 'h': idenType = checkKeyword(2, "is", TokenType::THIS); break;
+                        case 'r': idenType = checkKeyword(2, "ue", TokenType::TRUE); break;
+                    }
+                }
+                break;
+        }
+
+        return makeToken(idenType);
     }
 
     switch (c) {
@@ -124,6 +176,9 @@ Token Lexer::nextToken() {
         case ',': return makeToken(TokenType::COMMA);
         case '.': return makeToken(TokenType::PERIOD);
         case ';': return makeToken(TokenType::SEMICOLON);
+
+        case '~': return makeToken(TokenType::BITNOT);
+        case '^': return makeToken(TokenType::BITXOR);
 
         case '+': return makeToken(match('=') ? TokenType::PLUSEQUAL : (match('+') ? TokenType::DOUBLEPLUS : TokenType::PLUS));
         case '-': return makeToken(match('=') ? TokenType::MINUSEQUAL : (match('-') ? TokenType::DOUBLEMINUS : TokenType::MINUS));
@@ -134,6 +189,9 @@ Token Lexer::nextToken() {
         case '=': return makeToken(match('=') ? TokenType::DOUBLEEQUAL : TokenType::EQUAL);
         case '>': return makeToken(match('=') ? TokenType::GREATEREQUAL : TokenType::GREATER);
         case '<': return makeToken(match('=') ? TokenType::LESSEQUAL : TokenType::LESS);
+
+        case '&': return makeToken(match('&') ? TokenType::AND : TokenType::BITAND);
+        case '|': return makeToken(match('|') ? TokenType::OR : TokenType::BITOR);
 
         case 'c': // check for char literal
             if (match('\'') || match('"')) { // should consume quote
@@ -220,3 +278,5 @@ void Lexer::nextLine() {
     ++line;
     column = 1;
 }
+
+
