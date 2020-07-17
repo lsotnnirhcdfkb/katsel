@@ -32,8 +32,6 @@ enum TokenType {
     LESS,
     LESSEQUAL,
 
-    // need to do from here
-
     AND,
     OR,
 
@@ -41,7 +39,12 @@ enum TokenType {
 
     CHAR,
     STRING,
-    INTEGER,
+
+    DECINT,
+    OCTINT,
+    BININT,
+    HEXINT,
+
     FLOAT,
     TRUE,
     FALSE,

@@ -6,6 +6,25 @@ bool isDigit(char c) {
     return c >= '0' && c <= '9';
 }
 
+bool isDigit(char c, TokenType base) { // overloaded method for dealing with non-decimal integer literals
+    switch (base) {
+        case TokenType::DECINT:
+            return isDigit(c);
+
+        case TokenType::OCTINT:
+            return c >= '0' && c < '8';
+
+        case TokenType::BININT:
+            return c == '0' || c == '1';
+
+        case TokenType::HEXINT:
+            return isDigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
+
+        default: // invalid base
+            return false;
+    }
+}
+
 bool isAlpha(char c) {
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_';
 }
@@ -65,6 +84,39 @@ Token Lexer::nextToken() {
         return makeToken(TokenType::EOF_);
 
     char c = advance();
+
+    if (isDigit(c)) { // check for number literal
+        TokenType inttype;
+
+        if (isDigit(peek()) || c != '0') {
+            inttype = TokenType::DECINT;
+        } else {
+            switch (peek()) {
+                case 'o': inttype = TokenType::OCTINT; break;
+                case 'b': inttype = TokenType::BININT; break;
+                case 'x': inttype = TokenType::HEXINT; break;
+
+                default:
+                    return makeErrorToken("Error lexing: invalid number literal type (must be 0o, 0b, or 0x)");
+            }
+
+            advance(); // consume o, b, or x
+        }
+
+        while (isDigit(peek(), inttype) && !atEnd()) advance();
+
+        if (peek() == '.' && isDigit(peekpeek(), inttype) && !atEnd()) { // is actually a decimal and is not integer literal
+            advance(); // consume decimal point
+            
+            while (isDigit(peek(), inttype) && !atEnd()) advance();
+
+            if (inttype != TokenType::DECINT) return makeErrorToken("Error lexing: Non-decimal floating point literals are not supported");
+
+            return makeToken(TokenType::FLOAT);
+        }
+
+        return makeToken(inttype);
+    }
 
     switch (c) {
         case '(': return makeToken(TokenType::OPAREN);

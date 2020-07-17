@@ -18,6 +18,13 @@ x -= 5; // is equivalent to x = x - 5;
 x *= 2; // is equivalent to x = x * 2;
 x /= 2; // is equivalent to x = x / 2;
 
+x = 2.3543;
+x = 32.5324;
+x = 32413;
+x = 0x3284aFCbe;
+x = 0o46127;
+x = 0b100101;
+
 // these work like in C
 x++;
 x--;
