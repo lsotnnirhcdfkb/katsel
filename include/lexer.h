@@ -10,6 +10,8 @@ enum TokenType {
     COMMA,
     PERIOD,
     SEMICOLON,
+    QUESTION,
+    COLON,
 
     PLUS,
     MINUS,
@@ -60,6 +62,7 @@ enum TokenType {
     VOID,
     NAMESPACE,
     CLASS,
+    ENUM,
 
     RETURN,
 

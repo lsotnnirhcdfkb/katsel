@@ -33,6 +33,8 @@ void printTokenType(TokenType type) {
         case COMMA: std::cout << "COMMA"; break;
         case PERIOD: std::cout << "PERIOD"; break;
         case SEMICOLON: std::cout << "SEMICOLON"; break;
+        case QUESTION: std::cout << "QUESTION"; break;
+        case COLON: std::cout << "COLON"; break;
 
         case PLUS: std::cout << "PLUS"; break;
         case MINUS: std::cout << "MINUS"; break;
@@ -83,6 +85,7 @@ void printTokenType(TokenType type) {
         case VOID: std::cout << "VOID"; break;
         case NAMESPACE: std::cout << "NAMESPACE"; break;
         case CLASS: std::cout << "CLASS"; break;
+        case ENUM: std::cout << "ENUM"; break;
 
         case RETURN: std::cout << "RETURN"; break;
 

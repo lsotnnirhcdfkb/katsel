@@ -134,13 +134,21 @@ Token Lexer::nextToken() {
 
         switch (c) {
             case 'c': idenType = checkKeyword(1, "lass", TokenType::CLASS); break;
-            case 'e': idenType = checkKeyword(1, "lse", TokenType::ELSE); break;
             case 'i': idenType = checkKeyword(1, "f", TokenType::IF); break;
             case 'p': idenType = checkKeyword(1, "rint", TokenType::PRINT); break;
             case 'r': idenType = checkKeyword(1, "eturn", TokenType::RETURN); break;
             case 's': idenType = checkKeyword(1, "witch", TokenType::SWITCH); break;
             case 'v': idenType = checkKeyword(1, "oid", TokenType::VOID); break;
             case 'w': idenType = checkKeyword(1, "hile", TokenType::WHILE); break;
+
+            case 'e': 
+                if (std::distance(start, end) > 1) {
+                    switch (*(start + 1)) {
+                        case 'l': idenType = checkKeyword(2, "se", TokenType::ELSE); break;
+                        case 'n': idenType = checkKeyword(2, "um", TokenType::ENUM); break;
+                    }
+                }
+                break;
 
             case 'f': 
                 if (std::distance(start, end) > 1) {
@@ -179,6 +187,8 @@ Token Lexer::nextToken() {
         case ',': return makeToken(TokenType::COMMA);
         case '.': return makeToken(TokenType::PERIOD);
         case ';': return makeToken(TokenType::SEMICOLON);
+        case '?': return makeToken(TokenType::QUESTION);
+        case ':': return makeToken(TokenType::COLON);
 
         case '~': return makeToken(TokenType::BITNOT);
         case '^': return makeToken(TokenType::BITXOR);
