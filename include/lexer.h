@@ -5,42 +5,50 @@
 #include <iostream>
 
 enum TokenType {
-    OPAREN,
-    CPAREN,
+    OPARN, CPARN,
+    OSQUB, CSQUB,
+    OCURB, CCURB,
     COMMA,
     PERIOD,
     SEMICOLON,
     QUESTION,
     COLON,
-
+    BANG,
     PLUS,
     MINUS,
-    MULT,
-    DIV,
+    STAR,
+    SLASH,
+    PERCENT,
+    EQUAL,
+    GREATER,
+    LESS,
+    TILDE,
+    AMPER,
+    PIPE,
+    CARET,
 
     DOUBLEPLUS,
     DOUBLEMINUS,
+    DOUBLEGREATER,
+    DOUBLELESS,
+    DOUBLEAMPER,
+    DOUBLEPIPE,
+    DOUBLEEQUAL,
+    DOUBLECOLON,
 
     PLUSEQUAL,
     MINUSEQUAL,
-    MULTEQUAL,
-    DIVEQUAL,
-
-    NOTEQUAL,
-    EQUAL,
-    DOUBLEEQUAL,
-    GREATER,
+    STAREQUAL,
+    SLASHEQUAL,
+    BANGEQUAL,
     GREATEREQUAL,
-    LESS,
     LESSEQUAL,
-
-    NOT,
-    AND,
-    OR,
-    BITNOT,
-    BITAND,
-    BITOR,
-    BITXOR,
+    PERCENTEQUAL,
+    DOUBLELESSEQUAL,
+    DOUBLEGREATEREQUAL,
+    AMPEREQUAL,
+    PIPEEQUAL,
+    CARETEQUAL,
 
     IDENTIFIER,
 
@@ -58,21 +66,26 @@ enum TokenType {
     NULL_,
 
     PRINT,
-
     VOID,
     NAMESPACE,
     CLASS,
     ENUM,
-
     RETURN,
-
     THIS,
-
     WHILE,
     FOR,
     IF,
     ELSE,
     SWITCH,
+    CASE,
+    DEFAULT,
+    BREAK,
+    BREAKALL,
+    BREAKTO,
+    CONST,
+    CONTINUE,
+    INLINE,
+    VOLATILE,
 
     EOF_,
     ERROR
@@ -106,6 +119,7 @@ public:
     Token nextToken();
 
 private:
+    TokenType getIdentifierType();
     TokenType checkKeyword(int start, std::string compareTo, TokenType type);
     bool atEnd();
     bool match(char c);

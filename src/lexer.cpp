@@ -10,6 +10,10 @@ TokenType Lexer::checkKeyword(int start, std::string compareTo, TokenType type) 
   return TokenType::IDENTIFIER;
 }
 
+TokenType Lexer::getIdentifierType() {
+    return TokenType::IDENTIFIER;
+}
+
 bool isDigit(char c) {
     return c >= '0' && c <= '9';
 }
@@ -96,6 +100,69 @@ Token Lexer::nextToken() {
 
     char c = advance();
 
+    switch (c) {
+        case '(': return makeToken(TokenType::OPARN);
+        case ')': return makeToken(TokenType::CPARN);
+        case '[': return makeToken(TokenType::OSQUB);
+        case ']': return makeToken(TokenType::CSQUB);
+        case '{': return makeToken(TokenType::OCURB);
+        case '}': return makeToken(TokenType::CCURB);
+        case ',': return makeToken(TokenType::COMMA);
+        case '.': return makeToken(TokenType::PERIOD);
+        case ';': return makeToken(TokenType::SEMICOLON);
+        case '?': return makeToken(TokenType::QUESTION);
+        case '~': return makeToken(TokenType::TILDE);
+
+        // double and single
+        case '=': return makeToken(match('=') ? TokenType::DOUBLEEQUAL : TokenType::EQUAL);
+        case ':': return makeToken(match(':') ? TokenType::DOUBLECOLON : TokenType::COLON);
+        
+        // equal and single
+        case '*': return makeToken(match('=') ? TokenType::STAREQUAL : TokenType::STAR);
+        case '/': return makeToken(match('=') ? TokenType::SLASHEQUAL : TokenType::SLASH);
+        case '!': return makeToken(match('=') ? TokenType::BANGEQUAL : TokenType::BANG);
+        case '%': return makeToken(match('=') ? TokenType::PERCENTEQUAL : TokenType::PERCENT);
+        case '^': return makeToken(match('=') ? TokenType::CARETEQUAL : TokenType::CARET);
+
+        // double and equal and single
+        //                  if matches double ? return double         : is not double so check if it has equals after it
+        case '+': return makeToken(match('+') ? TokenType::DOUBLEPLUS : (match('=') ? TokenType::PLUSEQUAL : TokenType::PLUS));
+        case '-': return makeToken(match('-') ? TokenType::DOUBLEMINUS : (match('=') ? TokenType::MINUSEQUAL : TokenType::MINUS));
+        case '&': return makeToken(match('&') ? TokenType::DOUBLEAMPER : (match('=') ? TokenType::AMPEREQUAL : TokenType::AMPER));
+        case '|': return makeToken(match('|') ? TokenType::DOUBLEPIPE : (match('=') ? TokenType::PIPEEQUAL : TokenType::PIPE));
+
+        // double, doubleequal, singleequal, single
+        //                  if matches double ? (is double so check if it has equal after it                          ) : (is not double so check if it has equal after it          )
+        case '>': return makeToken(match('>') ? (match('=') ? TokenType::DOUBLEGREATEREQUAL : TokenType::DOUBLEGREATER) : (match('=') ? TokenType::GREATEREQUAL : TokenType::GREATER));
+        // once again,      if matches double ? (is double so check if it has equal after it                    ) : (is not double so check if it has equal after it    )
+        case '<': return makeToken(match('<') ? (match('=') ? TokenType::DOUBLELESSEQUAL : TokenType::DOUBLELESS) : (match('=') ? TokenType::LESSEQUAL : TokenType::LESS));
+
+
+
+        case 'c': // check for char literal
+            if (match('\'') || match('"')) { // should consume quote
+                char startingQuote = consumed();
+                advance(); // consume character
+
+                if (!match(startingQuote)) return makeErrorToken("Error lexing: unterminated single-character literal");
+
+                return makeToken(TokenType::CHAR);
+            }
+            break;
+
+        case '"':
+        case '\'':
+            // c is the starting string thing
+            while (peek() != c && !atEnd()) {
+                if (peek() == '\n') nextLine();
+                advance();
+            }
+
+            if (atEnd()) return makeErrorToken("Error lexing: unterminated string literal");
+            advance(); // consume closing quote/apostrophe
+            return makeToken(TokenType::STRING);
+    }
+
     if (isDigit(c)) { // check for number literal
         TokenType inttype;
 
@@ -130,104 +197,10 @@ Token Lexer::nextToken() {
     } else if (isAlpha(c)) {
         while (isAlpha(peek()) || isDigit(peek())) advance();
 
-        TokenType idenType = TokenType::IDENTIFIER;
+        TokenType idenType = getIdentifierType();
 
-        switch (c) {
-            case 'c': idenType = checkKeyword(1, "lass", TokenType::CLASS); break;
-            case 'i': idenType = checkKeyword(1, "f", TokenType::IF); break;
-            case 'p': idenType = checkKeyword(1, "rint", TokenType::PRINT); break;
-            case 'r': idenType = checkKeyword(1, "eturn", TokenType::RETURN); break;
-            case 's': idenType = checkKeyword(1, "witch", TokenType::SWITCH); break;
-            case 'v': idenType = checkKeyword(1, "oid", TokenType::VOID); break;
-            case 'w': idenType = checkKeyword(1, "hile", TokenType::WHILE); break;
-
-            case 'e': 
-                if (std::distance(start, end) > 1) {
-                    switch (*(start + 1)) {
-                        case 'l': idenType = checkKeyword(2, "se", TokenType::ELSE); break;
-                        case 'n': idenType = checkKeyword(2, "um", TokenType::ENUM); break;
-                    }
-                }
-                break;
-
-            case 'f': 
-                if (std::distance(start, end) > 1) {
-                    switch (*(start + 1)) {
-                        case 'a': idenType = checkKeyword(2, "lse", TokenType::FALSE); break;
-                        case 'o': idenType = checkKeyword(2, "r", TokenType::FOR); break;
-                    }
-                }
-                break;
-
-            case 'n':
-                if (std::distance(start, end) > 1) {
-                    switch (*(start + 1)) {
-                        case 'a': idenType = checkKeyword(2, "mespace", TokenType::NAMESPACE); break;
-                        case 'u': idenType = checkKeyword(2, "ll", TokenType::NULL_); break;
-                    }
-                }
-                break;
-
-            case 't':
-                if (std::distance(start, end) > 1) {
-                    switch (*(start + 1)) {
-                        case 'h': idenType = checkKeyword(2, "is", TokenType::THIS); break;
-                        case 'r': idenType = checkKeyword(2, "ue", TokenType::TRUE); break;
-                    }
-                }
-                break;
-        }
 
         return makeToken(idenType);
-    }
-
-    switch (c) {
-        case '(': return makeToken(TokenType::OPAREN);
-        case ')': return makeToken(TokenType::CPAREN);
-        case ',': return makeToken(TokenType::COMMA);
-        case '.': return makeToken(TokenType::PERIOD);
-        case ';': return makeToken(TokenType::SEMICOLON);
-        case '?': return makeToken(TokenType::QUESTION);
-        case ':': return makeToken(TokenType::COLON);
-
-        case '~': return makeToken(TokenType::BITNOT);
-        case '^': return makeToken(TokenType::BITXOR);
-
-        case '+': return makeToken(match('=') ? TokenType::PLUSEQUAL : (match('+') ? TokenType::DOUBLEPLUS : TokenType::PLUS));
-        case '-': return makeToken(match('=') ? TokenType::MINUSEQUAL : (match('-') ? TokenType::DOUBLEMINUS : TokenType::MINUS));
-        case '*': return makeToken(match('=') ? TokenType::MULTEQUAL : TokenType::MULT);
-        case '/': return makeToken(match('=') ? TokenType::DIVEQUAL : TokenType::DIV);
-
-        case '!': return makeToken(match('=') ? TokenType::NOTEQUAL : TokenType::NOT);
-        case '=': return makeToken(match('=') ? TokenType::DOUBLEEQUAL : TokenType::EQUAL);
-        case '>': return makeToken(match('=') ? TokenType::GREATEREQUAL : TokenType::GREATER);
-        case '<': return makeToken(match('=') ? TokenType::LESSEQUAL : TokenType::LESS);
-
-        case '&': return makeToken(match('&') ? TokenType::AND : TokenType::BITAND);
-        case '|': return makeToken(match('|') ? TokenType::OR : TokenType::BITOR);
-
-        case 'c': // check for char literal
-            if (match('\'') || match('"')) { // should consume quote
-                char startingQuote = consumed();
-                advance(); // consume character
-
-                if (!match(startingQuote)) return makeErrorToken("Error lexing: unterminated single-character literal");
-
-                return makeToken(TokenType::CHAR);
-            }
-            break;
-
-        case '"':
-        case '\'':
-            // c is the starting string thing
-            while (peek() != c && !atEnd()) {
-                if (peek() == '\n') nextLine();
-                advance();
-            }
-
-            if (atEnd()) return makeErrorToken("Error lexing: unterminated string literal");
-            advance(); // consume closing quote/apostrophe
-            return makeToken(TokenType::STRING);
     }
 
     return makeErrorToken("Error lexing: unexpected character");
