@@ -26,82 +26,6 @@ std::string readFile(char *filename) {
 
 }
 
-void printTokenType(TokenType type) {
-    switch (type) {
-        case OPAREN: std::cout << "OPAREN"; break;
-        case CPAREN: std::cout << "CPAREN"; break;
-        case COMMA: std::cout << "COMMA"; break;
-        case PERIOD: std::cout << "PERIOD"; break;
-        case SEMICOLON: std::cout << "SEMICOLON"; break;
-        case QUESTION: std::cout << "QUESTION"; break;
-        case COLON: std::cout << "COLON"; break;
-
-        case PLUS: std::cout << "PLUS"; break;
-        case MINUS: std::cout << "MINUS"; break;
-        case MULT: std::cout << "MULT"; break;
-        case DIV: std::cout << "DIV"; break;
-
-        case DOUBLEPLUS: std::cout << "DOUBLEPLUS"; break;
-        case DOUBLEMINUS: std::cout << "DOUBLEMINUS"; break;
-
-        case PLUSEQUAL: std::cout << "PLUSEQUAL"; break;
-        case MINUSEQUAL: std::cout << "MINUSEQUAL"; break;
-        case MULTEQUAL: std::cout << "MULTEQUAL"; break;
-        case DIVEQUAL: std::cout << "DIVEQUAL"; break;
-
-        case NOTEQUAL: std::cout << "NOTEQUAL"; break;
-        case EQUAL: std::cout << "EQUAL"; break;
-        case DOUBLEEQUAL: std::cout << "DOUBLEEQUAL"; break;
-        case GREATER: std::cout << "GREATER"; break;
-        case GREATEREQUAL: std::cout << "GREATEREQUAL"; break;
-        case LESS: std::cout << "LESS"; break;
-        case LESSEQUAL: std::cout << "LESSEQUAL"; break;
-
-        case NOT: std::cout << "NOT"; break;
-        case AND: std::cout << "AND"; break;
-        case OR: std::cout << "OR"; break;
-        case BITNOT: std::cout << "BITNOT"; break;
-        case BITAND: std::cout << "BITAND"; break;
-        case BITOR: std::cout << "BITOR"; break;
-        case BITXOR: std::cout << "BITXOR"; break;
-
-        case IDENTIFIER: std::cout << "IDENTIFIER"; break;
-
-        case CHAR: std::cout << "CHAR"; break;
-        case STRING: std::cout << "STRING"; break;
-
-        case DECINT: std::cout << "DECINT"; break;
-        case OCTINT: std::cout << "OCTINT"; break;
-        case BININT: std::cout << "BININT"; break;
-        case HEXINT: std::cout << "HEXINT"; break;
-
-        case FLOAT: std::cout << "FLOAT"; break;
-        case TRUE: std::cout << "TRUE"; break;
-        case FALSE: std::cout << "FALSE"; break;
-        case NULL_: std::cout << "NULL_"; break;
-
-        case PRINT: std::cout << "PRINT"; break;
-
-        case VOID: std::cout << "VOID"; break;
-        case NAMESPACE: std::cout << "NAMESPACE"; break;
-        case CLASS: std::cout << "CLASS"; break;
-        case ENUM: std::cout << "ENUM"; break;
-
-        case RETURN: std::cout << "RETURN"; break;
-
-        case THIS: std::cout << "THIS"; break;
-
-        case WHILE: std::cout << "WHILE"; break;
-        case FOR: std::cout << "FOR"; break;
-        case IF: std::cout << "IF"; break;
-        case ELSE: std::cout << "ELSE"; break;
-        case SWITCH: std::cout << "SWITCH"; break;
-
-        case EOF_: std::cout << "EOF_"; break;
-        case ERROR: std::cout << "ERROR"; break;
-    }
-}
-
 void compileFile(char *filename) {
     std::string source (readFile(filename));
 
@@ -118,8 +42,7 @@ void compileFile(char *filename) {
         location.insert(location.begin(), 10 - location.size(), ' ');
         std::cout << location;
 
-        printTokenType(currentToken.type);
-        std::cout << ": \"" << std::string(currentToken.start, currentToken.end) << "\"" << std::endl;
+        std::cout << "(" << currentToken.type << ") \"" << std::string(currentToken.start, currentToken.end) << "\"" << std::endl;
 
         if (currentToken.type == TokenType::EOF_) {
             break;
