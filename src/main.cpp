@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
 
+#include "lexer.h"
+
 std::string readFile(char *filename) {
     std::ifstream filein;
     filein.open(filename);
@@ -18,14 +20,40 @@ std::string readFile(char *filename) {
     
         return contents;
     } else {
-        std::cout << "Could not open file" << std::endl;
+        std::cerr << "Could not open file" << std::endl;
         return nullptr;
     }
 
 }
 
 void compileFile(char *filename) {
-    std::string contents (readFile(filename));
+    std::string source (readFile(filename));
+
+    Lexer lexer (source);
+
+    while (true) {
+        Token currentToken = lexer.nextToken();
+
+        if (currentToken.type == TokenType::ERROR) {
+            std::cout << "(Error token \"" << currentToken.message << "\") ";
+        }
+        
+        std::string location = std::to_string(currentToken.line) + ":" + std::to_string(currentToken.column) + " | ";
+        location.insert(location.begin(), 10 - location.size(), ' ');
+        std::cout << location;
+
+        std::cout << "(" << currentToken.type << ") \"" << std::string(currentToken.start, currentToken.end) << "\"" << std::endl;
+
+        if (currentToken.type == TokenType::EOF_) {
+            break;
+        }
+    }
+
+    // int returnCode = parse(source);
+
+    // if (returnCode != 0) {
+    //     exit(returnCode);
+    // }
 }
 
 int main(int argc, char *argv[]) {
@@ -33,10 +61,11 @@ int main(int argc, char *argv[]) {
         // Compile file
         compileFile(argv[1]);
     } else {
-        std::cout << "Usage: coxianc <file>\n"
+        std::cerr << "Usage: " << argv[0] << " <file>\n"
             "\n"
             "file - the main file to compile\n" << std::endl;
+        return 1;
     }
-
     return 0;
+
 }
