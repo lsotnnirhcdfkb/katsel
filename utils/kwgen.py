@@ -2,6 +2,7 @@
 import argparse
 import sys
 
+# {{{ trienode class
 class TrieNode:
     def __init__(self, value, length, tokentype=None):
         self.value = value
@@ -67,11 +68,13 @@ class TrieNode:
             print(f'{bodyIndentStr}case \'{node.value}\':')
             node.__generate(False, indent + 2)
             print(f'{breakIndentStr}break;')
-        print(f'{indentStr}}}')
+        print(f'{indentStr}' + '}')
 
     def __getIndent(self, indent, tab=False):
         return ('\t' if tab else '    ') * indent
+# }}}
 
+# {{{ keywords
 keywords = [
     ('print', 'PRINT'),
     ('void', 'VOID'),
@@ -102,7 +105,9 @@ keywords = [
     ('false', 'FALSELIT'),
     ('null', 'NULLLIT'),
 ]
+# }}}
 
+# {{{ parsing args
 parser = argparse.ArgumentParser(description='Generate keyword parsing code.')
 parser.add_argument('-t', '--trie', action='store_true', help='View trie of keywords')
 parser.add_argument('-c', '--code', action='store_true', help='Generate code of keywords')
@@ -112,10 +117,11 @@ if len(sys.argv)==1:
     sys.exit(1)
 
 args = parser.parse_args()
-
+# }}}
 
 trie = TrieNode(None, 0)
 
+# {{{ generating
 for keyword, tokentype in keywords:
     lastnode = trie
     for letter in keyword:
@@ -128,6 +134,7 @@ for keyword, tokentype in keywords:
         lastnode = newnode
 
     lastnode.tokentype = tokentype
+# }}}
 
 if args.trie:
     trie.show()
