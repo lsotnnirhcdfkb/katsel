@@ -52,18 +52,23 @@ enum TokenType {
 
     IDENTIFIER,
 
-    CHAR,
-    STRING,
+    CHARLIT,
+    STRINGLIT,
 
-    DECINT,
-    OCTINT,
-    BININT,
-    HEXINT,
+    DECINTLIT,
+    OCTINTLIT,
+    BININTLIT,
+    HEXINTLIT,
 
+    FLOATLIT,
+    TRUELIT,
+    FALSELIT,
+    NULLLIT,
+
+    INT,
     FLOAT,
-    TRUE,
-    FALSE,
-    NULL_,
+    BOOL,
+    DOUBLE,
 
     PRINT,
     VOID,

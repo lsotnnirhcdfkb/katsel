@@ -73,10 +73,6 @@ class TrieNode:
         return ('\t' if tab else '    ') * indent
 
 keywords = [
-    ('float', 'FLOAT'),
-    ('true', 'TRUE'),
-    ('false', 'FALSE'),
-    ('null', 'NULL_'),
     ('print', 'PRINT'),
     ('void', 'VOID'),
     ('namespace', 'NAMESPACE'),
@@ -98,6 +94,13 @@ keywords = [
     ('continue', 'CONTINUE'),
     ('inline', 'INLINE'),
     ('volatile', 'VOLATILE'),
+    ('int', 'INT'),
+    ('float', 'FLOAT'),
+    ('bool', 'BOOL'),
+    ('double', 'DOUBLE'),
+    ('true', 'TRUELIT'),
+    ('false', 'FALSELIT'),
+    ('null', 'NULLLIT'),
 ]
 
 parser = argparse.ArgumentParser(description='Generate keyword parsing code.')

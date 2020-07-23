@@ -57,7 +57,11 @@ int main() {
         "returnne\n"
         "breaka\n"
         "breakalla\n"
-        "breaktoe\n";
+        "breaktoe\n"
+        "int\n"
+        "float\n"
+        "double\n"
+        "bool\n";
 
     TokenType expected[] = {
         TokenType::OPARN,
@@ -110,18 +114,18 @@ int main() {
         TokenType::IDENTIFIER,
         TokenType::IDENTIFIER,
         TokenType::IDENTIFIER,
-        TokenType::CHAR,
-        TokenType::CHAR,
-        TokenType::STRING,
-        TokenType::STRING,
-        TokenType::DECINT,
-        TokenType::OCTINT,
-        TokenType::BININT,
-        TokenType::HEXINT,
-        TokenType::FLOAT,
-        TokenType::TRUE,
-        TokenType::FALSE,
-        TokenType::NULL_,
+        TokenType::CHARLIT,
+        TokenType::CHARLIT,
+        TokenType::STRINGLIT,
+        TokenType::STRINGLIT,
+        TokenType::DECINTLIT,
+        TokenType::OCTINTLIT,
+        TokenType::BININTLIT,
+        TokenType::HEXINTLIT,
+        TokenType::FLOATLIT,
+        TokenType::TRUELIT,
+        TokenType::FALSELIT,
+        TokenType::NULLLIT,
         TokenType::PRINT,
         TokenType::VOID,
         TokenType::NAMESPACE,
@@ -152,6 +156,10 @@ int main() {
         TokenType::IDENTIFIER,
         TokenType::IDENTIFIER,
         TokenType::IDENTIFIER,
+        TokenType::INT,
+        TokenType::FLOAT,
+        TokenType::DOUBLE,
+        TokenType::BOOL,
         TokenType::EOF_
     };
 
