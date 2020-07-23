@@ -2,7 +2,6 @@
 #define LEXERH_INCLUDED
 
 #include <string>
-#include <iostream>
 
 // {{{ TokenType definition
 enum TokenType {
