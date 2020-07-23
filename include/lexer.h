@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 
+// {{{ TokenType definition
 enum TokenType {
     OPARN, CPARN,
     OSQUB, CSQUB,
@@ -95,6 +96,7 @@ enum TokenType {
     EOF_,
     ERROR
 };
+// }}}
 
 struct Token {
     TokenType type;

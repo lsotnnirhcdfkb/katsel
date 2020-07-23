@@ -3,6 +3,7 @@
 #include <ctime>
 
 int main() {
+    // {{{ source file and expected tokens
     std::string source = 
         "( )\n"
         "[ ]\n"
@@ -162,7 +163,7 @@ int main() {
         TokenType::BOOL,
         TokenType::EOF_
     };
-
+    // }}}
     
     size_t passCount = 0;
     size_t failCount = 0;
