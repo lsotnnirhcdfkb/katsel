@@ -1,5 +1,4 @@
-#ifndef LEXERH_INCLUDED
-#define LEXERH_INCLUDED
+#pragma once
 
 #include <string>
 
@@ -140,4 +139,3 @@ private:
     void nextLine();
 };
 
-#endif
