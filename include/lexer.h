@@ -3,7 +3,8 @@
 #include <string>
 
 // {{{ TokenType definition
-enum TokenType {
+enum TokenType
+{
     OPARN, CPARN,
     OSQUB, CSQUB,
     OCURB, CCURB,
@@ -96,7 +97,8 @@ enum TokenType {
 };
 // }}}
 
-struct Token {
+struct Token
+{
     TokenType type;
     std::string::iterator start;
     std::string::iterator end;
@@ -107,7 +109,8 @@ struct Token {
     int column;
 };
 
-class Lexer {
+class Lexer
+{
 public:
     std::string::iterator start;
     std::string::iterator end;

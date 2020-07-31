@@ -2,7 +2,8 @@
 #include <iostream>
 #include <ctime>
 
-int main() {
+int main()
+{
     // {{{ source file and expected tokens
     std::string source = 
         "( )\n"
@@ -64,7 +65,8 @@ int main() {
         "double\n"
         "bool\n";
 
-    TokenType expected[] = {
+    TokenType expected[] =
+    {
         TokenType::OPARN,
         TokenType::CPARN,
         TokenType::OSQUB,
@@ -172,33 +174,41 @@ int main() {
 
     clock_t startTime = clock();
 
-    while (true) {
+    while (true)
+    {
         Token token = l.nextToken();
 
         std::string location = std::to_string(token.line) + ":" + std::to_string(token.column) + " | ";
         location.insert(location.begin(), 10 - location.size(), ' ');
         std::cout << location;
 
-        if (token.type == expected[i]) {
+        if (token.type == expected[i])
+        {
             std::cout << "PASS: ";
             ++passCount;
-        } else {
+        }
+        else
+        {
             std::cout << "FAIL: ";
             ++failCount;
         }
         std::cout << "(" << token.type << ", expected " << expected[i] <<  ") \"" << std::string(token.start, token.end) << "\"" << std::endl;
 
-        if (token.type == TokenType::EOF_) {
+        if (token.type == TokenType::EOF_)
+        {
             break;
         }
         
         ++i;
     }
 
-    if (failCount == 0) {
+    if (failCount == 0)
+    {
         std::cout << std::endl << "test passed in " << clock() - startTime << " clicks" << std::endl;
         return 0;
-    } else {
+    }
+    else
+    {
         std::cout << std::endl << "test failed in " << clock() - startTime << " clicks with " << failCount << " failed and " << passCount << " passed" << std::endl;
         return 1;
     }

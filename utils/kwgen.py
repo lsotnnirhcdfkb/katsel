@@ -63,7 +63,7 @@ class TrieNode:
         if len(self.nodes) == 0:
             return
 
-        print(f'{indentStr}switch (*(start + {self.length})) {{')
+        print(f'{indentStr}switch (*(start + {self.length}))\n{indentStr}{{')
         for node in self.nodes:
             print(f'{bodyIndentStr}case \'{node.value}\':')
             node.__generate(False, indent + 2)
