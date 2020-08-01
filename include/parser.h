@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+
 #include "lexer.h"
 
 class ASTNode
@@ -21,6 +22,14 @@ private:
 
 class Parser
 {
+public:
+    Parser(Lexer l);
+
+    void expression();
+
+private:
     Token current;
     Token next;
+
+    Lexer lexer;
 };

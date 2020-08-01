@@ -21,3 +21,14 @@ ASTNode& ASTNode::getNode(int i)
     return nodes[i];
 }
 // }}}
+
+Parser::Parser(Lexer l): lexer(l) {}
+
+// {{{ parser parsing methods
+void Parser::expression() {
+    
+}
+// }}}
+
+// {{{ parser helper methods
+// }}}

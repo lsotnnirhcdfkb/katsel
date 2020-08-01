@@ -2,6 +2,7 @@
 #include <fstream>
 
 #include "lexer.h"
+#include "parser.h"
 
 std::string readFile(char *filename)
 {
@@ -34,27 +35,9 @@ void compileFile(char *filename)
     std::string source (readFile(filename));
 
     Lexer lexer (source);
+    Parser parser (lexer);
 
-    while (true)
-    {
-        Token currentToken = lexer.nextToken();
-
-        if (currentToken.type == TokenType::ERROR)
-        {
-            std::cout << "(Error token \"" << currentToken.message << "\") ";
-        }
-        
-        std::string location = std::to_string(currentToken.line) + ":" + std::to_string(currentToken.column) + " | ";
-        location.insert(location.begin(), 10 - location.size(), ' ');
-        std::cout << location;
-
-        std::cout << "(" << currentToken.type << ") \"" << std::string(currentToken.start, currentToken.end) << "\"" << std::endl;
-
-        if (currentToken.type == TokenType::EOF_)
-        {
-            break;
-        }
-    }
+    parser.expression();
 
     // int returnCode = parse(source);
 

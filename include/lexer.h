@@ -112,16 +112,6 @@ struct Token
 class Lexer
 {
 public:
-    std::string::iterator start;
-    std::string::iterator end;
-
-    int line;
-    int column;
-    int nextline;
-    int nextcolumn;
-
-    std::string::iterator srcend;
-
     Lexer(std::string &source);
     
     Token nextToken();
@@ -140,5 +130,15 @@ private:
     Token makeToken(TokenType type);
 
     void nextLine();
+
+    std::string::iterator start;
+    std::string::iterator end;
+
+    int line;
+    int column;
+    int nextline;
+    int nextcolumn;
+
+    std::string::iterator srcend;
 };
 
