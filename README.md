@@ -46,8 +46,8 @@ Each folder *should* have more documentation about what each file means, but I a
 The compiling pipeline is as follows:
 
 - `main.cpp` is invoked with a filename.
-- `main.cpp` creates a Lexer instance
-- `main.cpp` creates a Parser instance that has a reference to the lexer instance
-- `main.cpp` uses the parser to parse the extremely limited grammar of Oxian that consists of 3 rules (the parser calls the lexer's `nextToken()` method as needed)
-- `main.cpp` literally is not even linked with LLVM yet, that's how far this language is
-
+- `int main()` calls `void compileFile()`
+- `void compileFile()` allocates a new `Lexer` object on the heap with a unique pointer
+- `void compileFile()` allocates a new `Parser` object on the heap with a unique pointer
+- `void compileFile()` calls `parser->expression()` in order to parse the grammar
+- `void compileFile()` prints the `ASTNode` returned by `parser->expression()`
