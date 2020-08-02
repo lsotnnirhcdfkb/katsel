@@ -47,4 +47,6 @@ private:
     bool check(TokenType type);
 
     bool atEnd();
+
+    void makeErrorNode(ASTNode &node, std::string message);
 };

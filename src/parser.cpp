@@ -49,6 +49,10 @@ ASTNode Parser::primary()
         consume(TokenType::CPARN, "Expect ')' after expression", expr);
         return expr;
     }
+
+    ASTNode primary (peek());
+    makeErrorNode(primary, "Expected expression");
+    return primary;
 }
 // }}}
 
@@ -78,8 +82,8 @@ Token& Parser::consume(TokenType type, std::string message, ASTNode &node)
         return prev();
     }
 
-    node.errored = true;
-    node.errormsg = message;
+    makeErrorNode(node, message);
+    return prev();
 }
 
 bool Parser::match(TokenType type)
@@ -101,5 +105,11 @@ bool Parser::check(TokenType type)
 bool Parser::atEnd()
 {
     return peek().type == TokenType::EOF_;
+}
+
+void Parser::makeErrorNode(ASTNode &node, std::string message)
+{
+    node.errored = true;
+    node.errormsg = message;
 }
 // }}}

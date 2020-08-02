@@ -37,7 +37,7 @@ void compileFile(char *filename)
     Lexer lexer (source);
     Parser parser (lexer);
 
-    parser.expression();
+    ASTNode node = parser.expression();
 
     // int returnCode = parse(source);
 
