@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 
 #include "lexer.h"
 
@@ -8,6 +9,10 @@ class ASTNode
 {
 public:
     Token op;
+    bool errored;
+    std::string errormsg;
+
+    ASTNode(Token op);
 
     int numNodes();
     
@@ -25,11 +30,21 @@ class Parser
 public:
     Parser(Lexer l);
 
-    void expression();
+    ASTNode expression();
+    ASTNode primary();
 
 private:
-    Token current;
-    Token next;
+    Token prevToken;
+    Token currToken;
 
-    Lexer lexer;
+    Lexer &lexer;
+
+    Token& peek();
+    Token& prev();
+    Token& advance();
+    Token& consume(TokenType type, std::string message, ASTNode &node);
+    bool match(TokenType type);
+    bool check(TokenType type);
+
+    bool atEnd();
 };
