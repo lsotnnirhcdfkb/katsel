@@ -6,7 +6,9 @@ declaration -> expression;
 // expresion
 // this grammar is heavily based off of the grammar for the Lox Language in the book "Crafting Interpreters" by Bob Nystrom
 // for now it is literally nothing but soon it will become more
-expression -> primary;
+expression -> addition;
+addition -> multiplication (({PLUS} | {MINUS}) multiplication)*;
+multiplication -> primary (({STAR} | {SLASH}) primary)*;
 
 // mostly terminals
 primary -> {TRUELIT} | {FALSELIT} |

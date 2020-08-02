@@ -36,7 +36,10 @@ class Parser
 public:
     Parser(Lexer &l);
 
+    ASTNode parse();
     ASTNode expression();
+    ASTNode addition();
+    ASTNode multiplication();
     ASTNode primary();
 
 private:

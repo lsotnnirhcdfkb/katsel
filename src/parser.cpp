@@ -1,7 +1,7 @@
 #include "parser.h"
 
 // {{{ ASTNode methods
-ASTNode::ASTNode(Token op) : op(op) {}
+ASTNode::ASTNode(Token op) : op(op), errored(false), errormsg("") {}
 
 int ASTNode::numNodes()
 {
@@ -30,13 +30,13 @@ void ASTNode::print()
 
 void ASTNode::print(int indent)
 {
-    std::cout << std::string(indent, ' ') << "- Token: " << op.type << " \"" << std::string(op.start, op.end) << "\"" << std::endl;
-    std::cout << std::string(indent, ' ') << "-   errored: " << errored << std::endl;
-    std::cout << std::string(indent, ' ') << "-   errormsg: " << (errored ? errormsg : "None") << std::endl;
+    std::cout << std::string(indent, ' ') << "- " << op.type << " \"" << std::string(op.start, op.end) << "\"" << std::endl;
+    std::cout << std::string(indent, ' ') << "  + errored: " << errored << std::endl;
+    std::cout << std::string(indent, ' ') << "  + errormsg: " << (errored ? errormsg : "None") << std::endl;
 
     for (ASTNode node : nodes)
     {
-        node.print(indent + 4);
+        node.print(indent + 8);
     }
 
 }
@@ -47,9 +47,52 @@ Parser::Parser(Lexer &l): lexer(l) {
 }
 
 // {{{ parser parsing methods
+ASTNode Parser::parse()
+{
+    return expression();
+}
+
 ASTNode Parser::expression()
 {
-    return primary();
+    return addition();
+}
+
+ASTNode Parser::addition()
+{
+    ASTNode lnode = multiplication();
+    
+    while (match(TokenType::PLUS) || match(TokenType::MINUS))
+    {
+        Token op = prev();    
+        ASTNode rnode = multiplication();
+
+        ASTNode pnode = ASTNode(op);
+        pnode.addNode(lnode);
+        pnode.addNode(rnode);
+
+        lnode = pnode;
+    }
+
+    return lnode;
+}
+
+ASTNode Parser::multiplication()
+{
+    ASTNode lnode = primary();
+    
+    while (match(TokenType::STAR) || match(TokenType::SLASH))
+    {
+        Token op = prev();    
+        ASTNode rnode = primary();
+
+        ASTNode pnode = ASTNode(op);
+        pnode.addNode(lnode);
+        pnode.addNode(rnode);
+
+        lnode = pnode;
+    }
+
+    return lnode;
 }
 
 ASTNode Parser::primary()
