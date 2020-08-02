@@ -3,6 +3,8 @@
 #include <vector>
 #include <string>
 
+#include <iostream>
+
 #include "lexer.h"
 
 class ASTNode
@@ -21,8 +23,12 @@ public:
 
     ASTNode& getNode(int i);
 
+    void print();
+
 private:
     std::vector<ASTNode> nodes;
+
+    void print(int indent);
 };
 
 class Parser

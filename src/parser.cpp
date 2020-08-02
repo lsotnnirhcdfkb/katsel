@@ -22,9 +22,21 @@ ASTNode& ASTNode::getNode(int i)
 {
     return nodes[i];
 }
+
+void ASTNode::print()
+{
+    print(0);
+}
+
+void ASTNode::print(int indent)
+{
+    std::cout << std::string(indent, ' ') << "- Token: " << op.type << " \"" << std::string(op.start, op.end) << "\"" << std::endl;
+}
 // }}}
 
-Parser::Parser(Lexer l): lexer(l) {}
+Parser::Parser(Lexer l): lexer(l) {
+    advance(); // get first token
+}
 
 // {{{ parser parsing methods
 ASTNode Parser::expression()

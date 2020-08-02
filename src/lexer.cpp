@@ -790,7 +790,7 @@ Token Lexer::nextToken()
 // {{{ other helpers
 bool Lexer::atEnd()
 {
-    return end + 1 == srcend;
+    return end >= srcend;
 }
 
 bool Lexer::match(char c)

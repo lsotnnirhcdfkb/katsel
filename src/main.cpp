@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <memory>
 
 #include "lexer.h"
 #include "parser.h"
@@ -34,10 +35,11 @@ void compileFile(char *filename)
 {
     std::string source (readFile(filename));
 
-    Lexer lexer (source);
-    Parser parser (lexer);
+    auto lexer = std::make_unique<Lexer>(source);
+    auto parser = std::make_unique<Parser>(*lexer);
 
-    ASTNode node = parser.expression();
+    ASTNode node = parser->expression();
+    node.print();
 
     // int returnCode = parse(source);
 
