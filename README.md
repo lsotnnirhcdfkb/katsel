@@ -48,6 +48,6 @@ The compiling pipeline is as follows:
 - `main.cpp` is invoked with a filename.
 - `main.cpp` creates a Lexer instance
 - `main.cpp` creates a Parser instance that has a reference to the lexer instance
-- `main.cpp` uses the parser to parse the extremely limited grammar of Oxian that consists of 3 rules
+- `main.cpp` uses the parser to parse the extremely limited grammar of Oxian that consists of 3 rules (the parser calls the lexer's `nextToken()` method as needed)
 - `main.cpp` literally is not even linked with LLVM yet, that's how far this language is
 
