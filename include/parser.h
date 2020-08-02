@@ -34,7 +34,7 @@ private:
 class Parser
 {
 public:
-    Parser(Lexer l);
+    Parser(Lexer &l);
 
     ASTNode expression();
     ASTNode primary();

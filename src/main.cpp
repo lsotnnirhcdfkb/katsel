@@ -31,11 +31,9 @@ std::string readFile(char *filename)
     }
 }
 
-void compileFile(char *filename)
+void compileFile(std::unique_ptr<std::string> &source)
 {
-    std::string source (readFile(filename));
-
-    auto lexer = std::make_unique<Lexer>(source);
+    auto lexer = std::make_unique<Lexer>(*source);
     auto parser = std::make_unique<Parser>(*lexer);
 
     ASTNode node = parser->expression();
@@ -54,7 +52,8 @@ int main(int argc, char *argv[])
     if (argc == 2)
     {
         // Compile file
-        compileFile(argv[1]);
+        auto source = std::make_unique<std::string>(readFile(argv[1]));
+        compileFile(source);
     }
     else
     {
