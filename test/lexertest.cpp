@@ -1,6 +1,6 @@
 #include "lexer.h"
 #include <iostream>
-#include <ctime>
+#include <memory>
 
 int main()
 {
@@ -169,14 +169,12 @@ int main()
     
     size_t passCount = 0;
     size_t failCount = 0;
-    Lexer l (source);
+    auto l = std::make_unique<Lexer>(source);
     size_t i = 0;
-
-    clock_t startTime = clock();
 
     while (true)
     {
-        Token token = l.nextToken();
+        Token token = l->nextToken();
 
         std::string location = std::to_string(token.line) + ":" + std::to_string(token.column) + " | ";
         location.insert(location.begin(), 10 - location.size(), ' ');
@@ -204,12 +202,12 @@ int main()
 
     if (failCount == 0)
     {
-        std::cout << std::endl << "test passed in " << clock() - startTime << " clicks" << std::endl;
+        std::cout << std::endl << "test passed" << std::endl;
         return 0;
     }
     else
     {
-        std::cout << std::endl << "test failed in " << clock() - startTime << " clicks with " << failCount << " failed and " << passCount << " passed" << std::endl;
+        std::cout << std::endl << "test failed with " << failCount << " failed and " << passCount << " passed" << std::endl;
         return 1;
     }
 }
