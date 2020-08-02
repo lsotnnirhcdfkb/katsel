@@ -1,0 +1,94 @@
+TokenType entry       | Description                     | Example
+----------------------+---------------------------------+------------------
+  OPARN               | Opening parenthesis             | (
+  CPARN               | Closing parenthesis             | )
+  OSQUB               | Opening square bracket          | [
+  CSQUB               | Closing square bracket          | ]
+  OCURB               | Opening curly bracket           | {
+  CCURB               | Closing curly bracket           | }
+  COMMA               | Comma                           | ,
+  PERIOD              | Period                          | .
+  SEMICOLON           | Semicolon                       | ;
+  QUESTION            | Question mark                   | ?
+  COLON               | Colon                           | :
+  BANG                | Exclamation point/bang          | !
+  PLUS                | Plus sign                       | +
+  MINUS               | Minus sign                      | -
+  STAR                | Asterisk                        | *
+  SLASH               | Slash                           | /
+  PERCENT             | Percent sign                    | %
+  EQUAL               | Equals sign                     | =
+  GREATER             | Greater than sign               | >
+  LESS                | Less than sign                  | <
+  TILDE               | Tilde                           | ~
+  AMPER               | Ampersand                       | &
+  PIPE                | Pipe                            | |
+  CARET               | Caret                           | ^
+                      |                                 |
+  DOUBLEPLUS          | Double plus sign                | ++
+  DOUBLEMINUS         | Double minus sign               | --
+  DOUBLEGREATER       | Double greater then sign        | >>
+  DOUBLELESS          | Double less than sign           | <<
+  DOUBLEAMPER         | Double ampersand                | &&
+  DOUBLEPIPE          | Double pipe                     | ||
+  DOUBLEEQUAL         | Double equal sign               | ==
+  DOUBLECOLON         | Double colon                    | ::
+                      |                                 |
+  PLUSEQUAL           | Plus sign and equals sign       | +=
+  MINUSEQUAL          | Minus sign and equals sign      | -=
+  STAREQUAL           | Asterisk and equals sign        | *=
+  SLASHEQUAL          | Slash and equals sign           | /=
+  BANGEQUAL           | Bang and equals sign            | !=
+  GREATEREQUAL        | Greater than and equals sign    | >=
+  LESSEQUAL           | Less than and equals sign       | <=
+  PERCENTEQUAL        | Percent sign and equals sign    | %=
+  DOUBLELESSEQUAL     | Double less than and equals     | <<=
+  DOUBLEGREATEREQUAL  | Double greater than and equals  | >>=
+  AMPEREQUAL          | Ampersand and equals sign       | &=
+  PIPEEQUAL           | Pipe and equals sign            | |=
+  CARETEQUAL          | Caret and equals sign           | ^=
+                      |                                 |
+  IDENTIFIER          | Name of any kind                | foo
+                      |                                 |
+  CHARLIT             | Character literal               | c'3', c"g"
+  STRINGLIT           | String literal                  | '23fai', "djlfkaj"
+                      |                                 |
+  DECINTLIT           | Decimal integer literal         | 1234
+  OCTINTLIT           | Octal integer literal           | 0o1746
+  BININTLIT           | Binary integer literal          | 0b01101100
+  HEXINTLIT           | Hexadecimal integer literal     | 0xc0fd
+                      |                                 |
+  FLOATLIT            | Floating point literal          | 0.1432
+  TRUELIT             | True literal keyword            | true
+  FALSELIT            | False literal keyword           | false
+  NULLLIT             | Null literal keyword            | null
+                      |                                 |
+  INT                 | Integer type keyword            | int
+  FLOAT               | Float type keyword              | float
+  BOOL                | Bool type keyword               | bool
+  DOUBLE              | Double type keyword             | double
+                      |                                 |
+  PRINT               | Print keyword (removal soon)    | print
+  VOID                | Void keyword                    | void
+  NAMESPACE           | Namespace keyword               | namespace
+  CLASS               | Class keyword                   | class
+  ENUM                | Enum keyword                    | enum
+  RETURN              | Return keyword                  | return
+  THIS                | This keyword                    | this
+  WHILE               | While keyword                   | while
+  FOR                 | For keyword                     | for
+  IF                  | If keyword                      | if
+  ELSE                | Else keyword                    | else
+  SWITCH              | Switch keyword                  | switch
+  CASE                | Case keyword                    | case
+  DEFAULT             | Default keyword                 | default
+  BREAK               | Break keyword                   | break
+  BREAKALL            | Breakall keyword                | breakall
+  BREAKTO             | Breakto keyword                 | breakto
+  CONST               | Const keyword                   | const
+  CONTINUE            | Continue keyword                | continue
+  INLINE              | Inline keyword                  | inline
+  VOLATILE            | Volatile keyword                | volatile
+                      |                                 |
+  EOF_                | End of file token               |
+  ERROR               | Error token                     |
