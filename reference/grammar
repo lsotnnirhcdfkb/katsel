@@ -1,20 +1,32 @@
 // grammar will expand as more features are implemented
-program -> declaration* {EOF}
+program -> statement* EOF
 
-declaration -> expression;
+statement -> exprstmt SEMICOLON;
+exprstmt -> expression;
 
 // expresion
 // this grammar is heavily based off of the grammar for the Lox Language in the book "Crafting Interpreters" by Bob Nystrom
-// for now it is literally nothing but soon it will become more
-expression -> addition;
-addition -> multiplication (({PLUS} | {MINUS}) multiplication)*;
-multiplication -> primary (({STAR} | {SLASH}) primary)*;
+// this grammar also closely follows the precedences of the operators in Python
+expression -> ternaryexpr;
+ternaryexpr -> binorexpr (QUESTION binorexpr COLON ternaryexpr)?;
+binorexpr -> binandexpr (DOUBLEPIPE binandexpr)*;
+binandexpr -> binnotexpr (DOUBLEAMPER binnotexpr)*;
+binnotexpr -> BANG binnotexpr | compeqexpr;
+compeqexpr -> complgtexpr ((DOUBLEEQUAL | BANGEQUAL) complgtexpr)*;
+complgtexpr -> bitxorexpr ((LESS | GREATER | LESSEQUAL | GREATEREQUAL) bitxorexpr)*;
+bitxorexpr -> bitorexpr (CARET bitorexpr)*;
+bitorexpr -> bitandexpr (PIPE bitandexpr)*;
+bitandexpr -> bitshiftexpr (AMPER bitshiftexpr)*;
+bitshiftexpr -> additionexpr ((DOUBLEGREATER | DOUBLELESS) additionexpr)*;
+additionexpr -> multexpr ((PLUS | MINUS) multexpr)*;
+multexpr -> unary ((STAR | SLASH | PERCENT) unary)*;
 
-// mostly terminals
-primary -> {TRUELIT} | {FALSELIT} |
-        {FLOATLIT} |
-        {DECINTLIT} | {OCTINTLIT} | {BININTLIT} | {HEXINTLIT} |
-        {CHARLIT} | {STRINGLIT} |
-        {IDENTIFIER} |
-        {OPARN} expression {CPARN};
+unary -> TILDE unary | primary;
+primary -> TRUELIT | FALSELIT |
+        FLOATLIT |
+        NULLLIT |
+        DECINTLIT | OCTINTLIT | BININTLIT | HEXINTLIT |
+        CHARLIT | STRINGLIT |
+        IDENTIFIER |
+        OPARN expression CPARN;
 

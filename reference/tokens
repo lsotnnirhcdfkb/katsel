@@ -48,7 +48,7 @@ TokenType entry       | Description                     | Example
   PIPEEQUAL           | Pipe and equals sign            | |=
   CARETEQUAL          | Caret and equals sign           | ^=
                       |                                 |
-  IDENTIFIER          | Name of any kind                | foo
+  IDENTIFIER          | Name of any kind                | foo, BAr
                       |                                 |
   CHARLIT             | Character literal               | c'3', c"g"
   STRINGLIT           | String literal                  | '23fai', "djlfkaj"
