@@ -38,8 +38,19 @@ public:
 
     ASTNode parse();
     ASTNode expression();
-    ASTNode addition();
-    ASTNode multiplication();
+    ASTNode ternaryexpr();
+    ASTNode binorexpr();
+    ASTNode binandexpr();
+    ASTNode binnotexpr();
+    ASTNode compeqexpr();
+    ASTNode complgtexpr();
+    ASTNode bitxorexpr();
+    ASTNode bitorexpr();
+    ASTNode bitandexpr();
+    ASTNode bitshiftexpr();
+    ASTNode additionexpr();
+    ASTNode multexpr();
+    ASTNode unary();
     ASTNode primary();
 
 private:

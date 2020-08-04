@@ -54,19 +54,214 @@ ASTNode Parser::parse()
 
 ASTNode Parser::expression()
 {
-    return addition();
+    return ternaryexpr();
 }
 
-ASTNode Parser::addition()
+ASTNode Parser::ternaryexpr()
 {
-    ASTNode lnode = multiplication();
+    ASTNode node = binorexpr();
+
+    if (match(TokenType::QUESTION))
+    {
+        ASTNode ternarynode (prev());
+
+        ASTNode second = binorexpr();
+        consume(TokenType::COLON, "Expect colon after first expression of ternary expression", second);
+        ASTNode third = ternaryexpr();
+
+        ternarynode.addNode(node);
+        ternarynode.addNode(second);
+        ternarynode.addNode(third);
+        return ternarynode;
+    }
+
+    return node;
+}
+
+ASTNode Parser::binorexpr()
+{
+    ASTNode lnode = binandexpr();
     
+    while (match(TokenType::DOUBLEPIPE))
+    {
+        Token op = prev();
+
+        ASTNode rnode = binandexpr();
+
+        ASTNode pnode (op);
+        pnode.addNode(lnode);
+        pnode.addNode(rnode);
+
+        lnode = pnode;
+    }
+
+    return lnode;
+}
+
+ASTNode Parser::binandexpr()
+{
+    ASTNode lnode = binnotexpr();
+    
+    while (match(TokenType::DOUBLEAMPER))
+    {
+        Token op = prev();
+
+        ASTNode rnode = binnotexpr();
+
+        ASTNode pnode (op);
+        pnode.addNode(lnode);
+        pnode.addNode(rnode);
+
+        lnode = pnode;
+    }
+
+    return lnode;
+}
+
+ASTNode Parser::binnotexpr()
+{
+    if (match(TokenType::BANG))
+    {
+        ASTNode node (prev());
+        node.addNode(binnotexpr());
+
+        return node;
+    }
+
+    return compeqexpr();
+}
+
+ASTNode Parser::compeqexpr()
+{
+    ASTNode lnode = complgtexpr();
+    
+    while (match(TokenType::DOUBLEEQUAL) || match(TokenType::BANGEQUAL))
+    {
+        Token op = prev();
+
+        ASTNode rnode = complgtexpr();
+
+        ASTNode pnode (op);
+        pnode.addNode(lnode);
+        pnode.addNode(rnode);
+
+        lnode = pnode;
+    }
+
+    return lnode;
+}
+
+ASTNode Parser::complgtexpr()
+{
+    ASTNode lnode = bitxorexpr();
+    
+    while (match(TokenType::LESS) || match(TokenType::GREATER) || match(TokenType::LESSEQUAL) || match(TokenType::GREATEREQUAL))
+    {
+        Token op = prev();
+
+        ASTNode rnode = bitxorexpr();
+
+        ASTNode pnode (op);
+        pnode.addNode(lnode);
+        pnode.addNode(rnode);
+
+        lnode = pnode;
+    }
+
+    return lnode;
+}
+
+ASTNode Parser::bitxorexpr()
+{
+    ASTNode lnode = bitorexpr();
+    
+    while (match(TokenType::CARET))
+    {
+        Token op = prev();
+
+        ASTNode rnode = bitorexpr();
+
+        ASTNode pnode (op);
+        pnode.addNode(lnode);
+        pnode.addNode(rnode);
+
+        lnode = pnode;
+    }
+
+    return lnode;
+}
+
+ASTNode Parser::bitorexpr()
+{
+    ASTNode lnode = bitandexpr();
+    
+    while (match(TokenType::PIPE))
+    {
+        Token op = prev();
+
+        ASTNode rnode = bitandexpr();
+
+        ASTNode pnode (op);
+        pnode.addNode(lnode);
+        pnode.addNode(rnode);
+
+        lnode = pnode;
+    }
+
+    return lnode;
+}
+
+ASTNode Parser::bitandexpr()
+{
+    ASTNode lnode = bitshiftexpr();
+    
+    while (match(TokenType::AMPER))
+    {
+        Token op = prev();
+
+        ASTNode rnode = bitshiftexpr();
+
+        ASTNode pnode (op);
+        pnode.addNode(lnode);
+        pnode.addNode(rnode);
+
+        lnode = pnode;
+    }
+
+    return lnode;
+}
+
+ASTNode Parser::bitshiftexpr()
+{
+    ASTNode lnode = additionexpr();
+    
+    while (match(TokenType::DOUBLELESS) || match(TokenType::DOUBLEGREATER))
+    {
+        Token op = prev();
+
+        ASTNode rnode = additionexpr();
+
+        ASTNode pnode (op);
+        pnode.addNode(lnode);
+        pnode.addNode(rnode);
+
+        lnode = pnode;
+    }
+
+    return lnode;
+}
+
+ASTNode Parser::additionexpr()
+{
+    ASTNode lnode = multexpr();
+
     while (match(TokenType::PLUS) || match(TokenType::MINUS))
     {
-        Token op = prev();    
-        ASTNode rnode = multiplication();
+        Token op = prev();
 
-        ASTNode pnode = ASTNode(op);
+        ASTNode rnode = multexpr();
+
+        ASTNode pnode (op);
         pnode.addNode(lnode);
         pnode.addNode(rnode);
 
@@ -76,16 +271,17 @@ ASTNode Parser::addition()
     return lnode;
 }
 
-ASTNode Parser::multiplication()
+ASTNode Parser::multexpr()
 {
-    ASTNode lnode = primary();
-    
-    while (match(TokenType::STAR) || match(TokenType::SLASH))
-    {
-        Token op = prev();    
-        ASTNode rnode = primary();
+    ASTNode lnode = unary();
 
-        ASTNode pnode = ASTNode(op);
+    while (match(TokenType::STAR) || match(TokenType::SLASH) || match(TokenType::PERCENT))
+    {
+        Token op = prev();
+
+        ASTNode rnode = unary();
+
+        ASTNode pnode (op);
         pnode.addNode(lnode);
         pnode.addNode(rnode);
 
@@ -93,6 +289,21 @@ ASTNode Parser::multiplication()
     }
 
     return lnode;
+}
+
+ASTNode Parser::unary()
+{
+    if (match(TokenType::TILDE) || match(TokenType::MINUS))
+    {
+        Token op = prev();
+
+        ASTNode node (op);
+        node.addNode(unary());
+
+        return node;
+    }
+
+    return primary();
 }
 
 ASTNode Parser::primary()
@@ -113,10 +324,11 @@ ASTNode Parser::primary()
         return expr;
     }
 
-    ASTNode primary (peek());
+    ASTNode primary (prev());
     makeErrorNode(primary, "Expected expression");
-    return primary;
+    return primary; 
 }
+
 // }}}
 
 // {{{ parser helper methods
