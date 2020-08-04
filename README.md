@@ -6,10 +6,10 @@ This is heavily based off the extremely helpful book "Crafting Interpreters" by 
 # Features
 
 - Possibly dysfunctional lexing
+- Possibly dysfunctional parsing
 
 # Todo
 
-- Parsing
 - Compilation
 - Optimization
 
