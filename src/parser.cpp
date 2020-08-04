@@ -34,7 +34,7 @@ void ASTNode::print(int indent)
     std::cout << std::string(indent, ' ') << "  + errored: " << errored << std::endl;
     std::cout << std::string(indent, ' ') << "  + errormsg: " << (errored ? errormsg : "None") << std::endl;
 
-    for (ASTNode node : nodes)
+    for (ASTNode &node : nodes)
     {
         node.print(indent + 8);
     }
