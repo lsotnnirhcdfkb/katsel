@@ -21,7 +21,7 @@ bitshiftexpr -> additionexpr ((DOUBLEGREATER | DOUBLELESS) additionexpr)*;
 additionexpr -> multexpr ((PLUS | MINUS) multexpr)*;
 multexpr -> unary ((STAR | SLASH | PERCENT) unary)*;
 
-unary -> TILDE unary | primary;
+unary -> (TILDE | MINUS) unary | primary;
 primary -> TRUELIT | FALSELIT |
         FLOATLIT |
         NULLLIT |
