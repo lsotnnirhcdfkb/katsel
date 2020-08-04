@@ -6,10 +6,11 @@ This is heavily based off the extremely helpful book "Crafting Interpreters" by 
 # Features
 
 - Possibly dysfunctional lexing
-- Possibly dysfunctional parsing
+- Possibly dysfunctional parsing of an expression only grammar
 
 # Todo
 
+- Parsing more general syntax
 - Compilation
 - Optimization
 
