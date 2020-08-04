@@ -61,8 +61,8 @@ private:
 
     Token& peek();
     Token& prev();
-    Token& advance();
     Token& consume(TokenType type, std::string message, ASTNode &node);
+    void advance();
     bool match(TokenType type);
     bool check(TokenType type);
 

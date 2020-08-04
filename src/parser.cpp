@@ -342,12 +342,16 @@ Token& Parser::prev()
     return prevToken;
 }
 
-Token& Parser::advance()
+void Parser::advance()
 {
     prevToken = currToken;
-    currToken = lexer.nextToken();
 
-    return prev();
+    while (true)
+    {
+        currToken = lexer.nextToken();
+
+        if (currToken.type != TokenType::ERROR) break; // continue loop if it is an error token
+    }
 }
 
 Token& Parser::consume(TokenType type, std::string message, ASTNode &node)
