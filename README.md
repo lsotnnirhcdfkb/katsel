@@ -1,7 +1,7 @@
 # COxian
 The C++ LLVM-Based Compiler Implementation of the Oxian Language
 
-This is heavily based off the extremely helpful book "Crafting Interpreters" by Bob Nystrom. Except for the LLVM part, of course.
+This is very heavily based off the extremely helpful book "Crafting Interpreters" by Bob Nystrom. Except for the LLVM part, of course.
 
 # Features
 
@@ -13,6 +13,7 @@ This is heavily based off the extremely helpful book "Crafting Interpreters" by 
 - Parsing more general syntax
 - Compilation
 - Optimization
+- LLVM fun stuff
 
 - Control flow
 - Functions
@@ -43,7 +44,7 @@ Here is more terrible documentation about what each file means:
 
 Each folder *should* have more documentation about what each file means, but I am really bad at doing documentation so who knows what will be there.
 
-## Pipeline
+## Compiler overview
 The compiling pipeline is as follows:
 
 - `main.cpp` is invoked with a filename.
