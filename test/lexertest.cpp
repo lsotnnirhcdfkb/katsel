@@ -1,4 +1,6 @@
 #include "lexer.h"
+#include "token.h"
+#include "tokentype.h"
 #include <iostream>
 #include <memory>
 

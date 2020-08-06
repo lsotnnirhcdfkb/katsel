@@ -6,6 +6,8 @@
 #include <iostream>
 
 #include "lexer.h"
+#include "token.h"
+#include "tokentype.h"
 #include "errors.h"
 
 class ASTNode
