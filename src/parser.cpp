@@ -351,6 +351,9 @@ void Parser::advance()
         currToken = lexer.nextToken();
 
         if (currToken.type != TokenType::ERROR) break; // continue loop if it is an error token
+
+        // if it is an error token then report error
+        reportError("Error token " + std::string(currToken.start, currToken.end));
     }
 }
 

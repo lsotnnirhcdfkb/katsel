@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include "lexer.h"
+#include "errors.h"
 
 class ASTNode
 {

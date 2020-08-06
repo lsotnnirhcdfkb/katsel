@@ -1,4 +1,4 @@
-add_executable(coxianc main.cpp lexer.cpp parser.cpp)
+add_executable(coxianc main.cpp lexer.cpp parser.cpp errors.cpp)
 target_include_directories(coxianc PRIVATE "../include")
 
 set_target_properties(coxianc PROPERTIES
