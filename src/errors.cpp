@@ -1,11 +1,11 @@
 #include "errors.h"
 
-void reportError(std::string message)
+void reportError(Token t, std::string message)
 {
-    std::cerr << "ERROR: " << message << std::endl;
+    std::cerr << "Error at " << t.line << ":" << t.column << ": " << message << std::endl;
 }
 
-void reportDebug(std::string message)
+void reportDebug(Token t, std::string message)
 {
-    std::cerr << "DEBUG: " << message << std::endl;
+    std::cerr << "Debug message at " << t.line << ":" << t.column << ": " << message << std::endl;
 }

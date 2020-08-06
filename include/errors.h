@@ -3,6 +3,8 @@
 #include <iostream>
 #include <string>
 
-void reportError(std::string message);
+#include "token.h"
 
-void reportDebug(std::string message);
+void reportError(Token t, std::string message);
+
+void reportDebug(Token t, std::string message);
