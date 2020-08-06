@@ -715,7 +715,7 @@ Token Lexer::nextToken()
                 char startingQuote = consumed();
                 advance(); // consume character
 
-                if (!match(startingQuote)) return makeErrorToken("Error lexing: unterminated single-character literal");
+                if (!match(startingQuote)) return makeErrorToken("Unterminated single-character literal");
 
                 return makeToken(TokenType::CHARLIT);
             }
@@ -730,7 +730,7 @@ Token Lexer::nextToken()
                 advance();
             }
 
-            if (atEnd()) return makeErrorToken("Error lexing: unterminated string literal");
+            if (atEnd()) return makeErrorToken("Unterminated string literal");
             advance(); // consume closing quote/apostrophe
             return makeToken(TokenType::STRINGLIT);
     }
@@ -752,7 +752,7 @@ Token Lexer::nextToken()
                 case 'x': inttype = TokenType::HEXINTLIT; break;
 
                 default:
-                    return makeErrorToken("Error lexing: invalid number literal type (must be 0o, 0b, or 0x)");
+                    return makeErrorToken("Invalid number literal type (must be 0o, 0b, or 0x)");
             }
 
             advance(); // consume o, b, or x
@@ -766,7 +766,7 @@ Token Lexer::nextToken()
             
             while (isDigit(peek(), inttype) && !atEnd()) advance();
 
-            if (inttype != TokenType::DECINTLIT) return makeErrorToken("Error lexing: Non-decimal floating point literals are not supported");
+            if (inttype != TokenType::DECINTLIT) return makeErrorToken("Non-decimal floating point literals are not supported");
 
             return makeToken(TokenType::FLOATLIT);
         }
@@ -783,7 +783,7 @@ Token Lexer::nextToken()
         return makeToken(idenType);
     }
 
-    return makeErrorToken("Error lexing: unexpected character");
+    return makeErrorToken("Unexpected character");
 }
 // }}}
 
