@@ -23,9 +23,10 @@ ASTNode Parser::ternaryexpr()
     if (match(TokenType::QUESTION))
     {
         ASTNode ternarynode (prev());
+        
 
         ASTNode second = binorexpr();
-        consume(TokenType::COLON, "Expect colon after first expression of ternary expression", second);
+        ternarynode.op2 = consume(TokenType::COLON, "Expect colon after first expression of ternary expression", second);
         ASTNode third = ternaryexpr();
 
         ternarynode.addNode(node);

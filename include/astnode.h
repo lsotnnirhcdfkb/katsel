@@ -9,6 +9,7 @@ class ASTNode
 {
 public:
     Token op;
+    Token op2;
     bool errored;
     std::string errormsg;
 

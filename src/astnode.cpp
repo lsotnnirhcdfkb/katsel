@@ -30,6 +30,7 @@ void ASTNode::print()
 void ASTNode::print(int indent)
 {
     std::cout << std::string(indent, ' ') << "- " << op.type << " \"" << std::string(op.start, op.end) << "\"" << std::endl;
+    std::cout << std::string(indent, ' ') << "  " << op2.type << " \"" << std::string(op2.start, op2.end) << "\"" << std::endl;
     std::cout << std::string(indent, ' ') << "  + errored: " << errored << std::endl;
     std::cout << std::string(indent, ' ') << "  + errormsg: " << (errored ? errormsg : "None") << std::endl;
 
