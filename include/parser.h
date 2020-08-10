@@ -4,7 +4,7 @@
 #include "token.h"
 #include "tokentype.h"
 #include "errors.h"
-#include "astnode.h"
+#include "ast.h"
 
 class Parser
 {
