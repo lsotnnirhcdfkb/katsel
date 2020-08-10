@@ -37,6 +37,7 @@ void compileFile(std::unique_ptr<std::string> &source)
     auto parser = std::make_unique<Parser>(*lexer);
 
     std::unique_ptr<AST> node = parser->parse();
+    node->print();
 
     // int returnCode = parse(source);
 
