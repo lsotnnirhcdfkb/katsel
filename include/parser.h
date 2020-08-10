@@ -9,7 +9,7 @@
 class Parser
 {
 public:
-    Parser(Lexer &l);
+    Parser(Lexer &l, std::string &string);
 
     std::unique_ptr<AST> parse();
     std::unique_ptr<AST> expression();
@@ -33,6 +33,8 @@ private:
     Token currToken;
 
     Lexer &lexer;
+
+    std::string &source;
 
     Token& peek();
     Token& prev();

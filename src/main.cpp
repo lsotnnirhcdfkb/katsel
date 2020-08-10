@@ -34,10 +34,11 @@ std::string readFile(char *filename)
 void compileFile(std::unique_ptr<std::string> &source)
 {
     auto lexer = std::make_unique<Lexer>(*source);
-    auto parser = std::make_unique<Parser>(*lexer);
+    auto parser = std::make_unique<Parser>(*lexer, *source);
 
     std::unique_ptr<AST> node = parser->parse();
-    node->print();
+    if (node)
+        node->print();
 
     // int returnCode = parse(source);
 

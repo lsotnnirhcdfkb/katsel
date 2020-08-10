@@ -1,6 +1,6 @@
 #include "parser.h"
 
-Parser::Parser(Lexer &l): lexer(l) {
+Parser::Parser(Lexer &l, std::string &source): lexer(l), source(source) {
     advance(); // get first token
 }
 
@@ -248,7 +248,7 @@ std::unique_ptr<AST> Parser::primary()
         return expr;
     }
 
-    reportError(prev(), "Expected expression");
+    reportError(peek(), "Expected expression", source);
     return nullptr;
 }
 
@@ -276,7 +276,7 @@ void Parser::advance()
         if (currToken.type != TokenType::ERROR) break; // continue loop if it is an error token
 
         // if it is an error token then report error
-        reportError(currToken, currToken.message);
+        reportError(currToken, currToken.message, source);
     }
 }
 
@@ -287,8 +287,8 @@ Token& Parser::consume(TokenType type, std::string message)
         return prev();
     }
 
-    reportError(prev(), message);
-    return prev();
+    reportError(peek(), message, source);
+    return peek();
 }
 
 bool Parser::match(TokenType type)
