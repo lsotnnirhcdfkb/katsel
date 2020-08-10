@@ -3,29 +3,51 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <memory>
 #include "token.h"
 
-class ASTNode
+class AST
 {
 public:
-    Token op;
-    Token op2;
-    bool errored;
-    std::string errormsg;
+    virtual ~AST() {}
+};
 
-    ASTNode(Token op);
-
-    int numNodes();
-    
-    void addNode(ASTNode n);
-    void removeNode(int i);
-
-    ASTNode& getNode(int i);
-
-    void print();
+class BinaryAST : public AST
+{
+public:
+    BinaryAST(Token op, std::unique_ptr<AST> &last, std::unique_ptr<AST> &rast);
 
 private:
-    std::vector<ASTNode> nodes;
-
-    void print(int indent);
+    Token op;
+    std::unique_ptr<AST> last, rast;
 };
+
+class TernaryOpAST : public AST
+{
+    // is reserved only for ?: ternary operator so only needs to store operands
+public:
+    TernaryOpAST(std::unique_ptr<AST> &conditional, std::unique_ptr<AST> &trueast, std::unique_ptr<AST> &falseast);
+
+private:
+    std::unique_ptr<AST> conditional, trueast, falseast;
+};
+
+class UnaryAST : public AST
+{
+public:
+    UnaryAST(Token op, std::unique_ptr<AST> &ast);
+
+private:
+    Token op;
+    std::unique_ptr<AST> ast;
+};
+
+class PrimaryAST : public AST
+{
+public:
+    PrimaryAST(Token value);
+
+private:
+    Token value;
+};
+

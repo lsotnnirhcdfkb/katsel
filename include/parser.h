@@ -11,22 +11,22 @@ class Parser
 public:
     Parser(Lexer &l);
 
-    ASTNode parse();
-    ASTNode expression();
-    ASTNode ternaryexpr();
-    ASTNode binorexpr();
-    ASTNode binandexpr();
-    ASTNode binnotexpr();
-    ASTNode compeqexpr();
-    ASTNode complgtexpr();
-    ASTNode bitxorexpr();
-    ASTNode bitorexpr();
-    ASTNode bitandexpr();
-    ASTNode bitshiftexpr();
-    ASTNode additionexpr();
-    ASTNode multexpr();
-    ASTNode unary();
-    ASTNode primary();
+    std::unique_ptr<AST> parse();
+    std::unique_ptr<AST> expression();
+    std::unique_ptr<AST> ternaryexpr();
+    std::unique_ptr<AST> binorexpr();
+    std::unique_ptr<AST> binandexpr();
+    std::unique_ptr<AST> binnotexpr();
+    std::unique_ptr<AST> compeqexpr();
+    std::unique_ptr<AST> complgtexpr();
+    std::unique_ptr<AST> bitxorexpr();
+    std::unique_ptr<AST> bitorexpr();
+    std::unique_ptr<AST> bitandexpr();
+    std::unique_ptr<AST> bitshiftexpr();
+    std::unique_ptr<AST> additionexpr();
+    std::unique_ptr<AST> multexpr();
+    std::unique_ptr<AST> unary();
+    std::unique_ptr<AST> primary();
 
 private:
     Token prevToken;
@@ -36,12 +36,10 @@ private:
 
     Token& peek();
     Token& prev();
-    Token& consume(TokenType type, std::string message, ASTNode &node);
+    Token& consume(TokenType type, std::string message);
     void advance();
     bool match(TokenType type);
     bool check(TokenType type);
 
     bool atEnd();
-
-    void makeErrorNode(ASTNode &node, std::string message);
 };
