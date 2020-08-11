@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <memory>
+#include <limits>
 
 #include "lexer.h"
 #include "parser.h"
@@ -15,9 +16,14 @@ std::string readFile(char *filename)
         std::string contents;
 
         filein.seekg(0, std::ios::end);
-        contents.resize(filein.tellg());
 
-        filein.seekg(0, std::ios::beg);
+        // stole this code from https://stackoverflow.com/questions/22984956/tellg-function-give-wrong-size-of-file/22986486#22986486
+        filein.ignore(std::numeric_limits<std::streamsize>::max());
+        std::streamsize length = filein.gcount();
+        contents.resize(length);
+        filein.clear();
+        filein.seekg(0, std::ios_base::beg);
+
         filein.read(&contents[0], contents.size());
 
         filein.close();

@@ -7,7 +7,10 @@ Parser::Parser(Lexer &l, std::string &source): lexer(l), source(source) {
 // {{{ parser parsing methods
 std::unique_ptr<AST> Parser::parse()
 {
-    return expression();
+    if (!atEnd())
+        return expression(); // if there is no expression
+
+    return nullptr;
 }
 
 std::unique_ptr<AST> Parser::expression()
