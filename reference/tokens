@@ -89,6 +89,7 @@ TokenType entry       | Description                     | Example
   CONTINUE            | Continue keyword                | continue
   INLINE              | Inline keyword                  | inline
   VOLATILE            | Volatile keyword                | volatile
+  ASSERT              | Assert keyword                  | assert
                       |                                 |
   EOF_                | End of file token               |
   ERROR               | Error token                     |

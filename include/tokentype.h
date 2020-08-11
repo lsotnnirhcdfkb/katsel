@@ -88,6 +88,7 @@ enum TokenType
     CONTINUE,
     INLINE,
     VOLATILE,
+    ASSERT,
 
     EOF_,
     ERROR

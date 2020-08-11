@@ -65,7 +65,8 @@ int main()
         "int\n"
         "float\n"
         "double\n"
-        "bool\n";
+        "bool\n"
+        "assert\n";
 
     TokenType expected[] =
     {
@@ -165,6 +166,7 @@ int main()
         TokenType::FLOAT,
         TokenType::DOUBLE,
         TokenType::BOOL,
+        TokenType::ASSERT,
         TokenType::EOF_
     };
     // }}}

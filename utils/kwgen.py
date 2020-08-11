@@ -104,6 +104,7 @@ keywords = [
     ('true', 'TRUELIT'),
     ('false', 'FALSELIT'),
     ('null', 'NULLLIT'),
+    ('assert', 'ASSERT')
 ]
 # }}}
 

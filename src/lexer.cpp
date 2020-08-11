@@ -549,6 +549,34 @@ TokenType Lexer::getIdentifierType() {
                     break;
             }
             break;
+        case 'a':
+            switch (*(start + 1))
+            {
+                case 's':
+                    switch (*(start + 2))
+                    {
+                        case 's':
+                            switch (*(start + 3))
+                            {
+                                case 'e':
+                                    switch (*(start + 4))
+                                    {
+                                        case 'r':
+                                            switch (*(start + 5))
+                                            {
+                                                case 't':
+                                                    if (start + 6 == end) return TokenType::ASSERT;
+                                                    break;
+                                            }
+                                            break;
+                                    }
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
+            }
+            break;
     }
 
     return TokenType::IDENTIFIER;
