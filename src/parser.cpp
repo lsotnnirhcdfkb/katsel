@@ -7,8 +7,8 @@ Parser::Parser(Lexer &l, std::string &source): lexer(l), source(source) {
 // {{{ parser parsing methods
 std::unique_ptr<AST> Parser::parse()
 {
-    if (!atEnd())
-        return expression(); // if there is no expression
+    if (!atEnd()) // if there is no expression
+        return expression();
 
     return nullptr;
 }
