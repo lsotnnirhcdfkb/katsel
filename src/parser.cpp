@@ -5,12 +5,31 @@ Parser::Parser(Lexer &l, std::string &source): lexer(l), source(source) {
 }
 
 // {{{ parser parsing methods
-std::unique_ptr<AST> Parser::parse()
+std::vector<std::unique_ptr<AST>> Parser::parse()
 {
-    if (!atEnd()) // if there is no expression
-        return expression();
+    std::vector<std::unique_ptr<AST>> program;
 
-    return nullptr;
+    while (!atEnd()) // if there is no expression
+    {
+        program.push_back(statement());
+    }
+
+    consume(TokenType::EOF_, "Expected EOF token at end of file (internal compiling error)");
+
+    return program;
+}
+
+std::unique_ptr<AST> Parser::statement()
+{
+    std::unique_ptr<AST> exprstmtast = exprstmt();
+    consume(TokenType::SEMICOLON, "Expected ';' after statement");
+    return exprstmtast;
+}
+
+std::unique_ptr<AST> Parser::exprstmt()
+{
+    std::unique_ptr<AST> expr = expression();
+    return std::make_unique<ExprStmtAST>(expr);
 }
 
 std::unique_ptr<AST> Parser::expression()
@@ -306,7 +325,6 @@ bool Parser::match(TokenType type)
 
 bool Parser::check(TokenType type)
 {
-    if (atEnd()) return false;
     return peek().type == type;
 }
 

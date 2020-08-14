@@ -40,8 +40,8 @@ void compileFile(std::unique_ptr<std::string> &source)
     auto lexer = std::make_unique<Lexer>(*source);
     auto parser = std::make_unique<Parser>(*lexer, *source);
 
-    std::unique_ptr<AST> node = parser->parse();
-    if (node)
+    std::vector<std::unique_ptr<AST>> parsed = parser->parse();
+    for (std::unique_ptr<AST> &node : parsed)
         node->print();
 
     // int returnCode = parse(source);

@@ -6,12 +6,16 @@
 #include "errors.h"
 #include "ast.h"
 
+#include <vector>
+
 class Parser
 {
 public:
     Parser(Lexer &l, std::string &string);
 
-    std::unique_ptr<AST> parse();
+    std::vector<std::unique_ptr<AST>> parse();
+    std::unique_ptr<AST> statement();
+    std::unique_ptr<AST> exprstmt();
     std::unique_ptr<AST> expression();
     std::unique_ptr<AST> ternaryexpr();
     std::unique_ptr<AST> binorexpr();
