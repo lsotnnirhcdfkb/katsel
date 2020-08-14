@@ -1,6 +1,6 @@
 #include "parser.h"
 
-Parser::Parser(Lexer &l, std::string &source): lexer(l), source(source) {
+Parser::Parser(Lexer &l, std::string &source): lexer(l), source(source), PANICK(false) {
     advance(); // get first token
 }
 
@@ -11,8 +11,18 @@ std::vector<std::unique_ptr<AST>> Parser::parse()
 
     while (!atEnd()) // if there is no expression
     {
+        if (PANICK)
+        {
+            calmDown();
+            syncTokens();
+        }
         std::unique_ptr<AST> stmt = statement();
-        if (stmt) program.push_back(std::move(stmt));
+  
+        // if panicing then this ast
+        // has an error and something
+        // could be nullptr or the ast
+        // is malformed so dont add it
+        if (stmt && !PANICK) program.push_back(std::move(stmt));
     }
 
     consume(TokenType::EOF_, "Expected EOF token at end of file (internal compiling error)");
@@ -26,6 +36,7 @@ std::unique_ptr<AST> Parser::statement()
 
     std::unique_ptr<AST> exprstmtast = exprstmt();
     consume(TokenType::SEMICOLON, "Expected ';' after statement");
+
     return exprstmtast;
 }
 
@@ -273,10 +284,9 @@ std::unique_ptr<AST> Parser::primary()
         return expr;
     }
 
-    reportError(peek(), "Expected expression", source);
+    error("Expected expression");
     return nullptr;
 }
-
 // }}}
 
 // {{{ parser helper methods
@@ -301,7 +311,7 @@ void Parser::advance()
         if (currToken.type != TokenType::ERROR) break; // continue loop if it is an error token
 
         // if it is an error token then report error
-        reportError(currToken, currToken.message, source);
+        error(currToken.message);
     }
 }
 
@@ -312,7 +322,7 @@ Token& Parser::consume(TokenType type, std::string message)
         return prev();
     }
 
-    reportError(peek(), message, source);
+    error(message);
     return peek();
 }
 
@@ -335,4 +345,39 @@ bool Parser::atEnd()
 {
     return peek().type == TokenType::EOF_;
 }
+
+void Parser::panic()
+{
+    // PANICCCCC!!!!!!!
+    // ERROR DETECTED!!!!!!!! :)
+
+    PANICK = true;
+}
+
+void Parser::calmDown()
+{
+    // Well I guess the error is out of sight
+
+    PANICK = false;
+}
+
+void Parser::syncTokens()
+{
+    while (!check(TokenType::SEMICOLON) && !atEnd()) advance(); // advance until next token is semicolon
+
+    if (check(TokenType::SEMICOLON))
+        advance(); // consume semicolon
+
+    // if doesnt advance then peek is of type eof
+}
+
+void Parser::error(std::string const msg)
+{
+    if (!PANICK)
+    {
+        reportError(peek(), msg, source);
+        panic();
+    }
+}
+
 // }}}

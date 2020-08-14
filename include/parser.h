@@ -36,6 +36,8 @@ private:
     Token prevToken;
     Token currToken;
 
+    bool PANICK;
+
     Lexer &lexer;
 
     std::string &source;
@@ -48,4 +50,9 @@ private:
     bool check(TokenType type);
 
     bool atEnd();
+
+    void panic();
+    void calmDown();
+    void syncTokens();
+    void error(std::string const msg);
 };
