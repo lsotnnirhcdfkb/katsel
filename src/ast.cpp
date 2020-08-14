@@ -4,6 +4,7 @@ BinaryAST::BinaryAST(Token op, std::unique_ptr<AST> &last, std::unique_ptr<AST> 
 TernaryOpAST::TernaryOpAST(std::unique_ptr<AST> &conditional, std::unique_ptr<AST> &trueast, std::unique_ptr<AST> &falseast): conditional(std::move(conditional)), trueast(std::move(trueast)), falseast(std::move(falseast)) {}
 UnaryAST::UnaryAST(Token op, std::unique_ptr<AST> &ast): op(op), ast(std::move(ast)) {}
 PrimaryAST::PrimaryAST(Token value): value(value) {}
+ExprStmtAST::ExprStmtAST(std::unique_ptr<AST> &ast): ast(std::move(ast)) {}
 
 void BinaryAST::print()
 {
@@ -34,4 +35,10 @@ void UnaryAST::print()
 void PrimaryAST::print()
 {
     std::cout << std::string(value.start, value.end);
+}
+
+void ExprStmtAST::print()
+{
+    std::cout << "Stmt: ";
+    ast->print();
 }
