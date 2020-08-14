@@ -17,7 +17,7 @@ std::vector<std::unique_ptr<AST>> Parser::parse()
             syncTokens();
         }
         std::unique_ptr<AST> stmt = statement();
-  
+
         // if panicing then this ast
         // has an error and something
         // could be nullptr or the ast
