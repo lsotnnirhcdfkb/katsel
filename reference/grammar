@@ -1,7 +1,9 @@
 // grammar will expand as more features are implemented
 program -> statement* EOF
 
-statement -> exprstmt SEMICOLON;
+statement -> SEMICOLON | // empty statements are allowed
+            exprstmt SEMICOLON;
+
 exprstmt -> expression;
 
 // expresion

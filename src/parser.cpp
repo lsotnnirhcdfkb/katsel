@@ -11,7 +11,8 @@ std::vector<std::unique_ptr<AST>> Parser::parse()
 
     while (!atEnd()) // if there is no expression
     {
-        program.push_back(statement());
+        std::unique_ptr<AST> stmt = statement();
+        if (stmt) program.push_back(std::move(stmt));
     }
 
     consume(TokenType::EOF_, "Expected EOF token at end of file (internal compiling error)");
@@ -21,6 +22,8 @@ std::vector<std::unique_ptr<AST>> Parser::parse()
 
 std::unique_ptr<AST> Parser::statement()
 {
+    if (match(TokenType::SEMICOLON)) return nullptr; // empty
+
     std::unique_ptr<AST> exprstmtast = exprstmt();
     consume(TokenType::SEMICOLON, "Expected ';' after statement");
     return exprstmtast;
