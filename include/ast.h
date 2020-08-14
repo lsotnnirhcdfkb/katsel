@@ -18,7 +18,7 @@ class BinaryAST : public AST
 {
 public:
     BinaryAST(Token op, std::unique_ptr<AST> &last, std::unique_ptr<AST> &rast);
-    void print();
+    void print() override;
 
 private:
     Token op;
@@ -30,7 +30,7 @@ class TernaryOpAST : public AST
     // is reserved only for ?: ternary operator so only needs to store operands
 public:
     TernaryOpAST(std::unique_ptr<AST> &conditional, std::unique_ptr<AST> &trueast, std::unique_ptr<AST> &falseast);
-    void print();
+    void print() override;
 
 private:
     std::unique_ptr<AST> conditional, trueast, falseast;
@@ -40,7 +40,7 @@ class UnaryAST : public AST
 {
 public:
     UnaryAST(Token op, std::unique_ptr<AST> &ast);
-    void print();
+    void print() override;
 
 private:
     Token op;
@@ -51,9 +51,18 @@ class PrimaryAST : public AST
 {
 public:
     PrimaryAST(Token value);
-    void print();
+    void print() override;
 
 private:
     Token value;
 };
 
+class ExprStmtAST : public AST
+{
+public:
+    ExprStmtAST(std::unique_ptr<AST> &ast);
+    void print() override;
+
+private:
+    std::unique_ptr<AST> ast;
+};
