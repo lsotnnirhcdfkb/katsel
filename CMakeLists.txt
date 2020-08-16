@@ -6,5 +6,13 @@ project(COxian
     
 set(CMAKE_CXX_STANDARD 17)
 
+# Copied and pasted from LLVM Docs - Building LLVM with CMake - Embedding LLVM in your project
+# https://releases.llvm.org/3.6.0/docs/CMake.html#embedding-llvm-in-your-project
+find_package(LLVM REQUIRED CONFIG)
+message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+
+# end copy and paste
+
 add_subdirectory(src)
 add_subdirectory(test)
