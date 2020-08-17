@@ -46,8 +46,7 @@ Each folder *should* have more documentation about what each file means, but I a
 The compiling pipeline is as follows:
 
 - `main.cpp` is invoked with a filename.
-- `int main()` calls `void compileFile()`
-- `void compileFile()` allocates a new `Lexer` object on the heap with a unique pointer
-- `void compileFile()` allocates a new `Parser` object on the heap with a unique pointer
-- `void compileFile()` calls `parser->expression()` in order to parse the grammar
-- `void compileFile()` prints the `ASTNode` returned by `parser->expression()`
+- `main.cpp:readFile` reads the source file
+- `main.cpp:compileFile` creates a `Lexer` and a `Parser` instance
+- `main.cpp:compileFile` calls `parser->parse()` which returns an `AST`
+- `main.cpp:compileFile()` prints the `AST` returned by `parser->parse()`
