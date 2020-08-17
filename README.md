@@ -30,11 +30,9 @@ This is very heavily based off the extremely helpful book "Crafting Interpreters
 
 Here is my really terrible documentation for what the directory stucture is:
 
-- `bin`: binaries
 - `include`: header files
 - `reference`: reference files in plaintext for looking at a list of tokens and grammar, etc
 - `src`: source files
-- `test`: test files
 - `utils`: utility code generation files
 
 Here is more terrible documentation about what each file means:
