@@ -21,9 +21,13 @@ This is very heavily based off the extremely helpful book "Crafting Interpreters
 - Very safe pointers
 - Auto memory management with very safe pointers and strict ownership scope rules and stuff
 - Lots of syntactic sugar
-- Case statements
+- Switch statements
 - Namespaces
 - Importing and stuff
+- Threads
+- Thread-safety
+- Asynchronous functions stuff and coroutines and stuff
+- Cool stuff (?)
 - More
 
 # Help
