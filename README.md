@@ -6,7 +6,7 @@ This is very heavily based off the extremely helpful book "Crafting Interpreters
 # Features
 
 - Possibly dysfunctional lexing
-- Possibly dysfunctional parsing of an expression only grammar
+- Possibly dysfunctional statement parsing with recursvie descent no precedence parsing so *verbosity galore*
 
 # Todo
 
