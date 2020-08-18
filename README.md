@@ -17,7 +17,7 @@ This is very heavily based off the extremely helpful book "Crafting Interpreters
 
 - Control flow
 - Functions
-- Classes
+- Classes and polymorphism and all that fun OOP stuff
 - Very safe pointers
 - Auto memory management with very safe pointers and strict ownership scope rules and stuff
 - Lots of syntactic sugar
