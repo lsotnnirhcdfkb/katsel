@@ -23,7 +23,6 @@ public:
     void print() override;
     void accept(Visitor *v) override;
 
-private:
     Token op;
     std::unique_ptr<AST> last, rast;
 };
@@ -36,7 +35,6 @@ public:
     void print() override;
     void accept(Visitor *v) override;
 
-private:
     std::unique_ptr<AST> conditional, trueast, falseast;
 };
 
@@ -47,7 +45,6 @@ public:
     void print() override;
     void accept(Visitor *v) override;
 
-private:
     Token op;
     std::unique_ptr<AST> ast;
 };
@@ -59,7 +56,6 @@ public:
     void print() override;
     void accept(Visitor *v) override;
 
-private:
     Token value;
 };
 
@@ -70,7 +66,6 @@ public:
     void print() override;
     void accept(Visitor *v) override;
 
-private:
     std::unique_ptr<AST> ast;
 };
 
@@ -81,6 +76,5 @@ public:
     void print() override;
     void accept(Visitor *v) override;
 
-private:
     std::vector<std::unique_ptr<AST>> asts;
 };
