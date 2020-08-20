@@ -4,7 +4,7 @@ project(COxian
     DESCRIPTION "The C++ LLVM-Based Compiler Implementation of the Oxian Language"    
     LANGUAGES CXX)
     
-set(CMAKE_CXX_STANDARD 14 CACHE)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS NO)
 
