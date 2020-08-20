@@ -1,8 +1,9 @@
 #include "llvmgenvisitor.h"
 
-LLVMGenVisitor::LLVMGenVisitor(std::string &source): source(source), builder(context), module_(std::make_unique<llvm::Module>("LLVM Visitor for coxianc", context)) {}
+LLVMGenVisitor::LLVMGenVisitor(std::string &source): source(source), builder(context), module_(std::make_unique<llvm::Module>("cool", context)) {}
 
 void LLVMGenVisitor::visitBinaryAST(const BinaryAST *ast) {
+    std::cout << "in visitBinaryast" << std::endl;
     ast->last->accept(this);
     llvm::Value *lval = curRetVal;
     ast->rast->accept(this);
@@ -90,7 +91,7 @@ void LLVMGenVisitor::visitBinaryAST(const BinaryAST *ast) {
             retval = builder.CreateURem(lval, rval);
             break;
 
-        default: retval = nullptr;
+        default: reportError(ast->op, "invalid thingy", source); retval = nullptr;
     }
 
     curRetVal = retval;
@@ -103,11 +104,31 @@ void LLVMGenVisitor::visitUnaryAST(const UnaryAST *ast) {
 }
 
 void LLVMGenVisitor::visitPrimaryAST(const PrimaryAST *ast) {
+    std::cout << "in visitPrimaryast" << std::endl;
+    curRetVal = llvm::ConstantInt::get(context, llvm::APInt(8, std::stoi(std::string(ast->value.start, ast->value.end))));
+    // curRetVal = llvm::ConstantFP::get(context, llvm::APFloat((float) std::stoi(std::string(ast->value.start, ast->value.end))));
 }
 
 void LLVMGenVisitor::visitExprStmtAST(const ExprStmtAST *ast) {
+    std::cout << "in visitexprstmtast" << std::endl;
+    ast->ast->accept(this);
 }
 
 void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast) {
+    llvm::FunctionType *ft = llvm::FunctionType::get(llvm::Type::getVoidTy(context), false); 
+    llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, "Anonymous", *module_);
+
+    llvm::BasicBlock *block = llvm::BasicBlock::Create(context, "anonymousblock", f);
+    builder.SetInsertPoint(block);
+
+    for (const std::unique_ptr<AST> &sast : ast->asts) {
+        sast->accept(this);
+    }
+
+    builder.CreateRet(out);
+    llvm::verifyFunction(*f);
+
+    std::cout << "inifhs" << std::endl;
+
     module_->print(llvm::outs(), nullptr);
 }
