@@ -44,7 +44,7 @@ std::unique_ptr<AST> Parser::statement()
 std::unique_ptr<AST> Parser::exprstmt()
 {
     std::unique_ptr<AST> expr = expression();
-    return std::make_unique<ExprStmtAST>(expr);
+    return std::make_unique<ExprStmtAST>(std::move(expr));
 }
 
 std::unique_ptr<AST> Parser::expression()
@@ -62,7 +62,7 @@ std::unique_ptr<AST> Parser::ternaryexpr()
         consume(TokenType::COLON, "Expect colon after first expression");
         std::unique_ptr<AST> falseexpr = ternaryexpr();
 
-        std::unique_ptr<TernaryOpAST> ternast = std::make_unique<TernaryOpAST>(binexpr, trueexpr, falseexpr);
+        std::unique_ptr<TernaryOpAST> ternast = std::make_unique<TernaryOpAST>(std::move(binexpr), std::move(trueexpr), std::move(falseexpr));
 
         return ternast;
     }
@@ -79,7 +79,7 @@ std::unique_ptr<AST> Parser::binorexpr()
         Token op = prev();
         std::unique_ptr<AST> rnode = binandexpr();
 
-        std::unique_ptr<BinaryAST> pnode = std::make_unique<BinaryAST>(op, lnode, rnode);
+        std::unique_ptr<BinaryAST> pnode = std::make_unique<BinaryAST>(op, std::move(lnode), std::move(rnode));
 
         lnode = std::move(pnode);
     }
@@ -96,7 +96,7 @@ std::unique_ptr<AST> Parser::binandexpr()
         Token op = prev();
         std::unique_ptr<AST> rnode = binnotexpr();
 
-        std::unique_ptr<BinaryAST> pnode = std::make_unique<BinaryAST>(op, lnode, rnode);
+        std::unique_ptr<BinaryAST> pnode = std::make_unique<BinaryAST>(op, std::move(lnode), std::move(rnode));
 
         lnode = std::move(pnode);
     }
@@ -109,7 +109,7 @@ std::unique_ptr<AST> Parser::binnotexpr()
     if (match(TokenType::BANG))
     {
         std::unique_ptr<AST> binnot = binnotexpr();
-        std::unique_ptr<UnaryAST> node = std::make_unique<UnaryAST>(prev(), binnot);
+        std::unique_ptr<UnaryAST> node = std::make_unique<UnaryAST>(prev(), std::move(binnot));
         return node;
     }
 
@@ -125,7 +125,7 @@ std::unique_ptr<AST> Parser::compeqexpr()
         Token op = prev();
         std::unique_ptr<AST> rnode = complgtexpr();
 
-        std::unique_ptr<BinaryAST> pnode = std::make_unique<BinaryAST>(op, lnode, rnode);
+        std::unique_ptr<BinaryAST> pnode = std::make_unique<BinaryAST>(op, std::move(lnode), std::move(rnode));
 
         lnode = std::move(pnode);
     }
@@ -142,7 +142,7 @@ std::unique_ptr<AST> Parser::complgtexpr()
         Token op = prev();
         std::unique_ptr<AST> rnode = bitxorexpr();
 
-        std::unique_ptr<BinaryAST> pnode = std::make_unique<BinaryAST>(op, lnode, rnode);
+        std::unique_ptr<BinaryAST> pnode = std::make_unique<BinaryAST>(op, std::move(lnode), std::move(rnode));
 
         lnode = std::move(pnode);
     }
@@ -159,7 +159,7 @@ std::unique_ptr<AST> Parser::bitxorexpr()
         Token op = prev();
         std::unique_ptr<AST> rnode = bitorexpr();
 
-        std::unique_ptr<BinaryAST> pnode = std::make_unique<BinaryAST>(op, lnode, rnode);
+        std::unique_ptr<BinaryAST> pnode = std::make_unique<BinaryAST>(op, std::move(lnode), std::move(rnode));
 
         lnode = std::move(pnode);
     }
@@ -176,7 +176,7 @@ std::unique_ptr<AST> Parser::bitorexpr()
         Token op = prev();
         std::unique_ptr<AST> rnode = bitandexpr();
 
-        std::unique_ptr<BinaryAST> pnode = std::make_unique<BinaryAST>(op, lnode, rnode);
+        std::unique_ptr<BinaryAST> pnode = std::make_unique<BinaryAST>(op, std::move(lnode), std::move(rnode));
 
         lnode = std::move(pnode);
     }
@@ -193,7 +193,7 @@ std::unique_ptr<AST> Parser::bitandexpr()
         Token op = prev();
         std::unique_ptr<AST> rnode = bitshiftexpr();
 
-        std::unique_ptr<BinaryAST> pnode = std::make_unique<BinaryAST>(op, lnode, rnode);
+        std::unique_ptr<BinaryAST> pnode = std::make_unique<BinaryAST>(op, std::move(lnode), std::move(rnode));
 
         lnode = std::move(pnode);
     }
@@ -210,7 +210,7 @@ std::unique_ptr<AST> Parser::bitshiftexpr()
         Token op = prev();
         std::unique_ptr<AST> rnode = additionexpr();
 
-        std::unique_ptr<BinaryAST> pnode = std::make_unique<BinaryAST>(op, lnode, rnode);
+        std::unique_ptr<BinaryAST> pnode = std::make_unique<BinaryAST>(op, std::move(lnode), std::move(rnode));
 
         lnode = std::move(pnode);
     }
@@ -227,7 +227,7 @@ std::unique_ptr<AST> Parser::additionexpr()
         Token op = prev();
         std::unique_ptr<AST> rnode = multexpr();
 
-        std::unique_ptr<BinaryAST> pnode = std::make_unique<BinaryAST>(op, lnode, rnode);
+        std::unique_ptr<BinaryAST> pnode = std::make_unique<BinaryAST>(op, std::move(lnode), std::move(rnode));
 
         lnode = std::move(pnode);
     }
@@ -244,7 +244,7 @@ std::unique_ptr<AST> Parser::multexpr()
         Token op = prev();
         std::unique_ptr<AST> rnode = unary();
 
-        std::unique_ptr<BinaryAST> pnode = std::make_unique<BinaryAST>(op, lnode, rnode);
+        std::unique_ptr<BinaryAST> pnode = std::make_unique<BinaryAST>(op, std::move(lnode), std::move(rnode));
 
         lnode = std::move(pnode);
     }
@@ -259,7 +259,7 @@ std::unique_ptr<AST> Parser::unary()
         Token op = prev();
         std::unique_ptr<AST> unaryno = unary();
 
-        std::unique_ptr<UnaryAST> node = std::make_unique<UnaryAST>(op, unaryno);
+        std::unique_ptr<UnaryAST> node = std::make_unique<UnaryAST>(op, std::move(unaryno));
 
         return node;
     }
