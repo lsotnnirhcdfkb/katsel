@@ -35,14 +35,14 @@ std::string readFile(char *filename)
     }
 }
 
-void compileFile(std::unique_ptr<std::string> &source)
+void compileFile(std::string &source)
 {
-    auto lexer = std::make_unique<Lexer>(*source);
-    auto parser = std::make_unique<Parser>(*lexer, *source);
+    auto lexer = std::make_unique<Lexer>(source);
+    auto parser = std::make_unique<Parser>(*lexer, source);
 
-    std::unique_ptr<AST> node = parser->parse();
-    if (node)
-        node->print();
+    std::unique_ptr<AST> parsed = parser->parse();
+    if (parsed)
+        parsed->print();
 
     // int returnCode = parse(source);
 
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     {
         // Compile file
         auto source = std::make_unique<std::string>(readFile(argv[1]));
-        compileFile(source);
+        compileFile(*source);
     }
     else
     {

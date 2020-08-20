@@ -1,9 +1,16 @@
 #include "ast.h"
 
-BinaryAST::BinaryAST(Token op, std::unique_ptr<AST> &last, std::unique_ptr<AST> &rast): op(op), last(std::move(last)), rast(std::move(rast)) {}
-TernaryOpAST::TernaryOpAST(std::unique_ptr<AST> &conditional, std::unique_ptr<AST> &trueast, std::unique_ptr<AST> &falseast): conditional(std::move(conditional)), trueast(std::move(trueast)), falseast(std::move(falseast)) {}
-UnaryAST::UnaryAST(Token op, std::unique_ptr<AST> &ast): op(op), ast(std::move(ast)) {}
+BinaryAST::BinaryAST(Token op, std::unique_ptr<AST> last, std::unique_ptr<AST> rast): op(op), last(std::move(last)), rast(std::move(rast)) {}
+TernaryOpAST::TernaryOpAST(std::unique_ptr<AST> conditional, std::unique_ptr<AST> trueast, std::unique_ptr<AST> falseast): conditional(std::move(conditional)), trueast(std::move(trueast)), falseast(std::move(falseast)) {}
+UnaryAST::UnaryAST(Token op, std::unique_ptr<AST> ast): op(op), ast(std::move(ast)) {}
 PrimaryAST::PrimaryAST(Token value): value(value) {}
+ExprStmtAST::ExprStmtAST(std::unique_ptr<AST> ast): ast(std::move(ast)) {}
+ProgramAST::ProgramAST(std::vector<std::unique_ptr<AST>> &asts) {
+    this->asts.reserve(asts.size());
+    for (std::unique_ptr<AST> &ast : asts) {
+        this->asts.push_back(std::move(ast));
+    }
+}
 
 void BinaryAST::print()
 {
@@ -34,4 +41,19 @@ void UnaryAST::print()
 void PrimaryAST::print()
 {
     std::cout << std::string(value.start, value.end);
+}
+
+void ExprStmtAST::print()
+{
+    std::cout << "Stmt: ";
+    ast->print();
+}
+
+void ProgramAST::print()
+{
+    std::cout << "Program: ";
+
+    for (std::unique_ptr<AST> &ast : asts) {
+        ast->print();
+    }
 }
