@@ -1,6 +1,7 @@
 #include "visitor.h"
 #include "ast.h"
 
+// {{{ print
 void PrintVisitor::visitBinaryAST(const BinaryAST *ast) {
     std::cout << '(';
     ast->last->accept(this);
@@ -44,3 +45,46 @@ void PrintVisitor::visitProgramAST(const ProgramAST *ast) {
         sast->accept(this);
     }
 }
+// }}}
+
+// {{{ python
+void PythonGenVisitor::visitBinaryAST(const BinaryAST *ast) {
+    std::cout << '(';
+    ast->last->accept(this);
+    std::cout << std::string(ast->op.start, ast->op.end);
+    ast->rast->accept(this);
+    std::cout << ')';
+}
+
+void PythonGenVisitor::visitTernaryOpAST(const TernaryOpAST *ast) {
+    std::cout << '(';
+    ast->trueast->accept(this);
+    std::cout << " if ";
+    ast->conditional->accept(this);
+    std::cout << " else ";
+    ast->falseast->accept(this);
+    std::cout << ')';
+}
+
+void PythonGenVisitor::visitUnaryAST(const UnaryAST *ast) {
+    std::cout << '(';
+    std::cout << std::string(ast->op.start, ast->op.end);
+    ast->ast->accept(this);
+    std::cout << ')';
+}
+
+void PythonGenVisitor::visitPrimaryAST(const PrimaryAST *ast) {
+    std::cout << '(' << std::string(ast->value.start, ast->value.end) << ')';
+}
+
+void PythonGenVisitor::visitExprStmtAST(const ExprStmtAST *ast) {
+    ast->ast->accept(this);
+    std::cout << std::endl;
+}
+
+void PythonGenVisitor::visitProgramAST(const ProgramAST *ast) {
+    for (const std::unique_ptr<AST> &sast : ast->asts) {
+        sast->accept(this);
+    }
+}
+// }}}

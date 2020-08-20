@@ -42,7 +42,7 @@ void compileFile(std::string &source)
     auto parser = std::make_unique<Parser>(*lexer, source);
 
     std::unique_ptr<AST> parsed = parser->parse();
-    PrintVisitor v;
+    PythonGenVisitor v;
 
     if (parsed)
         parsed->accept(&v);
