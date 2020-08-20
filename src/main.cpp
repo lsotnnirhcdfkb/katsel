@@ -5,6 +5,7 @@
 
 #include "lexer.h"
 #include "parser.h"
+#include "visitor.h"
 
 std::string readFile(char *filename)
 {
@@ -41,8 +42,10 @@ void compileFile(std::string &source)
     auto parser = std::make_unique<Parser>(*lexer, source);
 
     std::unique_ptr<AST> parsed = parser->parse();
+    PrintVisitor v;
+
     if (parsed)
-        parsed->print();
+        parsed->accept(&v);
 
     // int returnCode = parse(source);
 
