@@ -45,15 +45,17 @@ void PrimaryAST::print()
 
 void ExprStmtAST::print()
 {
-    std::cout << "Stmt: ";
+    std::cout << "ExprStmt: ";
     ast->print();
+    std::cout << std::endl;
 }
 
 void ProgramAST::print()
 {
-    std::cout << "Program: ";
+    std::cout << "Program: " << std::endl;
 
     for (std::unique_ptr<AST> &ast : asts) {
+        std::cout << "  ";
         ast->print();
     }
 }
