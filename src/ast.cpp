@@ -12,6 +12,13 @@ ProgramAST::ProgramAST(std::vector<std::unique_ptr<AST>> &asts) {
     }
 }
 
+void BinaryAST::accept(Visitor *v) { v->visitBinaryAST(this); }
+void TernaryOpAST::accept(Visitor *v) { v->visitTernaryOpAST(this); }
+void UnaryAST::accept(Visitor *v) { v->visitUnaryAST(this); }
+void PrimaryAST::accept(Visitor *v) { v->visitPrimaryAST(this); }
+void ExprStmtAST::accept(Visitor *v) { v->visitExprStmtAST(this); }
+void ProgramAST::accept(Visitor *v) { v->visitProgramAST(this); }
+
 void BinaryAST::print()
 {
     std::cout << '(';
