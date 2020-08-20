@@ -13,7 +13,7 @@ class Parser
 public:
     Parser(Lexer &l, std::string &string);
 
-    std::vector<std::unique_ptr<AST>> parse();
+    std::unique_ptr<AST> parse();
     std::unique_ptr<AST> statement();
     std::unique_ptr<AST> exprstmt();
     std::unique_ptr<AST> expression();

@@ -5,9 +5,9 @@ Parser::Parser(Lexer &l, std::string &source): lexer(l), source(source), PANICK(
 }
 
 // {{{ parser parsing methods
-std::vector<std::unique_ptr<AST>> Parser::parse()
+std::unique_ptr<AST> Parser::parse()
 {
-    std::vector<std::unique_ptr<AST>> program;
+    std::vector<std::unique_ptr<AST>> programV;
 
     while (!atEnd()) // if there is no expression
     {
@@ -22,11 +22,12 @@ std::vector<std::unique_ptr<AST>> Parser::parse()
         // has an error and something
         // could be nullptr or the ast
         // is malformed so dont add it
-        if (stmt && !PANICK) program.push_back(std::move(stmt));
+        if (stmt && !PANICK) programV.push_back(std::move(stmt));
     }
 
     consume(TokenType::EOF_, "Expected EOF token at end of file (internal compiling error)");
 
+    std::unique_ptr<ProgramAST> program = std::make_unique<ProgramAST>(programV);
     return program;
 }
 

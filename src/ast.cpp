@@ -5,6 +5,12 @@ TernaryOpAST::TernaryOpAST(std::unique_ptr<AST> &conditional, std::unique_ptr<AS
 UnaryAST::UnaryAST(Token op, std::unique_ptr<AST> &ast): op(op), ast(std::move(ast)) {}
 PrimaryAST::PrimaryAST(Token value): value(value) {}
 ExprStmtAST::ExprStmtAST(std::unique_ptr<AST> &ast): ast(std::move(ast)) {}
+ProgramAST::ProgramAST(std::vector<std::unique_ptr<AST>> &asts) {
+    this->asts.reserve(asts.size());
+    for (std::unique_ptr<AST> &ast : asts) {
+        this->asts.push_back(std::move(ast));
+    }
+}
 
 void BinaryAST::print()
 {
@@ -41,4 +47,13 @@ void ExprStmtAST::print()
 {
     std::cout << "Stmt: ";
     ast->print();
+}
+
+void ProgramAST::print()
+{
+    std::cout << "Program: ";
+
+    for (std::unique_ptr<AST> &ast : asts) {
+        ast->print();
+    }
 }

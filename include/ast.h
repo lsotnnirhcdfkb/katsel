@@ -66,3 +66,13 @@ public:
 private:
     std::unique_ptr<AST> ast;
 };
+
+class ProgramAST : public AST
+{
+public:
+    ProgramAST(std::vector<std::unique_ptr<AST>> &asts);
+    void print() override;
+
+private:
+    std::vector<std::unique_ptr<AST>> asts;
+};
