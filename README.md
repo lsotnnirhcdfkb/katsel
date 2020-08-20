@@ -14,6 +14,7 @@ This is very heavily based off the extremely helpful book "Crafting Interpreters
 - Compilation
 - Optimization
 - LLVM fun stuff
+- More types (only int for now because of starting simple becuase LLVM is a very complicated library)
 
 - Control flow
 - Functions
