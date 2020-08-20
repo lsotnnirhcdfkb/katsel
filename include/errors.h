@@ -5,6 +5,6 @@
 
 #include "token.h"
 
-void reportError(Token &t, const std::string &message, const std::string &source);
+void reportError(Token const &t, const std::string &message, const std::string &source);
 
-void reportDebug(Token &t, const std::string &message, const std::string &source);
+void reportDebug(Token const &t, const std::string &message, const std::string &source);

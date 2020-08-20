@@ -5,7 +5,7 @@
 
 #include "lexer.h"
 #include "parser.h"
-#include "visitor.h"
+#include "llvmgenvisitor.h"
 
 std::string readFile(char *filename)
 {
@@ -42,7 +42,7 @@ void compileFile(std::string &source)
     auto parser = std::make_unique<Parser>(*lexer, source);
 
     std::unique_ptr<AST> parsed = parser->parse();
-    PythonGenVisitor v;
+    LLVMGenVisitor v (source);
 
     if (parsed)
         parsed->accept(&v);
