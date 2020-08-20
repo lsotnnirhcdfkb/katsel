@@ -26,7 +26,7 @@ void LLVMGenVisitor::visitBinaryAST(const BinaryAST *ast) {
             retval = builder.CreateAnd(lval, rval);
             break;
 
-        case TokenType::BANGEQUALA:
+        case TokenType::BANGEQUAL:
             retval = builder.CreateICmpNE(lval, rval);
             break;
 
