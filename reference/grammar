@@ -1,8 +1,16 @@
 // grammar will expand as more features are implemented
-program -> statement* EOF
+program -> decl* EOF;
 
-statement -> SEMICOLON | // empty statements are allowed
-            exprstmt SEMICOLON;
+decl -> function; // soon will add classes here
+
+function -> type IDENTIFIER OPARN arglist? CPARN block;
+
+block -> OCURB statement* CCURB; 
+type -> INT | FLOAT | BOOL | DOUBLE;
+arglist -> type IDENTIFIER (COMMA type IDENTIFIER)*;
+
+statement -> exprstmt SEMICOLON |
+            block;
 
 exprstmt -> expression;
 
@@ -22,7 +30,6 @@ bitandexpr -> bitshiftexpr (AMPER bitshiftexpr)*;
 bitshiftexpr -> additionexpr ((DOUBLEGREATER | DOUBLELESS) additionexpr)*;
 additionexpr -> multexpr ((PLUS | MINUS) multexpr)*;
 multexpr -> unary ((STAR | SLASH | PERCENT) unary)*;
-
 unary -> (TILDE | MINUS) unary | primary;
 primary -> TRUELIT | FALSELIT |
         FLOATLIT |

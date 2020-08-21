@@ -14,6 +14,11 @@ public:
     Parser(Lexer &l, File &sourcefile);
 
     std::unique_ptr<AST> parse();
+    std::unique_ptr<AST> decl();
+    std::unique_ptr<AST> function();
+    std::unique_ptr<AST> block();
+    std::unique_ptr<AST> type();
+    std::unique_ptr<AST> arglist();
     std::unique_ptr<AST> statement();
     std::unique_ptr<AST> exprstmt();
     std::unique_ptr<AST> expression();

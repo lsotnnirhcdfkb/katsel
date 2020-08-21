@@ -197,3 +197,18 @@ void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast) {
 
     module_->print(llvm::outs(), nullptr);
 }
+void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast) {
+
+}
+void LLVMGenVisitor::visitBlockAST(const BlockAST *ast) {
+
+}
+void LLVMGenVisitor::visitTypeAST(const TypeAST *ast) {
+
+}
+void LLVMGenVisitor::visitArgAST(const ArgAST *ast) {
+
+}
+void LLVMGenVisitor::visitArgsAST(const ArgsAST *ast) {
+
+}

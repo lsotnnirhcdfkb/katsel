@@ -71,3 +71,52 @@ public:
 
     std::vector<std::unique_ptr<AST>> asts;
 };
+
+class FunctionAST : public AST
+{
+public:
+    FunctionAST(std::unique_ptr<AST> type, Token name, std::unique_ptr<AST> args, std::unique_ptr<AST> body);
+    void accept(Visitor *v) override;
+
+    std::unique_ptr<AST> type;
+    Token name;
+    std::unique_ptr<AST> args;
+    std::unique_ptr<AST> body;
+};
+
+class BlockAST : public AST
+{
+public:
+    BlockAST(std::vector<std::unique_ptr<AST>> &stmts);
+    void accept(Visitor *v) override;
+
+    std::vector<std::unique_ptr<AST>> stmts;
+};
+
+class TypeAST : public AST
+{
+public:
+    TypeAST(Token type);
+    void accept(Visitor *v) override;
+
+    Token type;
+};
+
+class ArgAST : public AST
+{
+public:
+    ArgAST(std::unique_ptr<AST> type, Token argname);
+    void accept(Visitor *v) override;
+
+    std::unique_ptr<AST> type;
+    Token argname;
+};
+
+class ArgsAST : public AST
+{
+public:
+    ArgsAST(std::vector<std::unique_ptr<AST>> &args);
+    void accept(Visitor *v) override;
+
+    std::vector<std::unique_ptr<AST>> args;
+};

@@ -21,13 +21,13 @@ std::unique_ptr<AST> Parser::parse()
         if (atEnd()) // if syncTokens reached the end
             break;
 
-        std::unique_ptr<AST> stmt = statement();
+        std::unique_ptr<AST> declast = decl();
 
         // if panicing then this ast
         // has an error and something
         // could be nullptr or the ast
         // is malformed so dont add it
-        if (stmt && !PANICK) programV.push_back(std::move(stmt));
+        if (declast && !PANICK) programV.push_back(std::move(declast));
     }
 
     consume(TokenType::EOF_, "Expected EOF token at end of file (internal compiling error)");
@@ -36,14 +36,100 @@ std::unique_ptr<AST> Parser::parse()
     return program;
 }
 
+std::unique_ptr<AST> Parser::decl()
+{
+    return function();
+}
+
+std::unique_ptr<AST> Parser::function()
+{
+    std::unique_ptr<AST> rettype = type();
+    Token name = consume(TokenType::IDENTIFIER, "Expected identifier to denote function name after return type");
+
+    consume(TokenType::OPARN, "Expected '(' after function name");
+    std::unique_ptr<AST> farglist;
+    if (!check(TokenType::CPARN))
+        farglist = arglist();
+    else
+        farglist = nullptr;
+
+    consume(TokenType::CPARN, "Expected ')' after argument list");
+
+    std::unique_ptr<AST> fblock = block();
+
+    std::unique_ptr<FunctionAST> func = std::make_unique<FunctionAST>(std::move(rettype), name, std::move(farglist), std::move(fblock));
+    return func;
+}
+
+std::unique_ptr<AST> Parser::block()
+{
+    consume(TokenType::OCURB, "Expected '{' to open block");
+
+    std::vector<std::unique_ptr<AST>> statements;
+
+    while (!check(TokenType::CCURB))
+    {
+        std::unique_ptr<AST> statementast = statement();
+        if (statementast)
+            statements.push_back(std::move(statementast));
+    }
+
+    consume(TokenType::CCURB, "Expected '}' to close block");
+
+    std::unique_ptr<AST> b = std::make_unique<BlockAST>(statements);
+    return b;
+}
+
+std::unique_ptr<AST> Parser::type()
+{
+    if (match(TokenType::INT) || match(TokenType::FLOAT) ||
+        match(TokenType::BOOL) ||
+        match(TokenType::DOUBLE))
+    {
+        return std::make_unique<TypeAST>(prev());
+    }
+
+    error("Expected type");
+    return nullptr;
+}
+
+std::unique_ptr<AST> Parser::arglist()
+{
+    std::vector<std::unique_ptr<AST>> args;
+    std::unique_ptr<AST> argtype = type();
+    Token argname = consume(TokenType::IDENTIFIER, "Expected arguemnt name");
+
+    std::unique_ptr<AST> arg = std::make_unique<ArgAST>(std::move(argtype), argname);
+
+    args.push_back(std::move(arg));
+
+    while (match(TokenType::COMMA))
+    {
+        std::unique_ptr<AST> cargtype = type();
+        Token cargname = consume(TokenType::IDENTIFIER, "Expected arguemnt name");
+
+        std::unique_ptr<AST> carg = std::make_unique<ArgAST>(std::move(argtype), argname);
+
+        args.push_back(std::move(carg));
+    }
+
+    std::unique_ptr<AST> argsast = std::make_unique<ArgsAST>(args);
+    return argsast;
+}
+
+
 std::unique_ptr<AST> Parser::statement()
 {
-    if (match(TokenType::SEMICOLON)) return nullptr; // empty
+    std::unique_ptr<AST> stmt;
+    if (check(TokenType::OCURB))
+        stmt = block();
+    else
+    {
+        stmt = exprstmt();
+        consume(TokenType::SEMICOLON, "Expected ';' after statement");
+    }
 
-    std::unique_ptr<AST> exprstmtast = exprstmt();
-    consume(TokenType::SEMICOLON, "Expected ';' after statement");
-
-    return exprstmtast;
+    return stmt;
 }
 
 std::unique_ptr<AST> Parser::exprstmt()

@@ -45,6 +45,22 @@ void PrintVisitor::visitProgramAST(const ProgramAST *ast) {
         sast->accept(this);
     }
 }
+
+void PrintVisitor::visitFunctionAST(const FunctionAST *ast) {
+
+}
+void PrintVisitor::visitBlockAST(const BlockAST *ast) {
+
+}
+void PrintVisitor::visitTypeAST(const TypeAST *ast) {
+
+}
+void PrintVisitor::visitArgAST(const ArgAST *ast) {
+
+}
+void PrintVisitor::visitArgsAST(const ArgsAST *ast) {
+
+}
 // }}}
 
 // {{{ python
@@ -86,5 +102,20 @@ void PythonGenVisitor::visitProgramAST(const ProgramAST *ast) {
     for (const std::unique_ptr<AST> &sast : ast->asts) {
         sast->accept(this);
     }
+}
+void PythonGenVisitor::visitFunctionAST(const FunctionAST *ast) {
+
+}
+void PythonGenVisitor::visitBlockAST(const BlockAST *ast) {
+
+}
+void PythonGenVisitor::visitTypeAST(const TypeAST *ast) {
+
+}
+void PythonGenVisitor::visitArgAST(const ArgAST *ast) {
+
+}
+void PythonGenVisitor::visitArgsAST(const ArgsAST *ast) {
+
 }
 // }}}

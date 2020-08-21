@@ -24,6 +24,11 @@ public:
     void visitPrimaryAST(const PrimaryAST *ast);
     void visitExprStmtAST(const ExprStmtAST *ast);
     void visitProgramAST(const ProgramAST *ast);
+    void visitFunctionAST(const FunctionAST *ast);
+    void visitBlockAST(const BlockAST *ast);
+    void visitTypeAST(const TypeAST *ast);
+    void visitArgAST(const ArgAST *ast);
+    void visitArgsAST(const ArgsAST *ast);
 
 private:
     llvm::LLVMContext context;
