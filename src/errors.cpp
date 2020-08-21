@@ -23,11 +23,11 @@ std::string getLine(std::string const &source, std::string::iterator const &star
 void reportError(Token const &t, std::string const &message, std::string const &source)
 {
     std::cerr << "Error at " << t.line << ":" << t.column << " - \"" << std::string(t.start, t.end) << "\": " << message << std::endl;
-    std::cerr << " " << t.line << " " << getLine(source, t.start) << std::endl;
+    std::cerr << " " << t.line << " | " << getLine(source, t.start) << std::endl;
 }
 
 void reportDebug(Token const &t, std::string const &message, std::string const &source)
 {
     std::cerr << "Debug message at " << t.line << ":" << t.column << ": " << message << std::endl;
-    std::cerr << " " << t.line << " " << getLine(source, t.start) << std::endl;
+    std::cerr << " " << t.line << " | " << getLine(source, t.start) << std::endl;
 }
