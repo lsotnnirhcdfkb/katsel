@@ -67,7 +67,7 @@ std::unique_ptr<AST> Parser::block()
 
     std::vector<std::unique_ptr<AST>> statements;
 
-    while (!check(TokenType::CCURB))
+    while (!check(TokenType::CCURB) && !atEnd())
     {
         std::unique_ptr<AST> statementast = statement();
         if (statementast)
@@ -89,7 +89,7 @@ std::unique_ptr<AST> Parser::type()
         return std::make_unique<TypeAST>(prev());
     }
 
-    error("Expected type");
+    error("Expected type", true);
     return nullptr;
 }
 
@@ -103,7 +103,7 @@ std::unique_ptr<AST> Parser::arglist()
 
     args.push_back(std::move(arg));
 
-    while (match(TokenType::COMMA))
+    while (match(TokenType::COMMA) && !atEnd())
     {
         std::unique_ptr<AST> cargtype = type();
         Token cargname = consume(TokenType::IDENTIFIER, "Expected arguemnt name");
@@ -165,7 +165,7 @@ std::unique_ptr<AST> Parser::binorexpr()
 {
     std::unique_ptr<AST> lnode = binandexpr();
     
-    while (match(TokenType::DOUBLEPIPE))
+    while (match(TokenType::DOUBLEPIPE) && !atEnd())
     {
         Token op = prev();
         std::unique_ptr<AST> rnode = binandexpr();
@@ -182,7 +182,7 @@ std::unique_ptr<AST> Parser::binandexpr()
 {
     std::unique_ptr<AST> lnode = binnotexpr();
     
-    while (match(TokenType::DOUBLEAMPER))
+    while (match(TokenType::DOUBLEAMPER) && !atEnd())
     {
         Token op = prev();
         std::unique_ptr<AST> rnode = binnotexpr();
@@ -211,7 +211,7 @@ std::unique_ptr<AST> Parser::compeqexpr()
 {
     std::unique_ptr<AST> lnode = complgtexpr();
     
-    while (match(TokenType::DOUBLEEQUAL) || match(TokenType::BANGEQUAL))
+    while (match(TokenType::DOUBLEEQUAL) || match(TokenType::BANGEQUAL) && !atEnd())
     {
         Token op = prev();
         std::unique_ptr<AST> rnode = complgtexpr();
@@ -228,7 +228,7 @@ std::unique_ptr<AST> Parser::complgtexpr()
 {
     std::unique_ptr<AST> lnode = bitxorexpr();
     
-    while (match(TokenType::LESS) || match(TokenType::GREATER) || match(TokenType::LESSEQUAL) || match(TokenType::GREATEREQUAL))
+    while (match(TokenType::LESS) || match(TokenType::GREATER) || match(TokenType::LESSEQUAL) || match(TokenType::GREATEREQUAL) && !atEnd())
     {
         Token op = prev();
         std::unique_ptr<AST> rnode = bitxorexpr();
@@ -245,7 +245,7 @@ std::unique_ptr<AST> Parser::bitxorexpr()
 {
     std::unique_ptr<AST> lnode = bitorexpr();
     
-    while (match(TokenType::CARET))
+    while (match(TokenType::CARET) && !atEnd())
     {
         Token op = prev();
         std::unique_ptr<AST> rnode = bitorexpr();
@@ -262,7 +262,7 @@ std::unique_ptr<AST> Parser::bitorexpr()
 {
     std::unique_ptr<AST> lnode = bitandexpr();
     
-    while (match(TokenType::PIPE))
+    while (match(TokenType::PIPE) && !atEnd())
     {
         Token op = prev();
         std::unique_ptr<AST> rnode = bitandexpr();
@@ -279,7 +279,7 @@ std::unique_ptr<AST> Parser::bitandexpr()
 {
     std::unique_ptr<AST> lnode = bitshiftexpr();
     
-    while (match(TokenType::AMPER))
+    while (match(TokenType::AMPER) && !atEnd())
     {
         Token op = prev();
         std::unique_ptr<AST> rnode = bitshiftexpr();
@@ -296,7 +296,7 @@ std::unique_ptr<AST> Parser::bitshiftexpr()
 {
     std::unique_ptr<AST> lnode = additionexpr();
     
-    while (match(TokenType::DOUBLELESS) || match(TokenType::DOUBLEGREATER))
+    while (match(TokenType::DOUBLELESS) || match(TokenType::DOUBLEGREATER) && !atEnd())
     {
         Token op = prev();
         std::unique_ptr<AST> rnode = additionexpr();
@@ -313,7 +313,7 @@ std::unique_ptr<AST> Parser::additionexpr()
 {
     std::unique_ptr<AST> lnode = multexpr();
 
-    while (match(TokenType::PLUS) || match(TokenType::MINUS))
+    while (match(TokenType::PLUS) || match(TokenType::MINUS) && !atEnd())
     {
         Token op = prev();
         std::unique_ptr<AST> rnode = multexpr();
@@ -330,7 +330,7 @@ std::unique_ptr<AST> Parser::multexpr()
 {
     std::unique_ptr<AST> lnode = unary();
 
-    while (match(TokenType::STAR) || match(TokenType::SLASH) || match(TokenType::PERCENT))
+    while (match(TokenType::STAR) || match(TokenType::SLASH) || match(TokenType::PERCENT) && !atEnd())
     {
         Token op = prev();
         std::unique_ptr<AST> rnode = unary();
@@ -376,7 +376,7 @@ std::unique_ptr<AST> Parser::primary()
         return expr;
     }
 
-    error("Expected expression");
+    error("Expected expression", true);
     return nullptr;
 }
 // }}}
@@ -403,7 +403,7 @@ void Parser::advance()
         if (currToken.type != TokenType::ERROR) break; // continue loop if it is an error token
 
         // if it is an error token then report error
-        error(currToken.message);
+        error(currToken.message, true);
     }
 }
 
@@ -415,7 +415,7 @@ Token& Parser::consume(TokenType type, std::string message)
     }
 
     error(message);
-    return peek();
+    return prev();
 }
 
 bool Parser::match(TokenType type)
@@ -463,17 +463,18 @@ void Parser::syncTokens()
     // if doesnt advance then peek is of type eof
 }
 
-void Parser::error(std::string const msg)
+void Parser::error(std::string const msg, bool nextT)
 {
-    if (!PANICK)
+    // if (!PANICK)
     {
         Token &badToken = prev();
 
-        if (prev().type == TokenType::SOF)
+        if (prev().type == TokenType::SOF || nextT)
             badToken = peek();
 
         reportError(badToken, msg, sourcefile);
         panic();
+        advance(); // to prevent infinite loops
     }
 }
 

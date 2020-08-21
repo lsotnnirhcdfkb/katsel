@@ -59,5 +59,5 @@ private:
     void panic();
     void calmDown();
     void syncTokens();
-    void error(std::string const msg);
+    void error(std::string const msg, bool nextT=false);
 };
