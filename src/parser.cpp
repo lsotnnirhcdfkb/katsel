@@ -465,7 +465,7 @@ void Parser::syncTokens()
 
 void Parser::error(std::string const msg, bool nextT)
 {
-    // if (!PANICK)
+    if (!PANICK)
     {
         Token &badToken = prev();
 
