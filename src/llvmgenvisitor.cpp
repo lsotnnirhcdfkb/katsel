@@ -98,6 +98,43 @@ void LLVMGenVisitor::visitBinaryAST(const BinaryAST *ast) {
 }
 
 void LLVMGenVisitor::visitTernaryOpAST(const TernaryOpAST *ast) {
+    ast->conditional->accept(this);
+    Value *cond = curRetVal;
+
+    cond = Builder.CreateFCmpONE(cond, llvm::ConstantInt::get(context, llvm::APInt(0));
+    
+    llvm::Function *func = builder.GetInsertBlock()->getParent();
+
+    auto *trueb = BasicBlock::Create(context, "trueblock", func);
+    auto *falseb = BasicBlock::Create(context, "falseblock");
+    auto *afterb = BasicBlock::Create(context, "afterblock");
+
+    builder.CreateCondBr(cond, thenb, elseb);
+    builder.SetInsertPoint(trueb);
+
+    ast->trueast->accept(this);
+    Value *truev = curRetVal;
+
+    builder.createBr(afterb);
+    trueb = Builder.GetInsertBlock();
+
+    func->getBasicBlockList().push_back(falseb);
+    builder.setInsertPoint(falseb);
+
+    ast->falseast->accept(this);
+    Value *falsev = curRetVal;
+
+    Builder.createBr(afterb);
+    falseb = Builder.GetInsertBlock();
+
+    func->getBasicBlockList().push_back(afterb);
+    Builder.SetInsertPoint(afterb);
+    PHINode *phi = Builder.CreatePHI(Type::getIntTy(context), 2);
+
+    phi->addIncoming(truev, trueb);
+    phi->addIncoming(elsev, elseb);
+
+    curRetVal = phi;
 }
 
 void LLVMGenVisitor::visitUnaryAST(const UnaryAST *ast) {
@@ -125,7 +162,7 @@ void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast) {
         sast->accept(this);
     }
 
-    builder.CreateRet(out);
+    builder.CreateRetVoid();
     llvm::verifyFunction(*f);
 
     std::cout << "inifhs" << std::endl;
