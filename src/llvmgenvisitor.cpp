@@ -182,17 +182,18 @@ void LLVMGenVisitor::visitExprStmtAST(const ExprStmtAST *ast) {
 
 void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast) {
     llvm::FunctionType *ft = llvm::FunctionType::get(llvm::Type::getVoidTy(context), false); 
+    llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, "Anonymous", *module_);
+
+    llvm::BasicBlock *block = llvm::BasicBlock::Create(context, "anonymousblock", f);
+    builder.SetInsertPoint(block);
 
     for (const std::unique_ptr<AST> &sast : ast->asts) {
-        llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, "Anonymous", *module_);
-
-        llvm::BasicBlock *block = llvm::BasicBlock::Create(context, "anonymousblock", f);
-        builder.SetInsertPoint(block);
         sast->accept(this);
         llvm::Value *retval = curRetVal;
-        builder.CreateRet(retval);
-        llvm::verifyFunction(*f);
     }
+
+    builder.CreateRetVoid();
+    llvm::verifyFunction(*f);
 
     module_->print(llvm::outs(), nullptr);
 }
