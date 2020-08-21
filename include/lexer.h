@@ -2,13 +2,14 @@
 
 #include <string>
 
+#include "file.h"
 #include "token.h"
 #include "tokentype.h"
 
 class Lexer
 {
 public:
-    Lexer(std::string &source);
+    Lexer(File &sourcefile);
     
     Token nextToken();
 

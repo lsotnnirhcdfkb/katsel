@@ -7,6 +7,7 @@ This is very heavily based off the extremely helpful book "Crafting Interpreters
 
 - Possibly dysfunctional lexing
 - Possibly dysfunctional statement parsing with recursvie descent no precedence parsing so *verbosity galore*
+- Possibly dysfunctional code generation to LLVM IR
 
 # Todo
 

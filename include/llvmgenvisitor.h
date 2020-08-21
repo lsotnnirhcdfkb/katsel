@@ -2,6 +2,7 @@
 #include <string>
 #include <memory>
 
+#include "file.h"
 #include "visitor.h"
 #include "ast.h"
 #include "errors.h"
@@ -15,7 +16,7 @@
 class LLVMGenVisitor : public Visitor
 {
 public:
-    LLVMGenVisitor(std::string &source);
+    LLVMGenVisitor(File &sourcefile);
 
     void visitBinaryAST(const BinaryAST *ast);
     void visitTernaryOpAST(const TernaryOpAST *ast);
@@ -32,5 +33,5 @@ private:
 
     llvm::Value *curRetVal = nullptr;
 
-    std::string &source;
+    File &sourcefile;
 };

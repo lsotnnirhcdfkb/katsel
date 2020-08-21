@@ -3,11 +3,12 @@
 #include <memory>
 #include <limits>
 
+#include "file.h"
 #include "lexer.h"
 #include "parser.h"
 #include "llvmgenvisitor.h"
 
-std::string readFile(char *filename)
+File readFile(char *filename)
 {
     std::ifstream filein;
     filein.open(filename);
@@ -27,22 +28,22 @@ std::string readFile(char *filename)
 
         filein.close();
     
-        return contents;
+        return File{std::string(filename), contents};
     }
     else
     {
         std::cerr << "Could not open file" << std::endl;
-        return nullptr;
+        return File{"", ""};
     }
 }
 
-void compileFile(std::string &source)
+void compileFile(File &sourcefile)
 {
-    auto lexer = std::make_unique<Lexer>(source);
-    auto parser = std::make_unique<Parser>(*lexer, source);
+    auto lexer = std::make_unique<Lexer>(sourcefile);
+    auto parser = std::make_unique<Parser>(*lexer, sourcefile);
 
     std::unique_ptr<AST> parsed = parser->parse();
-    LLVMGenVisitor v (source);
+    LLVMGenVisitor v (sourcefile);
 
     if (parsed)
         parsed->accept(&v);
@@ -60,7 +61,7 @@ int main(int argc, char *argv[])
     if (argc == 2)
     {
         // Compile file
-        auto source = std::make_unique<std::string>(readFile(argv[1]));
+        auto source = std::make_unique<File>(readFile(argv[1]));
         compileFile(*source);
     }
     else

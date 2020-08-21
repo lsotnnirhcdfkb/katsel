@@ -1,6 +1,6 @@
 #include "parser.h"
 
-Parser::Parser(Lexer &l, std::string &source): lexer(l), source(source), PANICK(false) {
+Parser::Parser(Lexer &l, File &sourcefile): lexer(l), sourcefile(sourcefile), PANICK(false) {
     advance(); // get first token
     prevToken.type = TokenType::SOF;
 }
@@ -386,7 +386,7 @@ void Parser::error(std::string const msg)
         if (prev().type == TokenType::SOF)
             badToken = peek();
 
-        reportError(badToken, msg, source);
+        reportError(badToken, msg, sourcefile);
         panic();
     }
 }

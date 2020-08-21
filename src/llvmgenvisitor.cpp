@@ -1,6 +1,6 @@
 #include "llvmgenvisitor.h"
 
-LLVMGenVisitor::LLVMGenVisitor(std::string &source): source(source), builder(context), module_(std::make_unique<llvm::Module>("COxianc output", context)) {}
+LLVMGenVisitor::LLVMGenVisitor(File &sourcefile): sourcefile(sourcefile), builder(context), module_(std::make_unique<llvm::Module>("COxianc output of file " + sourcefile.filename, context)) {}
 
 void LLVMGenVisitor::visitBinaryAST(const BinaryAST *ast) {
     ast->last->accept(this);
@@ -90,7 +90,7 @@ void LLVMGenVisitor::visitBinaryAST(const BinaryAST *ast) {
             retval = builder.CreateURem(lval, rval);
             break;
 
-        default: reportError(ast->op, "invalid thingy", source); retval = nullptr;
+        default: reportError(ast->op, "invalid thingy", sourcefile); retval = nullptr;
     }
 
     curRetVal = retval;
@@ -165,7 +165,7 @@ void LLVMGenVisitor::visitUnaryAST(const UnaryAST *ast) {
             retval = builder.CreateSub(llvm::ConstantInt::get(context, llvm::APInt(64, 0)), val);
             break;
 
-        default: reportError(ast->op, "invalid thingy", source); retval = nullptr;
+        default: reportError(ast->op, "invalid thingy", sourcefile); retval = nullptr;
     }
 
     curRetVal = retval;
@@ -194,5 +194,5 @@ void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast) {
         llvm::verifyFunction(*f);
     }
 
-    // module_->print(llvm::outs(), nullptr);
+    module_->print(llvm::outs(), nullptr);
 }
