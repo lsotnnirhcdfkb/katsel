@@ -138,6 +138,37 @@ void LLVMGenVisitor::visitTernaryOpAST(const TernaryOpAST *ast) {
 }
 
 void LLVMGenVisitor::visitUnaryAST(const UnaryAST *ast) {
+    ast->ast->accept(this);
+    llvm::Value *val = curRetVal;
+
+    if (val) {
+        curRetVal = nullptr;
+        return;
+    }
+
+    llvm::Value *retval = nullptr;
+
+    switch (ast->op.type)
+    {
+        // TODO: change instructions to depend on the lval and rval types
+        case TokenType::BANG:
+            retval = builder.CreateNot(val);
+            break;
+
+        case TokenType::TILDE:
+            // return x ^ 2^64-1
+            retval = builder.CreateXor(val, llvm::ConstantInt::get(context, llvm::APInt(64, 0xffffffffffffffff)));
+            break;
+
+        case TokenType::MINUS:
+            // return 0-x
+            retval = builder.CreateSub(llvm::ConstantInt::get(context, llvm::APInt(64, 0)), val);
+            break;
+
+        default: reportError(ast->op, "invalid thingy", source); retval = nullptr;
+    }
+
+    curRetVal = retval;
 }
 
 void LLVMGenVisitor::visitPrimaryAST(const PrimaryAST *ast) {
@@ -151,17 +182,18 @@ void LLVMGenVisitor::visitExprStmtAST(const ExprStmtAST *ast) {
 
 void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast) {
     llvm::FunctionType *ft = llvm::FunctionType::get(llvm::Type::getVoidTy(context), false); 
-    llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, "Anonymous", *module_);
-
-    llvm::BasicBlock *block = llvm::BasicBlock::Create(context, "anonymousblock", f);
-    builder.SetInsertPoint(block);
 
     for (const std::unique_ptr<AST> &sast : ast->asts) {
+        llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, "Anonymous", *module_);
+
+        llvm::BasicBlock *block = llvm::BasicBlock::Create(context, "anonymousblock", f);
+        builder.SetInsertPoint(block);
         sast->accept(this);
+        llvm::Value *retval = curRetVal;
+        builder.CreateRet(retval);
+        llvm::verifyFunction(*f);
     }
 
-    builder.CreateRetVoid();
-    llvm::verifyFunction(*f);
 
 
     module_->print(llvm::outs(), nullptr);
