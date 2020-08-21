@@ -2,6 +2,7 @@
 
 Parser::Parser(Lexer &l, std::string &source): lexer(l), source(source), PANICK(false) {
     advance(); // get first token
+    prevToken.type = TokenType::SOF;
 }
 
 // {{{ parser parsing methods
@@ -16,6 +17,10 @@ std::unique_ptr<AST> Parser::parse()
             calmDown();
             syncTokens();
         }
+
+        if (atEnd()) // if syncTokens reached the end
+            break;
+
         std::unique_ptr<AST> stmt = statement();
 
         // if panicing then this ast
@@ -376,7 +381,12 @@ void Parser::error(std::string const msg)
 {
     if (!PANICK)
     {
-        reportError(peek(), msg, source);
+        Token &badToken = prev();
+
+        if (prev().type == TokenType::SOF)
+            badToken = peek();
+
+        reportError(badToken, msg, source);
         panic();
     }
 }

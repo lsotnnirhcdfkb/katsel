@@ -91,5 +91,6 @@ enum TokenType
     ASSERT,
 
     EOF_,
-    ERROR
+    ERROR,
+    SOF // start of file to make sure parser does not report error on invalid token with garbage values/zeroes
 };

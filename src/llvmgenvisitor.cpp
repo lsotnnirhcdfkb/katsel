@@ -194,7 +194,5 @@ void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast) {
         llvm::verifyFunction(*f);
     }
 
-
-
-    module_->print(llvm::outs(), nullptr);
+    // module_->print(llvm::outs(), nullptr);
 }

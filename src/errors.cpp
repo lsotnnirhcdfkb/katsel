@@ -5,7 +5,12 @@ std::string getLine(std::string const &source, std::string::iterator const &star
     auto linestart (start);
     while (linestart != source.begin() && *linestart != '\n') --linestart; // until *linestart is \n
     // once *linestart is \n then go forward once
-    ++linestart;
+
+    // if linestart == source.begin(), then loop stopped
+    // because iterator hit beginning of source, not
+    // because it hit \n, so there is no need to consume the \n
+    if (linestart != source.begin())
+        ++linestart;
 
     auto lineend(start);
     while (lineend != source.end() && *lineend != '\n') ++lineend;
