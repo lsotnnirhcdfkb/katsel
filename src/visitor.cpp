@@ -60,7 +60,7 @@ void PrintVisitor::visitProgramAST(const ProgramAST *ast)
 
 void PrintVisitor::visitFunctionAST(const FunctionAST *ast)
 {
-    print("Function: ret ");
+    print("Function: name " + std::string(ast->name.start, ast->name.end) + ", ret ");
     ast->type->accept(this);
     if (ast->args)
     {
