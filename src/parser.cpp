@@ -83,7 +83,11 @@ std::unique_ptr<AST> Parser::block()
 
 std::unique_ptr<AST> Parser::type()
 {
-    if (match(TokenType::INT) || match(TokenType::FLOAT) ||
+    // only builtin types for now
+    if (match(TokenType::UINT8) || match(TokenType::UINT16) || match(TokenType::UINT32) || match(TokenType::UINT64) ||
+        match(TokenType::SINT8) || match(TokenType::SINT16) || match(TokenType::SINT32) || match(TokenType::SINT64) ||
+
+        match(TokenType::FLOAT) ||
         match(TokenType::CHAR) ||
         match(TokenType::BOOL) ||
         match(TokenType::DOUBLE) ||
@@ -111,7 +115,7 @@ std::unique_ptr<AST> Parser::arglist()
         std::unique_ptr<AST> cargtype = type();
         Token cargname = consume(TokenType::IDENTIFIER, "Expected arguemnt name");
 
-        std::unique_ptr<AST> carg = std::make_unique<ArgAST>(std::move(argtype), argname);
+        std::unique_ptr<AST> carg = std::make_unique<ArgAST>(std::move(cargtype), argname);
 
         args.push_back(std::move(carg));
     }
