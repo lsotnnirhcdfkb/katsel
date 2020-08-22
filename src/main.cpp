@@ -44,10 +44,14 @@ void compileFile(File &sourcefile)
 
     std::unique_ptr<AST> parsed = parser->parse();
     // std::cout << (parsed == 0) << std::endl;
-    PrintVisitor v;
+    PrintVisitor printv;
+    LLVMGenVisitor llvmv (sourcefile);
 
     if (parsed)
-        parsed->accept(&v);
+    {
+        parsed->accept(&printv);
+        parsed->accept(&llvmv);
+    }
 
     // int returnCode = parse(source);
 
