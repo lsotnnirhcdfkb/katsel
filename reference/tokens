@@ -67,6 +67,7 @@ TokenType entry       | Description                     | Example
   FLOAT               | Float type keyword              | float
   BOOL                | Bool type keyword               | bool
   DOUBLE              | Double type keyword             | double
+  CHAR                | Char type keyword               | char
                       |                                 |
   PRINT               | Print keyword (removal soon)    | print
   VOID                | Void keyword                    | void

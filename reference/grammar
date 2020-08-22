@@ -6,7 +6,7 @@ decl -> function; // soon will add classes here
 function -> type IDENTIFIER OPARN arglist? CPARN block;
 
 block -> OCURB statement* CCURB; 
-type -> INT | FLOAT | BOOL | DOUBLE;
+type -> INT | FLOAT | BOOL | DOUBLE | VOID | CHAR;
 arglist -> type IDENTIFIER (COMMA type IDENTIFIER)*;
 
 statement -> exprstmt SEMICOLON |

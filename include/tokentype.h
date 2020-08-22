@@ -66,6 +66,7 @@ enum TokenType
     FLOAT,
     BOOL,
     DOUBLE,
+    CHAR,
 
     PRINT,
     VOID,
