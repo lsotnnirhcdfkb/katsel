@@ -64,16 +64,20 @@ void PrintVisitor::visitFunctionAST(const FunctionAST *ast)
     ast->type->accept(this);
     if (ast->args)
     {
-        print(", with args ");
+        print("\n");
+        ++indent;
         ast->args->accept(this);
+        --indent;
     } else
     {
-        print(", without args ");
+        ++indent;
+        print("\nno args\n");
+        --indent;
     }
 
-    print("\n");
     ++indent;
     ast->body->accept(this);
+    --indent;
     print("\n");
 }
 
@@ -98,12 +102,12 @@ void PrintVisitor::visitArgAST(const ArgAST *ast)
 {
     print("(Arg: " + std::string(ast->argname.start, ast->argname.end) + " with type ");
     ast->type->accept(this);
-    print(")");
+    print(")\n");
 }
 
 void PrintVisitor::visitArgsAST(const ArgsAST *ast)
 {
-    print("Args: \n");
+    print("Args:\n");
     ++indent;
 
     for (const std::unique_ptr<AST> &ast : ast->args)

@@ -115,7 +115,7 @@ std::unique_ptr<AST> Parser::arglist()
         std::unique_ptr<AST> cargtype = type();
         Token cargname = consume(TokenType::IDENTIFIER, "Expected arguemnt name");
 
-        std::unique_ptr<AST> carg = std::make_unique<ArgAST>(std::move(cargtype), argname);
+        std::unique_ptr<AST> carg = std::make_unique<ArgAST>(std::move(cargtype), cargname);
 
         args.push_back(std::move(carg));
     }
