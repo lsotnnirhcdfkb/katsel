@@ -10,7 +10,7 @@ void LLVMGenVisitor::visitBinaryAST(const BinaryAST *ast)
     llvm::Value *rval = curRetVal;
 
     if (!lval || !rval) 
-{
+    {
         curRetVal = nullptr;
         return;
     }
@@ -185,6 +185,7 @@ void LLVMGenVisitor::visitPrimaryAST(const PrimaryAST *ast)
 void LLVMGenVisitor::visitExprStmtAST(const ExprStmtAST *ast) 
 {
     ast->ast->accept(this);
+    curRetVal = nullptr;
 }
 
 void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast) 
@@ -195,6 +196,7 @@ void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast)
     }
 
     module_->print(llvm::outs(), nullptr);
+    curRetVal = nullptr;
 }
 void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast) 
 {
@@ -202,7 +204,7 @@ void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
     llvm::FunctionType *ft = llvm::FunctionType::get(llvm::Type::getVoidTy(context), false); 
     llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, fname, *module_);
 
-    llvm::BasicBlock *block = llvm::BasicBlock::Create(context, fname + "block", f);
+    llvm::BasicBlock *block = llvm::BasicBlock::Create(context, fname + "entry", f);
     builder.SetInsertPoint(block);
 
     ast->body->accept(this);
@@ -219,6 +221,7 @@ void LLVMGenVisitor::visitBlockAST(const BlockAST *ast)
     {
         bast->accept(this);
     }
+    curRetVal = nullptr;
 }
 
 void LLVMGenVisitor::visitTypeAST(const TypeAST *ast) 
