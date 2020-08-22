@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 // forward declare because circular includes don't work
 class AST;
 
@@ -34,6 +36,8 @@ public:
 class PrintVisitor : public Visitor
 {
 public:
+    PrintVisitor();
+
     void visitBinaryAST(const BinaryAST *ast) override;
     void visitTernaryOpAST(const TernaryOpAST *ast) override;
     void visitUnaryAST(const UnaryAST *ast) override;
@@ -45,6 +49,13 @@ public:
     void visitTypeAST(const TypeAST *ast) override;
     void visitArgAST(const ArgAST *ast) override;
     void visitArgsAST(const ArgsAST *ast) override;
+
+private:
+    int indent;
+    bool pindent;
+
+    void print(std::string &str);
+    void print(std::string &&str);
 };
 
 class PythonGenVisitor : public Visitor

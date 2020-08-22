@@ -84,7 +84,8 @@ std::unique_ptr<AST> Parser::type()
 {
     if (match(TokenType::INT) || match(TokenType::FLOAT) ||
         match(TokenType::BOOL) ||
-        match(TokenType::DOUBLE))
+        match(TokenType::DOUBLE) ||
+        match(TokenType::VOID))
     {
         return std::make_unique<TypeAST>(prev());
     }
