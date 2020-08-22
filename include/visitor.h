@@ -56,4 +56,4 @@ private:
 
     void print(std::string &str);
     void print(std::string &&str);
-}
+};

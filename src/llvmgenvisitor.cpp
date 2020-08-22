@@ -190,7 +190,7 @@ void LLVMGenVisitor::visitExprStmtAST(const ExprStmtAST *ast)
 void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast) 
 {
     for (const std::unique_ptr<AST> &past : ast->asts) 
-{
+    {
         past->accept(this);
     }
 
@@ -198,24 +198,32 @@ void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast)
 }
 void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast) 
 {
+    std::string fname = std::string(ast->name.start, ast->name.end);
     llvm::FunctionType *ft = llvm::FunctionType::get(llvm::Type::getVoidTy(context), false); 
-    llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, "Anonymous", *module_);
+    llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, fname, *module_);
 
-    llvm::BasicBlock *block = llvm::BasicBlock::Create(context, "anonymousblock", f);
+    llvm::BasicBlock *block = llvm::BasicBlock::Create(context, fname + "block", f);
     builder.SetInsertPoint(block);
+
+    ast->body->accept(this);
 
     builder.CreateRetVoid();
     llvm::verifyFunction(*f);
+
+    curRetVal = f;
 }
 
 void LLVMGenVisitor::visitBlockAST(const BlockAST *ast) 
 {
-
+    for (const std::unique_ptr<AST> &bast : ast->stmts) 
+    {
+        bast->accept(this);
+    }
 }
 
 void LLVMGenVisitor::visitTypeAST(const TypeAST *ast) 
 {
-
+    
 }
 
 void LLVMGenVisitor::visitArgAST(const ArgAST *ast) 
