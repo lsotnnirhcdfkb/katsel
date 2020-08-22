@@ -2,13 +2,15 @@
 
 LLVMGenVisitor::LLVMGenVisitor(File &sourcefile): sourcefile(sourcefile), builder(context), module_(std::make_unique<llvm::Module>("COxianc output of file " + sourcefile.filename, context)) {}
 
-void LLVMGenVisitor::visitBinaryAST(const BinaryAST *ast) {
+void LLVMGenVisitor::visitBinaryAST(const BinaryAST *ast) 
+{
     ast->last->accept(this);
     llvm::Value *lval = curRetVal;
     ast->rast->accept(this);
     llvm::Value *rval = curRetVal;
 
-    if (!lval || !rval) {
+    if (!lval || !rval) 
+{
         curRetVal = nullptr;
         return;
     }
@@ -96,7 +98,8 @@ void LLVMGenVisitor::visitBinaryAST(const BinaryAST *ast) {
     curRetVal = retval;
 }
 
-void LLVMGenVisitor::visitTernaryOpAST(const TernaryOpAST *ast) {
+void LLVMGenVisitor::visitTernaryOpAST(const TernaryOpAST *ast) 
+{
     ast->conditional->accept(this);
     llvm::Value *cond = curRetVal;
 
@@ -137,11 +140,13 @@ void LLVMGenVisitor::visitTernaryOpAST(const TernaryOpAST *ast) {
     curRetVal = phi;
 }
 
-void LLVMGenVisitor::visitUnaryAST(const UnaryAST *ast) {
+void LLVMGenVisitor::visitUnaryAST(const UnaryAST *ast)
+{
     ast->ast->accept(this);
     llvm::Value *val = curRetVal;
 
-    if (val) {
+    if (val)
+    {
         curRetVal = nullptr;
         return;
     }
@@ -171,44 +176,54 @@ void LLVMGenVisitor::visitUnaryAST(const UnaryAST *ast) {
     curRetVal = retval;
 }
 
-void LLVMGenVisitor::visitPrimaryAST(const PrimaryAST *ast) {
+void LLVMGenVisitor::visitPrimaryAST(const PrimaryAST *ast) 
+{
     curRetVal = llvm::ConstantInt::get(context, llvm::APInt(64, std::stoi(std::string(ast->value.start, ast->value.end))));
     // curRetVal = llvm::ConstantFP::get(context, llvm::APFloat((float) std::stoi(std::string(ast->value.start, ast->value.end))));
 }
 
-void LLVMGenVisitor::visitExprStmtAST(const ExprStmtAST *ast) {
+void LLVMGenVisitor::visitExprStmtAST(const ExprStmtAST *ast) 
+{
     ast->ast->accept(this);
 }
 
-void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast) {
+void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast) 
+{
+    for (const std::unique_ptr<AST> &past : ast->asts) 
+{
+        past->accept(this);
+    }
+
+    module_->print(llvm::outs(), nullptr);
+}
+void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast) 
+{
     llvm::FunctionType *ft = llvm::FunctionType::get(llvm::Type::getVoidTy(context), false); 
     llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, "Anonymous", *module_);
 
     llvm::BasicBlock *block = llvm::BasicBlock::Create(context, "anonymousblock", f);
     builder.SetInsertPoint(block);
 
-    for (const std::unique_ptr<AST> &sast : ast->asts) {
-        sast->accept(this);
-        llvm::Value *retval = curRetVal;
-    }
-
     builder.CreateRetVoid();
     llvm::verifyFunction(*f);
-
-    module_->print(llvm::outs(), nullptr);
 }
-void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast) {
 
-}
-void LLVMGenVisitor::visitBlockAST(const BlockAST *ast) {
+void LLVMGenVisitor::visitBlockAST(const BlockAST *ast) 
+{
 
 }
-void LLVMGenVisitor::visitTypeAST(const TypeAST *ast) {
+
+void LLVMGenVisitor::visitTypeAST(const TypeAST *ast) 
+{
 
 }
-void LLVMGenVisitor::visitArgAST(const ArgAST *ast) {
+
+void LLVMGenVisitor::visitArgAST(const ArgAST *ast) 
+{
 
 }
-void LLVMGenVisitor::visitArgsAST(const ArgsAST *ast) {
+
+void LLVMGenVisitor::visitArgsAST(const ArgsAST *ast) 
+{
 
 }

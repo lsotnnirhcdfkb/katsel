@@ -12,21 +12,24 @@ ArgAST::ArgAST(std::unique_ptr<AST> type, Token argname): type(std::move(type)),
 ProgramAST::ProgramAST(std::vector<std::unique_ptr<AST>> &asts)
 {
     this->asts.reserve(asts.size());
-    for (std::unique_ptr<AST> &ast : asts) {
+    for (std::unique_ptr<AST> &ast : asts)
+    {
         this->asts.push_back(std::move(ast));
     }
 }
 BlockAST::BlockAST(std::vector<std::unique_ptr<AST>> &stmts)
 {
     this->stmts.reserve(stmts.size());
-    for (std::unique_ptr<AST> &stmt : stmts) {
+    for (std::unique_ptr<AST> &stmt : stmts)
+    {
         this->stmts.push_back(std::move(stmt));
     }
 }
 ArgsAST::ArgsAST(std::vector<std::unique_ptr<AST>> &args)
 {
     this->args.reserve(args.size());
-    for (std::unique_ptr<AST> &arg : args) {
+    for (std::unique_ptr<AST> &arg : args)
+    {
         this->args.push_back(std::move(arg));
     }
 }

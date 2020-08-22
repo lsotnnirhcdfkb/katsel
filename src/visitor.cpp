@@ -4,7 +4,8 @@
 // {{{ print
 PrintVisitor::PrintVisitor(): indent(0), pindent(false) {}
 
-void PrintVisitor::visitBinaryAST(const BinaryAST *ast) {
+void PrintVisitor::visitBinaryAST(const BinaryAST *ast)
+{
     print("(");
     ast->last->accept(this);
     print(std::string(ast->op.start, ast->op.end));
@@ -12,7 +13,8 @@ void PrintVisitor::visitBinaryAST(const BinaryAST *ast) {
     print(")");
 }
 
-void PrintVisitor::visitTernaryOpAST(const TernaryOpAST *ast) {
+void PrintVisitor::visitTernaryOpAST(const TernaryOpAST *ast)
+{
     print("(");
     ast->conditional->accept(this);
     print("?");
@@ -22,28 +24,33 @@ void PrintVisitor::visitTernaryOpAST(const TernaryOpAST *ast) {
     print(")");
 }
 
-void PrintVisitor::visitUnaryAST(const UnaryAST *ast) {
+void PrintVisitor::visitUnaryAST(const UnaryAST *ast)
+{
     print("(");
     print(std::string(ast->op.start, ast->op.end));
     ast->ast->accept(this);
     print(")");
 }
 
-void PrintVisitor::visitPrimaryAST(const PrimaryAST *ast) {
+void PrintVisitor::visitPrimaryAST(const PrimaryAST *ast)
+{
     print(std::string(ast->value.start, ast->value.end));
 }
 
-void PrintVisitor::visitExprStmtAST(const ExprStmtAST *ast) {
+void PrintVisitor::visitExprStmtAST(const ExprStmtAST *ast)
+{
     print("ExprStmt: ");
     ast->ast->accept(this);
     print("\n");
 }
 
-void PrintVisitor::visitProgramAST(const ProgramAST *ast) {
+void PrintVisitor::visitProgramAST(const ProgramAST *ast)
+{
     print("Program:\n");
     ++indent;
 
-    for (const std::unique_ptr<AST> &ast : ast->asts) {
+    for (const std::unique_ptr<AST> &ast : ast->asts)
+    {
         ast->accept(this);
     }
 
@@ -55,10 +62,12 @@ void PrintVisitor::visitFunctionAST(const FunctionAST *ast)
 {
     print("Function: ret ");
     ast->type->accept(this);
-    if (ast->args) {
+    if (ast->args)
+    {
         print(", with args ");
         ast->args->accept(this);
-    } else {
+    } else
+    {
         print(", without args ");
     }
 
