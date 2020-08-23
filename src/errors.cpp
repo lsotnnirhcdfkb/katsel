@@ -15,9 +15,9 @@ std::string getLine(File const &sourcefile, std::string::iterator const &start)
     auto lineend(start);
     while (lineend != sourcefile.source.end() && *lineend != '\n') ++lineend;
     // *lineend should be \n
-    
+
     return std::string(linestart, lineend);
-    
+
 }
 
 void reportError(Token const &t, std::string const &message, File const &sourcefile)

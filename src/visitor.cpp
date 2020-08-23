@@ -111,7 +111,7 @@ void PythonGenVisitor::visitExprStmtAST(const ExprStmtAST *ast)
 void PythonGenVisitor::visitProgramAST(const ProgramAST *ast) 
 {
     for (const std::unique_ptr<AST> &sast : ast->asts) 
-{
+    {
         sast->accept(this);
     }
 }

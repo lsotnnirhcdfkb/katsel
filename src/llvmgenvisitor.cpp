@@ -145,7 +145,7 @@ void LLVMGenVisitor::visitUnaryAST(const UnaryAST *ast)
     llvm::Value *val = curRetVal;
 
     if (val) 
-{
+    {
         curRetVal = nullptr;
         return;
     }
@@ -195,7 +195,7 @@ void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast)
     builder.SetInsertPoint(block);
 
     for (const std::unique_ptr<AST> &sast : ast->asts) 
-{
+    {
         sast->accept(this);
         llvm::Value *retval = curRetVal;
     }

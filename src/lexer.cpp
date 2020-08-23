@@ -511,7 +511,7 @@ TokenType Lexer::getIdentifierType()
                                     switch (*(start + 4))
                                     {
                                         case 'k':
-                                                if (start + 5 == end) return TokenType::BREAK;
+                                            if (start + 5 == end) return TokenType::BREAK;
                                             switch (*(start + 5))
                                             {
                                                 case 'a':
@@ -594,16 +594,6 @@ TokenType Lexer::getIdentifierType()
 // }}}
 
 // {{{ helper functions
-TokenType Lexer::checkKeyword(int start, std::string compareTo, TokenType type)
-{
-  if (std::string(this->start + start, end) == compareTo)
-  {
-    return type;
-  }
-
-  return TokenType::IDENTIFIER;
-}
-
 bool isDigit(char c)
 {
     return c >= '0' && c <= '9';
@@ -720,56 +710,54 @@ Token Lexer::nextToken()
         case '?': return makeToken(TokenType::QUESTION);
         case '~': return makeToken(TokenType::TILDE);
 
-        // double and single
+                  // double and single
         case '=': return makeToken(match('=') ? TokenType::DOUBLEEQUAL : TokenType::EQUAL);
         case ':': return makeToken(match(':') ? TokenType::DOUBLECOLON : TokenType::COLON);
-        
-        // equal and single
+
+                  // equal and single
         case '*': return makeToken(match('=') ? TokenType::STAREQUAL : TokenType::STAR);
         case '/': return makeToken(match('=') ? TokenType::SLASHEQUAL : TokenType::SLASH);
         case '!': return makeToken(match('=') ? TokenType::BANGEQUAL : TokenType::BANG);
         case '%': return makeToken(match('=') ? TokenType::PERCENTEQUAL : TokenType::PERCENT);
         case '^': return makeToken(match('=') ? TokenType::CARETEQUAL : TokenType::CARET);
 
-        // double and equal and single
-        //                  if matches double ? return double         : is not double so check if it has equals after it
+                  // double and equal and single
+                  //        if matches double ? return double         : is not double so check if it has equals after it
         case '+': return makeToken(match('+') ? TokenType::DOUBLEPLUS : (match('=') ? TokenType::PLUSEQUAL : TokenType::PLUS));
         case '-': return makeToken(match('-') ? TokenType::DOUBLEMINUS : (match('=') ? TokenType::MINUSEQUAL : TokenType::MINUS));
         case '&': return makeToken(match('&') ? TokenType::DOUBLEAMPER : (match('=') ? TokenType::AMPEREQUAL : TokenType::AMPER));
         case '|': return makeToken(match('|') ? TokenType::DOUBLEPIPE : (match('=') ? TokenType::PIPEEQUAL : TokenType::PIPE));
 
-        // double, doubleequal, singleequal, single
-        //                  if matches double ? (is double so check if it has equal after it                          ) : (is not double so check if it has equal after it          )
+                  // double, doubleequal, singleequal, single
+                  //        if matches double ? (is double so check if it has equal after it                          ) : (is not double so check if it has equal after it          )
         case '>': return makeToken(match('>') ? (match('=') ? TokenType::DOUBLEGREATEREQUAL : TokenType::DOUBLEGREATER) : (match('=') ? TokenType::GREATEREQUAL : TokenType::GREATER));
-        // once again,      if matches double ? (is double so check if it has equal after it                    ) : (is not double so check if it has equal after it    )
+                  //        if matches double ? (is double so check if it has equal after it                    ) : (is not double so check if it has equal after it    )
         case '<': return makeToken(match('<') ? (match('=') ? TokenType::DOUBLELESSEQUAL : TokenType::DOUBLELESS) : (match('=') ? TokenType::LESSEQUAL : TokenType::LESS));
 
-
-
         case 'c': // check for char literal
-            if (match('\'') || match('"'))
-            { // should consume quote
-                char startingQuote = consumed();
-                advance(); // consume character
+                  if (match('\'') || match('"'))
+                  { // should consume quote
+                      char startingQuote = consumed();
+                      advance(); // consume character
 
-                if (!match(startingQuote)) return makeErrorToken("Unterminated single-character literal");
+                      if (!match(startingQuote)) return makeErrorToken("Unterminated single-character literal");
 
-                return makeToken(TokenType::CHARLIT);
-            }
-            break;
+                      return makeToken(TokenType::CHARLIT);
+                  }
+                  break;
 
         case '"':
         case '\'':
-            // c is the starting string thing
-            while (peek() != c && !atEnd())
-            {
-                if (peek() == '\n') nextLine();
-                advance();
-            }
+                  // c is the starting string thing
+                  while (peek() != c && !atEnd())
+                  {
+                      if (peek() == '\n') nextLine();
+                      advance();
+                  }
 
-            if (atEnd()) return makeErrorToken("Unterminated string literal");
-            advance(); // consume closing quote/apostrophe
-            return makeToken(TokenType::STRINGLIT);
+                  if (atEnd()) return makeErrorToken("Unterminated string literal");
+                  advance(); // consume closing quote/apostrophe
+                  return makeToken(TokenType::STRINGLIT);
     }
 
     if (isDigit(c))
@@ -789,7 +777,7 @@ Token Lexer::nextToken()
                 case 'x': inttype = TokenType::HEXINTLIT; break;
 
                 default:
-                    return makeErrorToken("Invalid number literal type (must be 0o, 0b, or 0x)");
+                          return makeErrorToken("Invalid number literal type (must be 0o, 0b, or 0x)");
             }
 
             advance(); // consume o, b, or x
@@ -800,7 +788,7 @@ Token Lexer::nextToken()
         if (peek() == '.' && isDigit(peekpeek(), inttype) && !atEnd())
         { // is actually a decimal and is not integer literal
             advance(); // consume decimal point
-            
+
             while (isDigit(peek(), inttype) && !atEnd()) advance();
 
             if (inttype != TokenType::DECINTLIT) return makeErrorToken("Non-decimal floating point literals are not supported");

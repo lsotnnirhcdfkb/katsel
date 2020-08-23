@@ -10,12 +10,11 @@ class Lexer
 {
 public:
     Lexer(File &sourcefile);
-    
+
     Token nextToken();
 
 private:
     TokenType getIdentifierType();
-    TokenType checkKeyword(int start, std::string compareTo, TokenType type);
     bool atEnd();
     bool match(char c);
     char advance();

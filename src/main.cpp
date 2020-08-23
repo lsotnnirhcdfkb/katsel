@@ -27,7 +27,7 @@ File readFile(char *filename)
         filein.read(&contents[0], contents.size());
 
         filein.close();
-    
+
         return File{std::string(filename), contents};
     }
     else
@@ -47,7 +47,7 @@ void compileFile(File &sourcefile)
     LLVMGenVisitor llvmv (sourcefile);
 
     if (parsed) 
-{
+    {
         parsed->accept(&printv);
         parsed->accept(&llvmv);
     }
