@@ -1,6 +1,7 @@
 #include "parser.h"
 
-Parser::Parser(Lexer &l, File &sourcefile): lexer(l), sourcefile(sourcefile), PANICK(false) {
+Parser::Parser(Lexer &l, File &sourcefile): lexer(l), sourcefile(sourcefile), PANICK(false) 
+{
     advance(); // get first token
     prevToken.type = TokenType::SOF;
 }

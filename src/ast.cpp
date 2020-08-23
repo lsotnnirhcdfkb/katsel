@@ -8,7 +8,8 @@ ExprStmtAST::ExprStmtAST(std::unique_ptr<AST> ast): ast(std::move(ast)) {}
 VarStmtAST::VarStmtAST(std::unique_ptr<AST> type, Token name, std::unique_ptr<AST> expression) : type(std::move(type)), name(name), expression(std::move(expression)) {}
 TypeAST::TypeAST(Token type) : type(type) {}
 
-ProgramAST::ProgramAST(std::vector<std::unique_ptr<AST>> &asts) {
+ProgramAST::ProgramAST(std::vector<std::unique_ptr<AST>> &asts) 
+{
     this->asts.reserve(asts.size());
     for (std::unique_ptr<AST> &ast : asts) {
         this->asts.push_back(std::move(ast));

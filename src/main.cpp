@@ -46,9 +46,11 @@ void compileFile(File &sourcefile)
     PrintVisitor printv;
     LLVMGenVisitor llvmv (sourcefile);
 
-    if (parsed)
+    if (parsed) 
+{
         parsed->accept(&printv);
         parsed->accept(&llvmv);
+    }
 
     // int returnCode = parse(source);
 

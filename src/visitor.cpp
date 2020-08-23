@@ -2,7 +2,8 @@
 #include "ast.h"
 
 // {{{ print
-void PrintVisitor::visitBinaryAST(const BinaryAST *ast) {
+void PrintVisitor::visitBinaryAST(const BinaryAST *ast) 
+{
     std::cout << '(';
     ast->last->accept(this);
     std::cout << std::string(ast->op.start, ast->op.end);
@@ -10,7 +11,8 @@ void PrintVisitor::visitBinaryAST(const BinaryAST *ast) {
     std::cout << ')';
 }
 
-void PrintVisitor::visitTernaryOpAST(const TernaryOpAST *ast) {
+void PrintVisitor::visitTernaryOpAST(const TernaryOpAST *ast) 
+{
     std::cout << '(';
     ast->conditional->accept(this);
     std::cout << '?';
@@ -20,46 +22,54 @@ void PrintVisitor::visitTernaryOpAST(const TernaryOpAST *ast) {
     std::cout << ')';
 }
 
-void PrintVisitor::visitUnaryAST(const UnaryAST *ast) {
+void PrintVisitor::visitUnaryAST(const UnaryAST *ast) 
+{
     std::cout << '(';
     std::cout << std::string(ast->op.start, ast->op.end);
     ast->ast->accept(this);
     std::cout << ')';
 }
 
-void PrintVisitor::visitPrimaryAST(const PrimaryAST *ast) {
+void PrintVisitor::visitPrimaryAST(const PrimaryAST *ast) 
+{
     std::cout << std::string(ast->value.start, ast->value.end);
 }
 
-void PrintVisitor::visitExprStmtAST(const ExprStmtAST *ast) {
+void PrintVisitor::visitExprStmtAST(const ExprStmtAST *ast) 
+{
     std::cout << "ExprStmt: ";
     ast->ast->accept(this);
     std::cout << std::endl;
 }
 
-void PrintVisitor::visitProgramAST(const ProgramAST *ast) {
+void PrintVisitor::visitProgramAST(const ProgramAST *ast) 
+{
     std::cout << "Program: " << std::endl;
 
-    for (const std::unique_ptr<AST> &sast : ast->asts) {
+    for (const std::unique_ptr<AST> &sast : ast->asts) 
+{
         std::cout << "  ";
         sast->accept(this);
     }
 }
 
-void PrintVisitor::visitVarStmtAST(const VarStmtAST *ast) {
+void PrintVisitor::visitVarStmtAST(const VarStmtAST *ast) 
+{
     std::cout << "VarStmt: var " + std::string(ast->name.start, ast->name.end) << " of type ";
     ast->type->accept(this);
     std::cout << " being assigned ";
     ast->expression->accept(this);
 }
 
-void PrintVisitor::visitTypeAST(const TypeAST *ast) {
+void PrintVisitor::visitTypeAST(const TypeAST *ast) 
+{
     std::cout << "TypeAST: " << std::string(ast->type.start, ast->type.end);
 }
 // }}}
 
 // {{{ python
-void PythonGenVisitor::visitBinaryAST(const BinaryAST *ast) {
+void PythonGenVisitor::visitBinaryAST(const BinaryAST *ast) 
+{
     std::cout << '(';
     ast->last->accept(this);
     std::cout << std::string(ast->op.start, ast->op.end);
@@ -67,7 +77,8 @@ void PythonGenVisitor::visitBinaryAST(const BinaryAST *ast) {
     std::cout << ')';
 }
 
-void PythonGenVisitor::visitTernaryOpAST(const TernaryOpAST *ast) {
+void PythonGenVisitor::visitTernaryOpAST(const TernaryOpAST *ast) 
+{
     std::cout << '(';
     ast->trueast->accept(this);
     std::cout << " if ";
@@ -77,31 +88,38 @@ void PythonGenVisitor::visitTernaryOpAST(const TernaryOpAST *ast) {
     std::cout << ')';
 }
 
-void PythonGenVisitor::visitUnaryAST(const UnaryAST *ast) {
+void PythonGenVisitor::visitUnaryAST(const UnaryAST *ast) 
+{
     std::cout << '(';
     std::cout << std::string(ast->op.start, ast->op.end);
     ast->ast->accept(this);
     std::cout << ')';
 }
 
-void PythonGenVisitor::visitPrimaryAST(const PrimaryAST *ast) {
+void PythonGenVisitor::visitPrimaryAST(const PrimaryAST *ast) 
+{
     std::cout << '(' << std::string(ast->value.start, ast->value.end) << ')';
 }
 
-void PythonGenVisitor::visitExprStmtAST(const ExprStmtAST *ast) {
+void PythonGenVisitor::visitExprStmtAST(const ExprStmtAST *ast) 
+{
     ast->ast->accept(this);
     std::cout << std::endl;
 }
 
-void PythonGenVisitor::visitProgramAST(const ProgramAST *ast) {
-    for (const std::unique_ptr<AST> &sast : ast->asts) {
+void PythonGenVisitor::visitProgramAST(const ProgramAST *ast) 
+{
+    for (const std::unique_ptr<AST> &sast : ast->asts) 
+{
         sast->accept(this);
     }
 }
 
-void PythonGenVisitor::visitVarStmtAST(const VarStmtAST *ast) {
+void PythonGenVisitor::visitVarStmtAST(const VarStmtAST *ast) 
+{
 }
 
-void PythonGenVisitor::visitTypeAST(const TypeAST *ast) {
+void PythonGenVisitor::visitTypeAST(const TypeAST *ast) 
+{
 }
 // }}}
