@@ -109,7 +109,22 @@ std::unique_ptr<AST> Parser::exprstatement()
 // {{{ expression
 std::unique_ptr<AST> Parser::expression()
 {
-    return ternaryexpr();
+    return assignmentexpr();
+}
+
+std::unique_ptr<AST> Parser::assignmentexpr()
+{
+    std::unique_ptr<AST> lhs = ternaryexpr();
+    
+    if (match(TokenType::EQUAL))
+    {
+        std::unique_ptr<AST> rhs = assignmentexpr();
+        std::unique_ptr<AssignAST> assignast = std::make_unique<AssignAST>(std::move(lhs), std::move(rhs));
+
+        return assignast;
+    }
+
+    return lhs;
 }
 
 std::unique_ptr<AST> Parser::ternaryexpr()

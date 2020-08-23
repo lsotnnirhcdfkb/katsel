@@ -24,6 +24,7 @@ public:
     std::unique_ptr<AST> exprstatement();
 
     std::unique_ptr<AST> expression();
+    std::unique_ptr<AST> assignmentexpr();
     std::unique_ptr<AST> ternaryexpr();
     std::unique_ptr<AST> binorexpr();
     std::unique_ptr<AST> binandexpr();

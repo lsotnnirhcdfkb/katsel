@@ -10,7 +10,7 @@ statement -> varstmt |
             exprstmt |
             block ;
 
-varstmt -> VAR type IDENTIFIER (EQUALS expression) SEMICOLON;
+varstmt -> VAR type IDENTIFIER (EQUAL expression) SEMICOLON;
 exprstmt -> expression SEMICOLON;
 
 // helper things like blocks and stuff
@@ -21,7 +21,9 @@ arglist -> type IDENTIFIER (COMMA type IDENTIFIER)*;
 // expresion
 // this grammar is heavily based off of the grammar for the Lox Language in the book "Crafting Interpreters" by Bob Nystrom
 // this grammar also closely follows the precedences of the operators in Python
-expression -> ternaryexpr;
+expression -> assignmentexpr;
+assignmentexpr -> IDENTIFIER EQUAL assignment |
+                ternaryexpr;
 ternaryexpr -> binorexpr (QUESTION binorexpr COLON ternaryexpr)?;
 binorexpr -> binandexpr (DOUBLEPIPE binandexpr)*;
 binandexpr -> binnotexpr (DOUBLEAMPER binnotexpr)*;

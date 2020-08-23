@@ -132,3 +132,11 @@ public:
     std::unique_ptr<AST> expression;
 };
 
+class AssignAST : public AST
+{
+public:
+    AssignAST(std::unique_ptr<AST> lhs, std::unique_ptr<AST> rhs);
+    void accept(Visitor *v) override;
+
+    std::unique_ptr<AST> lhs, rhs;
+};
