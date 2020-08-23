@@ -21,7 +21,12 @@ void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast)
 
     module_->print(llvm::outs(), nullptr);
 }
+// {{{ declaration visiting
+void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
+{
 
+}
+// }}}
 // {{{ expression visiting
 // {{{ binary ast
 void LLVMGenVisitor::visitBinaryAST(const BinaryAST *ast) 
@@ -251,6 +256,7 @@ void LLVMGenVisitor::visitArgsAST(const ArgsAST *ast)
 {
 
 }
+// }}}
 // }}}
 // {{{ private llvm visitor helper methods
 llvm::AllocaInst* LLVMGenVisitor::createEntryAlloca(llvm::Function *f, const std::string &name) 

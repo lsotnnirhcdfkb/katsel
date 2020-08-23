@@ -106,11 +106,6 @@ void PrintVisitor::visitBlockAST(const BlockAST *ast)
     --indent;
 }
 
-void PrintVisitor::visitTypeAST(const TypeAST *ast)
-{
-    print(std::string(ast->type.start, ast->type.end));
-}
-
 void PrintVisitor::visitArgAST(const ArgAST *ast)
 {
     print("(Arg: " + std::string(ast->argname.start, ast->argname.end) + " with type ");

@@ -100,7 +100,7 @@ std::unique_ptr<AST> Parser::varstatement()
     std::unique_ptr<VarStmtAST> stmtast = std::make_unique<VarStmtAST>(std::move(typeast), name, std::move(expressionast));
     return stmtast;
 }
-std::unique_ptr<AST> Parser::exprstmt()
+std::unique_ptr<AST> Parser::exprstatement()
 {
     std::unique_ptr<AST> expr = expression();
     return std::make_unique<ExprStmtAST>(std::move(expr));
