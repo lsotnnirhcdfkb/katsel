@@ -244,7 +244,7 @@ void LLVMGenVisitor::visitVariableRefAST(const VariableRefAST *ast)
 
     if (v)
     {
-        curRetVal = builder.CreateLoad(llvm::Type::getInt64Ty(context), 0, name.c_str());
+        curRetVal = builder.CreateLoad(v, name.c_str());
         return;
     }
 
