@@ -402,15 +402,21 @@ Token& Parser::prev()
 void Parser::advance()
 {
     prevToken = currToken;
+    bool nextTokenIter = true;
 
     while (true)
     {
-        currToken = lexer.nextToken();
+        if (nextTokenIter)
+            currToken = lexer.nextToken();
+
+        nextTokenIter = true;
 
         if (currToken.type != TokenType::ERROR) break; // continue loop if it is an error token
 
         // if it is an error token then report error
+        // also do not advance in this loop because error advances automatically
         error(currToken.message, true);
+        nextTokenIter = false;
     }
 }
 
