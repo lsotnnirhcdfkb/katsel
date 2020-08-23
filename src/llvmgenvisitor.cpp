@@ -5,10 +5,19 @@ LLVMGenVisitor::LLVMGenVisitor(File &sourcefile): sourcefile(sourcefile), builde
 // {{{ visiting asts
 void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast) 
 {
+    llvm::FunctionType *ft = llvm::FunctionType::get(llvm::Type::getVoidTy(context), false); 
+    llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, "Anonymous", *module_);
+
+    llvm::BasicBlock *block = llvm::BasicBlock::Create(context, "anonymousblock", f);
+    builder.SetInsertPoint(block);
+
     for (const std::unique_ptr<AST> &sast : ast->asts) 
     {
         sast->accept(this);
     }
+
+    builder.CreateRetVoid();
+    llvm::verifyFunction(*f); 
 
     module_->print(llvm::outs(), nullptr);
 }
@@ -129,7 +138,6 @@ void LLVMGenVisitor::visitTernaryOpAST(const TernaryOpAST *ast)
 
     ast->trueast->accept(this);
     llvm::Value *truev = curRetVal;
-
 
     builder.CreateBr(afterb);
     trueb = builder.GetInsertBlock();
