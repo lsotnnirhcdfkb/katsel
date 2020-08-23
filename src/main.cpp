@@ -43,13 +43,13 @@ void compileFile(File &sourcefile)
     auto parser = std::make_unique<Parser>(*lexer, sourcefile);
 
     std::unique_ptr<AST> parsed = parser->parse();
-    PrintVisitor printv;
-    LLVMGenVisitor llvmv (sourcefile);
+    auto printv = std::make_unique<PrintVisitor>();
+    auto llvmv = std::make_unique<LLVMGenVisitor>(sourcefile);
 
     if (parsed)
     {
-        parsed->accept(&printv);
-        parsed->accept(&llvmv);
+        parsed->accept(&*printv);
+        parsed->accept(&*llvmv);
     }
 
     // int returnCode = parse(source);

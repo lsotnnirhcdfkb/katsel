@@ -33,10 +33,14 @@ public:
 
 private:
     llvm::AllocaInst* createEntryAlloca(llvm::Function *f, const std::string &name);
+    void beginNewScope();
+    void finishCurScope();
+
     llvm::LLVMContext context;
     llvm::IRBuilder<> builder;
     std::unique_ptr<llvm::Module> module_;
-    std::map<std::string, llvm::AllocaInst*> scopesymbols;
+    std::map<std::string, std::pair<int, llvm::AllocaInst*>> scopesymbols;
+    int scopenum;
 
     llvm::Value *curRetVal = nullptr;
 

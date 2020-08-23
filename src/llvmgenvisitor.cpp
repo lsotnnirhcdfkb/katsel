@@ -1,30 +1,35 @@
 #include "llvmgenvisitor.h"
 
-LLVMGenVisitor::LLVMGenVisitor(File &sourcefile): sourcefile(sourcefile), builder(context), module_(std::make_unique<llvm::Module>("COxianc output of file " + sourcefile.filename, context)) {}
+LLVMGenVisitor::LLVMGenVisitor(File &sourcefile): sourcefile(sourcefile), builder(context), module_(std::make_unique<llvm::Module>("COxianc output of file " + sourcefile.filename, context)), scopenum(0) {}
 
 // {{{ visiting asts
 void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast) 
 {
-    llvm::FunctionType *ft = llvm::FunctionType::get(llvm::Type::getVoidTy(context), false); 
-    llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, "Anonymous", *module_);
-
-    llvm::BasicBlock *block = llvm::BasicBlock::Create(context, "anonymousblock", f);
-    builder.SetInsertPoint(block);
-
-    for (const std::unique_ptr<AST> &sast : ast->asts) 
+    for (const std::unique_ptr<AST> &dast : ast->asts) 
     {
-        sast->accept(this);
+        dast->accept(this);
     }
-
-    builder.CreateRetVoid();
-    llvm::verifyFunction(*f); 
 
     module_->print(llvm::outs(), nullptr);
 }
 // {{{ declaration visiting
 void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
 {
+    std::string name = std::string(ast->name.start, ast->name.end);
+    llvm::FunctionType *ft = llvm::FunctionType::get(llvm::Type::getVoidTy(context), false); 
+    llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, name, *module_);
 
+    beginNewScope();
+    llvm::BasicBlock *block = llvm::BasicBlock::Create(context, name + "entry", f);
+    builder.SetInsertPoint(block);
+
+    ast->body->accept(this);
+
+    builder.CreateRetVoid();
+    llvm::verifyFunction(*f); 
+
+    finishCurScope();
+    curRetVal = f;
 }
 // }}}
 // {{{ expression visiting
@@ -228,7 +233,7 @@ void LLVMGenVisitor::visitVarStmtAST(const VarStmtAST *ast)
 
     builder.CreateStore(value, varalloca);
 
-    scopesymbols[varname] = varalloca;
+    scopesymbols[varname] = {scopenum, varalloca};
     
     curRetVal = varalloca;
 }
@@ -236,6 +241,7 @@ void LLVMGenVisitor::visitVarStmtAST(const VarStmtAST *ast)
 // {{{ helper ast visiting
 void LLVMGenVisitor::visitTypeAST(const TypeAST *ast) 
 {
+    // curRetVal = llvm::Type::getInt64Ty(context);
 }
 
 void LLVMGenVisitor::visitBlockAST(const BlockAST *ast) 
@@ -263,5 +269,22 @@ llvm::AllocaInst* LLVMGenVisitor::createEntryAlloca(llvm::Function *f, const std
 {
     llvm::IRBuilder<> b (&(f->getEntryBlock()), f->getEntryBlock().begin());
     return b.CreateAlloca(llvm::Type::getInt64Ty(context), 0, name.c_str());
+}
+
+void LLVMGenVisitor::beginNewScope()
+{
+    ++scopenum;
+}
+
+void LLVMGenVisitor::finishCurScope()
+{
+    for (auto it = scopesymbols.crbegin(); it != scopesymbols.crend(); ++it)
+    {
+        if (it->second.first == scopenum)
+        {
+            scopesymbols.erase(--it.base());
+        }
+    }
+    --scopenum;
 }
 // }}}
