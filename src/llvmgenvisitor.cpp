@@ -2,6 +2,19 @@
 
 LLVMGenVisitor::LLVMGenVisitor(File &sourcefile): sourcefile(sourcefile), builder(context), module_(std::make_unique<llvm::Module>("COxianc output of file " + sourcefile.filename, context)) {}
 
+// {{{ visiting asts
+void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast) 
+{
+    for (const std::unique_ptr<AST> &sast : ast->asts) 
+    {
+        sast->accept(this);
+    }
+
+    module_->print(llvm::outs(), nullptr);
+}
+
+// {{{ expression visiting
+// {{{ binary ast
 void LLVMGenVisitor::visitBinaryAST(const BinaryAST *ast) 
 {
     ast->last->accept(this);
@@ -96,7 +109,9 @@ void LLVMGenVisitor::visitBinaryAST(const BinaryAST *ast)
 
     curRetVal = retval;
 }
+// }}}
 
+// {{{ ternary ast
 void LLVMGenVisitor::visitTernaryOpAST(const TernaryOpAST *ast) 
 {
     ast->conditional->accept(this);
@@ -138,7 +153,9 @@ void LLVMGenVisitor::visitTernaryOpAST(const TernaryOpAST *ast)
 
     curRetVal = phi;
 }
+// }}}
 
+// {{{ unary ast
 void LLVMGenVisitor::visitUnaryAST(const UnaryAST *ast) 
 {
     ast->ast->accept(this);
@@ -174,31 +191,33 @@ void LLVMGenVisitor::visitUnaryAST(const UnaryAST *ast)
 
     curRetVal = retval;
 }
+// }}}
 
 void LLVMGenVisitor::visitPrimaryAST(const PrimaryAST *ast) 
 {
     curRetVal = llvm::ConstantInt::get(context, llvm::APInt(64, std::stoi(std::string(ast->value.start, ast->value.end))));
 }
+// }}}
 
+// {{{ statement visiting
 void LLVMGenVisitor::visitExprStmtAST(const ExprStmtAST *ast) 
 {
     ast->ast->accept(this);
 }
 
-void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast) 
-{
-    for (const std::unique_ptr<AST> &sast : ast->asts) 
-    {
-        sast->accept(this);
-    }
-
-    module_->print(llvm::outs(), nullptr);
-}
-
 void LLVMGenVisitor::visitVarStmtAST(const VarStmtAST *ast) 
 {
 }
+// }}}
 
+
+// {{{ helper ast visiting
 void LLVMGenVisitor::visitTypeAST(const TypeAST *ast) 
 {
 }
+// }}}
+// }}}
+
+// {{{ private llvm visitor helper methods
+llvm::AllocaInst* createEntryAlloca(Function *f, const std::string &name);
+// }}}

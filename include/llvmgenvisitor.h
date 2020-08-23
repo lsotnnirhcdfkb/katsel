@@ -28,10 +28,11 @@ public:
     void visitTypeAST(const TypeAST *ast);
 
 private:
+    llvm::AllocaInst* createEntryAlloca()
     llvm::LLVMContext context;
     llvm::IRBuilder<> builder;
     std::unique_ptr<llvm::Module> module_;
-    std::map<std::string, llvm::Value*> scopesymbols;
+    std::map<std::string, llvm::AllocaInst*> scopesymbols;
 
     llvm::Value *curRetVal = nullptr;
 
