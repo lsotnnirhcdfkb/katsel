@@ -502,8 +502,8 @@ void Parser::error(std::string const msg, bool nextT)
 
         reportError(badToken, msg, sourcefile);
         panic();
-        advance(); // to prevent infinite loops
     }
+    advance(); // to prevent infinite loops
 }
 
 // }}}
