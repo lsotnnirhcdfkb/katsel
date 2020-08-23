@@ -140,3 +140,12 @@ public:
 
     std::unique_ptr<AST> lhs, rhs;
 };
+
+class VariableRefAST : public AST
+{
+public:
+    AssignAST(Token var);
+    void accept(Visitor *v) override;
+
+    Token var;
+};

@@ -18,18 +18,19 @@ class LLVMGenVisitor : public Visitor
 public:
     LLVMGenVisitor(File &sourcefile);
 
-    void visitBinaryAST(const BinaryAST *ast);
-    void visitTernaryOpAST(const TernaryOpAST *ast);
-    void visitUnaryAST(const UnaryAST *ast);
-    void visitPrimaryAST(const PrimaryAST *ast);
-    void visitExprStmtAST(const ExprStmtAST *ast);
-    void visitProgramAST(const ProgramAST *ast);
-    void visitFunctionAST(const FunctionAST *ast);
-    void visitBlockAST(const BlockAST *ast);
-    void visitTypeAST(const TypeAST *ast);
-    void visitArgAST(const ArgAST *ast);
-    void visitArgsAST(const ArgsAST *ast);
-    void visitVarStmtAST(const VarStmtAST *ast);
+    void visitBinaryAST(const BinaryAST *ast) override;
+    void visitTernaryOpAST(const TernaryOpAST *ast) override;
+    void visitUnaryAST(const UnaryAST *ast) override;
+    void visitPrimaryAST(const PrimaryAST *ast) override;
+    void visitExprStmtAST(const ExprStmtAST *ast) override;
+    void visitProgramAST(const ProgramAST *ast) override;
+    void visitFunctionAST(const FunctionAST *ast) override;
+    void visitBlockAST(const BlockAST *ast) override;
+    void visitTypeAST(const TypeAST *ast) override;
+    void visitArgAST(const ArgAST *ast) override;
+    void visitArgsAST(const ArgsAST *ast) override;
+    void visitVarStmtAST(const VarStmtAST *ast) override;
+    void visitAssignAST(const AssignAST *ast) override;
 
 private:
     llvm::AllocaInst* createEntryAlloca(llvm::Function *f, const std::string &name);

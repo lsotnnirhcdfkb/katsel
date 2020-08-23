@@ -209,6 +209,12 @@ void LLVMGenVisitor::visitUnaryAST(const UnaryAST *ast)
     curRetVal = retval;
 }
 // }}}
+// {{{ assign ast
+void LLVMGenVisitor::visitAssignAST(const AssignAST *ast)
+{
+
+}
+// }}}
 
 void LLVMGenVisitor::visitPrimaryAST(const PrimaryAST *ast) 
 {

@@ -125,6 +125,15 @@ void PrintVisitor::visitArgsAST(const ArgsAST *ast)
     --indent;
 }
 
+void PrintVisitor::visitAssignAST(const AssignAST *ast)
+{
+    print("Assign: assign ");
+    ast->rhs->accept(this);
+    print(" to ");
+    ast->lhs->accept(this);
+    print("\n");
+}
+
 void PrintVisitor::print(std::string &str)
 {
     for (auto i = str.begin(); i != str.end(); ++i)
