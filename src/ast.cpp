@@ -21,5 +21,5 @@ void UnaryAST::accept(Visitor *v) { v->visitUnaryAST(this); }
 void PrimaryAST::accept(Visitor *v) { v->visitPrimaryAST(this); }
 void ExprStmtAST::accept(Visitor *v) { v->visitExprStmtAST(this); }
 void ProgramAST::accept(Visitor *v) { v->visitProgramAST(this); }
-void VarStmtAST::accept(Visitor *v) { /* nothing for now */ }
-void TypeAST::accept(Visitor *v) {}
+void VarStmtAST::accept(Visitor *v) { v->visitVarStmtAST(this); }
+void TypeAST::accept(Visitor *v) { v->visitTypeAST(this); }

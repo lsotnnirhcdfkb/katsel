@@ -45,6 +45,17 @@ void PrintVisitor::visitProgramAST(const ProgramAST *ast) {
         sast->accept(this);
     }
 }
+
+void PrintVisitor::visitVarStmtAST(const VarStmtAST *ast) {
+    std::cout << "VarStmt: var " + std::string(ast->name.start, ast->name.end) << " of type ";
+    ast->type->accept(this);
+    std::cout << " being assigned ";
+    ast->expression->accept(this);
+}
+
+void PrintVisitor::visitTypeAST(const TypeAST *ast) {
+    std::cout << "TypeAST: " << std::string(ast->type->start, ast->type->end);
+}
 // }}}
 
 // {{{ python
@@ -86,5 +97,11 @@ void PythonGenVisitor::visitProgramAST(const ProgramAST *ast) {
     for (const std::unique_ptr<AST> &sast : ast->asts) {
         sast->accept(this);
     }
+}
+
+void PythonGenVisitor::visitVarStmtAST(const VarStmtAST *ast) {
+}
+
+void PythonGenVisitor::visitTypeAST(const TypeAST *ast) {
 }
 // }}}

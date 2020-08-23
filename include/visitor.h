@@ -9,6 +9,8 @@ class UnaryAST;
 class PrimaryAST;
 class ExprStmtAST;
 class ProgramAST;
+class VarStmtAST;
+class TypeAST;
 
 class Visitor
 {
@@ -19,6 +21,8 @@ public:
     virtual void visitPrimaryAST(const PrimaryAST *ast) = 0;
     virtual void visitExprStmtAST(const ExprStmtAST *ast) = 0;
     virtual void visitProgramAST(const ProgramAST *ast) = 0;
+    virtual void visitVarStmtAST(const VarStmtAST *ast) = 0;
+    virtual void visitTypeAST(const TypeAST *ast) = 0;
 };
 
 class PrintVisitor : public Visitor
@@ -30,6 +34,8 @@ public:
     void visitPrimaryAST(const PrimaryAST *ast);
     void visitExprStmtAST(const ExprStmtAST *ast);
     void visitProgramAST(const ProgramAST *ast);
+    void visitVarStmtAST(const VarStmtAST *ast);
+    void visitTypeAST(const TypeAST *ast);
 };
 
 class PythonGenVisitor : public Visitor
@@ -41,4 +47,6 @@ public:
     void visitPrimaryAST(const PrimaryAST *ast);
     void visitExprStmtAST(const ExprStmtAST *ast);
     void visitProgramAST(const ProgramAST *ast);
+    void visitVarStmtAST(const VarStmtAST *ast);
+    void visitTypeAST(const TypeAST *ast);
 };
