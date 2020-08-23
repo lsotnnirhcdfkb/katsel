@@ -110,7 +110,6 @@ void LLVMGenVisitor::visitBinaryAST(const BinaryAST *ast)
     curRetVal = retval;
 }
 // }}}
-
 // {{{ ternary ast
 void LLVMGenVisitor::visitTernaryOpAST(const TernaryOpAST *ast) 
 {
@@ -154,7 +153,6 @@ void LLVMGenVisitor::visitTernaryOpAST(const TernaryOpAST *ast)
     curRetVal = phi;
 }
 // }}}
-
 // {{{ unary ast
 void LLVMGenVisitor::visitUnaryAST(const UnaryAST *ast) 
 {
@@ -198,7 +196,6 @@ void LLVMGenVisitor::visitPrimaryAST(const PrimaryAST *ast)
     curRetVal = llvm::ConstantInt::get(context, llvm::APInt(64, std::stoi(std::string(ast->value.start, ast->value.end))));
 }
 // }}}
-
 // {{{ statement visiting
 void LLVMGenVisitor::visitExprStmtAST(const ExprStmtAST *ast) 
 {
@@ -217,7 +214,6 @@ void LLVMGenVisitor::visitTypeAST(const TypeAST *ast)
 }
 // }}}
 // }}}
-
 // {{{ private llvm visitor helper methods
 llvm::AllocaInst* createEntryAlloca(Function *f, const std::string &name);
 // }}}

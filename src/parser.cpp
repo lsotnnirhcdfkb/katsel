@@ -339,7 +339,6 @@ std::unique_ptr<AST> Parser::primary()
 }
 // }}}
 // }}}
-
 // {{{ parser helper methods
 Token& Parser::peek()
 {

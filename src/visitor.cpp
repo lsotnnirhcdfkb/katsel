@@ -67,7 +67,6 @@ void PrintVisitor::visitTypeAST(const TypeAST *ast)
     std::cout << "TypeAST: " << std::string(ast->type.start, ast->type.end);
 }
 // }}}
-
 // {{{ python
 void PythonGenVisitor::visitBinaryAST(const BinaryAST *ast) 
 {
