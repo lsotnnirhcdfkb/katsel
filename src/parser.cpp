@@ -119,8 +119,9 @@ std::unique_ptr<AST> Parser::assignmentexpr()
     
     if (match(TokenType::EQUAL))
     {
+        Token equalSign = prev();
         std::unique_ptr<AST> rhs = assignmentexpr();
-        std::unique_ptr<AssignAST> assignast = std::make_unique<AssignAST>(std::move(lhs), std::move(rhs));
+        std::unique_ptr<AssignAST> assignast = std::make_unique<AssignAST>(std::move(lhs), std::move(rhs), equalSign);
 
         return assignast;
     }

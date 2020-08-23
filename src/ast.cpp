@@ -9,7 +9,7 @@ FunctionAST::FunctionAST(std::unique_ptr<AST> type, Token name, std::unique_ptr<
 TypeAST::TypeAST(Token type): type(type) {}
 ArgAST::ArgAST(std::unique_ptr<AST> type, Token argname): type(std::move(type)), argname(argname) {}
 VarStmtAST::VarStmtAST(std::unique_ptr<AST> type, Token name, std::unique_ptr<AST> expression) : type(std::move(type)), name(name), expression(std::move(expression)) {}
-AssignAST::AssignAST(std::unique_ptr<AST> lhs, std::unique_ptr<AST> rhs) : lhs(std::move(lhs)), rhs(std::move(rhs)) {}
+AssignAST::AssignAST(std::unique_ptr<AST> lhs, std::unique_ptr<AST> rhs, Token equalSign) : lhs(std::move(lhs)), rhs(std::move(rhs)), equalSign(equalSign) {}
 VariableRefAST::VariableRefAST(Token var): var(var) {}
 
 ProgramAST::ProgramAST(std::vector<std::unique_ptr<AST>> &asts) 

@@ -135,9 +135,10 @@ public:
 class AssignAST : public AST
 {
 public:
-    AssignAST(std::unique_ptr<AST> lhs, std::unique_ptr<AST> rhs);
+    AssignAST(std::unique_ptr<AST> lhs, std::unique_ptr<AST> rhs, Token equalSign);
     void accept(Visitor *v) override;
 
+    Token equalSign;
     std::unique_ptr<AST> lhs, rhs;
 };
 

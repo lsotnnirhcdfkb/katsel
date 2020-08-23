@@ -212,16 +212,44 @@ void LLVMGenVisitor::visitUnaryAST(const UnaryAST *ast)
 // {{{ assign ast
 void LLVMGenVisitor::visitAssignAST(const AssignAST *ast)
 {
+    VariableRefAST *lhs = dynamic_cast<VariableRefAST*>(ast->lhs.get());
 
-}
-void LLVMGenVisitor::visitVariableRefAST(const VariableRefAST *ast)
-{
+    if (!lhs)
+    {
+        reportError(ast->equalSign, "Invalid target for assignment", sourcefile);
+        curRetVal = nullptr;
+        return;
+    }
+
+    ast->rhs->accept(this);
+    llvm::Value *rhs = curRetVal;
+
+    std::string name = std::string(lhs->var.start, lhs->var.end);
+    llvm::Value *var = scopesymbols[name].second;
+    if (!var)
+    {
+        curRetVal = nullptr;
+        reportError(lhs->var, "unknown variable name", sourcefile);
+    }
+
+    builder.CreateStore(rhs, var);
+    curRetVal = rhs;
 }
 // }}}
-
-void LLVMGenVisitor::visitPrimaryAST(const PrimaryAST *ast) 
+// {{{ var ref
+void LLVMGenVisitor::visitVariableRefAST(const VariableRefAST *ast)
 {
-    curRetVal = llvm::ConstantInt::get(context, llvm::APInt(64, std::stoi(std::string(ast->value.start, ast->value.end))));
+    std::string name = std::string(ast->var.start, ast->var.end);
+    llvm::Value *v = scopesymbols[name].second;
+
+    if (v)
+    {
+        curRetVal = builder.CreateLoad(llvm::Type::getInt64Ty(context), 0, name.c_str());
+        return;
+    }
+
+    curRetVal = nullptr;
+    reportError(ast->var, "unknown variable name", sourcefile);
 }
 // }}}
 // {{{ statement visiting
@@ -270,6 +298,11 @@ void LLVMGenVisitor::visitArgAST(const ArgAST *ast)
 void LLVMGenVisitor::visitArgsAST(const ArgsAST *ast) 
 {
 
+}
+// }}}
+void LLVMGenVisitor::visitPrimaryAST(const PrimaryAST *ast) 
+{
+    curRetVal = llvm::ConstantInt::get(context, llvm::APInt(64, std::stoi(std::string(ast->value.start, ast->value.end))));
 }
 // }}}
 // }}}
