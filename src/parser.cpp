@@ -340,10 +340,14 @@ std::unique_ptr<AST> Parser::primary()
     if (match(TokenType::TRUELIT) || match(TokenType::FALSELIT) ||
             match(TokenType::FLOATLIT) ||
             match(TokenType::DECINTLIT) || match(TokenType::OCTINTLIT) || match(TokenType::BININTLIT) || match(TokenType::HEXINTLIT) ||
-            match(TokenType::CHARLIT) || match(TokenType::STRINGLIT) ||
-            match(TokenType::IDENTIFIER))
+            match(TokenType::CHARLIT) || match(TokenType::STRINGLIT))
     {
         return std::make_unique<PrimaryAST>(prev());
+    }
+
+    if (match(TokenType::IDENTIFIER))
+    {
+        return std::make_unique<VariableRefAST>(prev());
     }
 
     if (match(TokenType::OPARN))
