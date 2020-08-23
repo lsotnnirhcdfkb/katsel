@@ -134,6 +134,11 @@ void PrintVisitor::visitAssignAST(const AssignAST *ast)
     print("\n");
 }
 
+void PrintVisitor::visitVariableRefAST(const VariableRefAST *ast)
+{
+    print("Variable reference: " + std::string(ast->var.start, ast->var.end));
+}
+
 void PrintVisitor::print(std::string &str)
 {
     for (auto i = str.begin(); i != str.end(); ++i)

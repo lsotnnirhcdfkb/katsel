@@ -214,6 +214,9 @@ void LLVMGenVisitor::visitAssignAST(const AssignAST *ast)
 {
 
 }
+void LLVMGenVisitor::visitVariableRefAST(const VariableRefAST *ast)
+{
+}
 // }}}
 
 void LLVMGenVisitor::visitPrimaryAST(const PrimaryAST *ast) 

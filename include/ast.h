@@ -144,7 +144,7 @@ public:
 class VariableRefAST : public AST
 {
 public:
-    AssignAST(Token var);
+    VariableRefAST(Token var);
     void accept(Visitor *v) override;
 
     Token var;

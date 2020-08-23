@@ -50,3 +50,4 @@ void ArgAST::accept(Visitor *v) { v->visitArgAST(this); }
 void ArgsAST::accept(Visitor *v) { v->visitArgsAST(this); }
 void VarStmtAST::accept(Visitor *v) { v->visitVarStmtAST(this); }
 void AssignAST::accept(Visitor *v) { v->visitAssignAST(this); }
+void VariableRefAST::accept(Visitor *v) { v->visitVariableRefAST(this); }

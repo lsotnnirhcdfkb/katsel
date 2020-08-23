@@ -31,6 +31,7 @@ public:
     void visitArgsAST(const ArgsAST *ast) override;
     void visitVarStmtAST(const VarStmtAST *ast) override;
     void visitAssignAST(const AssignAST *ast) override;
+    void visitVariableRefAST(const VariableRefAST *ast) override;
 
 private:
     llvm::AllocaInst* createEntryAlloca(llvm::Function *f, const std::string &name);
