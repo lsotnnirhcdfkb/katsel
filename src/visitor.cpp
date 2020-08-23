@@ -54,7 +54,7 @@ void PrintVisitor::visitVarStmtAST(const VarStmtAST *ast) {
 }
 
 void PrintVisitor::visitTypeAST(const TypeAST *ast) {
-    std::cout << "TypeAST: " << std::string(ast->type->start, ast->type->end);
+    std::cout << "TypeAST: " << std::string(ast->type.start, ast->type.end);
 }
 // }}}
 
