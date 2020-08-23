@@ -178,7 +178,6 @@ void LLVMGenVisitor::visitUnaryAST(const UnaryAST *ast)
 void LLVMGenVisitor::visitPrimaryAST(const PrimaryAST *ast) 
 {
     curRetVal = llvm::ConstantInt::get(context, llvm::APInt(64, std::stoi(std::string(ast->value.start, ast->value.end))));
-    // curRetVal = llvm::ConstantFP::get(context, llvm::APFloat((float) std::stoi(std::string(ast->value.start, ast->value.end))));
 }
 
 void LLVMGenVisitor::visitExprStmtAST(const ExprStmtAST *ast) 
@@ -188,20 +187,10 @@ void LLVMGenVisitor::visitExprStmtAST(const ExprStmtAST *ast)
 
 void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast) 
 {
-    llvm::FunctionType *ft = llvm::FunctionType::get(llvm::Type::getVoidTy(context), false); 
-    llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, "Anonymous", *module_);
-
-    llvm::BasicBlock *block = llvm::BasicBlock::Create(context, "anonymousblock", f);
-    builder.SetInsertPoint(block);
-
     for (const std::unique_ptr<AST> &sast : ast->asts) 
     {
         sast->accept(this);
-        llvm::Value *retval = curRetVal;
     }
-
-    builder.CreateRetVoid();
-    llvm::verifyFunction(*f);
 
     module_->print(llvm::outs(), nullptr);
 }
