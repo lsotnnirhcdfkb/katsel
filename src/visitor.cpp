@@ -47,7 +47,7 @@ void PrintVisitor::visitProgramAST(const ProgramAST *ast)
     std::cout << "Program: " << std::endl;
 
     for (const std::unique_ptr<AST> &sast : ast->asts) 
-{
+    {
         std::cout << "  ";
         sast->accept(this);
     }
@@ -59,6 +59,7 @@ void PrintVisitor::visitVarStmtAST(const VarStmtAST *ast)
     ast->type->accept(this);
     std::cout << " being assigned ";
     ast->expression->accept(this);
+    std::cout << std::endl;
 }
 
 void PrintVisitor::visitTypeAST(const TypeAST *ast) 
