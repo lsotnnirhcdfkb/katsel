@@ -341,7 +341,6 @@ std::unique_ptr<AST> Parser::primary()
     return nullptr;
 }
 // }}}
-// }}}
 // {{{ parsing helping rules
 std::unique_ptr<AST> Parser::arglist()
 {
@@ -402,6 +401,7 @@ std::unique_ptr<AST> Parser::type()
     error("Expected type", true);
     return nullptr;
 }
+// }}}
 // }}}
 // {{{ parser helper methods
 Token& Parser::peek()
