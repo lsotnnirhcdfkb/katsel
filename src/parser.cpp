@@ -83,7 +83,7 @@ std::unique_ptr<AST> Parser::varstatement()
     Token name = consume(TokenType::IDENTIFIER, "Expected identifier as variable name");
 
     std::unique_ptr<AST> expressionast = nullptr;
-    if (match(TokenType::EQUALS))
+    if (match(TokenType::EQUAL))
     {
         expressionast = expression();
     }
