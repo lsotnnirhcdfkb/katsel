@@ -35,23 +35,66 @@ std::unique_ptr<AST> Parser::parse()
     std::unique_ptr<ProgramAST> program = std::make_unique<ProgramAST>(programV);
     return program;
 }
+// {{{ parsing helper rules
+std::unique_ptr<AST> Parser::type()
+{
+    // only builtin types for now
+    if (match(TokenType::INT) || match(TokenType::FLOAT) ||
+        match(TokenType::BOOL) ||
+        match(TokenType::DOUBLE) ||
+        match(TokenType::VOID))
+    {
+        return std::make_unique<TypeAST>(prev());
+    }
 
+    error("Expected type", true);
+    return nullptr;
+}
+// }}}
+// {{{ statements
 std::unique_ptr<AST> Parser::statement()
 {
-    if (match(TokenType::SEMICOLON)) return nullptr; // empty
+    std::unique_ptr<AST> statementast = nullptr;
+    switch (peek().type)
+    {
+        case TokenType::VAR:
+            statementast = varstatement();
+            break;
 
-    std::unique_ptr<AST> exprstmtast = exprstmt();
-    consume(TokenType::SEMICOLON, "Expected ';' after statement");
-
-    return exprstmtast;
+        default:
+            statementast = exprstatement();
+            
+    }
+    return statementast;
 }
 
-std::unique_ptr<AST> Parser::exprstmt()
+std::unique_ptr<AST> Parser::exprstatement()
 {
     std::unique_ptr<AST> expr = expression();
+    consume(TokenType::SEMICOLON, "Expected ';' after expression statement");
     return std::make_unique<ExprStmtAST>(std::move(expr));
 }
 
+std::unique_ptr<AST> Parser::varstatement()
+{
+    advance(); // consume the var keyword
+    std::unique_ptr<AST> typeast = type();
+
+    Token name = consume(TokenType::IDENTIFIER, "Expected identifier as variable name");
+
+    std::unique_ptr<AST> expressionast = nullptr;
+    if (match(TokenType::SEMICOLON))
+    {
+        expressionast = expression();
+    }
+
+    consume(TokenType::SEMICOLON, "Expected semicolon after var statement");
+
+    std::unique_ptr<VarStmtAST> stmtast = std::make_unique<VarStmtAST>(std::move(typeast), name, std::move(expressionast));
+    return stmtast;
+}
+// }}}
+// {{{ expression
 std::unique_ptr<AST> Parser::expression()
 {
     return ternaryexpr();
@@ -294,6 +337,7 @@ std::unique_ptr<AST> Parser::primary()
     return nullptr;
 }
 // }}}
+// }}}
 
 // {{{ parser helper methods
 Token& Parser::peek()
@@ -377,13 +421,13 @@ void Parser::syncTokens()
     // if doesnt advance then peek is of type eof
 }
 
-void Parser::error(std::string const msg)
+void Parser::error(std::string const msg, bool nextT)
 {
     if (!PANICK)
     {
         Token &badToken = prev();
 
-        if (prev().type == TokenType::SOF)
+        if (prev().type == TokenType::SOF || nextT)
             badToken = peek();
 
         reportError(badToken, msg, sourcefile);

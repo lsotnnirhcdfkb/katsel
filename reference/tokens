@@ -68,6 +68,7 @@ TokenType entry       | Description                     | Example
   BOOL                | Bool type keyword               | bool
   DOUBLE              | Double type keyword             | double
                       |                                 |
+  VAR                 | Var keyword                     | var
   PRINT               | Print keyword (removal soon)    | print
   VOID                | Void keyword                    | void
   NAMESPACE           | Namespace keyword               | namespace

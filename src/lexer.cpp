@@ -74,6 +74,14 @@ TokenType Lexer::getIdentifierType() {
                             break;
                     }
                     break;
+                case 'a':
+                    switch (*(start + 2))
+                    {
+                        case 'r':
+                            if (start + 3 == end) return TokenType::VAR;
+                            break;
+                    }
+                    break;
             }
             break;
         case 'n':

@@ -1,10 +1,15 @@
 // grammar will expand as more features are implemented
 program -> statement* EOF
 
-statement -> SEMICOLON | // empty statements are allowed
-            exprstmt SEMICOLON;
+// statements
+statement -> varstmt |
+            exprstmt;
 
-exprstmt -> expression;
+varstmt -> VAR type IDENTIFIER (EQUALS expression) SEMICOLON;
+exprstmt -> expression SEMICOLON;
+
+// helper things like blocks and stuff
+type -> INT | FLOAT | BOOL | DOUBLE | VOID | CHAR;
 
 // expresion
 // this grammar is heavily based off of the grammar for the Lox Language in the book "Crafting Interpreters" by Bob Nystrom
@@ -22,7 +27,6 @@ bitandexpr -> bitshiftexpr (AMPER bitshiftexpr)*;
 bitshiftexpr -> additionexpr ((DOUBLEGREATER | DOUBLELESS) additionexpr)*;
 additionexpr -> multexpr ((PLUS | MINUS) multexpr)*;
 multexpr -> unary ((STAR | SLASH | PERCENT) unary)*;
-
 unary -> (TILDE | MINUS) unary | primary;
 primary -> TRUELIT | FALSELIT |
         FLOATLIT |
@@ -31,4 +35,3 @@ primary -> TRUELIT | FALSELIT |
         CHARLIT | STRINGLIT |
         IDENTIFIER |
         OPARN expression CPARN;
-

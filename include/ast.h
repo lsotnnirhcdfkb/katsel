@@ -71,3 +71,23 @@ public:
 
     std::vector<std::unique_ptr<AST>> asts;
 };
+
+class VarStmtAST : public AST
+{
+public:
+    VarStmtAST(std::unique_ptr<AST> type, Token name, std::unique_ptr<AST> expression);
+    void accept(Visitor *v) override;
+
+    std::unique_ptr<AST> type;
+    Token name;
+    std::unique_ptr<AST> expression;
+};
+
+class TypeAST : public AST
+{
+public:
+    TypeAST(Token type);
+    void accept(Visitor *v) override;
+
+    Token type;
+};

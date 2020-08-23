@@ -67,6 +67,7 @@ enum TokenType
     BOOL,
     DOUBLE,
 
+    VAR,
     PRINT,
     VOID,
     NAMESPACE,
