@@ -225,11 +225,11 @@ void LLVMGenVisitor::visitAssignAST(const AssignAST *ast)
     llvm::Value *rhs = curRetVal;
 
     std::string name = std::string(lhs->var.start, lhs->var.end);
-    llvm::Value *var = scopesymbols[name].second;
+    llvm::Value *var = getVarFromName(name, ast->equalSign);
     if (!var)
     {
         curRetVal = nullptr;
-        reportError(lhs->var, "unknown variable name", sourcefile);
+        return;
     }
 
     builder.CreateStore(rhs, var);
@@ -240,7 +240,7 @@ void LLVMGenVisitor::visitAssignAST(const AssignAST *ast)
 void LLVMGenVisitor::visitVariableRefAST(const VariableRefAST *ast)
 {
     std::string name = std::string(ast->var.start, ast->var.end);
-    llvm::Value *v = scopesymbols[name].second;
+    llvm::Value *v = getVarFromName(name, ast->var);
 
     if (v)
     {
@@ -249,7 +249,6 @@ void LLVMGenVisitor::visitVariableRefAST(const VariableRefAST *ast)
     }
 
     curRetVal = nullptr;
-    reportError(ast->var, "unknown variable name", sourcefile);
 }
 // }}}
 // {{{ statement visiting
@@ -270,7 +269,7 @@ void LLVMGenVisitor::visitVarStmtAST(const VarStmtAST *ast)
 
     builder.CreateStore(value, varalloca);
 
-    scopesymbols[varname] = {scopenum, varalloca};
+    scopesymbols[std::pair<int, std::string>{scopenum, varname}] = varalloca;
     
     curRetVal = varalloca;
 }
@@ -322,11 +321,30 @@ void LLVMGenVisitor::finishCurScope()
 {
     for (auto it = scopesymbols.crbegin(); it != scopesymbols.crend(); ++it)
     {
-        if (it->second.first == scopenum)
+        if (it->first.first == scopenum)
         {
             scopesymbols.erase(--it.base());
         }
     }
     --scopenum;
+}
+
+llvm::Value* LLVMGenVisitor::getVarFromName(std::string &name, Token const &tok)
+{
+    int highestScope = -1;
+    llvm::Value *v = nullptr;
+    for (auto it = scopesymbols.cbegin(); it != scopesymbols.cend(); ++it)
+    {
+        if (it->first.second == name && it->first.first > highestScope)
+        {
+            v = it->second;
+            highestScope = it->first.first;
+        }
+    }
+
+    if (!v)
+        reportError(tok, "unknown variable name", sourcefile);
+
+    return v; // return nullptr if error
 }
 // }}}
