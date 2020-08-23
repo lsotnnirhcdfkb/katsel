@@ -103,6 +103,7 @@ std::unique_ptr<AST> Parser::varstatement()
 std::unique_ptr<AST> Parser::exprstatement()
 {
     std::unique_ptr<AST> expr = expression();
+    consume(TokenType::SEMICOLON, "Expected semicolon after expression statement");
     return std::make_unique<ExprStmtAST>(std::move(expr));
 }
 // }}}
