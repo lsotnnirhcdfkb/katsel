@@ -120,3 +120,15 @@ public:
 
     std::vector<std::unique_ptr<AST>> args;
 };
+
+class VarStmtAST : public AST
+{
+public:
+    VarStmtAST(std::unique_ptr<AST> type, Token name, std::unique_ptr<AST> expression);
+    void accept(Visitor *v) override;
+
+    std::unique_ptr<AST> type;
+    Token name;
+    std::unique_ptr<AST> expression;
+};
+

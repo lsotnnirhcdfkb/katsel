@@ -27,7 +27,7 @@ File readFile(char *filename)
         filein.read(&contents[0], contents.size());
 
         filein.close();
-    
+
         return File{std::string(filename), contents};
     }
     else
@@ -43,7 +43,6 @@ void compileFile(File &sourcefile)
     auto parser = std::make_unique<Parser>(*lexer, sourcefile);
 
     std::unique_ptr<AST> parsed = parser->parse();
-    // std::cout << (parsed == 0) << std::endl;
     PrintVisitor printv;
     LLVMGenVisitor llvmv (sourcefile);
 

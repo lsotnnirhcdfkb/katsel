@@ -80,6 +80,19 @@ void PrintVisitor::visitFunctionAST(const FunctionAST *ast)
     --indent;
     print("\n");
 }
+void PrintVisitor::visitVarStmtAST(const VarStmtAST *ast) 
+{
+    std::cout << "VarStmt: var " + std::string(ast->name.start, ast->name.end) << " of type ";
+    ast->type->accept(this);
+    std::cout << " being assigned ";
+    ast->expression->accept(this);
+    std::cout << std::endl;
+}
+
+void PrintVisitor::visitTypeAST(const TypeAST *ast) 
+{
+    std::cout << "TypeAST: " << std::string(ast->type.start, ast->type.end);
+}
 
 void PrintVisitor::visitBlockAST(const BlockAST *ast)
 {

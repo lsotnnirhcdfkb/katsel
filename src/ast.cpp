@@ -8,8 +8,9 @@ ExprStmtAST::ExprStmtAST(std::unique_ptr<AST> ast): ast(std::move(ast)) {}
 FunctionAST::FunctionAST(std::unique_ptr<AST> type, Token name, std::unique_ptr<AST> args, std::unique_ptr<AST> body): type(std::move(type)), name(name), args(std::move(args)), body(std::move(body)) {}
 TypeAST::TypeAST(Token type): type(type) {}
 ArgAST::ArgAST(std::unique_ptr<AST> type, Token argname): type(std::move(type)), argname(argname) {}
+VarStmtAST::VarStmtAST(std::unique_ptr<AST> type, Token name, std::unique_ptr<AST> expression) : type(std::move(type)), name(name), expression(std::move(expression)) {}
 
-ProgramAST::ProgramAST(std::vector<std::unique_ptr<AST>> &asts)
+ProgramAST::ProgramAST(std::vector<std::unique_ptr<AST>> &asts) 
 {
     this->asts.reserve(asts.size());
     for (std::unique_ptr<AST> &ast : asts)
@@ -45,4 +46,4 @@ void BlockAST::accept(Visitor *v) { v->visitBlockAST(this); }
 void TypeAST::accept(Visitor *v) { v->visitTypeAST(this); }
 void ArgAST::accept(Visitor *v) { v->visitArgAST(this); }
 void ArgsAST::accept(Visitor *v) { v->visitArgsAST(this); }
-
+void VarStmtAST::accept(Visitor *v) { v->visitVarStmtAST(this); }

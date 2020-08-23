@@ -77,6 +77,7 @@ TokenType entry       | Description                     | Example
   DOUBLE              | Double type keyword             | double
   CHAR                | Char type keyword               | char
                       |                                 |
+  VAR                 | Var keyword                     | var
   PRINT               | Print keyword (removal soon)    | print
   VOID                | Void keyword                    | void
   NAMESPACE           | Namespace keyword               | namespace

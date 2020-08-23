@@ -29,12 +29,14 @@ public:
     void visitTypeAST(const TypeAST *ast);
     void visitArgAST(const ArgAST *ast);
     void visitArgsAST(const ArgsAST *ast);
+    void visitVarStmtAST(const VarStmtAST *ast);
 
 private:
+    llvm::AllocaInst* createEntryAlloca(llvm::Function *f, const std::string &name);
     llvm::LLVMContext context;
     llvm::IRBuilder<> builder;
     std::unique_ptr<llvm::Module> module_;
-    std::map<std::string, llvm::Value*> scopesymbols;
+    std::map<std::string, llvm::AllocaInst*> scopesymbols;
 
     llvm::Value *curRetVal = nullptr;
 

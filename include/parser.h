@@ -20,7 +20,9 @@ public:
     std::unique_ptr<AST> type();
     std::unique_ptr<AST> arglist();
     std::unique_ptr<AST> statement();
-    std::unique_ptr<AST> exprstmt();
+    std::unique_ptr<AST> varstatement();
+    std::unique_ptr<AST> exprstatement();
+
     std::unique_ptr<AST> expression();
     std::unique_ptr<AST> ternaryexpr();
     std::unique_ptr<AST> binorexpr();

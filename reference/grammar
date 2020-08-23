@@ -5,14 +5,18 @@ decl -> function; // soon will add classes here
 
 function -> type IDENTIFIER OPARN arglist? CPARN block;
 
+// statements
+statement -> varstmt |
+            exprstmt |
+            block ;
+
+varstmt -> VAR type IDENTIFIER (EQUALS expression) SEMICOLON;
+exprstmt -> expression SEMICOLON;
+
+// helper things like blocks and stuff
 block -> OCURB statement* CCURB; 
-type -> INT | FLOAT | BOOL | DOUBLE | VOID | CHAR;
+type -> UINT8 | UINT16 | UINT32 | UINT64 | SINT8 | SINT16 | SINT32 | SINT64 | FLOAT | BOOL | DOUBLE | VOID | CHAR;
 arglist -> type IDENTIFIER (COMMA type IDENTIFIER)*;
-
-statement -> exprstmt SEMICOLON |
-            block;
-
-exprstmt -> expression;
 
 // expresion
 // this grammar is heavily based off of the grammar for the Lox Language in the book "Crafting Interpreters" by Bob Nystrom
@@ -38,4 +42,3 @@ primary -> TRUELIT | FALSELIT |
         CHARLIT | STRINGLIT |
         IDENTIFIER |
         OPARN expression CPARN;
-

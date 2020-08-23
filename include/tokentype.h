@@ -85,6 +85,7 @@ enum TokenType
     CHAR,
 
     // keywords
+    VAR,
     PRINT,
     VOID,
     NAMESPACE,

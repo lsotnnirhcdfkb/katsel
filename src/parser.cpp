@@ -36,7 +36,7 @@ std::unique_ptr<AST> Parser::parse()
     std::unique_ptr<ProgramAST> program = std::make_unique<ProgramAST>(programV);
     return program;
 }
-
+// {{{ declarations
 std::unique_ptr<AST> Parser::decl()
 {
     return function();
@@ -61,90 +61,52 @@ std::unique_ptr<AST> Parser::function()
     std::unique_ptr<FunctionAST> func = std::make_unique<FunctionAST>(std::move(rettype), name, std::move(farglist), std::move(fblock));
     return func;
 }
-
-std::unique_ptr<AST> Parser::block()
-{
-    consume(TokenType::OCURB, "Expected '{' to open block");
-
-    std::vector<std::unique_ptr<AST>> statements;
-
-    while (!check(TokenType::CCURB) && !atEnd())
-    {
-        std::unique_ptr<AST> statementast = statement();
-        if (statementast)
-            statements.push_back(std::move(statementast));
-    }
-
-    consume(TokenType::CCURB, "Expected '}' to close block");
-
-    std::unique_ptr<AST> b = std::make_unique<BlockAST>(statements);
-    return b;
-}
-
-std::unique_ptr<AST> Parser::type()
-{
-    // only builtin types for now
-    if (match(TokenType::UINT8) || match(TokenType::UINT16) || match(TokenType::UINT32) || match(TokenType::UINT64) ||
-        match(TokenType::SINT8) || match(TokenType::SINT16) || match(TokenType::SINT32) || match(TokenType::SINT64) ||
-
-        match(TokenType::FLOAT) ||
-        match(TokenType::CHAR) ||
-        match(TokenType::BOOL) ||
-        match(TokenType::DOUBLE) ||
-        match(TokenType::VOID))
-    {
-        return std::make_unique<TypeAST>(prev());
-    }
-
-    error("Expected type", true);
-    return nullptr;
-}
-
-std::unique_ptr<AST> Parser::arglist()
-{
-    std::vector<std::unique_ptr<AST>> args;
-    std::unique_ptr<AST> argtype = type();
-    Token argname = consume(TokenType::IDENTIFIER, "Expected arguemnt name");
-
-    std::unique_ptr<AST> arg = std::make_unique<ArgAST>(std::move(argtype), argname);
-
-    args.push_back(std::move(arg));
-
-    while (match(TokenType::COMMA) && !atEnd())
-    {
-        std::unique_ptr<AST> cargtype = type();
-        Token cargname = consume(TokenType::IDENTIFIER, "Expected arguemnt name");
-
-        std::unique_ptr<AST> carg = std::make_unique<ArgAST>(std::move(cargtype), cargname);
-
-        args.push_back(std::move(carg));
-    }
-
-    std::unique_ptr<AST> argsast = std::make_unique<ArgsAST>(args);
-    return argsast;
-}
-
-
+// }}}
+// {{{ statement
 std::unique_ptr<AST> Parser::statement()
 {
-    std::unique_ptr<AST> stmt;
-    if (check(TokenType::OCURB))
-        stmt = block();
-    else
+    std::unique_ptr<AST> statementast = nullptr;
+    switch (peek().type)
     {
-        stmt = exprstmt();
-        consume(TokenType::SEMICOLON, "Expected ';' after statement");
+        case TokenType::VAR:
+            statementast = varstatement();
+            break;
+
+        case TokenType::OCURB:
+            statementast = block();
+            break;
+
+        default:
+            statementast = exprstatement();
+
+    }
+    return statementast;
+}
+std::unique_ptr<AST> Parser::varstatement()
+{
+    advance(); // consume the var keyword
+    std::unique_ptr<AST> typeast = type();
+
+    Token name = consume(TokenType::IDENTIFIER, "Expected identifier as variable name");
+
+    std::unique_ptr<AST> expressionast = nullptr;
+    if (match(TokenType::EQUAL))
+    {
+        expressionast = expression();
     }
 
-    return stmt;
-}
+    consume(TokenType::SEMICOLON, "Expected semicolon after var statement");
 
+    std::unique_ptr<VarStmtAST> stmtast = std::make_unique<VarStmtAST>(std::move(typeast), name, std::move(expressionast));
+    return stmtast;
+}
 std::unique_ptr<AST> Parser::exprstmt()
 {
     std::unique_ptr<AST> expr = expression();
     return std::make_unique<ExprStmtAST>(std::move(expr));
 }
-
+// }}}
+// {{{ expression
 std::unique_ptr<AST> Parser::expression()
 {
     return ternaryexpr();
@@ -171,7 +133,6 @@ std::unique_ptr<AST> Parser::ternaryexpr()
 std::unique_ptr<AST> Parser::binorexpr()
 {
     std::unique_ptr<AST> lnode = binandexpr();
-    
     while (match(TokenType::DOUBLEPIPE) && !atEnd())
     {
         Token op = prev();
@@ -188,7 +149,6 @@ std::unique_ptr<AST> Parser::binorexpr()
 std::unique_ptr<AST> Parser::binandexpr()
 {
     std::unique_ptr<AST> lnode = binnotexpr();
-    
     while (match(TokenType::DOUBLEAMPER) && !atEnd())
     {
         Token op = prev();
@@ -217,7 +177,6 @@ std::unique_ptr<AST> Parser::binnotexpr()
 std::unique_ptr<AST> Parser::compeqexpr()
 {
     std::unique_ptr<AST> lnode = complgtexpr();
-    
     while (match(TokenType::DOUBLEEQUAL) || match(TokenType::BANGEQUAL) && !atEnd())
     {
         Token op = prev();
@@ -234,7 +193,6 @@ std::unique_ptr<AST> Parser::compeqexpr()
 std::unique_ptr<AST> Parser::complgtexpr()
 {
     std::unique_ptr<AST> lnode = bitxorexpr();
-    
     while (match(TokenType::LESS) || match(TokenType::GREATER) || match(TokenType::LESSEQUAL) || match(TokenType::GREATEREQUAL) && !atEnd())
     {
         Token op = prev();
@@ -251,7 +209,6 @@ std::unique_ptr<AST> Parser::complgtexpr()
 std::unique_ptr<AST> Parser::bitxorexpr()
 {
     std::unique_ptr<AST> lnode = bitorexpr();
-    
     while (match(TokenType::CARET) && !atEnd())
     {
         Token op = prev();
@@ -268,7 +225,6 @@ std::unique_ptr<AST> Parser::bitxorexpr()
 std::unique_ptr<AST> Parser::bitorexpr()
 {
     std::unique_ptr<AST> lnode = bitandexpr();
-    
     while (match(TokenType::PIPE) && !atEnd())
     {
         Token op = prev();
@@ -285,7 +241,6 @@ std::unique_ptr<AST> Parser::bitorexpr()
 std::unique_ptr<AST> Parser::bitandexpr()
 {
     std::unique_ptr<AST> lnode = bitshiftexpr();
-    
     while (match(TokenType::AMPER) && !atEnd())
     {
         Token op = prev();
@@ -302,7 +257,6 @@ std::unique_ptr<AST> Parser::bitandexpr()
 std::unique_ptr<AST> Parser::bitshiftexpr()
 {
     std::unique_ptr<AST> lnode = additionexpr();
-    
     while (match(TokenType::DOUBLELESS) || match(TokenType::DOUBLEGREATER) && !atEnd())
     {
         Token op = prev();
@@ -368,10 +322,10 @@ std::unique_ptr<AST> Parser::unary()
 std::unique_ptr<AST> Parser::primary()
 {
     if (match(TokenType::TRUELIT) || match(TokenType::FALSELIT) ||
-        match(TokenType::FLOATLIT) ||
-        match(TokenType::DECINTLIT) || match(TokenType::OCTINTLIT) || match(TokenType::BININTLIT) || match(TokenType::HEXINTLIT) ||
-        match(TokenType::CHARLIT) || match(TokenType::STRINGLIT) ||
-        match(TokenType::IDENTIFIER))
+            match(TokenType::FLOATLIT) ||
+            match(TokenType::DECINTLIT) || match(TokenType::OCTINTLIT) || match(TokenType::BININTLIT) || match(TokenType::HEXINTLIT) ||
+            match(TokenType::CHARLIT) || match(TokenType::STRINGLIT) ||
+            match(TokenType::IDENTIFIER))
     {
         return std::make_unique<PrimaryAST>(prev());
     }
@@ -387,7 +341,68 @@ std::unique_ptr<AST> Parser::primary()
     return nullptr;
 }
 // }}}
+// }}}
+// {{{ parsing helping rules
+std::unique_ptr<AST> Parser::arglist()
+{
+    std::vector<std::unique_ptr<AST>> args;
+    std::unique_ptr<AST> argtype = type();
+    Token argname = consume(TokenType::IDENTIFIER, "Expected arguemnt name");
 
+    std::unique_ptr<AST> arg = std::make_unique<ArgAST>(std::move(argtype), argname);
+
+    args.push_back(std::move(arg));
+
+    while (match(TokenType::COMMA) && !atEnd())
+    {
+        std::unique_ptr<AST> cargtype = type();
+        Token cargname = consume(TokenType::IDENTIFIER, "Expected arguemnt name");
+
+        std::unique_ptr<AST> carg = std::make_unique<ArgAST>(std::move(cargtype), cargname);
+
+        args.push_back(std::move(carg));
+    }
+
+    std::unique_ptr<AST> argsast = std::make_unique<ArgsAST>(args);
+    return argsast;
+}
+std::unique_ptr<AST> Parser::block()
+{
+    consume(TokenType::OCURB, "Expected '{' to open block");
+
+    std::vector<std::unique_ptr<AST>> statements;
+
+    while (!check(TokenType::CCURB) && !atEnd())
+    {
+        std::unique_ptr<AST> statementast = statement();
+        if (statementast)
+            statements.push_back(std::move(statementast));
+    }
+
+    consume(TokenType::CCURB, "Expected '}' to close block");
+
+    std::unique_ptr<AST> b = std::make_unique<BlockAST>(statements);
+    return b;
+}
+std::unique_ptr<AST> Parser::type()
+{
+    // only builtin types for now
+    if (match(TokenType::UINT8) || match(TokenType::UINT16) || match(TokenType::UINT32) || match(TokenType::UINT64) ||
+        match(TokenType::SINT8) || match(TokenType::SINT16) || match(TokenType::SINT32) || match(TokenType::SINT64) ||
+
+        match(TokenType::FLOAT) ||
+        match(TokenType::CHAR) ||
+        match(TokenType::BOOL) ||
+        match(TokenType::DOUBLE) ||
+        match(TokenType::VOID))
+    {
+        return std::make_unique<TypeAST>(prev());
+    }
+
+    error("Expected type", true);
+    return nullptr;
+}
+// }}}
 // {{{ parser helper methods
 Token& Parser::peek()
 {
