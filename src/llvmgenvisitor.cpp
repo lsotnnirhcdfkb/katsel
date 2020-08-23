@@ -204,10 +204,10 @@ void LLVMGenVisitor::visitExprStmtAST(const ExprStmtAST *ast)
 
 void LLVMGenVisitor::visitVarStmtAST(const VarStmtAST *ast) 
 {
+    llvm::Function *f = builder.GetInsertBlock()->getParent();
+    llvm::AllocaInst *varalloca = createEntryAlloca(f, std::string(ast->name.start, ast->name.end));
 }
 // }}}
-
-
 // {{{ helper ast visiting
 void LLVMGenVisitor::visitTypeAST(const TypeAST *ast) 
 {
@@ -215,5 +215,9 @@ void LLVMGenVisitor::visitTypeAST(const TypeAST *ast)
 // }}}
 // }}}
 // {{{ private llvm visitor helper methods
-llvm::AllocaInst* createEntryAlloca(Function *f, const std::string &name);
+llvm::AllocaInst* LLVMGenVisitor::createEntryAlloca(llvm::Function *f, const std::string &name) 
+{
+    llvm::IRBuilder<> b (&(f->getEntryBlock()), f->getEntryBlock().begin());
+    return b.CreateAlloca(llvm::Type::getInt64Ty(context), 0, name.c_str());
+}
 // }}}

@@ -28,7 +28,7 @@ public:
     void visitTypeAST(const TypeAST *ast);
 
 private:
-    llvm::AllocaInst* createEntryAlloca(Function *f, const std::string &name);
+    llvm::AllocaInst* createEntryAlloca(llvm::Function *f, const std::string &name);
     llvm::LLVMContext context;
     llvm::IRBuilder<> builder;
     std::unique_ptr<llvm::Module> module_;
