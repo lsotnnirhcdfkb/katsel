@@ -204,8 +204,18 @@ void LLVMGenVisitor::visitExprStmtAST(const ExprStmtAST *ast)
 
 void LLVMGenVisitor::visitVarStmtAST(const VarStmtAST *ast) 
 {
+    std::string varname = std::string(ast->name.start, ast->name.end);
     llvm::Function *f = builder.GetInsertBlock()->getParent();
-    llvm::AllocaInst *varalloca = createEntryAlloca(f, std::string(ast->name.start, ast->name.end));
+    llvm::AllocaInst *varalloca = createEntryAlloca(f, varname);
+
+    ast->expression->accept(this);
+    llvm::Value *value = curRetVal;
+
+    builder.CreateStore(value, varalloca);
+
+    scopesymbols[varname] = varalloca;
+    
+    curRetVal = varalloca;
 }
 // }}}
 // {{{ helper ast visiting
