@@ -129,10 +129,13 @@ std::unique_ptr<AST> Parser::expression()
 
 std::unique_ptr<AST> Parser::assignmentexpr()
 {
-    std::unique_ptr<AST> lhs = ternaryexpr();
+    std::unique_ptr<AST> lhs = ternaryexpr(); // should be VariableRefAST if it is a valid lhs
     
     if (match(TokenType::EQUAL))
     {
+        if (!(dynamic_cast<VariableRefAST*>(&*lhs)))
+            error("Invalid assignment target");
+
         Token equalSign = prev();
         std::unique_ptr<AST> rhs = assignmentexpr();
         std::unique_ptr<AssignAST> assignast = std::make_unique<AssignAST>(std::move(lhs), std::move(rhs), equalSign);
@@ -142,7 +145,7 @@ std::unique_ptr<AST> Parser::assignmentexpr()
 
     return lhs;
 }
-
+// {{{ ternary expr
 std::unique_ptr<AST> Parser::ternaryexpr()
 {
     std::unique_ptr<AST> binexpr = binorexpr();
@@ -160,7 +163,8 @@ std::unique_ptr<AST> Parser::ternaryexpr()
 
     return binexpr;
 }
-
+// }}}
+// {{{ binary and or not
 std::unique_ptr<AST> Parser::binorexpr()
 {
     std::unique_ptr<AST> lnode = binandexpr();
@@ -204,7 +208,8 @@ std::unique_ptr<AST> Parser::binnotexpr()
 
     return compeqexpr();
 }
-
+// }}}
+// {{{ comparison
 std::unique_ptr<AST> Parser::compeqexpr()
 {
     std::unique_ptr<AST> lnode = complgtexpr();
@@ -236,7 +241,8 @@ std::unique_ptr<AST> Parser::complgtexpr()
 
     return lnode;
 }
-
+// }}}
+// {{{ bit xor or and shift
 std::unique_ptr<AST> Parser::bitxorexpr()
 {
     std::unique_ptr<AST> lnode = bitorexpr();
@@ -300,7 +306,8 @@ std::unique_ptr<AST> Parser::bitshiftexpr()
 
     return lnode;
 }
-
+// }}}
+// {{{ add mult unary
 std::unique_ptr<AST> Parser::additionexpr()
 {
     std::unique_ptr<AST> lnode = multexpr();
@@ -349,7 +356,8 @@ std::unique_ptr<AST> Parser::unary()
 
     return primary();
 }
-
+// }}}
+// {{{ primary
 std::unique_ptr<AST> Parser::primary()
 {
     if (match(TokenType::TRUELIT) || match(TokenType::FALSELIT) ||
@@ -375,6 +383,7 @@ std::unique_ptr<AST> Parser::primary()
     error("Expected expression", true);
     return nullptr;
 }
+// }}}
 // }}}
 // {{{ parsing helping rules
 std::unique_ptr<AST> Parser::arglist()

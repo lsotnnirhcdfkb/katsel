@@ -24,7 +24,7 @@ arglist -> type IDENTIFIER (COMMA type IDENTIFIER)*;
 // this grammar is heavily based off of the grammar for the Lox Language in the book "Crafting Interpreters" by Bob Nystrom
 // this grammar also closely follows the precedences of the operators in Python
 expression -> assignmentexpr;
-assignmentexpr -> IDENTIFIER EQUAL assignment |
+assignmentexpr -> varref EQUAL assignment |
                 ternaryexpr;
 ternaryexpr -> binorexpr (QUESTION binorexpr COLON ternaryexpr)?;
 binorexpr -> binandexpr (DOUBLEPIPE binandexpr)*;
@@ -44,5 +44,9 @@ primary -> TRUELIT | FALSELIT |
         NULLLIT |
         DECINTLIT | OCTINTLIT | BININTLIT | HEXINTLIT |
         CHARLIT | STRINGLIT |
-        IDENTIFIER |
+        varref |
         OPARN expression CPARN;
+
+// variable references
+varref -> IDENTIFIER;
+
