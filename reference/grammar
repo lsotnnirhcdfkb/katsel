@@ -9,7 +9,7 @@ function -> type IDENTIFIER OPARN arglist? CPARN block;
 statement -> varstmt |
             exprstmt |
             retstmt  |
-            block ;
+            block;
 
 varstmt -> VAR type IDENTIFIER (EQUAL expression) SEMICOLON;
 exprstmt -> expression SEMICOLON;
@@ -47,6 +47,6 @@ primary -> TRUELIT | FALSELIT |
         varref |
         OPARN expression CPARN;
 
-// variable references
-varref -> IDENTIFIER;
+// this was from Lox's grammar
+varref -> IDENTIFIER (DOT IDENTIFIER | OPARN args? CPARN)*;
 
