@@ -76,6 +76,10 @@ std::unique_ptr<AST> Parser::statement()
             statementast = block();
             break;
 
+        case TokenType::RETURN:
+            statementast = retstatement();
+            break;
+
         default:
             statementast = exprstatement();
 
