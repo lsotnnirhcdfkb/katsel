@@ -113,7 +113,9 @@ std::unique_ptr<AST> Parser::exprstatement()
 std::unique_ptr<AST> Parser::retstatement()
 {
     advance(); // consume the return keyword
-    std::unique_ptr<AST> expr = expression();
+    std::unique_ptr<AST> expr;
+    if (!check(TokenType::SEMICOLON))
+        expr = expression();
     consume(TokenType::SEMICOLON, "Expected semicolon after return statement");
 
     return std::make_unique<ReturnStmtAST>(std::move(expr));

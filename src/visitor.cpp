@@ -137,7 +137,10 @@ void PrintVisitor::visitAssignAST(const AssignAST *ast)
 void PrintVisitor::visitReturnStmtAST(const ReturnStmtAST *ast)
 {
     print("Return statement: return ");
-    ast->expr->accept(this);
+    if (expr):
+        ast->expr->accept(this);
+    else
+        print("void");
     print("\n");
 }
 
