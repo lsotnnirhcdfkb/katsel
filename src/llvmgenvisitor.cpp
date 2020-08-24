@@ -1,6 +1,6 @@
 #include "llvmgenvisitor.h"
 
-LLVMGenVisitor::LLVMGenVisitor(File &sourcefile): sourcefile(sourcefile), builder(context), module_(std::make_unique<llvm::Module>("COxianc output of file " + sourcefile.filename, context)), scopenum(0) {}
+LLVMGenVisitor::LLVMGenVisitor(File &sourcefile): sourcefile(sourcefile), builder(context), module_(std::make_unique<llvm::Module>("COxianc output of file " + sourcefile.filename, context)), scopenum(0), argsVisitor(sourcefile, context) {}
 
 // {{{ visiting asts
 void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast) 
@@ -15,13 +15,15 @@ void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast)
 // {{{ declaration visiting
 void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
 {
+    ast->args->accept(argsVisitor);
+    std::vector<llvm::Type*> argTypes = argsVisitor.argTypes;
+    std::vector<Token> argNames = argsVisitor.argNames;
+
     std::string name = std::string(ast->name.start, ast->name.end);
     llvm::FunctionType *ft = llvm::FunctionType::get(llvm::Type::getVoidTy(context), false); 
     llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, name, *module_);
 
     beginNewScope();
-
-    
 
     llvm::BasicBlock *block = llvm::BasicBlock::Create(context, name + "entry", f);
     builder.SetInsertPoint(block);
@@ -356,23 +358,26 @@ namespace LLVMGenVisitorHelpersNS
 {
     void ArgsVisitor::visitArgAST(const ArgAST *ast)
     {
-        std::pair<llvm::Type*, Token> argPair {llvm::Type::getInt64Ty(context), ast->argname};
-
         // if this is part of a visitArgs then this will be overrided anyway
         // but if it is not then the return value is provided in a vector like it's supposed to be
-        retVal = {argPair}; 
+        argTypes = {llvm::Type::getInt64Ty(context)}; 
+        argNames = {ast->argname};
     }
     void ArgsVisitor::visitArgsAST(const ArgsAST *ast)
     {
-        std::vector<std::pair<llvm::Type*, Token>> args;
+        std::vector<llvm::Type*> cargTypes;
+        std::vector<Token> cargNames;
 
         for (std::unique_ptr<AST> const &arg : ast->args)
         {
             arg->accept(this);
-            args.push_back(retVal[0]); // retval is length 1 because visitArgsAST always does that
+            // retval is length 1 because visitArgsAST always does that
+            cargTypes.push_back(argTypes[0]);
+            cargNames.push_back(argNames[0]);
         }
 
-        retVal = args;
+        argTypes = cargTypes;
+        argNames = cargNames;
     }
 }
 // }}}

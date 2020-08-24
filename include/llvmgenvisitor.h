@@ -49,6 +49,7 @@ private:
     llvm::Value *curRetVal = nullptr;
 
     File &sourcefile;
+    ArgsVisitor argsVisitor;
 };
 
 namespace LLVMGenVisitorHelpersNS
@@ -56,12 +57,13 @@ namespace LLVMGenVisitorHelpersNS
     class ArgsVisitor : public BlankVisitor
     {
     public:
-        ArgsVisitor(File &sourcefile);
+        ArgsVisitor(File &sourcefile, llvm::LLVMContext &context);
 
         void visitArgAST(const ArgAST *ast) override;
         void visitArgsAST(const ArgsAST *ast) override;
 
-        std::vector<std::pair<llvm::Type*, Token>> retVal;
+        std::vector<llvm::Type*> argTypes;
+        std::vector<Token> argNames;
 
     private:
         File &sourcefile;
