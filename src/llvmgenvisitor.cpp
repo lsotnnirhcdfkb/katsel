@@ -375,6 +375,22 @@ void LLVMGenVisitor::visitParamsAST(const ParamsAST *ast)
     // also shouldn't ever happen beacause ParamsVisitor processes the params
     // instead of LLVMGenVisitor
 }
+
+void LLVMGenVisitor::visitArgAST(const ArgAST *ast) 
+{
+    CLEARRET;
+}
+
+void LLVMGenVisitor::visitArgsAST(const ArgsAST *ast) 
+{
+    CLEARRET;
+}
+
+void LLVMGenVisitor::visitCallAST(const CallAST *ast) 
+{
+    CLEARRET;
+}
+
 // }}}
 // }}}
 // {{{ private llvm visitor helper methods

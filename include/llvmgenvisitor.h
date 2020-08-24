@@ -67,6 +67,9 @@ public:
     void visitAssignAST(const AssignAST *ast) override;
     void visitVariableRefAST(const VariableRefAST *ast) override;
     void visitReturnStmtAST(const ReturnStmtAST *ast) override;
+    void visitArgAST(const ArgAST *ast) override;
+    void visitArgsAST(const ArgsAST *ast) override;
+    void visitCallAST(const CallAST *ast) override;
 
 private:
     llvm::AllocaInst* createEntryAlloca(llvm::Function *f, const std::string &name);

@@ -149,6 +149,21 @@ void PrintVisitor::visitVariableRefAST(const VariableRefAST *ast)
     print("(Variable reference: " + std::string(ast->var.start, ast->var.end) + ")");
 }
 
+void PrintVisitor::visitArgAST(const ArgAST *ast) 
+{
+
+}
+
+void PrintVisitor::visitArgsAST(const ArgsAST *ast) 
+{
+
+}
+
+void PrintVisitor::visitCallAST(const CallAST *ast) 
+{
+
+}
+
 void PrintVisitor::print(std::string &str)
 {
     for (auto i = str.begin(); i != str.end(); ++i)
