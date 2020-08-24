@@ -20,6 +20,9 @@ void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
     llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, name, *module_);
 
     beginNewScope();
+
+
+
     llvm::BasicBlock *block = llvm::BasicBlock::Create(context, name + "entry", f);
     builder.SetInsertPoint(block);
 
@@ -346,5 +349,12 @@ llvm::Value* LLVMGenVisitor::getVarFromName(std::string &name, Token const &tok)
         reportError(tok, "unknown variable name", sourcefile);
 
     return v; // return nullptr if error
+}
+// }}}
+
+// {{{ helper visitors
+namespace LLVMGenVisitorHelpersNS
+{
+    
 }
 // }}}

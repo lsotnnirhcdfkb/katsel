@@ -49,3 +49,17 @@ private:
 
     File &sourcefile;
 };
+
+namespace LLVMGenVisitorHelpersNS
+{
+    class ArgCounterVisitor : public BlankVisitor
+    {
+    public:
+        ArgCouterVisitor(File &sourcefile);
+
+        void visitArgAST(const ArgAST *ast) override;
+        void visitArgsAST(const ArgsAST *ast) override;
+
+        int retVal;
+    };
+}

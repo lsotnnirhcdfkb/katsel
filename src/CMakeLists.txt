@@ -1,4 +1,4 @@
-add_executable(coxianc main.cpp lexer.cpp parser.cpp errors.cpp ast.cpp visitor.cpp llvmgenvisitor.cpp)
+add_executable(coxianc main.cpp lexer.cpp parser.cpp errors.cpp ast.cpp visitor.cpp llvmgenvisitor.cpp blankvisitor.cpp)
 
 # Also (mostly) copied and pasted and shifted around a bit from LLVM Docs - Building LLVM with CMake - Embedding LLVM in your project
 # https://releases.llvm.org/3.6.0/docs/CMake.html#embedding-llvm-in-your-project
