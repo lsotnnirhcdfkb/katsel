@@ -1,10 +1,15 @@
 #include "llvmgenvisitor.h"
 
+#define LLVMGENVISITOR_RETURN(x) curRetVal = x; \
+                                             return;
+#define CLEARRET curRetVal = nullptr
+
 LLVMGenVisitor::LLVMGenVisitor(File &sourcefile): sourcefile(sourcefile), builder(context), module_(std::make_unique<llvm::Module>("COxianc output of file " + sourcefile.filename, context)), scopenum(0), argsVisitor(sourcefile, context), typeVisitor(sourcefile, context) {}
 
 // {{{ visiting asts
 void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast) 
 {
+    CLEARRET;
     for (const std::unique_ptr<AST> &dast : ast->asts) 
     {
         dast->accept(this);
@@ -15,7 +20,7 @@ void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast)
 // {{{ declaration visiting
 void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
 {
-    // TODO: need to do return type
+    CLEARRET;
     std::vector<llvm::Type*> argTypes;
     std::vector<Token> argNames;
 
@@ -58,13 +63,14 @@ void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
     llvm::verifyFunction(*f); 
 
     finishCurScope();
-    curRetVal = f;
+    LLVMGENVISITOR_RETURN(f);
 }
 // }}}
 // {{{ expression visiting
 // {{{ binary ast
 void LLVMGenVisitor::visitBinaryAST(const BinaryAST *ast) 
 {
+    CLEARRET;
     ast->last->accept(this);
     llvm::Value *lval = curRetVal;
     ast->rast->accept(this);
@@ -72,8 +78,7 @@ void LLVMGenVisitor::visitBinaryAST(const BinaryAST *ast)
 
     if (!lval || !rval) 
     {
-        curRetVal = nullptr;
-        return;
+        LLVMGENVISITOR_RETURN(nullptr);
     }
 
     llvm::Value *retval = nullptr;
@@ -156,12 +161,13 @@ void LLVMGenVisitor::visitBinaryAST(const BinaryAST *ast)
         default: reportError(ast->op, "invalid thingy", sourcefile); retval = nullptr; // shouldn't ever get here
     }
 
-    curRetVal = retval;
+    LLVMGENVISITOR_RETURN(retval);
 }
 // }}}
 // {{{ ternary ast
 void LLVMGenVisitor::visitTernaryOpAST(const TernaryOpAST *ast) 
 {
+    CLEARRET;
     ast->conditional->accept(this);
     llvm::Value *cond = curRetVal;
 
@@ -198,19 +204,19 @@ void LLVMGenVisitor::visitTernaryOpAST(const TernaryOpAST *ast)
     phi->addIncoming(truev, trueb);
     phi->addIncoming(falsev, falseb);
 
-    curRetVal = phi;
+    LLVMGENVISITOR_RETURN(phi)
 }
 // }}}
 // {{{ unary ast
 void LLVMGenVisitor::visitUnaryAST(const UnaryAST *ast) 
 {
+    CLEARRET;
     ast->ast->accept(this);
     llvm::Value *val = curRetVal;
 
     if (val)
     {
-        curRetVal = nullptr;
-        return;
+        LLVMGENVISITOR_RETURN(nullptr)
     }
 
     llvm::Value *retval = nullptr;
@@ -235,19 +241,19 @@ void LLVMGenVisitor::visitUnaryAST(const UnaryAST *ast)
         default: reportError(ast->op, "invalid thingy", sourcefile); retval = nullptr; // shouldn't ever get here
     }
 
-    curRetVal = retval;
+    LLVMGENVISITOR_RETURN(retval)
 }
 // }}}
 // {{{ assign ast
 void LLVMGenVisitor::visitAssignAST(const AssignAST *ast)
 {
+    CLEARRET;
     VariableRefAST *lhs = dynamic_cast<VariableRefAST*>(ast->lhs.get());
 
     if (!lhs)
     {
         reportError(ast->equalSign, "Invalid target for assignment", sourcefile);
-        curRetVal = nullptr;
-        return;
+        LLVMGENVISITOR_RETURN(nullptr)
     }
 
     ast->rhs->accept(this);
@@ -257,43 +263,45 @@ void LLVMGenVisitor::visitAssignAST(const AssignAST *ast)
     llvm::Value *var = getVarFromName(name, ast->equalSign);
     if (!var)
     {
-        curRetVal = nullptr;
-        return;
+        LLVMGENVISITOR_RETURN(nullptr)
     }
 
     builder.CreateStore(rhs, var);
-    curRetVal = rhs;
+    LLVMGENVISITOR_RETURN(rhs)
 }
 // }}}
 // {{{ var ref
 void LLVMGenVisitor::visitVariableRefAST(const VariableRefAST *ast)
 {
+    CLEARRET;
     std::string name = std::string(ast->var.start, ast->var.end);
     llvm::Value *v = getVarFromName(name, ast->var);
 
     if (v)
     {
-        curRetVal = builder.CreateLoad(v, name.c_str());
-        return;
+        LLVMGENVISITOR_RETURN(builder.CreateLoad(v, name.c_str()))
     }
 
-    curRetVal = nullptr;
+    LLVMGENVISITOR_RETURN(nullptr)
 }
 // }}}
 void LLVMGenVisitor::visitPrimaryAST(const PrimaryAST *ast) 
 {
-    curRetVal = llvm::ConstantInt::get(context, llvm::APInt(64, std::stoi(std::string(ast->value.start, ast->value.end))));
+    CLEARRET;
+    LLVMGENVISITOR_RETURN(llvm::ConstantInt::get(context, llvm::APInt(64, std::stoi(std::string(ast->value.start, ast->value.end)))))
 }
 // }}}
 // {{{ statement visiting
 void LLVMGenVisitor::visitExprStmtAST(const ExprStmtAST *ast) 
 {
+    CLEARRET;
     ast->ast->accept(this);
-    curRetVal = nullptr;
+    LLVMGENVISITOR_RETURN(nullptr)
 }
 
 void LLVMGenVisitor::visitVarStmtAST(const VarStmtAST *ast) 
 {
+    CLEARRET;
     // TODO: types
     std::string varname = std::string(ast->name.start, ast->name.end);
     llvm::Function *f = builder.GetInsertBlock()->getParent();
@@ -304,18 +312,18 @@ void LLVMGenVisitor::visitVarStmtAST(const VarStmtAST *ast)
 
     if (!value)
     {
-        curRetVal = nullptr;
-        return;
+        LLVMGENVISITOR_RETURN(nullptr)
     }
 
     builder.CreateStore(value, varalloca);
 
     createScopeSymbol(varname, varalloca);
     
-    curRetVal = varalloca;
+    LLVMGENVISITOR_RETURN(varalloca)
 }
 void LLVMGenVisitor::visitReturnStmtAST(const ReturnStmtAST *ast)
 {
+    CLEARRET;
     ast->expr->accept(this);
     builder.CreateRet(curRetVal);
 }
@@ -323,28 +331,32 @@ void LLVMGenVisitor::visitReturnStmtAST(const ReturnStmtAST *ast)
 // {{{ helper ast visiting
 void LLVMGenVisitor::visitTypeAST(const TypeAST *ast) 
 {
-    // curRetVal = llvm::Type::getInt64Ty(context);
+    CLEARRET;
+    // LLVMGENVISITOR_RETURN(llvm::Type::getInt64Ty(context))
 }
 
 void LLVMGenVisitor::visitBlockAST(const BlockAST *ast) 
 {
+    CLEARRET;
     beginNewScope();
     for (const std::unique_ptr<AST> &bast : ast->stmts) 
     {
         bast->accept(this);
     }
     finishCurScope();
-    curRetVal = nullptr;
+    LLVMGENVISITOR_RETURN(nullptr)
 }
 
 void LLVMGenVisitor::visitArgAST(const ArgAST *ast) 
 {
+    CLEARRET;
     // shouldn't ever happen beacause ArgsVisitor processes the args
     // instead of LLVMGenVisitor
 }
 
 void LLVMGenVisitor::visitArgsAST(const ArgsAST *ast) 
 {
+    CLEARRET;
     // also shouldn't ever happen beacause ArgsVisitor processes the args
     // instead of LLVMGenVisitor
 }
