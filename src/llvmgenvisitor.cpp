@@ -21,7 +21,7 @@ void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
 
     beginNewScope();
 
-
+    
 
     llvm::BasicBlock *block = llvm::BasicBlock::Create(context, name + "entry", f);
     builder.SetInsertPoint(block);
@@ -351,10 +351,28 @@ llvm::Value* LLVMGenVisitor::getVarFromName(std::string &name, Token const &tok)
     return v; // return nullptr if error
 }
 // }}}
-
 // {{{ helper visitors
 namespace LLVMGenVisitorHelpersNS
 {
-    
+    void ArgsVisitor::visitArgAST(const ArgAST *ast)
+    {
+        std::pair<llvm::Type*, Token> argPair {llvm::Type::getInt64Ty(context), ast->argname};
+
+        // if this is part of a visitArgs then this will be overrided anyway
+        // but if it is not then the return value is provided in a vector like it's supposed to be
+        retVal = {argPair}; 
+    }
+    void ArgsVisitor::visitArgsAST(const ArgsAST *ast)
+    {
+        std::vector<std::pair<llvm::Type*, Token>> args;
+
+        for (std::unique_ptr<AST> const &arg : ast->args)
+        {
+            arg->accept(this);
+            args.push_back(retVal[0]); // retval is length 1 because visitArgsAST always does that
+        }
+
+        retVal = args;
+    }
 }
 // }}}

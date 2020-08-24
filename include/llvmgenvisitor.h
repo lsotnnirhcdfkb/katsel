@@ -6,6 +6,7 @@
 #include "visitor.h"
 #include "ast.h"
 #include "errors.h"
+#include "blankvisitor.h"
 
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/IR/IRBuilder.h"
@@ -52,14 +53,18 @@ private:
 
 namespace LLVMGenVisitorHelpersNS
 {
-    class ArgCounterVisitor : public BlankVisitor
+    class ArgsVisitor : public BlankVisitor
     {
     public:
-        ArgCouterVisitor(File &sourcefile);
+        ArgsVisitor(File &sourcefile);
 
         void visitArgAST(const ArgAST *ast) override;
         void visitArgsAST(const ArgsAST *ast) override;
 
-        int retVal;
+        std::vector<std::pair<llvm::Type*, Token>> retVal;
+
+    private:
+        File &sourcefile;
+        llvm::LLVMContext &context;
     };
 }

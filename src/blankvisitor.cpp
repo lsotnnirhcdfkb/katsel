@@ -1,3 +1,5 @@
+#include "blankvisitor.h"
+
 void BlankVisitor::visitBinaryAST(const BinaryAST *ast) {}
 void BlankVisitor::visitTernaryOpAST(const TernaryOpAST *ast) {}
 void BlankVisitor::visitUnaryAST(const UnaryAST *ast) {}
