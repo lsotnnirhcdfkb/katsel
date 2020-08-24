@@ -55,7 +55,6 @@ void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
 
     ast->body->accept(this);
 
-    builder.CreateRetVoid();
     llvm::verifyFunction(*f); 
 
     finishCurScope();
