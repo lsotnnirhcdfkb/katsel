@@ -58,6 +58,7 @@ private:
     void beginNewScope();
     void finishCurScope();
     llvm::Value* getVarFromName(std::string &name, Token const &tok);
+    void createScopeSymbol(std::string &name, llvm::AllocaInst* alloca);
 
     llvm::LLVMContext context;
     llvm::IRBuilder<> builder;

@@ -15,15 +15,37 @@ void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast)
 // {{{ declaration visiting
 void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
 {
-    ast->args->accept(&argsVisitor);
-    std::vector<llvm::Type*> argTypes = argsVisitor.argTypes;
-    std::vector<Token> argNames = argsVisitor.argNames;
+    std::vector<llvm::Type*> argTypes;
+    std::vector<Token> argNames;
+
+    if (ast->args)
+    {
+        ast->args->accept(&argsVisitor);
+
+        argTypes = argsVisitor.argTypes;
+        argNames = argsVisitor.argNames;
+    }
 
     std::string name = std::string(ast->name.start, ast->name.end);
-    llvm::FunctionType *ft = llvm::FunctionType::get(llvm::Type::getVoidTy(context), false); 
+    llvm::FunctionType *ft = llvm::FunctionType::get(llvm::Type::getVoidTy(context), argTypes, false); 
     llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, name, *module_);
 
     beginNewScope();
+
+    { 
+        int i = 0;
+        for (auto &arg : f->Args())
+        {
+            std::string argName = std::string(argNames[i].start, argNames[i].end);
+            Arg.setName(argName);
+
+            AllocaInst *alloca = createEntryAlloca(f, argName);
+            builder.CreateStore(&arg, alloca);
+            createScopeSymbol(argName, alloca);
+
+            ++i;
+        }
+    }
 
     llvm::BasicBlock *block = llvm::BasicBlock::Create(context, name + "entry", f);
     builder.SetInsertPoint(block);
@@ -274,7 +296,7 @@ void LLVMGenVisitor::visitVarStmtAST(const VarStmtAST *ast)
 
     builder.CreateStore(value, varalloca);
 
-    scopesymbols[std::pair<int, std::string>{scopenum, varname}] = varalloca;
+    createScopeSymbol(varname, varalloca);
     
     curRetVal = varalloca;
 }
@@ -352,10 +374,16 @@ llvm::Value* LLVMGenVisitor::getVarFromName(std::string &name, Token const &tok)
 
     return v; // return nullptr if error
 }
+void createScopeSymbol(std::string &name, llvm:AllocaInst* alloca)
+{
+    scopesymbols[std::pair<int, std::string>{name, scopenum}] = alloca;
+}
 // }}}
 // {{{ helper visitors
 namespace LLVMGenVisitorHelpersNS
 {
+    ArgsVisitor::ArgsVisitor(File &sourcefile, llvm::LLVMContext &context): sourcefile(sourcefile), context(context) {}
+
     void ArgsVisitor::visitArgAST(const ArgAST *ast)
     {
         // if this is part of a visitArgs then this will be overrided anyway
