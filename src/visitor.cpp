@@ -143,7 +143,7 @@ void PrintVisitor::visitReturnStmtAST(const ReturnStmtAST *ast)
 
 void PrintVisitor::visitVariableRefAST(const VariableRefAST *ast)
 {
-    print("Variable reference: " + std::string(ast->var.start, ast->var.end));
+    print("(Variable reference: " + std::string(ast->var.start, ast->var.end) + ")");
 }
 
 void PrintVisitor::print(std::string &str)
