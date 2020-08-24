@@ -60,7 +60,7 @@ void compileFile(File &sourcefile)
     // }
 }
 
-int main(int argc, char *paramv[])
+int main(int argc, char *argv[])
 {
     if (argc == 2)
     {
