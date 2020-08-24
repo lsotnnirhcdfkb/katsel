@@ -409,6 +409,26 @@ std::unique_ptr<AST> Parser::paramlist()
     std::unique_ptr<AST> paramsast = std::make_unique<ParamsAST>(params);
     return paramsast;
 }
+std::unique_ptr<AST> Parser::arglist()
+{
+    std::vector<std::unique_ptr<AST>> args;
+
+    std::unique_ptr<AST> arg = std::make_unique<ArgAST>(expression());
+
+    args.push_back(std::move(arg));
+
+    while (match(TokenType::COMMA) && !atEnd())
+    {
+        std::unique_ptr<AST> cargexpr = expression();
+
+        std::unique_ptr<AST> carg = std::make_unique<ArgAST>(std::move(cargexpr));
+
+        args.push_back(std::move(carg));
+    }
+
+    std::unique_ptr<AST> argsast = std::make_unique<ArgsAST>(args);
+    return argsast;
+}
 std::unique_ptr<AST> Parser::block()
 {
     consume(TokenType::OCURB, "Expected '{' to open block");
@@ -444,6 +464,25 @@ std::unique_ptr<AST> Parser::type()
 
     error("Expected type", true);
     return nullptr;
+}
+
+std::unique_ptr<AST> Parser::varref()
+{
+    Token iden = consume(TokenType::IDENTIFIER, "Expected identifier");
+    std::unique_ptr<AST> varrefast = std::make_unique<VariableRefAST>(iden);
+
+    while (match(TokenType::OPARN))
+    {
+        std::unique_ptr<AST> arglistast;
+        if (!check(TokenType::CPARN))
+             arglistast = arglist();
+
+        consume(TokenType::CPARN, "Expected closing parentheses for argument list");
+
+        varrefast = std::make_unique<CallAST>(std::move(varrefast), std::move(arglistast));
+    }
+
+    return varrefast;
 }
 // }}}
 // }}}

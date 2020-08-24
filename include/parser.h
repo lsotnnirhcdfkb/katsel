@@ -16,9 +16,7 @@ public:
     std::unique_ptr<AST> parse();
     std::unique_ptr<AST> decl();
     std::unique_ptr<AST> function();
-    std::unique_ptr<AST> block();
-    std::unique_ptr<AST> type();
-    std::unique_ptr<AST> paramlist();
+    
     std::unique_ptr<AST> statement();
     std::unique_ptr<AST> varstatement();
     std::unique_ptr<AST> exprstatement();
@@ -40,6 +38,12 @@ public:
     std::unique_ptr<AST> multexpr();
     std::unique_ptr<AST> unary();
     std::unique_ptr<AST> primary();
+
+    std::unique_ptr<AST> varref();
+    std::unique_ptr<AST> block();
+    std::unique_ptr<AST> type();
+    std::unique_ptr<AST> paramlist();
+    std::unique_ptr<AST> arglist();
 
 private:
     Token prevToken;

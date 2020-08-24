@@ -159,3 +159,31 @@ public:
 
     std::unique_ptr<AST> expr;
 };
+
+class ArgAST : public AST
+{
+public:
+    ArgAST(std::unique_ptr<AST> expr);
+    void accept(Visitor *v) override;
+
+    std::unique_ptr<AST> expr;
+};
+
+class ArgsAST : public AST
+{
+public:
+    ArgsAST(std::vector<std::unique_ptr<AST>> &args);
+    void accept(Visitor *v) override;
+
+    std::vector<std::unique_ptr<AST>> args;
+};
+
+class CallAST : public AST
+{
+public:
+    CallAST(std::unique_ptr<AST> varrefast, std::unique_ptr<AST> arglistast);
+    void accept(Visitor *v) override;
+
+    std::unique_ptr<AST> varrefast;
+    std::unique_ptr<AST> arglistast;
+};
