@@ -34,12 +34,12 @@ void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
 
     { 
         int i = 0;
-        for (auto &arg : f->Args())
+        for (auto &arg : f->args())
         {
             std::string argName = std::string(argNames[i].start, argNames[i].end);
-            Arg.setName(argName);
+            arg.setName(argName);
 
-            AllocaInst *alloca = createEntryAlloca(f, argName);
+            llvm::AllocaInst *alloca = createEntryAlloca(f, argName);
             builder.CreateStore(&arg, alloca);
             createScopeSymbol(argName, alloca);
 
@@ -374,9 +374,9 @@ llvm::Value* LLVMGenVisitor::getVarFromName(std::string &name, Token const &tok)
 
     return v; // return nullptr if error
 }
-void createScopeSymbol(std::string &name, llvm:AllocaInst* alloca)
+void LLVMGenVisitor::createScopeSymbol(std::string &name, llvm::AllocaInst* alloca)
 {
-    scopesymbols[std::pair<int, std::string>{name, scopenum}] = alloca;
+    scopesymbols[std::pair<int, std::string>{scopenum, name}] = alloca;
 }
 // }}}
 // {{{ helper visitors
