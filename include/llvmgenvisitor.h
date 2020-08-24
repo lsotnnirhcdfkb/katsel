@@ -14,6 +14,25 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Verifier.h"
 
+namespace LLVMGenVisitorHelpersNS
+{
+    class ArgsVisitor : public BlankVisitor
+    {
+    public:
+        ArgsVisitor(File &sourcefile, llvm::LLVMContext &context);
+
+        void visitArgAST(const ArgAST *ast) override;
+        void visitArgsAST(const ArgsAST *ast) override;
+
+        std::vector<llvm::Type*> argTypes;
+        std::vector<Token> argNames;
+
+    private:
+        File &sourcefile;
+        llvm::LLVMContext &context;
+    };
+}
+
 class LLVMGenVisitor : public Visitor
 {
 public:
@@ -49,24 +68,6 @@ private:
     llvm::Value *curRetVal = nullptr;
 
     File &sourcefile;
-    ArgsVisitor argsVisitor;
+    LLVMGenVisitorHelpersNS::ArgsVisitor argsVisitor;
 };
 
-namespace LLVMGenVisitorHelpersNS
-{
-    class ArgsVisitor : public BlankVisitor
-    {
-    public:
-        ArgsVisitor(File &sourcefile, llvm::LLVMContext &context);
-
-        void visitArgAST(const ArgAST *ast) override;
-        void visitArgsAST(const ArgsAST *ast) override;
-
-        std::vector<llvm::Type*> argTypes;
-        std::vector<Token> argNames;
-
-    private:
-        File &sourcefile;
-        llvm::LLVMContext &context;
-    };
-}

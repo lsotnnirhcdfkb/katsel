@@ -15,7 +15,7 @@ void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast)
 // {{{ declaration visiting
 void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
 {
-    ast->args->accept(argsVisitor);
+    ast->args->accept(&argsVisitor);
     std::vector<llvm::Type*> argTypes = argsVisitor.argTypes;
     std::vector<Token> argNames = argsVisitor.argNames;
 
