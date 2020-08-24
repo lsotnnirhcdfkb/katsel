@@ -368,16 +368,16 @@ std::unique_ptr<AST> Parser::primary()
         return std::make_unique<PrimaryAST>(prev());
     }
 
-    if (match(TokenType::IDENTIFIER))
-    {
-        return std::make_unique<VariableRefAST>(prev());
-    }
-
     if (match(TokenType::OPARN))
     {
         std::unique_ptr<AST> expr = expression();
         consume(TokenType::CPARN, "Expect ')' after expression");
         return expr;
+    }
+
+    if (match(TokenType::IDENTIFIER))
+    {
+        return varref();
     }
 
     error("Expected expression", true);

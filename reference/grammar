@@ -3,7 +3,7 @@ program -> decl* EOF;
 
 decl -> function; // soon will add classes here
 
-function -> type IDENTIFIER OPARN arglist? CPARN block;
+function -> type IDENTIFIER OPARN paramlist? CPARN block;
 
 // statements
 statement -> varstmt |
@@ -18,7 +18,7 @@ retstmt -> RETURN expression;
 // helper things like blocks and stuff
 block -> OCURB statement* CCURB; 
 type -> UINT8 | UINT16 | UINT32 | UINT64 | SINT8 | SINT16 | SINT32 | SINT64 | FLOAT | BOOL | DOUBLE | VOID | CHAR;
-arglist -> type IDENTIFIER (COMMA type IDENTIFIER)*;
+paramlist -> type IDENTIFIER (COMMA type IDENTIFIER)*;
 
 // expresion
 // this grammar is heavily based off of the grammar for the Lox Language in the book "Crafting Interpreters" by Bob Nystrom
