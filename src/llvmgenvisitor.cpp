@@ -316,7 +316,8 @@ void LLVMGenVisitor::visitVarStmtAST(const VarStmtAST *ast)
 }
 void LLVMGenVisitor::visitReturnStmtAST(const ReturnStmtAST *ast)
 {
-
+    ast->expr->accept(this);
+    builder.CreateRet(curRetVal);
 }
 // }}}
 // {{{ helper ast visiting
