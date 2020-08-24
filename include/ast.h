@@ -22,17 +22,19 @@ public:
     void accept(Visitor *v) override;
 
     Token op;
-    std::unique_ptr<AST> last, rast;
+    std::unique_ptr<AST> last;
+    std::unique_ptr<AST> rast;
 };
 
 class TernaryOpAST : public AST
 {
-    // is reserved only for ?: ternary operator so only needs to store operands
 public:
     TernaryOpAST(std::unique_ptr<AST> conditional, std::unique_ptr<AST> trueast, std::unique_ptr<AST> falseast);
     void accept(Visitor *v) override;
 
-    std::unique_ptr<AST> conditional, trueast, falseast;
+    std::unique_ptr<AST> conditional;
+    std::unique_ptr<AST> trueast;
+    std::unique_ptr<AST> falseast;
 };
 
 class UnaryAST : public AST
@@ -138,8 +140,9 @@ public:
     AssignAST(std::unique_ptr<AST> lhs, std::unique_ptr<AST> rhs, Token equalSign);
     void accept(Visitor *v) override;
 
+    std::unique_ptr<AST> lhs;
+    std::unique_ptr<AST> rhs;
     Token equalSign;
-    std::unique_ptr<AST> lhs, rhs;
 };
 
 class VariableRefAST : public AST
@@ -187,3 +190,4 @@ public:
     std::unique_ptr<AST> varrefast;
     std::unique_ptr<AST> arglistast;
 };
+
