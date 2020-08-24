@@ -375,7 +375,7 @@ std::unique_ptr<AST> Parser::primary()
         return expr;
     }
 
-    if (match(TokenType::IDENTIFIER))
+    if (check(TokenType::IDENTIFIER))
     {
         return varref();
     }
