@@ -14,3 +14,4 @@ void BlankVisitor::visitArgsAST(const ArgsAST *ast) {}
 void BlankVisitor::visitVarStmtAST(const VarStmtAST *ast) {}
 void BlankVisitor::visitAssignAST(const AssignAST *ast) {}
 void BlankVisitor::visitVariableRefAST(const VariableRefAST *ast) {}
+void BlankVisitor::visitReturnStmtAST(const ReturnStmtAST *ast) {}

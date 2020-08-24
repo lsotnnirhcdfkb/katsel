@@ -314,6 +314,10 @@ void LLVMGenVisitor::visitVarStmtAST(const VarStmtAST *ast)
     
     curRetVal = varalloca;
 }
+void LLVMGenVisitor::visitReturnStmtAST(const ReturnStmtAST *ast)
+{
+
+}
 // }}}
 // {{{ helper ast visiting
 void LLVMGenVisitor::visitTypeAST(const TypeAST *ast) 

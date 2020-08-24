@@ -17,4 +17,5 @@ public:
     void visitVarStmtAST(const VarStmtAST *ast) override;
     void visitAssignAST(const AssignAST *ast) override;
     void visitVariableRefAST(const VariableRefAST *ast) override;
+    void visitReturnStmtAST(const ReturnStmtAST *ast) override;
 };

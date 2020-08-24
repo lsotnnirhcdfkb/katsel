@@ -19,6 +19,7 @@ class ArgsAST;
 class VarStmtAST;
 class AssignAST;
 class VariableRefAST;
+class ReturnStmtAST;
 
 class Visitor
 {
@@ -37,6 +38,7 @@ public:
     virtual void visitVarStmtAST(const VarStmtAST *ast) = 0;
     virtual void visitAssignAST(const AssignAST *ast) = 0;
     virtual void visitVariableRefAST(const VariableRefAST *ast) = 0;
+    virtual void visitReturnStmtAST(const ReturnStmtAST *ast) = 0;
 };
 
 class PrintVisitor : public Visitor
@@ -57,6 +59,7 @@ public:
     void visitArgsAST(const ArgsAST *ast) override;
     void visitAssignAST(const AssignAST *ast) override;
     void visitVariableRefAST(const VariableRefAST *ast) override;
+    void visitReturnStmtAST(const ReturnStmtAST *ast) override;
 
 private:
     int indent;

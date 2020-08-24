@@ -134,6 +134,13 @@ void PrintVisitor::visitAssignAST(const AssignAST *ast)
     print("\n");
 }
 
+void PrintVisitor::visitReturnStmtAST(const ReturnStmtAST *ast)
+{
+    print("Return statement: return ");
+    ast->expr->accept(this);
+    print("\n");
+}
+
 void PrintVisitor::visitVariableRefAST(const VariableRefAST *ast)
 {
     print("Variable reference: " + std::string(ast->var.start, ast->var.end));
