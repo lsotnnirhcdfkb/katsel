@@ -457,8 +457,8 @@ namespace LLVMGenVisitorHelpersNS
     {
         // right now only int64s are supported
         // TODO: types
-        // rettype = llvm::Type::getInt64Ty(context);
-        rettype = llvm::Type::getVoidTy(context);
+        rettype = llvm::Type::getInt64Ty(context);
+        // rettype = llvm::Type::getVoidTy(context);
     }
 
 }
