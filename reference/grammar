@@ -48,5 +48,5 @@ primary -> TRUELIT | FALSELIT |
         OPARN expression CPARN;
 
 // this was from Lox's grammar
-varref -> IDENTIFIER (DOT IDENTIFIER | OPARN args? CPARN)*;
+varref -> IDENTIFIER (OPARN args? CPARN)*;
 
