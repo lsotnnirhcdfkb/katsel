@@ -12,6 +12,8 @@ VarStmtAST::VarStmtAST(std::unique_ptr<AST> type, Token name, std::unique_ptr<AS
 AssignAST::AssignAST(std::unique_ptr<AST> lhs, std::unique_ptr<AST> rhs, Token equalSign) : lhs(std::move(lhs)), rhs(std::move(rhs)), equalSign(equalSign) {}
 VariableRefAST::VariableRefAST(Token var): var(var) {}
 ReturnStmtAST::ReturnStmtAST(std::unique_ptr<AST> expr): expr(std::move(expr)) {}
+ArgAST::ArgAST(std::unique_ptr<AST> expr): expr(std::move(expr)) {}
+CallAST::CallAST(std::unique_ptr<AST> varrefast, std::unique_ptr<AST> arglistast): varrefast(std::move(varrefast)), arglistast(std::move(arglistast)) {}
 
 ProgramAST::ProgramAST(std::vector<std::unique_ptr<AST>> &asts) 
 {
@@ -37,6 +39,14 @@ ParamsAST::ParamsAST(std::vector<std::unique_ptr<AST>> &params)
         this->params.push_back(std::move(param));
     }
 }
+ArgsAST::ArgsAST(std::vector<std::unique_ptr<AST>> &args)
+{
+    this->args.reserve(args.size());
+    for (std::unique_ptr<AST> &arg : args)
+    {
+        this->args.push_back(std::move(arg));
+    }
+}
 
 void BinaryAST::accept(Visitor *v) { v->visitBinaryAST(this); }
 void TernaryOpAST::accept(Visitor *v) { v->visitTernaryOpAST(this); }
@@ -53,3 +63,6 @@ void VarStmtAST::accept(Visitor *v) { v->visitVarStmtAST(this); }
 void AssignAST::accept(Visitor *v) { v->visitAssignAST(this); }
 void VariableRefAST::accept(Visitor *v) { v->visitVariableRefAST(this); }
 void ReturnStmtAST::accept(Visitor *v) { v->visitReturnStmtAST(this); }
+void ArgAST::accept(Visitor *v) { }
+void ArgsAST::accept(Visitor *v) { }
+void CallAST::accept(Visitor *v) { }
