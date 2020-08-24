@@ -134,7 +134,7 @@ std::unique_ptr<AST> Parser::assignmentexpr()
     if (match(TokenType::EQUAL))
     {
         if (!(dynamic_cast<VariableRefAST*>(&*lhs)))
-            error("Invalid assignment tparamet");
+            error("Invalid assignment target");
 
         Token equalSign = prev();
         std::unique_ptr<AST> rhs = assignmentexpr();
@@ -390,7 +390,7 @@ std::unique_ptr<AST> Parser::paramlist()
 {
     std::vector<std::unique_ptr<AST>> params;
     std::unique_ptr<AST> paramtype = type();
-    Token paramname = consume(TokenType::IDENTIFIER, "Expected paramuemnt name");
+    Token paramname = consume(TokenType::IDENTIFIER, "Expected parameter name");
 
     std::unique_ptr<AST> param = std::make_unique<ParamAST>(std::move(paramtype), paramname);
 
@@ -399,7 +399,7 @@ std::unique_ptr<AST> Parser::paramlist()
     while (match(TokenType::COMMA) && !atEnd())
     {
         std::unique_ptr<AST> cparamtype = type();
-        Token cparamname = consume(TokenType::IDENTIFIER, "Expected paramuemnt name");
+        Token cparamname = consume(TokenType::IDENTIFIER, "Expected parameter name");
 
         std::unique_ptr<AST> cparam = std::make_unique<ParamAST>(std::move(cparamtype), cparamname);
 

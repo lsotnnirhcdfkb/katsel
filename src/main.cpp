@@ -60,17 +60,17 @@ void compileFile(File &sourcefile)
     // }
 }
 
-int main(int paramc, char *paramv[])
+int main(int argc, char *paramv[])
 {
-    if (paramc == 2)
+    if (argc == 2)
     {
         // Compile file
-        auto source = std::make_unique<File>(readFile(paramv[1]));
+        auto source = std::make_unique<File>(readFile(argv[1]));
         compileFile(*source);
     }
     else
     {
-        std::cerr << "Usage: " << paramv[0] << " <file>\n"
+        std::cerr << "Usage: " << argv[0] << " <file>\n"
             "\n"
             "file - the main file to compile\n" << std::endl;
         return 1;
