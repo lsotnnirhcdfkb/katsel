@@ -315,10 +315,12 @@ void LLVMGenVisitor::visitTypeAST(const TypeAST *ast)
 
 void LLVMGenVisitor::visitBlockAST(const BlockAST *ast) 
 {
+    beginNewScope();
     for (const std::unique_ptr<AST> &bast : ast->stmts) 
     {
         bast->accept(this);
     }
+    finishCurScope();
     curRetVal = nullptr;
 }
 
