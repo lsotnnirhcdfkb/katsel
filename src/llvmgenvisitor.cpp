@@ -304,6 +304,14 @@ void LLVMGenVisitor::visitVarStmtAST(const VarStmtAST *ast)
     CLEARRET;
     // TODO: types
     std::string varname = std::string(ast->name.start, ast->name.end);
+
+    // find variable with error override
+    if (getVarFromName(varname, ast->name, true))
+    {
+        reportError(ast->name, "cannot redefine variable", sourcefile);
+        LLVMGENVISITOR_RETURN(nullptr);
+    }
+
     llvm::Function *f = builder.GetInsertBlock()->getParent();
     llvm::AllocaInst *varalloca = createEntryAlloca(f, varname);
 
@@ -392,7 +400,7 @@ void LLVMGenVisitor::finishCurScope()
     --scopenum;
 }
 
-llvm::Value* LLVMGenVisitor::getVarFromName(std::string &name, Token const &tok)
+llvm::Value* LLVMGenVisitor::getVarFromName(std::string &name, Token const &tok, bool overrideErr)
 {
     int highestScope = -1;
     llvm::Value *v = nullptr;
@@ -405,7 +413,7 @@ llvm::Value* LLVMGenVisitor::getVarFromName(std::string &name, Token const &tok)
         }
     }
 
-    if (!v)
+    if (!v && !overrideErr)
         reportError(tok, "unknown variable name", sourcefile);
 
     return v; // return nullptr if error
