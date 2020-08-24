@@ -354,13 +354,19 @@ void LLVMGenVisitor::beginNewScope()
 
 void LLVMGenVisitor::finishCurScope()
 {
-    for (auto it = scopesymbols.crbegin(); it != scopesymbols.crend(); ++it)
+    // mostly stolen from https://stackoverflow.com/questions/7007802/erase-specific-elements-in-stdmap
+    for (auto it = scopesymbols.cbegin(); it != scopesymbols.cend(); )
     {
-        if (it->first.first == scopenum)
+        if (it->first.first >= scopenum) // shouldnt ever be greater than but just to make sure
         {
-            scopesymbols.erase(--it.base());
+            scopesymbols.erase(it++);
+        }
+        else
+        {
+            ++it;
         }
     }
+
     --scopenum;
 }
 
