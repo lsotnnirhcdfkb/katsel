@@ -1,6 +1,6 @@
 #include "llvmgenvisitor.h"
 
-LLVMGenVisitor::LLVMGenVisitor(File &sourcefile): sourcefile(sourcefile), builder(context), module_(std::make_unique<llvm::Module>("COxianc output of file " + sourcefile.filename, context)), scopenum(0), argsVisitor(sourcefile, context) {}
+LLVMGenVisitor::LLVMGenVisitor(File &sourcefile): sourcefile(sourcefile), builder(context), module_(std::make_unique<llvm::Module>("COxianc output of file " + sourcefile.filename, context)), scopenum(0), argsVisitor(sourcefile, context), typeVisitor(sourcefile, context) {}
 
 // {{{ visiting asts
 void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast) 
@@ -15,6 +15,7 @@ void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast)
 // {{{ declaration visiting
 void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
 {
+    // TODO: need to do return type
     std::vector<llvm::Type*> argTypes;
     std::vector<Token> argNames;
 
@@ -26,8 +27,10 @@ void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
         argNames = argsVisitor.argNames;
     }
 
+    ast->type->accept(&typeVisitor);
+    llvm::Type *rettype = typeVisitor.rettype;
     std::string name = std::string(ast->name.start, ast->name.end);
-    llvm::FunctionType *ft = llvm::FunctionType::get(llvm::Type::getVoidTy(context), argTypes, false); 
+    llvm::FunctionType *ft = llvm::FunctionType::get(rettype, argTypes, false); 
     llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, name, *module_);
 
     llvm::BasicBlock *block = llvm::BasicBlock::Create(context, name + "entry", f);
@@ -151,7 +154,7 @@ void LLVMGenVisitor::visitBinaryAST(const BinaryAST *ast)
             retval = builder.CreateURem(lval, rval);
             break;
 
-        default: reportError(ast->op, "invalid thingy", sourcefile); retval = nullptr;
+        default: reportError(ast->op, "invalid thingy", sourcefile); retval = nullptr; // shouldn't ever get here
     }
 
     curRetVal = retval;
@@ -230,7 +233,7 @@ void LLVMGenVisitor::visitUnaryAST(const UnaryAST *ast)
             retval = builder.CreateSub(llvm::ConstantInt::get(context, llvm::APInt(64, 0)), val);
             break;
 
-        default: reportError(ast->op, "invalid thingy", sourcefile); retval = nullptr;
+        default: reportError(ast->op, "invalid thingy", sourcefile); retval = nullptr; // shouldn't ever get here
     }
 
     curRetVal = retval;
@@ -278,6 +281,11 @@ void LLVMGenVisitor::visitVariableRefAST(const VariableRefAST *ast)
     curRetVal = nullptr;
 }
 // }}}
+void LLVMGenVisitor::visitPrimaryAST(const PrimaryAST *ast) 
+{
+    curRetVal = llvm::ConstantInt::get(context, llvm::APInt(64, std::stoi(std::string(ast->value.start, ast->value.end))));
+}
+// }}}
 // {{{ statement visiting
 void LLVMGenVisitor::visitExprStmtAST(const ExprStmtAST *ast) 
 {
@@ -287,6 +295,7 @@ void LLVMGenVisitor::visitExprStmtAST(const ExprStmtAST *ast)
 
 void LLVMGenVisitor::visitVarStmtAST(const VarStmtAST *ast) 
 {
+    // TODO: types
     std::string varname = std::string(ast->name.start, ast->name.end);
     llvm::Function *f = builder.GetInsertBlock()->getParent();
     llvm::AllocaInst *varalloca = createEntryAlloca(f, varname);
@@ -326,17 +335,14 @@ void LLVMGenVisitor::visitBlockAST(const BlockAST *ast)
 
 void LLVMGenVisitor::visitArgAST(const ArgAST *ast) 
 {
-
+    // shouldn't ever happen beacause ArgsVisitor processes the args
+    // instead of LLVMGenVisitor
 }
 
 void LLVMGenVisitor::visitArgsAST(const ArgsAST *ast) 
 {
-
-}
-// }}}
-void LLVMGenVisitor::visitPrimaryAST(const PrimaryAST *ast) 
-{
-    curRetVal = llvm::ConstantInt::get(context, llvm::APInt(64, std::stoi(std::string(ast->value.start, ast->value.end))));
+    // also shouldn't ever happen beacause ArgsVisitor processes the args
+    // instead of LLVMGenVisitor
 }
 // }}}
 // }}}
@@ -397,6 +403,7 @@ void LLVMGenVisitor::createScopeSymbol(std::string &name, llvm::AllocaInst* allo
 namespace LLVMGenVisitorHelpersNS
 {
     ArgsVisitor::ArgsVisitor(File &sourcefile, llvm::LLVMContext &context): sourcefile(sourcefile), context(context) {}
+    TypeVisitor::TypeVisitor(File &sourcefile, llvm::LLVMContext &context): sourcefile(sourcefile), context(context) {}
 
     void ArgsVisitor::visitArgAST(const ArgAST *ast)
     {
@@ -421,5 +428,14 @@ namespace LLVMGenVisitorHelpersNS
         argTypes = cargTypes;
         argNames = cargNames;
     }
+
+    void TypeVisitor::visitTypeAST(const TypeAST *ast)
+    {
+        // right now only int64s are supported
+        // TODO: types
+        // rettype = llvm::Type::getInt64Ty(context);
+        rettype = llvm::Type::getVoidTy(context);
+    }
+
 }
 // }}}

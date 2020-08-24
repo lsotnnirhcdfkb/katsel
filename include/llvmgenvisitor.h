@@ -31,6 +31,20 @@ namespace LLVMGenVisitorHelpersNS
         File &sourcefile;
         llvm::LLVMContext &context;
     };
+
+    class TypeVisitor : public BlankVisitor
+    {
+    public:
+        TypeVisitor(File &sourcefile, llvm::LLVMContext &context);
+
+        void visitTypeAST(const TypeAST *ast) override;
+
+        llvm::Type *rettype;
+
+    private:
+        File &sourcefile;
+        llvm::LLVMContext &context;
+    };
 }
 
 class LLVMGenVisitor : public Visitor
@@ -70,5 +84,6 @@ private:
 
     File &sourcefile;
     LLVMGenVisitorHelpersNS::ArgsVisitor argsVisitor;
+    LLVMGenVisitorHelpersNS::TypeVisitor typeVisitor;
 };
 
