@@ -12,8 +12,8 @@ public:
     void visitFunctionAST(const FunctionAST *ast) override;
     void visitBlockAST(const BlockAST *ast) override;
     void visitTypeAST(const TypeAST *ast) override;
-    void visitArgAST(const ArgAST *ast) override;
-    void visitArgsAST(const ArgsAST *ast) override;
+    void visitParamAST(const ParamAST *ast) override;
+    void visitParamsAST(const ParamsAST *ast) override;
     void visitVarStmtAST(const VarStmtAST *ast) override;
     void visitAssignAST(const AssignAST *ast) override;
     void visitVariableRefAST(const VariableRefAST *ast) override;

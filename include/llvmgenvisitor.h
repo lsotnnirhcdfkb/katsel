@@ -16,16 +16,16 @@
 
 namespace LLVMGenVisitorHelpersNS
 {
-    class ArgsVisitor : public BlankVisitor
+    class ParamsVisitor : public BlankVisitor
     {
     public:
-        ArgsVisitor(File &sourcefile, llvm::LLVMContext &context);
+        ParamsVisitor(File &sourcefile, llvm::LLVMContext &context);
 
-        void visitArgAST(const ArgAST *ast) override;
-        void visitArgsAST(const ArgsAST *ast) override;
+        void visitParamAST(const ParamAST *ast) override;
+        void visitParamsAST(const ParamsAST *ast) override;
 
-        std::vector<llvm::Type*> argTypes;
-        std::vector<Token> argNames;
+        std::vector<llvm::Type*> paramTypes;
+        std::vector<Token> paramNames;
 
     private:
         File &sourcefile;
@@ -61,8 +61,8 @@ public:
     void visitFunctionAST(const FunctionAST *ast) override;
     void visitBlockAST(const BlockAST *ast) override;
     void visitTypeAST(const TypeAST *ast) override;
-    void visitArgAST(const ArgAST *ast) override;
-    void visitArgsAST(const ArgsAST *ast) override;
+    void visitParamAST(const ParamAST *ast) override;
+    void visitParamsAST(const ParamsAST *ast) override;
     void visitVarStmtAST(const VarStmtAST *ast) override;
     void visitAssignAST(const AssignAST *ast) override;
     void visitVariableRefAST(const VariableRefAST *ast) override;
@@ -84,7 +84,7 @@ private:
     llvm::Value *curRetVal = nullptr;
 
     File &sourcefile;
-    LLVMGenVisitorHelpersNS::ArgsVisitor argsVisitor;
+    LLVMGenVisitorHelpersNS::ParamsVisitor paramsVisitor;
     LLVMGenVisitorHelpersNS::TypeVisitor typeVisitor;
 };
 

@@ -62,16 +62,16 @@ void PrintVisitor::visitFunctionAST(const FunctionAST *ast)
 {
     print("Function: name " + std::string(ast->name.start, ast->name.end) + ", ret ");
     ast->type->accept(this);
-    if (ast->args)
+    if (ast->params)
     {
         print("\n");
         ++indent;
-        ast->args->accept(this);
+        ast->params->accept(this);
         --indent;
     } else
     {
         ++indent;
-        print("\nno args\n");
+        print("\nno params\n");
         --indent;
     }
 
@@ -106,19 +106,19 @@ void PrintVisitor::visitBlockAST(const BlockAST *ast)
     --indent;
 }
 
-void PrintVisitor::visitArgAST(const ArgAST *ast)
+void PrintVisitor::visitParamAST(const ParamAST *ast)
 {
-    print("(Arg: " + std::string(ast->argname.start, ast->argname.end) + " with type ");
+    print("(Param: " + std::string(ast->paramname.start, ast->paramname.end) + " with type ");
     ast->type->accept(this);
     print(")\n");
 }
 
-void PrintVisitor::visitArgsAST(const ArgsAST *ast)
+void PrintVisitor::visitParamsAST(const ParamsAST *ast)
 {
-    print("Args:\n");
+    print("Params:\n");
     ++indent;
 
-    for (const std::unique_ptr<AST> &ast : ast->args)
+    for (const std::unique_ptr<AST> &ast : ast->params)
     {
         ast->accept(this);
     }

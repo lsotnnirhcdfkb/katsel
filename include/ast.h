@@ -75,12 +75,12 @@ public:
 class FunctionAST : public AST
 {
 public:
-    FunctionAST(std::unique_ptr<AST> type, Token name, std::unique_ptr<AST> args, std::unique_ptr<AST> body);
+    FunctionAST(std::unique_ptr<AST> type, Token name, std::unique_ptr<AST> params, std::unique_ptr<AST> body);
     void accept(Visitor *v) override;
 
     std::unique_ptr<AST> type;
     Token name;
-    std::unique_ptr<AST> args;
+    std::unique_ptr<AST> params;
     std::unique_ptr<AST> body;
 };
 
@@ -102,23 +102,23 @@ public:
     Token type;
 };
 
-class ArgAST : public AST
+class ParamAST : public AST
 {
 public:
-    ArgAST(std::unique_ptr<AST> type, Token argname);
+    ParamAST(std::unique_ptr<AST> type, Token paramname);
     void accept(Visitor *v) override;
 
     std::unique_ptr<AST> type;
-    Token argname;
+    Token paramname;
 };
 
-class ArgsAST : public AST
+class ParamsAST : public AST
 {
 public:
-    ArgsAST(std::vector<std::unique_ptr<AST>> &args);
+    ParamsAST(std::vector<std::unique_ptr<AST>> &params);
     void accept(Visitor *v) override;
 
-    std::vector<std::unique_ptr<AST>> args;
+    std::vector<std::unique_ptr<AST>> params;
 };
 
 class VarStmtAST : public AST

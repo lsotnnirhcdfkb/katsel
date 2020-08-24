@@ -5,9 +5,9 @@ TernaryOpAST::TernaryOpAST(std::unique_ptr<AST> conditional, std::unique_ptr<AST
 UnaryAST::UnaryAST(Token op, std::unique_ptr<AST> ast): op(op), ast(std::move(ast)) {}
 PrimaryAST::PrimaryAST(Token value): value(value) {}
 ExprStmtAST::ExprStmtAST(std::unique_ptr<AST> ast): ast(std::move(ast)) {}
-FunctionAST::FunctionAST(std::unique_ptr<AST> type, Token name, std::unique_ptr<AST> args, std::unique_ptr<AST> body): type(std::move(type)), name(name), args(std::move(args)), body(std::move(body)) {}
+FunctionAST::FunctionAST(std::unique_ptr<AST> type, Token name, std::unique_ptr<AST> params, std::unique_ptr<AST> body): type(std::move(type)), name(name), params(std::move(params)), body(std::move(body)) {}
 TypeAST::TypeAST(Token type): type(type) {}
-ArgAST::ArgAST(std::unique_ptr<AST> type, Token argname): type(std::move(type)), argname(argname) {}
+ParamAST::ParamAST(std::unique_ptr<AST> type, Token paramname): type(std::move(type)), paramname(paramname) {}
 VarStmtAST::VarStmtAST(std::unique_ptr<AST> type, Token name, std::unique_ptr<AST> expression) : type(std::move(type)), name(name), expression(std::move(expression)) {}
 AssignAST::AssignAST(std::unique_ptr<AST> lhs, std::unique_ptr<AST> rhs, Token equalSign) : lhs(std::move(lhs)), rhs(std::move(rhs)), equalSign(equalSign) {}
 VariableRefAST::VariableRefAST(Token var): var(var) {}
@@ -29,12 +29,12 @@ BlockAST::BlockAST(std::vector<std::unique_ptr<AST>> &stmts)
         this->stmts.push_back(std::move(stmt));
     }
 }
-ArgsAST::ArgsAST(std::vector<std::unique_ptr<AST>> &args)
+ParamsAST::ParamsAST(std::vector<std::unique_ptr<AST>> &params)
 {
-    this->args.reserve(args.size());
-    for (std::unique_ptr<AST> &arg : args)
+    this->params.reserve(params.size());
+    for (std::unique_ptr<AST> &param : params)
     {
-        this->args.push_back(std::move(arg));
+        this->params.push_back(std::move(param));
     }
 }
 
@@ -47,8 +47,8 @@ void ProgramAST::accept(Visitor *v) { v->visitProgramAST(this); }
 void FunctionAST::accept(Visitor *v) { v->visitFunctionAST(this); }
 void BlockAST::accept(Visitor *v) { v->visitBlockAST(this); }
 void TypeAST::accept(Visitor *v) { v->visitTypeAST(this); }
-void ArgAST::accept(Visitor *v) { v->visitArgAST(this); }
-void ArgsAST::accept(Visitor *v) { v->visitArgsAST(this); }
+void ParamAST::accept(Visitor *v) { v->visitParamAST(this); }
+void ParamsAST::accept(Visitor *v) { v->visitParamsAST(this); }
 void VarStmtAST::accept(Visitor *v) { v->visitVarStmtAST(this); }
 void AssignAST::accept(Visitor *v) { v->visitAssignAST(this); }
 void VariableRefAST::accept(Visitor *v) { v->visitVariableRefAST(this); }

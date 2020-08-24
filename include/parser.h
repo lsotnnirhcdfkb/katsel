@@ -18,7 +18,7 @@ public:
     std::unique_ptr<AST> function();
     std::unique_ptr<AST> block();
     std::unique_ptr<AST> type();
-    std::unique_ptr<AST> arglist();
+    std::unique_ptr<AST> paramlist();
     std::unique_ptr<AST> statement();
     std::unique_ptr<AST> varstatement();
     std::unique_ptr<AST> exprstatement();

@@ -48,17 +48,17 @@ std::unique_ptr<AST> Parser::function()
     Token name = consume(TokenType::IDENTIFIER, "Expected identifier to denote function name after return type");
 
     consume(TokenType::OPARN, "Expected '(' after function name");
-    std::unique_ptr<AST> farglist;
+    std::unique_ptr<AST> fparamlist;
     if (!check(TokenType::CPARN))
-        farglist = arglist();
+        fparamlist = paramlist();
     else
-        farglist = nullptr;
+        fparamlist = nullptr;
 
-    consume(TokenType::CPARN, "Expected ')' after argument list");
+    consume(TokenType::CPARN, "Expected ')' after paramument list");
 
     std::unique_ptr<AST> fblock = block();
 
-    std::unique_ptr<FunctionAST> func = std::make_unique<FunctionAST>(std::move(rettype), name, std::move(farglist), std::move(fblock));
+    std::unique_ptr<FunctionAST> func = std::make_unique<FunctionAST>(std::move(rettype), name, std::move(fparamlist), std::move(fblock));
     return func;
 }
 // }}}
@@ -134,7 +134,7 @@ std::unique_ptr<AST> Parser::assignmentexpr()
     if (match(TokenType::EQUAL))
     {
         if (!(dynamic_cast<VariableRefAST*>(&*lhs)))
-            error("Invalid assignment target");
+            error("Invalid assignment tparamet");
 
         Token equalSign = prev();
         std::unique_ptr<AST> rhs = assignmentexpr();
@@ -386,28 +386,28 @@ std::unique_ptr<AST> Parser::primary()
 // }}}
 // }}}
 // {{{ parsing helping rules
-std::unique_ptr<AST> Parser::arglist()
+std::unique_ptr<AST> Parser::paramlist()
 {
-    std::vector<std::unique_ptr<AST>> args;
-    std::unique_ptr<AST> argtype = type();
-    Token argname = consume(TokenType::IDENTIFIER, "Expected arguemnt name");
+    std::vector<std::unique_ptr<AST>> params;
+    std::unique_ptr<AST> paramtype = type();
+    Token paramname = consume(TokenType::IDENTIFIER, "Expected paramuemnt name");
 
-    std::unique_ptr<AST> arg = std::make_unique<ArgAST>(std::move(argtype), argname);
+    std::unique_ptr<AST> param = std::make_unique<ParamAST>(std::move(paramtype), paramname);
 
-    args.push_back(std::move(arg));
+    params.push_back(std::move(param));
 
     while (match(TokenType::COMMA) && !atEnd())
     {
-        std::unique_ptr<AST> cargtype = type();
-        Token cargname = consume(TokenType::IDENTIFIER, "Expected arguemnt name");
+        std::unique_ptr<AST> cparamtype = type();
+        Token cparamname = consume(TokenType::IDENTIFIER, "Expected paramuemnt name");
 
-        std::unique_ptr<AST> carg = std::make_unique<ArgAST>(std::move(cargtype), cargname);
+        std::unique_ptr<AST> cparam = std::make_unique<ParamAST>(std::move(cparamtype), cparamname);
 
-        args.push_back(std::move(carg));
+        params.push_back(std::move(cparam));
     }
 
-    std::unique_ptr<AST> argsast = std::make_unique<ArgsAST>(args);
-    return argsast;
+    std::unique_ptr<AST> paramsast = std::make_unique<ParamsAST>(params);
+    return paramsast;
 }
 std::unique_ptr<AST> Parser::block()
 {

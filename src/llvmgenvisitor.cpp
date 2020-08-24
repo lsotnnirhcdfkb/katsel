@@ -4,7 +4,7 @@
                                              return;
 #define CLEARRET curRetVal = nullptr
 
-LLVMGenVisitor::LLVMGenVisitor(File &sourcefile): sourcefile(sourcefile), builder(context), module_(std::make_unique<llvm::Module>("COxianc output of file " + sourcefile.filename, context)), scopenum(0), argsVisitor(sourcefile, context), typeVisitor(sourcefile, context) {}
+LLVMGenVisitor::LLVMGenVisitor(File &sourcefile): sourcefile(sourcefile), builder(context), module_(std::make_unique<llvm::Module>("COxianc output of file " + sourcefile.filename, context)), scopenum(0), paramsVisitor(sourcefile, context), typeVisitor(sourcefile, context) {}
 
 // {{{ visiting asts
 void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast) 
@@ -21,21 +21,21 @@ void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast)
 void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
 {
     CLEARRET;
-    std::vector<llvm::Type*> argTypes;
-    std::vector<Token> argNames;
+    std::vector<llvm::Type*> paramTypes;
+    std::vector<Token> paramNames;
 
-    if (ast->args)
+    if (ast->params)
     {
-        ast->args->accept(&argsVisitor);
+        ast->params->accept(&paramsVisitor);
 
-        argTypes = argsVisitor.argTypes;
-        argNames = argsVisitor.argNames;
+        paramTypes = paramsVisitor.paramTypes;
+        paramNames = paramsVisitor.paramNames;
     }
 
     ast->type->accept(&typeVisitor);
     llvm::Type *rettype = typeVisitor.rettype;
     std::string name = std::string(ast->name.start, ast->name.end);
-    llvm::FunctionType *ft = llvm::FunctionType::get(rettype, argTypes, false); 
+    llvm::FunctionType *ft = llvm::FunctionType::get(rettype, paramTypes, false); 
     llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, name, *module_);
 
     llvm::BasicBlock *block = llvm::BasicBlock::Create(context, name + "entry", f);
@@ -45,14 +45,14 @@ void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
 
     { 
         int i = 0;
-        for (auto &arg : f->args())
+        for (auto &param : f->args())
         {
-            std::string argName = std::string(argNames[i].start, argNames[i].end);
-            arg.setName(argName);
+            std::string paramName = std::string(paramNames[i].start, paramNames[i].end);
+            param.setName(paramName);
 
-            llvm::AllocaInst *alloca = createEntryAlloca(f, argName);
-            builder.CreateStore(&arg, alloca);
-            createScopeSymbol(argName, alloca);
+            llvm::AllocaInst *alloca = createEntryAlloca(f, paramName);
+            builder.CreateStore(&param, alloca);
+            createScopeSymbol(paramName, alloca);
 
             ++i;
         }
@@ -252,7 +252,7 @@ void LLVMGenVisitor::visitAssignAST(const AssignAST *ast)
 
     if (!lhs)
     {
-        reportError(ast->equalSign, "Invalid target for assignment", sourcefile);
+        reportError(ast->equalSign, "Invalid tparamet for assignment", sourcefile);
         LLVMGENVISITOR_RETURN(nullptr)
     }
 
@@ -362,17 +362,17 @@ void LLVMGenVisitor::visitBlockAST(const BlockAST *ast)
     LLVMGENVISITOR_RETURN(nullptr)
 }
 
-void LLVMGenVisitor::visitArgAST(const ArgAST *ast) 
+void LLVMGenVisitor::visitParamAST(const ParamAST *ast) 
 {
     CLEARRET;
-    // shouldn't ever happen beacause ArgsVisitor processes the args
+    // shouldn't ever happen beacause ParamsVisitor processes the params
     // instead of LLVMGenVisitor
 }
 
-void LLVMGenVisitor::visitArgsAST(const ArgsAST *ast) 
+void LLVMGenVisitor::visitParamsAST(const ParamsAST *ast) 
 {
     CLEARRET;
-    // also shouldn't ever happen beacause ArgsVisitor processes the args
+    // also shouldn't ever happen beacause ParamsVisitor processes the params
     // instead of LLVMGenVisitor
 }
 // }}}
@@ -433,31 +433,31 @@ void LLVMGenVisitor::createScopeSymbol(std::string &name, llvm::AllocaInst* allo
 // {{{ helper visitors
 namespace LLVMGenVisitorHelpersNS
 {
-    ArgsVisitor::ArgsVisitor(File &sourcefile, llvm::LLVMContext &context): sourcefile(sourcefile), context(context) {}
+    ParamsVisitor::ParamsVisitor(File &sourcefile, llvm::LLVMContext &context): sourcefile(sourcefile), context(context) {}
     TypeVisitor::TypeVisitor(File &sourcefile, llvm::LLVMContext &context): sourcefile(sourcefile), context(context) {}
 
-    void ArgsVisitor::visitArgAST(const ArgAST *ast)
+    void ParamsVisitor::visitParamAST(const ParamAST *ast)
     {
-        // if this is part of a visitArgs then this will be overrided anyway
+        // if this is part of a visitParams then this will be overrided anyway
         // but if it is not then the return value is provided in a vector like it's supposed to be
-        argTypes = {llvm::Type::getInt64Ty(context)}; 
-        argNames = {ast->argname};
+        paramTypes = {llvm::Type::getInt64Ty(context)}; 
+        paramNames = {ast->paramname};
     }
-    void ArgsVisitor::visitArgsAST(const ArgsAST *ast)
+    void ParamsVisitor::visitParamsAST(const ParamsAST *ast)
     {
-        std::vector<llvm::Type*> cargTypes;
-        std::vector<Token> cargNames;
+        std::vector<llvm::Type*> cparamTypes;
+        std::vector<Token> cparamNames;
 
-        for (std::unique_ptr<AST> const &arg : ast->args)
+        for (std::unique_ptr<AST> const &param : ast->params)
         {
-            arg->accept(this);
-            // retval is length 1 because visitArgsAST always does that
-            cargTypes.push_back(argTypes[0]);
-            cargNames.push_back(argNames[0]);
+            param->accept(this);
+            // retval is length 1 because visitParamsAST always does that
+            cparamTypes.push_back(paramTypes[0]);
+            cparamNames.push_back(paramNames[0]);
         }
 
-        argTypes = cargTypes;
-        argNames = cargNames;
+        paramTypes = cparamTypes;
+        paramNames = cparamNames;
     }
 
     void TypeVisitor::visitTypeAST(const TypeAST *ast)
