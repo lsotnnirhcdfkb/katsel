@@ -861,7 +861,7 @@ Token Lexer::nextToken()
     { // check for number literal
         TokenType inttype;
 
-        if (isDigit(peek()) || c != '0')
+        if (isDigit(peek()) || c != '0' || !isAlpha(peek()))
         {
             inttype = TokenType::DECINTLIT;
         }
