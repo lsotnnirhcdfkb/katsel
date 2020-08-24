@@ -30,6 +30,9 @@ void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
     llvm::FunctionType *ft = llvm::FunctionType::get(llvm::Type::getVoidTy(context), argTypes, false); 
     llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, name, *module_);
 
+    llvm::BasicBlock *block = llvm::BasicBlock::Create(context, name + "entry", f);
+    builder.SetInsertPoint(block);
+
     beginNewScope();
 
     { 
@@ -46,9 +49,6 @@ void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
             ++i;
         }
     }
-
-    llvm::BasicBlock *block = llvm::BasicBlock::Create(context, name + "entry", f);
-    builder.SetInsertPoint(block);
 
     ast->body->accept(this);
 
