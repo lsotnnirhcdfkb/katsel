@@ -8,10 +8,12 @@ function -> type IDENTIFIER OPARN arglist? CPARN block;
 // statements
 statement -> varstmt |
             exprstmt |
+            retstmt  |
             block ;
 
 varstmt -> VAR type IDENTIFIER (EQUAL expression) SEMICOLON;
 exprstmt -> expression SEMICOLON;
+retstmt -> RETURN expression;
 
 // helper things like blocks and stuff
 block -> OCURB statement* CCURB; 

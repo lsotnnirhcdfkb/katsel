@@ -62,7 +62,7 @@ std::unique_ptr<AST> Parser::function()
     return func;
 }
 // }}}
-// {{{ statement
+// {{{ statements
 std::unique_ptr<AST> Parser::statement()
 {
     std::unique_ptr<AST> statementast = nullptr;
@@ -105,6 +105,15 @@ std::unique_ptr<AST> Parser::exprstatement()
     std::unique_ptr<AST> expr = expression();
     consume(TokenType::SEMICOLON, "Expected semicolon after expression statement");
     return std::make_unique<ExprStmtAST>(std::move(expr));
+}
+std::unique_ptr<AST> Parser::retstatement()
+{
+    advance(); // consume the return keyword
+    std::unique_ptr<AST> expr = expression();
+    consume(TokenType::SEMICOLON, "Expected semicolon after return statement");
+
+    return std::make_unique<ReturnStmtAST>(std::move(expr));
+
 }
 // }}}
 // {{{ expression
