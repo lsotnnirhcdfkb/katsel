@@ -294,6 +294,12 @@ void LLVMGenVisitor::visitVarStmtAST(const VarStmtAST *ast)
     ast->expression->accept(this);
     llvm::Value *value = curRetVal;
 
+    if (!value)
+    {
+        curRetVal = nullptr;
+        return;
+    }
+
     builder.CreateStore(value, varalloca);
 
     createScopeSymbol(varname, varalloca);
