@@ -11,7 +11,7 @@ ArgAST::ArgAST(std::unique_ptr<AST> type, Token argname): type(std::move(type)),
 VarStmtAST::VarStmtAST(std::unique_ptr<AST> type, Token name, std::unique_ptr<AST> expression) : type(std::move(type)), name(name), expression(std::move(expression)) {}
 AssignAST::AssignAST(std::unique_ptr<AST> lhs, std::unique_ptr<AST> rhs, Token equalSign) : lhs(std::move(lhs)), rhs(std::move(rhs)), equalSign(equalSign) {}
 VariableRefAST::VariableRefAST(Token var): var(var) {}
-ReturnStmtAST::ReturnStmtAST(std::unique_ptr<AST> expr): expr(expr) {}
+ReturnStmtAST::ReturnStmtAST(std::unique_ptr<AST> expr): expr(std::move(expr)) {}
 
 ProgramAST::ProgramAST(std::vector<std::unique_ptr<AST>> &asts) 
 {
