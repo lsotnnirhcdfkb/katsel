@@ -21,6 +21,16 @@ void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast)
 void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
 {
     CLEARRET;
+
+    std::string name = std::string(ast->name.start, ast->name.end);
+
+    llvm::Function *fcheck = module_->getFunction(name);
+    if (fcheck)
+    {
+        reportError(ast->name, "Cannot redefine function", sourcefile);
+        LLVMGENVISITOR_RETURN(nullptr);
+    }
+
     std::vector<llvm::Type*> paramTypes;
     std::vector<Token> paramNames;
 
@@ -34,7 +44,6 @@ void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
 
     ast->type->accept(&typeVisitor);
     llvm::Type *rettype = typeVisitor.rettype;
-    std::string name = std::string(ast->name.start, ast->name.end);
     llvm::FunctionType *ft = llvm::FunctionType::get(rettype, paramTypes, false); 
     llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, name, *module_);
 
