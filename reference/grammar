@@ -1,15 +1,31 @@
 // grammar will expand as more features are implemented
-program -> statement* EOF
+program -> decl* EOF;
 
-statement -> SEMICOLON | // empty statements are allowed
-            exprstmt SEMICOLON;
+decl -> function; // soon will add classes here
 
-exprstmt -> expression;
+function -> type IDENTIFIER OPARN paramlist? CPARN block;
+
+// statements
+statement -> varstmt |
+            exprstmt |
+            retstmt  |
+            block;
+
+varstmt -> VAR type IDENTIFIER (EQUAL expression) SEMICOLON;
+exprstmt -> expression SEMICOLON;
+retstmt -> RETURN expression;
+
+// helper things like blocks and stuff
+block -> OCURB statement* CCURB; 
+type -> UINT8 | UINT16 | UINT32 | UINT64 | SINT8 | SINT16 | SINT32 | SINT64 | FLOAT | BOOL | DOUBLE | VOID | CHAR;
+paramlist -> type IDENTIFIER (COMMA type IDENTIFIER)*;
 
 // expresion
 // this grammar is heavily based off of the grammar for the Lox Language in the book "Crafting Interpreters" by Bob Nystrom
 // this grammar also closely follows the precedences of the operators in Python
-expression -> ternaryexpr;
+expression -> assignmentexpr;
+assignmentexpr -> varref EQUAL assignment |
+                ternaryexpr;
 ternaryexpr -> binorexpr (QUESTION binorexpr COLON ternaryexpr)?;
 binorexpr -> binandexpr (DOUBLEPIPE binandexpr)*;
 binandexpr -> binnotexpr (DOUBLEAMPER binnotexpr)*;
@@ -22,13 +38,16 @@ bitandexpr -> bitshiftexpr (AMPER bitshiftexpr)*;
 bitshiftexpr -> additionexpr ((DOUBLEGREATER | DOUBLELESS) additionexpr)*;
 additionexpr -> multexpr ((PLUS | MINUS) multexpr)*;
 multexpr -> unary ((STAR | SLASH | PERCENT) unary)*;
-
 unary -> (TILDE | MINUS) unary | primary;
 primary -> TRUELIT | FALSELIT |
         FLOATLIT |
         NULLLIT |
         DECINTLIT | OCTINTLIT | BININTLIT | HEXINTLIT |
         CHARLIT | STRINGLIT |
-        IDENTIFIER |
+        varref |
         OPARN expression CPARN;
+
+// this was from Lox's grammar
+varref -> IDENTIFIER (OPARN args? CPARN)*;
+args -> expression+;
 

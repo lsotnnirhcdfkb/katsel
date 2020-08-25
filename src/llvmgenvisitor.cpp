@@ -1,16 +1,84 @@
 #include "llvmgenvisitor.h"
 
-LLVMGenVisitor::LLVMGenVisitor(File &sourcefile): sourcefile(sourcefile), builder(context), module_(std::make_unique<llvm::Module>("COxianc output of file " + sourcefile.filename, context)) {}
+#define LLVMGENVISITOR_RETURN(x) curRetVal = x; \
+                                             return;
+#define CLEARRET curRetVal = nullptr
 
-void LLVMGenVisitor::visitBinaryAST(const BinaryAST *ast) {
+LLVMGenVisitor::LLVMGenVisitor(File &sourcefile): sourcefile(sourcefile), builder(context), module_(std::make_unique<llvm::Module>("COxianc output of file " + sourcefile.filename, context)), scopenum(0), paramsVisitor(sourcefile, context), typeVisitor(sourcefile, context) {}
+
+// {{{ visiting asts
+void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast) 
+{
+    CLEARRET;
+    for (const std::unique_ptr<AST> &dast : ast->asts) 
+    {
+        dast->accept(this);
+    }
+
+    module_->print(llvm::outs(), nullptr);
+}
+// {{{ declaration visiting
+void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
+{
+    CLEARRET;
+    std::vector<llvm::Type*> paramTypes;
+    std::vector<Token> paramNames;
+
+    if (ast->params)
+    {
+        ast->params->accept(&paramsVisitor);
+
+        paramTypes = paramsVisitor.paramTypes;
+        paramNames = paramsVisitor.paramNames;
+    }
+
+    ast->type->accept(&typeVisitor);
+    llvm::Type *rettype = typeVisitor.rettype;
+    std::string name = std::string(ast->name.start, ast->name.end);
+    llvm::FunctionType *ft = llvm::FunctionType::get(rettype, paramTypes, false); 
+    llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, name, *module_);
+
+    llvm::BasicBlock *block = llvm::BasicBlock::Create(context, name + "entry", f);
+    builder.SetInsertPoint(block);
+
+    beginNewScope();
+
+    { 
+        int i = 0;
+        for (auto &param : f->args())
+        {
+            std::string paramName = std::string(paramNames[i].start, paramNames[i].end);
+            param.setName(paramName);
+
+            llvm::AllocaInst *alloca = createEntryAlloca(f, paramName);
+            builder.CreateStore(&param, alloca);
+            createScopeSymbol(paramName, alloca);
+
+            ++i;
+        }
+    }
+
+    ast->body->accept(this);
+
+    llvm::verifyFunction(*f); 
+
+    finishCurScope();
+    LLVMGENVISITOR_RETURN(f);
+}
+// }}}
+// {{{ expression visiting
+// {{{ binary ast
+void LLVMGenVisitor::visitBinaryAST(const BinaryAST *ast) 
+{
+    CLEARRET;
     ast->last->accept(this);
     llvm::Value *lval = curRetVal;
     ast->rast->accept(this);
     llvm::Value *rval = curRetVal;
 
-    if (!lval || !rval) {
-        curRetVal = nullptr;
-        return;
+    if (!lval || !rval) 
+    {
+        LLVMGENVISITOR_RETURN(nullptr);
     }
 
     llvm::Value *retval = nullptr;
@@ -90,13 +158,16 @@ void LLVMGenVisitor::visitBinaryAST(const BinaryAST *ast) {
             retval = builder.CreateURem(lval, rval);
             break;
 
-        default: reportError(ast->op, "invalid thingy", sourcefile); retval = nullptr;
+        default: reportError(ast->op, "invalid thingy", sourcefile); retval = nullptr; // shouldn't ever get here
     }
 
-    curRetVal = retval;
+    LLVMGENVISITOR_RETURN(retval);
 }
-
-void LLVMGenVisitor::visitTernaryOpAST(const TernaryOpAST *ast) {
+// }}}
+// {{{ ternary ast
+void LLVMGenVisitor::visitTernaryOpAST(const TernaryOpAST *ast) 
+{
+    CLEARRET;
     ast->conditional->accept(this);
     llvm::Value *cond = curRetVal;
 
@@ -113,7 +184,6 @@ void LLVMGenVisitor::visitTernaryOpAST(const TernaryOpAST *ast) {
 
     ast->trueast->accept(this);
     llvm::Value *truev = curRetVal;
-
 
     builder.CreateBr(afterb);
     trueb = builder.GetInsertBlock();
@@ -134,16 +204,19 @@ void LLVMGenVisitor::visitTernaryOpAST(const TernaryOpAST *ast) {
     phi->addIncoming(truev, trueb);
     phi->addIncoming(falsev, falseb);
 
-    curRetVal = phi;
+    LLVMGENVISITOR_RETURN(phi)
 }
-
-void LLVMGenVisitor::visitUnaryAST(const UnaryAST *ast) {
+// }}}
+// {{{ unary ast
+void LLVMGenVisitor::visitUnaryAST(const UnaryAST *ast) 
+{
+    CLEARRET;
     ast->ast->accept(this);
     llvm::Value *val = curRetVal;
 
-    if (val) {
-        curRetVal = nullptr;
-        return;
+    if (val)
+    {
+        LLVMGENVISITOR_RETURN(nullptr)
     }
 
     llvm::Value *retval = nullptr;
@@ -165,35 +238,326 @@ void LLVMGenVisitor::visitUnaryAST(const UnaryAST *ast) {
             retval = builder.CreateSub(llvm::ConstantInt::get(context, llvm::APInt(64, 0)), val);
             break;
 
-        default: reportError(ast->op, "invalid thingy", sourcefile); retval = nullptr;
+        default: reportError(ast->op, "invalid thingy", sourcefile); retval = nullptr; // shouldn't ever get here
     }
 
-    curRetVal = retval;
+    LLVMGENVISITOR_RETURN(retval)
 }
+// }}}
+// {{{ assign ast
+void LLVMGenVisitor::visitAssignAST(const AssignAST *ast)
+{
+    CLEARRET;
+    VariableRefAST *lhs = dynamic_cast<VariableRefAST*>(ast->lhs.get());
 
-void LLVMGenVisitor::visitPrimaryAST(const PrimaryAST *ast) {
-    curRetVal = llvm::ConstantInt::get(context, llvm::APInt(64, std::stoi(std::string(ast->value.start, ast->value.end))));
-    // curRetVal = llvm::ConstantFP::get(context, llvm::APFloat((float) std::stoi(std::string(ast->value.start, ast->value.end))));
+    if (!lhs)
+    {
+        reportError(ast->equalSign, "Invalid tparamet for assignment", sourcefile);
+        LLVMGENVISITOR_RETURN(nullptr)
+    }
+
+    ast->rhs->accept(this);
+    llvm::Value *rhs = curRetVal;
+
+    std::string name = std::string(lhs->var.start, lhs->var.end);
+    llvm::Value *var = getVarFromName(name, ast->equalSign);
+    if (!var)
+    {
+        LLVMGENVISITOR_RETURN(nullptr)
+    }
+
+    builder.CreateStore(rhs, var);
+    LLVMGENVISITOR_RETURN(rhs)
 }
+// }}}
+// {{{ var ref
+void LLVMGenVisitor::visitVariableRefAST(const VariableRefAST *ast)
+{
+    CLEARRET;
+    std::string name = std::string(ast->var.start, ast->var.end);
 
-void LLVMGenVisitor::visitExprStmtAST(const ExprStmtAST *ast) {
+    // find variable with override because it could
+    // be a function and not be in the variable map
+    llvm::AllocaInst *v = getVarFromName(name, ast->var, true);
+
+    if (v)
+    {
+        LLVMGENVISITOR_RETURN(builder.CreateLoad(v, name.c_str()))
+    }
+
+    // not a variable so could be function
+    llvm::Function *f = module_->getFunction(name);
+
+    if (f)
+    {
+        LLVMGENVISITOR_RETURN(f);
+    }
+
+    reportError(ast->var, "Unknown name", sourcefile);
+    LLVMGENVISITOR_RETURN(nullptr)
+}
+// }}}
+void LLVMGenVisitor::visitPrimaryAST(const PrimaryAST *ast) 
+{
+    CLEARRET;
+    LLVMGENVISITOR_RETURN(llvm::ConstantInt::get(context, llvm::APInt(64, std::stoi(std::string(ast->value.start, ast->value.end)))))
+}
+// }}}
+// {{{ statement visiting
+void LLVMGenVisitor::visitExprStmtAST(const ExprStmtAST *ast) 
+{
+    CLEARRET;
     ast->ast->accept(this);
+    LLVMGENVISITOR_RETURN(nullptr)
 }
 
-void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast) {
-    llvm::FunctionType *ft = llvm::FunctionType::get(llvm::Type::getVoidTy(context), false); 
-    llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, "Anonymous", *module_);
+void LLVMGenVisitor::visitVarStmtAST(const VarStmtAST *ast) 
+{
+    CLEARRET;
+    // TODO: types
+    std::string varname = std::string(ast->name.start, ast->name.end);
 
-    llvm::BasicBlock *block = llvm::BasicBlock::Create(context, "anonymousblock", f);
-    builder.SetInsertPoint(block);
-
-    for (const std::unique_ptr<AST> &sast : ast->asts) {
-        sast->accept(this);
-        llvm::Value *retval = curRetVal;
+    // find variable with error override
+    if (getVarFromName(varname, ast->name, true))
+    {
+        reportError(ast->name, "cannot redefine variable", sourcefile);
+        LLVMGENVISITOR_RETURN(nullptr);
     }
 
-    builder.CreateRetVoid();
-    llvm::verifyFunction(*f);
+    llvm::Function *f = builder.GetInsertBlock()->getParent();
+    llvm::AllocaInst *varalloca = createEntryAlloca(f, varname);
 
-    module_->print(llvm::outs(), nullptr);
+    ast->expression->accept(this);
+    llvm::Value *value = curRetVal;
+
+    if (!value)
+    {
+        LLVMGENVISITOR_RETURN(nullptr)
+    }
+
+    builder.CreateStore(value, varalloca);
+
+    createScopeSymbol(varname, varalloca);
+    
+    LLVMGENVISITOR_RETURN(varalloca)
 }
+void LLVMGenVisitor::visitReturnStmtAST(const ReturnStmtAST *ast)
+{
+    CLEARRET;
+    if (ast->expr)
+    {
+        ast->expr->accept(this);
+        builder.CreateRet(curRetVal);
+    }
+    else
+    {
+        builder.CreateRetVoid();
+    }
+}
+// }}}
+// {{{ helper ast visiting
+void LLVMGenVisitor::visitTypeAST(const TypeAST *ast) 
+{
+    CLEARRET;
+}
+
+void LLVMGenVisitor::visitBlockAST(const BlockAST *ast) 
+{
+    CLEARRET;
+    beginNewScope();
+    for (const std::unique_ptr<AST> &bast : ast->stmts) 
+    {
+        bast->accept(this);
+    }
+    finishCurScope();
+    LLVMGENVISITOR_RETURN(nullptr)
+}
+
+void LLVMGenVisitor::visitParamAST(const ParamAST *ast) 
+{
+    CLEARRET;
+    // shouldn't ever happen beacause ParamsVisitor processes the params
+    // instead of LLVMGenVisitor
+}
+
+void LLVMGenVisitor::visitParamsAST(const ParamsAST *ast) 
+{
+    CLEARRET;
+    // also shouldn't ever happen beacause ParamsVisitor processes the params
+    // instead of LLVMGenVisitor
+}
+
+void LLVMGenVisitor::visitArgAST(const ArgAST *ast) 
+{
+    // visitCallAST calls this
+    CLEARRET;
+
+    ast->expr->accept(this);
+    LLVMGENVISITOR_RETURN(curRetVal); // this technically doesn't do anything but whatever
+}
+
+void LLVMGenVisitor::visitArgsAST(const ArgsAST *ast) 
+{
+    // this shouldnot get called because visitCallAST parses ArgsAST
+    CLEARRET;
+}
+
+void LLVMGenVisitor::visitCallAST(const CallAST *ast) 
+{
+    CLEARRET;
+
+    ast->varrefast->accept(this);
+    llvm::Value *f = curRetVal;
+
+    if (!f)
+    {
+        LLVMGENVISITOR_RETURN(nullptr);
+    }
+
+    if (!f->getType()->isPointerTy()) // should be a pointer to a function
+    {
+        reportError(ast->oparn, "Cannot call non-function", sourcefile);
+        LLVMGENVISITOR_RETURN(nullptr);
+    } else
+    {
+        // so it is a pointer
+        // but is it a pointer to a function?
+        if (!(static_cast<llvm::PointerType*>(f->getType()))->getElementType()->isFunctionTy())
+        {
+            // is not a pointer to a function
+            // return
+            reportError(ast->oparn, "Cannot call non-function", sourcefile);
+            LLVMGENVISITOR_RETURN(nullptr);
+        }
+    }
+
+    std::vector<llvm::Value*> valargs;
+
+    if (ast->arglistast)
+    {
+        ArgsAST *argsast = dynamic_cast<ArgsAST*>(ast->arglistast.get());
+
+        // internal parsing error, because Parser::arglist() always returns a std::unique_ptr<ArgsAST>
+        if (!argsast) 
+        {
+            LLVMGENVISITOR_RETURN(nullptr);
+        }
+
+        // static cast is safe beacuse it was checked before
+        if (static_cast<llvm::Function*>(f)->arg_size() != argsast->args.size())
+        {
+            reportError(ast->oparn, "Wrong number of arguments passed to function call", sourcefile);
+            LLVMGENVISITOR_RETURN(nullptr);
+        }
+
+
+        for (std::unique_ptr<AST> &expr: argsast->args)
+        {
+            expr->accept(this);
+            llvm::Value *argvalue = curRetVal;
+            if (!argvalue)
+            {
+                reportError(ast->oparn, "faowjeif", sourcefile);
+            }
+            valargs.push_back(argvalue);
+        }
+    }
+
+    LLVMGENVISITOR_RETURN(builder.CreateCall(f, valargs));
+}
+
+// }}}
+// }}}
+// {{{ private llvm visitor helper methods
+llvm::AllocaInst* LLVMGenVisitor::createEntryAlloca(llvm::Function *f, const std::string &name) 
+{
+    llvm::IRBuilder<> b (&(f->getEntryBlock()), f->getEntryBlock().begin());
+    return b.CreateAlloca(llvm::Type::getInt64Ty(context), 0, name.c_str());
+}
+
+void LLVMGenVisitor::beginNewScope()
+{
+    ++scopenum;
+}
+
+void LLVMGenVisitor::finishCurScope()
+{
+    // mostly stolen from https://stackoverflow.com/questions/7007802/erase-specific-elements-in-stdmap
+    for (auto it = scopesymbols.cbegin(); it != scopesymbols.cend(); )
+    {
+        if (it->first.first >= scopenum) // shouldnt ever be greater than but just to make sure
+        {
+            scopesymbols.erase(it++);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
+    --scopenum;
+}
+
+llvm::AllocaInst* LLVMGenVisitor::getVarFromName(std::string &name, Token const &tok, bool overrideErr)
+{
+    int highestScope = -1;
+    llvm::AllocaInst *v = nullptr;
+    for (auto it = scopesymbols.cbegin(); it != scopesymbols.cend(); ++it)
+    {
+        if (it->first.second == name && it->first.first > highestScope)
+        {
+            v = it->second;
+            highestScope = it->first.first;
+        }
+    }
+
+    if (!v && !overrideErr)
+        reportError(tok, "unknown variable name", sourcefile);
+
+    return v; // return nullptr if error
+}
+void LLVMGenVisitor::createScopeSymbol(std::string &name, llvm::AllocaInst* alloca)
+{
+    scopesymbols[std::pair<int, std::string>{scopenum, name}] = alloca;
+}
+// }}}
+// {{{ helper visitors
+namespace LLVMGenVisitorHelpersNS
+{
+    ParamsVisitor::ParamsVisitor(File &sourcefile, llvm::LLVMContext &context): sourcefile(sourcefile), context(context) {}
+    TypeVisitor::TypeVisitor(File &sourcefile, llvm::LLVMContext &context): sourcefile(sourcefile), context(context) {}
+
+    void ParamsVisitor::visitParamAST(const ParamAST *ast)
+    {
+        // if this is part of a visitParams then this will be overrided anyway
+        // but if it is not then the return value is provided in a vector like it's supposed to be
+        paramTypes = {llvm::Type::getInt64Ty(context)}; 
+        paramNames = {ast->paramname};
+    }
+    void ParamsVisitor::visitParamsAST(const ParamsAST *ast)
+    {
+        std::vector<llvm::Type*> cparamTypes;
+        std::vector<Token> cparamNames;
+
+        for (std::unique_ptr<AST> const &param : ast->params)
+        {
+            param->accept(this);
+            // retval is length 1 because visitParamsAST always does that
+            cparamTypes.push_back(paramTypes[0]);
+            cparamNames.push_back(paramNames[0]);
+        }
+
+        paramTypes = cparamTypes;
+        paramNames = cparamNames;
+    }
+
+    void TypeVisitor::visitTypeAST(const TypeAST *ast)
+    {
+        // right now only int64s are supported
+        // TODO: types
+        rettype = llvm::Type::getInt64Ty(context);
+        // rettype = llvm::Type::getVoidTy(context);
+    }
+
+}
+// }}}

@@ -14,9 +14,16 @@ public:
     Parser(Lexer &l, File &sourcefile);
 
     std::unique_ptr<AST> parse();
+    std::unique_ptr<AST> decl();
+    std::unique_ptr<AST> function();
+    
     std::unique_ptr<AST> statement();
-    std::unique_ptr<AST> exprstmt();
+    std::unique_ptr<AST> varstatement();
+    std::unique_ptr<AST> exprstatement();
+    std::unique_ptr<AST> retstatement();
+
     std::unique_ptr<AST> expression();
+    std::unique_ptr<AST> assignmentexpr();
     std::unique_ptr<AST> ternaryexpr();
     std::unique_ptr<AST> binorexpr();
     std::unique_ptr<AST> binandexpr();
@@ -31,6 +38,12 @@ public:
     std::unique_ptr<AST> multexpr();
     std::unique_ptr<AST> unary();
     std::unique_ptr<AST> primary();
+
+    std::unique_ptr<AST> varref();
+    std::unique_ptr<AST> block();
+    std::unique_ptr<AST> type();
+    std::unique_ptr<AST> paramlist();
+    std::unique_ptr<AST> arglist();
 
 private:
     Token prevToken;
@@ -54,5 +67,5 @@ private:
     void panic();
     void calmDown();
     void syncTokens();
-    void error(std::string const msg);
+    void error(std::string const msg, bool nextT=false);
 };

@@ -2,6 +2,7 @@
 
 enum TokenType
 {
+    // single symbols
     OPARN, CPARN,
     OSQUB, CSQUB,
     OCURB, CCURB,
@@ -24,6 +25,7 @@ enum TokenType
     PIPE,
     CARET,
 
+    // double symbols
     DOUBLEPLUS,
     DOUBLEMINUS,
     DOUBLEGREATER,
@@ -33,6 +35,7 @@ enum TokenType
     DOUBLEEQUAL,
     DOUBLECOLON,
 
+    // equal symbols
     PLUSEQUAL,
     MINUSEQUAL,
     STAREQUAL,
@@ -49,24 +52,40 @@ enum TokenType
 
     IDENTIFIER,
 
+    // quote literals
     CHARLIT,
     STRINGLIT,
 
+    // integer literals
     DECINTLIT,
     OCTINTLIT,
     BININTLIT,
     HEXINTLIT,
 
+    // other literals
     FLOATLIT,
     TRUELIT,
     FALSELIT,
     NULLLIT,
 
-    INT,
+    // integer types
+    UINT8,
+    UINT16,
+    UINT32,
+    UINT64,
+    SINT8,
+    SINT16,
+    SINT32,
+    SINT64,
+
+    // other types
     FLOAT,
     BOOL,
     DOUBLE,
+    CHAR,
 
+    // keywords
+    VAR,
     PRINT,
     VOID,
     NAMESPACE,

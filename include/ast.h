@@ -7,6 +7,7 @@
 #include "token.h"
 #include "visitor.h"
 
+// GENASTHEADER START
 class AST
 {
 public:
@@ -22,17 +23,19 @@ public:
     void accept(Visitor *v) override;
 
     Token op;
-    std::unique_ptr<AST> last, rast;
+    std::unique_ptr<AST> last;
+    std::unique_ptr<AST> rast;
 };
 
 class TernaryOpAST : public AST
 {
-    // is reserved only for ?: ternary operator so only needs to store operands
 public:
     TernaryOpAST(std::unique_ptr<AST> conditional, std::unique_ptr<AST> trueast, std::unique_ptr<AST> falseast);
     void accept(Visitor *v) override;
 
-    std::unique_ptr<AST> conditional, trueast, falseast;
+    std::unique_ptr<AST> conditional;
+    std::unique_ptr<AST> trueast;
+    std::unique_ptr<AST> falseast;
 };
 
 class UnaryAST : public AST
@@ -71,3 +74,123 @@ public:
 
     std::vector<std::unique_ptr<AST>> asts;
 };
+
+class FunctionAST : public AST
+{
+public:
+    FunctionAST(std::unique_ptr<AST> type, Token name, std::unique_ptr<AST> params, std::unique_ptr<AST> body);
+    void accept(Visitor *v) override;
+
+    std::unique_ptr<AST> type;
+    Token name;
+    std::unique_ptr<AST> params;
+    std::unique_ptr<AST> body;
+};
+
+class BlockAST : public AST
+{
+public:
+    BlockAST(std::vector<std::unique_ptr<AST>> &stmts);
+    void accept(Visitor *v) override;
+
+    std::vector<std::unique_ptr<AST>> stmts;
+};
+
+class TypeAST : public AST
+{
+public:
+    TypeAST(Token type);
+    void accept(Visitor *v) override;
+
+    Token type;
+};
+
+class ParamAST : public AST
+{
+public:
+    ParamAST(std::unique_ptr<AST> type, Token paramname);
+    void accept(Visitor *v) override;
+
+    std::unique_ptr<AST> type;
+    Token paramname;
+};
+
+class ParamsAST : public AST
+{
+public:
+    ParamsAST(std::vector<std::unique_ptr<AST>> &params);
+    void accept(Visitor *v) override;
+
+    std::vector<std::unique_ptr<AST>> params;
+};
+
+class VarStmtAST : public AST
+{
+public:
+    VarStmtAST(std::unique_ptr<AST> type, Token name, std::unique_ptr<AST> expression);
+    void accept(Visitor *v) override;
+
+    std::unique_ptr<AST> type;
+    Token name;
+    std::unique_ptr<AST> expression;
+};
+
+class AssignAST : public AST
+{
+public:
+    AssignAST(std::unique_ptr<AST> lhs, std::unique_ptr<AST> rhs, Token equalSign);
+    void accept(Visitor *v) override;
+
+    std::unique_ptr<AST> lhs;
+    std::unique_ptr<AST> rhs;
+    Token equalSign;
+};
+
+class VariableRefAST : public AST
+{
+public:
+    VariableRefAST(Token var);
+    void accept(Visitor *v) override;
+
+    Token var;
+};
+
+class ReturnStmtAST : public AST
+{
+public:
+    ReturnStmtAST(std::unique_ptr<AST> expr);
+    void accept(Visitor *v) override;
+
+    std::unique_ptr<AST> expr;
+};
+
+class ArgAST : public AST
+{
+public:
+    ArgAST(std::unique_ptr<AST> expr);
+    void accept(Visitor *v) override;
+
+    std::unique_ptr<AST> expr;
+};
+
+class ArgsAST : public AST
+{
+public:
+    ArgsAST(std::vector<std::unique_ptr<AST>> &args);
+    void accept(Visitor *v) override;
+
+    std::vector<std::unique_ptr<AST>> args;
+};
+
+class CallAST : public AST
+{
+public:
+    CallAST(std::unique_ptr<AST> varrefast, std::unique_ptr<AST> arglistast, Token oparn);
+    void accept(Visitor *v) override;
+
+    std::unique_ptr<AST> varrefast;
+    std::unique_ptr<AST> arglistast;
+    Token oparn;
+};
+
+// GENASTHEADER END
