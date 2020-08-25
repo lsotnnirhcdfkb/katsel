@@ -455,10 +455,6 @@ void LLVMGenVisitor::visitCallAST(const CallAST *ast)
         {
             expr->accept(this);
             llvm::Value *argvalue = curRetVal;
-            if (!argvalue)
-            {
-                reportError(ast->oparn, "faowjeif", sourcefile);
-            }
             valargs.push_back(argvalue);
         }
     }
