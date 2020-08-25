@@ -112,7 +112,7 @@ keywords = [
     ('sint8', 'SINT8'),
     ('sint16', 'SINT16'),
     ('sint32', 'SINT32'),
-    ('sint64', 'SINT64')
+    ('sint64', 'SINT64'),
     ('var', 'VAR')
 ]
 # }}}
