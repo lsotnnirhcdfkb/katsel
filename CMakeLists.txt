@@ -20,25 +20,6 @@ message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 add_definitions(${LLVM_DEFINITIONS})
 # end copy and paste
 
-if (${GENDOC})
-    find_package(Doxygen)
-    
-    if (DOXYGEN_FOUND)
-        set(DOXYGENIN ${CMAKE_SOURCE_DIR}/docs/Doxyfile)
-        set(DOXYGENOUT ${CMAKE_BINARY_DIR}/Doxyfile)
-
-        configure_file(${DOXYGENIN} ${DOXYGENOUT} @ONLY)
-
-        add_custom_target(doxygendocs ALL
-            COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGENOUT}
-            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-            COMMENT "Generating documentation with Doxygen"
-            VERBATIM)
-    else()
-        message("Must have Doxygen installed to generate documentation")
-    endif()
-endif()
-
 find_package(Python REQUIRED COMPONENTS Interpreter)
 
 set(GENCODEALLPY ${CMAKE_SOURCE_DIR}/utils/genall.py)
@@ -49,3 +30,4 @@ add_custom_target(gen_code ALL
     VERBATIM)
     
 add_subdirectory(src)
+add_subdirectory(docs)
