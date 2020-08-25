@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
+import argparse, sys
 
+# constants and stuff {{{1
 # T at the beginning means types
 # these are the only types that the asts have for now
 TTOKEN = 0
@@ -13,12 +15,13 @@ TTOCTYPE = {
     TUPTR: 'std::unique_ptr<AST>',
 }
 
-# ac short for ast class
+# ac class, where ac is short for ast class {{{1
 class ac:
     def __init__(self, name, fields=[]):
         self.name = name + 'AST'
         self.fields = fields
 
+    # ac.printHFile {{{2
     def printHFile(self):
         # print(('class {name}'
 
@@ -33,6 +36,7 @@ class ac:
         print( '};')
         print( '')
 
+    # ac.printCppFile {{{2
     def printCppFile(self):
         print(f'{self.name}::{self.name}({self.genConstructArgs()})', end='')
 
@@ -63,10 +67,11 @@ class ac:
 
         print(f'void {self.name}::accept(Visitor *v) {{ v->visit{self.name}(this); }}\n')
 
+    # ac helper methods {{{2
     def genConstructArgs(self):
         return ", ".join(f.printHFile(True) for f in self.fields)
 
-# abc short for ast base class
+# abc class, where abc is short for ast base class {{{1
 class abc:
     def printHFile(self):
         print((
@@ -82,7 +87,7 @@ class abc:
     def printCppFile(self):
         pass
         
-# af short for ast field
+# af class, where af is short for ast field {{{1
 class af:
     def __init__(self, name, type_):
         self.name = name
@@ -97,6 +102,7 @@ class af:
     def printCppFile(self):
         pass
 
+# print .h file driver code {{{1
 def printHFile():
     print('#pragma once\n')
     for include in includes:
@@ -107,12 +113,14 @@ def printHFile():
     for class_ in classes:
         class_.printHFile()
 
+# print .cpp file driver code {{{1
 def printCppFile():
     print('#include "ast.h"')
     print()
     for class_ in classes:
         class_.printCppFile()
 
+# include files for header file {{{1
 includes = [
         '<vector>',
         '<string>',
@@ -122,6 +130,7 @@ includes = [
         '"visitor.h"'
     ]
 
+# classes to generate {{{1
 classes = [
     abc(),
     ac('Binary'       , [af('op', TTOKEN), af('last', TUPTR), af('rast', TUPTR)]),
@@ -144,5 +153,20 @@ classes = [
     ac('Call'         , [af('varrefast', TUPTR), af('arglistast', TUPTR)]),
 ]
 
-printCppFile()
+# actually running the things by parsing args and stuff {{{1
+parser = argparse.ArgumentParser(description='Generate AST classes.')
+parser.add_argument('-e', '--header', action='store_true', help='Generate header file of all the AST classes')
+parser.add_argument('-c', '--source', action='store_true', help='Generate source file of all the AST classes')
+
+if len(sys.argv) == 1:
+    parser.print_help(sys.stderr)
+    sys.exit(1)
+
+args = parser.parse_args()
+
+if args.header:
+    printHFile()
+
+if args.source:
+    printCppFile()
 
