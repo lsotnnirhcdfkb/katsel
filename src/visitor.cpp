@@ -188,7 +188,7 @@ void PrintVisitor::print(std::string &&str)
 }
 // }}}
 // blank visitor {{{1
-// BLANK VISITOR GEN START HERE
+// BLANKGEN START
 void BlankVisitor::visitBinaryAST(const BinaryAST *ast) {}
 void BlankVisitor::visitTernaryOpAST(const TernaryOpAST *ast) {}
 void BlankVisitor::visitUnaryAST(const UnaryAST *ast) {}
@@ -207,4 +207,4 @@ void BlankVisitor::visitReturnStmtAST(const ReturnStmtAST *ast) {}
 void BlankVisitor::visitArgAST(const ArgAST *ast) {}
 void BlankVisitor::visitArgsAST(const ArgsAST *ast) {}
 void BlankVisitor::visitCallAST(const CallAST *ast) {}
-// BLANK VISITOR GEN END HERE
+// BLANKGEN END

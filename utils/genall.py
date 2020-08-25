@@ -3,10 +3,11 @@ import subprocess
 import io
 
 jobs = [
-    ('src/lexer.cpp',     'KWGEN BEGIN HERE', 'KWGEN END HERE', 'utils/kwgen.py'             , '-c'),
-    ('src/ast.cpp'  ,     None              , None            , 'utils/astgen.py'            , '-c'),
-    ('include/ast.h',     None              , None            , 'utils/astgen.py'            ,'-e'),
-    ('include/visitor.h', None              , None            , 'utils/visitorincludegen.py' , '')
+    ('src/lexer.cpp'    , 'KWGEN BEGIN HERE', 'KWGEN END HERE', 'utils/kwgen.py'             , '-c'),
+    ('src/ast.cpp'      , None              , None            , 'utils/astgen.py'            , '-c'),
+    ('include/ast.h'    , None              , None            , 'utils/astgen.py'            , '-e'),
+    ('include/visitor.h', None              , None            , 'utils/visitorincludegen.py' , '-e'),
+    ('src/visitor.cpp'  , 'BLANKGEN START'  , 'BLANKGEN END'  , 'utils/visitorincludegen.py' , '-b')
 ]
 
 for jobi, job in enumerate(jobs):

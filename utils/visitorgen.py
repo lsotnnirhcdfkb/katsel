@@ -100,4 +100,20 @@ def genBlankVisitor():
         print(f'void BlankVisitor::visit{astClass}AST(const {astClass}AST *ast) {{}}')
 
 
-genBlankVisitor()
+# parse args and run {{{1
+parser = argparse.ArgumentParser(description='Generate the visitor header file or the BlankVisitor method implementations.')
+parser.add_argument('-e', '--header', action='store_true', help='Generate header file of all the Visitor classes')
+parser.add_argument('-b', '--blank', action='store_true', help='Generate BlankVisitor methods')
+
+if len(sys.argv) == 1:
+    parser.print_help(sys.stderr)
+    sys.exit(1)
+
+args = parser.parse_args()
+
+if args.header:
+    genHeader()
+
+if args.blank:
+    genBlankVisitor()
+
