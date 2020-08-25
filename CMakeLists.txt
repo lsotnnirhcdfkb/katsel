@@ -2,11 +2,14 @@ cmake_minimum_required(VERSION 3.17.3)
 
 project(COxian
     DESCRIPTION "The C++ LLVM-Based Compiler Implementation of the Oxian Language"    
-    LANGUAGES CXX)
+    LANGUAGES CXX
+    VERSION 0.0.0)
     
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS NO)
+
+option(GENDOC "Build documentation" ON)
 
 # Copied and pasted and shifted around a bit from LLVM Docs - Building LLVM with CMake - Embedding LLVM in your project
 # https://releases.llvm.org/3.6.0/docs/CMake.html#embedding-llvm-in-your-project
@@ -16,5 +19,24 @@ message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
 add_definitions(${LLVM_DEFINITIONS})
 # end copy and paste
+
+if (${GENDOC})
+    find_package(Doxygen)
+    
+    if (DOXYGEN_FOUND)
+        set(DOXYGENIN ${CMAKE_SOURCE_DIR}/docs/Doxyfile)
+        set(DOXYGENOUT ${CMAKE_BINARY_DIR}/Doxyfile)
+
+        configure_file(${DOXYGENIN} ${DOXYGENOUT} @ONLY)
+
+        add_custom_target(doxygendocs ALL
+            COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGENOUT}
+            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+            COMMENT "Generating documentation with Doxygen"
+            VERBATIM)
+    else()
+        message("Must have Doxygen installed to generate documentation")
+    endif()
+endif()
 
 add_subdirectory(src)
