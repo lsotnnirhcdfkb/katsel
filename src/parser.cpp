@@ -477,7 +477,7 @@ std::unique_ptr<AST> Parser::varref()
         if (!check(TokenType::CPARN))
              arglistast = arglist();
 
-        consume(TokenType::CPARN, "Expected closing parentheses for argument list");
+        consume(TokenType::CPARN, "Expected closing parentheses after argument list");
 
         varrefast = std::make_unique<CallAST>(std::move(varrefast), std::move(arglistast));
     }
