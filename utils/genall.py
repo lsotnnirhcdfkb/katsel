@@ -26,7 +26,7 @@ for jobi, job in enumerate(jobs):
 
     if genStartPattern is not None:
         genStart = list(filter(lambda n: genStartPattern in flines[n], range(len(flines))))
-        if len(genStart) > 1:
+        if len(genStart) != 1:
             print(f'"{genStartPattern}" found {len(genStart)} times in {job[0]}. Skipping {job[0]}')
             continue
         genStart = genStart[0]
@@ -36,7 +36,7 @@ for jobi, job in enumerate(jobs):
 
     if genEndPattern is not None:
         genEnd = list(filter(lambda n: genEndPattern in flines[n], range(len(flines))))
-        if len(genEnd) > 1:
+        if len(genEnd) != 1:
             print(f'"{genEndPattern}" found {len(genEnd)} times in {job[0]}. Skipping {job[0]}')
             continue
         genEnd = genEnd[0]
