@@ -162,7 +162,7 @@ astClasses = [
     AstClass('ReturnStmt'   , [AstField('expr', AstField.TUPTR)]),
     AstClass('Arg'          , [AstField('expr', AstField.TUPTR)]),
     AstClass('Args'         , [AstField('args', AstField.TVECTOR)]),
-    AstClass('Call'         , [AstField('varrefast', AstField.TUPTR), AstField('arglistast', AstField.TUPTR)]),
+    AstClass('Call'         , [AstField('varrefast', AstField.TUPTR), AstField('arglistast', AstField.TUPTR), AstField('oparn', AstField.TTOKEN)]),
 ]
 
 # entry: actually running the things by parsing args and stuff {{{1

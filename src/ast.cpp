@@ -79,6 +79,6 @@ ArgsAST::ArgsAST(std::vector<std::unique_ptr<AST>> &args)
 }
 void ArgsAST::accept(Visitor *v) { v->visitArgsAST(this); }
 
-CallAST::CallAST(std::unique_ptr<AST> varrefast, std::unique_ptr<AST> arglistast): varrefast(std::move(varrefast)), arglistast(std::move(arglistast)) {}
+CallAST::CallAST(std::unique_ptr<AST> varrefast, std::unique_ptr<AST> arglistast, Token oparn): varrefast(std::move(varrefast)), arglistast(std::move(arglistast)), oparn(oparn) {}
 void CallAST::accept(Visitor *v) { v->visitCallAST(this); }
 

@@ -394,9 +394,14 @@ void LLVMGenVisitor::visitCallAST(const CallAST *ast)
     ast->varrefast->accept(this);
     llvm::Value *f = curRetVal;
 
-    if (f->arg_size() != ast->arglistast->args.size())
+    if (!f)
     {
-        reportError(ast->oparen, "Wrong number of arguments", sourcefile);
+        LLVMGENVISITOR_RETURN(nullptr);
+    }
+
+    if (!f->getType()->isFunctionTy())
+    {
+        reportError(ast->oparn, "Cannot call non-function", sourcefile);
         LLVMGENVISITOR_RETURN(nullptr);
     }
 
@@ -404,15 +409,24 @@ void LLVMGenVisitor::visitCallAST(const CallAST *ast)
 
     if (ast->arglistast)
     {
-        std::unique_ptr<ArgsAST> args = dynamic_cast<*ArgsAST>(ast->arglistast);
+        ArgsAST *argsast = dynamic_cast<ArgsAST*>(ast->arglistast.get());
+
+        // static cast is safe because if it wasn't then then
+        // f.getType().isFunctionTy() would have returned
+        // false and this would not run
+        if (static_cast<llvm::Function*>(f)->arg_size() != argsast->args.size())
+        {
+            reportError(ast->oparn, "Wrong number of arguments passed to function call", sourcefile);
+            LLVMGENVISITOR_RETURN(nullptr);
+        }
 
         // internal parsing error, because Parser::arglist() always returns a std::unique_ptr<ArgsAST>
-        if (!args) 
+        if (!argsast) 
         {
             LLVMGENVISITOR_RETURN(nullptr);
         }
 
-        for (std::unique_ptr<AST> &expr: args)
+        for (std::unique_ptr<AST> &expr: argsast->args)
         {
             expr->accept(this);
             llvm::Value *argvalue = curRetVal;
@@ -420,7 +434,7 @@ void LLVMGenVisitor::visitCallAST(const CallAST *ast)
         }
     }
 
-    LLVMGENVISITOR_RETURN(builder.CreateCall(f), valargs);
+    LLVMGENVISITOR_RETURN(builder.CreateCall(f, valargs));
 }
 
 // }}}

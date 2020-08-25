@@ -185,11 +185,12 @@ public:
 class CallAST : public AST
 {
 public:
-    CallAST(std::unique_ptr<AST> varrefast, std::unique_ptr<AST> arglistast);
+    CallAST(std::unique_ptr<AST> varrefast, std::unique_ptr<AST> arglistast, Token oparn);
     void accept(Visitor *v) override;
 
     std::unique_ptr<AST> varrefast;
     std::unique_ptr<AST> arglistast;
+    Token oparn;
 };
 
 // GENASTHEADER END
