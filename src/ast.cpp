@@ -1,4 +1,3 @@
-
 #include "ast.h"
 
 BinaryAST::BinaryAST(Token op, std::unique_ptr<AST> last, std::unique_ptr<AST> rast): op(op), last(std::move(last)), rast(std::move(rast)) {}

@@ -564,7 +564,7 @@ TokenType Lexer::getIdentifierType()
                                     switch (*(start + 4))
                                     {
                                         case 'k':
-                                            if (start + 5 == end) return TokenType::BREAK;
+                                                if (start + 5 == end) return TokenType::BREAK;
                                             switch (*(start + 5))
                                             {
                                                 case 'a':
