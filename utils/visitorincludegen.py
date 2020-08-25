@@ -65,9 +65,12 @@ for visitorClass in visitorClasses:
     print('public:')
     
     for publicThing in publicThings:
-        print('    ' + publicThing)
+        print('    ' + publicThing + ';')
 
     for astClass in astClasses:
+        if astClass == '':
+            continue
+
         if name == '':
             print('    virtual ', end='')
         else:
@@ -83,8 +86,8 @@ for visitorClass in visitorClasses:
     if len(privateThings):
         print('\nprivate:')
         for privateThing in privateThings:
-            print('    ' + privateThing)
+            print('    ' + privateThing + ';')
 
-    print('}')
+    print('};')
     print()
 

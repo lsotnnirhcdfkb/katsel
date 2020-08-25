@@ -2,9 +2,7 @@
 
 #include <string>
 
-// forward declare because circular includes don't work
 class AST;
-
 class BinaryAST;
 class TernaryOpAST;
 class UnaryAST;
@@ -57,12 +55,12 @@ public:
     void visitPrimaryAST(const PrimaryAST *ast) override;
     void visitExprStmtAST(const ExprStmtAST *ast) override;
     void visitProgramAST(const ProgramAST *ast) override;
-    void visitVarStmtAST(const VarStmtAST *ast) override;
-    void visitTypeAST(const TypeAST *ast) override;
     void visitFunctionAST(const FunctionAST *ast) override;
     void visitBlockAST(const BlockAST *ast) override;
+    void visitTypeAST(const TypeAST *ast) override;
     void visitParamAST(const ParamAST *ast) override;
     void visitParamsAST(const ParamsAST *ast) override;
+    void visitVarStmtAST(const VarStmtAST *ast) override;
     void visitAssignAST(const AssignAST *ast) override;
     void visitVariableRefAST(const VariableRefAST *ast) override;
     void visitReturnStmtAST(const ReturnStmtAST *ast) override;
@@ -73,7 +71,6 @@ public:
 private:
     int indent;
     bool pindent;
-
     void print(std::string &str);
     void print(std::string &&str);
 };
@@ -100,3 +97,4 @@ public:
     void visitArgsAST(const ArgsAST *ast) override;
     void visitCallAST(const CallAST *ast) override;
 };
+
