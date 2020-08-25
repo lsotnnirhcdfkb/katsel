@@ -3,19 +3,19 @@ import subprocess
 import io
 
 jobs = [
-    ('src/lexer.cpp'           , 'KWGEN BEGIN HERE'                     , 'KWGEN END HERE'                         , 'utils/kwgen.py'               , '-c'),
-    ('src/ast.cpp'             , None                                   , None                                     , 'utils/astgen.py'              , '--astsource'),
-    ('include/ast.h'           , 'GENASTHEADER START'                   , 'GENASTHEADER END'                       , 'utils/astgen.py'              , '--astheader'),
-    ('include/visitor.h'       , 'GENFORWARDDECL START'                 , 'GENFORWARDDECL END'                     , 'utils/astgen.py'              , '--forwarddecl'),
-    ('src/visitor.cpp'         , 'BLANKGEN START'                       , 'BLANKGEN END'                           , 'utils/astgen.py'              , '--blankvisitor'),
-    ('include/visitor.h'       , 'GENVISITORMETHODBASE START'           , 'GENVISITORMETHODBASE END'               , 'utils/astgen.py'              , '--visitorbasemethods'),
-    ('include/visitor.h'       , 'GENVISITORMETHOD1 START'              , 'GENVISITORMETHOD1 END'                  , 'utils/astgen.py'              , '--visitormethods'),
-    ('include/visitor.h'       , 'GENVISITORMETHOD2 START'              , 'GENVISITORMETHOD2 END'                  , 'utils/astgen.py'              , '--visitormethods'),
-    ('include/llvmgenvisitor.h', 'GENVISITORMETHOD3 START'              , 'GENVISITORMETHOD3 END'                  , 'utils/astgen.py'              , '--visitormethods'),
+    ('src/lexer.cpp'           , 'KWGEN BEGIN HERE'                     , 'KWGEN END HERE'                         , 'utils/kwgen.py -c'),
+    ('src/ast.cpp'             , None                                   , None                                     , 'utils/astgen.py --astsource'),
+    ('include/ast.h'           , 'GENASTHEADER START'                   , 'GENASTHEADER END'                       , 'utils/astgen.py --astheader'),
+    ('include/visitor.h'       , 'GENFORWARDDECL START'                 , 'GENFORWARDDECL END'                     , 'utils/astgen.py --forwarddecl'),
+    ('src/visitor.cpp'         , 'BLANKGEN START'                       , 'BLANKGEN END'                           , 'utils/astgen.py --blankvisitor'),
+    ('include/visitor.h'       , 'GENVISITORMETHODBASE START'           , 'GENVISITORMETHODBASE END'               , 'utils/astgen.py --visitorbasemethods'),
+    ('include/visitor.h'       , 'GENVISITORMETHOD1 START'              , 'GENVISITORMETHOD1 END'                  , 'utils/astgen.py --visitormethods'),
+    ('include/visitor.h'       , 'GENVISITORMETHOD2 START'              , 'GENVISITORMETHOD2 END'                  , 'utils/astgen.py --visitormethods'),
+    ('include/llvmgenvisitor.h', 'GENVISITORMETHOD3 START'              , 'GENVISITORMETHOD3 END'                  , 'utils/astgen.py --visitormethods'),
 ]
 
 for jobi, job in enumerate(jobs):
-    print(f'Running job {jobi}/{len(jobs)}')
+    print(f'Running job {jobi + 1}/{len(jobs)}')
     with io.open(job[0], 'r', encoding='utf-8') as f:
         flines = f.readlines()
         print(f'Loaded file {job[0]}');
@@ -49,7 +49,7 @@ for jobi, job in enumerate(jobs):
 
     # create command to generate new code
     # by combining script filename and flags
-    command = f'{job[3]} {job[4]}'
+    command = f'{job[3]}'
 
     # run the created command
     process = subprocess.run(command, capture_output=True, shell=True)

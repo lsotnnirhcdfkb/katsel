@@ -20,7 +20,6 @@ class AstClass:
         for field in self.fields:
             output.append(f'    {field.printHFile(False)};\n')
         output.append(     '};\n')
-        output.append(     '\n')
 
         return ''.join(output)
 
@@ -123,7 +122,7 @@ def printForwardDecl():
 # generate visitAST methods {{{2
 def printVisitASTMethods(isBase):
     for astClass in astClasses:
-        if astClass == '':
+        if astClass.name == 'AST':
             continue
 
         if isBase:
@@ -140,9 +139,9 @@ def printVisitASTMethods(isBase):
 # generate BlankVisitor method definitions {{{2
 def printBlankVisitorDefinitions():
     for astClass in astClasses:
-        if astClass == '':
+        if astClass.name == 'AST':
             continue
-        print(f'void BlankVisitor::visit{astClass}AST(const {astClass}AST *ast) {{}}')
+        print(f'void BlankVisitor::visit{astClass.name}(const {astClass.name} *ast) {{}}')
 # lists: ast classes to generate {{{1
 astClasses = [
     AstBaseClass(),

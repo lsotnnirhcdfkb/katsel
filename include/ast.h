@@ -191,4 +191,5 @@ public:
     std::unique_ptr<AST> varrefast;
     std::unique_ptr<AST> arglistast;
 };
+
 // GENASTHEADER END
