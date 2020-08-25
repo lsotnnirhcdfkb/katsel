@@ -4,12 +4,18 @@
                                              return;
 #define CLEARRET curRetVal = nullptr
 
-LLVMGenVisitor::LLVMGenVisitor(File &sourcefile): sourcefile(sourcefile), builder(context), module_(std::make_unique<llvm::Module>("COxianc output of file " + sourcefile.filename, context)), scopenum(0), paramsVisitor(sourcefile, context), typeVisitor(sourcefile, context) {}
+LLVMGenVisitor::LLVMGenVisitor(File &sourcefile): sourcefile(sourcefile), builder(context), module_(std::make_unique<llvm::Module>("COxianc output of file " + sourcefile.filename, context)), scopenum(0), paramsVisitor(sourcefile, context), typeVisitor(sourcefile, context), forwDeclVisitor(module_.get(), &paramsVisitor, &typeVisitor, sourcefile) {}
 
 // {{{ visiting asts
 void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast) 
 {
     CLEARRET;
+
+    for (const std::unique_ptr<AST> &dast : ast->asts) 
+    {
+        dast->accept(&forwDeclVisitor);
+    }
+
     for (const std::unique_ptr<AST> &dast : ast->asts) 
     {
         dast->accept(this);
@@ -24,54 +30,37 @@ void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
 
     std::string name = std::string(ast->name.start, ast->name.end);
 
-    llvm::Function *fcheck = module_->getFunction(name);
-    if (fcheck)
+    llvm::Function *f = module_->getFunction(name);
+    // f should already be defined beacuse of the forwdeclgenvisitor
+    // but it should be empty becuase that only generated the declarations
+    // not the body
+    if (!f->empty())
     {
-        reportError(ast->name, "Cannot redefine function", sourcefile);
-        LLVMGENVISITOR_RETURN(nullptr);
+        // so if it is not empty then this is a redefinition, but
+        // don't report an error since forwdeclgenvisitor already 
+        // did that
+        LLVMGENVISITOR_RETURN(nullptr)
     }
-
-    std::vector<llvm::Type*> paramTypes;
-    std::vector<Token> paramNames;
-
-    if (ast->params)
-    {
-        ast->params->accept(&paramsVisitor);
-
-        paramTypes = paramsVisitor.paramTypes;
-        paramNames = paramsVisitor.paramNames;
-    }
-
-    ast->type->accept(&typeVisitor);
-    llvm::Type *rettype = typeVisitor.rettype;
-    llvm::FunctionType *ft = llvm::FunctionType::get(rettype, paramTypes, false); 
-    llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, name, *module_);
 
     llvm::BasicBlock *block = llvm::BasicBlock::Create(context, name + "entry", f);
     builder.SetInsertPoint(block);
 
-    beginNewScope();
-
-    { 
-        int i = 0;
-        for (auto &param : f->args())
-        {
-            std::string paramName = std::string(paramNames[i].start, paramNames[i].end);
-            param.setName(paramName);
-
-            llvm::AllocaInst *alloca = createEntryAlloca(f, paramName);
-            builder.CreateStore(&param, alloca);
-            createScopeSymbol(paramName, alloca);
-
-            ++i;
-        }
+    for (auto &param : f->args())
+    {
+        llvm::AllocaInst *alloca = createEntryAlloca(f, param.getName());
+        builder.CreateStore(&param, alloca);
+        std::string pname = param.getName();
+        createScopeSymbol(pname, alloca);
     }
+
+    beginNewScope();
 
     ast->body->accept(this);
 
     llvm::verifyFunction(*f); 
 
     finishCurScope();
+
     LLVMGENVISITOR_RETURN(f);
 }
 // }}}
@@ -562,6 +551,47 @@ namespace LLVMGenVisitorHelpersNS
         // TODO: types
         rettype = llvm::Type::getInt64Ty(context);
         // rettype = llvm::Type::getVoidTy(context);
+    }
+
+    ForwDeclGenVisitor::ForwDeclGenVisitor(llvm::Module *module_, ParamsVisitor *paramsVisitor, TypeVisitor *typeVisitor, File sourcefile): module_(module_), paramsVisitor(paramsVisitor), typeVisitor(typeVisitor), sourcefile(sourcefile) {}
+
+    void ForwDeclGenVisitor::visitFunctionAST(const FunctionAST *ast)
+    {
+        std::string name = std::string(ast->name.start, ast->name.end);
+
+        llvm::Function *fcheck = module_->getFunction(name);
+        // if the function was there then it is being redefined
+        if (fcheck)
+        {
+            reportError(ast->name, "Cannot redefine function", sourcefile);
+            return;
+        }
+
+        std::vector<llvm::Type*> paramTypes;
+        std::vector<Token> paramNames;
+
+        if (ast->params)
+        {
+            ast->params->accept(paramsVisitor);
+
+            paramTypes = paramsVisitor->paramTypes;
+            paramNames = paramsVisitor->paramNames;
+        }
+
+        ast->type->accept(typeVisitor);
+        llvm::Type *rettype = typeVisitor->rettype;
+        llvm::FunctionType *ft = llvm::FunctionType::get(rettype, paramTypes, false); 
+        llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, name, *module_);
+
+        { 
+            int i = 0;
+            for (auto &param : f->args())
+            {
+                std::string paramName = std::string(paramNames[i].start, paramNames[i].end);
+                param.setName(paramName);
+            }
+
+        }
     }
 
 }

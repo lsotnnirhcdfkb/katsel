@@ -44,6 +44,18 @@ namespace LLVMGenVisitorHelpersNS
         File &sourcefile;
         llvm::LLVMContext &context;
     };
+
+    class ForwDeclGenVisitor : public BlankVisitor
+    {
+    public:
+        ForwDeclGenVisitor(llvm::Module *module_, ParamsVisitor *paramsVisitor, TypeVisitor *typeVisitor, File sourcefile);
+        void visitFunctionAST(const FunctionAST *ast) override;
+
+        llvm::Module *module_;
+        ParamsVisitor *paramsVisitor;
+        TypeVisitor *typeVisitor;
+        File sourcefile;
+    };
 }
 
 class LLVMGenVisitor : public Visitor
@@ -90,5 +102,6 @@ private:
     File &sourcefile;
     LLVMGenVisitorHelpersNS::ParamsVisitor paramsVisitor;
     LLVMGenVisitorHelpersNS::TypeVisitor typeVisitor;
+    LLVMGenVisitorHelpersNS::ForwDeclGenVisitor forwDeclVisitor;
 };
 
