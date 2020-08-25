@@ -6,8 +6,8 @@ jobs = [
     ('src/lexer.cpp'    , 'KWGEN BEGIN HERE', 'KWGEN END HERE', 'utils/kwgen.py'             , '-c'),
     ('src/ast.cpp'      , None              , None            , 'utils/astgen.py'            , '-c'),
     ('include/ast.h'    , None              , None            , 'utils/astgen.py'            , '-e'),
-    ('include/visitor.h', None              , None            , 'utils/visitorincludegen.py' , '-e'),
-    ('src/visitor.cpp'  , 'BLANKGEN START'  , 'BLANKGEN END'  , 'utils/visitorincludegen.py' , '-b')
+    ('include/visitor.h', None              , None            , 'utils/visitorgen.py' , '-e'),
+    ('src/visitor.cpp'  , 'BLANKGEN START'  , 'BLANKGEN END'  , 'utils/visitorgen.py' , '-b')
 ]
 
 for jobi, job in enumerate(jobs):
