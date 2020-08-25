@@ -2,6 +2,7 @@
 
 #include <string>
 
+// GENFORWARDDECL START
 class AST;
 class BinaryAST;
 class TernaryOpAST;
@@ -21,10 +22,12 @@ class ReturnStmtAST;
 class ArgAST;
 class ArgsAST;
 class CallAST;
+// GENFORWARDDECL END
 
 class Visitor
 {
 public:
+    // GENVISITORMETHODBASE START
     virtual void visitBinaryAST(const BinaryAST *ast) = 0;
     virtual void visitTernaryOpAST(const TernaryOpAST *ast) = 0;
     virtual void visitUnaryAST(const UnaryAST *ast) = 0;
@@ -43,12 +46,14 @@ public:
     virtual void visitArgAST(const ArgAST *ast) = 0;
     virtual void visitArgsAST(const ArgsAST *ast) = 0;
     virtual void visitCallAST(const CallAST *ast) = 0;
+    // GENVISITORMETHODBASE END
 };
 
 class PrintVisitor : public Visitor
 {
 public:
     PrintVisitor();
+    // GENVISITORMETHOD1 START
     void visitBinaryAST(const BinaryAST *ast) override;
     void visitTernaryOpAST(const TernaryOpAST *ast) override;
     void visitUnaryAST(const UnaryAST *ast) override;
@@ -67,6 +72,7 @@ public:
     void visitArgAST(const ArgAST *ast) override;
     void visitArgsAST(const ArgsAST *ast) override;
     void visitCallAST(const CallAST *ast) override;
+    // GENVISITORMETHOD1 END
 
 private:
     int indent;
@@ -78,6 +84,7 @@ private:
 class BlankVisitor : public Visitor
 {
 public:
+    // GENVISITORMETHOD2 START
     void visitBinaryAST(const BinaryAST *ast) override;
     void visitTernaryOpAST(const TernaryOpAST *ast) override;
     void visitUnaryAST(const UnaryAST *ast) override;
@@ -96,5 +103,6 @@ public:
     void visitArgAST(const ArgAST *ast) override;
     void visitArgsAST(const ArgsAST *ast) override;
     void visitCallAST(const CallAST *ast) override;
+    // GENVISITORMETHOD2 END
 };
 

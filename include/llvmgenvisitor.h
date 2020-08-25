@@ -51,6 +51,7 @@ class LLVMGenVisitor : public Visitor
 public:
     LLVMGenVisitor(File &sourcefile);
 
+    // GENVISITORMETHOD3 START
     void visitBinaryAST(const BinaryAST *ast) override;
     void visitTernaryOpAST(const TernaryOpAST *ast) override;
     void visitUnaryAST(const UnaryAST *ast) override;
@@ -69,6 +70,7 @@ public:
     void visitArgAST(const ArgAST *ast) override;
     void visitArgsAST(const ArgsAST *ast) override;
     void visitCallAST(const CallAST *ast) override;
+    // GENVISITORMETHOD3 END
 
 private:
     llvm::AllocaInst* createEntryAlloca(llvm::Function *f, const std::string &name);

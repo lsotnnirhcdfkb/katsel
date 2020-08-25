@@ -3,11 +3,15 @@ import subprocess
 import io
 
 jobs = [
-    ('src/lexer.cpp'    , 'KWGEN BEGIN HERE', 'KWGEN END HERE', 'utils/kwgen.py'             , '-c'),
-    ('src/ast.cpp'      , None              , None            , 'utils/astgen.py'            , '-c'),
-    ('include/ast.h'    , None              , None            , 'utils/astgen.py'            , '-e'),
-    ('include/visitor.h', None              , None            , 'utils/visitorgen.py' , '-e'),
-    ('src/visitor.cpp'  , 'BLANKGEN START'  , 'BLANKGEN END'  , 'utils/visitorgen.py' , '-b')
+    ('src/lexer.cpp'           , 'KWGEN BEGIN HERE'                     , 'KWGEN END HERE'                         , 'utils/kwgen.py'               , '-c'),
+    ('src/ast.cpp'             , None                                   , None                                     , 'utils/astgen.py'              , '--astsource'),
+    ('include/ast.h'           , 'GENASTHEADER START'                   , 'GENASTHEADER END'                       , 'utils/astgen.py'              , '--astheader'),
+    ('include/visitor.h'       , 'GENFORWARDDECL START'                 , 'GENFORWARDDECL END'                     , 'utils/astgen.py'              , '--forwarddecl'),
+    ('src/visitor.cpp'         , 'BLANKGEN START'                       , 'BLANKGEN END'                           , 'utils/astgen.py'              , '--blankvisitor'),
+    ('include/visitor.h'       , 'GENVISITORMETHODBASE START'           , 'GENVISITORMETHODBASE END'               , 'utils/astgen.py'              , '--visitorbasemethods'),
+    ('include/visitor.h'       , 'GENVISITORMETHOD1 START'              , 'GENVISITORMETHOD1 END'                  , 'utils/astgen.py'              , '--visitormethods'),
+    ('include/visitor.h'       , 'GENVISITORMETHOD2 START'              , 'GENVISITORMETHOD2 END'                  , 'utils/astgen.py'              , '--visitormethods'),
+    ('include/llvmgenvisitor.h', 'GENVISITORMETHOD3 START'              , 'GENVISITORMETHOD3 END'                  , 'utils/astgen.py'              , '--visitormethods'),
 ]
 
 for jobi, job in enumerate(jobs):

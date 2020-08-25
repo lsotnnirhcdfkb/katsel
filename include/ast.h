@@ -7,6 +7,7 @@
 #include "token.h"
 #include "visitor.h"
 
+// GENASTHEADER START
 class AST
 {
 public:
@@ -190,4 +191,4 @@ public:
     std::unique_ptr<AST> varrefast;
     std::unique_ptr<AST> arglistast;
 };
-
+// GENASTHEADER END

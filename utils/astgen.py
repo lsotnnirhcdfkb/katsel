@@ -54,7 +54,7 @@ class AstClass:
         else:
             output.append(' {}\n')
 
-        output.append(f'void {self.name}::accept(Visitor *v) {{ v->visit{self.name}(this); }}\n\n')
+        output.append(f'void {self.name}::accept(Visitor *v) {{ v->visit{self.name}(this); }}\n')
         return ''.join(output)
 
     # AstClass helper methods {{{2
@@ -112,7 +112,6 @@ def printAstHFile():
 # print ast.cpp file {{{2
 def printAstCppFile():
     print('#include "ast.h"')
-    print()
     for class_ in astClasses:
         print(class_.printCppFile())
 
