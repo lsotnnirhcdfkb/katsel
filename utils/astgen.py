@@ -25,13 +25,46 @@ class ac:
         print(f'class {self.name} : public AST')
         print( '{')
         print( 'public:')
-        print(f'    {self.name}({", ".join(f.printHFile(True) for f in self.fields)});')
+        print(f'    {self.name}({self.genConstructArgs()});')
         print( '    void accept(Visitor *v) override;')
         print( )
         for field in self.fields:
             print(f'    {field.printHFile(False)};')
         print( '};')
         print( '')
+
+    def printCppFile(self):
+        print(f'{self.name}::{self.name}({self.genConstructArgs()})', end='')
+
+        initializerList = []
+        constructorBody = []
+
+        for field in self.fields:
+            if field.type_ == TTOKEN:
+                initializerList.append(f'{field.name}({field.name})');
+            elif field.type_ == TUPTR:
+                initializerList.append(f'{field.name}(std::move({field.name}))');
+            elif field.type_ == TVECTOR:
+                constructorBody.append((
+                            f'    this->{field.name}.reserve({field.name}.size());\n'
+                            f'    for (std::unique_ptr<AST> &ast : {field.name})\n'
+                             '    {\n'
+                            f'        this->{field.name}.push_back(std::move(ast));\n'
+                             '    }\n'
+                            ))
+
+        if len(initializerList):
+            print(f': {", ".join(initializerList)}', end='')
+
+        if len(constructorBody):
+            print('\n{\n' + "\n".join(constructorBody) + '}')
+        else:
+            print(' {}')
+
+        print(f'void {self.name}::accept(Visitor *v) {{ v->visit{self.name}(this); }}\n')
+
+    def genConstructArgs(self):
+        return ", ".join(f.printHFile(True) for f in self.fields)
 
 # abc short for ast base class
 class abc:
@@ -45,6 +78,9 @@ class abc:
         "    virtual void accept(Visitor *v) = 0;\n"
         "};\n"
         ))
+
+    def printCppFile(self):
+        pass
         
 # af short for ast field
 class af:
@@ -58,6 +94,9 @@ class af:
         else:
             return f'{TTOCTYPE[self.type_]} {self.name}'
 
+    def printCppFile(self):
+        pass
+
 def printHFile():
     print('#pragma once\n')
     for include in includes:
@@ -67,6 +106,12 @@ def printHFile():
 
     for class_ in classes:
         class_.printHFile()
+
+def printCppFile():
+    print('#include "ast.h"')
+    print()
+    for class_ in classes:
+        class_.printCppFile()
 
 includes = [
         '<vector>',
@@ -99,5 +144,5 @@ classes = [
     ac('Call'         , [af('varrefast', TUPTR), af('arglistast', TUPTR)]),
 ]
 
-printHFile()
+printCppFile()
 
