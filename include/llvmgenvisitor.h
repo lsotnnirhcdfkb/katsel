@@ -6,7 +6,6 @@
 #include "visitor.h"
 #include "ast.h"
 #include "errors.h"
-#include "blankvisitor.h"
 
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/IR/IRBuilder.h"
