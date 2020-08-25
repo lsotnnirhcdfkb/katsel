@@ -273,6 +273,7 @@ void LLVMGenVisitor::visitAssignAST(const AssignAST *ast)
 // {{{ var ref
 void LLVMGenVisitor::visitVariableRefAST(const VariableRefAST *ast)
 {
+    // TODO: MAKE THIS RETURN FUNCTIONS TOO
     CLEARRET;
     std::string name = std::string(ast->var.start, ast->var.end);
     llvm::Value *v = getVarFromName(name, ast->var);
@@ -347,7 +348,6 @@ void LLVMGenVisitor::visitReturnStmtAST(const ReturnStmtAST *ast)
 void LLVMGenVisitor::visitTypeAST(const TypeAST *ast) 
 {
     CLEARRET;
-    // LLVMGENVISITOR_RETURN(llvm::Type::getInt64Ty(context))
 }
 
 void LLVMGenVisitor::visitBlockAST(const BlockAST *ast) 
@@ -378,6 +378,7 @@ void LLVMGenVisitor::visitParamsAST(const ParamsAST *ast)
 
 void LLVMGenVisitor::visitArgAST(const ArgAST *ast) 
 {
+    // this shouldnot get called because visitCallAST parses ArgsAST
     CLEARRET;
 }
 
@@ -389,6 +390,37 @@ void LLVMGenVisitor::visitArgsAST(const ArgsAST *ast)
 void LLVMGenVisitor::visitCallAST(const CallAST *ast) 
 {
     CLEARRET;
+
+    ast->varrefast->accept(this);
+    llvm::Value *f = curRetVal;
+
+    if (f->arg_size() != ast->arglistast->args.size())
+    {
+        reportError(ast->oparen, "Wrong number of arguments", sourcefile);
+        LLVMGENVISITOR_RETURN(nullptr);
+    }
+
+    std::vector<llvm::Value*> valargs;
+
+    if (ast->arglistast)
+    {
+        std::unique_ptr<ArgsAST> args = dynamic_cast<*ArgsAST>(ast->arglistast);
+
+        // internal parsing error, because Parser::arglist() always returns a std::unique_ptr<ArgsAST>
+        if (!args) 
+        {
+            LLVMGENVISITOR_RETURN(nullptr);
+        }
+
+        for (std::unique_ptr<AST> &expr: args)
+        {
+            expr->accept(this);
+            llvm::Value *argvalue = curRetVal;
+            valargs.push_back(argvalue);
+        }
+    }
+
+    LLVMGENVISITOR_RETURN(builder.CreateCall(f), valargs);
 }
 
 // }}}

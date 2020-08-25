@@ -151,17 +151,29 @@ void PrintVisitor::visitVariableRefAST(const VariableRefAST *ast)
 
 void PrintVisitor::visitArgAST(const ArgAST *ast) 
 {
-
+    print("(Argument: ");
+    ast->expr->accept(this);
+    print(")\n");
 }
 
-void PrintVisitor::visitArgsAST(const ArgsAST *ast) 
+void PrintVisitor::visitArgsAST(const ArgsAST *ast)
 {
+    print("Args:\n");
+    ++indent;
 
+    for (const std::unique_ptr<AST> &ast : ast->args)
+    {
+        ast->accept(this);
+    }
+    --indent;
 }
 
 void PrintVisitor::visitCallAST(const CallAST *ast) 
 {
-
+    print("Function call to function ");
+    ast->varrefast->accept(this);
+    print(" with args: ");
+    ast->arglistast->accept(this);
 }
 
 void PrintVisitor::print(std::string &str)
