@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import argparse, sys
 
 # lists and stuff {{{1
 # yes i probably should share this list between astgen.py and this file but i'm too lazy to do that
@@ -34,60 +35,69 @@ visitorClasses = [
     ('Blank', [], []),
 ]
 
-# generate visitor declarations
+# generate header file function {{{1
+def genHeader():
+    # generating header stuff {{{2
+    # header stuff
+    print('#pragma once')
+    print()
 
-# generating header stuff {{{1
-# header stuff
-print('#pragma once')
-print()
+    # includes
+    print('#include <string>')
+    print()
 
-# includes
-print('#include <string>')
-print()
+    # forward declarations {{{2
+    for astClass in astClasses:
+        print(f'class {astClass}AST;')
+    print()
 
-# forward declarations {{{1
-for astClass in astClasses:
-    print(f'class {astClass}AST;')
-print()
+    # generating classes {{{2
+    for visitorClass in visitorClasses:
+        name = visitorClass[0]
+        publicThings = visitorClass[1]
+        privateThings = visitorClass[2]
 
-# generating classes {{{1
-for visitorClass in visitorClasses:
-    name = visitorClass[0]
-    publicThings = visitorClass[1]
-    privateThings = visitorClass[2]
+        if name == '':
+            print('class Visitor')
+        else:
+            print(f'class {name}Visitor : public Visitor')
 
-    if name == '':
-        print('class Visitor')
-    else:
-        print(f'class {name}Visitor : public Visitor')
+        print('{')
+        print('public:')
+        
+        for publicThing in publicThings:
+            print('    ' + publicThing + ';')
 
-    print('{')
-    print('public:')
-    
-    for publicThing in publicThings:
-        print('    ' + publicThing + ';')
+        for astClass in astClasses:
+            if astClass == '':
+                continue
 
+            if name == '':
+                print('    virtual ', end='')
+            else:
+                print('    ', end='')
+
+            print(f'void visit{astClass}AST(const {astClass}AST *ast)', end='')
+
+            if name == '':
+                print(' = 0;')
+            else:
+                print(' override;')
+
+        if len(privateThings):
+            print('\nprivate:')
+            for privateThing in privateThings:
+                print('    ' + privateThing + ';')
+
+        print('};')
+        print()
+
+# generate blankvisitor function {{{1
+def genBlankVisitor():
     for astClass in astClasses:
         if astClass == '':
             continue
+        print(f'void BlankVisitor::visit{astClass}AST(const {astClass}AST *ast) {{}}')
 
-        if name == '':
-            print('    virtual ', end='')
-        else:
-            print('    ', end='')
 
-        print(f'void visit{astClass}AST(const {astClass}AST *ast)', end='')
-
-        if name == '':
-            print(' = 0;')
-        else:
-            print(' override;')
-
-    if len(privateThings):
-        print('\nprivate:')
-        for privateThing in privateThings:
-            print('    ' + privateThing + ';')
-
-    print('};')
-    print()
-
+genBlankVisitor()
