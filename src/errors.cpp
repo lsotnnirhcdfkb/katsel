@@ -28,6 +28,6 @@ void reportError(Token const &t, std::string const &message, File const &sourcef
 
 void reportDebug(Token const &t, std::string const &message, File const &sourcefile)
 {
-    std::cerr << "Debug message at " << t.line << ":" << t.column << ": " << message << std::endl;
-    std::cerr << " " << t.line << " | " << getLine(sourcefile, t.start) << std::endl;
+    std::cout << "Debug message at " << t.line << ":" << t.column << ": " << message << std::endl;
+    std::cout << " " << t.line << " | " << getLine(sourcefile, t.start) << std::endl;
 }
