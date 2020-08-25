@@ -206,3 +206,4 @@ void BlankVisitor::visitReturnStmtAST(const ReturnStmtAST *ast) {}
 void BlankVisitor::visitArgAST(const ArgAST *ast) {}
 void BlankVisitor::visitArgsAST(const ArgsAST *ast) {}
 void BlankVisitor::visitCallAST(const CallAST *ast) {}
+
