@@ -39,4 +39,13 @@ if (${GENDOC})
     endif()
 endif()
 
+find_package(Python REQUIRED COMPONENTS Interpreter)
+
+set(GENCODEALLPY ${CMAKE_SOURCE_DIR}/utils/genall.py)
+add_custom_target(gen_code ALL
+    COMMAND ${Python_EXECUTABLE} ${GENCODEALLPY}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Generate code into .h and .cpp files"
+    VERBATIM)
+    
 add_subdirectory(src)
