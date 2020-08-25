@@ -9,6 +9,9 @@ And not only that, but this is also very heavily based off of the [Kaleidescope 
 - Possibly dysfunctional lexing
 - Possibly dysfunctional statement parsing with recursvie descent no precedence parsing so *verbosity galore*
 - Possibly dysfunctional code generation to LLVM IR
+- Functions
+- expressions
+- variables
 
 # Todo
 
@@ -17,7 +20,6 @@ And not only that, but this is also very heavily based off of the [Kaleidescope 
 - Optimization
 - LLVM fun stuff
 - More types (only uint64 for now because of starting simple becuase LLVM is a very complicated library)
-- Return types (only void for now)
 
 - Control flow
 - Functions
