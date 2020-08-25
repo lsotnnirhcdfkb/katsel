@@ -429,6 +429,7 @@ std::unique_ptr<AST> Parser::arglist()
     std::unique_ptr<AST> argsast = std::make_unique<ArgsAST>(args);
     return argsast;
 }
+
 std::unique_ptr<AST> Parser::block()
 {
     consume(TokenType::OCURB, "Expected '{' to open block");
@@ -447,6 +448,7 @@ std::unique_ptr<AST> Parser::block()
     std::unique_ptr<AST> b = std::make_unique<BlockAST>(statements);
     return b;
 }
+
 std::unique_ptr<AST> Parser::type()
 {
     // only builtin types for now

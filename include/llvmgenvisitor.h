@@ -76,7 +76,7 @@ private:
     llvm::AllocaInst* createEntryAlloca(llvm::Function *f, const std::string &name);
     void beginNewScope();
     void finishCurScope();
-    llvm::Value* getVarFromName(std::string &name, Token const &tok, bool overrideErr=false);
+    llvm::AllocaInst* getVarFromName(std::string &name, Token const &tok, bool overrideErr=false);
     void createScopeSymbol(std::string &name, llvm::AllocaInst* alloca);
 
     llvm::LLVMContext context;

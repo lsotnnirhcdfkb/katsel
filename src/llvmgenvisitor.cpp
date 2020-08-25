@@ -273,16 +273,27 @@ void LLVMGenVisitor::visitAssignAST(const AssignAST *ast)
 // {{{ var ref
 void LLVMGenVisitor::visitVariableRefAST(const VariableRefAST *ast)
 {
-    // TODO: MAKE THIS RETURN FUNCTIONS TOO
     CLEARRET;
     std::string name = std::string(ast->var.start, ast->var.end);
-    llvm::Value *v = getVarFromName(name, ast->var);
+
+    // find variable with override because it could
+    // be a function and not be in the variable map
+    llvm::AllocaInst *v = getVarFromName(name, ast->var, true);
 
     if (v)
     {
         LLVMGENVISITOR_RETURN(builder.CreateLoad(v, name.c_str()))
     }
 
+    // not a variable so could be function
+    llvm::Function *f = module_->getFunction(name);
+
+    if (f)
+    {
+        LLVMGENVISITOR_RETURN(f);
+    }
+
+    reportError(ast->var, "Unknown name", sourcefile);
     LLVMGENVISITOR_RETURN(nullptr)
 }
 // }}}
@@ -378,12 +389,16 @@ void LLVMGenVisitor::visitParamsAST(const ParamsAST *ast)
 
 void LLVMGenVisitor::visitArgAST(const ArgAST *ast) 
 {
-    // this shouldnot get called because visitCallAST parses ArgsAST
+    // visitCallAST calls this
     CLEARRET;
+
+    ast->expr->accept(this);
+    LLVMGENVISITOR_RETURN(curRetVal); // this technically doesn't do anything but whatever
 }
 
 void LLVMGenVisitor::visitArgsAST(const ArgsAST *ast) 
 {
+    // this shouldnot get called because visitCallAST parses ArgsAST
     CLEARRET;
 }
 
@@ -399,10 +414,21 @@ void LLVMGenVisitor::visitCallAST(const CallAST *ast)
         LLVMGENVISITOR_RETURN(nullptr);
     }
 
-    if (!f->getType()->isFunctionTy())
+    if (!f->getType()->isPointerTy()) // should be a pointer to a function
     {
         reportError(ast->oparn, "Cannot call non-function", sourcefile);
         LLVMGENVISITOR_RETURN(nullptr);
+    } else
+    {
+        // so it is a pointer
+        // but is it a pointer to a function?
+        if (!(static_cast<llvm::PointerType*>(f->getType()))->getElementType()->isFunctionTy())
+        {
+            // is not a pointer to a function
+            // return
+            reportError(ast->oparn, "Cannot call non-function", sourcefile);
+            LLVMGENVISITOR_RETURN(nullptr);
+        }
     }
 
     std::vector<llvm::Value*> valargs;
@@ -411,25 +437,28 @@ void LLVMGenVisitor::visitCallAST(const CallAST *ast)
     {
         ArgsAST *argsast = dynamic_cast<ArgsAST*>(ast->arglistast.get());
 
-        // static cast is safe because if it wasn't then then
-        // f.getType().isFunctionTy() would have returned
-        // false and this would not run
-        if (static_cast<llvm::Function*>(f)->arg_size() != argsast->args.size())
-        {
-            reportError(ast->oparn, "Wrong number of arguments passed to function call", sourcefile);
-            LLVMGENVISITOR_RETURN(nullptr);
-        }
-
         // internal parsing error, because Parser::arglist() always returns a std::unique_ptr<ArgsAST>
         if (!argsast) 
         {
             LLVMGENVISITOR_RETURN(nullptr);
         }
 
+        // static cast is safe beacuse it was checked before
+        if (static_cast<llvm::Function*>(f)->arg_size() != argsast->args.size())
+        {
+            reportError(ast->oparn, "Wrong number of arguments passed to function call", sourcefile);
+            LLVMGENVISITOR_RETURN(nullptr);
+        }
+
+
         for (std::unique_ptr<AST> &expr: argsast->args)
         {
             expr->accept(this);
             llvm::Value *argvalue = curRetVal;
+            if (!argvalue)
+            {
+                reportError(ast->oparn, "faowjeif", sourcefile);
+            }
             valargs.push_back(argvalue);
         }
     }
@@ -469,10 +498,10 @@ void LLVMGenVisitor::finishCurScope()
     --scopenum;
 }
 
-llvm::Value* LLVMGenVisitor::getVarFromName(std::string &name, Token const &tok, bool overrideErr)
+llvm::AllocaInst* LLVMGenVisitor::getVarFromName(std::string &name, Token const &tok, bool overrideErr)
 {
     int highestScope = -1;
-    llvm::Value *v = nullptr;
+    llvm::AllocaInst *v = nullptr;
     for (auto it = scopesymbols.cbegin(); it != scopesymbols.cend(); ++it)
     {
         if (it->first.second == name && it->first.first > highestScope)
