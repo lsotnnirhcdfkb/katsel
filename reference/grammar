@@ -14,6 +14,7 @@ statement -> varstmt |
 varstmt -> VAR type IDENTIFIER (EQUAL expression) SEMICOLON;
 exprstmt -> expression SEMICOLON;
 retstmt -> RETURN expression;
+args -> expression (COMMA expression)*;
 
 // helper things like blocks and stuff
 block -> OCURB statement* CCURB; 
@@ -49,5 +50,4 @@ primary -> TRUELIT | FALSELIT |
 
 // this was from Lox's grammar
 varref -> IDENTIFIER (OPARN args? CPARN)*;
-args -> expression+;
 
