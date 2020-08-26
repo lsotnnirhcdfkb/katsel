@@ -56,7 +56,14 @@ std::unique_ptr<AST> Parser::function()
 
     consume(TokenType::CPARN, "Expected ')' after paramument list");
 
-    std::unique_ptr<AST> fblock = block();
+    std::unique_ptr<AST> fblock;
+    if (check(TokenType::OCURB))
+    { // if not then this is just a declaration
+        fblock = block();
+    } else
+    {
+        consume(TokenType::SEMICOLON, "Expected ';' after function declaration");
+    }
 
     std::unique_ptr<FunctionAST> func = std::make_unique<FunctionAST>(std::move(rettype), name, std::move(fparamlist), std::move(fblock));
     return func;

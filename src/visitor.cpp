@@ -68,7 +68,8 @@ void PrintVisitor::visitFunctionAST(const FunctionAST *ast)
         ++indent;
         ast->params->accept(this);
         --indent;
-    } else
+    }
+    else
     {
         ++indent;
         print("\nno params\n");
@@ -76,7 +77,14 @@ void PrintVisitor::visitFunctionAST(const FunctionAST *ast)
     }
 
     ++indent;
-    ast->body->accept(this);
+    if (ast->body)
+    {
+        ast->body->accept(this);
+    }
+    else
+    {
+        print("declaration only");
+    }
     --indent;
     print("\n");
 }

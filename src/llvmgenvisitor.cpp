@@ -102,6 +102,12 @@ void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
         LLVMGENVISITOR_RETURN(nullptr)
     }
 
+    if (!ast->body)
+    {
+        // just a declaration
+        LLVMGENVISITOR_RETURN(nullptr)
+    }
+
     llvm::BasicBlock *block = llvm::BasicBlock::Create(context, name + "entry", f);
     builder.SetInsertPoint(block);
 
