@@ -825,13 +825,12 @@ Token Lexer::nextToken()
         case '"':
         case '\'':
                   // c is the starting string thing
-                  while (peek() != c && !atEnd())
+                  while (peek() != c && !atEnd() && peek() != '\n')
                   {
-                      if (peek() == '\n') nextLine();
                       advance();
                   }
 
-                  if (atEnd()) return makeErrorToken("Unterminated string literal");
+                  if (peek() != c) return makeErrorToken("Unterminated string literal");
                   advance(); // consume closing quote/apostrophe
                   return makeToken(TokenType::STRINGLIT);
     }
