@@ -30,7 +30,7 @@ void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast)
         dast->accept(this);
     }
 
-    module_->print(llvm::outs(), nullptr);
+    // module_->print(llvm::outs(), nullptr);
 
     auto targetTriple = llvm::sys::getDefaultTargetTriple();
 
