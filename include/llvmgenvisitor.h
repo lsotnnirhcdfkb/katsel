@@ -12,6 +12,11 @@
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Verifier.h"
+#include "llvm/IR/LegacyPassManager.h"
+#include "llvm/Transforms/InstCombine/InstCombine.h"
+#include "llvm/Transforms/Scalar.h"
+#include "llvm/Transforms/Scalar/GVN.h"
+#include "llvm/Transforms/Utils.h"
 
 namespace LLVMGenVisitorHelpersNS
 {
@@ -94,6 +99,7 @@ private:
     llvm::LLVMContext context;
     llvm::IRBuilder<> builder;
     std::unique_ptr<llvm::Module> module_;
+    std::unique_ptr<llvm::legacy::FunctionPassManager> fpm;
     std::map<std::pair<int, std::string>, llvm::AllocaInst*> scopesymbols;
     int scopenum;
 

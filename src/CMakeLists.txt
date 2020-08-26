@@ -7,7 +7,7 @@ target_include_directories(coxianc PRIVATE "../include" ${LLVM_INCLUDE_DIRS})
 
 # this is mostly from https://stackoverflow.com/questions/62926242/how-to-link-all-llvm-libraries-in-cmake
 # because my personal box only has libLLVM.so installed, and so llvm_map_components_to_libnames errors out, saying "Target X86 is not in the set of libraries."
-execute_process(COMMAND llvm-config --libs core native
+execute_process(COMMAND llvm-config --libs all
                 OUTPUT_VARIABLE llvm_libs
                 RESULT_VARIABLE llvm_config_result
                 OUTPUT_STRIP_TRAILING_WHITESPACE)

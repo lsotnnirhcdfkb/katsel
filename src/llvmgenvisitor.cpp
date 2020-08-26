@@ -4,7 +4,15 @@
                                              return;
 #define CLEARRET curRetVal = nullptr
 
-LLVMGenVisitor::LLVMGenVisitor(File &sourcefile): sourcefile(sourcefile), builder(context), module_(std::make_unique<llvm::Module>("COxianc output of file " + sourcefile.filename, context)), scopenum(0), paramsVisitor(sourcefile, context), typeVisitor(sourcefile, context), forwDeclVisitor(module_.get(), &paramsVisitor, &typeVisitor, sourcefile) {}
+LLVMGenVisitor::LLVMGenVisitor(File &sourcefile): sourcefile(sourcefile), builder(context), module_(std::make_unique<llvm::Module>("COxianc output of file " + sourcefile.filename, context)), scopenum(0), paramsVisitor(sourcefile, context), typeVisitor(sourcefile, context), forwDeclVisitor(module_.get(), &paramsVisitor, &typeVisitor, sourcefile), fpm(std::make_unique<llvm::legacy::FunctionPassManager>(module_.get())) {
+    fpm->add(llvm::createPromoteMemoryToRegisterPass());
+    fpm->add(llvm::createInstructionCombiningPass());
+    fpm->add(llvm::createReassociatePass());
+    fpm->add(llvm::createGVNPass());
+    fpm->add(llvm::createCFGSimplificationPass());
+
+    fpm->doInitialization();
+}
 
 // {{{ visiting asts
 void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast) 
@@ -60,6 +68,8 @@ void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
     llvm::verifyFunction(*f); 
 
     finishCurScope();
+
+    fpm->run(*f);
 
     LLVMGENVISITOR_RETURN(f);
 }
