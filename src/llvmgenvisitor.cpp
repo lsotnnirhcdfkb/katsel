@@ -417,6 +417,8 @@ void LLVMGenVisitor::visitReturnStmtAST(const ReturnStmtAST *ast)
 void LLVMGenVisitor::visitPrintAST(const PrintAST *ast)
 {
     CLEARRET;
+
+    // not supported yet
 }
 // }}}
 // {{{ helper ast visiting
