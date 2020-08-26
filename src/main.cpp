@@ -48,7 +48,7 @@ void compileFile(File &sourcefile)
 
     if (parsed)
     {
-        parsed->accept(&*printv);
+        // parsed->accept(&*printv);
         parsed->accept(&*llvmv);
     }
 

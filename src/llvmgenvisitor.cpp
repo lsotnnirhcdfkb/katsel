@@ -30,6 +30,56 @@ void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast)
     }
 
     module_->print(llvm::outs(), nullptr);
+
+    auto targetTriple = llvm::sys::getDefaultTargetTriple();
+
+    llvm::InitializeAllTargetInfos();
+    llvm::InitializeAllTargets();
+    llvm::InitializeAllTargetMCs();
+    llvm::InitializeAllAsmParsers();
+    llvm::InitializeAllAsmPrinters();
+
+    std::string errmsg;
+    auto target = llvm::TargetRegistry::lookupTarget(targetTriple, errmsg);
+
+    if (!target)
+    {
+        llvm::errs() << errmsg;
+        return;
+    }
+
+    auto cpu = "generic";
+    auto features = "";
+
+    llvm::TargetOptions opt;
+    auto rm = llvm::Optional<llvm::Reloc::Model>();
+    auto targetMachine = target->createTargetMachine(targetTriple, cpu, features, opt, rm);
+
+    module_->setDataLayout(targetMachine->createDataLayout());
+    module_->setTargetTriple(targetTriple);
+
+    auto filename = "out.o";
+    std::error_code errc;
+
+    llvm::raw_fd_ostream outstream(filename, errc, llvm::sys::fs::OpenFlags::OF_None);
+
+    if (errc)
+    {
+        llvm::errs() << "Could not open file \"" << filename << "\": " << errc.message();
+        return;
+    }
+
+    llvm::legacy::PassManager emitpm;
+    auto fileType = llvm::CGFT_ObjectFile;
+
+    if (targetMachine->addPassesToEmitFile(emitpm, outstream, nullptr, fileType)) {
+        llvm::errs() << "cannot emit this type of file";
+        return;
+    }
+
+    emitpm.run(*module_);
+    outstream.flush();
+    outstream.close();
 }
 // {{{ declaration visiting
 void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
