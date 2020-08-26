@@ -22,6 +22,7 @@ class ReturnStmtAST;
 class ArgAST;
 class ArgsAST;
 class CallAST;
+class PrintAST;
 // GENFORWARDDECL END
 
 class Visitor
@@ -46,6 +47,7 @@ public:
     virtual void visitArgAST(const ArgAST *ast) = 0;
     virtual void visitArgsAST(const ArgsAST *ast) = 0;
     virtual void visitCallAST(const CallAST *ast) = 0;
+    virtual void visitPrintAST(const PrintAST *ast) = 0;
     // GENVISITORMETHODBASE END
 };
 
@@ -72,6 +74,7 @@ public:
     void visitArgAST(const ArgAST *ast) override;
     void visitArgsAST(const ArgsAST *ast) override;
     void visitCallAST(const CallAST *ast) override;
+    void visitPrintAST(const PrintAST *ast) override;
     // GENVISITORMETHOD1 END
 
 private:
@@ -103,6 +106,7 @@ public:
     void visitArgAST(const ArgAST *ast) override;
     void visitArgsAST(const ArgsAST *ast) override;
     void visitCallAST(const CallAST *ast) override;
+    void visitPrintAST(const PrintAST *ast) override;
     // GENVISITORMETHOD2 END
 };
 

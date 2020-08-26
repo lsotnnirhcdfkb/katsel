@@ -93,6 +93,7 @@ public:
     void visitArgAST(const ArgAST *ast) override;
     void visitArgsAST(const ArgsAST *ast) override;
     void visitCallAST(const CallAST *ast) override;
+    void visitPrintAST(const PrintAST *ast) override;
     // GENVISITORMETHOD3 END
 
 private:

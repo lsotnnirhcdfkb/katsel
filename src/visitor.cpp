@@ -176,6 +176,13 @@ void PrintVisitor::visitCallAST(const CallAST *ast)
     ast->arglistast->accept(this);
 }
 
+void PrintVisitor::visitPrintAST(const PrintAST *ast)
+{
+    print("Print statement: ");
+    ast->expr->accept(this);
+    print("\n");
+}
+
 void PrintVisitor::print(std::string &str)
 {
     for (auto i = str.begin(); i != str.end(); ++i)
@@ -219,4 +226,5 @@ void BlankVisitor::visitReturnStmtAST(const ReturnStmtAST *ast) {}
 void BlankVisitor::visitArgAST(const ArgAST *ast) {}
 void BlankVisitor::visitArgsAST(const ArgsAST *ast) {}
 void BlankVisitor::visitCallAST(const CallAST *ast) {}
+void BlankVisitor::visitPrintAST(const PrintAST *ast) {}
 // BLANKGEN END

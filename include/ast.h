@@ -193,4 +193,13 @@ public:
     Token oparn;
 };
 
+class PrintAST : public AST
+{
+public:
+    PrintAST(std::unique_ptr<AST> expr);
+    void accept(Visitor *v) override;
+
+    std::unique_ptr<AST> expr;
+};
+
 // GENASTHEADER END

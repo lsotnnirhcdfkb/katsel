@@ -80,11 +80,21 @@ std::unique_ptr<AST> Parser::statement()
             statementast = retstatement();
             break;
 
+        case TokenType::PRINT:
+            statementast = printstatement();
+
         default:
             statementast = exprstatement();
 
     }
     return statementast;
+}
+std::unique_ptr<AST> Parser::printstatement()
+{
+    advance();
+    std::unique_ptr<AST> expr = expression();
+
+    return std::make_unique<PrintAST>(std::move(expr));
 }
 std::unique_ptr<AST> Parser::varstatement()
 {

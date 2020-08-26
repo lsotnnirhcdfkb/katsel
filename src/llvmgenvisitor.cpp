@@ -15,6 +15,7 @@ LLVMGenVisitor::LLVMGenVisitor(File &sourcefile): sourcefile(sourcefile), builde
 }
 
 // {{{ visiting asts
+// {{{ programast
 void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast) 
 {
     CLEARRET;
@@ -81,6 +82,7 @@ void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast)
     outstream.flush();
     outstream.close();
 }
+// }}}
 // {{{ declaration visiting
 void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
 {
@@ -411,6 +413,10 @@ void LLVMGenVisitor::visitReturnStmtAST(const ReturnStmtAST *ast)
     {
         builder.CreateRetVoid();
     }
+}
+void LLVMGenVisitor::visitPrintAST(const PrintAST *ast)
+{
+    CLEARRET;
 }
 // }}}
 // {{{ helper ast visiting

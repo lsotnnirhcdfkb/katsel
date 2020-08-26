@@ -21,6 +21,7 @@ public:
     std::unique_ptr<AST> varstatement();
     std::unique_ptr<AST> exprstatement();
     std::unique_ptr<AST> retstatement();
+    std::unique_ptr<AST> printstatement();
 
     std::unique_ptr<AST> expression();
     std::unique_ptr<AST> assignmentexpr();
