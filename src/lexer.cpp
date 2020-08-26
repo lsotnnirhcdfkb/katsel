@@ -9,29 +9,6 @@ TokenType Lexer::getIdentifierType()
 {
     switch (*(start + 0))
     {
-        case 'p':
-            switch (*(start + 1))
-            {
-                case 'r':
-                    switch (*(start + 2))
-                    {
-                        case 'i':
-                            switch (*(start + 3))
-                            {
-                                case 'n':
-                                    switch (*(start + 4))
-                                    {
-                                        case 't':
-                                            if (start + 5 == end) return TokenType::PRINT;
-                                            break;
-                                    }
-                                    break;
-                            }
-                            break;
-                    }
-                    break;
-            }
-            break;
         case 'v':
             switch (*(start + 1))
             {

@@ -76,7 +76,6 @@ class TrieNode:
 
 # {{{ keywords
 keywords = [
-    ('print', 'PRINT'),
     ('void', 'VOID'),
     ('namespace', 'NAMESPACE'),
     ('class', 'CLASS'),

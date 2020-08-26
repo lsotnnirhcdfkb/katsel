@@ -86,7 +86,6 @@ enum TokenType
 
     // keywords
     VAR,
-    PRINT,
     VOID,
     NAMESPACE,
     CLASS,

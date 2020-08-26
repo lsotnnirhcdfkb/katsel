@@ -420,12 +420,6 @@ void LLVMGenVisitor::visitReturnStmtAST(const ReturnStmtAST *ast)
         builder.CreateRetVoid();
     }
 }
-void LLVMGenVisitor::visitPrintAST(const PrintAST *ast)
-{
-    CLEARRET;
-
-    // not supported yet
-}
 // }}}
 // {{{ helper ast visiting
 void LLVMGenVisitor::visitTypeAST(const TypeAST *ast) 

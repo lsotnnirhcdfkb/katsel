@@ -78,7 +78,6 @@ TokenType entry       | Description                     | Example
   CHAR                | Char type keyword               | char
                       |                                 |
   VAR                 | Var keyword                     | var
-  PRINT               | Print keyword (removal soon)    | print
   VOID                | Void keyword                    | void
   NAMESPACE           | Namespace keyword               | namespace
   CLASS               | Class keyword                   | class
