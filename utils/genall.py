@@ -15,7 +15,7 @@ jobs = [
 ]
 
 for jobi, job in enumerate(jobs):
-    print(f'Running job {jobi + 1}/{len(jobs)}: insert {job[3]} to {job[0]}')
+    # print(f'Running job {jobi + 1}/{len(jobs)}: insert {job[3]} to {job[0]}')
     with io.open(job[0], 'r', encoding='utf-8') as f:
         flines = f.readlines()
 

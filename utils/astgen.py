@@ -1,13 +1,27 @@
 #!/usr/bin/env python3
+## @package astgen
+#  Generate AST classes
+#
+#  Generate ast.h, ast.cpp, forward declarations to go in visitor.h, visitBlahAST methods, and generate BlankVisitor methods
+
 import argparse, sys
 
 # class: AstClass {{{1
+## Class representing an AST Class
 class AstClass:
+    ## @var name
+    # the name of the AST class that this represents
+
+    ## @var fields
+    # the fields that this AST class has
+
+    ## The constructor
     def __init__(self, name, fields=[]):
         self.name = name + 'AST'
         self.fields = fields
 
     # AstClass.printHFile {{{2
+    ## Return the generated string that can go into ast.h
     def printHFile(self):
         output = []
 
@@ -24,6 +38,7 @@ class AstClass:
         return ''.join(output)
 
     # AstClass.printCppFile {{{2
+    ## Return the generated string that includes the constructors and the accept methods of all the AST Classes
     def printCppFile(self):
         output = []
         output.append(f'{self.name}::{self.name}({self.genConstructArgs()})')
@@ -57,14 +72,21 @@ class AstClass:
         return ''.join(output)
 
     # AstClass helper methods {{{2
+    ## Construct the arguement list for the constructors
     def genConstructArgs(self):
         return ", ".join(f.printHFile(True) for f in self.fields)
 
 # class: AstBaseClass {{{1
+## Class representing the pure virtual AST class
 class AstBaseClass:
+    ## @var name
+    # A placeholder field so that the printing methods can work properly
+
+    ## The constructor
     def __init__(self):
         self.name = 'AST'
 
+    ## Return a string containing what this class should become in ast.h
     def printHFile(self):
         return (
         "class AST\n"
@@ -76,26 +98,39 @@ class AstBaseClass:
         "};\n"
         )
     
+    ## Return nothing because this class shouldn't appear in ast.cpp
     def printCppFile(self):
         return ''
 
 # class: AstField {{{1
+## A class representing a field in an instance of AstClass
 class AstField:
+    ## An "enum" constant meaning `Token`
     TTOKEN = 0
+    ## An "enum" constant meaning `std::vector<std::unique_ptr<AST>>`
     TVECTOR = 1
+    ## An "enum" constant meaning `std::unique_ptr<AST>`
     TUPTR = 2
 
-    # T(ype) to C(ode) Type
+    ## A dict containing each type constant what it should generate as
     TTOCTYPE = {
         TTOKEN: 'Token',
         TVECTOR: 'std::vector<std::unique_ptr<AST>>',
         TUPTR: 'std::unique_ptr<AST>',
     }
 
+    ## @var name
+    # The name of the field
+
+    ## @var type_
+    # The type of the field
+
+    ## The constructor
     def __init__(self, name, type_):
         self.name = name
         self.type_ = type_
 
+    ## Return what this field should generate into
     def printHFile(self, isArgPrint):
         if isArgPrint and self.type_ == AstField.TVECTOR:
             return f'{AstField.TTOCTYPE[self.type_]} &{self.name}'
@@ -104,11 +139,13 @@ class AstField:
 
 # generation functions: ast.h ast.cpp files {{{1
 # print ast.h file {{{2
+## Print what should go in ast.h
 def printAstHFile():
     for class_ in astClasses:
         print(class_.printHFile())
 
 # print ast.cpp file {{{2
+## Print what should go in ast.cpp
 def printAstCppFile():
     print('#include "ast.h"')
     for class_ in astClasses:
@@ -116,10 +153,13 @@ def printAstCppFile():
 
 # generation functions: visitor files {{{1
 # generate ast forward declarations for visitor.h {{{2
+## Print the list of forward declarations that go in the top of visitor.h
 def printForwardDecl():
     for astClass in astClasses:
         print(f'class {astClass.name};')
 # generate visitAST methods {{{2
+## Print the visitSomethingAST methods to go in a class
+# @param isBase If the generated class is the base AST class so that it can generate either `= 0;` or `override;`
 def printVisitASTMethods(isBase):
     for astClass in astClasses:
         if astClass.name == 'AST':
@@ -137,12 +177,14 @@ def printVisitASTMethods(isBase):
         else:
             print(' override;')
 # generate BlankVisitor method definitions {{{2
+## Print the BlankVisitor::visitSomethingAST() methods
 def printBlankVisitorDefinitions():
     for astClass in astClasses:
         if astClass.name == 'AST':
             continue
         print(f'void BlankVisitor::visit{astClass.name}(const {astClass.name} *ast) {{}}')
 # lists: ast classes to generate {{{1
+## The list of AST classes to generate
 astClasses = [
     AstBaseClass(),
     AstClass('Binary'       , [AstField('op', AstField.TTOKEN), AstField('last', AstField.TUPTR), AstField('rast', AstField.TUPTR)]),
@@ -166,6 +208,7 @@ astClasses = [
 ]
 
 # entry: actually running the things by parsing args and stuff {{{1
+## The argument parser to parse command line arguments
 parser = argparse.ArgumentParser(description='Generate AST classes.')
 parser.add_argument('--astheader', action='store_true', help='Generate ast.h classes')
 parser.add_argument('--astsource', action='store_true', help='Generate ast.cpp')
