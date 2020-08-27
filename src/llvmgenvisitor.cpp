@@ -4,7 +4,8 @@
                                              return;
 #define CLEARRET curRetVal = nullptr
 
-LLVMGenVisitor::LLVMGenVisitor(File &sourcefile): sourcefile(sourcefile), builder(context), module_(std::make_unique<llvm::Module>("COxianc output of file " + sourcefile.filename, context)), scopenum(0), paramsVisitor(sourcefile, context), typeVisitor(sourcefile, context), forwDeclVisitor(module_.get(), &paramsVisitor, &typeVisitor, sourcefile), fpm(std::make_unique<llvm::legacy::FunctionPassManager>(module_.get())) {
+LLVMGenVisitor::LLVMGenVisitor(File &sourcefile): sourcefile(sourcefile), builder(context), module_(std::make_unique<llvm::Module>("COxianc output of file " + sourcefile.filename, context)), scopenum(0), paramsVisitor(sourcefile, context), typeVisitor(sourcefile, context), forwDeclVisitor(module_.get(), &paramsVisitor, &typeVisitor, sourcefile, errored), fpm(std::make_unique<llvm::legacy::FunctionPassManager>(module_.get())), errored(false)
+{
     fpm->add(llvm::createPromoteMemoryToRegisterPass());
     fpm->add(llvm::createInstructionCombiningPass());
     fpm->add(llvm::createReassociatePass());
@@ -31,6 +32,8 @@ void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast)
     }
 
     // module_->print(llvm::outs(), nullptr);
+    if (errored)
+        return;
 
     auto targetTriple = llvm::sys::getDefaultTargetTriple();
 
@@ -127,7 +130,8 @@ void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
 
     finishCurScope();
 
-    fpm->run(*f);
+    if (!errored)
+        fpm->run(*f);
 
     LLVMGENVISITOR_RETURN(f);
 }
@@ -224,7 +228,7 @@ void LLVMGenVisitor::visitBinaryAST(const BinaryAST *ast)
             retval = builder.CreateURem(lval, rval);
             break;
 
-        default: reportError(ast->op, "invalid thingy", sourcefile); retval = nullptr; // shouldn't ever get here
+        default: error(ast->op, "invalid thingy", sourcefile); retval = nullptr; // shouldn't ever get here
     }
 
     LLVMGENVISITOR_RETURN(retval);
@@ -237,7 +241,7 @@ void LLVMGenVisitor::visitTernaryOpAST(const TernaryOpAST *ast)
     ast->conditional->accept(this);
     llvm::Value *cond = curRetVal;
 
-    cond = builder.CreateICmpNE(cond, llvm::ConstantInt::get(context, llvm::APInt(64, 0)));
+    cond = builder.CreateICmpNE(cond, llvm::ConstantInt::get(context, llvm::APInt(1, 0)));
 
     llvm::Function *func = builder.GetInsertBlock()->getParent();
 
@@ -304,7 +308,7 @@ void LLVMGenVisitor::visitUnaryAST(const UnaryAST *ast)
             retval = builder.CreateSub(llvm::ConstantInt::get(context, llvm::APInt(64, 0)), val);
             break;
 
-        default: reportError(ast->op, "invalid thingy", sourcefile); retval = nullptr; // shouldn't ever get here
+        default: error(ast->op, "invalid thingy", sourcefile); retval = nullptr; // shouldn't ever get here
     }
 
     LLVMGENVISITOR_RETURN(retval)
@@ -318,7 +322,7 @@ void LLVMGenVisitor::visitAssignAST(const AssignAST *ast)
 
     if (!lhs)
     {
-        reportError(ast->equalSign, "Invalid tparamet for assignment", sourcefile);
+        error(ast->equalSign, "Invalid tparamet for assignment", sourcefile);
         LLVMGENVISITOR_RETURN(nullptr)
     }
 
@@ -359,7 +363,7 @@ void LLVMGenVisitor::visitVariableRefAST(const VariableRefAST *ast)
         LLVMGENVISITOR_RETURN(f);
     }
 
-    reportError(ast->var, "Unknown name", sourcefile);
+    error(ast->var, "Unknown name", sourcefile);
     LLVMGENVISITOR_RETURN(nullptr)
 }
 // }}}
@@ -386,7 +390,7 @@ void LLVMGenVisitor::visitVarStmtAST(const VarStmtAST *ast)
     // find variable with error override
     if (getVarFromName(varname, ast->name, true))
     {
-        reportError(ast->name, "cannot redefine variable", sourcefile);
+        error(ast->name, "cannot redefine variable", sourcefile);
         LLVMGENVISITOR_RETURN(nullptr);
     }
 
@@ -482,7 +486,7 @@ void LLVMGenVisitor::visitCallAST(const CallAST *ast)
 
     if (!f->getType()->isPointerTy()) // should be a pointer to a function
     {
-        reportError(ast->oparn, "Cannot call non-function", sourcefile);
+        error(ast->oparn, "Cannot call non-function", sourcefile);
         LLVMGENVISITOR_RETURN(nullptr);
     } else
     {
@@ -492,7 +496,7 @@ void LLVMGenVisitor::visitCallAST(const CallAST *ast)
         {
             // is not a pointer to a function
             // return
-            reportError(ast->oparn, "Cannot call non-function", sourcefile);
+            error(ast->oparn, "Cannot call non-function", sourcefile);
             LLVMGENVISITOR_RETURN(nullptr);
         }
     }
@@ -512,7 +516,7 @@ void LLVMGenVisitor::visitCallAST(const CallAST *ast)
         // static cast is safe beacuse it was checked before
         if (static_cast<llvm::Function*>(f)->arg_size() != argsast->args.size())
         {
-            reportError(ast->oparn, "Wrong number of arguments passed to function call", sourcefile);
+            error(ast->oparn, "Wrong number of arguments passed to function call", sourcefile);
             LLVMGENVISITOR_RETURN(nullptr);
         }
 
@@ -531,6 +535,11 @@ void LLVMGenVisitor::visitCallAST(const CallAST *ast)
 // }}}
 // }}}
 // {{{ private llvm visitor helper methods
+void LLVMGenVisitor::error(Token const &t, std::string const &message, File const &sourcefile)
+{
+    reportError(t, message, sourcefile);
+    errored = true;
+}
 llvm::AllocaInst* LLVMGenVisitor::createEntryAlloca(llvm::Function *f, const std::string &name) 
 {
     llvm::IRBuilder<> b (&(f->getEntryBlock()), f->getEntryBlock().begin());
@@ -574,7 +583,7 @@ llvm::AllocaInst* LLVMGenVisitor::getVarFromName(std::string &name, Token const 
     }
 
     if (!v && !overrideErr)
-        reportError(tok, "unknown variable name", sourcefile);
+        error(tok, "unknown variable name", sourcefile);
 
     return v; // return nullptr if error
 }
@@ -621,7 +630,7 @@ namespace LLVMGenVisitorHelpersNS
         // rettype = llvm::Type::getVoidTy(context);
     }
 
-    ForwDeclGenVisitor::ForwDeclGenVisitor(llvm::Module *module_, ParamsVisitor *paramsVisitor, TypeVisitor *typeVisitor, File sourcefile): module_(module_), paramsVisitor(paramsVisitor), typeVisitor(typeVisitor), sourcefile(sourcefile) {}
+    ForwDeclGenVisitor::ForwDeclGenVisitor(llvm::Module *module_, ParamsVisitor *paramsVisitor, TypeVisitor *typeVisitor, File sourcefile, bool &errored): module_(module_), paramsVisitor(paramsVisitor), typeVisitor(typeVisitor), sourcefile(sourcefile), errored(errored) {}
 
     void ForwDeclGenVisitor::visitFunctionAST(const FunctionAST *ast)
     {
@@ -632,6 +641,7 @@ namespace LLVMGenVisitorHelpersNS
         if (fcheck)
         {
             reportError(ast->name, "Cannot redefine function", sourcefile);
+            errored = true;
             return;
         }
 

@@ -59,13 +59,14 @@ namespace LLVMGenVisitorHelpersNS
     class ForwDeclGenVisitor : public BlankVisitor
     {
     public:
-        ForwDeclGenVisitor(llvm::Module *module_, ParamsVisitor *paramsVisitor, TypeVisitor *typeVisitor, File sourcefile);
+        ForwDeclGenVisitor(llvm::Module *module_, ParamsVisitor *paramsVisitor, TypeVisitor *typeVisitor, File sourcefile, bool &errored);
         void visitFunctionAST(const FunctionAST *ast) override;
 
         llvm::Module *module_;
         ParamsVisitor *paramsVisitor;
         TypeVisitor *typeVisitor;
         File sourcefile;
+        bool &errored;
     };
 }
 
@@ -108,6 +109,9 @@ private:
     std::unique_ptr<llvm::legacy::FunctionPassManager> fpm;
     std::map<std::pair<int, std::string>, llvm::AllocaInst*> scopesymbols;
     int scopenum;
+    bool errored;
+
+    void error(Token const &t, std::string const &message, File const &sourcefile);
 
     llvm::Value *curRetVal = nullptr;
 
