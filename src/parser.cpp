@@ -576,7 +576,7 @@ void Parser::calmDown()
 
 void Parser::syncTokens()
 {
-    while (!check(TokenType::SEMICOLON) && !atEnd()) advance(); // advance until next token is semicolon
+    while (!(check(TokenType::SEMICOLON) || check(TokenType::CCURB)) && !atEnd()) advance(); // advance until next token is semicolon
 
     if (check(TokenType::SEMICOLON))
         advance(); // consume semicolon
