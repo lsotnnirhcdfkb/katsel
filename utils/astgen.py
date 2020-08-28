@@ -8,10 +8,13 @@
 ## Class representing an AST Class
 class AstClass:
     ## @var name
-    # the name of the AST class that this represents
+    # The name of the AST class that this represents
 
     ## @var fields
-    # the fields that this AST class has
+    # The fields that this AST class has
+
+    ## @var doc
+    # The docuemntation to be generated with this AST class
 
     ## The constructor
     def __init__(self, name, fields=[], doc=''):
@@ -134,6 +137,9 @@ class AstField:
 
     ## @var type_
     # The type of the field
+
+    ## @var doc
+    # The documentation to be generated with this field
 
     ## The constructor
     def __init__(self, name, type_, doc):
