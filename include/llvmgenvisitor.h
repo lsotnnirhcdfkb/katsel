@@ -26,6 +26,7 @@
 
 namespace LLVMGenVisitorHelpersNS
 {
+    /// Visitor to turn a ParamsAST to a format that the LLVMGenVisitor can use
     class ParamsVisitor : public BlankVisitor
     {
     public:
@@ -42,6 +43,7 @@ namespace LLVMGenVisitorHelpersNS
         llvm::LLVMContext &context;
     };
 
+    /// Visitor to turn a TypeAST to a format that the LLVMGenVisitor can use
     class TypeVisitor : public BlankVisitor
     {
     public:
@@ -56,6 +58,7 @@ namespace LLVMGenVisitorHelpersNS
         llvm::LLVMContext &context;
     };
 
+    /// Visitor to declare functions so that forward declarations are not necessary
     class ForwDeclGenVisitor : public BlankVisitor
     {
     public:
@@ -70,9 +73,11 @@ namespace LLVMGenVisitorHelpersNS
     };
 }
 
+/// Visitor to compile ASTs to LLVM IR/object code
 class LLVMGenVisitor : public Visitor
 {
 public:
+    /// The constructor
     LLVMGenVisitor(File &sourcefile);
 
     // GENLLVMVISITMETHOD START
