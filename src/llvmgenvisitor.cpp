@@ -17,16 +17,16 @@ LLVMGenVisitor::LLVMGenVisitor(File &sourcefile): sourcefile(sourcefile), builde
 
 // {{{ visiting asts
 // {{{ programast
-void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast) 
+void LLVMGenVisitor::visitProgramAST(const ASTs::ProgramAST *ast) 
 {
     CLEARRET;
 
-    for (const std::unique_ptr<AST> &dast : ast->asts) 
+    for (const std::unique_ptr<ASTs::AST> &dast : ast->asts) 
     {
         dast->accept(&forwDeclVisitor);
     }
 
-    for (const std::unique_ptr<AST> &dast : ast->asts) 
+    for (const std::unique_ptr<ASTs::AST> &dast : ast->asts) 
     {
         dast->accept(this);
     }
@@ -87,7 +87,7 @@ void LLVMGenVisitor::visitProgramAST(const ProgramAST *ast)
 }
 // }}}
 // {{{ declaration visiting
-void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
+void LLVMGenVisitor::visitFunctionAST(const ASTs::FunctionAST *ast)
 {
     CLEARRET;
 
@@ -138,7 +138,7 @@ void LLVMGenVisitor::visitFunctionAST(const FunctionAST *ast)
 // }}}
 // {{{ expression visiting
 // {{{ binary ast
-void LLVMGenVisitor::visitBinaryAST(const BinaryAST *ast) 
+void LLVMGenVisitor::visitBinaryAST(const ASTs::BinaryAST *ast) 
 {
     CLEARRET;
     ast->last->accept(this);
@@ -235,7 +235,7 @@ void LLVMGenVisitor::visitBinaryAST(const BinaryAST *ast)
 }
 // }}}
 // {{{ ternary ast
-void LLVMGenVisitor::visitTernaryOpAST(const TernaryOpAST *ast) 
+void LLVMGenVisitor::visitTernaryOpAST(const ASTs::TernaryOpAST *ast) 
 {
     CLEARRET;
     ast->conditional->accept(this);
@@ -278,7 +278,7 @@ void LLVMGenVisitor::visitTernaryOpAST(const TernaryOpAST *ast)
 }
 // }}}
 // {{{ unary ast
-void LLVMGenVisitor::visitUnaryAST(const UnaryAST *ast) 
+void LLVMGenVisitor::visitUnaryAST(const ASTs::UnaryAST *ast) 
 {
     CLEARRET;
     ast->ast->accept(this);
@@ -315,10 +315,10 @@ void LLVMGenVisitor::visitUnaryAST(const UnaryAST *ast)
 }
 // }}}
 // {{{ assign ast
-void LLVMGenVisitor::visitAssignAST(const AssignAST *ast)
+void LLVMGenVisitor::visitAssignAST(const ASTs::AssignAST *ast)
 {
     CLEARRET;
-    VariableRefAST *lhs = dynamic_cast<VariableRefAST*>(ast->lhs.get());
+    ASTs::VariableRefAST *lhs = dynamic_cast<ASTs::VariableRefAST*>(ast->lhs.get());
 
     if (!lhs)
     {
@@ -341,7 +341,7 @@ void LLVMGenVisitor::visitAssignAST(const AssignAST *ast)
 }
 // }}}
 // {{{ var ref
-void LLVMGenVisitor::visitVariableRefAST(const VariableRefAST *ast)
+void LLVMGenVisitor::visitVariableRefAST(const ASTs::VariableRefAST *ast)
 {
     CLEARRET;
     std::string name = std::string(ast->var.start, ast->var.end);
@@ -367,21 +367,21 @@ void LLVMGenVisitor::visitVariableRefAST(const VariableRefAST *ast)
     LLVMGENVISITOR_RETURN(nullptr)
 }
 // }}}
-void LLVMGenVisitor::visitPrimaryAST(const PrimaryAST *ast) 
+void LLVMGenVisitor::visitPrimaryAST(const ASTs::PrimaryAST *ast) 
 {
     CLEARRET;
     LLVMGENVISITOR_RETURN(llvm::ConstantInt::get(context, llvm::APInt(64, std::stoi(std::string(ast->value.start, ast->value.end)))))
 }
 // }}}
 // {{{ statement visiting
-void LLVMGenVisitor::visitExprStmtAST(const ExprStmtAST *ast) 
+void LLVMGenVisitor::visitExprStmtAST(const ASTs::ExprStmtAST *ast) 
 {
     CLEARRET;
     ast->ast->accept(this);
     LLVMGENVISITOR_RETURN(nullptr)
 }
 
-void LLVMGenVisitor::visitVarStmtAST(const VarStmtAST *ast) 
+void LLVMGenVisitor::visitVarStmtAST(const ASTs::VarStmtAST *ast) 
 {
     CLEARRET;
     // TODO: types
@@ -411,7 +411,7 @@ void LLVMGenVisitor::visitVarStmtAST(const VarStmtAST *ast)
     
     LLVMGENVISITOR_RETURN(varalloca)
 }
-void LLVMGenVisitor::visitReturnStmtAST(const ReturnStmtAST *ast)
+void LLVMGenVisitor::visitReturnStmtAST(const ASTs::ReturnStmtAST *ast)
 {
     CLEARRET;
     if (ast->expr)
@@ -426,16 +426,16 @@ void LLVMGenVisitor::visitReturnStmtAST(const ReturnStmtAST *ast)
 }
 // }}}
 // {{{ helper ast visiting
-void LLVMGenVisitor::visitTypeAST(const TypeAST *ast) 
+void LLVMGenVisitor::visitTypeAST(const ASTs::TypeAST *ast) 
 {
     CLEARRET;
 }
 
-void LLVMGenVisitor::visitBlockAST(const BlockAST *ast) 
+void LLVMGenVisitor::visitBlockAST(const ASTs::BlockAST *ast) 
 {
     CLEARRET;
     beginNewScope();
-    for (const std::unique_ptr<AST> &bast : ast->stmts) 
+    for (const std::unique_ptr<ASTs::AST> &bast : ast->stmts) 
     {
         bast->accept(this);
     }
@@ -443,36 +443,36 @@ void LLVMGenVisitor::visitBlockAST(const BlockAST *ast)
     LLVMGENVISITOR_RETURN(nullptr)
 }
 
-void LLVMGenVisitor::visitParamAST(const ParamAST *ast) 
+void LLVMGenVisitor::visitParamAST(const ASTs::ParamAST *ast) 
 {
     CLEARRET;
     // shouldn't ever happen beacause ParamsVisitor processes the params
     // instead of LLVMGenVisitor
 }
 
-void LLVMGenVisitor::visitParamsAST(const ParamsAST *ast) 
+void LLVMGenVisitor::visitParamsAST(const ASTs::ParamsAST *ast) 
 {
     CLEARRET;
     // also shouldn't ever happen beacause ParamsVisitor processes the params
     // instead of LLVMGenVisitor
 }
 
-void LLVMGenVisitor::visitArgAST(const ArgAST *ast) 
+void LLVMGenVisitor::visitArgAST(const ASTs::ArgAST *ast) 
 {
-    // visitCallAST calls this
+    // ASTs::visitCallAST calls this
     CLEARRET;
 
     ast->expr->accept(this);
     LLVMGENVISITOR_RETURN(curRetVal); // this technically doesn't do anything but whatever
 }
 
-void LLVMGenVisitor::visitArgsAST(const ArgsAST *ast) 
+void LLVMGenVisitor::visitArgsAST(const ASTs::ArgsAST *ast) 
 {
-    // this shouldnot get called because visitCallAST parses ArgsAST
+    // this shouldnot get called because ASTs::visitCallAST parses ArgsAST
     CLEARRET;
 }
 
-void LLVMGenVisitor::visitCallAST(const CallAST *ast) 
+void LLVMGenVisitor::visitCallAST(const ASTs::CallAST *ast) 
 {
     CLEARRET;
 
@@ -505,7 +505,7 @@ void LLVMGenVisitor::visitCallAST(const CallAST *ast)
 
     if (ast->arglistast)
     {
-        ArgsAST *argsast = dynamic_cast<ArgsAST*>(ast->arglistast.get());
+        ASTs::ArgsAST *argsast = dynamic_cast<ASTs::ArgsAST*>(ast->arglistast.get());
 
         // internal parsing error, because Parser::arglist() always returns a std::unique_ptr<ArgsAST>
         if (!argsast) 
@@ -521,7 +521,7 @@ void LLVMGenVisitor::visitCallAST(const CallAST *ast)
         }
 
 
-        for (std::unique_ptr<AST> &expr: argsast->args)
+        for (std::unique_ptr<ASTs::AST> &expr: argsast->args)
         {
             expr->accept(this);
             llvm::Value *argvalue = curRetVal;
@@ -598,22 +598,22 @@ namespace LLVMGenVisitorHelpersNS
     ParamsVisitor::ParamsVisitor(File &sourcefile, llvm::LLVMContext &context): sourcefile(sourcefile), context(context) {}
     TypeVisitor::TypeVisitor(File &sourcefile, llvm::LLVMContext &context): sourcefile(sourcefile), context(context) {}
 
-    void ParamsVisitor::visitParamAST(const ParamAST *ast)
+    void ParamsVisitor::visitParamAST(const ASTs::ParamAST *ast)
     {
         // if this is part of a visitParams then this will be overrided anyway
         // but if it is not then the return value is provided in a vector like it's supposed to be
         paramTypes = {llvm::Type::getInt64Ty(context)}; 
         paramNames = {ast->paramname};
     }
-    void ParamsVisitor::visitParamsAST(const ParamsAST *ast)
+    void ParamsVisitor::visitParamsAST(const ASTs::ParamsAST *ast)
     {
         std::vector<llvm::Type*> cparamTypes;
         std::vector<Token> cparamNames;
 
-        for (std::unique_ptr<AST> const &param : ast->params)
+        for (std::unique_ptr<ASTs::AST> const &param : ast->params)
         {
             param->accept(this);
-            // retval is length 1 because visitParamsAST always does that
+            // retval is length 1 because ASTs::visitParamsAST always does that
             cparamTypes.push_back(paramTypes[0]);
             cparamNames.push_back(paramNames[0]);
         }
@@ -622,7 +622,7 @@ namespace LLVMGenVisitorHelpersNS
         paramNames = cparamNames;
     }
 
-    void TypeVisitor::visitTypeAST(const TypeAST *ast)
+    void TypeVisitor::visitTypeAST(const ASTs::TypeAST *ast)
     {
         // right now only int64s are supported
         // TODO: types
@@ -632,7 +632,7 @@ namespace LLVMGenVisitorHelpersNS
 
     ForwDeclGenVisitor::ForwDeclGenVisitor(llvm::Module *module_, ParamsVisitor *paramsVisitor, TypeVisitor *typeVisitor, File sourcefile, bool &errored): module_(module_), paramsVisitor(paramsVisitor), typeVisitor(typeVisitor), sourcefile(sourcefile), errored(errored) {}
 
-    void ForwDeclGenVisitor::visitFunctionAST(const FunctionAST *ast)
+    void ForwDeclGenVisitor::visitFunctionAST(const ASTs::FunctionAST *ast)
     {
         std::string name = std::string(ast->name.start, ast->name.end);
 

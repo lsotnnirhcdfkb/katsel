@@ -18,66 +18,66 @@ public:
     Parser(Lexer &l, File &sourcefile);
 
     /// Parse something
-    std::unique_ptr<AST> parse(); 
+    std::unique_ptr<ASTs::AST> parse(); 
     /// Parse a declaration
-    std::unique_ptr<AST> decl(); 
+    std::unique_ptr<ASTs::AST> decl(); 
     /// Parse a function declaration
-    std::unique_ptr<AST> function(); 
+    std::unique_ptr<ASTs::AST> function(); 
 
     /// Parse a statement
-    std::unique_ptr<AST> statement(); 
+    std::unique_ptr<ASTs::AST> statement(); 
     /// Parse a variable declaration statement
-    std::unique_ptr<AST> varstatement(); 
+    std::unique_ptr<ASTs::AST> varstatement(); 
     /// Parse an expression statement
-    std::unique_ptr<AST> exprstatement(); 
+    std::unique_ptr<ASTs::AST> exprstatement(); 
     /// Parse a return statement
-    std::unique_ptr<AST> retstatement(); 
+    std::unique_ptr<ASTs::AST> retstatement(); 
     /// Parse a print statement
-    std::unique_ptr<AST> printstatement(); 
+    std::unique_ptr<ASTs::AST> printstatement(); 
 
     /// Parse an expression
-    std::unique_ptr<AST> expression(); 
+    std::unique_ptr<ASTs::AST> expression(); 
     /// Parse an assignment expression
-    std::unique_ptr<AST> assignmentexpr(); 
+    std::unique_ptr<ASTs::AST> assignmentexpr(); 
     /// Parse a ternary expression
-    std::unique_ptr<AST> ternaryexpr(); 
+    std::unique_ptr<ASTs::AST> ternaryexpr(); 
     /// Parse a binary or expression
-    std::unique_ptr<AST> binorexpr(); 
+    std::unique_ptr<ASTs::AST> binorexpr(); 
     /// Parse a binary and expression
-    std::unique_ptr<AST> binandexpr(); 
+    std::unique_ptr<ASTs::AST> binandexpr(); 
     /// Parse a binary not expression
-    std::unique_ptr<AST> binnotexpr(); 
+    std::unique_ptr<ASTs::AST> binnotexpr(); 
     /// Parse an equality expression
-    std::unique_ptr<AST> compeqexpr(); 
+    std::unique_ptr<ASTs::AST> compeqexpr(); 
     /// Parse a comparison expression
-    std::unique_ptr<AST> complgtexpr(); 
+    std::unique_ptr<ASTs::AST> complgtexpr(); 
     /// Parse a bitwise xor expression
-    std::unique_ptr<AST> bitxorexpr(); 
+    std::unique_ptr<ASTs::AST> bitxorexpr(); 
     /// Parse a bitwise or expression
-    std::unique_ptr<AST> bitorexpr(); 
+    std::unique_ptr<ASTs::AST> bitorexpr(); 
     /// Parse a bitwise and expression
-    std::unique_ptr<AST> bitandexpr(); 
+    std::unique_ptr<ASTs::AST> bitandexpr(); 
     /// Parse a bit shift expression
-    std::unique_ptr<AST> bitshiftexpr(); 
+    std::unique_ptr<ASTs::AST> bitshiftexpr(); 
     /// Parse a addition expression
-    std::unique_ptr<AST> additionexpr(); 
+    std::unique_ptr<ASTs::AST> additionexpr(); 
     /// Parse a multiplication expression
-    std::unique_ptr<AST> multexpr(); 
+    std::unique_ptr<ASTs::AST> multexpr(); 
     /// Parse a unary expression
-    std::unique_ptr<AST> unary(); 
+    std::unique_ptr<ASTs::AST> unary(); 
     /// Parse a primary
-    std::unique_ptr<AST> primary(); 
+    std::unique_ptr<ASTs::AST> primary(); 
 
     /// Parse a variable reference
-    std::unique_ptr<AST> varref(); 
+    std::unique_ptr<ASTs::AST> varref(); 
     /// Parse a code block
-    std::unique_ptr<AST> block(); 
+    std::unique_ptr<ASTs::AST> block(); 
     /// Parse a type
-    std::unique_ptr<AST> type(); 
+    std::unique_ptr<ASTs::AST> type(); 
     /// Parse a parameter list
-    std::unique_ptr<AST> paramlist(); 
+    std::unique_ptr<ASTs::AST> paramlist(); 
     /// Parse a argumnet list
-    std::unique_ptr<AST> arglist(); 
+    std::unique_ptr<ASTs::AST> arglist(); 
 
 private:
 

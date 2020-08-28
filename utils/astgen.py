@@ -28,22 +28,22 @@ class AstClass:
         output = []
 
         if len(self.doc):
-            output.append(f'/// {self.doc}\n')
+            output.append(f'    /// {self.doc}\n')
 
-        output.append(    f'class {self.name} : public AST\n')
-        output.append(     '{\n')
-        output.append(     'public:\n')
-        output.append(     '    /// The constructor for this class\n')
+        output.append(    f'    class {self.name} : public AST\n')
+        output.append(     '    {\n')
+        output.append(     '    public:\n')
+        output.append(     '        /// The constructor for this class\n')
         for param in self.fields:
-            output.append(f'    /// @param {param.name} {param.doc}\n')
-        output.append(    f'    {self.name}({self.genConstructArgs()});\n')
-        output.append(     '    /// The accept method that calls the correct visitor method on this AST\n')
-        output.append(     '    void accept(Visitor *v) override;\n')
-        output.append('\n')
+            output.append(f'        /// @param {param.name} {param.doc}\n')
+        output.append(    f'        {self.name}({self.genConstructArgs()});\n')
+        output.append(     '        /// The accept method that calls the correct visitor method on this AST\n')
+        output.append(     '        void accept(Visitor *v) override;\n')
+        output.append('    \n')
         for field in self.fields:
-            output.append(f'    /// {field.doc}\n')
-            output.append(f'    {field.printHFile(False)};\n')
-        output.append(     '};\n')
+            output.append(f'        /// {field.doc}\n')
+            output.append(f'        {field.printHFile(False)};\n')
+        output.append(     '    };\n')
 
         return ''.join(output)
 
@@ -51,7 +51,7 @@ class AstClass:
     ## Return the generated string that includes the constructors and the accept methods of all the AST Classes
     def printCppFile(self):
         output = []
-        output.append(f'{self.name}::{self.name}({self.genConstructArgs()})')
+        output.append(f'ASTs::{self.name}::{self.name}({self.genConstructArgs()})')
 
         initializerList = []
         constructorBody = []
@@ -64,7 +64,7 @@ class AstClass:
             elif field.type_ == AstField.TVECTOR:
                 constructorBody.append((
                             f'    this->{field.name}.reserve({field.name}.size());\n'
-                            f'    for (std::unique_ptr<AST> &ast : {field.name})\n'
+                            f'    for (std::unique_ptr<ASTs::AST> &ast : {field.name})\n'
                              '    {\n'
                             f'        this->{field.name}.push_back(std::move(ast));\n'
                              '    }\n'
@@ -78,7 +78,7 @@ class AstClass:
         else:
             output.append(' {}\n')
 
-        output.append(f'void {self.name}::accept(Visitor *v) {{ v->visit{self.name}(this); }}\n')
+        output.append(f'void ASTs::{self.name}::accept(Visitor *v) {{ v->visit{self.name}(this); }}\n')
         return ''.join(output)
 
     # AstClass helper methods {{{2
@@ -99,16 +99,16 @@ class AstBaseClass:
     ## Return a string containing what this class should become in ast.h
     def printHFile(self):
         return (
-        '/// A base AST class\n'
-        'class AST\n'
-        '{\n'
-        'public:\n'
-        '    /// The virtual constructor\n'
-        '    virtual ~AST() {}\n'
-        '\n'
-        '    /// A pure virtual accept method that each AST class is supposed to implement to call the right visitor method\n'
-        '    virtual void accept(Visitor *v) = 0;\n'
-        '};\n'
+        '    /// A base AST class\n'
+        '    class AST\n'
+        '    {\n'
+        '    public:\n'
+        '        /// The virtual constructor\n'
+        '        virtual ~AST() {}\n'
+        '    \n'
+        '        /// A pure virtual accept method that each AST class is supposed to implement to call the right visitor method\n'
+        '        virtual void accept(Visitor *v) = 0;\n'
+        '    };\n'
         )
     
     ## Return nothing because this class shouldn't appear in ast.cpp
@@ -120,16 +120,16 @@ class AstBaseClass:
 class AstField:
     ## An "enum" constant meaning `Token`
     TTOKEN = 0
-    ## An "enum" constant meaning `std::vector<std::unique_ptr<AST>>`
+    ## An "enum" constant meaning `std::vector<std::unique_ptr<ASTs::AST>>`
     TVECTOR = 1
-    ## An "enum" constant meaning `std::unique_ptr<AST>`
+    ## An "enum" constant meaning `std::unique_ptr<ASTs::AST>`
     TUPTR = 2
 
     ## A dict containing each type constant what it should generate as
     TTOCTYPE = {
         TTOKEN: 'Token',
-        TVECTOR: 'std::vector<std::unique_ptr<AST>>',
-        TUPTR: 'std::unique_ptr<AST>',
+        TVECTOR: 'std::vector<std::unique_ptr<ASTs::AST>>',
+        TUPTR: 'std::unique_ptr<ASTs::AST>',
     }
 
     ## @var name
@@ -178,7 +178,7 @@ def astCppFile():
 # generate ast forward declarations for visitor.h {{{2
 ## Print the list of forward declarations that go in the top of visitor.h
 def forwardDecl():
-    return ''.join([f'class {c.name};\n' for c in astClasses])
+    return ''.join([f'    class {c.name};\n' for c in astClasses])
 # generate visitAST methods {{{2
 ## Print the visitSomethingAST methods to go in a class
 # @param isBase If the generated class is the base AST class so that it can generate either `= 0;` or `override;`
@@ -197,7 +197,7 @@ def visitASTMethods(isBase, doc):
         else:
             output.append('    ')
 
-        output.append(f'void visit{astClass.name}(const {astClass.name} *ast)')
+        output.append(f'void visit{astClass.name}(const ASTs::{astClass.name} *ast)')
 
         if isBase:
             output.append(' = 0;\n')
@@ -212,7 +212,7 @@ def blankVisitorDefinitions():
     for astClass in astClasses:
         if astClass.name == 'AST':
             continue
-        output.append(f'void BlankVisitor::visit{astClass.name}(const {astClass.name} *ast) {{}}\n')
+        output.append(f'void BlankVisitor::visit{astClass.name}(const ASTs::{astClass.name} *ast) {{}}\n')
     return ''.join(output)
 # lists: ast classes to generate {{{1
 ## The list of AST classes to generate

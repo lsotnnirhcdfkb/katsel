@@ -4,7 +4,7 @@
 // print visitor {{{1
 PrintVisitor::PrintVisitor(): indent(0), pindent(false) {}
 
-void PrintVisitor::visitBinaryAST(const BinaryAST *ast)
+void PrintVisitor::visitBinaryAST(const ASTs::BinaryAST *ast)
 {
     print("(");
     ast->last->accept(this);
@@ -13,7 +13,7 @@ void PrintVisitor::visitBinaryAST(const BinaryAST *ast)
     print(")");
 }
 
-void PrintVisitor::visitTernaryOpAST(const TernaryOpAST *ast)
+void PrintVisitor::visitTernaryOpAST(const ASTs::TernaryOpAST *ast)
 {
     print("(");
     ast->conditional->accept(this);
@@ -24,7 +24,7 @@ void PrintVisitor::visitTernaryOpAST(const TernaryOpAST *ast)
     print(")");
 }
 
-void PrintVisitor::visitUnaryAST(const UnaryAST *ast)
+void PrintVisitor::visitUnaryAST(const ASTs::UnaryAST *ast)
 {
     print("(");
     print(std::string(ast->op.start, ast->op.end));
@@ -32,24 +32,24 @@ void PrintVisitor::visitUnaryAST(const UnaryAST *ast)
     print(")");
 }
 
-void PrintVisitor::visitPrimaryAST(const PrimaryAST *ast)
+void PrintVisitor::visitPrimaryAST(const ASTs::PrimaryAST *ast)
 {
     print(std::string(ast->value.start, ast->value.end));
 }
 
-void PrintVisitor::visitExprStmtAST(const ExprStmtAST *ast)
+void PrintVisitor::visitExprStmtAST(const ASTs::ExprStmtAST *ast)
 {
     print("ExprStmt: ");
     ast->ast->accept(this);
     print("\n");
 }
 
-void PrintVisitor::visitProgramAST(const ProgramAST *ast)
+void PrintVisitor::visitProgramAST(const ASTs::ProgramAST *ast)
 {
     print("Program:\n");
     ++indent;
 
-    for (const std::unique_ptr<AST> &ast : ast->asts)
+    for (const std::unique_ptr<ASTs::AST> &ast : ast->asts)
     {
         ast->accept(this);
     }
@@ -58,7 +58,7 @@ void PrintVisitor::visitProgramAST(const ProgramAST *ast)
     print("\n");
 }
 
-void PrintVisitor::visitFunctionAST(const FunctionAST *ast)
+void PrintVisitor::visitFunctionAST(const ASTs::FunctionAST *ast)
 {
     print("Function: name " + std::string(ast->name.start, ast->name.end) + ", ret ");
     ast->type->accept(this);
@@ -88,7 +88,7 @@ void PrintVisitor::visitFunctionAST(const FunctionAST *ast)
     --indent;
     print("\n");
 }
-void PrintVisitor::visitVarStmtAST(const VarStmtAST *ast) 
+void PrintVisitor::visitVarStmtAST(const ASTs::VarStmtAST *ast) 
 {
     print("VarStmt: var " + std::string(ast->name.start, ast->name.end) + " of type ");
     ast->type->accept(this);
@@ -97,43 +97,43 @@ void PrintVisitor::visitVarStmtAST(const VarStmtAST *ast)
     print("\n");
 }
 
-void PrintVisitor::visitTypeAST(const TypeAST *ast) 
+void PrintVisitor::visitTypeAST(const ASTs::TypeAST *ast) 
 {
     print("TypeAST: " + std::string(ast->type.start, ast->type.end));
 }
 
-void PrintVisitor::visitBlockAST(const BlockAST *ast)
+void PrintVisitor::visitBlockAST(const ASTs::BlockAST *ast)
 {
     print("Block:\n");
     ++indent;
 
-    for (const std::unique_ptr<AST> &ast : ast->stmts)
+    for (const std::unique_ptr<ASTs::AST> &ast : ast->stmts)
     {
         ast->accept(this);
     }
     --indent;
 }
 
-void PrintVisitor::visitParamAST(const ParamAST *ast)
+void PrintVisitor::visitParamAST(const ASTs::ParamAST *ast)
 {
     print("(Param: " + std::string(ast->paramname.start, ast->paramname.end) + " with type ");
     ast->type->accept(this);
     print(")\n");
 }
 
-void PrintVisitor::visitParamsAST(const ParamsAST *ast)
+void PrintVisitor::visitParamsAST(const ASTs::ParamsAST *ast)
 {
     print("Params:\n");
     ++indent;
 
-    for (const std::unique_ptr<AST> &ast : ast->params)
+    for (const std::unique_ptr<ASTs::AST> &ast : ast->params)
     {
         ast->accept(this);
     }
     --indent;
 }
 
-void PrintVisitor::visitAssignAST(const AssignAST *ast)
+void PrintVisitor::visitAssignAST(const ASTs::AssignAST *ast)
 {
     print("Assign: assign ");
     ast->rhs->accept(this);
@@ -142,7 +142,7 @@ void PrintVisitor::visitAssignAST(const AssignAST *ast)
     print("\n");
 }
 
-void PrintVisitor::visitReturnStmtAST(const ReturnStmtAST *ast)
+void PrintVisitor::visitReturnStmtAST(const ASTs::ReturnStmtAST *ast)
 {
     print("Return statement: return ");
     if (ast->expr)
@@ -152,31 +152,31 @@ void PrintVisitor::visitReturnStmtAST(const ReturnStmtAST *ast)
     print("\n");
 }
 
-void PrintVisitor::visitVariableRefAST(const VariableRefAST *ast)
+void PrintVisitor::visitVariableRefAST(const ASTs::VariableRefAST *ast)
 {
     print("(Variable reference: " + std::string(ast->var.start, ast->var.end) + ")");
 }
 
-void PrintVisitor::visitArgAST(const ArgAST *ast) 
+void PrintVisitor::visitArgAST(const ASTs::ArgAST *ast) 
 {
     print("(Argument: ");
     ast->expr->accept(this);
     print(")\n");
 }
 
-void PrintVisitor::visitArgsAST(const ArgsAST *ast)
+void PrintVisitor::visitArgsAST(const ASTs::ArgsAST *ast)
 {
     print("Args:\n");
     ++indent;
 
-    for (const std::unique_ptr<AST> &ast : ast->args)
+    for (const std::unique_ptr<ASTs::AST> &ast : ast->args)
     {
         ast->accept(this);
     }
     --indent;
 }
 
-void PrintVisitor::visitCallAST(const CallAST *ast) 
+void PrintVisitor::visitCallAST(const ASTs::CallAST *ast) 
 {
     print("Function call to function ");
     ast->varrefast->accept(this);
@@ -209,22 +209,22 @@ void PrintVisitor::print(std::string &&str)
 // }}}
 // blank visitor {{{1
 // BLANKGEN START
-void BlankVisitor::visitBinaryAST(const BinaryAST *ast) {}
-void BlankVisitor::visitTernaryOpAST(const TernaryOpAST *ast) {}
-void BlankVisitor::visitUnaryAST(const UnaryAST *ast) {}
-void BlankVisitor::visitPrimaryAST(const PrimaryAST *ast) {}
-void BlankVisitor::visitExprStmtAST(const ExprStmtAST *ast) {}
-void BlankVisitor::visitProgramAST(const ProgramAST *ast) {}
-void BlankVisitor::visitFunctionAST(const FunctionAST *ast) {}
-void BlankVisitor::visitBlockAST(const BlockAST *ast) {}
-void BlankVisitor::visitTypeAST(const TypeAST *ast) {}
-void BlankVisitor::visitParamAST(const ParamAST *ast) {}
-void BlankVisitor::visitParamsAST(const ParamsAST *ast) {}
-void BlankVisitor::visitVarStmtAST(const VarStmtAST *ast) {}
-void BlankVisitor::visitAssignAST(const AssignAST *ast) {}
-void BlankVisitor::visitVariableRefAST(const VariableRefAST *ast) {}
-void BlankVisitor::visitReturnStmtAST(const ReturnStmtAST *ast) {}
-void BlankVisitor::visitArgAST(const ArgAST *ast) {}
-void BlankVisitor::visitArgsAST(const ArgsAST *ast) {}
-void BlankVisitor::visitCallAST(const CallAST *ast) {}
+void BlankVisitor::visitBinaryAST(const ASTs::BinaryAST *ast) {}
+void BlankVisitor::visitTernaryOpAST(const ASTs::TernaryOpAST *ast) {}
+void BlankVisitor::visitUnaryAST(const ASTs::UnaryAST *ast) {}
+void BlankVisitor::visitPrimaryAST(const ASTs::PrimaryAST *ast) {}
+void BlankVisitor::visitExprStmtAST(const ASTs::ExprStmtAST *ast) {}
+void BlankVisitor::visitProgramAST(const ASTs::ProgramAST *ast) {}
+void BlankVisitor::visitFunctionAST(const ASTs::FunctionAST *ast) {}
+void BlankVisitor::visitBlockAST(const ASTs::BlockAST *ast) {}
+void BlankVisitor::visitTypeAST(const ASTs::TypeAST *ast) {}
+void BlankVisitor::visitParamAST(const ASTs::ParamAST *ast) {}
+void BlankVisitor::visitParamsAST(const ASTs::ParamsAST *ast) {}
+void BlankVisitor::visitVarStmtAST(const ASTs::VarStmtAST *ast) {}
+void BlankVisitor::visitAssignAST(const ASTs::AssignAST *ast) {}
+void BlankVisitor::visitVariableRefAST(const ASTs::VariableRefAST *ast) {}
+void BlankVisitor::visitReturnStmtAST(const ASTs::ReturnStmtAST *ast) {}
+void BlankVisitor::visitArgAST(const ASTs::ArgAST *ast) {}
+void BlankVisitor::visitArgsAST(const ASTs::ArgsAST *ast) {}
+void BlankVisitor::visitCallAST(const ASTs::CallAST *ast) {}
 // BLANKGEN END

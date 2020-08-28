@@ -37,10 +37,10 @@ namespace LLVMGenVisitorHelpersNS
 
         /// Visit a ParamAST and create an appropriate return value for it
         /// @param ast The parameter ast to visit
-        void visitParamAST(const ParamAST *ast) override;
+        void visitParamAST(const ASTs::ParamAST *ast) override;
         /// Visit a ParamsAST and create an appropriate return value for it
         /// @param ast The parameters ast to visit
-        void visitParamsAST(const ParamsAST *ast) override;
+        void visitParamsAST(const ASTs::ParamsAST *ast) override;
 
         /// A return vector of type that the parameters are
         std::vector<llvm::Type*> paramTypes;
@@ -65,7 +65,7 @@ namespace LLVMGenVisitorHelpersNS
 
         /// Visit a TypeAST and turn it into an LLVM Type
         /// @param ast The AST to convert into an LLVM Type
-        void visitTypeAST(const TypeAST *ast) override;
+        void visitTypeAST(const ASTs::TypeAST *ast) override;
 
         /// The return type that was created by this visitor
         llvm::Type *rettype;
@@ -90,7 +90,7 @@ namespace LLVMGenVisitorHelpersNS
         ForwDeclGenVisitor(llvm::Module *module_, ParamsVisitor *paramsVisitor, TypeVisitor *typeVisitor, File sourcefile, bool &errored);
         /// Visit a function AST and create a forward declaration for it
         /// @param ast The function AST to visit
-        void visitFunctionAST(const FunctionAST *ast) override;
+        void visitFunctionAST(const ASTs::FunctionAST *ast) override;
 
         /// The module to generate forward declarations into
         llvm::Module *module_;
@@ -115,58 +115,58 @@ public:
     // GENLLVMVISITMETHOD START
     /// Visit the BinaryAST and compile it to LLVM IR/object code
     /// @param ast The ast to visit
-    void visitBinaryAST(const BinaryAST *ast) override;
+    void visitBinaryAST(const ASTs::BinaryAST *ast) override;
     /// Visit the TernaryOpAST and compile it to LLVM IR/object code
     /// @param ast The ast to visit
-    void visitTernaryOpAST(const TernaryOpAST *ast) override;
+    void visitTernaryOpAST(const ASTs::TernaryOpAST *ast) override;
     /// Visit the UnaryAST and compile it to LLVM IR/object code
     /// @param ast The ast to visit
-    void visitUnaryAST(const UnaryAST *ast) override;
+    void visitUnaryAST(const ASTs::UnaryAST *ast) override;
     /// Visit the PrimaryAST and compile it to LLVM IR/object code
     /// @param ast The ast to visit
-    void visitPrimaryAST(const PrimaryAST *ast) override;
+    void visitPrimaryAST(const ASTs::PrimaryAST *ast) override;
     /// Visit the ExprStmtAST and compile it to LLVM IR/object code
     /// @param ast The ast to visit
-    void visitExprStmtAST(const ExprStmtAST *ast) override;
+    void visitExprStmtAST(const ASTs::ExprStmtAST *ast) override;
     /// Visit the ProgramAST and compile it to LLVM IR/object code
     /// @param ast The ast to visit
-    void visitProgramAST(const ProgramAST *ast) override;
+    void visitProgramAST(const ASTs::ProgramAST *ast) override;
     /// Visit the FunctionAST and compile it to LLVM IR/object code
     /// @param ast The ast to visit
-    void visitFunctionAST(const FunctionAST *ast) override;
+    void visitFunctionAST(const ASTs::FunctionAST *ast) override;
     /// Visit the BlockAST and compile it to LLVM IR/object code
     /// @param ast The ast to visit
-    void visitBlockAST(const BlockAST *ast) override;
+    void visitBlockAST(const ASTs::BlockAST *ast) override;
     /// Visit the TypeAST and compile it to LLVM IR/object code
     /// @param ast The ast to visit
-    void visitTypeAST(const TypeAST *ast) override;
+    void visitTypeAST(const ASTs::TypeAST *ast) override;
     /// Visit the ParamAST and compile it to LLVM IR/object code
     /// @param ast The ast to visit
-    void visitParamAST(const ParamAST *ast) override;
+    void visitParamAST(const ASTs::ParamAST *ast) override;
     /// Visit the ParamsAST and compile it to LLVM IR/object code
     /// @param ast The ast to visit
-    void visitParamsAST(const ParamsAST *ast) override;
+    void visitParamsAST(const ASTs::ParamsAST *ast) override;
     /// Visit the VarStmtAST and compile it to LLVM IR/object code
     /// @param ast The ast to visit
-    void visitVarStmtAST(const VarStmtAST *ast) override;
+    void visitVarStmtAST(const ASTs::VarStmtAST *ast) override;
     /// Visit the AssignAST and compile it to LLVM IR/object code
     /// @param ast The ast to visit
-    void visitAssignAST(const AssignAST *ast) override;
+    void visitAssignAST(const ASTs::AssignAST *ast) override;
     /// Visit the VariableRefAST and compile it to LLVM IR/object code
     /// @param ast The ast to visit
-    void visitVariableRefAST(const VariableRefAST *ast) override;
+    void visitVariableRefAST(const ASTs::VariableRefAST *ast) override;
     /// Visit the ReturnStmtAST and compile it to LLVM IR/object code
     /// @param ast The ast to visit
-    void visitReturnStmtAST(const ReturnStmtAST *ast) override;
+    void visitReturnStmtAST(const ASTs::ReturnStmtAST *ast) override;
     /// Visit the ArgAST and compile it to LLVM IR/object code
     /// @param ast The ast to visit
-    void visitArgAST(const ArgAST *ast) override;
+    void visitArgAST(const ASTs::ArgAST *ast) override;
     /// Visit the ArgsAST and compile it to LLVM IR/object code
     /// @param ast The ast to visit
-    void visitArgsAST(const ArgsAST *ast) override;
+    void visitArgsAST(const ASTs::ArgsAST *ast) override;
     /// Visit the CallAST and compile it to LLVM IR/object code
     /// @param ast The ast to visit
-    void visitCallAST(const CallAST *ast) override;
+    void visitCallAST(const ASTs::CallAST *ast) override;
     // GENLLVMVISITMETHOD END
 
 private:

@@ -1,84 +1,84 @@
 #include "ast.h"
 
-BinaryAST::BinaryAST(Token op, std::unique_ptr<AST> last, std::unique_ptr<AST> rast): op(op), last(std::move(last)), rast(std::move(rast)) {}
-void BinaryAST::accept(Visitor *v) { v->visitBinaryAST(this); }
+ASTs::BinaryAST::BinaryAST(Token op, std::unique_ptr<ASTs::AST> last, std::unique_ptr<ASTs::AST> rast): op(op), last(std::move(last)), rast(std::move(rast)) {}
+void ASTs::BinaryAST::accept(Visitor *v) { v->visitBinaryAST(this); }
 
-TernaryOpAST::TernaryOpAST(std::unique_ptr<AST> conditional, std::unique_ptr<AST> trueast, std::unique_ptr<AST> falseast): conditional(std::move(conditional)), trueast(std::move(trueast)), falseast(std::move(falseast)) {}
-void TernaryOpAST::accept(Visitor *v) { v->visitTernaryOpAST(this); }
+ASTs::TernaryOpAST::TernaryOpAST(std::unique_ptr<ASTs::AST> conditional, std::unique_ptr<ASTs::AST> trueast, std::unique_ptr<ASTs::AST> falseast): conditional(std::move(conditional)), trueast(std::move(trueast)), falseast(std::move(falseast)) {}
+void ASTs::TernaryOpAST::accept(Visitor *v) { v->visitTernaryOpAST(this); }
 
-UnaryAST::UnaryAST(Token op, std::unique_ptr<AST> ast): op(op), ast(std::move(ast)) {}
-void UnaryAST::accept(Visitor *v) { v->visitUnaryAST(this); }
+ASTs::UnaryAST::UnaryAST(Token op, std::unique_ptr<ASTs::AST> ast): op(op), ast(std::move(ast)) {}
+void ASTs::UnaryAST::accept(Visitor *v) { v->visitUnaryAST(this); }
 
-PrimaryAST::PrimaryAST(Token value): value(value) {}
-void PrimaryAST::accept(Visitor *v) { v->visitPrimaryAST(this); }
+ASTs::PrimaryAST::PrimaryAST(Token value): value(value) {}
+void ASTs::PrimaryAST::accept(Visitor *v) { v->visitPrimaryAST(this); }
 
-ExprStmtAST::ExprStmtAST(std::unique_ptr<AST> ast): ast(std::move(ast)) {}
-void ExprStmtAST::accept(Visitor *v) { v->visitExprStmtAST(this); }
+ASTs::ExprStmtAST::ExprStmtAST(std::unique_ptr<ASTs::AST> ast): ast(std::move(ast)) {}
+void ASTs::ExprStmtAST::accept(Visitor *v) { v->visitExprStmtAST(this); }
 
-ProgramAST::ProgramAST(std::vector<std::unique_ptr<AST>> &asts)
+ASTs::ProgramAST::ProgramAST(std::vector<std::unique_ptr<ASTs::AST>> &asts)
 {
     this->asts.reserve(asts.size());
-    for (std::unique_ptr<AST> &ast : asts)
+    for (std::unique_ptr<ASTs::AST> &ast : asts)
     {
         this->asts.push_back(std::move(ast));
     }
 }
-void ProgramAST::accept(Visitor *v) { v->visitProgramAST(this); }
+void ASTs::ProgramAST::accept(Visitor *v) { v->visitProgramAST(this); }
 
-FunctionAST::FunctionAST(std::unique_ptr<AST> type, Token name, std::unique_ptr<AST> params, std::unique_ptr<AST> body): type(std::move(type)), name(name), params(std::move(params)), body(std::move(body)) {}
-void FunctionAST::accept(Visitor *v) { v->visitFunctionAST(this); }
+ASTs::FunctionAST::FunctionAST(std::unique_ptr<ASTs::AST> type, Token name, std::unique_ptr<ASTs::AST> params, std::unique_ptr<ASTs::AST> body): type(std::move(type)), name(name), params(std::move(params)), body(std::move(body)) {}
+void ASTs::FunctionAST::accept(Visitor *v) { v->visitFunctionAST(this); }
 
-BlockAST::BlockAST(std::vector<std::unique_ptr<AST>> &stmts)
+ASTs::BlockAST::BlockAST(std::vector<std::unique_ptr<ASTs::AST>> &stmts)
 {
     this->stmts.reserve(stmts.size());
-    for (std::unique_ptr<AST> &ast : stmts)
+    for (std::unique_ptr<ASTs::AST> &ast : stmts)
     {
         this->stmts.push_back(std::move(ast));
     }
 }
-void BlockAST::accept(Visitor *v) { v->visitBlockAST(this); }
+void ASTs::BlockAST::accept(Visitor *v) { v->visitBlockAST(this); }
 
-TypeAST::TypeAST(Token type): type(type) {}
-void TypeAST::accept(Visitor *v) { v->visitTypeAST(this); }
+ASTs::TypeAST::TypeAST(Token type): type(type) {}
+void ASTs::TypeAST::accept(Visitor *v) { v->visitTypeAST(this); }
 
-ParamAST::ParamAST(std::unique_ptr<AST> type, Token paramname): type(std::move(type)), paramname(paramname) {}
-void ParamAST::accept(Visitor *v) { v->visitParamAST(this); }
+ASTs::ParamAST::ParamAST(std::unique_ptr<ASTs::AST> type, Token paramname): type(std::move(type)), paramname(paramname) {}
+void ASTs::ParamAST::accept(Visitor *v) { v->visitParamAST(this); }
 
-ParamsAST::ParamsAST(std::vector<std::unique_ptr<AST>> &params)
+ASTs::ParamsAST::ParamsAST(std::vector<std::unique_ptr<ASTs::AST>> &params)
 {
     this->params.reserve(params.size());
-    for (std::unique_ptr<AST> &ast : params)
+    for (std::unique_ptr<ASTs::AST> &ast : params)
     {
         this->params.push_back(std::move(ast));
     }
 }
-void ParamsAST::accept(Visitor *v) { v->visitParamsAST(this); }
+void ASTs::ParamsAST::accept(Visitor *v) { v->visitParamsAST(this); }
 
-VarStmtAST::VarStmtAST(std::unique_ptr<AST> type, Token name, std::unique_ptr<AST> expression): type(std::move(type)), name(name), expression(std::move(expression)) {}
-void VarStmtAST::accept(Visitor *v) { v->visitVarStmtAST(this); }
+ASTs::VarStmtAST::VarStmtAST(std::unique_ptr<ASTs::AST> type, Token name, std::unique_ptr<ASTs::AST> expression): type(std::move(type)), name(name), expression(std::move(expression)) {}
+void ASTs::VarStmtAST::accept(Visitor *v) { v->visitVarStmtAST(this); }
 
-AssignAST::AssignAST(std::unique_ptr<AST> lhs, std::unique_ptr<AST> rhs, Token equalSign): lhs(std::move(lhs)), rhs(std::move(rhs)), equalSign(equalSign) {}
-void AssignAST::accept(Visitor *v) { v->visitAssignAST(this); }
+ASTs::AssignAST::AssignAST(std::unique_ptr<ASTs::AST> lhs, std::unique_ptr<ASTs::AST> rhs, Token equalSign): lhs(std::move(lhs)), rhs(std::move(rhs)), equalSign(equalSign) {}
+void ASTs::AssignAST::accept(Visitor *v) { v->visitAssignAST(this); }
 
-VariableRefAST::VariableRefAST(Token var): var(var) {}
-void VariableRefAST::accept(Visitor *v) { v->visitVariableRefAST(this); }
+ASTs::VariableRefAST::VariableRefAST(Token var): var(var) {}
+void ASTs::VariableRefAST::accept(Visitor *v) { v->visitVariableRefAST(this); }
 
-ReturnStmtAST::ReturnStmtAST(std::unique_ptr<AST> expr): expr(std::move(expr)) {}
-void ReturnStmtAST::accept(Visitor *v) { v->visitReturnStmtAST(this); }
+ASTs::ReturnStmtAST::ReturnStmtAST(std::unique_ptr<ASTs::AST> expr): expr(std::move(expr)) {}
+void ASTs::ReturnStmtAST::accept(Visitor *v) { v->visitReturnStmtAST(this); }
 
-ArgAST::ArgAST(std::unique_ptr<AST> expr): expr(std::move(expr)) {}
-void ArgAST::accept(Visitor *v) { v->visitArgAST(this); }
+ASTs::ArgAST::ArgAST(std::unique_ptr<ASTs::AST> expr): expr(std::move(expr)) {}
+void ASTs::ArgAST::accept(Visitor *v) { v->visitArgAST(this); }
 
-ArgsAST::ArgsAST(std::vector<std::unique_ptr<AST>> &args)
+ASTs::ArgsAST::ArgsAST(std::vector<std::unique_ptr<ASTs::AST>> &args)
 {
     this->args.reserve(args.size());
-    for (std::unique_ptr<AST> &ast : args)
+    for (std::unique_ptr<ASTs::AST> &ast : args)
     {
         this->args.push_back(std::move(ast));
     }
 }
-void ArgsAST::accept(Visitor *v) { v->visitArgsAST(this); }
+void ASTs::ArgsAST::accept(Visitor *v) { v->visitArgsAST(this); }
 
-CallAST::CallAST(std::unique_ptr<AST> varrefast, std::unique_ptr<AST> arglistast, Token oparn): varrefast(std::move(varrefast)), arglistast(std::move(arglistast)), oparn(oparn) {}
-void CallAST::accept(Visitor *v) { v->visitCallAST(this); }
+ASTs::CallAST::CallAST(std::unique_ptr<ASTs::AST> varrefast, std::unique_ptr<ASTs::AST> arglistast, Token oparn): varrefast(std::move(varrefast)), arglistast(std::move(arglistast)), oparn(oparn) {}
+void ASTs::CallAST::accept(Visitor *v) { v->visitCallAST(this); }
 

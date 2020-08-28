@@ -42,7 +42,7 @@ void compileFile(File &sourcefile)
     auto lexer = std::make_unique<Lexer>(sourcefile);
     auto parser = std::make_unique<Parser>(*lexer, sourcefile);
 
-    std::unique_ptr<AST> parsed = parser->parse();
+    std::unique_ptr<ASTs::AST> parsed = parser->parse();
     auto printv = std::make_unique<PrintVisitor>();
     auto llvmv = std::make_unique<LLVMGenVisitor>(sourcefile);
 
