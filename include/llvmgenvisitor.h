@@ -138,27 +138,55 @@ public:
     // GENLLVMVISITMETHOD END
 
 private:
+    /// Create an alloca instruction at the entry of a function
+    /// @param f The function to put the instruction into
+    /// @param name The name of the alloca
     llvm::AllocaInst* createEntryAlloca(llvm::Function *f, const std::string &name);
+    /// Create a new scope
     void beginNewScope();
+    /// Finish the current scope and clean out variables in the scope from scopesymbols
     void finishCurScope();
+    /// Get an AllocaInst corrosponding to a variable by searching through scopesymbols
+    /// @param name The name of the variable
+    /// @param tok The token to error at in case the variable is not found
+    /// @param overrideErr Whether or not to override displaying the error
     llvm::AllocaInst* getVarFromName(std::string &name, Token const &tok, bool overrideErr=false);
+    /// Create an entry in scopesymbols with a name and the current scope
+    /// @param name The name to register this entry under
+    /// @param alloca The AllocaInst to register
     void createScopeSymbol(std::string &name, llvm::AllocaInst* alloca);
 
+    /// The LLVM context to use for functions
     llvm::LLVMContext context;
+    /// The builder to create instructions
     llvm::IRBuilder<> builder;
+    /// The module to put instructions into
     std::unique_ptr<llvm::Module> module_;
+    /// The FunctionPassManager to manage optimization passes
     std::unique_ptr<llvm::legacy::FunctionPassManager> fpm;
+    /// The map between variable names and a scope and an alloca
     std::map<std::pair<int, std::string>, llvm::AllocaInst*> scopesymbols;
+    /// The current scope number
     int scopenum;
+    /// Whether or not the visitor has errored in trying to compile this code
     bool errored;
 
+    /// Throw an error and set the errored member
+    /// @param t The token to error at
+    /// @param message The error message to show
+    /// @param sourcefile The file being compiled
     void error(Token const &t, std::string const &message, File const &sourcefile);
 
+    /// The current return value because the visiting methods return void
     llvm::Value *curRetVal = nullptr;
 
+    /// The file being compiled
     File &sourcefile;
+    /// The parameter visitor to process ParamsAST
     LLVMGenVisitorHelpersNS::ParamsVisitor paramsVisitor;
+    /// The type visitor to process TypeAST
     LLVMGenVisitorHelpersNS::TypeVisitor typeVisitor;
+    /// A visitor to declare all the functions so that forward declarations are not necessary in the source file 
     LLVMGenVisitorHelpersNS::ForwDeclGenVisitor forwDeclVisitor;
 };
 
