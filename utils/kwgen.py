@@ -2,29 +2,48 @@
 # {{{ trienode class
 ## A node in a Trie
 class TrieNode:
+
+    ## @var value
+    # The value of this trie node
+
+    ## @var length
+    # The current depth of this trie node in the trie
+
+    ## @var nodes
+    # The children nodes of this node
+
+    ## @var tokentype
+    # The tokentype that this trienode could represent
+
+    ## The constructor
     def __init__(self, value, length, tokentype=None):
         self.value = value
         self.length = length
         self.nodes = []
         self.tokentype = tokentype
 
+    ## Add a child node this node
     def addNode(self, node):
         self.nodes.append(node)
 
+    ## Check if this node has a child with a certain value
     def hasNode(self, nodevalue):
         return nodevalue in [node.value for node in self.nodes]
 
+    ## Get a child node with a certain value
     def getNode(self, nodevalue):
         #   every i in the self.nodes where self.nodes[i].value == nodevalue
         i = [i for i in range(len(self.nodes)) if self.nodes[i].value == nodevalue][0]
         return self.nodes[i]
 
+    ## Wrapper method to show this node in a human readable format
     def show(self, uni=True):
         if uni:
             return self.__show([], False, ['\u2502', '\u2514', '\u2500'])
         else:
             return self.__show([], False, ['|', '+', '-'])
 
+    ## Recursive method to show this node
     def __show(self, indent, isLast, chars):
         if isLast:
             indent = list(indent)
@@ -45,6 +64,7 @@ class TrieNode:
 
         return ''.join(output)
 
+    ## Wrapper method to generate code to match this node
     def generate(self, doc=''):
         output = []
         output.append(f'/// {doc}\n')
@@ -55,6 +75,7 @@ class TrieNode:
         output.append('}\n')
         return ''.join(output)
 
+    ## Recursive method to generate code to match this node
     def __generate(self, root, indent):
         output = []
 
@@ -77,6 +98,7 @@ class TrieNode:
 
         return ''.join(output)
 
+    ## Get the string to pad with for a certain indent level
     def __getIndent(self, indent, tab=False):
         return ('\t' if tab else '    ') * indent
 # }}}

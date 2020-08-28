@@ -30,16 +30,27 @@ namespace LLVMGenVisitorHelpersNS
     class ParamsVisitor : public BlankVisitor
     {
     public:
+        /// The constructor
+        /// @param sourcefile The source file
+        /// @param context The LLVM context that this ParamsVisitor can use
         ParamsVisitor(File &sourcefile, llvm::LLVMContext &context);
 
+        /// Visit a ParamAST and create an appropriate return value for it
+        /// @param ast The parameter ast to visit
         void visitParamAST(const ParamAST *ast) override;
+        /// Visit a ParamsAST and create an appropriate return value for it
+        /// @param ast The parameters ast to visit
         void visitParamsAST(const ParamsAST *ast) override;
 
+        /// A return vector of type that the parameters are
         std::vector<llvm::Type*> paramTypes;
+        /// A return vector of names that the parameters are
         std::vector<Token> paramNames;
 
     private:
+        /// The source file
         File &sourcefile;
+        /// The LLVM Context that this ParamsVisitor can use
         llvm::LLVMContext &context;
     };
 
@@ -47,14 +58,22 @@ namespace LLVMGenVisitorHelpersNS
     class TypeVisitor : public BlankVisitor
     {
     public:
+        /// The constructor
+        /// @param sourcefile The source file
+        /// @param context The LLVM context that this TypeVisitor can use
         TypeVisitor(File &sourcefile, llvm::LLVMContext &context);
 
+        /// Visit a TypeAST and turn it into an LLVM Type
+        /// @param ast The AST to convert into an LLVM Type
         void visitTypeAST(const TypeAST *ast) override;
 
+        /// The return type that was created by this visitor
         llvm::Type *rettype;
 
     private:
+        /// The source file
         File &sourcefile;
+        /// The LLVM Context that this TypeVisitor can use
         llvm::LLVMContext &context;
     };
 
@@ -62,13 +81,26 @@ namespace LLVMGenVisitorHelpersNS
     class ForwDeclGenVisitor : public BlankVisitor
     {
     public:
+        /// The constructor
+        /// @param module_ The module to generate to
+        /// @param paramsVisitor The parameter visitor to process parameters
+        /// @param typeVisitor The type visitor to process the return type of funcion declarations
+        /// @param sourcefile The sourcefile that is being compiled
+        /// @param errored A reference to the LLVMGenVisitor errored variable so that this visitor can set the LLVMGenVisitor::errored flag
         ForwDeclGenVisitor(llvm::Module *module_, ParamsVisitor *paramsVisitor, TypeVisitor *typeVisitor, File sourcefile, bool &errored);
+        /// Visit a function AST and create a forward declaration for it
+        /// @param ast The function AST to visit
         void visitFunctionAST(const FunctionAST *ast) override;
 
+        /// The module to generate forward declarations into
         llvm::Module *module_;
+        /// The parameter visitor to process parameters
         ParamsVisitor *paramsVisitor;
+        /// The type visitor to process the return type of funcion declarations
         TypeVisitor *typeVisitor;
+        /// The sourcefile that is being compiled
         File sourcefile;
+        /// A reference to the LLVMGenVisitor errored variable so that this visitor can set the LLVMGenVisitor::errored flag
         bool &errored;
     };
 }
