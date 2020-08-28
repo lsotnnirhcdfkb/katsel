@@ -1,9 +1,13 @@
 #include "errors.h"
 
+/// A struct representing a location in a File
 struct Location
 {
+    /// The start of this location
     std::string::iterator const start;
+    /// The end of this location
     std::string::iterator const end;
+    /// The file that this location is in
     File const &sourcefile;
 };
 
