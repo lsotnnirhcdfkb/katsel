@@ -176,11 +176,14 @@ def forwardDecl():
 # generate visitAST methods {{{2
 ## Print the visitSomethingAST methods to go in a class
 # @param isBase If the generated class is the base AST class so that it can generate either `= 0;` or `override;`
-def visitASTMethods(isBase):
+def visitASTMethods(isBase, doc):
     output = []
     for astClass in astClasses:
         if astClass.name == 'AST':
             continue
+
+        output.append(f'    /// {doc.format(astClass.name)}\n')
+        output.append(f'    /// @param ast The ast to visit\n')
 
         if isBase:
             output.append('    virtual ')
