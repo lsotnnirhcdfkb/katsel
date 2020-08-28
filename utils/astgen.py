@@ -176,6 +176,7 @@ def forwardDecl():
 # generate visitAST methods {{{2
 ## Print the visitSomethingAST methods to go in a class
 # @param isBase If the generated class is the base AST class so that it can generate either `= 0;` or `override;`
+# @param doc The documentation to go along with this method
 def visitASTMethods(isBase, doc):
     output = []
     for astClass in astClasses:
