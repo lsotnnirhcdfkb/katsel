@@ -136,7 +136,7 @@ class AstField:
     # The type of the field
 
     ## The constructor
-    def __init__(self, name, type_, doc=''):
+    def __init__(self, name, type_, doc):
         self.name = name
         self.type_ = type_
         self.doc = doc
@@ -208,23 +208,146 @@ def blankVisitorDefinitions():
 ## The list of AST classes to generate
 astClasses = [
     AstBaseClass(),
-    AstClass('Binary'       , [AstField('op', AstField.TTOKEN, 'The operator'), AstField('last', AstField.TUPTR, 'The left operand'), AstField('rast', AstField.TUPTR, 'The right operator')], 'An AST for binary operators'),
-    AstClass('TernaryOp'    , [AstField('conditional', AstField.TUPTR), AstField('trueast', AstField.TUPTR), AstField('falseast', AstField.TUPTR)], 'An AST for the ternary operator (?:)'),
-    AstClass('Unary'        , [AstField('op', AstField.TTOKEN), AstField('ast', AstField.TUPTR)], 'An AST for unary operators'),
-    AstClass('Primary'      , [AstField('value', AstField.TTOKEN)], 'An AST for primary tokens (literals etc.)'),
-    AstClass('ExprStmt'     , [AstField('ast', AstField.TUPTR)], 'An AST for an expression statement'),
-    AstClass('Program'      , [AstField('asts', AstField.TVECTOR)], 'An AST representing an entire program'),
-    AstClass('Function'     , [AstField('type', AstField.TUPTR), AstField('name', AstField.TTOKEN), AstField('params', AstField.TUPTR), AstField('body', AstField.TUPTR)], 'An AST representing a function declaration or definition'),
-    AstClass('Block'        , [AstField('stmts', AstField.TVECTOR)], 'An AST representing a code block'),
-    AstClass('Type'         , [AstField('type', AstField.TTOKEN)], 'An AST for a type'),
-    AstClass('Param'        , [AstField('type', AstField.TUPTR), AstField('paramname', AstField.TTOKEN)], 'An AST representing a parameter'),
-    AstClass('Params'       , [AstField('params', AstField.TVECTOR)], 'An AST representing a parameter list'),
-    AstClass('VarStmt'      , [AstField('type', AstField.TUPTR), AstField('name', AstField.TTOKEN), AstField('expression', AstField.TUPTR)], 'An AST representing a variable declaration statement'),
-    AstClass('Assign'       , [AstField('lhs', AstField.TUPTR), AstField('rhs', AstField.TUPTR), AstField('equalSign', AstField.TTOKEN)], 'An AST representing an assignment expression'),
-    AstClass('VariableRef'  , [AstField('var', AstField.TTOKEN)], 'An AST for a variable reference'),
-    AstClass('ReturnStmt'   , [AstField('expr', AstField.TUPTR)], 'An AST representing a return statement'),
-    AstClass('Arg'          , [AstField('expr', AstField.TUPTR)], 'An AST representing an arguemnt passed into a function call'),
-    AstClass('Args'         , [AstField('args', AstField.TVECTOR)], 'An AST representing arguments passed into a function call'),
-    AstClass('Call'         , [AstField('varrefast', AstField.TUPTR), AstField('arglistast', AstField.TUPTR), AstField('oparn', AstField.TTOKEN)], 'An AST representing a function call'),
+    AstClass(
+            name='Binary',
+            fields=[
+                AstField('op', AstField.TTOKEN, 'The operator'),
+                AstField('last', AstField.TUPTR, 'The left operand'),
+                AstField('rast', AstField.TUPTR, 'The right operator'),
+            ],
+            doc='An AST for binary operators'
+            ),
+    AstClass(
+            name='TernaryOp',
+            fields=[
+                AstField('conditional', AstField.TUPTR, 'The conditional expression'),
+                AstField('trueast', AstField.TUPTR, 'The expression that this evaluates to if the codnditional is true'),
+                AstField('falseast', AstField.TUPTR, 'The expression that this evaluates to if the codnditional is false'),
+            ],
+            doc='An AST for the ternary operator (?:)',
+            ),
+    AstClass(
+            name='Unary',
+            fields=[
+                AstField('op', AstField.TTOKEN, 'The operator'),
+                AstField('ast', AstField.TUPTR, 'The operand'),
+            ],
+            doc='An AST for unary operators'
+            ),
+    AstClass(
+            name='Primary',
+            fields=[
+                AstField('value', AstField.TTOKEN, 'The value'),
+            ],
+            doc='An AST for primary tokens (literals etc.)'
+            ),
+    AstClass(
+            name='ExprStmt',
+            fields=[
+                AstField('ast', AstField.TUPTR, 'The expression of this statement'),
+            ],
+            doc='An AST for an expression statement'
+            ),
+    AstClass(
+            name='Program',
+            fields=[
+                AstField('asts', AstField.TVECTOR, 'The asts that this program has'),
+            ],
+            doc='An AST representing an entire program'
+            ),
+    AstClass(
+            name='Function',
+            fields=[
+                AstField('type', AstField.TUPTR, 'The return type of the function'),
+                AstField('name', AstField.TTOKEN, 'The name of the function'),
+                AstField('params', AstField.TUPTR, 'The parameters of the function'),
+                AstField('body', AstField.TUPTR, 'The body of the function'),
+            ],
+            doc='An AST representing a function declaration or definition'
+            ),
+    AstClass(
+            name='Block',
+            fields=[
+                AstField('stmts', AstField.TVECTOR, 'The statements in the block'),
+            ],
+            doc='An AST representing a code block'
+            ),
+    AstClass(
+            name='Type',
+            fields=[
+                AstField('type', AstField.TTOKEN, 'The type token'),
+            ],
+            doc='An AST for a type'
+            ),
+    AstClass(
+            name='Param',
+            fields=[
+                AstField('type', AstField.TUPTR, 'The type of the parameter'),
+                AstField('paramname', AstField.TTOKEN, 'The name of the parameter'),
+            ],
+            doc='An AST representing a parameter'
+            ),
+    AstClass(
+            name='Params',
+            fields=[
+                AstField('params', AstField.TVECTOR, 'A vector of parameters'),
+            ],
+            doc='An AST representing a parameter list'
+            ),
+    AstClass(
+            name='VarStmt',
+            fields=[
+                AstField('type', AstField.TUPTR, 'The type of the variable'),
+                AstField('name', AstField.TTOKEN, 'The name of the variable'),
+                AstField('expression', AstField.TUPTR, 'The expression being assigned to the variable'),
+            ],
+            doc='An AST representing a variable declaration statement'
+            ),
+    AstClass(
+            name='Assign',
+            fields=[
+                AstField('lhs', AstField.TUPTR, 'The thing to assign to'),
+                AstField('rhs', AstField.TUPTR, 'The expression to assign'),
+                AstField('equalSign', AstField.TTOKEN, 'A token to error at in case there is an error'),
+            ],
+            doc='An AST representing an assignment expression'
+            ),
+    AstClass(
+            name='VariableRef',
+            fields=[
+                AstField('var', AstField.TTOKEN, 'The variable being referenced'),
+            ],
+            doc='An AST for a variable reference'
+            ),
+    AstClass(
+            name='ReturnStmt',
+            fields=[
+                AstField('expr', AstField.TUPTR, 'The expression to return'),
+            ],
+            doc='An AST representing a return statement'
+            ),
+    AstClass(
+            name='Arg',
+            fields=[
+                AstField('expr', AstField.TUPTR, 'The expression that the argument is'),
+            ],
+            doc='An AST representing an arguemnt passed into a function call'
+            ),
+    AstClass(
+            name='Args',
+            fields=[
+                AstField('args', AstField.TVECTOR, 'A vector of arguments'),
+            ],
+            doc='An AST representing arguments passed into a function call'
+            ),
+    AstClass(
+            name='Call',
+            fields=[
+                AstField('varrefast', AstField.TUPTR, 'The variable reference that is being called'),
+                AstField('arglistast', AstField.TUPTR, 'The argument list for the function call'),
+                AstField('oparn', AstField.TTOKEN, 'The opening parentheses to throw an error at'),
+            ],
+            doc='An AST representing a function call'
+            ),
 ]
 
