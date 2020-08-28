@@ -4,8 +4,6 @@
 #
 #  Generate ast.h, ast.cpp, forward declarations to go in visitor.h, visitBlahAST methods, and generate BlankVisitor methods
 
-import argparse, sys
-
 # class: AstClass {{{1
 ## Class representing an AST Class
 class AstClass:
@@ -140,49 +138,59 @@ class AstField:
 # generation functions: ast.h ast.cpp files {{{1
 # print ast.h file {{{2
 ## Print what should go in ast.h
-def printAstHFile():
+def astHFile():
+    hfile = []
     for class_ in astClasses:
-        print(class_.printHFile())
+        hfile.append(class_.printHFile() + '\n')
+
+    return ''.join(hfile)
 
 # print ast.cpp file {{{2
 ## Print what should go in ast.cpp
-def printAstCppFile():
-    print('#include "ast.h"')
+def astCppFile():
+    cppfile = []
+    cppfile.append('#include "ast.h"\n')
     for class_ in astClasses:
-        print(class_.printCppFile())
+        cppfile.append(class_.printCppFile() + '\n')
+
+    return ''.join(cppfile)
 
 # generation functions: visitor files {{{1
 # generate ast forward declarations for visitor.h {{{2
 ## Print the list of forward declarations that go in the top of visitor.h
-def printForwardDecl():
-    for astClass in astClasses:
-        print(f'class {astClass.name};')
+def forwardDecl():
+    return ''.join([f'class {c.name};\n' for c in astClasses])
 # generate visitAST methods {{{2
 ## Print the visitSomethingAST methods to go in a class
 # @param isBase If the generated class is the base AST class so that it can generate either `= 0;` or `override;`
-def printVisitASTMethods(isBase):
+def visitASTMethods(isBase):
+    output = []
     for astClass in astClasses:
         if astClass.name == 'AST':
             continue
 
         if isBase:
-            print('    virtual ', end='')
+            output.append('    virtual ')
         else:
-            print('    ', end='')
+            output.append('    ')
 
-        print(f'void visit{astClass.name}(const {astClass.name} *ast)', end='')
+        output.append(f'void visit{astClass.name}(const {astClass.name} *ast)')
 
         if isBase:
-            print(' = 0;')
+            output.append(' = 0;\n')
         else:
-            print(' override;')
+            output.append(' override;\n')
+
+    return ''.join(output)
 # generate BlankVisitor method definitions {{{2
 ## Print the BlankVisitor::visitSomethingAST() methods
-def printBlankVisitorDefinitions():
+def blankVisitorDefinitions():
+    output = []
     for astClass in astClasses:
         if astClass.name == 'AST':
             continue
-        print(f'void BlankVisitor::visit{astClass.name}(const {astClass.name} *ast) {{}}')
+        output.append(f'void BlankVisitor::visit{astClass.name}(const {astClass.name} *ast) {{}}\n')
+    return ''.join(output)
 # lists: ast classes to generate {{{1
 ## The list of AST classes to generate
 astClasses = [
@@ -207,35 +215,3 @@ astClasses = [
     AstClass('Call'         , [AstField('varrefast', AstField.TUPTR), AstField('arglistast', AstField.TUPTR), AstField('oparn', AstField.TTOKEN)]),
 ]
 
-# entry: actually running the things by parsing args and stuff {{{1
-parser = argparse.ArgumentParser(description='Generate AST classes.')
-parser.add_argument('--astheader', action='store_true', help='Generate ast.h classes')
-parser.add_argument('--astsource', action='store_true', help='Generate ast.cpp')
-parser.add_argument('--forwarddecl', action='store_true', help='Generate forward declarations for visitor.h')
-parser.add_argument('--visitormethods', action='store_true', help='Generate visitSomethingAST methods')
-parser.add_argument('--visitorbasemethods', action='store_true', help='Generate visitSomethingAST methods in the pure virtual Visitor class')
-parser.add_argument('--blankvisitor', action='store_true', help='Generate BlankVisitor::visitSomethingAST method definitions')
-
-if len(sys.argv) == 1:
-    parser.print_help(sys.stderr)
-    sys.exit(1)
-
-args = parser.parse_args()
-
-if args.astheader:
-    printAstHFile()
-
-if args.astsource:
-    printAstCppFile()
-
-if args.forwarddecl:
-    printForwardDecl()
-
-if args.visitormethods:
-    printVisitASTMethods(False)
-
-if args.visitorbasemethods:
-    printVisitASTMethods(True)
-
-if args.blankvisitor:
-    printBlankVisitorDefinitions()

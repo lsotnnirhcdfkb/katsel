@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-import argparse
-import sys
-
 # {{{ trienode class
 class TrieNode:
     def __init__(self, value, length, tokentype=None):
@@ -23,50 +20,60 @@ class TrieNode:
 
     def show(self, uni=True):
         if uni:
-            self.__show([], False, ['\u2502', '\u2514', '\u2500'])
+            return self.__show([], False, ['\u2502', '\u2514', '\u2500'])
         else:
-            self.__show([], False, ['|', '+', '-'])
+            return self.__show([], False, ['|', '+', '-'])
 
     def __show(self, indent, isLast, chars):
         if isLast:
             indent = list(indent)
             indent[-1] = chars[1]
 
-        print(f'{"".join(indent)}{chars[2]}\'{self.value}\'', end='')
+        output = []
+
+        output.append(f'{"".join(indent)}{chars[2]}\'{self.value}\'')
         if self.tokentype != None:
-            print(f' - {self.tokentype}', end='')
-        print()
+            output.append(f' - {self.tokentype}')
+        output.append('\n')
 
         if isLast:
             indent[-1] = ' '
 
         for i, node in enumerate(self.nodes):
-            node.__show(indent + ['  ', chars[0]], i == len(self.nodes) - 1, chars)
+            output.append(node.__show(indent + ['  ', chars[0]], i == len(self.nodes) - 1, chars))
+
+        return ''.join(output)
 
     def generate(self):
-        print('TokenType Lexer::getIdentifierType()\n{')
-        self.__generate(True, 1)
-        print()
-        print(f'{self.__getIndent(1)}return TokenType::IDENTIFIER;')
-        print('}')
+        output = []
+        output.append('TokenType Lexer::getIdentifierType()\n{\n')
+        output.append(self.__generate(True, 1))
+        output.append('\n')
+        output.append(f'{self.__getIndent(1)}return TokenType::IDENTIFIER;\n')
+        output.append('}\n')
+        return ''.join(output)
 
     def __generate(self, root, indent):
+        output = []
+
         indentStr = self.__getIndent(indent)
         bodyIndentStr = self.__getIndent(indent + (1 if len(self.nodes) else 0))
         breakIndentStr = self.__getIndent(indent + 2)
 
         if self.tokentype != None:
-            print(f'{bodyIndentStr}if (start + {self.length} == end) return TokenType::{self.tokentype};')
+            output.append(f'{bodyIndentStr}if (start + {self.length} == end) return TokenType::{self.tokentype};\n')
 
         if len(self.nodes) == 0:
-            return
+            return ''.join(output)
 
-        print(f'{indentStr}switch (*(start + {self.length}))\n{indentStr}{{')
+        output.append(f'{indentStr}switch (*(start + {self.length}))\n{indentStr}{{\n')
         for node in self.nodes:
-            print(f'{bodyIndentStr}case \'{node.value}\':')
-            node.__generate(False, indent + 2)
-            print(f'{breakIndentStr}break;')
-        print(f'{indentStr}' + '}')
+            output.append(f'{bodyIndentStr}case \'{node.value}\':\n')
+            output.append(node.__generate(False, indent + 2))
+            output.append(f'{breakIndentStr}break;\n')
+        output.append(f'{indentStr}' + '}\n')
+
+        return ''.join(output)
 
     def __getIndent(self, indent, tab=False):
         return ('\t' if tab else '    ') * indent
@@ -114,18 +121,6 @@ keywords = [
 ]
 # }}}
 
-# {{{ parsing args
-parser = argparse.ArgumentParser(description='Generate keyword parsing code.')
-parser.add_argument('-t', '--trie', action='store_true', help='View trie of keywords')
-parser.add_argument('-c', '--code', action='store_true', help='Generate code of keywords')
-
-if len(sys.argv)==1:
-    parser.print_help(sys.stderr)
-    sys.exit(1)
-
-args = parser.parse_args()
-# }}}
-
 trie = TrieNode(None, 0)
 
 # {{{ generating
@@ -133,7 +128,7 @@ for keyword, tokentype in keywords:
     lastnode = trie
     for letter in keyword:
         if lastnode.hasNode(letter):
-            lastnode = lastnode.getNode(letter);
+            lastnode = lastnode.getNode(letter)
             continue
 
         newnode = TrieNode(letter, lastnode.length + 1)
@@ -142,10 +137,4 @@ for keyword, tokentype in keywords:
 
     lastnode.tokentype = tokentype
 # }}}
-
-if args.trie:
-    trie.show()
-
-if args.code:
-    trie.generate()
 
