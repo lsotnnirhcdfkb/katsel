@@ -208,7 +208,6 @@ astClasses = [
 ]
 
 # entry: actually running the things by parsing args and stuff {{{1
-## The argument parser to parse command line arguments
 parser = argparse.ArgumentParser(description='Generate AST classes.')
 parser.add_argument('--astheader', action='store_true', help='Generate ast.h classes')
 parser.add_argument('--astsource', action='store_true', help='Generate ast.cpp')
