@@ -149,9 +149,15 @@ public:
     // GENPRINTVISITMETHOD END
 
 private:
+    /// Current indent value
     int indent;
+    /// Whether or not to print the indent at this current character in the print() method
     bool pindent;
+    /// Print a string to std::cout with indents
+    /// @param str The string to print
     void print(std::string &str);
+    /// Helper overload to print() that accepts rvalue references
+    /// @param str The string to print
     void print(std::string &&str);
 };
 
