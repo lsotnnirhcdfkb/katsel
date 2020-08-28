@@ -2,6 +2,7 @@
 
 #include "tokentype.h"
 
+/// A Token emitted from the lexer lexing the source file
 struct Token
 {
     TokenType type;

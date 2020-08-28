@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # {{{ trienode class
+## A node in a Trie
 class TrieNode:
     def __init__(self, value, length, tokentype=None):
         self.value = value
@@ -44,8 +45,9 @@ class TrieNode:
 
         return ''.join(output)
 
-    def generate(self):
+    def generate(self, doc=''):
         output = []
+        output.append(f'/// {doc}\n')
         output.append('TokenType Lexer::getIdentifierType()\n{\n')
         output.append(self.__generate(True, 1))
         output.append('\n')

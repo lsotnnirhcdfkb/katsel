@@ -3,7 +3,8 @@
 Lexer::Lexer(File &sourcefile) : start(sourcefile.source.begin()), end(sourcefile.source.begin()), nextline(1), nextcolumn(1), line(1), column(1), srcend(sourcefile.source.end()) {}
 
 // {{{ getIdentifierType
-// KWGEN BEGIN HERE
+// KWGEN START
+/// Check if an idenetifier token is a keyword type and return that type, or just return TokenType::IDENTIFIER
 TokenType Lexer::getIdentifierType()
 {
     switch (*(start + 0))
@@ -666,14 +667,19 @@ TokenType Lexer::getIdentifierType()
 
     return TokenType::IDENTIFIER;
 }
-// KWGEN END HERE
+// KWGEN END
 // }}}
 // {{{ helper functions
+/// Return whether a character is a digit
+/// @param c The character to check
 bool isDigit(char c)
 {
     return c >= '0' && c <= '9';
 }
 
+/// Return whether a character is a digit in a certain base
+/// @param c The character to check
+/// @param base The base that the character is in
 bool isDigit(char c, TokenType base)
 { // overloaded method for dealing with non-decimal integer literals
     switch (base)
@@ -695,6 +701,8 @@ bool isDigit(char c, TokenType base)
     }
 }
 
+/// Return whteher a character is an alphabetic character
+/// @param c The character to check
 bool isAlpha(char c)
 {
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_';

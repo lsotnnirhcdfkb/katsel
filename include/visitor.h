@@ -24,6 +24,7 @@ class ArgsAST;
 class CallAST;
 // GENFORWARDDECL END
 
+/// Blank pure virtual visitor class that other visitors can extend
 class Visitor
 {
 public:
@@ -49,6 +50,7 @@ public:
     // GENVISITORMETHODBASE END
 };
 
+/// A visitor prints out each AST in a readable format
 class PrintVisitor : public Visitor
 {
 public:
@@ -81,6 +83,7 @@ private:
     void print(std::string &&str);
 };
 
+/// A visitor that does nothing for other partial visitors to extend
 class BlankVisitor : public Visitor
 {
 public:

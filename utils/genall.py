@@ -3,15 +3,15 @@ import io
 import astgen, kwgen
 
 jobs = [
-    ('src/lexer.cpp'           , 'KWGEN BEGIN HERE'                     , 'KWGEN END HERE'                         , kwgen.trie.generate),
-    ('src/ast.cpp'             , None                                   , None                                     , astgen.astCppFile),
-    ('include/ast.h'           , 'GENASTHEADER START'                   , 'GENASTHEADER END'                       , astgen.astHFile),
-    ('include/visitor.h'       , 'GENFORWARDDECL START'                 , 'GENFORWARDDECL END'                     , astgen.forwardDecl),
-    ('src/visitor.cpp'         , 'BLANKGEN START'                       , 'BLANKGEN END'                           , astgen.blankVisitorDefinitions),
-    ('include/visitor.h'       , 'GENVISITORMETHODBASE START'           , 'GENVISITORMETHODBASE END'               , lambda: astgen.visitASTMethods(True)),
-    ('include/visitor.h'       , 'GENVISITORMETHOD1 START'              , 'GENVISITORMETHOD1 END'                  , lambda: astgen.visitASTMethods(False)),
-    ('include/visitor.h'       , 'GENVISITORMETHOD2 START'              , 'GENVISITORMETHOD2 END'                  , lambda: astgen.visitASTMethods(False)),
-    ('include/llvmgenvisitor.h', 'GENVISITORMETHOD3 START'              , 'GENVISITORMETHOD3 END'                  , lambda: astgen.visitASTMethods(False)),
+    ('src/lexer.cpp'           , 'KWGEN START'               , 'KWGEN END'               , lambda: kwgen.trie.generate(doc='Check if an idenetifier token is a keyword type and return that type, or just return TokenType::IDENTIFIER')),
+    ('src/ast.cpp'             , None                        , None                      , astgen.astCppFile),
+    ('include/ast.h'           , 'GENASTHEADER START'        , 'GENASTHEADER END'        , astgen.astHFile),
+    ('include/visitor.h'       , 'GENFORWARDDECL START'      , 'GENFORWARDDECL END'      , astgen.forwardDecl),
+    ('src/visitor.cpp'         , 'BLANKGEN START'            , 'BLANKGEN END'            , astgen.blankVisitorDefinitions),
+    ('include/visitor.h'       , 'GENVISITORMETHODBASE START', 'GENVISITORMETHODBASE END', lambda: astgen.visitASTMethods(True)),
+    ('include/visitor.h'       , 'GENVISITORMETHOD1 START'   , 'GENVISITORMETHOD1 END'   , lambda: astgen.visitASTMethods(False)),
+    ('include/visitor.h'       , 'GENVISITORMETHOD2 START'   , 'GENVISITORMETHOD2 END'   , lambda: astgen.visitASTMethods(False)),
+    ('include/llvmgenvisitor.h', 'GENVISITORMETHOD3 START'   , 'GENVISITORMETHOD3 END'   , lambda: astgen.visitASTMethods(False)),
 ]
 
 for jobi, job in enumerate(jobs):
