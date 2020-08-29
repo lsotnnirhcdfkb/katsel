@@ -12,8 +12,8 @@ And not only that, but this is also very heavily based off of the [Kaleidescope 
 - Compiling to object code
 - Optimizing code with LLVM
 - Functions
-- expressions
-- variables
+- Expressions
+- Variables
 
 # Todo
 
