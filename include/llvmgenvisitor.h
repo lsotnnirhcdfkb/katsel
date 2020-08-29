@@ -159,6 +159,9 @@ public:
     /// Visit the VariableRefAST and compile it to LLVM IR/object code
     /// @param ast The ast to visit
     void visitVariableRefAST(const ASTs::VariableRefAST *ast) override;
+    /// Visit the LValueAST and compile it to LLVM IR/object code
+    /// @param ast The ast to visit
+    void visitLValueAST(const ASTs::LValueAST *ast) override;
     /// Visit the ReturnStmtAST and compile it to LLVM IR/object code
     /// @param ast The ast to visit
     void visitReturnStmtAST(const ASTs::ReturnStmtAST *ast) override;

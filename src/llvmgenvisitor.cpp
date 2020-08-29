@@ -431,6 +431,15 @@ void LLVMGenVisitor::visitReturnStmtAST(const ASTs::ReturnStmtAST *ast)
     }
 }
 // }}}
+// {{{ lvalue visiting
+void LLVMGenVisitor::visitLValueAST(const ASTs::LValueAST *ast)
+{
+    CLEARRET;
+
+    ast->expr->accept(this);
+    LLVMGENVISITOR_RETURN(curRetVal);
+}
+// }}}
 // {{{ helper ast visiting
 void LLVMGenVisitor::visitTypeAST(const ASTs::TypeAST *ast) 
 {
@@ -577,11 +586,12 @@ void LLVMGenVisitor::finishCurScope()
 
 llvm::AllocaInst* LLVMGenVisitor::getVarFromName(std::string &name, Token const &tok, bool overrideErr)
 {
-    int highestScope = -1;
+    size_t highestScope = 0;
     llvm::AllocaInst *v = nullptr;
+
     for (auto it = scopesymbols.cbegin(); it != scopesymbols.cend(); ++it)
     {
-        if (it->first.second == name && it->first.first > highestScope)
+        if (it->first.second == name && it->first.first >= highestScope)
         {
             v = it->second;
             highestScope = it->first.first;

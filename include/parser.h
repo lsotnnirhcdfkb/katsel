@@ -71,8 +71,8 @@ public:
     /// Parse a primary
     std::unique_ptr<ASTs::AST> primary(); 
 
-    /// Parse a variable reference
-    std::unique_ptr<ASTs::AST> varref(); 
+    /// Parse an lvalue
+    std::unique_ptr<ASTs::AST> lvalue(); 
     /// Parse a code block
     std::unique_ptr<ASTs::AST> block(); 
     /// Parse a type

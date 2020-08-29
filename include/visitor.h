@@ -23,6 +23,7 @@ namespace ASTs
     class VarStmtAST;
     class AssignAST;
     class VariableRefAST;
+    class LValueAST;
     class ReturnStmtAST;
     class ArgAST;
     class ArgsAST;
@@ -77,6 +78,9 @@ public:
     /// Visit a(n) VariableRefAST 
     /// @param ast The ast to visit
     virtual void visitVariableRefAST(const ASTs::VariableRefAST *ast) = 0;
+    /// Visit a(n) LValueAST 
+    /// @param ast The ast to visit
+    virtual void visitLValueAST(const ASTs::LValueAST *ast) = 0;
     /// Visit a(n) ReturnStmtAST 
     /// @param ast The ast to visit
     virtual void visitReturnStmtAST(const ASTs::ReturnStmtAST *ast) = 0;
@@ -140,6 +144,9 @@ public:
     /// Visit the VariableRefAST and print it in a readable form
     /// @param ast The ast to visit
     void visitVariableRefAST(const ASTs::VariableRefAST *ast) override;
+    /// Visit the LValueAST and print it in a readable form
+    /// @param ast The ast to visit
+    void visitLValueAST(const ASTs::LValueAST *ast) override;
     /// Visit the ReturnStmtAST and print it in a readable form
     /// @param ast The ast to visit
     void visitReturnStmtAST(const ASTs::ReturnStmtAST *ast) override;
@@ -214,6 +221,9 @@ public:
     /// Visit the VariableRefAST and do nothing
     /// @param ast The ast to visit
     void visitVariableRefAST(const ASTs::VariableRefAST *ast) override;
+    /// Visit the LValueAST and do nothing
+    /// @param ast The ast to visit
+    void visitLValueAST(const ASTs::LValueAST *ast) override;
     /// Visit the ReturnStmtAST and do nothing
     /// @param ast The ast to visit
     void visitReturnStmtAST(const ASTs::ReturnStmtAST *ast) override;

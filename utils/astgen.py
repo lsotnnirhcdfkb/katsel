@@ -332,6 +332,13 @@ astClasses = [
             doc='An AST for a variable reference'
             ),
     AstClass(
+            name='LValue',
+            fields=[
+                AstField('expr', AstField.TUPTR, 'The expression that evaluates to an lvalue'),
+            ],
+            doc='An AST for any expression that is guaranteed to evaluatae to an lvalue',
+            ),
+    AstClass(
             name='ReturnStmt',
             fields=[
                 AstField('expr', AstField.TUPTR, 'The expression to return'),

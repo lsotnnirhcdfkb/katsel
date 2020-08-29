@@ -66,6 +66,9 @@ void ASTs::AssignAST::accept(Visitor *v) { v->visitAssignAST(this); }
 ASTs::VariableRefAST::VariableRefAST(Token var): var(var) {}
 void ASTs::VariableRefAST::accept(Visitor *v) { v->visitVariableRefAST(this); }
 
+ASTs::LValueAST::LValueAST(std::unique_ptr<ASTs::AST> expr): expr(std::move(expr)) {}
+void ASTs::LValueAST::accept(Visitor *v) { v->visitLValueAST(this); }
+
 ASTs::ReturnStmtAST::ReturnStmtAST(std::unique_ptr<ASTs::AST> expr): expr(std::move(expr)) {}
 void ASTs::ReturnStmtAST::accept(Visitor *v) { v->visitReturnStmtAST(this); }
 

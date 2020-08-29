@@ -144,7 +144,7 @@ std::unique_ptr<ASTs::AST> Parser::assignmentexpr()
     
     if (match(TokenType::EQUAL))
     {
-        if (!(dynamic_cast<ASTs::VariableRefAST*>(&*lhs)))
+        if (!(dynamic_cast<ASTs::LValueAST*>(&*lhs)))
             error("Invalid assignment target");
 
         Token equalSign = prev();
@@ -386,13 +386,7 @@ std::unique_ptr<ASTs::AST> Parser::primary()
         return expr;
     }
 
-    if (check(TokenType::IDENTIFIER))
-    {
-        return varref();
-    }
-
-    error("Expected expression", true);
-    return nullptr;
+    return lvalue();
 }
 // }}}
 // }}}
@@ -479,11 +473,15 @@ std::unique_ptr<ASTs::AST> Parser::type()
     return nullptr;
 }
 
-std::unique_ptr<ASTs::AST> Parser::varref()
+// }}}
+// {{{ lvalues
+std::unique_ptr<ASTs::AST> Parser::lvalue()
 {
     Token iden = consume(TokenType::IDENTIFIER, "Expected identifier");
-    std::unique_ptr<ASTs::AST> varrefast = std::make_unique<ASTs::VariableRefAST>(iden);
+    std::unique_ptr<ASTs::AST> lvalueast = std::make_unique<ASTs::LValueAST>(std::make_unique<ASTs::VariableRefAST>(iden));
 
+    // merged call rule and lvalue rule into one
+    // except really all I did was keep it the way it was before
     while (match(TokenType::OPARN))
     {
         Token oparn = prev();
@@ -493,10 +491,10 @@ std::unique_ptr<ASTs::AST> Parser::varref()
 
         consume(TokenType::CPARN, "Expected closing parentheses after argument list");
 
-        varrefast = std::make_unique<ASTs::CallAST>(std::move(varrefast), std::move(arglistast), oparn);
+        lvalueast = std::make_unique<ASTs::CallAST>(std::move(lvalueast), std::move(arglistast), oparn);
     }
 
-    return varrefast;
+    return lvalueast;
 }
 // }}}
 // }}}

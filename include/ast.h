@@ -260,6 +260,20 @@ namespace ASTs
         Token var;
     };
 
+    /// An AST for any expression that is guaranteed to evaluatae to an lvalue
+    class LValueAST : public AST
+    {
+    public:
+        /// The constructor for this class
+        /// @param expr The expression that evaluates to an lvalue
+        LValueAST(std::unique_ptr<ASTs::AST> expr);
+        /// The accept method that calls the correct visitor method on this AST
+        void accept(Visitor *v) override;
+    
+        /// The expression that evaluates to an lvalue
+        std::unique_ptr<ASTs::AST> expr;
+    };
+
     /// An AST representing a return statement
     class ReturnStmtAST : public AST
     {

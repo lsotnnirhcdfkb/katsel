@@ -161,6 +161,12 @@ void PrintVisitor::visitVariableRefAST(const ASTs::VariableRefAST *ast)
     print("(Variable reference: " + std::string(ast->var.start, ast->var.end) + ")");
 }
 
+void PrintVisitor::visitLValueAST(const ASTs::LValueAST *ast)
+{
+    print("LValue: ");
+    ast->expr->accept(this);
+}
+
 void PrintVisitor::visitArgAST(const ASTs::ArgAST *ast) 
 {
     print("(Argument: ");
@@ -227,6 +233,7 @@ void BlankVisitor::visitParamsAST(const ASTs::ParamsAST *ast) {}
 void BlankVisitor::visitVarStmtAST(const ASTs::VarStmtAST *ast) {}
 void BlankVisitor::visitAssignAST(const ASTs::AssignAST *ast) {}
 void BlankVisitor::visitVariableRefAST(const ASTs::VariableRefAST *ast) {}
+void BlankVisitor::visitLValueAST(const ASTs::LValueAST *ast) {}
 void BlankVisitor::visitReturnStmtAST(const ASTs::ReturnStmtAST *ast) {}
 void BlankVisitor::visitArgAST(const ASTs::ArgAST *ast) {}
 void BlankVisitor::visitArgsAST(const ASTs::ArgsAST *ast) {}

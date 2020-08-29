@@ -27,7 +27,7 @@ args -> expression (COMMA expression)*;
 // this grammar is heavily based off of the grammar for the Lox Language in the book "Crafting Interpreters" by Bob Nystrom
 // this grammar also closely follows the precedences of the operators in Python
 expression -> assignmentexpr;
-assignmentexpr -> varref EQUAL assignment |
+assignmentexpr -> lvalue EQUAL assignment |
                 ternaryexpr;
 ternaryexpr -> binorexpr (QUESTION binorexpr COLON ternaryexpr)?;
 binorexpr -> binandexpr (DOUBLEPIPE binandexpr)*;
@@ -47,9 +47,10 @@ primary -> TRUELIT | FALSELIT |
         NULLLIT |
         DECINTLIT | OCTINTLIT | BININTLIT | HEXINTLIT |
         CHARLIT | STRINGLIT |
-        varref |
+        lvalue |
+        call |
         OPARN expression CPARN;
 
-// this was from Lox's grammar
-varref -> IDENTIFIER (OPARN args? CPARN)*;
+lvalue -> IDENTIFIER;
+call -> lvalue (OPARN args? CPARN)+;
 
