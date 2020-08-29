@@ -15,7 +15,7 @@ jobs = [
     ('include/visitor.h'       , 'GENVISITORMETHODBASE START', 'GENVISITORMETHODBASE END', lambda: astgen.visitASTMethods(True, doc='Visit a(n) {} ')),
     ('include/visitor.h'       , 'GENPRINTVISITMETHOD START' , 'GENPRINTVISITMETHOD END' , lambda: astgen.visitASTMethods(False, doc='Visit the {} and print it in a readable form')),
     ('include/visitor.h'       , 'GENBLANKVISITMETHOD START' , 'GENBLANKVISITMETHOD END' , lambda: astgen.visitASTMethods(False, doc='Visit the {} and do nothing')),
-    ('include/llvmgenvisitor.h', 'GENLLVMVISITMETHOD START'  , 'GENLLVMVISITMETHOD END'  , lambda: astgen.visitASTMethods(False, doc='Visit the {} and compile it to LLVM IR/object code')),
+    ('include/compiler.h'      , 'GENLLVMVISITMETHOD START'  , 'GENLLVMVISITMETHOD END'  , lambda: astgen.visitASTMethods(False, doc='Visit the {} and compile it to LLVM IR/object code')),
 ]
 
 for jobi, job in enumerate(jobs):

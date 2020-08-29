@@ -10,7 +10,7 @@
 #include "file.h"
 #include "lexer.h"
 #include "parser.h"
-#include "llvmgenvisitor.h"
+#include "compiler.h"
 
 /// Read a file and output a File, with the appropriate source string
 File readFile(char *filename)
@@ -49,13 +49,12 @@ void compileFile(File &sourcefile)
     auto parser = std::make_unique<Parser>(*lexer, sourcefile);
 
     std::unique_ptr<ASTs::AST> parsed = parser->parse();
-    auto printv = std::make_unique<PrintVisitor>();
-    auto llvmv = std::make_unique<LLVMGenVisitor>(sourcefile);
+    // auto printv = std::make_unique<PrintVisitor>();
 
     if (parsed)
     {
+        compile(&*parsed, sourcefile);
         // parsed->accept(&*printv);
-        parsed->accept(&*llvmv);
     }
 
     // int returnCode = parse(source);
