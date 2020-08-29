@@ -197,9 +197,9 @@ private:
     /// The FunctionPassManager to manage optimization passes
     std::unique_ptr<llvm::legacy::FunctionPassManager> fpm;
     /// The map between variable names and a scope and an alloca
-    std::map<std::pair<int, std::string>, llvm::AllocaInst*> scopesymbols;
+    std::map<std::pair<size_t, std::string>, llvm::AllocaInst*> scopesymbols;
     /// The current scope number
-    int scopenum;
+    size_t scopenum;
     /// Whether or not the visitor has errored in trying to compile this code
     bool errored;
 
