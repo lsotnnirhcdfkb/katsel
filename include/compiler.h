@@ -229,5 +229,8 @@ namespace CompilerNS
     };
 }
 
+/// Compile function to create a compiler object and compile an AST with it
+/// @param ast The ast to compile
+/// @param sourcefile The sourcefile being compiled
 void compile(ASTs::AST *ast, File &sourcefile);
 

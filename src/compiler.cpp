@@ -9,10 +9,12 @@
 #define C_RETURN(x) curRetVal = x; \
                                 return;
 /// Convenience macro to clear the return value because at the start of a new function call, the return value must be cleared
-#define CLEARRET curRetVal = nullptr
+#define C_CLEARRET curRetVal = nullptr
 
 using namespace CompilerNS; // im sorry im evil
 
+// Compiler stuff {{{1
+// Compiler constructor {{{2
 Compiler::Compiler(File &sourcefile): sourcefile(sourcefile), builder(context), module_(std::make_unique<llvm::Module>("COxianc output of file " + sourcefile.filename, context)), scopenum(0), paramsVisitor(sourcefile, context), typeVisitor(sourcefile, context), forwDeclVisitor(module_.get(), &paramsVisitor, &typeVisitor, sourcefile, errored), fpm(std::make_unique<llvm::legacy::FunctionPassManager>(module_.get())), errored(false)
 {
     fpm->add(llvm::createPromoteMemoryToRegisterPass());
@@ -23,27 +25,24 @@ Compiler::Compiler(File &sourcefile): sourcefile(sourcefile), builder(context), 
 
     fpm->doInitialization();
 }
-
-// {{{ visiting asts
-// {{{ programast
+// Compiler visiting methods {{{2
+// ProgramAST {{{3
 void Compiler::visitProgramAST(const ASTs::ProgramAST *ast) 
 {
-    CLEARRET;
+    C_CLEARRET;
 
+    // Generate code {{{4
     for (const std::unique_ptr<ASTs::AST> &dast : ast->asts) 
-    {
         dast->accept(&forwDeclVisitor);
-    }
 
     for (const std::unique_ptr<ASTs::AST> &dast : ast->asts) 
-    {
         dast->accept(this);
-    }
 
     // module_->print(llvm::outs(), nullptr);
     if (errored)
         return;
 
+    // Targets and stuff {{{4
     auto targetTriple = llvm::sys::getDefaultTargetTriple();
 
     llvm::InitializeAllTargetInfos();
@@ -71,6 +70,7 @@ void Compiler::visitProgramAST(const ASTs::ProgramAST *ast)
     module_->setDataLayout(targetMachine->createDataLayout());
     module_->setTargetTriple(targetTriple);
 
+    // Outputting stuff {{{4
     auto filename = "out.o";
     std::error_code errc;
 
@@ -93,12 +93,13 @@ void Compiler::visitProgramAST(const ASTs::ProgramAST *ast)
     emitpm.run(*module_);
     outstream.flush();
     outstream.close();
+    // }}} End outputting stuff
 }
-// }}}
-// {{{ declaration visiting
+// Declaraions {{{3
+// FunctionAST {{{4
 void Compiler::visitFunctionAST(const ASTs::FunctionAST *ast)
 {
-    CLEARRET;
+    C_CLEARRET;
 
     std::string name = std::string(ast->name.start, ast->name.end);
 
@@ -144,12 +145,11 @@ void Compiler::visitFunctionAST(const ASTs::FunctionAST *ast)
 
     C_RETURN(f);
 }
-// }}}
-// {{{ expression visiting
-// {{{ binary ast
+// Expressions {{{3
+// Binary AST {{{4
 void Compiler::visitBinaryAST(const ASTs::BinaryAST *ast) 
 {
-    CLEARRET;
+    C_CLEARRET;
     ast->last->accept(this);
     llvm::Value *lval = curRetVal;
     ast->rast->accept(this);
@@ -162,6 +162,7 @@ void Compiler::visitBinaryAST(const ASTs::BinaryAST *ast)
 
     llvm::Value *retval = nullptr;
 
+    // Huge switch {{{5
     switch (ast->op.type)
     {
         // TODO: change instructions to depend on the lval and rval types
@@ -239,14 +240,14 @@ void Compiler::visitBinaryAST(const ASTs::BinaryAST *ast)
 
         default: error(ast->op, "invalid thingy", sourcefile); retval = nullptr; // shouldn't ever get here
     }
+    // }}} End huge switch
 
     C_RETURN(retval);
 }
-// }}}
-// {{{ ternary ast
+// Ternary AST {{{4
 void Compiler::visitTernaryOpAST(const ASTs::TernaryOpAST *ast) 
 {
-    CLEARRET;
+    C_CLEARRET;
     ast->conditional->accept(this);
     llvm::Value *cond = curRetVal;
 
@@ -285,11 +286,10 @@ void Compiler::visitTernaryOpAST(const ASTs::TernaryOpAST *ast)
 
     C_RETURN(phi)
 }
-// }}}
-// {{{ unary ast
+// Unary AST {{{4
 void Compiler::visitUnaryAST(const ASTs::UnaryAST *ast) 
 {
-    CLEARRET;
+    C_CLEARRET;
     ast->ast->accept(this);
     llvm::Value *val = curRetVal;
 
@@ -322,11 +322,10 @@ void Compiler::visitUnaryAST(const ASTs::UnaryAST *ast)
 
     C_RETURN(retval)
 }
-// }}}
-// {{{ assign ast
+// AssignAST {{{4
 void Compiler::visitAssignAST(const ASTs::AssignAST *ast)
 {
-    CLEARRET;
+    C_CLEARRET;
     ASTs::VariableRefAST *lhs = dynamic_cast<ASTs::VariableRefAST*>(ast->lhs.get());
 
     if (!lhs)
@@ -348,11 +347,10 @@ void Compiler::visitAssignAST(const ASTs::AssignAST *ast)
     builder.CreateStore(rhs, var);
     C_RETURN(rhs)
 }
-// }}}
-// {{{ var ref
+// VariableRefAST {{{4
 void Compiler::visitVariableRefAST(const ASTs::VariableRefAST *ast)
 {
-    CLEARRET;
+    C_CLEARRET;
     std::string name = std::string(ast->var.start, ast->var.end);
 
     // find variable with override because it could
@@ -375,24 +373,25 @@ void Compiler::visitVariableRefAST(const ASTs::VariableRefAST *ast)
     error(ast->var, "Unknown name", sourcefile);
     C_RETURN(nullptr)
 }
-// }}}
+// PrimaryAST {{{4
 void Compiler::visitPrimaryAST(const ASTs::PrimaryAST *ast) 
 {
-    CLEARRET;
+    C_CLEARRET;
     C_RETURN(llvm::ConstantInt::get(context, llvm::APInt(64, std::stoi(std::string(ast->value.start, ast->value.end)))))
 }
 // }}}
-// {{{ statement visiting
+// Statements {{{3
+// ExprStmtAST {{{4
 void Compiler::visitExprStmtAST(const ASTs::ExprStmtAST *ast) 
 {
-    CLEARRET;
+    C_CLEARRET;
     ast->ast->accept(this);
     C_RETURN(nullptr)
 }
-
+// VarStmtAST {{{4
 void Compiler::visitVarStmtAST(const ASTs::VarStmtAST *ast) 
 {
-    CLEARRET;
+    C_CLEARRET;
     // TODO: types
     std::string varname = std::string(ast->name.start, ast->name.end);
 
@@ -420,9 +419,10 @@ void Compiler::visitVarStmtAST(const ASTs::VarStmtAST *ast)
 
     C_RETURN(varalloca)
 }
+// ReturnStmtAST {{{4
 void Compiler::visitReturnStmtAST(const ASTs::ReturnStmtAST *ast)
 {
-    CLEARRET;
+    C_CLEARRET;
     if (ast->expr)
     {
         ast->expr->accept(this);
@@ -433,25 +433,20 @@ void Compiler::visitReturnStmtAST(const ASTs::ReturnStmtAST *ast)
         builder.CreateRetVoid();
     }
 }
-// }}}
-// {{{ lvalue visiting
+// LValue stuff {{{3
+// Plain LValue {{{4
 void Compiler::visitLValueAST(const ASTs::LValueAST *ast)
 {
-    CLEARRET;
+    C_CLEARRET;
 
     ast->expr->accept(this);
     C_RETURN(curRetVal);
 }
-// }}}
-// {{{ helper ast visiting
-void Compiler::visitTypeAST(const ASTs::TypeAST *ast) 
-{
-    CLEARRET;
-}
-
+// Other ASTs {{{3
+// BlockAST {{{4
 void Compiler::visitBlockAST(const ASTs::BlockAST *ast) 
 {
-    CLEARRET;
+    C_CLEARRET;
     beginNewScope();
     for (const std::unique_ptr<ASTs::AST> &bast : ast->stmts) 
     {
@@ -460,39 +455,19 @@ void Compiler::visitBlockAST(const ASTs::BlockAST *ast)
     finishCurScope();
     C_RETURN(nullptr)
 }
-
-void Compiler::visitParamAST(const ASTs::ParamAST *ast) 
-{
-    CLEARRET;
-    // shouldn't ever happen beacause ParamsVisitor processes the params
-    // instead of Compiler
-}
-
-void Compiler::visitParamsAST(const ASTs::ParamsAST *ast) 
-{
-    CLEARRET;
-    // also shouldn't ever happen beacause ParamsVisitor processes the params
-    // instead of Compiler
-}
-
+// ArgAST {{{4
 void Compiler::visitArgAST(const ASTs::ArgAST *ast) 
 {
     // ASTs::visitCallAST calls this
-    CLEARRET;
+    C_CLEARRET;
 
     ast->expr->accept(this);
     C_RETURN(curRetVal); // this technically doesn't do anything but whatever
 }
-
-void Compiler::visitArgsAST(const ASTs::ArgsAST *ast) 
-{
-    // this shouldnot get called because ASTs::visitCallAST parses ArgsAST
-    CLEARRET;
-}
-
+// CallAST {{{4
 void Compiler::visitCallAST(const ASTs::CallAST *ast) 
 {
-    CLEARRET;
+    C_CLEARRET;
 
     ast->varrefast->accept(this);
     llvm::Value *f = curRetVal;
@@ -549,21 +524,25 @@ void Compiler::visitCallAST(const ASTs::CallAST *ast)
 
     C_RETURN(builder.CreateCall(f, valargs));
 }
-
-// }}}
-// }}}
-// {{{ private llvm visitor helper methods
+// Empty ASTs {{{3
+void Compiler::visitTypeAST(const ASTs::TypeAST *ast) { C_CLEARRET; } // TypeVisitor's job
+void Compiler::visitParamAST(const ASTs::ParamAST *ast) { C_CLEARRET; } // ParamsVisitor's job
+void Compiler::visitParamsAST(const ASTs::ParamsAST *ast) { C_CLEARRET; } // ParamsVisitor's job
+void Compiler::visitArgsAST(const ASTs::ArgsAST *ast) { C_CLEARRET; } // Compiler::visitCallAST's job
+// Compiler Helper Methods {{{2
+// Error function {{{3
 void Compiler::error(Token const &t, std::string const &message, File const &sourcefile)
 {
     reportError(t, message, sourcefile);
     errored = true;
 }
+// createEntryAlloca {{{3
 llvm::AllocaInst* Compiler::createEntryAlloca(llvm::Function *f, const std::string &name) 
 {
     llvm::IRBuilder<> b (&(f->getEntryBlock()), f->getEntryBlock().begin());
     return b.CreateAlloca(llvm::Type::getInt64Ty(context), 0, name.c_str());
 }
-
+// Begin and end functions {{{3
 void Compiler::beginNewScope()
 {
     ++scopenum;
@@ -586,7 +565,7 @@ void Compiler::finishCurScope()
 
     --scopenum;
 }
-
+// Create and get variables from scopesymbols {{{3
 llvm::AllocaInst* Compiler::getVarFromName(std::string &name, Token const &tok, bool overrideErr)
 {
     size_t highestScope = 0;
@@ -610,11 +589,9 @@ void Compiler::createScopeSymbol(std::string &name, llvm::AllocaInst* alloca)
 {
     scopesymbols[std::pair<int, std::string>{scopenum, name}] = alloca;
 }
-// }}}
-// {{{ helper visitors
+// ParamsVisitor {{{1
 ParamsVisitor::ParamsVisitor(File &sourcefile, llvm::LLVMContext &context): sourcefile(sourcefile), context(context) {}
-TypeVisitor::TypeVisitor(File &sourcefile, llvm::LLVMContext &context): sourcefile(sourcefile), context(context) {}
-
+// ParamAST {{{2
 void ParamsVisitor::visitParamAST(const ASTs::ParamAST *ast)
 {
     // if this is part of a visitParams then this will be overrided anyway
@@ -622,6 +599,7 @@ void ParamsVisitor::visitParamAST(const ASTs::ParamAST *ast)
     paramTypes = {llvm::Type::getInt64Ty(context)}; 
     paramNames = {ast->paramname};
 }
+// ParamsAST {{{2
 void ParamsVisitor::visitParamsAST(const ASTs::ParamsAST *ast)
 {
     std::vector<llvm::Type*> cparamTypes;
@@ -638,7 +616,8 @@ void ParamsVisitor::visitParamsAST(const ASTs::ParamsAST *ast)
     paramTypes = cparamTypes;
     paramNames = cparamNames;
 }
-
+// TypeVisitor {{{1
+TypeVisitor::TypeVisitor(File &sourcefile, llvm::LLVMContext &context): sourcefile(sourcefile), context(context) {}
 void TypeVisitor::visitTypeAST(const ASTs::TypeAST *ast)
 {
     // right now only int64s are supported
@@ -646,11 +625,12 @@ void TypeVisitor::visitTypeAST(const ASTs::TypeAST *ast)
     rettype = llvm::Type::getInt64Ty(context);
     // rettype = llvm::Type::getVoidTy(context);
 }
-
+// ForwDeclGenVisitor {{{1
 ForwDeclGenVisitor::ForwDeclGenVisitor(llvm::Module *module_, ParamsVisitor *paramsVisitor, TypeVisitor *typeVisitor, File sourcefile, bool &errored): module_(module_), paramsVisitor(paramsVisitor), typeVisitor(typeVisitor), sourcefile(sourcefile), errored(errored) {}
-
+// FunctionAST {{{2
 void ForwDeclGenVisitor::visitFunctionAST(const ASTs::FunctionAST *ast)
 {
+    // Check if the function is already defined {{{3
     std::string name = std::string(ast->name.start, ast->name.end);
 
     llvm::Function *fcheck = module_->getFunction(name);
@@ -662,6 +642,7 @@ void ForwDeclGenVisitor::visitFunctionAST(const ASTs::FunctionAST *ast)
         return;
     }
 
+    // Get the parameters {{{3
     std::vector<llvm::Type*> paramTypes;
     std::vector<Token> paramNames;
 
@@ -672,9 +653,12 @@ void ForwDeclGenVisitor::visitFunctionAST(const ASTs::FunctionAST *ast)
         paramTypes = paramsVisitor->paramTypes;
         paramNames = paramsVisitor->paramNames;
     }
-
+    
+    // Get the return type {{{3
     ast->type->accept(typeVisitor);
     llvm::Type *rettype = typeVisitor->rettype;
+    
+    // Create the function {{{3
     llvm::FunctionType *ft = llvm::FunctionType::get(rettype, paramTypes, false); 
     llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, name, *module_);
 
@@ -688,8 +672,7 @@ void ForwDeclGenVisitor::visitFunctionAST(const ASTs::FunctionAST *ast)
 
     }
 }
-// }}}
-
+// Toplevel compile function {{{1
 void compile(ASTs::AST *ast, File &sourcefile)
 {
     auto compiler = std::make_unique<CompilerNS::Compiler>(sourcefile);
