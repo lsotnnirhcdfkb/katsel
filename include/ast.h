@@ -1,3 +1,6 @@
+/// @file ast.h
+/// Declarations for all the AST classes
+
 #pragma once
 
 #include <vector>

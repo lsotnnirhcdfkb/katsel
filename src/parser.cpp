@@ -1,3 +1,7 @@
+/// @file parser.cpp
+/// Parser method definitions
+/// Parser converts a Token stream into a vector of ASTs.
+
 #include "parser.h"
 
 Parser::Parser(Lexer &l, File &sourcefile): lexer(l), sourcefile(sourcefile), PANICK(false) 

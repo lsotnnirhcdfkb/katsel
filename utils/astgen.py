@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-## @package astgen
+## @file astgen
 #  Generate AST classes
-#
 #  Generate ast.h, ast.cpp, forward declarations to go in visitor.h, visitBlahAST methods, and generate BlankVisitor methods
 
 # class: AstClass {{{1
@@ -168,6 +167,9 @@ def astHFile():
 ## Print what should go in ast.cpp
 def astCppFile():
     cppfile = []
+    cppfile.append('/// @file ast.cpp\n')
+    cppfile.append('/// AST method declarations\n')
+    cppfile.append('\n')
     cppfile.append('#include "ast.h"\n')
     for class_ in astClasses:
         cppfile.append(class_.printCppFile() + '\n')

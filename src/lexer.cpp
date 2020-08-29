@@ -1,3 +1,7 @@
+/// @file lexer.cpp
+/// Lexer method definitions and lexing methods.
+/// Methods definitions to convert a character stream into a Token stream.
+
 #include "lexer.h"
 
 Lexer::Lexer(File &sourcefile) : start(sourcefile.source.begin()), end(sourcefile.source.begin()), nextline(1), nextcolumn(1), line(1), column(1), srcend(sourcefile.source.end()) {}

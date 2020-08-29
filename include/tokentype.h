@@ -1,5 +1,9 @@
+/// @file tokentype.h
+/// The TokenType enum
+
 #pragma once
 
+/// An enum of all the different things a Token can represent in a source file
 enum TokenType
 {
     // single symbols

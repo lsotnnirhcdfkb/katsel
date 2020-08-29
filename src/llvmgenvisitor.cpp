@@ -1,7 +1,13 @@
+/// @file llvmgenvisitor.cpp
+/// LLVMGenVisitor method definitions
+/// All the compiling work is in these methods.
+
 #include "llvmgenvisitor.h"
 
+/// Convenience macro to "return" a value from a visiting method, because each visiting method returns void
 #define LLVMGENVISITOR_RETURN(x) curRetVal = x; \
                                              return;
+/// Convenience macro to clear the return value because at the start of a new function call, the return value must be cleared
 #define CLEARRET curRetVal = nullptr
 
 LLVMGenVisitor::LLVMGenVisitor(File &sourcefile): sourcefile(sourcefile), builder(context), module_(std::make_unique<llvm::Module>("COxianc output of file " + sourcefile.filename, context)), scopenum(0), paramsVisitor(sourcefile, context), typeVisitor(sourcefile, context), forwDeclVisitor(module_.get(), &paramsVisitor, &typeVisitor, sourcefile, errored), fpm(std::make_unique<llvm::legacy::FunctionPassManager>(module_.get())), errored(false)

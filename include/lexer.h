@@ -1,3 +1,6 @@
+/// @file lexer.h
+/// Lexer class declaration
+
 #pragma once
 
 #include <string>

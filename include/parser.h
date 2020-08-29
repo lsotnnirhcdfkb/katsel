@@ -1,3 +1,6 @@
+/// @file parser.h
+/// Parser class declaration
+
 #pragma once
 
 #include "lexer.h"

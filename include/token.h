@@ -1,3 +1,6 @@
+/// @file token.h
+/// A file containing the Token struct
+
 #pragma once
 
 #include "tokentype.h"

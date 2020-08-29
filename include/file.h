@@ -1,3 +1,6 @@
+/// @file file.h
+/// A file containing the File struct
+
 #pragma once
 
 #include <string>

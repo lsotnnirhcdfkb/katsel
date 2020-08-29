@@ -1,3 +1,6 @@
+/// @file visitor.h
+/// Visitor classes to visit ASTs and perform actions on them
+
 #pragma once
 
 #include <string>

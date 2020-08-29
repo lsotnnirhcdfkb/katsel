@@ -1,3 +1,7 @@
+/// @file visitor.cpp
+/// Visitor method definitions
+/// Methods definitions for PrintVisitor to print out ASTs, and definitions for BlankVisitor, which does nothing to any ASTs.
+
 #include "visitor.h"
 #include "ast.h"
 

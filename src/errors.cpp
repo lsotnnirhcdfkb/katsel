@@ -1,3 +1,6 @@
+/// @file errors.cpp
+/// Error reporting and formatting code
+
 #include "errors.h"
 
 /// A struct representing a location in a File
@@ -11,11 +14,17 @@ struct Location
     File const &sourcefile;
 };
 
+/// Convert a Token's start and end to a Location
+/// @param sourcefile The file that the location is in
+/// @param t The token to convert to a start and an end
 Location TokenToLoc(File const &sourcefile, Token const &t)
 {
     return Location {t.start, t.end, sourcefile};
 }
 
+/// Return a location that has the token and the line that the token is on
+/// @param sourcefile The file that the location is in
+/// @param t The token to get the line of
 Location getLine(File const &sourcefile, Token const &t)
 {
     auto linestart (t.start);
@@ -36,6 +45,12 @@ Location getLine(File const &sourcefile, Token const &t)
     return l;
 }
 
+/// General error formatting function
+/// @param message The message
+/// @param sourcefile The source file
+/// @param showl The location to show
+/// @param underlinel The locations to underline
+/// @param stream The stream to print to
 void report(std::string &&message, File const &sourcefile, Location showl, std::vector<Location> underlinel, std::ostream &stream)
 {
     stream << message;
@@ -80,6 +95,11 @@ void report(std::string &&message, File const &sourcefile, Location showl, std::
     }
     stream << std::endl;
 }
+
+/// Report an error at a token with a message
+/// @param t The token to error at
+/// @param message The error message to report
+/// @param sourcefile The source file that this error is in
 void reportError(Token const &t, std::string const &message, File const &sourcefile)
 {
     std::stringstream ss;

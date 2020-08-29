@@ -1,3 +1,6 @@
+/// @file errors.h
+/// A function to report and format errors in a consistent way
+
 #pragma once
 
 #include <iostream>

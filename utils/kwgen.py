@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+## @file kwgen.py
+#  Generate keyword matching code to go in Lexer::getIdentifierType()
+
 # {{{ trienode class
 ## A node in a Trie
 class TrieNode:
@@ -104,6 +107,7 @@ class TrieNode:
 # }}}
 
 # {{{ keywords
+## Keywords to generate matching code for
 keywords = [
     ('void', 'VOID'),
     ('namespace', 'NAMESPACE'),
@@ -145,6 +149,7 @@ keywords = [
 ]
 # }}}
 
+## The trie that represents all the different keywords
 trie = TrieNode(None, 0)
 
 # {{{ generating

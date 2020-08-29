@@ -1,3 +1,6 @@
+/// @file llvmgenvisitor.h
+/// LLVM Compiling visior classes
+
 #include <map>
 #include <string>
 #include <memory>
@@ -24,6 +27,7 @@
 #include "llvm/Target/TargetMachine.h"
 #include "llvm/Target/TargetOptions.h"
 
+/// Namespace for LLVMGenVisitor's helper visitors/functions/whatever
 namespace LLVMGenVisitorHelpersNS
 {
     /// Visitor to turn a ParamsAST to a format that the LLVMGenVisitor can use

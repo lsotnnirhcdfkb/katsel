@@ -1,3 +1,6 @@
+/// @file ast.cpp
+/// AST method declarations
+
 #include "ast.h"
 
 ASTs::BinaryAST::BinaryAST(Token op, std::unique_ptr<ASTs::AST> last, std::unique_ptr<ASTs::AST> rast): op(op), last(std::move(last)), rast(std::move(rast)) {}
