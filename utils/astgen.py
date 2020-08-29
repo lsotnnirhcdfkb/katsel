@@ -185,19 +185,20 @@ def forwardDecl():
 ## Print the visitSomethingAST methods to go in a class
 # @param isBase If the generated class is the base AST class so that it can generate either `= 0;` or `override;`
 # @param doc The documentation to go along with this method
-def visitASTMethods(isBase, doc):
+def visitASTMethods(isBase, doc, indent=4):
     output = []
+    indentstr = ' ' * indent
     for astClass in astClasses:
         if astClass.name == 'AST':
             continue
 
-        output.append(f'    /// {doc.format(astClass.name)}\n')
-        output.append(f'    /// @param ast The ast to visit\n')
+        output.append(f'{indentstr}/// {doc.format(astClass.name)}\n')
+        output.append(f'{indentstr}/// @param ast The ast to visit\n')
 
         if isBase:
-            output.append('    virtual ')
+            output.append(f'{indentstr}virtual ')
         else:
-            output.append('    ')
+            output.append(f'{indentstr}')
 
         output.append(f'void visit{astClass.name}(const ASTs::{astClass.name} *ast)')
 
