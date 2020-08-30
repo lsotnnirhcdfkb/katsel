@@ -14,14 +14,19 @@ And not only that, but this is also very heavily based off of the [Kaleidescope 
 - [x] Functions
 - [x] Expressions
 - [x] Variables
-- [ ] More types (only uint64 for now because of starting simple becuase LLVM is a very complicated library)
+- [ ] More types
 - [ ] Control flow
-- [ ] Classes and polymorphism and all that fun OOP stuff
-- [ ] Very safe pointers
+- [ ] Pointers
 - [ ] Auto memory management with very safe pointers and strict ownership scope rules and stuff
+- [ ] Global variables
+- [ ] Explicit namespaces
+- [ ] Arrays and classes
+- [ ] Templates
+- [ ] Const variables (with `const type thing = value`)
+- [ ] Standard libary
+- [ ] Function pointers (with `var rettype(paramtypes, paramtypes) variable = &f`)
 - [ ] Lots of syntactic sugar
 - [ ] Switch statements
-- [ ] Namespaces
 - [ ] Importing and stuff
 - [ ] Threads
 - [ ] Thread-safety
