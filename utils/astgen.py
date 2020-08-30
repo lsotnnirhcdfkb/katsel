@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-## @file astgen
+## @file astgen.py
 #  Generate AST classes
 #  Generate ast.h, ast.cpp, forward declarations to go in visitor.h, visitBlahAST methods, and generate BlankVisitor methods
 
