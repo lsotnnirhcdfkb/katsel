@@ -36,61 +36,61 @@ class Visitor
 {
 public:
     // GENVISITORMETHODBASE START
-    /// Visit a(n) BinaryAST 
+    /// Visit a(n) BinaryAST
     /// @param ast The ast to visit
     virtual void visitBinaryAST(const ASTs::BinaryAST *ast) = 0;
-    /// Visit a(n) TernaryOpAST 
+    /// Visit a(n) TernaryOpAST
     /// @param ast The ast to visit
     virtual void visitTernaryOpAST(const ASTs::TernaryOpAST *ast) = 0;
-    /// Visit a(n) UnaryAST 
+    /// Visit a(n) UnaryAST
     /// @param ast The ast to visit
     virtual void visitUnaryAST(const ASTs::UnaryAST *ast) = 0;
-    /// Visit a(n) PrimaryAST 
+    /// Visit a(n) PrimaryAST
     /// @param ast The ast to visit
     virtual void visitPrimaryAST(const ASTs::PrimaryAST *ast) = 0;
-    /// Visit a(n) ExprStmtAST 
+    /// Visit a(n) ExprStmtAST
     /// @param ast The ast to visit
     virtual void visitExprStmtAST(const ASTs::ExprStmtAST *ast) = 0;
-    /// Visit a(n) ProgramAST 
+    /// Visit a(n) ProgramAST
     /// @param ast The ast to visit
     virtual void visitProgramAST(const ASTs::ProgramAST *ast) = 0;
-    /// Visit a(n) FunctionAST 
+    /// Visit a(n) FunctionAST
     /// @param ast The ast to visit
     virtual void visitFunctionAST(const ASTs::FunctionAST *ast) = 0;
-    /// Visit a(n) BlockAST 
+    /// Visit a(n) BlockAST
     /// @param ast The ast to visit
     virtual void visitBlockAST(const ASTs::BlockAST *ast) = 0;
-    /// Visit a(n) TypeAST 
+    /// Visit a(n) TypeAST
     /// @param ast The ast to visit
     virtual void visitTypeAST(const ASTs::TypeAST *ast) = 0;
-    /// Visit a(n) ParamAST 
+    /// Visit a(n) ParamAST
     /// @param ast The ast to visit
     virtual void visitParamAST(const ASTs::ParamAST *ast) = 0;
-    /// Visit a(n) ParamsAST 
+    /// Visit a(n) ParamsAST
     /// @param ast The ast to visit
     virtual void visitParamsAST(const ASTs::ParamsAST *ast) = 0;
-    /// Visit a(n) VarStmtAST 
+    /// Visit a(n) VarStmtAST
     /// @param ast The ast to visit
     virtual void visitVarStmtAST(const ASTs::VarStmtAST *ast) = 0;
-    /// Visit a(n) AssignAST 
+    /// Visit a(n) AssignAST
     /// @param ast The ast to visit
     virtual void visitAssignAST(const ASTs::AssignAST *ast) = 0;
-    /// Visit a(n) VariableRefAST 
+    /// Visit a(n) VariableRefAST
     /// @param ast The ast to visit
     virtual void visitVariableRefAST(const ASTs::VariableRefAST *ast) = 0;
-    /// Visit a(n) LValueAST 
+    /// Visit a(n) LValueAST
     /// @param ast The ast to visit
     virtual void visitLValueAST(const ASTs::LValueAST *ast) = 0;
-    /// Visit a(n) ReturnStmtAST 
+    /// Visit a(n) ReturnStmtAST
     /// @param ast The ast to visit
     virtual void visitReturnStmtAST(const ASTs::ReturnStmtAST *ast) = 0;
-    /// Visit a(n) ArgAST 
+    /// Visit a(n) ArgAST
     /// @param ast The ast to visit
     virtual void visitArgAST(const ASTs::ArgAST *ast) = 0;
-    /// Visit a(n) ArgsAST 
+    /// Visit a(n) ArgsAST
     /// @param ast The ast to visit
     virtual void visitArgsAST(const ASTs::ArgsAST *ast) = 0;
-    /// Visit a(n) CallAST 
+    /// Visit a(n) CallAST
     /// @param ast The ast to visit
     virtual void visitCallAST(const ASTs::CallAST *ast) = 0;
     // GENVISITORMETHODBASE END

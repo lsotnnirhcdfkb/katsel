@@ -92,7 +92,7 @@ void PrintVisitor::visitFunctionAST(const ASTs::FunctionAST *ast)
     --indent;
     print("\n");
 }
-void PrintVisitor::visitVarStmtAST(const ASTs::VarStmtAST *ast) 
+void PrintVisitor::visitVarStmtAST(const ASTs::VarStmtAST *ast)
 {
     print("VarStmt: var " + std::string(ast->name.start, ast->name.end) + " of type ");
     ast->type->accept(this);
@@ -101,7 +101,7 @@ void PrintVisitor::visitVarStmtAST(const ASTs::VarStmtAST *ast)
     print("\n");
 }
 
-void PrintVisitor::visitTypeAST(const ASTs::TypeAST *ast) 
+void PrintVisitor::visitTypeAST(const ASTs::TypeAST *ast)
 {
     print("TypeAST: " + std::string(ast->type.start, ast->type.end));
 }
@@ -167,7 +167,7 @@ void PrintVisitor::visitLValueAST(const ASTs::LValueAST *ast)
     ast->expr->accept(this);
 }
 
-void PrintVisitor::visitArgAST(const ASTs::ArgAST *ast) 
+void PrintVisitor::visitArgAST(const ASTs::ArgAST *ast)
 {
     print("(Argument: ");
     ast->expr->accept(this);
@@ -186,7 +186,7 @@ void PrintVisitor::visitArgsAST(const ASTs::ArgsAST *ast)
     --indent;
 }
 
-void PrintVisitor::visitCallAST(const ASTs::CallAST *ast) 
+void PrintVisitor::visitCallAST(const ASTs::CallAST *ast)
 {
     print("Function call to function ");
     ast->varrefast->accept(this);

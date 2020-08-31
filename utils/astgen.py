@@ -19,7 +19,7 @@ class AstClass:
     def __init__(self, name, fields=[], doc=''):
         self.name = name + 'AST'
         self.fields = fields
-        self.doc = doc 
+        self.doc = doc
 
     # AstClass.printHFile {{{2
     ## Return the generated string that can go into ast.h
@@ -38,7 +38,7 @@ class AstClass:
         output.append(    f'        {self.name}({self.genConstructArgs()});\n')
         output.append(     '        /// The accept method that calls the correct visitor method on this AST\n')
         output.append(     '        void accept(Visitor *v) override;\n')
-        output.append('    \n')
+        output.append('\n')
         for field in self.fields:
             output.append(f'        /// {field.doc}\n')
             output.append(f'        {field.printHFile(False)};\n')
@@ -104,12 +104,12 @@ class AstBaseClass:
         '    public:\n'
         '        /// The virtual constructor\n'
         '        virtual ~AST() {}\n'
-        '    \n'
+        '\n'
         '        /// A pure virtual accept method that each AST class is supposed to implement to call the right visitor method\n'
         '        virtual void accept(Visitor *v) = 0;\n'
         '    };\n'
         )
-    
+
     ## Return nothing because this class shouldn't appear in ast.cpp
     def printCppFile(self):
         return ''

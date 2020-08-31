@@ -224,7 +224,7 @@ namespace CompilerNS
         ParamsVisitor paramsVisitor;
         /// The type visitor to process TypeAST
         TypeVisitor typeVisitor;
-        /// A visitor to declare all the functions so that forward declarations are not necessary in the source file 
+        /// A visitor to declare all the functions so that forward declarations are not necessary in the source file
         ForwDeclGenVisitor forwDeclVisitor;
     };
 }

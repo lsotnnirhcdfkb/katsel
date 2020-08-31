@@ -27,15 +27,15 @@ Compiler::Compiler(File &sourcefile): sourcefile(sourcefile), builder(context), 
 }
 // Compiler visiting methods {{{2
 // ProgramAST {{{3
-void Compiler::visitProgramAST(const ASTs::ProgramAST *ast) 
+void Compiler::visitProgramAST(const ASTs::ProgramAST *ast)
 {
     C_CLEARRET;
 
     // Generate code {{{4
-    for (const std::unique_ptr<ASTs::AST> &dast : ast->asts) 
+    for (const std::unique_ptr<ASTs::AST> &dast : ast->asts)
         dast->accept(&forwDeclVisitor);
 
-    for (const std::unique_ptr<ASTs::AST> &dast : ast->asts) 
+    for (const std::unique_ptr<ASTs::AST> &dast : ast->asts)
         dast->accept(this);
 
     // module_->print(llvm::outs(), nullptr);
@@ -110,7 +110,7 @@ void Compiler::visitFunctionAST(const ASTs::FunctionAST *ast)
     if (!f->empty())
     {
         // so if it is not empty then this is a redefinition, but
-        // don't report an error since forwdeclgenvisitor already 
+        // don't report an error since forwdeclgenvisitor already
         // did that
         C_RETURN(nullptr)
     }
@@ -136,7 +136,7 @@ void Compiler::visitFunctionAST(const ASTs::FunctionAST *ast)
 
     ast->body->accept(this);
 
-    llvm::verifyFunction(*f); 
+    llvm::verifyFunction(*f);
 
     finishCurScope();
 
@@ -147,7 +147,7 @@ void Compiler::visitFunctionAST(const ASTs::FunctionAST *ast)
 }
 // Expressions {{{3
 // Binary AST {{{4
-void Compiler::visitBinaryAST(const ASTs::BinaryAST *ast) 
+void Compiler::visitBinaryAST(const ASTs::BinaryAST *ast)
 {
     C_CLEARRET;
     ast->last->accept(this);
@@ -155,7 +155,7 @@ void Compiler::visitBinaryAST(const ASTs::BinaryAST *ast)
     ast->rast->accept(this);
     llvm::Value *rval = curRetVal;
 
-    if (!lval || !rval) 
+    if (!lval || !rval)
     {
         C_RETURN(nullptr);
     }
@@ -245,7 +245,7 @@ void Compiler::visitBinaryAST(const ASTs::BinaryAST *ast)
     C_RETURN(retval);
 }
 // Ternary AST {{{4
-void Compiler::visitTernaryOpAST(const ASTs::TernaryOpAST *ast) 
+void Compiler::visitTernaryOpAST(const ASTs::TernaryOpAST *ast)
 {
     C_CLEARRET;
     ast->conditional->accept(this);
@@ -287,7 +287,7 @@ void Compiler::visitTernaryOpAST(const ASTs::TernaryOpAST *ast)
     C_RETURN(phi)
 }
 // Unary AST {{{4
-void Compiler::visitUnaryAST(const ASTs::UnaryAST *ast) 
+void Compiler::visitUnaryAST(const ASTs::UnaryAST *ast)
 {
     C_CLEARRET;
     ast->ast->accept(this);
@@ -374,7 +374,7 @@ void Compiler::visitVariableRefAST(const ASTs::VariableRefAST *ast)
     C_RETURN(nullptr)
 }
 // PrimaryAST {{{4
-void Compiler::visitPrimaryAST(const ASTs::PrimaryAST *ast) 
+void Compiler::visitPrimaryAST(const ASTs::PrimaryAST *ast)
 {
     C_CLEARRET;
     C_RETURN(llvm::ConstantInt::get(context, llvm::APInt(64, std::stoi(std::string(ast->value.start, ast->value.end)))))
@@ -382,14 +382,14 @@ void Compiler::visitPrimaryAST(const ASTs::PrimaryAST *ast)
 // }}}
 // Statements {{{3
 // ExprStmtAST {{{4
-void Compiler::visitExprStmtAST(const ASTs::ExprStmtAST *ast) 
+void Compiler::visitExprStmtAST(const ASTs::ExprStmtAST *ast)
 {
     C_CLEARRET;
     ast->ast->accept(this);
     C_RETURN(nullptr)
 }
 // VarStmtAST {{{4
-void Compiler::visitVarStmtAST(const ASTs::VarStmtAST *ast) 
+void Compiler::visitVarStmtAST(const ASTs::VarStmtAST *ast)
 {
     C_CLEARRET;
     // TODO: types
@@ -444,11 +444,11 @@ void Compiler::visitLValueAST(const ASTs::LValueAST *ast)
 }
 // Other ASTs {{{3
 // BlockAST {{{4
-void Compiler::visitBlockAST(const ASTs::BlockAST *ast) 
+void Compiler::visitBlockAST(const ASTs::BlockAST *ast)
 {
     C_CLEARRET;
     beginNewScope();
-    for (const std::unique_ptr<ASTs::AST> &bast : ast->stmts) 
+    for (const std::unique_ptr<ASTs::AST> &bast : ast->stmts)
     {
         bast->accept(this);
     }
@@ -456,7 +456,7 @@ void Compiler::visitBlockAST(const ASTs::BlockAST *ast)
     C_RETURN(nullptr)
 }
 // ArgAST {{{4
-void Compiler::visitArgAST(const ASTs::ArgAST *ast) 
+void Compiler::visitArgAST(const ASTs::ArgAST *ast)
 {
     // ASTs::visitCallAST calls this
     C_CLEARRET;
@@ -465,7 +465,7 @@ void Compiler::visitArgAST(const ASTs::ArgAST *ast)
     C_RETURN(curRetVal); // this technically doesn't do anything but whatever
 }
 // CallAST {{{4
-void Compiler::visitCallAST(const ASTs::CallAST *ast) 
+void Compiler::visitCallAST(const ASTs::CallAST *ast)
 {
     C_CLEARRET;
 
@@ -501,7 +501,7 @@ void Compiler::visitCallAST(const ASTs::CallAST *ast)
         ASTs::ArgsAST *argsast = dynamic_cast<ASTs::ArgsAST*>(ast->arglistast.get());
 
         // internal parsing error, because Parser::arglist() always returns a std::unique_ptr<ArgsAST>
-        if (!argsast) 
+        if (!argsast)
         {
             C_RETURN(nullptr);
         }
@@ -537,7 +537,7 @@ void Compiler::error(Token const &t, std::string const &message, File const &sou
     errored = true;
 }
 // createEntryAlloca {{{3
-llvm::AllocaInst* Compiler::createEntryAlloca(llvm::Function *f, const std::string &name) 
+llvm::AllocaInst* Compiler::createEntryAlloca(llvm::Function *f, const std::string &name)
 {
     llvm::IRBuilder<> b (&(f->getEntryBlock()), f->getEntryBlock().begin());
     return b.CreateAlloca(llvm::Type::getInt64Ty(context), 0, name.c_str());
@@ -596,7 +596,7 @@ void ParamsVisitor::visitParamAST(const ASTs::ParamAST *ast)
 {
     // if this is part of a visitParams then this will be overrided anyway
     // but if it is not then the return value is provided in a vector like it's supposed to be
-    paramTypes = {llvm::Type::getInt64Ty(context)}; 
+    paramTypes = {llvm::Type::getInt64Ty(context)};
     paramNames = {ast->paramname};
 }
 // ParamsAST {{{2
@@ -653,16 +653,16 @@ void ForwDeclGenVisitor::visitFunctionAST(const ASTs::FunctionAST *ast)
         paramTypes = paramsVisitor->paramTypes;
         paramNames = paramsVisitor->paramNames;
     }
-    
+
     // Get the return type {{{3
     ast->type->accept(typeVisitor);
     llvm::Type *rettype = typeVisitor->rettype;
-    
+
     // Create the function {{{3
-    llvm::FunctionType *ft = llvm::FunctionType::get(rettype, paramTypes, false); 
+    llvm::FunctionType *ft = llvm::FunctionType::get(rettype, paramTypes, false);
     llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, name, *module_);
 
-    { 
+    {
         int i = 0;
         for (auto &param : f->args())
         {

@@ -4,7 +4,7 @@
 
 #include "parser.h"
 
-Parser::Parser(Lexer &l, File &sourcefile): lexer(l), sourcefile(sourcefile), PANICK(false) 
+Parser::Parser(Lexer &l, File &sourcefile): lexer(l), sourcefile(sourcefile), PANICK(false)
 {
     advance(); // get first token
     prevToken.type = TokenType::SOF;
@@ -141,7 +141,7 @@ std::unique_ptr<ASTs::AST> Parser::expression()
 std::unique_ptr<ASTs::AST> Parser::assignmentexpr()
 {
     std::unique_ptr<ASTs::AST> lhs = ternaryexpr(); // should be VariableRefAST if it is a valid lhs
-    
+
     if (match(TokenType::EQUAL))
     {
         if (!(dynamic_cast<ASTs::LValueAST*>(&*lhs)))
@@ -512,21 +512,17 @@ Token& Parser::prev()
 void Parser::advance()
 {
     prevToken = currToken;
-    bool nextTokenIter = true;
 
     while (true)
     {
-        if (nextTokenIter)
-            currToken = lexer.nextToken();
-
-        nextTokenIter = true;
+        currToken = lexer.nextToken();
 
         if (currToken.type != TokenType::ERROR) break; // continue loop if it is an error token
 
-        // if it is an error token then report error
-        // also do not advance in this loop because error advances automatically
-        error(currToken.message, true);
-        nextTokenIter = false;
+        // override advance in error
+        // it's there to prevent infinite loops, but in this function,
+        // we don't need it to because it might cause problems
+        error(currToken.message, true, true);
     }
 }
 
@@ -586,7 +582,7 @@ void Parser::syncTokens()
     // if doesnt advance then peek is of type eof
 }
 
-void Parser::error(std::string const msg, bool nextT)
+void Parser::error(std::string const msg, bool nextT, bool noadvance)
 {
     if (!PANICK)
     {
@@ -598,7 +594,9 @@ void Parser::error(std::string const msg, bool nextT)
         reportError(badToken, msg, sourcefile);
         panic();
     }
-    advance(); // to prevent infinite loops
+
+    if (!noadvance)
+        advance(); // to prevent infinite loops
 }
 
 // }}}
