@@ -51,11 +51,19 @@ Location getLine(File const &sourcefile, Token const &t)
 /// @param showl The location to show
 /// @param underlinel The locations to underline
 /// @param stream The stream to print to
-void report(std::string &&message, File const &sourcefile, Location showl, std::vector<Location> underlinel, std::ostream &stream)
+void report(std::string &&message, File const &sourcefile, Location showl, std::vector<Location> underlinel, std::ostream &stream, bool ansiCodes)
 {
     stream << message;
-    stream << " | " << std::string(showl.start, showl.end) << std::endl;
+
+    if (ansiCodes) stream << "\033[0;2m";
     stream << " | ";
+
+    if (ansiCodes) stream << "\033[0m";
+    stream << std::string(showl.start, showl.end) << std::endl;
+
+    if (ansiCodes) stream << "\033[0;2m";
+    stream << " | ";
+    if (ansiCodes) stream << "\033[1;36;1m";
 
     std::string::iterator it = showl.start;
     while (true)
@@ -93,6 +101,8 @@ void report(std::string &&message, File const &sourcefile, Location showl, std::
 
         ++it;
     }
+    if (ansiCodes)
+        stream << "\033[0m";
     stream << std::endl;
 }
 
@@ -103,6 +113,10 @@ void report(std::string &&message, File const &sourcefile, Location showl, std::
 void reportError(Token const &t, std::string const &message, File const &sourcefile)
 {
     std::stringstream ss;
-    ss << "Error at " << sourcefile.filename << ":" << t.line << ":" << t.column << ": " << message << std::endl;
-    report(ss.str(), sourcefile, getLine(sourcefile, t), {TokenToLoc(sourcefile, t)}, std::cerr);
+    if (ansiCodesEnabled())
+        ss << "\033[31;1mError\033[0m at \033[37m" << sourcefile.filename << ":" << t.line << ":" << t.column << "\033[0m: " << message << std::endl;
+    else
+        ss << "Error at " << sourcefile.filename << ":" << t.line << ":" << t.column << ": " << message << std::endl;
+
+    report(ss.str(), sourcefile, getLine(sourcefile, t), {TokenToLoc(sourcefile, t)}, std::cerr, ansiCodesEnabled());
 }

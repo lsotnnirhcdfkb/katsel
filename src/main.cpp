@@ -11,6 +11,7 @@
 #include "lexer.h"
 #include "parser.h"
 #include "compiler.h"
+#include "ansistuff.h"
 
 /// Read a file and output a File, with the appropriate source string
 File readFile(char *filename)
@@ -45,6 +46,8 @@ File readFile(char *filename)
 /// Compile a file to object code
 void compileFile(File &sourcefile)
 {
+    enableTerminalCodes();
+    std::cout << "terminal yes no " << ansiCodesEnabled() << std::endl;
     auto lexer = std::make_unique<Lexer>(sourcefile);
     auto parser = std::make_unique<Parser>(*lexer, sourcefile);
 
@@ -56,6 +59,8 @@ void compileFile(File &sourcefile)
         compile(&*parsed, sourcefile);
         // parsed->accept(&*printv);
     }
+
+    resetTerminal();
 
     // int returnCode = parse(source);
 
