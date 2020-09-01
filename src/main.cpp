@@ -47,7 +47,6 @@ File readFile(char *filename)
 void compileFile(File &sourcefile)
 {
     enableTerminalCodes();
-    std::cout << "terminal yes no " << ansiCodesEnabled() << std::endl;
     auto lexer = std::make_unique<Lexer>(sourcefile);
     auto parser = std::make_unique<Parser>(*lexer, sourcefile);
 
