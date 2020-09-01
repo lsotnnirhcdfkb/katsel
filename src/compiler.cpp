@@ -330,7 +330,7 @@ void Compiler::visitAssignAST(const ASTs::AssignAST *ast)
 
     if (!lhs)
     {
-        error(ast->equalSign, "Invalid tparamet for assignment", sourcefile);
+        error(ast->equalSign, "Invalid target for assignment", sourcefile);
         C_RETURN(nullptr)
     }
 
