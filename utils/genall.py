@@ -10,12 +10,12 @@ jobs = [
     ('src/lexer.cpp'           , 'KWGEN START'               , 'KWGEN END'               , lambda: kwgen.trie.generate(doc='Check if an idenetifier token is a keyword type and return that type, or just return TokenType::IDENTIFIER')),
     ('src/ast.cpp'             , None                        , None                      , astgen.astCppFile),
     ('include/ast.h'           , 'GENASTHEADER START'        , 'GENASTHEADER END'        , astgen.astHFile),
-    ('include/visitor.h'       , 'GENFORWARDDECL START'      , 'GENFORWARDDECL END'      , astgen.forwardDecl),
-    ('src/visitor.cpp'         , 'BLANKGEN START'            , 'BLANKGEN END'            , astgen.blankVisitorDefinitions),
-    ('include/visitor.h'       , 'GENVISITORMETHODBASE START', 'GENVISITORMETHODBASE END', lambda: astgen.visitASTMethods(True, doc='Visit a(n) {}')),
-    ('include/visitor.h'       , 'GENPRINTVISITMETHOD START' , 'GENPRINTVISITMETHOD END' , lambda: astgen.visitASTMethods(False, doc='Visit the {} and print it in a readable form')),
-    ('include/visitor.h'       , 'GENBLANKVISITMETHOD START' , 'GENBLANKVISITMETHOD END' , lambda: astgen.visitASTMethods(False, doc='Visit the {} and do nothing')),
-    ('include/compiler.h'      , 'GENLLVMVISITMETHOD START'  , 'GENLLVMVISITMETHOD END'  , lambda: astgen.visitASTMethods(False, doc='Visit the {} and compile it to LLVM IR/object code', indent=8)),
+    # ('include/visitor.h'       , 'GENFORWARDDECL START'      , 'GENFORWARDDECL END'      , astgen.forwardDecl),
+    # ('src/visitor.cpp'         , 'BLANKGEN START'            , 'BLANKGEN END'            , astgen.blankVisitorDefinitions),
+    # ('include/visitor.h'       , 'GENVISITORMETHODBASE START', 'GENVISITORMETHODBASE END', lambda: astgen.visitASTMethods(True, doc='Visit a(n) {}')),
+    # ('include/visitor.h'       , 'GENPRINTVISITMETHOD START' , 'GENPRINTVISITMETHOD END' , lambda: astgen.visitASTMethods(False, doc='Visit the {} and print it in a readable form')),
+    # ('include/visitor.h'       , 'GENBLANKVISITMETHOD START' , 'GENBLANKVISITMETHOD END' , lambda: astgen.visitASTMethods(False, doc='Visit the {} and do nothing')),
+    # ('include/compiler.h'      , 'GENLLVMVISITMETHOD START'  , 'GENLLVMVISITMETHOD END'  , lambda: astgen.visitASTMethods(False, doc='Visit the {} and compile it to LLVM IR/object code', indent=8)),
 ]
 
 for jobi, job in enumerate(jobs):

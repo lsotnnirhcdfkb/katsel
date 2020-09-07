@@ -10,7 +10,6 @@
 #include "file.h"
 #include "lexer.h"
 #include "parser.h"
-#include "compiler.h"
 #include "ansistuff.h"
 
 /// Read a file and output a File, with the appropriate source string
@@ -53,11 +52,11 @@ void compileFile(File &sourcefile)
     std::unique_ptr<ASTs::AST> parsed = parser->parse();
     // auto printv = std::make_unique<PrintVisitor>();
 
-    if (parsed)
-    {
-        compile(&*parsed, sourcefile);
+    // if (parsed)
+    // {
+        // compile(&*parsed, sourcefile);
         // parsed->accept(&*printv);
-    }
+    // }
 
     resetTerminal();
 

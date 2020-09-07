@@ -8,7 +8,6 @@
 #include <iostream>
 #include <memory>
 #include "token.h"
-#include "visitor.h"
 
 /// A namespace to hold all the AST classes in
 namespace ASTs
@@ -21,8 +20,6 @@ namespace ASTs
         /// The virtual constructor
         virtual ~AST() {}
 
-        /// A pure virtual accept method that each AST class is supposed to implement to call the right visitor method
-        virtual void accept(Visitor *v) = 0;
     };
 
     /// An AST for binary operators
@@ -34,8 +31,6 @@ namespace ASTs
         /// @param last The left operand
         /// @param rast The right operator
         BinaryAST(Token op, std::unique_ptr<ASTs::AST> last, std::unique_ptr<ASTs::AST> rast);
-        /// The accept method that calls the correct visitor method on this AST
-        void accept(Visitor *v) override;
 
         /// The operator
         Token op;
@@ -54,8 +49,6 @@ namespace ASTs
         /// @param trueast The expression that this evaluates to if the codnditional is true
         /// @param falseast The expression that this evaluates to if the codnditional is false
         TernaryOpAST(std::unique_ptr<ASTs::AST> conditional, std::unique_ptr<ASTs::AST> trueast, std::unique_ptr<ASTs::AST> falseast);
-        /// The accept method that calls the correct visitor method on this AST
-        void accept(Visitor *v) override;
 
         /// The conditional expression
         std::unique_ptr<ASTs::AST> conditional;
@@ -73,8 +66,6 @@ namespace ASTs
         /// @param op The operator
         /// @param ast The operand
         UnaryAST(Token op, std::unique_ptr<ASTs::AST> ast);
-        /// The accept method that calls the correct visitor method on this AST
-        void accept(Visitor *v) override;
 
         /// The operator
         Token op;
@@ -89,8 +80,6 @@ namespace ASTs
         /// The constructor for this class
         /// @param value The value
         PrimaryAST(Token value);
-        /// The accept method that calls the correct visitor method on this AST
-        void accept(Visitor *v) override;
 
         /// The value
         Token value;
@@ -103,8 +92,6 @@ namespace ASTs
         /// The constructor for this class
         /// @param ast The expression of this statement
         ExprStmtAST(std::unique_ptr<ASTs::AST> ast);
-        /// The accept method that calls the correct visitor method on this AST
-        void accept(Visitor *v) override;
 
         /// The expression of this statement
         std::unique_ptr<ASTs::AST> ast;
@@ -117,8 +104,6 @@ namespace ASTs
         /// The constructor for this class
         /// @param asts The asts that this program has
         ProgramAST(std::vector<std::unique_ptr<ASTs::AST>> &asts);
-        /// The accept method that calls the correct visitor method on this AST
-        void accept(Visitor *v) override;
 
         /// The asts that this program has
         std::vector<std::unique_ptr<ASTs::AST>> asts;
@@ -134,8 +119,6 @@ namespace ASTs
         /// @param params The parameters of the function
         /// @param body The body of the function
         FunctionAST(std::unique_ptr<ASTs::AST> type, Token name, std::unique_ptr<ASTs::AST> params, std::unique_ptr<ASTs::AST> body);
-        /// The accept method that calls the correct visitor method on this AST
-        void accept(Visitor *v) override;
 
         /// The return type of the function
         std::unique_ptr<ASTs::AST> type;
@@ -154,8 +137,6 @@ namespace ASTs
         /// The constructor for this class
         /// @param stmts The statements in the block
         BlockAST(std::vector<std::unique_ptr<ASTs::AST>> &stmts);
-        /// The accept method that calls the correct visitor method on this AST
-        void accept(Visitor *v) override;
 
         /// The statements in the block
         std::vector<std::unique_ptr<ASTs::AST>> stmts;
@@ -168,8 +149,6 @@ namespace ASTs
         /// The constructor for this class
         /// @param type The type token
         TypeAST(Token type);
-        /// The accept method that calls the correct visitor method on this AST
-        void accept(Visitor *v) override;
 
         /// The type token
         Token type;
@@ -183,8 +162,6 @@ namespace ASTs
         /// @param type The type of the parameter
         /// @param paramname The name of the parameter
         ParamAST(std::unique_ptr<ASTs::AST> type, Token paramname);
-        /// The accept method that calls the correct visitor method on this AST
-        void accept(Visitor *v) override;
 
         /// The type of the parameter
         std::unique_ptr<ASTs::AST> type;
@@ -199,8 +176,6 @@ namespace ASTs
         /// The constructor for this class
         /// @param params A vector of parameters
         ParamsAST(std::vector<std::unique_ptr<ASTs::AST>> &params);
-        /// The accept method that calls the correct visitor method on this AST
-        void accept(Visitor *v) override;
 
         /// A vector of parameters
         std::vector<std::unique_ptr<ASTs::AST>> params;
@@ -215,8 +190,6 @@ namespace ASTs
         /// @param name The name of the variable
         /// @param expression The expression being assigned to the variable
         VarStmtAST(std::unique_ptr<ASTs::AST> type, Token name, std::unique_ptr<ASTs::AST> expression);
-        /// The accept method that calls the correct visitor method on this AST
-        void accept(Visitor *v) override;
 
         /// The type of the variable
         std::unique_ptr<ASTs::AST> type;
@@ -235,8 +208,6 @@ namespace ASTs
         /// @param rhs The expression to assign
         /// @param equalSign A token to error at in case there is an error
         AssignAST(std::unique_ptr<ASTs::AST> lhs, std::unique_ptr<ASTs::AST> rhs, Token equalSign);
-        /// The accept method that calls the correct visitor method on this AST
-        void accept(Visitor *v) override;
 
         /// The thing to assign to
         std::unique_ptr<ASTs::AST> lhs;
@@ -253,8 +224,6 @@ namespace ASTs
         /// The constructor for this class
         /// @param var The variable being referenced
         VariableRefAST(Token var);
-        /// The accept method that calls the correct visitor method on this AST
-        void accept(Visitor *v) override;
 
         /// The variable being referenced
         Token var;
@@ -267,8 +236,6 @@ namespace ASTs
         /// The constructor for this class
         /// @param expr The expression that evaluates to an lvalue
         LValueAST(std::unique_ptr<ASTs::AST> expr);
-        /// The accept method that calls the correct visitor method on this AST
-        void accept(Visitor *v) override;
 
         /// The expression that evaluates to an lvalue
         std::unique_ptr<ASTs::AST> expr;
@@ -281,8 +248,6 @@ namespace ASTs
         /// The constructor for this class
         /// @param expr The expression to return
         ReturnStmtAST(std::unique_ptr<ASTs::AST> expr);
-        /// The accept method that calls the correct visitor method on this AST
-        void accept(Visitor *v) override;
 
         /// The expression to return
         std::unique_ptr<ASTs::AST> expr;
@@ -295,8 +260,6 @@ namespace ASTs
         /// The constructor for this class
         /// @param expr The expression that the argument is
         ArgAST(std::unique_ptr<ASTs::AST> expr);
-        /// The accept method that calls the correct visitor method on this AST
-        void accept(Visitor *v) override;
 
         /// The expression that the argument is
         std::unique_ptr<ASTs::AST> expr;
@@ -309,8 +272,6 @@ namespace ASTs
         /// The constructor for this class
         /// @param args A vector of arguments
         ArgsAST(std::vector<std::unique_ptr<ASTs::AST>> &args);
-        /// The accept method that calls the correct visitor method on this AST
-        void accept(Visitor *v) override;
 
         /// A vector of arguments
         std::vector<std::unique_ptr<ASTs::AST>> args;
@@ -325,8 +286,6 @@ namespace ASTs
         /// @param arglistast The argument list for the function call
         /// @param oparn The opening parentheses to throw an error at
         CallAST(std::unique_ptr<ASTs::AST> varrefast, std::unique_ptr<ASTs::AST> arglistast, Token oparn);
-        /// The accept method that calls the correct visitor method on this AST
-        void accept(Visitor *v) override;
 
         /// The variable reference that is being called
         std::unique_ptr<ASTs::AST> varrefast;

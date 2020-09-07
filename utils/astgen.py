@@ -36,8 +36,8 @@ class AstClass:
         for param in self.fields:
             output.append(f'        /// @param {param.name} {param.doc}\n')
         output.append(    f'        {self.name}({self.genConstructArgs()});\n')
-        output.append(     '        /// The accept method that calls the correct visitor method on this AST\n')
-        output.append(     '        void accept(Visitor *v) override;\n')
+        # output.append(     '        /// The accept method that calls the correct visitor method on this AST\n')
+        # output.append(     '        void accept(Visitor *v) override;\n')
         output.append('\n')
         for field in self.fields:
             output.append(f'        /// {field.doc}\n')
@@ -77,7 +77,7 @@ class AstClass:
         else:
             output.append(' {}\n')
 
-        output.append(f'void ASTs::{self.name}::accept(Visitor *v) {{ v->visit{self.name}(this); }}\n')
+        # output.append(f'void ASTs::{self.name}::accept(Visitor *v) {{ v->visit{self.name}(this); }}\n')
         return ''.join(output)
 
     # AstClass helper methods {{{2
@@ -105,8 +105,8 @@ class AstBaseClass:
         '        /// The virtual constructor\n'
         '        virtual ~AST() {}\n'
         '\n'
-        '        /// A pure virtual accept method that each AST class is supposed to implement to call the right visitor method\n'
-        '        virtual void accept(Visitor *v) = 0;\n'
+        # '        /// A pure virtual accept method that each AST class is supposed to implement to call the right visitor method\n'
+        # '        virtual void accept(Visitor *v) = 0;\n'
         '    };\n'
         )
 
