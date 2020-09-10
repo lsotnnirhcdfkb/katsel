@@ -1,299 +1,165 @@
-/// @file ast.h
-/// Declarations for all the AST classes
-
-#pragma once
-
-#include <vector>
-#include <string>
-#include <iostream>
-#include <memory>
-#include "token.h"
-
-/// A namespace to hold all the AST classes in
-namespace ASTs
+namespace ASTNS
 {
-    // GENASTHEADER START
-    /// A base AST class
-    class AST
+// ASTHEADER START
+    class Expr
     {
     public:
-        /// The virtual constructor
-        virtual ~AST() {}
-
+        virtual ~Expr() {}
     };
-
-    /// An AST for binary operators
-    class BinaryAST : public AST
+    class Stmt
     {
     public:
-        /// The constructor for this class
-        /// @param op The operator
-        /// @param last The left operand
-        /// @param rast The right operator
-        BinaryAST(Token op, std::unique_ptr<ASTs::AST> last, std::unique_ptr<ASTs::AST> rast);
+        virtual ~Stmt() {}
+    };
+    class Type
+    {
+    public:
+        virtual ~Type() {}
+    };
+    class LValue
+    {
+    public:
+        virtual ~LValue() {}
+    };
+    class Decl
+    {
+    public:
+        virtual ~Decl() {}
+    };
+    class Program
+    {
+    public:
+        Program(std::vector<Decl> &decls);
 
-        /// The operator
+        std::vector<Decl> decls;
+    };
+    class BinaryExpr : Expr
+    {
+    public:
+        BinaryExpr(std::unique_ptr<Expr> lhs, std::unique_ptr<Expr> rhs, Token op);
+
+        std::unique_ptr<Expr> lhs;
+        std::unique_ptr<Expr> rhs;
         Token op;
-        /// The left operand
-        std::unique_ptr<ASTs::AST> last;
-        /// The right operator
-        std::unique_ptr<ASTs::AST> rast;
     };
-
-    /// An AST for the ternary operator (?:)
-    class TernaryOpAST : public AST
+    class TernaryExpr : Expr
     {
     public:
-        /// The constructor for this class
-        /// @param conditional The conditional expression
-        /// @param trueast The expression that this evaluates to if the codnditional is true
-        /// @param falseast The expression that this evaluates to if the codnditional is false
-        TernaryOpAST(std::unique_ptr<ASTs::AST> conditional, std::unique_ptr<ASTs::AST> trueast, std::unique_ptr<ASTs::AST> falseast);
+        TernaryExpr(std::unique_ptr<Expr> condition, std::unique_ptr<Expr> trues, std::unique_ptr<Expr> falses);
 
-        /// The conditional expression
-        std::unique_ptr<ASTs::AST> conditional;
-        /// The expression that this evaluates to if the codnditional is true
-        std::unique_ptr<ASTs::AST> trueast;
-        /// The expression that this evaluates to if the codnditional is false
-        std::unique_ptr<ASTs::AST> falseast;
+        std::unique_ptr<Expr> condition;
+        std::unique_ptr<Expr> trues;
+        std::unique_ptr<Expr> falses;
     };
-
-    /// An AST for unary operators
-    class UnaryAST : public AST
+    class UnaryExpr : Expr
     {
     public:
-        /// The constructor for this class
-        /// @param op The operator
-        /// @param ast The operand
-        UnaryAST(Token op, std::unique_ptr<ASTs::AST> ast);
+        UnaryExpr(std::unique_ptr<Expr> operand, Token op);
 
-        /// The operator
+        std::unique_ptr<Expr> operand;
         Token op;
-        /// The operand
-        std::unique_ptr<ASTs::AST> ast;
     };
-
-    /// An AST for primary tokens (literals etc.)
-    class PrimaryAST : public AST
+    class PrimaryExpr : Expr
     {
     public:
-        /// The constructor for this class
-        /// @param value The value
-        PrimaryAST(Token value);
+        PrimaryExpr(Token value);
 
-        /// The value
         Token value;
     };
-
-    /// An AST for an expression statement
-    class ExprStmtAST : public AST
+    class AssignExpr : Expr
     {
     public:
-        /// The constructor for this class
-        /// @param ast The expression of this statement
-        ExprStmtAST(std::unique_ptr<ASTs::AST> ast);
+        AssignExpr(std::unique_ptr<LValue> assignee, std::unique_ptr<Expr> value);
 
-        /// The expression of this statement
-        std::unique_ptr<ASTs::AST> ast;
+        std::unique_ptr<LValue> assignee;
+        std::unique_ptr<Expr> value;
     };
-
-    /// An AST representing an entire program
-    class ProgramAST : public AST
+    class CallExpr : Expr
     {
     public:
-        /// The constructor for this class
-        /// @param asts The asts that this program has
-        ProgramAST(std::vector<std::unique_ptr<ASTs::AST>> &asts);
+        CallExpr(std::unique_ptr<LValue> func, std::unique_ptr<Args> args);
 
-        /// The asts that this program has
-        std::vector<std::unique_ptr<ASTs::AST>> asts;
+        std::unique_ptr<LValue> func;
+        std::unique_ptr<Args> args;
     };
-
-    /// An AST representing a function declaration or definition
-    class FunctionAST : public AST
+    class BlockStmt : Stmt
     {
     public:
-        /// The constructor for this class
-        /// @param type The return type of the function
-        /// @param name The name of the function
-        /// @param params The parameters of the function
-        /// @param body The body of the function
-        FunctionAST(std::unique_ptr<ASTs::AST> type, Token name, std::unique_ptr<ASTs::AST> params, std::unique_ptr<ASTs::AST> body);
+        BlockStmt(std::vector<Stmt> &stmts);
 
-        /// The return type of the function
-        std::unique_ptr<ASTs::AST> type;
-        /// The name of the function
+        std::vector<Stmt> stmts;
+    };
+    class ExprStmt : Stmt
+    {
+    public:
+        ExprStmt(std::unique_ptr<Expr> expr);
+
+        std::unique_ptr<Expr> expr;
+    };
+    class ReturnStmt : Stmt
+    {
+    public:
+        ReturnStmt(std::unique_ptr<Expr> val);
+
+        std::unique_ptr<Expr> val;
+    };
+    class VarStmt : Stmt
+    {
+    public:
+        VarStmt(std::unique_ptr<Type> type, Token name, std::unique_ptr<Expr> value);
+
+        std::unique_ptr<Type> type;
         Token name;
-        /// The parameters of the function
-        std::unique_ptr<ASTs::AST> params;
-        /// The body of the function
-        std::unique_ptr<ASTs::AST> body;
+        std::unique_ptr<Expr> value;
     };
-
-    /// An AST representing a code block
-    class BlockAST : public AST
+    class VarRef : LValue
     {
     public:
-        /// The constructor for this class
-        /// @param stmts The statements in the block
-        BlockAST(std::vector<std::unique_ptr<ASTs::AST>> &stmts);
+        VarRef(Token var);
 
-        /// The statements in the block
-        std::vector<std::unique_ptr<ASTs::AST>> stmts;
-    };
-
-    /// An AST for a type
-    class TypeAST : public AST
-    {
-    public:
-        /// The constructor for this class
-        /// @param type The type token
-        TypeAST(Token type);
-
-        /// The type token
-        Token type;
-    };
-
-    /// An AST representing a parameter
-    class ParamAST : public AST
-    {
-    public:
-        /// The constructor for this class
-        /// @param type The type of the parameter
-        /// @param paramname The name of the parameter
-        ParamAST(std::unique_ptr<ASTs::AST> type, Token paramname);
-
-        /// The type of the parameter
-        std::unique_ptr<ASTs::AST> type;
-        /// The name of the parameter
-        Token paramname;
-    };
-
-    /// An AST representing a parameter list
-    class ParamsAST : public AST
-    {
-    public:
-        /// The constructor for this class
-        /// @param params A vector of parameters
-        ParamsAST(std::vector<std::unique_ptr<ASTs::AST>> &params);
-
-        /// A vector of parameters
-        std::vector<std::unique_ptr<ASTs::AST>> params;
-    };
-
-    /// An AST representing a variable declaration statement
-    class VarStmtAST : public AST
-    {
-    public:
-        /// The constructor for this class
-        /// @param type The type of the variable
-        /// @param name The name of the variable
-        /// @param expression The expression being assigned to the variable
-        VarStmtAST(std::unique_ptr<ASTs::AST> type, Token name, std::unique_ptr<ASTs::AST> expression);
-
-        /// The type of the variable
-        std::unique_ptr<ASTs::AST> type;
-        /// The name of the variable
-        Token name;
-        /// The expression being assigned to the variable
-        std::unique_ptr<ASTs::AST> expression;
-    };
-
-    /// An AST representing an assignment expression
-    class AssignAST : public AST
-    {
-    public:
-        /// The constructor for this class
-        /// @param lhs The thing to assign to
-        /// @param rhs The expression to assign
-        /// @param equalSign A token to error at in case there is an error
-        AssignAST(std::unique_ptr<ASTs::AST> lhs, std::unique_ptr<ASTs::AST> rhs, Token equalSign);
-
-        /// The thing to assign to
-        std::unique_ptr<ASTs::AST> lhs;
-        /// The expression to assign
-        std::unique_ptr<ASTs::AST> rhs;
-        /// A token to error at in case there is an error
-        Token equalSign;
-    };
-
-    /// An AST for a variable reference
-    class VariableRefAST : public AST
-    {
-    public:
-        /// The constructor for this class
-        /// @param var The variable being referenced
-        VariableRefAST(Token var);
-
-        /// The variable being referenced
         Token var;
     };
-
-    /// An AST for any expression that is guaranteed to evaluatae to an lvalue
-    class LValueAST : public AST
+    class BaseType : Type
     {
     public:
-        /// The constructor for this class
-        /// @param expr The expression that evaluates to an lvalue
-        LValueAST(std::unique_ptr<ASTs::AST> expr);
+        BaseType(Token type);
 
-        /// The expression that evaluates to an lvalue
-        std::unique_ptr<ASTs::AST> expr;
+        Token type;
     };
-
-    /// An AST representing a return statement
-    class ReturnStmtAST : public AST
+    class FunctionDecl : Decl
     {
     public:
-        /// The constructor for this class
-        /// @param expr The expression to return
-        ReturnStmtAST(std::unique_ptr<ASTs::AST> expr);
+        FunctionDecl(std::unique_ptr<Type> type, Token name, std::unique_ptr<BlockStmt> block);
 
-        /// The expression to return
-        std::unique_ptr<ASTs::AST> expr;
+        std::unique_ptr<Type> type;
+        Token name;
+        std::unique_ptr<BlockStmt> block;
     };
-
-    /// An AST representing an arguemnt passed into a function call
-    class ArgAST : public AST
+    class GlobalVarDecl : Decl
     {
     public:
-        /// The constructor for this class
-        /// @param expr The expression that the argument is
-        ArgAST(std::unique_ptr<ASTs::AST> expr);
+        GlobalVarDecl(std::unique_ptr<Type> type, Token name, std::unique_ptr<Expr> value);
 
-        /// The expression that the argument is
-        std::unique_ptr<ASTs::AST> expr;
+        std::unique_ptr<Type> type;
+        Token name;
+        std::unique_ptr<Expr> value;
     };
-
-    /// An AST representing arguments passed into a function call
-    class ArgsAST : public AST
+    class Param
     {
     public:
-        /// The constructor for this class
-        /// @param args A vector of arguments
-        ArgsAST(std::vector<std::unique_ptr<ASTs::AST>> &args);
+        Param(std::unique_ptr<Type> type, Token name, std::unique_ptr<Param> next);
 
-        /// A vector of arguments
-        std::vector<std::unique_ptr<ASTs::AST>> args;
+        std::unique_ptr<Type> type;
+        Token name;
+        std::unique_ptr<Param> next;
     };
-
-    /// An AST representing a function call
-    class CallAST : public AST
+    class Arg
     {
     public:
-        /// The constructor for this class
-        /// @param varrefast The variable reference that is being called
-        /// @param arglistast The argument list for the function call
-        /// @param oparn The opening parentheses to throw an error at
-        CallAST(std::unique_ptr<ASTs::AST> varrefast, std::unique_ptr<ASTs::AST> arglistast, Token oparn);
+        Arg(std::unique_ptr<Expr> value, std::unique_ptr<Arg> next);
 
-        /// The variable reference that is being called
-        std::unique_ptr<ASTs::AST> varrefast;
-        /// The argument list for the function call
-        std::unique_ptr<ASTs::AST> arglistast;
-        /// The opening parentheses to throw an error at
-        Token oparn;
+        std::unique_ptr<Expr> value;
+        std::unique_ptr<Arg> next;
     };
-
-    // GENASTHEADER END
+// ASTHEADER END
 }

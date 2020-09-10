@@ -1,71 +1,84 @@
-/// @file ast.cpp
-/// AST method declarations
-
-#include "ast.h"
-
-ASTs::BinaryAST::BinaryAST(Token op, std::unique_ptr<ASTs::AST> last, std::unique_ptr<ASTs::AST> rast): op(op), last(std::move(last)), rast(std::move(rast)) {}
-
-ASTs::TernaryOpAST::TernaryOpAST(std::unique_ptr<ASTs::AST> conditional, std::unique_ptr<ASTs::AST> trueast, std::unique_ptr<ASTs::AST> falseast): conditional(std::move(conditional)), trueast(std::move(trueast)), falseast(std::move(falseast)) {}
-
-ASTs::UnaryAST::UnaryAST(Token op, std::unique_ptr<ASTs::AST> ast): op(op), ast(std::move(ast)) {}
-
-ASTs::PrimaryAST::PrimaryAST(Token value): value(value) {}
-
-ASTs::ExprStmtAST::ExprStmtAST(std::unique_ptr<ASTs::AST> ast): ast(std::move(ast)) {}
-
-ASTs::ProgramAST::ProgramAST(std::vector<std::unique_ptr<ASTs::AST>> &asts)
+ASTNS::Program::Program(std::vector<Decl> &decls)
 {
-    this->asts.reserve(asts.size());
-    for (std::unique_ptr<ASTs::AST> &ast : asts)
-    {
-        this->asts.push_back(std::move(ast));
-    }
+    for (auto &p : decls) decls.push_back(std::move(p));
 }
-
-ASTs::FunctionAST::FunctionAST(std::unique_ptr<ASTs::AST> type, Token name, std::unique_ptr<ASTs::AST> params, std::unique_ptr<ASTs::AST> body): type(std::move(type)), name(name), params(std::move(params)), body(std::move(body)) {}
-
-ASTs::BlockAST::BlockAST(std::vector<std::unique_ptr<ASTs::AST>> &stmts)
+ASTNS::BinaryExpr::BinaryExpr(std::unique_ptr<Expr> lhs, std::unique_ptr<Expr> rhs, Token op)
 {
-    this->stmts.reserve(stmts.size());
-    for (std::unique_ptr<ASTs::AST> &ast : stmts)
-    {
-        this->stmts.push_back(std::move(ast));
-    }
+    lhs = std::move(lhs);
+    rhs = std::move(rhs);
+    op = op;
 }
-
-ASTs::TypeAST::TypeAST(Token type): type(type) {}
-
-ASTs::ParamAST::ParamAST(std::unique_ptr<ASTs::AST> type, Token paramname): type(std::move(type)), paramname(paramname) {}
-
-ASTs::ParamsAST::ParamsAST(std::vector<std::unique_ptr<ASTs::AST>> &params)
+ASTNS::TernaryExpr::TernaryExpr(std::unique_ptr<Expr> condition, std::unique_ptr<Expr> trues, std::unique_ptr<Expr> falses)
 {
-    this->params.reserve(params.size());
-    for (std::unique_ptr<ASTs::AST> &ast : params)
-    {
-        this->params.push_back(std::move(ast));
-    }
+    condition = std::move(condition);
+    trues = std::move(trues);
+    falses = std::move(falses);
 }
-
-ASTs::VarStmtAST::VarStmtAST(std::unique_ptr<ASTs::AST> type, Token name, std::unique_ptr<ASTs::AST> expression): type(std::move(type)), name(name), expression(std::move(expression)) {}
-
-ASTs::AssignAST::AssignAST(std::unique_ptr<ASTs::AST> lhs, std::unique_ptr<ASTs::AST> rhs, Token equalSign): lhs(std::move(lhs)), rhs(std::move(rhs)), equalSign(equalSign) {}
-
-ASTs::VariableRefAST::VariableRefAST(Token var): var(var) {}
-
-ASTs::LValueAST::LValueAST(std::unique_ptr<ASTs::AST> expr): expr(std::move(expr)) {}
-
-ASTs::ReturnStmtAST::ReturnStmtAST(std::unique_ptr<ASTs::AST> expr): expr(std::move(expr)) {}
-
-ASTs::ArgAST::ArgAST(std::unique_ptr<ASTs::AST> expr): expr(std::move(expr)) {}
-
-ASTs::ArgsAST::ArgsAST(std::vector<std::unique_ptr<ASTs::AST>> &args)
+ASTNS::UnaryExpr::UnaryExpr(std::unique_ptr<Expr> operand, Token op)
 {
-    this->args.reserve(args.size());
-    for (std::unique_ptr<ASTs::AST> &ast : args)
-    {
-        this->args.push_back(std::move(ast));
-    }
+    operand = std::move(operand);
+    op = op;
 }
-
-ASTs::CallAST::CallAST(std::unique_ptr<ASTs::AST> varrefast, std::unique_ptr<ASTs::AST> arglistast, Token oparn): varrefast(std::move(varrefast)), arglistast(std::move(arglistast)), oparn(oparn) {}
-
+ASTNS::PrimaryExpr::PrimaryExpr(Token value)
+{
+    value = value;
+}
+ASTNS::AssignExpr::AssignExpr(std::unique_ptr<LValue> assignee, std::unique_ptr<Expr> value)
+{
+    assignee = std::move(assignee);
+    value = std::move(value);
+}
+ASTNS::CallExpr::CallExpr(std::unique_ptr<LValue> func, std::unique_ptr<Args> args)
+{
+    func = std::move(func);
+    args = std::move(args);
+}
+ASTNS::BlockStmt::BlockStmt(std::vector<Stmt> &stmts)
+{
+    for (auto &p : stmts) stmts.push_back(std::move(p));
+}
+ASTNS::ExprStmt::ExprStmt(std::unique_ptr<Expr> expr)
+{
+    expr = std::move(expr);
+}
+ASTNS::ReturnStmt::ReturnStmt(std::unique_ptr<Expr> val)
+{
+    val = std::move(val);
+}
+ASTNS::VarStmt::VarStmt(std::unique_ptr<Type> type, Token name, std::unique_ptr<Expr> value)
+{
+    type = std::move(type);
+    name = name;
+    value = std::move(value);
+}
+ASTNS::VarRef::VarRef(Token var)
+{
+    var = var;
+}
+ASTNS::BaseType::BaseType(Token type)
+{
+    type = type;
+}
+ASTNS::FunctionDecl::FunctionDecl(std::unique_ptr<Type> type, Token name, std::unique_ptr<BlockStmt> block)
+{
+    type = std::move(type);
+    name = name;
+    block = std::move(block);
+}
+ASTNS::GlobalVarDecl::GlobalVarDecl(std::unique_ptr<Type> type, Token name, std::unique_ptr<Expr> value)
+{
+    type = std::move(type);
+    name = name;
+    value = std::move(value);
+}
+ASTNS::Param::Param(std::unique_ptr<Type> type, Token name, std::unique_ptr<Param> next)
+{
+    type = std::move(type);
+    name = name;
+    next = std::move(next);
+}
+ASTNS::Arg::Arg(std::unique_ptr<Expr> value, std::unique_ptr<Arg> next)
+{
+    value = std::move(value);
+    next = std::move(next);
+}
