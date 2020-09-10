@@ -227,7 +227,7 @@ def genHFile():
     return ''.join(output)
 # generate definitions {{{1
 def genCppFile():
-    output = []
+    output = ['#include "ast.h"\n']
     for ast in asts:
         output.append(ast.definition())
 
