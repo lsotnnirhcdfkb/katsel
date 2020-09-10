@@ -8,7 +8,7 @@ AND NOt only that, but I also got a lot of helpful information from looking at t
 # Features
 
 - [x] Possibly dysfunctional lexing
-- [x] Possibly dysfunctional parsing with recursvie descent no precedence parsing so *verbosity galore*
+- [x] Not even a parser beacuse it's being rewritten
 - [ ] Possibly dysfunctional code generation to LLVM IR
 - [ ] Compiling to object code
 - [ ] Optimizing code with LLVM
