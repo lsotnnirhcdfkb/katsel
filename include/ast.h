@@ -1,15 +1,41 @@
+#include <memory>
+#include "token.h"
+
 namespace ASTNS
 {
 // ASTHEADER START
+    class Expr;
+    class Decl;
+    class Type;
+    class LValue;
+    class Stmt;
+    class Program;
+    class BinaryExpr;
+    class TernaryExpr;
+    class UnaryExpr;
+    class PrimaryExpr;
+    class AssignExpr;
+    class CallExpr;
+    class BlockStmt;
+    class ExprStmt;
+    class ReturnStmt;
+    class VarStmt;
+    class VarRef;
+    class BaseType;
+    class FunctionDecl;
+    class GlobalVarDecl;
+    class Param;
+    class Arg;
+
     class Expr
     {
     public:
         virtual ~Expr() {}
     };
-    class Stmt
+    class Decl
     {
     public:
-        virtual ~Stmt() {}
+        virtual ~Decl() {}
     };
     class Type
     {
@@ -21,10 +47,10 @@ namespace ASTNS
     public:
         virtual ~LValue() {}
     };
-    class Decl
+    class Stmt
     {
     public:
-        virtual ~Decl() {}
+        virtual ~Stmt() {}
     };
     class Program
     {
@@ -77,10 +103,10 @@ namespace ASTNS
     class CallExpr : Expr
     {
     public:
-        CallExpr(std::unique_ptr<LValue> func, std::unique_ptr<Args> args);
+        CallExpr(std::unique_ptr<LValue> func, std::unique_ptr<Arg> args);
 
         std::unique_ptr<LValue> func;
-        std::unique_ptr<Args> args;
+        std::unique_ptr<Arg> args;
     };
     class BlockStmt : Stmt
     {

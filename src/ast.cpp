@@ -29,7 +29,7 @@ ASTNS::AssignExpr::AssignExpr(std::unique_ptr<LValue> assignee, std::unique_ptr<
     assignee = std::move(assignee);
     value = std::move(value);
 }
-ASTNS::CallExpr::CallExpr(std::unique_ptr<LValue> func, std::unique_ptr<Args> args)
+ASTNS::CallExpr::CallExpr(std::unique_ptr<LValue> func, std::unique_ptr<Arg> args)
 {
     func = std::move(func);
     args = std::move(args);

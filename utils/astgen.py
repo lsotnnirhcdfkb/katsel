@@ -13,7 +13,7 @@ class ASTClass:
     def declaration(self):
         output = []
         if len(self.extends):
-            output.append(f'    class {self.name} : {", ".join(extend.name for extend in self.extends)}\n')
+            output.append(f'    class {self.name} : {", ".join(extend for extend in self.extends)}\n')
         else:
             output.append(f'    class {self.name}\n')
 
@@ -30,6 +30,9 @@ class ASTClass:
         output.append( '    };\n')
 
         return ''.join(output)
+
+    def forwDecl(self):
+        return 'class {self.name} : {", ".join(extend for extend in self.extends)}' if len(self.extends) else 'class {self.name}'
 
     def definition(self):
         output = []
@@ -102,125 +105,105 @@ def opField():
 def exprField(name):
     return uptrField('Expr', name)
 # lists: ast classes to generate {{{1
-exprast          = PureASTClass('Expr')
-declast          = PureASTClass('Decl')
-typeast          = PureASTClass('Type')
-lvalueast        = PureASTClass('LValue')
-stmtast          = PureASTClass('Stmt')
-
-programast       = ASTClass('Program', fields=[
-        ASTField('std::vector<Decl>', 'decls', True, ASTField.IM_ITERATE_MOVE)
-    ])
-
-binaryexprast    = ASTClass('BinaryExpr', fields=[
-        exprField('lhs'),
-        exprField('rhs'),
-        opField()
-    ], extends=[exprast])
-
-ternaryexprast   = ASTClass('TernaryExpr', fields=[
-        exprField('condition'),
-        exprField('trues'),
-        exprField('falses')
-    ], extends=[exprast])
-
-unaryexprast     = ASTClass('UnaryExpr', fields=[
-        exprField('operand'),
-        opField()
-    ], extends=[exprast])
-
-primaryexprast   = ASTClass('PrimaryExpr', fields=[
-        tokenField('value')
-    ], extends=[exprast])
-
-assignexprast    = ASTClass('AssignExpr', fields=[
-        uptrField('LValue', 'assignee'),
-        exprField('value')
-    ], extends=[exprast])
-
-callexprast      = ASTClass('CallExpr', fields=[
-        uptrField('LValue', 'func'),
-        uptrField('Args', 'args')
-    ], extends=[exprast])
-
-blockstmtast     = ASTClass('BlockStmt', fields=[
-        ASTField('std::vector<Stmt>', 'stmts', True, ASTField.IM_ITERATE_MOVE)
-    ], extends=[stmtast])
-
-exprstmtast      = ASTClass('ExprStmt', fields=[
-        exprField('expr')
-    ], extends=[stmtast])
-
-returnstmtast    = ASTClass('ReturnStmt', fields=[
-        exprField('val')
-    ], extends=[stmtast])
-
-varstmtast       = ASTClass('VarStmt', fields=[
-        uptrField('Type', 'type'),
-        tokenField('name'),
-        exprField('value')
-    ], extends=[stmtast])
-
-varrefast        = ASTClass('VarRef', fields=[
-        tokenField('var')
-    ], extends=[lvalueast])
-
-basetypeast      = ASTClass('BaseType', fields=[
-        tokenField('type')
-    ], extends=[typeast])
-
-functiondeclast  = ASTClass('FunctionDecl', fields=[
-        uptrField('Type', 'type'),
-        tokenField('name'),
-        uptrField('BlockStmt', 'block')
-    ], extends=[declast])
-
-globalvardeclast = ASTClass('GlobalVarDecl', fields=[
-        uptrField('Type', 'type'),
-        tokenField('name'),
-        exprField('value')
-    ], extends=[declast])
-
-paramast        = ASTClass('Param', fields=[
-        uptrField('Type', 'type'),
-        tokenField('name'),
-        uptrField('Param', 'next')
-    ])
-
-argast          = ASTClass('Arg', fields=[
-    exprField('value'),
-        uptrField('Arg', 'next')
-    ])
-
-
 asts = [
-    exprast,
-    stmtast,
-    typeast,
-    lvalueast,
-    declast,
+    PureASTClass('Expr'),
+    PureASTClass('Decl'),
+    PureASTClass('Type'),
+    PureASTClass('LValue'),
+    PureASTClass('Stmt'),
 
-    programast,
-    binaryexprast,
-    ternaryexprast,
-    unaryexprast,
-    primaryexprast,
-    assignexprast,
-    callexprast,
-    blockstmtast,
-    exprstmtast,
-    returnstmtast,
-    varstmtast,
-    varrefast,
-    basetypeast,
-    functiondeclast,
-    globalvardeclast,
-    paramast,
-    argast,
+    ASTClass('Program', fields=[
+            ASTField('std::vector<Decl>', 'decls', True, ASTField.IM_ITERATE_MOVE),
+        ]),
+
+    ASTClass('BinaryExpr', fields=[
+            exprField('lhs'),
+            exprField('rhs'),
+            opField(),
+        ], extends=['Expr']),
+
+    ASTClass('TernaryExpr', fields=[
+            exprField('condition'),
+            exprField('trues'),
+            exprField('falses'),
+        ], extends=['Expr']),
+
+    ASTClass('UnaryExpr', fields=[
+            exprField('operand'),
+            opField(),
+        ], extends=['Expr']),
+
+    ASTClass('PrimaryExpr', fields=[
+            tokenField('value'),
+        ], extends=['Expr']),
+
+    ASTClass('AssignExpr', fields=[
+            uptrField('LValue', 'assignee'),
+            exprField('value'),
+        ], extends=['Expr']),
+
+    ASTClass('CallExpr', fields=[
+            uptrField('LValue', 'func'),
+            uptrField('Arg', 'args'),
+        ], extends=['Expr']),
+
+    ASTClass('BlockStmt', fields=[
+            ASTField('std::vector<Stmt>', 'stmts', True, ASTField.IM_ITERATE_MOVE),
+        ], extends=['Stmt']),
+
+    ASTClass('ExprStmt', fields=[
+            exprField('expr'),
+        ], extends=['Stmt']),
+
+    ASTClass('ReturnStmt', fields=[
+            exprField('val'),
+        ], extends=['Stmt']),
+
+    ASTClass('VarStmt', fields=[
+            uptrField('Type', 'type'),
+            tokenField('name'),
+            exprField('value'),
+        ], extends=['Stmt']),
+
+    ASTClass('VarRef', fields=[
+            tokenField('var'),
+        ], extends=['LValue']),
+
+    ASTClass('BaseType', fields=[
+            tokenField('type'),
+        ], extends=['Type']),
+
+    ASTClass('FunctionDecl', fields=[
+            uptrField('Type', 'type'),
+            tokenField('name'),
+            uptrField('BlockStmt', 'block'),
+        ], extends=['Decl']),
+
+    ASTClass('GlobalVarDecl', fields=[
+            uptrField('Type', 'type'),
+            tokenField('name'),
+            exprField('value'),
+        ], extends=['Decl']),
+
+    ASTClass('Param', fields=[
+            uptrField('Type', 'type'),
+            tokenField('name'),
+            uptrField('Param', 'next'),
+        ]),
+
+    ASTClass('Arg', fields=[
+            exprField('value'),
+            uptrField('Arg', 'next'),
+        ])
 ]
+
 # generate h file with declarations {{{1
 def genHFile():
     output = []
+    for ast in asts:
+        output.append(f'    class {ast.name};\n')
+    output.append('\n')
+
     for ast in asts:
         output.append(ast.declaration())
 

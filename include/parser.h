@@ -21,66 +21,66 @@ public:
     Parser(Lexer &l, File &sourcefile);
 
     /// Parse something
-    std::unique_ptr<ASTs::AST> parse();
+    std::unique_ptr<ASTNS::Program> parse();
     /// Parse a declaration
-    std::unique_ptr<ASTs::AST> decl();
+    std::unique_ptr<ASTNS::Decl> decl();
     /// Parse a function declaration
-    std::unique_ptr<ASTs::AST> function();
+    std::unique_ptr<ASTNS::Decl> function();
 
     /// Parse a statement
-    std::unique_ptr<ASTs::AST> statement();
+    std::unique_ptr<ASTNS::Stmt> statement();
     /// Parse a variable declaration statement
-    std::unique_ptr<ASTs::AST> varstatement();
+    std::unique_ptr<ASTNS::Stmt> varstatement();
     /// Parse an expression statement
-    std::unique_ptr<ASTs::AST> exprstatement();
+    std::unique_ptr<ASTNS::Stmt> exprstatement();
     /// Parse a return statement
-    std::unique_ptr<ASTs::AST> retstatement();
-    /// Parse a print statement
-    std::unique_ptr<ASTs::AST> printstatement();
+    std::unique_ptr<ASTNS::Stmt> retstatement();
 
     /// Parse an expression
-    std::unique_ptr<ASTs::AST> expression();
+    std::unique_ptr<ASTNS::Expr> expression();
     /// Parse an assignment expression
-    std::unique_ptr<ASTs::AST> assignmentexpr();
+    std::unique_ptr<ASTNS::Expr> assignmentexpr();
     /// Parse a ternary expression
-    std::unique_ptr<ASTs::AST> ternaryexpr();
+    std::unique_ptr<ASTNS::Expr> ternaryexpr();
     /// Parse a binary or expression
-    std::unique_ptr<ASTs::AST> binorexpr();
+    std::unique_ptr<ASTNS::Expr> binorexpr();
     /// Parse a binary and expression
-    std::unique_ptr<ASTs::AST> binandexpr();
+    std::unique_ptr<ASTNS::Expr> binandexpr();
     /// Parse a binary not expression
-    std::unique_ptr<ASTs::AST> binnotexpr();
+    std::unique_ptr<ASTNS::Expr> binnotexpr();
     /// Parse an equality expression
-    std::unique_ptr<ASTs::AST> compeqexpr();
+    std::unique_ptr<ASTNS::Expr> compeqexpr();
     /// Parse a comparison expression
-    std::unique_ptr<ASTs::AST> complgtexpr();
+    std::unique_ptr<ASTNS::Expr> complgtexpr();
     /// Parse a bitwise xor expression
-    std::unique_ptr<ASTs::AST> bitxorexpr();
+    std::unique_ptr<ASTNS::Expr> bitxorexpr();
     /// Parse a bitwise or expression
-    std::unique_ptr<ASTs::AST> bitorexpr();
+    std::unique_ptr<ASTNS::Expr> bitorexpr();
     /// Parse a bitwise and expression
-    std::unique_ptr<ASTs::AST> bitandexpr();
+    std::unique_ptr<ASTNS::Expr> bitandexpr();
     /// Parse a bit shift expression
-    std::unique_ptr<ASTs::AST> bitshiftexpr();
+    std::unique_ptr<ASTNS::Expr> bitshiftexpr();
     /// Parse a addition expression
-    std::unique_ptr<ASTs::AST> additionexpr();
+    std::unique_ptr<ASTNS::Expr> additionexpr();
     /// Parse a multiplication expression
-    std::unique_ptr<ASTs::AST> multexpr();
+    std::unique_ptr<ASTNS::Expr> multexpr();
     /// Parse a unary expression
-    std::unique_ptr<ASTs::AST> unary();
+    std::unique_ptr<ASTNS::Expr> unary();
     /// Parse a primary
-    std::unique_ptr<ASTs::AST> primary();
+    std::unique_ptr<ASTNS::Expr> primary();
 
     /// Parse an lvalue
-    std::unique_ptr<ASTs::AST> lvalue();
+    std::unique_ptr<ASTNS::LValue> lvalue();
+    /// Parse a variable reference
+    std::unique_ptr<ASTNS::LValue> varref();
     /// Parse a code block
-    std::unique_ptr<ASTs::AST> block();
+    std::unique_ptr<ASTNS::BlockStmt> block();
     /// Parse a type
-    std::unique_ptr<ASTs::AST> type();
+    std::unique_ptr<ASTNS::Type> type();
     /// Parse a parameter list
-    std::unique_ptr<ASTs::AST> paramlist();
+    std::unique_ptr<ASTNS::Param> param();
     /// Parse a argumnet list
-    std::unique_ptr<ASTs::AST> arglist();
+    std::unique_ptr<ASTNS::Arg> arg();
 
 private:
 
