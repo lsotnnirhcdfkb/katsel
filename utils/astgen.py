@@ -13,7 +13,7 @@ class ASTClass:
     def declaration(self):
         output = []
         if len(self.extends):
-            output.append(f'    class {self.name} : {", ".join(extend for extend in self.extends)}\n')
+            output.append(f'    class {self.name} : {", ".join("public " + extend for extend in self.extends)}\n')
         else:
             output.append(f'    class {self.name}\n')
 
@@ -176,6 +176,7 @@ asts = [
     ASTClass('FunctionDecl', fields=[
             uptrField('Type', 'type'),
             tokenField('name'),
+            uptrField('Param', 'params'),
             uptrField('BlockStmt', 'block'),
         ], extends=['Decl']),
 

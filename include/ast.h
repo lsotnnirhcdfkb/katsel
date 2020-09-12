@@ -59,7 +59,7 @@ namespace ASTNS
 
         std::vector<Decl> decls;
     };
-    class BinaryExpr : Expr
+    class BinaryExpr : public Expr
     {
     public:
         BinaryExpr(std::unique_ptr<Expr> lhs, std::unique_ptr<Expr> rhs, Token op);
@@ -68,7 +68,7 @@ namespace ASTNS
         std::unique_ptr<Expr> rhs;
         Token op;
     };
-    class TernaryExpr : Expr
+    class TernaryExpr : public Expr
     {
     public:
         TernaryExpr(std::unique_ptr<Expr> condition, std::unique_ptr<Expr> trues, std::unique_ptr<Expr> falses);
@@ -77,7 +77,7 @@ namespace ASTNS
         std::unique_ptr<Expr> trues;
         std::unique_ptr<Expr> falses;
     };
-    class UnaryExpr : Expr
+    class UnaryExpr : public Expr
     {
     public:
         UnaryExpr(std::unique_ptr<Expr> operand, Token op);
@@ -85,14 +85,14 @@ namespace ASTNS
         std::unique_ptr<Expr> operand;
         Token op;
     };
-    class PrimaryExpr : Expr
+    class PrimaryExpr : public Expr
     {
     public:
         PrimaryExpr(Token value);
 
         Token value;
     };
-    class AssignExpr : Expr
+    class AssignExpr : public Expr
     {
     public:
         AssignExpr(std::unique_ptr<LValue> assignee, std::unique_ptr<Expr> value);
@@ -100,7 +100,7 @@ namespace ASTNS
         std::unique_ptr<LValue> assignee;
         std::unique_ptr<Expr> value;
     };
-    class CallExpr : Expr
+    class CallExpr : public Expr
     {
     public:
         CallExpr(std::unique_ptr<LValue> func, std::unique_ptr<Arg> args);
@@ -108,28 +108,28 @@ namespace ASTNS
         std::unique_ptr<LValue> func;
         std::unique_ptr<Arg> args;
     };
-    class BlockStmt : Stmt
+    class BlockStmt : public Stmt
     {
     public:
         BlockStmt(std::vector<Stmt> &stmts);
 
         std::vector<Stmt> stmts;
     };
-    class ExprStmt : Stmt
+    class ExprStmt : public Stmt
     {
     public:
         ExprStmt(std::unique_ptr<Expr> expr);
 
         std::unique_ptr<Expr> expr;
     };
-    class ReturnStmt : Stmt
+    class ReturnStmt : public Stmt
     {
     public:
         ReturnStmt(std::unique_ptr<Expr> val);
 
         std::unique_ptr<Expr> val;
     };
-    class VarStmt : Stmt
+    class VarStmt : public Stmt
     {
     public:
         VarStmt(std::unique_ptr<Type> type, Token name, std::unique_ptr<Expr> value);
@@ -138,30 +138,31 @@ namespace ASTNS
         Token name;
         std::unique_ptr<Expr> value;
     };
-    class VarRef : LValue
+    class VarRef : public LValue
     {
     public:
         VarRef(Token var);
 
         Token var;
     };
-    class BaseType : Type
+    class BaseType : public Type
     {
     public:
         BaseType(Token type);
 
         Token type;
     };
-    class FunctionDecl : Decl
+    class FunctionDecl : public Decl
     {
     public:
-        FunctionDecl(std::unique_ptr<Type> type, Token name, std::unique_ptr<BlockStmt> block);
+        FunctionDecl(std::unique_ptr<Type> type, Token name, std::unique_ptr<Param> params, std::unique_ptr<BlockStmt> block);
 
         std::unique_ptr<Type> type;
         Token name;
+        std::unique_ptr<Param> params;
         std::unique_ptr<BlockStmt> block;
     };
-    class GlobalVarDecl : Decl
+    class GlobalVarDecl : public Decl
     {
     public:
         GlobalVarDecl(std::unique_ptr<Type> type, Token name, std::unique_ptr<Expr> value);
