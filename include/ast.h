@@ -7,7 +7,6 @@ namespace ASTNS
     class Expr;
     class Decl;
     class Type;
-    class LValue;
     class Stmt;
     class Program;
     class BinaryExpr;
@@ -16,6 +15,7 @@ namespace ASTNS
     class PrimaryExpr;
     class AssignExpr;
     class CallExpr;
+    class LtoRVExpr;
     class BlockStmt;
     class ExprStmt;
     class ReturnStmt;
@@ -31,6 +31,8 @@ namespace ASTNS
     {
     public:
         virtual ~Expr() {}
+        bool exprAnValid;
+        ExprAn exprAn;
     };
     class Decl
     {
@@ -41,11 +43,6 @@ namespace ASTNS
     {
     public:
         virtual ~Type() {}
-    };
-    class LValue
-    {
-    public:
-        virtual ~LValue() {}
     };
     class Stmt
     {
@@ -95,18 +92,25 @@ namespace ASTNS
     class AssignExpr : public Expr
     {
     public:
-        AssignExpr(std::unique_ptr<LValue> assignee, std::unique_ptr<Expr> value);
+        AssignExpr(std::unique_ptr<Expr> assignee, std::unique_ptr<Expr> value);
 
-        std::unique_ptr<LValue> assignee;
+        std::unique_ptr<Expr> assignee;
         std::unique_ptr<Expr> value;
     };
     class CallExpr : public Expr
     {
     public:
-        CallExpr(std::unique_ptr<LValue> func, std::unique_ptr<Arg> args);
+        CallExpr(std::unique_ptr<Expr> func, std::unique_ptr<Arg> args);
 
-        std::unique_ptr<LValue> func;
+        std::unique_ptr<Expr> func;
         std::unique_ptr<Arg> args;
+    };
+    class LtoRVExpr : public Expr
+    {
+    public:
+        LtoRVExpr(std::unique_ptr<Expr> val);
+
+        std::unique_ptr<Expr> val;
     };
     class BlockStmt : public Stmt
     {
@@ -138,7 +142,7 @@ namespace ASTNS
         Token name;
         std::unique_ptr<Expr> value;
     };
-    class VarRef : public LValue
+    class VarRef : public Expr
     {
     public:
         VarRef(Token var);
@@ -161,6 +165,8 @@ namespace ASTNS
         Token name;
         std::unique_ptr<Param> params;
         std::unique_ptr<BlockStmt> block;
+        bool funcDeclAnValid;
+        FuncDeclAn funcDeclAn;
     };
     class GlobalVarDecl : public Decl
     {

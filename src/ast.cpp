@@ -24,15 +24,19 @@ ASTNS::PrimaryExpr::PrimaryExpr(Token value)
 {
     value = value;
 }
-ASTNS::AssignExpr::AssignExpr(std::unique_ptr<LValue> assignee, std::unique_ptr<Expr> value)
+ASTNS::AssignExpr::AssignExpr(std::unique_ptr<Expr> assignee, std::unique_ptr<Expr> value)
 {
     assignee = std::move(assignee);
     value = std::move(value);
 }
-ASTNS::CallExpr::CallExpr(std::unique_ptr<LValue> func, std::unique_ptr<Arg> args)
+ASTNS::CallExpr::CallExpr(std::unique_ptr<Expr> func, std::unique_ptr<Arg> args)
 {
     func = std::move(func);
     args = std::move(args);
+}
+ASTNS::LtoRVExpr::LtoRVExpr(std::unique_ptr<Expr> val)
+{
+    val = std::move(val);
 }
 ASTNS::BlockStmt::BlockStmt(std::vector<Stmt> &stmts)
 {

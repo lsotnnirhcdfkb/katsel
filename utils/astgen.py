@@ -5,15 +5,16 @@
 
 # ASTClass {{{1
 class ASTClass:
-    def __init__(self, name, fields=[], extends=[]):
+    def __init__(self, name, fields=[], extends=[], annotations=[]):
         self.name = name
         self.fields = fields
         self.extends = extends
+        self.annotations = annotations
 
     def declaration(self):
         output = []
         if len(self.extends):
-            output.append(f'    class {self.name} : {", ".join("public " + extend for extend in self.extends)}\n')
+            output.append(f'    class {self.name} : public {", ".join(extend for extend in self.extends)}\n')
         else:
             output.append(f'    class {self.name}\n')
 
@@ -26,6 +27,11 @@ class ASTClass:
                 output.append('        ')
                 output.append(field.asDeclaration())
                 output.append('\n')
+
+        for annotation in self.annotations:
+            annotationvName = annotation[0].lower() + annotation[1:]
+            output.append(f'        bool {annotationvName}Valid;\n')
+            output.append(f'        {annotation} {annotationvName};\n')
 
         output.append( '    };\n')
 
@@ -47,8 +53,9 @@ class ASTClass:
 
 # PureASTClass {{{1
 class PureASTClass:
-    def __init__(self, name):
+    def __init__(self, name, annotations=[]):
         self.name = name
+        self.annotations = annotations
 
     def declaration(self):
         output = []
@@ -56,6 +63,10 @@ class PureASTClass:
         output.append( '    {\n')
         output.append( '    public:\n')
         output.append(f'        virtual ~{self.name}() {{}}\n')
+        for annotation in self.annotations:
+            annotationvName = annotation[0].lower() + annotation[1:]
+            output.append(f'        bool {annotationvName}Valid;\n')
+            output.append(f'        {annotation} {annotationvName};\n')
         output.append( '    };\n')
 
         return ''.join(output)
@@ -105,11 +116,14 @@ def opField():
 def exprField(name):
     return uptrField('Expr', name)
 # lists: ast classes to generate {{{1
+annotations = {
+    'ExprAn': [('bool', 'isLValue'), ('int', 'type')],
+    'FuncDeclAn': [('int', 'retType'), ('int', 'nArgs'), ('std::vector<int>', 'argTypes')],
+}
 asts = [
-    PureASTClass('Expr'),
+    PureASTClass('Expr', annotations=['ExprAn']),
     PureASTClass('Decl'),
     PureASTClass('Type'),
-    PureASTClass('LValue'),
     PureASTClass('Stmt'),
 
     ASTClass('Program', fields=[
@@ -138,13 +152,17 @@ asts = [
         ], extends=['Expr']),
 
     ASTClass('AssignExpr', fields=[
-            uptrField('LValue', 'assignee'),
+            uptrField('Expr', 'assignee'),
             exprField('value'),
         ], extends=['Expr']),
 
     ASTClass('CallExpr', fields=[
-            uptrField('LValue', 'func'),
+            uptrField('Expr', 'func'),
             uptrField('Arg', 'args'),
+        ], extends=['Expr']),
+
+    ASTClass('LtoRVExpr', fields=[
+            uptrField('Expr', 'val')
         ], extends=['Expr']),
 
     ASTClass('BlockStmt', fields=[
@@ -167,7 +185,7 @@ asts = [
 
     ASTClass('VarRef', fields=[
             tokenField('var'),
-        ], extends=['LValue']),
+        ], extends=['Expr']),
 
     ASTClass('BaseType', fields=[
             tokenField('type'),
@@ -178,7 +196,7 @@ asts = [
             tokenField('name'),
             uptrField('Param', 'params'),
             uptrField('BlockStmt', 'block'),
-        ], extends=['Decl']),
+        ], extends=['Decl'], annotations=['FuncDeclAn']),
 
     ASTClass('GlobalVarDecl', fields=[
             uptrField('Type', 'type'),
