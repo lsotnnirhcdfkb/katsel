@@ -7,6 +7,8 @@
 #include <memory>
 #include <limits>
 
+#include "ast.h"
+#include "parser.h"
 #include "file.h"
 #include "lexer.h"
 #include "ansistuff.h"
@@ -46,9 +48,9 @@ void compileFile(File &sourcefile)
 {
     enableTerminalCodes();
     auto lexer = std::make_unique<Lexer>(sourcefile);
-    // auto parser = std::make_unique<Parser>(*lexer, sourcefile);
+    auto parser = std::make_unique<Parser>(*lexer, sourcefile);
 
-    // std::unique_ptr<ASTNS::Program> parsed = parser->parse();
+    std::unique_ptr<ASTNS::Program> parsed = parser->parse();
     // auto printv = std::make_unique<PrintVisitor>();
 
     // if (parsed)

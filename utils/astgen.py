@@ -233,7 +233,7 @@ def genCppFile():
     return ''.join(output)
 # generate annotation structs {{{1
 def genAnnotationStructs():
-    output = ['#pragma once\n']
+    output = []
     for annotationn, annotationfs in annotations.items():
         output.append(f'''struct {annotationn}
 {{
@@ -241,7 +241,7 @@ def genAnnotationStructs():
         output.append(f'    bool valid = false;\n')
         for annotationfty, annotationfn in annotationfs:
             output.append(f'    {annotationfty} {annotationfn};\n')
-        output.append('''}
+        output.append('''};
 ''')
 
     return ''.join(output)

@@ -1,5 +1,7 @@
+#pragma once
 #include <memory>
 #include "token.h"
+#include "annotations.h"
 
 namespace ASTNS
 {
