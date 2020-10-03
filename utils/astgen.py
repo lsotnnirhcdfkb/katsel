@@ -22,7 +22,6 @@ class ASTClass:
         output.append( '    public:\n')
         output.append(f'        {self.name}({", ".join(field.asArgument() for field in self.fields)});\n')
         if len(self.fields):
-            output.append(f'\n')
             for field in self.fields:
                 output.append('        ')
                 output.append(field.asDeclaration())
@@ -30,7 +29,6 @@ class ASTClass:
 
         for annotation in self.annotations:
             annotationvName = annotation[0].lower() + annotation[1:]
-            output.append(f'        bool {annotationvName}Valid;\n')
             output.append(f'        {annotation} {annotationvName};\n')
 
         output.append( '    };\n')
@@ -65,7 +63,6 @@ class PureASTClass:
         output.append(f'        virtual ~{self.name}() {{}}\n')
         for annotation in self.annotations:
             annotationvName = annotation[0].lower() + annotation[1:]
-            output.append(f'        bool {annotationvName}Valid;\n')
             output.append(f'        {annotation} {annotationvName};\n')
         output.append( '    };\n')
 
@@ -234,3 +231,14 @@ def genCppFile():
         output.append(ast.definition())
 
     return ''.join(output)
+# generate annotation structs {{{1
+def genAnnotationStructs():
+    output = []
+    for annotationn, annotationfs in annotations.items():
+        output.append(f'''struct {annotation}
+{{''')
+        output.append(f'    bool valid = false;')
+        for annotationfty, annotationfn in annotationfs:
+            output.append(f'    {annotationfty} {annotationfn};')
+        output.append('''}}
+''')

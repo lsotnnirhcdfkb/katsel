@@ -10,6 +10,7 @@ jobs = [
     ('src/lexer.cpp'           , 'KWGEN START'               , 'KWGEN END'               , lambda: kwgen.trie.generate(doc='Check if an idenetifier token is a keyword type and return that type, or just return TokenType::IDENTIFIER')),
     ('src/ast.cpp'             , None                        , None                      , astgen.genCppFile),
     ('include/ast.h'           , 'ASTHEADER START'           , 'ASTHEADER END'           , astgen.genHFile),
+    ('include/annotations.h'   , None                        , None                      , astgen.genAnnotationStructs),
 ]
 
 for jobi, job in enumerate(jobs):

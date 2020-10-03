@@ -31,7 +31,6 @@ namespace ASTNS
     {
     public:
         virtual ~Expr() {}
-        bool exprAnValid;
         ExprAn exprAn;
     };
     class Decl
@@ -53,14 +52,12 @@ namespace ASTNS
     {
     public:
         Program(std::vector<Decl> &decls);
-
         std::vector<Decl> decls;
     };
     class BinaryExpr : public Expr
     {
     public:
         BinaryExpr(std::unique_ptr<Expr> lhs, std::unique_ptr<Expr> rhs, Token op);
-
         std::unique_ptr<Expr> lhs;
         std::unique_ptr<Expr> rhs;
         Token op;
@@ -69,7 +66,6 @@ namespace ASTNS
     {
     public:
         TernaryExpr(std::unique_ptr<Expr> condition, std::unique_ptr<Expr> trues, std::unique_ptr<Expr> falses);
-
         std::unique_ptr<Expr> condition;
         std::unique_ptr<Expr> trues;
         std::unique_ptr<Expr> falses;
@@ -78,7 +74,6 @@ namespace ASTNS
     {
     public:
         UnaryExpr(std::unique_ptr<Expr> operand, Token op);
-
         std::unique_ptr<Expr> operand;
         Token op;
     };
@@ -86,14 +81,12 @@ namespace ASTNS
     {
     public:
         PrimaryExpr(Token value);
-
         Token value;
     };
     class AssignExpr : public Expr
     {
     public:
         AssignExpr(std::unique_ptr<Expr> assignee, std::unique_ptr<Expr> value);
-
         std::unique_ptr<Expr> assignee;
         std::unique_ptr<Expr> value;
     };
@@ -101,7 +94,6 @@ namespace ASTNS
     {
     public:
         CallExpr(std::unique_ptr<Expr> func, std::unique_ptr<Arg> args);
-
         std::unique_ptr<Expr> func;
         std::unique_ptr<Arg> args;
     };
@@ -109,35 +101,30 @@ namespace ASTNS
     {
     public:
         LtoRVExpr(std::unique_ptr<Expr> val);
-
         std::unique_ptr<Expr> val;
     };
     class BlockStmt : public Stmt
     {
     public:
         BlockStmt(std::vector<Stmt> &stmts);
-
         std::vector<Stmt> stmts;
     };
     class ExprStmt : public Stmt
     {
     public:
         ExprStmt(std::unique_ptr<Expr> expr);
-
         std::unique_ptr<Expr> expr;
     };
     class ReturnStmt : public Stmt
     {
     public:
         ReturnStmt(std::unique_ptr<Expr> val);
-
         std::unique_ptr<Expr> val;
     };
     class VarStmt : public Stmt
     {
     public:
         VarStmt(std::unique_ptr<Type> type, Token name, std::unique_ptr<Expr> value);
-
         std::unique_ptr<Type> type;
         Token name;
         std::unique_ptr<Expr> value;
@@ -146,33 +133,28 @@ namespace ASTNS
     {
     public:
         VarRef(Token var);
-
         Token var;
     };
     class BaseType : public Type
     {
     public:
         BaseType(Token type);
-
         Token type;
     };
     class FunctionDecl : public Decl
     {
     public:
         FunctionDecl(std::unique_ptr<Type> type, Token name, std::unique_ptr<Param> params, std::unique_ptr<BlockStmt> block);
-
         std::unique_ptr<Type> type;
         Token name;
         std::unique_ptr<Param> params;
         std::unique_ptr<BlockStmt> block;
-        bool funcDeclAnValid;
         FuncDeclAn funcDeclAn;
     };
     class GlobalVarDecl : public Decl
     {
     public:
         GlobalVarDecl(std::unique_ptr<Type> type, Token name, std::unique_ptr<Expr> value);
-
         std::unique_ptr<Type> type;
         Token name;
         std::unique_ptr<Expr> value;
@@ -181,7 +163,6 @@ namespace ASTNS
     {
     public:
         Param(std::unique_ptr<Type> type, Token name, std::unique_ptr<Param> next);
-
         std::unique_ptr<Type> type;
         Token name;
         std::unique_ptr<Param> next;
@@ -190,7 +171,6 @@ namespace ASTNS
     {
     public:
         Arg(std::unique_ptr<Expr> value, std::unique_ptr<Arg> next);
-
         std::unique_ptr<Expr> value;
         std::unique_ptr<Arg> next;
     };
