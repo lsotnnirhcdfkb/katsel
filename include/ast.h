@@ -53,8 +53,8 @@ namespace ASTNS
     class Program
     {
     public:
-        Program(std::vector<Decl> &decls);
-        std::vector<Decl> decls;
+        Program(std::vector<std::unique_ptr<Decl>> &decls);
+        std::vector<std::unique_ptr<Decl>> decls;
     };
     class BinaryExpr : public Expr
     {

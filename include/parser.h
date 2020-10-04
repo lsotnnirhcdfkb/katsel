@@ -18,11 +18,19 @@ private:
     Lexer &lexer;
     File &sourcefile;
 
-    void advance();
-
     Token prevToken;
     Token currToken;
 
     Token& peek();
     Token& prev();
+
+    void advance();
+    bool checkConsume(TokenType type);
+    bool check(TokenType type);
+    bool atEnd();
+
+    bool ispanic;
+    void panic();
+    void unpanic();
+    void syncTokens();
 };

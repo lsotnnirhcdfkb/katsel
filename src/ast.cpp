@@ -1,5 +1,5 @@
 #include "ast.h"
-ASTNS::Program::Program(std::vector<Decl> &decls)
+ASTNS::Program::Program(std::vector<std::unique_ptr<Decl>> &decls)
 {
     for (auto &p : decls) decls.push_back(std::move(p));
 }

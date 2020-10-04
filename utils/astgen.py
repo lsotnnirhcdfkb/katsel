@@ -124,7 +124,7 @@ asts = [
     PureASTClass('Stmt'),
 
     ASTClass('Program', fields=[
-            ASTField('std::vector<Decl>', 'decls', True, ASTField.IM_ITERATE_MOVE),
+            ASTField('std::vector<std::unique_ptr<Decl>>', 'decls', True, ASTField.IM_ITERATE_MOVE),
         ]),
 
     ASTClass('BinaryExpr', fields=[
