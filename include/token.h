@@ -4,6 +4,7 @@
 #pragma once
 
 #include "tokentype.h"
+#include <string>
 
 /// A Token emitted from the lexer lexing the source file
 struct Token
