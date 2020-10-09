@@ -1,7 +1,7 @@
 #include "parser.h"
 #include "ast.h"
 
-// parent stmt method {{[1
+// parent stmt method {{{1
 std::unique_ptr<ASTNS::Stmt> Parser::stmt()
 {
     std::unique_ptr<ASTNS::Stmt> statementast = nullptr;
@@ -28,7 +28,21 @@ std::unique_ptr<ASTNS::Stmt> Parser::stmt()
 // varstmt method {{{1
 std::unique_ptr<ASTNS::VarStmt> Parser::varstmt()
 {
+    assertConsume(TokenType::VAR);
+    std::unique_ptr<ASTNS::Type> typeast (std::move(type()));
 
+    Token name = assertConsume(TokenType::IDENTIFIER, "Expected identifier for variable name");
+
+    std::unique_ptr<ASTNS::Expr> expressionast = nullptr;
+    if (checkConsume(TokenType::EQUAL))
+    {
+        expressionast = expr();
+    }
+
+    assertConsume(TokenType::SEMICOLON, "Expected semicolon after var statement");
+
+    std::unique_ptr<ASTNS::VarStmt> stmtast = std::make_unique<ASTNS::VarStmt>(std::move(typeast), name, std::move(expressionast));
+    return stmtast;
 }
 // exprstmt method {{{1
 std::unique_ptr<ASTNS::ExprStmt> Parser::exprstmt()

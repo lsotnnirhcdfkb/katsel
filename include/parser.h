@@ -45,6 +45,8 @@ private:
     std::unique_ptr<ASTNS::ReturnStmt> returnstmt();
     std::unique_ptr<ASTNS::BlockStmt> blockstmt();
 
+    std::unique_ptr<ASTNS::Expr> expr();
+
     std::unique_ptr<ASTNS::Type> type();
     std::unique_ptr<ASTNS::Param> params();
     std::unique_ptr<ASTNS::Arg> args();
