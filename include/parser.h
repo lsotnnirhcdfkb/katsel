@@ -25,7 +25,7 @@ private:
     Token& peek();
     Token& prev();
 
-    void advance();
+    void consume();
     bool checkConsume(TokenType type);
     Token& assertConsume(TokenType type, std::string message="");
     bool check(TokenType type);
@@ -43,4 +43,9 @@ private:
     std::unique_ptr<ASTNS::VarStmt> varstmt();
     std::unique_ptr<ASTNS::ExprStmt> exprstmt();
     std::unique_ptr<ASTNS::ReturnStmt> returnstmt();
+    std::unique_ptr<ASTNS::BlockStmt> block();
+
+    std::unique_ptr<ASTNS::Type> type();
+    std::unique_ptr<ASTNS::Param> params();
+    std::unique_ptr<ASTNS::Arg> args();
 };

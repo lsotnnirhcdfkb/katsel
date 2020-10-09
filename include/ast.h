@@ -146,8 +146,8 @@ namespace ASTNS
     class FunctionDecl : public Decl
     {
     public:
-        FunctionDecl(std::unique_ptr<Type> type, Token name, std::unique_ptr<Param> params, std::unique_ptr<BlockStmt> block);
-        std::unique_ptr<Type> type;
+        FunctionDecl(std::unique_ptr<Type> rettype, Token name, std::unique_ptr<Param> params, std::unique_ptr<BlockStmt> block);
+        std::unique_ptr<Type> rettype;
         Token name;
         std::unique_ptr<Param> params;
         std::unique_ptr<BlockStmt> block;

@@ -8,11 +8,11 @@
 // Parser constructor {{{1
 Parser::Parser(Lexer &l, File &sourcefile): lexer(l), sourcefile(sourcefile)
 {
-    advance();
+    consume();
     prevToken.type = TokenType::SOF;
 }
 // helper methods {{{1
-void Parser::advance()
+void Parser::consume()
 {
     prevToken = currToken;
     while (true)
@@ -21,9 +21,6 @@ void Parser::advance()
 
         if (currToken.type != TokenType::ERROR) break; // continue loop if it is an error token
 
-        // override advance in error
-        // it's there to prevent infinite loops, but in this function,
-        // we don't need it to because it might cause problems
         reportError(currToken, currToken.message, sourcefile);
     }
 }
@@ -32,7 +29,7 @@ bool Parser::checkConsume(TokenType type)
 {
     if (check(type))
     {
-        advance();
+        consume();
         return true;
     }
     return false;
@@ -54,7 +51,7 @@ Token& Parser::assertConsume(TokenType type, std::string message)
     }
 
     bool correct = check(type);
-    advance();
+    consume();
 
     if (!correct)
         reportError(peek(), message, sourcefile);
@@ -90,10 +87,10 @@ void Parser::unpanic()
 
 void Parser::syncTokens()
 {
-    while (!(check(TokenType::SEMICOLON) || check(TokenType::CCURB)) && !atEnd()) advance(); // advance until next token is semicolon
+    while (!(check(TokenType::SEMICOLON) || check(TokenType::CCURB)) && !atEnd()) consume(); // consume until next token is semicolon
 
     if (check(TokenType::SEMICOLON))
-        advance(); // consume semicolon
+        consume(); // consume semicolon
 
-    // if doesnt advance then peek is of type eof
+    // if doesnt consume then peek is of type eof
 }

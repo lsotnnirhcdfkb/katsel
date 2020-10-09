@@ -115,7 +115,7 @@ def exprField(name):
 # lists: ast classes to generate {{{1
 annotations = {
     'ExprAn': [('bool', 'isLValue'), ('int', 'type')],
-    'FuncDeclAn': [('int', 'retType'), ('int', 'nArgs'), ('std::vector<int>', 'argTypes')],
+    'FuncDeclAn': [('int', 'retType'), ('int', 'nArgs')],
 }
 asts = [
     PureASTClass('Expr', annotations=['ExprAn']),
@@ -189,7 +189,7 @@ asts = [
         ], extends=['Type']),
 
     ASTClass('FunctionDecl', fields=[
-            uptrField('Type', 'type'),
+            uptrField('Type', 'rettype'),
             tokenField('name'),
             uptrField('Param', 'params'),
             uptrField('BlockStmt', 'block'),

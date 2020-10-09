@@ -14,6 +14,5 @@ struct FuncDeclAn
     bool valid = false;
     int retType;
     int nArgs;
-    std::vector<int> argTypes;
 };
 // ANNOTATION END

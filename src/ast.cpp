@@ -64,9 +64,9 @@ ASTNS::BaseType::BaseType(Token type)
 {
     type = type;
 }
-ASTNS::FunctionDecl::FunctionDecl(std::unique_ptr<Type> type, Token name, std::unique_ptr<Param> params, std::unique_ptr<BlockStmt> block)
+ASTNS::FunctionDecl::FunctionDecl(std::unique_ptr<Type> rettype, Token name, std::unique_ptr<Param> params, std::unique_ptr<BlockStmt> block)
 {
-    type = std::move(type);
+    rettype = std::move(rettype);
     name = name;
     params = std::move(params);
     block = std::move(block);
