@@ -1,9 +1,26 @@
 #include "parser.h"
 #include "ast.h"
 
+#include "errors.h"
+
 std::unique_ptr<ASTNS::Type> Parser::type()
 {
+    // only builtin types for now
+    if (checkConsume(TokenType::UINT8) || checkConsume(TokenType::UINT16) || checkConsume(TokenType::UINT32) || checkConsume(TokenType::UINT64) ||
+        checkConsume(TokenType::SINT8) || checkConsume(TokenType::SINT16) || checkConsume(TokenType::SINT32) || checkConsume(TokenType::SINT64) ||
 
+        checkConsume(TokenType::FLOAT) ||
+        checkConsume(TokenType::CHAR) ||
+        checkConsume(TokenType::BOOL) ||
+        checkConsume(TokenType::DOUBLE) ||
+        checkConsume(TokenType::VOID))
+    {
+        return std::make_unique<ASTNS::BaseType>(prev());
+    }
+
+    consume();
+    reportError(prev(), "Expected type", sourcefile);
+    return nullptr;
 }
 
 std::unique_ptr<ASTNS::BlockStmt> Parser::block()
