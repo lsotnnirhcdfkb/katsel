@@ -49,7 +49,7 @@ std::unique_ptr<ASTNS::FunctionDecl> Parser::functiondecl()
 
     assertConsume(TokenType::CPARN, "Expected closing parenthesis after parameters");
 
-    std::unique_ptr<ASTNS::BlockStmt> fblock (std::move(block()));
+    std::unique_ptr<ASTNS::BlockStmt> fblock (std::move(blockstmt()));
 
     return std::make_unique<ASTNS::FunctionDecl>(std::move(rtype), name, std::move(fparams), std::move(fblock));
 }
