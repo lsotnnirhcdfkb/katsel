@@ -110,32 +110,9 @@ class TrieNode:
 ## Keywords to generate matching code for
 keywords = [
     ('void', 'VOID'),
-    ('namespace', 'NAMESPACE'),
-    ('class', 'CLASS'),
-    ('enum', 'ENUM'),
-    ('return', 'RETURN'),
-    ('this', 'THIS'),
-    ('while', 'WHILE'),
-    ('for', 'FOR'),
-    ('if', 'IF'),
-    ('else', 'ELSE'),
-    ('switch', 'SWITCH'),
-    ('case', 'CASE'),
-    ('default', 'DEFAULT'),
-    ('break', 'BREAK'),
-    ('breakall', 'BREAKALL'),
-    ('breakto', 'BREAKTO'),
-    ('const', 'CONST'),
-    ('continue', 'CONTINUE'),
-    ('inline', 'INLINE'),
-    ('volatile', 'VOLATILE'),
     ('float', 'FLOAT'),
     ('bool', 'BOOL'),
     ('double', 'DOUBLE'),
-    ('true', 'TRUELIT'),
-    ('false', 'FALSELIT'),
-    ('null', 'NULLLIT'),
-    ('assert', 'ASSERT'),
     ('char', 'CHAR'),
     ('uint8', 'UINT8'),
     ('uint16', 'UINT16'),
@@ -145,7 +122,39 @@ keywords = [
     ('sint16', 'SINT16'),
     ('sint32', 'SINT32'),
     ('sint64', 'SINT64'),
-    ('var', 'VAR')
+
+    ('namespace', 'NAMESPACE'),
+    ('class', 'CLASS'),
+    ('enum', 'ENUM'),
+    ('fun', 'FUN'),
+    ('var', 'VAR'),
+
+    ('return', 'RETURN'),
+
+    ('this', 'THIS'),
+
+    ('while', 'WHILE'),
+    ('for', 'FOR'),
+    ('if', 'IF'),
+    ('else', 'ELSE'),
+    ('switch', 'SWITCH'),
+    ('case', 'CASE'),
+    ('default', 'DEFAULT'),
+
+    ('break', 'BREAK'),
+    ('breakall', 'BREAKALL'),
+    ('breakto', 'BREAKTO'),
+    ('continue', 'CONTINUE'),
+
+    ('inline', 'INLINE'),
+    ('volatile', 'VOLATILE'),
+    ('const', 'CONST'),
+
+    ('true', 'TRUELIT'),
+    ('false', 'FALSELIT'),
+    ('null', 'NULLLIT'),
+
+    ('assert', 'ASSERT'),
 ]
 # }}}
 

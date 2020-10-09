@@ -3,6 +3,8 @@
 #include "tokentype.h"
 #include "errors.h"
 
+#include <sstream>
+
 // Parser constructor {{{1
 Parser::Parser(Lexer &l, File &sourcefile): lexer(l), sourcefile(sourcefile)
 {
@@ -39,6 +41,25 @@ bool Parser::checkConsume(TokenType type)
 bool Parser::check(TokenType type)
 {
     return peek().type == type;
+}
+
+Token& Parser::assertConsume(TokenType type, std::string message)
+{
+    std::stringstream ss;
+
+    if (message.size() == 0)
+    {
+        ss << "Unexpected token " << peek().type << ", expected " << type << std::endl;
+        message = ss.str();
+    }
+
+    bool correct = check(type);
+    advance();
+
+    if (!correct)
+        reportError(peek(), message, sourcefile);
+
+    return prev();
 }
 
 bool Parser::atEnd()

@@ -6,6 +6,7 @@
 #include "file.h"
 
 #include <memory>
+#include <string>
 
 class Parser
 {
@@ -26,6 +27,7 @@ private:
 
     void advance();
     bool checkConsume(TokenType type);
+    Token& assertConsume(TokenType type, std::string message="");
     bool check(TokenType type);
     bool atEnd();
 
@@ -33,4 +35,12 @@ private:
     void panic();
     void unpanic();
     void syncTokens();
+
+    std::unique_ptr<ASTNS::Decl> decl();
+    std::unique_ptr<ASTNS::FunctionDecl> functiondecl();
+
+    std::unique_ptr<ASTNS::Stmt> stmt();
+    std::unique_ptr<ASTNS::VarStmt> varstmt();
+    std::unique_ptr<ASTNS::ExprStmt> exprstmt();
+    std::unique_ptr<ASTNS::ReturnStmt> returnstmt();
 };

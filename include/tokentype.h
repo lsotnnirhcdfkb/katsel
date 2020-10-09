@@ -90,6 +90,7 @@ enum TokenType
 
     // keywords
     VAR,
+    FUN,
     VOID,
     NAMESPACE,
     CLASS,

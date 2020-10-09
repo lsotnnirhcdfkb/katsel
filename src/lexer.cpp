@@ -67,6 +67,386 @@ TokenType Lexer::getIdentifierType()
                     break;
             }
             break;
+        case 'f':
+            switch (*(start + 1))
+            {
+                case 'l':
+                    switch (*(start + 2))
+                    {
+                        case 'o':
+                            switch (*(start + 3))
+                            {
+                                case 'a':
+                                    switch (*(start + 4))
+                                    {
+                                        case 't':
+                                            if (start + 5 == end) return TokenType::FLOAT;
+                                            break;
+                                    }
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
+                case 'u':
+                    switch (*(start + 2))
+                    {
+                        case 'n':
+                            if (start + 3 == end) return TokenType::FUN;
+                            break;
+                    }
+                    break;
+                case 'o':
+                    switch (*(start + 2))
+                    {
+                        case 'r':
+                            if (start + 3 == end) return TokenType::FOR;
+                            break;
+                    }
+                    break;
+                case 'a':
+                    switch (*(start + 2))
+                    {
+                        case 'l':
+                            switch (*(start + 3))
+                            {
+                                case 's':
+                                    switch (*(start + 4))
+                                    {
+                                        case 'e':
+                                            if (start + 5 == end) return TokenType::FALSELIT;
+                                            break;
+                                    }
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
+            }
+            break;
+        case 'b':
+            switch (*(start + 1))
+            {
+                case 'o':
+                    switch (*(start + 2))
+                    {
+                        case 'o':
+                            switch (*(start + 3))
+                            {
+                                case 'l':
+                                    if (start + 4 == end) return TokenType::BOOL;
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
+                case 'r':
+                    switch (*(start + 2))
+                    {
+                        case 'e':
+                            switch (*(start + 3))
+                            {
+                                case 'a':
+                                    switch (*(start + 4))
+                                    {
+                                        case 'k':
+                                                if (start + 5 == end) return TokenType::BREAK;
+                                            switch (*(start + 5))
+                                            {
+                                                case 'a':
+                                                    switch (*(start + 6))
+                                                    {
+                                                        case 'l':
+                                                            switch (*(start + 7))
+                                                            {
+                                                                case 'l':
+                                                                    if (start + 8 == end) return TokenType::BREAKALL;
+                                                                    break;
+                                                            }
+                                                            break;
+                                                    }
+                                                    break;
+                                                case 't':
+                                                    switch (*(start + 6))
+                                                    {
+                                                        case 'o':
+                                                            if (start + 7 == end) return TokenType::BREAKTO;
+                                                            break;
+                                                    }
+                                                    break;
+                                            }
+                                            break;
+                                    }
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
+            }
+            break;
+        case 'd':
+            switch (*(start + 1))
+            {
+                case 'o':
+                    switch (*(start + 2))
+                    {
+                        case 'u':
+                            switch (*(start + 3))
+                            {
+                                case 'b':
+                                    switch (*(start + 4))
+                                    {
+                                        case 'l':
+                                            switch (*(start + 5))
+                                            {
+                                                case 'e':
+                                                    if (start + 6 == end) return TokenType::DOUBLE;
+                                                    break;
+                                            }
+                                            break;
+                                    }
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
+                case 'e':
+                    switch (*(start + 2))
+                    {
+                        case 'f':
+                            switch (*(start + 3))
+                            {
+                                case 'a':
+                                    switch (*(start + 4))
+                                    {
+                                        case 'u':
+                                            switch (*(start + 5))
+                                            {
+                                                case 'l':
+                                                    switch (*(start + 6))
+                                                    {
+                                                        case 't':
+                                                            if (start + 7 == end) return TokenType::DEFAULT;
+                                                            break;
+                                                    }
+                                                    break;
+                                            }
+                                            break;
+                                    }
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
+            }
+            break;
+        case 'c':
+            switch (*(start + 1))
+            {
+                case 'h':
+                    switch (*(start + 2))
+                    {
+                        case 'a':
+                            switch (*(start + 3))
+                            {
+                                case 'r':
+                                    if (start + 4 == end) return TokenType::CHAR;
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
+                case 'l':
+                    switch (*(start + 2))
+                    {
+                        case 'a':
+                            switch (*(start + 3))
+                            {
+                                case 's':
+                                    switch (*(start + 4))
+                                    {
+                                        case 's':
+                                            if (start + 5 == end) return TokenType::CLASS;
+                                            break;
+                                    }
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
+                case 'a':
+                    switch (*(start + 2))
+                    {
+                        case 's':
+                            switch (*(start + 3))
+                            {
+                                case 'e':
+                                    if (start + 4 == end) return TokenType::CASE;
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
+                case 'o':
+                    switch (*(start + 2))
+                    {
+                        case 'n':
+                            switch (*(start + 3))
+                            {
+                                case 't':
+                                    switch (*(start + 4))
+                                    {
+                                        case 'i':
+                                            switch (*(start + 5))
+                                            {
+                                                case 'n':
+                                                    switch (*(start + 6))
+                                                    {
+                                                        case 'u':
+                                                            switch (*(start + 7))
+                                                            {
+                                                                case 'e':
+                                                                    if (start + 8 == end) return TokenType::CONTINUE;
+                                                                    break;
+                                                            }
+                                                            break;
+                                                    }
+                                                    break;
+                                            }
+                                            break;
+                                    }
+                                    break;
+                                case 's':
+                                    switch (*(start + 4))
+                                    {
+                                        case 't':
+                                            if (start + 5 == end) return TokenType::CONST;
+                                            break;
+                                    }
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
+            }
+            break;
+        case 'u':
+            switch (*(start + 1))
+            {
+                case 'i':
+                    switch (*(start + 2))
+                    {
+                        case 'n':
+                            switch (*(start + 3))
+                            {
+                                case 't':
+                                    switch (*(start + 4))
+                                    {
+                                        case '8':
+                                            if (start + 5 == end) return TokenType::UINT8;
+                                            break;
+                                        case '1':
+                                            switch (*(start + 5))
+                                            {
+                                                case '6':
+                                                    if (start + 6 == end) return TokenType::UINT16;
+                                                    break;
+                                            }
+                                            break;
+                                        case '3':
+                                            switch (*(start + 5))
+                                            {
+                                                case '2':
+                                                    if (start + 6 == end) return TokenType::UINT32;
+                                                    break;
+                                            }
+                                            break;
+                                        case '6':
+                                            switch (*(start + 5))
+                                            {
+                                                case '4':
+                                                    if (start + 6 == end) return TokenType::UINT64;
+                                                    break;
+                                            }
+                                            break;
+                                    }
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
+            }
+            break;
+        case 's':
+            switch (*(start + 1))
+            {
+                case 'i':
+                    switch (*(start + 2))
+                    {
+                        case 'n':
+                            switch (*(start + 3))
+                            {
+                                case 't':
+                                    switch (*(start + 4))
+                                    {
+                                        case '8':
+                                            if (start + 5 == end) return TokenType::SINT8;
+                                            break;
+                                        case '1':
+                                            switch (*(start + 5))
+                                            {
+                                                case '6':
+                                                    if (start + 6 == end) return TokenType::SINT16;
+                                                    break;
+                                            }
+                                            break;
+                                        case '3':
+                                            switch (*(start + 5))
+                                            {
+                                                case '2':
+                                                    if (start + 6 == end) return TokenType::SINT32;
+                                                    break;
+                                            }
+                                            break;
+                                        case '6':
+                                            switch (*(start + 5))
+                                            {
+                                                case '4':
+                                                    if (start + 6 == end) return TokenType::SINT64;
+                                                    break;
+                                            }
+                                            break;
+                                    }
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
+                case 'w':
+                    switch (*(start + 2))
+                    {
+                        case 'i':
+                            switch (*(start + 3))
+                            {
+                                case 't':
+                                    switch (*(start + 4))
+                                    {
+                                        case 'c':
+                                            switch (*(start + 5))
+                                            {
+                                                case 'h':
+                                                    if (start + 6 == end) return TokenType::SWITCH;
+                                                    break;
+                                            }
+                                            break;
+                                    }
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
+            }
+            break;
         case 'n':
             switch (*(start + 1))
             {
@@ -116,96 +496,6 @@ TokenType Lexer::getIdentifierType()
                             {
                                 case 'l':
                                     if (start + 4 == end) return TokenType::NULLLIT;
-                                    break;
-                            }
-                            break;
-                    }
-                    break;
-            }
-            break;
-        case 'c':
-            switch (*(start + 1))
-            {
-                case 'l':
-                    switch (*(start + 2))
-                    {
-                        case 'a':
-                            switch (*(start + 3))
-                            {
-                                case 's':
-                                    switch (*(start + 4))
-                                    {
-                                        case 's':
-                                            if (start + 5 == end) return TokenType::CLASS;
-                                            break;
-                                    }
-                                    break;
-                            }
-                            break;
-                    }
-                    break;
-                case 'a':
-                    switch (*(start + 2))
-                    {
-                        case 's':
-                            switch (*(start + 3))
-                            {
-                                case 'e':
-                                    if (start + 4 == end) return TokenType::CASE;
-                                    break;
-                            }
-                            break;
-                    }
-                    break;
-                case 'o':
-                    switch (*(start + 2))
-                    {
-                        case 'n':
-                            switch (*(start + 3))
-                            {
-                                case 's':
-                                    switch (*(start + 4))
-                                    {
-                                        case 't':
-                                            if (start + 5 == end) return TokenType::CONST;
-                                            break;
-                                    }
-                                    break;
-                                case 't':
-                                    switch (*(start + 4))
-                                    {
-                                        case 'i':
-                                            switch (*(start + 5))
-                                            {
-                                                case 'n':
-                                                    switch (*(start + 6))
-                                                    {
-                                                        case 'u':
-                                                            switch (*(start + 7))
-                                                            {
-                                                                case 'e':
-                                                                    if (start + 8 == end) return TokenType::CONTINUE;
-                                                                    break;
-                                                            }
-                                                            break;
-                                                    }
-                                                    break;
-                                            }
-                                            break;
-                                    }
-                                    break;
-                            }
-                            break;
-                    }
-                    break;
-                case 'h':
-                    switch (*(start + 2))
-                    {
-                        case 'a':
-                            switch (*(start + 3))
-                            {
-                                case 'r':
-                                    if (start + 4 == end) return TokenType::CHAR;
                                     break;
                             }
                             break;
@@ -326,55 +616,6 @@ TokenType Lexer::getIdentifierType()
                     break;
             }
             break;
-        case 'f':
-            switch (*(start + 1))
-            {
-                case 'o':
-                    switch (*(start + 2))
-                    {
-                        case 'r':
-                            if (start + 3 == end) return TokenType::FOR;
-                            break;
-                    }
-                    break;
-                case 'l':
-                    switch (*(start + 2))
-                    {
-                        case 'o':
-                            switch (*(start + 3))
-                            {
-                                case 'a':
-                                    switch (*(start + 4))
-                                    {
-                                        case 't':
-                                            if (start + 5 == end) return TokenType::FLOAT;
-                                            break;
-                                    }
-                                    break;
-                            }
-                            break;
-                    }
-                    break;
-                case 'a':
-                    switch (*(start + 2))
-                    {
-                        case 'l':
-                            switch (*(start + 3))
-                            {
-                                case 's':
-                                    switch (*(start + 4))
-                                    {
-                                        case 'e':
-                                            if (start + 5 == end) return TokenType::FALSELIT;
-                                            break;
-                                    }
-                                    break;
-                            }
-                            break;
-                    }
-                    break;
-            }
-            break;
         case 'i':
             switch (*(start + 1))
             {
@@ -406,192 +647,6 @@ TokenType Lexer::getIdentifierType()
                     break;
             }
             break;
-        case 's':
-            switch (*(start + 1))
-            {
-                case 'w':
-                    switch (*(start + 2))
-                    {
-                        case 'i':
-                            switch (*(start + 3))
-                            {
-                                case 't':
-                                    switch (*(start + 4))
-                                    {
-                                        case 'c':
-                                            switch (*(start + 5))
-                                            {
-                                                case 'h':
-                                                    if (start + 6 == end) return TokenType::SWITCH;
-                                                    break;
-                                            }
-                                            break;
-                                    }
-                                    break;
-                            }
-                            break;
-                    }
-                    break;
-                case 'i':
-                    switch (*(start + 2))
-                    {
-                        case 'n':
-                            switch (*(start + 3))
-                            {
-                                case 't':
-                                    switch (*(start + 4))
-                                    {
-                                        case '8':
-                                            if (start + 5 == end) return TokenType::SINT8;
-                                            break;
-                                        case '1':
-                                            switch (*(start + 5))
-                                            {
-                                                case '6':
-                                                    if (start + 6 == end) return TokenType::SINT16;
-                                                    break;
-                                            }
-                                            break;
-                                        case '3':
-                                            switch (*(start + 5))
-                                            {
-                                                case '2':
-                                                    if (start + 6 == end) return TokenType::SINT32;
-                                                    break;
-                                            }
-                                            break;
-                                        case '6':
-                                            switch (*(start + 5))
-                                            {
-                                                case '4':
-                                                    if (start + 6 == end) return TokenType::SINT64;
-                                                    break;
-                                            }
-                                            break;
-                                    }
-                                    break;
-                            }
-                            break;
-                    }
-                    break;
-            }
-            break;
-        case 'd':
-            switch (*(start + 1))
-            {
-                case 'e':
-                    switch (*(start + 2))
-                    {
-                        case 'f':
-                            switch (*(start + 3))
-                            {
-                                case 'a':
-                                    switch (*(start + 4))
-                                    {
-                                        case 'u':
-                                            switch (*(start + 5))
-                                            {
-                                                case 'l':
-                                                    switch (*(start + 6))
-                                                    {
-                                                        case 't':
-                                                            if (start + 7 == end) return TokenType::DEFAULT;
-                                                            break;
-                                                    }
-                                                    break;
-                                            }
-                                            break;
-                                    }
-                                    break;
-                            }
-                            break;
-                    }
-                    break;
-                case 'o':
-                    switch (*(start + 2))
-                    {
-                        case 'u':
-                            switch (*(start + 3))
-                            {
-                                case 'b':
-                                    switch (*(start + 4))
-                                    {
-                                        case 'l':
-                                            switch (*(start + 5))
-                                            {
-                                                case 'e':
-                                                    if (start + 6 == end) return TokenType::DOUBLE;
-                                                    break;
-                                            }
-                                            break;
-                                    }
-                                    break;
-                            }
-                            break;
-                    }
-                    break;
-            }
-            break;
-        case 'b':
-            switch (*(start + 1))
-            {
-                case 'r':
-                    switch (*(start + 2))
-                    {
-                        case 'e':
-                            switch (*(start + 3))
-                            {
-                                case 'a':
-                                    switch (*(start + 4))
-                                    {
-                                        case 'k':
-                                                if (start + 5 == end) return TokenType::BREAK;
-                                            switch (*(start + 5))
-                                            {
-                                                case 'a':
-                                                    switch (*(start + 6))
-                                                    {
-                                                        case 'l':
-                                                            switch (*(start + 7))
-                                                            {
-                                                                case 'l':
-                                                                    if (start + 8 == end) return TokenType::BREAKALL;
-                                                                    break;
-                                                            }
-                                                            break;
-                                                    }
-                                                    break;
-                                                case 't':
-                                                    switch (*(start + 6))
-                                                    {
-                                                        case 'o':
-                                                            if (start + 7 == end) return TokenType::BREAKTO;
-                                                            break;
-                                                    }
-                                                    break;
-                                            }
-                                            break;
-                                    }
-                                    break;
-                            }
-                            break;
-                    }
-                    break;
-                case 'o':
-                    switch (*(start + 2))
-                    {
-                        case 'o':
-                            switch (*(start + 3))
-                            {
-                                case 'l':
-                                    if (start + 4 == end) return TokenType::BOOL;
-                                    break;
-                            }
-                            break;
-                    }
-                    break;
-            }
-            break;
         case 'a':
             switch (*(start + 1))
             {
@@ -609,53 +664,6 @@ TokenType Lexer::getIdentifierType()
                                             {
                                                 case 't':
                                                     if (start + 6 == end) return TokenType::ASSERT;
-                                                    break;
-                                            }
-                                            break;
-                                    }
-                                    break;
-                            }
-                            break;
-                    }
-                    break;
-            }
-            break;
-        case 'u':
-            switch (*(start + 1))
-            {
-                case 'i':
-                    switch (*(start + 2))
-                    {
-                        case 'n':
-                            switch (*(start + 3))
-                            {
-                                case 't':
-                                    switch (*(start + 4))
-                                    {
-                                        case '8':
-                                            if (start + 5 == end) return TokenType::UINT8;
-                                            break;
-                                        case '1':
-                                            switch (*(start + 5))
-                                            {
-                                                case '6':
-                                                    if (start + 6 == end) return TokenType::UINT16;
-                                                    break;
-                                            }
-                                            break;
-                                        case '3':
-                                            switch (*(start + 5))
-                                            {
-                                                case '2':
-                                                    if (start + 6 == end) return TokenType::UINT32;
-                                                    break;
-                                            }
-                                            break;
-                                        case '6':
-                                            switch (*(start + 5))
-                                            {
-                                                case '4':
-                                                    if (start + 6 == end) return TokenType::UINT64;
                                                     break;
                                             }
                                             break;
