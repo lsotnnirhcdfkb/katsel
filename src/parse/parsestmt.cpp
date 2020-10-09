@@ -47,12 +47,15 @@ std::unique_ptr<ASTNS::VarStmt> Parser::varstmt()
 // exprstmt method {{{1
 std::unique_ptr<ASTNS::ExprStmt> Parser::exprstmt()
 {
-
+    auto exprstmt (std::make_unique<ASTNS::ExprStmt>(std::move(expr())));
+    assertConsume(TokenType::SEMICOLON, "Expected semicolon after expression statement");
+    return exprstmt;
 }
 // returnstmt method {{{1
 std::unique_ptr<ASTNS::ReturnStmt> Parser::returnstmt()
 {
-
+    assertConsume(TokenType::RETURN);
+    return std::make_unique<ASTNS::ReturnStmt>(std::move(expr()));
 }
 // blockstmt method {{{1
 std::unique_ptr<ASTNS::BlockStmt> Parser::blockstmt()
