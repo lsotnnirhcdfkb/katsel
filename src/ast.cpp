@@ -38,7 +38,7 @@ ASTNS::LtoRVExpr::LtoRVExpr(std::unique_ptr<Expr> val)
 {
     val = std::move(val);
 }
-ASTNS::BlockStmt::BlockStmt(std::vector<Stmt> &stmts)
+ASTNS::BlockStmt::BlockStmt(std::vector<std::unique_ptr<Stmt>> &stmts)
 {
     for (auto &p : stmts) stmts.push_back(std::move(p));
 }

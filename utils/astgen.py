@@ -163,7 +163,7 @@ asts = [
         ], extends=['Expr']),
 
     ASTClass('BlockStmt', fields=[
-            ASTField('std::vector<Stmt>', 'stmts', True, ASTField.IM_ITERATE_MOVE),
+            ASTField('std::vector<std::unique_ptr<Stmt>>', 'stmts', True, ASTField.IM_ITERATE_MOVE),
         ], extends=['Stmt']),
 
     ASTClass('ExprStmt', fields=[

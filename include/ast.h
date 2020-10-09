@@ -108,8 +108,8 @@ namespace ASTNS
     class BlockStmt : public Stmt
     {
     public:
-        BlockStmt(std::vector<Stmt> &stmts);
-        std::vector<Stmt> stmts;
+        BlockStmt(std::vector<std::unique_ptr<Stmt>> &stmts);
+        std::vector<std::unique_ptr<Stmt>> stmts;
     };
     class ExprStmt : public Stmt
     {

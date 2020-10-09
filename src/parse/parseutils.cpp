@@ -25,7 +25,26 @@ std::unique_ptr<ASTNS::Type> Parser::type()
 
 std::unique_ptr<ASTNS::BlockStmt> Parser::block()
 {
+    std::vector<std::unique_ptr<ASTNS::Stmt>> blockv;
+    assertConsume(TokenType::OCURB, "Expected opening curly bracket to open block");
 
+    while (!check(TokenType::CCURB))
+    {
+        std::unique_ptr<ASTNS::Stmt> stmtast = stmt();
+
+        if (stmtast && !ispanic) blockv.push_back(std::move(stmtast));
+
+        if (ispanic)
+        {
+            unpanic();
+            syncTokens();
+        }
+    }
+
+    assertConsume(TokenType::CCURB, "Expected closing curly bracket to close block");
+
+    std::unique_ptr<ASTNS::BlockStmt> blockast = std::make_unique<ASTNS::BlockStmt>(blockv);
+    return blockast;
 }
 
 std::unique_ptr<ASTNS::Param> Parser::params()
