@@ -73,23 +73,23 @@ std::unique_ptr<ASTNS::Expr> Parser::expr()
 {
     Token t = consume();
 
-    PrefixPF prefixParser = prefixParserTable.at(t.type);
+    auto prefixParser = prefixParserTable.find(t.type);
 
-    if (!prefixParser)
+    if (prefixParser == prefixParserTable.end())
     {
         reportError(prev(), "Expected primary or unary operator", sourcefile);
         return nullptr;
     }
 
-    std::unique_ptr<ASTNS::Expr> prefixParsed = (this->*prefixParser)();
+    std::unique_ptr<ASTNS::Expr> prefixParsed = (this->*(prefixParser->second))();
 
     Token nonPrefixOp = peek();
-    NonPrefixPF nonPrefixParser = nonPrefixTable.at(t.type);
+    auto nonPrefixParser = nonPrefixTable.find(t.type);
 
-    if (!nonPrefixParser)
+    if (nonPrefixParser == nonPrefixTable.end())
         return prefixParsed;
 
     consume();
 
-    return (this->*nonPrefixParser)(std::move(prefixParsed));
+    return (this->*(nonPrefixParser->second))(std::move(prefixParsed));
 }
