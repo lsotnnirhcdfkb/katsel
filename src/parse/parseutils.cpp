@@ -49,5 +49,17 @@ std::unique_ptr<ASTNS::Param> Parser::params()
 
 std::unique_ptr<ASTNS::Arg> Parser::args()
 {
+    std::unique_ptr<ASTNS::Arg> firstArg = std::make_unique<ASTNS::Arg>(std::move(expr()), nullptr);
+    ASTNS::Arg *lastArg = firstArg.get();
 
+    while (!check(TokenType::CPARN))
+    {
+        assertConsume(TokenType::COMMA, "Expected comma as delimieter");
+
+        std::unique_ptr<ASTNS::Arg> carg = std::make_unique<ASTNS::Arg>(std::move(expr()), nullptr);
+        lastArg->next = std::move(carg);
+        lastArg = lastArg->next.get();
+    }
+
+    return firstArg;
 }

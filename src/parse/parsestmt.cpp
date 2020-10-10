@@ -63,7 +63,7 @@ std::unique_ptr<ASTNS::BlockStmt> Parser::blockstmt()
     std::vector<std::unique_ptr<ASTNS::Stmt>> blockv;
     assertConsume(TokenType::OCURB, "Expected opening curly bracket to open block");
 
-    while (!check(TokenType::CCURB))
+    while (!check(TokenType::CCURB) && !atEnd())
     {
         std::unique_ptr<ASTNS::Stmt> stmtast = stmt();
 
