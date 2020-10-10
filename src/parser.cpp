@@ -12,7 +12,7 @@ Parser::Parser(Lexer &l, File &sourcefile): lexer(l), sourcefile(sourcefile)
     prevToken.type = TokenType::SOF;
 }
 // helper methods {{{1
-void Parser::consume()
+Token& Parser::consume()
 {
     prevToken = currToken;
     while (true)
@@ -23,6 +23,8 @@ void Parser::consume()
 
         reportError(currToken, currToken.message, sourcefile);
     }
+
+    return prev();
 }
 
 bool Parser::checkConsume(TokenType type)

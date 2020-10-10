@@ -25,7 +25,7 @@ private:
     Token& peek();
     Token& prev();
 
-    void consume();
+    Token& consume();
     bool checkConsume(TokenType type);
     Token& assertConsume(TokenType type, std::string message="");
     bool check(TokenType type);
@@ -46,6 +46,10 @@ private:
     std::unique_ptr<ASTNS::BlockStmt> blockstmt();
 
     std::unique_ptr<ASTNS::Expr> expr();
+
+    std::unique_ptr<ASTNS::PrimaryExpr> primary();
+    std::unique_ptr<ASTNS::BinaryExpr> binaryOp(std::unique_ptr<ASTNS::Expr>);
+    std::unique_ptr<ASTNS::UnaryExpr> prefixOp();
 
     std::unique_ptr<ASTNS::Type> type();
     std::unique_ptr<ASTNS::Param> params();
