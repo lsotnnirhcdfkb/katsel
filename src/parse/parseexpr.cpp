@@ -29,7 +29,7 @@ const std::map<TokenType, Parser::PrefixPF> Parser::prefixParserTable = {
 };
 
 const std::map<TokenType, Parser::NonPrefixPF> Parser::nonPrefixTable = {
-    {TokenType::EQUAL,         &Parser::binaryOp}, // TODO: right associative
+    {TokenType::EQUAL,         &Parser::binaryOp},
     {TokenType::QUESTION,      &Parser::ternaryOp},
     {TokenType::DOUBLEPIPE,    &Parser::binaryOp},
     {TokenType::DOUBLEAMPER,   &Parser::binaryOp},
@@ -76,6 +76,7 @@ static const std::map<TokenType, int> precedenceTable = {
     {TokenType::PERCENT,       13},
     {TokenType::TILDE,         14},
     {TokenType::MINUS,         14},
+    {TokenType::OPARN,         15},
     {TokenType::TRUELIT,       15},
     {TokenType::FALSELIT,      15},
     {TokenType::FLOATLIT,      15},
@@ -86,7 +87,6 @@ static const std::map<TokenType, int> precedenceTable = {
     {TokenType::HEXINTLIT,     15},
     {TokenType::CHARLIT,       15},
     {TokenType::STRINGLIT,     15},
-    {TokenType::OPARN,         15},
 };
 
 inline int getPrec(TokenType t)
