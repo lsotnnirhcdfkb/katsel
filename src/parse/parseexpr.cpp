@@ -87,10 +87,22 @@ static const std::map<TokenType, int> precedenceTable = {
     {TokenType::OPARN,         15},
 };
 
+inline int getPrec(TokenType t)
+{
+    try
+    {
+        return precedenceTable.at(t);
+    }
+    catch (std::out_of_range e)
+    {
+        return 0;
+    }
+}
+
 std::unique_ptr<ASTNS::Expr> Parser::prefixOp()
 {
     Token op = prev();
-    std::unique_ptr<ASTNS::Expr> operand = expr();
+    std::unique_ptr<ASTNS::Expr> operand = expr(getPrec(op.type));
     return std::make_unique<ASTNS::UnaryExpr>(std::move(operand), op);
 }
 
@@ -110,7 +122,9 @@ std::unique_ptr<ASTNS::Expr> Parser::parenExpr()
 std::unique_ptr<ASTNS::Expr> Parser::binaryOp(std::unique_ptr<ASTNS::Expr> left)
 {
     Token op = prev();
-    std::unique_ptr<ASTNS::Expr> right = expr();
+
+    bool rightAssoc = op.type == TokenType::EQUAL;
+    std::unique_ptr<ASTNS::Expr> right = expr(getPrec(op.type) - (int) rightAssoc);
     return std::make_unique<ASTNS::BinaryExpr>(std::move(left), std::move(right), op);
 }
 
@@ -118,7 +132,7 @@ std::unique_ptr<ASTNS::Expr> Parser::ternaryOp(std::unique_ptr<ASTNS::Expr> cond
 {
     std::unique_ptr<ASTNS::Expr> trues = expr();
     assertConsume(TokenType::COLON, "Expected colon after true expression of ternary expression");
-    std::unique_ptr<ASTNS::Expr> falses = expr();
+    std::unique_ptr<ASTNS::Expr> falses = expr(getPrec(TokenType::QUESTION) - 1);
 
     return std::make_unique<ASTNS::TernaryExpr>(std::move(cond), std::move(trues), std::move(falses));
 }
@@ -153,15 +167,12 @@ std::unique_ptr<ASTNS::Expr> Parser::expr(int prec)
 
 int Parser::curPrec()
 {
-    int prec;
     try
     {
-        prec = precedenceTable.at(peek().type);
+        return precedenceTable.at(peek().type);
     }
     catch (std::out_of_range e)
     {
         return 0;
     }
-
-    return prec;
 }
