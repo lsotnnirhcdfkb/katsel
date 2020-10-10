@@ -24,6 +24,7 @@ const std::map<TokenType, Parser::PrefixPF> Parser::prefixParserTable = {
     {TokenType::HEXINTLIT,     &Parser::primary},
     {TokenType::CHARLIT,       &Parser::primary},
     {TokenType::STRINGLIT,     &Parser::primary},
+    {TokenType::IDENTIFIER,    &Parser::primary},
     {TokenType::OPARN,         &Parser::parenExpr},
 };
 
