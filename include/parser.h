@@ -8,6 +8,8 @@
 #include <memory>
 #include <string>
 
+#include <map>
+
 class Parser
 {
 public:
@@ -47,9 +49,22 @@ private:
 
     std::unique_ptr<ASTNS::Expr> expr();
 
-    std::unique_ptr<ASTNS::PrimaryExpr> primary();
-    std::unique_ptr<ASTNS::BinaryExpr> binaryOp(std::unique_ptr<ASTNS::Expr>);
-    std::unique_ptr<ASTNS::UnaryExpr> prefixOp();
+    std::unique_ptr<ASTNS::Expr> primary();
+    std::unique_ptr<ASTNS::Expr> binaryOp(std::unique_ptr<ASTNS::Expr>);
+    std::unique_ptr<ASTNS::Expr> prefixOp();
+
+    // because of 'declaration reflects use' this delcaration i will totally
+    // forget the meaning of so here it is:
+    // declare a map with key type TokenType and value type of (function pointer
+    // to function returning unique ptr to Expr and accepting no arguments)
+    typedef std::unique_ptr<ASTNS::Expr> (Parser::*PrefixPF)();
+    const static std::map<TokenType, PrefixPF> prefixParserTable;
+
+    // declare a map with key type TokenType and value type of (function pointer
+    // to function returning unique ptr to Expr and accepting one argument that
+    // is of type unique ptr to Expr)
+    typedef std::unique_ptr<ASTNS::Expr> (Parser::*NonPrefixPF)(std::unique_ptr<ASTNS::Expr>);
+    const static std::map<TokenType, NonPrefixPF> nonPrefixTable;
 
     std::unique_ptr<ASTNS::Type> type();
     std::unique_ptr<ASTNS::Param> params();

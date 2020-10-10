@@ -3,45 +3,68 @@
 
 #include "errors.h"
 
-#include <map>
-
 // even though everything else is recursive descent,
 // expressions are parsed with a Pratt parser, because I don't
 // wnat to repeat the function call mess that was the first
 // recursive descent only parser. it'll work either way
 // as long as it returns a valid parse tree
 
-// because of 'declaration reflects use' this delcaration i will totally
-// forget the meaning of so here it is:
-// declare a map with key type TokenType and value type of (function pointer
-// to function returning unique ptr to Expr and accepting no arguments)
-static std::map<TokenType, std::unique_ptr<ASTNS::Expr> (*)()> prefixParserTable =
-{
-    // {TokenType::EQUAL,
+const std::map<TokenType, Parser::PrefixPF> Parser::prefixParserTable = {
+    {TokenType::BANG,  &Parser::prefixOp},
+    {TokenType::TILDE, &Parser::prefixOp},
+    {TokenType::MINUS, &Parser::prefixOp},
+
+    {TokenType::TRUELIT,       &Parser::primary},
+    {TokenType::FALSELIT,      &Parser::primary},
+    {TokenType::FLOATLIT,      &Parser::primary},
+    {TokenType::NULLLIT,       &Parser::primary},
+    {TokenType::DECINTLIT,     &Parser::primary},
+    {TokenType::OCTINTLIT,     &Parser::primary},
+    {TokenType::BININTLIT,     &Parser::primary},
+    {TokenType::HEXINTLIT,     &Parser::primary},
+    {TokenType::CHARLIT,       &Parser::primary},
+    {TokenType::STRINGLIT,     &Parser::primary},
+    // {TokenType::OPARN,      &Parser::parenExpr}, // TODO: make parentheses rule
 };
 
-// declare a map with key type TokenType and value type of (function pointer
-// to function returning unique ptr to Expr and accepting one argument that
-// is of type unique ptr to Expr)
-static std::map<TokenType, std::unique_ptr<ASTNS::Expr> (*)(std::unique_ptr<ASTNS::Expr>)> nonPrefixTable =
-{
+const std::map<TokenType, Parser::NonPrefixPF> Parser::nonPrefixTable = {
+    {TokenType::EQUAL,         &Parser::binaryOp}, // TODO: right associative
+    // {TokenType::QUESTION,      &Parser::ternaryOp}, // TODO: make this function
+    {TokenType::DOUBLEPIPE,    &Parser::binaryOp},
+    {TokenType::DOUBLEAMPER,   &Parser::binaryOp},
+    {TokenType::DOUBLEEQUAL,   &Parser::binaryOp},
+    {TokenType::BANGEQUAL,     &Parser::binaryOp},
+    {TokenType::LESS,          &Parser::binaryOp},
+    {TokenType::GREATER,       &Parser::binaryOp},
+    {TokenType::LESSEQUAL,     &Parser::binaryOp},
+    {TokenType::GREATEREQUAL,  &Parser::binaryOp},
+    {TokenType::CARET,         &Parser::binaryOp},
+    {TokenType::PIPE,          &Parser::binaryOp},
+    {TokenType::AMPER,         &Parser::binaryOp},
+    {TokenType::DOUBLEGREATER, &Parser::binaryOp},
+    {TokenType::DOUBLELESS,    &Parser::binaryOp},
+    {TokenType::PLUS,          &Parser::binaryOp},
+    {TokenType::MINUS,         &Parser::binaryOp},
+    {TokenType::STAR,          &Parser::binaryOp},
+    {TokenType::SLASH,         &Parser::binaryOp},
+    {TokenType::PERCENT,       &Parser::binaryOp},
 };
 
-std::unique_ptr<ASTNS::UnaryExpr> Parser::prefixOp()
+std::unique_ptr<ASTNS::Expr> Parser::prefixOp()
 {
     Token op = prev();
     std::unique_ptr<ASTNS::Expr> operand = expr();
     return std::make_unique<ASTNS::UnaryExpr>(std::move(operand), op);
 }
 
-std::unique_ptr<ASTNS::BinaryExpr> Parser::binaryOp(std::unique_ptr<ASTNS::Expr> left)
+std::unique_ptr<ASTNS::Expr> Parser::binaryOp(std::unique_ptr<ASTNS::Expr> left)
 {
     Token op = prev();
     std::unique_ptr<ASTNS::Expr> right = expr();
     return std::make_unique<ASTNS::BinaryExpr>(std::move(left), std::move(right), op);
 }
 
-std::unique_ptr<ASTNS::PrimaryExpr> Parser::primary()
+std::unique_ptr<ASTNS::Expr> Parser::primary()
 {
     return std::make_unique<ASTNS::PrimaryExpr>(prev());
 }
@@ -50,7 +73,7 @@ std::unique_ptr<ASTNS::Expr> Parser::expr()
 {
     Token t = consume();
 
-    std::unique_ptr<ASTNS::Expr> (*prefixParser)() = prefixParserTable[t.type];
+    PrefixPF prefixParser = prefixParserTable.at(t.type);
 
     if (!prefixParser)
     {
@@ -58,15 +81,15 @@ std::unique_ptr<ASTNS::Expr> Parser::expr()
         return nullptr;
     }
 
-    std::unique_ptr<ASTNS::Expr> prefixParsed =  prefixParser();
+    std::unique_ptr<ASTNS::Expr> prefixParsed = (this->*prefixParser)();
 
     Token nonPrefixOp = peek();
-    std::unique_ptr<ASTNS::Expr> (*nonPrefixParser)(std::unique_ptr<ASTNS::Expr>) = nonPrefixTable[nonPrefixOp.type];
+    NonPrefixPF nonPrefixParser = nonPrefixTable.at(t.type);
 
     if (!nonPrefixParser)
         return prefixParsed;
 
     consume();
 
-    return nonPrefixParser(std::move(prefixParsed));
+    return (this->*nonPrefixParser)(std::move(prefixParsed));
 }
