@@ -55,7 +55,9 @@ std::unique_ptr<ASTNS::ExprStmt> Parser::exprstmt()
 std::unique_ptr<ASTNS::ReturnStmt> Parser::returnstmt()
 {
     assertConsume(TokenType::RETURN);
-    return std::make_unique<ASTNS::ReturnStmt>(std::move(expr()));
+    std::unique_ptr<ASTNS::Expr> retVal (expr());
+    assertConsume(TokenType::SEMICOLON, "Expected semicolon after return statement");
+    return std::make_unique<ASTNS::ReturnStmt>(std::move(retVal));
 }
 // blockstmt method {{{1
 std::unique_ptr<ASTNS::BlockStmt> Parser::blockstmt()

@@ -92,13 +92,13 @@ class ASTField:
 
     def initialization(self):
         if self.initializationMethod == ASTField.IM_ASSIGN:
-            return f'{self.name} = {self.name};'
+            return f'this->{self.name} = {self.name};'
 
         if self.initializationMethod == ASTField.IM_MOVE:
-            return f'{self.name} = std::move({self.name});'
+            return f'this->{self.name} = std::move({self.name});'
 
         if self.initializationMethod == ASTField.IM_ITERATE_MOVE:
-            return f'for (auto &p : {self.name}) {self.name}.push_back(std::move(p));'
+            return f'for (auto &p : {self.name}) this->{self.name}.push_back(std::move(p)); {self.name}.clear();'
 
 # constants {{{1
 SRCOUTDIR = 'src/asts'
