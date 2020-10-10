@@ -49,6 +49,7 @@ const std::map<TokenType, Parser::NonPrefixPF> Parser::nonPrefixTable = {
     {TokenType::STAR,          &Parser::binaryOp},
     {TokenType::SLASH,         &Parser::binaryOp},
     {TokenType::PERCENT,       &Parser::binaryOp},
+    {TokenType::OPARN,         &Parser::callOp},
 };
 
 static const std::map<TokenType, int> precedenceTable = {
@@ -164,6 +165,17 @@ std::unique_ptr<ASTNS::Expr> Parser::expr(int prec)
     }
 
     return lhs;
+}
+
+std::unique_ptr<ASTNS::Expr> Parser::callOp(std::unique_ptr<ASTNS::Expr> callee)
+{
+    std::unique_ptr<ASTNS::Arg> callargs (nullptr);
+    if (!check(TokenType::CPARN))
+         callargs = args();
+
+    assertConsume(TokenType::CPARN, "Expected closing parentheses after function call");
+
+    return std::make_unique<ASTNS::CallExpr>(std::move(callee), std::move(callargs));
 }
 
 int Parser::curPrec()

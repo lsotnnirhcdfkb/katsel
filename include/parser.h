@@ -54,6 +54,7 @@ private:
     std::unique_ptr<ASTNS::Expr> parenExpr();
     std::unique_ptr<ASTNS::Expr> binaryOp(std::unique_ptr<ASTNS::Expr>);
     std::unique_ptr<ASTNS::Expr> ternaryOp(std::unique_ptr<ASTNS::Expr>);
+    std::unique_ptr<ASTNS::Expr> callOp(std::unique_ptr<ASTNS::Expr>);
 
     inline int curPrec();
 
