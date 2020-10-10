@@ -56,7 +56,7 @@ Token& Parser::assertConsume(TokenType type, std::string message)
     consume();
 
     if (!correct)
-        reportError(peek(), message, sourcefile);
+        reportError(prev(), message, sourcefile);
 
     return prev();
 }
