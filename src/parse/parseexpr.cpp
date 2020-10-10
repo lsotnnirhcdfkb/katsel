@@ -24,12 +24,12 @@ const std::map<TokenType, Parser::PrefixPF> Parser::prefixParserTable = {
     {TokenType::HEXINTLIT,     &Parser::primary},
     {TokenType::CHARLIT,       &Parser::primary},
     {TokenType::STRINGLIT,     &Parser::primary},
-    // {TokenType::OPARN,      &Parser::parenExpr}, // TODO: make parentheses rule
+    {TokenType::OPARN,         &Parser::parenExpr},
 };
 
 const std::map<TokenType, Parser::NonPrefixPF> Parser::nonPrefixTable = {
     {TokenType::EQUAL,         &Parser::binaryOp}, // TODO: right associative
-    // {TokenType::QUESTION,      &Parser::ternaryOp}, // TODO: make this function
+    {TokenType::QUESTION,      &Parser::ternaryOp},
     {TokenType::DOUBLEPIPE,    &Parser::binaryOp},
     {TokenType::DOUBLEAMPER,   &Parser::binaryOp},
     {TokenType::DOUBLEEQUAL,   &Parser::binaryOp},
@@ -57,6 +57,19 @@ std::unique_ptr<ASTNS::Expr> Parser::prefixOp()
     return std::make_unique<ASTNS::UnaryExpr>(std::move(operand), op);
 }
 
+std::unique_ptr<ASTNS::Expr> Parser::primary()
+{
+    return std::make_unique<ASTNS::PrimaryExpr>(prev());
+}
+
+std::unique_ptr<ASTNS::Expr> Parser::parenExpr()
+{
+    std::unique_ptr<ASTNS::Expr> e (expr());
+    assertConsume(TokenType::CPARN, "Expected closing parentheses");
+
+    return e;
+}
+
 std::unique_ptr<ASTNS::Expr> Parser::binaryOp(std::unique_ptr<ASTNS::Expr> left)
 {
     Token op = prev();
@@ -64,9 +77,13 @@ std::unique_ptr<ASTNS::Expr> Parser::binaryOp(std::unique_ptr<ASTNS::Expr> left)
     return std::make_unique<ASTNS::BinaryExpr>(std::move(left), std::move(right), op);
 }
 
-std::unique_ptr<ASTNS::Expr> Parser::primary()
+std::unique_ptr<ASTNS::Expr> Parser::ternaryOp(std::unique_ptr<ASTNS::Expr> cond)
 {
-    return std::make_unique<ASTNS::PrimaryExpr>(prev());
+    std::unique_ptr<ASTNS::Expr> trues = expr();
+    assertConsume(TokenType::COLON, "Expected colon after true expression of ternary expression");
+    std::unique_ptr<ASTNS::Expr> falses = expr();
+
+    return std::make_unique<ASTNS::TernaryExpr>(std::move(cond), std::move(trues), std::move(falses));
 }
 
 std::unique_ptr<ASTNS::Expr> Parser::expr()
