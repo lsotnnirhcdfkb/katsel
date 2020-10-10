@@ -47,13 +47,15 @@ private:
     std::unique_ptr<ASTNS::ReturnStmt> returnstmt();
     std::unique_ptr<ASTNS::BlockStmt> blockstmt();
 
-    std::unique_ptr<ASTNS::Expr> expr();
+    std::unique_ptr<ASTNS::Expr> expr(int prec=1);
 
     std::unique_ptr<ASTNS::Expr> primary();
     std::unique_ptr<ASTNS::Expr> prefixOp();
     std::unique_ptr<ASTNS::Expr> parenExpr();
     std::unique_ptr<ASTNS::Expr> binaryOp(std::unique_ptr<ASTNS::Expr>);
     std::unique_ptr<ASTNS::Expr> ternaryOp(std::unique_ptr<ASTNS::Expr>);
+
+    inline int curPrec();
 
     // because of 'declaration reflects use' this delcaration i will totally
     // forget the meaning of so here it is:

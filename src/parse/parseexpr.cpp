@@ -50,6 +50,43 @@ const std::map<TokenType, Parser::NonPrefixPF> Parser::nonPrefixTable = {
     {TokenType::PERCENT,       &Parser::binaryOp},
 };
 
+static const std::map<TokenType, int> precedenceTable = {
+    {TokenType::EQUAL,         1},
+    {TokenType::QUESTION,      2},
+    {TokenType::DOUBLEPIPE,    3},
+    {TokenType::DOUBLEAMPER,   4},
+    {TokenType::BANG,          5},
+    {TokenType::DOUBLEEQUAL,   6},
+    {TokenType::BANGEQUAL,     6},
+    {TokenType::LESS,          7},
+    {TokenType::GREATER,       7},
+    {TokenType::LESSEQUAL,     7},
+    {TokenType::GREATEREQUAL,  7},
+    {TokenType::CARET,         8},
+    {TokenType::PIPE,          9},
+    {TokenType::AMPER,         10},
+    {TokenType::DOUBLEGREATER, 11},
+    {TokenType::DOUBLELESS,    11},
+    {TokenType::PLUS,          12},
+    {TokenType::MINUS,         12},
+    {TokenType::STAR,          13},
+    {TokenType::SLASH,         13},
+    {TokenType::PERCENT,       13},
+    {TokenType::TILDE,         14},
+    {TokenType::MINUS,         14},
+    {TokenType::TRUELIT,       15},
+    {TokenType::FALSELIT,      15},
+    {TokenType::FLOATLIT,      15},
+    {TokenType::NULLLIT,       15},
+    {TokenType::DECINTLIT,     15},
+    {TokenType::OCTINTLIT,     15},
+    {TokenType::BININTLIT,     15},
+    {TokenType::HEXINTLIT,     15},
+    {TokenType::CHARLIT,       15},
+    {TokenType::STRINGLIT,     15},
+    {TokenType::OPARN,         15},
+};
+
 std::unique_ptr<ASTNS::Expr> Parser::prefixOp()
 {
     Token op = prev();
@@ -86,7 +123,7 @@ std::unique_ptr<ASTNS::Expr> Parser::ternaryOp(std::unique_ptr<ASTNS::Expr> cond
     return std::make_unique<ASTNS::TernaryExpr>(std::move(cond), std::move(trues), std::move(falses));
 }
 
-std::unique_ptr<ASTNS::Expr> Parser::expr()
+std::unique_ptr<ASTNS::Expr> Parser::expr(int prec)
 {
     Token t = consume();
 
@@ -98,15 +135,33 @@ std::unique_ptr<ASTNS::Expr> Parser::expr()
         return nullptr;
     }
 
-    std::unique_ptr<ASTNS::Expr> prefixParsed = (this->*(prefixParser->second))();
+    std::unique_ptr<ASTNS::Expr> lhs = (this->*(prefixParser->second))();
 
-    Token nonPrefixOp = peek();
-    auto nonPrefixParser = nonPrefixTable.find(t.type);
+    while (prec < curPrec())
+    {
+        Token nonPrefixOp = consume();
+        auto nonPrefixParser = nonPrefixTable.find(nonPrefixOp.type);
 
-    if (nonPrefixParser == nonPrefixTable.end())
-        return prefixParsed;
+        if (nonPrefixParser == nonPrefixTable.end())
+            return lhs;
 
-    consume();
+        lhs = (this->*(nonPrefixParser->second))(std::move(lhs));
+    }
 
-    return (this->*(nonPrefixParser->second))(std::move(prefixParsed));
+    return lhs;
+}
+
+int Parser::curPrec()
+{
+    int prec;
+    try
+    {
+        prec = precedenceTable.at(peek().type);
+    }
+    catch (std::out_of_range e)
+    {
+        return 0;
+    }
+
+    return prec;
 }
