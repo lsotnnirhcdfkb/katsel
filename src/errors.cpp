@@ -120,3 +120,25 @@ void reportError(Token const &t, std::string const &message, File const &sourcef
 
     report(ss.str(), sourcefile, getLine(sourcefile, t), {TokenToLoc(sourcefile, t)}, std::cerr, ansiCodesEnabled());
 }
+
+void reportWarning(Token const &t, std::string const &message, File const &sourcefile)
+{
+    std::stringstream ss;
+    if (ansiCodesEnabled())
+        ss << "\033[35;1mWarning\033[0m at \033[37m" << sourcefile.filename << ":" << t.line << ":" << t.column << "\033[0m: " << message << std::endl;
+    else
+        ss << "Warning at " << sourcefile.filename << ":" << t.line << ":" << t.column << ": " << message << std::endl;
+
+    report(ss.str(), sourcefile, getLine(sourcefile, t), {TokenToLoc(sourcefile, t)}, std::cerr, ansiCodesEnabled());
+}
+
+void reportDebug(Token const &t, std::string const &message, File const &sourcefile)
+{
+    std::stringstream ss;
+    if (ansiCodesEnabled())
+        ss << "\033[32;1mDebug message\033[0m at \033[37m" << sourcefile.filename << ":" << t.line << ":" << t.column << "\033[0m: " << message << std::endl;
+    else
+        ss << "Debug message at " << sourcefile.filename << ":" << t.line << ":" << t.column << ": " << message << std::endl;
+
+    report(ss.str(), sourcefile, getLine(sourcefile, t), {TokenToLoc(sourcefile, t)}, std::cerr, ansiCodesEnabled());
+}

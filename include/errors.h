@@ -14,3 +14,5 @@
 
 /// Convenience function to format and report errors at a certain token and with a certain message
 void reportError(Token const &t, const std::string &message, const File &sourcefile);
+void reportWarning(Token const &t, const std::string &message, const File &sourcefile);
+void reportDebug(Token const &t, const std::string &message, const File &sourcefile);
