@@ -1,7 +1,7 @@
 #include "parser.h"
 #include "ast.h"
 
-#include "errors.h"
+#include "message/errors.h"
 
 std::unique_ptr<ASTNS::Type> Parser::type()
 {

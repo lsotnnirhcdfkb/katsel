@@ -1,7 +1,7 @@
 #include "parser.h"
 
 #include "tokentype.h"
-#include "errors.h"
+#include "message/errors.h"
 
 #include <sstream>
 

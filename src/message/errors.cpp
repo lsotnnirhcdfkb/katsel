@@ -1,7 +1,7 @@
 /// @file errors.cpp
 /// Error reporting and formatting code
 
-#include "errors.h"
+#include "message/errors.h"
 
 /// A struct representing a location in a File
 struct Location

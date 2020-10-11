@@ -11,7 +11,7 @@
 #include "parser.h"
 #include "file.h"
 #include "lexer.h"
-#include "ansistuff.h"
+#include "message/ansistuff.h"
 #include "printvisitor.h"
 
 /// Read a file and output a File, with the appropriate source string

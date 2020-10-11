@@ -1,7 +1,7 @@
 #include "parser.h"
 #include "ast.h"
 
-#include "errors.h"
+#include "message/errors.h"
 
 // even though everything else is recursive descent,
 // expressions are parsed with a Pratt parser, because I don't
