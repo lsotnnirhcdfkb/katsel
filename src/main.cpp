@@ -7,6 +7,8 @@
 #include <memory>
 #include <limits>
 
+#include <unistd.h>
+
 #include "parse/ast.h"
 #include "parse/parser.h"
 #include "utils/file.h"
