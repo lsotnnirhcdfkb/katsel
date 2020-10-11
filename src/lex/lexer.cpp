@@ -1,6 +1,3 @@
-/// @file lexer.cpp
-/// Lexer method definitions and lexing methods.
-/// Methods definitions to convert a character stream into a Token stream.
 
 #include "lex/lexer.h"
 
@@ -8,7 +5,6 @@ Lexer::Lexer(File &sourcefile) : start(sourcefile.source.begin()), end(sourcefil
 
 // {{{ getIdentifierType
 // KWGEN START
-/// Check if an idenetifier token is a keyword type and return that type, or just return TokenType::IDENTIFIER
 TokenType Lexer::getIdentifierType()
 {
     switch (*(start + 0))
@@ -682,16 +678,11 @@ TokenType Lexer::getIdentifierType()
 // KWGEN END
 // }}}
 // {{{ helper functions
-/// Return whether a character is a digit
-/// @param c The character to check
 bool isDigit(char c)
 {
     return c >= '0' && c <= '9';
 }
 
-/// Return whether a character is a digit in a certain base
-/// @param c The character to check
-/// @param base The base that the character is in
 bool isDigit(char c, TokenType base)
 { // overloaded method for dealing with non-decimal integer literals
     switch (base)
@@ -713,8 +704,6 @@ bool isDigit(char c, TokenType base)
     }
 }
 
-/// Return whteher a character is an alphabetic character
-/// @param c The character to check
 bool isAlpha(char c)
 {
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_';

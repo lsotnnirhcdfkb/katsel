@@ -1,29 +1,19 @@
-/// @file errors.cpp
-/// Error reporting and formatting code
 
 #include "message/errors.h"
 #include "message/messagetype.h"
 
-/// A struct representing a location in a File
 struct Location
 {
-    /// The start of this location
     std::string::iterator const start;
-    /// The end of this location
     std::string::iterator const end;
-    /// The file that this location is in
     File const &file;
 };
 
-/// Convert a Token's start and end to a Location
-/// @param t The token to convert to a start and an end
 Location TokenToLoc(Token const &t)
 {
     return Location {t.start, t.end, t.sourcefile};
 }
 
-/// Return a location that has the token and the line that the token is on
-/// @param t The token to get the line of
 Location getLine(Token const &t)
 {
     auto linestart (t.start);
@@ -44,11 +34,6 @@ Location getLine(Token const &t)
     return l;
 }
 
-/// General error formatting function
-/// @param message The message
-/// @param showl The location to show
-/// @param underlinel The locations to underline
-/// @param stream The stream to print to
 void report(std::string &&message, Location showl, std::vector<Location> underlinel, std::ostream &stream, bool ansiCodes)
 {
     stream << message;
@@ -104,9 +89,6 @@ void report(std::string &&message, Location showl, std::vector<Location> underli
     stream << std::endl;
 }
 
-/// Report an error at a token with a message
-/// @param t The token to error at
-/// @param message The error message to report
 void reportError(Token const &t, std::string const &message)
 {
     std::stringstream ss;

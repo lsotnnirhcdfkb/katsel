@@ -1,6 +1,3 @@
-/// @file main.cpp
-/// Compiler entry point
-/// Runs all the things that need to happen in order to compile, as well as parses arguments
 
 #include <iostream>
 #include <fstream>
@@ -16,7 +13,6 @@
 #include "message/ansistuff.h"
 #include "visit/printvisitor.h"
 
-/// Read a file and output a File, with the appropriate source string
 File readFile(char *filename)
 {
     std::ifstream filein;
@@ -46,7 +42,6 @@ File readFile(char *filename)
     }
 }
 
-/// Compile a file to object code
 void compileFile(File &sourcefile)
 {
     enableTerminalCodes();
@@ -72,7 +67,6 @@ void compileFile(File &sourcefile)
     // }
 }
 
-/// Main entry point
 int main(int argc, char *argv[])
 {
     if (argc == 2)
