@@ -11,12 +11,16 @@ jobs = [
     ('src/ast.cpp'             , None                        , None                      , astgen.genCppFile),
     ('include/ast.h'           , 'ASTHEADER START'           , 'ASTHEADER END'           , astgen.genHFile),
     ('include/annotations.h'   , 'ANNOTATION BEGIN'          , 'ANNOTATION END'          , astgen.genAnnotationStructs),
+    ('include/visitor.h'       , 'ASTFORWDECL BEGIN'         , 'ASTFORWDECL END'         , astgen.genASTForwDecls),
+    ('include/visitor.h'       , 'PUREASTVISITCS START'      , 'PUREASTVISITCS END'    , astgen.genPureASTVisitClasses),
 ]
 
 for jobi, job in enumerate(jobs):
     # print(f'Running job {jobi + 1}/{len(jobs)}: insert {job[3]} to {job[0]}')
     with io.open(job[0], 'r', encoding='utf-8') as f:
         ## The lines of the file
+        backup = f.read()
+        f.seek(0)
         flines = f.readlines()
 
     # delete old code
@@ -54,5 +58,12 @@ for jobi, job in enumerate(jobs):
     # take the output of the function and put it back into the file
     flines.insert(genStart + 1, output)
 
-    with io.open(job[0], 'w', encoding='utf-8') as f:
-        f.write(''.join(flines)) # write in all the code
+    try:
+        with io.open(job[0], 'w', encoding='utf-8') as f:
+            f.write(''.join(flines)) # write in all the code
+    except Exception as e:
+        with io.open(job[0], 'w', encoding='utf-8') as f:
+            f.write(backup)
+
+        print(f'In writing file {job[0]} with function {job[3]}')
+        raise

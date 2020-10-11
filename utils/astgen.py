@@ -5,7 +5,7 @@
 
 # ASTClass {{{1
 class ASTClass:
-    def __init__(self, name, fields=[], extends=[], annotations=[]):
+    def __init__(self, name, fields=[], extends=None, annotations=[]):
         self.name = name
         self.fields = fields
         self.extends = extends
@@ -13,8 +13,8 @@ class ASTClass:
 
     def declaration(self):
         output = []
-        if len(self.extends):
-            output.append(f'    class {self.name} : public {", ".join(extend for extend in self.extends)}\n')
+        if self.extends is not None:
+            output.append(f'    class {self.name} : public {self.extends}\n')
         else:
             output.append(f'    class {self.name}\n')
 
@@ -30,6 +30,8 @@ class ASTClass:
         for annotation in self.annotations:
             annotationvName = annotation[0].lower() + annotation[1:]
             output.append(f'        {annotation} {annotationvName};\n')
+
+        output.append(f'        virtual void accept({self.name if self.extends is None else self.extends}Visitor *v);\n')
 
         output.append( '    };\n')
 
@@ -47,6 +49,7 @@ class ASTClass:
             output.append(field.initialization())
             output.append('\n')
         output.append( '}\n')
+        output.append(f'void ASTNS::{self.name}::accept({self.name if self.extends is None else self.extends}Visitor *v) {{ v->visit(this); }}\n')
         return ''.join(output)
 
 # PureASTClass {{{1
@@ -64,6 +67,7 @@ class PureASTClass:
         for annotation in self.annotations:
             annotationvName = annotation[0].lower() + annotation[1:]
             output.append(f'        {annotation} {annotationvName};\n')
+        output.append(f'        virtual void accept({self.name}Visitor *v) = 0;\n')
         output.append( '    };\n')
 
         return ''.join(output)
@@ -131,75 +135,75 @@ asts = [
             exprField('lhs'),
             exprField('rhs'),
             opField(),
-        ], extends=['Expr']),
+        ], extends='Expr'),
 
     ASTClass('TernaryExpr', fields=[
             exprField('condition'),
             exprField('trues'),
             exprField('falses'),
-        ], extends=['Expr']),
+        ], extends='Expr'),
 
     ASTClass('UnaryExpr', fields=[
             exprField('operand'),
             opField(),
-        ], extends=['Expr']),
+        ], extends='Expr'),
 
     ASTClass('PrimaryExpr', fields=[
             tokenField('value'),
-        ], extends=['Expr']),
+        ], extends='Expr'),
 
     ASTClass('AssignExpr', fields=[
             uptrField('Expr', 'assignee'),
             exprField('value'),
-        ], extends=['Expr']),
+        ], extends='Expr'),
 
     ASTClass('CallExpr', fields=[
             uptrField('Expr', 'func'),
             uptrField('Arg', 'args'),
-        ], extends=['Expr']),
+        ], extends='Expr'),
 
     ASTClass('LtoRVExpr', fields=[
             uptrField('Expr', 'val')
-        ], extends=['Expr']),
+        ], extends='Expr'),
 
     ASTClass('BlockStmt', fields=[
             ASTField('std::vector<std::unique_ptr<Stmt>>', 'stmts', True, ASTField.IM_ITERATE_MOVE),
-        ], extends=['Stmt']),
+        ], extends='Stmt'),
 
     ASTClass('ExprStmt', fields=[
             exprField('expr'),
-        ], extends=['Stmt']),
+        ], extends='Stmt'),
 
     ASTClass('ReturnStmt', fields=[
             exprField('val'),
-        ], extends=['Stmt']),
+        ], extends='Stmt'),
 
     ASTClass('VarStmt', fields=[
             uptrField('Type', 'type'),
             tokenField('name'),
             exprField('value'),
-        ], extends=['Stmt']),
+        ], extends='Stmt'),
 
     ASTClass('VarRef', fields=[
             tokenField('var'),
-        ], extends=['Expr']),
+        ], extends='Expr'),
 
     ASTClass('BaseType', fields=[
             tokenField('type'),
-        ], extends=['Type']),
+        ], extends='Type'),
 
     ASTClass('FunctionDecl', fields=[
             uptrField('Type', 'rettype'),
             tokenField('name'),
             uptrField('Param', 'params'),
             uptrField('BlockStmt', 'block'),
-        ], extends=['Decl'], annotations=['FuncDeclAn']),
+        ], extends='Decl', annotations=['FuncDeclAn']),
 
     ASTClass('GlobalVarDecl', fields=[
             uptrField('Type', 'type'),
             tokenField('name'),
             exprField('value'),
-        ], extends=['Decl']),
+        ], extends='Decl'),
 
     ASTClass('Param', fields=[
             uptrField('Type', 'type'),
@@ -242,6 +246,26 @@ def genAnnotationStructs():
         for annotationfty, annotationfn in annotationfs:
             output.append(f'    {annotationfty} {annotationfn};\n')
         output.append('''};
+''')
+
+    return ''.join(output)
+# generate forward declarations for visitor.h {{{1
+def genASTForwDecls():
+    output = []
+    for ast in asts:
+        output.append(f'class {ast.name};\n')
+    return ''.join(output)
+# generate pure ast visitor classes {{{1
+def genPureASTVisitClasses():
+    genclasses = [x for x in asts if type(x) == PureASTClass or x.extends is None]
+
+    output = []
+    for genclass in genclasses:
+        output.append(f'''class {genclass.name}Visitor
+{{
+public:
+    virtual void visit(ASTNS::{genclass.name} *a) = 0;
+}};
 ''')
 
     return ''.join(output)
