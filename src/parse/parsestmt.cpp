@@ -29,7 +29,7 @@ std::unique_ptr<ASTNS::Stmt> Parser::stmt()
 std::unique_ptr<ASTNS::VarStmt> Parser::varstmt()
 {
     assertConsume(TokenType::VAR);
-    std::unique_ptr<ASTNS::Type> typeast (std::move(type()));
+    std::unique_ptr<ASTNS::Type> typeast (type());
 
     Token name = assertConsume(TokenType::IDENTIFIER, "Expected identifier for variable name");
 
@@ -47,7 +47,7 @@ std::unique_ptr<ASTNS::VarStmt> Parser::varstmt()
 // exprstmt method {{{1
 std::unique_ptr<ASTNS::ExprStmt> Parser::exprstmt()
 {
-    auto exprstmt (std::make_unique<ASTNS::ExprStmt>(std::move(expr())));
+    auto exprstmt (std::make_unique<ASTNS::ExprStmt>(expr()));
     assertConsume(TokenType::SEMICOLON, "Expected semicolon after expression statement");
     return exprstmt;
 }

@@ -182,6 +182,9 @@ def genASTDecls():
 
             output.append(f'        virtual void accept({ast.name if ast.extends is None else ast.extends}Visitor *v);\n')
 
+            if ast.extends is None:
+                output.append(f'        virtual ~{ast.name}() {{}}\n')
+
             output.append( '    };\n')
         else:
             output.append(f'    class {ast.name}\n')

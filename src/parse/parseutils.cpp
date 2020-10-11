@@ -26,7 +26,7 @@ std::unique_ptr<ASTNS::Type> Parser::type()
 
 std::unique_ptr<ASTNS::Param> Parser::params()
 {
-    std::unique_ptr<ASTNS::Type> firstPType (std::move(type()));
+    std::unique_ptr<ASTNS::Type> firstPType (type());
     Token firstPName (assertConsume(TokenType::IDENTIFIER, "Expected parameter name"));
 
     std::unique_ptr<ASTNS::Param> firstParam = std::make_unique<ASTNS::Param>(std::move(firstPType), firstPName, nullptr);
@@ -36,7 +36,7 @@ std::unique_ptr<ASTNS::Param> Parser::params()
     {
         assertConsume(TokenType::COMMA, "Expected comma as delimieter in parameter list");
 
-        std::unique_ptr<ASTNS::Type> cparamty (std::move(type()));
+        std::unique_ptr<ASTNS::Type> cparamty (type());
         Token cparamName (assertConsume(TokenType::IDENTIFIER, "Expected parameter name"));
 
         std::unique_ptr<ASTNS::Param> cparam = std::make_unique<ASTNS::Param>(std::move(cparamty), cparamName, nullptr);
@@ -49,14 +49,14 @@ std::unique_ptr<ASTNS::Param> Parser::params()
 
 std::unique_ptr<ASTNS::Arg> Parser::args()
 {
-    std::unique_ptr<ASTNS::Arg> firstArg = std::make_unique<ASTNS::Arg>(std::move(expr()), nullptr);
+    std::unique_ptr<ASTNS::Arg> firstArg = std::make_unique<ASTNS::Arg>(expr(), nullptr);
     ASTNS::Arg *lastArg = firstArg.get();
 
     while (!check(TokenType::CPARN))
     {
         assertConsume(TokenType::COMMA, "Expected comma as delimieter in argument list");
 
-        std::unique_ptr<ASTNS::Arg> carg = std::make_unique<ASTNS::Arg>(std::move(expr()), nullptr);
+        std::unique_ptr<ASTNS::Arg> carg = std::make_unique<ASTNS::Arg>(expr(), nullptr);
         lastArg->next = std::move(carg);
         lastArg = lastArg->next.get();
     }

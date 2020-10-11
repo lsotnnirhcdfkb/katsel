@@ -38,18 +38,18 @@ std::unique_ptr<ASTNS::FunctionDecl> Parser::functiondecl()
 {
     assertConsume(TokenType::FUN);
 
-    std::unique_ptr<ASTNS::Type> rtype (std::move(type()));
+    std::unique_ptr<ASTNS::Type> rtype (type());
     Token name = assertConsume(TokenType::IDENTIFIER, "Expected identifier for function name");
 
     assertConsume(TokenType::OPARN, "Expected opening parenthesis after function name");
 
     std::unique_ptr<ASTNS::Param> fparams;
     if (!check(TokenType::CPARN))
-         fparams = std::move(params());
+         fparams = params();
 
     assertConsume(TokenType::CPARN, "Expected closing parenthesis after parameters");
 
-    std::unique_ptr<ASTNS::BlockStmt> fblock (std::move(blockstmt()));
+    std::unique_ptr<ASTNS::BlockStmt> fblock (blockstmt());
 
     return std::make_unique<ASTNS::FunctionDecl>(std::move(rtype), name, std::move(fparams), std::move(fblock));
 }

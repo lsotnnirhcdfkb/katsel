@@ -59,6 +59,7 @@ namespace ASTNS
         Program(std::vector<std::unique_ptr<Decl>> &decls);
         std::vector<std::unique_ptr<Decl>> decls;
         virtual void accept(ProgramVisitor *v);
+        virtual ~Program() {}
     };
     class BinaryExpr : public Expr
     {
@@ -173,6 +174,7 @@ namespace ASTNS
         Token name;
         std::unique_ptr<Param> next;
         virtual void accept(ParamVisitor *v);
+        virtual ~Param() {}
     };
     class Arg
     {
@@ -181,6 +183,7 @@ namespace ASTNS
         std::unique_ptr<Expr> value;
         std::unique_ptr<Arg> next;
         virtual void accept(ArgVisitor *v);
+        virtual ~Arg() {}
     };
 // ASTHEADER END
 }
