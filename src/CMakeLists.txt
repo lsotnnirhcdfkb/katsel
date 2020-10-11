@@ -27,6 +27,6 @@ set_target_properties(coxianc PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
     DEBUG_POSTFIX "d")
 
-# target_compile_options(coxianc PRIVATE -Wall -Wextra -pedantic)
+target_compile_options(coxianc PRIVATE -Wall -Wextra -pedantic)
 
 
