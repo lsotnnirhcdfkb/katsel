@@ -265,7 +265,17 @@ def genPureASTVisitClasses():
 {{
 public:
     virtual void visit(ASTNS::{genclass.name} *a) = 0;
+    virtual ~{genclass.name}Visitor();
 }};
 ''')
+
+    return ''.join(output)
+
+def genPureDestructs():
+    genclasses = [x for x in asts if type(x) == PureASTClass or x.extends is None]
+
+    output = []
+    for genclass in genclasses:
+        output.append(f'{genclass.name}::~{genclass.name}() {{}}\n')
 
     return ''.join(output)

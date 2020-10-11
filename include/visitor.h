@@ -33,35 +33,42 @@ class ExprVisitor
 {
 public:
     virtual void visit(ASTNS::Expr *a) = 0;
+    virtual ~ExprVisitor();
 };
 class DeclVisitor
 {
 public:
     virtual void visit(ASTNS::Decl *a) = 0;
+    virtual ~DeclVisitor();
 };
 class TypeVisitor
 {
 public:
     virtual void visit(ASTNS::Type *a) = 0;
+    virtual ~TypeVisitor();
 };
 class StmtVisitor
 {
 public:
     virtual void visit(ASTNS::Stmt *a) = 0;
+    virtual ~StmtVisitor();
 };
 class ProgramVisitor
 {
 public:
     virtual void visit(ASTNS::Program *a) = 0;
+    virtual ~ProgramVisitor();
 };
 class ParamVisitor
 {
 public:
     virtual void visit(ASTNS::Param *a) = 0;
+    virtual ~ParamVisitor();
 };
 class ArgVisitor
 {
 public:
     virtual void visit(ASTNS::Arg *a) = 0;
+    virtual ~ArgVisitor();
 };
 // PUREASTVISITCS END

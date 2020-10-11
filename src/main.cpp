@@ -12,6 +12,7 @@
 #include "file.h"
 #include "lexer.h"
 #include "ansistuff.h"
+#include "printvisitor.h"
 
 /// Read a file and output a File, with the appropriate source string
 File readFile(char *filename)
@@ -56,7 +57,7 @@ void compileFile(File &sourcefile)
     // if (parsed)
     // {
         // compile(&*parsed, sourcefile);
-        // parsed->accept(&*printv);
+        // printv.visit(parsed);
     // }
 
     resetTerminal();

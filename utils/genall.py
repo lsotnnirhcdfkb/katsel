@@ -12,7 +12,8 @@ jobs = [
     ('include/ast.h'           , 'ASTHEADER START'           , 'ASTHEADER END'           , astgen.genHFile),
     ('include/annotations.h'   , 'ANNOTATION BEGIN'          , 'ANNOTATION END'          , astgen.genAnnotationStructs),
     ('include/visitor.h'       , 'ASTFORWDECL BEGIN'         , 'ASTFORWDECL END'         , astgen.genASTForwDecls),
-    ('include/visitor.h'       , 'PUREASTVISITCS START'      , 'PUREASTVISITCS END'    , astgen.genPureASTVisitClasses),
+    ('include/visitor.h'       , 'PUREASTVISITCS START'      , 'PUREASTVISITCS END'      , astgen.genPureASTVisitClasses),
+    ('src/visitor.cpp'         , 'PUREVISITDESTRUCT START'   , 'PUREVISITDESTRUCT END'   , astgen.genPureDestructs),
 ]
 
 for jobi, job in enumerate(jobs):
