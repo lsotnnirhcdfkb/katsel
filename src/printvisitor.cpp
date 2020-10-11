@@ -133,7 +133,8 @@ void PrintVisitor::pai(std::string &s)
     for (auto i = s.begin(); i != s.end(); ++i)
     {
         if (pindent)
-            std::cout << std::string(indent * 4, ' ');
+            for (int j = 0; j < indent; ++j)
+                std::cout << "|   ";
 
         pindent = false;
         std::cout << *i;
@@ -163,15 +164,15 @@ void PrintVisitor::pchild(std::string &&s, const T &a)
     }
     else
     {
-        pai("{nullptr}\n");
+        pai(" {nullptr}\n");
     }
 }
 void PrintVisitor::ptok(std::string &&s, Token &t)
 {
     pai(s);
-    pai(" (");
+    pai(" [");
     pai(std::string(t.start, t.end));
-    pai(")\n");
+    pai("]\n");
 }
 void PrintVisitor::phead(std::string &&s)
 {
