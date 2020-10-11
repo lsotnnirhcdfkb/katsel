@@ -28,7 +28,6 @@ namespace ASTNS
     class GlobalVarDecl;
     class Param;
     class Arg;
-
     class Expr
     {
     public:

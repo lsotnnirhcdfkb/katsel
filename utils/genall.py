@@ -8,12 +8,12 @@ import astgen, kwgen
 ## A list of jobs to generate code for
 jobs = [
     ('src/lexer.cpp'           , 'KWGEN START'               , 'KWGEN END'               , lambda: kwgen.trie.generate(doc='Check if an idenetifier token is a keyword type and return that type, or just return TokenType::IDENTIFIER')),
-    ('src/ast.cpp'             , None                        , None                      , astgen.genCppFile),
-    ('include/ast.h'           , 'ASTHEADER START'           , 'ASTHEADER END'           , astgen.genHFile),
+    ('src/ast.cpp'             , None                        , None                      , astgen.genASTDefs),
+    ('include/ast.h'           , 'ASTHEADER START'           , 'ASTHEADER END'           , astgen.genASTDecls),
     ('include/annotations.h'   , 'ANNOTATION BEGIN'          , 'ANNOTATION END'          , astgen.genAnnotationStructs),
     ('include/visitor.h'       , 'ASTFORWDECL BEGIN'         , 'ASTFORWDECL END'         , astgen.genASTForwDecls),
-    ('include/visitor.h'       , 'PUREASTVISITCS START'      , 'PUREASTVISITCS END'      , astgen.genPureASTVisitClasses),
-    ('src/visitor.cpp'         , 'PUREVISITDESTRUCT START'   , 'PUREVISITDESTRUCT END'   , astgen.genPureDestructs),
+    ('include/visitor.h'       , 'PUREASTVISITCS START'      , 'PUREASTVISITCS END'      , astgen.genPureASTVisitorDecls),
+    ('src/visitor.cpp'         , 'PUREVISITDESTRUCT START'   , 'PUREVISITDESTRUCT END'   , astgen.genPureASTVisitorDestructs),
 ]
 
 for jobi, job in enumerate(jobs):
