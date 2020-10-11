@@ -5,6 +5,7 @@
 #include <limits>
 
 #include <unistd.h>
+#include <cstring>
 
 #include "parse/ast.h"
 #include "parse/parser.h"
@@ -12,6 +13,13 @@
 #include "lex/lexer.h"
 #include "message/ansistuff.h"
 #include "visit/printvisitor.h"
+
+enum Phases
+{
+    LEX = 0,
+    PARSE,
+    ALL,
+};
 
 File readFile(char *filename)
 {
@@ -42,11 +50,56 @@ File readFile(char *filename)
     }
 }
 
-void compileFile(File &sourcefile)
+int main(int argc, char *argv[])
 {
+    int opt;
+    int phasen = Phases::ALL;
+    while ((opt = getopt(argc, argv, "p:")) != -1)
+    {
+        switch (opt)
+        {
+            case 'p':
+                if (strcmp(optarg, "lex") == 0)
+                    phasen = Phases::LEX;
+                else if (strcmp(optarg, "parse") == 0)
+                    phasen = Phases::PARSE;
+                else if (strcmp(optarg, "all") == 0)
+                    phasen = Phases::ALL;
+                else
+                {
+                    std::cerr << "Invalid argument for option -p: '" << optarg << '\'' << std::endl;
+                    std::cerr << "Defaulting to -pall" << std::endl;
+                    phasen = Phases::ALL;
+                }
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    if (optind >= argc)
+    {
+        std::cerr << "No input files" << std::endl;
+        return 1;
+    }
+
+    auto source = std::make_unique<File>(readFile(argv[optind]));
+
     enableTerminalCodes();
-    auto lexer = std::make_unique<Lexer>(sourcefile);
-    auto parser = std::make_unique<Parser>(*lexer, sourcefile);
+    auto lexer = std::make_unique<Lexer>(*source);
+
+    if (phasen == Phases::LEX)
+    {
+        Token t;
+        while ((t = lexer->nextToken()).type != TokenType::EOF_)
+        {
+            std::cout << t.sourcefile.filename << ':' << t.line << ':' << t.column << ": (" << t.type << ") \"" << std::string(t.start, t.end) << "\"" << std::endl;
+        }
+        return 0;
+    }
+
+    auto parser = std::make_unique<Parser>(*lexer, *source);
 
     std::unique_ptr<ASTNS::Program> parsed = parser->parse();
     auto printv = std::make_unique<PrintVisitor>();
@@ -57,30 +110,12 @@ void compileFile(File &sourcefile)
         printv->visitProgram(parsed.get());
     }
 
+    if (phasen <= Phases::PARSE) // stop at phase parse which means we don't need to do any more than parsing
+    {
+        resetTerminal();
+        return 0;
+    }
+
     resetTerminal();
-
-    // int returnCode = parse(source);
-
-    // if (returnCode != 0)
-    // {
-    //     exit(returnCode);
-    // }
-}
-
-int main(int argc, char *argv[])
-{
-    if (argc == 2)
-    {
-        // Compile file
-        auto source = std::make_unique<File>(readFile(argv[1]));
-        compileFile(*source);
-    }
-    else
-    {
-        std::cerr << "Usage: " << argv[0] << " <file>\n"
-            "\n"
-            "file - the main file to compile\n" << std::endl;
-        return 1;
-    }
     return 0;
 }

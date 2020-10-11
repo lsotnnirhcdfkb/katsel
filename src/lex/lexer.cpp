@@ -5,6 +5,7 @@ Lexer::Lexer(File &sourcefile) : start(sourcefile.source.begin()), end(sourcefil
 
 // {{{ getIdentifierType
 // KWGEN START
+/// Check if an idenetifier token is a keyword type and return that type, or just return TokenType::IDENTIFIER
 TokenType Lexer::getIdentifierType()
 {
     switch (*(start + 0))
