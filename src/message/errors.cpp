@@ -2,6 +2,7 @@
 /// Error reporting and formatting code
 
 #include "message/errors.h"
+#include "message/messagetype.h"
 
 /// A struct representing a location in a File
 struct Location
