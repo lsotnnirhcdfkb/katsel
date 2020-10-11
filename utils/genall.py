@@ -58,10 +58,15 @@ for jobi, job in enumerate(jobs):
 
     # take the output of the function and put it back into the file
     flines.insert(genStart + 1, output)
+    finaloutput = ''.join(flines)
+
+    if finaloutput == backup:
+        print(f'Output is identical for {job[0]}. Skipping {job[0]}')
+        continue
 
     try:
         with io.open(job[0], 'w', encoding='utf-8') as f:
-            f.write(''.join(flines)) # write in all the code
+            f.write(finaloutput) # write in all the code
     except Exception as e:
         with io.open(job[0], 'w', encoding='utf-8') as f:
             f.write(backup)
