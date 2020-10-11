@@ -904,7 +904,7 @@ Token Lexer::nextToken()
     return makeErrorToken("Unexpected character");
 }
 // }}}
-// {{{ other helpers
+// {{{1 other helpers
 bool Lexer::atEnd()
 {
     return end >= srcend;
@@ -974,4 +974,8 @@ void Lexer::nextLine()
     ++nextline;
     nextcolumn = 1;
 }
-// }}}
+
+Token Lexer::makeSOF()
+{
+    return makeToken(TokenType::SOF);
+}

@@ -20,6 +20,8 @@ public:
     /// Return the next token from the source file
     Token nextToken();
 
+    Token makeSOF();
+
 private:
     /// Check if an idenetifier token is a keyword type and return that type, or just return TokenType::IDENTIFIER
     TokenType getIdentifierType();

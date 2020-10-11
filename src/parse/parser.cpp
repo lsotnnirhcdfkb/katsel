@@ -9,7 +9,7 @@
 Parser::Parser(Lexer &l, File &sourcefile): lexer(l), sourcefile(sourcefile)
 {
     consume();
-    prevToken.type = TokenType::SOF;
+    prevToken = l.makeSOF();
 }
 // helper methods {{{1
 Token& Parser::consume()
@@ -53,12 +53,11 @@ Token& Parser::assertConsume(TokenType type, std::string message)
     }
 
     bool correct = check(type);
-    consume();
 
     if (!correct)
         reportError(prev(), message);
 
-    return prev();
+    return consume();
 }
 
 bool Parser::atEnd()
