@@ -1,4 +1,4 @@
-#include "ast.h"
+#include "parse/ast.h"
 ASTNS::Program::Program(std::vector<std::unique_ptr<Decl>> &decls)
 {
     for (auto &p : decls) this->decls.push_back(std::move(p)); decls.clear();

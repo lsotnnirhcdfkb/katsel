@@ -1,5 +1,5 @@
-#include "visitor.h"
-#include "ast.h"
+#include "visit/visitor.h"
+#include "parse/ast.h"
 
 class PrintVisitor :
     public ExprVisitor,

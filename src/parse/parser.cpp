@@ -1,6 +1,6 @@
-#include "parser.h"
+#include "parse/parser.h"
 
-#include "tokentype.h"
+#include "lex/tokentype.h"
 #include "message/errors.h"
 
 #include <sstream>

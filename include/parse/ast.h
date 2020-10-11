@@ -1,9 +1,9 @@
 #pragma once
 
 #include <memory>
-#include "token.h"
-#include "annotations.h"
-#include "visitor.h"
+#include "lex/token.h"
+#include "parse/annotations.h"
+#include "visit/visitor.h"
 
 namespace ASTNS
 {

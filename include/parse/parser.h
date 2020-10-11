@@ -1,9 +1,9 @@
 #pragma once
 
-#include "lexer.h"
-#include "token.h"
-#include "ast.h"
-#include "file.h"
+#include "lex/lexer.h"
+#include "lex/token.h"
+#include "parse/ast.h"
+#include "utils/file.h"
 
 #include <memory>
 #include <string>

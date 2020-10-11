@@ -5,9 +5,9 @@
 
 #include <string>
 
-#include "file.h"
-#include "token.h"
-#include "tokentype.h"
+#include "utils/file.h"
+#include "lex/token.h"
+#include "lex/tokentype.h"
 
 /// Lexer class to tokenize a sourcefile
 class Lexer

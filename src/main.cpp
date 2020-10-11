@@ -7,12 +7,12 @@
 #include <memory>
 #include <limits>
 
-#include "ast.h"
-#include "parser.h"
-#include "file.h"
-#include "lexer.h"
+#include "parse/ast.h"
+#include "parse/parser.h"
+#include "utils/file.h"
+#include "lex/lexer.h"
 #include "message/ansistuff.h"
-#include "printvisitor.h"
+#include "visit/printvisitor.h"
 
 /// Read a file and output a File, with the appropriate source string
 File readFile(char *filename)
