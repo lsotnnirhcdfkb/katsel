@@ -29,12 +29,6 @@ ASTNS::PrimaryExpr::PrimaryExpr(Token value)
     this->value = value;
 }
 void ASTNS::PrimaryExpr::accept(ExprVisitor *v) { v->visitPrimaryExpr(this); }
-ASTNS::AssignExpr::AssignExpr(std::unique_ptr<Expr> assignee, std::unique_ptr<Expr> value)
-{
-    this->assignee = std::move(assignee);
-    this->value = std::move(value);
-}
-void ASTNS::AssignExpr::accept(ExprVisitor *v) { v->visitAssignExpr(this); }
 ASTNS::CallExpr::CallExpr(std::unique_ptr<Expr> func, std::unique_ptr<Arg> args)
 {
     this->func = std::move(func);
@@ -68,11 +62,6 @@ ASTNS::VarStmt::VarStmt(std::unique_ptr<Type> type, Token name, std::unique_ptr<
     this->value = std::move(value);
 }
 void ASTNS::VarStmt::accept(StmtVisitor *v) { v->visitVarStmt(this); }
-ASTNS::VarRef::VarRef(Token var)
-{
-    this->var = var;
-}
-void ASTNS::VarRef::accept(ExprVisitor *v) { v->visitVarRef(this); }
 ASTNS::BaseType::BaseType(Token type)
 {
     this->type = type;

@@ -152,11 +152,6 @@ asts = [
             tokenField('value'),
         ], extends='Expr'),
 
-    ASTClass('AssignExpr', fields=[
-            uptrField('Expr', 'assignee'),
-            exprField('value'),
-        ], extends='Expr'),
-
     ASTClass('CallExpr', fields=[
             uptrField('Expr', 'func'),
             uptrField('Arg', 'args'),
@@ -183,10 +178,6 @@ asts = [
             tokenField('name'),
             exprField('value'),
         ], extends='Stmt'),
-
-    ASTClass('VarRef', fields=[
-            tokenField('var'),
-        ], extends='Expr'),
 
     ASTClass('BaseType', fields=[
             tokenField('type'),

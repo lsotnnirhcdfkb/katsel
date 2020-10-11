@@ -12,14 +12,12 @@ class BinaryExpr;
 class TernaryExpr;
 class UnaryExpr;
 class PrimaryExpr;
-class AssignExpr;
 class CallExpr;
 class LtoRVExpr;
 class BlockStmt;
 class ExprStmt;
 class ReturnStmt;
 class VarStmt;
-class VarRef;
 class BaseType;
 class FunctionDecl;
 class GlobalVarDecl;
@@ -36,10 +34,8 @@ public:
     virtual void visitTernaryExpr(ASTNS::TernaryExpr *a) = 0;
     virtual void visitUnaryExpr(ASTNS::UnaryExpr *a) = 0;
     virtual void visitPrimaryExpr(ASTNS::PrimaryExpr *a) = 0;
-    virtual void visitAssignExpr(ASTNS::AssignExpr *a) = 0;
     virtual void visitCallExpr(ASTNS::CallExpr *a) = 0;
     virtual void visitLtoRVExpr(ASTNS::LtoRVExpr *a) = 0;
-    virtual void visitVarRef(ASTNS::VarRef *a) = 0;
     virtual ~ExprVisitor();
 };
 class DeclVisitor

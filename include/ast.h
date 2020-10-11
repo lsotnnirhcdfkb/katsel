@@ -17,14 +17,12 @@ namespace ASTNS
     class TernaryExpr;
     class UnaryExpr;
     class PrimaryExpr;
-    class AssignExpr;
     class CallExpr;
     class LtoRVExpr;
     class BlockStmt;
     class ExprStmt;
     class ReturnStmt;
     class VarStmt;
-    class VarRef;
     class BaseType;
     class FunctionDecl;
     class GlobalVarDecl;
@@ -96,14 +94,6 @@ namespace ASTNS
         Token value;
         virtual void accept(ExprVisitor *v);
     };
-    class AssignExpr : public Expr
-    {
-    public:
-        AssignExpr(std::unique_ptr<Expr> assignee, std::unique_ptr<Expr> value);
-        std::unique_ptr<Expr> assignee;
-        std::unique_ptr<Expr> value;
-        virtual void accept(ExprVisitor *v);
-    };
     class CallExpr : public Expr
     {
     public:
@@ -148,13 +138,6 @@ namespace ASTNS
         Token name;
         std::unique_ptr<Expr> value;
         virtual void accept(StmtVisitor *v);
-    };
-    class VarRef : public Expr
-    {
-    public:
-        VarRef(Token var);
-        Token var;
-        virtual void accept(ExprVisitor *v);
     };
     class BaseType : public Type
     {

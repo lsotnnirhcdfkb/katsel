@@ -15,10 +15,8 @@ public:
     virtual void visitTernaryExpr(ASTNS::TernaryExpr *a) override;
     virtual void visitUnaryExpr(ASTNS::UnaryExpr *a) override;
     virtual void visitPrimaryExpr(ASTNS::PrimaryExpr *a) override;
-    virtual void visitAssignExpr(ASTNS::AssignExpr *a) override;
     virtual void visitCallExpr(ASTNS::CallExpr *a) override;
     virtual void visitLtoRVExpr(ASTNS::LtoRVExpr *a) override;
-    virtual void visitVarRef(ASTNS::VarRef *a) override;
     virtual void visitFunctionDecl(ASTNS::FunctionDecl *a) override;
     virtual void visitGlobalVarDecl(ASTNS::GlobalVarDecl *a) override;
     virtual void visitBaseType(ASTNS::BaseType *a) override;
@@ -29,4 +27,17 @@ public:
     virtual void visitProgram(ASTNS::Program *a) override;
     virtual void visitParam(ASTNS::Param *a) override;
     virtual void visitArg(ASTNS::Arg *a) override;
+
+private:
+    int indent;
+    bool pindent;
+    // short for print at indent
+    void pai(std::string &s);
+    void pai(std::string &&s);
+
+    template <typename T>
+    void pchild(std::string &&s, const T &a);
+    void ptok(std::string &&s, Token &t);
+    void phead(std::string &&s);
+    void pclose();
 };
