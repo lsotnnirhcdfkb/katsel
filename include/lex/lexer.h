@@ -20,34 +20,82 @@ public:
     /// Return the next token from the source file
     Token nextToken();
 
-    Token makeSOF();
+    inline Token makeSOF()
+    {
+        return makeToken(TokenType::SOF);
+    }
 
 private:
     /// Check if an idenetifier token is a keyword type and return that type, or just return TokenType::IDENTIFIER
     TokenType getIdentifierType();
     /// Return if the lexer is at the end of the sourcefil
-    bool atEnd();
+    inline bool atEnd()
+    {
+        return end >= srcend;
+    }
     /// Check if the next character in the lexer matches a certain character and consume it
     /// @param c The character to check against
-    bool match(char c);
+    inline bool match(char c)
+    {
+        if (atEnd())
+            return false;
+
+        if (peek() == c)
+        {
+            advance();
+            return true;
+        }
+
+        return false;
+    }
     /// Go to the next character, incrementing the column as necessary
-    char advance();
+    inline char advance()
+    {
+        ++nextcolumn;
+
+        return *(end++);
+    }
     /// Return the next character of the lexer
-    char peek();
+    inline char peek()
+    {
+    return *(end);
+    }
     /// Return the next next character of the lexer
-    char peekpeek();
+    inline char peekpeek()
+    {
+    return *(end + 1);
+    }
     /// Return the previous character of the lexer
-    char consumed();
+    inline char consumed()
+    {
+        return *(end - 1);
+    }
 
     /// Return an error token with a certain message and with the current lexer location
     /// @param message The error message that the error token should have
     Token makeErrorToken(std::string message);
     /// Create a token at the current lexer location with a certain type
     /// @param type The type that the token should be
-    Token makeToken(TokenType type);
+    inline Token makeToken(TokenType type)
+    {
+        Token token;
+
+        token.type = type;
+        token.start = start;
+        token.end = end;
+        token.line = line;
+        token.column = column - 1;
+        token.sourcefile = sourcefile;
+
+        return token;
+    }
 
     /// Increment the line number and reset the column to 1
-    void nextLine();
+    inline void nextLine()
+    {
+        ++nextline;
+        nextcolumn = 1;
+    }
 
     /// The start location of the token currently being lexed
     std::string::iterator start;

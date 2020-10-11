@@ -56,7 +56,7 @@ private:
     std::unique_ptr<ASTNS::Expr> ternaryOp(std::unique_ptr<ASTNS::Expr>);
     std::unique_ptr<ASTNS::Expr> callOp(std::unique_ptr<ASTNS::Expr>);
 
-    inline int curPrec();
+    int curPrec();
 
     // because of 'declaration reflects use' this delcaration i will totally
     // forget the meaning of so here it is:

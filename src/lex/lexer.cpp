@@ -905,47 +905,6 @@ Token Lexer::nextToken()
 }
 // }}}
 // {{{1 other helpers
-bool Lexer::atEnd()
-{
-    return end >= srcend;
-}
-
-bool Lexer::match(char c)
-{
-    if (atEnd())
-        return false;
-
-    if (peek() == c)
-    {
-        advance();
-        return true;
-    }
-
-    return false;
-}
-
-char Lexer::advance()
-{
-    ++nextcolumn;
-
-    return *(end++);
-}
-
-char Lexer::peek()
-{
-    return *(end);
-}
-
-char Lexer::consumed()
-{
-    return *(end - 1);
-}
-
-char Lexer::peekpeek()
-{
-    return *(end + 1);
-}
-
 Token Lexer::makeErrorToken(std::string message)
 {
     Token token = makeToken(TokenType::ERROR);
@@ -953,29 +912,4 @@ Token Lexer::makeErrorToken(std::string message)
     token.message = message;
 
     return token;
-}
-
-Token Lexer::makeToken(TokenType type)
-{
-    Token token;
-
-    token.type = type;
-    token.start = start;
-    token.end = end;
-    token.line = line;
-    token.column = column - 1;
-    token.sourcefile = sourcefile;
-
-    return token;
-}
-
-void Lexer::nextLine()
-{
-    ++nextline;
-    nextcolumn = 1;
-}
-
-Token Lexer::makeSOF()
-{
-    return makeToken(TokenType::SOF);
 }
