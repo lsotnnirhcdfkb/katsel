@@ -1,11 +1,11 @@
 #include "visitor.h"
 
 // PUREVISITDESTRUCT START
-Expr::~Expr() {}
-Decl::~Decl() {}
-Type::~Type() {}
-Stmt::~Stmt() {}
-Program::~Program() {}
-Param::~Param() {}
-Arg::~Arg() {}
+ExprVisitor::~ExprVisitor() {}
+DeclVisitor::~DeclVisitor() {}
+TypeVisitor::~TypeVisitor() {}
+StmtVisitor::~StmtVisitor() {}
+ProgramVisitor::~ProgramVisitor() {}
+ParamVisitor::~ParamVisitor() {}
+ArgVisitor::~ArgVisitor() {}
 // PUREVISITDESTRUCT END

@@ -282,6 +282,6 @@ def genPureDestructs():
 
     output = []
     for genclass in genclasses:
-        output.append(f'{genclass.name}::~{genclass.name}() {{}}\n')
+        output.append(f'{genclass.name}Visitor::~{genclass.name}Visitor() {{}}\n')
 
     return ''.join(output)
