@@ -1,4 +1,4 @@
-add_executable(coxianc main.cpp lexer.cpp parser.cpp errors.cpp ansistuff.cpp ast.cpp)
+add_executable(coxianc main.cpp lexer.cpp parser.cpp errors.cpp ansistuff.cpp ast.cpp printvisitor.cpp)
 add_subdirectory(parse)
 
 # Also (mostly) copied and pasted and shifted around a bit from LLVM Docs - Building LLVM with CMake - Embedding LLVM in your project
