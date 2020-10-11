@@ -52,13 +52,13 @@ void compileFile(File &sourcefile)
     auto parser = std::make_unique<Parser>(*lexer, sourcefile);
 
     std::unique_ptr<ASTNS::Program> parsed = parser->parse();
-    // auto printv = std::make_unique<PrintVisitor>();
+    auto printv = std::make_unique<PrintVisitor>();
 
-    // if (parsed)
-    // {
+    if (parsed)
+    {
         // compile(&*parsed, sourcefile);
-        // printv.visit(parsed);
-    // }
+        printv->visitProgram(parsed.get());
+    }
 
     resetTerminal();
 

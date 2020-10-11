@@ -49,7 +49,7 @@ class ASTClass:
             output.append(field.initialization())
             output.append('\n')
         output.append( '}\n')
-        output.append(f'void ASTNS::{self.name}::accept({self.name if self.extends is None else self.extends}Visitor *v) {{ v->visit(this); }}\n')
+        output.append(f'void ASTNS::{self.name}::accept({self.name if self.extends is None else self.extends}Visitor *v) {{ v->visit{self.name}(this); }}\n')
         return ''.join(output)
 
 # PureASTClass {{{1
@@ -264,13 +264,19 @@ def genPureASTVisitClasses():
         output.append(f'''class {genclass.name}Visitor
 {{
 public:
-    virtual void visit(ASTNS::{genclass.name} *a) = 0;
-    virtual ~{genclass.name}Visitor();
+''')
+
+        for ast in asts:
+            if type(ast) != PureASTClass and (ast.extends == genclass.name or ast.name == genclass.name):
+                output.append(f'    virtual void visit{ast.name}(ASTNS::{ast.name} *a) = 0;\n')
+
+        output.append(f'''    virtual ~{genclass.name}Visitor();
 }};
 ''')
 
     return ''.join(output)
 
+# generate pure visitor destructors {{{1
 def genPureDestructs():
     genclasses = [x for x in asts if type(x) == PureASTClass or x.extends is None]
 
