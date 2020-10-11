@@ -4,6 +4,7 @@
 #pragma once
 
 #include "lex/tokentype.h"
+#include "utils/file.h"
 #include <string>
 
 /// A Token emitted from the lexer lexing the source file
@@ -23,5 +24,7 @@ struct Token
     int line;
     /// The token's column number
     int column;
+
+    File sourcefile;
 };
 

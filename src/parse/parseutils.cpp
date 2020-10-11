@@ -19,7 +19,7 @@ std::unique_ptr<ASTNS::Type> Parser::type()
     }
 
     consume();
-    reportError(prev(), "Expected type", sourcefile);
+    reportError(prev(), "Expected type");
     return nullptr;
 }
 

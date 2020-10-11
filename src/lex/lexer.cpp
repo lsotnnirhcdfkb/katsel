@@ -4,7 +4,7 @@
 
 #include "lex/lexer.h"
 
-Lexer::Lexer(File &sourcefile) : start(sourcefile.source.begin()), end(sourcefile.source.begin()), nextline(1), nextcolumn(1), line(1), column(1), srcend(sourcefile.source.end()) {}
+Lexer::Lexer(File &sourcefile) : start(sourcefile.source.begin()), end(sourcefile.source.begin()), nextline(1), nextcolumn(1), line(1), column(1), srcend(sourcefile.source.end()), sourcefile(sourcefile) {}
 
 // {{{ getIdentifierType
 // KWGEN START
@@ -964,6 +964,7 @@ Token Lexer::makeToken(TokenType type)
     token.end = end;
     token.line = line;
     token.column = column - 1;
+    token.sourcefile = sourcefile;
 
     return token;
 }
@@ -974,5 +975,3 @@ void Lexer::nextLine()
     nextcolumn = 1;
 }
 // }}}
-
-

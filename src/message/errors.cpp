@@ -11,47 +11,44 @@ struct Location
     /// The end of this location
     std::string::iterator const end;
     /// The file that this location is in
-    File const &sourcefile;
+    File const &file;
 };
 
 /// Convert a Token's start and end to a Location
-/// @param sourcefile The file that the location is in
 /// @param t The token to convert to a start and an end
-Location TokenToLoc(File const &sourcefile, Token const &t)
+Location TokenToLoc(Token const &t)
 {
-    return Location {t.start, t.end, sourcefile};
+    return Location {t.start, t.end, t.sourcefile};
 }
 
 /// Return a location that has the token and the line that the token is on
-/// @param sourcefile The file that the location is in
 /// @param t The token to get the line of
-Location getLine(File const &sourcefile, Token const &t)
+Location getLine(Token const &t)
 {
     auto linestart (t.start);
-    while (linestart != sourcefile.source.begin() && *linestart != '\n') --linestart; // until *linestart is \n
+    while (linestart != t.sourcefile.source.begin() && *linestart != '\n') --linestart; // until *linestart is \n
     // once *linestart is \n then go forward once
 
-    // if linestart == sourcefile.source.begin(), then loop stopped
+    // if linestart == t.sourcefile.source.begin(), then loop stopped
     // because iterator hit beginning of sourcefile.source, not
     // because it hit \n, so there is no need to consume the \n
-    if (linestart != sourcefile.source.begin())
+    if (linestart != t.sourcefile.source.begin())
         ++linestart;
 
     auto lineend(t.end);
-    while (lineend != sourcefile.source.end() && *lineend != '\n') ++lineend;
+    while (lineend != t.sourcefile.source.end() && *lineend != '\n') ++lineend;
     // *lineend should be \n
 
-    Location l {linestart, lineend, sourcefile};
+    Location l {linestart, lineend, t.sourcefile};
     return l;
 }
 
 /// General error formatting function
 /// @param message The message
-/// @param sourcefile The source file
 /// @param showl The location to show
 /// @param underlinel The locations to underline
 /// @param stream The stream to print to
-void report(std::string &&message, File const &sourcefile, Location showl, std::vector<Location> underlinel, std::ostream &stream, bool ansiCodes)
+void report(std::string &&message, Location showl, std::vector<Location> underlinel, std::ostream &stream, bool ansiCodes)
 {
     stream << message;
 
@@ -109,36 +106,35 @@ void report(std::string &&message, File const &sourcefile, Location showl, std::
 /// Report an error at a token with a message
 /// @param t The token to error at
 /// @param message The error message to report
-/// @param sourcefile The source file that this error is in
-void reportError(Token const &t, std::string const &message, File const &sourcefile)
+void reportError(Token const &t, std::string const &message)
 {
     std::stringstream ss;
     if (ansiCodesEnabled())
-        ss << "\033[31;1mError\033[0m at \033[37m" << sourcefile.filename << ":" << t.line << ":" << t.column << "\033[0m: " << message << std::endl;
+        ss << "\033[31;1mError\033[0m at \033[37m" << t.sourcefile.filename << ":" << t.line << ":" << t.column << "\033[0m: " << message << std::endl;
     else
-        ss << "Error at " << sourcefile.filename << ":" << t.line << ":" << t.column << ": " << message << std::endl;
+        ss << "Error at " << t.sourcefile.filename << ":" << t.line << ":" << t.column << ": " << message << std::endl;
 
-    report(ss.str(), sourcefile, getLine(sourcefile, t), {TokenToLoc(sourcefile, t)}, std::cerr, ansiCodesEnabled());
+    report(ss.str(), getLine(t), {TokenToLoc(t)}, std::cerr, ansiCodesEnabled());
 }
 
-void reportWarning(Token const &t, std::string const &message, File const &sourcefile)
+void reportWarning(Token const &t, std::string const &message)
 {
     std::stringstream ss;
     if (ansiCodesEnabled())
-        ss << "\033[35;1mWarning\033[0m at \033[37m" << sourcefile.filename << ":" << t.line << ":" << t.column << "\033[0m: " << message << std::endl;
+        ss << "\033[35;1mWarning\033[0m at \033[37m" << t.sourcefile.filename << ":" << t.line << ":" << t.column << "\033[0m: " << message << std::endl;
     else
-        ss << "Warning at " << sourcefile.filename << ":" << t.line << ":" << t.column << ": " << message << std::endl;
+        ss << "Warning at " << t.sourcefile.filename << ":" << t.line << ":" << t.column << ": " << message << std::endl;
 
-    report(ss.str(), sourcefile, getLine(sourcefile, t), {TokenToLoc(sourcefile, t)}, std::cerr, ansiCodesEnabled());
+    report(ss.str(), getLine(t), {TokenToLoc(t)}, std::cerr, ansiCodesEnabled());
 }
 
-void reportDebug(Token const &t, std::string const &message, File const &sourcefile)
+void reportDebug(Token const &t, std::string const &message)
 {
     std::stringstream ss;
     if (ansiCodesEnabled())
-        ss << "\033[32;1mDebug message\033[0m at \033[37m" << sourcefile.filename << ":" << t.line << ":" << t.column << "\033[0m: " << message << std::endl;
+        ss << "\033[32;1mDebug message\033[0m at \033[37m" << t.sourcefile.filename << ":" << t.line << ":" << t.column << "\033[0m: " << message << std::endl;
     else
-        ss << "Debug message at " << sourcefile.filename << ":" << t.line << ":" << t.column << ": " << message << std::endl;
+        ss << "Debug message at " << t.sourcefile.filename << ":" << t.line << ":" << t.column << ": " << message << std::endl;
 
-    report(ss.str(), sourcefile, getLine(sourcefile, t), {TokenToLoc(sourcefile, t)}, std::cerr, ansiCodesEnabled());
+    report(ss.str(), getLine(t), {TokenToLoc(t)}, std::cerr, ansiCodesEnabled());
 }

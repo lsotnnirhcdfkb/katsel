@@ -147,7 +147,7 @@ std::unique_ptr<ASTNS::Expr> Parser::expr(int prec)
 
     if (prefixParser == prefixParserTable.end())
     {
-        reportError(prev(), "Expected primary or unary operator", sourcefile);
+        reportError(prev(), "Expected primary or unary operator");
         return nullptr;
     }
 

@@ -63,5 +63,7 @@ private:
 
     /// The very end of the sourcefile (for Lexer::atEnd() to work)
     std::string::iterator srcend;
+
+    File &sourcefile;
 };
 
