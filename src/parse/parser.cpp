@@ -42,7 +42,7 @@ bool Parser::check(TokenType type)
     return peek().type == type;
 }
 
-Token& Parser::assertConsume(TokenType type, std::string message)
+bool Parser::assertConsume(TokenType type, std::string message)
 {
     std::stringstream ss;
 
@@ -57,7 +57,8 @@ Token& Parser::assertConsume(TokenType type, std::string message)
     if (!correct)
         reportError(prev(), message);
 
-    return consume();
+    consume();
+    return correct;
 }
 
 bool Parser::atEnd()
@@ -88,10 +89,5 @@ void Parser::unpanic()
 
 void Parser::syncTokens()
 {
-    while (!(check(TokenType::SEMICOLON) || check(TokenType::CCURB)) && !atEnd()) consume(); // consume until next token is semicolon
-
-    if (check(TokenType::SEMICOLON))
-        consume(); // consume semicolon
-
-    // if doesnt consume then peek is of type eof
+    while (!check(TokenType::FUN) && !atEnd()) consume(); // consume until next token is fun
 }

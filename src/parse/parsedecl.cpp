@@ -1,6 +1,8 @@
 #include "parse/parser.h"
 #include "parse/ast.h"
 
+#include "message/errors.h"
+
 // parse method {{{1
 std::unique_ptr<ASTNS::Program> Parser::parse()
 {
@@ -31,7 +33,16 @@ std::unique_ptr<ASTNS::Program> Parser::parse()
 // parse decl {{{1
 std::unique_ptr<ASTNS::Decl> Parser::decl()
 {
-    return functiondecl();
+    switch (peek().type)
+    {
+        case TokenType::FUN:
+            return functiondecl();
+
+        default:
+            reportError(peek(), "Expected declaration");
+            panic();
+            return nullptr;
+    }
 }
 // function decls {{{1
 std::unique_ptr<ASTNS::FunctionDecl> Parser::functiondecl()
@@ -39,7 +50,8 @@ std::unique_ptr<ASTNS::FunctionDecl> Parser::functiondecl()
     assertConsume(TokenType::FUN);
 
     std::unique_ptr<ASTNS::Type> rtype (type());
-    Token name = assertConsume(TokenType::IDENTIFIER, "Expected identifier for function name");
+    assertConsume(TokenType::IDENTIFIER, "Expected identifier for function name");
+    Token name (prev());
 
     assertConsume(TokenType::OPARN, "Expected opening parenthesis after function name");
 

@@ -29,7 +29,7 @@ private:
 
     Token& consume();
     bool checkConsume(TokenType type);
-    Token& assertConsume(TokenType type, std::string message="");
+    bool assertConsume(TokenType type, std::string message="");
     bool check(TokenType type);
     bool atEnd();
 

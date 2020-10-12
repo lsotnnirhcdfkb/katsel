@@ -31,7 +31,8 @@ std::unique_ptr<ASTNS::VarStmt> Parser::varstmt()
     assertConsume(TokenType::VAR);
     std::unique_ptr<ASTNS::Type> typeast (type());
 
-    Token name = assertConsume(TokenType::IDENTIFIER, "Expected identifier for variable name");
+    assertConsume(TokenType::IDENTIFIER, "Expected identifier for variable name");
+    Token name (prev());
 
     std::unique_ptr<ASTNS::Expr> expressionast = nullptr;
     if (checkConsume(TokenType::EQUAL))
