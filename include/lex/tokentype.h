@@ -118,7 +118,7 @@ enum TokenType
 
 inline std::string stringifyTokenType(TokenType ty)
 {
-#define STOKTY(type) case type: return #type;
+#define STOKTY(type) case TokenType::type: return #type;
     switch (ty)
     {
 
