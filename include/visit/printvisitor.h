@@ -34,10 +34,4 @@ private:
     // short for print at indent
     void pai(std::string &s);
     void pai(std::string &&s);
-
-    template <typename T>
-    void pchild(std::string &&s, const T &a);
-    void ptok(std::string &&s, Token &t);
-    void phead(std::string &&s);
-    void pclose();
 };

@@ -3,138 +3,426 @@
 #include <iostream>
 #include <string>
 
-// Visiting Expr {{{1
+// PRINTVISITOR START
+void PrintVisitor::visitProgram(ASTNS::Program *a)
+{
+    pai("Program\n");
+    ++indent;
+    pai("decls =");
+    pai("\n");
+    ++indent;
+    for (auto &i : a->decls)
+    {
+        pai("- ");
+        i->accept(this);
+    }
+    --indent;
+    --indent;
+}
 void PrintVisitor::visitBinaryExpr(ASTNS::BinaryExpr *a)
 {
-    phead("Binary Expr");
-    ptok("Op", a->op);
-    pchild("LHS", a->lhs);
-    pchild("RHS", a->rhs);
-    pclose();
+    pai("BinaryExpr\n");
+    ++indent;
+    pai("lhs =");
+    if (a->lhs)
+    {
+        ++indent;
+        pai("\n");
+        a->lhs->accept(this);
+        --indent;
+    }
+    else
+    {
+        pai(" nullptr\n");
+    }
+    pai("rhs =");
+    if (a->rhs)
+    {
+        ++indent;
+        pai("\n");
+        a->rhs->accept(this);
+        --indent;
+    }
+    else
+    {
+        pai(" nullptr\n");
+    }
+    pai("op =");
+    pai(" [");
+    pai(std::string(a->op.start, a->op.end));
+    pai("]\n");
+    --indent;
 }
 void PrintVisitor::visitTernaryExpr(ASTNS::TernaryExpr *a)
 {
-    phead("Ternary Expr");
-    pchild("Cond", a->condition);
-    pchild("Trues", a->trues);
-    pchild("Falses", a->falses);
-    pclose();
+    pai("TernaryExpr\n");
+    ++indent;
+    pai("condition =");
+    if (a->condition)
+    {
+        ++indent;
+        pai("\n");
+        a->condition->accept(this);
+        --indent;
+    }
+    else
+    {
+        pai(" nullptr\n");
+    }
+    pai("trues =");
+    if (a->trues)
+    {
+        ++indent;
+        pai("\n");
+        a->trues->accept(this);
+        --indent;
+    }
+    else
+    {
+        pai(" nullptr\n");
+    }
+    pai("falses =");
+    if (a->falses)
+    {
+        ++indent;
+        pai("\n");
+        a->falses->accept(this);
+        --indent;
+    }
+    else
+    {
+        pai(" nullptr\n");
+    }
+    --indent;
 }
 void PrintVisitor::visitUnaryExpr(ASTNS::UnaryExpr *a)
 {
-    phead("Unary Expr");
-    ptok("Op", a->op);
-    pchild("Operand", a->operand);
-    pclose();
+    pai("UnaryExpr\n");
+    ++indent;
+    pai("operand =");
+    if (a->operand)
+    {
+        ++indent;
+        pai("\n");
+        a->operand->accept(this);
+        --indent;
+    }
+    else
+    {
+        pai(" nullptr\n");
+    }
+    pai("op =");
+    pai(" [");
+    pai(std::string(a->op.start, a->op.end));
+    pai("]\n");
+    --indent;
 }
 void PrintVisitor::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
 {
-    phead("Primary Expr");
-    ptok("Value", a->value);
-    pclose();
+    pai("PrimaryExpr\n");
+    ++indent;
+    pai("value =");
+    pai(" [");
+    pai(std::string(a->value.start, a->value.end));
+    pai("]\n");
+    --indent;
 }
 void PrintVisitor::visitCallExpr(ASTNS::CallExpr *a)
 {
-    phead("Call Expr");
-    pchild("Calling", a->func);
-    pchild("With args", a->args);
-    pclose();
+    pai("CallExpr\n");
+    ++indent;
+    pai("func =");
+    if (a->func)
+    {
+        ++indent;
+        pai("\n");
+        a->func->accept(this);
+        --indent;
+    }
+    else
+    {
+        pai(" nullptr\n");
+    }
+    pai("args =");
+    if (a->args)
+    {
+        ++indent;
+        pai("\n");
+        a->args->accept(this);
+        --indent;
+    }
+    else
+    {
+        pai(" nullptr\n");
+    }
+    --indent;
 }
 void PrintVisitor::visitLtoRVExpr(ASTNS::LtoRVExpr *a)
 {
-    phead("LtoRValExpr");
-    pchild("RValue", a->val);
-    pclose();
+    pai("LtoRVExpr\n");
+    ++indent;
+    pai("val =");
+    if (a->val)
+    {
+        ++indent;
+        pai("\n");
+        a->val->accept(this);
+        --indent;
+    }
+    else
+    {
+        pai(" nullptr\n");
+    }
+    --indent;
 }
-// Visitng Decl {{{1
-void PrintVisitor::visitFunctionDecl(ASTNS::FunctionDecl *a)
-{
-    phead("Function decl");
-    pchild("Return type", a->rettype);
-    ptok("Name", a->name);
-    pchild("Params", a->params);
-    pchild("Block", a->block);
-    pclose();
-}
-void PrintVisitor::visitGlobalVarDecl(ASTNS::GlobalVarDecl *a)
-{
-    phead("GlobalVarDecl");
-    pchild("Type", a->type);
-    ptok("Name", a->name);
-    pchild("Value", a->value);
-    pclose();
-}
-// Visiting Type {{{1
-void PrintVisitor::visitBaseType(ASTNS::BaseType *a)
-{
-    phead("BaseType");
-    ptok("Type", a->type);
-    pclose();
-}
-// Visiting Stmt {{{1
 void PrintVisitor::visitBlockStmt(ASTNS::BlockStmt *a)
 {
-    phead("BlockStmt");
-    for (std::unique_ptr<ASTNS::Stmt> &s : a->stmts)
+    pai("BlockStmt\n");
+    ++indent;
+    pai("stmts =");
+    pai("\n");
+    ++indent;
+    for (auto &i : a->stmts)
     {
-        s->accept(this);
+        pai("- ");
+        i->accept(this);
     }
-    pclose();
+    --indent;
+    --indent;
 }
 void PrintVisitor::visitExprStmt(ASTNS::ExprStmt *a)
 {
-    phead("ExprStmt");
-    pchild("Expr", a->expr);
-    pclose();
+    pai("ExprStmt\n");
+    ++indent;
+    pai("expr =");
+    if (a->expr)
+    {
+        ++indent;
+        pai("\n");
+        a->expr->accept(this);
+        --indent;
+    }
+    else
+    {
+        pai(" nullptr\n");
+    }
+    --indent;
 }
 void PrintVisitor::visitReturnStmt(ASTNS::ReturnStmt *a)
 {
-    phead("ReturnStmt");
-    pchild("Expr", a->val);
-    pclose();
+    pai("ReturnStmt\n");
+    ++indent;
+    pai("val =");
+    if (a->val)
+    {
+        ++indent;
+        pai("\n");
+        a->val->accept(this);
+        --indent;
+    }
+    else
+    {
+        pai(" nullptr\n");
+    }
+    --indent;
 }
 void PrintVisitor::visitVarStmt(ASTNS::VarStmt *a)
 {
-    phead("VarStmt");
-    pchild("Type", a->type);
-    ptok("Name", a->name);
-    pchild("Value", a->value);
-    pclose();
-}
-// Visiting Program {{{1
-void PrintVisitor::visitProgram(ASTNS::Program *a)
-{
-    phead("Program");
-
-    for (std::unique_ptr<ASTNS::Decl> &d : a->decls)
+    pai("VarStmt\n");
+    ++indent;
+    pai("type =");
+    if (a->type)
     {
-        d->accept(this);
+        ++indent;
+        pai("\n");
+        a->type->accept(this);
+        --indent;
     }
-
-    pclose();
+    else
+    {
+        pai(" nullptr\n");
+    }
+    pai("name =");
+    pai(" [");
+    pai(std::string(a->name.start, a->name.end));
+    pai("]\n");
+    pai("value =");
+    if (a->value)
+    {
+        ++indent;
+        pai("\n");
+        a->value->accept(this);
+        --indent;
+    }
+    else
+    {
+        pai(" nullptr\n");
+    }
+    --indent;
 }
-// Visiting Param and Args {{{1
+void PrintVisitor::visitBaseType(ASTNS::BaseType *a)
+{
+    pai("BaseType\n");
+    ++indent;
+    pai("type =");
+    pai(" [");
+    pai(std::string(a->type.start, a->type.end));
+    pai("]\n");
+    --indent;
+}
+void PrintVisitor::visitFunctionDecl(ASTNS::FunctionDecl *a)
+{
+    pai("FunctionDecl\n");
+    ++indent;
+    pai("rettype =");
+    if (a->rettype)
+    {
+        ++indent;
+        pai("\n");
+        a->rettype->accept(this);
+        --indent;
+    }
+    else
+    {
+        pai(" nullptr\n");
+    }
+    pai("name =");
+    pai(" [");
+    pai(std::string(a->name.start, a->name.end));
+    pai("]\n");
+    pai("params =");
+    if (a->params)
+    {
+        ++indent;
+        pai("\n");
+        a->params->accept(this);
+        --indent;
+    }
+    else
+    {
+        pai(" nullptr\n");
+    }
+    pai("block =");
+    if (a->block)
+    {
+        ++indent;
+        pai("\n");
+        a->block->accept(this);
+        --indent;
+    }
+    else
+    {
+        pai(" nullptr\n");
+    }
+    --indent;
+}
+void PrintVisitor::visitGlobalVarDecl(ASTNS::GlobalVarDecl *a)
+{
+    pai("GlobalVarDecl\n");
+    ++indent;
+    pai("type =");
+    if (a->type)
+    {
+        ++indent;
+        pai("\n");
+        a->type->accept(this);
+        --indent;
+    }
+    else
+    {
+        pai(" nullptr\n");
+    }
+    pai("name =");
+    pai(" [");
+    pai(std::string(a->name.start, a->name.end));
+    pai("]\n");
+    pai("value =");
+    if (a->value)
+    {
+        ++indent;
+        pai("\n");
+        a->value->accept(this);
+        --indent;
+    }
+    else
+    {
+        pai(" nullptr\n");
+    }
+    --indent;
+}
 void PrintVisitor::visitParam(ASTNS::Param *a)
 {
-    phead("Param");
-    pchild("Type", a->type);
-    ptok("Name", a->name);
-    pchild("Next", a->next);
+    pai("Param\n");
+    ++indent;
+    pai("type =");
+    if (a->type)
+    {
+        ++indent;
+        pai("\n");
+        a->type->accept(this);
+        --indent;
+    }
+    else
+    {
+        pai(" nullptr\n");
+    }
+    pai("name =");
+    pai(" [");
+    pai(std::string(a->name.start, a->name.end));
+    pai("]\n");
+    pai("next =");
+    if (a->next)
+    {
+        ++indent;
+        pai("\n");
+        a->next->accept(this);
+        --indent;
+    }
+    else
+    {
+        pai(" nullptr\n");
+    }
+    --indent;
 }
 void PrintVisitor::visitArg(ASTNS::Arg *a)
 {
-    phead("Arg");
-    pchild("Value", a->value);
-    pchild("Next", a->next);
+    pai("Arg\n");
+    ++indent;
+    pai("value =");
+    if (a->value)
+    {
+        ++indent;
+        pai("\n");
+        a->value->accept(this);
+        --indent;
+    }
+    else
+    {
+        pai(" nullptr\n");
+    }
+    pai("next =");
+    if (a->next)
+    {
+        ++indent;
+        pai("\n");
+        a->next->accept(this);
+        --indent;
+    }
+    else
+    {
+        pai(" nullptr\n");
+    }
+    --indent;
 }
-// Helper functions {{{1
+// PRINTVISITOR END
+
 void PrintVisitor::pai(std::string &s)
 {
     for (auto i = s.begin(); i != s.end(); ++i)
     {
         if (pindent)
             for (int j = 0; j < indent; ++j)
-                std::cout << "|   ";
+                std::cout << "  ";
 
         pindent = false;
         std::cout << *i;
@@ -148,40 +436,4 @@ void PrintVisitor::pai(std::string &s)
 void PrintVisitor::pai(std::string &&s)
 {
     pai(s);
-}
-
-template <typename T>
-void PrintVisitor::pchild(std::string &&s, const T &a)
-{
-    pai(s);
-    if (a)
-    {
-        pai("\n{\n");
-        ++indent;
-        a->accept(this);
-        --indent;
-        pai("}\n");
-    }
-    else
-    {
-        pai(" {nullptr}\n");
-    }
-}
-void PrintVisitor::ptok(std::string &&s, Token &t)
-{
-    pai(s);
-    pai(" [");
-    pai(std::string(t.start, t.end));
-    pai("]\n");
-}
-void PrintVisitor::phead(std::string &&s)
-{
-    pai(s);
-    pai("\n{\n");
-    ++indent;
-}
-void PrintVisitor::pclose()
-{
-    --indent;
-    pai("}\n");
 }

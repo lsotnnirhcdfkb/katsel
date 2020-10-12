@@ -14,6 +14,7 @@ jobs = [
     ('include/visit/visitor.h'       , 'ASTFORWDECL BEGIN'         , 'ASTFORWDECL END'         , astgen.genASTForwDecls),
     ('include/visit/visitor.h'       , 'PUREASTVISITCS START'      , 'PUREASTVISITCS END'      , astgen.genPureASTVisitorDecls),
     ('src/visit/visitor.cpp'         , 'PUREVISITDESTRUCT START'   , 'PUREVISITDESTRUCT END'   , astgen.genPureASTVisitorDestructs),
+    ('src/visit/printvisitor.cpp'    , 'PRINTVISITOR START'        , 'PRINTVISITOR END'        , astgen.genPrintVisitorMethods),
 ]
 
 for jobi, job in enumerate(jobs):

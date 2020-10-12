@@ -25,14 +25,14 @@ class ASTField:
 
     # pm for print method
     PM_CHILD = 0
-    PM_TOKEN = 0
-    PM_ITERATE_CHILD = 0
+    PM_TOKEN = 1
+    PM_ITERATE_CHILD = 2
 
     def __init__(self, type_, name, passRef, initializationMethod, printMethod):
         self.type_ = type_
         self.name = name
         self.passRef = passRef
-        self.initializationMethod = ASTField.IM_ASSIGN if initializationMethod is None else initializationMethod
+        self.initializationMethod = initializationMethod
         self.printMethod = printMethod
 
     @staticmethod
@@ -265,5 +265,49 @@ def genPureASTVisitorDestructs():
     output = []
     for genclass in genclasses:
         output.append(f'{genclass.name}Visitor::~{genclass.name}Visitor() {{}}\n')
+
+    return ''.join(output)
+# Generate printing stuff {{{2
+def genPrintVisitorMethods():
+    output = []
+    for ast in asts:
+        if type(ast) == PureASTClass:
+            continue
+
+        output.append(        f'void PrintVisitor::visit{ast.name}(ASTNS::{ast.name} *a)\n')
+        output.append(         '{\n')
+        output.append(        f'    pai("{ast.name}\\n");\n')
+        output.append(        f'    ++indent;\n')
+        for field in ast.fields:
+            output.append(    f'    pai("{field.name} =");\n')
+            if field.printMethod == ASTField.PM_CHILD:
+                output.append(f'    if (a->{field.name})\n')
+                output.append( '    {\n')
+                output.append( '        ++indent;\n')
+                output.append( '        pai("\\n");\n')
+                output.append(f'        a->{field.name}->accept(this);\n')
+                output.append( '        --indent;\n')
+                output.append( '    }\n')
+                output.append( '    else\n')
+                output.append( '    {\n')
+                output.append( '        pai(" nullptr\\n");\n')
+                output.append( '    }\n')
+            elif field.printMethod == ASTField.PM_TOKEN:
+                output.append( '    pai(" [");\n')
+                output.append(f'    pai(std::string(a->{field.name}.start, a->{field.name}.end));\n')
+                output.append( '    pai("]\\n");\n')
+            elif field.printMethod == ASTField.PM_ITERATE_CHILD:
+                output.append( '    pai("\\n");\n')
+                output.append( '    ++indent;\n');
+                output.append(f'    for (auto &i : a->{field.name})\n')
+                output.append( '    {\n')
+                output.append( '        pai("- ");\n')
+                output.append(f'        i->accept(this);\n')
+                output.append( '    }\n')
+                output.append( '    --indent;\n');
+            else:
+                raise Exception(f'Invalid print method {field.printMethod}')
+        output.append(        f'    --indent;\n')
+        output.append(         '}\n')
 
     return ''.join(output)
