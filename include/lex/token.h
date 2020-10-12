@@ -18,4 +18,3 @@ struct Token
 
     File sourcefile;
 };
-

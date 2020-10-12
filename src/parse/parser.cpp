@@ -48,7 +48,7 @@ Token& Parser::assertConsume(TokenType type, std::string message)
 
     if (message.size() == 0)
     {
-        ss << "Unexpected token " << peek().type << ", expected " << type << std::endl;
+        ss << "Unexpected token " << stringifyTokenType(peek().type) << ", expected " << stringifyTokenType(type) << std::endl;
         message = ss.str();
     }
 

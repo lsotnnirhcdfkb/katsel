@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
         Token t;
         while ((t = lexer->nextToken()).type != TokenType::EOF_)
         {
-            std::cout << t.sourcefile.filename << ':' << t.line << ':' << t.column << ": (" << t.type << ") \"" << std::string(t.start, t.end) << "\"" << std::endl;
+            std::cout << t.sourcefile.filename << ':' << t.line << ':' << t.column << ": (" << stringifyTokenType(t.type) << ") \"" << std::string(t.start, t.end) << "\"" << std::endl;
         }
         return 0;
     }
