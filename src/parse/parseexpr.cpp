@@ -2,6 +2,7 @@
 #include "parse/ast.h"
 
 #include "message/errors.h"
+#include "message/fmtmessage.h"
 
 // even though everything else is recursive descent,
 // expressions are parsed with a Pratt parser, because I don't
@@ -147,7 +148,7 @@ std::unique_ptr<ASTNS::Expr> Parser::expr(int prec)
 
     if (prefixParser == prefixParserTable.end())
     {
-        reportError(prev(), "Expected primary or unary operator");
+        reportError(prev(), msg::expectedPrimaryOrUnary());
         return nullptr;
     }
 

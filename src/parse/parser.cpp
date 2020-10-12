@@ -2,6 +2,7 @@
 
 #include "lex/tokentype.h"
 #include "message/errors.h"
+#include "message/fmtmessage.h"
 
 #include <sstream>
 
@@ -44,13 +45,8 @@ bool Parser::check(TokenType type)
 
 bool Parser::assertConsume(TokenType type, std::string message)
 {
-    std::stringstream ss;
-
     if (message.size() == 0)
-    {
-        ss << "Unexpected token " << stringifyTokenType(peek().type) << ", expected " << stringifyTokenType(type) << std::endl;
-        message = ss.str();
-    }
+        message = msg::expectedTokGotTok(type, peek().type);
 
     bool correct = check(type);
 

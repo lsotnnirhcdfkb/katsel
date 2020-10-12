@@ -2,7 +2,7 @@
 #include "parse/ast.h"
 
 #include "message/errors.h"
-
+#include "message/fmtmessage.h"
 // parse method {{{1
 std::unique_ptr<ASTNS::Program> Parser::parse()
 {
@@ -25,7 +25,7 @@ std::unique_ptr<ASTNS::Program> Parser::parse()
         }
     }
 
-    assertConsume(TokenType::EOF_, "Expected EOF token at end of file (internal compiling error)");
+    assertConsume(TokenType::EOF_, msg::expectedEOFTok());
 
     std::unique_ptr<ASTNS::Program> program = std::make_unique<ASTNS::Program>(programV);
     return program;
@@ -39,7 +39,7 @@ std::unique_ptr<ASTNS::Decl> Parser::decl()
             return functiondecl();
 
         default:
-            reportError(peek(), "Expected declaration");
+            reportError(peek(), msg::expectedDecl());
             panic();
             return nullptr;
     }
