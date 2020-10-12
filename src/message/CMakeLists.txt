@@ -1,1 +1,1 @@
-target_sources(coxianc PUBLIC errors.cpp ansistuff.cpp messagetype.cpp)
+target_sources(coxianc PUBLIC errors.cpp ansistuff.cpp)

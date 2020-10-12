@@ -1,6 +1,5 @@
 
 #include "message/errors.h"
-#include "message/messagetype.h"
 
 struct Location
 {
