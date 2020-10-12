@@ -1,0 +1,139 @@
+/*
+args: 
+    - "-plex"
+output: |
+    testlex1.oxian:107:1: (OPARN) "("
+    testlex1.oxian:107:2: (CPARN) ")"
+    testlex1.oxian:107:3: (OSQUB) "["
+    testlex1.oxian:107:4: (CSQUB) "]"
+    testlex1.oxian:107:5: (OCURB) "{"
+    testlex1.oxian:107:6: (CCURB) "}"
+    testlex1.oxian:107:7: (COMMA) ","
+    testlex1.oxian:107:8: (PERIOD) "."
+    testlex1.oxian:107:9: (SEMICOLON) ";"
+    testlex1.oxian:107:10: (QUESTION) "?"
+    testlex1.oxian:107:11: (COLON) ":"
+    testlex1.oxian:107:12: (BANG) "!"
+    testlex1.oxian:107:13: (PLUS) "+"
+    testlex1.oxian:107:14: (MINUS) "-"
+    testlex1.oxian:107:15: (STAR) "*"
+    testlex1.oxian:107:16: (SLASH) "/"
+    testlex1.oxian:107:17: (PERCENTEQUAL) "%="
+    testlex1.oxian:107:19: (GREATER) ">"
+    testlex1.oxian:107:20: (LESS) "<"
+    testlex1.oxian:107:21: (TILDE) "~"
+    testlex1.oxian:107:22: (AMPER) "&"
+    testlex1.oxian:107:23: (PIPE) "|"
+    testlex1.oxian:107:24: (CARET) "^"
+    testlex1.oxian:108:1: (DOUBLEPLUS) "++"
+    testlex1.oxian:108:4: (DOUBLEMINUS) "--"
+    testlex1.oxian:108:7: (DOUBLEGREATER) ">>"
+    testlex1.oxian:108:10: (DOUBLELESS) "<<"
+    testlex1.oxian:108:13: (DOUBLEAMPER) "&&"
+    testlex1.oxian:108:16: (DOUBLEEQUAL) "=="
+    testlex1.oxian:108:19: (DOUBLECOLON) "::"
+    testlex1.oxian:109:1: (PLUSEQUAL) "+="
+    testlex1.oxian:109:4: (MINUSEQUAL) "-="
+    testlex1.oxian:109:7: (STAREQUAL) "*="
+    testlex1.oxian:109:10: (SLASHEQUAL) "/="
+    testlex1.oxian:109:13: (BANGEQUAL) "!="
+    testlex1.oxian:109:16: (GREATEREQUAL) ">="
+    testlex1.oxian:109:19: (LESSEQUAL) "<="
+    testlex1.oxian:109:22: (PERCENTEQUAL) "%="
+    testlex1.oxian:109:25: (DOUBLELESSEQUAL) "<<="
+    testlex1.oxian:109:29: (DOUBLEGREATEREQUAL) ">>="
+    testlex1.oxian:109:33: (AMPEREQUAL) "&="
+    testlex1.oxian:109:36: (PIPEEQUAL) "|="
+    testlex1.oxian:109:39: (CARETEQUAL) "^="
+    testlex1.oxian:110:1: (IDENTIFIER) "ajofwiejfa"
+    testlex1.oxian:111:1: (IDENTIFIER) "jaf3324879t"
+    testlex1.oxian:112:1: (IDENTIFIER) "_jfawe"
+    testlex1.oxian:113:1: (IDENTIFIER) "fajw_"
+    testlex1.oxian:114:1: (IDENTIFIER) "__fajwe"
+    testlex1.oxian:115:1: (IDENTIFIER) "fjagh__"
+    testlex1.oxian:116:1: (IDENTIFIER) "for_"
+    testlex1.oxian:117:1: (IDENTIFIER) "_for"
+    testlex1.oxian:118:1: (CHARLIT) "c'c'"
+    testlex1.oxian:119:1: (CHARLIT) "c"d""
+    testlex1.oxian:120:1: (STRINGLIT) "'e'"
+    testlex1.oxian:121:1: (STRINGLIT) ""f""
+    testlex1.oxian:122:1: (STRINGLIT) "'gfawoe'"
+    testlex1.oxian:123:1: (STRINGLIT) ""hfaweic""
+    testlex1.oxian:124:1: (DECINTLIT) "0192837465"
+    testlex1.oxian:125:1: (OCTINTLIT) "0o70615243"
+    testlex1.oxian:126:1: (BININTLIT) "0b1101001011"
+    testlex1.oxian:127:1: (HEXINTLIT) "0x1234567890abcdef"
+    testlex1.oxian:128:1: (FLOATLIT) "347189230.4123878"
+    testlex1.oxian:129:1: (TRUELIT) "true"
+    testlex1.oxian:129:6: (FALSELIT) "false"
+    testlex1.oxian:129:12: (NULLLIT) "null"
+    testlex1.oxian:130:1: (UINT8) "uint8"
+    testlex1.oxian:130:7: (UINT16) "uint16"
+    testlex1.oxian:130:14: (UINT32) "uint32"
+    testlex1.oxian:130:21: (UINT64) "uint64"
+    testlex1.oxian:131:1: (SINT8) "sint8"
+    testlex1.oxian:131:7: (SINT16) "sint16"
+    testlex1.oxian:131:14: (SINT32) "sint32"
+    testlex1.oxian:131:21: (SINT64) "sint64"
+    testlex1.oxian:132:1: (FLOAT) "float"
+    testlex1.oxian:132:7: (BOOL) "bool"
+    testlex1.oxian:132:12: (DOUBLE) "double"
+    testlex1.oxian:132:19: (CHAR) "char"
+    testlex1.oxian:133:1: (VAR) "var"
+    testlex1.oxian:133:5: (FUN) "fun"
+    testlex1.oxian:133:9: (VOID) "void"
+    testlex1.oxian:134:1: (NAMESPACE) "namespace"
+    testlex1.oxian:134:11: (CLASS) "class"
+    testlex1.oxian:134:17: (ENUM) "enum"
+    testlex1.oxian:135:1: (RETURN) "return"
+    testlex1.oxian:136:1: (THIS) "this"
+    testlex1.oxian:137:1: (WHILE) "while"
+    testlex1.oxian:137:7: (FOR) "for"
+    testlex1.oxian:137:11: (IF) "if"
+    testlex1.oxian:137:14: (ELSE) "else"
+    testlex1.oxian:137:19: (SWITCH) "switch"
+    testlex1.oxian:137:26: (CASE) "case"
+    testlex1.oxian:137:31: (DEFAULT) "default"
+    testlex1.oxian:137:39: (BREAK) "break"
+    testlex1.oxian:137:45: (BREAKALL) "breakall"
+    testlex1.oxian:137:54: (BREAKTO) "breakto"
+    testlex1.oxian:137:62: (CONST) "const"
+    testlex1.oxian:137:68: (CONTINUE) "continue"
+    testlex1.oxian:137:77: (INLINE) "inline"
+    testlex1.oxian:137:84: (VOLATILE) "volatile"
+    testlex1.oxian:137:93: (ASSERT) "assert"
+    testlex1.oxian:138:1: (ERROR) ""error unterminated string literal"
+*/
+()[]{},.;?:!+-*/%=><~&|^
+++ -- >> << && == ::
++= -= *= /= != >= <= %= <<= >>= &= |= ^=
+ajofwiejfa
+jaf3324879t
+_jfawe
+fajw_
+__fajwe
+fjagh__
+for_
+_for
+c'c'
+c"d"
+'e'
+"f"
+'gfawoe'
+"hfaweic"
+0192837465
+0o70615243
+0b1101001011
+0x1234567890abcdef
+347189230.4123878
+true false null
+uint8 uint16 uint32 uint64
+sint8 sint16 sint32 sint64
+float bool double char
+var fun void
+namespace class enum
+return
+this
+while for if else switch case default break breakall breakto const continue inline volatile assert
+"error unterminated string literal
+

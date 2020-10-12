@@ -34,3 +34,7 @@ AND NOt only that, but I also got a lot of helpful information from looking at t
 - [ ] Asynchronous functions stuff and coroutines and stuff
 - [ ] Cool stuff (?)
 - [ ] More
+
+# To do things
+You need Python, PyYAML, and LLVM
+and I think thats it
