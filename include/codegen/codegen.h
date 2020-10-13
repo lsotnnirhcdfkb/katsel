@@ -1,6 +1,9 @@
 #pragma once
 
 #include "visit/visitor.h"
+#include "parse/ast.h"
+
+#include "codegen/context.h"
 
 class CodeGen :
     public ExprVisitor,
@@ -10,6 +13,8 @@ class CodeGen :
     public ProgramVisitor
 {
 public:
+    CodeGen(CodeGenContext &context);
+
     virtual void visitBinaryExpr(ASTNS::BinaryExpr *a) override;
     virtual void visitTernaryExpr(ASTNS::TernaryExpr *a) override;
     virtual void visitUnaryExpr(ASTNS::UnaryExpr *a) override;
@@ -28,4 +33,10 @@ public:
     virtual void visitVarStmt(ASTNS::VarStmt *a) override;
 
     virtual void visitProgram(ASTNS::Program *a) override;
+
+private:
+    CodeGenContext &context;
+
+    llvm::Value* evalExpr(ASTNS::Expr *a);
+    llvm::Value *exprRetVal;
 };

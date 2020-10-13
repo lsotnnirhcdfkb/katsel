@@ -30,4 +30,3 @@ set_target_properties(coxianc PROPERTIES
 
 target_compile_options(coxianc PRIVATE -Wall -Wextra -pedantic)
 
-

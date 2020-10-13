@@ -13,6 +13,7 @@
 #include "lex/lexer.h"
 #include "message/ansistuff.h"
 #include "visit/printvisitor.h"
+#include "codegen/context.h"
 #include "codegen/codegen.h"
 
 enum Phases
@@ -115,7 +116,8 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    auto codegen = std::make_unique<CodeGen>();
+    auto cgcontext = std::make_unique<CodeGenContext>();
+    auto codegen = std::make_unique<CodeGen>(*cgcontext);
     codegen->visitProgram(parsed.get());
 
     resetTerminal();

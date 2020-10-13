@@ -2,7 +2,6 @@
 
 void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
 {
-	
 }
 void CodeGen::visitTernaryExpr(ASTNS::TernaryExpr *a)
 {
