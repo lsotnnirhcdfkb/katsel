@@ -84,11 +84,11 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    enableTerminalCodes();
+
     auto source = std::make_unique<File>(readFile(argv[optind]));
 
-    enableTerminalCodes();
     auto lexer = std::make_unique<Lexer>(*source);
-
     if (phasen == Phases::LEX)
     {
         Token t;
@@ -96,22 +96,17 @@ int main(int argc, char *argv[])
         {
             std::cout << t.sourcefile.filename << ':' << t.line << ':' << t.column << ": (" << stringifyTokenType(t.type) << ") \"" << std::string(t.start, t.end) << "\"" << std::endl;
         }
+        resetTerminal();
         return 0;
     }
 
     auto parser = std::make_unique<Parser>(*lexer, *source);
-
     std::unique_ptr<ASTNS::Program> parsed = parser->parse();
-    auto printv = std::make_unique<PrintVisitor>();
 
-    if (parsed)
+    if (phasen == Phases::PARSE) // stop at phase parse which means we don't need to do any more than parsing
     {
-        // compile(&*parsed, sourcefile);
+        auto printv = std::make_unique<PrintVisitor>();
         printv->visitProgram(parsed.get());
-    }
-
-    if (phasen <= Phases::PARSE) // stop at phase parse which means we don't need to do any more than parsing
-    {
         resetTerminal();
         return 0;
     }
