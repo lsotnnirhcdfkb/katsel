@@ -1,0 +1,5 @@
+add_subdirectory(expr)
+add_subdirectory(decl)
+add_subdirectory(stmt)
+add_subdirectory(type)
+add_subdirectory(program)

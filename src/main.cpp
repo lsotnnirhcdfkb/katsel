@@ -13,11 +13,13 @@
 #include "lex/lexer.h"
 #include "message/ansistuff.h"
 #include "visit/printvisitor.h"
+#include "codegen/codegen.h"
 
 enum Phases
 {
     LEX = 0,
     PARSE,
+    CODEGEN,
     ALL,
 };
 
@@ -63,6 +65,8 @@ int main(int argc, char *argv[])
                     phasen = Phases::LEX;
                 else if (strcmp(optarg, "parse") == 0)
                     phasen = Phases::PARSE;
+                else if (strcmp(optarg, "codegen") == 0)
+                    phasen = Phases::CODEGEN;
                 else if (strcmp(optarg, "all") == 0)
                     phasen = Phases::ALL;
                 else
@@ -110,6 +114,9 @@ int main(int argc, char *argv[])
         resetTerminal();
         return 0;
     }
+
+    auto codegen = std::make_unique<CodeGen>();
+    codegen->visitProgram(parsed.get());
 
     resetTerminal();
     return 0;
