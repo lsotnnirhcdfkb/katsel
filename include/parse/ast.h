@@ -1,8 +1,8 @@
 #pragma once
 
 #include <memory>
+#include <vector>
 #include "lex/token.h"
-#include "parse/annotations.h"
 #include "visit/visitor.h"
 
 namespace ASTNS
@@ -33,7 +33,6 @@ namespace ASTNS
     {
     public:
         virtual ~Expr() {}
-        ExprAn exprAn;
         virtual void accept(ExprVisitor *v) = 0;
     };
     class Decl
@@ -155,7 +154,6 @@ namespace ASTNS
         Token name;
         std::unique_ptr<Param> params;
         std::unique_ptr<BlockStmt> block;
-        FuncDeclAn funcDeclAn;
         virtual void accept(DeclVisitor *v);
     };
     class GlobalVarDecl : public Decl

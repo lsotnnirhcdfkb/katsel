@@ -6,11 +6,10 @@
 # Classes {{{1
 # ASTClass {{{2
 class ASTClass:
-    def __init__(self, name, fields=[], extends=None, annotations=[]):
+    def __init__(self, name, fields=[], extends=None):
         self.name = name
         self.fields = fields
         self.extends = extends
-        self.annotations = annotations
 # PureASTClass {{{2
 class PureASTClass:
     def __init__(self, name, annotations=[]):
@@ -48,12 +47,8 @@ class ASTField:
     def exprField(name):
         return ASTField.uptrField('Expr', name)
 # Classes to generate {{{1
-annotations = {
-    'ExprAn': [('bool', 'isLValue'), ('int', 'type')],
-    'FuncDeclAn': [('int', 'retType'), ('int', 'nArgs')],
-}
 asts = [
-    PureASTClass('Expr', annotations=['ExprAn']),
+    PureASTClass('Expr'),
     PureASTClass('Decl'),
     PureASTClass('Type'),
     PureASTClass('Stmt'),
@@ -119,7 +114,7 @@ asts = [
             ASTField.tokenField('name'),
             ASTField.uptrField('Param', 'params'),
             ASTField.uptrField('BlockStmt', 'block'),
-        ], extends='Decl', annotations=['FuncDeclAn']),
+        ], extends='Decl'),
 
     ASTClass('GlobalVarDecl', fields=[
             ASTField.uptrField('Type', 'type'),
@@ -176,10 +171,6 @@ def genASTDecls():
                 output.append(asDeclaration(field))
                 output.append('\n')
 
-            for annotation in ast.annotations:
-                annotationvName = annotation[0].lower() + annotation[1:]
-                output.append(f'        {annotation} {annotationvName};\n')
-
             output.append(f'        virtual void accept({ast.name if ast.extends is None else ast.extends}Visitor *v);\n')
 
             if ast.extends is None:
@@ -215,20 +206,6 @@ def genASTDefs():
             output.append( '}\n')
 
             output.append(f'void ASTNS::{ast.name}::accept({ast.name if ast.extends is None else ast.extends}Visitor *v) {{ v->visit{ast.name}(this); }}\n')
-
-    return ''.join(output)
-# Generate annotation structs {{{2
-def genAnnotationStructs():
-    output = []
-    for annotationn, annotationfs in annotations.items():
-        output.append(f'''struct {annotationn}
-{{
-''')
-        output.append(f'    bool valid = false;\n')
-        for annotationfty, annotationfn in annotationfs:
-            output.append(f'    {annotationfty} {annotationfn};\n')
-        output.append('''};
-''')
 
     return ''.join(output)
 # Generating Visitor stuff {{{2
