@@ -1,4 +1,4 @@
-target_sources(coxianc PUBLIC codegen.cpp)
+target_sources(coxianc PUBLIC codegen.cpp context.cpp)
 add_subdirectory(expr)
 add_subdirectory(decl)
 add_subdirectory(stmt)

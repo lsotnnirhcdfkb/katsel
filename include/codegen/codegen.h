@@ -4,6 +4,8 @@
 #include "parse/ast.h"
 
 #include "codegen/context.h"
+#include "value/value.h"
+#include "typing/type.h"
 
 class CodeGen :
     public ExprVisitor,
@@ -37,6 +39,6 @@ public:
 private:
     CodeGenContext &context;
 
-    llvm::Value* evalExpr(ASTNS::Expr *a);
-    llvm::Value *exprRetVal;
+    Value* evalExpr(ASTNS::Expr *a);
+    Value *exprRetVal;
 };

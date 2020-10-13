@@ -8,6 +8,8 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Value.h"
 
+#include "typing/type.h"
+
 class CodeGenContext
 {
 public:
@@ -17,4 +19,9 @@ public:
     llvm::IRBuilder<> builder;
     std::unique_ptr<llvm::Module> mod;
     std::map<std::string, llvm::Value*> globalSymbolTable;
+
+    Type* getBasicType(BasicType ty);
+
+private:
+    std::vector<std::unique_ptr<Type>> types;
 };
