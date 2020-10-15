@@ -50,7 +50,7 @@ void report(std::string &&message, Location showl, std::vector<Location> underli
     std::string::iterator it = showl.start;
     while (true)
     {
-        bool draw, arrow = draw = false;
+        bool draw = false;
         bool done = true;
         for (Location &l : underlinel)
         {
@@ -58,8 +58,6 @@ void report(std::string &&message, Location showl, std::vector<Location> underli
             {
                 draw = true;
                 done = false;
-                if (std::distance(l.start, l.end) == 1)
-                    arrow = true;
             }
 
             if (it < l.start)
@@ -69,12 +67,7 @@ void report(std::string &&message, Location showl, std::vector<Location> underli
         }
 
         if (draw)
-        {
-            if (arrow)
-                stream << "^";
-            else
-                stream << "~";
-        }
+            stream << "^";
         else
             stream << " ";
 

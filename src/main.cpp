@@ -15,6 +15,7 @@
 #include "visit/printvisitor.h"
 #include "codegen/context.h"
 #include "codegen/codegen.h"
+#include "codegen/globalsassembler.h"
 
 enum Phases
 {
@@ -56,7 +57,7 @@ File readFile(char *filename)
 int main(int argc, char *argv[])
 {
     int opt;
-    int phasen = Phases::ALL;
+    Phases phasen = Phases::ALL;
     while ((opt = getopt(argc, argv, "p:")) != -1)
     {
         switch (opt)
@@ -117,7 +118,9 @@ int main(int argc, char *argv[])
     }
 
     auto cgcontext = std::make_unique<CodeGenContext>();
+    auto globalsassembler = std::make_unique<GlobalsAssembler>(*cgcontext);
     auto codegen = std::make_unique<CodeGen>(*cgcontext);
+    globalsassembler->visitProgram(parsed.get());
     codegen->visitProgram(parsed.get());
 
     resetTerminal();

@@ -39,6 +39,6 @@ public:
 private:
     CodeGenContext &context;
 
-    Value* evalExpr(ASTNS::Expr *a);
-    Value *exprRetVal;
+    Value evalExpr(ASTNS::Expr *a);
+    Value exprRetVal;
 };

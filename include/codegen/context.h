@@ -20,7 +20,7 @@ public:
     std::unique_ptr<llvm::Module> mod;
     std::map<std::string, llvm::Value*> globalSymbolTable;
 
-    Type* getBasicType(BasicType ty);
+    Type* getBuiltinType(BuiltinType ty);
 
 private:
     std::vector<std::unique_ptr<Type>> types;

@@ -1,11 +1,12 @@
 #pragma once
 
-enum class TypeType
+enum TypeType
 {
-    BASICTY
+    BUILTIN,
+    META,
 };
 
-enum class BasicType
+enum class BuiltinType
 {
     UINT8,
     UINT16,
@@ -15,17 +16,25 @@ enum class BasicType
     SINT16,
     SINT32,
     SINT64,
+
     FLOAT,
     CHAR,
     BOOL,
     DOUBLE
 };
 
-union Type
+enum class MetaType
+{
+    FUNCTION,
+};
+
+struct Type
 {
     TypeType typetype;
-    struct {
-        TypeType typetype;
-        BasicType type;
-    } basictype;
+
+    union
+    {
+        BuiltinType builtin;
+        MetaType meta;
+    } as;
 };
