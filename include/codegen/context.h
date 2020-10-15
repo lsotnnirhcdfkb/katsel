@@ -18,7 +18,7 @@ public:
     llvm::LLVMContext context;
     llvm::IRBuilder<> builder;
     std::unique_ptr<llvm::Module> mod;
-    std::map<std::string, llvm::Value*> globalSymbolTable;
+    std::map<std::string, Value> globalSymbolTable;
 
     Type* getBuiltinType(BuiltinType ty);
 
