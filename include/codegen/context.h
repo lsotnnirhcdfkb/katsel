@@ -9,6 +9,7 @@
 #include "llvm/IR/Value.h"
 
 #include "typing/type.h"
+#include "value/value.h"
 
 class CodeGenContext
 {
@@ -21,6 +22,7 @@ public:
     std::map<std::string, Value> globalSymbolTable;
 
     Type* getBuiltinType(BuiltinType ty);
+    Type* getFunctionType(Type *ret, std::vector<Type*> paramtys);
 
 private:
     std::vector<std::unique_ptr<Type>> types;

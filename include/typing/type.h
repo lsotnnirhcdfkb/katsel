@@ -3,7 +3,7 @@
 enum TypeType
 {
     BUILTIN,
-    META,
+    FUNCTION,
 };
 
 enum class BuiltinType
@@ -23,18 +23,31 @@ enum class BuiltinType
     DOUBLE
 };
 
-enum class MetaType
+struct Type;
+
+class FunctionType
 {
-    FUNCTION,
+public:
+    Type *ret;
+    std::vector<Type*> paramtys;
+
+    inline ~FunctionType() {}
+    inline FunctionType() {}
 };
 
 struct Type
 {
     TypeType typetype;
 
-    union
+    union aa // need destructor because FunctionType has non-trivial destructor
     {
         BuiltinType builtin;
-        MetaType meta;
+        FunctionType function;
+
+        inline ~aa() {}
+        inline aa() {}
     } as;
+
+    inline ~Type() {}
+    inline Type() {}
 };
