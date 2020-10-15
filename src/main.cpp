@@ -17,10 +17,13 @@
 #include "codegen/codegen.h"
 #include "codegen/globalsassembler.h"
 
+#include "llvm/Support/raw_ostream.h"
+
 enum Phases
 {
     LEX = 0,
     PARSE,
+    GLOBALS,
     CODEGEN,
     ALL,
 };
@@ -67,6 +70,8 @@ int main(int argc, char *argv[])
                     phasen = Phases::LEX;
                 else if (strcmp(optarg, "parse") == 0)
                     phasen = Phases::PARSE;
+                else if (strcmp(optarg, "globals") == 0)
+                    phasen = Phases::GLOBALS;
                 else if (strcmp(optarg, "codegen") == 0)
                     phasen = Phases::CODEGEN;
                 else if (strcmp(optarg, "all") == 0)
@@ -120,8 +125,22 @@ int main(int argc, char *argv[])
     auto cgcontext = std::make_unique<CodeGenContext>();
     auto globalsassembler = std::make_unique<GlobalsAssembler>(*cgcontext);
     auto codegen = std::make_unique<CodeGen>(*cgcontext);
+
     globalsassembler->visitProgram(parsed.get());
+    if (phasen == Phases::GLOBALS)
+    {
+        cgcontext->mod->print(llvm::outs(), nullptr);
+        resetTerminal();
+        return 0;
+    }
+
     codegen->visitProgram(parsed.get());
+    if (phasen == Phases::CODEGEN)
+    {
+        cgcontext->mod->print(llvm::outs(), nullptr);
+        resetTerminal();
+        return 0;
+    }
 
     resetTerminal();
     return 0;
