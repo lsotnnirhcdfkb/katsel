@@ -21,7 +21,7 @@ public:
     std::unique_ptr<llvm::Module> mod;
     std::map<std::string, Value> globalSymbolTable;
 
-    Type* getBuiltinType(BuiltinType ty);
+    Type* getBuiltinType(BuiltinType::Builtins ty);
     Type* getFunctionType(Type *ret, std::vector<Type*> paramtys);
 
 private:

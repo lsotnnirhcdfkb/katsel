@@ -4,59 +4,45 @@
 #include "llvm/IR/Type.h"
 #include "llvm/IR/LLVMContext.h"
 
-#include <iostream>
-
-enum TypeType
+class Type
 {
-    BUILTIN,
-    FUNCTION,
+public:
+    virtual ~Type();
+    virtual llvm::Type* toLLVMType(llvm::LLVMContext &l) = 0;
 };
 
-enum class BuiltinType
+class BuiltinType : public Type
 {
-    UINT8,
-    UINT16,
-    UINT32,
-    UINT64,
-    SINT8,
-    SINT16,
-    SINT32,
-    SINT64,
+public:
+    enum class Builtins
+    {
+        UINT8,
+        UINT16,
+        UINT32,
+        UINT64,
+        SINT8,
+        SINT16,
+        SINT32,
+        SINT64,
 
-    FLOAT,
-    CHAR,
-    BOOL,
-    DOUBLE,
-    VOID
+        FLOAT,
+        CHAR,
+        BOOL,
+        DOUBLE,
+        VOID
+    };
+    Builtins type;
+
+    BuiltinType(Builtins b);
+    llvm::Type* toLLVMType(llvm::LLVMContext &l) override;
 };
 
-struct Type;
-
-class FunctionType
+class FunctionType : public Type
 {
 public:
     Type *ret;
     std::vector<Type*> paramtys;
 
-    ~FunctionType();
-    FunctionType();
-};
-
-struct Type
-{
-    TypeType typetype;
-
-    union aa // need destructor because FunctionType has non-trivial destructor
-    {
-        BuiltinType builtin;
-        FunctionType function;
-
-        ~aa();
-        aa();
-    } as;
-
-    ~Type();
-    Type();
-
-    static llvm::Type* toLLVMType(Type *ty, llvm::LLVMContext &con);
+    FunctionType(Type *ret, std::vector<Type*> paramtys);
+    llvm::Type* toLLVMType(llvm::LLVMContext &l) override;
 };

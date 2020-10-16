@@ -7,7 +7,7 @@ void CodeGen::visitBaseType(ASTNS::BaseType *a)
 {
 	switch (a->type.type)
     {
-#define BUILTINTYPE(ty) case TokenType::ty: typeRetVal = context.getBuiltinType(BuiltinType::ty); break;
+#define BUILTINTYPE(ty) case TokenType::ty: typeRetVal = context.getBuiltinType(BuiltinType::Builtins::ty); break;
         BUILTINTYPE(UINT8)
         BUILTINTYPE(SINT8)
         BUILTINTYPE(CHAR)

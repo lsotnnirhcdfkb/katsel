@@ -25,7 +25,7 @@ void GlobalsAssembler::visitFunctionDecl(ASTNS::FunctionDecl *a)
             Type *ty = codeGen.evalType(p->type.get());
 
             paramtys.push_back(ty);
-            paramtysllvm.push_back(Type::toLLVMType(ty, context.context));
+            paramtysllvm.push_back(ty->toLLVMType(context.context));
 
             p = p->next.get();
         }
@@ -33,7 +33,7 @@ void GlobalsAssembler::visitFunctionDecl(ASTNS::FunctionDecl *a)
 
     std::string fnamestr (tokenToStr(a->name));
 
-    llvm::Type *retTyllvm = Type::toLLVMType(ret, context.context);
+    llvm::Type *retTyllvm = ret->toLLVMType(context.context);
     llvm::FunctionType *ft = llvm::FunctionType::get(retTyllvm, paramtysllvm, false);
     llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, tokenToStr(a->name), context.mod.get());
 
