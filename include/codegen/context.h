@@ -31,6 +31,9 @@ public:
     llvm::AllocaInst* createEntryAlloca(llvm::Function *f, llvm::Type *type, std::string const &name);
     void addLocal(std::string const &name, Type *type, llvm::AllocaInst *alloca);
 
+    void incScope();
+    void decScope();
+
 private:
     std::vector<std::unique_ptr<Type>> types;
 };

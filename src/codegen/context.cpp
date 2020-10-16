@@ -46,3 +46,15 @@ void CodeGenContext::addLocal(std::string const &name, Type *type, llvm::AllocaI
     Local l {curScope, v, name};
     locals.push(l);
 }
+
+void CodeGenContext::incScope()
+{
+    ++curScope;
+}
+
+void CodeGenContext::decScope()
+{
+    --curScope;
+
+    while (locals.top().scopenum > curScope) locals.pop();
+}
