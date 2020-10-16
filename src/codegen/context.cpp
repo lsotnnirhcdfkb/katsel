@@ -56,5 +56,5 @@ void CodeGenContext::decScope()
 {
     --curScope;
 
-    while (locals.top().scopenum > curScope) locals.pop();
+    while (locals.size() && locals.top().scopenum > curScope) locals.pop();
 }
