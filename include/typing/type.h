@@ -1,5 +1,11 @@
 #pragma once
 
+#include <vector>
+#include "llvm/IR/Type.h"
+#include "llvm/IR/LLVMContext.h"
+
+#include <iostream>
+
 enum TypeType
 {
     BUILTIN,
@@ -20,7 +26,8 @@ enum class BuiltinType
     FLOAT,
     CHAR,
     BOOL,
-    DOUBLE
+    DOUBLE,
+    VOID
 };
 
 struct Type;
@@ -31,8 +38,8 @@ public:
     Type *ret;
     std::vector<Type*> paramtys;
 
-    inline ~FunctionType() {}
-    inline FunctionType() {}
+    ~FunctionType();
+    FunctionType();
 };
 
 struct Type
@@ -44,10 +51,12 @@ struct Type
         BuiltinType builtin;
         FunctionType function;
 
-        inline ~aa() {}
-        inline aa() {}
+        ~aa();
+        aa();
     } as;
 
-    inline ~Type() {}
-    inline Type() {}
+    ~Type();
+    Type();
+
+    static llvm::Type* toLLVMType(Type *ty, llvm::LLVMContext &con);
 };

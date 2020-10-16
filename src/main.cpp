@@ -123,8 +123,8 @@ int main(int argc, char *argv[])
     }
 
     auto cgcontext = std::make_unique<CodeGenContext>();
-    auto globalsassembler = std::make_unique<GlobalsAssembler>(*cgcontext);
     auto codegen = std::make_unique<CodeGen>(*cgcontext);
+    auto globalsassembler = std::make_unique<GlobalsAssembler>(*cgcontext, *codegen);
 
     globalsassembler->visitProgram(parsed.get());
     if (phasen == Phases::GLOBALS)

@@ -7,6 +7,8 @@
 #include "value/value.h"
 #include "typing/type.h"
 
+#include "llvm/IR/Type.h"
+
 class CodeGen :
     public ExprVisitor,
     public DeclVisitor,
@@ -36,9 +38,17 @@ public:
 
     virtual void visitProgram(ASTNS::Program *a) override;
 
+    Value evalExpr(ASTNS::Expr *a);
+    Type* evalType(ASTNS::Type *a);
+
 private:
     CodeGenContext &context;
 
-    Value evalExpr(ASTNS::Expr *a);
     Value exprRetVal;
+    Type *typeRetVal;
 };
+
+inline std::string tokenToStr(Token t)
+{
+    return std::string(t.start, t.end);
+}

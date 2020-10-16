@@ -7,7 +7,7 @@
 #include <sstream>
 
 // Parser constructor {{{1
-Parser::Parser(Lexer &l, File &sourcefile): lexer(l), sourcefile(sourcefile)
+Parser::Parser(Lexer &l, File &sourcefile): lexer(l), sourcefile(sourcefile), ispanic(false)
 {
     consume();
     prevToken = l.makeSOF();
