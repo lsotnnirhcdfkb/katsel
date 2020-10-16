@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <map>
+#include <stack>
 
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/IRBuilder.h"
@@ -21,8 +22,14 @@ public:
     std::unique_ptr<llvm::Module> mod;
     std::map<std::string, Value> globalSymbolTable;
 
+    std::stack<Local> locals;
+    size_t curScope;
+
     Type* getBuiltinType(BuiltinType::Builtins ty);
     Type* getFunctionType(Type *ret, std::vector<Type*> paramtys);
+
+    llvm::AllocaInst* createEntryAlloca(llvm::Function *f, llvm::Type *type, std::string const &name);
+    void addLocal(std::string const &name, Type *type, llvm::AllocaInst *alloca);
 
 private:
     std::vector<std::unique_ptr<Type>> types;

@@ -17,4 +17,5 @@ struct Local
 {
     size_t scopenum;
     Value v;
-}
+    std::string name;
+};

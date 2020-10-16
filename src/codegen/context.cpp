@@ -33,3 +33,16 @@ Type* CodeGenContext::getFunctionType(Type *ret, std::vector<Type*> paramtys)
 
     return tyr;
 }
+
+llvm::AllocaInst* CodeGenContext::createEntryAlloca(llvm::Function *f, llvm::Type* type, std::string const &name)
+{
+    llvm::IRBuilder<> b (&f->getEntryBlock(), f->getEntryBlock().begin());
+    return b.CreateAlloca(type, 0, name.c_str());
+}
+
+void CodeGenContext::addLocal(std::string const &name, Type *type, llvm::AllocaInst *alloca)
+{
+    Value v {type, alloca};
+    Local l {curScope, v, name};
+    locals.push(l);
+}
