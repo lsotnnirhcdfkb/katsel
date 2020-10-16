@@ -23,7 +23,7 @@ public:
     std::map<std::string, Value> globalSymbolTable;
 
     std::vector<Local> locals;
-    size_t curScope;
+    size_t curScope = 1;
 
     Type* getBuiltinType(BuiltinType::Builtins ty);
     Type* getFunctionType(Type *ret, std::vector<Type*> paramtys);

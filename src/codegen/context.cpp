@@ -1,5 +1,8 @@
 #include "codegen/context.h"
 
+#include <iostream>
+#include <cstdlib>
+
 Type* CodeGenContext::getBuiltinType(BuiltinType::Builtins bty)
 {
     for (std::unique_ptr<Type> &ty : types)
@@ -50,6 +53,12 @@ void CodeGenContext::addLocal(std::string const &name, Type *type, llvm::AllocaI
 void CodeGenContext::incScope()
 {
     ++curScope;
+
+    if (curScope == 0) // default curScope value is 1
+    {
+        std::cerr << "Scope index overflowed to 0" << std::endl;
+        std::abort();
+    }
 }
 
 void CodeGenContext::decScope()
