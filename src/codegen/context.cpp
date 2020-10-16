@@ -61,7 +61,7 @@ void CodeGenContext::decScope()
 
 Local* CodeGenContext::findLocal(std::string const &name)
 {
-    for (auto last = locals.rbegin(); last != locals.rend(); --last)
+    for (auto last = locals.rbegin(); last != locals.rend(); ++last)
         if (last->name == name)
             return &*last;
 

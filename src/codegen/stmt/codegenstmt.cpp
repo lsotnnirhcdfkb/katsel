@@ -34,6 +34,7 @@ void CodeGen::visitVarStmt(ASTNS::VarStmt *a)
 
     llvm::Function *f = context.builder.GetInsertBlock()->getParent();
     llvm::AllocaInst *alloca = context.createEntryAlloca(f, ty->toLLVMType(context.context), varname);
+    context.addLocal(varname, ty, alloca);
 
     Value v;
     if (a->value)
@@ -45,5 +46,4 @@ void CodeGen::visitVarStmt(ASTNS::VarStmt *a)
         return;
 
     context.builder.CreateStore(v.val, alloca);
-    context.addLocal(varname, ty, alloca);
 }
