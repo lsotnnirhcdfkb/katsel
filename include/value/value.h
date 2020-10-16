@@ -2,6 +2,7 @@
 
 #include "typing/type.h"
 #include "llvm/IR/Value.h"
+#include <cstddef>
 
 struct Value
 {
@@ -11,3 +12,9 @@ struct Value
     inline Value(Type *t, llvm::Value *v): t(t), val(v) {}
     inline Value(): t(nullptr), val(nullptr) {}
 };
+
+struct Local
+{
+    size_t scopenum;
+    Value v;
+}
