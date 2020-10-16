@@ -20,7 +20,3 @@ void CodeGen::visitCallExpr(ASTNS::CallExpr *a)
 {
 	
 }
-void CodeGen::visitLtoRVExpr(ASTNS::LtoRVExpr *a)
-{
-	
-}

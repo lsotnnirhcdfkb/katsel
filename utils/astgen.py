@@ -83,10 +83,6 @@ asts = [
             ASTField.uptrField('Arg', 'args'),
         ], extends='Expr'),
 
-    ASTClass('LtoRVExpr', fields=[
-            ASTField.exprField('val')
-        ], extends='Expr'),
-
     ASTClass('BlockStmt', fields=[
             ASTField('std::vector<std::unique_ptr<Stmt>>', 'stmts', True, ASTField.IM_ITERATE_MOVE, ASTField.PM_ITERATE_CHILD),
         ], extends='Stmt'),

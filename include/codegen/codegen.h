@@ -24,7 +24,6 @@ public:
     virtual void visitUnaryExpr(ASTNS::UnaryExpr *a) override;
     virtual void visitPrimaryExpr(ASTNS::PrimaryExpr *a) override;
     virtual void visitCallExpr(ASTNS::CallExpr *a) override;
-    virtual void visitLtoRVExpr(ASTNS::LtoRVExpr *a) override;
 
     virtual void visitFunctionDecl(ASTNS::FunctionDecl *a) override;
     virtual void visitGlobalVarDecl(ASTNS::GlobalVarDecl *a) override;

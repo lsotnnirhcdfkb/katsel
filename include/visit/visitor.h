@@ -14,7 +14,6 @@ class TernaryExpr;
 class UnaryExpr;
 class PrimaryExpr;
 class CallExpr;
-class LtoRVExpr;
 class BlockStmt;
 class ExprStmt;
 class ReturnStmt;
@@ -38,7 +37,6 @@ public:
     virtual void visitUnaryExpr(ASTNS::UnaryExpr *a) = 0;
     virtual void visitPrimaryExpr(ASTNS::PrimaryExpr *a) = 0;
     virtual void visitCallExpr(ASTNS::CallExpr *a) = 0;
-    virtual void visitLtoRVExpr(ASTNS::LtoRVExpr *a) = 0;
     virtual ~ExprVisitor();
 };
 class DeclVisitor

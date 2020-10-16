@@ -19,7 +19,6 @@ namespace ASTNS
     class UnaryExpr;
     class PrimaryExpr;
     class CallExpr;
-    class LtoRVExpr;
     class BlockStmt;
     class ExprStmt;
     class ReturnStmt;
@@ -100,13 +99,6 @@ namespace ASTNS
         CallExpr(std::unique_ptr<Expr> func, std::unique_ptr<Arg> args);
         std::unique_ptr<Expr> func;
         std::unique_ptr<Arg> args;
-        virtual void accept(ExprVisitor *v);
-    };
-    class LtoRVExpr : public Expr
-    {
-    public:
-        LtoRVExpr(std::unique_ptr<Expr> val);
-        std::unique_ptr<Expr> val;
         virtual void accept(ExprVisitor *v);
     };
     class BlockStmt : public Stmt

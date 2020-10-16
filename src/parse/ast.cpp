@@ -36,11 +36,6 @@ ASTNS::CallExpr::CallExpr(std::unique_ptr<Expr> func, std::unique_ptr<Arg> args)
     this->args = std::move(args);
 }
 void ASTNS::CallExpr::accept(ExprVisitor *v) { v->visitCallExpr(this); }
-ASTNS::LtoRVExpr::LtoRVExpr(std::unique_ptr<Expr> val)
-{
-    this->val = std::move(val);
-}
-void ASTNS::LtoRVExpr::accept(ExprVisitor *v) { v->visitLtoRVExpr(this); }
 ASTNS::BlockStmt::BlockStmt(std::vector<std::unique_ptr<Stmt>> &stmts)
 {
     for (auto &p : stmts) this->stmts.push_back(std::move(p)); stmts.clear();

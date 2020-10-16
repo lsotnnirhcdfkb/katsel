@@ -158,24 +158,6 @@ void PrintVisitor::visitCallExpr(ASTNS::CallExpr *a)
     }
     --indent;
 }
-void PrintVisitor::visitLtoRVExpr(ASTNS::LtoRVExpr *a)
-{
-    pai("LtoRVExpr\n");
-    ++indent;
-    pai("val =");
-    if (a->val)
-    {
-        ++indent;
-        pai("\n");
-        a->val->accept(this);
-        --indent;
-    }
-    else
-    {
-        pai(" nullptr\n");
-    }
-    --indent;
-}
 void PrintVisitor::visitBlockStmt(ASTNS::BlockStmt *a)
 {
     pai("BlockStmt\n");
