@@ -17,6 +17,5 @@ public:
     
 private:
     CodeGenContext &context;
-
     CodeGen &codeGen;
 };
