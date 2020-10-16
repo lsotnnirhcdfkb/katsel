@@ -2,6 +2,8 @@
 #include "llvm/IR/Type.h"
 #include "llvm/IR/DerivedTypes.h"
 
+#include "message/errors.h"
+
 #include <iostream>
 
 GlobalsAssembler::GlobalsAssembler(CodeGenContext &con, CodeGen &codeGen): context(con), codeGen(codeGen) {}
@@ -14,6 +16,13 @@ void GlobalsAssembler::visitProgram(ASTNS::Program *a)
 
 void GlobalsAssembler::visitFunctionDecl(ASTNS::FunctionDecl *a)
 {
+    std::string fnamestr (tokenToStr(a->name));
+    if (context.globalSymbolTable.find(fnamestr) != context.globalSymbolTable.end())
+    {
+        reportError(a->name, "Duplicate function");
+        return;
+    }
+
     std::vector<Type*> paramtys;
     std::vector<llvm::Type*> paramtysllvm;
     Type *ret = codeGen.evalType(a->rettype.get());
@@ -30,8 +39,6 @@ void GlobalsAssembler::visitFunctionDecl(ASTNS::FunctionDecl *a)
             p = p->next.get();
         }
     }
-
-    std::string fnamestr (tokenToStr(a->name));
 
     llvm::Type *retTyllvm = ret->toLLVMType(context.context);
     llvm::FunctionType *ft = llvm::FunctionType::get(retTyllvm, paramtysllvm, false);

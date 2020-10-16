@@ -44,7 +44,7 @@ void CodeGenContext::addLocal(std::string const &name, Type *type, llvm::AllocaI
 {
     Value v {type, alloca};
     Local l {curScope, v, name};
-    locals.push(l);
+    locals.push_back(l);
 }
 
 void CodeGenContext::incScope()
@@ -56,5 +56,14 @@ void CodeGenContext::decScope()
 {
     --curScope;
 
-    while (locals.size() && locals.top().scopenum > curScope) locals.pop();
+    while (locals.size() && locals.back().scopenum > curScope) locals.pop_back();
+}
+
+Local* CodeGenContext::findLocal(std::string const &name)
+{
+    for (auto last = locals.rbegin(); last != locals.rend(); --last)
+        if (last->name == name)
+            return &*last;
+
+    return nullptr;
 }
