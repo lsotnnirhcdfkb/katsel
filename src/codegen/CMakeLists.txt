@@ -1,6 +1,1 @@
-target_sources(coxianc PUBLIC codegen.cpp context.cpp globalsassembler.cpp)
-add_subdirectory(expr)
-add_subdirectory(decl)
-add_subdirectory(stmt)
-add_subdirectory(type)
-add_subdirectory(program)
+target_sources(coxianc PUBLIC codegen.cpp context.cpp globalsassembler.cpp expr.cpp decl.cpp stmt.cpp type.cpp program.cpp)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <map>
 #include "llvm/IR/Type.h"
 #include "llvm/IR/LLVMContext.h"
 
@@ -28,14 +29,16 @@ public:
         FLOAT,
         CHAR,
         BOOL,
-        DOUBLE,
-        VOID
+        DOUBLE
     };
     Builtins type;
 
     BuiltinType(Builtins b);
     llvm::Type* toLLVMType(llvm::LLVMContext &l) override;
+
+    static std::map<Builtins, int> builtinOrder;
 };
+
 
 class FunctionType : public Type
 {
