@@ -18,11 +18,11 @@ void CodeGen::visitFunctionDecl(ASTNS::FunctionDecl *a)
     ASTNS::Param *paramast = a->params.get();
     for (auto &param : f->args())
     {
-        llvm::AllocaInst *alloca = context.createEntryAlloca(f, param.getType(), param.getName());
+        std::string pname = tokenToStr(paramast->name);
+        llvm::AllocaInst *alloca = context.createEntryAlloca(f, param.getType(), pname);
 
         context.builder.CreateStore(&param, alloca);
 
-        std::string pname = param.getName();
         context.addLocal(pname, evalType(paramast->type.get()), alloca);
 
         paramast = paramast->next.get();
