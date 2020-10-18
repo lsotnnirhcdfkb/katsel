@@ -1,4 +1,6 @@
 #include "typing/type.h"
+#include "message/fmtmessage.h"
+#include "message/errors.h"
 
 #include "llvm/IR/Type.h"
 #include "llvm/IR/DerivedTypes.h"
@@ -123,7 +125,11 @@ Value BuiltinType::binOp(Value l, Value r, Token op)
         // Also same TODO as below
         std::abort();
 
-    std::abort();
+    if (!dynamic_cast<BuiltinType*>(r.type)) // if r.type is not any of builtins
+    {
+        reportError(op, msg::invalidROperand(l, op));
+        return Value();
+    }
 }
 Value FunctionType::binOp(Value, Value, Token)
 {

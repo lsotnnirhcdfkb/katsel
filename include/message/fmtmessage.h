@@ -67,4 +67,10 @@ namespace msg
         ss << "Type \"" << ty->stringify() << "\" does not support operator \"" << tokenToStr(op) << "\"";
         return ss.str();
     }
+    inline std::string invalidROperand(Value lop, Token op)
+    {
+        std::stringstream ss;
+        ss << "Invalid right operand to operator \"" << tokenToStr(op) << "\" with left operand of type \"" << lop.type->stringify() << "\"";
+        return ss.str();
+    }
 }
