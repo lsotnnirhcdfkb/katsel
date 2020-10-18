@@ -8,7 +8,7 @@ Type* CodeGenContext::getBuiltinType(BuiltinType::Builtins bty)
     for (std::unique_ptr<Type> &ty : types)
     {
         BuiltinType *b (dynamic_cast<BuiltinType*>(ty.get()));
-        if  (b && b->type == bty)
+        if (b && b->type == bty)
             return ty.get();
     }
 
@@ -25,7 +25,7 @@ Type* CodeGenContext::getFunctionType(Type *ret, std::vector<Type*> paramtys)
     for (std::unique_ptr<Type> &ty : types)
     {
         FunctionType *f (dynamic_cast<FunctionType*>(ty.get()));
-        if  (f && f->ret == ret && f->paramtys == paramtys)
+        if (f && f->ret == ret && f->paramtys == paramtys)
             return ty.get();
     }
 
@@ -34,6 +34,22 @@ Type* CodeGenContext::getFunctionType(Type *ret, std::vector<Type*> paramtys)
     Type *tyr = ty.get();
     types.push_back(std::move(ty));
 
+    return tyr;
+}
+
+Type* CodeGenContext::getVoidType()
+{
+    for (std::unique_ptr<Type> &ty : types)
+    {
+        VoidType *v (dynamic_cast<VoidType*>(ty.get()));
+        if (v)
+            return ty.get();
+    }
+
+    std::unique_ptr<Type> ty = std::make_unique<VoidType>();
+
+    Type *tyr = ty.get();
+    types.push_back(std::move(ty));
     return tyr;
 }
 

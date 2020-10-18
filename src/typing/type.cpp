@@ -45,21 +45,26 @@ llvm::Type* FunctionType::toLLVMType(llvm::LLVMContext &con)
 
 }
 
+llvm::Type* VoidType::toLLVMType(llvm::LLVMContext &con)
+{
+    return llvm::Type::getVoidTy(con);
+}
+
 Type::~Type() {}
 BuiltinType::BuiltinType(BuiltinType::Builtins b): type(b) {}
 FunctionType::FunctionType(Type *ret, std::vector<Type*> paramtys): ret(ret), paramtys(paramtys) {}
 
 std::map<BuiltinType::Builtins, int> BuiltinType::builtinOrder = {
-    {BOOL  , 0},
-    {CHAR  , 1},
-    {SINT8 , 2},
-    {UINT8 , 3},
-    {SINT16, 4},
-    {UINT16, 5},
-    {SINT32, 6},
-    {UINT32, 7},
-    {SINT64, 8},
-    {UINT64, 9},
-    {FLOAT , 10},
-    {DOUBLE, 11}
+    {BuiltinType::Builtins::BOOL  , 0},
+    {BuiltinType::Builtins::CHAR  , 1},
+    {BuiltinType::Builtins::SINT8 , 2},
+    {BuiltinType::Builtins::UINT8 , 3},
+    {BuiltinType::Builtins::SINT16, 4},
+    {BuiltinType::Builtins::UINT16, 5},
+    {BuiltinType::Builtins::SINT32, 6},
+    {BuiltinType::Builtins::UINT32, 7},
+    {BuiltinType::Builtins::SINT64, 8},
+    {BuiltinType::Builtins::UINT64, 9},
+    {BuiltinType::Builtins::FLOAT , 10},
+    {BuiltinType::Builtins::DOUBLE, 11}
 };

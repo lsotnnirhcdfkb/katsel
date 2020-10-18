@@ -49,3 +49,9 @@ public:
     FunctionType(Type *ret, std::vector<Type*> paramtys);
     llvm::Type* toLLVMType(llvm::LLVMContext &l) override;
 };
+
+class VoidType : public Type
+{
+public:
+    llvm::Type* toLLVMType(llvm::LLVMContext &l) override;
+};

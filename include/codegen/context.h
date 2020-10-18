@@ -27,6 +27,7 @@ public:
 
     Type* getBuiltinType(BuiltinType::Builtins ty);
     Type* getFunctionType(Type *ret, std::vector<Type*> paramtys);
+    Type* getVoidType();
 
     llvm::AllocaInst* createEntryAlloca(llvm::Function *f, llvm::Type *type, std::string const &name);
     void addLocal(std::string const &name, Type *type, llvm::AllocaInst *alloca);

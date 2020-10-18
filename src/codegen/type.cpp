@@ -20,7 +20,7 @@ void CodeGen::visitBaseType(ASTNS::BaseType *a)
         BUILTINTYPE(FLOAT)
         BUILTINTYPE(DOUBLE)
         BUILTINTYPE(BOOL)
-        BUILTINTYPE(VOID)
 #undef BUILTINTYPE
+        case TokenType::VOID: typeRetVal = context.getVoidType();
     }
 }
