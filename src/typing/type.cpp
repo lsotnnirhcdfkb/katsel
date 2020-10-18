@@ -222,6 +222,86 @@ Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op)
 
     Value lcasted = castf(l, this, castTo);
     Value rcasted = castf(r, rty, castTo);
+
+    switch (op.type)
+    {
+        case TokenType::DOUBLEPIPE:
+            return Value(castTo, cgc.builder.CreateOr(lcasted.val, rcasted.val));
+            break;
+
+        case TokenType::DOUBLEAMPER:
+            return Value(castTo, cgc.builder.CreateAnd(lcasted.val, rcasted.val));
+            break;
+
+        case TokenType::BANGEQUAL:
+            return Value(castTo, cgc.builder.CreateICmpNE(lcasted.val, rcasted.val));
+            break;
+
+        case TokenType::DOUBLEEQUAL:
+            return Value(castTo, cgc.builder.CreateICmpEQ(lcasted.val, rcasted.val));
+            break;
+
+        case TokenType::LESS:
+            return Value(castTo, cgc.builder.CreateICmpULT(lcasted.val, rcasted.val));
+            break;
+
+        case TokenType::GREATER:
+            return Value(castTo, cgc.builder.CreateICmpUGT(lcasted.val, rcasted.val));
+            break;
+
+        case TokenType::LESSEQUAL:
+            return Value(castTo, cgc.builder.CreateICmpULE(lcasted.val, rcasted.val));
+            break;
+
+        case TokenType::GREATEREQUAL:
+            return Value(castTo, cgc.builder.CreateICmpUGE(lcasted.val, rcasted.val));
+            break;
+
+        case TokenType::CARET:
+            return Value(castTo, cgc.builder.CreateXor(lcasted.val, rcasted.val));
+            break;
+
+        case TokenType::PIPE:
+            return Value(castTo, cgc.builder.CreateOr(lcasted.val, rcasted.val));
+            break;
+
+        case TokenType::AMPER:
+            return Value(castTo, cgc.builder.CreateAnd(lcasted.val, rcasted.val));
+            break;
+
+        case TokenType::DOUBLELESS:
+            return Value(castTo, cgc.builder.CreateShl(lcasted.val, rcasted.val));
+            break;
+
+        case TokenType::DOUBLEGREATER:
+            return Value(castTo, cgc.builder.CreateLShr(lcasted.val, rcasted.val));
+            break;
+
+        case TokenType::PLUS:
+            return Value(castTo, cgc.builder.CreateAdd(lcasted.val, rcasted.val));
+            break;
+
+        case TokenType::MINUS:
+            return Value(castTo, cgc.builder.CreateSub(lcasted.val, rcasted.val));
+            break;
+
+        case TokenType::STAR:
+            return Value(castTo, cgc.builder.CreateMul(lcasted.val, rcasted.val));
+            break;
+
+        case TokenType::SLASH:
+            return Value(castTo, cgc.builder.CreateUDiv(lcasted.val, rcasted.val));
+            break;
+
+        case TokenType::PERCENT:
+            return Value(castTo, cgc.builder.CreateURem(lcasted.val, rcasted.val));
+            break;
+
+        default:
+            break; // unreachable
+    }
+
+    return Value(); // unreachable
 }
 Value FunctionType::binOp(CodeGenContext &, Value, Value, Token)
 {
