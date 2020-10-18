@@ -107,36 +107,122 @@ bool VoidType::hasOperator(TokenType)
 Value BuiltinType::binOp(Value l, Value r, Token op)
 {
     const static std::map<BuiltinType::Builtins, int> builtinOrder = {
-        {BuiltinType::Builtins::BOOL  , 0},
-        {BuiltinType::Builtins::CHAR  , 1},
-        {BuiltinType::Builtins::SINT8 , 2},
-        {BuiltinType::Builtins::UINT8 , 3},
-        {BuiltinType::Builtins::SINT16, 4},
-        {BuiltinType::Builtins::UINT16, 5},
-        {BuiltinType::Builtins::SINT32, 6},
-        {BuiltinType::Builtins::UINT32, 7},
-        {BuiltinType::Builtins::SINT64, 8},
-        {BuiltinType::Builtins::UINT64, 9},
-        {BuiltinType::Builtins::FLOAT , 10},
-        {BuiltinType::Builtins::DOUBLE, 11}
+        {BuiltinType::Builtins::BOOL  ,  0},
+        {BuiltinType::Builtins::CHAR  ,  1},
+        {BuiltinType::Builtins::SINT8 ,  1},
+        {BuiltinType::Builtins::UINT8 ,  2},
+        {BuiltinType::Builtins::SINT16,  3},
+        {BuiltinType::Builtins::UINT16,  4},
+        {BuiltinType::Builtins::SINT32,  5},
+        {BuiltinType::Builtins::UINT32,  6},
+        {BuiltinType::Builtins::SINT64,  7},
+        {BuiltinType::Builtins::UINT64,  8},
+        {BuiltinType::Builtins::FLOAT ,  9},
+        {BuiltinType::Builtins::DOUBLE, 10}
     };
 
     if (l.type != this)
         // Also same TODO as below
         std::abort();
 
-    BuiltinType *rty, *lty = dynamic_cast<BuiltinType*>(l.type);
+    BuiltinType *rty;
     if (!(rty = dynamic_cast<BuiltinType*>(r.type))) // if r.type is not any of builtins
     {
         reportError(op, msg::invalidROperand(l, op));
         return Value();
     }
 
+    int ltyOrder = builtinOrder.at(this->type);
+    int rtyOrder = builtinOrder.at(rty->type);
+
     BuiltinType *castTo;
-    if (builtinOrder.at(rty->type) > builtinOrder.at(lty->type))
+    if (rtyOrder > ltyOrder) // lty == this
         castTo = rty; // if rty > lty, cast to rty
     else
-        castTo = lty; // else if rty <= lty, cast to lty
+        castTo = this; // else if rty <= lty, cast to lty
+
+    auto castf = [] (Value v, BuiltinType *sty, BuiltinType *ety) -> Value
+    {
+        if (sty == ety)
+            return v;
+        // if not then sty < ety because you only implicitly expand types
+
+        bool styisfloating =
+            sty->type == BuiltinType::Builtins::FLOAT ||
+            sty->type == BuiltinType::Builtins::DOUBLE;
+        bool etyisfloating =
+            ety->type == BuiltinType::Builtins::FLOAT ||
+            ety->type == BuiltinType::Builtins::DOUBLE;
+        bool stysigned =
+            sty->type == BuiltinType::Builtins::SINT8 ||
+            sty->type == BuiltinType::Builtins::SINT16 ||
+            sty->type == BuiltinType::Builtins::SINT32 ||
+            sty->type == BuiltinType::Builtins::SINT64 ||
+            sty->type == BuiltinType::Builtins::FLOAT ||
+            sty->type == BuiltinType::Builtins::CHAR ||
+            sty->type == BuiltinType::Builtins::DOUBLE;
+        bool etysigned =
+            ety->type == BuiltinType::Builtins::SINT8 ||
+            ety->type == BuiltinType::Builtins::SINT16 ||
+            ety->type == BuiltinType::Builtins::SINT32 ||
+            ety->type == BuiltinType::Builtins::SINT64 ||
+            ety->type == BuiltinType::Builtins::FLOAT ||
+            ety->type == BuiltinType::Builtins::CHAR ||
+            ety->type == BuiltinType::Builtins::DOUBLE;
+
+        if (styisfloating || etyisfloating)
+        {
+            // special treatment for cast to floating or cast from floating
+
+            // cast to floating from integral -> use uitofp for unsigned integral or sitofp for signed integral
+            // cast to floating from floating -> use fpext
+
+            // cast to int from int is not in this if statement
+            // cast to int from floating is impossible here becasuse that would be narrowing types
+
+            if (!styisfloating && etyisfloating)
+            {
+                // cast int -> float
+                // uitofp or sitofp
+                if (stysigned)
+                {
+                    // use uitofp
+                }
+                else
+                {
+                    // use sitofp
+                }
+            }
+            else if (styisfloating && etyisfloating)
+            {
+                // cast float -> float
+                // fpext
+            }
+            else
+            {
+                // if end type is not floating
+                std::abort();
+            }
+        }
+
+        // signage
+        // signed -> signed : sext
+        // unsigned -> signed : interpret unsigned as signed with overflow and then sext
+        // unsigned -> unsigned : zext
+        // signed -> unsigned : interpret sisgned as unsigned with overflow and then zext
+
+        if (etysigned)
+        {
+            // -> signed so use sext
+        }
+        else
+        {
+            // -> unsigned so use zext
+        }
+    };
+
+    Value lcasted = castf(l, this, castTo);
+    Value rcasted = castf(r, rty, castTo);
 }
 Value FunctionType::binOp(Value, Value, Token)
 {
