@@ -7,23 +7,23 @@
 
 namespace msg
 {
-    inline std::string unterminatedCharLit()
+    const inline std::string unterminatedCharLit()
     {
         return "Unterminated character literal";
     }
-    inline std::string unterminatedStrLit()
+    const inline std::string unterminatedStrLit()
     {
         return "Unterminated string literal";
     }
-    inline std::string invalidNumLiteralBase()
+    const inline std::string invalidNumLiteralBase()
     {
         return "Invalid base for integer literal (must be one of 0o, 0b, or 0x)";
     }
-    inline std::string nonDecimalFloatingPoint()
+    const inline std::string nonDecimalFloatingPoint()
     {
         return "Non-decimal floating point literals are not supported";
     }
-    inline std::string unexpectedCharacter()
+    const inline std::string unexpectedCharacter()
     {
         return "Unexpected character";
     }
@@ -34,20 +34,29 @@ namespace msg
         return ss.str();
     }
 
-    inline std::string expectedPrimaryOrUnary()
+    const inline std::string expectedPrimaryOrUnary()
     {
         return "Expected primary token or unary operator";
     }
-    inline std::string expectedType()
+    const inline std::string expectedType()
     {
         return "Expected type";
     }
-    inline std::string expectedEOFTok()
+    const inline std::string expectedEOFTok()
     {
         return "Expected EOF Token - This is a bug";
     }
-    inline std::string expectedDecl()
+    const inline std::string expectedDecl()
     {
         return "Expected delcaration";
+    }
+
+    const inline std::string duplicateFunction()
+    {
+        return "Duplicate function";
+    }
+    const inline std::string cannotRedefineVariable()
+    {
+        return "Cannot redefine variable";
     }
 }

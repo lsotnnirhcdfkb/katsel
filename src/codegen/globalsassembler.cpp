@@ -3,6 +3,7 @@
 #include "llvm/IR/DerivedTypes.h"
 
 #include "message/errors.h"
+#include "message/fmtmessage.h"
 
 #include <iostream>
 
@@ -19,7 +20,7 @@ void GlobalsAssembler::visitFunctionDecl(ASTNS::FunctionDecl *a)
     std::string fnamestr (tokenToStr(a->name));
     if (context.globalSymbolTable.find(fnamestr) != context.globalSymbolTable.end())
     {
-        reportError(a->name, "Duplicate function");
+        reportError(a->name, msg::duplicateFunction());
         return;
     }
 

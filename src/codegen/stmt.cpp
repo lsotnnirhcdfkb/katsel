@@ -1,5 +1,6 @@
 #include "codegen/codegen.h"
 #include "message/errors.h"
+#include "message/fmtmessage.h"
 
 void CodeGen::visitBlockStmt(ASTNS::BlockStmt *a)
 {
@@ -28,7 +29,7 @@ void CodeGen::visitVarStmt(ASTNS::VarStmt *a)
     Local *var = context.findLocal(varname);
     if (var && var->scopenum == context.curScope)
     {
-        reportError(a->name, "Cannot redefine variable");
+        reportError(a->name, msg::cannotRedefineVariable());
         return;
     }
 
