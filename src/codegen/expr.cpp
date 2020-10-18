@@ -14,7 +14,7 @@ void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
         return;
     }
 
-    exprRetVal = lhs.type->binOp(lhs, rhs, a->op);
+    exprRetVal = lhs.type->binOp(context, lhs, rhs, a->op);
 }
 
 void CodeGen::visitUnaryExpr(ASTNS::UnaryExpr *a)

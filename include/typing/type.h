@@ -10,6 +10,8 @@ class Type;
 #include "lex/token.h"
 #include "lex/tokentype.h"
 
+class CodeGenContext;
+
 class Type
 {
 public:
@@ -17,7 +19,7 @@ public:
     virtual llvm::Type* toLLVMType(llvm::LLVMContext &l) = 0;
     virtual std::string stringify() = 0;
     virtual bool hasOperator(TokenType t) = 0;
-    virtual Value binOp(Value l, Value r, Token op) = 0;
+    virtual Value binOp(CodeGenContext &cgc, Value l, Value r, Token op) = 0;
 };
 
 class BuiltinType : public Type
@@ -45,10 +47,7 @@ public:
     llvm::Type* toLLVMType(llvm::LLVMContext &l) override;
     std::string stringify() override;
     bool hasOperator(TokenType t) override;
-    Value binOp(Value l, Value r, Token op) override;
-
-private:
-    static std::map<Builtins, int> builtinOrder;
+    Value binOp(CodeGenContext &cgc, Value l, Value r, Token op) override;
 };
 
 
@@ -62,7 +61,7 @@ public:
     llvm::Type* toLLVMType(llvm::LLVMContext &l) override;
     std::string stringify() override;
     bool hasOperator(TokenType t) override;
-    Value binOp(Value l, Value r, Token op) override;
+    Value binOp(CodeGenContext &cgc, Value l, Value r, Token op) override;
 };
 
 class VoidType : public Type
@@ -71,5 +70,5 @@ public:
     llvm::Type* toLLVMType(llvm::LLVMContext &l) override;
     std::string stringify() override;
     bool hasOperator(TokenType t) override;
-    Value binOp(Value l, Value r, Token op) override;
+    Value binOp(CodeGenContext &cgc, Value l, Value r, Token op) override;
 };

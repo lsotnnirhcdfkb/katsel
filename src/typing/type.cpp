@@ -5,6 +5,8 @@
 #include "llvm/IR/Type.h"
 #include "llvm/IR/DerivedTypes.h"
 
+#include "codegen/context.h"
+
 #include <sstream>
 
 llvm::Type* BuiltinType::toLLVMType(llvm::LLVMContext &con)
@@ -104,7 +106,7 @@ bool VoidType::hasOperator(TokenType)
     return false; // and neither does void
 }
 
-Value BuiltinType::binOp(Value l, Value r, Token op)
+Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op)
 {
     const static std::map<BuiltinType::Builtins, int> builtinOrder = {
         {BuiltinType::Builtins::BOOL  ,  0},
@@ -141,7 +143,7 @@ Value BuiltinType::binOp(Value l, Value r, Token op)
     else
         castTo = this; // else if rty <= lty, cast to lty
 
-    auto castf = [] (Value v, BuiltinType *sty, BuiltinType *ety) -> Value
+    auto castf = [&cgc] (Value v, BuiltinType *sty, BuiltinType *ety) -> Value
     {
         if (sty == ety)
             return v;
@@ -185,18 +187,17 @@ Value BuiltinType::binOp(Value l, Value r, Token op)
                 // cast int -> float
                 // uitofp or sitofp
                 if (stysigned)
-                {
                     // use uitofp
-                }
+                    return Value(ety, cgc.builder.CreateUIToFP(v.val, ety->toLLVMType(cgc.context)));
                 else
-                {
                     // use sitofp
-                }
+                    return Value(ety, cgc.builder.CreateSIToFP(v.val, ety->toLLVMType(cgc.context)));
             }
             else if (styisfloating && etyisfloating)
             {
                 // cast float -> float
                 // fpext
+                return Value(ety, cgc.builder.CreateFPExt(v.val, ety->toLLVMType(cgc.context)));
             }
             else
             {
@@ -212,19 +213,17 @@ Value BuiltinType::binOp(Value l, Value r, Token op)
         // signed -> unsigned : interpret sisgned as unsigned with overflow and then zext
 
         if (etysigned)
-        {
             // -> signed so use sext
-        }
+            return Value(ety, cgc.builder.CreateSExt(v.val, ety->toLLVMType(cgc.context)));
         else
-        {
             // -> unsigned so use zext
-        }
+            return Value(ety, cgc.builder.CreateZExt(v.val, ety->toLLVMType(cgc.context)));
     };
 
     Value lcasted = castf(l, this, castTo);
     Value rcasted = castf(r, rty, castTo);
 }
-Value FunctionType::binOp(Value, Value, Token)
+Value FunctionType::binOp(CodeGenContext &, Value, Value, Token)
 {
     // TODO: report internal errors
     // like
@@ -233,7 +232,7 @@ Value FunctionType::binOp(Value, Value, Token)
 
     return Value();
 }
-Value VoidType::binOp(Value, Value, Token)
+Value VoidType::binOp(CodeGenContext &, Value, Value, Token)
 {
     // Same TODO as above
     return Value();
