@@ -58,21 +58,6 @@ Type::~Type() {}
 BuiltinType::BuiltinType(BuiltinType::Builtins b): type(b) {}
 FunctionType::FunctionType(Type *ret, std::vector<Type*> paramtys): ret(ret), paramtys(paramtys) {}
 
-std::map<BuiltinType::Builtins, int> BuiltinType::builtinOrder = {
-    {BuiltinType::Builtins::BOOL  , 0},
-    {BuiltinType::Builtins::CHAR  , 1},
-    {BuiltinType::Builtins::SINT8 , 2},
-    {BuiltinType::Builtins::UINT8 , 3},
-    {BuiltinType::Builtins::SINT16, 4},
-    {BuiltinType::Builtins::UINT16, 5},
-    {BuiltinType::Builtins::SINT32, 6},
-    {BuiltinType::Builtins::UINT32, 7},
-    {BuiltinType::Builtins::SINT64, 8},
-    {BuiltinType::Builtins::UINT64, 9},
-    {BuiltinType::Builtins::FLOAT , 10},
-    {BuiltinType::Builtins::DOUBLE, 11}
-};
-
 std::string BuiltinType::stringify()
 {
     switch (type)
@@ -106,9 +91,9 @@ std::string VoidType::stringify()
     return "void";
 }
 
-bool BuiltinType::hasOperator(TokenType t)
+bool BuiltinType::hasOperator(TokenType)
 {
-    return true;
+    return true; // builtin has all operators
 }
 bool FunctionType::hasOperator(TokenType)
 {
@@ -121,15 +106,37 @@ bool VoidType::hasOperator(TokenType)
 
 Value BuiltinType::binOp(Value l, Value r, Token op)
 {
+    const static std::map<BuiltinType::Builtins, int> builtinOrder = {
+        {BuiltinType::Builtins::BOOL  , 0},
+        {BuiltinType::Builtins::CHAR  , 1},
+        {BuiltinType::Builtins::SINT8 , 2},
+        {BuiltinType::Builtins::UINT8 , 3},
+        {BuiltinType::Builtins::SINT16, 4},
+        {BuiltinType::Builtins::UINT16, 5},
+        {BuiltinType::Builtins::SINT32, 6},
+        {BuiltinType::Builtins::UINT32, 7},
+        {BuiltinType::Builtins::SINT64, 8},
+        {BuiltinType::Builtins::UINT64, 9},
+        {BuiltinType::Builtins::FLOAT , 10},
+        {BuiltinType::Builtins::DOUBLE, 11}
+    };
+
     if (l.type != this)
         // Also same TODO as below
         std::abort();
 
-    if (!dynamic_cast<BuiltinType*>(r.type)) // if r.type is not any of builtins
+    BuiltinType *rty, *lty = dynamic_cast<BuiltinType*>(l.type);
+    if (!(rty = dynamic_cast<BuiltinType*>(r.type))) // if r.type is not any of builtins
     {
         reportError(op, msg::invalidROperand(l, op));
         return Value();
     }
+
+    BuiltinType *castTo;
+    if (builtinOrder.at(rty->type) > builtinOrder.at(lty->type))
+        castTo = rty; // if rty > lty, cast to rty
+    else
+        castTo = lty; // else if rty <= lty, cast to lty
 }
 Value FunctionType::binOp(Value, Value, Token)
 {

@@ -44,8 +44,8 @@ public:
     BuiltinType(Builtins b);
     llvm::Type* toLLVMType(llvm::LLVMContext &l) override;
     std::string stringify() override;
-    virtual bool hasOperator(TokenType t) override;
-    virtual Value binOp(Value l, Value r, Token op) override;
+    bool hasOperator(TokenType t) override;
+    Value binOp(Value l, Value r, Token op) override;
 
 private:
     static std::map<Builtins, int> builtinOrder;
@@ -61,8 +61,8 @@ public:
     FunctionType(Type *ret, std::vector<Type*> paramtys);
     llvm::Type* toLLVMType(llvm::LLVMContext &l) override;
     std::string stringify() override;
-    virtual bool hasOperator(TokenType t) override;
-    virtual Value binOp(Value l, Value r, Token op) override;
+    bool hasOperator(TokenType t) override;
+    Value binOp(Value l, Value r, Token op) override;
 };
 
 class VoidType : public Type
@@ -70,6 +70,6 @@ class VoidType : public Type
 public:
     llvm::Type* toLLVMType(llvm::LLVMContext &l) override;
     std::string stringify() override;
-    virtual bool hasOperator(TokenType t) override;
-    virtual Value binOp(Value l, Value r, Token op) override;
+    bool hasOperator(TokenType t) override;
+    Value binOp(Value l, Value r, Token op) override;
 };
