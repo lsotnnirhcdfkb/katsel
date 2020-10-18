@@ -4,6 +4,8 @@
 #include <sstream>
 
 #include "lex/tokentype.h"
+#include "lex/token.h"
+#include "codegen/codegen.h"
 
 namespace msg
 {
@@ -58,5 +60,11 @@ namespace msg
     const inline std::string cannotRedefineVariable()
     {
         return "Cannot redefine variable";
+    }
+    inline std::string typeNoOp(Type *ty, Token op)
+    {
+        std::stringstream ss;
+        ss << "Type \"" << ty->stringify() << "\" does not support operator \"" << tokenToStr(op) << "\"";
+        return ss.str();
     }
 }

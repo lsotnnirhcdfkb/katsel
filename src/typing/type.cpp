@@ -3,6 +3,8 @@
 #include "llvm/IR/Type.h"
 #include "llvm/IR/DerivedTypes.h"
 
+#include <sstream>
+
 llvm::Type* BuiltinType::toLLVMType(llvm::LLVMContext &con)
 {
     switch (type)
@@ -68,3 +70,72 @@ std::map<BuiltinType::Builtins, int> BuiltinType::builtinOrder = {
     {BuiltinType::Builtins::FLOAT , 10},
     {BuiltinType::Builtins::DOUBLE, 11}
 };
+
+std::string BuiltinType::stringify()
+{
+    switch (type)
+    {
+        case BuiltinType::Builtins::UINT8: return "uint8";
+        case BuiltinType::Builtins::UINT16: return "uint16";
+        case BuiltinType::Builtins::UINT32: return "uint32";
+        case BuiltinType::Builtins::UINT64: return "uint64";
+        case BuiltinType::Builtins::SINT8: return "sint8";
+        case BuiltinType::Builtins::SINT16: return "sint16";
+        case BuiltinType::Builtins::SINT32: return "sint32";
+        case BuiltinType::Builtins::SINT64: return "sint64";
+
+        case BuiltinType::Builtins::FLOAT: return "float";
+        case BuiltinType::Builtins::CHAR: return "char";
+        case BuiltinType::Builtins::BOOL: return "bool";
+        case BuiltinType::Builtins::DOUBLE: return "double";
+    }
+}
+std::string FunctionType::stringify()
+{
+    std::stringstream ss;
+    ss << ret->stringify() << "(";
+    for (Type *pty : paramtys)
+        ss << pty->stringify() << ", ";
+    ss << ")";
+    return ss.str();
+}
+std::string VoidType::stringify()
+{
+    return "void";
+}
+
+bool BuiltinType::hasOperator(TokenType t)
+{
+    return true;
+}
+bool FunctionType::hasOperator(TokenType)
+{
+    return false; // function has no operators
+}
+bool VoidType::hasOperator(TokenType)
+{
+    return false; // and neither does void
+}
+
+Value BuiltinType::binOp(Value l, Value r, Token op)
+{
+    if (l.type != this)
+        // Also same TODO as below
+        std::abort();
+
+    std::abort();
+}
+Value FunctionType::binOp(Value, Value, Token)
+{
+    // TODO: report internal errors
+    // like
+    // !!! Internal Error at __FILE__:__LINE__: <message>
+    // !!! Aborting
+
+    return Value();
+}
+Value VoidType::binOp(Value, Value, Token)
+{
+    // Same TODO as above
+    return Value();
+}

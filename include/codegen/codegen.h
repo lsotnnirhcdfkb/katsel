@@ -47,7 +47,3 @@ private:
     Type *typeRetVal;
 };
 
-inline std::string tokenToStr(Token t)
-{
-    return std::string(t.start, t.end);
-}

@@ -4,12 +4,20 @@
 #include <map>
 #include "llvm/IR/Type.h"
 #include "llvm/IR/LLVMContext.h"
+class Type;
+#include "value/value.h"
+
+#include "lex/token.h"
+#include "lex/tokentype.h"
 
 class Type
 {
 public:
     virtual ~Type();
     virtual llvm::Type* toLLVMType(llvm::LLVMContext &l) = 0;
+    virtual std::string stringify() = 0;
+    virtual bool hasOperator(TokenType t) = 0;
+    virtual Value binOp(Value l, Value r, Token op) = 0;
 };
 
 class BuiltinType : public Type
@@ -35,7 +43,11 @@ public:
 
     BuiltinType(Builtins b);
     llvm::Type* toLLVMType(llvm::LLVMContext &l) override;
+    std::string stringify() override;
+    virtual bool hasOperator(TokenType t) override;
+    virtual Value binOp(Value l, Value r, Token op) override;
 
+private:
     static std::map<Builtins, int> builtinOrder;
 };
 
@@ -48,10 +60,16 @@ public:
 
     FunctionType(Type *ret, std::vector<Type*> paramtys);
     llvm::Type* toLLVMType(llvm::LLVMContext &l) override;
+    std::string stringify() override;
+    virtual bool hasOperator(TokenType t) override;
+    virtual Value binOp(Value l, Value r, Token op) override;
 };
 
 class VoidType : public Type
 {
 public:
     llvm::Type* toLLVMType(llvm::LLVMContext &l) override;
+    std::string stringify() override;
+    virtual bool hasOperator(TokenType t) override;
+    virtual Value binOp(Value l, Value r, Token op) override;
 };

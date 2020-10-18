@@ -22,5 +22,10 @@ void CodeGen::visitBaseType(ASTNS::BaseType *a)
         BUILTINTYPE(BOOL)
 #undef BUILTINTYPE
         case TokenType::VOID: typeRetVal = context.getVoidType();
+
+        default:
+          // also same TODO as in typing/type.cpp
+          // reportInternalError function
+          std::abort();
     }
 }

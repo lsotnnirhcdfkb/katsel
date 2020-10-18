@@ -18,3 +18,8 @@ struct Token
 
     File sourcefile;
 };
+
+inline std::string tokenToStr(Token t)
+{
+    return std::string(t.start, t.end);
+}

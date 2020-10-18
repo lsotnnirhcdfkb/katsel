@@ -6,11 +6,11 @@
 
 struct Value
 {
-    Type *t;
+    Type *type;
     llvm::Value *val;
 
-    inline Value(Type *t, llvm::Value *v): t(t), val(v) {}
-    inline Value(): t(nullptr), val(nullptr) {}
+    inline Value(Type *t, llvm::Value *v): type(t), val(v) {}
+    inline Value(): type(nullptr), val(nullptr) {}
 };
 
 struct Local
