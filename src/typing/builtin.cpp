@@ -109,35 +109,35 @@ Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op)
     switch (op.type)
     {
         case TokenType::DOUBLEPIPE:
-            return Value(destTy, cgc.builder.CreateOr(lcasted.val, rcasted.val)); // TODO: Shortcircuit
+            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateOr(lcasted.val, rcasted.val)); // TODO: Shortcircuit
             break;
 
         case TokenType::DOUBLEAMPER:
-            return Value(destTy, cgc.builder.CreateAnd(lcasted.val, rcasted.val));
+            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateAnd(lcasted.val, rcasted.val));
             break;
 
         case TokenType::BANGEQUAL:
-            return Value(destTy, cgc.builder.CreateICmpNE(lcasted.val, rcasted.val));
+            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpNE(lcasted.val, rcasted.val));
             break;
 
         case TokenType::DOUBLEEQUAL:
-            return Value(destTy, cgc.builder.CreateICmpEQ(lcasted.val, rcasted.val));
+            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpEQ(lcasted.val, rcasted.val));
             break;
 
         case TokenType::LESS:
-            return Value(destTy, cgc.builder.CreateICmpULT(lcasted.val, rcasted.val)); // TODO: unsigned and signed
+            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpULT(lcasted.val, rcasted.val)); // TODO: unsigned and signed
             break;
 
         case TokenType::GREATER:
-            return Value(destTy, cgc.builder.CreateICmpUGT(lcasted.val, rcasted.val));
+            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpUGT(lcasted.val, rcasted.val));
             break;
 
         case TokenType::LESSEQUAL:
-            return Value(destTy, cgc.builder.CreateICmpULE(lcasted.val, rcasted.val));
+            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpULE(lcasted.val, rcasted.val));
             break;
 
         case TokenType::GREATEREQUAL:
-            return Value(destTy, cgc.builder.CreateICmpUGE(lcasted.val, rcasted.val));
+            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpUGE(lcasted.val, rcasted.val));
             break;
 
         case TokenType::CARET:
