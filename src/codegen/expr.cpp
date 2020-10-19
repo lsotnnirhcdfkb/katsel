@@ -115,6 +115,47 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
 
 void CodeGen::visitCallExpr(ASTNS::CallExpr *a)
 {
-	
+    Value func = evalExpr(a->func.get());
+    FunctionType *fty = dynamic_cast<FunctionType*>(func.type);
+    if (!fty)
+    {
+        std::cerr << "Cannot call non-function" << std::endl; // TODO: aslo this entire function
+        return;
+    }
+
+    Type *ret = fty->ret;
+    std::vector<Value> args;
+    std::vector<llvm::Value*> argsasllvm;
+
+    {
+        ASTNS::Arg *arg = a->args.get();
+        while (arg)
+        {
+            args.push_back(evalExpr(arg->value.get()));
+            argsasllvm.push_back(args.back().val);
+            arg = arg->next.get();
+        }
+    }
+
+    if (args.size() != fty->paramtys.size())
+    {
+        std::cerr << "Wrong number of arguments to function" << std::endl;
+        return;
+    }
+
+    auto i = args.begin();
+    auto j = fty->paramtys.begin();
+    for (; i != args.end() && j != fty->paramtys.end(); ++i, ++j)
+    {
+        if (i->type != *j)
+        {
+            std::cerr << "Incorrect argument to function call" << std::endl;
+            return;
+        }
+    }
+
+    llvm::FunctionType *ftyasllvm = static_cast<llvm::FunctionType*>(fty->toLLVMType(context.context));
+
+    exprRetVal = Value(ret, context.builder.CreateCall(ftyasllvm, func.val, argsasllvm));
 }
 
