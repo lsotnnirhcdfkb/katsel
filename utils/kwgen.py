@@ -152,7 +152,7 @@ keywords = [
 
     ('true', 'TRUELIT'),
     ('false', 'FALSELIT'),
-    ('null', 'NULLLIT'),
+    ('nullptr', 'NULLPTRLIT'),
 
     ('assert', 'ASSERT'),
 ]

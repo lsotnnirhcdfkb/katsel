@@ -494,7 +494,22 @@ TokenType Lexer::getIdentifierType()
                             switch (*(start + 3))
                             {
                                 case 'l':
-                                    if (start + 4 == end) return TokenType::NULLLIT;
+                                    switch (*(start + 4))
+                                    {
+                                        case 'p':
+                                            switch (*(start + 5))
+                                            {
+                                                case 't':
+                                                    switch (*(start + 6))
+                                                    {
+                                                        case 'r':
+                                                            if (start + 7 == end) return TokenType::NULLPTRLIT;
+                                                            break;
+                                                    }
+                                                    break;
+                                            }
+                                            break;
+                                    }
                                     break;
                             }
                             break;

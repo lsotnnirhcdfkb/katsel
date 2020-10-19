@@ -79,4 +79,8 @@ namespace msg
         ss << "Invalid cast from type \"" << bty->stringify() << "\" to type \"" << ety->stringify() << "\"";
         return ss.str();
     }
+    const inline std::string undefVar()
+    {
+        return "Undefined variable";
+    }
 }

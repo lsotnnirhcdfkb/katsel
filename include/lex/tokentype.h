@@ -68,7 +68,7 @@ enum TokenType
     FLOATLIT,
     TRUELIT,
     FALSELIT,
-    NULLLIT,
+    NULLPTRLIT,
 
     // integer types
     UINT8,
@@ -177,7 +177,7 @@ inline std::string stringifyTokenType(TokenType ty)
         STOKTY(FLOATLIT)
         STOKTY(TRUELIT)
         STOKTY(FALSELIT)
-        STOKTY(NULLLIT)
+        STOKTY(NULLPTRLIT)
         STOKTY(UINT8)
         STOKTY(UINT16)
         STOKTY(UINT32)
