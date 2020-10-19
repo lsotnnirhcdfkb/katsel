@@ -34,7 +34,19 @@ void CodeGen::visitUnaryExpr(ASTNS::UnaryExpr *a)
 
 void CodeGen::visitTernaryExpr(ASTNS::TernaryExpr *a)
 {
-	
+	Value cond = evalExpr(a->condition.get());
+    cond = cond.type->isTrue(context, cond);
+    Value truev = evalExpr(a->trues.get());
+    Value falsev = evalExpr(a->falses.get());
+
+    if (truev.type != falsev.type)
+    {
+        // TODO
+        std::cerr << "ternary expression operands of different types are currently not supported" << std::endl;
+        std::abort();
+    }
+
+    exprRetVal = Value(truev.type, context.builder.CreateSelect(cond.val, truev.val, falsev.val));
 }
 
 void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
