@@ -102,7 +102,8 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
                     reportError(a->value, msg::undefVar());
                     return;
                 }
-                ret = v;
+                llvm::Value *loadInst = context.builder.CreateLoad(v.val);
+                ret = Value(v.type, loadInst);
             }
             break;
 
