@@ -73,4 +73,10 @@ namespace msg
         ss << "Invalid right operand to operator \"" << tokenToStr(op) << "\" with left operand of type \"" << lop.type->stringify() << "\"";
         return ss.str();
     }
+    inline std::string invalidCast(Type *bty, Type *ety)
+    {
+        std::stringstream ss;
+        ss << "Invalid cast from type \"" << bty->stringify() << "\" to type \"" << ety->stringify() << "\"";
+        return ss.str();
+    }
 }

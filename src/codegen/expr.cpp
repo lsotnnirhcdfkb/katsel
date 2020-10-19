@@ -19,7 +19,16 @@ void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
 
 void CodeGen::visitUnaryExpr(ASTNS::UnaryExpr *a)
 {
-	
+	Value oper = evalExpr(a->operand.get());
+
+    if (!oper.type->hasOperator(a->op.type))
+    {
+        reportError(a->op, msg::typeNoOp(oper.type, a->op));
+        exprRetVal = Value();
+        return;
+    }
+
+    exprRetVal = oper.type->unaryOp(context, oper, a->op);
 }
 
 void CodeGen::visitTernaryExpr(ASTNS::TernaryExpr *a)
