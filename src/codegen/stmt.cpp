@@ -37,14 +37,5 @@ void CodeGen::visitVarStmt(ASTNS::VarStmt *a)
     llvm::AllocaInst *alloca = context.createEntryAlloca(f, ty->toLLVMType(context.context), varname);
     context.addLocal(varname, ty, alloca);
 
-    Value v;
-    if (a->value)
-        v = evalExpr(a->value.get());
-    else
-        return;
-
-    if (!v.val)
-        return;
-
-    context.builder.CreateStore(v.val, alloca);
+    a->assign->accept(this);
 }

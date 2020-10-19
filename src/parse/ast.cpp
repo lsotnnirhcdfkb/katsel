@@ -51,11 +51,11 @@ ASTNS::ReturnStmt::ReturnStmt(std::unique_ptr<Expr> val)
     this->val = std::move(val);
 }
 void ASTNS::ReturnStmt::accept(StmtVisitor *v) { v->visitReturnStmt(this); }
-ASTNS::VarStmt::VarStmt(std::unique_ptr<Type> type, Token name, std::unique_ptr<Expr> value)
+ASTNS::VarStmt::VarStmt(std::unique_ptr<Type> type, Token name, std::unique_ptr<Expr> assign)
 {
     this->type = std::move(type);
     this->name = name;
-    this->value = std::move(value);
+    this->assign = std::move(assign);
 }
 void ASTNS::VarStmt::accept(StmtVisitor *v) { v->visitVarStmt(this); }
 ASTNS::BaseType::BaseType(Token type)

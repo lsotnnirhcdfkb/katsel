@@ -98,7 +98,7 @@ asts = [
     ASTClass('VarStmt', fields=[
             ASTField.uptrField('Type', 'type'),
             ASTField.tokenField('name'),
-            ASTField.exprField('value'),
+            ASTField.uptrField('Expr', 'assign')
         ], extends='Stmt'),
 
     ASTClass('BaseType', fields=[

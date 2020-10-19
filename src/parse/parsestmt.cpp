@@ -34,15 +34,15 @@ std::unique_ptr<ASTNS::VarStmt> Parser::varstmt()
     assertConsume(TokenType::IDENTIFIER, "Expected identifier for variable name");
     Token name (prev());
 
-    std::unique_ptr<ASTNS::Expr> expressionast = nullptr;
+    std::unique_ptr<ASTNS::Expr> assignast = nullptr;
     if (checkConsume(TokenType::EQUAL))
     {
-        expressionast = expr();
+        assignast = binaryOp(std::make_unique<ASTNS::PrimaryExpr>(name));
     }
 
     assertConsume(TokenType::SEMICOLON, "Expected semicolon after var statement");
 
-    std::unique_ptr<ASTNS::VarStmt> stmtast = std::make_unique<ASTNS::VarStmt>(std::move(typeast), name, std::move(expressionast));
+    std::unique_ptr<ASTNS::VarStmt> stmtast = std::make_unique<ASTNS::VarStmt>(std::move(typeast), name, std::move(assignast));
     return stmtast;
 }
 // exprstmt method {{{1

@@ -229,12 +229,12 @@ void PrintVisitor::visitVarStmt(ASTNS::VarStmt *a)
     pai(" [");
     pai(std::string(a->name.start, a->name.end));
     pai("]\n");
-    pai("value =");
-    if (a->value)
+    pai("assign =");
+    if (a->assign)
     {
         ++indent;
         pai("\n");
-        a->value->accept(this);
+        a->assign->accept(this);
         --indent;
     }
     else

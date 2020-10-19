@@ -125,10 +125,10 @@ namespace ASTNS
     class VarStmt : public Stmt
     {
     public:
-        VarStmt(std::unique_ptr<Type> type, Token name, std::unique_ptr<Expr> value);
+        VarStmt(std::unique_ptr<Type> type, Token name, std::unique_ptr<Expr> assign);
         std::unique_ptr<Type> type;
         Token name;
-        std::unique_ptr<Expr> value;
+        std::unique_ptr<Expr> assign;
         virtual void accept(StmtVisitor *v);
     };
     class BaseType : public Type
