@@ -4,6 +4,7 @@
 
 void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
 {
+    // TODO: assignment
     Value lhs = evalExpr(a->lhs.get());
     Value rhs = evalExpr(a->rhs.get());
 

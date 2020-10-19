@@ -51,3 +51,8 @@ Value FunctionType::castTo(CodeGenContext &, Value, Type *)
 {
     return Value();
 }
+
+Value FunctionType::isTrue(CodeGenContext &, Value)
+{
+    return Value();
+}

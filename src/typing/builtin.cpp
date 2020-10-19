@@ -321,3 +321,31 @@ Value BuiltinType::unaryOp(CodeGenContext &cgc, Value v, Token op)
 
     return Value(); // unreachable
 }
+// isTrue {{{1
+Value BuiltinType::isTrue(CodeGenContext &cgc, Value v)
+{
+    if (v.type != this)
+        // TODO: same thing
+        std::abort();
+
+    switch (type)
+    {
+        case BuiltinType::Builtins::UINT8:
+        case BuiltinType::Builtins::UINT16:
+        case BuiltinType::Builtins::UINT32:
+        case BuiltinType::Builtins::UINT64:
+        case BuiltinType::Builtins::SINT8:
+        case BuiltinType::Builtins::SINT16:
+        case BuiltinType::Builtins::SINT32:
+        case BuiltinType::Builtins::SINT64:
+        case BuiltinType::Builtins::CHAR:
+            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpNE(v.val, llvm::ConstantInt::get(v.type->toLLVMType(cgc.context), 0)));
+
+        case BuiltinType::Builtins::BOOL:
+            return v;
+
+        case BuiltinType::Builtins::FLOAT:
+        case BuiltinType::Builtins::DOUBLE:
+            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateFCmpONE(v.val, llvm::ConstantFP::get(v.type->toLLVMType(cgc.context), 0)));
+    }
+}

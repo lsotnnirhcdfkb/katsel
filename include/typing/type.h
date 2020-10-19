@@ -22,6 +22,7 @@ public:
     virtual Value binOp(CodeGenContext &cgc, Value l, Value r, Token op) = 0;
     virtual Value unaryOp(CodeGenContext &cgc, Value operand, Token op) = 0;
     virtual Value castTo(CodeGenContext &cgc, Value v, Type *toty) = 0;
+    virtual Value isTrue(CodeGenContext &cgc, Value v) = 0;
 };
 
 class BuiltinType : public Type
@@ -52,6 +53,7 @@ public:
     Value binOp(CodeGenContext &cgc, Value l, Value r, Token op) override;
     Value unaryOp(CodeGenContext &cgc, Value operand, Token op) override;
     Value castTo(CodeGenContext &cgc, Value v, Type *toty) override;
+    Value isTrue(CodeGenContext &cgc, Value v) override;
 };
 
 
@@ -68,6 +70,7 @@ public:
     Value binOp(CodeGenContext &cgc, Value l, Value r, Token op) override;
     Value unaryOp(CodeGenContext &cgc, Value operand, Token op) override;
     Value castTo(CodeGenContext &cgc, Value v, Type *toty) override;
+    Value isTrue(CodeGenContext &cgc, Value v) override;
 };
 
 class VoidType : public Type
@@ -79,4 +82,5 @@ public:
     Value binOp(CodeGenContext &cgc, Value l, Value r, Token op) override;
     Value unaryOp(CodeGenContext &cgc, Value operand, Token op) override;
     Value castTo(CodeGenContext &cgc, Value v, Type *toty) override;
+    Value isTrue(CodeGenContext &cgc, Value v) override;
 };

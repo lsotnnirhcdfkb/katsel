@@ -32,3 +32,8 @@ Value VoidType::castTo(CodeGenContext &, Value, Type *)
 {
     return Value();
 }
+
+Value VoidType::isTrue(CodeGenContext &, Value)
+{
+    return Value();
+}
