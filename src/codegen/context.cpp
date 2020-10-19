@@ -92,3 +92,12 @@ Local* CodeGenContext::findLocal(std::string const &name)
 
     return nullptr;
 }
+
+Value CodeGenContext::findValue(std::string const &name)
+{
+    Local *l = findLocal(name);
+    if (l)
+        return l->v;
+
+    return globalSymbolTable[name];
+}

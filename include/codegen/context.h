@@ -32,6 +32,7 @@ public:
     llvm::AllocaInst* createEntryAlloca(llvm::Function *f, llvm::Type *type, std::string const &name);
     void addLocal(std::string const &name, Type *type, llvm::AllocaInst *alloca);
     Local* findLocal(std::string const &name);
+    Value findValue(std::string const &name);
 
     void incScope();
     void decScope();

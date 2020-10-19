@@ -95,14 +95,17 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
             break;
 
         case TokenType::IDENTIFIER:
-            Local *l = context.findLocal(tokenToStr(a->value)); // TODO: replace with findVar
-            if (!l)
+            Value v = context.findValue(tokenToStr(a->value));
+            if (!v.val)
             {
                 reportError(a->value, msg::undefVar());
                 return;
             }
-            ret = l->v;
+            ret = v;
             break;
+
+        default:
+            break; // Unreachable
     }
     exprRetVal = ret;
 }
