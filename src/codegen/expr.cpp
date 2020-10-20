@@ -74,21 +74,21 @@ void CodeGen::visitTernaryExpr(ASTNS::TernaryExpr *a)
     Value truev = evalExpr(a->trues.get());
     if (!truev.val) return;
     trueb = context.builder.GetInsertBlock();
-    context.builder.CreateBr(afterb);
 
     f->getBasicBlockList().push_back(falseb);
     context.builder.SetInsertPoint(falseb);
     Value falsev = evalExpr(a->falses.get());
     if (!falsev.val) return;
     falseb = context.builder.GetInsertBlock();
-    context.builder.CreateBr(afterb);
 
     Type *castToType = truev.type->pickType(truev.type, falsev.type);
     context.builder.SetInsertPoint(trueb);
     truev = truev.type->castTo(context, truev, castToType);
+    context.builder.CreateBr(afterb);
 
     context.builder.SetInsertPoint(falseb);
     falsev = falsev.type->castTo(context, falsev, castToType);
+    context.builder.CreateBr(afterb);
 
     f->getBasicBlockList().push_back(afterb);
     context.builder.SetInsertPoint(afterb);
