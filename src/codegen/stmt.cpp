@@ -16,7 +16,11 @@ void CodeGen::visitExprStmt(ASTNS::ExprStmt *a)
 void CodeGen::visitReturnStmt(ASTNS::ReturnStmt *a)
 {
     if (a->val)
-        context.builder.CreateRet(evalExpr(a->val.get()).val);
+    {
+        Value v = evalExpr(a->val.get());
+        if (v.val)
+            context.builder.CreateRet(v.val);
+    }
     else
         context.builder.CreateRetVoid();
 }

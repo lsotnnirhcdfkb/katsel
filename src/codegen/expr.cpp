@@ -10,6 +10,9 @@ void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
     Value lhs = evalExpr(a->lhs.get());
     Value rhs = evalExpr(a->rhs.get());
 
+    if (!lhs.val || !rhs.val)
+        return;
+
     if (!lhs.type->hasOperator(a->op.type))
     {
         report(MsgType::ERROR, msg::typeNoOp(lhs.type, a->op), a, a->op, a->lhs.get());
@@ -23,6 +26,8 @@ void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
 void CodeGen::visitUnaryExpr(ASTNS::UnaryExpr *a)
 {
 	Value oper = evalExpr(a->operand.get());
+    if (!oper.val)
+        return;
 
     if (!oper.type->hasOperator(a->op.type))
     {
@@ -37,9 +42,14 @@ void CodeGen::visitUnaryExpr(ASTNS::UnaryExpr *a)
 void CodeGen::visitTernaryExpr(ASTNS::TernaryExpr *a)
 {
 	Value cond = evalExpr(a->condition.get());
+    if (!cond.val)
+        return;
     cond = cond.type->isTrue(context, cond);
     Value truev = evalExpr(a->trues.get());
     Value falsev = evalExpr(a->falses.get());
+
+    if (!truev.val || !falsev.val)
+        return;
 
     if (truev.type != falsev.type)
         report(MsgType::INTERNALERR, "Ternary expression operands of different types are currently not supported", a, a->falses.get(), a->trues.get());
@@ -113,6 +123,9 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
 void CodeGen::visitCallExpr(ASTNS::CallExpr *a)
 {
     Value func = evalExpr(a->func.get());
+    if (!func.val)
+        return;
+
     FunctionType *fty = dynamic_cast<FunctionType*>(func.type);
     if (!fty)
     {
@@ -128,7 +141,10 @@ void CodeGen::visitCallExpr(ASTNS::CallExpr *a)
         ASTNS::Arg *arg = a->args.get();
         while (arg)
         {
-            args.push_back(evalExpr(arg->value.get()));
+            Value varg = evalExpr(arg->value.get());
+            if (!varg.val)
+                continue;
+            args.push_back(varg);
             argsasllvm.push_back(args.back().val);
             arg = arg->next.get();
         }
