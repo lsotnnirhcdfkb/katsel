@@ -67,8 +67,6 @@ void report(MsgType msgtype, const std::string &message, Location shl, Locations
                 std::cerr << A_BOLD "!!! - " A_FG_RED "Internal error" A_RESET ": " A_BOLD << message << A_RESET << std::endl;
             else
                 std::cerr << "!!! - Internal error: " << message << std::endl;
-            std::cerr << "Aborting" << std::endl;
-            std::abort();
             break;
     }
     // }}}
@@ -115,4 +113,10 @@ void report(MsgType msgtype, const std::string &message, Location shl, Locations
     if (ansiCodesEnabled())
         std::cerr << A_RESET;
     std::cerr << std::endl;
+
+    if (msgtype == MsgType::INTERNALERR)
+    {
+        std::cerr << "Aborting" << std::endl;
+        std::abort();
+    }
 }
