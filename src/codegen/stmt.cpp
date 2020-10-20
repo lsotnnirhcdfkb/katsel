@@ -29,6 +29,11 @@ void CodeGen::visitVarStmt(ASTNS::VarStmt *a)
 {
     std::string varname = tokenToStr(a->name);
     Type *ty = evalType(a->type.get());
+    if (dynamic_cast<VoidType*>(ty))
+    {
+        report(MsgType::ERROR, msg::voidVarNotAllowed(), a->name, a->type.get(), a->name);
+        return;
+    }
 
     Local *var = context.findLocal(varname);
     if (var && var->scopenum == context.curScope)

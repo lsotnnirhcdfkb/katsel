@@ -91,4 +91,8 @@ namespace msg
     {
         return "Invalid assignment target";
     }
+    const inline std::string voidVarNotAllowed()
+    {
+        return "Variable cannot be of type \"void\"";
+    }
 }
