@@ -85,7 +85,6 @@ Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op)
 
     if (l.type != this)
         report(MsgType::INTERNALERR, "BuiltinType::binOp called with l value type not equal to this", op, op);
-        std::abort();
 
     BuiltinType *rty;
     if (!(rty = dynamic_cast<BuiltinType*>(r.type))) // if r.type is not any of builtins
@@ -324,9 +323,11 @@ Value BuiltinType::unaryOp(CodeGenContext &cgc, Value v, Token op)
 Value BuiltinType::isTrue(CodeGenContext &cgc, Value v)
 {
     if (v.type != this)
+    {
         std::cerr << "BuiltinType::isTrue called with value type not equal to this" << std::endl;
         std::abort();
         // report(MsgType::INTERNALERR, "BuiltinType::isTrue called with value type not equal to this"); TODO: make this work somehow
+    }
 
     switch (type)
     {

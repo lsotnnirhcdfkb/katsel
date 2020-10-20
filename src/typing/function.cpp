@@ -1,4 +1,5 @@
 #include "typing/type.h"
+#include "message/errors.h"
 
 #include "llvm/IR/Type.h"
 #include "llvm/IR/DerivedTypes.h"
@@ -39,14 +40,14 @@ Value FunctionType::binOp(CodeGenContext &, Value, Value, Token op)
     report(MsgType::INTERNALERR, "FunctionType::binOp called", op, op);
 }
 
-Value FunctionType::unaryOp(CodeGenContext &, Value, Token, op)
+Value FunctionType::unaryOp(CodeGenContext &, Value, Token op)
 {
     report(MsgType::INTERNALERR, "FunctionType::unaryOp called", op, op);
 }
 
 Value FunctionType::castTo(CodeGenContext &, Value, Type *)
 {
-    std::cerr << "Cannot cast function type to something else" << std::endl; // TODO: this work
+    std::cerr << "FunctionType::castTo called" << std::endl; // TODO: this work
     std::abort();
 }
 

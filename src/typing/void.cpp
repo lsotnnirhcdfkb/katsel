@@ -1,4 +1,5 @@
 #include "typing/type.h"
+#include "message/errors.h"
 
 #include "llvm/IR/Type.h"
 
@@ -17,12 +18,12 @@ bool VoidType::hasOperator(TokenType)
     return false;
 }
 
-Value VoidType::binOp(CodeGenContext &, Value, Value, Token)
+Value VoidType::binOp(CodeGenContext &, Value, Value, Token op)
 {
     report(MsgType::INTERNALERR, "VoidType::binOp called", op, op);
 }
 
-Value VoidType::unaryOp(CodeGenContext &, Value, Token)
+Value VoidType::unaryOp(CodeGenContext &, Value, Token op)
 {
     report(MsgType::INTERNALERR, "VoidType::unaryOp called", op, op);
     return Value();
