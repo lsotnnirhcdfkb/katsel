@@ -22,7 +22,7 @@ void CodeGen::visitBaseType(ASTNS::BaseType *a)
         BUILTINTYPE(DOUBLE)
         BUILTINTYPE(BOOL)
 #undef BUILTINTYPE
-        case TokenType::VOID: typeRetVal = context.getVoidType();
+        case TokenType::VOID: typeRetVal = context.getVoidType(); break;
 
         default:
             report(MsgType::INTERNALERR, "Invalid BaseType type token", a, a);
