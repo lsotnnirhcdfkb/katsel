@@ -56,7 +56,10 @@ std::unique_ptr<ASTNS::ExprStmt> Parser::exprstmt()
 std::unique_ptr<ASTNS::ReturnStmt> Parser::returnstmt()
 {
     assertConsume(TokenType::RETURN);
-    std::unique_ptr<ASTNS::Expr> retVal (expr());
+    std::unique_ptr<ASTNS::Expr> retVal;
+    if (!check(TokenType::SEMICOLON))
+        retVal = expr();
+
     assertConsume(TokenType::SEMICOLON, "Expected semicolon after return statement");
     return std::make_unique<ASTNS::ReturnStmt>(std::move(retVal));
 }
