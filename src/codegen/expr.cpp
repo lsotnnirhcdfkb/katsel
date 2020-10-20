@@ -24,6 +24,7 @@ void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
 
         Value target = Value(lhs.type, load->getPointerOperand());
         context.builder.CreateStore(rhs.val, target.val);
+        load->eraseFromParent(); // dont need the load anymore
         exprRetVal = rhs;
         return;
     }
