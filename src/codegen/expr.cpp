@@ -13,10 +13,24 @@ void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
     if (!lhs.val || !rhs.val)
         return;
 
+    if (a->op.type == TokenType::EQUAL)
+    {
+        if (!llvm::isa<llvm::LoadInst>(lhs.val))
+        {
+            report(MsgType::ERROR, msg::invalidAssign(), a, a->lhs.get(), a->rhs.get(), a->op);
+            return;
+        }
+        llvm::LoadInst *load = static_cast<llvm::LoadInst*>(lhs.val);
+
+        Value target = Value(lhs.type, load->getPointerOperand());
+        context.builder.CreateStore(rhs.val, target.val);
+        exprRetVal = rhs;
+        return;
+    }
+
     if (!lhs.type->hasOperator(a->op.type))
     {
         report(MsgType::ERROR, msg::typeNoOp(lhs.type, a->op), a, a->op, a->lhs.get());
-        exprRetVal = Value();
         return;
     }
 

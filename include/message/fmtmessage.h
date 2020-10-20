@@ -87,4 +87,8 @@ namespace msg
     {
         return "Cannot call non-function";
     }
+    const inline std::string invalidAssign()
+    {
+        return "Invalid assignment target";
+    }
 }
