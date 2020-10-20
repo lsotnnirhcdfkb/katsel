@@ -80,9 +80,10 @@ void report(MsgType msgtype, const std::string &message, Location shl, Locations
     {
         while (*pl != '\n' && pl != showl.end)
         {
-            std::cout << *pl;
+            std::cerr << *pl;
             ++pl;
         }
+        std::cerr << "\n";
 
         while (*ul != '\n' && ul != showl.end)
         {
@@ -102,6 +103,7 @@ void report(MsgType msgtype, const std::string &message, Location shl, Locations
                 std::cerr << " ";
             ++ul;
         }
+        std::cerr << "\n";
 
         if (pl == showl.end)
             break;
