@@ -115,7 +115,7 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
             break;
 
         default:
-            break; // Unreachable
+            report(MsgType::INTERNALERR, "Invalid primary token", a->value, a->value);
     }
     exprRetVal = ret;
 }

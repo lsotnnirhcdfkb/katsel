@@ -38,7 +38,8 @@ llvm::Type* BuiltinType::toLLVMType(llvm::LLVMContext &con)
         case BuiltinType::Builtins::BOOL:
             return llvm::Type::getInt1Ty(con);
     }
-    return nullptr; // unreachable
+    std::cerr << "BultinType::toLLVMType went out of switch" << std::endl;
+    std::abort();
 }
 // stringify {{{1
 std::string BuiltinType::stringify()
@@ -180,10 +181,10 @@ Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op)
             break;
 
         default:
-            break; // unreachable
+            report(MsgType::INTERNALERR, "Invalid binary operator", op, op);
     }
 
-    return Value(); // unreachable
+    report(MsgType::INTERNALERR, "binOp went out of switch despite default label", op, op);
 }
 // castTo {{{1
 Value BuiltinType::castTo(CodeGenContext &cgc, Value v, Type *toty)
@@ -314,10 +315,10 @@ Value BuiltinType::unaryOp(CodeGenContext &cgc, Value v, Token op)
             break;
 
         default:
-            break; // unreachable
+            report(MsgType::INTERNALERR, "Invalid unary operator", op, op);
     }
 
-    return Value(); // unreachable
+    report(MsgType::INTERNALERR, "unaryOp went out of switch despite default label", op, op);
 }
 // isTrue {{{1
 Value BuiltinType::isTrue(CodeGenContext &cgc, Value v)
