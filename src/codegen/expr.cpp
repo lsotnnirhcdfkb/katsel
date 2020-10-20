@@ -150,7 +150,8 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
                     llvm::Value *loadInst = context.builder.CreateLoad(v.val);
                     ret = Value(v.type, loadInst);
                 }
-                ret = v;
+                else
+                    ret = v;
             }
             break;
 
