@@ -23,9 +23,12 @@ void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
         llvm::LoadInst *load = static_cast<llvm::LoadInst*>(lhs.val);
 
         Value target = Value(lhs.type, load->getPointerOperand()); // TODO: cast type 
-        context.builder.CreateStore(rhs.val, target.val);
+        Value assignment = rhs.type->castTo(context, rhs, target.type);
+
+        context.builder.CreateStore(assignment.val, target.val);
         load->eraseFromParent(); // dont need the load anymore
-        exprRetVal = rhs;
+
+        exprRetVal = assignment;
         return;
     }
 
@@ -142,8 +145,12 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
                     report(MsgType::ERROR, msg::undefVar(), a->value, a->value);
                     return;
                 }
-                llvm::Value *loadInst = context.builder.CreateLoad(v.val);
-                ret = Value(v.type, loadInst);
+                if (llvm::isa<llvm::AllocaInst>(v.val))
+                {
+                    llvm::Value *loadInst = context.builder.CreateLoad(v.val);
+                    ret = Value(v.type, loadInst);
+                }
+                ret = v;
             }
             break;
 
