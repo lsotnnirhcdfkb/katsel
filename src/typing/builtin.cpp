@@ -90,7 +90,7 @@ Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op)
     BuiltinType *rty;
     if (!(rty = dynamic_cast<BuiltinType*>(r.type))) // if r.type is not any of builtins
     {
-        reportError(op, msg::invalidROperand(l, op));
+        report(MsgType::ERROR, msg::invalidROperand(l, op), op);
         return Value();
     }
 
@@ -193,7 +193,7 @@ Value BuiltinType::castTo(CodeGenContext &cgc, Value v, Type *toty)
     BuiltinType *ety = dynamic_cast<BuiltinType*> (toty);
     if (!sty || !ety)
     {
-        // reportError(msg::invalidCast(v.type, toty));
+        // reportError(MsgType::ERROR, msg::invalidCast(v.type, toty));
         std::cerr << msg::invalidCast(v.type, toty) << std::endl; // TODO: fix this
         return Value();
     }

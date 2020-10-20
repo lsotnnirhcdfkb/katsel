@@ -39,7 +39,7 @@ std::unique_ptr<ASTNS::Decl> Parser::decl()
             return functiondecl();
 
         default:
-            reportError(peek(), msg::expectedDecl());
+            report(MsgType::ERROR, msg::expectedDecl(), peek(), peek());
             panic();
             return nullptr;
     }

@@ -29,7 +29,7 @@ void CodeGen::visitVarStmt(ASTNS::VarStmt *a)
     Local *var = context.findLocal(varname);
     if (var && var->scopenum == context.curScope)
     {
-        reportError(a->name, msg::cannotRedefineVariable());
+        report(MsgType::ERROR, msg::cannotRedefineVariable(), a->name, a->name);
         return;
     }
 

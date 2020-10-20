@@ -20,7 +20,7 @@ std::unique_ptr<ASTNS::Type> Parser::type()
     }
 
     consume();
-    reportError(prev(), msg::expectedType());
+    report(MsgType::ERROR, msg::expectedType(), prev(), prev());
     return nullptr;
 }
 

@@ -12,7 +12,7 @@ void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
 
     if (!lhs.type->hasOperator(a->op.type))
     {
-        reportError(a->op, msg::typeNoOp(lhs.type, a->op));
+        report(MsgType::ERROR, msg::typeNoOp(lhs.type, a->op), a, a->op, a->lhs.get());
         exprRetVal = Value();
         return;
     }
@@ -26,7 +26,7 @@ void CodeGen::visitUnaryExpr(ASTNS::UnaryExpr *a)
 
     if (!oper.type->hasOperator(a->op.type))
     {
-        reportError(a->op, msg::typeNoOp(oper.type, a->op));
+        report(MsgType::ERROR, msg::typeNoOp(oper.type, a->op), a, a->op, a->operand.get());
         exprRetVal = Value();
         return;
     }
@@ -101,7 +101,7 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
                 Value v = context.findValue(tokenToStr(a->value));
                 if (!v.val)
                 {
-                    reportError(a->value, msg::undefVar());
+                    report(MsgType::ERROR, msg::undefVar(), a->value, a->value);
                     return;
                 }
                 llvm::Value *loadInst = context.builder.CreateLoad(v.val);

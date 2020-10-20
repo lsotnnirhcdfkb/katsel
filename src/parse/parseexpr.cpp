@@ -18,7 +18,7 @@ const std::map<TokenType, Parser::PrefixPF> Parser::prefixParserTable = {
     {TokenType::TRUELIT,       &Parser::primary},
     {TokenType::FALSELIT,      &Parser::primary},
     {TokenType::FLOATLIT,      &Parser::primary},
-    {TokenType::NULLLIT,       &Parser::primary},
+    {TokenType::NULLPTRLIT,    &Parser::primary},
     {TokenType::DECINTLIT,     &Parser::primary},
     {TokenType::OCTINTLIT,     &Parser::primary},
     {TokenType::BININTLIT,     &Parser::primary},
@@ -81,7 +81,7 @@ static const std::map<TokenType, int> precedenceTable = {
     {TokenType::TRUELIT,       15},
     {TokenType::FALSELIT,      15},
     {TokenType::FLOATLIT,      15},
-    {TokenType::NULLLIT,       15},
+    {TokenType::NULLPTRLIT,    15},
     {TokenType::DECINTLIT,     15},
     {TokenType::OCTINTLIT,     15},
     {TokenType::BININTLIT,     15},
@@ -148,7 +148,7 @@ std::unique_ptr<ASTNS::Expr> Parser::expr(int prec)
 
     if (prefixParser == prefixParserTable.end())
     {
-        reportError(prev(), msg::expectedPrimaryOrUnary());
+        report(MsgType::ERROR, msg::expectedPrimaryOrUnary(), prev(), prev());
         return nullptr;
     }
 

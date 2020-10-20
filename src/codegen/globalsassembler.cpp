@@ -20,7 +20,7 @@ void GlobalsAssembler::visitFunctionDecl(ASTNS::FunctionDecl *a)
     std::string fnamestr (tokenToStr(a->name));
     if (context.globalSymbolTable.find(fnamestr) != context.globalSymbolTable.end())
     {
-        reportError(a->name, msg::duplicateFunction());
+        report(MsgType::ERROR, msg::duplicateFunction(), a->name, a->name);
         return;
     }
 

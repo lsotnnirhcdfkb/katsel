@@ -22,7 +22,7 @@ Token& Parser::consume()
 
         if (currToken.type != TokenType::ERROR) break; // continue loop if it is an error token
 
-        reportError(currToken, currToken.message);
+        report(MsgType::ERROR, currToken.message, currToken, currToken);
     }
 
     return prev();
@@ -51,7 +51,7 @@ bool Parser::assertConsume(TokenType type, std::string message)
     bool correct = check(type);
 
     if (!correct)
-        reportError(prev(), message);
+        report(MsgType::ERROR, message, prev(), prev());
 
     consume();
     return correct;
