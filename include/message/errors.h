@@ -71,13 +71,13 @@ void report(MsgType msgtype, const std::string &message, Location shl, Locations
     }
     // }}}
 
-    if (ansiCodesEnabled())
-        std::cerr << A_FG_CYAN;
 
     auto pl = showl.start;
     auto ul = showl.start;
     while (true)
     {
+        if (ansiCodesEnabled())
+            std::cerr << A_RESET;
         while (*pl != '\n' && pl != showl.end)
         {
             std::cerr << *pl;
@@ -85,6 +85,8 @@ void report(MsgType msgtype, const std::string &message, Location shl, Locations
         }
         std::cerr << "\n";
 
+        if (ansiCodesEnabled())
+            std::cerr << A_FG_CYAN;
         while (*ul != '\n' && ul != showl.end)
         {
             bool draw = false;
