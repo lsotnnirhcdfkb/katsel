@@ -42,11 +42,7 @@ void CodeGen::visitTernaryExpr(ASTNS::TernaryExpr *a)
     Value falsev = evalExpr(a->falses.get());
 
     if (truev.type != falsev.type)
-    {
-        // TODO
-        std::cerr << "ternary expression operands of different types are currently not supported" << std::endl;
-        std::abort();
-    }
+        report(MsgType::INTERNALERR, "Ternary expression operands of different types are currently not supported", a, a->falses.get(), a->trues.get());
 
     exprRetVal = Value(truev.type, context.builder.CreateSelect(cond.val, truev.val, falsev.val));
 }
@@ -68,8 +64,7 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
             break;
 
         case TokenType::NULLPTRLIT:
-            std::cerr << "nullptr literal is not supported because we do not have pointers yet ahhaahahhaaa" << std::endl;
-            std::abort();
+            report(MsgType::INTERNALERR, "NULLPTR literal is not supported because we do not have pointers yet", a, a);
             break;
 
         case TokenType::DECINTLIT:
@@ -121,7 +116,7 @@ void CodeGen::visitCallExpr(ASTNS::CallExpr *a)
     FunctionType *fty = dynamic_cast<FunctionType*>(func.type);
     if (!fty)
     {
-        std::cerr << "Cannot call non-function" << std::endl; // TODO: aslo this entire function
+        report(MsgType::ERROR, msg::cannotCall(), a, a->func.get());
         return;
     }
 

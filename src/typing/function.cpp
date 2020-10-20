@@ -4,6 +4,8 @@
 #include "llvm/IR/DerivedTypes.h"
 
 #include <sstream>
+#include <iostream>
+#include <cstdlib>
 
 FunctionType::FunctionType(Type *ret, std::vector<Type*> paramtys): ret(ret), paramtys(paramtys) {}
 
@@ -32,24 +34,20 @@ bool FunctionType::hasOperator(TokenType)
     return false; // function has no operators
 }
 
-Value FunctionType::binOp(CodeGenContext &, Value, Value, Token)
+Value FunctionType::binOp(CodeGenContext &, Value, Value, Token op)
 {
-    // TODO: report internal errors
-    // like
-    // !!! Internal Error at __FILE__:__LINE__: <message>
-    // !!! Aborting
-
-    return Value();
+    report(MsgType::INTERNALERR, "FunctionType::binOp called", op, op);
 }
 
-Value FunctionType::unaryOp(CodeGenContext &, Value, Token)
+Value FunctionType::unaryOp(CodeGenContext &, Value, Token, op)
 {
-    return Value();
+    report(MsgType::INTERNALERR, "FunctionType::unaryOp called", op, op);
 }
 
 Value FunctionType::castTo(CodeGenContext &, Value, Type *)
 {
-    return Value();
+    std::cerr << "Cannot cast function type to something else" << std::endl; // TODO: this work
+    std::abort();
 }
 
 Value FunctionType::isTrue(CodeGenContext &, Value)

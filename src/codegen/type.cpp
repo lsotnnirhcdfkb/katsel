@@ -24,8 +24,6 @@ void CodeGen::visitBaseType(ASTNS::BaseType *a)
         case TokenType::VOID: typeRetVal = context.getVoidType();
 
         default:
-          // also same TODO as in typing/type.cpp
-          // reportInternalError function
-          std::abort();
+            report(MsgType::INTERNALERR, "Invalid BaseType type token", a, a);
     }
 }

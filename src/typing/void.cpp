@@ -19,18 +19,19 @@ bool VoidType::hasOperator(TokenType)
 
 Value VoidType::binOp(CodeGenContext &, Value, Value, Token)
 {
-    // TODO also internal errors
-    return Value();
+    report(MsgType::INTERNALERR, "VoidType::binOp called", op, op);
 }
 
 Value VoidType::unaryOp(CodeGenContext &, Value, Token)
 {
+    report(MsgType::INTERNALERR, "VoidType::unaryOp called", op, op);
     return Value();
 }
 
 Value VoidType::castTo(CodeGenContext &, Value, Type *)
 {
-    return Value();
+    std::cerr << "VoidType::castTo called" << std::endl; // TODO: this work
+    std::abort();
 }
 
 Value VoidType::isTrue(CodeGenContext &, Value)

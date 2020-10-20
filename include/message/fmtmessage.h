@@ -83,4 +83,8 @@ namespace msg
     {
         return "Undefined variable";
     }
+    const inline std::string cannotCall()
+    {
+        return "Cannot call non-function";
+    }
 }
