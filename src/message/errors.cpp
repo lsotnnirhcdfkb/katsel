@@ -1,115 +1,109 @@
-
 #include "message/errors.h"
 
-struct Location
-{
-    std::string::iterator const start;
-    std::string::iterator const end;
-    File const &file;
-};
+#include "message/ansistuff.h"
 
-Location TokenToLoc(Token const &t)
-{
-    return Location {t.start, t.end, t.sourcefile};
-}
+#include <iostream>
+#include <vector>
+#include <algorithm>
 
-Location getLine(Token const &t)
+Location getLine(Location const &l)
 {
-    auto linestart (t.start);
-    while (linestart != t.sourcefile.source.begin() && *linestart != '\n') --linestart; // until *linestart is \n
+    auto linestart (l.start);
+    while (linestart != l.file.source.begin() && *linestart != '\n') --linestart; // until *linestart is \n
     // once *linestart is \n then go forward once
 
-    // if linestart == t.sourcefile.source.begin(), then loop stopped
+    // if linestart == l.file.source.begin(), then loop stopped
     // because iterator hit beginning of sourcefile.source, not
     // because it hit \n, so there is no need to consume the \n
-    if (linestart != t.sourcefile.source.begin())
+    if (linestart != l.file.source.begin())
         ++linestart;
 
-    auto lineend(t.end);
-    while (lineend != t.sourcefile.source.end() && *lineend != '\n') ++lineend;
+    auto lineend (l.end);
+    while (lineend != l.file.source.end() && *lineend != '\n') ++lineend;
     // *lineend should be \n
 
-    Location l {linestart, lineend, t.sourcefile};
-    return l;
+    return Location(linestart, lineend, l.file);
 }
 
-void report(std::string &&message, Location showl, std::vector<Location> underlinel, std::ostream &stream, bool ansiCodes)
+template <typename ... Locations>
+void report(MsgType msgtype, const std::string &message, Location shl, Locations ... l)
 {
-    stream << message;
+    std::vector<Location> underlines (l...);
+    Location showl (getLine(shl));
 
-    if (ansiCodes) stream << "\033[0;2m";
-    stream << " | ";
+    // switch msgtype {{{
+    switch (msgtype)
+    {
+        case MsgType::ERROR:
+            if (ansiCodesEnabled())
+                std::cerr << A_BOLD A_FG_RED "Error" A_RESET " in " A_FG_CYAN << showl.file.filename << A_RESET " " << message << std::endl;
+            else
+                std::cerr << "Error in " << showl.file.filename << " " << message << std::endl;
+            break;
+        case MsgType::WARNING:
+            if (ansiCodesEnabled())
+                std::cerr << A_BOLD A_FG_MAGENTA "Warning" A_RESET " in " A_FG_CYAN << showl.file.filename << A_RESET " " << message << std::endl;
+            else
+                std::cerr << "Warning in " << showl.file.filename << " " << message << std::endl;
+            break;
+        case MsgType::DEBUG:
+            if (ansiCodesEnabled())
+                std::cerr << A_BOLD A_FG_GREEN "Debug message" A_RESET " in " A_FG_CYAN << showl.file.filename << A_RESET " " << message << std::endl;
+            else
+                std::cerr << "Debug message in " << showl.file.filename << " " << message << std::endl;
+            break;
+        case MsgType::INTERNALERR:
+            if (ansiCodesEnabled())
+                std::cerr << A_BOLD "!!! - " A_FG_RED "Internal error" A_RESET ": " A_BOLD << message << A_RESET << std::endl;
+            else
+                std::cerr << "!!! - Internal error: " << message << std::endl;
+            std::cerr << "Aborting" << std::endl;
+            std::abort();
+            break;
+    }
+    // }}}
 
-    if (ansiCodes) stream << "\033[0m";
-    stream << std::string(showl.start, showl.end) << std::endl;
+    if (ansiCodesEnabled())
+        std::cerr << A_FG_CYAN;
 
-    if (ansiCodes) stream << "\033[0;2m";
-    stream << " | ";
-    if (ansiCodes) stream << "\033[1;36;1m";
-
-    std::string::iterator it = showl.start;
+    auto pl = showl.start;
+    auto ul = showl.start;
     while (true)
     {
-        bool draw = false;
-        bool done = true;
-        for (Location &l : underlinel)
+        while (*pl != '\n' && pl != showl.end)
         {
-            if (it >= l.start && it < l.end)
-            {
-                draw = true;
-                done = false;
-            }
-
-            if (it < l.start)
-            {
-                done = false;
-            }
+            std::cout << *pl;
+            ++pl;
         }
 
-        if (draw)
-            stream << "^";
-        else
-            stream << " ";
+        while (*ul != '\n' && ul != showl.end)
+        {
+            bool draw = false;
+            for (Location &l : underlines)
+            {
+                if (ul >= l.start && ul < l.end)
+                {
+                    draw = true;
+                    break;
+                }
+            }
 
-        if (done)
+            if (draw)
+                std::cerr << "^";
+            else
+                std::cerr << " ";
+            ++ul;
+        }
+
+        if (pl == showl.end)
             break;
 
-        ++it;
+        ++pl; // consume \n
+        ++ul;
     }
-    if (ansiCodes)
-        stream << "\033[0m";
-    stream << std::endl;
-}
 
-void reportError(Token const &t, std::string const &message)
-{
-    std::stringstream ss;
     if (ansiCodesEnabled())
-        ss << "\033[31;1mError\033[0m at \033[37m" << t.sourcefile.filename << ":" << t.line << ":" << t.column << "\033[0m: " << message << std::endl;
-    else
-        ss << "Error at " << t.sourcefile.filename << ":" << t.line << ":" << t.column << ": " << message << std::endl;
-
-    report(ss.str(), getLine(t), {TokenToLoc(t)}, std::cerr, ansiCodesEnabled());
+        std::cerr << A_RESET;
+    std::cerr << std::endl;
 }
 
-void reportWarning(Token const &t, std::string const &message)
-{
-    std::stringstream ss;
-    if (ansiCodesEnabled())
-        ss << "\033[35;1mWarning\033[0m at \033[37m" << t.sourcefile.filename << ":" << t.line << ":" << t.column << "\033[0m: " << message << std::endl;
-    else
-        ss << "Warning at " << t.sourcefile.filename << ":" << t.line << ":" << t.column << ": " << message << std::endl;
-
-    report(ss.str(), getLine(t), {TokenToLoc(t)}, std::cerr, ansiCodesEnabled());
-}
-
-void reportDebug(Token const &t, std::string const &message)
-{
-    std::stringstream ss;
-    if (ansiCodesEnabled())
-        ss << "\033[32;1mDebug message\033[0m at \033[37m" << t.sourcefile.filename << ":" << t.line << ":" << t.column << "\033[0m: " << message << std::endl;
-    else
-        ss << "Debug message at " << t.sourcefile.filename << ":" << t.line << ":" << t.column << ": " << message << std::endl;
-
-    report(ss.str(), getLine(t), {TokenToLoc(t)}, std::cerr, ansiCodesEnabled());
-}

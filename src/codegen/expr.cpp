@@ -2,6 +2,8 @@
 #include "message/fmtmessage.h"
 #include "message/errors.h"
 
+#include <iostream>
+
 void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
 {
     // TODO: assignment

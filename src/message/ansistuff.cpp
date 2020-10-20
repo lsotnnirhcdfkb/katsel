@@ -4,6 +4,8 @@
 
 #include "message/ansistuff.h"
 
+#include <iostream>
+
 // i know that global variables are evil
 // but this one is static and not extern and theres a function to get it
 // so i think itll be fine but we will see once i compile it
