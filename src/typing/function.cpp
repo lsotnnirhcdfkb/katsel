@@ -57,3 +57,8 @@ Value FunctionType::isTrue(CodeGenContext &, Value)
 {
     return Value();
 }
+void FunctionType::castTwoVals(CodeGenContext &, Value &, Value &)
+{
+    std::cerr << "FunctionType::castTwoVals called" << std::endl;
+    std::abort();
+}

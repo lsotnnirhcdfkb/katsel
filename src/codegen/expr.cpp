@@ -22,7 +22,7 @@ void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
         }
         llvm::LoadInst *load = static_cast<llvm::LoadInst*>(lhs.val);
 
-        Value target = Value(lhs.type, load->getPointerOperand());
+        Value target = Value(lhs.type, load->getPointerOperand()); // TODO: cast type 
         context.builder.CreateStore(rhs.val, target.val);
         load->eraseFromParent(); // dont need the load anymore
         exprRetVal = rhs;
@@ -66,8 +66,7 @@ void CodeGen::visitTernaryExpr(ASTNS::TernaryExpr *a)
     if (!truev.val || !falsev.val)
         return;
 
-    if (truev.type != falsev.type)
-        report(MsgType::INTERNALERR, "Ternary expression operands of different types are currently not supported", a, a->falses.get(), a->trues.get());
+    truev.type->castTwoVals(context, truev, falsev);
 
     exprRetVal = Value(truev.type, context.builder.CreateSelect(cond.val, truev.val, falsev.val));
 }

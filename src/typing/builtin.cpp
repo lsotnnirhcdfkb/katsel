@@ -69,6 +69,95 @@ bool BuiltinType::hasOperator(TokenType)
 // binOp {{{1
 Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op)
 {
+    if (l.type != this)
+        report(MsgType::INTERNALERR, "BuiltinType::binOp called with left operand type not equal to this", op, op);
+
+    castTwoVals(cgc, l, r);
+
+    switch (op.type)
+    {
+        case TokenType::DOUBLEPIPE:
+            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateOr(l.val, r.val)); // TODO: Shortcircuit
+            break;
+
+        case TokenType::DOUBLEAMPER:
+            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateAnd(l.val, r.val));
+            break;
+
+        case TokenType::BANGEQUAL:
+            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpNE(l.val, r.val));
+            break;
+
+        case TokenType::DOUBLEEQUAL:
+            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpEQ(l.val, r.val));
+            break;
+
+        case TokenType::LESS:
+            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpULT(l.val, r.val)); // TODO: unsigned and signed
+            break;
+
+        case TokenType::GREATER:
+            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpUGT(l.val, r.val));
+            break;
+
+        case TokenType::LESSEQUAL:
+            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpULE(l.val, r.val));
+            break;
+
+        case TokenType::GREATEREQUAL:
+            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpUGE(l.val, r.val));
+            break;
+
+        case TokenType::CARET:
+            return Value(l.type, cgc.builder.CreateXor(l.val, r.val));
+            break;
+
+        case TokenType::PIPE:
+            return Value(l.type, cgc.builder.CreateOr(l.val, r.val));
+            break;
+
+        case TokenType::AMPER:
+            return Value(l.type, cgc.builder.CreateAnd(l.val, r.val));
+            break;
+
+        case TokenType::DOUBLELESS:
+            return Value(l.type, cgc.builder.CreateShl(l.val, r.val));
+            break;
+
+        case TokenType::DOUBLEGREATER:
+            return Value(l.type, cgc.builder.CreateLShr(l.val, r.val));
+            break;
+
+        case TokenType::PLUS:
+            return Value(l.type, cgc.builder.CreateAdd(l.val, r.val));
+            break;
+
+        case TokenType::MINUS:
+            return Value(l.type, cgc.builder.CreateSub(l.val, r.val));
+            break;
+
+        case TokenType::STAR:
+            return Value(l.type, cgc.builder.CreateMul(l.val, r.val));
+            break;
+
+        case TokenType::SLASH:
+            return Value(l.type, cgc.builder.CreateUDiv(l.val, r.val));
+            break;
+
+        case TokenType::PERCENT:
+            return Value(l.type, cgc.builder.CreateURem(l.val, r.val));
+            break;
+
+        default:
+            report(MsgType::INTERNALERR, "Invalid binary operator", op, op);
+    }
+
+    report(MsgType::INTERNALERR, "binOp went out of switch despite default label", op, op);
+    return Value(); // literally unreachable
+}
+// castTwoVals {{{1
+void BuiltinType::castTwoVals(CodeGenContext &cgc, Value &v1, Value &v2)
+{
     const static std::map<BuiltinType::Builtins, int> builtinOrder = {
         {BuiltinType::Builtins::BOOL  ,  0},
         {BuiltinType::Builtins::CHAR  ,  1},
@@ -84,108 +173,30 @@ Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op)
         {BuiltinType::Builtins::DOUBLE, 10}
     };
 
-    if (l.type != this)
-        report(MsgType::INTERNALERR, "BuiltinType::binOp called with l value type not equal to this", op, op);
-
-    BuiltinType *rty;
-    if (!(rty = dynamic_cast<BuiltinType*>(r.type))) // if r.type is not any of builtins
+    if (v1.type != this)
     {
-        report(MsgType::ERROR, msg::invalidROperand(l, op, r.type), op);
-        return Value();
+        std::cerr << "castTwoVals called with v1.type != this" << std::endl;
+        std::abort();
     }
 
-    int ltyOrder = builtinOrder.at(this->type);
-    int rtyOrder = builtinOrder.at(rty->type);
+    BuiltinType *v2ty;
+    if (!(v2ty = dynamic_cast<BuiltinType*>(v2.type))) // if r.type is not any of builtins
+    {
+        std::cerr << "Cannot cast two values to same type" << std::endl;
+        return;
+    }
+
+    int v1tyO = builtinOrder.at(this->type);
+    int v2tyO = builtinOrder.at(v2ty->type);
 
     BuiltinType *destTy;
-    if (rtyOrder > ltyOrder) // lty == this
-        destTy = rty; // if rty > lty, cast to rty
+    if (v2tyO > v1tyO)
+        destTy = v2ty;
     else
-        destTy = this; // else if rty <= lty, cast to lty
+        destTy = this;
 
-    Value lcasted = castTo(cgc, l, destTy);
-    Value rcasted = castTo(cgc, r, destTy);
-
-    switch (op.type)
-    {
-        case TokenType::DOUBLEPIPE:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateOr(lcasted.val, rcasted.val)); // TODO: Shortcircuit
-            break;
-
-        case TokenType::DOUBLEAMPER:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateAnd(lcasted.val, rcasted.val));
-            break;
-
-        case TokenType::BANGEQUAL:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpNE(lcasted.val, rcasted.val));
-            break;
-
-        case TokenType::DOUBLEEQUAL:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpEQ(lcasted.val, rcasted.val));
-            break;
-
-        case TokenType::LESS:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpULT(lcasted.val, rcasted.val)); // TODO: unsigned and signed
-            break;
-
-        case TokenType::GREATER:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpUGT(lcasted.val, rcasted.val));
-            break;
-
-        case TokenType::LESSEQUAL:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpULE(lcasted.val, rcasted.val));
-            break;
-
-        case TokenType::GREATEREQUAL:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpUGE(lcasted.val, rcasted.val));
-            break;
-
-        case TokenType::CARET:
-            return Value(destTy, cgc.builder.CreateXor(lcasted.val, rcasted.val));
-            break;
-
-        case TokenType::PIPE:
-            return Value(destTy, cgc.builder.CreateOr(lcasted.val, rcasted.val));
-            break;
-
-        case TokenType::AMPER:
-            return Value(destTy, cgc.builder.CreateAnd(lcasted.val, rcasted.val));
-            break;
-
-        case TokenType::DOUBLELESS:
-            return Value(destTy, cgc.builder.CreateShl(lcasted.val, rcasted.val));
-            break;
-
-        case TokenType::DOUBLEGREATER:
-            return Value(destTy, cgc.builder.CreateLShr(lcasted.val, rcasted.val));
-            break;
-
-        case TokenType::PLUS:
-            return Value(destTy, cgc.builder.CreateAdd(lcasted.val, rcasted.val));
-            break;
-
-        case TokenType::MINUS:
-            return Value(destTy, cgc.builder.CreateSub(lcasted.val, rcasted.val));
-            break;
-
-        case TokenType::STAR:
-            return Value(destTy, cgc.builder.CreateMul(lcasted.val, rcasted.val));
-            break;
-
-        case TokenType::SLASH:
-            return Value(destTy, cgc.builder.CreateUDiv(lcasted.val, rcasted.val));
-            break;
-
-        case TokenType::PERCENT:
-            return Value(destTy, cgc.builder.CreateURem(lcasted.val, rcasted.val));
-            break;
-
-        default:
-            report(MsgType::INTERNALERR, "Invalid binary operator", op, op);
-    }
-
-    report(MsgType::INTERNALERR, "binOp went out of switch despite default label", op, op);
-    return Value(); // literally unreachable
+    v1 = castTo(cgc, v1, destTy);
+    v2 = castTo(cgc, v2, destTy);
 }
 // castTo {{{1
 Value BuiltinType::castTo(CodeGenContext &cgc, Value v, Type *toty)

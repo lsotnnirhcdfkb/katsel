@@ -40,3 +40,8 @@ Value VoidType::isTrue(CodeGenContext &, Value)
 {
     return Value();
 }
+void VoidType::castTwoVals(CodeGenContext &, Value &, Value &)
+{
+    std::cerr << "VoidType::castTwoVals called" << std::endl;
+    std::abort();
+}
