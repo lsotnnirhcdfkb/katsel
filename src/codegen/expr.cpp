@@ -83,10 +83,16 @@ void CodeGen::visitTernaryExpr(ASTNS::TernaryExpr *a)
     falseb = context.builder.GetInsertBlock();
     context.builder.CreateBr(afterb);
 
+    Type *castToType = truev.type->pickType(truev.type, falsev.type);
+    context.builder.SetInsertPoint(trueb);
+    truev = truev.type->castTo(context, truev, castToType);
+
+    context.builder.SetInsertPoint(falseb);
+    falsev = falsev.type->castTo(context, falsev, castToType);
+
     f->getBasicBlockList().push_back(afterb);
     context.builder.SetInsertPoint(afterb);
 
-    truev.type->castTwoVals(context, truev, falsev);
     llvm::PHINode *phi = context.builder.CreatePHI(truev.type->toLLVMType(context.context), 2);
     phi->addIncoming(truev.val, trueb);
     phi->addIncoming(falsev.val, falseb);

@@ -40,8 +40,8 @@ Value VoidType::isTrue(CodeGenContext &, Value)
 {
     return Value();
 }
-void VoidType::castTwoVals(CodeGenContext &, Value &, Value &)
+Type* VoidType::pickType(Type *, Type *)
 {
-    std::cerr << "VoidType::castTwoVals called" << std::endl;
+    std::cerr << "VoidType::pickType called" << std::endl;
     std::abort();
 }

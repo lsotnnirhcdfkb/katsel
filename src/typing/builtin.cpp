@@ -72,7 +72,9 @@ Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op)
     if (l.type != this)
         report(MsgType::INTERNALERR, "BuiltinType::binOp called with left operand type not equal to this", op, op);
 
-    castTwoVals(cgc, l, r);
+    Type *picked (pickType(l.type, r.type));
+    l = castTo(cgc, l, picked);
+    r = castTo(cgc, r, picked);
 
     switch (op.type)
     {
@@ -155,8 +157,8 @@ Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op)
     report(MsgType::INTERNALERR, "binOp went out of switch despite default label", op, op);
     return Value(); // literally unreachable
 }
-// castTwoVals {{{1
-void BuiltinType::castTwoVals(CodeGenContext &cgc, Value &v1, Value &v2)
+// pickType {{{1
+Type* BuiltinType::pickType(Type *ty1, Type *ty2)
 {
     const static std::map<BuiltinType::Builtins, int> builtinOrder = {
         {BuiltinType::Builtins::BOOL  ,  0},
@@ -173,30 +175,25 @@ void BuiltinType::castTwoVals(CodeGenContext &cgc, Value &v1, Value &v2)
         {BuiltinType::Builtins::DOUBLE, 10}
     };
 
-    if (v1.type != this)
+    if (ty1 != this)
     {
-        std::cerr << "castTwoVals called with v1.type != this" << std::endl;
-        std::abort();
+        std::cerr << "pickType called with t1 != this" << std::endl;
     }
 
-    BuiltinType *v2ty;
-    if (!(v2ty = dynamic_cast<BuiltinType*>(v2.type))) // if r.type is not any of builtins
+    BuiltinType *bty2;
+    if (!(bty2 = dynamic_cast<BuiltinType*>(ty2))) // if r.type is not any of builtins
     {
         std::cerr << "Cannot cast two values to same type" << std::endl;
-        return;
+        return nullptr;
     }
 
-    int v1tyO = builtinOrder.at(this->type);
-    int v2tyO = builtinOrder.at(v2ty->type);
+    int bty1O = builtinOrder.at(this->type);
+    int bty2O = builtinOrder.at(bty2->type);
 
-    BuiltinType *destTy;
-    if (v2tyO > v1tyO)
-        destTy = v2ty;
+    if (bty2O > bty1O)
+        return bty2;
     else
-        destTy = this;
-
-    v1 = castTo(cgc, v1, destTy);
-    v2 = castTo(cgc, v2, destTy);
+        return this;
 }
 // castTo {{{1
 Value BuiltinType::castTo(CodeGenContext &cgc, Value v, Type *toty)

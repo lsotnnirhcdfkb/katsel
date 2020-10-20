@@ -57,8 +57,8 @@ Value FunctionType::isTrue(CodeGenContext &, Value)
 {
     return Value();
 }
-void FunctionType::castTwoVals(CodeGenContext &, Value &, Value &)
+Type* FunctionType::pickType(Type *, Type *)
 {
-    std::cerr << "FunctionType::castTwoVals called" << std::endl;
+    std::cerr << "FunctionType::pickType called" << std::endl;
     std::abort();
 }

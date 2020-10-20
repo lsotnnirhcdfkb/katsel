@@ -19,7 +19,7 @@ public:
     virtual llvm::Type* toLLVMType(llvm::LLVMContext &l) = 0;
     virtual std::string stringify() = 0;
     virtual bool hasOperator(TokenType t) = 0;
-    virtual void castTwoVals(CodeGenContext &cgc, Value &v1, Value &v2) = 0;
+    virtual Type* pickType(Type *ty1, Type *ty2) = 0;
     virtual Value binOp(CodeGenContext &cgc, Value l, Value r, Token op) = 0;
     virtual Value unaryOp(CodeGenContext &cgc, Value operand, Token op) = 0;
     virtual Value castTo(CodeGenContext &cgc, Value v, Type *toty) = 0;
@@ -51,7 +51,7 @@ public:
     llvm::Type* toLLVMType(llvm::LLVMContext &l) override;
     std::string stringify() override;
     bool hasOperator(TokenType t) override;
-    void castTwoVals(CodeGenContext &cgc, Value &v1, Value &v2) override;
+    Type* pickType(Type *ty1, Type *ty2) override;
     Value binOp(CodeGenContext &cgc, Value l, Value r, Token op) override;
     Value unaryOp(CodeGenContext &cgc, Value operand, Token op) override;
     Value castTo(CodeGenContext &cgc, Value v, Type *toty) override;
@@ -69,7 +69,7 @@ public:
     llvm::Type* toLLVMType(llvm::LLVMContext &l) override;
     std::string stringify() override;
     bool hasOperator(TokenType t) override;
-    void castTwoVals(CodeGenContext &cgc, Value &v1, Value &v2) override;
+    Type* pickType(Type *ty1, Type *ty2) override;
     Value binOp(CodeGenContext &cgc, Value l, Value r, Token op) override;
     Value unaryOp(CodeGenContext &cgc, Value operand, Token op) override;
     Value castTo(CodeGenContext &cgc, Value v, Type *toty) override;
@@ -82,7 +82,7 @@ public:
     llvm::Type* toLLVMType(llvm::LLVMContext &l) override;
     std::string stringify() override;
     bool hasOperator(TokenType t) override;
-    void castTwoVals(CodeGenContext &cgc, Value &v1, Value &v2) override;
+    Type* pickType(Type *ty1, Type *ty2) override;
     Value binOp(CodeGenContext &cgc, Value l, Value r, Token op) override;
     Value unaryOp(CodeGenContext &cgc, Value operand, Token op) override;
     Value castTo(CodeGenContext &cgc, Value v, Type *toty) override;
