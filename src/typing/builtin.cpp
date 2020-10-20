@@ -90,7 +90,7 @@ Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op)
     BuiltinType *rty;
     if (!(rty = dynamic_cast<BuiltinType*>(r.type))) // if r.type is not any of builtins
     {
-        report(MsgType::ERROR, msg::invalidROperand(l, op), op);
+        report(MsgType::ERROR, msg::invalidROperand(l, op, r.type), op);
         return Value();
     }
 
