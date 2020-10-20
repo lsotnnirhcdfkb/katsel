@@ -185,6 +185,7 @@ Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op)
     }
 
     report(MsgType::INTERNALERR, "binOp went out of switch despite default label", op, op);
+    return Value(); // literally unreachable
 }
 // castTo {{{1
 Value BuiltinType::castTo(CodeGenContext &cgc, Value v, Type *toty)
@@ -319,6 +320,7 @@ Value BuiltinType::unaryOp(CodeGenContext &cgc, Value v, Token op)
     }
 
     report(MsgType::INTERNALERR, "unaryOp went out of switch despite default label", op, op);
+    return Value(); // literally unreachable
 }
 // isTrue {{{1
 Value BuiltinType::isTrue(CodeGenContext &cgc, Value v)
