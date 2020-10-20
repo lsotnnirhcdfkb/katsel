@@ -57,18 +57,37 @@ void CodeGen::visitUnaryExpr(ASTNS::UnaryExpr *a)
 void CodeGen::visitTernaryExpr(ASTNS::TernaryExpr *a)
 {
 	Value cond = evalExpr(a->condition.get());
-    if (!cond.val)
-        return;
+    if (!cond.val) return;
     cond = cond.type->isTrue(context, cond);
-    Value truev = evalExpr(a->trues.get());
-    Value falsev = evalExpr(a->falses.get());
 
-    if (!truev.val || !falsev.val)
-        return;
+    llvm::Function *f = context.builder.GetInsertBlock()->getParent();
+    llvm::BasicBlock *trueb  = llvm::BasicBlock::Create(context.context, "trueb", f);
+    llvm::BasicBlock *falseb = llvm::BasicBlock::Create(context.context, "falseb");
+    llvm::BasicBlock *afterb = llvm::BasicBlock::Create(context.context, "afterb");
+
+    context.builder.CreateCondBr(cond.val, trueb, falseb);
+
+    context.builder.SetInsertPoint(trueb);
+    Value truev = evalExpr(a->trues.get());
+    if (!truev.val) return;
+    trueb = context.builder.GetInsertBlock();
+    context.builder.CreateBr(afterb);
+
+    f->getBasicBlockList().push_back(falseb);
+    context.builder.SetInsertPoint(falseb);
+    Value falsev = evalExpr(a->falses.get());
+    if (!falsev.val) return;
+    falseb = context.builder.GetInsertBlock();
+    context.builder.CreateBr(afterb);
+
+    f->getBasicBlockList().push_back(afterb);
+    context.builder.SetInsertPoint(afterb);
 
     truev.type->castTwoVals(context, truev, falsev);
-
-    exprRetVal = Value(truev.type, context.builder.CreateSelect(cond.val, truev.val, falsev.val));
+    llvm::PHINode *phi = context.builder.CreatePHI(truev.type->toLLVMType(context.context), 2);
+    phi->addIncoming(truev.val, trueb);
+    phi->addIncoming(falsev.val, falseb);
+    exprRetVal = Value(truev.type, phi);
 }
 
 void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
