@@ -51,8 +51,6 @@ void enableTerminalCodes()
 
 void resetTerminal()
 {
-    std::cout << "\033[0m";
-
     if (!SetConsoleMode(hOut, originalOutMode))
     {
         // can't set the terminal back to normal, so it has to deal with that now i guess
@@ -69,7 +67,6 @@ void enableTerminalCodes()
 
 void resetTerminal()
 {
-    std::cout << "\033[0m";
     ansiCodes = true;
 }
 #endif
