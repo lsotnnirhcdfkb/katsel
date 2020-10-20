@@ -17,23 +17,18 @@ enum class MsgType
 
 struct Location
 {
-    std::string::iterator const start;
-    std::string::iterator const end;
-    File const &file;
+    std::string::iterator start;
+    std::string::iterator end;
+    File *file;
 
     Location(Token &t);
+    Location(std::string::iterator start, std::string::iterator end, File *file);
 
-    Location(std::string::iterator const start, std::string::iterator const end, File const &file);
-
-    Location(ASTNS::Expr *e);
-    Location(ASTNS::Decl *e);
-    Location(ASTNS::Type *e);
-    Location(ASTNS::Param *e);
-    Location(ASTNS::Arg *e);
+    Location(ASTNS::Expr *a);
+    Location(ASTNS::Decl *a);
+    Location(ASTNS::Type *a);
+    Location(ASTNS::Stmt *a);
 };
 
 template <typename ... Locations>
 void report(MsgType msgtype, const std::string &message, Locations ... l);
-
-template <typename ... Whatever>
-void reportError(Whatever ... whatever);
