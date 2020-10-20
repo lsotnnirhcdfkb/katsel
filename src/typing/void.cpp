@@ -21,6 +21,7 @@ bool VoidType::hasOperator(TokenType)
 Value VoidType::binOp(CodeGenContext &, Value, Value, Token op)
 {
     report(MsgType::INTERNALERR, "VoidType::binOp called", op, op);
+    return Value();
 }
 
 Value VoidType::unaryOp(CodeGenContext &, Value, Token op)

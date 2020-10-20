@@ -38,11 +38,13 @@ bool FunctionType::hasOperator(TokenType)
 Value FunctionType::binOp(CodeGenContext &, Value, Value, Token op)
 {
     report(MsgType::INTERNALERR, "FunctionType::binOp called", op, op);
+    return Value();
 }
 
 Value FunctionType::unaryOp(CodeGenContext &, Value, Token op)
 {
     report(MsgType::INTERNALERR, "FunctionType::unaryOp called", op, op);
+    return Value();
 }
 
 Value FunctionType::castTo(CodeGenContext &, Value, Type *)
