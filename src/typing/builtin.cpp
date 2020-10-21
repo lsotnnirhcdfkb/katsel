@@ -67,7 +67,7 @@ bool BuiltinType::hasOperator(TokenType)
     return true; // builtin has all operators
 }
 // binOp {{{1
-Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op)
+Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS::Expr *ast)
 {
     if (l.type != this)
         report(MsgType::INTERNALERR, "BuiltinType::binOp called with left operand type not equal to this", op, op);
@@ -79,75 +79,75 @@ Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op)
     switch (op.type)
     {
         case TokenType::DOUBLEPIPE:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateOr(l.val, r.val)); // TODO: Shortcircuit
+            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateOr(l.val, r.val), ast); // TODO: Shortcircuit
             break;
 
         case TokenType::DOUBLEAMPER:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateAnd(l.val, r.val));
+            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateAnd(l.val, r.val), ast);
             break;
 
         case TokenType::BANGEQUAL:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpNE(l.val, r.val));
+            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpNE(l.val, r.val), ast);
             break;
 
         case TokenType::DOUBLEEQUAL:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpEQ(l.val, r.val));
+            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpEQ(l.val, r.val), ast);
             break;
 
         case TokenType::LESS:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpULT(l.val, r.val)); // TODO: unsigned and signed
+            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpULT(l.val, r.val), ast); // TODO: unsigned and signed
             break;
 
         case TokenType::GREATER:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpUGT(l.val, r.val));
+            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpUGT(l.val, r.val), ast);
             break;
 
         case TokenType::LESSEQUAL:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpULE(l.val, r.val));
+            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpULE(l.val, r.val), ast);
             break;
 
         case TokenType::GREATEREQUAL:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpUGE(l.val, r.val));
+            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpUGE(l.val, r.val), ast);
             break;
 
         case TokenType::CARET:
-            return Value(l.type, cgc.builder.CreateXor(l.val, r.val));
+            return Value(l.type, cgc.builder.CreateXor(l.val, r.val), ast);
             break;
 
         case TokenType::PIPE:
-            return Value(l.type, cgc.builder.CreateOr(l.val, r.val));
+            return Value(l.type, cgc.builder.CreateOr(l.val, r.val), ast);
             break;
 
         case TokenType::AMPER:
-            return Value(l.type, cgc.builder.CreateAnd(l.val, r.val));
+            return Value(l.type, cgc.builder.CreateAnd(l.val, r.val), ast);
             break;
 
         case TokenType::DOUBLELESS:
-            return Value(l.type, cgc.builder.CreateShl(l.val, r.val));
+            return Value(l.type, cgc.builder.CreateShl(l.val, r.val), ast);
             break;
 
         case TokenType::DOUBLEGREATER:
-            return Value(l.type, cgc.builder.CreateLShr(l.val, r.val));
+            return Value(l.type, cgc.builder.CreateLShr(l.val, r.val), ast);
             break;
 
         case TokenType::PLUS:
-            return Value(l.type, cgc.builder.CreateAdd(l.val, r.val));
+            return Value(l.type, cgc.builder.CreateAdd(l.val, r.val), ast);
             break;
 
         case TokenType::MINUS:
-            return Value(l.type, cgc.builder.CreateSub(l.val, r.val));
+            return Value(l.type, cgc.builder.CreateSub(l.val, r.val), ast);
             break;
 
         case TokenType::STAR:
-            return Value(l.type, cgc.builder.CreateMul(l.val, r.val));
+            return Value(l.type, cgc.builder.CreateMul(l.val, r.val), ast);
             break;
 
         case TokenType::SLASH:
-            return Value(l.type, cgc.builder.CreateUDiv(l.val, r.val));
+            return Value(l.type, cgc.builder.CreateUDiv(l.val, r.val), ast);
             break;
 
         case TokenType::PERCENT:
-            return Value(l.type, cgc.builder.CreateURem(l.val, r.val));
+            return Value(l.type, cgc.builder.CreateURem(l.val, r.val), ast);
             break;
 
         default:
@@ -239,28 +239,28 @@ Value BuiltinType::castTo(CodeGenContext &cgc, Value v, Type *toty)
         int stySize = tysize.at(sty->type);
         int etySize = tysize.at(ety->type);
         if (stySize > etySize)
-            return Value(ety, cgc.builder.CreateTrunc(v.val, ety->toLLVMType(cgc.context)));
+            return Value(ety, cgc.builder.CreateTrunc(v.val, ety->toLLVMType(cgc.context)), v.ast);
         else
             if (etysigned)
-                return Value(ety, cgc.builder.CreateZExt(v.val, ety->toLLVMType(cgc.context)));
+                return Value(ety, cgc.builder.CreateZExt(v.val, ety->toLLVMType(cgc.context)), v.ast);
             else
-                return Value(ety, cgc.builder.CreateSExt(v.val, ety->toLLVMType(cgc.context)));
+                return Value(ety, cgc.builder.CreateSExt(v.val, ety->toLLVMType(cgc.context)), v.ast);
     }
     else if (styintegral && !etyintegral)
     {
         // int -> fp
         if (stysigned)
-            return Value(ety, cgc.builder.CreateSIToFP(v.val, ety->toLLVMType(cgc.context)));
+            return Value(ety, cgc.builder.CreateSIToFP(v.val, ety->toLLVMType(cgc.context)), v.ast);
         else
-            return Value(ety, cgc.builder.CreateUIToFP(v.val, ety->toLLVMType(cgc.context)));
+            return Value(ety, cgc.builder.CreateUIToFP(v.val, ety->toLLVMType(cgc.context)), v.ast);
     }
     else if (!styintegral && etyintegral)
     {
         // fp -> int
         if (etysigned)
-            return Value(ety, cgc.builder.CreateFPToSI(v.val, ety->toLLVMType(cgc.context)));
+            return Value(ety, cgc.builder.CreateFPToSI(v.val, ety->toLLVMType(cgc.context)), v.ast);
         else
-            return Value(ety, cgc.builder.CreateFPToUI(v.val, ety->toLLVMType(cgc.context)));
+            return Value(ety, cgc.builder.CreateFPToUI(v.val, ety->toLLVMType(cgc.context)), v.ast);
     }
     else
     {
@@ -268,9 +268,9 @@ Value BuiltinType::castTo(CodeGenContext &cgc, Value v, Type *toty)
         int stySize = tysize.at(sty->type);
         int etySize = tysize.at(ety->type);
         if (stySize > etySize)
-            return Value(ety, cgc.builder.CreateFPTrunc(v.val, ety->toLLVMType(cgc.context)));
+            return Value(ety, cgc.builder.CreateFPTrunc(v.val, ety->toLLVMType(cgc.context)), v.ast);
         else
-            return Value(ety, cgc.builder.CreateFPExt(v.val, ety->toLLVMType(cgc.context)));
+            return Value(ety, cgc.builder.CreateFPExt(v.val, ety->toLLVMType(cgc.context)), v.ast);
     }
 
     // From row to column cast -- this is what the code above should do
@@ -304,7 +304,7 @@ Value BuiltinType::castTo(CodeGenContext &cgc, Value v, Type *toty)
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
 }
 // unaryOp {{{1
-Value BuiltinType::unaryOp(CodeGenContext &cgc, Value v, Token op)
+Value BuiltinType::unaryOp(CodeGenContext &cgc, Value v, Token op, ASTNS::Expr *ast)
 {
     if (v.type != this)
         report(MsgType::INTERNALERR, "BuiltinType::unaryOp called with operand type not equal to this", op, op);
@@ -312,15 +312,15 @@ Value BuiltinType::unaryOp(CodeGenContext &cgc, Value v, Token op)
     switch (op.type)
     {
         case TokenType::BANG:
-            return Value(v.type, cgc.builder.CreateICmpEQ(v.val, llvm::ConstantInt::get(v.type->toLLVMType(cgc.context), 0)));
+            return Value(v.type, cgc.builder.CreateICmpEQ(v.val, llvm::ConstantInt::get(v.type->toLLVMType(cgc.context), 0)), ast);
             break;
 
         case TokenType::TILDE:
-            return Value(v.type, cgc.builder.CreateXor(v.val, llvm::ConstantInt::get(v.type->toLLVMType(cgc.context), -1)));
+            return Value(v.type, cgc.builder.CreateXor(v.val, llvm::ConstantInt::get(v.type->toLLVMType(cgc.context), -1)), ast);
             break;
 
         case TokenType::MINUS:
-            return Value(v.type, cgc.builder.CreateSub(llvm::ConstantInt::get(v.type->toLLVMType(cgc.context), 0), v.val));
+            return Value(v.type, cgc.builder.CreateSub(llvm::ConstantInt::get(v.type->toLLVMType(cgc.context), 0), v.val), ast);
             break;
 
         default:
@@ -351,13 +351,13 @@ Value BuiltinType::isTrue(CodeGenContext &cgc, Value v)
         case BuiltinType::Builtins::SINT32:
         case BuiltinType::Builtins::SINT64:
         case BuiltinType::Builtins::CHAR:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpNE(v.val, llvm::ConstantInt::get(v.type->toLLVMType(cgc.context), 0)));
+            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpNE(v.val, llvm::ConstantInt::get(v.type->toLLVMType(cgc.context), 0)), v.ast);
 
         case BuiltinType::Builtins::BOOL:
             return v;
 
         case BuiltinType::Builtins::FLOAT:
         case BuiltinType::Builtins::DOUBLE:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateFCmpONE(v.val, llvm::ConstantFP::get(v.type->toLLVMType(cgc.context), 0)));
+            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateFCmpONE(v.val, llvm::ConstantFP::get(v.type->toLLVMType(cgc.context), 0)), v.ast);
     }
 }

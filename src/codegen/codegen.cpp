@@ -4,7 +4,7 @@ CodeGen::CodeGen(CodeGenContext &con): context(con) {}
 
 Value CodeGen::evalExpr(ASTNS::Expr *a)
 {
-    exprRetVal = Value {nullptr, nullptr};
+    exprRetVal = Value();
     a->accept(this);
     return exprRetVal;
 }

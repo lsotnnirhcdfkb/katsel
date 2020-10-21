@@ -22,7 +22,7 @@ void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
         }
         llvm::LoadInst *load = static_cast<llvm::LoadInst*>(lhs.val);
 
-        Value target = Value(lhs.type, load->getPointerOperand()); // TODO: cast type 
+        Value target = Value(lhs.type, load->getPointerOperand(), a); // TODO: cast type 
         Value assignment = rhs.type->castTo(context, rhs, target.type);
 
         context.builder.CreateStore(assignment.val, target.val);
@@ -38,7 +38,7 @@ void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
         return;
     }
 
-    exprRetVal = lhs.type->binOp(context, lhs, rhs, a->op);
+    exprRetVal = lhs.type->binOp(context, lhs, rhs, a->op, a);
 }
 
 void CodeGen::visitUnaryExpr(ASTNS::UnaryExpr *a)
@@ -50,11 +50,10 @@ void CodeGen::visitUnaryExpr(ASTNS::UnaryExpr *a)
     if (!oper.type->hasOperator(a->op.type))
     {
         report(MsgType::ERROR, msg::typeNoOp(oper.type, a->op), a, a->op, a->operand.get());
-        exprRetVal = Value();
         return;
     }
 
-    exprRetVal = oper.type->unaryOp(context, oper, a->op);
+    exprRetVal = oper.type->unaryOp(context, oper, a->op, a);
 }
 
 void CodeGen::visitTernaryExpr(ASTNS::TernaryExpr *a)
@@ -96,7 +95,7 @@ void CodeGen::visitTernaryExpr(ASTNS::TernaryExpr *a)
     llvm::PHINode *phi = context.builder.CreatePHI(truev.type->toLLVMType(context.context), 2);
     phi->addIncoming(truev.val, trueb);
     phi->addIncoming(falsev.val, falseb);
-    exprRetVal = Value(truev.type, phi);
+    exprRetVal = Value(truev.type, phi, a);
 }
 
 void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
@@ -105,11 +104,11 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
     switch (a->value.type)
     {
         case TokenType::TRUELIT:
-            ret = Value(context.getBuiltinType(BuiltinType::Builtins::BOOL), context.builder.getInt1(true));
+            ret = Value(context.getBuiltinType(BuiltinType::Builtins::BOOL), context.builder.getInt1(true), a);
             break;
 
         case TokenType::FALSELIT:
-            ret = Value(context.getBuiltinType(BuiltinType::Builtins::BOOL), context.builder.getInt1(false));
+            ret = Value(context.getBuiltinType(BuiltinType::Builtins::BOOL), context.builder.getInt1(false), a);
             break;
 
         case TokenType::FLOATLIT:
@@ -120,23 +119,23 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
             break;
 
         case TokenType::DECINTLIT:
-            ret = Value(context.getBuiltinType(BuiltinType::Builtins::UINT32), context.builder.getInt32(std::stoi(tokenToStr(a->value))));
+            ret = Value(context.getBuiltinType(BuiltinType::Builtins::UINT32), context.builder.getInt32(std::stoi(tokenToStr(a->value))), a);
             break;
 
         case TokenType::OCTINTLIT:
-            ret = Value(context.getBuiltinType(BuiltinType::Builtins::UINT32), context.builder.getInt32(std::stoi(tokenToStr(a->value), nullptr, 8)));
+            ret = Value(context.getBuiltinType(BuiltinType::Builtins::UINT32), context.builder.getInt32(std::stoi(tokenToStr(a->value), nullptr, 8)), a);
             break;
 
         case TokenType::BININTLIT:
-            ret = Value(context.getBuiltinType(BuiltinType::Builtins::UINT32), context.builder.getInt32(std::stoi(tokenToStr(a->value), nullptr, 2)));
+            ret = Value(context.getBuiltinType(BuiltinType::Builtins::UINT32), context.builder.getInt32(std::stoi(tokenToStr(a->value), nullptr, 2)), a);
             break;
 
         case TokenType::HEXINTLIT:
-            ret = Value(context.getBuiltinType(BuiltinType::Builtins::UINT32), context.builder.getInt32(std::stoi(tokenToStr(a->value), nullptr, 16)));
+            ret = Value(context.getBuiltinType(BuiltinType::Builtins::UINT32), context.builder.getInt32(std::stoi(tokenToStr(a->value), nullptr, 16)), a);
             break;
 
         case TokenType::CHARLIT:
-            ret = Value(context.getBuiltinType(BuiltinType::Builtins::CHAR), context.builder.getInt8(*(a->value.start + 1)));
+            ret = Value(context.getBuiltinType(BuiltinType::Builtins::CHAR), context.builder.getInt8(*(a->value.start + 1)), a);
             break;
 
         case TokenType::STRINGLIT:
@@ -154,7 +153,7 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
                 if (llvm::isa<llvm::AllocaInst>(v.val))
                 {
                     llvm::Value *loadInst = context.builder.CreateLoad(v.val);
-                    ret = Value(v.type, loadInst);
+                    ret = Value(v.type, loadInst, a);
                 }
                 else
                     ret = v;
@@ -216,6 +215,6 @@ void CodeGen::visitCallExpr(ASTNS::CallExpr *a)
 
     llvm::FunctionType *ftyasllvm = static_cast<llvm::FunctionType*>(fty->toLLVMType(context.context));
 
-    exprRetVal = Value(ret, context.builder.CreateCall(ftyasllvm, func.val, argsasllvm));
+    exprRetVal = Value(ret, context.builder.CreateCall(ftyasllvm, func.val, argsasllvm), a);
 }
 

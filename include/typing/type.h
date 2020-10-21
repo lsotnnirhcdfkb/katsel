@@ -20,8 +20,8 @@ public:
     virtual std::string stringify() = 0;
     virtual bool hasOperator(TokenType t) = 0;
     virtual Type* pickType(Type *ty1, Type *ty2) = 0;
-    virtual Value binOp(CodeGenContext &cgc, Value l, Value r, Token op) = 0;
-    virtual Value unaryOp(CodeGenContext &cgc, Value operand, Token op) = 0;
+    virtual Value binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS::Expr *ast) = 0;
+    virtual Value unaryOp(CodeGenContext &cgc, Value operand, Token op, ASTNS::Expr *ast) = 0;
     virtual Value castTo(CodeGenContext &cgc, Value v, Type *toty) = 0;
     virtual Value isTrue(CodeGenContext &cgc, Value v) = 0;
 };
@@ -52,8 +52,8 @@ public:
     std::string stringify() override;
     bool hasOperator(TokenType t) override;
     Type* pickType(Type *ty1, Type *ty2) override;
-    Value binOp(CodeGenContext &cgc, Value l, Value r, Token op) override;
-    Value unaryOp(CodeGenContext &cgc, Value operand, Token op) override;
+    Value binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS::Expr *ast) override;
+    Value unaryOp(CodeGenContext &cgc, Value operand, Token op, ASTNS::Expr *ast) override;
     Value castTo(CodeGenContext &cgc, Value v, Type *toty) override;
     Value isTrue(CodeGenContext &cgc, Value v) override;
 };
@@ -70,8 +70,8 @@ public:
     std::string stringify() override;
     bool hasOperator(TokenType t) override;
     Type* pickType(Type *ty1, Type *ty2) override;
-    Value binOp(CodeGenContext &cgc, Value l, Value r, Token op) override;
-    Value unaryOp(CodeGenContext &cgc, Value operand, Token op) override;
+    Value binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS::Expr *ast) override;
+    Value unaryOp(CodeGenContext &cgc, Value operand, Token op, ASTNS::Expr *ast) override;
     Value castTo(CodeGenContext &cgc, Value v, Type *toty) override;
     Value isTrue(CodeGenContext &cgc, Value v) override;
 };
@@ -83,8 +83,8 @@ public:
     std::string stringify() override;
     bool hasOperator(TokenType t) override;
     Type* pickType(Type *ty1, Type *ty2) override;
-    Value binOp(CodeGenContext &cgc, Value l, Value r, Token op) override;
-    Value unaryOp(CodeGenContext &cgc, Value operand, Token op) override;
+    Value binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS::Expr *ast) override;
+    Value unaryOp(CodeGenContext &cgc, Value operand, Token op, ASTNS::Expr *ast) override;
     Value castTo(CodeGenContext &cgc, Value v, Type *toty) override;
     Value isTrue(CodeGenContext &cgc, Value v) override;
 };
