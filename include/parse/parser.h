@@ -29,10 +29,20 @@ private:
 
     Token& consume();
     bool checkConsume(TokenType type);
-    template <typename ErrF>
-    bool assertConsume(TokenType type, ErrF errf);
     bool check(TokenType type);
     bool atEnd();
+
+    template <typename ErrF, typename ... ErrFArgs>
+    bool assertConsume(TokenType type, ErrF errf, ErrFArgs ... args)
+    {
+        bool correct = check(type);
+
+        if (!correct)
+            errf(args...);
+
+        consume();
+        return correct;
+    }
 
     bool ispanic;
     void panic();

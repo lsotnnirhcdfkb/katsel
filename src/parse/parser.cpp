@@ -42,17 +42,6 @@ bool Parser::check(TokenType type)
     return peek().type == type;
 }
 
-template <typename ErrF>
-bool Parser::assertConsume(TokenType type, ErrF errf)
-{
-    bool correct = check(type);
-
-    if (!correct)
-        errf(prev());
-
-    consume();
-    return correct;
-}
 
 bool Parser::atEnd()
 {
