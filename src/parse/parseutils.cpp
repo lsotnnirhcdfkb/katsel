@@ -2,7 +2,6 @@
 #include "parse/ast.h"
 
 #include "message/errors.h"
-#include "message/fmtmessage.h"
 
 std::unique_ptr<ASTNS::Type> Parser::type()
 {
@@ -20,7 +19,7 @@ std::unique_ptr<ASTNS::Type> Parser::type()
     }
 
     consume();
-    report(MsgType::ERROR, msg::expectedType(), prev(), prev());
+    msg::expectedType(prev());
     return nullptr;
 }
 

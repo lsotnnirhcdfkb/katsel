@@ -1,5 +1,4 @@
 #include "codegen/codegen.h"
-#include "message/fmtmessage.h"
 #include "message/errors.h"
 
 #include <iostream>
@@ -17,7 +16,7 @@ void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
     {
         if (!llvm::isa<llvm::LoadInst>(lhs.val))
         {
-            report(MsgType::ERROR, msg::invalidAssign(), a, a->lhs.get(), a->rhs.get(), a->op);
+            msg::invalidAssign(lhs, a->op);
             return;
         }
         llvm::LoadInst *load = static_cast<llvm::LoadInst*>(lhs.val);
@@ -34,7 +33,7 @@ void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
 
     if (!lhs.type->hasOperator(a->op.type))
     {
-        report(MsgType::ERROR, msg::typeNoOp(lhs.type, a->op), a, a->op, a->lhs.get());
+        msg::typeNoOp(lhs, a->op);
         return;
     }
 
@@ -49,7 +48,7 @@ void CodeGen::visitUnaryExpr(ASTNS::UnaryExpr *a)
 
     if (!oper.type->hasOperator(a->op.type))
     {
-        report(MsgType::ERROR, msg::typeNoOp(oper.type, a->op), a, a->op, a->operand.get());
+        msg::typeNoOp(oper, a->op);
         return;
     }
 
@@ -80,7 +79,7 @@ void CodeGen::visitTernaryExpr(ASTNS::TernaryExpr *a)
     if (!falsev.val) return;
     falseb = context.builder.GetInsertBlock();
 
-    Type *castToType = truev.type->pickType(truev.type, falsev.type);
+    Type *castToType = truev.type->pickType(truev, falsev);
     context.builder.SetInsertPoint(trueb);
     truev = truev.type->castTo(context, truev, castToType);
     context.builder.CreateBr(afterb);
@@ -115,7 +114,8 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
             break;
 
         case TokenType::NULLPTRLIT:
-            report(MsgType::INTERNALERR, "NULLPTR literal is not supported because we do not have pointers yet", a, a);
+            // report(MsgType::INTERNALERR, "NULLPTR literal is not supported because we do not have pointers yet", a, a);
+            msg::noNullPtrLit(a->value);
             break;
 
         case TokenType::DECINTLIT:
@@ -139,7 +139,7 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
             break;
 
         case TokenType::STRINGLIT:
-            std::cerr << "string literals are not supported yet" << std::endl;
+            msg::noStringLit(a->value);
             break;
 
         case TokenType::IDENTIFIER:
@@ -147,7 +147,7 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
                 Value v = context.findValue(tokenToStr(a->value));
                 if (!v.val)
                 {
-                    report(MsgType::ERROR, msg::undefVar(), a->value, a->value);
+                    msg::undefVar(a->value);
                     return;
                 }
                 if (llvm::isa<llvm::AllocaInst>(v.val))
@@ -161,7 +161,7 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
             break;
 
         default:
-            report(MsgType::INTERNALERR, "Invalid primary token", a->value, a->value);
+            msg::invalidTok("primary token", a->value);
     }
     exprRetVal = ret;
 }
@@ -175,7 +175,7 @@ void CodeGen::visitCallExpr(ASTNS::CallExpr *a)
     FunctionType *fty = dynamic_cast<FunctionType*>(func.type);
     if (!fty)
     {
-        report(MsgType::ERROR, msg::cannotCall(), a, a->func.get());
+        msg::cannotCall(func);
         return;
     }
 

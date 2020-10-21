@@ -25,6 +25,6 @@ void CodeGen::visitBaseType(ASTNS::BaseType *a)
         case TokenType::VOID: typeRetVal = context.getVoidType(); break;
 
         default:
-            report(MsgType::INTERNALERR, "Invalid BaseType type token", a, a);
+            msg::invalidTok("BaseType token", a->type);
     }
 }

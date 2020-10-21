@@ -3,7 +3,6 @@
 #include "llvm/IR/DerivedTypes.h"
 
 #include "message/errors.h"
-#include "message/fmtmessage.h"
 
 #include <iostream>
 
@@ -20,7 +19,7 @@ void GlobalsAssembler::visitFunctionDecl(ASTNS::FunctionDecl *a)
     std::string fnamestr (tokenToStr(a->name));
     if (context.globalSymbolTable.find(fnamestr) != context.globalSymbolTable.end())
     {
-        report(MsgType::ERROR, msg::duplicateFunction(), a->name, a->name);
+        msg::duplicateFunction(a->name);
         return;
     }
 
@@ -45,7 +44,7 @@ void GlobalsAssembler::visitFunctionDecl(ASTNS::FunctionDecl *a)
     llvm::FunctionType *ft = llvm::FunctionType::get(retTyllvm, paramtysllvm, false);
     llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, tokenToStr(a->name), context.mod.get());
 
-    context.globalSymbolTable[fnamestr] = Value(context.getFunctionType(ret, paramtys), f);
+    context.globalSymbolTable[fnamestr] = Value(context.getFunctionType(ret, paramtys), f, nullptr);
 }
 
 void GlobalsAssembler::visitGlobalVarDecl(ASTNS::GlobalVarDecl *a)

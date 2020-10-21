@@ -2,7 +2,6 @@
 
 #include "lex/tokentype.h"
 #include "message/errors.h"
-#include "message/fmtmessage.h"
 
 #include <sstream>
 
@@ -22,7 +21,7 @@ Token& Parser::consume()
 
         if (currToken.type != TokenType::ERROR) break; // continue loop if it is an error token
 
-        report(MsgType::ERROR, currToken.message, currToken, currToken);
+        msg::reportLexTok(prev());
     }
 
     return prev();
@@ -43,15 +42,13 @@ bool Parser::check(TokenType type)
     return peek().type == type;
 }
 
-bool Parser::assertConsume(TokenType type, std::string message)
+template <typename ErrF>
+bool Parser::assertConsume(TokenType type, ErrF errf)
 {
-    if (message.size() == 0)
-        message = msg::expectedTokGotTok(type, peek().type);
-
     bool correct = check(type);
 
     if (!correct)
-        report(MsgType::ERROR, message, prev(), prev());
+        errf(prev());
 
     consume();
     return correct;

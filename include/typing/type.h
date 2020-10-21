@@ -19,7 +19,7 @@ public:
     virtual llvm::Type* toLLVMType(llvm::LLVMContext &l) = 0;
     virtual std::string stringify() = 0;
     virtual bool hasOperator(TokenType t) = 0;
-    virtual Type* pickType(Type *ty1, Type *ty2) = 0;
+    virtual Type* pickType(Value v1, Value v2) = 0;
     virtual Value binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS::Expr *ast) = 0;
     virtual Value unaryOp(CodeGenContext &cgc, Value operand, Token op, ASTNS::Expr *ast) = 0;
     virtual Value castTo(CodeGenContext &cgc, Value v, Type *toty) = 0;
@@ -51,7 +51,7 @@ public:
     llvm::Type* toLLVMType(llvm::LLVMContext &l) override;
     std::string stringify() override;
     bool hasOperator(TokenType t) override;
-    Type* pickType(Type *ty1, Type *ty2) override;
+    Type* pickType(Value v1, Value v2) override;
     Value binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS::Expr *ast) override;
     Value unaryOp(CodeGenContext &cgc, Value operand, Token op, ASTNS::Expr *ast) override;
     Value castTo(CodeGenContext &cgc, Value v, Type *toty) override;
@@ -69,7 +69,7 @@ public:
     llvm::Type* toLLVMType(llvm::LLVMContext &l) override;
     std::string stringify() override;
     bool hasOperator(TokenType t) override;
-    Type* pickType(Type *ty1, Type *ty2) override;
+    Type* pickType(Value v1, Value v2) override;
     Value binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS::Expr *ast) override;
     Value unaryOp(CodeGenContext &cgc, Value operand, Token op, ASTNS::Expr *ast) override;
     Value castTo(CodeGenContext &cgc, Value v, Type *toty) override;
@@ -82,7 +82,7 @@ public:
     llvm::Type* toLLVMType(llvm::LLVMContext &l) override;
     std::string stringify() override;
     bool hasOperator(TokenType t) override;
-    Type* pickType(Type *ty1, Type *ty2) override;
+    Type* pickType(Value v1, Value v2) override;
     Value binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS::Expr *ast) override;
     Value unaryOp(CodeGenContext &cgc, Value operand, Token op, ASTNS::Expr *ast) override;
     Value castTo(CodeGenContext &cgc, Value v, Type *toty) override;

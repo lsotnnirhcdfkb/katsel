@@ -1,5 +1,8 @@
 #include "message/errors.h"
 #include "visit/visitor.h"
+#include "message/ansistuff.h"
+#include <iostream>
+#include <cstdlib>
 
 // getLine {{{1
 Location getLine(Location const &l)
@@ -158,4 +161,79 @@ Location::Location(ASTNS::Stmt *a)
     start = locV.getL(a);
     end = locV.getR(a);
     file = locV.getF(a);
+}
+// Reporting functions {{{1
+// helpers {{{2
+// apply attr to string {{{3
+inline std::string attr(std::string const &ansicode, std::string const &message)
+{
+    if (ansiCodesEnabled())
+        return ansicode + message + A_RESET;
+    else
+        return message;
+}
+// print message types {{{3
+void printErr()
+{
+    std::cout << attr(A_BOLD A_FG_RED, "Error");
+}
+void printWarn()
+{
+    std::cout << attr(A_BOLD A_FG_MAGENTA, "Warning");
+}
+void printDebug()
+{
+    std::cout << attr(A_BOLD A_FG_CYAN, "Debug");
+}
+void printIntErr()
+{
+    std::cout << "!!! - " << attr(A_BOLD A_FG_RED, "Internal error");
+}
+// print message locations {{{3
+void printAtFile(File const *file)
+{
+    std::cout << " in " << attr(A_FG_CYAN, file->filename);
+}
+void printAtFileLC(Location const &l)
+{
+    std::cout << " at " << attr(A_FG_CYAN, l.file->filename); // TODO: convert string iterators to line and column
+}
+// print lines and underlines {{{3
+void printLine(File const *file, int line)
+{
+
+}
+void printUnderline(int startc, int endc)
+{
+
+}
+// print other things {{{3
+void printColon()
+{
+    std::cout << ": ";
+}
+// actually reporting errors {{{2
+namespace msg
+{
+    void unterminatedCharLit          (Token const &t);
+    void unterminatedStrLit           (Token const &t);
+    void invalidNumLiteralBase        (Token const &t);
+    void nonDecimalFloatingPoint      (Token const &t);
+    void unexpectedCharacter          (Token const &t);
+
+    void expectedTokGotTok            (Token const &t, TokenType got, TokenType expected);
+    void expectedPrimaryOrUnary       (Token const &t);
+    void expectedType                 (Token const &t);
+    void expectedEOFTok               (Token const &t);
+    void expectedDecl                 (Token const &t);
+
+    void duplicateFunction            (Token const &t);
+    void cannotRedefineVariable       (Token const &t);
+    void typeNoOp                     (Token const &t, Type *ty, Token op);
+    void invalidROperand              (Value const &lop, Token &op, Type *rty);
+    void invalidCast                  (Location l, Type *bty, Type *ety);
+    void undefVar                     (Token const &t);
+    void cannotCall                   (Token const &t);
+    void invalidAssign                (Token const &target, Token const &eq);
+    void voidVarNotAllowed            (Token const &t);
 }

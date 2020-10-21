@@ -1,6 +1,5 @@
 #include "codegen/codegen.h"
 #include "message/errors.h"
-#include "message/fmtmessage.h"
 
 void CodeGen::visitBlockStmt(ASTNS::BlockStmt *a)
 {
@@ -31,14 +30,14 @@ void CodeGen::visitVarStmt(ASTNS::VarStmt *a)
     Type *ty = evalType(a->type.get());
     if (dynamic_cast<VoidType*>(ty))
     {
-        report(MsgType::ERROR, msg::voidVarNotAllowed(), a->name, a->type.get(), a->name);
+        msg::voidVarNotAllowed(a->type.get());
         return;
     }
 
     Local *var = context.findLocal(varname);
     if (var && var->scopenum == context.curScope)
     {
-        report(MsgType::ERROR, msg::cannotRedefineVariable(), a->name, a->name);
+        msg::cannotRedefineVariable(a->name);
         return;
     }
 

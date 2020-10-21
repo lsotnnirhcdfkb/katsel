@@ -1,23 +1,11 @@
 #pragma once
 
-#include <string>
-#include <iostream>
-
-#include "lex/token.h"
-#include "utils/file.h"
+#include "lex/tokentype.h"
+#include "typing/type.h"
+#include "value/value.h"
 #include "parse/ast.h"
-#include "message/ansistuff.h"
-#include <vector>
-#include <iostream>
 
-enum class MsgType
-{
-    ERROR,
-    WARNING,
-    DEBUG,
-    INTERNALERR
-};
-
+// Location struct {{{1
 struct Location
 {
     std::string::iterator start;
@@ -32,95 +20,33 @@ struct Location
     Location(ASTNS::Type *a);
     Location(ASTNS::Stmt *a);
 };
-
-// report template function {{{1
-Location getLine(Location const &l);
-template <typename ... Locations>
-void report(MsgType msgtype, const std::string &message, Location shl, Locations ... l)
+// functions {{{1
+namespace msg
 {
-    std::vector<Location> underlines {{l...}};
-    Location showl (getLine(shl));
+    void reportLexTok                 (Token const &t);
 
-    // switch msgtype {{{
-    switch (msgtype)
-    {
-        case MsgType::ERROR:
-            if (ansiCodesEnabled())
-                std::cerr << A_BOLD A_FG_RED "Error" A_RESET " in " A_FG_CYAN << showl.file->filename << A_RESET " " << message << std::endl;
-            else
-                std::cerr << "Error in " << showl.file->filename << " " << message << std::endl;
-            break;
-        case MsgType::WARNING:
-            if (ansiCodesEnabled())
-                std::cerr << A_BOLD A_FG_MAGENTA "Warning" A_RESET " in " A_FG_CYAN << showl.file->filename << A_RESET " " << message << std::endl;
-            else
-                std::cerr << "Warning in " << showl.file->filename << " " << message << std::endl;
-            break;
-        case MsgType::DEBUG:
-            if (ansiCodesEnabled())
-                std::cerr << A_BOLD A_FG_GREEN "Debug message" A_RESET " in " A_FG_CYAN << showl.file->filename << A_RESET " " << message << std::endl;
-            else
-                std::cerr << "Debug message in " << showl.file->filename << " " << message << std::endl;
-            break;
-        case MsgType::INTERNALERR:
-            if (ansiCodesEnabled())
-                std::cerr << A_BOLD "!!! - " A_FG_RED "Internal error" A_RESET ": " A_BOLD << message << A_RESET << std::endl;
-            else
-                std::cerr << "!!! - Internal error: " << message << std::endl;
-            break;
-    }
-    // }}}
+    void expectedTokGotTok            (Token const &t, TokenType got, TokenType expected);
+    void expectedPrimaryOrUnary       (Token const &t);
+    void expectedType                 (Token const &t);
+    void expectedEOFTok               (Token const &t);
+    void expectedDecl                 (Token const &t);
 
+    void duplicateFunction            (Token const &f);
+    void cannotRedefineVariable       (Token const &varname);
+    void typeNoOp                     (Value const &lhs, Token op);
+    void invalidROperand              (Value const &lop, Token op, Value rop);
+    void invalidCast                  (Value const &v, Type *bty, Type *ety);
+    void undefVar                     (Token const &varname);
+    void cannotCall                   (Value const &callee);
+    void invalidAssign                (Value const &target, Token const &eq);
+    void voidVarNotAllowed            (Location const &voidTok);
+    void cannotPick2Tys               (Value const &v1, Value const &v2);
 
-    auto pl = showl.start;
-    auto ul = showl.start;
-    while (true)
-    {
-        if (ansiCodesEnabled())
-            std::cerr << A_RESET;
-        while (*pl != '\n' && pl != showl.end)
-        {
-            std::cerr << *pl;
-            ++pl;
-        }
-        std::cerr << "\n";
-
-        if (ansiCodesEnabled())
-            std::cerr << A_FG_CYAN;
-        while (*ul != '\n' && ul != showl.end)
-        {
-            bool draw = false;
-            for (Location &l : underlines)
-            {
-                if (ul >= l.start && ul < l.end)
-                {
-                    draw = true;
-                    break;
-                }
-            }
-
-            if (draw)
-                std::cerr << "^";
-            else
-                std::cerr << " ";
-            ++ul;
-        }
-        std::cerr << "\n";
-
-        if (pl == showl.end)
-            break;
-
-        ++pl; // consume \n
-        ++ul;
-    }
-
-    if (ansiCodesEnabled())
-        std::cerr << A_RESET;
-    std::cerr << std::endl;
-
-    if (msgtype == MsgType::INTERNALERR)
-    {
-        std::cerr << "Aborting" << std::endl;
-        std::abort();
-    }
+    void noNullPtrLit                 (Token const &nullptrlit);
+    void noStringLit                  (Token const &nullptrlit);
+    void invalidTok                   (std::string const &name, Token const &primary);
+    void calledWithOpTyNEthis         (std::string const &classN, std::string const &fnn, std::string const &opname, Value const &op);
+    void outOSwitchDDefaultLab        (std::string fnn, Location const &highlight);
+    void fCalled                      (std::string fnn);
+    void outOSwitchNoh                (std::string fnn);
 }

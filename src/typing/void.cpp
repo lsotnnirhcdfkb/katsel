@@ -20,28 +20,21 @@ bool VoidType::hasOperator(TokenType)
 
 Value VoidType::binOp(CodeGenContext &, Value, Value, Token op, ASTNS::Expr *)
 {
-    report(MsgType::INTERNALERR, "VoidType::binOp called", op, op);
-    return Value();
+    msg::fCalled("VoidType::binOp");
 }
-
 Value VoidType::unaryOp(CodeGenContext &, Value, Token op, ASTNS::Expr *)
 {
-    report(MsgType::INTERNALERR, "VoidType::unaryOp called", op, op);
-    return Value();
+    msg::fCalled("VoidType::unaryOp");
 }
-
 Value VoidType::castTo(CodeGenContext &, Value, Type *)
 {
-    std::cerr << "VoidType::castTo called" << std::endl; // TODO: this work
-    std::abort();
+    msg::fCalled("VoidType::castTo");
 }
-
 Value VoidType::isTrue(CodeGenContext &, Value)
 {
-    return Value();
+    msg::fCalled("VoidType::isTrue");
 }
-Type* VoidType::pickType(Type *, Type *)
+Type* VoidType::pickType(Value, Value)
 {
-    std::cerr << "VoidType::pickType called" << std::endl;
-    std::abort();
+    msg::fCalled("VoidType::pickType");
 }

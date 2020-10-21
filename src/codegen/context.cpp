@@ -61,7 +61,7 @@ llvm::AllocaInst* CodeGenContext::createEntryAlloca(llvm::Function *f, llvm::Typ
 
 void CodeGenContext::addLocal(std::string const &name, Type *type, llvm::AllocaInst *alloca)
 {
-    Value v {type, alloca};
+    Value v (type, alloca, nullptr);
     Local l {curScope, v, name};
     locals.push_back(l);
 }

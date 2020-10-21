@@ -1,6 +1,5 @@
 
 #include "lex/lexer.h"
-#include "message/fmtmessage.h"
 
 Lexer::Lexer(File &sourcefile) : start(sourcefile.source.begin()), end(sourcefile.source.begin()), line(1), column(1), nextline(1), nextcolumn(1), srcend(sourcefile.source.end()), sourcefile(sourcefile) {}
 
@@ -842,7 +841,7 @@ Token Lexer::nextToken()
                       char startingQuote = consumed();
                       advance(); // consume character
 
-                      if (!match(startingQuote)) return makeErrorToken(msg::unterminatedCharLit());
+                      if (!match(startingQuote)) return makeErrorToken("Unterminated character literal");
 
                       return makeToken(TokenType::CHARLIT);
                   }
@@ -856,7 +855,7 @@ Token Lexer::nextToken()
                       advance();
                   }
 
-                  if (peek() != c) return makeErrorToken(msg::unterminatedStrLit());
+                  if (peek() != c) return makeErrorToken("Untermated string literal");
                   advance(); // consume closing quote/apostrophe
                   return makeToken(TokenType::STRINGLIT);
     }
@@ -878,7 +877,7 @@ Token Lexer::nextToken()
                 case 'x': inttype = TokenType::HEXINTLIT; break;
 
                 default:
-                          return makeErrorToken(msg::invalidNumLiteralBase());
+                          return makeErrorToken("Invalid base for integer literal (must be one of 0o, 0b, or 0x");
             }
 
             advance(); // consume o, b, or x
@@ -892,7 +891,7 @@ Token Lexer::nextToken()
 
             while (isDigit(peek(), inttype) && !atEnd()) advance();
 
-            if (inttype != TokenType::DECINTLIT) return makeErrorToken(msg::nonDecimalFloatingPoint());
+            if (inttype != TokenType::DECINTLIT) return makeErrorToken("Non-decimal floating point literals are not supported");
 
             return makeToken(TokenType::FLOATLIT);
         }
@@ -909,7 +908,7 @@ Token Lexer::nextToken()
         return makeToken(idenType);
     }
 
-    return makeErrorToken(msg::unexpectedCharacter());
+    return makeErrorToken("Unexpected character");
 }
 // }}}
 // {{{1 other helpers

@@ -29,7 +29,8 @@ private:
 
     Token& consume();
     bool checkConsume(TokenType type);
-    bool assertConsume(TokenType type, std::string message="");
+    template <typename ErrF>
+    bool assertConsume(TokenType type, ErrF errf);
     bool check(TokenType type);
     bool atEnd();
 

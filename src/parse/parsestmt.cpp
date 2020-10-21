@@ -1,5 +1,6 @@
 #include "parse/parser.h"
 #include "parse/ast.h"
+#include "message/errors.h"
 
 // parent stmt method {{{1
 std::unique_ptr<ASTNS::Stmt> Parser::stmt()
@@ -28,7 +29,7 @@ std::unique_ptr<ASTNS::Stmt> Parser::stmt()
 // varstmt method {{{1
 std::unique_ptr<ASTNS::VarStmt> Parser::varstmt()
 {
-    assertConsume(TokenType::VAR);
+    assertConsume(TokenType::VAR, msg::expectedTokGotTok);
     std::unique_ptr<ASTNS::Type> typeast (type());
 
     assertConsume(TokenType::IDENTIFIER, "Expected identifier for variable name");
@@ -55,7 +56,7 @@ std::unique_ptr<ASTNS::ExprStmt> Parser::exprstmt()
 // returnstmt method {{{1
 std::unique_ptr<ASTNS::ReturnStmt> Parser::returnstmt()
 {
-    assertConsume(TokenType::RETURN);
+    assertConsume(TokenType::RETURN, msg::expectedTokGotTok);
     std::unique_ptr<ASTNS::Expr> retVal;
     if (!check(TokenType::SEMICOLON))
         retVal = expr();

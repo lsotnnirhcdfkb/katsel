@@ -2,7 +2,6 @@
 #include "parse/ast.h"
 
 #include "message/errors.h"
-#include "message/fmtmessage.h"
 // parse method {{{1
 std::unique_ptr<ASTNS::Program> Parser::parse()
 {
@@ -25,7 +24,7 @@ std::unique_ptr<ASTNS::Program> Parser::parse()
         }
     }
 
-    assertConsume(TokenType::EOF_, msg::expectedEOFTok());
+    assertConsume(TokenType::EOF_, &msg::expectedEOFTok);
 
     std::unique_ptr<ASTNS::Program> program = std::make_unique<ASTNS::Program>(programV);
     return program;
@@ -39,7 +38,7 @@ std::unique_ptr<ASTNS::Decl> Parser::decl()
             return functiondecl();
 
         default:
-            report(MsgType::ERROR, msg::expectedDecl(), peek(), peek());
+            msg::expectedDecl(peek());
             panic();
             return nullptr;
     }
@@ -47,7 +46,7 @@ std::unique_ptr<ASTNS::Decl> Parser::decl()
 // function decls {{{1
 std::unique_ptr<ASTNS::FunctionDecl> Parser::functiondecl()
 {
-    assertConsume(TokenType::FUN);
+    assertConsume(TokenType::FUN, msg::expectedTokGotTok);
 
     std::unique_ptr<ASTNS::Type> rtype (type());
     assertConsume(TokenType::IDENTIFIER, "Expected identifier for function name");

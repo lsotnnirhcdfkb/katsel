@@ -1,5 +1,4 @@
 #include "typing/type.h"
-#include "message/fmtmessage.h"
 #include "message/errors.h"
 
 #include "llvm/IR/Type.h"
@@ -38,8 +37,7 @@ llvm::Type* BuiltinType::toLLVMType(llvm::LLVMContext &con)
         case BuiltinType::Builtins::BOOL:
             return llvm::Type::getInt1Ty(con);
     }
-    std::cerr << "BultinType::toLLVMType went out of switch" << std::endl;
-    std::abort();
+    msg::outOSwitchNoh("BuiltinType::toLLVMType");
 }
 // stringify {{{1
 std::string BuiltinType::stringify()
@@ -70,9 +68,9 @@ bool BuiltinType::hasOperator(TokenType)
 Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS::Expr *ast)
 {
     if (l.type != this)
-        report(MsgType::INTERNALERR, "BuiltinType::binOp called with left operand type not equal to this", op, op);
+        msg::calledWithOpTyNEthis("BuiltinType", "binOp", "left operand", l);
 
-    Type *picked (pickType(l.type, r.type));
+    Type *picked (pickType(l, r));
     l = castTo(cgc, l, picked);
     r = castTo(cgc, r, picked);
 
@@ -151,14 +149,14 @@ Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS:
             break;
 
         default:
-            report(MsgType::INTERNALERR, "Invalid binary operator", op, op);
+            msg::invalidTok("binary operator", op);
     }
 
-    report(MsgType::INTERNALERR, "binOp went out of switch despite default label", op, op);
+    msg::outOSwitchDDefaultLab("BuiltinType::binOp", op);
     return Value(); // literally unreachable
 }
 // pickType {{{1
-Type* BuiltinType::pickType(Type *ty1, Type *ty2)
+Type* BuiltinType::pickType(Value v1, Value v2)
 {
     const static std::map<BuiltinType::Builtins, int> builtinOrder = {
         {BuiltinType::Builtins::BOOL  ,  0},
@@ -175,15 +173,13 @@ Type* BuiltinType::pickType(Type *ty1, Type *ty2)
         {BuiltinType::Builtins::DOUBLE, 10}
     };
 
-    if (ty1 != this)
-    {
-        std::cerr << "pickType called with t1 != this" << std::endl;
-    }
+    if (v1.type != this)
+        msg::calledWithOpTyNEthis("BuiltinType", "pickType", "first type", v1);
 
     BuiltinType *bty2;
-    if (!(bty2 = dynamic_cast<BuiltinType*>(ty2))) // if r.type is not any of builtins
+    if (!(bty2 = dynamic_cast<BuiltinType*>(v2.type))) // if r.type is not any of builtins
     {
-        std::cerr << "Cannot cast two values to same type" << std::endl;
+        msg::cannotPick2Tys(v1, v2);
         return nullptr;
     }
 
@@ -202,8 +198,7 @@ Value BuiltinType::castTo(CodeGenContext &cgc, Value v, Type *toty)
     BuiltinType *ety = dynamic_cast<BuiltinType*> (toty);
     if (!sty || !ety)
     {
-        // reportError(MsgType::ERROR, msg::invalidCast(v.type, toty));
-        std::cerr << msg::invalidCast(v.type, toty) << std::endl; // TODO: fix this
+        msg::invalidCast(v, sty, ety);
         return Value();
     }
 
@@ -307,7 +302,7 @@ Value BuiltinType::castTo(CodeGenContext &cgc, Value v, Type *toty)
 Value BuiltinType::unaryOp(CodeGenContext &cgc, Value v, Token op, ASTNS::Expr *ast)
 {
     if (v.type != this)
-        report(MsgType::INTERNALERR, "BuiltinType::unaryOp called with operand type not equal to this", op, op);
+        msg::calledWithOpTyNEthis("BuiltinType", "unaryOp", "operand", v);
 
     switch (op.type)
     {
@@ -324,21 +319,17 @@ Value BuiltinType::unaryOp(CodeGenContext &cgc, Value v, Token op, ASTNS::Expr *
             break;
 
         default:
-            report(MsgType::INTERNALERR, "Invalid unary operator", op, op);
+            msg::invalidTok("unary operator", op);
     }
 
-    report(MsgType::INTERNALERR, "unaryOp went out of switch despite default label", op, op);
+    msg::outOSwitchDDefaultLab("BuiltinType::unaryOp", op);
     return Value(); // literally unreachable
 }
 // isTrue {{{1
 Value BuiltinType::isTrue(CodeGenContext &cgc, Value v)
 {
     if (v.type != this)
-    {
-        std::cerr << "BuiltinType::isTrue called with value type not equal to this" << std::endl;
-        std::abort();
-        // report(MsgType::INTERNALERR, "BuiltinType::isTrue called with value type not equal to this"); TODO: make this work somehow
-    }
+        msg::calledWithOpTyNEthis("BuiltinType", "isTrue", "value", v);
 
     switch (type)
     {
