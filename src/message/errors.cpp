@@ -184,10 +184,15 @@ Location::Location(ASTNS::Stmt *a)
 // Reporting functions {{{1
 // helpers {{{2
 // apply attr to string {{{3
-inline std::string attr(std::string const &ansicode, std::string const &message)
+inline std::string attr(std::string const &ansicode, std::string const &message, bool noreset=false)
 {
     if (ansiCodesEnabled())
-        return ansicode + message + A_RESET;
+    {
+        if (noreset)
+            return ansicode + message;
+        else
+            return ansicode + message + A_RESET;
+    }
     else
         return message;
 }
@@ -212,7 +217,7 @@ void printIntErr()
 void printAtFileLC(Location const &l)
 {
     std::string::const_iterator const fstart = l.file->source.cbegin();
-    std::cout << " at " << attr(A_FG_CYAN, l.file->filename) << getLineN(fstart, l.start) << ":" << getColN(fstart, l.start); 
+    std::cout << " at " << attr(A_FG_CYAN, l.file->filename, true) << ":" << getLineN(fstart, l.start) << ":" << getColN(fstart, l.start) << A_RESET;
 }
 // print lines and underlines {{{3
 void printLine(File const *file, int line)
