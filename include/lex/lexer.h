@@ -60,16 +60,7 @@ private:
     Token makeErrorToken(std::string message);
     inline Token makeToken(TokenType type)
     {
-        Token token;
-
-        token.type = type;
-        token.start = start;
-        token.end = end;
-        token.line = line;
-        token.column = column - 1;
-        token.sourcefile = sourcefile;
-
-        return token;
+        return Token {type, start, end, "", line, column - 1, &sourcefile};
     }
 
     inline void nextLine()

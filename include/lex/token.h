@@ -16,7 +16,7 @@ struct Token
     int line;
     int column;
 
-    File sourcefile;
+    File *sourcefile;
 };
 
 inline std::string tokenToStr(Token t)

@@ -23,6 +23,25 @@ Location getLine(Location const &l)
 
     return Location(linestart, lineend, l.file);
 }
+// getColN {{{1
+int getColN(std::string::const_iterator const &start, std::string::iterator loc)
+{
+    int coln = 0;
+    for (; loc != start && *loc != '\n'; ++coln, --loc)
+        ;
+    return coln;
+}
+// getLineN {{{1
+int getLineN(std::string::const_iterator const &start, std::string::iterator loc)
+{
+    int linen = 0;
+    while (loc != start)
+    {
+        if (*loc == '\n') ++linen;
+        --loc;
+    }
+    return linen;
+}
 // LocationVisitor {{{1
 class LocationVisitor :
     public ExprVisitor,
@@ -46,13 +65,13 @@ class LocationVisitor :
     {
         retl = a->op.start;
         retr = getR(a->operand.get());
-        retf = &a->op.sourcefile;
+        retf = a->op.sourcefile;
     }
     void visitPrimaryExpr(ASTNS::PrimaryExpr *a)
     {
         retl = a->value.start;
         retr = a->value.end;
-        retf = &a->value.sourcefile;
+        retf = a->value.sourcefile;
     }
     void visitCallExpr(ASTNS::CallExpr *a)
     {
@@ -64,19 +83,19 @@ class LocationVisitor :
     {
         retl = a->name.start; // TODO: get fun token
         retr = getR(a->block.get());
-        retf = &a->name.sourcefile;
+        retf = a->name.sourcefile;
     }
     void visitGlobalVarDecl(ASTNS::GlobalVarDecl *a)
     {
         retl = a->name.start; // TODO
         retr = getR(a->value.get());
-        retf = &a->name.sourcefile;
+        retf = a->name.sourcefile;
     }
     void visitBaseType(ASTNS::BaseType *a)
     {
         retl = a->type.start;
         retr = a->type.end;
-        retf = &a->type.sourcefile;
+        retf = a->type.sourcefile;
     }
     void visitBlockStmt(ASTNS::BlockStmt *a)
     {
@@ -100,7 +119,7 @@ class LocationVisitor :
     {
         retl = a->name.start; // TODO
         retr = getR(a->assign.get());
-        retf = &a->name.sourcefile;
+        retf = a->name.sourcefile;
     }
 
 public:
@@ -131,7 +150,7 @@ private:
 };
 
 // constructors for location {{{1
-Location::Location(Token const &t): start(t.start), end(t.end), file(&t.sourcefile) {}
+Location::Location(Token const &t): start(t.start), end(t.end), file(t.sourcefile) {}
 Location::Location(std::string::iterator start, std::string::iterator end, File const *file): start(start), end(end), file(file) {}
 
 Location::Location(ASTNS::Expr *a)
@@ -192,12 +211,13 @@ void printIntErr()
 // print message locations {{{3
 void printAtFileLC(Location const &l)
 {
-    std::cout << " at " << attr(A_FG_CYAN, l.file->filename); // TODO: convert string iterators to line and column
+    std::string::const_iterator const fstart = l.file->source.cbegin();
+    std::cout << " at " << attr(A_FG_CYAN, l.file->filename) << getLineN(fstart, l.start) << ":" << getColN(fstart, l.start); 
 }
 // print lines and underlines {{{3
 void printLine(File const *file, int line)
 {
-
+    
 }
 void printUnderline(int startc, int endc)
 {

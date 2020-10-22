@@ -102,10 +102,13 @@ int main(int argc, char *argv[])
     auto lexer = std::make_unique<Lexer>(*source);
     if (phasen == Phases::LEX)
     {
-        Token t;
-        while ((t = lexer->nextToken()).type != TokenType::EOF_)
+        while (true)
         {
-            std::cout << t.sourcefile.filename << ':' << t.line << ':' << t.column << ": (" << stringifyTokenType(t.type) << ") \"" << std::string(t.start, t.end) << "\"" << std::endl;
+            Token t (lexer->nextToken());
+            if (t.type == TokenType::EOF_)
+                break;
+
+            std::cout << t.sourcefile->filename << ':' << t.line << ':' << t.column << ": (" << stringifyTokenType(t.type) << ") \"" << std::string(t.start, t.end) << "\"" << std::endl;
         }
         resetTerminal();
         return 0;

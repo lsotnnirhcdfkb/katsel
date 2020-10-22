@@ -18,9 +18,8 @@ class PureASTClass:
 # ASTField {{{2
 class ASTField:
     # im for initialization method
-    IM_ASSIGN = 0
+    IM_INITIALIZE = 0
     IM_MOVE = 1
-    IM_ITERATE_MOVE = 2
 
     # pm for print method
     PM_CHILD = 0
@@ -36,7 +35,7 @@ class ASTField:
 
     @staticmethod
     def tokenField(name):
-        return ASTField('Token', name, False, ASTField.IM_ASSIGN, ASTField.PM_TOKEN)
+        return ASTField('Token', name, False, ASTField.IM_INITIALIZE, ASTField.PM_TOKEN)
     @staticmethod
     def uptrField(pointto, name):
         return ASTField(f'std::unique_ptr<{pointto}>', name, False, ASTField.IM_MOVE, ASTField.PM_CHILD)
@@ -54,7 +53,7 @@ asts = [
     PureASTClass('Stmt'),
 
     ASTClass('Program', fields=[
-            ASTField('std::vector<std::unique_ptr<Decl>>', 'decls', True, ASTField.IM_ITERATE_MOVE, ASTField.PM_ITERATE_CHILD),
+            ASTField('std::vector<std::unique_ptr<Decl>>', 'decls', True, ASTField.IM_MOVE, ASTField.PM_ITERATE_CHILD),
         ]),
 
     ASTClass('BinaryExpr', fields=[
@@ -84,7 +83,7 @@ asts = [
         ], extends='Expr'),
 
     ASTClass('BlockStmt', fields=[
-            ASTField('std::vector<std::unique_ptr<Stmt>>', 'stmts', True, ASTField.IM_ITERATE_MOVE, ASTField.PM_ITERATE_CHILD),
+            ASTField('std::vector<std::unique_ptr<Stmt>>', 'stmts', True, ASTField.IM_MOVE, ASTField.PM_ITERATE_CHILD),
         ], extends='Stmt'),
 
     ASTClass('ExprStmt', fields=[
@@ -136,12 +135,10 @@ def asArgument(field):
 def asDeclaration(field):
     return f'{field.type_} {field.name};'
 def fieldInitialziation(field):
-    if field.initializationMethod == ASTField.IM_ASSIGN:
-        return f'this->{field.name} = {field.name};'
+    if field.initializationMethod == ASTField.IM_INITIALIZE:
+        return f'{field.name}({field.name})'
     elif field.initializationMethod == ASTField.IM_MOVE:
-        return f'this->{field.name} = std::move({field.name});'
-    elif field.initializationMethod == ASTField.IM_ITERATE_MOVE:
-        return f'for (auto &p : {field.name}) this->{field.name}.push_back(std::move(p)); {field.name}.clear();'
+        return f'{field.name}(std::move({field.name}))'
     else:
         raise Exception(f'Inavlid initialization method {field.initializationMethod}')
 # Generating AST stuff {{{2
@@ -193,13 +190,14 @@ def genASTDefs():
     output = ['#include "parse/ast.h"\n']
     for ast in asts:
         if type(ast) != PureASTClass:
-            output.append(f'ASTNS::{ast.name}::{ast.name}({", ".join(asArgument(field) for field in ast.fields)})\n')
-            output.append( '{\n')
+            output.append(f'ASTNS::{ast.name}::{ast.name}({", ".join(asArgument(field) for field in ast.fields)}): ')
+
+            initializerList = []
             for field in ast.fields:
-                output.append('    ')
-                output.append(fieldInitialziation(field))
-                output.append('\n')
-            output.append( '}\n')
+                initializerList.append(fieldInitialziation(field))
+
+            output.append(', '.join(initializerList))
+            output.append(' {}\n')
 
             output.append(f'void ASTNS::{ast.name}::accept({ast.name if ast.extends is None else ast.extends}Visitor *v) {{ v->visit{ast.name}(this); }}\n')
 
