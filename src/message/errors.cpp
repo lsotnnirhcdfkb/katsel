@@ -26,10 +26,16 @@ Location getLine(Location const &l)
 // getColN {{{1
 int getColN(std::string::const_iterator const &start, std::string::iterator loc)
 {
-    int coln = 0;
+    int coln = 1;
+    --loc;
+
     for (; loc != start && *loc != '\n'; ++coln, --loc)
         ;
-    return coln;
+
+    if (loc != start)
+        ++loc, --coln;
+
+    return coln + 1;
 }
 // getLineN {{{1
 int getLineN(std::string::const_iterator const &start, std::string::iterator loc)
@@ -227,9 +233,10 @@ void printLine(Location const &l)
 }
 void printUnderline(int startc, int endc)
 {
-    std::cout << attr(A_DIM, " | ");
-    for (int i = 0; i < endc; ++i) std::cout << (i >= startc && i < endc ? '^' : ' ');
-    std::cout << std::endl;
+    std::cout << attr(A_DIM, " |");
+    std::cout << attr(A_FG_GREEN, " ", true);
+    for (int i = 1; i < endc; ++i) std::cout << (i >= startc && i < endc ? '^' : ' ');
+    std::cout << A_RESET << std::endl;
 }
 // print other things {{{3
 void printColon()
