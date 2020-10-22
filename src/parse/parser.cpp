@@ -21,7 +21,7 @@ Token& Parser::consume()
 
         if (currToken.type != TokenType::ERROR) break; // continue loop if it is an error token
 
-        msg::reportLexTok(prev());
+        msg::reportLexTok(peek());
     }
 
     return prev();

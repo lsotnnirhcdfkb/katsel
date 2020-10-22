@@ -212,8 +212,8 @@ void printColon()
 void printHeaderLine(void (*msgType)(), Location loc, std::string const &message)
 {
     msgType();
-    printColon();
     printAtFileLC(loc);
+    printColon();
     std::cout << message << std::endl;
 }
 // actually reporting errors {{{2
