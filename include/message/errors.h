@@ -53,4 +53,5 @@ namespace msg
     void outOSwitchNoh                (std::string const &fnn);
     void wrongNOfArgs                 (ASTNS::CallExpr *a);
     void incorrectArg                 (Value const &v, Type *expected);
+    void intErrNoh                    (std::string const &message);
 }

@@ -1,7 +1,7 @@
 #include "codegen/context.h"
 
 #include <iostream>
-#include <cstdlib>
+#include "message/errors.h"
 
 Type* CodeGenContext::getBuiltinType(BuiltinType::Builtins bty)
 {
@@ -72,8 +72,7 @@ void CodeGenContext::incScope()
 
     if (curScope == 0) // default curScope value is 1
     {
-        std::cerr << "Scope index overflowed to 0" << std::endl;
-        std::abort();
+        msg::intErrNoh("Scope index overflowed to 0");
     }
 }
 
