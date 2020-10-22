@@ -10,10 +10,10 @@ struct Location
 {
     std::string::iterator start;
     std::string::iterator end;
-    File *file;
+    File const *file;
 
-    Location(Token &t);
-    Location(std::string::iterator start, std::string::iterator end, File *file);
+    Location(Token const &t);
+    Location(std::string::iterator start, std::string::iterator end, File const *file);
 
     Location(ASTNS::Expr *a);
     Location(ASTNS::Decl *a);
@@ -25,11 +25,12 @@ namespace msg
 {
     void reportLexTok                 (Token const &t);
 
-    void expectedTokGotTok            (Token const &t, TokenType got, TokenType expected);
     void expectedPrimaryOrUnary       (Token const &t);
     void expectedType                 (Token const &t);
-    void expectedEOFTok               (Token const &t);
     void expectedDecl                 (Token const &t);
+
+    void expectedTokGotTok            (Token const &t, TokenType got, TokenType expected);
+    void reportAssertConsumeErr       (Token const &t, std::string const &message);
 
     void duplicateFunction            (Token const &f);
     void cannotRedefineVariable       (Token const &varname);

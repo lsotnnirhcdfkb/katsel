@@ -131,8 +131,8 @@ private:
 };
 
 // constructors for location {{{1
-Location::Location(Token &t): start(t.start), end(t.end), file(&t.sourcefile) {}
-Location::Location(std::string::iterator start, std::string::iterator end, File *file): start(start), end(end), file(file) {}
+Location::Location(Token const &t): start(t.start), end(t.end), file(&t.sourcefile) {}
+Location::Location(std::string::iterator start, std::string::iterator end, File const *file): start(start), end(end), file(file) {}
 
 Location::Location(ASTNS::Expr *a)
 {
@@ -190,10 +190,6 @@ void printIntErr()
     std::cout << "!!! - " << attr(A_BOLD A_FG_RED, "Internal error");
 }
 // print message locations {{{3
-void printAtFile(File const *file)
-{
-    std::cout << " in " << attr(A_FG_CYAN, file->filename);
-}
 void printAtFileLC(Location const &l)
 {
     std::cout << " at " << attr(A_FG_CYAN, l.file->filename); // TODO: convert string iterators to line and column
@@ -212,28 +208,46 @@ void printColon()
 {
     std::cout << ": ";
 }
+// print header line {{{3
+void printHeaderLine(void (*msgType)(), Location loc, std::string const &message)
+{
+    msgType();
+    printColon();
+    printAtFileLC(loc);
+    std::cout << message << std::endl;
+}
 // actually reporting errors {{{2
 namespace msg
 {
-    void unterminatedCharLit          (Token const &t);
-    void unterminatedStrLit           (Token const &t);
-    void invalidNumLiteralBase        (Token const &t);
-    void nonDecimalFloatingPoint      (Token const &t);
-    void unexpectedCharacter          (Token const &t);
+    void reportLexTok(Token const &t)
+    {
+        printHeaderLine(&printErr, t, t.message);
+    }
 
-    void expectedTokGotTok            (Token const &t, TokenType got, TokenType expected);
-    void expectedPrimaryOrUnary       (Token const &t);
-    void expectedType                 (Token const &t);
-    void expectedEOFTok               (Token const &t);
-    void expectedDecl                 (Token const &t);
+    void expectedPrimaryOrUnary(Token const &t) {}
+    void expectedType(Token const &t) {}
+    void expectedDecl(Token const &t) {}
 
-    void duplicateFunction            (Token const &t);
-    void cannotRedefineVariable       (Token const &t);
-    void typeNoOp                     (Token const &t, Type *ty, Token op);
-    void invalidROperand              (Value const &lop, Token &op, Type *rty);
-    void invalidCast                  (Location l, Type *bty, Type *ety);
-    void undefVar                     (Token const &t);
-    void cannotCall                   (Token const &t);
-    void invalidAssign                (Token const &target, Token const &eq);
-    void voidVarNotAllowed            (Token const &t);
+    void expectedTokGotTok(Token const &t, TokenType got, TokenType expected) {}
+    void reportAssertConsumeErr(Token const &t, std::string const &message) {}
+
+    void duplicateFunction(Token const &f) {}
+    void cannotRedefineVariable(Token const &varname) {}
+    void typeNoOp(Value const &lhs, Token op) {}
+    void invalidROperand(Value const &lop, Token op, Value rop) {}
+    void invalidCast(Value const &v, Type *bty, Type *ety) {}
+    void undefVar(Token const &varname) {}
+    void cannotCall(Value const &callee) {}
+    void invalidAssign(Value const &target, Token const &eq) {}
+    void voidVarNotAllowed(Location const &voidTok) {}
+    void cannotPick2Tys(Value const &v1, Value const &v2) {}
+
+    void noNullPtrLit(Token const &nullptrlit) {}
+    void noStringLit(Token const &nullptrlit) {}
+    void invalidTok(std::string const &name, Token const &primary) {}
+    void calledWithOpTyNEthis(std::string const &classN, std::string const &fnn, std::string const &opname, Value const &op) {}
+    void outOSwitchDDefaultLab(std::string fnn, Location const &highlight) {}
+    void fCalled(std::string fnn) {}
+    void outOSwitchNoh(std::string fnn) {}
+
 }

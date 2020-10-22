@@ -24,7 +24,7 @@ std::unique_ptr<ASTNS::Program> Parser::parse()
         }
     }
 
-    assertConsume(TokenType::EOF_, &msg::expectedEOFTok);
+    assertConsume(TokenType::EOF_, "Expected EOF Token");
 
     std::unique_ptr<ASTNS::Program> program = std::make_unique<ASTNS::Program>(programV);
     return program;
@@ -46,7 +46,7 @@ std::unique_ptr<ASTNS::Decl> Parser::decl()
 // function decls {{{1
 std::unique_ptr<ASTNS::FunctionDecl> Parser::functiondecl()
 {
-    assertConsume(TokenType::FUN, msg::expectedTokGotTok);
+    assertConsume(TokenType::FUN);
 
     std::unique_ptr<ASTNS::Type> rtype (type());
     assertConsume(TokenType::IDENTIFIER, "Expected identifier for function name");

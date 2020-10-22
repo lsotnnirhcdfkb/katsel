@@ -29,7 +29,7 @@ std::unique_ptr<ASTNS::Stmt> Parser::stmt()
 // varstmt method {{{1
 std::unique_ptr<ASTNS::VarStmt> Parser::varstmt()
 {
-    assertConsume(TokenType::VAR, msg::expectedTokGotTok);
+    assertConsume(TokenType::VAR);
     std::unique_ptr<ASTNS::Type> typeast (type());
 
     assertConsume(TokenType::IDENTIFIER, "Expected identifier for variable name");
@@ -56,7 +56,7 @@ std::unique_ptr<ASTNS::ExprStmt> Parser::exprstmt()
 // returnstmt method {{{1
 std::unique_ptr<ASTNS::ReturnStmt> Parser::returnstmt()
 {
-    assertConsume(TokenType::RETURN, msg::expectedTokGotTok);
+    assertConsume(TokenType::RETURN);
     std::unique_ptr<ASTNS::Expr> retVal;
     if (!check(TokenType::SEMICOLON))
         retVal = expr();
