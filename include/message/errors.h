@@ -14,6 +14,7 @@ struct Location
 
     Location(Token const &t);
     Location(std::string::iterator start, std::string::iterator end, File const *file);
+    Location(Value const &v);
 
     Location(ASTNS::Expr *a);
     Location(ASTNS::Decl *a);

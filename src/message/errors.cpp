@@ -158,6 +158,7 @@ private:
 
 // constructors for location {{{1
 Location::Location(Token const &t): start(t.start), end(t.end), file(t.sourcefile) {}
+Location::Location(Value const &v): Location(v.ast) {}
 Location::Location(std::string::iterator start, std::string::iterator end, File const *file): start(start), end(end), file(file) {}
 
 Location::Location(ASTNS::Expr *a)
@@ -316,7 +317,11 @@ namespace msg
         printLineAndUnder(v);
     }
     BASIC_ERR_AT_TOK(undefVar, printErr, "Undefined variable");
-    BASIC_ERR_AT_TOK(cannotCall, printErr, "Cannot call non-function");
+    void cannotCall(Value const &v)
+    {
+        printHeaderLine(&printErr, v, "Cannot call non-function");
+        printLineAndUnder(v);
+    }
     void invalidAssign(Value const &target, Token const &eq)
     {
         printHeaderLine(&printErr, target, "Invalid assignment target");
@@ -348,10 +353,10 @@ namespace msg
         std::stringstream ss;
         ss << classN << "::" << fnn << " called with " << opname << " type != this";
         printHeaderLine(&printIntErr, op, ss.str());
-        printLineAndUnder(primary);
+        printLineAndUnder(op);
         std::abort();
     }
-    void outOSwitchDDefaultLab(std::string fnn, Location const &highlight)
+    void outOSwitchDDefaultLab(std::string const &fnn, Location const &highlight)
     {
         std::stringstream ss;
         ss << fnn << " went out of switch despite default label";
@@ -359,15 +364,15 @@ namespace msg
         printLineAndUnder(highlight);
         std::abort();
     }
-    void fCalled(std::string fnn)
+    void fCalled(std::string const &fnn)
     {
         std::stringstream ss;
         printIntErr();
         printColon();
-        std::cout << fnn << " called" << std::endl;;
+        std::cout << fnn << " called" << std::endl;
         std::abort();
     }
-    void outOSwitchNoh(std::string fnn)
+    void outOSwitchNoh(std::string const &fnn)
     {
         printIntErr();
         printColon();
