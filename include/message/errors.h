@@ -34,8 +34,8 @@ namespace msg
 
     void duplicateFunction            (Token const &f);
     void cannotRedefineVariable       (Token const &varname);
-    void typeNoOp                     (Value const &lhs, Token op);
-    void invalidROperand              (Value const &lop, Token op, Value rop);
+    void typeNoOp                     (Value const &lhs, Token const &op);
+    void invalidROperand              (Value const &lop, Token const &op, Value const &rop);
     void invalidCast                  (Value const &v, Type *bty, Type *ety);
     void undefVar                     (Token const &varname);
     void cannotCall                   (Value const &callee);
@@ -47,7 +47,7 @@ namespace msg
     void noStringLit                  (Token const &nullptrlit);
     void invalidTok                   (std::string const &name, Token const &primary);
     void calledWithOpTyNEthis         (std::string const &classN, std::string const &fnn, std::string const &opname, Value const &op);
-    void outOSwitchDDefaultLab        (std::string fnn, Location const &highlight);
-    void fCalled                      (std::string fnn);
-    void outOSwitchNoh                (std::string fnn);
+    void outOSwitchDDefaultLab        (std::string const &fnn, Location const &highlight);
+    void fCalled                      (std::string const &fnn);
+    void outOSwitchNoh                (std::string const &fnn);
 }

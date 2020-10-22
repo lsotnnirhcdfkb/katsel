@@ -3,6 +3,7 @@
 #include "message/ansistuff.h"
 #include <iostream>
 #include <cstdlib>
+#include <sstream>
 
 // getLine {{{1
 Location getLine(Location const &l)
@@ -238,6 +239,13 @@ void printUnderline(int startc, int endc)
     for (int i = 1; i < endc; ++i) std::cout << (i >= startc && i < endc ? '^' : ' ');
     std::cout << A_RESET << std::endl;
 }
+void printUnderline(Location const &l)
+{
+    std::string::const_iterator const begin (l.file->source.cbegin());
+    int startc = getColN(begin, l.start);
+    int endc = getColN(begin, l.end);
+    printUnderline(startc, endc);
+}
 // print other things {{{3
 void printColon()
 {
@@ -251,40 +259,120 @@ void printHeaderLine(void (*msgType)(), Location loc, std::string const &message
     printColon();
     std::cout << message << std::endl;
 }
+// common patterns {{{2
+void printLineAndUnder(Location const &l)
+{
+    printLine(l);
+    printUnderline(l);
+}
 // actually reporting errors {{{2
 namespace msg
 {
-    void reportLexTok(Token const &t)
-    {
-        printHeaderLine(&printErr, t, t.message);
-        printLine(t);
-        printUnderline(getColN(t.sourcefile->source.begin(), t.start), getColN(t.sourcefile->source.begin(), t.end));
+#define BASIC_ERR_AT_TOK(name, func, message) void name(Token const &t) \
+    {\
+        printHeaderLine(&func, t, message);\
+        printLineAndUnder(t);\
     }
 
-    void expectedPrimaryOrUnary(Token const &t) {}
-    void expectedType(Token const &t) {}
-    void expectedDecl(Token const &t) {}
+    BASIC_ERR_AT_TOK(reportLexTok, printErr, t.message)
+    BASIC_ERR_AT_TOK(expectedPrimaryOrUnary, printErr, "Expected primary token or unary operator")
+    BASIC_ERR_AT_TOK(expectedType, printErr, "Expected type")
+    BASIC_ERR_AT_TOK(expectedDecl, printErr, "Expected declaration")
 
-    void expectedTokGotTok(Token const &t, TokenType got, TokenType expected) {}
-    void reportAssertConsumeErr(Token const &t, std::string const &message) {}
+    void expectedTokGotTok(Token const &t, TokenType got, TokenType expected)
+    {
+        std::stringstream ss;
+        ss << "Unexpected token " << stringifyTokenType(got) << ", expected " << stringifyTokenType(expected);
+        printHeaderLine(&printErr, t, ss.str());
+        printLineAndUnder(t);
+    }
+    void reportAssertConsumeErr(Token const &t, std::string const &message)
+    {
+        printHeaderLine(&printErr, t, message);
+        printLineAndUnder(t);
+    }
 
-    void duplicateFunction(Token const &f) {}
-    void cannotRedefineVariable(Token const &varname) {}
-    void typeNoOp(Value const &lhs, Token op) {}
-    void invalidROperand(Value const &lop, Token op, Value rop) {}
-    void invalidCast(Value const &v, Type *bty, Type *ety) {}
-    void undefVar(Token const &varname) {}
-    void cannotCall(Value const &callee) {}
-    void invalidAssign(Value const &target, Token const &eq) {}
-    void voidVarNotAllowed(Location const &voidTok) {}
-    void cannotPick2Tys(Value const &v1, Value const &v2) {}
+    BASIC_ERR_AT_TOK(duplicateFunction, printErr, "Cannot redefine function")
+    BASIC_ERR_AT_TOK(cannotRedefineVariable, printErr, "Cannot redefine variable")
+    void typeNoOp(Value const &lhs, Token const &op)
+    {
+        std::stringstream ss;
+        ss << "Type \"" << lhs.type->stringify() << "\" does not support operator \"" << tokenToStr(op) << "\"";
+        printHeaderLine(&printErr, lhs, ss.str());
+        printLineAndUnder(op);
+    }
+    void invalidROperand(Value const &lop, Token const &op, Value const &rop)
+    {
+        std::stringstream ss;
+        ss << "Invalid right operand of type \"" << rop.type->stringify() << "\" to operator \"" << tokenToStr(op) << "\" with left operand of type \"" << lop.type->stringify() << "\"";
+        printHeaderLine(&printErr, lop, ss.str());
+        printLineAndUnder(op);
+    }
+    void invalidCast(Value const &v, Type *bty, Type *ety)
+    {
+        std::stringstream ss;
+        ss << "Invalid cast from type \"" << bty->stringify() << "\" to \"" << ety->stringify() << "\"";
+        printHeaderLine(&printErr, v, ss.str());
+        printLineAndUnder(v);
+    }
+    BASIC_ERR_AT_TOK(undefVar, printErr, "Undefined variable");
+    BASIC_ERR_AT_TOK(cannotCall, printErr, "Cannot call non-function");
+    void invalidAssign(Value const &target, Token const &eq)
+    {
+        printHeaderLine(&printErr, target, "Invalid assignment target");
+        printLineAndUnder(target);
+    }
+    void voidVarNotAllowed(Location const &voidTok) {
+        printHeaderLine(&printErr, voidTok, "Variable cannot be of type void");
+        printLineAndUnder(voidTok);
+    }
+    void cannotPick2Tys(Value const &v1, Value const &v2)
+    {
+        printHeaderLine(&printErr, v1, "Cannot cast two values to same type");
+        printLineAndUnder(v1);
+        printUnderline(v2);
+    }
 
-    void noNullPtrLit(Token const &nullptrlit) {}
-    void noStringLit(Token const &nullptrlit) {}
-    void invalidTok(std::string const &name, Token const &primary) {}
-    void calledWithOpTyNEthis(std::string const &classN, std::string const &fnn, std::string const &opname, Value const &op) {}
-    void outOSwitchDDefaultLab(std::string fnn, Location const &highlight) {}
-    void fCalled(std::string fnn) {}
-    void outOSwitchNoh(std::string fnn) {}
+    BASIC_ERR_AT_TOK(noNullPtrLit, printErr, "Nullptr literals are currently not supported");
+    BASIC_ERR_AT_TOK(noStringLit, printErr, "String literals are currently not supported");
+    void invalidTok(std::string const &name, Token const &primary)
+    {
+        std::stringstream ss;
+        ss << "Invalid " << name;
+        printHeaderLine(&printIntErr, primary, ss.str());
+        printLineAndUnder(primary);
+        std::abort();
+    }
+    void calledWithOpTyNEthis(std::string const &classN, std::string const &fnn, std::string const &opname, Value const &op)
+    {
+        std::stringstream ss;
+        ss << classN << "::" << fnn << " called with " << opname << " type != this";
+        printHeaderLine(&printIntErr, op, ss.str());
+        printLineAndUnder(primary);
+        std::abort();
+    }
+    void outOSwitchDDefaultLab(std::string fnn, Location const &highlight)
+    {
+        std::stringstream ss;
+        ss << fnn << " went out of switch despite default label";
+        printHeaderLine(&printIntErr, highlight, ss.str());
+        printLineAndUnder(highlight);
+        std::abort();
+    }
+    void fCalled(std::string fnn)
+    {
+        std::stringstream ss;
+        printIntErr();
+        printColon();
+        std::cout << fnn << " called" << std::endl;;
+        std::abort();
+    }
+    void outOSwitchNoh(std::string fnn)
+    {
+        printIntErr();
+        printColon();
+        std::cout << fnn << " went out of switch" << std::endl;
+        std::abort();
+    }
 
 }
