@@ -220,13 +220,16 @@ void printAtFileLC(Location const &l)
     std::cout << " at " << attr(A_FG_CYAN, l.file->filename, true) << ":" << getLineN(fstart, l.start) << ":" << getColN(fstart, l.start) << A_RESET;
 }
 // print lines and underlines {{{3
-void printLine(File const *file, int line)
+void printLine(Location const &l)
 {
-    
+    Location line (getLine(l));
+    std::cout << attr(A_DIM, " | ") << std::string(line.start, line.end) << std::endl;
 }
 void printUnderline(int startc, int endc)
 {
-
+    std::cout << attr(A_DIM, " | ");
+    for (int i = 0; i < endc; ++i) std::cout << (i >= startc && i < endc ? '^' : ' ');
+    std::cout << std::endl;
 }
 // print other things {{{3
 void printColon()
@@ -247,6 +250,8 @@ namespace msg
     void reportLexTok(Token const &t)
     {
         printHeaderLine(&printErr, t, t.message);
+        printLine(t);
+        printUnderline(getColN(t.sourcefile->source.begin(), t.start), getColN(t.sourcefile->source.begin(), t.end));
     }
 
     void expectedPrimaryOrUnary(Token const &t) {}
