@@ -51,4 +51,6 @@ namespace msg
     void outOSwitchDDefaultLab        (std::string const &fnn, Location const &highlight);
     void fCalled                      (std::string const &fnn);
     void outOSwitchNoh                (std::string const &fnn);
+    void wrongNOfArgs                 (ASTNS::CallExpr *a);
+    void incorrectArg                 (Value const &v, Type *expected);
 }

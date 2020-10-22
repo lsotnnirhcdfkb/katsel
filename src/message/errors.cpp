@@ -337,6 +337,18 @@ namespace msg
         printLineAndUnder(v1);
         printUnderline(v2);
     }
+    void wrongNOfArgs(ASTNS::CallExpr *a)
+    {
+        printHeaderLine(&printErr, a, "Wrong number of arguments to function");
+        printLineAndUnder(a);
+    }
+    void incorrectArg(Value const &v, Type *expected)
+    {
+        std::stringstream ss;
+        ss << "Incorrect argument to function call, expected \"" << expected->stringify() << "\" but got \"" << v.type->stringify() << "\"";
+        printHeaderLine(&printErr, v, ss.str());
+        printLineAndUnder(v);
+    }
 
     BASIC_ERR_AT_TOK(noNullPtrLit, printErr, "Nullptr literals are currently not supported");
     BASIC_ERR_AT_TOK(noStringLit, printErr, "String literals are currently not supported");
@@ -380,4 +392,11 @@ namespace msg
         std::abort();
     }
 
+    void intErrNoh(std::string const &message)
+    {
+        printIntErr();
+        printColon();
+        std::cout << message << std::endl;
+        std::abort();
+    }
 }

@@ -156,7 +156,7 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
                     ret = Value(v.type, loadInst, a);
                 }
                 else
-                    ret = v;
+                    ret = Value(v.type, v.val, a);
             }
             break;
 
@@ -198,7 +198,7 @@ void CodeGen::visitCallExpr(ASTNS::CallExpr *a)
 
     if (args.size() != fty->paramtys.size())
     {
-        std::cerr << "Wrong number of arguments to function" << std::endl;
+        msg::wrongNOfArgs(a);
         return;
     }
 
@@ -208,7 +208,7 @@ void CodeGen::visitCallExpr(ASTNS::CallExpr *a)
     {
         if (i->type != *j)
         {
-            std::cerr << "Incorrect argument to function call" << std::endl;
+            msg::incorrectArg(*i, *j);
             return;
         }
     }
