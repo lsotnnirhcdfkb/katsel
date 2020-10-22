@@ -33,9 +33,12 @@ public:
     void addLocal(std::string const &name, Type *type, llvm::AllocaInst *alloca);
     Local* findLocal(std::string const &name);
     Value findValue(std::string const &name);
+    Value getGlobal(std::string const &name);
 
     void incScope();
     void decScope();
+
+    Value curFunc;
 
 private:
     std::vector<std::unique_ptr<Type>> types;

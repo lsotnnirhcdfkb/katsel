@@ -1,11 +1,16 @@
 #include "codegen/codegen.h"
+#include "message/errors.h"
 
 #include "llvm/IR/Verifier.h"
 
 void CodeGen::visitFunctionDecl(ASTNS::FunctionDecl *a)
 {
     std::string name = tokenToStr(a->name);
-    llvm::Function *f = context.mod->getFunction(name);
+    Value function = context.getGlobal(name);
+    if (!dynamic_cast<FunctionType*>(function.type))
+        msg::intErrNoh("In CodeGen::visitFunctionDecl, context.getGlobal(" + name + ") returned non-function");
+    llvm::Value *fv = function.val;
+    llvm::Function *f = static_cast<llvm::Function*>(fv);
 
     if (!f->empty())
         return;
@@ -28,6 +33,7 @@ void CodeGen::visitFunctionDecl(ASTNS::FunctionDecl *a)
         paramast = paramast->next.get();
     }
 
+    context.curFunc = function;
     a->block->accept(this);
     llvm::verifyFunction(*f);
     context.decScope();

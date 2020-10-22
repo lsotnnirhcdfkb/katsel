@@ -17,7 +17,7 @@ void GlobalsAssembler::visitProgram(ASTNS::Program *a)
 void GlobalsAssembler::visitFunctionDecl(ASTNS::FunctionDecl *a)
 {
     std::string fnamestr (tokenToStr(a->name));
-    if (context.globalSymbolTable.find(fnamestr) != context.globalSymbolTable.end())
+    if (context.getGlobal(fnamestr).val)
     {
         msg::duplicateFunction(a->name);
         return;

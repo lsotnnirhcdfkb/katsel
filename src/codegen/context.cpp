@@ -100,3 +100,11 @@ Value CodeGenContext::findValue(std::string const &name)
 
     return globalSymbolTable[name];
 }
+
+Value CodeGenContext::getGlobal(std::string const &name)
+{
+    auto v = globalSymbolTable.find(name);
+    if (v == globalSymbolTable.end())
+        return Value();
+    return v->second;
+}
