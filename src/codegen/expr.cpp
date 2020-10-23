@@ -22,7 +22,7 @@ void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
         llvm::LoadInst *load = static_cast<llvm::LoadInst*>(lhs.val);
 
         Value target = Value(lhs.type, load->getPointerOperand(), a); // TODO: cast type 
-        Value assignment = rhs.type->castTo(context, rhs, target.type);
+        Value assignment = target.type->castTo(context, rhs);
 
         context.builder.CreateStore(assignment.val, target.val);
         load->eraseFromParent(); // dont need the load anymore
@@ -81,11 +81,11 @@ void CodeGen::visitTernaryExpr(ASTNS::TernaryExpr *a)
 
     Type *castToType = truev.type->pickType(truev, falsev);
     context.builder.SetInsertPoint(trueb);
-    truev = truev.type->castTo(context, truev, castToType);
+    truev = castToType->castTo(context, truev);
     context.builder.CreateBr(afterb);
 
     context.builder.SetInsertPoint(falseb);
-    falsev = falsev.type->castTo(context, falsev, castToType);
+    falsev = castToType->castTo(context, falsev);
     context.builder.CreateBr(afterb);
 
     f->getBasicBlockList().push_back(afterb);

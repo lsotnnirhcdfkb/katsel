@@ -309,10 +309,10 @@ namespace msg
         printHeaderLine(&printErr, lop, ss.str());
         printLineAndUnder(op);
     }
-    void invalidCast(Value const &v, Type *bty, Type *ety)
+    void invalidCast(Value const &v, Type *ety)
     {
         std::stringstream ss;
-        ss << "Invalid cast from type \"" << bty->stringify() << "\" to \"" << ety->stringify() << "\"";
+        ss << "Invalid cast from type \"" << v.type->stringify() << "\" to \"" << ety->stringify() << "\"";
         printHeaderLine(&printErr, v, ss.str());
         printLineAndUnder(v);
     }

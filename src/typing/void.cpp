@@ -26,9 +26,9 @@ Value VoidType::unaryOp(CodeGenContext &, Value, Token op, ASTNS::Expr *)
 {
     msg::fCalled("VoidType::unaryOp");
 }
-Value VoidType::castTo(CodeGenContext &, Value v, Type *t)
+Value VoidType::castTo(CodeGenContext &, Value v)
 {
-    msg::invalidCast(v, v.type, t);
+    msg::invalidCast(v, this);
     return Value();
 }
 Value VoidType::isTrue(CodeGenContext &, Value)

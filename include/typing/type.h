@@ -22,7 +22,7 @@ public:
     virtual Type* pickType(Value v1, Value v2) = 0;
     virtual Value binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS::Expr *ast) = 0;
     virtual Value unaryOp(CodeGenContext &cgc, Value operand, Token op, ASTNS::Expr *ast) = 0;
-    virtual Value castTo(CodeGenContext &cgc, Value v, Type *toty) = 0;
+    virtual Value castTo(CodeGenContext &cgc, Value v) = 0;
     virtual Value isTrue(CodeGenContext &cgc, Value v) = 0;
 };
 
@@ -54,7 +54,7 @@ public:
     Type* pickType(Value v1, Value v2) override;
     Value binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS::Expr *ast) override;
     Value unaryOp(CodeGenContext &cgc, Value operand, Token op, ASTNS::Expr *ast) override;
-    Value castTo(CodeGenContext &cgc, Value v, Type *toty) override;
+    Value castTo(CodeGenContext &cgc, Value v) override;
     Value isTrue(CodeGenContext &cgc, Value v) override;
 };
 
@@ -72,7 +72,7 @@ public:
     Type* pickType(Value v1, Value v2) override;
     Value binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS::Expr *ast) override;
     Value unaryOp(CodeGenContext &cgc, Value operand, Token op, ASTNS::Expr *ast) override;
-    Value castTo(CodeGenContext &cgc, Value v, Type *toty) override;
+    Value castTo(CodeGenContext &cgc, Value v) override;
     Value isTrue(CodeGenContext &cgc, Value v) override;
 };
 
@@ -85,6 +85,6 @@ public:
     Type* pickType(Value v1, Value v2) override;
     Value binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS::Expr *ast) override;
     Value unaryOp(CodeGenContext &cgc, Value operand, Token op, ASTNS::Expr *ast) override;
-    Value castTo(CodeGenContext &cgc, Value v, Type *toty) override;
+    Value castTo(CodeGenContext &cgc, Value v) override;
     Value isTrue(CodeGenContext &cgc, Value v) override;
 };

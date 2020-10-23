@@ -71,8 +71,8 @@ Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS:
         msg::calledWithOpTyNEthis("BuiltinType", "binOp", "left operand", l);
 
     Type *picked (pickType(l, r));
-    l = castTo(cgc, l, picked);
-    r = castTo(cgc, r, picked);
+    l = picked->castTo(cgc, l);
+    r = picked->castTo(cgc, r);
 
     switch (op.type)
     {
@@ -192,25 +192,24 @@ Type* BuiltinType::pickType(Value v1, Value v2)
         return this;
 }
 // castTo {{{1
-Value BuiltinType::castTo(CodeGenContext &cgc, Value v, Type *toty)
+Value BuiltinType::castTo(CodeGenContext &cgc, Value v)
 {
     BuiltinType *sty = dynamic_cast<BuiltinType*> (v.type);
-    BuiltinType *ety = dynamic_cast<BuiltinType*> (toty);
-    if (!sty || !ety)
+    if (!sty)
     {
-        msg::invalidCast(v, sty, ety);
+        msg::invalidCast(v, this);
         return Value();
     }
 
-    if (sty == ety)
+    if (sty == this)
         return v;
 
 #define TYPEIS(v, e) v->type == BuiltinType::Builtins::e
     bool stysigned = TYPEIS(sty, SINT8) || TYPEIS(sty, SINT16) || TYPEIS(sty, SINT32) || TYPEIS(sty, SINT64) || TYPEIS(sty, FLOAT) || TYPEIS(sty, CHAR) || TYPEIS(sty, DOUBLE);
-    bool etysigned = TYPEIS(ety, SINT8) || TYPEIS(ety, SINT16) || TYPEIS(ety, SINT32) || TYPEIS(ety, SINT64) || TYPEIS(ety, FLOAT) || TYPEIS(ety, CHAR) || TYPEIS(ety, DOUBLE);
+    bool etysigned = TYPEIS(this, SINT8) || TYPEIS(this, SINT16) || TYPEIS(this, SINT32) || TYPEIS(this, SINT64) || TYPEIS(this, FLOAT) || TYPEIS(this, CHAR) || TYPEIS(this, DOUBLE);
 
     bool styintegral = TYPEIS(sty, CHAR) || TYPEIS(sty, BOOL) || TYPEIS(sty, UINT8) || TYPEIS(sty, UINT16) || TYPEIS(sty, UINT32) || TYPEIS(sty, UINT64) || TYPEIS(sty, SINT8) || TYPEIS(sty, SINT16) || TYPEIS(sty, SINT32) || TYPEIS(sty, SINT64);
-    bool etyintegral = TYPEIS(ety, CHAR) || TYPEIS(ety, BOOL) || TYPEIS(ety, UINT8) || TYPEIS(ety, UINT16) || TYPEIS(ety, UINT32) || TYPEIS(ety, UINT64) || TYPEIS(ety, SINT8) || TYPEIS(ety, SINT16) || TYPEIS(ety, SINT32) || TYPEIS(ety, SINT64);
+    bool etyintegral = TYPEIS(this, CHAR) || TYPEIS(this, BOOL) || TYPEIS(this, UINT8) || TYPEIS(this, UINT16) || TYPEIS(this, UINT32) || TYPEIS(this, UINT64) || TYPEIS(this, SINT8) || TYPEIS(this, SINT16) || TYPEIS(this, SINT32) || TYPEIS(this, SINT64);
 #undef TYPEIS
 
     const static std::map<BuiltinType::Builtins, int> tysize = {
@@ -232,40 +231,40 @@ Value BuiltinType::castTo(CodeGenContext &cgc, Value v, Type *toty)
     {
         // int -> int
         int stySize = tysize.at(sty->type);
-        int etySize = tysize.at(ety->type);
+        int etySize = tysize.at(this->type);
         if (stySize > etySize)
-            return Value(ety, cgc.builder.CreateTrunc(v.val, ety->toLLVMType(cgc.context)), v.ast);
+            return Value(this, cgc.builder.CreateTrunc(v.val, this->toLLVMType(cgc.context)), v.ast);
         else
             if (etysigned)
-                return Value(ety, cgc.builder.CreateZExt(v.val, ety->toLLVMType(cgc.context)), v.ast);
+                return Value(this, cgc.builder.CreateZExt(v.val, this->toLLVMType(cgc.context)), v.ast);
             else
-                return Value(ety, cgc.builder.CreateSExt(v.val, ety->toLLVMType(cgc.context)), v.ast);
+                return Value(this, cgc.builder.CreateSExt(v.val, this->toLLVMType(cgc.context)), v.ast);
     }
     else if (styintegral && !etyintegral)
     {
         // int -> fp
         if (stysigned)
-            return Value(ety, cgc.builder.CreateSIToFP(v.val, ety->toLLVMType(cgc.context)), v.ast);
+            return Value(this, cgc.builder.CreateSIToFP(v.val, this->toLLVMType(cgc.context)), v.ast);
         else
-            return Value(ety, cgc.builder.CreateUIToFP(v.val, ety->toLLVMType(cgc.context)), v.ast);
+            return Value(this, cgc.builder.CreateUIToFP(v.val, this->toLLVMType(cgc.context)), v.ast);
     }
     else if (!styintegral && etyintegral)
     {
         // fp -> int
         if (etysigned)
-            return Value(ety, cgc.builder.CreateFPToSI(v.val, ety->toLLVMType(cgc.context)), v.ast);
+            return Value(this, cgc.builder.CreateFPToSI(v.val, this->toLLVMType(cgc.context)), v.ast);
         else
-            return Value(ety, cgc.builder.CreateFPToUI(v.val, ety->toLLVMType(cgc.context)), v.ast);
+            return Value(this, cgc.builder.CreateFPToUI(v.val, this->toLLVMType(cgc.context)), v.ast);
     }
     else
     {
         // fp -> fp
         int stySize = tysize.at(sty->type);
-        int etySize = tysize.at(ety->type);
+        int etySize = tysize.at(this->type);
         if (stySize > etySize)
-            return Value(ety, cgc.builder.CreateFPTrunc(v.val, ety->toLLVMType(cgc.context)), v.ast);
+            return Value(this, cgc.builder.CreateFPTrunc(v.val, this->toLLVMType(cgc.context)), v.ast);
         else
-            return Value(ety, cgc.builder.CreateFPExt(v.val, ety->toLLVMType(cgc.context)), v.ast);
+            return Value(this, cgc.builder.CreateFPExt(v.val, this->toLLVMType(cgc.context)), v.ast);
     }
 
     // From row to column cast -- this is what the code above should do

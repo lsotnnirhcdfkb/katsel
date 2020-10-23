@@ -37,7 +37,7 @@ namespace msg
     void cannotRedefineVariable       (Token const &varname);
     void typeNoOp                     (Value const &lhs, Token const &op);
     void invalidROperand              (Value const &lop, Token const &op, Value const &rop);
-    void invalidCast                  (Value const &v, Type *bty, Type *ety);
+    void invalidCast                  (Value const &v, Type *ety);
     void undefVar                     (Token const &varname);
     void cannotCall                   (Value const &callee);
     void invalidAssign                (Value const &target, Token const &eq);
