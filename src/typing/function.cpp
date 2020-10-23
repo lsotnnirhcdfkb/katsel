@@ -45,9 +45,10 @@ Value FunctionType::unaryOp(CodeGenContext &, Value, Token op, ASTNS::Expr *)
     msg::fCalled("FunctionType::unaryop");
 }
 
-Value FunctionType::castTo(CodeGenContext &, Value, Type *)
+Value FunctionType::castTo(CodeGenContext &, Value v, Type *t)
 {
-    msg::fCalled("FunctionType::castTo");
+    msg::invalidCast(v, v.type, t);
+    return Value();
 }
 
 Value FunctionType::isTrue(CodeGenContext &, Value)
