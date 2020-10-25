@@ -4,9 +4,9 @@
 #include <string>
 
 // short for "visit child"
-#define VC(field) a->field->accept(this)
-#define PTOK(tok) std::cout << tokenToStr(a->tok)
 #define P(a) std::cout << a
+#define VC(field) a->field->accept(this)
+#define PTOK(tok) P(tokenToStr(a->tok))
 #define PN P('\n')
 #define POP P('(')
 #define PCP P(')')
@@ -122,7 +122,6 @@ void ReplicateVisitor::visitProgram(ASTNS::Program *a)
 {
     for (std::unique_ptr<ASTNS::Decl> &d : a->decls)
         d->accept(this);
-    PN;
 }
 void ReplicateVisitor::visitParam(ASTNS::Param *a)
 {
