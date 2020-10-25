@@ -1,0 +1,50 @@
+/*
+command: <coxianc> <file> -plex
+returncode: 0
+test: |
+    expectToken('OPARN')
+    expectToken('CPARN')
+    expectToken('OSQUB')
+    expectToken('CSQUB')
+    expectToken('OCURB')
+    expectToken('CCURB')
+    expectToken('COMMA')
+    expectToken('PERIOD')
+    expectToken('SEMICOLON')
+    expectToken('QUESTION')
+    expectToken('TILDE')
+    expectToken('TILDE')
+    expectToken('QUESTION')
+    expectToken('SEMICOLON')
+    expectToken('PERIOD')
+    expectToken('COMMA')
+    expectToken('CCURB')
+    expectToken('OCURB')
+    expectToken('CSQUB')
+    expectToken('OSQUB')
+    expectToken('CPARN')
+    expectToken('OPARN')
+*/
+
+(
+)
+[
+]
+{
+}
+,
+.
+;
+?
+~
+~
+?
+;
+.
+,
+}
+{
+]
+[
+)
+(

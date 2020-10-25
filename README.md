@@ -8,14 +8,14 @@ AND NOt only that, but I also got a lot of helpful information from looking at t
 # Features
 
 - [x] Possibly dysfunctional lexing
-- [x] Not even a parser beacuse it's being rewritten
-- [ ] Possibly dysfunctional code generation to LLVM IR
+- [x] Rewritten parser
+- [x] Possibly dysfunctional code generation to LLVM IR
 - [ ] Compiling to object code
 - [ ] Optimizing code with LLVM
-- [ ] Functions
-- [ ] Expressions
-- [ ] Variables
-- [ ] More types
+- [x] Functions
+- [x] Expressions
+- [x] Variables
+- [x] More types
 - [ ] Control flow
 - [ ] Pointers
 - [ ] Auto memory management with very safe pointers and strict ownership scope rules and stuff
@@ -36,5 +36,5 @@ AND NOt only that, but I also got a lot of helpful information from looking at t
 - [ ] More
 
 # To do things
-You need Python, PyYAML, and LLVM
+You need Python, PyYAML, colorama (for testing script color coding), and LLVM
 and I think thats it

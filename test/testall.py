@@ -1,7 +1,19 @@
-import os
-import sys
-import subprocess
-from yaml import CLoader as Loader, load
+import os, sys, subprocess, glob, shlex, yaml, traceback
+
+functions = r'''
+def expectToken(tokType):
+    global outl
+    i = outl
+    while stdout[i] != '\n':
+        i += 1
+
+    line = stdout[outl:i]
+    ttype = line[line.index('(') + 1:line.index(')')]
+    # tok = line[line.index('"') + 1: line.rindex('"')]
+    assert ttype == tokType, f'Got unexpected token {ttype}, expected {tokType}'
+    outl = i + 1
+
+'''
 
 if len(sys.argv) == 2:
     EXECLOC = os.path.abspath(sys.argv[1])
@@ -9,45 +21,63 @@ else:
     print(f'Usage: {sys.argv[0]} <coxianc path>')
     sys.exit(1)
 
-orig = os.path.abspath(os.getcwd())
+orig = os.getcwd()
 dirname = os.path.abspath(os.path.dirname(__file__))
 
 os.chdir(dirname)
-print(f'Change to {dirname}')
-print()
-for testfile in os.listdir():
-    if testfile.endswith('.oxian'):
-        print(f'Testing file {testfile}')
-        with open(testfile, 'r') as f:
-            contents = f.read()
 
-        yamlstart = contents.index('/*')
-        yamlend = contents.index('*/')
+files = glob.glob('./**/*.oxian', recursive=True)
+nfiles = len(files)
 
-        thingy = load(contents[yamlstart+2:yamlend], Loader=Loader)
+anyFailed = False
 
-        command = [EXECLOC, testfile, *thingy['args']]
-        print(f'Run command {command}')
+for i, testfile in enumerate(files):
+    print(f'[{i + 1}/{nfiles}] Testing \033[36m{testfile}\033[0m: ', end='')
+    with open(testfile, 'r') as f:
+        contents = f.read()
 
-        proc = subprocess.run(command, capture_output=True, check=True)
-        stdout = proc.stdout.decode('utf-8')
+    opts = yaml.load(contents[contents.index('/*') + 2 : contents.index('*/')], Loader=yaml.CLoader)
+    command = shlex.split(opts['command'].replace('<coxianc>', EXECLOC).replace('<file>', testfile))
+    expectretc = opts['returncode']
+    checkc = functions + opts['test']
 
-        output = thingy['output']
-        if stdout == output:
-            print(f'Test for {testfile} passed.')
-        else:
-            print(f'Test for {testfile} failed!')
+    proc = subprocess.run(command, capture_output=True)
+    stdout = proc.stdout.decode('utf-8')
+    stderr = proc.stderr.decode('utf-8')
 
-            expectedfile = f'{testfile}.expected.txt'
-            gottenfile = f'{testfile}.gotten.txt'
-            with open(expectedfile, 'w') as f:
-                print(f'Expected output written to \'{expectedfile}\'')
-                f.write(output)
+    failed = False
+    log = ''
 
-            with open(gottenfile, 'w') as f:
-                print(f'Gotten output written to \'{gottenfile}\'')
-                f.write(stdout)
-        print()
+    if proc.returncode != expectretc:
+        failed = True
+        log += f'Expected return code {expectretc}, got {proc.returncode}\n'
+
+    try:
+        exec(checkc, {
+            'testfile': testfile, 
+            'outl': 0,
+            'errl': 0,
+            'stdout': stdout,
+            'stderr': stderr,
+        })
+    except:
+        failed = True
+        log += 'Failed with test code error:\n'
+        log += traceback.format_exc()
+
+    if failed:
+        print(f'\033[0;1;31mfailed\033[0m')
+        faillog = os.path.splitext(testfile)[0] + '.log'
+        print(f'\t- For more information, check log written to \033[36m{faillog}\033[0m')
+        with open(faillog, 'w') as f:
+            f.write(f'Error log for test file {testfile}\nCommand: {command}\nReturn code: {proc.returncode}\nstdout: \'{stdout}\'\nstderr: \'{stderr}\'\ncode: \'{checkc}\'\n\n')
+            f.write(log)
+
+        anyFailed = True
+    else:
+        print(f'\033[0;1;32mpassed\033[0m')
 
 os.chdir(orig)
-print(f'Change to {orig}')
+
+if anyFailed:
+    sys.exit(1)
