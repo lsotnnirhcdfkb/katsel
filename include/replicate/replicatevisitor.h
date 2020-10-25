@@ -2,8 +2,9 @@
 
 #include "visit/visitor.h"
 #include "parse/ast.h"
+#include "lex/token.h"
 
-class PrintVisitor :
+class ReplicateVisitor :
     public ExprVisitor,
     public DeclVisitor,
     public TypeVisitor,
@@ -31,8 +32,5 @@ public:
 
 private:
     int indent;
-    bool pindent;
-    // short for print at indent
-    void pai(std::string &s);
-    void pai(std::string &&s);
+    void pi();
 };
