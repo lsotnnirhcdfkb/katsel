@@ -1,0 +1,64 @@
+/*
+command: <coxianc> <file> -plex
+returncode: 0
+test: |
+    expectToken('IDENTIFIER')
+    expectToken('IDENTIFIER')
+    expectToken('IDENTIFIER')
+    expectToken('IDENTIFIER')
+
+    expectToken('CASE')
+    expectToken('IF')
+    expectToken('ELSE')
+    expectToken('FOR')
+
+    expectToken('IDENTIFIER')
+    expectToken('IDENTIFIER')
+    expectToken('IDENTIFIER')
+    expectToken('IDENTIFIER')
+
+    expectToken('IDENTIFIER')
+    expectToken('IDENTIFIER')
+    expectToken('IDENTIFIER')
+    expectToken('IDENTIFIER')
+
+    expectToken('IDENTIFIER')
+    expectToken('IDENTIFIER')
+    expectToken('IDENTIFIER')
+    expectToken('IDENTIFIER')
+
+    expectToken('IDENTIFIER')
+    expectToken('IDENTIFIER')
+    expectToken('IDENTIFIER')
+    expectToken('DECINTLIT')
+    expectToken('IDENTIFIER')
+*/
+
+asdf
+a
+i j
+
+case
+if
+else
+for
+
+case_
+if_
+else_
+for_
+
+_case
+_if
+_else
+_for
+
+casee
+iff
+elsee
+forr
+
+num0
+num1
+num2
+0nn

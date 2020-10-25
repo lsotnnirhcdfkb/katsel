@@ -1,0 +1,40 @@
+/*
+command: <coxianc> <file> -plex
+returncode: 0
+test: |
+    expectToken('STRLIT')
+    expectToken('STRLIT')
+    expectToken('STRLIT')
+    expectToken('STRLIT')
+    expectToken('ERROR')
+    expectToken('IDENTIFIER')
+    expectToken('ERROR')
+    expectToken('ERROR')
+
+    expectToken('STRLIT')
+    expectToken('STRLIT')
+    expectToken('STRLIT')
+    expectToken('STRLIT')
+    expectToken('ERROR')
+    expectToken('IDENTIFIER')
+    expectToken('ERROR')
+    expectToken('ERROR')
+*/
+
+"valid"
+"      "
+""
+"  spaces  "
+
+"cannot span multiple lines
+errors"
+"unterminated
+
+'single quote'
+'      '
+''
+'  spaces with single quotes  '
+
+'still cannot span multiple lines
+still errors'
+'also unterminated

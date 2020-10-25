@@ -1,0 +1,31 @@
+/*
+command: <coxianc> <file> -plex
+returncode: 0
+test: |
+    expectedToken("CHARLIT")
+    expectedToken("CHARLIT")
+    expectedToken("CHARLIT")
+    expectedToken("CHARLIT")
+
+    expectedToken("ERROR")
+    expectedToken("IDENTIFIER")
+    expectedToken("STRLIT")
+    expectedToken("ERROR")
+    expectedToken("IDENTIFIER")
+    expectedToken("STRLIT")
+
+    expectedToken("ERROR")
+    expectedToken("ERROR")
+*/
+
+c'c'
+c"c"
+
+c'o'
+c"o"
+
+c"iden"
+c'iden'
+
+c'a
+c"a

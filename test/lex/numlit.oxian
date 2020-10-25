@@ -1,0 +1,25 @@
+
+/*
+command: <coxianc> <file> -plex
+returncode: 0
+test: |
+    expectToken('DECINTLIT')
+    expectToken('BININTLIT')
+    expectToken('HEXINTLIT')
+    expectToken('OCTINTLIT')
+
+    expectToken('ERROR')
+
+    expectToken('FLOATLIT')
+    expectToken('ERROR')
+*/
+
+1234567890
+0b01100110
+0x1234567890abcdef
+0o01234567
+
+0j1234
+
+0.12345
+0b1203.1234

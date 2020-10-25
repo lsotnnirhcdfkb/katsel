@@ -903,8 +903,6 @@ Token Lexer::nextToken()
         while (isAlpha(peek()) || isDigit(peek())) advance();
 
         TokenType idenType = getIdentifierType();
-
-
         return makeToken(idenType);
     }
 

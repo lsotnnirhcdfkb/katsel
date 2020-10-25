@@ -1,0 +1,48 @@
+/*
+command: <coxianc> <file> -plex
+returncode: 0
+test: |
+    expectToken('PLUSEQUAL')
+    expectToken('MINUSEQUAL')
+    expectToken('AMPEREQUAL')
+    expectToken('PIPEEQUAL')
+
+    expectToken('PLUS')
+    expectToken('MINUS')
+    expectToken('AMPER')
+    expectToken('PIPE')
+
+    expectToken('DOUBLEPLUS')
+    expectToken('DOUBLEMINUS')
+    expectToken('DOUBLEAMPER')
+    expectToken('DOUBLEPIPE')
+
+    expectToken('PLUS')
+    expectToken('PLUS')
+    expectToken('MINUS')
+    expectToken('MINUS')
+    expectToken('AMPER')
+    expectToken('AMPER')
+    expectToken('PIPE')
+    expectToken('PIPE')
+*/
+
++=
+-=
+&=
+|=
+
++
+-
+&
+|
+
+++
+--
+&&
+||
+
++ +
+- -
+& &
+| |

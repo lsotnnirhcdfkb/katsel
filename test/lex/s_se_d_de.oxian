@@ -1,0 +1,38 @@
+/*
+command: <coxianc> <file> -plex
+returncode: 0
+test: |
+    expectToken('GREATER')
+    expectToken('GREATEREQUAL')
+    expectToken('DOUBLEGREATER')
+    expectToken('DOUBLEGREATEREQUAL')
+
+    expectToken('LESS')
+    expectToken('LESSEQUAL')
+    expectToken('DOUBLELESS')
+    expectToken('DOUBLELESSEQUAL')
+
+    expectToken('LESS')
+    expectToken('LESS')
+    expectToken('GREATER')
+    expectToken('GREATER')
+
+    expectToken('GREATER')
+    expectToken('GREATEREQUAL')
+    expectToken('LESS')
+    expectToken('LESSEQUAL')
+*/
+
+
+>
+>=
+>>
+>>=
+
+<
+<=
+<<
+<<=
+
+< < > >
+> >= < <=
