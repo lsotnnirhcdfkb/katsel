@@ -12,6 +12,8 @@
 #define PCP P(')')
 #define PS P(' ')
 #define PSC P(';'); PN
+#define IINC ++indent;
+#define IDEC --indent;
 
 void ReplicateVisitor::visitBinaryExpr(ASTNS::BinaryExpr *a)
 {
@@ -82,8 +84,10 @@ void ReplicateVisitor::visitBlockStmt(ASTNS::BlockStmt *a)
     pi();
     P('{');
     PN;
+    IINC;
     for (std::unique_ptr<ASTNS::Stmt> &s : a->stmts)
         s->accept(this);
+    IDEC;
     P('}');
     PN;
 }
@@ -95,6 +99,7 @@ void ReplicateVisitor::visitExprStmt(ASTNS::ExprStmt *a)
 }
 void ReplicateVisitor::visitReturnStmt(ASTNS::ReturnStmt *a)
 {
+    pi();
     P("return ");
     VC(val);
     PSC;
@@ -144,5 +149,5 @@ void ReplicateVisitor::visitArg(ASTNS::Arg *a)
 
 void ReplicateVisitor::pi()
 {
-    std::cout << std::string(' ', indent);
+    std::cout << std::string(indent * 4, ' ');
 }
