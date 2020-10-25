@@ -2,20 +2,20 @@
 command: <coxianc> <file> -plex
 returncode: 0
 test: |
-    expectedToken("CHARLIT")
-    expectedToken("CHARLIT")
-    expectedToken("CHARLIT")
-    expectedToken("CHARLIT")
+    expectToken("CHARLIT")
+    expectToken("CHARLIT")
+    expectToken("CHARLIT")
+    expectToken("CHARLIT")
 
-    expectedToken("ERROR")
-    expectedToken("IDENTIFIER")
-    expectedToken("STRLIT")
-    expectedToken("ERROR")
-    expectedToken("IDENTIFIER")
-    expectedToken("STRLIT")
+    expectToken("ERROR")
+    expectToken("IDENTIFIER")
+    expectToken("ERROR")
+    expectToken("ERROR")
+    expectToken("IDENTIFIER")
+    expectToken("ERROR")
 
-    expectedToken("ERROR")
-    expectedToken("ERROR")
+    expectToken("ERROR")
+    expectToken("ERROR")
 */
 
 c'c'
