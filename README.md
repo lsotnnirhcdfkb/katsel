@@ -15,15 +15,17 @@ AND NOt only that, but I also got a lot of helpful information from looking at t
 - [x] Functions
 - [x] Expressions
 - [x] Variables
-- [x] More types
+- [ ] Function overloading
+- [ ] Arrays
+- [ ] More types
 - [ ] Control flow
 - [ ] Pointers
 - [ ] Auto memory management with very safe pointers and strict ownership scope rules and stuff
 - [ ] Global variables
 - [ ] Explicit namespaces
-- [ ] Arrays and classes
+- [ ] Classes
 - [ ] Templates
-- [ ] Const variables (with `const type thing = value`)
+- [ ] Const variables (with `var const type thing = value`)
 - [ ] Standard libary
 - [ ] Function pointers (with `var rettype(paramtypes, paramtypes) variable = &f`)
 - [ ] Lots of syntactic sugar

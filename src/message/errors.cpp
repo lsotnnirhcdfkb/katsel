@@ -316,7 +316,7 @@ namespace msg
         printHeaderLine(&printErr, v, ss.str());
         printLineAndUnder(v);
     }
-    BASIC_ERR_AT_TOK(undefVar, printErr, "Undefined variable");
+    BASIC_ERR_AT_TOK(undefVar, printErr, "Name is not defined")
     void cannotCall(Value const &v)
     {
         printHeaderLine(&printErr, v, "Cannot call non-function");
@@ -350,8 +350,8 @@ namespace msg
         printLineAndUnder(v);
     }
 
-    BASIC_ERR_AT_TOK(noNullPtrLit, printErr, "Nullptr literals are currently not supported");
-    BASIC_ERR_AT_TOK(noStringLit, printErr, "String literals are currently not supported");
+    BASIC_ERR_AT_TOK(noNullPtrLit, printErr, "Nullptr literals are currently not supported")
+    BASIC_ERR_AT_TOK(noStringLit, printErr, "String literals are currently not supported")
     void invalidTok(std::string const &name, Token const &primary)
     {
         std::stringstream ss;

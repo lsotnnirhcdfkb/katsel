@@ -23,7 +23,7 @@ llvm::Type* FunctionType::toLLVMType(llvm::LLVMContext &con)
 std::string FunctionType::stringify()
 {
     std::stringstream ss;
-    ss << ret->stringify() << "(";
+    ss << "fun " << ret->stringify() << "(";
     for (Type *pty : paramtys)
         ss << pty->stringify() << ", ";
     ss << ")";

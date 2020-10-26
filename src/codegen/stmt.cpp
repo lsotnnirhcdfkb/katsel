@@ -18,8 +18,10 @@ void CodeGen::visitReturnStmt(ASTNS::ReturnStmt *a)
     {
         Value v = evalExpr(a->val.get());
         FunctionType *fty = dynamic_cast<FunctionType*>(context.curFunc.type);
+        if (!v.val)
+            return;
         Value vconv = fty->ret->castTo(context, v);
-        if (vconv.val)
+        if (!vconv.val)
             context.builder.CreateRet(vconv.val);
     }
     else

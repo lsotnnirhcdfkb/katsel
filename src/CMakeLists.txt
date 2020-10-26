@@ -27,8 +27,7 @@ message(STATUS "Found libraries from llvm-config: ${llvm_libs}")
 target_link_libraries(coxianc ${llvm_libs})
 
 set_target_properties(coxianc PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-    DEBUG_POSTFIX "d")
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 target_compile_options(coxianc PRIVATE -Wall -Wextra -pedantic)
 
