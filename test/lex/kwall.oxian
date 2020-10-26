@@ -1,0 +1,80 @@
+/*
+command: <coxianc> <file> -plex
+returncode: 0
+test: |
+    expectToken('UINT8')
+    expectToken('UINT16')
+    expectToken('UINT32')
+    expectToken('UINT64')
+    expectToken('SINT8')
+    expectToken('SINT16')
+    expectToken('SINT32')
+    expectToken('SINT64')
+
+    expectToken('FLOAT')
+    expectToken('BOOL')
+    expectToken('DOUBLE')
+    expectToken('CHAR')
+
+    expectToken('VAR')
+    expectToken('FUN')
+    expectToken('VOID')
+    expectToken('NAMESPACE')
+    expectToken('CLASS')
+    expectToken('ENUM')
+    expectToken('RETURN')
+    expectToken('THIS')
+    expectToken('WHILE')
+    expectToken('FOR')
+    expectToken('IF')
+    expectToken('ELSE')
+    expectToken('SWITCH')
+    expectToken('CASE')
+    expectToken('DEFAULT')
+    expectToken('BREAK')
+    expectToken('BREAKALL')
+    expectToken('BREAKTO')
+    expectToken('CONST')
+    expectToken('CONTINUE')
+    expectToken('INLINE')
+    expectToken('VOLATILE')
+    expectToken('ASSERT')
+*/
+
+uint8
+uint16
+uint32
+uint64
+sint8
+sint16
+sint32
+sint64
+
+float
+bool
+double
+char
+
+var
+fun
+void
+namespace
+class
+enum
+return
+this
+while
+for
+if
+else
+switch
+case
+default
+break
+breakall
+breakto
+const
+continue
+inline
+volatile
+assert
