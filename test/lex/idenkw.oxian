@@ -1,64 +1,33 @@
 /*
 command: <coxianc> <file> -plex
 returncode: 0
-test: |
-    expectToken('IDENTIFIER')
-    expectToken('IDENTIFIER')
-    expectToken('IDENTIFIER')
-    expectToken('IDENTIFIER')
-
-    expectToken('CASE')
-    expectToken('IF')
-    expectToken('ELSE')
-    expectToken('FOR')
-
-    expectToken('IDENTIFIER')
-    expectToken('IDENTIFIER')
-    expectToken('IDENTIFIER')
-    expectToken('IDENTIFIER')
-
-    expectToken('IDENTIFIER')
-    expectToken('IDENTIFIER')
-    expectToken('IDENTIFIER')
-    expectToken('IDENTIFIER')
-
-    expectToken('IDENTIFIER')
-    expectToken('IDENTIFIER')
-    expectToken('IDENTIFIER')
-    expectToken('IDENTIFIER')
-
-    expectToken('IDENTIFIER')
-    expectToken('IDENTIFIER')
-    expectToken('IDENTIFIER')
-    expectToken('DECINTLIT')
-    expectToken('IDENTIFIER')
 */
 
-asdf
-a
-i j
+asdf // ---> lex.expect('IDENTIFIER') <
+a // ---> lex.expect('IDENTIFIER') <
+i j // ---> lex.expect('IDENTIFIER') < ---> lex.expect('IDENTIFIER') <
 
-case
-if
-else
-for
+case // ---> lex.expect('CASE') <
+if // ---> lex.expect('IF') <
+else // ---> lex.expect('ELSE') <
+for // ---> lex.expect('FOR') <
 
-case_
-if_
-else_
-for_
+case_ // ---> lex.expect('IDENTIFIER') <
+if_ // ---> lex.expect('IDENTIFIER') <
+else_ // ---> lex.expect('IDENTIFIER') <
+for_ // ---> lex.expect('IDENTIFIER') <
 
-_case
-_if
-_else
-_for
+_case // ---> lex.expect('IDENTIFIER') <
+_if // ---> lex.expect('IDENTIFIER') <
+_else // ---> lex.expect('IDENTIFIER') <
+_for // ---> lex.expect('IDENTIFIER') <
 
-casee
-iff
-elsee
-forr
+casee // ---> lex.expect('IDENTIFIER') <
+iff // ---> lex.expect('IDENTIFIER') <
+elsee // ---> lex.expect('IDENTIFIER') <
+forr // ---> lex.expect('IDENTIFIER') <
 
-num0
-num1
-num2
-1nn
+num0 // ---> lex.expect('IDENTIFIER') <
+num1 // ---> lex.expect('IDENTIFIER') <
+num2 // ---> lex.expect('IDENTIFIER') <
+1nn // ---> lex.expect('DECINTLIT') < ---> lex.expect('IDENTIFIER') <

@@ -1,34 +1,15 @@
 /*
 command: <coxianc> <file> -plex
 returncode: 0
-test: |
-    expectToken('DOUBLEEQUAL')
-    expectToken('EQUAL')
-    expectToken('DOUBLECOLON')
-    expectToken('COLON')
-
-    expectToken('DOUBLEEQUAL')
-    expectToken('EQUAL')
-    expectToken('DOUBLECOLON')
-    expectToken('COLON')
-
-    expectToken('DOUBLEEQUAL')
-    expectToken('EQUAL')
-    expectToken('DOUBLECOLON')
-    expectToken('COLON')
-    expectToken('EQUAL')
-    expectToken('DOUBLEEQUAL')
-    expectToken('COLON')
-    expectToken('DOUBLECOLON')
 */
 
-==
-=
-::
-:
+== // ---> lex.expect('DOUBLEEQUAL') <
+= // ---> lex.expect('EQUAL') <
+:: // ---> lex.expect('DOUBLECOLON') <
+: // ---> lex.expect('COLON') <
 
-===
-:::
+=== // ---> lex.expect('DOUBLEEQUAL') < ---> lex.expect('EQUAL') <
+::: // ---> lex.expect('DOUBLECOLON') < ---> lex.expect('COLON') <
 
-== = :: :
-= == : ::
+== = :: : // ---> lex.expect('DOUBLEEQUAL') < ---> lex.expect('EQUAL') < ---> lex.expect('DOUBLECOLON') < ---> lex.expect('COLON') <
+= == : :: // ---> lex.expect('EQUAL') < ---> lex.expect('DOUBLEEQUAL') < ---> lex.expect('COLON') < ---> lex.expect('DOUBLECOLON') <

@@ -1,31 +1,16 @@
 /*
 command: <coxianc> <file> -plex
 returncode: 0
-test: |
-    expectToken("CHARLIT")
-    expectToken("CHARLIT")
-    expectToken("CHARLIT")
-    expectToken("CHARLIT")
-
-    expectToken("ERROR")
-    expectToken("IDENTIFIER")
-    expectToken("ERROR")
-    expectToken("ERROR")
-    expectToken("IDENTIFIER")
-    expectToken("ERROR")
-
-    expectToken("ERROR")
-    expectToken("ERROR")
 */
 
-c'c'
-c"c"
+c'c' // ---> lex.expect("CHARLIT") <
+c"c" // ---> lex.expect("CHARLIT") <
 
-c'o'
-c"o"
+c'o' // ---> lex.expect("CHARLIT") <
+c"o" // ---> lex.expect("CHARLIT") <
 
-c"iden"
-c'iden'
+c"iden" // ---> lex.expect("ERROR") < ---> lex.expect("IDENTIFIER") < ---> lex.expect("ERROR") <
+c'iden' // ---> lex.expect("ERROR") < ---> lex.expect("IDENTIFIER") < ---> lex.expect("ERROR") <
 
-c'a
-c"a
+c'a // ---> lex.expect("ERROR") <
+c"a // ---> lex.expect("ERROR") <

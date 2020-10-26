@@ -1,36 +1,13 @@
 /*
 command: <coxianc> <file> -plex
 returncode: 0
-test: |
-    expectToken('OPARN')
-    expectToken('CPARN')
-    expectToken('OSQUB')
-    expectToken('CSQUB')
-    expectToken('OCURB')
-    expectToken('CCURB')
-    expectToken('COMMA')
-    expectToken('PERIOD')
-    expectToken('SEMICOLON')
-    expectToken('QUESTION')
-    expectToken('TILDE')
-    expectToken('TILDE')
-    expectToken('QUESTION')
-    expectToken('SEMICOLON')
-    expectToken('PERIOD')
-    expectToken('COMMA')
-    expectToken('CCURB')
-    expectToken('OCURB')
-    expectToken('CSQUB')
-    expectToken('OSQUB')
-    expectToken('CPARN')
-    expectToken('OPARN')
 */
 
-() [ ]
-{ }
-, .  ; ?
-~ ~ ?  ; .
-, }
-{ ]
-[)
-(
+() [ ] // ---> lex.expect('OPARN') < ---> lex.expect('CPARN') < ---> lex.expect('OSQUB') < ---> lex.expect('CSQUB') <
+{ } // ---> lex.expect('OCURB') < ---> lex.expect('CCURB') <
+, .  ; ? // ---> lex.expect('COMMA') < ---> lex.expect('PERIOD') < ---> lex.expect('SEMICOLON') < ---> lex.expect('QUESTION') <
+~ ~ ?  ; . // ---> lex.expect('TILDE') < ---> lex.expect('TILDE') < ---> lex.expect('QUESTION') < ---> lex.expect('SEMICOLON') < ---> lex.expect('PERIOD') <
+, } // ---> lex.expect('COMMA') < ---> lex.expect('CCURB') <
+{ ] // ---> lex.expect('OCURB') < ---> lex.expect('CSQUB') <
+[) // ---> lex.expect('OSQUB') < ---> lex.expect('CPARN') <
+( // ---> lex.expect('OPARN') <

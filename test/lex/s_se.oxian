@@ -1,66 +1,52 @@
 /*
 command: <coxianc> <file> -plex
 returncode: 0
-test: |
-    expectToken('STAR')
-    expectToken('SLASH')
-    expectToken('BANG')
-    expectToken('PERCENT')
-    expectToken('CARET')
-
-    expectToken('STAREQUAL')
-    expectToken('SLASHEQUAL')
-    expectToken('BANGEQUAL')
-    expectToken('PERCENTEQUAL')
-    expectToken('CARETEQUAL')
-
-    expectToken('EQUAL')
-    expectToken('STAR')
-    expectToken('EQUAL')
-    expectToken('SLASH')
-    expectToken('EQUAL')
-    expectToken('BANG')
-    expectToken('EQUAL')
-    expectToken('PERCENT')
-    expectToken('EQUAL')
-    expectToken('CARET')
-
-    expectToken('STAR')
-    expectToken('STAR')
-    expectToken('STAR')
-    expectToken('SLASH')
-    expectToken('SLASH')
-    expectToken('BANG')
-    expectToken('BANG')
-    expectToken('BANG')
-    expectToken('PERCENT')
-    expectToken('PERCENT')
-    expectToken('PERCENT')
-    expectToken('CARET')
-    expectToken('CARET')
-    expectToken('CARET')
 */
 
-*
-/
-!
-%
-^
+* // ---> lex.expect('STAR') < 
+/ // ---> lex.expect('SLASH') <
+! // ---> lex.expect('BANG') <
+% // ---> lex.expect('PERCENT') <
+^ // ---> lex.expect('CARET') <
+ 
+*= // ---> lex.expect('STAREQUAL') <
+/= // ---> lex.expect('SLASHEQUAL') <
+!= // ---> lex.expect('BANGEQUAL') <
+%= // ---> lex.expect('PERCENTEQUAL') <
+^= // ---> lex.expect('CARETEQUAL') <
+ 
+=* // ---> lex.expect('EQUAL') < // ---> lex.expect('STAR') <
+=/ // ---> lex.expect('EQUAL') < // ---> lex.expect('SLASH') <
+=! // ---> lex.expect('EQUAL') < // ---> lex.expect('BANG') <
+=% // ---> lex.expect('EQUAL') < // ---> lex.expect('PERCENT') <
+=^ // ---> lex.expect('EQUAL') < // ---> lex.expect('CARET') <
+ 
+** * // ---> lex.expect('STAR') < // ---> lex.expect('STAR') < // ---> lex.expect('STAR') <
+/ / // ---> lex.expect('SLASH') < // ---> lex.expect('SLASH') <
+!! ! // ---> lex.expect('BANG') < // ---> lex.expect('BANG') < // ---> lex.expect('BANG') <
+%% % // ---> lex.expect('PERCENT') < // ---> lex.expect('PERCENT') < // ---> lex.expect('PERCENT') <
+^^ ^ // ---> lex.expect('CARET') < // ---> lex.expect('CARET') < // ---> lex.expect('CARET') <
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
 
-*=
-/=
-!=
-%=
-^=
 
-=*
-=/
-=!
-=%
-=^
 
-** *
-/ /
-!! !
-%% %
-^^ ^
+
+
+
+
+
+
+
+
