@@ -298,7 +298,7 @@ def genDotVisitorMethods():
         output.append(         '    std::string thisid = curid();\n')
         output.append(        f'    std::cout << thisid << " [label=<<table border=\\"0\\" cellborder=\\"1\\" cellspacing=\\"0\\"><tr><td port=\\"__heading\\" colspan=\\"{len(ast.fields)}\\">{ast.name}</td></tr><tr>";\n')
         for field in ast.fields:
-            output.append(    f'    std::cout << "<td port=\\"{field.name}\\">{field.name.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")}</td>";\n')
+            output.append(    f'    std::cout << "<td port=\\"{field.name}\\">{field.name}</td>";\n')
 
         output.append(        f'    std::cout << "</tr></table>>]\\n";\n')
 

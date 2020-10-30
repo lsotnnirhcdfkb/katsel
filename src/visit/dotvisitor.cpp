@@ -392,6 +392,18 @@ std::string DotVisitor::curid()
 std::string DotVisitor::makeTextNode(std::string type, std::string text)
 {
     std::string thisid = curid();
+#define FINDREP(x, r) {\
+    size_t it;\
+    while ((it = text.find(x)) != std::string::npos)\
+        text.replace(it, it + 1, r);\
+    }
+
+    FINDREP("&", "\x07amp;")
+    FINDREP("<", "\x07lt;")
+    FINDREP(">", "\x07rt;")
+    FINDREP("\x07", "&")
+
+#undef FINDREP
     std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td>" << type << "</td></tr><tr><td>" << text << "</td></tr></table>>]\n";
     return thisid;
 }
