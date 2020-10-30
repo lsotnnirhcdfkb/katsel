@@ -207,38 +207,38 @@ inline std::string attr(std::string const &ansicode, std::string const &message,
 // print message types {{{3
 void printErr()
 {
-    std::cout << attr(A_BOLD A_FG_RED, "Error");
+    std::cerr << attr(A_BOLD A_FG_RED, "Error");
 }
 void printWarn()
 {
-    std::cout << attr(A_BOLD A_FG_MAGENTA, "Warning");
+    std::cerr << attr(A_BOLD A_FG_MAGENTA, "Warning");
 }
 void printDebug()
 {
-    std::cout << attr(A_BOLD A_FG_CYAN, "Debug");
+    std::cerr << attr(A_BOLD A_FG_CYAN, "Debug");
 }
 void printIntErr()
 {
-    std::cout << "!!! - " << attr(A_BOLD A_FG_RED, "Internal error");
+    std::cerr << "!!! - " << attr(A_BOLD A_FG_RED, "Internal error");
 }
 // print message locations {{{3
 void printAtFileLC(Location const &l)
 {
     std::string::const_iterator const fstart = l.file->source.cbegin();
-    std::cout << " at " << attr(A_FG_CYAN, l.file->filename, true) << ":" << getLineN(fstart, l.start) << ":" << getColN(fstart, l.start) << A_RESET;
+    std::cerr << " at " << attr(A_FG_CYAN, l.file->filename, true) << ":" << getLineN(fstart, l.start) << ":" << getColN(fstart, l.start) << A_RESET;
 }
 // print lines and underlines {{{3
 void printLine(Location const &l)
 {
     Location line (getLine(l));
-    std::cout << attr(A_DIM, " | ") << std::string(line.start, line.end) << "\n";
+    std::cerr << attr(A_DIM, " | ") << std::string(line.start, line.end) << "\n";
 }
 void printUnderline(int startc, int endc)
 {
-    std::cout << attr(A_DIM, " |");
-    std::cout << attr(A_FG_GREEN, " ", true);
-    for (int i = 1; i < endc; ++i) std::cout << (i >= startc && i < endc ? '^' : ' ');
-    std::cout << A_RESET "\n";
+    std::cerr << attr(A_DIM, " |");
+    std::cerr << attr(A_FG_GREEN, " ", true);
+    for (int i = 1; i < endc; ++i) std::cerr << (i >= startc && i < endc ? '^' : ' ');
+    std::cerr << A_RESET "\n";
 }
 void printUnderline(Location const &l)
 {
@@ -250,7 +250,7 @@ void printUnderline(Location const &l)
 // print other things {{{3
 void printColon()
 {
-    std::cout << ": ";
+    std::cerr << ": ";
 }
 // print header line {{{3
 void printHeaderLine(void (*msgType)(), Location loc, std::string const &message)
@@ -258,7 +258,7 @@ void printHeaderLine(void (*msgType)(), Location loc, std::string const &message
     msgType();
     printAtFileLC(loc);
     printColon();
-    std::cout << message << "\n";
+    std::cerr << message << "\n";
 }
 // common patterns {{{2
 void printLineAndUnder(Location const &l)
@@ -381,14 +381,14 @@ namespace msg
         std::stringstream ss;
         printIntErr();
         printColon();
-        std::cout << fnn << " called\n";
+        std::cerr << fnn << " called\n";
         std::abort();
     }
     void outOSwitchNoh(std::string const &fnn)
     {
         printIntErr();
         printColon();
-        std::cout << fnn << " went out of switch\n";
+        std::cerr << fnn << " went out of switch\n";
         std::abort();
     }
 
@@ -396,7 +396,7 @@ namespace msg
     {
         printIntErr();
         printColon();
-        std::cout << message << "\n";
+        std::cerr << message << "\n";
         std::abort();
     }
 }
