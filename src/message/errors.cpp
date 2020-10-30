@@ -231,14 +231,14 @@ void printAtFileLC(Location const &l)
 void printLine(Location const &l)
 {
     Location line (getLine(l));
-    std::cout << attr(A_DIM, " | ") << std::string(line.start, line.end) << std::endl;
+    std::cout << attr(A_DIM, " | ") << std::string(line.start, line.end) << "\n";
 }
 void printUnderline(int startc, int endc)
 {
     std::cout << attr(A_DIM, " |");
     std::cout << attr(A_FG_GREEN, " ", true);
     for (int i = 1; i < endc; ++i) std::cout << (i >= startc && i < endc ? '^' : ' ');
-    std::cout << A_RESET << std::endl;
+    std::cout << A_RESET "\n";
 }
 void printUnderline(Location const &l)
 {
@@ -258,7 +258,7 @@ void printHeaderLine(void (*msgType)(), Location loc, std::string const &message
     msgType();
     printAtFileLC(loc);
     printColon();
-    std::cout << message << std::endl;
+    std::cout << message << "\n";
 }
 // common patterns {{{2
 void printLineAndUnder(Location const &l)
@@ -381,14 +381,14 @@ namespace msg
         std::stringstream ss;
         printIntErr();
         printColon();
-        std::cout << fnn << " called" << std::endl;
+        std::cout << fnn << " called\n";
         std::abort();
     }
     void outOSwitchNoh(std::string const &fnn)
     {
         printIntErr();
         printColon();
-        std::cout << fnn << " went out of switch" << std::endl;
+        std::cout << fnn << " went out of switch\n";
         std::abort();
     }
 
@@ -396,7 +396,7 @@ namespace msg
     {
         printIntErr();
         printColon();
-        std::cout << message << std::endl;
+        std::cout << message << "\n";
         std::abort();
     }
 }

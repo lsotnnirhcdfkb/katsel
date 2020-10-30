@@ -49,6 +49,6 @@ void GlobalsAssembler::visitFunctionDecl(ASTNS::FunctionDecl *a)
 
 void GlobalsAssembler::visitGlobalVarDecl(ASTNS::GlobalVarDecl *a)
 {
-    std::cerr << "Global Variable Declarations are not supported yet" << std::endl;
+    std::cerr << "Global Variable Declarations are not supported yet\n";
     // TODO: this
 }

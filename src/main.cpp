@@ -27,6 +27,7 @@ enum Phases
     REPLICATE,
     GLOBALS,
     CODEGEN,
+    OBJECT,
     ALL,
 };
 
@@ -54,7 +55,7 @@ File readFile(char *filename)
     }
     else
     {
-        std::cerr << "Could not open file" << std::endl;
+        std::cerr << "Could not open file\n";
         return File{"", ""};
     }
 }
@@ -82,8 +83,8 @@ int main(int argc, char *argv[])
                     phasen = Phases::ALL;
                 else
                 {
-                    std::cerr << "Invalid argument for option -p: '" << optarg << '\'' << std::endl;
-                    std::cerr << "Defaulting to -pall" << std::endl;
+                    std::cerr << "Invalid argument for option -p: '" << optarg << "\'\n";
+                    std::cerr << "Defaulting to -pall\n";
                     phasen = Phases::ALL;
                 }
                 break;
@@ -95,7 +96,7 @@ int main(int argc, char *argv[])
 
     if (optind >= argc)
     {
-        std::cerr << "No input files" << std::endl;
+        std::cerr << "No input files\n";
         return 1;
     }
 
@@ -112,7 +113,7 @@ int main(int argc, char *argv[])
             if (t.type == TokenType::EOF_)
                 break;
 
-            std::cout << t.sourcefile->filename << ':' << t.line << ':' << t.column << ": (" << stringifyTokenType(t.type) << ") \"" << std::string(t.start, t.end) << "\"" << std::endl;
+            std::cout << t.sourcefile->filename << ':' << t.line << ':' << t.column << ": (" << stringifyTokenType(t.type) << ") \"" << std::string(t.start, t.end) << "\"\n";
         }
         resetTerminal();
         return 0;
