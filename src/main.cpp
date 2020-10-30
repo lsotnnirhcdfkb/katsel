@@ -13,6 +13,7 @@
 #include "lex/lexer.h"
 #include "message/ansistuff.h"
 #include "visit/printvisitor.h"
+#include "visit/dotvisitor.h"
 #include "codegen/context.h"
 #include "codegen/codegen.h"
 #include "codegen/globalsassembler.h"
@@ -25,6 +26,7 @@ enum Phases
     LEX = 0,
     PARSE,
     REPLICATE,
+    DOT,
     GLOBALS,
     CODEGEN,
     OBJECT,
@@ -75,6 +77,8 @@ int main(int argc, char *argv[])
                     phasen = Phases::PARSE;
                 else if (strcmp(optarg, "replicate") == 0)
                     phasen = Phases::REPLICATE;
+                else if (strcmp(optarg, "dot") == 0)
+                    phasen = Phases::DOT;
                 else if (strcmp(optarg, "globals") == 0)
                     phasen = Phases::GLOBALS;
                 else if (strcmp(optarg, "codegen") == 0)
@@ -134,6 +138,14 @@ int main(int argc, char *argv[])
     {
         auto replicator = std::make_unique<ReplicateVisitor>();
         replicator->visitProgram(parsed.get());
+        resetTerminal();
+        return 0;
+    }
+
+    if (phasen == Phases::DOT)
+    {
+        auto dotter = std::make_unique<DotVisitor>();
+        dotter->visitProgram(parsed.get());
         resetTerminal();
         return 0;
     }

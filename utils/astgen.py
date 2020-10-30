@@ -238,7 +238,8 @@ def genPureASTVisitorDestructs():
         output.append(f'{genclass.name}Visitor::~{genclass.name}Visitor() {{}}\n')
 
     return ''.join(output)
-# Generate printing stuff {{{2
+# Generating printing stuff {{{2
+# Genearte print visitor {{{3
 def genPrintVisitorMethods():
     output = []
     for ast in asts:
@@ -279,6 +280,55 @@ def genPrintVisitorMethods():
             else:
                 raise Exception(f'Invalid print method {field.printMethod}')
         output.append(        f'    --indent;\n')
+        output.append(         '}\n')
+
+    return ''.join(output)
+# Generate dot visitor {{{3
+def genDotVisitorMethods():
+    output = []
+    for ast in asts:
+        if type(ast) == PureASTClass:
+            continue
+
+        output.append(        f'void DotVisitor::visit{ast.name}(ASTNS::{ast.name} *a)\n')
+        output.append(         '{\n')
+        if ast.name == 'Program':
+            output.append(     '    std::cout << "strict digraph {\\n";\n')
+            output.append(     '    std::cout << "node [shape=plain]\\n";\n')
+        output.append(         '    std::string thisid = curid();\n')
+        output.append(        f'    std::cout << thisid << " [label=<<table border=\\"0\\" cellborder=\\"1\\" cellspacing=\\"0\\"><tr><td port=\\"__heading\\" colspan=\\"{len(ast.fields)}\\">{ast.name}</td></tr><tr>";\n')
+        for field in ast.fields:
+            output.append(    f'    std::cout << "<td port=\\"{field.name}\\">{field.name.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")}</td>";\n')
+
+        output.append(        f'    std::cout << "</tr></table>>]\\n";\n')
+
+        for field in ast.fields:
+            if field.printMethod == ASTField.PM_CHILD:
+                output.append(f'    if (a->{field.name})\n')
+                output.append( '    {\n')
+                output.append(f'        a->{field.name}->accept(this);\n')
+                output.append(f'        connect(thisid, "{field.name}", lastid);\n')
+                output.append( '    }\n')
+                output.append( '    else\n')
+                output.append( '    {\n')
+                output.append(f'        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");\n')
+                output.append(f'        connect(thisid, "{field.name}", nullptrnodeid);\n')
+                output.append( '    }\n')
+            elif field.printMethod == ASTField.PM_TOKEN:
+                output.append(f'    std::string tokennodeid = makeTextNode("Token", tokenToStr(a->{field.name}));\n')
+                output.append(f'    connect(thisid, "{field.name}", tokennodeid);\n')
+            elif field.printMethod == ASTField.PM_ITERATE_CHILD:
+                output.append(f'    for (auto &i : a->{field.name})\n')
+                output.append( '    {\n')
+                output.append(f'        i->accept(this);\n')
+                output.append(f'        connect(thisid, "{field.name}", lastid);\n')
+                output.append( '    }\n')
+            else:
+                raise Exception(f'Invalid print method {field.printMethod}')
+
+        output.append(         '    lastid = std::move(thisid);\n')
+        if ast.name == 'Program':
+            output.append(     '    std::cout << "}\\n";\n')
         output.append(         '}\n')
 
     return ''.join(output)
