@@ -20,7 +20,7 @@ AND NOt only that, but I also got a lot of helpful information from looking at t
 - [ ] More types
 - [ ] Control flow
 - [ ] Pointers
-- [ ] Auto memory management with very safe pointers and strict ownership scope rules and stuff
+- [ ] Auto memory management with very safe pointers and strict ownership scope rules and stuff (with % = uptr, # = sptr, * = rptr, and maybe & = ref)
 - [ ] Global variables
 - [ ] Explicit namespaces
 - [ ] Classes
