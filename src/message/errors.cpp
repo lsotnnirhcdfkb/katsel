@@ -42,12 +42,12 @@ int getColN(std::string::const_iterator const &start, std::string::iterator loc)
 int getLineN(std::string::const_iterator const &start, std::string::iterator loc)
 {
     int linen = 0;
-    while (loc != start)
+    while (loc >= start)
     {
         if (*loc == '\n') ++linen;
         --loc;
     }
-    return linen;
+    return linen + 1;
 }
 // LocationVisitor {{{1
 class LocationVisitor :
