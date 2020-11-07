@@ -210,3 +210,34 @@ Error& Error::span(Location const &start, Location const &end)
     spans.push_back(Span {start, end});
     return *this;
 }
+
+// Primary message methods {{{1
+Error::Primary& Error::Primary::error(std::string const &message)
+{
+    return addmsg("error", A_FG_RED, message);
+}
+Error::Primary& Error::Primary::warning(std::string const &message)
+{
+    return addmsg("warning", A_FG_MAGENTA, message);
+}
+Error::Primary& Error::Primary::note(std::string const &message)
+{
+    return addmsg("note", A_FG_GREEN, message);
+}
+Error::Primary& Error::Primary::help(std::string const &message)
+{
+    return addmsg("help", A_FG_CYAN, message);
+}
+Error::Primary& Error::Primary::hint(std::string const &message)
+{
+    return addmsg("hint", A_FG_YELLOW, message);
+}
+Error::Primary& Error::Primary::message(std::string const &type, std::string const &message)
+{
+    return addmsg(type, A_FG_WHITE A_BOLD, message);
+}
+Error::Primary& Error::Primary::addmsg(std::string const &type, char const * const color, std::string const &message)
+{
+    messages.push_back(Message {type, message, color});
+    return *this;
+}
