@@ -21,7 +21,7 @@ std::unique_ptr<ASTNS::Type> Parser::type()
     }
 
     consume();
-    Error()
+    Error(Error::MsgType::ERROR, prev(), "Expected type")
         .primary(Error::Primary(prev())
             .error("Expected type"))
         .report();

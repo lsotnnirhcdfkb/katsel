@@ -23,10 +23,9 @@ Token& Parser::consume()
 
         if (currToken.type != TokenType::ERROR) break; // continue loop if it is an error token
 
-        Error()
+        Error(Error::MsgType::ERROR, peek(), peek().message)
             .primary(Error::Primary(peek())
-                .error(peek().message)
-                )
+                .error(peek().message))
             .report();
     }
 
@@ -40,12 +39,12 @@ bool Parser::assertConsume(TokenType type, std::string const &message)
     if (!correct)
     {
         if (message.size() == 0)
-            Error()
+            Error(Error::MsgType::ERROR, peek(), "Unexpected token")
                 .primary(Error::Primary(peek())
                     .error(static_cast<std::stringstream&>(std::stringstream() << "Unexpected token " << stringifyTokenType(peek().type) << ", expected " << stringifyTokenType(type)).str()))
                 .report();
         else
-            Error()
+            Error(Error::MsgType::ERROR, peek(), message)
                 .primary(Error::Primary(peek())
                     .error(message))
                 .report();

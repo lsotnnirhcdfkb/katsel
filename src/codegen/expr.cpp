@@ -17,7 +17,7 @@ void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
     {
         if (!llvm::isa<llvm::LoadInst>(lhs.val))
         {
-            Error()
+            Error(Error::MsgType::ERROR, a->op, "Invalid assignment target")
                 .primary(Error::Primary(a->op)
                     .error("Invalid assignment target"))
                 .secondary(a->lhs.get())
@@ -38,7 +38,7 @@ void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
 
     if (!lhs.type->hasOperator(a->op.type))
     {
-        Error()
+        Error(Error::MsgType::ERROR, a->op, "Left-hand side of binary expression does not support operator")
             .primary(Error::Primary(a->op)
                 .error(static_cast<std::stringstream&>(std::stringstream() << "Type \"" << lhs.type->stringify() << "\" does not support operator \"" << tokenToStr(a->op) << "\"").str()))
             .secondary(lhs)
@@ -57,7 +57,7 @@ void CodeGen::visitUnaryExpr(ASTNS::UnaryExpr *a)
 
     if (!oper.type->hasOperator(a->op.type))
     {
-        Error()
+        Error(Error::MsgType::ERROR, a->operand.get(), "Operand of unary expression does not support operator")
             .primary(Error::Primary(a->op)
                 .error(static_cast<std::stringstream&>(std::stringstream() << "Type \"" << oper.type->stringify() << "\" does not support operator \"" << tokenToStr(a->op) << "\"").str()))
             .secondary(oper)
@@ -162,7 +162,7 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
                 Value v = context.findValue(tokenToStr(a->value));
                 if (!v.val)
                 {
-                    Error()
+                    Error(Error::MsgType::ERROR, a->value, "Name is not defined")
                         .primary(Error::Primary(a->value)
                             .error("Name is not defined"))
                         .report();
@@ -194,7 +194,7 @@ void CodeGen::visitCallExpr(ASTNS::CallExpr *a)
     FunctionType *fty = dynamic_cast<FunctionType*>(func.type);
     if (!fty)
     {
-        Error()
+        Error(Error::MsgType::ERROR, func, "Value not callable")
             .primary(Error::Primary(func)
                 .error("Cannot call non-function"))
             .report();
@@ -220,7 +220,7 @@ void CodeGen::visitCallExpr(ASTNS::CallExpr *a)
 
     if (args.size() != fty->paramtys.size())
     {
-        Error()
+        Error(Error::MsgType::ERROR, a, "Wrong number of arguments to function call")
             .primary(Error::Primary(a)
                 .error("Wrong number of arguments to function call"))
             .report();
@@ -233,7 +233,7 @@ void CodeGen::visitCallExpr(ASTNS::CallExpr *a)
     {
         if (i->type != *j)
         {
-            Error()
+            Error(Error::MsgType::ERROR, *i, "Wrong argument to function call")
                 .primary(Error::Primary(*i)
                     .error("Wrong argumnet to function call")
                     .note(static_cast<std::stringstream&>(std::stringstream() << "Argument is of type \"" << i->type->stringify() << "\", but is being passed to parameter of type \"" << (*j)->stringify() << "\"").str()))

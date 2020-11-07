@@ -149,7 +149,7 @@ std::unique_ptr<ASTNS::Expr> Parser::expr(int prec)
 
     if (prefixParser == prefixParserTable.end())
     {
-        Error()
+        Error(Error::MsgType::ERROR, prev(), "Expected primary token or unary operator")
             .primary(Error::Primary(prev())
                 .error("Expected primary token or unary operator"))
             .report();

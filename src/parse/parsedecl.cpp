@@ -40,7 +40,7 @@ std::unique_ptr<ASTNS::Decl> Parser::decl()
             return functiondecl();
 
         default:
-            Error()
+            Error(Error::MsgType::ERROR, peek(), "Expected declaration")
                 .primary(Error::Primary(peek())
                     .error("Expected declaration"))
                 .report();

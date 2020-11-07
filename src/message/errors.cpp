@@ -190,6 +190,7 @@ Location::Location(ASTNS::Stmt *a)
     file = locV.getF(a);
 }
 // Error methods {{{1
+Error::Error(MsgType type, Location const &location, std::string message): type(type), location(location), message(message) {}
 Error& Error::primary(Primary const &primary)
 {
     int l = getLineN(primary.location.file->source.begin(), primary.location.start);
@@ -212,9 +213,34 @@ Error& Error::span(Location const &start, Location const &end)
 }
 
 // Error report method {{{1
+inline std::string attr(std::string const &ansicode, std::string const &message, bool noreset=false)
+{
+    if (ansiCodesEnabled())
+    {
+        if (noreset)
+            return ansicode + message;
+        else
+            return ansicode + message + A_RESET;
+    }
+    else
+        return message;
+}
 void Error::report()
 {
-    std::cerr << "Error" << std::endl;
+    switch (type)
+    {
+        case Error::MsgType::ERROR:
+            std::cerr << attr(A_BOLD A_FG_RED, "Error");
+            break;
+        case Error::MsgType::WARNING:
+            std::cerr << attr(A_BOLD A_FG_MAGENTA, "Warning");
+            break;
+        case Error::MsgType::INTERR:
+            std::cerr << "!!! - " << attr(A_BOLD A_FG_RED, "Internal error");
+            break;
+    }
+    std::string::const_iterator const fstart = location.file->source.cbegin();
+    std::cerr << " at " << attr(A_FG_CYAN, location.file->filename, true) << ":" << getLineN(fstart, location.start) << ":" << getColN(fstart, location.start) << A_RESET << ": " << message << "\n";
 }
 // Primary message methods {{{1
 Error::Primary::Primary(Location const &location): location(location) { }

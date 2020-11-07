@@ -58,6 +58,15 @@ public:
         Primary& addmsg(std::string const &type, char const * const color, std::string const &mesage);
     };
 
+    enum class MsgType
+    {
+        ERROR,
+        WARNING,
+        INTERR
+    };
+
+    Error(MsgType type, Location const &location, std::string message);
+
     Error& primary(Primary const &primary);
     Error& secondary(Location const &location);
     Error& span(Location const &start, Location const &end);
@@ -65,6 +74,10 @@ public:
     void report();
 
 private:
+    MsgType type;
+    Location location;
+    std::string message;
+
     std::vector<Primary> primaries;
     std::vector<Location> secondaries;
     std::vector<Span> spans;

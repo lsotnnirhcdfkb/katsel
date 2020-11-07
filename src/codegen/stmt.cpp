@@ -36,7 +36,7 @@ void CodeGen::visitVarStmt(ASTNS::VarStmt *a)
     Type *ty = evalType(a->type.get());
     if (dynamic_cast<VoidType*>(ty))
     {
-        Error()
+        Error(Error::MsgType::ERROR, a->type.get(), "Invalid variable type \"void\"")
             .primary(Error::Primary(a->type.get())
                 .error("Variable cannot be of type void"))
             .report();
@@ -47,7 +47,7 @@ void CodeGen::visitVarStmt(ASTNS::VarStmt *a)
     Local *var = context.findLocal(varname);
     if (var && var->scopenum == context.curScope)
     {
-        Error()
+        Error(Error::MsgType::ERROR, a->name, "Duplicate variable")
             .primary(Error::Primary(a->name)
                 .error("Duplicate variable"))
             .report();

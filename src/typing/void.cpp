@@ -1,4 +1,5 @@
 #include <iostream> // DO NOT FORGET!!! REMOVE THIS LINE SOON!!!
+#include <sstream>
 
 #include "typing/type.h"
 #include "message/errors.h"
@@ -32,7 +33,7 @@ Value VoidType::unaryOp(CodeGenContext &, Value, Token op, ASTNS::Expr *)
 }
 Value VoidType::castTo(CodeGenContext &, Value v)
 {
-    Error()
+    Error(Error::MsgType::ERROR, v, "Invalid cast")
         .primary(Error::Primary(v)
             .error(static_cast<std::stringstream&>(std::stringstream() << "Invalid cast form type \"" << v.type->stringify() << "\" to \"" << this->stringify() << "\"").str()))
         .report();
