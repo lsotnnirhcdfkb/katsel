@@ -211,6 +211,11 @@ Error& Error::span(Location const &start, Location const &end)
     return *this;
 }
 
+// Error report method {{{1
+void Error::report()
+{
+    std::cerr << "Error" << std::endl;
+}
 // Primary message methods {{{1
 Error::Primary::Primary(Location const &location): location(location) { }
 Error::Primary& Error::Primary::error(std::string const &message)

@@ -26,7 +26,8 @@ Token& Parser::consume()
         Error()
             .primary(Error::Primary(peek())
                 .error(peek().message)
-                );
+                )
+            .report();
     }
 
     return prev();

@@ -62,6 +62,8 @@ public:
     Error& secondary(Location const &location);
     Error& span(Location const &start, Location const &end);
 
+    void report();
+
 private:
     std::vector<Primary> primaries;
     std::vector<Location> secondaries;
