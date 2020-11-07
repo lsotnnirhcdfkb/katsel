@@ -1,3 +1,5 @@
+#include <iostream> // DO NOT FORGET!!! REMOVE THIS LINE SOON!!!
+
 #include "typing/type.h"
 #include "message/errors.h"
 
@@ -37,7 +39,8 @@ llvm::Type* BuiltinType::toLLVMType(llvm::LLVMContext &con)
         case BuiltinType::Builtins::BOOL:
             return llvm::Type::getInt1Ty(con);
     }
-    msg::outOSwitchNoh("BuiltinType::toLLVMType");
+    // msg::outOSwitchNoh("BuiltinType::toLLVMType");
+    std::cerr << "Error: msg::outOSwitchNoh(\"BuiltinType::toLLVMType\");" << std::endl;
 }
 // stringify {{{1
 std::string BuiltinType::stringify()
@@ -68,7 +71,8 @@ bool BuiltinType::hasOperator(TokenType)
 Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS::Expr *ast)
 {
     if (l.type != this)
-        msg::calledWithOpTyNEthis("BuiltinType", "binOp", "left operand", l);
+        // msg::calledWithOpTyNEthis("BuiltinType", "binOp", "left operand", l);
+        std::cerr << "Error: msg::calledWithOpTyNEthis(\"BuiltinType\", \"binOp\", \"left operand\", l);" << std::endl;
 
     Type *picked (pickType(l, r));
     l = picked->castTo(cgc, l);
@@ -149,10 +153,12 @@ Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS:
             break;
 
         default:
-            msg::invalidTok("binary operator", op);
+            // msg::invalidTok("binary operator", op);
+            std::cerr << "Error: msg::invalidTok(\"binary operator\", op);" << std::endl;
     }
 
-    msg::outOSwitchDDefaultLab("BuiltinType::binOp", op);
+    // msg::outOSwitchDDefaultLab("BuiltinType::binOp", op);
+    std::cerr << "Error: msg::outOSwitchDDefaultLab(\"BuiltinType::binOp\", op);" << std::endl;
     return Value(); // literally unreachable
 }
 // pickType {{{1
@@ -174,12 +180,14 @@ Type* BuiltinType::pickType(Value v1, Value v2)
     };
 
     if (v1.type != this)
-        msg::calledWithOpTyNEthis("BuiltinType", "pickType", "first type", v1);
+        // msg::calledWithOpTyNEthis("BuiltinType", "pickType", "first type", v1);
+        std::cerr << "Error: msg::calledWithOpTyNEthis(\"BuiltinType\", \"pickType\", \"first type\", v1);" << std::endl;
 
     BuiltinType *bty2;
     if (!(bty2 = dynamic_cast<BuiltinType*>(v2.type))) // if r.type is not any of builtins
     {
-        msg::cannotPick2Tys(v1, v2);
+        // msg::cannotPick2Tys(v1, v2);
+        std::cerr << "Error: msg::cannotPick2Tys(v1, v2);" << std::endl;
         return nullptr;
     }
 
@@ -197,7 +205,8 @@ Value BuiltinType::castTo(CodeGenContext &cgc, Value v)
     BuiltinType *sty = dynamic_cast<BuiltinType*> (v.type);
     if (!sty)
     {
-        msg::invalidCast(v, this);
+        // msg::invalidCast(v, this);
+        std::cerr << "Error: msg::invalidCast(v, this);" << std::endl;
         return Value();
     }
 
@@ -301,7 +310,8 @@ Value BuiltinType::castTo(CodeGenContext &cgc, Value v)
 Value BuiltinType::unaryOp(CodeGenContext &cgc, Value v, Token op, ASTNS::Expr *ast)
 {
     if (v.type != this)
-        msg::calledWithOpTyNEthis("BuiltinType", "unaryOp", "operand", v);
+        // msg::calledWithOpTyNEthis("BuiltinType", "unaryOp", "operand", v);
+        std::cerr << "Error: msg::calledWithOpTyNEthis(\"BuiltinType\", \"unaryOp\", \"operand\", v);" << std::endl;
 
     switch (op.type)
     {
@@ -318,17 +328,20 @@ Value BuiltinType::unaryOp(CodeGenContext &cgc, Value v, Token op, ASTNS::Expr *
             break;
 
         default:
-            msg::invalidTok("unary operator", op);
+            // msg::invalidTok("unary operator", op);
+            std::cerr << "Error: msg::invalidTok(\"unary operator\", op);" << std::endl;
     }
 
-    msg::outOSwitchDDefaultLab("BuiltinType::unaryOp", op);
+    // msg::outOSwitchDDefaultLab("BuiltinType::unaryOp", op);
+    std::cerr << "Error: msg::outOSwitchDDefaultLab(\"BuiltinType::unaryOp\", op);" << std::endl;
     return Value(); // literally unreachable
 }
 // isTrue {{{1
 Value BuiltinType::isTrue(CodeGenContext &cgc, Value v)
 {
     if (v.type != this)
-        msg::calledWithOpTyNEthis("BuiltinType", "isTrue", "value", v);
+        // msg::calledWithOpTyNEthis("BuiltinType", "isTrue", "value", v);
+        std::cerr << "Error: msg::calledWithOpTyNEthis(\"BuiltinType\", \"isTrue\", \"value\", v);" << std::endl;
 
     switch (type)
     {

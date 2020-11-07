@@ -1,3 +1,5 @@
+#include <iostream> // DO NOT FORGET!!! REMOVE THIS LINE SOON!!!
+
 #include "parse/parser.h"
 #include "parse/ast.h"
 
@@ -19,7 +21,8 @@ std::unique_ptr<ASTNS::Type> Parser::type()
     }
 
     consume();
-    msg::expectedType(prev());
+    // msg::expectedType(prev());
+    std::cerr << "Error: msg::expectedType(prev());" << std::endl;
     return nullptr;
 }
 

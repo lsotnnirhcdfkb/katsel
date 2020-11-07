@@ -1,3 +1,5 @@
+#include <iostream> // DO NOT FORGET!!! REMOVE THIS LINE SOON!!!
+
 #include "parse/parser.h"
 
 #include "lex/tokentype.h"
@@ -21,7 +23,8 @@ Token& Parser::consume()
 
         if (currToken.type != TokenType::ERROR) break; // continue loop if it is an error token
 
-        msg::reportLexTok(peek());
+        // msg::reportLexTok(peek());
+        std::cerr << "Error: msg::reportLexTok(peek());" << std::endl;
     }
 
     return prev();
@@ -34,9 +37,11 @@ bool Parser::assertConsume(TokenType type, std::string const &message)
     if (!correct)
     {
         if (message.size() == 0)
-            msg::expectedTokGotTok(peek(), peek().type, type);
+            // msg::expectedTokGotTok(peek(), peek().type, type);
+            std::cerr << "Error: msg::expectedTokGotTok(peek(), peek().type, type);" << std::endl;
         else
-            msg::reportAssertConsumeErr(peek(), message);
+            // msg::reportAssertConsumeErr(peek(), message);
+            std::cerr << "Error: msg::reportAssertConsumeErr(peek(), message);" << std::endl;
     }
 
     consume();

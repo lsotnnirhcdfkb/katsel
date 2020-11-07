@@ -1,3 +1,5 @@
+#include <iostream> // DO NOT FORGET!!! REMOVE THIS LINE SOON!!!
+
 #include "parse/parser.h"
 #include "parse/ast.h"
 
@@ -147,7 +149,8 @@ std::unique_ptr<ASTNS::Expr> Parser::expr(int prec)
 
     if (prefixParser == prefixParserTable.end())
     {
-        msg::expectedPrimaryOrUnary(prev());
+        // msg::expectedPrimaryOrUnary(prev());
+        std::cerr << "Error: msg::expectedPrimaryOrUnary(prev());" << std::endl;
         return nullptr;
     }
 

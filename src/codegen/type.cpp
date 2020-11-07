@@ -1,3 +1,5 @@
+#include <iostream> // DO NOT FORGET!!! REMOVE THIS LINE SOON!!!
+
 #include "codegen/codegen.h"
 #include "lex/tokentype.h"
 #include "message/errors.h"
@@ -25,6 +27,7 @@ void CodeGen::visitBaseType(ASTNS::BaseType *a)
         case TokenType::VOID: typeRetVal = context.getVoidType(); break;
 
         default:
-            msg::invalidTok("BaseType token", a->type);
+            // msg::invalidTok("BaseType token", a->type);
+                              std::cerr << "Error: msg::invalidTok(\"BaseType token\", a->type);" << std::endl;
     }
 }

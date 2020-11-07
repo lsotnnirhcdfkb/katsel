@@ -1,3 +1,5 @@
+#include <iostream> // DO NOT FORGET!!! REMOVE THIS LINE SOON!!!
+
 #include "parse/parser.h"
 #include "parse/ast.h"
 
@@ -38,7 +40,8 @@ std::unique_ptr<ASTNS::Decl> Parser::decl()
             return functiondecl();
 
         default:
-            msg::expectedDecl(peek());
+            // msg::expectedDecl(peek());
+            std::cerr << "Error: msg::expectedDecl(peek());" << std::endl;
             panic();
             return nullptr;
     }

@@ -1,3 +1,5 @@
+#include <iostream> // DO NOT FORGET!!! REMOVE THIS LINE SOON!!!
+
 #include "codegen/codegen.h"
 #include "message/errors.h"
 
@@ -34,14 +36,16 @@ void CodeGen::visitVarStmt(ASTNS::VarStmt *a)
     Type *ty = evalType(a->type.get());
     if (dynamic_cast<VoidType*>(ty))
     {
-        msg::voidVarNotAllowed(a->type.get());
+        // msg::voidVarNotAllowed(a->type.get());
+        std::cerr << "Error: msg::voidVarNotAllowed(a->type.get());" << std::endl;
         return;
     }
 
     Local *var = context.findLocal(varname);
     if (var && var->scopenum == context.curScope)
     {
-        msg::cannotRedefineVariable(a->name);
+        // msg::cannotRedefineVariable(a->name);
+        std::cerr << "Error: msg::cannotRedefineVariable(a->name);" << std::endl;
         return;
     }
 

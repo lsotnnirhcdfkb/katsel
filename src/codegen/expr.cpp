@@ -16,7 +16,8 @@ void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
     {
         if (!llvm::isa<llvm::LoadInst>(lhs.val))
         {
-            msg::invalidAssign(lhs, a->op);
+            // msg::invalidAssign(lhs, a->op);
+            std::cerr << "Error: msg::invalidAssign(lhs, a->op);" << std::endl;
             return;
         }
         llvm::LoadInst *load = static_cast<llvm::LoadInst*>(lhs.val);
@@ -33,7 +34,8 @@ void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
 
     if (!lhs.type->hasOperator(a->op.type))
     {
-        msg::typeNoOp(lhs, a->op);
+        // msg::typeNoOp(lhs, a->op);
+        std::cerr << "Error: msg::typeNoOp(lhs, a->op);" << std::endl;
         return;
     }
 
@@ -48,7 +50,8 @@ void CodeGen::visitUnaryExpr(ASTNS::UnaryExpr *a)
 
     if (!oper.type->hasOperator(a->op.type))
     {
-        msg::typeNoOp(oper, a->op);
+        // msg::typeNoOp(oper, a->op);
+        std::cerr << "Error: msg::typeNoOp(oper, a->op);" << std::endl;
         return;
     }
 
@@ -115,7 +118,8 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
 
         case TokenType::NULLPTRLIT:
             // report(MsgType::INTERNALERR, "NULLPTR literal is not supported because we do not have pointers yet", a, a);
-            msg::noNullPtrLit(a->value);
+            // msg::noNullPtrLit(a->value);
+            std::cerr << "Error: msg::noNullPtrLit(a->value);" << std::endl;
             break;
 
         case TokenType::DECINTLIT:
@@ -139,7 +143,8 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
             break;
 
         case TokenType::STRINGLIT:
-            msg::noStringLit(a->value);
+            // msg::noStringLit(a->value);
+            std::cerr << "Error: msg::noStringLit(a->value);" << std::endl;
             break;
 
         case TokenType::IDENTIFIER:
@@ -147,7 +152,8 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
                 Value v = context.findValue(tokenToStr(a->value));
                 if (!v.val)
                 {
-                    msg::undefVar(a->value);
+                    // msg::undefVar(a->value);
+                    std::cerr << "Error: msg::undefVar(a->value);" << std::endl;
                     return;
                 }
                 if (llvm::isa<llvm::AllocaInst>(v.val))
@@ -161,7 +167,8 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
             break;
 
         default:
-            msg::invalidTok("primary token", a->value);
+            // msg::invalidTok("primary token", a->value);
+            std::cerr << "Error: msg::invalidTok(\"primary token\", a->value);" << std::endl;
     }
     exprRetVal = ret;
 }
@@ -175,7 +182,8 @@ void CodeGen::visitCallExpr(ASTNS::CallExpr *a)
     FunctionType *fty = dynamic_cast<FunctionType*>(func.type);
     if (!fty)
     {
-        msg::cannotCall(func);
+        // msg::cannotCall(func);
+        std::cerr << "Error: msg::cannotCall(func);" << std::endl;
         return;
     }
 
@@ -198,7 +206,8 @@ void CodeGen::visitCallExpr(ASTNS::CallExpr *a)
 
     if (args.size() != fty->paramtys.size())
     {
-        msg::wrongNOfArgs(a);
+        // msg::wrongNOfArgs(a);
+        std::cerr << "Error: msg::wrongNOfArgs(a);" << std::endl;
         return;
     }
 
@@ -208,7 +217,8 @@ void CodeGen::visitCallExpr(ASTNS::CallExpr *a)
     {
         if (i->type != *j)
         {
-            msg::incorrectArg(*i, *j);
+            // msg::incorrectArg(*i, *j);
+            std::cerr << "Error: msg::incorrectArg(*i, *j);" << std::endl;
             return;
         }
     }
