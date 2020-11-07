@@ -33,11 +33,32 @@ public:
         Location end;
     };
 
-    Error& primary(Location const &location);
+    class Primary
+    {
+        struct Message
+        {
+            std::string type;
+            std::string message;
+            char const * const color;
+        };
+    public:
+        Location location;
+        std::vector<Message> messages;
+
+        Primary& error(std::string const &message);
+        Primary& warning(std::string const &message);
+        Primary& note(std::string const &message);
+        Primary& help(std::string const &message);
+        Primary& hint(std::string const &message);
+        Primary& message(std::string const &type, std::string const &message);
+    };
+
+    Error& primary(Primary const &primary);
     Error& secondary(Location const &location);
     Error& span(Location const &start, Location const &end);
+
 private:
-    std::vector<Location> primaries;
+    std::vector<Primary> primaries;
     std::vector<Location> secondaries;
     std::vector<Span> spans;
 };

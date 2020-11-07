@@ -190,9 +190,14 @@ Location::Location(ASTNS::Stmt *a)
     file = locV.getF(a);
 }
 // Error methods {{{1
-Error& Error::primary(Location const &location)
+Error& Error::primary(Primary const &primary)
 {
-    primaries.push_back(location);
+    int l = getLineN(primary.location.file->source.begin(), primary.location.start);
+    for (Primary const &p : primaries)
+        if (getLineN(p.location.file->source.begin(), p.location.start) == l)
+            std::abort(); // TODO: internal error
+
+    primaries.push_back(primary);
     return *this;
 }
 Error& Error::secondary(Location const &location)
