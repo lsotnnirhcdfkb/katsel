@@ -29,8 +29,8 @@ class Error
 public:
     struct Span
     {
-        Location start;
-        Location end;
+        File const &file;
+        std::string::iterator start, end;
     };
 
     class Primary

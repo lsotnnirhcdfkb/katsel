@@ -3,7 +3,7 @@
 #include "message/ansistuff.h"
 #include <iostream>
 #include <cstdlib>
-#include <sstream>
+#include <algorithm>
 
 // getLine {{{1
 Location getLine(Location const &l)
@@ -208,7 +208,10 @@ Error& Error::secondary(Location const &location)
 }
 Error& Error::span(Location const &start, Location const &end)
 {
-    spans.push_back(Span {start, end});
+    if (start.file != end.file)
+        std::abort();
+
+    spans.push_back(Span {*start.file, start.start, end.end});
     return *this;
 }
 
@@ -241,6 +244,46 @@ void Error::report()
     }
     std::string::const_iterator const fstart = location.file->source.cbegin();
     std::cerr << " at " << attr(A_FG_CYAN, location.file->filename, true) << ":" << getLineN(fstart, location.start) << ":" << getColN(fstart, location.start) << A_RESET << ": " << message << "\n";
+
+    using showloc = std::pair<const File*, int>; // in order to have a copy assignment constructor for sorting
+    std::vector<showloc> showlocs;
+
+    for (Span const &span : spans)
+    {
+        for (int i = getLineN(span.file.source.begin(), span.start); i < getLineN(span.file.source.begin(), span.end); ++i)
+            showlocs.push_back(showloc(&span.file, i));
+    }
+
+    for (Error::Primary const &pr : primaries)
+    {
+        showlocs.push_back(showloc(pr.location.file, getLineN(pr.location.file->source.begin(), pr.location.start)));
+    }
+    for (Location const &s : secondaries)
+    {
+        showlocs.push_back(showloc(s.file, getLineN(s.file->source.begin(), s.start)));
+    }
+
+    std::sort(showlocs.begin(), showlocs.end(), [](showloc &a, showloc &b) {
+                return a.second < b.second;
+            });
+    std::sort(showlocs.begin(), showlocs.end(), [](showloc &a, showloc &b) {
+                return a.first->filename < b.first->filename;
+            });
+
+    // i + 1 <= instead of i <= size - 1 because - 1 can overflow to the highest value and become true
+    for (size_t i = 0; i + 1 <= showlocs.size(); )
+    {
+        if (showlocs[i].first == showlocs[i + 1].first && showlocs[i].second == showlocs[i + 1].second)
+            showlocs.erase(showlocs.begin() + i + 1);
+        else
+            ++i;
+    }
+
+    File const *lastfile = nullptr;
+    for (showloc const &sl : showlocs)
+    {
+        std::cerr << sl.first->filename << ":" << sl.second << std::endl;
+    }
 }
 // Primary message methods {{{1
 Error::Primary::Primary(Location const &location): location(location) { }
