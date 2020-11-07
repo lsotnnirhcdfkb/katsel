@@ -2,27 +2,28 @@
 #include "visit/visitor.h"
 #include "message/ansistuff.h"
 #include <iostream>
+#include <iomanip>
 #include <cstdlib>
 #include <algorithm>
 
 // getLine {{{1
-Location getLine(Location const &l)
+std::string getLine(File const &f, int linenr)
 {
-    auto linestart (l.start);
-    while (linestart != l.file->source.begin() && *linestart != '\n') --linestart; // until *linestart is \n
-    // once *linestart is \n then go forward once
+    int cline = linenr;
+    auto lstart = f.source.begin();
+    for (; lstart < f.source.end() && cline > 1; ++lstart)
+        if (*lstart == '\n')
+            --cline;
 
-    // if linestart == l.file.source.begin(), then loop stopped
-    // because iterator hit beginning of sourcefile.source, not
-    // because it hit \n, so there is no need to consume the \n
-    if (linestart != l.file->source.begin())
-        ++linestart;
+    if (lstart == f.source.end())
+        return "";
 
-    auto lineend (l.end);
-    while (lineend != l.file->source.end() && *lineend != '\n') ++lineend;
-    // *lineend should be \n
+    auto lend (lstart);
+    while (*lend != '\n' && lend != f.source.end())
+        ++lend;
 
-    return Location(linestart, lineend, l.file);
+    return std::string(lstart, lend);
+
 }
 // getColN {{{1
 int getColN(std::string::const_iterator const &start, std::string::iterator loc)
@@ -270,19 +271,46 @@ void Error::report()
                 return a.first->filename < b.first->filename;
             });
 
+    int maxlinepad = 0;
     // i + 1 <= instead of i <= size - 1 because - 1 can overflow to the highest value and become true
     for (size_t i = 0; i + 1 <= showlocs.size(); )
     {
+        bool inc = true;
         if (showlocs[i].first == showlocs[i + 1].first && showlocs[i].second == showlocs[i + 1].second)
+        {
             showlocs.erase(showlocs.begin() + i + 1);
-        else
+            inc = false;
+        }
+
+        int linew = 1, linenr = showlocs[i].second;
+        while (linenr /= 10)
+            ++linew;
+        maxlinepad = std::max(linew, maxlinepad);
+
+        if (inc)
             ++i;
     }
 
+    std::string pad (maxlinepad + 1, ' ');
     File const *lastfile = nullptr;
     for (showloc const &sl : showlocs)
     {
-        std::cerr << sl.first->filename << ":" << sl.second << std::endl;
+        if (sl.first != lastfile)
+            std::cerr << pad << "> " << attr(A_FG_CYAN, sl.first->filename) << std::endl;
+
+        {
+            std::ios origState (nullptr);
+            origState.copyfmt(std::cerr);
+            std::cerr << std::setw(maxlinepad - 1) << std::right << sl.second;
+            std::cerr.copyfmt(origState);
+        }
+
+        std::cerr << " | ";
+
+        std::string line (getLine(*sl.first, sl.second));
+        std::cerr << line << std::endl;
+
+        lastfile = sl.first;
     }
 }
 // Primary message methods {{{1
