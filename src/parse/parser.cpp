@@ -23,8 +23,10 @@ Token& Parser::consume()
 
         if (currToken.type != TokenType::ERROR) break; // continue loop if it is an error token
 
-        // msg::reportLexTok(peek());
-        std::cerr << "Error: msg::reportLexTok(peek());" << std::endl;
+        Error()
+            .primary(Error::Primary(peek())
+                .error(peek().message)
+                );
     }
 
     return prev();

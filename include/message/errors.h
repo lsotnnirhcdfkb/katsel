@@ -52,6 +52,8 @@ public:
         Primary& hint(std::string const &message);
         Primary& message(std::string const &type, std::string const &message);
 
+        Primary(Location const &location);
+
     private:
         Primary& addmsg(std::string const &type, char const * const color, std::string const &mesage);
     };

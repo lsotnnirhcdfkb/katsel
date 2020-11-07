@@ -212,6 +212,7 @@ Error& Error::span(Location const &start, Location const &end)
 }
 
 // Primary message methods {{{1
+Error::Primary::Primary(Location const &location): location(location) { }
 Error::Primary& Error::Primary::error(std::string const &message)
 {
     return addmsg("error", A_FG_RED, message);
