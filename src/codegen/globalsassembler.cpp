@@ -19,8 +19,10 @@ void GlobalsAssembler::visitFunctionDecl(ASTNS::FunctionDecl *a)
     std::string fnamestr (tokenToStr(a->name));
     if (context.getGlobal(fnamestr).val)
     {
-        // msg::duplicateFunction(a->name);
-        std::cerr << "Error: msg::duplicateFunction(a->name);" << std::endl;
+        Error()
+            .primary(Error::Primary(a->name)
+                .error("Duplciate function"))
+            .report();
         return;
     }
 

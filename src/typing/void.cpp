@@ -32,8 +32,10 @@ Value VoidType::unaryOp(CodeGenContext &, Value, Token op, ASTNS::Expr *)
 }
 Value VoidType::castTo(CodeGenContext &, Value v)
 {
-    // msg::invalidCast(v, this);
-    std::cerr << "Error: msg::invalidCast(v, this);" << std::endl;
+    Error()
+        .primary(Error::Primary(v)
+            .error(static_cast<std::stringstream&>(std::stringstream() << "Invalid cast form type \"" << v.type->stringify() << "\" to \"" << this->stringify() << "\"").str()))
+        .report();
     return Value();
 }
 Value VoidType::isTrue(CodeGenContext &, Value)

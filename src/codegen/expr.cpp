@@ -2,6 +2,7 @@
 #include "message/errors.h"
 
 #include <iostream>
+#include <sstream>
 
 void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
 {
@@ -16,8 +17,11 @@ void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
     {
         if (!llvm::isa<llvm::LoadInst>(lhs.val))
         {
-            // msg::invalidAssign(lhs, a->op);
-            std::cerr << "Error: msg::invalidAssign(lhs, a->op);" << std::endl;
+            Error()
+                .primary(Error::Primary(a->op)
+                    .error("Invalid assignment target"))
+                .secondary(a->lhs.get())
+                .report();
             return;
         }
         llvm::LoadInst *load = static_cast<llvm::LoadInst*>(lhs.val);
@@ -34,8 +38,11 @@ void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
 
     if (!lhs.type->hasOperator(a->op.type))
     {
-        // msg::typeNoOp(lhs, a->op);
-        std::cerr << "Error: msg::typeNoOp(lhs, a->op);" << std::endl;
+        Error()
+            .primary(Error::Primary(a->op)
+                .error(static_cast<std::stringstream&>(std::stringstream() << "Type \"" << lhs.type->stringify() << "\" does not support operator \"" << tokenToStr(a->op) << "\"").str()))
+            .secondary(lhs)
+            .report();
         return;
     }
 
@@ -50,8 +57,11 @@ void CodeGen::visitUnaryExpr(ASTNS::UnaryExpr *a)
 
     if (!oper.type->hasOperator(a->op.type))
     {
-        // msg::typeNoOp(oper, a->op);
-        std::cerr << "Error: msg::typeNoOp(oper, a->op);" << std::endl;
+        Error()
+            .primary(Error::Primary(a->op)
+                .error(static_cast<std::stringstream&>(std::stringstream() << "Type \"" << oper.type->stringify() << "\" does not support operator \"" << tokenToStr(a->op) << "\"").str()))
+            .secondary(oper)
+            .report();
         return;
     }
 
@@ -152,8 +162,10 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
                 Value v = context.findValue(tokenToStr(a->value));
                 if (!v.val)
                 {
-                    // msg::undefVar(a->value);
-                    std::cerr << "Error: msg::undefVar(a->value);" << std::endl;
+                    Error()
+                        .primary(Error::Primary(a->value)
+                            .error("Name is not defined"))
+                        .report();
                     return;
                 }
                 if (llvm::isa<llvm::AllocaInst>(v.val))
@@ -182,8 +194,10 @@ void CodeGen::visitCallExpr(ASTNS::CallExpr *a)
     FunctionType *fty = dynamic_cast<FunctionType*>(func.type);
     if (!fty)
     {
-        // msg::cannotCall(func);
-        std::cerr << "Error: msg::cannotCall(func);" << std::endl;
+        Error()
+            .primary(Error::Primary(func)
+                .error("Cannot call non-function"))
+            .report();
         return;
     }
 
@@ -206,8 +220,10 @@ void CodeGen::visitCallExpr(ASTNS::CallExpr *a)
 
     if (args.size() != fty->paramtys.size())
     {
-        // msg::wrongNOfArgs(a);
-        std::cerr << "Error: msg::wrongNOfArgs(a);" << std::endl;
+        Error()
+            .primary(Error::Primary(a)
+                .error("Wrong number of arguments to function call"))
+            .report();
         return;
     }
 
@@ -217,8 +233,11 @@ void CodeGen::visitCallExpr(ASTNS::CallExpr *a)
     {
         if (i->type != *j)
         {
-            // msg::incorrectArg(*i, *j);
-            std::cerr << "Error: msg::incorrectArg(*i, *j);" << std::endl;
+            Error()
+                .primary(Error::Primary(*i)
+                    .error("Wrong argumnet to function call")
+                    .note(static_cast<std::stringstream&>(std::stringstream() << "Argument is of type \"" << i->type->stringify() << "\", but is being passed to parameter of type \"" << (*j)->stringify() << "\"").str()))
+                .report();
             return;
         }
     }

@@ -40,11 +40,15 @@ bool Parser::assertConsume(TokenType type, std::string const &message)
     if (!correct)
     {
         if (message.size() == 0)
-            // msg::expectedTokGotTok(peek(), peek().type, type);
-            std::cerr << "Error: msg::expectedTokGotTok(peek(), peek().type, type);" << std::endl;
+            Error()
+                .primary(Error::Primary(peek())
+                    .error(static_cast<std::stringstream&>(std::stringstream() << "Unexpected token " << stringifyTokenType(peek().type) << ", expected " << stringifyTokenType(type)).str()))
+                .report();
         else
-            // msg::reportAssertConsumeErr(peek(), message);
-            std::cerr << "Error: msg::reportAssertConsumeErr(peek(), message);" << std::endl;
+            Error()
+                .primary(Error::Primary(peek())
+                    .error(message))
+                .report();
     }
 
     consume();

@@ -28,6 +28,6 @@ void CodeGen::visitBaseType(ASTNS::BaseType *a)
 
         default:
             // msg::invalidTok("BaseType token", a->type);
-                              std::cerr << "Error: msg::invalidTok(\"BaseType token\", a->type);" << std::endl;
+              std::cerr << "Error: msg::invalidTok(\"BaseType token\", a->type);" << std::endl;
     }
 }

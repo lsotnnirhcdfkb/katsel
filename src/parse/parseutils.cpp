@@ -21,8 +21,10 @@ std::unique_ptr<ASTNS::Type> Parser::type()
     }
 
     consume();
-    // msg::expectedType(prev());
-    std::cerr << "Error: msg::expectedType(prev());" << std::endl;
+    Error()
+        .primary(Error::Primary(prev())
+            .error("Expected type"))
+        .report();
     return nullptr;
 }
 

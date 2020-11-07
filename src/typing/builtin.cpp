@@ -186,8 +186,10 @@ Type* BuiltinType::pickType(Value v1, Value v2)
     BuiltinType *bty2;
     if (!(bty2 = dynamic_cast<BuiltinType*>(v2.type))) // if r.type is not any of builtins
     {
-        // msg::cannotPick2Tys(v1, v2);
-        std::cerr << "Error: msg::cannotPick2Tys(v1, v2);" << std::endl;
+        Error()
+            .primary(Error::Primary(v1)
+                .error("Cannot cast two values to the same type")) // TODO: add note "v1 is of type ... and v2 is of type ..."
+            .report();
         return nullptr;
     }
 
@@ -205,8 +207,10 @@ Value BuiltinType::castTo(CodeGenContext &cgc, Value v)
     BuiltinType *sty = dynamic_cast<BuiltinType*> (v.type);
     if (!sty)
     {
-        // msg::invalidCast(v, this);
-        std::cerr << "Error: msg::invalidCast(v, this);" << std::endl;
+        Error()
+            .primary(Error::Primary(v)
+                .error(static_cast<std::stringstream&>(std::stringstream() << "Invalid cast form type \"" << v.type->stringify() << "\" to \"" << this->stringify() << "\"").str()))
+            .report();
         return Value();
     }
 
