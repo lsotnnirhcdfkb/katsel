@@ -377,7 +377,7 @@ void Error::report()
             {
                 int primcol = getColN(lprimary->location.file->source.begin(), lprimary->location.end - 1);
                 std::string primmsgpad (primcol - 1, ' ');
-                int i = 0;
+                size_t i = 0;
                 for (Error::Primary::Message const &message : lprimary->messages)
                 {
                     bool islast = i == lprimary->messages.size() - 1;
