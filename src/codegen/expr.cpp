@@ -11,7 +11,7 @@ void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
     Value rhs = evalExpr(a->rhs.get());
 
     if (!lhs.val || !rhs.val)
-        return;
+        CG_RETURNNULL();
 
     if (a->op.type == TokenType::EQUAL)
     {
@@ -22,7 +22,7 @@ void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
                     .error("Invalid assignment target"))
                 .secondary(a->lhs.get())
                 .report();
-            return;
+            CG_RETURNNULL();
         }
         llvm::LoadInst *load = static_cast<llvm::LoadInst*>(lhs.val);
 
@@ -33,7 +33,7 @@ void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
         load->eraseFromParent(); // dont need the load anymore
 
         exprRetVal = assignment;
-        return;
+        CG_RETURNNULL();
     }
 
     if (!lhs.type->hasOperator(a->op.type))
@@ -43,7 +43,7 @@ void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
                 .error(static_cast<std::stringstream&>(std::stringstream() << "Type \"" << lhs.type->stringify() << "\" does not support operator \"" << tokenToStr(a->op) << "\"").str()))
             .secondary(lhs)
             .report();
-        return;
+        CG_RETURNNULL();
     }
 
     exprRetVal = lhs.type->binOp(context, lhs, rhs, a->op, a);
@@ -53,7 +53,7 @@ void CodeGen::visitUnaryExpr(ASTNS::UnaryExpr *a)
 {
 	Value oper = evalExpr(a->operand.get());
     if (!oper.val)
-        return;
+        CG_RETURNNULL();
 
     if (!oper.type->hasOperator(a->op.type))
     {
@@ -62,7 +62,7 @@ void CodeGen::visitUnaryExpr(ASTNS::UnaryExpr *a)
                 .error(static_cast<std::stringstream&>(std::stringstream() << "Type \"" << oper.type->stringify() << "\" does not support operator \"" << tokenToStr(a->op) << "\"").str()))
             .secondary(oper)
             .report();
-        return;
+        CG_RETURNNULL();
     }
 
     exprRetVal = oper.type->unaryOp(context, oper, a->op, a);
@@ -71,7 +71,7 @@ void CodeGen::visitUnaryExpr(ASTNS::UnaryExpr *a)
 void CodeGen::visitTernaryExpr(ASTNS::TernaryExpr *a)
 {
 	Value cond = evalExpr(a->condition.get());
-    if (!cond.val) return;
+    if (!cond.val) CG_RETURNNULL();
     cond = cond.type->isTrue(context, cond);
 
     llvm::Function *f = context.builder.GetInsertBlock()->getParent();
@@ -83,13 +83,13 @@ void CodeGen::visitTernaryExpr(ASTNS::TernaryExpr *a)
 
     context.builder.SetInsertPoint(trueb);
     Value truev = evalExpr(a->trues.get());
-    if (!truev.val) return;
+    if (!truev.val) CG_RETURNNULL();
     trueb = context.builder.GetInsertBlock();
 
     f->getBasicBlockList().push_back(falseb);
     context.builder.SetInsertPoint(falseb);
     Value falsev = evalExpr(a->falses.get());
-    if (!falsev.val) return;
+    if (!falsev.val) CG_RETURNNULL();
     falseb = context.builder.GetInsertBlock();
 
     Type *castToType = truev.type->pickType(truev, falsev);
@@ -166,7 +166,7 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
                         .primary(Error::Primary(a->value)
                             .error("Name is not defined"))
                         .report();
-                    return;
+                    CG_RETURNNULL();
                 }
                 if (llvm::isa<llvm::AllocaInst>(v.val))
                 {
@@ -189,7 +189,7 @@ void CodeGen::visitCallExpr(ASTNS::CallExpr *a)
 {
     Value func = evalExpr(a->func.get());
     if (!func.val)
-        return;
+        CG_RETURNNULL();
 
     FunctionType *fty = dynamic_cast<FunctionType*>(func.type);
     if (!fty)
@@ -198,7 +198,7 @@ void CodeGen::visitCallExpr(ASTNS::CallExpr *a)
             .primary(Error::Primary(func)
                 .error("Cannot call non-function"))
             .report();
-        return;
+        CG_RETURNNULL();
     }
 
     Type *ret = fty->ret;
@@ -224,7 +224,7 @@ void CodeGen::visitCallExpr(ASTNS::CallExpr *a)
             .primary(Error::Primary(a)
                 .error("Wrong number of arguments to function call"))
             .report();
-        return;
+        CG_RETURNNULL();
     }
 
     auto i = args.begin();
@@ -238,7 +238,7 @@ void CodeGen::visitCallExpr(ASTNS::CallExpr *a)
                     .error("Wrong argumnet to function call")
                     .note(static_cast<std::stringstream&>(std::stringstream() << "Argument is of type \"" << i->type->stringify() << "\", but is being passed to parameter of type \"" << (*j)->stringify() << "\"").str()))
                 .report();
-            return;
+            CG_RETURNNULL();
         }
     }
 

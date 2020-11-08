@@ -15,3 +15,4 @@ Type* CodeGen::evalType(ASTNS::Type *a)
     a->accept(this);
     return typeRetVal;
 }
+

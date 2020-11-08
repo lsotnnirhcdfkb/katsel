@@ -16,7 +16,7 @@ void CodeGen::visitFunctionDecl(ASTNS::FunctionDecl *a)
     llvm::Function *f = static_cast<llvm::Function*>(fv);
 
     if (!f->empty())
-        return;
+        CG_RETURNNULL();
 
     llvm::BasicBlock *block = llvm::BasicBlock::Create(context.context, name + "Entry", f);
     context.builder.SetInsertPoint(block);

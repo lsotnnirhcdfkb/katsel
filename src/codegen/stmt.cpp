@@ -19,9 +19,10 @@ void CodeGen::visitReturnStmt(ASTNS::ReturnStmt *a)
     if (a->val)
     {
         Value v = evalExpr(a->val.get());
-        FunctionType *fty = dynamic_cast<FunctionType*>(context.curFunc.type);
         if (!v.val)
-            return;
+            CG_RETURNNULL();
+
+        FunctionType *fty = dynamic_cast<FunctionType*>(context.curFunc.type);
         Value vconv = fty->ret->castTo(context, v);
         if (!vconv.val)
             context.builder.CreateRet(vconv.val);
@@ -41,7 +42,7 @@ void CodeGen::visitVarStmt(ASTNS::VarStmt *a)
                 .error("Variable cannot be of type void"))
             .report();
         
-        return;
+        CG_RETURNNULL();
     }
 
     Local *var = context.findLocal(varname);
@@ -51,7 +52,7 @@ void CodeGen::visitVarStmt(ASTNS::VarStmt *a)
             .primary(Error::Primary(a->name)
                 .error("Duplicate variable"))
             .report();
-        return;
+        CG_RETURNNULL();
     }
 
     llvm::Function *f = context.builder.GetInsertBlock()->getParent();

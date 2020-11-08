@@ -9,6 +9,13 @@
 
 #include "llvm/IR/Type.h"
 
+#define CG_RETURNNULL() do \
+    { \
+        exprRetVal = Value(); \
+        typeRetVal = nullptr; \
+        return; \
+    } while (false)
+
 class CodeGen :
     public ExprVisitor,
     public DeclVisitor,
