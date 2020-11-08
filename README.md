@@ -1,6 +1,4 @@
-# COxian
-The C++ LLVM-Based Compiler Implementation of the Oxian Language
-
+# COxian (Archived!!)
 This is very heavily based off the extremely helpful book "Crafting Interpreters" by Bob Nystrom. Except for the LLVM part, of course.
 And not only that, but this is also very heavily based off of the [Kaleidescope Langauge front-end tutorial in the LLVM Documentation Tutorial page thing](https://llvm.org/docs/tutorial/MyFirstLanguageFrontend/index.html).
 
@@ -33,3 +31,8 @@ And not only that, but this is also very heavily based off of the [Kaleidescope 
 - [ ] Asynchronous functions stuff and coroutines and stuff
 - [ ] Cool stuff (?)
 - [ ] More
+
+# Archival
+*repository archived on 8/11/20*
+I archived this because there are already enough systems-level languages out there, and also making a systems-level langauge is annoying.
+I am now only working on one language - uhf. It's a higher level language, but still a language nonetheless.
