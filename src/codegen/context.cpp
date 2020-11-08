@@ -71,10 +71,7 @@ void CodeGenContext::incScope()
     ++curScope;
 
     if (curScope == 0) // default curScope value is 1
-    {
-        // msg::intErrNoh("Scope index overflowed to 0");
-        std::cerr << "Error: msg::intErrNoh(\"Scope index overflowed to 0\");" << std::endl;
-    }
+        reportAbortNoh("Scope index overflowed to 0");
 }
 
 void CodeGenContext::decScope()

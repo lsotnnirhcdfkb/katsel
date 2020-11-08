@@ -37,14 +37,12 @@ bool FunctionType::hasOperator(TokenType)
 
 Value FunctionType::binOp(CodeGenContext &, Value, Value, Token op, ASTNS::Expr *)
 {
-    // msg::fCalled("FunctionType::binOp");
-    std::cerr << "Error: msg::fCalled(\"FunctionType::binOp\");" << std::endl;
+    fCalled("FunctionType::binOp");
 }
 
 Value FunctionType::unaryOp(CodeGenContext &, Value, Token op, ASTNS::Expr *)
 {
-    // msg::fCalled("FunctionType::unaryop");
-    std::cerr << "Error: msg::fCalled(\"FunctionType::unaryop\");" << std::endl;
+    fCalled("FunctionType::unaryop");
 }
 
 Value FunctionType::castTo(CodeGenContext &, Value v)
@@ -58,11 +56,9 @@ Value FunctionType::castTo(CodeGenContext &, Value v)
 
 Value FunctionType::isTrue(CodeGenContext &, Value)
 {
-    // msg::fCalled("FunctionType::isTrue");
-    std::cerr << "Error: msg::fCalled(\"FunctionType::isTrue\");" << std::endl;
+    fCalled("FunctionType::isTrue");
 }
 Type* FunctionType::pickType(Value, Value)
 {
-    // msg::fCalled("FunctionType::pickType");
-    std::cerr << "Error: msg::fCalled(\"FunctionType::pickType\");" << std::endl;
+    fCalled("FunctionType::pickType");
 }

@@ -408,6 +408,11 @@ void Error::report()
         lastfile = sl.first;
     }
 }
+void Error::reportAbort()
+{
+    report();
+    std::abort();
+}
 // Primary message methods {{{1
 Error::Primary::Primary(Location const &location): location(location) { }
 Error::Primary& Error::Primary::error(std::string const &message)
@@ -438,4 +443,40 @@ Error::Primary& Error::Primary::addmsg(std::string const &type, char const * con
 {
     messages.push_back(Message {type, message, color});
     return *this;
+}
+// other internal errors {{{1
+void reportAbortNoh(std::string const &message)
+{
+    std::cerr << "!!! - " << attr(A_BOLD A_FG_RED, "Internal error") << " " << message << std::endl;
+    std::abort();
+}
+void invalidTok(std::string const &name, Token const &primary)
+{
+    Error(Error::MsgType::INTERR, primary, "invalid token for " + name)
+        .primary(Error::Primary(primary)
+            .error("invalid token")
+            .note("for " + name))
+        .reportAbort();
+}
+void calledWithOpTyNEthis(std::string const &classN, std::string const &fnn, std::string const &opname, Value const &op)
+{
+    Error(Error::MsgType::INTERR, op, classN + "::" + fnn + " called with " + opname + " type != this")
+        .primary(Error::Primary(op)
+            .error(opname + " type != this"))
+        .reportAbort();
+}
+void outOSwitchDDefaultLab(std::string const &fnn, Location const &highlight)
+{
+    Error(Error::MsgType::INTERR, highlight, fnn + " went out of switch despite default label")
+        .primary(Error::Primary(highlight)
+            .error("out of switch"))
+        .reportAbort();
+}
+void fCalled(std::string const &fnn)
+{
+    reportAbortNoh(fnn + " called");
+}
+void outOSwitchNoh(std::string const &fnn)
+{
+    reportAbortNoh(fnn + " went out of switch");
 }

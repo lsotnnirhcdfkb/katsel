@@ -127,10 +127,11 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
             break;
 
         case TokenType::NULLPTRLIT:
-            // report(MsgType::INTERNALERR, "NULLPTR literal is not supported because we do not have pointers yet", a, a);
-            // msg::noNullPtrLit(a->value);
-            std::cerr << "Error: msg::noNullPtrLit(a->value);" << std::endl;
-            break;
+            Error(Error::MsgType::INTERR, a->value, "nullptr literals are not supported yet")
+                .primary(Error::Primary(a->value)
+                    .error("pointers are not here yet!")
+                    .note("coming soon!"))
+                .reportAbort();
 
         case TokenType::DECINTLIT:
             ret = Value(context.getBuiltinType(BuiltinType::Builtins::UINT32), context.builder.getInt32(std::stoi(tokenToStr(a->value))), a);
@@ -153,9 +154,12 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
             break;
 
         case TokenType::STRINGLIT:
-            // msg::noStringLit(a->value);
-            std::cerr << "Error: msg::noStringLit(a->value);" << std::endl;
-            break;
+            Error(Error::MsgType::INTERR, a->value, "string literals are not supported yet")
+                .primary(Error::Primary(a->value)
+                    .error("strings")
+                    .note("coming soon!")
+                    .note("probably after nullptr literals though!"))
+                .reportAbort();
 
         case TokenType::IDENTIFIER:
             {
@@ -179,8 +183,7 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
             break;
 
         default:
-            // msg::invalidTok("primary token", a->value);
-            std::cerr << "Error: msg::invalidTok(\"primary token\", a->value);" << std::endl;
+            invalidTok("primary token", a->value);
     }
     exprRetVal = ret;
 }

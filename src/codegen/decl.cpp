@@ -10,8 +10,8 @@ void CodeGen::visitFunctionDecl(ASTNS::FunctionDecl *a)
     std::string name = tokenToStr(a->name);
     Value function = context.getGlobal(name);
     if (!dynamic_cast<FunctionType*>(function.type))
-        // msg::intErrNoh("In CodeGen::visitFunctionDecl, context.getGlobal(" + name + ") returned non-function");
-        std::cerr << "Error: msg::intErrNoh(\"In CodeGen::visitFunctionDecl, context.getGlobal(\" + name + \") returned non-function\");" << std::endl;
+        reportAbortNoh("In CodeGen::visitFunctionDecl, context.getGlobal(" + name + ") returned non-function");
+
     llvm::Value *fv = function.val;
     llvm::Function *f = static_cast<llvm::Function*>(fv);
 
