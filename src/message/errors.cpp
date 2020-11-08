@@ -135,20 +135,31 @@ public:
     template <typename AST>
     std::string::iterator getL(AST *a)
     {
+        std::string::iterator cachedr = retr;
+        File *cachedf = retf;
         a->accept(this);
+        retr = cachedr;
+        retf = cachedf;
         return retl;
-
     }
     template <typename AST>
     std::string::iterator getR(AST *a)
     {
+        std::string::iterator cachedl = retl;
+        File *cachedf = retf;
         a->accept(this);
+        retl = cachedl;
+        retf = cachedf;
         return retr;
     }
     template <typename AST>
     File* getF(AST *a)
     {
+        std::string::iterator cachedl = retl;
+        std::string::iterator cachedr = retr;
         a->accept(this);
+        retl = cachedl;
+        retr = cachedr;
         return retf;
     }
 
