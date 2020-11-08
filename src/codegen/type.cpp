@@ -1,5 +1,3 @@
-#include <iostream> // DO NOT FORGET!!! REMOVE THIS LINE SOON!!!
-
 #include "codegen/codegen.h"
 #include "lex/tokentype.h"
 #include "message/errors.h"
