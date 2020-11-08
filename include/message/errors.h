@@ -35,13 +35,13 @@ public:
 
     class Primary
     {
+    public:
         struct Message
         {
             std::string type;
             std::string message;
             char const * const color;
         };
-    public:
         Location location;
         std::vector<Message> messages;
 

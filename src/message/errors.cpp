@@ -7,29 +7,30 @@
 #include <algorithm>
 
 // getLine {{{1
-std::string getLine(File const &f, int linenr)
+void getLine(std::string::const_iterator &lstarto, std::string::const_iterator &lendo, File const &f, int linenr)
 {
     int cline = linenr;
-    auto lstart = f.source.begin();
+    std::string::const_iterator lstart = f.source.begin();
     for (; lstart < f.source.end() && cline > 1; ++lstart)
         if (*lstart == '\n')
             --cline;
 
     if (lstart == f.source.end())
-        return "";
+    {
+        lstarto = lendo = lstart;
+    }
 
     auto lend (lstart);
     while (*lend != '\n' && lend != f.source.end())
         ++lend;
 
-    return std::string(lstart, lend);
-
+    lstarto = lstart;
+    lendo = lend;
 }
 // getColN {{{1
-int getColN(std::string::const_iterator const &start, std::string::iterator loc)
+int getColN(std::string::const_iterator const &start, std::string::const_iterator loc)
 {
     int coln = 1;
-    --loc;
 
     for (; loc != start && *loc != '\n'; ++coln, --loc)
         ;
@@ -37,7 +38,7 @@ int getColN(std::string::const_iterator const &start, std::string::iterator loc)
     if (loc != start)
         ++loc, --coln;
 
-    return coln + 1;
+    return coln;
 }
 // getLineN {{{1
 int getLineN(std::string::const_iterator const &start, std::string::iterator loc)
@@ -257,11 +258,15 @@ void Error::report()
 
     for (Error::Primary const &pr : primaries)
     {
-        showlocs.push_back(showloc(pr.location.file, getLineN(pr.location.file->source.begin(), pr.location.start)));
+        std::string::const_iterator begin = pr.location.file->source.begin();
+        showlocs.push_back(showloc(pr.location.file, getLineN(begin, pr.location.start)));
+        showlocs.push_back(showloc(pr.location.file, getLineN(begin, pr.location.end - 1)));
     }
     for (Location const &s : secondaries)
     {
-        showlocs.push_back(showloc(s.file, getLineN(s.file->source.begin(), s.start)));
+        std::string::const_iterator begin = s.file->source.begin();
+        showlocs.push_back(showloc(s.file, getLineN(begin, s.start)));
+        showlocs.push_back(showloc(s.file, getLineN(begin, s.end - 1)));
     }
 
     std::sort(showlocs.begin(), showlocs.end(), [](showloc &a, showloc &b) {
@@ -272,8 +277,8 @@ void Error::report()
             });
 
     int maxlinepad = 0;
-    // i + 1 <= instead of i <= size - 1 because - 1 can overflow to the highest value and become true
-    for (size_t i = 0; i + 1 <= showlocs.size(); )
+    // i + 1 < instead of i < size - 1 because - 1 can overflow to the highest value and become true
+    for (size_t i = 0; i + 1 < showlocs.size(); )
     {
         bool inc = true;
         if (showlocs[i].first == showlocs[i + 1].first && showlocs[i].second == showlocs[i + 1].second)
@@ -295,6 +300,7 @@ void Error::report()
     File const *lastfile = nullptr;
     for (showloc const &sl : showlocs)
     {
+        Error::Primary const *lprimary (nullptr);
         if (sl.first != lastfile)
             std::cerr << pad << "> " << attr(A_FG_CYAN, sl.first->filename) << std::endl;
 
@@ -307,8 +313,86 @@ void Error::report()
 
         std::cerr << " | ";
 
-        std::string line (getLine(*sl.first, sl.second));
-        std::cerr << line << std::endl;
+        std::string::const_iterator lstart, lend;
+        getLine(lstart, lend, *sl.first, sl.second);
+
+        using inprimsec = std::pair<bool, bool>;
+        std::vector<inprimsec> chars;
+        chars.reserve(std::distance(lstart, lend));
+
+        auto itInLoc = [](std::string::const_iterator const &i, Location const &l)
+        {
+            return i >= l.start && i < l.end;
+        };
+
+        bool needsecond = false;
+        for (std::string::const_iterator i = lstart; i < lend; ++i)
+        {
+            bool insec, inprim = insec = false;
+            for (Primary const &prim : primaries)
+                if (itInLoc(i, prim.location))
+                {
+                    inprim = true;
+                    if (prim.location.end - 1 == i)
+                        lprimary = &prim;
+                    break; // don't need to check for another underline, because overlapping underlines don't do anything different than just one
+                }
+
+            for (Location const &sec: secondaries)
+                if (itInLoc(i, sec))
+                {
+                    insec = true;
+                    break;
+                }
+
+            needsecond |= inprim || insec;
+
+            chars.push_back(std::make_pair(inprim, insec));
+
+            if (inprim)
+                std::cerr << attr(A_FG_RED A_BOLD, std::string(1, *i));
+            else if (insec)
+                std::cerr << attr(A_FG_GREEN, std::string(1, *i));
+            else
+                std::cerr << *i;
+        }
+
+        std::cerr << std::endl;
+
+        if (needsecond)
+        {
+            std::cerr << pad << "| ";
+            for (inprimsec const &i : chars)
+            {
+                if (i.first) // in a primary
+                    std::cerr << attr(A_FG_RED A_BOLD, "^");
+                else if (i.second) // in a seconary
+                    std::cerr << attr(A_FG_GREEN, "-");
+                else
+                    std::cerr << " ";
+            }
+            std::cerr << std::endl;
+
+            if (lprimary)
+            {
+                int primcol = getColN(lprimary->location.file->source.begin(), lprimary->location.end - 1);
+                std::string primmsgpad (primcol - 1, ' ');
+                int i = 0;
+                for (Error::Primary::Message const &message : lprimary->messages)
+                {
+                    bool islast = i == lprimary->messages.size() - 1;
+                    std::cerr << pad << "| " << primmsgpad;
+
+                    if (islast)
+                        std::cerr << "`";
+                    else
+                        std::cerr << "|";
+
+                    std::cerr << "-- " << attr(message.color, message.type) << ": " << message.message << std::endl;
+                    ++i;
+                }
+            }
+        }
 
         lastfile = sl.first;
     }
