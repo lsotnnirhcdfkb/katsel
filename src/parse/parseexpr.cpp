@@ -95,7 +95,7 @@ inline int getPrec(TokenType t)
     {
         return precedenceTable.at(t);
     }
-    catch (std::out_of_range e)
+    catch (std::out_of_range const &)
     {
         return 0;
     }
@@ -187,7 +187,7 @@ int Parser::curPrec()
     {
         return precedenceTable.at(peek().type);
     }
-    catch (std::out_of_range e)
+    catch (std::out_of_range const &)
     {
         return 0;
     }

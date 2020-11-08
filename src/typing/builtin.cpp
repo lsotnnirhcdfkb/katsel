@@ -60,6 +60,7 @@ std::string BuiltinType::stringify()
         case BuiltinType::Builtins::BOOL: return "bool";
         case BuiltinType::Builtins::DOUBLE: return "double";
     }
+    outOSwitchNoh("BuiltinType::stringify");
 }
 // hasOperator {{{1
 bool BuiltinType::hasOperator(TokenType)
@@ -356,4 +357,5 @@ Value BuiltinType::isTrue(CodeGenContext &cgc, Value v)
         case BuiltinType::Builtins::DOUBLE:
             return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateFCmpONE(v.val, llvm::ConstantFP::get(v.type->toLLVMType(cgc.context), 0)), v.ast);
     }
+    outOSwitchNoh("BuiltinType::isTrue");
 }

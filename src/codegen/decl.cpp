@@ -40,7 +40,7 @@ void CodeGen::visitFunctionDecl(ASTNS::FunctionDecl *a)
     context.decScope();
 }
 
-void CodeGen::visitGlobalVarDecl(ASTNS::GlobalVarDecl *a)
+void CodeGen::visitGlobalVarDecl(ASTNS::GlobalVarDecl *)
 {
     // TODO: this
     return;

@@ -20,11 +20,11 @@ bool VoidType::hasOperator(TokenType)
     return false;
 }
 
-Value VoidType::binOp(CodeGenContext &, Value, Value, Token op, ASTNS::Expr *)
+Value VoidType::binOp(CodeGenContext &, Value, Value, Token, ASTNS::Expr *)
 {
     fCalled("VoidType::binOp");
 }
-Value VoidType::unaryOp(CodeGenContext &, Value, Token op, ASTNS::Expr *)
+Value VoidType::unaryOp(CodeGenContext &, Value, Token, ASTNS::Expr *)
 {
     fCalled("VoidType::unaryOp");
 }
