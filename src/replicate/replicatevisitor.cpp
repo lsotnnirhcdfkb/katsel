@@ -67,11 +67,13 @@ void ReplicateVisitor::visitGlobalVarDecl(ASTNS::GlobalVarDecl *a)
     P("var ");
     VC(type);
     PS;
-    PTOK(name);
-    if (a->value)
+    bool first = true;
+    for (std::unique_ptr<ASTNS::Expr> &e : a->assignments)
     {
-        P(" = ");
-        VC(value);
+        if (!first)
+            P(", ");
+        e->accept(this);
+        first = false;
     }
     PSC;
 }
@@ -110,12 +112,14 @@ void ReplicateVisitor::visitVarStmt(ASTNS::VarStmt *a)
     P("var ");
     VC(type);
     PS;
-    if (a->assign)
+    bool first = true;
+    for (std::unique_ptr<ASTNS::Expr> &e : a->assignments)
     {
-        VC(assign);
+        if (!first)
+            P(", ");
+        e->accept(this);
+        first = false;
     }
-    else
-        PTOK(name);
     PSC;
 }
 void ReplicateVisitor::visitProgram(ASTNS::Program *a)

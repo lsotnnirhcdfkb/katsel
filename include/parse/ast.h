@@ -125,10 +125,9 @@ namespace ASTNS
     class VarStmt : public Stmt
     {
     public:
-        VarStmt(std::unique_ptr<Type> type, Token name, std::unique_ptr<Expr> assign);
+        VarStmt(std::unique_ptr<Type> type, std::vector<std::unique_ptr<Expr>> &assignments);
         std::unique_ptr<Type> type;
-        Token name;
-        std::unique_ptr<Expr> assign;
+        std::vector<std::unique_ptr<Expr>> assignments;
         virtual void accept(StmtVisitor *v);
     };
     class BaseType : public Type
@@ -151,10 +150,9 @@ namespace ASTNS
     class GlobalVarDecl : public Decl
     {
     public:
-        GlobalVarDecl(std::unique_ptr<Type> type, Token name, std::unique_ptr<Expr> value);
+        GlobalVarDecl(std::unique_ptr<Type> type, std::vector<std::unique_ptr<Expr>> &assignments);
         std::unique_ptr<Type> type;
-        Token name;
-        std::unique_ptr<Expr> value;
+        std::vector<std::unique_ptr<Expr>> assignments;
         virtual void accept(DeclVisitor *v);
     };
     class Param

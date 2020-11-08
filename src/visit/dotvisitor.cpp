@@ -205,10 +205,9 @@ void DotVisitor::visitReturnStmt(ASTNS::ReturnStmt *a)
 void DotVisitor::visitVarStmt(ASTNS::VarStmt *a)
 {
     std::string thisid = curid();
-    std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">VarStmt</td></tr><tr>";
+    std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">VarStmt</td></tr><tr>";
     std::cout << "<td port=\"type\">type</td>";
-    std::cout << "<td port=\"name\">name</td>";
-    std::cout << "<td port=\"assign\">assign</td>";
+    std::cout << "<td port=\"assignments\">assignments</td>";
     std::cout << "</tr></table>>]\n";
     if (a->type)
     {
@@ -220,17 +219,10 @@ void DotVisitor::visitVarStmt(ASTNS::VarStmt *a)
         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
         connect(thisid, "type", nullptrnodeid);
     }
-    std::string tokennodeid = makeTextNode("Token", tokenToStr(a->name));
-    connect(thisid, "name", tokennodeid);
-    if (a->assign)
+    for (auto &i : a->assignments)
     {
-        a->assign->accept(this);
-        connect(thisid, "assign", lastid);
-    }
-    else
-    {
-        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-        connect(thisid, "assign", nullptrnodeid);
+        i->accept(this);
+        connect(thisid, "assignments", lastid);
     }
     lastid = std::move(thisid);
 }
@@ -290,10 +282,9 @@ void DotVisitor::visitFunctionDecl(ASTNS::FunctionDecl *a)
 void DotVisitor::visitGlobalVarDecl(ASTNS::GlobalVarDecl *a)
 {
     std::string thisid = curid();
-    std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">GlobalVarDecl</td></tr><tr>";
+    std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">GlobalVarDecl</td></tr><tr>";
     std::cout << "<td port=\"type\">type</td>";
-    std::cout << "<td port=\"name\">name</td>";
-    std::cout << "<td port=\"value\">value</td>";
+    std::cout << "<td port=\"assignments\">assignments</td>";
     std::cout << "</tr></table>>]\n";
     if (a->type)
     {
@@ -305,17 +296,10 @@ void DotVisitor::visitGlobalVarDecl(ASTNS::GlobalVarDecl *a)
         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
         connect(thisid, "type", nullptrnodeid);
     }
-    std::string tokennodeid = makeTextNode("Token", tokenToStr(a->name));
-    connect(thisid, "name", tokennodeid);
-    if (a->value)
+    for (auto &i : a->assignments)
     {
-        a->value->accept(this);
-        connect(thisid, "value", lastid);
-    }
-    else
-    {
-        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-        connect(thisid, "value", nullptrnodeid);
+        i->accept(this);
+        connect(thisid, "assignments", lastid);
     }
     lastid = std::move(thisid);
 }

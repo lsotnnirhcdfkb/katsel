@@ -18,13 +18,13 @@ ASTNS::ExprStmt::ExprStmt(std::unique_ptr<Expr> expr): expr(std::move(expr)) {}
 void ASTNS::ExprStmt::accept(StmtVisitor *v) { v->visitExprStmt(this); }
 ASTNS::ReturnStmt::ReturnStmt(std::unique_ptr<Expr> val): val(std::move(val)) {}
 void ASTNS::ReturnStmt::accept(StmtVisitor *v) { v->visitReturnStmt(this); }
-ASTNS::VarStmt::VarStmt(std::unique_ptr<Type> type, Token name, std::unique_ptr<Expr> assign): type(std::move(type)), name(name), assign(std::move(assign)) {}
+ASTNS::VarStmt::VarStmt(std::unique_ptr<Type> type, std::vector<std::unique_ptr<Expr>> &assignments): type(std::move(type)), assignments(std::move(assignments)) {}
 void ASTNS::VarStmt::accept(StmtVisitor *v) { v->visitVarStmt(this); }
 ASTNS::BaseType::BaseType(Token type): type(type) {}
 void ASTNS::BaseType::accept(TypeVisitor *v) { v->visitBaseType(this); }
 ASTNS::FunctionDecl::FunctionDecl(std::unique_ptr<Type> rettype, Token name, std::unique_ptr<Param> params, std::unique_ptr<BlockStmt> block): rettype(std::move(rettype)), name(name), params(std::move(params)), block(std::move(block)) {}
 void ASTNS::FunctionDecl::accept(DeclVisitor *v) { v->visitFunctionDecl(this); }
-ASTNS::GlobalVarDecl::GlobalVarDecl(std::unique_ptr<Type> type, Token name, std::unique_ptr<Expr> value): type(std::move(type)), name(name), value(std::move(value)) {}
+ASTNS::GlobalVarDecl::GlobalVarDecl(std::unique_ptr<Type> type, std::vector<std::unique_ptr<Expr>> &assignments): type(std::move(type)), assignments(std::move(assignments)) {}
 void ASTNS::GlobalVarDecl::accept(DeclVisitor *v) { v->visitGlobalVarDecl(this); }
 ASTNS::Param::Param(std::unique_ptr<Type> type, Token name, std::unique_ptr<Param> next): type(std::move(type)), name(name), next(std::move(next)) {}
 void ASTNS::Param::accept(ParamVisitor *v) { v->visitParam(this); }

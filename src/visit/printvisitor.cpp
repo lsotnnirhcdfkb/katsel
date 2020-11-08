@@ -225,22 +225,15 @@ void PrintVisitor::visitVarStmt(ASTNS::VarStmt *a)
     {
         pai(" nullptr\n");
     }
-    pai("name =");
-    pai(" [");
-    pai(std::string(a->name.start, a->name.end));
-    pai("]\n");
-    pai("assign =");
-    if (a->assign)
+    pai("assignments =");
+    pai("\n");
+    ++indent;
+    for (auto &i : a->assignments)
     {
-        ++indent;
-        pai("\n");
-        a->assign->accept(this);
-        --indent;
+        pai("- ");
+        i->accept(this);
     }
-    else
-    {
-        pai(" nullptr\n");
-    }
+    --indent;
     --indent;
 }
 void PrintVisitor::visitBaseType(ASTNS::BaseType *a)
@@ -315,22 +308,15 @@ void PrintVisitor::visitGlobalVarDecl(ASTNS::GlobalVarDecl *a)
     {
         pai(" nullptr\n");
     }
-    pai("name =");
-    pai(" [");
-    pai(std::string(a->name.start, a->name.end));
-    pai("]\n");
-    pai("value =");
-    if (a->value)
+    pai("assignments =");
+    pai("\n");
+    ++indent;
+    for (auto &i : a->assignments)
     {
-        ++indent;
-        pai("\n");
-        a->value->accept(this);
-        --indent;
+        pai("- ");
+        i->accept(this);
     }
-    else
-    {
-        pai(" nullptr\n");
-    }
+    --indent;
     --indent;
 }
 void PrintVisitor::visitParam(ASTNS::Param *a)

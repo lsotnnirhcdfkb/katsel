@@ -96,8 +96,7 @@ asts = [
 
     ASTClass('VarStmt', fields=[
             ASTField.uptrField('Type', 'type'),
-            ASTField.tokenField('name'),
-            ASTField.uptrField('Expr', 'assign')
+            ASTField('std::vector<std::unique_ptr<Expr>>', 'assignments', True, ASTField.IM_MOVE, ASTField.PM_ITERATE_CHILD),
         ], extends='Stmt'),
 
     ASTClass('BaseType', fields=[
@@ -113,8 +112,7 @@ asts = [
 
     ASTClass('GlobalVarDecl', fields=[
             ASTField.uptrField('Type', 'type'),
-            ASTField.tokenField('name'),
-            ASTField.exprField('value'),
+            ASTField('std::vector<std::unique_ptr<Expr>>', 'assignments', True, ASTField.IM_MOVE, ASTField.PM_ITERATE_CHILD),
         ], extends='Decl'),
 
     ASTClass('Param', fields=[
