@@ -30,7 +30,7 @@ public:
     Type* getVoidType();
 
     llvm::AllocaInst* createEntryAlloca(llvm::Function *f, llvm::Type *type, std::string const &name);
-    void addLocal(std::string const &name, Type *type, llvm::AllocaInst *alloca);
+    void addLocal(std::string const &name, Type *type, llvm::AllocaInst *alloca, ASTNS::AST *ast);
     Local* findLocal(std::string const &name);
     Value findValue(std::string const &name);
     Value getGlobal(std::string const &name);

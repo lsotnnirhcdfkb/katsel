@@ -47,7 +47,7 @@ void GlobalsAssembler::visitFunctionDecl(ASTNS::FunctionDecl *a)
     llvm::FunctionType *ft = llvm::FunctionType::get(retTyllvm, paramtysllvm, false);
     llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, tokenToStr(a->name), context.mod.get());
 
-    context.globalSymbolTable[fnamestr] = Value(context.getFunctionType(ret, paramtys), f, nullptr);
+    context.globalSymbolTable[fnamestr] = Value(context.getFunctionType(ret, paramtys), f, a);
 }
 
 void GlobalsAssembler::visitGlobalVarDecl(ASTNS::GlobalVarDecl *a)

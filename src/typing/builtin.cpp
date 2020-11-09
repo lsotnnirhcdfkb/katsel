@@ -184,6 +184,7 @@ Type* BuiltinType::pickType(Value v1, Value v2)
         Error(Error::MsgType::ERROR, v1, "Cannot cast two values to the same type")
             .primary(Error::Primary(v1)
                 .error("Cannot cast two values to the same type")) // TODO: add note "v1 is of type ... and v2 is of type ..."
+            .secondary(v2)
             .report();
         return nullptr;
     }

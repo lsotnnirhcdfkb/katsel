@@ -29,7 +29,7 @@ void CodeGen::visitFunctionDecl(ASTNS::FunctionDecl *a)
 
         context.builder.CreateStore(&param, alloca);
 
-        context.addLocal(pname, evalType(paramast->type.get()), alloca);
+        context.addLocal(pname, evalType(paramast->type.get()), alloca, paramast);
 
         paramast = paramast->next.get();
     }

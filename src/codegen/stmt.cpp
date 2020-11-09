@@ -67,9 +67,7 @@ void CodeGen::visitVarStmt(ASTNS::VarStmt *a)
             nametok = primary->value;
         }
         else if ((asp = dynamic_cast<ASTNS::PrimaryExpr*>(a.get())))
-        {
             nametok = asp->value;
-        }
         else
             Error(Error::MsgType::INTERR, a.get(), "expr is not of type BinaryExpr or PrimaryExpr")
                 .primary(Error::Primary(a.get())
@@ -89,7 +87,7 @@ void CodeGen::visitVarStmt(ASTNS::VarStmt *a)
 
         llvm::Function *f = context.builder.GetInsertBlock()->getParent();
         llvm::AllocaInst *alloca = context.createEntryAlloca(f, ty->toLLVMType(context.context), varname);
-        context.addLocal(varname, ty, alloca);
+        context.addLocal(varname, ty, alloca, a.get());
 
         if (asb)
             asb->accept(this);

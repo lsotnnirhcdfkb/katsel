@@ -143,6 +143,13 @@ def fieldInitialziation(field):
 # Generate AST declarations {{{3
 def genASTDecls():
     output = []
+
+    output.append( '    class AST\n')
+    output.append( '    {\n')
+    output.append( '    public:\n')
+    output.append( '        virtual ~AST() {}\n')
+    output.append( '    };\n')
+
     for ast in asts:
         output.append(f'    class {ast.name};\n')
 
@@ -151,7 +158,7 @@ def genASTDecls():
             if ast.extends is not None:
                 output.append(f'    class {ast.name} : public {ast.extends}\n')
             else:
-                output.append(f'    class {ast.name}\n')
+                output.append(f'    class {ast.name} : public AST\n')
 
             output.append( '    {\n')
             output.append( '    public:\n')
@@ -169,7 +176,7 @@ def genASTDecls():
 
             output.append( '    };\n')
         else:
-            output.append(f'    class {ast.name}\n')
+            output.append(f'    class {ast.name} : public AST\n')
             output.append( '    {\n')
             output.append( '    public:\n')
             output.append(f'        virtual ~{ast.name}() {{}}\n')
