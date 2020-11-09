@@ -22,6 +22,7 @@ struct Location
     Location(ASTNS::Decl *a);
     Location(ASTNS::Type *a);
     Location(ASTNS::Stmt *a);
+    Location(ASTNS::AST *a);
 };
 // Error class {{{1
 class Error

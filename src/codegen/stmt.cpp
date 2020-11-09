@@ -81,6 +81,8 @@ void CodeGen::visitVarStmt(ASTNS::VarStmt *a)
             Error(Error::MsgType::ERROR, nametok, "Duplicate variable")
                 .primary(Error::Primary(nametok)
                     .error("Duplicate variable"))
+                .primary(Error::Primary(var->v.ast)
+                    .note("previous declaration is here"))
                 .report();
             CG_RETURNNULL();
         }

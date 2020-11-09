@@ -202,6 +202,27 @@ Location::Location(ASTNS::Stmt *a)
     end = locV.getR(a);
     file = locV.getF(a);
 }
+Location::Location(ASTNS::AST *a)
+{
+#define CHECKTY(ty)                                             \
+    ASTNS::ty *ty##casted;                                      \
+    if ((ty##casted = dynamic_cast<ASTNS::ty*>(a)))             \
+    {                                                           \
+        LocationVisitor locV;                                   \
+        start = locV.getL(ty##casted);                          \
+        end = locV.getR(ty##casted);                            \
+        file = locV.getF(ty##casted);                           \
+        return;                                                 \
+    }
+
+    CHECKTY(Expr)
+    CHECKTY(Decl)
+    CHECKTY(Type)
+    CHECKTY(Stmt)
+#undef CHECKTY
+
+    reportAbortNoh("Location constructor called with ast of unconvertible type"); // should be unreachable
+}
 // Error methods {{{1
 Error::Error(MsgType type, Location const &location, std::string message): type(type), location(location), message(message) {}
 Error& Error::primary(Primary const &primary)
