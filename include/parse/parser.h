@@ -4,6 +4,7 @@
 #include "lex/token.h"
 #include "parse/ast.h"
 #include "utils/file.h"
+#include "message/errors.h"
 
 #include <memory>
 #include <string>
@@ -32,7 +33,8 @@ private:
     bool check(TokenType type);
     bool atEnd();
 
-    bool assertConsume(TokenType type, std::string const &message="");
+    bool assertConsume(TokenType type, Error const &error);
+    bool assertConsume(TokenType type);
 
     bool ispanic;
     void panic();

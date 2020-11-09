@@ -30,23 +30,20 @@ Token& Parser::consume()
     return prev();
 }
 
-bool Parser::assertConsume(TokenType type, std::string const &message)
+bool Parser::assertConsume(TokenType type)
+{
+    return assertConsume(type, 
+            Error(Error::MsgType::ERROR, peek(), "Unexpected token")
+                .primary(Error::Primary(peek())
+                    .error(static_cast<std::stringstream&>(std::stringstream() << "Unexpected token " << stringifyTokenType(peek().type) << ", expected " << stringifyTokenType(type)).str())));
+}
+
+bool Parser::assertConsume(TokenType type, Error const &error)
 {
     bool correct = check(type);
 
     if (!correct)
-    {
-        if (message.size() == 0)
-            Error(Error::MsgType::ERROR, peek(), "Unexpected token")
-                .primary(Error::Primary(peek())
-                    .error(static_cast<std::stringstream&>(std::stringstream() << "Unexpected token " << stringifyTokenType(peek().type) << ", expected " << stringifyTokenType(type)).str()))
-                .report();
-        else
-            Error(Error::MsgType::ERROR, peek(), message)
-                .primary(Error::Primary(peek())
-                    .error(message))
-                .report();
-    }
+        error.report();
 
     consume();
     return correct;

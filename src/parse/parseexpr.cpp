@@ -116,7 +116,7 @@ std::unique_ptr<ASTNS::Expr> Parser::primary()
 std::unique_ptr<ASTNS::Expr> Parser::parenExpr()
 {
     std::unique_ptr<ASTNS::Expr> e (expr());
-    assertConsume(TokenType::CPARN, "Expected closing parentheses");
+    assertConsume(TokenType::CPARN, Error::makeBasicErr(peek(), "Expected closing parentheses"));
 
     return e;
 }
@@ -133,7 +133,7 @@ std::unique_ptr<ASTNS::Expr> Parser::binaryOp(std::unique_ptr<ASTNS::Expr> left)
 std::unique_ptr<ASTNS::Expr> Parser::ternaryOp(std::unique_ptr<ASTNS::Expr> cond)
 {
     std::unique_ptr<ASTNS::Expr> trues = expr();
-    assertConsume(TokenType::COLON, "Expected colon after true expression of ternary expression");
+    assertConsume(TokenType::COLON, Error::makeBasicErr(peek(), "Expected colon after true expression of ternary expression"));
     std::unique_ptr<ASTNS::Expr> falses = expr(getPrec(TokenType::QUESTION) - 1);
 
     return std::make_unique<ASTNS::TernaryExpr>(std::move(cond), std::move(trues), std::move(falses));
@@ -176,7 +176,7 @@ std::unique_ptr<ASTNS::Expr> Parser::callOp(std::unique_ptr<ASTNS::Expr> callee)
     if (!check(TokenType::CPARN))
          callargs = args();
 
-    assertConsume(TokenType::CPARN, "Expected closing parentheses after function call");
+    assertConsume(TokenType::CPARN, Error::makeBasicErr(peek(), "Expected closing parentheses after function call"));
 
     return std::make_unique<ASTNS::CallExpr>(std::move(callee), std::move(callargs));
 }

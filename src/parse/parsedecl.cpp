@@ -24,7 +24,7 @@ std::unique_ptr<ASTNS::Program> Parser::parse()
         }
     }
 
-    assertConsume(TokenType::EOF_, "Expected EOF Token");
+    assertConsume(TokenType::EOF_, Error::makeBasicErr(peek(), "Expected EOF Token"));
 
     std::unique_ptr<ASTNS::Program> program = std::make_unique<ASTNS::Program>(programV);
     return program;
@@ -52,16 +52,16 @@ std::unique_ptr<ASTNS::FunctionDecl> Parser::functiondecl()
     assertConsume(TokenType::FUN);
 
     std::unique_ptr<ASTNS::Type> rtype (type());
-    assertConsume(TokenType::IDENTIFIER, "Expected identifier for function name");
+    assertConsume(TokenType::IDENTIFIER, Error::makeBasicErr(peek(), "Expected identifier for function name"));
     Token name (prev());
 
-    assertConsume(TokenType::OPARN, "Expected opening parenthesis after function name");
+    assertConsume(TokenType::OPARN, Error::makeBasicErr(peek(), "Expected opening parenthesis after function name"));
 
     std::unique_ptr<ASTNS::Param> fparams;
     if (!check(TokenType::CPARN))
          fparams = params();
 
-    assertConsume(TokenType::CPARN, "Expected closing parenthesis after parameters");
+    assertConsume(TokenType::CPARN, Error::makeBasicErr(peek(), "Expected closing parenthesis after parameters"));
 
     std::unique_ptr<ASTNS::BlockStmt> fblock (blockstmt());
 

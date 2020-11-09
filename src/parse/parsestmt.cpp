@@ -45,7 +45,7 @@ std::unique_ptr<ASTNS::VarStmt> Parser::varstmt()
 
     while (!check(TokenType::SEMICOLON))
     {
-        assertConsume(TokenType::IDENTIFIER, "Expected identifier for variable name");
+        assertConsume(TokenType::IDENTIFIER, Error::makeBasicErr(peek(), "Expected identifier for variable name"));
         Token name (prev());
         if (checkConsume(TokenType::EQUAL))
         {
@@ -68,13 +68,13 @@ std::unique_ptr<ASTNS::VarStmt> Parser::varstmt()
 
         if (!check(TokenType::SEMICOLON))
         {
-            assertConsume(TokenType::COMMA, "Expected comma as delimeter between variables");
+            assertConsume(TokenType::COMMA, Error::makeBasicErr(peek(), "Expected comma as delimeter between variables"));
             panic();
             return nullptr;
         }
     }
 
-    assertConsume(TokenType::SEMICOLON, "Expected semicolon after var statement");
+    assertConsume(TokenType::SEMICOLON, Error::makeBasicErr(peek(), "Expected semicolon after var statement"));
 
     std::unique_ptr<ASTNS::VarStmt> stmtast = std::make_unique<ASTNS::VarStmt>(std::move(typeast), assignments);
     return stmtast;
@@ -83,7 +83,7 @@ std::unique_ptr<ASTNS::VarStmt> Parser::varstmt()
 std::unique_ptr<ASTNS::ExprStmt> Parser::exprstmt()
 {
     auto exprstmt (std::make_unique<ASTNS::ExprStmt>(expr()));
-    assertConsume(TokenType::SEMICOLON, "Expected semicolon after expression statement");
+    assertConsume(TokenType::SEMICOLON, Error::makeBasicErr(peek(), "Expected semicolon after expression statement"));
     return exprstmt;
 }
 // returnstmt method {{{1
@@ -94,14 +94,14 @@ std::unique_ptr<ASTNS::ReturnStmt> Parser::returnstmt()
     if (!check(TokenType::SEMICOLON))
         retVal = expr();
 
-    assertConsume(TokenType::SEMICOLON, "Expected semicolon after return statement");
+    assertConsume(TokenType::SEMICOLON, Error::makeBasicErr(peek(), "Expected semicolon after return statement"));
     return std::make_unique<ASTNS::ReturnStmt>(std::move(retVal));
 }
 // blockstmt method {{{1
 std::unique_ptr<ASTNS::BlockStmt> Parser::blockstmt()
 {
     std::vector<std::unique_ptr<ASTNS::Stmt>> blockv;
-    assertConsume(TokenType::OCURB, "Expected opening curly bracket to open block");
+    assertConsume(TokenType::OCURB, Error::makeBasicErr(peek(), "Expected opening curly bracket to open block"));
 
     while (!check(TokenType::CCURB) && !atEnd())
     {
@@ -116,7 +116,7 @@ std::unique_ptr<ASTNS::BlockStmt> Parser::blockstmt()
         }
     }
 
-    assertConsume(TokenType::CCURB, "Expected closing curly bracket to close block");
+    assertConsume(TokenType::CCURB, Error::makeBasicErr(peek(), "Expected closing curly bracket to close block"));
 
     std::unique_ptr<ASTNS::BlockStmt> blockast = std::make_unique<ASTNS::BlockStmt>(blockv);
     return blockast;

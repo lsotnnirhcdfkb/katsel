@@ -71,8 +71,10 @@ public:
     Error& secondary(Location const &location);
     Error& span(Location const &start, Location const &end);
 
-    void report();
+    void report() const;
     void reportAbort [[ noreturn ]] ();
+
+    static Error makeBasicErr(Location const &l, std::string message);
 
 private:
     MsgType type;

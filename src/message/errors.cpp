@@ -96,9 +96,9 @@ class LocationVisitor :
     }
     void visitGlobalVarDecl(ASTNS::GlobalVarDecl *a)
     {
-        retl = a->name.start; // TODO
-        retr = getR(a->value.get());
-        retf = a->name.sourcefile;
+        retl = getL(a->type.get());
+        retr = getR(a->assignments[a->assignments.size() - 1].get());
+        retf = getF(a->type.get());
     }
     void visitBaseType(ASTNS::BaseType *a)
     {
@@ -126,9 +126,9 @@ class LocationVisitor :
     }
     void visitVarStmt(ASTNS::VarStmt *a)
     {
-        retl = a->name.start; // TODO
-        retr = getR(a->assign.get());
-        retf = a->name.sourcefile;
+        retl = getL(a->type.get());
+        retr = getR(a->assignments[a->assignments.size() - 1].get());
+        retf = getF(a->type.get());
     }
 
 public:
@@ -241,7 +241,7 @@ inline std::string attr(std::string const &ansicode, std::string const &message,
     else
         return message;
 }
-void Error::report()
+void Error::report() const
 {
     switch (type)
     {
@@ -479,4 +479,11 @@ void fCalled(std::string const &fnn)
 void outOSwitchNoh(std::string const &fnn)
 {
     reportAbortNoh(fnn + " went out of switch");
+}
+// shorthands for errors {{{1
+Error Error::makeBasicErr(Location const &l, std::string message)
+{
+    return Error(Error::MsgType::ERROR, l, message)
+        .primary(Error::Primary(l)
+            .error(message));
 }
