@@ -68,9 +68,11 @@ std::unique_ptr<ASTNS::VarStmt> Parser::varstmt()
 
         if (!check(TokenType::SEMICOLON))
         {
-            assertConsume(TokenType::COMMA, Error::makeBasicErr(peek(), "Expected comma as delimeter between variables"));
-            panic();
-            return nullptr;
+            if (!assertConsume(TokenType::COMMA, Error::makeBasicErr(peek(), "Expected comma as delimeter between variables")))
+            {
+                panic();
+                return nullptr;
+            }
         }
     }
 
