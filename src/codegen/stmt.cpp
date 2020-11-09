@@ -84,7 +84,6 @@ void CodeGen::visitVarStmt(ASTNS::VarStmt *a)
                 .primary(Error::Primary(var->v.ast)
                     .note("previous declaration is here"))
                 .report();
-            CG_RETURNNULL();
         }
 
         llvm::Function *f = context.builder.GetInsertBlock()->getParent();

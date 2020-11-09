@@ -227,11 +227,6 @@ Location::Location(ASTNS::AST *a)
 Error::Error(MsgType type, Location const &location, std::string message): type(type), location(location), message(message) {}
 Error& Error::primary(Primary const &primary)
 {
-    int l = getLineN(primary.location.file->source.begin(), primary.location.start);
-    for (Primary const &p : primaries)
-        if (getLineN(p.location.file->source.begin(), p.location.start) == l)
-            std::abort(); // TODO: internal error
-
     primaries.push_back(primary);
     return *this;
 }
@@ -332,7 +327,8 @@ void Error::report() const
     File const *lastfile = nullptr;
     for (showloc const &sl : showlocs)
     {
-        Error::Primary const *lprimary (nullptr);
+        using lprimaryty = std::pair<Error::Primary const *, int>;
+        std::vector<lprimaryty> lprimaries;
         if (sl.first != lastfile)
             std::cerr << pad << "> " << attr(A_FG_CYAN, sl.first->filename) << std::endl;
 
@@ -365,9 +361,9 @@ void Error::report() const
                 if (itInLoc(i, prim.location))
                 {
                     inprim = true;
-                    if (prim.location.end - 1 == i)
-                        lprimary = &prim;
-                    break; // don't need to check for another underline, because overlapping underlines don't do anything different than just one
+                    lprimaryty pair (&prim, getColN(prim.location.file->source.begin(), prim.location.end - 1));
+                    if (prim.location.end - 1 == i && std::find(lprimaries.begin(), lprimaries.end(), pair) == lprimaries.end())
+                        lprimaries.push_back(pair);
                 }
 
             for (Location const &sec: secondaries)
@@ -405,23 +401,41 @@ void Error::report() const
             }
             std::cerr << std::endl;
 
-            if (lprimary)
+            if (lprimaries.size())
             {
-                int primcol = getColN(lprimary->location.file->source.begin(), lprimary->location.end - 1);
-                std::string primmsgpad (primcol - 1, ' ');
-                size_t i = 0;
-                for (Error::Primary::Message const &message : lprimary->messages)
+                std::sort(lprimaries.begin(), lprimaries.end(), [](lprimaryty const &i1, lprimaryty const &i2)
+                    {
+                        return i1.second > i2.second; // sort in reverse
+                    });
+
+                for (auto i = lprimaries.begin(); i < lprimaries.end(); ++i)
                 {
-                    bool islast = i == lprimary->messages.size() - 1;
-                    std::cerr << pad << "| " << primmsgpad;
+                    size_t msgi = 0;
+                    for (Error::Primary::Message const &message : i->first->messages)
+                    {
+                        std::cerr << pad << "| ";
+                        for (auto j = lprimaries.end() - 1; j >= i; --j)
+                        {
+                            int last = j + 1 == lprimaries.end() ? 0 : (j + 1)->second;
+                            int diff = j->second - last;
+                            if (!diff)
+                                continue;
 
-                    if (islast)
-                        std::cerr << "`";
-                    else
-                        std::cerr << "|";
+                            int pamt = diff - 1;
 
-                    std::cerr << "-- " << attr(message.color, message.type) << ": " << message.message << std::endl;
-                    ++i;
+                            std::cerr << std::string(pamt, ' ');
+                            if (j != i)
+                                std::cerr << '|';
+                        }
+
+                        if (msgi == i->first->messages.size() - 1)
+                            std::cerr << "`";
+                        else
+                            std::cerr << "|";
+                        std::cerr << "-- " << attr(message.color, message.type) << ": " << message.message << std::endl;
+
+                        ++msgi;
+                    }
                 }
             }
         }
