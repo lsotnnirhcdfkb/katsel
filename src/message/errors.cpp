@@ -291,14 +291,14 @@ void Error::report() const
     for (Error::Primary const &pr : primaries)
     {
         std::string::const_iterator begin = pr.location.file->source.begin();
-        showlocs.push_back(showloc(pr.location.file, getLineN(begin, pr.location.start)));
-        showlocs.push_back(showloc(pr.location.file, getLineN(begin, pr.location.end - 1)));
+        for (int i = getLineN(begin, pr.location.start); i <= getLineN(begin, pr.location.end - 1); ++i)
+            showlocs.push_back(showloc(pr.location.file, i));
     }
     for (Location const &s : secondaries)
     {
         std::string::const_iterator begin = s.file->source.begin();
-        showlocs.push_back(showloc(s.file, getLineN(begin, s.start)));
-        showlocs.push_back(showloc(s.file, getLineN(begin, s.end - 1)));
+        for (int i = getLineN(begin, s.start); i <= getLineN(begin, s.end - 1); ++i)
+            showlocs.push_back(showloc(s.file, i));
     }
 
     std::sort(showlocs.begin(), showlocs.end(), [](showloc const &a, showloc const &b) {
