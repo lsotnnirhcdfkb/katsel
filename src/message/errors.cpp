@@ -280,10 +280,10 @@ void Error::report() const
         showlocs.push_back(showloc(s.file, getLineN(begin, s.end - 1)));
     }
 
-    std::sort(showlocs.begin(), showlocs.end(), [](showloc &a, showloc &b) {
+    std::sort(showlocs.begin(), showlocs.end(), [](showloc const &a, showloc const &b) {
                 return a.second < b.second;
             });
-    std::sort(showlocs.begin(), showlocs.end(), [](showloc &a, showloc &b) {
+    std::stable_sort(showlocs.begin(), showlocs.end(), [](showloc const &a, showloc const &b) {
                 return a.first->filename < b.first->filename;
             });
 
