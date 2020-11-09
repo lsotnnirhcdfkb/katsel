@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        auto cgcontext = std::make_unique<CodeGenContext>(argv[optind]);
+        auto cgcontext = std::make_unique<CodeGenContext>(source->filename);
         auto codegen = std::make_unique<CodeGen>(*cgcontext);
         auto globalsassembler = std::make_unique<GlobalsAssembler>(*cgcontext, *codegen);
 
