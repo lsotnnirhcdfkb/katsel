@@ -15,7 +15,7 @@
 class CodeGenContext
 {
 public:
-    inline CodeGenContext(): builder(context), mod(std::make_unique<llvm::Module>("thingy", context)) {}
+    inline CodeGenContext(std::string const &name): builder(context), mod(std::make_unique<llvm::Module>(name, context)) {}
 
     llvm::LLVMContext context;
     llvm::IRBuilder<> builder;

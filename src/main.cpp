@@ -106,68 +106,65 @@ int main(int argc, char *argv[])
 
     enableTerminalCodes();
 
-    auto source = std::make_unique<File>(readFile(argv[optind]));
-
-    auto lexer = std::make_unique<Lexer>(*source);
-    if (phasen == Phases::LEX)
+    for (; optind < argc; ++optind)
     {
-        while (true)
+        auto source = std::make_unique<File>(readFile(argv[optind]));
+
+        auto lexer = std::make_unique<Lexer>(*source);
+        if (phasen == Phases::LEX)
         {
-            Token t (lexer->nextToken());
-            if (t.type == TokenType::EOF_)
-                break;
+            while (true)
+            {
+                Token t (lexer->nextToken());
+                if (t.type == TokenType::EOF_)
+                    break;
 
-            std::cout << t.sourcefile->filename << ':' << t.line << ':' << t.column << ": (" << stringifyTokenType(t.type) << ") \"" << std::string(t.start, t.end) << "\"\n";
+                std::cout << t.sourcefile->filename << ':' << t.line << ':' << t.column << ": (" << stringifyTokenType(t.type) << ") \"" << std::string(t.start, t.end) << "\"\n";
+            }
+            continue;
         }
-        resetTerminal();
-        return 0;
-    }
 
-    auto parser = std::make_unique<Parser>(*lexer, *source);
-    std::unique_ptr<ASTNS::Program> parsed = parser->parse();
+        auto parser = std::make_unique<Parser>(*lexer, *source);
+        std::unique_ptr<ASTNS::Program> parsed = parser->parse();
 
-    if (phasen == Phases::PARSE) // stop at phase parse which means we don't need to do any more than parsing
-    {
-        auto printv = std::make_unique<PrintVisitor>();
-        printv->visitProgram(parsed.get());
-        resetTerminal();
-        return 0;
-    }
+        if (phasen == Phases::PARSE) // stop at phase parse which means we don't need to do any more than parsing
+        {
+            auto printv = std::make_unique<PrintVisitor>();
+            printv->visitProgram(parsed.get());
+            continue;
+        }
 
-    if (phasen == Phases::REPLICATE)
-    {
-        auto replicator = std::make_unique<ReplicateVisitor>();
-        replicator->visitProgram(parsed.get());
-        resetTerminal();
-        return 0;
-    }
+        if (phasen == Phases::REPLICATE)
+        {
+            auto replicator = std::make_unique<ReplicateVisitor>();
+            replicator->visitProgram(parsed.get());
+            continue;
+        }
 
-    if (phasen == Phases::DOT)
-    {
-        auto dotter = std::make_unique<DotVisitor>();
-        dotter->visitProgram(parsed.get());
-        resetTerminal();
-        return 0;
-    }
+        if (phasen == Phases::DOT)
+        {
+            auto dotter = std::make_unique<DotVisitor>();
+            dotter->visitProgram(parsed.get());
+            continue;
+        }
 
-    auto cgcontext = std::make_unique<CodeGenContext>();
-    auto codegen = std::make_unique<CodeGen>(*cgcontext);
-    auto globalsassembler = std::make_unique<GlobalsAssembler>(*cgcontext, *codegen);
+        auto cgcontext = std::make_unique<CodeGenContext>(argv[optind]);
+        auto codegen = std::make_unique<CodeGen>(*cgcontext);
+        auto globalsassembler = std::make_unique<GlobalsAssembler>(*cgcontext, *codegen);
 
-    globalsassembler->visitProgram(parsed.get());
-    if (phasen == Phases::GLOBALS)
-    {
-        cgcontext->mod->print(llvm::outs(), nullptr);
-        resetTerminal();
-        return 0;
-    }
+        globalsassembler->visitProgram(parsed.get());
+        if (phasen == Phases::GLOBALS)
+        {
+            cgcontext->mod->print(llvm::outs(), nullptr);
+            continue;
+        }
 
-    codegen->visitProgram(parsed.get());
-    if (phasen == Phases::CODEGEN)
-    {
-        cgcontext->mod->print(llvm::outs(), nullptr);
-        resetTerminal();
-        return 0;
+        codegen->visitProgram(parsed.get());
+        if (phasen == Phases::CODEGEN)
+        {
+            cgcontext->mod->print(llvm::outs(), nullptr);
+            continue;
+        }
     }
 
     resetTerminal();
