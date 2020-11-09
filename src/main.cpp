@@ -109,6 +109,8 @@ int main(int argc, char *argv[])
     for (; optind < argc; ++optind)
     {
         auto source = std::make_unique<File>(readFile(argv[optind]));
+        if (source->filename.size() == 0)
+            continue;
 
         auto lexer = std::make_unique<Lexer>(*source);
         if (phasen == Phases::LEX)
