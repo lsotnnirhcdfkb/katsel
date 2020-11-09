@@ -17,11 +17,14 @@ void GlobalsAssembler::visitProgram(ASTNS::Program *a)
 void GlobalsAssembler::visitFunctionDecl(ASTNS::FunctionDecl *a)
 {
     std::string fnamestr (tokenToStr(a->name));
-    if (context.getGlobal(fnamestr).val)
+    Value declbefore = context.getGlobal(fnamestr);
+    if (declbefore.val)
     {
         Error(Error::MsgType::ERROR, a->name, "Duplicate function")
             .primary(Error::Primary(a->name)
                 .error("Duplciate function"))
+            .primary(Error::Primary(declbefore)
+                .note("Previous declaration is here"))
             .report();
         return;
     }
