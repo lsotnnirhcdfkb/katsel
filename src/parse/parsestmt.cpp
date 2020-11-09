@@ -102,6 +102,7 @@ std::unique_ptr<ASTNS::BlockStmt> Parser::blockstmt()
 {
     std::vector<std::unique_ptr<ASTNS::Stmt>> blockv;
     assertConsume(TokenType::OCURB, Error::makeBasicErr(peek(), "Expected opening curly bracket to open block"));
+    Token ocurb (prev());
 
     while (!check(TokenType::CCURB) && !atEnd())
     {
@@ -116,7 +117,13 @@ std::unique_ptr<ASTNS::BlockStmt> Parser::blockstmt()
         }
     }
 
-    assertConsume(TokenType::CCURB, Error::makeBasicErr(peek(), "Expected closing curly bracket to close block"));
+    assertConsume(TokenType::CCURB, 
+            Error(Error::MsgType::ERROR, peek(), "Expected closing curly bracket to close block")
+                .primary(Error::Primary(peek())
+                    .error("Expected closing brace"))
+                .primary(Error::Primary(ocurb)
+                    .note("for opening brace here"))
+                .span(ocurb, peek()));
 
     std::unique_ptr<ASTNS::BlockStmt> blockast = std::make_unique<ASTNS::BlockStmt>(blockv);
     return blockast;
