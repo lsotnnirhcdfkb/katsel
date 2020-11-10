@@ -74,6 +74,8 @@ Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS:
         calledWithOpTyNEthis("BuiltinType", "binOp", "left operand", l);
 
     Type *picked (pickType(l, r));
+    if (!picked)
+        return Value();
     l = picked->castTo(cgc, l);
     r = picked->castTo(cgc, r);
 
@@ -183,8 +185,9 @@ Type* BuiltinType::pickType(Value v1, Value v2)
     {
         Error(Error::MsgType::ERROR, v1, "Cannot cast two values to the same type")
             .primary(Error::Primary(v1)
-                .error("Cannot cast two values to the same type")) // TODO: add note "v1 is of type ... and v2 is of type ..."
-            .secondary(v2)
+                .note(v1.type->stringify()))
+            .primary(Error::Primary(v2)
+                .note(v2.type->stringify()))
             .report();
         return nullptr;
     }
