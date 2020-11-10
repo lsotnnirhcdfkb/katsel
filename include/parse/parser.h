@@ -22,10 +22,14 @@ private:
     Lexer &lexer;
     File &sourcefile;
 
-    class Action {};
-    class ShiftAction {};
-    class ReduceAction {};
-    class AcceptAction {};
+    class Action {
+        enum class ActionType {
+            SHIFT,
+            REDUCE,
+            ACCEPT,
+            ERROR
+        } type;
+    };
 
     Action getAction(size_t state, Token lookahead);
     size_t getGoto(size_t state, Token lookahead);

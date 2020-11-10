@@ -319,23 +319,67 @@ for rule in grammar:
         if sym not in symbols:
             symbols.append(sym)
 
+# make the parse table {{{1
 table = makeParseTable()
-
-cw = 4
-print(' ' * cw, end='')
-for sym in symbols:
-    print(str(sym).rjust(cw), end='')
-print()
-
-for staten, state in table.items():
-    print(str(staten).rjust(cw), end='')
-
+# generating stuff {{{1
+# print parse table {{{2
+def printParseTable():
+    cw = 4
+    print(' ' * cw, end='')
     for sym in symbols:
-        if sym in state.actions.keys():
-            print(str(state.actions[sym]).rjust(cw), end='')
-        elif sym in state.goto.keys():
-            print(str(state.goto[sym]).rjust(cw), end='')
-        else:
-            print(' ' * cw, end='')
-
+        print(str(sym).rjust(cw), end='')
     print()
+
+    for staten, state in table.items():
+        print(str(staten).rjust(cw), end='')
+
+        for sym in symbols:
+            if sym in state.actions.keys():
+                print(str(state.actions[sym]).rjust(cw), end='')
+            elif sym in state.goto.keys():
+                print(str(state.goto[sym]).rjust(cw), end='')
+            else:
+                print(' ' * cw, end='')
+
+        print()
+# generate getAction code {{{2
+def genAction():
+    output = []
+
+    output.append(             '    switch (state)\n')
+    output.append(             '    {\n')
+
+    for staten, state in table.items():
+        output.append(        f'        case {staten}:\n')
+        output.append(         '            switch (lookahead.type)\n')
+        output.append(         '            {\n')
+
+        for nt, ac in state.actions.items():
+            output.append(    f'                case {str(nt)}:\n')
+
+            if type(ac) == ShiftAction:
+                output.append( '                    return Parser::Action();\n')
+            elif type(ac) == ReduceAction:
+                output.append( '                    return Parser::Action();\n')
+            elif type(ac) == AcceptAction:
+                output.append( '                    return Parser::Action();\n')
+            elif type(ac) == ErrorAction:
+                output.append( '                    return Parser::Action();\n')
+            else:
+                raise Exception('invalid action type')
+
+
+        output.append(         '                default:\n')
+        output.append(         '                    return Parser::Action();\n')
+        output.append(         '            }\n')
+        output.append(         '            break;\n')
+
+    output.append(             '        default:\n')
+    output.append(             '\
+            Error(Error::MsgType::INTERR, lookahead, "Parser reached invalid state")\n\
+                .primary(Error::Primary(lookahead)\n\
+                    .error(static_cast<std::stringstream&>(std::stringstream() << "Parser reached invalid state: " << state).str()))\n\
+                .reportAbort();\n')
+    output.append(             '    }\n')
+
+    return ''.join(output)
