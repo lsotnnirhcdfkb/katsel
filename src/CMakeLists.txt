@@ -1,4 +1,11 @@
-add_executable(coxianc main.cpp lexer.cpp parser.cpp errors.cpp ast.cpp visitor.cpp compiler.cpp ansistuff.cpp)
+add_executable(coxianc main.cpp)
+add_subdirectory(parse)
+add_subdirectory(message)
+add_subdirectory(lex)
+add_subdirectory(visit)
+add_subdirectory(codegen)
+add_subdirectory(typing)
+add_subdirectory(replicate)
 
 # Also (mostly) copied and pasted and shifted around a bit from LLVM Docs - Building LLVM with CMake - Embedding LLVM in your project
 # https://releases.llvm.org/3.6.0/docs/CMake.html#embedding-llvm-in-your-project
@@ -20,5 +27,6 @@ message(STATUS "Found libraries from llvm-config: ${llvm_libs}")
 target_link_libraries(coxianc ${llvm_libs})
 
 set_target_properties(coxianc PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-    DEBUG_POSTFIX "d")
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+
+target_compile_options(coxianc PRIVATE -Wall -Wextra -pedantic -pg -static)

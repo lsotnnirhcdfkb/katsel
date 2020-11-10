@@ -1,0 +1,42 @@
+/*
+command: <coxianc> <file> -plex
+returncode: 0
+*/
+
+uint8 // --> lex.expect('UINT8') <
+uint16 // --> lex.expect('UINT16') <
+uint32 // ---> lex.expect('UINT32') <
+uint64 // ---> lex.expect('UINT64') <
+sint8 // ---> lex.expect('SINT8') <
+sint16 // ---> lex.expect('SINT16') <
+sint32 // ---> lex.expect('SINT32') <
+sint64 // ---> lex.expect('SINT64') <
+
+float // ---> lex.expect('FLOAT') <
+bool // ---> lex.expect('BOOL') <
+double // ---> lex.expect('DOUBLE') <
+char // ---> lex.expect('CHAR') <
+
+var // ---> lex.expect('VAR') <
+fun // ---> lex.expect('FUN') <
+void // ---> lex.expect('VOID') <
+namespace // ---> lex.expect('NAMESPACE') <
+class // ---> lex.expect('CLASS') <
+enum // ---> lex.expect('ENUM') <
+return // ---> lex.expect('RETURN') <
+this // ---> lex.expect('THIS') <
+while // ---> lex.expect('WHILE') <
+for // ---> lex.expect('FOR') <
+if // ---> lex.expect('IF') <
+else // ---> lex.expect('ELSE') <
+switch // ---> lex.expect('SWITCH') <
+case // ---> lex.expect('CASE') <
+default // ---> lex.expect('DEFAULT') <
+break // ---> lex.expect('BREAK') <
+breakall // ---> lex.expect('BREAKALL') <
+breakto // ---> lex.expect('BREAKTO') <
+const // ---> lex.expect('CONST') <
+continue // ---> lex.expect('CONTINUE') <
+inline // ---> lex.expect('INLINE') <
+volatile // ---> lex.expect('VOLATILE') <
+assert // ---> lex.expect('ASSERT') <

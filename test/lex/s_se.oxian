@@ -1,0 +1,52 @@
+/*
+command: <coxianc> <file> -plex
+returncode: 0
+*/
+
+* // ---> lex.expect('STAR') < 
+/ // ---> lex.expect('SLASH') <
+! // ---> lex.expect('BANG') <
+% // ---> lex.expect('PERCENT') <
+^ // ---> lex.expect('CARET') <
+ 
+*= // ---> lex.expect('STAREQUAL') <
+/= // ---> lex.expect('SLASHEQUAL') <
+!= // ---> lex.expect('BANGEQUAL') <
+%= // ---> lex.expect('PERCENTEQUAL') <
+^= // ---> lex.expect('CARETEQUAL') <
+ 
+=* // ---> lex.expect('EQUAL') < // ---> lex.expect('STAR') <
+=/ // ---> lex.expect('EQUAL') < // ---> lex.expect('SLASH') <
+=! // ---> lex.expect('EQUAL') < // ---> lex.expect('BANG') <
+=% // ---> lex.expect('EQUAL') < // ---> lex.expect('PERCENT') <
+=^ // ---> lex.expect('EQUAL') < // ---> lex.expect('CARET') <
+ 
+** * // ---> lex.expect('STAR') < // ---> lex.expect('STAR') < // ---> lex.expect('STAR') <
+/ / // ---> lex.expect('SLASH') < // ---> lex.expect('SLASH') <
+!! ! // ---> lex.expect('BANG') < // ---> lex.expect('BANG') < // ---> lex.expect('BANG') <
+%% % // ---> lex.expect('PERCENT') < // ---> lex.expect('PERCENT') < // ---> lex.expect('PERCENT') <
+^^ ^ // ---> lex.expect('CARET') < // ---> lex.expect('CARET') < // ---> lex.expect('CARET') <
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+
+
+
+
+
+
+
+
+

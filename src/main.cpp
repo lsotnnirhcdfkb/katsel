@@ -1,19 +1,38 @@
-/// @file main.cpp
-/// Compiler entry point
-/// Runs all the things that need to happen in order to compile, as well as parses arguments
 
 #include <iostream>
 #include <fstream>
 #include <memory>
 #include <limits>
 
-#include "file.h"
-#include "lexer.h"
-#include "parser.h"
-#include "compiler.h"
-#include "ansistuff.h"
+#include <unistd.h>
+#include <cstring>
 
-/// Read a file and output a File, with the appropriate source string
+#include "parse/ast.h"
+#include "parse/parser.h"
+#include "utils/file.h"
+#include "lex/lexer.h"
+#include "message/ansistuff.h"
+#include "visit/printvisitor.h"
+#include "visit/dotvisitor.h"
+#include "codegen/context.h"
+#include "codegen/codegen.h"
+#include "codegen/globalsassembler.h"
+#include "replicate/replicatevisitor.h"
+
+#include "llvm/Support/raw_ostream.h"
+
+enum Phases
+{
+    LEX = 0,
+    PARSE,
+    REPLICATE,
+    DOT,
+    GLOBALS,
+    CODEGEN,
+    OBJECT,
+    ALL,
+};
+
 File readFile(char *filename)
 {
     std::ifstream filein;
@@ -38,52 +57,118 @@ File readFile(char *filename)
     }
     else
     {
-        std::cerr << "Could not open file" << std::endl;
+        std::cerr << "Could not open file\n";
         return File{"", ""};
     }
 }
 
-/// Compile a file to object code
-void compileFile(File &sourcefile)
+int main(int argc, char *argv[])
 {
-    enableTerminalCodes();
-    auto lexer = std::make_unique<Lexer>(sourcefile);
-    auto parser = std::make_unique<Parser>(*lexer, sourcefile);
-
-    std::unique_ptr<ASTs::AST> parsed = parser->parse();
-    // auto printv = std::make_unique<PrintVisitor>();
-
-    if (parsed)
+    int opt;
+    Phases phasen = Phases::ALL;
+    while ((opt = getopt(argc, argv, "p:")) != -1)
     {
-        compile(&*parsed, sourcefile);
-        // parsed->accept(&*printv);
+        switch (opt)
+        {
+            case 'p':
+                if (strcmp(optarg, "lex") == 0)
+                    phasen = Phases::LEX;
+                else if (strcmp(optarg, "parse") == 0)
+                    phasen = Phases::PARSE;
+                else if (strcmp(optarg, "replicate") == 0)
+                    phasen = Phases::REPLICATE;
+                else if (strcmp(optarg, "dot") == 0)
+                    phasen = Phases::DOT;
+                else if (strcmp(optarg, "globals") == 0)
+                    phasen = Phases::GLOBALS;
+                else if (strcmp(optarg, "codegen") == 0)
+                    phasen = Phases::CODEGEN;
+                else if (strcmp(optarg, "all") == 0)
+                    phasen = Phases::ALL;
+                else
+                {
+                    std::cerr << "Invalid argument for option -p: '" << optarg << "\'\n";
+                    std::cerr << "Defaulting to -pall\n";
+                    phasen = Phases::ALL;
+                }
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    if (optind >= argc)
+    {
+        std::cerr << "No input files\n";
+        return 1;
+    }
+
+    enableTerminalCodes();
+
+    for (; optind < argc; ++optind)
+    {
+        auto source = std::make_unique<File>(readFile(argv[optind]));
+        if (source->filename.size() == 0)
+            continue;
+
+        auto lexer = std::make_unique<Lexer>(*source);
+        if (phasen == Phases::LEX)
+        {
+            while (true)
+            {
+                Token t (lexer->nextToken());
+                if (t.type == TokenType::EOF_)
+                    break;
+
+                std::cout << t.sourcefile->filename << ':' << t.line << ':' << t.column << ": (" << stringifyTokenType(t.type) << ") \"" << std::string(t.start, t.end) << "\"\n";
+            }
+            continue;
+        }
+
+        auto parser = std::make_unique<Parser>(*lexer, *source);
+        std::unique_ptr<ASTNS::Program> parsed = parser->parse();
+
+        if (phasen == Phases::PARSE) // stop at phase parse which means we don't need to do any more than parsing
+        {
+            auto printv = std::make_unique<PrintVisitor>();
+            printv->visitProgram(parsed.get());
+            continue;
+        }
+
+        if (phasen == Phases::REPLICATE)
+        {
+            auto replicator = std::make_unique<ReplicateVisitor>();
+            replicator->visitProgram(parsed.get());
+            continue;
+        }
+
+        if (phasen == Phases::DOT)
+        {
+            auto dotter = std::make_unique<DotVisitor>();
+            dotter->visitProgram(parsed.get());
+            continue;
+        }
+
+        auto cgcontext = std::make_unique<CodeGenContext>(source->filename);
+        auto codegen = std::make_unique<CodeGen>(*cgcontext);
+        auto globalsassembler = std::make_unique<GlobalsAssembler>(*cgcontext, *codegen);
+
+        globalsassembler->visitProgram(parsed.get());
+        if (phasen == Phases::GLOBALS)
+        {
+            cgcontext->mod->print(llvm::outs(), nullptr);
+            continue;
+        }
+
+        codegen->visitProgram(parsed.get());
+        if (phasen == Phases::CODEGEN)
+        {
+            cgcontext->mod->print(llvm::outs(), nullptr);
+            continue;
+        }
     }
 
     resetTerminal();
-
-    // int returnCode = parse(source);
-
-    // if (returnCode != 0)
-    // {
-    //     exit(returnCode);
-    // }
-}
-
-/// Main entry point
-int main(int argc, char *argv[])
-{
-    if (argc == 2)
-    {
-        // Compile file
-        auto source = std::make_unique<File>(readFile(argv[1]));
-        compileFile(*source);
-    }
-    else
-    {
-        std::cerr << "Usage: " << argv[0] << " <file>\n"
-            "\n"
-            "file - the main file to compile\n" << std::endl;
-        return 1;
-    }
     return 0;
 }

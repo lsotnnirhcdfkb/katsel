@@ -31,3 +31,4 @@ add_custom_target(gencode ALL
     
 add_subdirectory(src)
 add_subdirectory(docs)
+add_subdirectory(test)

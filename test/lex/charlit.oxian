@@ -1,0 +1,16 @@
+/*
+command: <coxianc> <file> -plex
+returncode: 0
+*/
+
+c'c' // ---> lex.expect("CHARLIT") <
+c"c" // ---> lex.expect("CHARLIT") <
+
+c'o' // ---> lex.expect("CHARLIT") <
+c"o" // ---> lex.expect("CHARLIT") <
+
+c"iden" // ---> lex.expect("ERROR") < ---> lex.expect("IDENTIFIER") < ---> lex.expect("ERROR") <
+c'iden' // ---> lex.expect("ERROR") < ---> lex.expect("IDENTIFIER") < ---> lex.expect("ERROR") <
+
+c'a // ---> lex.expect("ERROR") <
+c"a // ---> lex.expect("ERROR") <

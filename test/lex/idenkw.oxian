@@ -1,0 +1,33 @@
+/*
+command: <coxianc> <file> -plex
+returncode: 0
+*/
+
+asdf // ---> lex.expect('IDENTIFIER') <
+a // ---> lex.expect('IDENTIFIER') <
+i j // ---> lex.expect('IDENTIFIER') < ---> lex.expect('IDENTIFIER') <
+
+case // ---> lex.expect('CASE') <
+if // ---> lex.expect('IF') <
+else // ---> lex.expect('ELSE') <
+for // ---> lex.expect('FOR') <
+
+case_ // ---> lex.expect('IDENTIFIER') <
+if_ // ---> lex.expect('IDENTIFIER') <
+else_ // ---> lex.expect('IDENTIFIER') <
+for_ // ---> lex.expect('IDENTIFIER') <
+
+_case // ---> lex.expect('IDENTIFIER') <
+_if // ---> lex.expect('IDENTIFIER') <
+_else // ---> lex.expect('IDENTIFIER') <
+_for // ---> lex.expect('IDENTIFIER') <
+
+casee // ---> lex.expect('IDENTIFIER') <
+iff // ---> lex.expect('IDENTIFIER') <
+elsee // ---> lex.expect('IDENTIFIER') <
+forr // ---> lex.expect('IDENTIFIER') <
+
+num0 // ---> lex.expect('IDENTIFIER') <
+num1 // ---> lex.expect('IDENTIFIER') <
+num2 // ---> lex.expect('IDENTIFIER') <
+1nn // ---> lex.expect('DECINTLIT') < ---> lex.expect('IDENTIFIER') <

@@ -1,0 +1,15 @@
+/*
+command: <coxianc> <file> -plex
+returncode: 0
+*/
+
+== // ---> lex.expect('DOUBLEEQUAL') <
+= // ---> lex.expect('EQUAL') <
+:: // ---> lex.expect('DOUBLECOLON') <
+: // ---> lex.expect('COLON') <
+
+=== // ---> lex.expect('DOUBLEEQUAL') < ---> lex.expect('EQUAL') <
+::: // ---> lex.expect('DOUBLECOLON') < ---> lex.expect('COLON') <
+
+== = :: : // ---> lex.expect('DOUBLEEQUAL') < ---> lex.expect('EQUAL') < ---> lex.expect('DOUBLECOLON') < ---> lex.expect('COLON') <
+= == : :: // ---> lex.expect('EQUAL') < ---> lex.expect('DOUBLEEQUAL') < ---> lex.expect('COLON') < ---> lex.expect('DOUBLECOLON') <

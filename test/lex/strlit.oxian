@@ -1,0 +1,22 @@
+/*
+command: <coxianc> <file> -plex
+returncode: 0
+*/
+
+"valid" // ---> lex.expect('STRINGLIT') <
+"      " // ---> lex.expect('STRINGLIT') <
+"" // ---> lex.expect('STRINGLIT') <
+"  spaces  " // ---> lex.expect('STRINGLIT') <
+
+"cannot span multiple lines // ---> lex.expect('ERROR') <
+errors"
+"unterminated // ---> lex.expect('ERROR') <
+
+'single quote' // ---> lex.expect('STRINGLIT') <
+'      ' // ---> lex.expect('STRINGLIT') <
+'' // ---> lex.expect('STRINGLIT') <
+'  spaces with single quotes  ' // ---> lex.expect('STRINGLIT') <
+
+'still cannot span multiple lines // ---> lex.expect("ERROR") <
+still errors'
+'also unterminated // ---> lex.expect("ERROR") <

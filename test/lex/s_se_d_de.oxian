@@ -1,0 +1,18 @@
+/*
+command: <coxianc> <file> -plex
+returncode: 0
+*/
+
+
+> // ---> lex.expect('GREATER') <
+>= // ---> lex.expect('GREATEREQUAL') <
+>> // ---> lex.expect('DOUBLEGREATER') <
+>>= // ---> lex.expect('DOUBLEGREATEREQUAL') <
+
+< // ---> lex.expect('LESS') <
+<= // ---> lex.expect('LESSEQUAL') <
+<< // ---> lex.expect('DOUBLELESS') <
+<<= // ---> lex.expect('DOUBLELESSEQUAL') <
+
+< < > > // ---> lex.expect('LESS') < ---> lex.expect('LESS') < ---> lex.expect('GREATER') < ---> lex.expect('GREATER') <
+> >= < <= // ---> lex.expect('GREATER') < ---> lex.expect('GREATEREQUAL') < ---> lex.expect('LESS') < ---> lex.expect('LESSEQUAL') <
