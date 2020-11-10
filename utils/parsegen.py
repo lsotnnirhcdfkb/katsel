@@ -124,7 +124,7 @@ def getFirsts(sym):
 
     return firsts
 def getFollows(sym):
-    if sym == initialSymbol:
+    if sym == augmentSymbol:
         return [eofSym]
 
     follows = []
