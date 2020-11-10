@@ -97,5 +97,29 @@ class AcceptAction:
     def __str__(self):
         return 'acc'
 # rules {{{1
+def r(s, e):
+    return Rule(nt(s), e)
+def nt(s):
+    return NonTerminal(s)
+def t(s):
+    return Terminal(f'TokenType::{s}')
+
 grammar = [
+    r('statement', (nt('expression'), )),
+    r('expression', (nt('addition'), )),
+
+    r('addition', (nt('addition'), t('PLUS'), nt('mult'))),
+    r('addition', (nt('addition'), t('MINUS'), nt('mult'))),
+    r('addition', (nt('multiplication'), )),
+
+    r('multiplication', (nt('multiplication'), t('SLASH'), nt('unary'))),
+    r('multiplication', (nt('multiplication'), t('STAR'), nt('unary'))),
+    r('multiplication', (nt('unary'), )),
+
+    r('unary', (t('TILDE'), nt('unary'))),
+    r('unary', (t('MINUS'), nt('unary'))),
+    r('unary', (nt('primary'),)),
+
+    r('primary', (t('DECINTLIT'), )),
+    r('primary', (t('OPARN'), nt('expr'), t('CPARN'))),
 ]
