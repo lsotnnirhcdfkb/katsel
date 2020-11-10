@@ -16,6 +16,11 @@ class NonTerminal:
     def __eq__(self, other):
         return type(self) == type(other) and (self.symbol == other.symbol)
 
+    def updateFirsts(self):
+        self.first = getFirsts(self)
+    def updateFollows(self):
+        self.follow = getFollows(self)
+
 class Terminal:
     def __init__(self, symbol):
         self.symbol = symbol
@@ -96,14 +101,46 @@ class ReduceAction:
 class AcceptAction:
     def __str__(self):
         return 'acc'
-# rules {{{1
-def r(s, e):
-    return Rule(nt(s), e)
-def nt(s):
-    return NonTerminal(s)
-def t(s):
-    return Terminal(f'TokenType::{s}')
+# helpers {{{1
+def makeUnique(already, new):
+    return [x for x in new if x not in already]
+# first and follows functions {{{1
+def getFirsts(sym):
+    if type(sym) == Terminal:
+        return [sym]
 
+    firsts = []
+    for rule in grammar:
+        if rule.symbol == sym:
+            if len(rule.expansion) == 0:
+                if eofSym not in firsts:
+                    firsts.append(eofSym)
+            elif rule.expansion[0] != sym:
+                if type(rule.expansion[0]) == NonTerminal:
+                    firsts.extend(makeUnique(firsts, getFirsts(rule.expansion[0])))
+                else:
+                    if rule.expansion[0] not in firsts:
+                        firsts.append(rule.expansion[0])
+
+    return firsts
+def getFollows(sym):
+    if sym == initialSymbol:
+        return [eofSym]
+
+    follows = []
+    for rule in grammar:
+        for i, gsym in enumerate(rule.expansion):
+            if gsym != sym:
+                continue
+
+            if i + 1 >= len(rule.expansion):
+                if rule.symbol != sym:
+                    follows.extend(makeUnique(follows, getFollows(rule.symbol)))
+            else:
+                follows.extend(makeUnique(follows, [x for x in getFirsts(rule.expansion[i + 1]) if x != Terminal('eof')]))
+
+    return follows
+# rules {{{1
 _grammar = '''
 statement -> $expression
 expression -> $addition
@@ -138,8 +175,15 @@ for rule in _grammar.split('\n'):
             expansion[i] = Terminal(f'TokenType::{s}')
 
     grammar.append(Rule(NonTerminal(symbol), tuple(expansion)))
-    print(grammar[-1])
 
 augmentSymbol = NonTerminal('augment')
 augmentRule = Rule(augmentSymbol, (grammar[0].symbol, ))
 grammar.append(augmentRule)
+
+eofSym = Terminal('TokenType::EOF_')
+
+for rule in grammar:
+    for sym in [rule.symbol, *rule.expansion]:
+        if type(sym) == NonTerminal:
+            sym.updateFirsts()
+            sym.updateFollows()
