@@ -49,7 +49,7 @@ void DotVisitor::visitBinaryExpr(ASTNS::BinaryExpr *a)
         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
         connect(thisid, "rhs", nullptrnodeid);
     }
-    std::string tokennodeid = makeTextNode("Token", tokenToStr(a->op));
+    std::string tokennodeid = makeTextNode("Token", a->op.stringify());
     connect(thisid, "op", tokennodeid);
     lastid = std::move(thisid);
 }
@@ -110,7 +110,7 @@ void DotVisitor::visitUnaryExpr(ASTNS::UnaryExpr *a)
         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
         connect(thisid, "operand", nullptrnodeid);
     }
-    std::string tokennodeid = makeTextNode("Token", tokenToStr(a->op));
+    std::string tokennodeid = makeTextNode("Token", a->op.stringify());
     connect(thisid, "op", tokennodeid);
     lastid = std::move(thisid);
 }
@@ -120,7 +120,7 @@ void DotVisitor::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
     std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">PrimaryExpr</td></tr><tr>";
     std::cout << "<td port=\"value\">value</td>";
     std::cout << "</tr></table>>]\n";
-    std::string tokennodeid = makeTextNode("Token", tokenToStr(a->value));
+    std::string tokennodeid = makeTextNode("Token", a->value.stringify());
     connect(thisid, "value", tokennodeid);
     lastid = std::move(thisid);
 }
@@ -232,7 +232,7 @@ void DotVisitor::visitBaseType(ASTNS::BaseType *a)
     std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">BaseType</td></tr><tr>";
     std::cout << "<td port=\"type\">type</td>";
     std::cout << "</tr></table>>]\n";
-    std::string tokennodeid = makeTextNode("Token", tokenToStr(a->type));
+    std::string tokennodeid = makeTextNode("Token", a->type.stringify());
     connect(thisid, "type", tokennodeid);
     lastid = std::move(thisid);
 }
@@ -255,7 +255,7 @@ void DotVisitor::visitFunctionDecl(ASTNS::FunctionDecl *a)
         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
         connect(thisid, "rettype", nullptrnodeid);
     }
-    std::string tokennodeid = makeTextNode("Token", tokenToStr(a->name));
+    std::string tokennodeid = makeTextNode("Token", a->name.stringify());
     connect(thisid, "name", tokennodeid);
     if (a->params)
     {
@@ -321,7 +321,7 @@ void DotVisitor::visitParam(ASTNS::Param *a)
         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
         connect(thisid, "type", nullptrnodeid);
     }
-    std::string tokennodeid = makeTextNode("Token", tokenToStr(a->name));
+    std::string tokennodeid = makeTextNode("Token", a->name.stringify());
     connect(thisid, "name", tokennodeid);
     if (a->next)
     {

@@ -320,7 +320,7 @@ def genDotVisitorMethods():
                 output.append(f'        connect(thisid, "{field.name}", nullptrnodeid);\n')
                 output.append( '    }\n')
             elif field.printMethod == ASTField.PM_TOKEN:
-                output.append(f'    std::string tokennodeid = makeTextNode("Token", tokenToStr(a->{field.name}));\n')
+                output.append(f'    std::string tokennodeid = makeTextNode("Token", a->{field.name}.stringify());\n')
                 output.append(f'    connect(thisid, "{field.name}", tokennodeid);\n')
             elif field.printMethod == ASTField.PM_ITERATE_CHILD:
                 output.append(f'    for (auto &i : a->{field.name})\n')

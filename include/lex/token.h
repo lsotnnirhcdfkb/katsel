@@ -17,9 +17,9 @@ struct Token
     int column;
 
     File *sourcefile;
-};
 
-inline std::string tokenToStr(Token t)
-{
-    return std::string(t.start, t.end);
-}
+    inline std::string stringify()
+    {
+        return std::string(start, end);
+    }
+};

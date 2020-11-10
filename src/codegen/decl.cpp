@@ -5,7 +5,7 @@
 
 void CodeGen::visitFunctionDecl(ASTNS::FunctionDecl *a)
 {
-    std::string name = tokenToStr(a->name);
+    std::string name = a->name.stringify();
     Value function = context.getGlobal(name);
     if (!dynamic_cast<FunctionType*>(function.type))
         reportAbortNoh("In CodeGen::visitFunctionDecl, context.getGlobal(" + name + ") returned non-function");
@@ -24,7 +24,7 @@ void CodeGen::visitFunctionDecl(ASTNS::FunctionDecl *a)
     ASTNS::Param *paramast = a->params.get();
     for (auto &param : f->args())
     {
-        std::string pname = tokenToStr(paramast->name);
+        std::string pname = paramast->name.stringify();
         llvm::AllocaInst *alloca = context.createEntryAlloca(f, param.getType(), pname);
 
         context.builder.CreateStore(&param, alloca);

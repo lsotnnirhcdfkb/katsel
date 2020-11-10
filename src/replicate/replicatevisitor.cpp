@@ -6,7 +6,7 @@
 // short for "visit child"
 #define P(a) std::cout << a
 #define VC(field) a->field->accept(this)
-#define PTOK(tok) P(tokenToStr(a->tok))
+#define PTOK(tok) P(a->tok.stringify())
 #define PN P('\n')
 #define POP P('(')
 #define PCP P(')')

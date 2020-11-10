@@ -74,7 +74,7 @@ void CodeGen::visitVarStmt(ASTNS::VarStmt *a)
                     .error("not binary or primary"))
                 .reportAbort();
 
-        std::string varname = tokenToStr(nametok);
+        std::string varname = nametok.stringify();
         Local *var = context.findLocal(varname);
         if (var && var->scopenum == context.curScope)
         {

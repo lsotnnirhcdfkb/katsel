@@ -16,7 +16,7 @@ void GlobalsAssembler::visitProgram(ASTNS::Program *a)
 
 void GlobalsAssembler::visitFunctionDecl(ASTNS::FunctionDecl *a)
 {
-    std::string fnamestr (tokenToStr(a->name));
+    std::string fnamestr (a->name.stringify());
     Value declbefore = context.getGlobal(fnamestr);
     if (declbefore.val)
     {
@@ -48,7 +48,7 @@ void GlobalsAssembler::visitFunctionDecl(ASTNS::FunctionDecl *a)
 
     llvm::Type *retTyllvm = ret->toLLVMType(context.context);
     llvm::FunctionType *ft = llvm::FunctionType::get(retTyllvm, paramtysllvm, false);
-    llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, tokenToStr(a->name), context.mod.get());
+    llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, a->name.stringify(), context.mod.get());
 
     context.globalSymbolTable[fnamestr] = Value(context.getFunctionType(ret, paramtys), f, a);
 }

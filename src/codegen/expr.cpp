@@ -39,7 +39,7 @@ void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
     {
         Error(Error::MsgType::ERROR, a->op, "Left-hand side of binary expression does not support operator")
             .primary(Error::Primary(a->op)
-                .error(static_cast<std::stringstream&>(std::stringstream() << "Type \"" << lhs.type->stringify() << "\" does not support operator \"" << tokenToStr(a->op) << "\"").str()))
+                .error(static_cast<std::stringstream&>(std::stringstream() << "Type \"" << lhs.type->stringify() << "\" does not support operator \"" << a->op.stringify() << "\"").str()))
             .secondary(lhs)
             .report();
         CG_RETURNNULL();
@@ -58,7 +58,7 @@ void CodeGen::visitUnaryExpr(ASTNS::UnaryExpr *a)
     {
         Error(Error::MsgType::ERROR, a->operand.get(), "Operand of unary expression does not support operator")
             .primary(Error::Primary(a->op)
-                .error(static_cast<std::stringstream&>(std::stringstream() << "Type \"" << oper.type->stringify() << "\" does not support operator \"" << tokenToStr(a->op) << "\"").str()))
+                .error(static_cast<std::stringstream&>(std::stringstream() << "Type \"" << oper.type->stringify() << "\" does not support operator \"" << a->op.stringify() << "\"").str()))
             .secondary(oper)
             .report();
         CG_RETURNNULL();
@@ -133,19 +133,19 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
                 .reportAbort();
 
         case TokenType::DECINTLIT:
-            ret = Value(context.getBuiltinType(BuiltinType::Builtins::UINT32), context.builder.getInt32(std::stoi(tokenToStr(a->value))), a);
+            ret = Value(context.getBuiltinType(BuiltinType::Builtins::UINT32), context.builder.getInt32(std::stoi(a->value.stringify())), a);
             break;
 
         case TokenType::OCTINTLIT:
-            ret = Value(context.getBuiltinType(BuiltinType::Builtins::UINT32), context.builder.getInt32(std::stoi(tokenToStr(a->value), nullptr, 8)), a);
+            ret = Value(context.getBuiltinType(BuiltinType::Builtins::UINT32), context.builder.getInt32(std::stoi(a->value.stringify(), nullptr, 8)), a);
             break;
 
         case TokenType::BININTLIT:
-            ret = Value(context.getBuiltinType(BuiltinType::Builtins::UINT32), context.builder.getInt32(std::stoi(tokenToStr(a->value), nullptr, 2)), a);
+            ret = Value(context.getBuiltinType(BuiltinType::Builtins::UINT32), context.builder.getInt32(std::stoi(a->value.stringify(), nullptr, 2)), a);
             break;
 
         case TokenType::HEXINTLIT:
-            ret = Value(context.getBuiltinType(BuiltinType::Builtins::UINT32), context.builder.getInt32(std::stoi(tokenToStr(a->value), nullptr, 16)), a);
+            ret = Value(context.getBuiltinType(BuiltinType::Builtins::UINT32), context.builder.getInt32(std::stoi(a->value.stringify(), nullptr, 16)), a);
             break;
 
         case TokenType::CHARLIT:
@@ -162,7 +162,7 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
 
         case TokenType::IDENTIFIER:
             {
-                Value v = context.findValue(tokenToStr(a->value));
+                Value v = context.findValue(a->value.stringify());
                 if (!v.val)
                 {
                     Error(Error::MsgType::ERROR, a->value, "Name is not defined")
