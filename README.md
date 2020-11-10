@@ -13,6 +13,7 @@ AND NOt only that, but I also got a lot of helpful information from looking at t
 - [x] Functions
 - [x] Expressions
 - [x] Variables
+- [ ] type casting
 - [ ] Function overloading
 - [ ] Arrays
 - [ ] More types
