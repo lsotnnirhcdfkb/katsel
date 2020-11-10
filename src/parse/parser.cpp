@@ -36,7 +36,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
     bool done = false;
     while (!done)
     {
-        Action act = getAction(stack.top().state, lookahead);
+        Action act = getAction(stack.top()->state, lookahead);
 
         switch (act.type)
         {

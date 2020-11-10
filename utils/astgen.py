@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import parsegen
 # Classes {{{1
 # ASTClass {{{2
 class ASTClass:

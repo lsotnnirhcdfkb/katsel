@@ -268,33 +268,95 @@ def fillParseTable(isets, transitions):
 def makeParseTable():
     return fillParseTable(*getItemSets())
 # rules {{{1
-_grammar = '''
-statement -> $expression
-expression -> $addition
+_grammar = [
+    {
+        'symbol': 'stmt',
+        'expansion': '$expr',
+        'vars': ('expression',),
+        'name': 'statemesymbol'
+    },
+    {
+        'symbol': 'expr',
+        'expansion': '$add',
+        'vars': ('expression',),
+        'name': 'expression'
+    },
 
-addition -> $addition PLUS $multiplication
-addition -> $addition MINUS $multiplication
-addition -> $multiplication
+    {
+        'symbol': 'add',
+        'expansion': '$add PLUS $mult',
+        'vars': ('lhs', 'op', 'rhs'),
+        'name': 'addition expression'
+    },
+    {
+        'symbol': 'add',
+        'expansion': '$add MINUS $mult',
+        'vars': ('lhs', 'op', 'rhs'),
+        'name': 'addition expression'
+    },
+    {
+        'symbol': 'add',
+        'expansion': '$mult',
+        'skip': True, # don't reduce this rule, only change state according to goto
+        'name': 'addition expression'
+    },
 
-multiplication -> $multiplication STAR $unary
-multiplication -> $multiplication SLASH $unary
-multiplication -> $unary
+    {
+        'symbol': 'mult',
+        'expansion': '$mult STAR $unary',
+        'vars': ('lhs', 'op', 'rhs'),
+        'name': 'multiplication expression'
+    },
+    {
+        'symbol': 'mult',
+        'expansion': '$mult SLASH $unary',
+        'vars': ('lhs', 'op', 'rhs'),
+        'name': 'multiplication expression'
+    },
+    {
+        'symbol': 'mult',
+        'expansion': '$unary',
+        'skip': True,
+        'name': 'multiplication expression'
+    },
 
-unary -> MINUS $unary
-unary -> TILDE $unary
-unary -> $primary
+    {
+        'symbol': 'unary',
+        'expansion': 'MINUS $unary',
+        'vars': ('op', 'operand'),
+        'name': 'unary expression'
+    },
+    {
+        'symbol': 'unary',
+        'expansion': 'TILDE $unary',
+        'vars': ('op', 'operand'),
+        'name': 'unary expression'
+    },
+    {
+        'symbol': 'unary',
+        'expansion': '$primary',
+        'skip': True,
+        'name': 'unary expression'
+    },
 
-primary -> DECINTLIT
-primary -> OPARN $expression CPARN
-'''
+    {
+        'symbol': 'primary',
+        'expansion': 'DECINTLIT',
+        'vars': ('value',),
+        'name': 'primary expression'
+    },
+    {
+        'symbol': 'primary',
+        'expansion': 'OPARN $expr CPARN',
+        'vars': ('oparn', 'expression', 'cparn'),
+        'name': 'primary expression'
+    }
+]
 
 grammar = []
-for rule in _grammar.split('\n'):
-    if len(rule) == 0:
-        continue
-    symbol, expansion = rule.split('->', 1)
-    symbol = symbol.strip().rstrip()
-    expansion = list(filter(len, expansion.split(' ')))
+for rule in _grammar:
+    symbol = rule['symbol']
+    expansion = list(filter(len, rule['expansion'].split(' ')))
     for i, s in enumerate(expansion):
         if s.startswith('$'):
             expansion[i] = NonTerminal(s[1:])
