@@ -19,4 +19,21 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
             std::unique_ptr<ASTNS::AST> ast;
         } data;
     };
+
+    Token first (consume());
+}
+
+Token Parser::consume()
+{
+    while (true)
+    {
+        Token cur (lexer.nextToken());
+
+        if (cur.type != TokenType::ERROR) return cur;
+
+        Error(Error::MsgType::ERROR, cur, cur.message)
+            .primary(Error::Primary(cur)
+                .error(cur.message))
+            .report();
+    }
 }

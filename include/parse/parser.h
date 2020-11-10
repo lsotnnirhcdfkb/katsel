@@ -29,4 +29,6 @@ private:
 
     Action getAction(size_t state, Token lookahead);
     size_t getGoto(size_t state, Token lookahead);
+
+    Token consume();
 };
