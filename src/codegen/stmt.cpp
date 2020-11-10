@@ -21,9 +21,19 @@ void CodeGen::visitReturnStmt(ASTNS::ReturnStmt *a)
             CG_RETURNNULL();
 
         FunctionType *fty = dynamic_cast<FunctionType*>(context.curFunc.type);
-        Value vconv = fty->ret->castTo(context, v);
-        if (!vconv.val)
-            context.builder.CreateRet(vconv.val);
+
+        if (fty->ret != v.type)
+        {
+            Error(Error::MsgType::ERROR, v, "Cannot return value of different type than expected return value")
+                .primary(Error::Primary(v)
+                    .note(v.type->stringify()))
+                .primary(Error::Primary(context.curFunc)
+                    .note(fty->ret->stringify()))
+                .report();
+            CG_RETURNNULL();
+        }
+
+        context.builder.CreateRet(v.val);
     }
     else
         context.builder.CreateRetVoid();

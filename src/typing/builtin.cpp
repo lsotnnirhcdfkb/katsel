@@ -68,16 +68,22 @@ bool BuiltinType::hasOperator(TokenType)
     return true; // builtin has all operators
 }
 // binOp {{{1
-Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS::Expr *ast)
+Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS::AST *ast)
 {
     if (l.type != this)
         calledWithOpTyNEthis("BuiltinType", "binOp", "left operand", l);
 
-    Type *picked (pickType(l, r));
-    if (!picked)
+    if (l.type != r.type)
+    {
+        Error(Error::MsgType::ERROR, op, "Cannot operate on values of different types")
+            .primary(Error::Primary(l)
+                .note(l.type->stringify()))
+            .primary(Error::Primary(r)
+                .note(r.type->stringify()))
+            .secondary(op)
+            .report();
         return Value();
-    l = picked->castTo(cgc, l);
-    r = picked->castTo(cgc, r);
+    }
 
     switch (op.type)
     {
@@ -158,47 +164,6 @@ Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS:
     }
 
     outOSwitchDDefaultLab("BuiltinType::binOp", op);
-}
-// pickType {{{1
-Type* BuiltinType::pickType(Value v1, Value v2)
-{
-    const static std::map<BuiltinType::Builtins, int> builtinOrder = {
-        {BuiltinType::Builtins::BOOL  ,  0},
-        {BuiltinType::Builtins::CHAR  ,  1},
-        {BuiltinType::Builtins::SINT8 ,  1},
-        {BuiltinType::Builtins::UINT8 ,  2},
-        {BuiltinType::Builtins::SINT16,  3},
-        {BuiltinType::Builtins::UINT16,  4},
-        {BuiltinType::Builtins::SINT32,  5},
-        {BuiltinType::Builtins::UINT32,  6},
-        {BuiltinType::Builtins::SINT64,  7},
-        {BuiltinType::Builtins::UINT64,  8},
-        {BuiltinType::Builtins::FLOAT ,  9},
-        {BuiltinType::Builtins::DOUBLE, 10}
-    };
-
-    if (v1.type != this)
-        calledWithOpTyNEthis("BuiltinType", "pickType", "first type", v1);
-
-    BuiltinType *bty2;
-    if (!(bty2 = dynamic_cast<BuiltinType*>(v2.type))) // if r.type is not any of builtins
-    {
-        Error(Error::MsgType::ERROR, v1, "Cannot cast two values to the same type")
-            .primary(Error::Primary(v1)
-                .note(v1.type->stringify()))
-            .primary(Error::Primary(v2)
-                .note(v2.type->stringify()))
-            .report();
-        return nullptr;
-    }
-
-    int bty1O = builtinOrder.at(this->type);
-    int bty2O = builtinOrder.at(bty2->type);
-
-    if (bty2O > bty1O)
-        return bty2;
-    else
-        return this;
 }
 // castTo {{{1
 Value BuiltinType::castTo(CodeGenContext &cgc, Value v)
@@ -310,7 +275,7 @@ Value BuiltinType::castTo(CodeGenContext &cgc, Value v)
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
 }
 // unaryOp {{{1
-Value BuiltinType::unaryOp(CodeGenContext &cgc, Value v, Token op, ASTNS::Expr *ast)
+Value BuiltinType::unaryOp(CodeGenContext &cgc, Value v, Token op, ASTNS::AST *ast)
 {
     if (v.type != this)
         calledWithOpTyNEthis("BuiltinType", "unaryOp", "operand", v);

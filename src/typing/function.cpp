@@ -35,12 +35,12 @@ bool FunctionType::hasOperator(TokenType)
     return false; // function has no operators
 }
 
-Value FunctionType::binOp(CodeGenContext &, Value, Value, Token, ASTNS::Expr *)
+Value FunctionType::binOp(CodeGenContext &, Value, Value, Token, ASTNS::AST *)
 {
     fCalled("FunctionType::binOp");
 }
 
-Value FunctionType::unaryOp(CodeGenContext &, Value, Token, ASTNS::Expr *)
+Value FunctionType::unaryOp(CodeGenContext &, Value, Token, ASTNS::AST *)
 {
     fCalled("FunctionType::unaryop");
 }
@@ -57,8 +57,4 @@ Value FunctionType::castTo(CodeGenContext &, Value v)
 Value FunctionType::isTrue(CodeGenContext &, Value)
 {
     fCalled("FunctionType::isTrue");
-}
-Type* FunctionType::pickType(Value, Value)
-{
-    fCalled("FunctionType::pickType");
 }

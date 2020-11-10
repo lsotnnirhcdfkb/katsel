@@ -25,14 +25,24 @@ void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
         }
         llvm::LoadInst *load = static_cast<llvm::LoadInst*>(lhs.val);
 
-        Value target = Value(lhs.type, load->getPointerOperand(), a); // TODO: cast type 
-        Value assignment = target.type->castTo(context, rhs);
-
-        context.builder.CreateStore(assignment.val, target.val);
+        Value target = Value(lhs.type, load->getPointerOperand(), a->lhs.get());
+        
+        if (target.type != rhs.type)
+        {
+            Error(Error::MsgType::ERROR, a->op, "Assignment target and value do not have same type")
+                .primary(Error::Primary(rhs)
+                    .note(rhs.type->stringify()))
+                .primary(Error::Primary(target)
+                    .note(target.type->stringify()))
+                .secondary(a->op)
+                .report();
+            CG_RETURNNULL();
+        }
+        context.builder.CreateStore(rhs.val, target.val);
         load->eraseFromParent(); // dont need the load anymore
 
-        exprRetVal = assignment;
-        CG_RETURNNULL();
+        exprRetVal = rhs;
+        return;
     }
 
     if (!lhs.type->hasOperator(a->op.type))
@@ -83,22 +93,27 @@ void CodeGen::visitTernaryExpr(ASTNS::TernaryExpr *a)
     context.builder.SetInsertPoint(trueb);
     Value truev = evalExpr(a->trues.get());
     if (!truev.val) CG_RETURNNULL();
+    context.builder.CreateBr(afterb);
     trueb = context.builder.GetInsertBlock();
 
     f->getBasicBlockList().push_back(falseb);
     context.builder.SetInsertPoint(falseb);
     Value falsev = evalExpr(a->falses.get());
     if (!falsev.val) CG_RETURNNULL();
+    context.builder.CreateBr(afterb);
     falseb = context.builder.GetInsertBlock();
 
-    Type *castToType = truev.type->pickType(truev, falsev);
-    context.builder.SetInsertPoint(trueb);
-    truev = castToType->castTo(context, truev);
-    context.builder.CreateBr(afterb);
-
-    context.builder.SetInsertPoint(falseb);
-    falsev = castToType->castTo(context, falsev);
-    context.builder.CreateBr(afterb);
+    if (truev.type != falsev.type)
+    {
+        Error(Error::MsgType::ERROR, a->condition.get(), "Two branches of ternary conditional expression of different types")
+            .primary(Error::Primary(truev)
+                .note(truev.type->stringify()))
+            .primary(Error::Primary(falsev)
+                .note(falsev.type->stringify()))
+            .secondary(a->condition.get())
+            .report();
+        CG_RETURNNULL();
+    }
 
     f->getBasicBlockList().push_back(afterb);
     context.builder.SetInsertPoint(afterb);

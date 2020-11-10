@@ -19,11 +19,12 @@ public:
     virtual llvm::Type* toLLVMType(llvm::LLVMContext &l) = 0;
     virtual std::string stringify() = 0;
     virtual bool hasOperator(TokenType t) = 0;
-    virtual Type* pickType(Value v1, Value v2) = 0;
-    virtual Value binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS::Expr *ast) = 0;
-    virtual Value unaryOp(CodeGenContext &cgc, Value operand, Token op, ASTNS::Expr *ast) = 0;
-    virtual Value castTo(CodeGenContext &cgc, Value v) = 0;
+
+    virtual Value binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS::AST *ast) = 0;
+    virtual Value unaryOp(CodeGenContext &cgc, Value operand, Token op, ASTNS::AST *ast) = 0;
     virtual Value isTrue(CodeGenContext &cgc, Value v) = 0;
+
+    virtual Value castTo(CodeGenContext &cgc, Value v) = 0;
 };
 
 class BuiltinType : public Type
@@ -50,12 +51,14 @@ public:
     BuiltinType(Builtins b);
     llvm::Type* toLLVMType(llvm::LLVMContext &l) override;
     std::string stringify() override;
+
     bool hasOperator(TokenType t) override;
-    Type* pickType(Value v1, Value v2) override;
-    Value binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS::Expr *ast) override;
-    Value unaryOp(CodeGenContext &cgc, Value operand, Token op, ASTNS::Expr *ast) override;
-    Value castTo(CodeGenContext &cgc, Value v) override;
+
+    Value binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS::AST *ast) override;
+    Value unaryOp(CodeGenContext &cgc, Value operand, Token op, ASTNS::AST *ast) override;
     Value isTrue(CodeGenContext &cgc, Value v) override;
+
+    Value castTo(CodeGenContext &cgc, Value v) override;
 };
 
 
@@ -69,11 +72,11 @@ public:
     llvm::Type* toLLVMType(llvm::LLVMContext &l) override;
     std::string stringify() override;
     bool hasOperator(TokenType t) override;
-    Type* pickType(Value v1, Value v2) override;
-    Value binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS::Expr *ast) override;
-    Value unaryOp(CodeGenContext &cgc, Value operand, Token op, ASTNS::Expr *ast) override;
-    Value castTo(CodeGenContext &cgc, Value v) override;
+    Value binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS::AST *ast) override;
+    Value unaryOp(CodeGenContext &cgc, Value operand, Token op, ASTNS::AST *ast) override;
     Value isTrue(CodeGenContext &cgc, Value v) override;
+
+    Value castTo(CodeGenContext &cgc, Value v) override;
 };
 
 class VoidType : public Type
@@ -82,9 +85,9 @@ public:
     llvm::Type* toLLVMType(llvm::LLVMContext &l) override;
     std::string stringify() override;
     bool hasOperator(TokenType t) override;
-    Type* pickType(Value v1, Value v2) override;
-    Value binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS::Expr *ast) override;
-    Value unaryOp(CodeGenContext &cgc, Value operand, Token op, ASTNS::Expr *ast) override;
-    Value castTo(CodeGenContext &cgc, Value v) override;
+    Value binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS::AST *ast) override;
+    Value unaryOp(CodeGenContext &cgc, Value operand, Token op, ASTNS::AST *ast) override;
     Value isTrue(CodeGenContext &cgc, Value v) override;
+
+    Value castTo(CodeGenContext &cgc, Value v) override;
 };
