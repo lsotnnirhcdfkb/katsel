@@ -16,6 +16,9 @@ class NonTerminal:
     def __eq__(self, other):
         return type(self) == type(other) and (self.symbol == other.symbol)
 
+    def __hash__(self):
+        return hash(self.symbol)
+
     def updateFirsts(self):
         self.first = getFirsts(self)
     def updateFollows(self):
@@ -29,6 +32,9 @@ class Terminal:
         return str(self)
     def __str__(self):
         return self.symbol
+
+    def __hash__(self):
+        return hash(self.symbol)
 
     def __eq__(self, other):
         return type(self) == type(other) and (self.symbol == other.symbol)
@@ -55,6 +61,12 @@ class Item: # an LR1 item
         self.index = index
         self.lookahead = lookahead
 
+    def getAfterDot(self):
+        if self.index < len(self.rule.expansion):
+            return self.rule.expansion[self.index]
+        else:
+            return None
+
     def __repr__(self):
         return str(self)
     def __str__(self):
@@ -73,6 +85,9 @@ class ItemSet: # an LR1 item set
         self.n = ItemSet.__n
         ItemSet.__n += 1
 
+    def items(self):
+        return self.kernel + self.extras
+
     def __repr__(self):
         return str(self)
     def __str__(self):
@@ -80,13 +95,28 @@ class ItemSet: # an LR1 item set
             ''.join(map(lambda x: 'K: ' + str(x) + '\n', self.kernel)) + \
             ''.join(map(lambda x: 'E: ' + str(x) + '\n', self.extras))
     def __eq__(self, other):
-        return self.items == other.items
+        return self.kernel == other.kernel and self.extras == other.extras
+
+    def __del__(self):
+        ItemSet.__n -= 1
 # state stuff {{{2
 class State:
     def __init__(self, set_):
         self.set_ = set_
         self.actions = {}
         self.goto = {}
+
+    def setAction(self, sym, action):
+        if sym in self.actions.keys():
+            raise Exception(f'action table conflict: {type(action)}/{type(self.actions[sym])}')
+
+        self.actions[sym] = action
+
+    def setGoto(self, sym, newstate):
+        if sym in self.goto.keys():
+            raise Exception('goto conflict')
+
+        self.goto[sym] = newstate
 # actions {{{2
 class ShiftAction:
     def __init__(self, newstate):
@@ -104,7 +134,7 @@ class AcceptAction:
 # helpers {{{1
 def makeUnique(already, new):
     return [x for x in new if x not in already]
-# first and follows functions {{{1
+# first and follows functions {{{2
 def getFirsts(sym):
     if type(sym) == Terminal:
         return [sym]
@@ -140,6 +170,103 @@ def getFollows(sym):
                 follows.extend(makeUnique(follows, [x for x in getFirsts(rule.expansion[i + 1]) if x != Terminal('eof')]))
 
     return follows
+# closure {{{2
+def getClosurelr0(lr0set):
+    kernel = lr0set
+    extras = []
+    stack = list(lr0set)
+    while len(stack):
+        cur = stack.pop(0)
+
+        if cur[1] < len(cur[0].expansion):
+            after = cur[0].expansion[cur[1]]
+            if type(after) == NonTerminal:
+                for rule in grammar:
+                    if rule.symbol == after:
+                        newitem = (rule, 0)
+                        if newitem not in extras and newitem not in kernel:
+                            extras.append(newitem)
+
+                        if rule.symbol != cur[0].symbol:
+                            stack.append(newitem)
+
+    return lr0tolr1(kernel, extras)
+# lr0tolr1 {{{2
+def lr0tolr1(kernel, extras):
+    lr1set = ItemSet([])
+    for kerneli in kernel:
+        for follow in kerneli[0].symbol.follow:
+            lr1set.kernel.append(Item(kerneli[0], kerneli[1], follow))
+
+    for extrai in extras:
+        for follow in extrai[0].symbol.follow:
+            lr1set.extras.append(Item(extrai[0], extrai[1], follow))
+
+    return lr1set
+# make parser table {{{1
+# find item sets {{{2
+def getItemSets():
+    initial = getClosurelr0([(augmentRule, 0)])
+
+    isets = [initial]
+    transitions = []
+
+    stack = [initial]
+    while len(stack):
+        origset = stack.pop(0)
+
+        afters = []
+        for item in origset.items():
+            after = item.getAfterDot()
+            if after is not None and after not in afters:
+                afters.append(after)
+
+        for after in afters:
+            newsetlr0 = []
+            for item in origset.items():
+                newlr0item = (item.rule, item.index + 1)
+                if item.getAfterDot() == after and newlr0item not in newsetlr0:
+                    newsetlr0.append(newlr0item)
+
+            newsetlr1 = getClosurelr0(newsetlr0)
+            toseti = newsetlr1.n
+            if newsetlr1 not in isets:
+                isets.append(newsetlr1)
+                stack.append(newsetlr1)
+            else:
+                toseti = isets[isets.index(newsetlr1)].n
+                del newsetlr1
+
+            transitions.append((origset.n, after, toseti))
+
+    return isets, transitions
+# fill parsing table {{{2
+def fillParseTable(isets, transitions):
+    table = {}
+    for iset in isets:
+        state = State(iset.n)
+        table[iset.n] = state
+
+    for fromseti, symbol, toseti in transitions:
+        state = table[fromseti]
+        if type(symbol) == Terminal:
+            state.setAction(symbol, ShiftAction(toseti))
+        else:
+            state.setGoto(symbol, toseti)
+
+    for iset in isets:
+        for item in iset.items():
+            if item.getAfterDot() is None:
+                state = table[iset.n]
+                if item.rule.symbol != augmentSymbol:
+                    state.setAction(item.lookahead, ReduceAction(item.rule.num))
+                else:
+                    state.setAction(item.lookahead, AcceptAction())
+
+    return table
+# entry function {{{2
+def makeParseTable():
+    return fillParseTable(*getItemSets())
 # rules {{{1
 _grammar = '''
 statement -> $expression
@@ -182,8 +309,33 @@ grammar.append(augmentRule)
 
 eofSym = Terminal('TokenType::EOF_')
 
+symbols = [eofSym]
 for rule in grammar:
     for sym in [rule.symbol, *rule.expansion]:
         if type(sym) == NonTerminal:
             sym.updateFirsts()
             sym.updateFollows()
+
+        if sym not in symbols:
+            symbols.append(sym)
+
+table = makeParseTable()
+
+cw = 4
+print(' ' * cw, end='')
+for sym in symbols:
+    print(str(sym).rjust(cw), end='')
+print()
+
+for staten, state in table.items():
+    print(str(staten).rjust(cw), end='')
+
+    for sym in symbols:
+        if sym in state.actions.keys():
+            print(str(state.actions[sym]).rjust(cw), end='')
+        elif sym in state.goto.keys():
+            print(str(state.goto[sym]).rjust(cw), end='')
+        else:
+            print(' ' * cw, end='')
+
+    print()
