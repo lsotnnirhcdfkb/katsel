@@ -127,6 +127,7 @@ int main(int argc, char *argv[])
         }
 
         auto parser = std::make_unique<Parser>(*lexer, *source);
+        /*
         std::unique_ptr<ASTNS::Program> parsed = parser->parse();
 
         if (phasen == Phases::PARSE) // stop at phase parse which means we don't need to do any more than parsing
@@ -167,6 +168,7 @@ int main(int argc, char *argv[])
             cgcontext->mod->print(llvm::outs(), nullptr);
             continue;
         }
+        */
     }
 
     resetTerminal();

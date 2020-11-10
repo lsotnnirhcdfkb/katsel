@@ -5,8 +5,18 @@
 
 #include <sstream>
 
-// Parser constructor {{{1
-Parser::Parser(Lexer &l, File &sourcefile): lexer(l), sourcefile(sourcefile), ispanic(false)
+Parser::Parser(Lexer &l, File &sourcefile): lexer(l), sourcefile(sourcefile) {}
+
+std::unique_ptr<ASTNS::AST> Parser::parse()
 {
-    consume();
+    struct stackitem
+    {
+        int state;
+        bool isTok;
+        union
+        {
+            Token t;
+            std::unique_ptr<ASTNS::AST> ast;
+        } data;
+    };
 }

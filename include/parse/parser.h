@@ -16,9 +16,17 @@ class Parser
 public:
     Parser(Lexer &l, File &sourcefile);
 
-    std::unique_ptr<ASTNS::Program> parse();
+    std::unique_ptr<ASTNS::AST> parse();
 
 private:
     Lexer &lexer;
     File &sourcefile;
+
+    class Action {};
+    class ShiftAction {};
+    class ReduceAction {};
+    class AcceptAction {};
+
+    Action getAction(size_t state, Token lookahead);
+    size_t getGoto(size_t state, Token lookahead);
 };
