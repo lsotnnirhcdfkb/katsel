@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-## @file astgen.py
-#  Generate AST classes
-#  Generate AST class related stuff
 
 # Classes {{{1
 # ASTClass {{{2
