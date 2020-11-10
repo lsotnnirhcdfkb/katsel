@@ -127,7 +127,7 @@ class ReduceAction:
     def __init__(self, rule):
         self.rule = rule
     def __str__(self):
-        return f'r{self.rule}'
+        return f'r{self.rule.num}'
 class AcceptAction:
     def __str__(self):
         return 'acc'
@@ -259,7 +259,7 @@ def fillParseTable(isets, transitions):
             if item.getAfterDot() is None:
                 state = table[iset.n]
                 if item.rule.symbol != augmentSymbol:
-                    state.setAction(item.lookahead, ReduceAction(item.rule.num))
+                    state.setAction(item.lookahead, ReduceAction(item.rule))
                 else:
                     state.setAction(item.lookahead, AcceptAction())
 
@@ -346,40 +346,44 @@ def printParseTable():
 def genAction():
     output = []
 
+    output.append(             '    Parser::Action act;\n')
     output.append(             '    switch (state)\n')
     output.append(             '    {\n')
 
     for staten, state in table.items():
         output.append(        f'        case {staten}:\n')
-        output.append(         '            switch (lookahead.type)\n')
-        output.append(         '            {\n')
+        output.append(         '           switch (lookahead.type)\n')
+        output.append(         '           {\n')
 
         for nt, ac in state.actions.items():
             output.append(    f'                case {str(nt)}:\n')
 
             if type(ac) == ShiftAction:
-                output.append( '                    return Parser::Action();\n')
+                output.append( '                    act.type = Parser::Action::ActionType::SHIFT;\n')
+                output.append(f'                    act.as.shift.newstate = {ac.newstate};\n')
             elif type(ac) == ReduceAction:
-                output.append( '                    return Parser::Action();\n')
+                output.append( '                    act.type = Parser::Action::ActionType::REDUCE;\n')
+                output.append(f'                    act.as.reduce.reduceamt = {len(ac.rule.expansion)};\n')
             elif type(ac) == AcceptAction:
-                output.append( '                    return Parser::Action();\n')
-            elif type(ac) == ErrorAction:
-                output.append( '                    return Parser::Action();\n')
+                output.append( '                    act.type = Parser::Action::ActionType::ACCEPT;\n')
             else:
                 raise Exception('invalid action type')
 
+            output.append(     '                    break;\n')
 
         output.append(         '                default:\n')
-        output.append(         '                    return Parser::Action();\n')
+        output.append(         '                    act.type = Parser::Action::ActionType::ERROR;\n')
+        output.append(         '                    break;\n')
         output.append(         '            }\n')
         output.append(         '            break;\n')
 
     output.append(             '        default:\n')
-    output.append(             '\
-            Error(Error::MsgType::INTERR, lookahead, "Parser reached invalid state")\n\
-                .primary(Error::Primary(lookahead)\n\
-                    .error(static_cast<std::stringstream&>(std::stringstream() << "Parser reached invalid state: " << state).str()))\n\
-                .reportAbort();\n')
+    output.append(            ('            Error(Error::MsgType::INTERR, lookahead, "Parser reached invalid state")\n'
+                               '                .primary(Error::Primary(lookahead)\n'
+                               '                    .error(static_cast<std::stringstream&>(std::stringstream() << "Parser reached invalid state: " << state).str()))\n'
+                               '                .reportAbort();\n'))
+
     output.append(             '    }\n')
+    output.append(             '    return act;\n')
 
     return ''.join(output)
