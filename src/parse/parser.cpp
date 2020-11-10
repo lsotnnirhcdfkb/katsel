@@ -4,6 +4,7 @@
 #include "message/errors.h"
 
 #include <sstream>
+#include <stack>
 
 Parser::Parser(Lexer &l, File &sourcefile): lexer(l), sourcefile(sourcefile) {}
 
@@ -12,15 +13,63 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
     struct stackitem
     {
         int state;
-        bool isTok;
-        union
-        {
-            Token t;
-            std::unique_ptr<ASTNS::AST> ast;
-        } data;
+        stackitem(size_t state): state(state) {}
     };
 
-    Token first (consume());
+    struct tokstackitem : public stackitem
+    {
+        Token tok;
+        tokstackitem(size_t state, Token tok): stackitem(state), tok(tok) {}
+    };
+    
+    struct aststackitem : public stackitem
+    {
+        std::unique_ptr<ASTNS::AST> ast;
+        aststackitem(size_t state, std::unique_ptr<ASTNS::AST> ast): stackitem(state), ast(std::move(ast)) {}
+    };
+
+    Token lookahead (consume());
+    std::stack<std::unique_ptr<stackitem>> stack; // wish i didnt have to do it this way
+
+    stack.push(std::make_unique<stackitem>(0));
+
+    bool done = false;
+    while (!done)
+    {
+        Action act = getAction(stack.top().state, lookahead);
+
+        switch (act.type)
+        {
+            case Action::ActionType::SHIFT:
+                {
+                    Token last (lookahead);
+                    lookahead = consume();
+                    
+                    auto toksi = std::make_unique<tokstackitem>(act.as.shift.newstate, last);
+                    stack.push(std::move(toksi));
+                }
+                break;
+
+            case Action::ActionType::REDUCE:
+                {
+                    // for (int i = 0; i < act.as.reduce.reduceamt; ++i)
+                    // {
+                        // stack.pop();
+                    // }
+                    // stack.push(std::make_unique<aststackitem>(getGoto(stack.top().state, ), nullptr));
+                }
+                break;
+
+            case Action::ActionType::ERROR: 
+                 Error(Error::MsgType::ERROR, lookahead, "Invalid syntax").report();
+                 done = true;
+                 break;
+
+            case Action::ActionType::ACCEPT:
+                 done = true;
+                 break;
+        }
+    }
 }
 
 Token Parser::consume()
@@ -38,6 +87,7 @@ Token Parser::consume()
     }
 }
 
+// getAction {{{1
 Parser::Action Parser::getAction(size_t state, Token lookahead)
 {
     // GETACTION START
