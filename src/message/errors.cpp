@@ -424,12 +424,13 @@ void Error::report() const
                             std::cerr << std::string(pamt, ' ');
                             if (j != i)
                                 std::cerr << '|';
+                            else
+                                if (msgi == i->first->messages.size() - 1)
+                                    std::cerr << '`';
+                                else
+                                    std::cerr << '|';
                         }
 
-                        if (msgi == i->first->messages.size() - 1)
-                            std::cerr << "`";
-                        else
-                            std::cerr << "|";
                         std::cerr << "-- " << attr(message.color, message.type) << ": " << message.message << std::endl;
 
                         ++msgi;
