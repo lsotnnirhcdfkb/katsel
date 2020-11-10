@@ -104,22 +104,42 @@ def nt(s):
 def t(s):
     return Terminal(f'TokenType::{s}')
 
-grammar = [
-    r('statement', (nt('expression'), )),
-    r('expression', (nt('addition'), )),
+_grammar = '''
+statement -> $expression
+expression -> $addition
 
-    r('addition', (nt('addition'), t('PLUS'), nt('mult'))),
-    r('addition', (nt('addition'), t('MINUS'), nt('mult'))),
-    r('addition', (nt('multiplication'), )),
+addition -> $addition PLUS $multiplication
+addition -> $addition MINUS $multiplication
+addition -> $multiplication
 
-    r('multiplication', (nt('multiplication'), t('SLASH'), nt('unary'))),
-    r('multiplication', (nt('multiplication'), t('STAR'), nt('unary'))),
-    r('multiplication', (nt('unary'), )),
+multiplication -> $multiplication STAR $unary
+multiplication -> $multiplication SLASH $unary
+multiplication -> $unary
 
-    r('unary', (t('TILDE'), nt('unary'))),
-    r('unary', (t('MINUS'), nt('unary'))),
-    r('unary', (nt('primary'),)),
+unary -> MINUS $unary
+unary -> TILDE $unary
+unary -> $primary
 
-    r('primary', (t('DECINTLIT'), )),
-    r('primary', (t('OPARN'), nt('expr'), t('CPARN'))),
-]
+primary -> DECINTLIT
+primary -> OPARN $expression CPARN
+'''
+
+grammar = []
+for rule in _grammar.split('\n'):
+    if len(rule) == 0:
+        continue
+    symbol, expansion = rule.split('->', 1)
+    symbol = symbol.strip().rstrip()
+    expansion = list(filter(len, expansion.split(' ')))
+    for i, s in enumerate(expansion):
+        if s.startswith('$'):
+            expansion[i] = NonTerminal(s[1:])
+        else:
+            expansion[i] = Terminal(f'TokenType::{s}')
+
+    grammar.append(Rule(NonTerminal(symbol), tuple(expansion)))
+    print(grammar[-1])
+
+augmentSymbol = NonTerminal('augment')
+augmentRule = Rule(augmentSymbol, (grammar[0].symbol, ))
+grammar.append(augmentRule)
