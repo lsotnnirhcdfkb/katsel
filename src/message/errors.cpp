@@ -307,20 +307,18 @@ void Error::report() const
     // i + 1 < instead of i < size - 1 because - 1 can overflow to the highest value and become true
     for (size_t i = 0; i + 1 < showlocs.size(); )
     {
-        bool inc = true;
         if (showlocs[i].first == showlocs[i + 1].first && showlocs[i].second == showlocs[i + 1].second)
-        {
             showlocs.erase(showlocs.begin() + i + 1);
-            inc = false;
-        }
+        else
+            ++i;
+    }
 
-        int linew = 1, linenr = showlocs[i].second;
+    for (showloc const &s : showlocs)
+    {
+        int linew = 1, linenr = s.second;
         while (linenr /= 10)
             ++linew;
         maxlinepad = std::max(linew, maxlinepad);
-
-        if (inc)
-            ++i;
     }
 
     std::string pad (maxlinepad + 1, ' ');
