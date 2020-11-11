@@ -404,10 +404,24 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
             case 6:
                switch (lookahead.type)
                {
+                    case TokenType::DECINTLIT:
+                        {
+                            Token last (lookahead);
+                            stack.push(std::make_unique<tokstackitem>(9, last));
+                            lookahead = consume();
+                        }
+                        break;
                     case TokenType::MINUS:
                         {
                             Token last (lookahead);
                             stack.push(std::make_unique<tokstackitem>(6, last));
+                            lookahead = consume();
+                        }
+                        break;
+                    case TokenType::OPARN:
+                        {
+                            Token last (lookahead);
+                            stack.push(std::make_unique<tokstackitem>(10, last));
                             lookahead = consume();
                         }
                         break;
@@ -430,10 +444,24 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
             case 7:
                switch (lookahead.type)
                {
+                    case TokenType::DECINTLIT:
+                        {
+                            Token last (lookahead);
+                            stack.push(std::make_unique<tokstackitem>(9, last));
+                            lookahead = consume();
+                        }
+                        break;
                     case TokenType::MINUS:
                         {
                             Token last (lookahead);
                             stack.push(std::make_unique<tokstackitem>(6, last));
+                            lookahead = consume();
+                        }
+                        break;
+                    case TokenType::OPARN:
+                        {
+                            Token last (lookahead);
+                            stack.push(std::make_unique<tokstackitem>(10, last));
                             lookahead = consume();
                         }
                         break;
