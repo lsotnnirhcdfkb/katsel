@@ -442,9 +442,11 @@ def genLoop():
                     output.append(        f'                            size_t newstate = getGoto<ASTNS::{str(ac.rule.symbol).capitalize()}>(stack.top()->state);\n')
                     output.append(        f'                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));\n')
                 else:
-                    output.append(        f'                            // skip actual reduction\n')
+                    output.append(         '                            // skip actual reduction\n')
+                    output.append(         '                            std::unique_ptr<stackitem> popped (std::move(stack.top())); stack.pop();\n')
+                    output.append(         '                            aststackitem *asi = dynamic_cast<aststackitem*>(popped.get());\n')
                     output.append(        f'                            size_t newstate = getGoto<ASTNS::{str(ac.rule.symbol).capitalize()}>(stack.top()->state);\n')
-                    output.append(        f'                            stack.top()->state = newstate;\n')
+                    output.append(         '                            stack.push(std::make_unique<aststackitem>(newstate, std::move(asi->ast)));\n')
 
             elif type(ac) == AcceptAction:
                 output.append(         '                            done = true;\n')

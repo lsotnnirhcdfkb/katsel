@@ -279,29 +279,37 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                     case TokenType::CPARN:
                         {
                             // skip actual reduction
+                            std::unique_ptr<stackitem> popped (std::move(stack.top())); stack.pop();
+                            aststackitem *asi = dynamic_cast<aststackitem*>(popped.get());
                             size_t newstate = getGoto<ASTNS::Add>(stack.top()->state);
-                            stack.top()->state = newstate;
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(asi->ast)));
                         }
                         break;
                     case TokenType::EOF_:
                         {
                             // skip actual reduction
+                            std::unique_ptr<stackitem> popped (std::move(stack.top())); stack.pop();
+                            aststackitem *asi = dynamic_cast<aststackitem*>(popped.get());
                             size_t newstate = getGoto<ASTNS::Add>(stack.top()->state);
-                            stack.top()->state = newstate;
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(asi->ast)));
                         }
                         break;
                     case TokenType::MINUS:
                         {
                             // skip actual reduction
+                            std::unique_ptr<stackitem> popped (std::move(stack.top())); stack.pop();
+                            aststackitem *asi = dynamic_cast<aststackitem*>(popped.get());
                             size_t newstate = getGoto<ASTNS::Add>(stack.top()->state);
-                            stack.top()->state = newstate;
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(asi->ast)));
                         }
                         break;
                     case TokenType::PLUS:
                         {
                             // skip actual reduction
+                            std::unique_ptr<stackitem> popped (std::move(stack.top())); stack.pop();
+                            aststackitem *asi = dynamic_cast<aststackitem*>(popped.get());
                             size_t newstate = getGoto<ASTNS::Add>(stack.top()->state);
-                            stack.top()->state = newstate;
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(asi->ast)));
                         }
                         break;
                     case TokenType::SLASH:
@@ -333,43 +341,55 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                     case TokenType::CPARN:
                         {
                             // skip actual reduction
+                            std::unique_ptr<stackitem> popped (std::move(stack.top())); stack.pop();
+                            aststackitem *asi = dynamic_cast<aststackitem*>(popped.get());
                             size_t newstate = getGoto<ASTNS::Mult>(stack.top()->state);
-                            stack.top()->state = newstate;
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(asi->ast)));
                         }
                         break;
                     case TokenType::EOF_:
                         {
                             // skip actual reduction
+                            std::unique_ptr<stackitem> popped (std::move(stack.top())); stack.pop();
+                            aststackitem *asi = dynamic_cast<aststackitem*>(popped.get());
                             size_t newstate = getGoto<ASTNS::Mult>(stack.top()->state);
-                            stack.top()->state = newstate;
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(asi->ast)));
                         }
                         break;
                     case TokenType::MINUS:
                         {
                             // skip actual reduction
+                            std::unique_ptr<stackitem> popped (std::move(stack.top())); stack.pop();
+                            aststackitem *asi = dynamic_cast<aststackitem*>(popped.get());
                             size_t newstate = getGoto<ASTNS::Mult>(stack.top()->state);
-                            stack.top()->state = newstate;
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(asi->ast)));
                         }
                         break;
                     case TokenType::PLUS:
                         {
                             // skip actual reduction
+                            std::unique_ptr<stackitem> popped (std::move(stack.top())); stack.pop();
+                            aststackitem *asi = dynamic_cast<aststackitem*>(popped.get());
                             size_t newstate = getGoto<ASTNS::Mult>(stack.top()->state);
-                            stack.top()->state = newstate;
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(asi->ast)));
                         }
                         break;
                     case TokenType::SLASH:
                         {
                             // skip actual reduction
+                            std::unique_ptr<stackitem> popped (std::move(stack.top())); stack.pop();
+                            aststackitem *asi = dynamic_cast<aststackitem*>(popped.get());
                             size_t newstate = getGoto<ASTNS::Mult>(stack.top()->state);
-                            stack.top()->state = newstate;
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(asi->ast)));
                         }
                         break;
                     case TokenType::STAR:
                         {
                             // skip actual reduction
+                            std::unique_ptr<stackitem> popped (std::move(stack.top())); stack.pop();
+                            aststackitem *asi = dynamic_cast<aststackitem*>(popped.get());
                             size_t newstate = getGoto<ASTNS::Mult>(stack.top()->state);
-                            stack.top()->state = newstate;
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(asi->ast)));
                         }
                         break;
                     default:
@@ -439,43 +459,55 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                     case TokenType::CPARN:
                         {
                             // skip actual reduction
+                            std::unique_ptr<stackitem> popped (std::move(stack.top())); stack.pop();
+                            aststackitem *asi = dynamic_cast<aststackitem*>(popped.get());
                             size_t newstate = getGoto<ASTNS::Unary>(stack.top()->state);
-                            stack.top()->state = newstate;
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(asi->ast)));
                         }
                         break;
                     case TokenType::EOF_:
                         {
                             // skip actual reduction
+                            std::unique_ptr<stackitem> popped (std::move(stack.top())); stack.pop();
+                            aststackitem *asi = dynamic_cast<aststackitem*>(popped.get());
                             size_t newstate = getGoto<ASTNS::Unary>(stack.top()->state);
-                            stack.top()->state = newstate;
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(asi->ast)));
                         }
                         break;
                     case TokenType::MINUS:
                         {
                             // skip actual reduction
+                            std::unique_ptr<stackitem> popped (std::move(stack.top())); stack.pop();
+                            aststackitem *asi = dynamic_cast<aststackitem*>(popped.get());
                             size_t newstate = getGoto<ASTNS::Unary>(stack.top()->state);
-                            stack.top()->state = newstate;
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(asi->ast)));
                         }
                         break;
                     case TokenType::PLUS:
                         {
                             // skip actual reduction
+                            std::unique_ptr<stackitem> popped (std::move(stack.top())); stack.pop();
+                            aststackitem *asi = dynamic_cast<aststackitem*>(popped.get());
                             size_t newstate = getGoto<ASTNS::Unary>(stack.top()->state);
-                            stack.top()->state = newstate;
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(asi->ast)));
                         }
                         break;
                     case TokenType::SLASH:
                         {
                             // skip actual reduction
+                            std::unique_ptr<stackitem> popped (std::move(stack.top())); stack.pop();
+                            aststackitem *asi = dynamic_cast<aststackitem*>(popped.get());
                             size_t newstate = getGoto<ASTNS::Unary>(stack.top()->state);
-                            stack.top()->state = newstate;
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(asi->ast)));
                         }
                         break;
                     case TokenType::STAR:
                         {
                             // skip actual reduction
+                            std::unique_ptr<stackitem> popped (std::move(stack.top())); stack.pop();
+                            aststackitem *asi = dynamic_cast<aststackitem*>(popped.get());
                             size_t newstate = getGoto<ASTNS::Unary>(stack.top()->state);
-                            stack.top()->state = newstate;
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(asi->ast)));
                         }
                         break;
                     default:
