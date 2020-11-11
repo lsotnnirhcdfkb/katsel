@@ -15,7 +15,7 @@ jobs = [
     # ('src/visit/visitor.cpp'         , 'PUREVISITDESTRUCT START'   , 'PUREVISITDESTRUCT END'   , astgen.genPureASTVisitorDestructs),
     ('src/visit/printvisitor.cpp'    , 'PRINTVISITOR START'        , 'PRINTVISITOR END'        , astgen.genPrintVisitorMethods),
     ('src/visit/dotvisitor.cpp'      , 'DOTVISITOR START'          , 'DOTVISITOR END'          , astgen.genDotVisitorMethods),
-    ('src/parse/parser.cpp'          , 'GETACTION START'           , 'GETACTION END'           , parsegen.genAction),
+    ('src/parse/parser.cpp'          , 'PARSERLOOP START'          , 'PARSERLOOP END'          , parsegen.genLoop),
 ]
 
 for jobi, job in enumerate(jobs):

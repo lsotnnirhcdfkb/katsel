@@ -22,33 +22,5 @@ private:
     Lexer &lexer;
     File &sourcefile;
 
-    class Action {
-    public:
-        enum class ActionType {
-            SHIFT,
-            REDUCE,
-            ACCEPT,
-            ERROR
-        } type;
-
-        union
-        {
-            struct
-            {
-                size_t newstate;
-            } shift;
-            struct
-            {
-                size_t reduceamt;
-            } reduce;
-            struct
-            {
-            } error;
-        } as;
-    };
-
-    Action getAction(size_t state, Token lookahead);
-    size_t getGoto(size_t state, Token lookahead);
-
     Token consume();
 };

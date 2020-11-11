@@ -396,47 +396,56 @@ def printParseTable():
 
         print()
 # generate getAction code {{{2
-def genAction():
+def genLoop():
     output = []
 
-    output.append(             '    Parser::Action act;\n')
-    output.append(             '    switch (state)\n')
+    output.append(             '    bool done = false;\n')
+    output.append(             '    Token lookahead (consume());\n')
+    output.append(             '    std::stack<std::unique_ptr<stackitem>> stack;\n')
+    output.append(             '    stack.push(std::make_unique<stackitem>(0));\n')
+
+    output.append(             '    while (true)\n')
     output.append(             '    {\n')
+    output.append(             '        switch(stack.top()->state)\n')
+    output.append(             '        {\n')
 
     for staten, state in table.items():
-        output.append(        f'        case {staten}:\n')
-        output.append(         '           switch (lookahead.type)\n')
-        output.append(         '           {\n')
+        output.append(        f'            case {staten}:\n')
+        output.append(         '               switch (lookahead.type)\n')
+        output.append(         '               {\n')
 
         for nt, ac in state.actions.items():
-            output.append(    f'                case {str(nt)}:\n')
+            output.append(    f'                    case {str(nt)}:\n')
 
             if type(ac) == ShiftAction:
-                output.append( '                    act.type = Parser::Action::ActionType::SHIFT;\n')
-                output.append(f'                    act.as.shift.newstate = {ac.newstate};\n')
+                output.append( '                        Token last (lookahead);\n')
+                output.append( '                        stack.push(std:make_unique<tokstackitem>(last))\n')
+                output.append( '                        lookahead = consume();\n')
             elif type(ac) == ReduceAction:
-                output.append( '                    act.type = Parser::Action::ActionType::REDUCE;\n')
-                output.append(f'                    act.as.reduce.reduceamt = {len(ac.rule.expansion)};\n')
+                output.append( '                        // TODO: reduce\n')
             elif type(ac) == AcceptAction:
-                output.append( '                    act.type = Parser::Action::ActionType::ACCEPT;\n')
+                output.append( '                        done = true;\n')
             else:
                 raise Exception('invalid action type')
 
-            output.append(     '                    break;\n')
+            output.append(     '                        break;\n')
 
-        output.append(         '                default:\n')
-        output.append(         '                    act.type = Parser::Action::ActionType::ERROR;\n')
-        output.append(         '                    break;\n')
-        output.append(         '            }\n')
-        output.append(         '            break;\n')
+        output.append(         '                    default:\n')
+        output.append(        ('                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")\n'
+                               '                            .primary(Error::Primary(lookahead)\n'
+                               '                                 .error("Invalid syntax"))\n'
+                               '                             .report();\n'))
+        output.append(         '                        break;\n')
+        output.append(         '                }\n')
+        output.append(         '                break;\n')
 
-    output.append(             '        default:\n')
-    output.append(            ('            Error(Error::MsgType::INTERR, lookahead, "Parser reached invalid state")\n'
-                               '                .primary(Error::Primary(lookahead)\n'
-                               '                    .error(static_cast<std::stringstream&>(std::stringstream() << "Parser reached invalid state: " << state).str()))\n'
-                               '                .reportAbort();\n'))
+    output.append(             '            default:\n')
+    output.append(            ('                Error(Error::MsgType::INTERR, lookahead, "Parser reached invalid state")\n'
+                               '                    .primary(Error::Primary(lookahead)\n'
+                               '                        .error(static_cast<std::stringstream&>(std::stringstream() << "Parser reached invalid state: " << state).str()))\n'
+                               '                    .reportAbort();\n'))
 
+    output.append(             '        }\n')
     output.append(             '    }\n')
-    output.append(             '    return act;\n')
 
     return ''.join(output)
