@@ -40,7 +40,7 @@ for astname in sorted(_astnames):
                 s, v = sym.split(':')
                 if v == '_':
                     continue
-                ty = 'std::unique_ptr<AST>' if s.startswith('$') else 'Token'
+                ty = 'std::unique_ptr<NewBaseAST>' if s.startswith('$') else 'Token'
 
                 field = ASTField(ty, v)
                 if field not in fields:
@@ -64,7 +64,7 @@ def genASTDecls():
 
     for ast in asts:
         if type(ast) != ASTBaseClass:
-            output.append(f'    class {ast.name} : public AST\n')
+            output.append(f'    class {ast.name} : public NewBaseAST\n')
 
             output.append( '    {\n')
             output.append( '    public:\n')
@@ -78,10 +78,10 @@ def genASTDecls():
 
             output.append( '    };\n')
         else:
-            output.append( '    class AST\n')
+            output.append( '    class NewBaseAST\n')
             output.append( '    {\n')
             output.append( '    public:\n')
-            output.append( '        virtual ~AST() {}\n')
+            output.append( '        virtual ~NewBaseAST() {}\n')
             output.append( '        virtual void accept(ASTVisitor *v) = 0;\n')
             output.append( '    };\n')
 

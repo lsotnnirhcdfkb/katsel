@@ -436,9 +436,9 @@ def genLoop():
                             output.append(f'                            Token a{i} (tsi{i}->tok);\n') # TODO: add parser method to say internal error: invalid pop expected tokstackitem/aststackitem but got ...
                         elif type(sym) == NonTerminal:
                             output.append(f'                            aststackitem *asi{i} = dynamic_cast<aststackitem*>(_a{i}.get());\n')
-                            output.append(f'                            std::unique_ptr<ASTNS::AST> a{i} (std::move(asi{i}->ast));\n') # same TODO as above
+                            output.append(f'                            std::unique_ptr<ASTNS::NewBaseAST> a{i} (std::move(asi{i}->ast));\n') # same TODO as above
 
-                    output.append(        f'                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::{str(ac.rule.symbol).capitalize()}>({", ".join([f"std::move(a{i})" for i in range(len(ac.rule.expansion))])});\n')
+                    output.append(        f'                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::{str(ac.rule.symbol).capitalize()}>({", ".join([f"std::move(a{i})" for i in range(len(ac.rule.expansion))])});\n')
                     output.append(        f'                            size_t newstate = getGoto<ASTNS::{str(ac.rule.symbol).capitalize()}>(stack.top()->state);\n')
                     output.append(        f'                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));\n')
                 else:
