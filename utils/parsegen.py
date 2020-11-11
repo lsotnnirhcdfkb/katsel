@@ -188,8 +188,6 @@ def getClosurelr0(lr0set):
                         newitem = (rule, 0)
                         if newitem not in extras and newitem not in kernel:
                             extras.append(newitem)
-
-                        if rule.symbol != cur[0].symbol:
                             stack.append(newitem)
 
     return lr0tolr1(kernel, extras)
@@ -381,23 +379,27 @@ for rule in grammar:
 table = makeParseTable()
 # generating stuff {{{1
 # print parse table {{{2
-def printParseTable():
+def printParseTable(pad=True):
     cw = 4
-    print(' ' * cw, end='')
+    if pad:
+        padf = lambda s: s.rjust(cw)
+    else:
+        padf = lambda s: s + ' '
+    print(padf('_'), end='')
     for sym in symbols:
-        print(str(sym).rjust(cw), end='')
+        print(padf(str(sym)), end='')
     print()
 
     for staten, state in table.items():
-        print(str(staten).rjust(cw), end='')
+        print(padf(str(staten)), end='')
 
         for sym in symbols:
             if sym in state.actions.keys():
-                print(str(state.actions[sym]).rjust(cw), end='')
+                print(padf(str(state.actions[sym])), end='')
             elif sym in state.goto.keys():
-                print(str(state.goto[sym]).rjust(cw), end='')
+                print(padf(str(state.goto[sym])), end='')
             else:
-                print(' ' * cw, end='')
+                print(padf('_'), end='')
 
         print()
 # generate parser loop code {{{2
@@ -503,3 +505,7 @@ def genGoto():
         output.append(         '}\n')
 
     return ''.join(output)
+
+# entry {{{1
+if __name__ == '__main__':
+    printParseTable(False)
