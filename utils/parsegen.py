@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import os, re, colorama
+
 # classes {{{1
 # symbols {{{2
 class NonTerminal:
@@ -313,96 +315,53 @@ def fillParseTable(isets, transitions):
 def makeParseTable():
     return fillParseTable(*getItemSets())
 # rules {{{1
-_grammar = [
-    {
-        'symbol': 'new_stmt',
-        'expansion': '$new_expr:expr',
-        'name': 'statement'
-    },
-    {
-        'symbol': 'new_expr',
-        'expansion': '$add:expr',
-        'name': 'expression'
-    },
+with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'grammar'), 'r') as f:
+    grammarstr = f.read()
 
-    {
-        'symbol': 'add',
-        'expansion': '$add:lhs PLUS:op $mult:rhs',
-        'name': 'addition expression'
-    },
-    {
-        'symbol': 'add',
-        'expansion': '$add:lhs MINUS:op $mult:rhs',
-        'name': 'addition expression'
-    },
-    {
-        'symbol': 'add',
-        'expansion': '$mult:_',
-        'skip': True, # don't reduce this rule, only change state according to goto
-        'name': 'addition expression'
-    },
+colorama.init()
 
-    {
-        'symbol': 'mult',
-        'expansion': '$mult:lhs STAR:op $unary:rhs',
-        'name': 'multiplication expression'
-    },
-    {
-        'symbol': 'mult',
-        'expansion': '$mult:lhs SLASH:op $unary:rhs',
-        'name': 'multiplication expression'
-    },
-    {
-        'symbol': 'mult',
-        'expansion': '$unary:_',
-        'skip': True,
-        'name': 'multiplication expression'
-    },
+_grammar = []
+rulere = re.compile(r'\s*(\w+)\s*->\s*([^;]+);\s*"([^"]+)"\s*')
+for rule in filter(len, grammarstr.split('\n')):
+    if (match := rulere.fullmatch(rule)) is None:
+        raise Exception(f'rule "{rule}" does not match rulere')
 
-    {
-        'symbol': 'unary',
-        'expansion': 'MINUS:op $unary:operand',
-        'name': 'unary expression'
-    },
-    {
-        'symbol': 'unary',
-        'expansion': 'TILDE:op $unary:operand',
-        'name': 'unary expression'
-    },
-    {
-        'symbol': 'unary',
-        'expansion': '$primary:_',
-        'skip': True,
-        'name': 'unary expression'
-    },
+    sym = match.group(1)
+    expansion = match.group(2).strip().rstrip()
+    name = match.group(3).strip().rstrip()
 
-    {
-        'symbol': 'primary',
-        'expansion': 'DECINTLIT:value',
-        'name': 'primary expression'
-    },
-    {
-        'symbol': 'primary',
-        'expansion': 'OPARN:oparn $new_expr:expr CPARN:cparn',
-        'name': 'primary expression'
-    }
-]
+    r = {}
+    r['symbol'] = sym
+    r['expansion'] = expansion
+    r['name'] = name
+
+    _grammar.append(r)
 
 grammar = []
 for rule in _grammar:
     symbol = rule['symbol']
     expansion = list(filter(len, rule['expansion'].split(' ')))
     for i, s in enumerate(expansion):
-        sname, _ = s.split(':')
+        try:
+            sname, _ = s.split(':')
+        except:
+            print(f'\033[1mrule: {rule["symbol"]} -> {rule["expansion"]}\033[0m')
+            raise
+
         if sname.startswith('$'):
             expansion[i] = NonTerminal(sname[1:])
         else:
             expansion[i] = Terminal(f'TokenType::{sname}')
+            if sname.lower() == sname:
+                print(f'\033[35;1mwarning\033[0m: terminal {sname} in rule \033[1m{symbol} -> {expansion}\033[0m')
 
-    if 'skip' in rule and rule['skip']:
-        assert len(expansion) == 1 and type(expansion[0]) == NonTerminal, 'Skipped rule must expand to one nonterminal'
+    if len(expansion) == 1 and type(expansion[0]) == NonTerminal:
+        skip = True
+        print('\033[34mrule is skip\033[0m', rule['symbol'], rule['expansion'])
+    else:
+        skip = False
 
-    grammar.append(Rule(NonTerminal(symbol), tuple(expansion), rule['skip'] if 'skip' in rule else False, rule['name']))
+    grammar.append(Rule(NonTerminal(symbol), tuple(expansion), skip, rule['name']))
 
 augmentSymbol = NonTerminal('augment')
 augmentRule = Rule(augmentSymbol, (grammar[0].symbol, ), False, 'compilation unit')
