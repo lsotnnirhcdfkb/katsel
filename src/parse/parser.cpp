@@ -1474,7 +1474,11 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
     // PARSERLOOP END
     // }}}
 
-    return std::move(dynamic_cast<aststackitem*>(stack.top().get())->ast);
+    aststackitem *asir (dynamic_cast<aststackitem*>(stack.top().get()));
+    if (!asir)
+        return nullptr;
+
+    return std::move(asir->ast);
 }
 
 Token Parser::consume()
