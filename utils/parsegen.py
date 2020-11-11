@@ -404,7 +404,7 @@ for rule in _grammar:
     grammar.append(Rule(NonTerminal(symbol), tuple(expansion), rule['skip'] if 'skip' in rule else False, rule['name']))
 
 augmentSymbol = NonTerminal('augment')
-augmentRule = Rule(augmentSymbol, (grammar[0].symbol, ), False, 'entire thing')
+augmentRule = Rule(augmentSymbol, (grammar[0].symbol, ), False, 'compilation unit')
 grammar.append(augmentRule)
 
 eofSym = Terminal('TokenType::EOF_')
