@@ -141,6 +141,39 @@ def genVisitorMethods(base=False):
             output.append(f'void visit{ast.name}(ASTNS::{ast.name} *ast) override;\n')
 
     return ''.join(output)
+# Generate location visitor impls {{{3
+def genLocVisit():
+    output = []
+    for ast in asts:
+        if type(ast) == ASTBaseClass:
+            continue
+
+        output.append(        f'void LocationVisitor::visit{ast.name}(ASTNS::{ast.name} *ast)\n')
+        output.append(         '{\n')
+        output.append(         '    switch (ast->form)\n')
+        output.append(         '    {\n')
+        for form in ast.forms:
+            output.append(    f'        case ASTNS::{ast.name}::Form::{stringifyForm(form)}:\n')
+            firstfield = form[0]
+            lastfield = form[-1]
+
+            if firstfield.type_.startswith('std::unique_ptr'):
+                output.append(f'            retl = getL(ast->{firstfield.name}.get());\n')
+                output.append(f'            retf = getF(ast->{firstfield.name}.get());\n')
+            else:
+                output.append(f'            retl = ast->{firstfield.name}.start;\n')
+                output.append(f'            retf = ast->{firstfield.name}.sourcefile;\n')
+
+            if lastfield.type_.startswith('std::unique_ptr'):
+                output.append(f'            retr = getR(ast->{lastfield.name}.get());\n')
+            else:
+                output.append(f'            retr = ast->{lastfield.name}.end;\n')
+
+            output.append(     '            break;\n')
+        output.append(         '    }\n')
+        output.append(         '}\n')
+
+    return ''.join(output)
 # Generating printing stuff {{{2
 # Genearte print visitor {{{3
 def genPrintVisitorMethods():

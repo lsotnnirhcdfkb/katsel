@@ -19,6 +19,8 @@ jobs = [
     ('src/parse/parser.cpp'          , 'GETGOTO START'             , 'GETGOTO END'             , parsegen.genGoto),
     ('include/visit/printvisitor.h'  , 'PRINTVISITOR METHODS START', 'PRINTVISITOR METHODS END', astgen.genVisitorMethods),
     ('include/visit/dotvisitor.h'    , 'DOTVISITOR METHODS START'  , 'DOTVISITOR METHODS END'  , astgen.genVisitorMethods),
+    ('src/message/errors.cpp'        , 'LOCVISITOR METHODS START'  , 'LOCVISITOR METHODS END'  , astgen.genVisitorMethods),
+    ('src/message/errors.cpp'        , 'LOCVISITOR IMPL START'     , 'LOCVISITOR IMPL END'     , astgen.genLocVisit),
 ]
 
 for jobi, job in enumerate(jobs):
