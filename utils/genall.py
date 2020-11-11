@@ -7,20 +7,22 @@ import astgen, kwgen, parsegen
 
 ## A list of jobs to generate code for
 jobs = [
-    ('src/lex/lexer.cpp'             , 'KWGEN START'               , 'KWGEN END'               , lambda: kwgen.trie.generate(doc='Check if an idenetifier token is a keyword type and return that type, or just return TokenType::IDENTIFIER')),
-    ('src/parse/ast.cpp'             , 'ASTCPP START'              , 'ASTCPP END'              , astgen.genASTDefs),
-    ('include/parse/ast.h'           , 'ASTHEADER START'           , 'ASTHEADER END'           , astgen.genASTDecls),
-    ('include/visit/visitor.h'       , 'ASTFORWDECL BEGIN'         , 'ASTFORWDECL END'         , astgen.genASTForwDecls),
-    ('include/visit/visitor.h'       , 'VISITMETHODS START'        , 'VISITMETHODS END'        , lambda: astgen.genVisitorMethods(True)),
-    # ('src/visit/visitor.cpp'         , 'PUREVISITDESTRUCT START'   , 'PUREVISITDESTRUCT END'   , astgen.genPureASTVisitorDestructs),
-    ('src/visit/printvisitor.cpp'    , 'PRINTVISITOR START'        , 'PRINTVISITOR END'        , astgen.genPrintVisitorMethods),
-    ('src/visit/dotvisitor.cpp'      , 'DOTVISITOR START'          , 'DOTVISITOR END'          , astgen.genDotVisitorMethods),
-    ('src/parse/parser.cpp'          , 'PARSERLOOP START'          , 'PARSERLOOP END'          , parsegen.genLoop),
-    ('src/parse/parser.cpp'          , 'GETGOTO START'             , 'GETGOTO END'             , parsegen.genGoto),
-    ('include/visit/printvisitor.h'  , 'PRINTVISITOR METHODS START', 'PRINTVISITOR METHODS END', astgen.genVisitorMethods),
-    ('include/visit/dotvisitor.h'    , 'DOTVISITOR METHODS START'  , 'DOTVISITOR METHODS END'  , astgen.genVisitorMethods),
-    ('src/message/errors.cpp'        , 'LOCVISITOR METHODS START'  , 'LOCVISITOR METHODS END'  , astgen.genVisitorMethods),
-    ('src/message/errors.cpp'        , 'LOCVISITOR IMPL START'     , 'LOCVISITOR IMPL END'     , astgen.genLocVisit),
+    ('src/lex/lexer.cpp'                   , 'KWGEN START'               , 'KWGEN END'               , lambda: kwgen.trie.generate(doc='Check if an idenetifier token is a keyword type and return that type, or just return TokenType::IDENTIFIER')),
+    ('src/parse/ast.cpp'                   , 'ASTCPP START'              , 'ASTCPP END'              , astgen.genASTDefs),
+    ('include/parse/ast.h'                 , 'ASTHEADER START'           , 'ASTHEADER END'           , astgen.genASTDecls),
+    ('include/visit/visitor.h'             , 'ASTFORWDECL BEGIN'         , 'ASTFORWDECL END'         , astgen.genASTForwDecls),
+    ('include/visit/visitor.h'             , 'VISITMETHODS START'        , 'VISITMETHODS END'        , lambda: astgen.genVisitorMethods(True)),
+    ('src/visit/printvisitor.cpp'          , 'PRINTVISITOR START'        , 'PRINTVISITOR END'        , astgen.genPrintVisitorMethods),
+    ('src/visit/dotvisitor.cpp'            , 'DOTVISITOR START'          , 'DOTVISITOR END'          , astgen.genDotVisitorMethods),
+    ('src/parse/parser.cpp'                , 'PARSERLOOP START'          , 'PARSERLOOP END'          , parsegen.genLoop),
+    ('src/parse/parser.cpp'                , 'GETGOTO START'             , 'GETGOTO END'             , parsegen.genGoto),
+    ('include/visit/printvisitor.h'        , 'PRINTVISITOR METHODS START', 'PRINTVISITOR METHODS END', astgen.genVisitorMethods),
+    ('include/visit/dotvisitor.h'          , 'DOTVISITOR METHODS START'  , 'DOTVISITOR METHODS END'  , astgen.genVisitorMethods),
+    ('src/message/errors.cpp'              , 'LOCVISITOR METHODS START'  , 'LOCVISITOR METHODS END'  , astgen.genVisitorMethods),
+    ('include/codegen/codegen.h'           , 'CODEGEN METHODS START'     , 'CODEGEN METHODS END'     , astgen.genVisitorMethods),
+    ('include/replicate/replicatevisitor.h', 'REPLICATE METHODS START'   , 'REPLICATE METHODS END'   , astgen.genVisitorMethods),
+    ('include/codegen/globalsassembler.h'  , 'GLOBALS METHODS START'     , 'GLOBALS METHODS END'     , astgen.genVisitorMethods),
+    ('src/message/errors.cpp'              , 'LOCVISITOR IMPL START'     , 'LOCVISITOR IMPL END'     , astgen.genLocVisit),
 ]
 
 for jobi, job in enumerate(jobs):

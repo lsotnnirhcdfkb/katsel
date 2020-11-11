@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
         }
 
         auto parser = std::make_unique<Parser>(*lexer, *source);
-        std::unique_ptr<ASTNS::NewBaseAST> parsed = parser->parse();
+        std::unique_ptr<ASTNS::AST> parsed = parser->parse();
 
         if (!parsed)
             continue;

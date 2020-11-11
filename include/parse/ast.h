@@ -17,69 +17,69 @@ namespace ASTNS
     class New_stmt;
     class Primary;
     class Unary;
-    class NewBaseAST
+    class AST
     {
     public:
-        virtual ~NewBaseAST() {}
+        virtual ~AST() {}
         virtual void accept(ASTVisitor *v) = 0;
     };
-    class Add : public NewBaseAST
+    class Add : public AST
     {
     public:
-        Add(std::unique_ptr<NewBaseAST> lhs, Token op, std::unique_ptr<NewBaseAST> rhs);
+        Add(std::unique_ptr<AST> lhs, Token op, std::unique_ptr<AST> rhs);
         enum class Form
         {
             ATA,
         };
-        std::unique_ptr<NewBaseAST> lhs;
+        std::unique_ptr<AST> lhs;
         Token op;
-        std::unique_ptr<NewBaseAST> rhs;
+        std::unique_ptr<AST> rhs;
         Form form;
         virtual void accept(ASTVisitor *v);
     };
-    class Mult : public NewBaseAST
+    class Mult : public AST
     {
     public:
-        Mult(std::unique_ptr<NewBaseAST> lhs, Token op, std::unique_ptr<NewBaseAST> rhs);
+        Mult(std::unique_ptr<AST> lhs, Token op, std::unique_ptr<AST> rhs);
         enum class Form
         {
             ATA,
         };
-        std::unique_ptr<NewBaseAST> lhs;
+        std::unique_ptr<AST> lhs;
         Token op;
-        std::unique_ptr<NewBaseAST> rhs;
+        std::unique_ptr<AST> rhs;
         Form form;
         virtual void accept(ASTVisitor *v);
     };
-    class New_expr : public NewBaseAST
+    class New_expr : public AST
     {
     public:
-        New_expr(std::unique_ptr<NewBaseAST> expr);
+        New_expr(std::unique_ptr<AST> expr);
         enum class Form
         {
             A,
         };
-        std::unique_ptr<NewBaseAST> expr;
+        std::unique_ptr<AST> expr;
         Form form;
         virtual void accept(ASTVisitor *v);
     };
-    class New_stmt : public NewBaseAST
+    class New_stmt : public AST
     {
     public:
-        New_stmt(std::unique_ptr<NewBaseAST> expr);
+        New_stmt(std::unique_ptr<AST> expr);
         enum class Form
         {
             A,
         };
-        std::unique_ptr<NewBaseAST> expr;
+        std::unique_ptr<AST> expr;
         Form form;
         virtual void accept(ASTVisitor *v);
     };
-    class Primary : public NewBaseAST
+    class Primary : public AST
     {
     public:
         Primary(Token value);
-        Primary(Token oparn, std::unique_ptr<NewBaseAST> expr, Token cparn);
+        Primary(Token oparn, std::unique_ptr<AST> expr, Token cparn);
         enum class Form
         {
             T,
@@ -87,21 +87,21 @@ namespace ASTNS
         };
         Token value;
         Token oparn;
-        std::unique_ptr<NewBaseAST> expr;
+        std::unique_ptr<AST> expr;
         Token cparn;
         Form form;
         virtual void accept(ASTVisitor *v);
     };
-    class Unary : public NewBaseAST
+    class Unary : public AST
     {
     public:
-        Unary(Token op, std::unique_ptr<NewBaseAST> operand);
+        Unary(Token op, std::unique_ptr<AST> operand);
         enum class Form
         {
             TA,
         };
         Token op;
-        std::unique_ptr<NewBaseAST> operand;
+        std::unique_ptr<AST> operand;
         Form form;
         virtual void accept(ASTVisitor *v);
     };

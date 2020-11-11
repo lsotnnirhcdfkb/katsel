@@ -473,7 +473,7 @@ def genLoop():
                                        '#define REDUCEA(n) \\\n'
                                        '    std::unique_ptr<stackitem> _a ## n = std::move(stack.top()); stack.pop();\\\n'
                                        '    aststackitem *si ## n = dynamic_cast<aststackitem*>(_a ## n .get());\\\n'
-                                       '    std::unique_ptr<ASTNS::NewBaseAST> a ## n (std::move(si ## n ->ast));\n' # same TODO as above
+                                       '    std::unique_ptr<ASTNS::AST> a ## n (std::move(si ## n ->ast));\n' # same TODO as above
                                        '#define SHIFTON(ty, n) \\\n'
                                        '    case ty: \\\n'
                                        '        {SHIFT(n)} break;\n'
@@ -543,7 +543,7 @@ def genLoop():
                         elif type(sym) == NonTerminal:
                             output.append(f'                            REDUCEA({i})\n')
 
-                    output.append(        f'                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::{str(ac.rule.symbol).capitalize()}>({", ".join([f"std::move(a{i})" for i in range(len(ac.rule.expansion))])});\n')
+                    output.append(        f'                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::{str(ac.rule.symbol).capitalize()}>({", ".join([f"std::move(a{i})" for i in range(len(ac.rule.expansion))])});\n')
                     output.append(        f'                            size_t newstate = getGoto<ASTNS::{str(ac.rule.symbol).capitalize()}>(stack.top()->state);\n')
                     output.append(        f'                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));\n')
                     output.append(         '                        }\n')

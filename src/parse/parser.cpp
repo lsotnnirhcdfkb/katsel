@@ -115,7 +115,7 @@ template <> size_t Parser::getGoto<ASTNS::Primary>(size_t state)
 // GETGOTO END
 // }}}
 
-std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
+std::unique_ptr<ASTNS::AST> Parser::parse()
 {
     struct stackitem
     {
@@ -132,8 +132,8 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
     
     struct aststackitem : public stackitem
     {
-        std::unique_ptr<ASTNS::NewBaseAST> ast;
-        aststackitem(size_t state, std::unique_ptr<ASTNS::NewBaseAST> ast): stackitem(state), ast(std::move(ast)) {}
+        std::unique_ptr<ASTNS::AST> ast;
+        aststackitem(size_t state, std::unique_ptr<ASTNS::AST> ast): stackitem(state), ast(std::move(ast)) {}
     };
 
     // parser loop {{{
@@ -151,7 +151,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
 #define REDUCEA(n) \
     std::unique_ptr<stackitem> _a ## n = std::move(stack.top()); stack.pop();\
     aststackitem *si ## n = dynamic_cast<aststackitem*>(_a ## n .get());\
-    std::unique_ptr<ASTNS::NewBaseAST> a ## n (std::move(si ## n ->ast));
+    std::unique_ptr<ASTNS::AST> a ## n (std::move(si ## n ->ast));
 #define SHIFTON(ty, n) \
     case ty: \
         {SHIFT(n)} break;
@@ -206,7 +206,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                     case TokenType::EOF_:
                         {
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::New_stmt>(std::move(a0));
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::New_stmt>(std::move(a0));
                             size_t newstate = getGoto<ASTNS::New_stmt>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
@@ -221,7 +221,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                     case TokenType::EOF_:
                         {
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::New_expr>(std::move(a0));
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::New_expr>(std::move(a0));
                             size_t newstate = getGoto<ASTNS::New_expr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
@@ -304,7 +304,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                     case TokenType::STAR:
                         {
                             REDUCET(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Primary>(std::move(a0));
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Primary>(std::move(a0));
                             size_t newstate = getGoto<ASTNS::Primary>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
@@ -374,7 +374,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         {
                             REDUCEA(1)
                             REDUCET(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Unary>(std::move(a0), std::move(a1));
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Unary>(std::move(a0), std::move(a1));
                             size_t newstate = getGoto<ASTNS::Unary>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
@@ -394,7 +394,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         {
                             REDUCEA(1)
                             REDUCET(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Unary>(std::move(a0), std::move(a1));
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Unary>(std::move(a0), std::move(a1));
                             size_t newstate = getGoto<ASTNS::Unary>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
@@ -420,7 +420,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Add>(std::move(a0), std::move(a1), std::move(a2));
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Add>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::Add>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
@@ -441,7 +441,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Add>(std::move(a0), std::move(a1), std::move(a2));
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Add>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::Add>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
@@ -464,7 +464,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Mult>(std::move(a0), std::move(a1), std::move(a2));
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Mult>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::Mult>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
@@ -485,7 +485,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Mult>(std::move(a0), std::move(a1), std::move(a2));
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Mult>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::Mult>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
@@ -506,7 +506,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                             REDUCET(2)
                             REDUCEA(1)
                             REDUCET(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Primary>(std::move(a0), std::move(a1), std::move(a2));
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Primary>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::Primary>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }

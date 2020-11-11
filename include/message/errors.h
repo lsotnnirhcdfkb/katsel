@@ -17,12 +17,8 @@ struct Location
     Location(Token const &t);
     Location(std::string::iterator start, std::string::iterator end, File const *file);
     Location(Value const &v);
+    Location(ASTNS::AST *ast);
 
-    Location(ASTNS::Expr *a);
-    Location(ASTNS::Decl *a);
-    Location(ASTNS::Type *a);
-    Location(ASTNS::Stmt *a);
-    Location(ASTNS::AST *a);
 };
 // Error class {{{1
 class Error
