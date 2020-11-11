@@ -144,7 +144,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
     Token lookahead (consume());
     std::stack<std::unique_ptr<stackitem>> stack;
     stack.push(std::make_unique<stackitem>(0));
-    while (true)
+    while (!done)
     {
         switch (stack.top()->state)
         {
