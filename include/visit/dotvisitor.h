@@ -20,6 +20,7 @@ void visitUnary(ASTNS::Unary *ast) override;
 
     // DOTVISITOR METHODS END
 
+    void dotVisit(ASTNS::NewBaseAST *ast);
 private:
     int _curid = 0;
     std::string curid();

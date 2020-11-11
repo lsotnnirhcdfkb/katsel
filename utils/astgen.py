@@ -170,9 +170,6 @@ def genDotVisitorMethods():
 
         output.append(        f'void DotVisitor::visit{ast.name}(ASTNS::{ast.name} *a)\n')
         output.append(         '{\n')
-        if ast.name == 'Program':
-            output.append(     '    std::cout << "strict digraph {\\n";\n')
-            output.append(     '    std::cout << "node [shape=plain]\\n";\n')
         output.append(         '    std::string thisid = curid();\n')
         output.append(        f'    std::cout << thisid << " [label=<<table border=\\"0\\" cellborder=\\"1\\" cellspacing=\\"0\\"><tr><td port=\\"__heading\\" colspan=\\"{len(ast.fields)}\\">{ast.name}</td></tr><tr>";\n')
         for field in ast.fields:
@@ -199,8 +196,6 @@ def genDotVisitorMethods():
             output.append(     '    }\n')
 
         output.append(         '    lastid = std::move(thisid);\n')
-        if ast.name == 'Program':
-            output.append(     '    std::cout << "}\\n";\n')
         output.append(         '}\n')
 
     return ''.join(output)

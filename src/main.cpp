@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
         if (phasen == Phases::DOT)
         {
             auto dotter = std::make_unique<DotVisitor>();
-            parsed->accept(dotter.get());
+            dotter->dotVisit(parsed.get());
             continue;
         }
 
