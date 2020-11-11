@@ -23,7 +23,7 @@ private:
     File &sourcefile;
 
     template <typename AST>
-    size_t getGoto<ASTNS::AST>(size_t state);
+    size_t getGoto(size_t state);
 
     Token consume();
 };
