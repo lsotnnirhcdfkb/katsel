@@ -481,7 +481,7 @@ def genGoto():
                 output.append(f'             return {state.goto[nonterm]};\n')
 
         output.append(         '        default:\n')
-        output.append(        f'            reportAbortNoh("retrieve goto of nonterminal {str(nonterm)} in state {state}");\n')
+        output.append(        f'            reportAbortNoh("retrieve goto of nonterminal {str(nonterm)} in state {staten}");\n')
         output.append(         '    }\n')
         output.append(         '}\n')
 
