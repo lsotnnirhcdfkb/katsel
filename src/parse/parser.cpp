@@ -180,10 +180,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         }
                         break;
                     default:
-                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
-                            .primary(Error::Primary(lookahead)
-                                 .error("Invalid syntax"))
-                             .report();
+                        invalidSyntax(lookahead);
                         done = true;
                         break;
                 }
@@ -197,10 +194,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         }
                         break;
                     default:
-                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
-                            .primary(Error::Primary(lookahead)
-                                 .error("Invalid syntax"))
-                             .report();
+                        invalidSyntax(lookahead);
                         done = true;
                         break;
                 }
@@ -219,10 +213,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         }
                         break;
                     default:
-                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
-                            .primary(Error::Primary(lookahead)
-                                 .error("Invalid syntax"))
-                             .report();
+                        invalidSyntax(lookahead);
                         done = true;
                         break;
                 }
@@ -265,10 +256,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         }
                         break;
                     default:
-                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
-                            .primary(Error::Primary(lookahead)
-                                 .error("Invalid syntax"))
-                             .report();
+                        invalidSyntax(lookahead);
                         done = true;
                         break;
                 }
@@ -327,10 +315,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         }
                         break;
                     default:
-                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
-                            .primary(Error::Primary(lookahead)
-                                 .error("Invalid syntax"))
-                             .report();
+                        invalidSyntax(lookahead);
                         done = true;
                         break;
                 }
@@ -393,10 +378,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         }
                         break;
                     default:
-                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
-                            .primary(Error::Primary(lookahead)
-                                 .error("Invalid syntax"))
-                             .report();
+                        invalidSyntax(lookahead);
                         done = true;
                         break;
                 }
@@ -433,10 +415,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         }
                         break;
                     default:
-                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
-                            .primary(Error::Primary(lookahead)
-                                 .error("Invalid syntax"))
-                             .report();
+                        invalidSyntax(lookahead);
                         done = true;
                         break;
                 }
@@ -473,10 +452,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         }
                         break;
                     default:
-                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
-                            .primary(Error::Primary(lookahead)
-                                 .error("Invalid syntax"))
-                             .report();
+                        invalidSyntax(lookahead);
                         done = true;
                         break;
                 }
@@ -539,10 +515,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         }
                         break;
                     default:
-                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
-                            .primary(Error::Primary(lookahead)
-                                 .error("Invalid syntax"))
-                             .report();
+                        invalidSyntax(lookahead);
                         done = true;
                         break;
                 }
@@ -611,10 +584,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         }
                         break;
                     default:
-                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
-                            .primary(Error::Primary(lookahead)
-                                 .error("Invalid syntax"))
-                             .report();
+                        invalidSyntax(lookahead);
                         done = true;
                         break;
                 }
@@ -651,10 +621,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         }
                         break;
                     default:
-                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
-                            .primary(Error::Primary(lookahead)
-                                 .error("Invalid syntax"))
-                             .report();
+                        invalidSyntax(lookahead);
                         done = true;
                         break;
                 }
@@ -691,10 +658,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         }
                         break;
                     default:
-                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
-                            .primary(Error::Primary(lookahead)
-                                 .error("Invalid syntax"))
-                             .report();
+                        invalidSyntax(lookahead);
                         done = true;
                         break;
                 }
@@ -731,10 +695,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         }
                         break;
                     default:
-                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
-                            .primary(Error::Primary(lookahead)
-                                 .error("Invalid syntax"))
-                             .report();
+                        invalidSyntax(lookahead);
                         done = true;
                         break;
                 }
@@ -771,10 +732,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         }
                         break;
                     default:
-                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
-                            .primary(Error::Primary(lookahead)
-                                 .error("Invalid syntax"))
-                             .report();
+                        invalidSyntax(lookahead);
                         done = true;
                         break;
                 }
@@ -811,10 +769,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         }
                         break;
                     default:
-                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
-                            .primary(Error::Primary(lookahead)
-                                 .error("Invalid syntax"))
-                             .report();
+                        invalidSyntax(lookahead);
                         done = true;
                         break;
                 }
@@ -901,10 +856,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         }
                         break;
                     default:
-                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
-                            .primary(Error::Primary(lookahead)
-                                 .error("Invalid syntax"))
-                             .report();
+                        invalidSyntax(lookahead);
                         done = true;
                         break;
                 }
@@ -991,10 +943,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         }
                         break;
                     default:
-                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
-                            .primary(Error::Primary(lookahead)
-                                 .error("Invalid syntax"))
-                             .report();
+                        invalidSyntax(lookahead);
                         done = true;
                         break;
                 }
@@ -1010,10 +959,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         }
                         break;
                     default:
-                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
-                            .primary(Error::Primary(lookahead)
-                                 .error("Invalid syntax"))
-                             .report();
+                        invalidSyntax(lookahead);
                         done = true;
                         break;
                 }
@@ -1100,10 +1046,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         }
                         break;
                     default:
-                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
-                            .primary(Error::Primary(lookahead)
-                                 .error("Invalid syntax"))
-                             .report();
+                        invalidSyntax(lookahead);
                         done = true;
                         break;
                 }
@@ -1190,10 +1133,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         }
                         break;
                     default:
-                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
-                            .primary(Error::Primary(lookahead)
-                                 .error("Invalid syntax"))
-                             .report();
+                        invalidSyntax(lookahead);
                         done = true;
                         break;
                 }
@@ -1298,10 +1238,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         }
                         break;
                     default:
-                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
-                            .primary(Error::Primary(lookahead)
-                                 .error("Invalid syntax"))
-                             .report();
+                        invalidSyntax(lookahead);
                         done = true;
                         break;
                 }
@@ -1406,10 +1343,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         }
                         break;
                     default:
-                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
-                            .primary(Error::Primary(lookahead)
-                                 .error("Invalid syntax"))
-                             .report();
+                        invalidSyntax(lookahead);
                         done = true;
                         break;
                 }
@@ -1514,10 +1448,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         }
                         break;
                     default:
-                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
-                            .primary(Error::Primary(lookahead)
-                                 .error("Invalid syntax"))
-                             .report();
+                        invalidSyntax(lookahead);
                         done = true;
                         break;
                 }
@@ -1558,3 +1489,10 @@ Token Parser::consume()
     return cur;
 }
 
+void Parser::invalidSyntax(Token t)
+{
+    Error(Error::MsgType::ERROR, t, "Invalid syntax")
+        .primary(Error::Primary(t)
+                .error("Invalid syntax"))
+        .report();
+}

@@ -459,10 +459,7 @@ def genLoop():
             output.append(             '                        break;\n')
 
         output.append(                 '                    default:\n')
-        output.append(                ('                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")\n' # TODO: stop repeating this error on every state
-                                       '                            .primary(Error::Primary(lookahead)\n'
-                                       '                                 .error("Invalid syntax"))\n'
-                                       '                             .report();\n'))
+        output.append(                 '                        invalidSyntax(lookahead);\n')
         output.append(                 '                        done = true;\n')
         output.append(                 '                        break;\n')
         output.append(                 '                }\n')

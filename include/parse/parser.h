@@ -25,5 +25,6 @@ private:
     template <typename AST>
     size_t getGoto(size_t state);
 
+    void invalidSyntax(Token t);
     Token consume();
 };
