@@ -129,6 +129,9 @@ int main(int argc, char *argv[])
         auto parser = std::make_unique<Parser>(*lexer, *source);
         std::unique_ptr<ASTNS::NewBaseAST> parsed = parser->parse();
 
+        if (!parsed)
+            continue;
+
         if (phasen == Phases::PARSE) // stop at phase parse which means we don't need to do any more than parsing
         {
             auto printv = std::make_unique<PrintVisitor>();
