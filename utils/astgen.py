@@ -53,7 +53,7 @@ for astname in sorted(_astnames):
             if len(form) and form not in forms:
                 forms.append(form)
 
-    asts.append(ASTClass(astname, fields, forms))
+    asts.append(ASTClass(astname.capitalize(), fields, forms))
 # Generating methods {{{1
 # Generating AST stuff {{{2
 # Generate AST declarations {{{3
@@ -113,6 +113,16 @@ def genASTForwDecls():
     output = []
     for ast in asts:
         output.append(f'class {ast.name};\n')
+    return ''.join(output)
+# Generate visitor method declarations {{{3
+def genVisitorMethods(base=False):
+    output = []
+    for ast in asts:
+        if base:
+            output.append(f'virtual void visit{ast.name}(ASTNS::{ast.name} *ast) = 0;\n')
+        else:
+            output.append(f'void visit{ast.name}(ASTNS::{ast.name} *ast);\n')
+
     return ''.join(output)
 # Generating printing stuff {{{2
 # Genearte print visitor {{{3

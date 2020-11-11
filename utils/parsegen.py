@@ -270,12 +270,12 @@ def makeParseTable():
 # rules {{{1
 _grammar = [
     {
-        'symbol': 'stmt',
-        'expansion': '$expr:expr',
+        'symbol': 'new_stmt',
+        'expansion': '$new_expr:expr',
         'name': 'statemesymbol'
     },
     {
-        'symbol': 'expr',
+        'symbol': 'new_expr',
         'expansion': '$add:expr',
         'name': 'expression'
     },
@@ -338,7 +338,7 @@ _grammar = [
     },
     {
         'symbol': 'primary',
-        'expansion': 'OPARN:oparn $expr:expr CPARN:cparn',
+        'expansion': 'OPARN:oparn $new_expr:expr CPARN:cparn',
         'name': 'primary expression'
     }
 ]
@@ -409,31 +409,31 @@ def genLoop():
     output.append(                     '        switch (stack.top()->state)\n')
     output.append(                     '        {\n')
 
-    for staten, state in table.items():
+    for staten, state in sorted(table.items(), key=lambda x:x[0]):
         output.append(                f'            case {staten}:\n')
         output.append(                 '               switch (lookahead.type)\n')
         output.append(                 '               {\n')
 
-        for nt, ac in state.actions.items():
+        for nt, ac in sorted(state.actions.items(), key=lambda x:str(x[0])):
             output.append(            f'                    case {str(nt)}:\n')
             output.append(             '                        {\n')
 
             if type(ac) == ShiftAction:
                 output.append(         '                            Token last (lookahead);\n')
-                output.append(         '                            stack.push(std:make_unique<tokstackitem>(last))\n')
+                output.append(         '                            stack.push(std::make_unique<tokstackitem>(last));\n')
                 output.append(         '                            lookahead = consume();\n')
             elif type(ac) == ReduceAction:
                 for i, sym in reversed(list(enumerate(ac.rule.expansion))):
-                    output.append(    f'                            std::unique_ptr<stackitem> _a{i} = stack.pop();\n')
+                    output.append(    f'                            std::unique_ptr<stackitem> _a{i} = std::move(stack.top()); stack.pop();\n')
                     if type(sym) == Terminal:
                         output.append(f'                            tokstackitem *tsi{i} = dynamic_cast<tokstackitem*>(_a{i}.get());\n')
                         output.append(f'                            Token a{i} (tsi{i}->tok);\n') # TODO: add parser method to say internal error: invalid pop expected tokstackitem/aststackitem but got ...
                     elif type(sym) == NonTerminal:
                         output.append(f'                            aststackitem *asi{i} = dynamic_cast<aststackitem*>(_a{i}.get());\n')
-                        output.append(f'                            std::unique_ptr<ASTNS::AST> a{i} (asi{i}->ast);\n') # same TODO as above
+                        output.append(f'                            std::unique_ptr<ASTNS::AST> a{i} (std::move(asi{i}->ast));\n') # same TODO as above
 
-                output.append(        f'                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::{str(ac.rule.symbol)}>({", ".join([f"a{i}" for i in range(len(ac.rule.expansion))])});\n')
-                output.append(        f'                            size_t newstate = getGoto<ASTNS::{str(ac.rule.symbol)}>(stack.top().state);\n')
+                output.append(        f'                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::{str(ac.rule.symbol).capitalize()}>({", ".join([f"std::move(a{i})" for i in range(len(ac.rule.expansion))])});\n')
+                output.append(        f'                            size_t newstate = getGoto<ASTNS::{str(ac.rule.symbol).capitalize()}>(stack.top()->state);\n')
                 output.append(        f'                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));\n')
             elif type(ac) == AcceptAction:
                 output.append(         '                            done = true;\n')
@@ -455,7 +455,7 @@ def genLoop():
     output.append(                     '            default:\n')
     output.append(                    ('                Error(Error::MsgType::INTERR, lookahead, "Parser reached invalid state")\n'
                                        '                    .primary(Error::Primary(lookahead)\n'
-                                       '                        .error(static_cast<std::stringstream&>(std::stringstream() << "Parser reached invalid state: " << state).str()))\n'
+                                       '                        .error(static_cast<std::stringstream&>(std::stringstream() << "Parser reached invalid state: " << stack.top()->state).str()))\n'
                                        '                    .reportAbort();\n'))
 
     output.append(                     '        }\n')
@@ -471,9 +471,12 @@ def genGoto():
         if type(nonterm) == Terminal:
             continue
 
-        output.append(        f'template <> size_t Parser::getGoto<ASTNS::{str(nonterm)}>(size_t state)\n')
+        if nonterm == augmentSymbol:
+            continue
+
+        output.append(        f'template <> size_t Parser::getGoto<ASTNS::{str(nonterm).capitalize()}>(size_t state)\n')
         output.append(         '{\n')
-        output.append(         '    switch (stack.top()->state)\n')
+        output.append(         '    switch (state)\n')
         output.append(         '    {\n')
         for staten, state in table.items():
             if nonterm in state.goto:

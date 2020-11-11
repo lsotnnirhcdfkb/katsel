@@ -11,7 +11,7 @@ jobs = [
     ('src/parse/ast.cpp'             , None                        , None                      , astgen.genASTDefs),
     ('include/parse/ast.h'           , 'ASTHEADER START'           , 'ASTHEADER END'           , astgen.genASTDecls),
     ('include/visit/visitor.h'       , 'ASTFORWDECL BEGIN'         , 'ASTFORWDECL END'         , astgen.genASTForwDecls),
-    # ('include/visit/visitor.h'       , 'PUREASTVISITCS START'      , 'PUREASTVISITCS END'      , astgen.genPureASTVisitorDecls),
+    ('include/visit/visitor.h'       , 'VISITMETHODS START'        , 'VISITMETHODS END'        , astgen.genVisitorMethods),
     # ('src/visit/visitor.cpp'         , 'PUREVISITDESTRUCT START'   , 'PUREVISITDESTRUCT END'   , astgen.genPureASTVisitorDestructs),
     ('src/visit/printvisitor.cpp'    , 'PRINTVISITOR START'        , 'PRINTVISITOR END'        , astgen.genPrintVisitorMethods),
     ('src/visit/dotvisitor.cpp'      , 'DOTVISITOR START'          , 'DOTVISITOR END'          , astgen.genDotVisitorMethods),
