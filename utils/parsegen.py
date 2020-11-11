@@ -152,6 +152,7 @@ class State:
 
         self.justparsed = justparsed[0]
         self.expected = list(set(expected))
+        self.expected.sort()
         if len(set(whileparsing)) == 1:
             self.whileparsing = whileparsing[0]
         else:
@@ -571,12 +572,14 @@ def genLoop():
                                        '                    .reportAbort();\n'))
 
     output.append(                     '        }\n')
+    output.append(                     '    }\n')
     output.append(                    ('#undef SHIFT\n'
                                        '#undef REDUCET\n'
                                        '#undef REDUCEA\n'
-                                       '#undef REDUCESKIP\n')) # same TODO as above
-
-    output.append(                     '    }\n')
+                                       '#undef REDUCESKIP\n'
+                                       '#undef SHIFTON\n'
+                                       '#undef DEFAULTINVALID2\n'
+                                       '#undef DEFAULTINVALID3\n'))
 
     return ''.join(output)
 # generate goto code {{{2
