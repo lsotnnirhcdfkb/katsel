@@ -49,7 +49,7 @@ void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
     {
         Error(Error::MsgType::ERROR, a->op, "Left-hand side of binary expression does not support operator")
             .primary(Error::Primary(a->op)
-                .error(static_cast<std::stringstream&>(std::stringstream() << "Type \"" << lhs.type->stringify() << "\" does not support operator \"" << a->op.stringify() << "\"").str()))
+                .error(static_cast<std::stringstream>(std::stringstream() << "Type \"" << lhs.type->stringify() << "\" does not support operator \"" << a->op.stringify() << "\"").str()))
             .secondary(lhs)
             .report();
         CG_RETURNNULL();
@@ -68,7 +68,7 @@ void CodeGen::visitUnaryExpr(ASTNS::UnaryExpr *a)
     {
         Error(Error::MsgType::ERROR, a->operand.get(), "Operand of unary expression does not support operator")
             .primary(Error::Primary(a->op)
-                .error(static_cast<std::stringstream&>(std::stringstream() << "Type \"" << oper.type->stringify() << "\" does not support operator \"" << a->op.stringify() << "\"").str()))
+                .error(static_cast<std::stringstream>(std::stringstream() << "Type \"" << oper.type->stringify() << "\" does not support operator \"" << a->op.stringify() << "\"").str()))
             .secondary(oper)
             .report();
         CG_RETURNNULL();
@@ -253,7 +253,7 @@ void CodeGen::visitCallExpr(ASTNS::CallExpr *a)
             Error(Error::MsgType::ERROR, *i, "Wrong argument to function call")
                 .primary(Error::Primary(*i)
                     .error("Wrong argumnet to function call")
-                    .note(static_cast<std::stringstream&>(std::stringstream() << "Argument is of type \"" << i->type->stringify() << "\", but is being passed to parameter of type \"" << (*j)->stringify() << "\"").str()))
+                    .note(static_cast<std::stringstream>(std::stringstream() << "Argument is of type \"" << i->type->stringify() << "\", but is being passed to parameter of type \"" << (*j)->stringify() << "\"").str()))
                 .report();
             CG_RETURNNULL();
         }
