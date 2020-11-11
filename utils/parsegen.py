@@ -399,53 +399,64 @@ def printParseTable():
 def genLoop():
     output = []
 
-    output.append(             '    bool done = false;\n')
-    output.append(             '    Token lookahead (consume());\n')
-    output.append(             '    std::stack<std::unique_ptr<stackitem>> stack;\n')
-    output.append(             '    stack.push(std::make_unique<stackitem>(0));\n')
+    output.append(                     '    bool done = false;\n')
+    output.append(                     '    Token lookahead (consume());\n')
+    output.append(                     '    std::stack<std::unique_ptr<stackitem>> stack;\n')
+    output.append(                     '    stack.push(std::make_unique<stackitem>(0));\n')
 
-    output.append(             '    while (true)\n')
-    output.append(             '    {\n')
-    output.append(             '        switch(stack.top()->state)\n')
-    output.append(             '        {\n')
+    output.append(                     '    while (true)\n')
+    output.append(                     '    {\n')
+    output.append(                     '        switch(stack.top()->state)\n')
+    output.append(                     '        {\n')
 
     for staten, state in table.items():
-        output.append(        f'            case {staten}:\n')
-        output.append(         '               switch (lookahead.type)\n')
-        output.append(         '               {\n')
+        output.append(                f'            case {staten}:\n')
+        output.append(                 '               switch (lookahead.type)\n')
+        output.append(                 '               {\n')
 
         for nt, ac in state.actions.items():
-            output.append(    f'                    case {str(nt)}:\n')
+            output.append(            f'                    case {str(nt)}:\n')
+            output.append(             '                        {\n')
 
             if type(ac) == ShiftAction:
-                output.append( '                        Token last (lookahead);\n')
-                output.append( '                        stack.push(std:make_unique<tokstackitem>(last))\n')
-                output.append( '                        lookahead = consume();\n')
+                output.append(         '                            Token last (lookahead);\n')
+                output.append(         '                            stack.push(std:make_unique<tokstackitem>(last))\n')
+                output.append(         '                            lookahead = consume();\n')
             elif type(ac) == ReduceAction:
-                output.append( '                        // TODO: reduce\n')
+                for i, sym in reversed(list(enumerate(ac.rule.expansion))):
+                    output.append(    f'                            std::unique_ptr<stackitem> _a{i} = stack.pop();\n')
+                    if type(sym) == Terminal:
+                        output.append(f'                            tokstackitem *tsi{i} = dynamic_cast<tokstackitem*>(_a{i}.get());\n')
+                        output.append(f'                            Token a{i} (tsi{i}->tok);\n') # TODO: add parser method to say internal error: invalid pop expected tokstackitem/aststackitem but got ...
+                    elif type(sym) == NonTerminal:
+                        output.append(f'                            aststackitem *asi{i} = dynamic_cast<aststackitem*>(_a{i}.get());\n')
+                        output.append(f'                            std::unique_ptr<ASTNS::AST> a{i} (asi{i}->ast);\n') # same TODO as above
+
+                output.append(        f'                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::{str(ac.rule.symbol)}>({", ".join([f"a{i}" for i in range(len(ac.rule.expansion))])});\n')
             elif type(ac) == AcceptAction:
-                output.append( '                        done = true;\n')
+                output.append(         '                            done = true;\n')
             else:
                 raise Exception('invalid action type')
 
-            output.append(     '                        break;\n')
+            output.append(             '                        }\n')
+            output.append(             '                        break;\n')
 
-        output.append(         '                    default:\n')
-        output.append(        ('                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")\n'
-                               '                            .primary(Error::Primary(lookahead)\n'
-                               '                                 .error("Invalid syntax"))\n'
-                               '                             .report();\n'))
-        output.append(         '                        break;\n')
-        output.append(         '                }\n')
-        output.append(         '                break;\n')
+        output.append(                 '                    default:\n')
+        output.append(                ('                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")\n'
+                                       '                            .primary(Error::Primary(lookahead)\n'
+                                       '                                 .error("Invalid syntax"))\n'
+                                       '                             .report();\n'))
+        output.append(                 '                        break;\n')
+        output.append(                 '                }\n')
+        output.append(                 '                break;\n')
 
-    output.append(             '            default:\n')
-    output.append(            ('                Error(Error::MsgType::INTERR, lookahead, "Parser reached invalid state")\n'
-                               '                    .primary(Error::Primary(lookahead)\n'
-                               '                        .error(static_cast<std::stringstream&>(std::stringstream() << "Parser reached invalid state: " << state).str()))\n'
-                               '                    .reportAbort();\n'))
+    output.append(                     '            default:\n')
+    output.append(                    ('                Error(Error::MsgType::INTERR, lookahead, "Parser reached invalid state")\n'
+                                       '                    .primary(Error::Primary(lookahead)\n'
+                                       '                        .error(static_cast<std::stringstream&>(std::stringstream() << "Parser reached invalid state: " << state).str()))\n'
+                                       '                    .reportAbort();\n'))
 
-    output.append(             '        }\n')
-    output.append(             '    }\n')
+    output.append(                     '        }\n')
+    output.append(                     '    }\n')
 
     return ''.join(output)

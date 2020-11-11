@@ -44,24 +44,32 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::MINUS:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     case TokenType::TILDE:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     case TokenType::DECINTLIT:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     case TokenType::OPARN:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     default:
                         Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
@@ -75,7 +83,9 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::EOF_:
-                        done = true;
+                        {
+                            done = true;
+                        }
                         break;
                     default:
                         Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
@@ -89,7 +99,12 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::EOF_:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::stmt>(a0);
+                        }
                         break;
                     default:
                         Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
@@ -103,20 +118,34 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::PLUS:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     case TokenType::MINUS:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     case TokenType::EOF_:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::expr>(a0);
+                        }
                         break;
                     case TokenType::CPARN:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::expr>(a0);
+                        }
                         break;
                     default:
                         Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
@@ -130,26 +159,50 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::STAR:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     case TokenType::SLASH:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     case TokenType::EOF_:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::add>(a0);
+                        }
                         break;
                     case TokenType::CPARN:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::add>(a0);
+                        }
                         break;
                     case TokenType::PLUS:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::add>(a0);
+                        }
                         break;
                     case TokenType::MINUS:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::add>(a0);
+                        }
                         break;
                     default:
                         Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
@@ -163,22 +216,52 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::EOF_:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0);
+                        }
                         break;
                     case TokenType::CPARN:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0);
+                        }
                         break;
                     case TokenType::PLUS:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0);
+                        }
                         break;
                     case TokenType::MINUS:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0);
+                        }
                         break;
                     case TokenType::STAR:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0);
+                        }
                         break;
                     case TokenType::SLASH:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0);
+                        }
                         break;
                     default:
                         Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
@@ -192,14 +275,18 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::MINUS:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     case TokenType::TILDE:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     default:
                         Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
@@ -213,14 +300,18 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::MINUS:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     case TokenType::TILDE:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     default:
                         Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
@@ -234,22 +325,52 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::EOF_:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0);
+                        }
                         break;
                     case TokenType::CPARN:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0);
+                        }
                         break;
                     case TokenType::PLUS:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0);
+                        }
                         break;
                     case TokenType::MINUS:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0);
+                        }
                         break;
                     case TokenType::STAR:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0);
+                        }
                         break;
                     case TokenType::SLASH:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0);
+                        }
                         break;
                     default:
                         Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
@@ -263,22 +384,52 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::EOF_:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
+                            Token a0 (tsi0->tok);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::primary>(a0);
+                        }
                         break;
                     case TokenType::CPARN:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
+                            Token a0 (tsi0->tok);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::primary>(a0);
+                        }
                         break;
                     case TokenType::PLUS:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
+                            Token a0 (tsi0->tok);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::primary>(a0);
+                        }
                         break;
                     case TokenType::MINUS:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
+                            Token a0 (tsi0->tok);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::primary>(a0);
+                        }
                         break;
                     case TokenType::STAR:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
+                            Token a0 (tsi0->tok);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::primary>(a0);
+                        }
                         break;
                     case TokenType::SLASH:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
+                            Token a0 (tsi0->tok);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::primary>(a0);
+                        }
                         break;
                     default:
                         Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
@@ -292,24 +443,32 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::MINUS:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     case TokenType::TILDE:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     case TokenType::DECINTLIT:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     case TokenType::OPARN:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     default:
                         Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
@@ -323,24 +482,32 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::MINUS:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     case TokenType::TILDE:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     case TokenType::DECINTLIT:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     case TokenType::OPARN:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     default:
                         Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
@@ -354,24 +521,32 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::MINUS:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     case TokenType::TILDE:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     case TokenType::DECINTLIT:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     case TokenType::OPARN:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     default:
                         Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
@@ -385,24 +560,32 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::MINUS:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     case TokenType::TILDE:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     case TokenType::DECINTLIT:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     case TokenType::OPARN:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     default:
                         Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
@@ -416,24 +599,32 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::MINUS:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     case TokenType::TILDE:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     case TokenType::DECINTLIT:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     case TokenType::OPARN:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     default:
                         Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
@@ -447,22 +638,70 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::EOF_:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            aststackitem *asi1 = dynamic_cast<aststackitem*>(_a1.get());
+                            std::unique_ptr<ASTNS::AST> a1 (asi1->ast);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
+                            Token a0 (tsi0->tok);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0, a1);
+                        }
                         break;
                     case TokenType::CPARN:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            aststackitem *asi1 = dynamic_cast<aststackitem*>(_a1.get());
+                            std::unique_ptr<ASTNS::AST> a1 (asi1->ast);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
+                            Token a0 (tsi0->tok);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0, a1);
+                        }
                         break;
                     case TokenType::PLUS:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            aststackitem *asi1 = dynamic_cast<aststackitem*>(_a1.get());
+                            std::unique_ptr<ASTNS::AST> a1 (asi1->ast);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
+                            Token a0 (tsi0->tok);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0, a1);
+                        }
                         break;
                     case TokenType::MINUS:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            aststackitem *asi1 = dynamic_cast<aststackitem*>(_a1.get());
+                            std::unique_ptr<ASTNS::AST> a1 (asi1->ast);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
+                            Token a0 (tsi0->tok);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0, a1);
+                        }
                         break;
                     case TokenType::STAR:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            aststackitem *asi1 = dynamic_cast<aststackitem*>(_a1.get());
+                            std::unique_ptr<ASTNS::AST> a1 (asi1->ast);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
+                            Token a0 (tsi0->tok);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0, a1);
+                        }
                         break;
                     case TokenType::SLASH:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            aststackitem *asi1 = dynamic_cast<aststackitem*>(_a1.get());
+                            std::unique_ptr<ASTNS::AST> a1 (asi1->ast);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
+                            Token a0 (tsi0->tok);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0, a1);
+                        }
                         break;
                     default:
                         Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
@@ -476,22 +715,70 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::EOF_:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            aststackitem *asi1 = dynamic_cast<aststackitem*>(_a1.get());
+                            std::unique_ptr<ASTNS::AST> a1 (asi1->ast);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
+                            Token a0 (tsi0->tok);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0, a1);
+                        }
                         break;
                     case TokenType::CPARN:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            aststackitem *asi1 = dynamic_cast<aststackitem*>(_a1.get());
+                            std::unique_ptr<ASTNS::AST> a1 (asi1->ast);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
+                            Token a0 (tsi0->tok);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0, a1);
+                        }
                         break;
                     case TokenType::PLUS:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            aststackitem *asi1 = dynamic_cast<aststackitem*>(_a1.get());
+                            std::unique_ptr<ASTNS::AST> a1 (asi1->ast);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
+                            Token a0 (tsi0->tok);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0, a1);
+                        }
                         break;
                     case TokenType::MINUS:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            aststackitem *asi1 = dynamic_cast<aststackitem*>(_a1.get());
+                            std::unique_ptr<ASTNS::AST> a1 (asi1->ast);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
+                            Token a0 (tsi0->tok);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0, a1);
+                        }
                         break;
                     case TokenType::STAR:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            aststackitem *asi1 = dynamic_cast<aststackitem*>(_a1.get());
+                            std::unique_ptr<ASTNS::AST> a1 (asi1->ast);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
+                            Token a0 (tsi0->tok);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0, a1);
+                        }
                         break;
                     case TokenType::SLASH:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            aststackitem *asi1 = dynamic_cast<aststackitem*>(_a1.get());
+                            std::unique_ptr<ASTNS::AST> a1 (asi1->ast);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
+                            Token a0 (tsi0->tok);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0, a1);
+                        }
                         break;
                     default:
                         Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
@@ -505,9 +792,11 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::CPARN:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     default:
                         Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
@@ -521,26 +810,74 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::STAR:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     case TokenType::SLASH:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     case TokenType::EOF_:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a2 = stack.pop();
+                            aststackitem *asi2 = dynamic_cast<aststackitem*>(_a2.get());
+                            std::unique_ptr<ASTNS::AST> a2 (asi2->ast);
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            tokstackitem *tsi1 = dynamic_cast<tokstackitem*>(_a1.get());
+                            Token a1 (tsi1->tok);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::add>(a0, a1, a2);
+                        }
                         break;
                     case TokenType::CPARN:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a2 = stack.pop();
+                            aststackitem *asi2 = dynamic_cast<aststackitem*>(_a2.get());
+                            std::unique_ptr<ASTNS::AST> a2 (asi2->ast);
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            tokstackitem *tsi1 = dynamic_cast<tokstackitem*>(_a1.get());
+                            Token a1 (tsi1->tok);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::add>(a0, a1, a2);
+                        }
                         break;
                     case TokenType::PLUS:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a2 = stack.pop();
+                            aststackitem *asi2 = dynamic_cast<aststackitem*>(_a2.get());
+                            std::unique_ptr<ASTNS::AST> a2 (asi2->ast);
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            tokstackitem *tsi1 = dynamic_cast<tokstackitem*>(_a1.get());
+                            Token a1 (tsi1->tok);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::add>(a0, a1, a2);
+                        }
                         break;
                     case TokenType::MINUS:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a2 = stack.pop();
+                            aststackitem *asi2 = dynamic_cast<aststackitem*>(_a2.get());
+                            std::unique_ptr<ASTNS::AST> a2 (asi2->ast);
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            tokstackitem *tsi1 = dynamic_cast<tokstackitem*>(_a1.get());
+                            Token a1 (tsi1->tok);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::add>(a0, a1, a2);
+                        }
                         break;
                     default:
                         Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
@@ -554,26 +891,74 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::STAR:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     case TokenType::SLASH:
-                        Token last (lookahead);
-                        stack.push(std:make_unique<tokstackitem>(last))
-                        lookahead = consume();
+                        {
+                            Token last (lookahead);
+                            stack.push(std:make_unique<tokstackitem>(last))
+                            lookahead = consume();
+                        }
                         break;
                     case TokenType::EOF_:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a2 = stack.pop();
+                            aststackitem *asi2 = dynamic_cast<aststackitem*>(_a2.get());
+                            std::unique_ptr<ASTNS::AST> a2 (asi2->ast);
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            tokstackitem *tsi1 = dynamic_cast<tokstackitem*>(_a1.get());
+                            Token a1 (tsi1->tok);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::add>(a0, a1, a2);
+                        }
                         break;
                     case TokenType::CPARN:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a2 = stack.pop();
+                            aststackitem *asi2 = dynamic_cast<aststackitem*>(_a2.get());
+                            std::unique_ptr<ASTNS::AST> a2 (asi2->ast);
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            tokstackitem *tsi1 = dynamic_cast<tokstackitem*>(_a1.get());
+                            Token a1 (tsi1->tok);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::add>(a0, a1, a2);
+                        }
                         break;
                     case TokenType::PLUS:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a2 = stack.pop();
+                            aststackitem *asi2 = dynamic_cast<aststackitem*>(_a2.get());
+                            std::unique_ptr<ASTNS::AST> a2 (asi2->ast);
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            tokstackitem *tsi1 = dynamic_cast<tokstackitem*>(_a1.get());
+                            Token a1 (tsi1->tok);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::add>(a0, a1, a2);
+                        }
                         break;
                     case TokenType::MINUS:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a2 = stack.pop();
+                            aststackitem *asi2 = dynamic_cast<aststackitem*>(_a2.get());
+                            std::unique_ptr<ASTNS::AST> a2 (asi2->ast);
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            tokstackitem *tsi1 = dynamic_cast<tokstackitem*>(_a1.get());
+                            Token a1 (tsi1->tok);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::add>(a0, a1, a2);
+                        }
                         break;
                     default:
                         Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
@@ -587,22 +972,88 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::EOF_:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a2 = stack.pop();
+                            aststackitem *asi2 = dynamic_cast<aststackitem*>(_a2.get());
+                            std::unique_ptr<ASTNS::AST> a2 (asi2->ast);
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            tokstackitem *tsi1 = dynamic_cast<tokstackitem*>(_a1.get());
+                            Token a1 (tsi1->tok);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0, a1, a2);
+                        }
                         break;
                     case TokenType::CPARN:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a2 = stack.pop();
+                            aststackitem *asi2 = dynamic_cast<aststackitem*>(_a2.get());
+                            std::unique_ptr<ASTNS::AST> a2 (asi2->ast);
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            tokstackitem *tsi1 = dynamic_cast<tokstackitem*>(_a1.get());
+                            Token a1 (tsi1->tok);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0, a1, a2);
+                        }
                         break;
                     case TokenType::PLUS:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a2 = stack.pop();
+                            aststackitem *asi2 = dynamic_cast<aststackitem*>(_a2.get());
+                            std::unique_ptr<ASTNS::AST> a2 (asi2->ast);
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            tokstackitem *tsi1 = dynamic_cast<tokstackitem*>(_a1.get());
+                            Token a1 (tsi1->tok);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0, a1, a2);
+                        }
                         break;
                     case TokenType::MINUS:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a2 = stack.pop();
+                            aststackitem *asi2 = dynamic_cast<aststackitem*>(_a2.get());
+                            std::unique_ptr<ASTNS::AST> a2 (asi2->ast);
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            tokstackitem *tsi1 = dynamic_cast<tokstackitem*>(_a1.get());
+                            Token a1 (tsi1->tok);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0, a1, a2);
+                        }
                         break;
                     case TokenType::STAR:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a2 = stack.pop();
+                            aststackitem *asi2 = dynamic_cast<aststackitem*>(_a2.get());
+                            std::unique_ptr<ASTNS::AST> a2 (asi2->ast);
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            tokstackitem *tsi1 = dynamic_cast<tokstackitem*>(_a1.get());
+                            Token a1 (tsi1->tok);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0, a1, a2);
+                        }
                         break;
                     case TokenType::SLASH:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a2 = stack.pop();
+                            aststackitem *asi2 = dynamic_cast<aststackitem*>(_a2.get());
+                            std::unique_ptr<ASTNS::AST> a2 (asi2->ast);
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            tokstackitem *tsi1 = dynamic_cast<tokstackitem*>(_a1.get());
+                            Token a1 (tsi1->tok);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0, a1, a2);
+                        }
                         break;
                     default:
                         Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
@@ -616,22 +1067,88 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::EOF_:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a2 = stack.pop();
+                            aststackitem *asi2 = dynamic_cast<aststackitem*>(_a2.get());
+                            std::unique_ptr<ASTNS::AST> a2 (asi2->ast);
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            tokstackitem *tsi1 = dynamic_cast<tokstackitem*>(_a1.get());
+                            Token a1 (tsi1->tok);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0, a1, a2);
+                        }
                         break;
                     case TokenType::CPARN:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a2 = stack.pop();
+                            aststackitem *asi2 = dynamic_cast<aststackitem*>(_a2.get());
+                            std::unique_ptr<ASTNS::AST> a2 (asi2->ast);
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            tokstackitem *tsi1 = dynamic_cast<tokstackitem*>(_a1.get());
+                            Token a1 (tsi1->tok);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0, a1, a2);
+                        }
                         break;
                     case TokenType::PLUS:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a2 = stack.pop();
+                            aststackitem *asi2 = dynamic_cast<aststackitem*>(_a2.get());
+                            std::unique_ptr<ASTNS::AST> a2 (asi2->ast);
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            tokstackitem *tsi1 = dynamic_cast<tokstackitem*>(_a1.get());
+                            Token a1 (tsi1->tok);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0, a1, a2);
+                        }
                         break;
                     case TokenType::MINUS:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a2 = stack.pop();
+                            aststackitem *asi2 = dynamic_cast<aststackitem*>(_a2.get());
+                            std::unique_ptr<ASTNS::AST> a2 (asi2->ast);
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            tokstackitem *tsi1 = dynamic_cast<tokstackitem*>(_a1.get());
+                            Token a1 (tsi1->tok);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0, a1, a2);
+                        }
                         break;
                     case TokenType::STAR:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a2 = stack.pop();
+                            aststackitem *asi2 = dynamic_cast<aststackitem*>(_a2.get());
+                            std::unique_ptr<ASTNS::AST> a2 (asi2->ast);
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            tokstackitem *tsi1 = dynamic_cast<tokstackitem*>(_a1.get());
+                            Token a1 (tsi1->tok);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0, a1, a2);
+                        }
                         break;
                     case TokenType::SLASH:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a2 = stack.pop();
+                            aststackitem *asi2 = dynamic_cast<aststackitem*>(_a2.get());
+                            std::unique_ptr<ASTNS::AST> a2 (asi2->ast);
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            tokstackitem *tsi1 = dynamic_cast<tokstackitem*>(_a1.get());
+                            Token a1 (tsi1->tok);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
+                            std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0, a1, a2);
+                        }
                         break;
                     default:
                         Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
@@ -645,22 +1162,88 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::EOF_:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a2 = stack.pop();
+                            tokstackitem *tsi2 = dynamic_cast<tokstackitem*>(_a2.get());
+                            Token a2 (tsi2->tok);
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            aststackitem *asi1 = dynamic_cast<aststackitem*>(_a1.get());
+                            std::unique_ptr<ASTNS::AST> a1 (asi1->ast);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
+                            Token a0 (tsi0->tok);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::primary>(a0, a1, a2);
+                        }
                         break;
                     case TokenType::CPARN:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a2 = stack.pop();
+                            tokstackitem *tsi2 = dynamic_cast<tokstackitem*>(_a2.get());
+                            Token a2 (tsi2->tok);
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            aststackitem *asi1 = dynamic_cast<aststackitem*>(_a1.get());
+                            std::unique_ptr<ASTNS::AST> a1 (asi1->ast);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
+                            Token a0 (tsi0->tok);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::primary>(a0, a1, a2);
+                        }
                         break;
                     case TokenType::PLUS:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a2 = stack.pop();
+                            tokstackitem *tsi2 = dynamic_cast<tokstackitem*>(_a2.get());
+                            Token a2 (tsi2->tok);
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            aststackitem *asi1 = dynamic_cast<aststackitem*>(_a1.get());
+                            std::unique_ptr<ASTNS::AST> a1 (asi1->ast);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
+                            Token a0 (tsi0->tok);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::primary>(a0, a1, a2);
+                        }
                         break;
                     case TokenType::MINUS:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a2 = stack.pop();
+                            tokstackitem *tsi2 = dynamic_cast<tokstackitem*>(_a2.get());
+                            Token a2 (tsi2->tok);
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            aststackitem *asi1 = dynamic_cast<aststackitem*>(_a1.get());
+                            std::unique_ptr<ASTNS::AST> a1 (asi1->ast);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
+                            Token a0 (tsi0->tok);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::primary>(a0, a1, a2);
+                        }
                         break;
                     case TokenType::STAR:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a2 = stack.pop();
+                            tokstackitem *tsi2 = dynamic_cast<tokstackitem*>(_a2.get());
+                            Token a2 (tsi2->tok);
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            aststackitem *asi1 = dynamic_cast<aststackitem*>(_a1.get());
+                            std::unique_ptr<ASTNS::AST> a1 (asi1->ast);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
+                            Token a0 (tsi0->tok);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::primary>(a0, a1, a2);
+                        }
                         break;
                     case TokenType::SLASH:
-                        // TODO: reduce
+                        {
+                            std::unique_ptr<stackitem> _a2 = stack.pop();
+                            tokstackitem *tsi2 = dynamic_cast<tokstackitem*>(_a2.get());
+                            Token a2 (tsi2->tok);
+                            std::unique_ptr<stackitem> _a1 = stack.pop();
+                            aststackitem *asi1 = dynamic_cast<aststackitem*>(_a1.get());
+                            std::unique_ptr<ASTNS::AST> a1 (asi1->ast);
+                            std::unique_ptr<stackitem> _a0 = stack.pop();
+                            tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
+                            Token a0 (tsi0->tok);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::primary>(a0, a1, a2);
+                        }
                         break;
                     default:
                         Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")
@@ -677,7 +1260,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     .reportAbort();
         }
     }
-    return act;
 // This code was autogenerated - see the utils/ directory
 
     // PARSERLOOP END
