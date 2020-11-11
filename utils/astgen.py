@@ -10,9 +10,8 @@ class ASTClass:
         self.extends = extends
 # PureASTClass {{{2
 class PureASTClass:
-    def __init__(self, name, annotations=[]):
+    def __init__(self, name):
         self.name = name
-        self.annotations = annotations
 # ASTField {{{2
 class ASTField:
     # im for initialization method
@@ -178,10 +177,6 @@ def genASTDecls():
             output.append( '    {\n')
             output.append( '    public:\n')
             output.append(f'        virtual ~{ast.name}() {{}}\n')
-
-            for annotation in ast.annotations:
-                annotationvName = annotation[0].lower() + annotation[1:]
-                output.append(f'        {annotation} {annotationvName};\n')
 
             output.append(f'        virtual void accept({ast.name}Visitor *v) = 0;\n')
 
