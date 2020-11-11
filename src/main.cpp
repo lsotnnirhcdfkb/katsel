@@ -143,14 +143,16 @@ int main(int argc, char *argv[])
             replicator->visitProgram(parsed.get());
             continue;
         }
+        */
 
         if (phasen == Phases::DOT)
         {
             auto dotter = std::make_unique<DotVisitor>();
-            dotter->visitProgram(parsed.get());
+            parsed->accept(dotter.get());
             continue;
         }
 
+        /*
         auto cgcontext = std::make_unique<CodeGenContext>(source->filename);
         auto codegen = std::make_unique<CodeGen>(*cgcontext);
         auto globalsassembler = std::make_unique<GlobalsAssembler>(*cgcontext, *codegen);
