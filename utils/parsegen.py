@@ -105,8 +105,11 @@ class ItemSet: # an LR1 item set
 class State:
     def __init__(self, set_):
         self.set_ = set_
+        self.seti = self.set_.n
         self.actions = {}
         self.goto = {}
+
+        self.makeDescription()
 
     def setAction(self, sym, action):
         if sym in self.actions.keys():
@@ -119,6 +122,33 @@ class State:
             raise Exception('goto conflict')
 
         self.goto[sym] = newstate
+
+    def makeDescription(self):
+        justparsed = []
+        expected = []
+        whileparsing = []
+
+        for item in self.set_.kernel:
+            if item.index > 0:
+                justparsed.append(str(item.rule.expansion[item.index - 1]))
+            else:
+                justparsed.append('beginning')
+
+            if item.getAfterDot() is not None:
+                expected.append(str(item.getAfterDot()))
+
+            whileparsing.append(item.rule.name)
+
+        if len(set(justparsed)) > 1:
+            raise Exception(self.set_)
+
+        self.justparsed = justparsed[0]
+        self.expected = list(set(expected))
+        if len(set(whileparsing)) == 1:
+            self.whileparsing = whileparsing[0]
+        else:
+            self.whileparsing = None
+
 # actions {{{2
 class ShiftAction:
     def __init__(self, newstate):
@@ -250,7 +280,7 @@ def getItemSets():
 def fillParseTable(isets, transitions):
     table = {}
     for iset in isets:
-        state = State(iset.n)
+        state = State(iset)
         table[iset.n] = state
 
     for fromseti, symbol, toseti in transitions:
@@ -409,12 +439,23 @@ def printParseTable(pad=True):
 
         print()
 # generate parser loop code {{{2
+# helper {{{
+def formatList(l):
+    if len(l) == 1:
+        return l[0]
+    elif len(l) == 2:
+        return f'either {l[0]} or {l[1]}'
+    elif len(l) == 0:
+        return 'nothing'
+    else:
+        return ', '.join(l[:-1]) + ', or ' + l[-1]
+# }}}
 def genLoop():
     output = []
 
     output.append(                    ('#define SHIFT(newstate) \\\n'
-                                       '    Token last(lookahead);\\\n'
-                                       '    stack.push(std::make_unique<tokstackitem>(newstate, last));\\\n'
+                                       '    lasttok = lookahead;\\\n'
+                                       '    stack.push(std::make_unique<tokstackitem>(newstate, lasttok));\\\n'
                                        '    lookahead = consume();\n'
                                        '#define REDUCET(n) \\\n'
                                        '    std::unique_ptr<stackitem> _a ## n = std::move(stack.top()); stack.pop();\\\n'
@@ -427,9 +468,14 @@ def genLoop():
                                        '#define SHIFTON(ty, n) \\\n'
                                        '    case ty: \\\n'
                                        '        {SHIFT(n)} break;\n'
-                                       '#define DEFAULTINVALID() \\\n'
+                                       '#define DEFAULTINVALID2(justparsed, expected) \\\n'
                                        '    default: \\\n'
-                                       '        invalidSyntax(lookahead);\\\n'
+                                       '        invalidSyntax(justparsed, expected, lookahead, lasttok);\\\n'
+                                       '        done = true;\\\n'
+                                       '        break;\n'
+                                       '#define DEFAULTINVALID3(justparsed, expected, whileparsing) \\\n'
+                                       '    default: \\\n'
+                                       '        invalidSyntax(justparsed, expected, whileparsing, lookahead, lasttok);\\\n'
                                        '        done = true;\\\n'
                                        '        break;\n'
                                        '#define REDUCESKIP(cl) \\\n'
@@ -442,6 +488,7 @@ def genLoop():
 
     output.append(                     '    bool done = false;\n')
     output.append(                     '    Token lookahead (consume());\n')
+    output.append(                     '    Token lasttok;\n')
     output.append(                     '    std::stack<std::unique_ptr<stackitem>> stack;\n')
     output.append(                     '    stack.push(std::make_unique<stackitem>(0));\n')
 
@@ -502,7 +549,10 @@ def genLoop():
 
             output.append(             '                        break;\n')
 
-        output.append(                 '                    DEFAULTINVALID()\n')
+        if state.whileparsing is not None:
+            output.append(            f'                    DEFAULTINVALID3("{state.justparsed}", "{formatList(state.expected)}", "{state.whileparsing}")\n')
+        else:
+            output.append(            f'                    DEFAULTINVALID2("{state.justparsed}", "{formatList(state.expected)}")\n')
         output.append(                 '                }\n')
         output.append(                 '                break;\n')
 

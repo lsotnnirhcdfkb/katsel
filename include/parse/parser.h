@@ -25,6 +25,7 @@ private:
     template <typename AST>
     size_t getGoto(size_t state);
 
-    void invalidSyntax(Token t);
+    void invalidSyntax(const char *justparsed, const char *expected, const char *whileparsing, Token const &lookahead, Token const &last);
+    void invalidSyntax(const char *justparsed, const char *expected, Token const &lookahead, Token const &last);
     Token consume();
 };
