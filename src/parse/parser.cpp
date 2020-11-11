@@ -1450,6 +1450,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
 
     // PARSERLOOP END
     // }}}
+
 }
 
 Token Parser::consume()

@@ -8,7 +8,7 @@ import astgen, kwgen, parsegen
 ## A list of jobs to generate code for
 jobs = [
     ('src/lex/lexer.cpp'             , 'KWGEN START'               , 'KWGEN END'               , lambda: kwgen.trie.generate(doc='Check if an idenetifier token is a keyword type and return that type, or just return TokenType::IDENTIFIER')),
-    ('src/parse/ast.cpp'             , None                        , None                      , astgen.genASTDefs),
+    ('src/parse/ast.cpp'             , 'ASTCPP START'              , 'ASTCPP END'              , astgen.genASTDefs),
     ('include/parse/ast.h'           , 'ASTHEADER START'           , 'ASTHEADER END'           , astgen.genASTDecls),
     ('include/visit/visitor.h'       , 'ASTFORWDECL BEGIN'         , 'ASTFORWDECL END'         , astgen.genASTForwDecls),
     ('include/visit/visitor.h'       , 'VISITMETHODS START'        , 'VISITMETHODS END'        , lambda: astgen.genVisitorMethods(True)),
