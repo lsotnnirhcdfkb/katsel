@@ -17,9 +17,9 @@ template <> size_t Parser::getGoto<ASTNS::Declarations>(size_t state)
     switch (state)
     {
         case 0:
-             return 1;
+            return 1;
         default:
-            reportAbortNoh("retrieve goto of nonterminal declarations in state 139");
+            reportAbortNoh("retrieve goto of nonterminal declarations in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Decl>(size_t state)
@@ -27,11 +27,11 @@ template <> size_t Parser::getGoto<ASTNS::Decl>(size_t state)
     switch (state)
     {
         case 0:
-             return 2;
+            return 2;
         case 1:
-             return 18;
+            return 18;
         default:
-            reportAbortNoh("retrieve goto of nonterminal decl in state 139");
+            reportAbortNoh("retrieve goto of nonterminal decl in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Function>(size_t state)
@@ -39,11 +39,10 @@ template <> size_t Parser::getGoto<ASTNS::Function>(size_t state)
     switch (state)
     {
         case 0:
-             return 3;
         case 1:
-             return 3;
+            return 3;
         default:
-            reportAbortNoh("retrieve goto of nonterminal function in state 139");
+            reportAbortNoh("retrieve goto of nonterminal function in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Type>(size_t state)
@@ -51,17 +50,16 @@ template <> size_t Parser::getGoto<ASTNS::Type>(size_t state)
     switch (state)
     {
         case 0:
-             return 4;
         case 1:
-             return 4;
+            return 4;
         case 20:
-             return 23;
+            return 23;
         case 27:
-             return 69;
+            return 69;
         case 35:
-             return 72;
+            return 72;
         default:
-            reportAbortNoh("retrieve goto of nonterminal type in state 139");
+            reportAbortNoh("retrieve goto of nonterminal type in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Block>(size_t state)
@@ -69,15 +67,14 @@ template <> size_t Parser::getGoto<ASTNS::Block>(size_t state)
     switch (state)
     {
         case 21:
-             return 24;
+            return 24;
         case 25:
-             return 34;
-        case 26:
-             return 68;
         case 29:
-             return 34;
+            return 34;
+        case 26:
+            return 68;
         default:
-            reportAbortNoh("retrieve goto of nonterminal block in state 139");
+            reportAbortNoh("retrieve goto of nonterminal block in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Paramlist>(size_t state)
@@ -85,9 +82,9 @@ template <> size_t Parser::getGoto<ASTNS::Paramlist>(size_t state)
     switch (state)
     {
         case 20:
-             return 22;
+            return 22;
         default:
-            reportAbortNoh("retrieve goto of nonterminal paramlist in state 139");
+            reportAbortNoh("retrieve goto of nonterminal paramlist in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Stmts>(size_t state)
@@ -95,9 +92,9 @@ template <> size_t Parser::getGoto<ASTNS::Stmts>(size_t state)
     switch (state)
     {
         case 25:
-             return 29;
+            return 29;
         default:
-            reportAbortNoh("retrieve goto of nonterminal stmts in state 139");
+            reportAbortNoh("retrieve goto of nonterminal stmts in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Stmt>(size_t state)
@@ -105,11 +102,11 @@ template <> size_t Parser::getGoto<ASTNS::Stmt>(size_t state)
     switch (state)
     {
         case 25:
-             return 30;
+            return 30;
         case 29:
-             return 71;
+            return 71;
         default:
-            reportAbortNoh("retrieve goto of nonterminal stmt in state 139");
+            reportAbortNoh("retrieve goto of nonterminal stmt in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Varstmt>(size_t state)
@@ -117,11 +114,10 @@ template <> size_t Parser::getGoto<ASTNS::Varstmt>(size_t state)
     switch (state)
     {
         case 25:
-             return 31;
         case 29:
-             return 31;
+            return 31;
         default:
-            reportAbortNoh("retrieve goto of nonterminal varstmt in state 139");
+            reportAbortNoh("retrieve goto of nonterminal varstmt in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Exprstmt>(size_t state)
@@ -129,11 +125,10 @@ template <> size_t Parser::getGoto<ASTNS::Exprstmt>(size_t state)
     switch (state)
     {
         case 25:
-             return 32;
         case 29:
-             return 32;
+            return 32;
         default:
-            reportAbortNoh("retrieve goto of nonterminal exprstmt in state 139");
+            reportAbortNoh("retrieve goto of nonterminal exprstmt in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Retstmt>(size_t state)
@@ -141,11 +136,10 @@ template <> size_t Parser::getGoto<ASTNS::Retstmt>(size_t state)
     switch (state)
     {
         case 25:
-             return 33;
         case 29:
-             return 33;
+            return 33;
         default:
-            reportAbortNoh("retrieve goto of nonterminal retstmt in state 139");
+            reportAbortNoh("retrieve goto of nonterminal retstmt in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Varstmtfinisher>(size_t state)
@@ -153,9 +147,9 @@ template <> size_t Parser::getGoto<ASTNS::Varstmtfinisher>(size_t state)
     switch (state)
     {
         case 72:
-             return 101;
+            return 101;
         default:
-            reportAbortNoh("retrieve goto of nonterminal varstmtfinisher in state 139");
+            reportAbortNoh("retrieve goto of nonterminal varstmtfinisher in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Expression>(size_t state)
@@ -163,23 +157,22 @@ template <> size_t Parser::getGoto<ASTNS::Expression>(size_t state)
     switch (state)
     {
         case 25:
-             return 36;
         case 29:
-             return 36;
+            return 36;
         case 37:
-             return 74;
+            return 74;
         case 67:
-             return 99;
+            return 99;
         case 98:
-             return 126;
+            return 126;
         case 130:
-             return 135;
+            return 135;
         case 133:
-             return 137;
+            return 137;
         case 138:
-             return 139;
+            return 139;
         default:
-            reportAbortNoh("retrieve goto of nonterminal expression in state 139");
+            reportAbortNoh("retrieve goto of nonterminal expression in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Args>(size_t state)
@@ -187,9 +180,9 @@ template <> size_t Parser::getGoto<ASTNS::Args>(size_t state)
     switch (state)
     {
         case 98:
-             return 124;
+            return 124;
         default:
-            reportAbortNoh("retrieve goto of nonterminal args in state 139");
+            reportAbortNoh("retrieve goto of nonterminal args in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Assignmentexpr>(size_t state)
@@ -197,25 +190,18 @@ template <> size_t Parser::getGoto<ASTNS::Assignmentexpr>(size_t state)
     switch (state)
     {
         case 25:
-             return 38;
         case 29:
-             return 38;
         case 37:
-             return 38;
         case 67:
-             return 38;
-        case 75:
-             return 104;
         case 98:
-             return 38;
         case 130:
-             return 38;
         case 133:
-             return 38;
         case 138:
-             return 38;
+            return 38;
+        case 75:
+            return 104;
         default:
-            reportAbortNoh("retrieve goto of nonterminal assignmentexpr in state 139");
+            reportAbortNoh("retrieve goto of nonterminal assignmentexpr in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Ternaryexpr>(size_t state)
@@ -223,27 +209,19 @@ template <> size_t Parser::getGoto<ASTNS::Ternaryexpr>(size_t state)
     switch (state)
     {
         case 25:
-             return 39;
         case 29:
-             return 39;
         case 37:
-             return 39;
         case 67:
-             return 39;
         case 75:
-             return 39;
         case 98:
-             return 39;
         case 130:
-             return 39;
-        case 131:
-             return 136;
         case 133:
-             return 39;
         case 138:
-             return 39;
+            return 39;
+        case 131:
+            return 136;
         default:
-            reportAbortNoh("retrieve goto of nonterminal ternaryexpr in state 139");
+            reportAbortNoh("retrieve goto of nonterminal ternaryexpr in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Binorexpr>(size_t state)
@@ -251,29 +229,20 @@ template <> size_t Parser::getGoto<ASTNS::Binorexpr>(size_t state)
     switch (state)
     {
         case 25:
-             return 40;
         case 29:
-             return 40;
         case 37:
-             return 40;
         case 67:
-             return 40;
         case 75:
-             return 40;
-        case 76:
-             return 105;
         case 98:
-             return 40;
         case 130:
-             return 40;
         case 131:
-             return 40;
         case 133:
-             return 40;
         case 138:
-             return 40;
+            return 40;
+        case 76:
+            return 105;
         default:
-            reportAbortNoh("retrieve goto of nonterminal binorexpr in state 139");
+            reportAbortNoh("retrieve goto of nonterminal binorexpr in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Binandexpr>(size_t state)
@@ -281,31 +250,21 @@ template <> size_t Parser::getGoto<ASTNS::Binandexpr>(size_t state)
     switch (state)
     {
         case 25:
-             return 41;
         case 29:
-             return 41;
         case 37:
-             return 41;
         case 67:
-             return 41;
         case 75:
-             return 41;
         case 76:
-             return 41;
-        case 77:
-             return 106;
         case 98:
-             return 41;
         case 130:
-             return 41;
         case 131:
-             return 41;
         case 133:
-             return 41;
         case 138:
-             return 41;
+            return 41;
+        case 77:
+            return 106;
         default:
-            reportAbortNoh("retrieve goto of nonterminal binandexpr in state 139");
+            reportAbortNoh("retrieve goto of nonterminal binandexpr in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Binnotexpr>(size_t state)
@@ -313,35 +272,24 @@ template <> size_t Parser::getGoto<ASTNS::Binnotexpr>(size_t state)
     switch (state)
     {
         case 25:
-             return 42;
         case 29:
-             return 42;
         case 37:
-             return 42;
-        case 43:
-             return 79;
         case 67:
-             return 42;
         case 75:
-             return 42;
         case 76:
-             return 42;
         case 77:
-             return 42;
-        case 78:
-             return 107;
         case 98:
-             return 42;
         case 130:
-             return 42;
         case 131:
-             return 42;
         case 133:
-             return 42;
         case 138:
-             return 42;
+            return 42;
+        case 43:
+            return 79;
+        case 78:
+            return 107;
         default:
-            reportAbortNoh("retrieve goto of nonterminal binnotexpr in state 139");
+            reportAbortNoh("retrieve goto of nonterminal binnotexpr in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Compeqexpr>(size_t state)
@@ -349,35 +297,22 @@ template <> size_t Parser::getGoto<ASTNS::Compeqexpr>(size_t state)
     switch (state)
     {
         case 25:
-             return 44;
         case 29:
-             return 44;
         case 37:
-             return 44;
         case 43:
-             return 44;
         case 67:
-             return 44;
         case 75:
-             return 44;
         case 76:
-             return 44;
         case 77:
-             return 44;
         case 78:
-             return 44;
         case 98:
-             return 44;
         case 130:
-             return 44;
         case 131:
-             return 44;
         case 133:
-             return 44;
         case 138:
-             return 44;
+            return 44;
         default:
-            reportAbortNoh("retrieve goto of nonterminal compeqexpr in state 139");
+            reportAbortNoh("retrieve goto of nonterminal compeqexpr in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Complgtexpr>(size_t state)
@@ -385,39 +320,26 @@ template <> size_t Parser::getGoto<ASTNS::Complgtexpr>(size_t state)
     switch (state)
     {
         case 25:
-             return 45;
         case 29:
-             return 45;
         case 37:
-             return 45;
         case 43:
-             return 45;
         case 67:
-             return 45;
         case 75:
-             return 45;
         case 76:
-             return 45;
         case 77:
-             return 45;
         case 78:
-             return 45;
-        case 80:
-             return 108;
-        case 81:
-             return 109;
         case 98:
-             return 45;
         case 130:
-             return 45;
         case 131:
-             return 45;
         case 133:
-             return 45;
         case 138:
-             return 45;
+            return 45;
+        case 80:
+            return 108;
+        case 81:
+            return 109;
         default:
-            reportAbortNoh("retrieve goto of nonterminal complgtexpr in state 139");
+            reportAbortNoh("retrieve goto of nonterminal complgtexpr in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Bitxorexpr>(size_t state)
@@ -425,47 +347,32 @@ template <> size_t Parser::getGoto<ASTNS::Bitxorexpr>(size_t state)
     switch (state)
     {
         case 25:
-             return 46;
         case 29:
-             return 46;
         case 37:
-             return 46;
         case 43:
-             return 46;
         case 67:
-             return 46;
         case 75:
-             return 46;
         case 76:
-             return 46;
         case 77:
-             return 46;
         case 78:
-             return 46;
         case 80:
-             return 46;
         case 81:
-             return 46;
-        case 82:
-             return 110;
-        case 83:
-             return 111;
-        case 84:
-             return 112;
-        case 85:
-             return 113;
         case 98:
-             return 46;
         case 130:
-             return 46;
         case 131:
-             return 46;
         case 133:
-             return 46;
         case 138:
-             return 46;
+            return 46;
+        case 82:
+            return 110;
+        case 83:
+            return 111;
+        case 84:
+            return 112;
+        case 85:
+            return 113;
         default:
-            reportAbortNoh("retrieve goto of nonterminal bitxorexpr in state 139");
+            reportAbortNoh("retrieve goto of nonterminal bitxorexpr in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Bitorexpr>(size_t state)
@@ -473,49 +380,30 @@ template <> size_t Parser::getGoto<ASTNS::Bitorexpr>(size_t state)
     switch (state)
     {
         case 25:
-             return 47;
         case 29:
-             return 47;
         case 37:
-             return 47;
         case 43:
-             return 47;
         case 67:
-             return 47;
         case 75:
-             return 47;
         case 76:
-             return 47;
         case 77:
-             return 47;
         case 78:
-             return 47;
         case 80:
-             return 47;
         case 81:
-             return 47;
         case 82:
-             return 47;
         case 83:
-             return 47;
         case 84:
-             return 47;
         case 85:
-             return 47;
-        case 86:
-             return 114;
         case 98:
-             return 47;
         case 130:
-             return 47;
         case 131:
-             return 47;
         case 133:
-             return 47;
         case 138:
-             return 47;
+            return 47;
+        case 86:
+            return 114;
         default:
-            reportAbortNoh("retrieve goto of nonterminal bitorexpr in state 139");
+            reportAbortNoh("retrieve goto of nonterminal bitorexpr in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Bitandexpr>(size_t state)
@@ -523,51 +411,31 @@ template <> size_t Parser::getGoto<ASTNS::Bitandexpr>(size_t state)
     switch (state)
     {
         case 25:
-             return 48;
         case 29:
-             return 48;
         case 37:
-             return 48;
         case 43:
-             return 48;
         case 67:
-             return 48;
         case 75:
-             return 48;
         case 76:
-             return 48;
         case 77:
-             return 48;
         case 78:
-             return 48;
         case 80:
-             return 48;
         case 81:
-             return 48;
         case 82:
-             return 48;
         case 83:
-             return 48;
         case 84:
-             return 48;
         case 85:
-             return 48;
         case 86:
-             return 48;
-        case 87:
-             return 115;
         case 98:
-             return 48;
         case 130:
-             return 48;
         case 131:
-             return 48;
         case 133:
-             return 48;
         case 138:
-             return 48;
+            return 48;
+        case 87:
+            return 115;
         default:
-            reportAbortNoh("retrieve goto of nonterminal bitandexpr in state 139");
+            reportAbortNoh("retrieve goto of nonterminal bitandexpr in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Bitshiftexpr>(size_t state)
@@ -575,53 +443,32 @@ template <> size_t Parser::getGoto<ASTNS::Bitshiftexpr>(size_t state)
     switch (state)
     {
         case 25:
-             return 49;
         case 29:
-             return 49;
         case 37:
-             return 49;
         case 43:
-             return 49;
         case 67:
-             return 49;
         case 75:
-             return 49;
         case 76:
-             return 49;
         case 77:
-             return 49;
         case 78:
-             return 49;
         case 80:
-             return 49;
         case 81:
-             return 49;
         case 82:
-             return 49;
         case 83:
-             return 49;
         case 84:
-             return 49;
         case 85:
-             return 49;
         case 86:
-             return 49;
         case 87:
-             return 49;
-        case 88:
-             return 116;
         case 98:
-             return 49;
         case 130:
-             return 49;
         case 131:
-             return 49;
         case 133:
-             return 49;
         case 138:
-             return 49;
+            return 49;
+        case 88:
+            return 116;
         default:
-            reportAbortNoh("retrieve goto of nonterminal bitshiftexpr in state 139");
+            reportAbortNoh("retrieve goto of nonterminal bitshiftexpr in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Additionexpr>(size_t state)
@@ -629,57 +476,35 @@ template <> size_t Parser::getGoto<ASTNS::Additionexpr>(size_t state)
     switch (state)
     {
         case 25:
-             return 50;
         case 29:
-             return 50;
         case 37:
-             return 50;
         case 43:
-             return 50;
         case 67:
-             return 50;
         case 75:
-             return 50;
         case 76:
-             return 50;
         case 77:
-             return 50;
         case 78:
-             return 50;
         case 80:
-             return 50;
         case 81:
-             return 50;
         case 82:
-             return 50;
         case 83:
-             return 50;
         case 84:
-             return 50;
         case 85:
-             return 50;
         case 86:
-             return 50;
         case 87:
-             return 50;
         case 88:
-             return 50;
-        case 89:
-             return 117;
-        case 90:
-             return 118;
         case 98:
-             return 50;
         case 130:
-             return 50;
         case 131:
-             return 50;
         case 133:
-             return 50;
         case 138:
-             return 50;
+            return 50;
+        case 89:
+            return 117;
+        case 90:
+            return 118;
         default:
-            reportAbortNoh("retrieve goto of nonterminal additionexpr in state 139");
+            reportAbortNoh("retrieve goto of nonterminal additionexpr in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Multexpr>(size_t state)
@@ -687,61 +512,37 @@ template <> size_t Parser::getGoto<ASTNS::Multexpr>(size_t state)
     switch (state)
     {
         case 25:
-             return 51;
         case 29:
-             return 51;
         case 37:
-             return 51;
         case 43:
-             return 51;
         case 67:
-             return 51;
         case 75:
-             return 51;
         case 76:
-             return 51;
         case 77:
-             return 51;
         case 78:
-             return 51;
         case 80:
-             return 51;
         case 81:
-             return 51;
         case 82:
-             return 51;
         case 83:
-             return 51;
         case 84:
-             return 51;
         case 85:
-             return 51;
         case 86:
-             return 51;
         case 87:
-             return 51;
         case 88:
-             return 51;
         case 89:
-             return 51;
         case 90:
-             return 51;
-        case 91:
-             return 119;
-        case 92:
-             return 120;
         case 98:
-             return 51;
         case 130:
-             return 51;
         case 131:
-             return 51;
         case 133:
-             return 51;
         case 138:
-             return 51;
+            return 51;
+        case 91:
+            return 119;
+        case 92:
+            return 120;
         default:
-            reportAbortNoh("retrieve goto of nonterminal multexpr in state 139");
+            reportAbortNoh("retrieve goto of nonterminal multexpr in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Unary>(size_t state)
@@ -749,71 +550,45 @@ template <> size_t Parser::getGoto<ASTNS::Unary>(size_t state)
     switch (state)
     {
         case 25:
-             return 52;
         case 29:
-             return 52;
         case 37:
-             return 52;
         case 43:
-             return 52;
-        case 53:
-             return 96;
-        case 54:
-             return 97;
         case 67:
-             return 52;
         case 75:
-             return 52;
         case 76:
-             return 52;
         case 77:
-             return 52;
         case 78:
-             return 52;
         case 80:
-             return 52;
         case 81:
-             return 52;
         case 82:
-             return 52;
         case 83:
-             return 52;
         case 84:
-             return 52;
         case 85:
-             return 52;
         case 86:
-             return 52;
         case 87:
-             return 52;
         case 88:
-             return 52;
         case 89:
-             return 52;
         case 90:
-             return 52;
         case 91:
-             return 52;
         case 92:
-             return 52;
-        case 93:
-             return 121;
-        case 94:
-             return 122;
-        case 95:
-             return 123;
         case 98:
-             return 52;
         case 130:
-             return 52;
         case 131:
-             return 52;
         case 133:
-             return 52;
         case 138:
-             return 52;
+            return 52;
+        case 53:
+            return 96;
+        case 54:
+            return 97;
+        case 93:
+            return 121;
+        case 94:
+            return 122;
+        case 95:
+            return 123;
         default:
-            reportAbortNoh("retrieve goto of nonterminal unary in state 139");
+            reportAbortNoh("retrieve goto of nonterminal unary in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Call>(size_t state)
@@ -821,71 +596,40 @@ template <> size_t Parser::getGoto<ASTNS::Call>(size_t state)
     switch (state)
     {
         case 25:
-             return 55;
         case 29:
-             return 55;
         case 37:
-             return 55;
         case 43:
-             return 55;
         case 53:
-             return 55;
         case 54:
-             return 55;
         case 67:
-             return 55;
         case 75:
-             return 55;
         case 76:
-             return 55;
         case 77:
-             return 55;
         case 78:
-             return 55;
         case 80:
-             return 55;
         case 81:
-             return 55;
         case 82:
-             return 55;
         case 83:
-             return 55;
         case 84:
-             return 55;
         case 85:
-             return 55;
         case 86:
-             return 55;
         case 87:
-             return 55;
         case 88:
-             return 55;
         case 89:
-             return 55;
         case 90:
-             return 55;
         case 91:
-             return 55;
         case 92:
-             return 55;
         case 93:
-             return 55;
         case 94:
-             return 55;
         case 95:
-             return 55;
         case 98:
-             return 55;
         case 130:
-             return 55;
         case 131:
-             return 55;
         case 133:
-             return 55;
         case 138:
-             return 55;
+            return 55;
         default:
-            reportAbortNoh("retrieve goto of nonterminal call in state 139");
+            reportAbortNoh("retrieve goto of nonterminal call in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Primary>(size_t state)
@@ -893,71 +637,40 @@ template <> size_t Parser::getGoto<ASTNS::Primary>(size_t state)
     switch (state)
     {
         case 25:
-             return 56;
         case 29:
-             return 56;
         case 37:
-             return 56;
         case 43:
-             return 56;
         case 53:
-             return 56;
         case 54:
-             return 56;
         case 67:
-             return 56;
         case 75:
-             return 56;
         case 76:
-             return 56;
         case 77:
-             return 56;
         case 78:
-             return 56;
         case 80:
-             return 56;
         case 81:
-             return 56;
         case 82:
-             return 56;
         case 83:
-             return 56;
         case 84:
-             return 56;
         case 85:
-             return 56;
         case 86:
-             return 56;
         case 87:
-             return 56;
         case 88:
-             return 56;
         case 89:
-             return 56;
         case 90:
-             return 56;
         case 91:
-             return 56;
         case 92:
-             return 56;
         case 93:
-             return 56;
         case 94:
-             return 56;
         case 95:
-             return 56;
         case 98:
-             return 56;
         case 130:
-             return 56;
         case 131:
-             return 56;
         case 133:
-             return 56;
         case 138:
-             return 56;
+            return 56;
         default:
-            reportAbortNoh("retrieve goto of nonterminal primary in state 139");
+            reportAbortNoh("retrieve goto of nonterminal primary in invalid state");
     }
 }
 // This code was autogenerated - see the utils/ directory

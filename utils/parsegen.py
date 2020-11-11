@@ -586,13 +586,22 @@ def genGoto():
         output.append(         '{\n')
         output.append(         '    switch (state)\n')
         output.append(         '    {\n')
+
+        returns = {}
         for staten, state in table.items():
             if nonterm in state.goto:
-                output.append(f'        case {staten}:\n')
-                output.append(f'             return {state.goto[nonterm]};\n')
+                if state.goto[nonterm] in returns: # there is already a state in which this goto is returned (squishing rows together)
+                    returns[state.goto[nonterm]].append(staten)
+                else:
+                    returns[state.goto[nonterm]] = [staten]
+
+        for retval, states in returns.items():
+            for state in states:
+                output.append(f'        case {state}:\n')
+            output.append(    f'            return {retval};\n')
 
         output.append(         '        default:\n')
-        output.append(        f'            reportAbortNoh("retrieve goto of nonterminal {str(nonterm)} in state {staten}");\n')
+        output.append(        f'            reportAbortNoh("retrieve goto of nonterminal {str(nonterm)} in invalid state");\n')
         output.append(         '    }\n')
         output.append(         '}\n')
 
