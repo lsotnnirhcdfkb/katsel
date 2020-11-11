@@ -678,7 +678,7 @@ template <> size_t Parser::getGoto<ASTNS::Primary>(size_t state)
 // GETGOTO END
 // }}}
 
-std::unique_ptr<ASTNS::AST> Parser::parse()
+std::unique_ptr<ASTNS::Declarations> Parser::parse()
 {
     struct stackitem
     {
@@ -3929,7 +3929,15 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
     if (!asir)
         return nullptr;
 
-    return std::move(asir->ast);
+    std::unique_ptr<ASTNS::AST> astu (std::move(asir->ast));
+    ASTNS::Declarations *decls = dynamic_cast<ASTNS::Declarations*>(astu.get());
+
+    if (!decls)
+        return nullptr;
+
+    astu.release();
+    std::unique_ptr<ASTNS::Declarations> declsu (decls);
+    return declsu;
 }
 
 Token Parser::consume()

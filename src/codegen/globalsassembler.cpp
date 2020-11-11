@@ -8,7 +8,7 @@
 
 GlobalsAssembler::GlobalsAssembler(CodeGenContext &con, CodeGen &codeGen): context(con), codeGen(codeGen) {}
 
-void GlobalsAssembler::visitProgram(ASTNS::Program *a)
+void GlobalsAssembler::visitStmts(ASTNS::Program *a)
 {
     for (std::unique_ptr<ASTNS::Decl> &d : a->decls)
         d->accept(this);
