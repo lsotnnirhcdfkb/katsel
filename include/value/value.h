@@ -5,8 +5,6 @@
 #include "parse/ast.h"
 #include <cstddef>
 
-namespace ASTNS {class Expr;}
-
 struct Value
 {
     Type *type;
