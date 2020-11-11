@@ -152,11 +152,21 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
     std::unique_ptr<stackitem> _a ## n = std::move(stack.top()); stack.pop();\
     aststackitem *si ## n = dynamic_cast<aststackitem*>(_a ## n .get());\
     std::unique_ptr<ASTNS::NewBaseAST> a ## n (std::move(si ## n ->ast));
+#define SHIFTON(ty, n) \
+    case ty: \
+        {SHIFT(n)} break;
+#define DEFAULTINVALID() \
+    default: \
+        invalidSyntax(lookahead);\
+        done = true;\
+        break;
 #define REDUCESKIP(cl) \
-    std::unique_ptr<stackitem> popped (std::move(stack.top())); stack.pop();\
-    aststackitem *asi = dynamic_cast<aststackitem*>(popped.get());\
-    size_t newstate = getGoto<ASTNS::cl>(stack.top()->state);\
-    stack.push(std::make_unique<aststackitem>(newstate, std::move(asi->ast)));
+    {\
+        std::unique_ptr<stackitem> popped (std::move(stack.top())); stack.pop();\
+        aststackitem *asi = dynamic_cast<aststackitem*>(popped.get());\
+        size_t newstate = getGoto<ASTNS::cl>(stack.top()->state);\
+        stack.push(std::make_unique<aststackitem>(newstate, std::move(asi->ast)));\
+    }
     bool done = false;
     Token lookahead (consume());
     std::stack<std::unique_ptr<stackitem>> stack;
@@ -168,44 +178,20 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
             case 0:
                switch (lookahead.type)
                {
-                    case TokenType::DECINTLIT:
-                        {
-                            SHIFT(9);
-                        }
-                        break;
-                    case TokenType::MINUS:
-                        {
-                            SHIFT(6);
-                        }
-                        break;
-                    case TokenType::OPARN:
-                        {
-                            SHIFT(10);
-                        }
-                        break;
-                    case TokenType::TILDE:
-                        {
-                            SHIFT(7);
-                        }
-                        break;
-                    default:
-                        invalidSyntax(lookahead);
-                        done = true;
-                        break;
+                    SHIFTON(TokenType::DECINTLIT, 9)
+                    SHIFTON(TokenType::MINUS, 6)
+                    SHIFTON(TokenType::OPARN, 10)
+                    SHIFTON(TokenType::TILDE, 7)
+                    DEFAULTINVALID()
                 }
                 break;
             case 1:
                switch (lookahead.type)
                {
                     case TokenType::EOF_:
-                        {
                             done = true;
-                        }
                         break;
-                    default:
-                        invalidSyntax(lookahead);
-                        done = true;
-                        break;
+                    DEFAULTINVALID()
                 }
                 break;
             case 2:
@@ -219,10 +205,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    default:
-                        invalidSyntax(lookahead);
-                        done = true;
-                        break;
+                    DEFAULTINVALID()
                 }
                 break;
             case 3:
@@ -237,20 +220,9 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    case TokenType::MINUS:
-                        {
-                            SHIFT(12);
-                        }
-                        break;
-                    case TokenType::PLUS:
-                        {
-                            SHIFT(11);
-                        }
-                        break;
-                    default:
-                        invalidSyntax(lookahead);
-                        done = true;
-                        break;
+                    SHIFTON(TokenType::MINUS, 12)
+                    SHIFTON(TokenType::PLUS, 11)
+                    DEFAULTINVALID()
                 }
                 break;
             case 4:
@@ -260,24 +232,11 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                     case TokenType::EOF_:
                     case TokenType::MINUS:
                     case TokenType::PLUS:
-                        {
-                            REDUCESKIP(Add);
-                        }
+                        REDUCESKIP(Add);
                         break;
-                    case TokenType::SLASH:
-                        {
-                            SHIFT(14);
-                        }
-                        break;
-                    case TokenType::STAR:
-                        {
-                            SHIFT(13);
-                        }
-                        break;
-                    default:
-                        invalidSyntax(lookahead);
-                        done = true;
-                        break;
+                    SHIFTON(TokenType::SLASH, 14)
+                    SHIFTON(TokenType::STAR, 13)
+                    DEFAULTINVALID()
                 }
                 break;
             case 5:
@@ -289,72 +248,29 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                     case TokenType::PLUS:
                     case TokenType::SLASH:
                     case TokenType::STAR:
-                        {
-                            REDUCESKIP(Mult);
-                        }
+                        REDUCESKIP(Mult);
                         break;
-                    default:
-                        invalidSyntax(lookahead);
-                        done = true;
-                        break;
+                    DEFAULTINVALID()
                 }
                 break;
             case 6:
                switch (lookahead.type)
                {
-                    case TokenType::DECINTLIT:
-                        {
-                            SHIFT(9);
-                        }
-                        break;
-                    case TokenType::MINUS:
-                        {
-                            SHIFT(6);
-                        }
-                        break;
-                    case TokenType::OPARN:
-                        {
-                            SHIFT(10);
-                        }
-                        break;
-                    case TokenType::TILDE:
-                        {
-                            SHIFT(7);
-                        }
-                        break;
-                    default:
-                        invalidSyntax(lookahead);
-                        done = true;
-                        break;
+                    SHIFTON(TokenType::DECINTLIT, 9)
+                    SHIFTON(TokenType::MINUS, 6)
+                    SHIFTON(TokenType::OPARN, 10)
+                    SHIFTON(TokenType::TILDE, 7)
+                    DEFAULTINVALID()
                 }
                 break;
             case 7:
                switch (lookahead.type)
                {
-                    case TokenType::DECINTLIT:
-                        {
-                            SHIFT(9);
-                        }
-                        break;
-                    case TokenType::MINUS:
-                        {
-                            SHIFT(6);
-                        }
-                        break;
-                    case TokenType::OPARN:
-                        {
-                            SHIFT(10);
-                        }
-                        break;
-                    case TokenType::TILDE:
-                        {
-                            SHIFT(7);
-                        }
-                        break;
-                    default:
-                        invalidSyntax(lookahead);
-                        done = true;
-                        break;
+                    SHIFTON(TokenType::DECINTLIT, 9)
+                    SHIFTON(TokenType::MINUS, 6)
+                    SHIFTON(TokenType::OPARN, 10)
+                    SHIFTON(TokenType::TILDE, 7)
+                    DEFAULTINVALID()
                 }
                 break;
             case 8:
@@ -366,14 +282,9 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                     case TokenType::PLUS:
                     case TokenType::SLASH:
                     case TokenType::STAR:
-                        {
-                            REDUCESKIP(Unary);
-                        }
+                        REDUCESKIP(Unary);
                         break;
-                    default:
-                        invalidSyntax(lookahead);
-                        done = true;
-                        break;
+                    DEFAULTINVALID()
                 }
                 break;
             case 9:
@@ -392,155 +303,57 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    default:
-                        invalidSyntax(lookahead);
-                        done = true;
-                        break;
+                    DEFAULTINVALID()
                 }
                 break;
             case 10:
                switch (lookahead.type)
                {
-                    case TokenType::DECINTLIT:
-                        {
-                            SHIFT(9);
-                        }
-                        break;
-                    case TokenType::MINUS:
-                        {
-                            SHIFT(6);
-                        }
-                        break;
-                    case TokenType::OPARN:
-                        {
-                            SHIFT(10);
-                        }
-                        break;
-                    case TokenType::TILDE:
-                        {
-                            SHIFT(7);
-                        }
-                        break;
-                    default:
-                        invalidSyntax(lookahead);
-                        done = true;
-                        break;
+                    SHIFTON(TokenType::DECINTLIT, 9)
+                    SHIFTON(TokenType::MINUS, 6)
+                    SHIFTON(TokenType::OPARN, 10)
+                    SHIFTON(TokenType::TILDE, 7)
+                    DEFAULTINVALID()
                 }
                 break;
             case 11:
                switch (lookahead.type)
                {
-                    case TokenType::DECINTLIT:
-                        {
-                            SHIFT(9);
-                        }
-                        break;
-                    case TokenType::MINUS:
-                        {
-                            SHIFT(6);
-                        }
-                        break;
-                    case TokenType::OPARN:
-                        {
-                            SHIFT(10);
-                        }
-                        break;
-                    case TokenType::TILDE:
-                        {
-                            SHIFT(7);
-                        }
-                        break;
-                    default:
-                        invalidSyntax(lookahead);
-                        done = true;
-                        break;
+                    SHIFTON(TokenType::DECINTLIT, 9)
+                    SHIFTON(TokenType::MINUS, 6)
+                    SHIFTON(TokenType::OPARN, 10)
+                    SHIFTON(TokenType::TILDE, 7)
+                    DEFAULTINVALID()
                 }
                 break;
             case 12:
                switch (lookahead.type)
                {
-                    case TokenType::DECINTLIT:
-                        {
-                            SHIFT(9);
-                        }
-                        break;
-                    case TokenType::MINUS:
-                        {
-                            SHIFT(6);
-                        }
-                        break;
-                    case TokenType::OPARN:
-                        {
-                            SHIFT(10);
-                        }
-                        break;
-                    case TokenType::TILDE:
-                        {
-                            SHIFT(7);
-                        }
-                        break;
-                    default:
-                        invalidSyntax(lookahead);
-                        done = true;
-                        break;
+                    SHIFTON(TokenType::DECINTLIT, 9)
+                    SHIFTON(TokenType::MINUS, 6)
+                    SHIFTON(TokenType::OPARN, 10)
+                    SHIFTON(TokenType::TILDE, 7)
+                    DEFAULTINVALID()
                 }
                 break;
             case 13:
                switch (lookahead.type)
                {
-                    case TokenType::DECINTLIT:
-                        {
-                            SHIFT(9);
-                        }
-                        break;
-                    case TokenType::MINUS:
-                        {
-                            SHIFT(6);
-                        }
-                        break;
-                    case TokenType::OPARN:
-                        {
-                            SHIFT(10);
-                        }
-                        break;
-                    case TokenType::TILDE:
-                        {
-                            SHIFT(7);
-                        }
-                        break;
-                    default:
-                        invalidSyntax(lookahead);
-                        done = true;
-                        break;
+                    SHIFTON(TokenType::DECINTLIT, 9)
+                    SHIFTON(TokenType::MINUS, 6)
+                    SHIFTON(TokenType::OPARN, 10)
+                    SHIFTON(TokenType::TILDE, 7)
+                    DEFAULTINVALID()
                 }
                 break;
             case 14:
                switch (lookahead.type)
                {
-                    case TokenType::DECINTLIT:
-                        {
-                            SHIFT(9);
-                        }
-                        break;
-                    case TokenType::MINUS:
-                        {
-                            SHIFT(6);
-                        }
-                        break;
-                    case TokenType::OPARN:
-                        {
-                            SHIFT(10);
-                        }
-                        break;
-                    case TokenType::TILDE:
-                        {
-                            SHIFT(7);
-                        }
-                        break;
-                    default:
-                        invalidSyntax(lookahead);
-                        done = true;
-                        break;
+                    SHIFTON(TokenType::DECINTLIT, 9)
+                    SHIFTON(TokenType::MINUS, 6)
+                    SHIFTON(TokenType::OPARN, 10)
+                    SHIFTON(TokenType::TILDE, 7)
+                    DEFAULTINVALID()
                 }
                 break;
             case 15:
@@ -560,10 +373,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    default:
-                        invalidSyntax(lookahead);
-                        done = true;
-                        break;
+                    DEFAULTINVALID()
                 }
                 break;
             case 16:
@@ -583,24 +393,14 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    default:
-                        invalidSyntax(lookahead);
-                        done = true;
-                        break;
+                    DEFAULTINVALID()
                 }
                 break;
             case 17:
                switch (lookahead.type)
                {
-                    case TokenType::CPARN:
-                        {
-                            SHIFT(22);
-                        }
-                        break;
-                    default:
-                        invalidSyntax(lookahead);
-                        done = true;
-                        break;
+                    SHIFTON(TokenType::CPARN, 22)
+                    DEFAULTINVALID()
                 }
                 break;
             case 18:
@@ -619,20 +419,9 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    case TokenType::SLASH:
-                        {
-                            SHIFT(14);
-                        }
-                        break;
-                    case TokenType::STAR:
-                        {
-                            SHIFT(13);
-                        }
-                        break;
-                    default:
-                        invalidSyntax(lookahead);
-                        done = true;
-                        break;
+                    SHIFTON(TokenType::SLASH, 14)
+                    SHIFTON(TokenType::STAR, 13)
+                    DEFAULTINVALID()
                 }
                 break;
             case 19:
@@ -651,20 +440,9 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    case TokenType::SLASH:
-                        {
-                            SHIFT(14);
-                        }
-                        break;
-                    case TokenType::STAR:
-                        {
-                            SHIFT(13);
-                        }
-                        break;
-                    default:
-                        invalidSyntax(lookahead);
-                        done = true;
-                        break;
+                    SHIFTON(TokenType::SLASH, 14)
+                    SHIFTON(TokenType::STAR, 13)
+                    DEFAULTINVALID()
                 }
                 break;
             case 20:
@@ -685,10 +463,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    default:
-                        invalidSyntax(lookahead);
-                        done = true;
-                        break;
+                    DEFAULTINVALID()
                 }
                 break;
             case 21:
@@ -709,10 +484,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    default:
-                        invalidSyntax(lookahead);
-                        done = true;
-                        break;
+                    DEFAULTINVALID()
                 }
                 break;
             case 22:
@@ -733,10 +505,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    default:
-                        invalidSyntax(lookahead);
-                        done = true;
-                        break;
+                    DEFAULTINVALID()
                 }
                 break;
             default:
