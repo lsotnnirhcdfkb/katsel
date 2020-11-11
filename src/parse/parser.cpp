@@ -104,6 +104,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::stmt>(a0);
+                            int newstate = getGoto<ASTNS::stmt>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     default:
@@ -137,6 +139,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::expr>(a0);
+                            int newstate = getGoto<ASTNS::expr>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::CPARN:
@@ -145,6 +149,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::expr>(a0);
+                            int newstate = getGoto<ASTNS::expr>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     default:
@@ -178,6 +184,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::add>(a0);
+                            int newstate = getGoto<ASTNS::add>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::CPARN:
@@ -186,6 +194,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::add>(a0);
+                            int newstate = getGoto<ASTNS::add>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::PLUS:
@@ -194,6 +204,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::add>(a0);
+                            int newstate = getGoto<ASTNS::add>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::MINUS:
@@ -202,6 +214,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::add>(a0);
+                            int newstate = getGoto<ASTNS::add>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     default:
@@ -221,6 +235,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0);
+                            int newstate = getGoto<ASTNS::mult>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::CPARN:
@@ -229,6 +245,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0);
+                            int newstate = getGoto<ASTNS::mult>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::PLUS:
@@ -237,6 +255,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0);
+                            int newstate = getGoto<ASTNS::mult>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::MINUS:
@@ -245,6 +265,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0);
+                            int newstate = getGoto<ASTNS::mult>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::STAR:
@@ -253,6 +275,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0);
+                            int newstate = getGoto<ASTNS::mult>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::SLASH:
@@ -261,6 +285,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0);
+                            int newstate = getGoto<ASTNS::mult>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     default:
@@ -330,6 +356,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0);
+                            int newstate = getGoto<ASTNS::unary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::CPARN:
@@ -338,6 +366,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0);
+                            int newstate = getGoto<ASTNS::unary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::PLUS:
@@ -346,6 +376,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0);
+                            int newstate = getGoto<ASTNS::unary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::MINUS:
@@ -354,6 +386,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0);
+                            int newstate = getGoto<ASTNS::unary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::STAR:
@@ -362,6 +396,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0);
+                            int newstate = getGoto<ASTNS::unary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::SLASH:
@@ -370,6 +406,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0);
+                            int newstate = getGoto<ASTNS::unary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     default:
@@ -389,6 +427,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
                             Token a0 (tsi0->tok);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::primary>(a0);
+                            int newstate = getGoto<ASTNS::primary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::CPARN:
@@ -397,6 +437,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
                             Token a0 (tsi0->tok);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::primary>(a0);
+                            int newstate = getGoto<ASTNS::primary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::PLUS:
@@ -405,6 +447,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
                             Token a0 (tsi0->tok);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::primary>(a0);
+                            int newstate = getGoto<ASTNS::primary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::MINUS:
@@ -413,6 +457,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
                             Token a0 (tsi0->tok);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::primary>(a0);
+                            int newstate = getGoto<ASTNS::primary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::STAR:
@@ -421,6 +467,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
                             Token a0 (tsi0->tok);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::primary>(a0);
+                            int newstate = getGoto<ASTNS::primary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::SLASH:
@@ -429,6 +477,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
                             Token a0 (tsi0->tok);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::primary>(a0);
+                            int newstate = getGoto<ASTNS::primary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     default:
@@ -646,6 +696,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
                             Token a0 (tsi0->tok);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0, a1);
+                            int newstate = getGoto<ASTNS::unary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::CPARN:
@@ -657,6 +709,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
                             Token a0 (tsi0->tok);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0, a1);
+                            int newstate = getGoto<ASTNS::unary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::PLUS:
@@ -668,6 +722,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
                             Token a0 (tsi0->tok);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0, a1);
+                            int newstate = getGoto<ASTNS::unary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::MINUS:
@@ -679,6 +735,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
                             Token a0 (tsi0->tok);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0, a1);
+                            int newstate = getGoto<ASTNS::unary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::STAR:
@@ -690,6 +748,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
                             Token a0 (tsi0->tok);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0, a1);
+                            int newstate = getGoto<ASTNS::unary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::SLASH:
@@ -701,6 +761,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
                             Token a0 (tsi0->tok);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0, a1);
+                            int newstate = getGoto<ASTNS::unary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     default:
@@ -723,6 +785,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
                             Token a0 (tsi0->tok);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0, a1);
+                            int newstate = getGoto<ASTNS::unary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::CPARN:
@@ -734,6 +798,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
                             Token a0 (tsi0->tok);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0, a1);
+                            int newstate = getGoto<ASTNS::unary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::PLUS:
@@ -745,6 +811,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
                             Token a0 (tsi0->tok);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0, a1);
+                            int newstate = getGoto<ASTNS::unary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::MINUS:
@@ -756,6 +824,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
                             Token a0 (tsi0->tok);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0, a1);
+                            int newstate = getGoto<ASTNS::unary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::STAR:
@@ -767,6 +837,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
                             Token a0 (tsi0->tok);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0, a1);
+                            int newstate = getGoto<ASTNS::unary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::SLASH:
@@ -778,6 +850,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
                             Token a0 (tsi0->tok);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::unary>(a0, a1);
+                            int newstate = getGoto<ASTNS::unary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     default:
@@ -835,6 +909,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::add>(a0, a1, a2);
+                            int newstate = getGoto<ASTNS::add>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::CPARN:
@@ -849,6 +925,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::add>(a0, a1, a2);
+                            int newstate = getGoto<ASTNS::add>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::PLUS:
@@ -863,6 +941,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::add>(a0, a1, a2);
+                            int newstate = getGoto<ASTNS::add>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::MINUS:
@@ -877,6 +957,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::add>(a0, a1, a2);
+                            int newstate = getGoto<ASTNS::add>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     default:
@@ -916,6 +998,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::add>(a0, a1, a2);
+                            int newstate = getGoto<ASTNS::add>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::CPARN:
@@ -930,6 +1014,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::add>(a0, a1, a2);
+                            int newstate = getGoto<ASTNS::add>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::PLUS:
@@ -944,6 +1030,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::add>(a0, a1, a2);
+                            int newstate = getGoto<ASTNS::add>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::MINUS:
@@ -958,6 +1046,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::add>(a0, a1, a2);
+                            int newstate = getGoto<ASTNS::add>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     default:
@@ -983,6 +1073,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0, a1, a2);
+                            int newstate = getGoto<ASTNS::mult>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::CPARN:
@@ -997,6 +1089,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0, a1, a2);
+                            int newstate = getGoto<ASTNS::mult>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::PLUS:
@@ -1011,6 +1105,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0, a1, a2);
+                            int newstate = getGoto<ASTNS::mult>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::MINUS:
@@ -1025,6 +1121,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0, a1, a2);
+                            int newstate = getGoto<ASTNS::mult>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::STAR:
@@ -1039,6 +1137,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0, a1, a2);
+                            int newstate = getGoto<ASTNS::mult>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::SLASH:
@@ -1053,6 +1153,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0, a1, a2);
+                            int newstate = getGoto<ASTNS::mult>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     default:
@@ -1078,6 +1180,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0, a1, a2);
+                            int newstate = getGoto<ASTNS::mult>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::CPARN:
@@ -1092,6 +1196,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0, a1, a2);
+                            int newstate = getGoto<ASTNS::mult>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::PLUS:
@@ -1106,6 +1212,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0, a1, a2);
+                            int newstate = getGoto<ASTNS::mult>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::MINUS:
@@ -1120,6 +1228,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0, a1, a2);
+                            int newstate = getGoto<ASTNS::mult>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::STAR:
@@ -1134,6 +1244,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0, a1, a2);
+                            int newstate = getGoto<ASTNS::mult>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::SLASH:
@@ -1148,6 +1260,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
                             std::unique_ptr<ASTNS::AST> a0 (asi0->ast);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::mult>(a0, a1, a2);
+                            int newstate = getGoto<ASTNS::mult>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     default:
@@ -1173,6 +1287,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
                             Token a0 (tsi0->tok);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::primary>(a0, a1, a2);
+                            int newstate = getGoto<ASTNS::primary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::CPARN:
@@ -1187,6 +1303,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
                             Token a0 (tsi0->tok);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::primary>(a0, a1, a2);
+                            int newstate = getGoto<ASTNS::primary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::PLUS:
@@ -1201,6 +1319,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
                             Token a0 (tsi0->tok);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::primary>(a0, a1, a2);
+                            int newstate = getGoto<ASTNS::primary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::MINUS:
@@ -1215,6 +1335,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
                             Token a0 (tsi0->tok);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::primary>(a0, a1, a2);
+                            int newstate = getGoto<ASTNS::primary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::STAR:
@@ -1229,6 +1351,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
                             Token a0 (tsi0->tok);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::primary>(a0, a1, a2);
+                            int newstate = getGoto<ASTNS::primary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     case TokenType::SLASH:
@@ -1243,6 +1367,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             tokstackitem *tsi0 = dynamic_cast<tokstackitem*>(_a0.get());
                             Token a0 (tsi0->tok);
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::primary>(a0, a1, a2);
+                            int newstate = getGoto<ASTNS::primary>(stack.top().state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
                     default:
@@ -1283,3 +1409,5 @@ Token Parser::consume()
     return cur;
 }
 
+// GETGOTO START
+// GETGOTO END

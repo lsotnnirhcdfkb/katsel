@@ -433,6 +433,8 @@ def genLoop():
                         output.append(f'                            std::unique_ptr<ASTNS::AST> a{i} (asi{i}->ast);\n') # same TODO as above
 
                 output.append(        f'                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::{str(ac.rule.symbol)}>({", ".join([f"a{i}" for i in range(len(ac.rule.expansion))])});\n')
+                output.append(        f'                            size_t newstate = getGoto<ASTNS::{str(ac.rule.symbol)}>(stack.top().state);\n')
+                output.append(        f'                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));\n')
             elif type(ac) == AcceptAction:
                 output.append(         '                            done = true;\n')
             else:
@@ -460,3 +462,4 @@ def genLoop():
     output.append(                     '    }\n')
 
     return ''.join(output)
+

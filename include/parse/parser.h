@@ -22,5 +22,8 @@ private:
     Lexer &lexer;
     File &sourcefile;
 
+    template <typename AST>
+    size_t getGoto<ASTNS::AST>(size_t state);
+
     Token consume();
 };
