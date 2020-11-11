@@ -409,7 +409,7 @@ def genLoop():
     output.append(                     '    std::stack<std::unique_ptr<stackitem>> stack;\n')
     output.append(                     '    stack.push(std::make_unique<stackitem>(0));\n')
 
-    output.append(                     '    while (true)\n')
+    output.append(                     '    while (!done)\n')
     output.append(                     '    {\n')
     output.append(                     '        switch (stack.top()->state)\n')
     output.append(                     '        {\n')
@@ -466,7 +466,7 @@ def genLoop():
     output.append(                     '            default:\n')
     output.append(                    ('                Error(Error::MsgType::INTERR, lookahead, "Parser reached invalid state")\n'
                                        '                    .primary(Error::Primary(lookahead)\n'
-                                       '                        .error(static_cast<std::stringstream>(std::stringstream() << "Parser reached invalid state: " << stack.top()->state).str()))\n'
+                                       '                        .error(static_cast<std::stringstream&>(std::stringstream() << "Parser reached invalid state: " << stack.top()->state).str()))\n'
                                        '                    .reportAbort();\n'))
 
     output.append(                     '        }\n')

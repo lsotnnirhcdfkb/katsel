@@ -49,7 +49,7 @@ Value FunctionType::castTo(CodeGenContext &, Value v)
 {
     Error(Error::MsgType::ERROR, v, "Invalid cast")
         .primary(Error::Primary(v)
-            .error(static_cast<std::stringstream>(std::stringstream() << "Invalid cast form type \"" << v.type->stringify() << "\" to \"" << this->stringify() << "\"").str()))
+            .error(static_cast<std::stringstream&>(std::stringstream() << "Invalid cast form type \"" << v.type->stringify() << "\" to \"" << this->stringify() << "\"").str()))
         .report();
     return Value();
 }
