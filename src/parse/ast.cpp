@@ -50,7 +50,7 @@ void ASTNS::Paramlist::accept(ASTVisitor *v) { v->visitParamlist(this); }
 ASTNS::Primary::Primary(Token value): value(value), form(ASTNS::Primary::Form::VALUE) {}
 ASTNS::Primary::Primary(Token oparn, std::unique_ptr<AST> expr, Token cparn): oparn(oparn), expr(std::move(expr)), cparn(cparn), form(ASTNS::Primary::Form::OPARN_EXPR_CPARN) {}
 void ASTNS::Primary::accept(ASTVisitor *v) { v->visitPrimary(this); }
-ASTNS::Retstmt::Retstmt(Token ret, std::unique_ptr<AST> expr): ret(ret), expr(std::move(expr)), form(ASTNS::Retstmt::Form::RET_EXPR) {}
+ASTNS::Retstmt::Retstmt(Token ret, std::unique_ptr<AST> expr, Token semi): ret(ret), expr(std::move(expr)), semi(semi), form(ASTNS::Retstmt::Form::RET_EXPR_SEMI) {}
 void ASTNS::Retstmt::accept(ASTVisitor *v) { v->visitRetstmt(this); }
 void ASTNS::Stmt::accept(ASTVisitor *v) { v->visitStmt(this); }
 ASTNS::Stmts::Stmts(std::unique_ptr<AST> stmts, std::unique_ptr<AST> stmt): stmts(std::move(stmts)), stmt(std::move(stmt)), form(ASTNS::Stmts::Form::STMTS_STMT) {}

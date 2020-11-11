@@ -19,7 +19,7 @@ template <> size_t Parser::getGoto<ASTNS::Declarations>(size_t state)
         case 0:
              return 1;
         default:
-            reportAbortNoh("retrieve goto of nonterminal declarations in state 138");
+            reportAbortNoh("retrieve goto of nonterminal declarations in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Decl>(size_t state)
@@ -31,7 +31,7 @@ template <> size_t Parser::getGoto<ASTNS::Decl>(size_t state)
         case 1:
              return 18;
         default:
-            reportAbortNoh("retrieve goto of nonterminal decl in state 138");
+            reportAbortNoh("retrieve goto of nonterminal decl in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Function>(size_t state)
@@ -43,7 +43,7 @@ template <> size_t Parser::getGoto<ASTNS::Function>(size_t state)
         case 1:
              return 3;
         default:
-            reportAbortNoh("retrieve goto of nonterminal function in state 138");
+            reportAbortNoh("retrieve goto of nonterminal function in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Type>(size_t state)
@@ -61,7 +61,7 @@ template <> size_t Parser::getGoto<ASTNS::Type>(size_t state)
         case 35:
              return 72;
         default:
-            reportAbortNoh("retrieve goto of nonterminal type in state 138");
+            reportAbortNoh("retrieve goto of nonterminal type in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Block>(size_t state)
@@ -77,7 +77,7 @@ template <> size_t Parser::getGoto<ASTNS::Block>(size_t state)
         case 29:
              return 34;
         default:
-            reportAbortNoh("retrieve goto of nonterminal block in state 138");
+            reportAbortNoh("retrieve goto of nonterminal block in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Paramlist>(size_t state)
@@ -87,7 +87,7 @@ template <> size_t Parser::getGoto<ASTNS::Paramlist>(size_t state)
         case 20:
              return 22;
         default:
-            reportAbortNoh("retrieve goto of nonterminal paramlist in state 138");
+            reportAbortNoh("retrieve goto of nonterminal paramlist in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Stmts>(size_t state)
@@ -97,7 +97,7 @@ template <> size_t Parser::getGoto<ASTNS::Stmts>(size_t state)
         case 25:
              return 29;
         default:
-            reportAbortNoh("retrieve goto of nonterminal stmts in state 138");
+            reportAbortNoh("retrieve goto of nonterminal stmts in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Stmt>(size_t state)
@@ -109,7 +109,7 @@ template <> size_t Parser::getGoto<ASTNS::Stmt>(size_t state)
         case 29:
              return 71;
         default:
-            reportAbortNoh("retrieve goto of nonterminal stmt in state 138");
+            reportAbortNoh("retrieve goto of nonterminal stmt in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Varstmt>(size_t state)
@@ -121,7 +121,7 @@ template <> size_t Parser::getGoto<ASTNS::Varstmt>(size_t state)
         case 29:
              return 31;
         default:
-            reportAbortNoh("retrieve goto of nonterminal varstmt in state 138");
+            reportAbortNoh("retrieve goto of nonterminal varstmt in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Exprstmt>(size_t state)
@@ -133,7 +133,7 @@ template <> size_t Parser::getGoto<ASTNS::Exprstmt>(size_t state)
         case 29:
              return 32;
         default:
-            reportAbortNoh("retrieve goto of nonterminal exprstmt in state 138");
+            reportAbortNoh("retrieve goto of nonterminal exprstmt in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Retstmt>(size_t state)
@@ -145,7 +145,7 @@ template <> size_t Parser::getGoto<ASTNS::Retstmt>(size_t state)
         case 29:
              return 33;
         default:
-            reportAbortNoh("retrieve goto of nonterminal retstmt in state 138");
+            reportAbortNoh("retrieve goto of nonterminal retstmt in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Varstmtfinisher>(size_t state)
@@ -155,7 +155,7 @@ template <> size_t Parser::getGoto<ASTNS::Varstmtfinisher>(size_t state)
         case 72:
              return 101;
         default:
-            reportAbortNoh("retrieve goto of nonterminal varstmtfinisher in state 138");
+            reportAbortNoh("retrieve goto of nonterminal varstmtfinisher in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Expression>(size_t state)
@@ -171,15 +171,15 @@ template <> size_t Parser::getGoto<ASTNS::Expression>(size_t state)
         case 67:
              return 99;
         case 98:
-             return 125;
-        case 129:
-             return 134;
-        case 132:
-             return 136;
-        case 137:
-             return 138;
+             return 126;
+        case 130:
+             return 135;
+        case 133:
+             return 137;
+        case 138:
+             return 139;
         default:
-            reportAbortNoh("retrieve goto of nonterminal expression in state 138");
+            reportAbortNoh("retrieve goto of nonterminal expression in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Args>(size_t state)
@@ -187,9 +187,9 @@ template <> size_t Parser::getGoto<ASTNS::Args>(size_t state)
     switch (state)
     {
         case 98:
-             return 123;
+             return 124;
         default:
-            reportAbortNoh("retrieve goto of nonterminal args in state 138");
+            reportAbortNoh("retrieve goto of nonterminal args in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Assignmentexpr>(size_t state)
@@ -205,17 +205,17 @@ template <> size_t Parser::getGoto<ASTNS::Assignmentexpr>(size_t state)
         case 67:
              return 38;
         case 75:
-             return 103;
+             return 104;
         case 98:
              return 38;
-        case 129:
+        case 130:
              return 38;
-        case 132:
+        case 133:
              return 38;
-        case 137:
+        case 138:
              return 38;
         default:
-            reportAbortNoh("retrieve goto of nonterminal assignmentexpr in state 138");
+            reportAbortNoh("retrieve goto of nonterminal assignmentexpr in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Ternaryexpr>(size_t state)
@@ -234,16 +234,16 @@ template <> size_t Parser::getGoto<ASTNS::Ternaryexpr>(size_t state)
              return 39;
         case 98:
              return 39;
-        case 129:
-             return 39;
         case 130:
-             return 135;
-        case 132:
              return 39;
-        case 137:
+        case 131:
+             return 136;
+        case 133:
+             return 39;
+        case 138:
              return 39;
         default:
-            reportAbortNoh("retrieve goto of nonterminal ternaryexpr in state 138");
+            reportAbortNoh("retrieve goto of nonterminal ternaryexpr in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Binorexpr>(size_t state)
@@ -261,19 +261,19 @@ template <> size_t Parser::getGoto<ASTNS::Binorexpr>(size_t state)
         case 75:
              return 40;
         case 76:
-             return 104;
+             return 105;
         case 98:
-             return 40;
-        case 129:
              return 40;
         case 130:
              return 40;
-        case 132:
+        case 131:
              return 40;
-        case 137:
+        case 133:
+             return 40;
+        case 138:
              return 40;
         default:
-            reportAbortNoh("retrieve goto of nonterminal binorexpr in state 138");
+            reportAbortNoh("retrieve goto of nonterminal binorexpr in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Binandexpr>(size_t state)
@@ -293,19 +293,19 @@ template <> size_t Parser::getGoto<ASTNS::Binandexpr>(size_t state)
         case 76:
              return 41;
         case 77:
-             return 105;
+             return 106;
         case 98:
-             return 41;
-        case 129:
              return 41;
         case 130:
              return 41;
-        case 132:
+        case 131:
              return 41;
-        case 137:
+        case 133:
+             return 41;
+        case 138:
              return 41;
         default:
-            reportAbortNoh("retrieve goto of nonterminal binandexpr in state 138");
+            reportAbortNoh("retrieve goto of nonterminal binandexpr in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Binnotexpr>(size_t state)
@@ -329,19 +329,19 @@ template <> size_t Parser::getGoto<ASTNS::Binnotexpr>(size_t state)
         case 77:
              return 42;
         case 78:
-             return 106;
+             return 107;
         case 98:
-             return 42;
-        case 129:
              return 42;
         case 130:
              return 42;
-        case 132:
+        case 131:
              return 42;
-        case 137:
+        case 133:
+             return 42;
+        case 138:
              return 42;
         default:
-            reportAbortNoh("retrieve goto of nonterminal binnotexpr in state 138");
+            reportAbortNoh("retrieve goto of nonterminal binnotexpr in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Compeqexpr>(size_t state)
@@ -368,16 +368,16 @@ template <> size_t Parser::getGoto<ASTNS::Compeqexpr>(size_t state)
              return 44;
         case 98:
              return 44;
-        case 129:
-             return 44;
         case 130:
              return 44;
-        case 132:
+        case 131:
              return 44;
-        case 137:
+        case 133:
+             return 44;
+        case 138:
              return 44;
         default:
-            reportAbortNoh("retrieve goto of nonterminal compeqexpr in state 138");
+            reportAbortNoh("retrieve goto of nonterminal compeqexpr in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Complgtexpr>(size_t state)
@@ -403,21 +403,21 @@ template <> size_t Parser::getGoto<ASTNS::Complgtexpr>(size_t state)
         case 78:
              return 45;
         case 80:
-             return 107;
-        case 81:
              return 108;
+        case 81:
+             return 109;
         case 98:
-             return 45;
-        case 129:
              return 45;
         case 130:
              return 45;
-        case 132:
+        case 131:
              return 45;
-        case 137:
+        case 133:
+             return 45;
+        case 138:
              return 45;
         default:
-            reportAbortNoh("retrieve goto of nonterminal complgtexpr in state 138");
+            reportAbortNoh("retrieve goto of nonterminal complgtexpr in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Bitxorexpr>(size_t state)
@@ -447,25 +447,25 @@ template <> size_t Parser::getGoto<ASTNS::Bitxorexpr>(size_t state)
         case 81:
              return 46;
         case 82:
-             return 109;
-        case 83:
              return 110;
-        case 84:
+        case 83:
              return 111;
-        case 85:
+        case 84:
              return 112;
+        case 85:
+             return 113;
         case 98:
-             return 46;
-        case 129:
              return 46;
         case 130:
              return 46;
-        case 132:
+        case 131:
              return 46;
-        case 137:
+        case 133:
+             return 46;
+        case 138:
              return 46;
         default:
-            reportAbortNoh("retrieve goto of nonterminal bitxorexpr in state 138");
+            reportAbortNoh("retrieve goto of nonterminal bitxorexpr in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Bitorexpr>(size_t state)
@@ -503,19 +503,19 @@ template <> size_t Parser::getGoto<ASTNS::Bitorexpr>(size_t state)
         case 85:
              return 47;
         case 86:
-             return 113;
+             return 114;
         case 98:
-             return 47;
-        case 129:
              return 47;
         case 130:
              return 47;
-        case 132:
+        case 131:
              return 47;
-        case 137:
+        case 133:
+             return 47;
+        case 138:
              return 47;
         default:
-            reportAbortNoh("retrieve goto of nonterminal bitorexpr in state 138");
+            reportAbortNoh("retrieve goto of nonterminal bitorexpr in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Bitandexpr>(size_t state)
@@ -555,19 +555,19 @@ template <> size_t Parser::getGoto<ASTNS::Bitandexpr>(size_t state)
         case 86:
              return 48;
         case 87:
-             return 114;
+             return 115;
         case 98:
-             return 48;
-        case 129:
              return 48;
         case 130:
              return 48;
-        case 132:
+        case 131:
              return 48;
-        case 137:
+        case 133:
+             return 48;
+        case 138:
              return 48;
         default:
-            reportAbortNoh("retrieve goto of nonterminal bitandexpr in state 138");
+            reportAbortNoh("retrieve goto of nonterminal bitandexpr in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Bitshiftexpr>(size_t state)
@@ -609,19 +609,19 @@ template <> size_t Parser::getGoto<ASTNS::Bitshiftexpr>(size_t state)
         case 87:
              return 49;
         case 88:
-             return 115;
+             return 116;
         case 98:
-             return 49;
-        case 129:
              return 49;
         case 130:
              return 49;
-        case 132:
+        case 131:
              return 49;
-        case 137:
+        case 133:
+             return 49;
+        case 138:
              return 49;
         default:
-            reportAbortNoh("retrieve goto of nonterminal bitshiftexpr in state 138");
+            reportAbortNoh("retrieve goto of nonterminal bitshiftexpr in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Additionexpr>(size_t state)
@@ -665,21 +665,21 @@ template <> size_t Parser::getGoto<ASTNS::Additionexpr>(size_t state)
         case 88:
              return 50;
         case 89:
-             return 116;
-        case 90:
              return 117;
+        case 90:
+             return 118;
         case 98:
-             return 50;
-        case 129:
              return 50;
         case 130:
              return 50;
-        case 132:
+        case 131:
              return 50;
-        case 137:
+        case 133:
+             return 50;
+        case 138:
              return 50;
         default:
-            reportAbortNoh("retrieve goto of nonterminal additionexpr in state 138");
+            reportAbortNoh("retrieve goto of nonterminal additionexpr in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Multexpr>(size_t state)
@@ -727,21 +727,21 @@ template <> size_t Parser::getGoto<ASTNS::Multexpr>(size_t state)
         case 90:
              return 51;
         case 91:
-             return 118;
-        case 92:
              return 119;
+        case 92:
+             return 120;
         case 98:
-             return 51;
-        case 129:
              return 51;
         case 130:
              return 51;
-        case 132:
+        case 131:
              return 51;
-        case 137:
+        case 133:
+             return 51;
+        case 138:
              return 51;
         default:
-            reportAbortNoh("retrieve goto of nonterminal multexpr in state 138");
+            reportAbortNoh("retrieve goto of nonterminal multexpr in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Unary>(size_t state)
@@ -797,23 +797,23 @@ template <> size_t Parser::getGoto<ASTNS::Unary>(size_t state)
         case 92:
              return 52;
         case 93:
-             return 120;
-        case 94:
              return 121;
-        case 95:
+        case 94:
              return 122;
+        case 95:
+             return 123;
         case 98:
-             return 52;
-        case 129:
              return 52;
         case 130:
              return 52;
-        case 132:
+        case 131:
              return 52;
-        case 137:
+        case 133:
+             return 52;
+        case 138:
              return 52;
         default:
-            reportAbortNoh("retrieve goto of nonterminal unary in state 138");
+            reportAbortNoh("retrieve goto of nonterminal unary in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Call>(size_t state)
@@ -876,16 +876,16 @@ template <> size_t Parser::getGoto<ASTNS::Call>(size_t state)
              return 55;
         case 98:
              return 55;
-        case 129:
-             return 55;
         case 130:
              return 55;
-        case 132:
+        case 131:
              return 55;
-        case 137:
+        case 133:
+             return 55;
+        case 138:
              return 55;
         default:
-            reportAbortNoh("retrieve goto of nonterminal call in state 138");
+            reportAbortNoh("retrieve goto of nonterminal call in state 139");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Primary>(size_t state)
@@ -948,16 +948,16 @@ template <> size_t Parser::getGoto<ASTNS::Primary>(size_t state)
              return 56;
         case 98:
              return 56;
-        case 129:
-             return 56;
         case 130:
              return 56;
-        case 132:
+        case 131:
              return 56;
-        case 137:
+        case 133:
+             return 56;
+        case 138:
              return 56;
         default:
-            reportAbortNoh("retrieve goto of nonterminal primary in state 138");
+            reportAbortNoh("retrieve goto of nonterminal primary in state 139");
     }
 }
 // This code was autogenerated - see the utils/ directory
@@ -1073,8 +1073,20 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
             case 2:
                switch (lookahead.type)
                {
+                    case TokenType::BOOL:
+                    case TokenType::CHAR:
+                    case TokenType::DOUBLE:
                     case TokenType::EOF_:
-                    case decl:
+                    case TokenType::FLOAT:
+                    case TokenType::SINT16:
+                    case TokenType::SINT32:
+                    case TokenType::SINT64:
+                    case TokenType::SINT8:
+                    case TokenType::UINT16:
+                    case TokenType::UINT32:
+                    case TokenType::UINT64:
+                    case TokenType::UINT8:
+                    case TokenType::VOID:
                         REDUCESKIP(Declarations);
                         break;
                     DEFAULTINVALID3("declaration", "nothing", "declaration list")
@@ -1083,8 +1095,20 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
             case 3:
                switch (lookahead.type)
                {
+                    case TokenType::BOOL:
+                    case TokenType::CHAR:
+                    case TokenType::DOUBLE:
                     case TokenType::EOF_:
-                    case decl:
+                    case TokenType::FLOAT:
+                    case TokenType::SINT16:
+                    case TokenType::SINT32:
+                    case TokenType::SINT64:
+                    case TokenType::SINT8:
+                    case TokenType::UINT16:
+                    case TokenType::UINT32:
+                    case TokenType::UINT64:
+                    case TokenType::UINT8:
+                    case TokenType::VOID:
                         REDUCESKIP(Decl);
                         break;
                     DEFAULTINVALID3("function declaration", "nothing", "declaration")
@@ -1101,7 +1125,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::IDENTIFIER:
-                    case varstmtfinisher:
                         {
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Type>(std::move(a0));
@@ -1116,7 +1139,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::IDENTIFIER:
-                    case varstmtfinisher:
                         {
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Type>(std::move(a0));
@@ -1131,7 +1153,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::IDENTIFIER:
-                    case varstmtfinisher:
                         {
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Type>(std::move(a0));
@@ -1146,7 +1167,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::IDENTIFIER:
-                    case varstmtfinisher:
                         {
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Type>(std::move(a0));
@@ -1161,7 +1181,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::IDENTIFIER:
-                    case varstmtfinisher:
                         {
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Type>(std::move(a0));
@@ -1176,7 +1195,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::IDENTIFIER:
-                    case varstmtfinisher:
                         {
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Type>(std::move(a0));
@@ -1191,7 +1209,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::IDENTIFIER:
-                    case varstmtfinisher:
                         {
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Type>(std::move(a0));
@@ -1206,7 +1223,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::IDENTIFIER:
-                    case varstmtfinisher:
                         {
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Type>(std::move(a0));
@@ -1221,7 +1237,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::IDENTIFIER:
-                    case varstmtfinisher:
                         {
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Type>(std::move(a0));
@@ -1236,7 +1251,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::IDENTIFIER:
-                    case varstmtfinisher:
                         {
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Type>(std::move(a0));
@@ -1251,7 +1265,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::IDENTIFIER:
-                    case varstmtfinisher:
                         {
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Type>(std::move(a0));
@@ -1266,7 +1279,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::IDENTIFIER:
-                    case varstmtfinisher:
                         {
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Type>(std::move(a0));
@@ -1281,7 +1293,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::IDENTIFIER:
-                    case varstmtfinisher:
                         {
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Type>(std::move(a0));
@@ -1295,8 +1306,20 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
             case 18:
                switch (lookahead.type)
                {
+                    case TokenType::BOOL:
+                    case TokenType::CHAR:
+                    case TokenType::DOUBLE:
                     case TokenType::EOF_:
-                    case decl:
+                    case TokenType::FLOAT:
+                    case TokenType::SINT16:
+                    case TokenType::SINT32:
+                    case TokenType::SINT64:
+                    case TokenType::SINT8:
+                    case TokenType::UINT16:
+                    case TokenType::UINT32:
+                    case TokenType::UINT64:
+                    case TokenType::UINT8:
+                    case TokenType::VOID:
                         {
                             REDUCEA(1)
                             REDUCEA(0)
@@ -1360,8 +1383,20 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
             case 24:
                switch (lookahead.type)
                {
+                    case TokenType::BOOL:
+                    case TokenType::CHAR:
+                    case TokenType::DOUBLE:
                     case TokenType::EOF_:
-                    case decl:
+                    case TokenType::FLOAT:
+                    case TokenType::SINT16:
+                    case TokenType::SINT32:
+                    case TokenType::SINT64:
+                    case TokenType::SINT8:
+                    case TokenType::UINT16:
+                    case TokenType::UINT32:
+                    case TokenType::UINT64:
+                    case TokenType::UINT8:
+                    case TokenType::VOID:
                         {
                             REDUCEA(4)
                             REDUCET(3)
@@ -1468,8 +1503,24 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
             case 30:
                switch (lookahead.type)
                {
+                    case TokenType::BANG:
+                    case TokenType::BININTLIT:
                     case TokenType::CCURB:
-                    case stmt:
+                    case TokenType::CHARLIT:
+                    case TokenType::DECINTLIT:
+                    case TokenType::FALSELIT:
+                    case TokenType::FLOATLIT:
+                    case TokenType::HEXINTLIT:
+                    case TokenType::MINUS:
+                    case TokenType::NULLPTRLIT:
+                    case TokenType::OCTINTLIT:
+                    case TokenType::OCURB:
+                    case TokenType::OPARN:
+                    case TokenType::RETURN:
+                    case TokenType::STRINGLIT:
+                    case TokenType::TILDE:
+                    case TokenType::TRUELIT:
+                    case TokenType::VAR:
                         REDUCESKIP(Stmts);
                         break;
                     DEFAULTINVALID3("statement", "nothing", "statements")
@@ -1478,8 +1529,24 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
             case 31:
                switch (lookahead.type)
                {
+                    case TokenType::BANG:
+                    case TokenType::BININTLIT:
                     case TokenType::CCURB:
-                    case stmt:
+                    case TokenType::CHARLIT:
+                    case TokenType::DECINTLIT:
+                    case TokenType::FALSELIT:
+                    case TokenType::FLOATLIT:
+                    case TokenType::HEXINTLIT:
+                    case TokenType::MINUS:
+                    case TokenType::NULLPTRLIT:
+                    case TokenType::OCTINTLIT:
+                    case TokenType::OCURB:
+                    case TokenType::OPARN:
+                    case TokenType::RETURN:
+                    case TokenType::STRINGLIT:
+                    case TokenType::TILDE:
+                    case TokenType::TRUELIT:
+                    case TokenType::VAR:
                         REDUCESKIP(Stmt);
                         break;
                     DEFAULTINVALID3("variable statement", "nothing", "statement")
@@ -1488,8 +1555,24 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
             case 32:
                switch (lookahead.type)
                {
+                    case TokenType::BANG:
+                    case TokenType::BININTLIT:
                     case TokenType::CCURB:
-                    case stmt:
+                    case TokenType::CHARLIT:
+                    case TokenType::DECINTLIT:
+                    case TokenType::FALSELIT:
+                    case TokenType::FLOATLIT:
+                    case TokenType::HEXINTLIT:
+                    case TokenType::MINUS:
+                    case TokenType::NULLPTRLIT:
+                    case TokenType::OCTINTLIT:
+                    case TokenType::OCURB:
+                    case TokenType::OPARN:
+                    case TokenType::RETURN:
+                    case TokenType::STRINGLIT:
+                    case TokenType::TILDE:
+                    case TokenType::TRUELIT:
+                    case TokenType::VAR:
                         REDUCESKIP(Stmt);
                         break;
                     DEFAULTINVALID3("expression statement", "nothing", "statement")
@@ -1498,8 +1581,24 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
             case 33:
                switch (lookahead.type)
                {
+                    case TokenType::BANG:
+                    case TokenType::BININTLIT:
                     case TokenType::CCURB:
-                    case stmt:
+                    case TokenType::CHARLIT:
+                    case TokenType::DECINTLIT:
+                    case TokenType::FALSELIT:
+                    case TokenType::FLOATLIT:
+                    case TokenType::HEXINTLIT:
+                    case TokenType::MINUS:
+                    case TokenType::NULLPTRLIT:
+                    case TokenType::OCTINTLIT:
+                    case TokenType::OCURB:
+                    case TokenType::OPARN:
+                    case TokenType::RETURN:
+                    case TokenType::STRINGLIT:
+                    case TokenType::TILDE:
+                    case TokenType::TRUELIT:
+                    case TokenType::VAR:
                         REDUCESKIP(Stmt);
                         break;
                     DEFAULTINVALID3("return statement", "nothing", "statement")
@@ -1508,8 +1607,24 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
             case 34:
                switch (lookahead.type)
                {
+                    case TokenType::BANG:
+                    case TokenType::BININTLIT:
                     case TokenType::CCURB:
-                    case stmt:
+                    case TokenType::CHARLIT:
+                    case TokenType::DECINTLIT:
+                    case TokenType::FALSELIT:
+                    case TokenType::FLOATLIT:
+                    case TokenType::HEXINTLIT:
+                    case TokenType::MINUS:
+                    case TokenType::NULLPTRLIT:
+                    case TokenType::OCTINTLIT:
+                    case TokenType::OCURB:
+                    case TokenType::OPARN:
+                    case TokenType::RETURN:
+                    case TokenType::STRINGLIT:
+                    case TokenType::TILDE:
+                    case TokenType::TRUELIT:
+                    case TokenType::VAR:
                         REDUCESKIP(Stmt);
                         break;
                     DEFAULTINVALID3("code block", "nothing", "statement")
@@ -1564,11 +1679,9 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
             case 38:
                switch (lookahead.type)
                {
-                    case TokenType::CCURB:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
                     case TokenType::SEMICOLON:
-                    case stmt:
                         REDUCESKIP(Expression);
                         break;
                     DEFAULTINVALID3("assignment expression", "nothing", "expression")
@@ -1577,11 +1690,9 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
             case 39:
                switch (lookahead.type)
                {
-                    case TokenType::CCURB:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
                     case TokenType::SEMICOLON:
-                    case stmt:
                         REDUCESKIP(Assignmentexpr);
                         break;
                     SHIFTON(TokenType::EQUAL, 75)
@@ -1591,12 +1702,10 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
             case 40:
                switch (lookahead.type)
                {
-                    case TokenType::CCURB:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
                     case TokenType::EQUAL:
                     case TokenType::SEMICOLON:
-                    case stmt:
                         REDUCESKIP(Ternaryexpr);
                         break;
                     SHIFTON(TokenType::DOUBLEPIPE, 77)
@@ -1607,7 +1716,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
             case 41:
                switch (lookahead.type)
                {
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -1615,7 +1723,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::EQUAL:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                    case stmt:
                         REDUCESKIP(Binorexpr);
                         break;
                     SHIFTON(TokenType::DOUBLEAMPER, 78)
@@ -1625,7 +1732,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
             case 42:
                switch (lookahead.type)
                {
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -1634,7 +1740,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::EQUAL:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                    case stmt:
                         REDUCESKIP(Binandexpr);
                         break;
                     DEFAULTINVALID3("binary not expression", "nothing", "binary and expression")
@@ -1664,7 +1769,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::BANGEQUAL, 80)
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -1673,7 +1777,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::EQUAL:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                    case stmt:
                         REDUCESKIP(Binnotexpr);
                         break;
                     SHIFTON(TokenType::DOUBLEEQUAL, 81)
@@ -1684,7 +1787,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::BANGEQUAL:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -1694,7 +1796,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::EQUAL:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                    case stmt:
                         REDUCESKIP(Compeqexpr);
                         break;
                     SHIFTON(TokenType::GREATER, 83)
@@ -1708,7 +1809,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::BANGEQUAL:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -1722,7 +1822,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::LESSEQUAL:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                    case stmt:
                         REDUCESKIP(Complgtexpr);
                         break;
                     SHIFTON(TokenType::CARET, 86)
@@ -1734,7 +1833,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                {
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -1748,7 +1846,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::LESSEQUAL:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                    case stmt:
                         REDUCESKIP(Bitxorexpr);
                         break;
                     SHIFTON(TokenType::PIPE, 87)
@@ -1761,7 +1858,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     SHIFTON(TokenType::AMPER, 88)
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -1776,7 +1872,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::PIPE:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                    case stmt:
                         REDUCESKIP(Bitorexpr);
                         break;
                     DEFAULTINVALID2("bitwise and expression", "TokenType::AMPER")
@@ -1788,7 +1883,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::AMPER:
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -1803,7 +1897,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::PIPE:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                    case stmt:
                         REDUCESKIP(Bitandexpr);
                         break;
                     SHIFTON(TokenType::DOUBLEGREATER, 89)
@@ -1817,7 +1910,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::AMPER:
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -1834,7 +1926,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::PIPE:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                    case stmt:
                         REDUCESKIP(Bitshiftexpr);
                         break;
                     SHIFTON(TokenType::MINUS, 92)
@@ -1848,7 +1939,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::AMPER:
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -1867,7 +1957,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::PLUS:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                    case stmt:
                         REDUCESKIP(Additionexpr);
                         break;
                     SHIFTON(TokenType::PERCENT, 95)
@@ -1882,7 +1971,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::AMPER:
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -1904,7 +1992,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::SEMICOLON:
                     case TokenType::SLASH:
                     case TokenType::STAR:
-                    case stmt:
                         REDUCESKIP(Multexpr);
                         break;
                     DEFAULTINVALID3("unary expression", "nothing", "multiplication expression")
@@ -1954,7 +2041,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::AMPER:
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -1976,7 +2062,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::SEMICOLON:
                     case TokenType::SLASH:
                     case TokenType::STAR:
-                    case stmt:
                         REDUCESKIP(Unary);
                         break;
                     DEFAULTINVALID3("function call expression", "nothing", "unary expression")
@@ -1988,7 +2073,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::AMPER:
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -2010,7 +2094,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::SEMICOLON:
                     case TokenType::SLASH:
                     case TokenType::STAR:
-                    case stmt:
                         REDUCESKIP(Call);
                         break;
                     SHIFTON(TokenType::OPARN, 98)
@@ -2023,7 +2106,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::AMPER:
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -2046,7 +2128,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::SEMICOLON:
                     case TokenType::SLASH:
                     case TokenType::STAR:
-                    case stmt:
                         {
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Primary>(std::move(a0));
@@ -2063,7 +2144,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::AMPER:
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -2086,7 +2166,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::SEMICOLON:
                     case TokenType::SLASH:
                     case TokenType::STAR:
-                    case stmt:
                         {
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Primary>(std::move(a0));
@@ -2103,7 +2182,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::AMPER:
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -2126,7 +2204,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::SEMICOLON:
                     case TokenType::SLASH:
                     case TokenType::STAR:
-                    case stmt:
                         {
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Primary>(std::move(a0));
@@ -2143,7 +2220,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::AMPER:
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -2166,7 +2242,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::SEMICOLON:
                     case TokenType::SLASH:
                     case TokenType::STAR:
-                    case stmt:
                         {
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Primary>(std::move(a0));
@@ -2183,7 +2258,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::AMPER:
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -2206,7 +2280,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::SEMICOLON:
                     case TokenType::SLASH:
                     case TokenType::STAR:
-                    case stmt:
                         {
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Primary>(std::move(a0));
@@ -2223,7 +2296,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::AMPER:
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -2246,7 +2318,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::SEMICOLON:
                     case TokenType::SLASH:
                     case TokenType::STAR:
-                    case stmt:
                         {
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Primary>(std::move(a0));
@@ -2263,7 +2334,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::AMPER:
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -2286,7 +2356,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::SEMICOLON:
                     case TokenType::SLASH:
                     case TokenType::STAR:
-                    case stmt:
                         {
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Primary>(std::move(a0));
@@ -2303,7 +2372,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::AMPER:
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -2326,7 +2394,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::SEMICOLON:
                     case TokenType::SLASH:
                     case TokenType::STAR:
-                    case stmt:
                         {
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Primary>(std::move(a0));
@@ -2343,7 +2410,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::AMPER:
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -2366,7 +2432,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::SEMICOLON:
                     case TokenType::SLASH:
                     case TokenType::STAR:
-                    case stmt:
                         {
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Primary>(std::move(a0));
@@ -2383,7 +2448,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::AMPER:
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -2406,7 +2470,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::SEMICOLON:
                     case TokenType::SLASH:
                     case TokenType::STAR:
-                    case stmt:
                         {
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Primary>(std::move(a0));
@@ -2440,8 +2503,20 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
             case 68:
                switch (lookahead.type)
                {
+                    case TokenType::BOOL:
+                    case TokenType::CHAR:
+                    case TokenType::DOUBLE:
                     case TokenType::EOF_:
-                    case decl:
+                    case TokenType::FLOAT:
+                    case TokenType::SINT16:
+                    case TokenType::SINT32:
+                    case TokenType::SINT64:
+                    case TokenType::SINT8:
+                    case TokenType::UINT16:
+                    case TokenType::UINT32:
+                    case TokenType::UINT64:
+                    case TokenType::UINT8:
+                    case TokenType::VOID:
                         {
                             REDUCEA(5)
                             REDUCET(4)
@@ -2467,10 +2542,38 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
             case 70:
                switch (lookahead.type)
                {
+                    case TokenType::BANG:
+                    case TokenType::BININTLIT:
+                    case TokenType::BOOL:
                     case TokenType::CCURB:
+                    case TokenType::CHAR:
+                    case TokenType::CHARLIT:
+                    case TokenType::DECINTLIT:
+                    case TokenType::DOUBLE:
                     case TokenType::EOF_:
-                    case decl:
-                    case stmt:
+                    case TokenType::FALSELIT:
+                    case TokenType::FLOAT:
+                    case TokenType::FLOATLIT:
+                    case TokenType::HEXINTLIT:
+                    case TokenType::MINUS:
+                    case TokenType::NULLPTRLIT:
+                    case TokenType::OCTINTLIT:
+                    case TokenType::OCURB:
+                    case TokenType::OPARN:
+                    case TokenType::RETURN:
+                    case TokenType::SINT16:
+                    case TokenType::SINT32:
+                    case TokenType::SINT64:
+                    case TokenType::SINT8:
+                    case TokenType::STRINGLIT:
+                    case TokenType::TILDE:
+                    case TokenType::TRUELIT:
+                    case TokenType::UINT16:
+                    case TokenType::UINT32:
+                    case TokenType::UINT64:
+                    case TokenType::UINT8:
+                    case TokenType::VAR:
+                    case TokenType::VOID:
                         {
                             REDUCET(2)
                             REDUCEA(1)
@@ -2486,8 +2589,24 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
             case 71:
                switch (lookahead.type)
                {
+                    case TokenType::BANG:
+                    case TokenType::BININTLIT:
                     case TokenType::CCURB:
-                    case stmt:
+                    case TokenType::CHARLIT:
+                    case TokenType::DECINTLIT:
+                    case TokenType::FALSELIT:
+                    case TokenType::FLOATLIT:
+                    case TokenType::HEXINTLIT:
+                    case TokenType::MINUS:
+                    case TokenType::NULLPTRLIT:
+                    case TokenType::OCTINTLIT:
+                    case TokenType::OCURB:
+                    case TokenType::OPARN:
+                    case TokenType::RETURN:
+                    case TokenType::STRINGLIT:
+                    case TokenType::TILDE:
+                    case TokenType::TRUELIT:
+                    case TokenType::VAR:
                         {
                             REDUCEA(1)
                             REDUCEA(0)
@@ -2509,8 +2628,24 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
             case 73:
                switch (lookahead.type)
                {
+                    case TokenType::BANG:
+                    case TokenType::BININTLIT:
                     case TokenType::CCURB:
-                    case stmt:
+                    case TokenType::CHARLIT:
+                    case TokenType::DECINTLIT:
+                    case TokenType::FALSELIT:
+                    case TokenType::FLOATLIT:
+                    case TokenType::HEXINTLIT:
+                    case TokenType::MINUS:
+                    case TokenType::NULLPTRLIT:
+                    case TokenType::OCTINTLIT:
+                    case TokenType::OCURB:
+                    case TokenType::OPARN:
+                    case TokenType::RETURN:
+                    case TokenType::STRINGLIT:
+                    case TokenType::TILDE:
+                    case TokenType::TRUELIT:
+                    case TokenType::VAR:
                         {
                             REDUCET(1)
                             REDUCEA(0)
@@ -2525,17 +2660,8 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
             case 74:
                switch (lookahead.type)
                {
-                    case TokenType::CCURB:
-                    case stmt:
-                        {
-                            REDUCEA(1)
-                            REDUCET(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Retstmt>(std::move(a0), std::move(a1));
-                            size_t newstate = getGoto<ASTNS::Retstmt>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
-                    DEFAULTINVALID3("expression", "nothing", "return statement")
+                    SHIFTON(TokenType::SEMICOLON, 103)
+                    DEFAULTINVALID3("expression", "TokenType::SEMICOLON", "return statement")
                 }
                 break;
             case 75:
@@ -2621,7 +2747,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
             case 79:
                switch (lookahead.type)
                {
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -2630,7 +2755,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::EQUAL:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                    case stmt:
                         {
                             REDUCEA(1)
                             REDUCET(0)
@@ -2952,7 +3076,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::AMPER:
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -2974,7 +3097,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::SEMICOLON:
                     case TokenType::SLASH:
                     case TokenType::STAR:
-                    case stmt:
                         {
                             REDUCEA(1)
                             REDUCET(0)
@@ -2992,7 +3114,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::AMPER:
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -3014,7 +3135,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::SEMICOLON:
                     case TokenType::SLASH:
                     case TokenType::STAR:
-                    case stmt:
                         {
                             REDUCEA(1)
                             REDUCET(0)
@@ -3032,7 +3152,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     SHIFTON(TokenType::BANG, 43)
                     SHIFTON(TokenType::BININTLIT, 63)
                     SHIFTON(TokenType::CHARLIT, 65)
-                    SHIFTON(TokenType::CPARN, 124)
+                    SHIFTON(TokenType::CPARN, 125)
                     SHIFTON(TokenType::DECINTLIT, 61)
                     SHIFTON(TokenType::FALSELIT, 58)
                     SHIFTON(TokenType::FLOATLIT, 59)
@@ -3050,7 +3170,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
             case 99:
                switch (lookahead.type)
                {
-                    SHIFTON(TokenType::CPARN, 126)
+                    SHIFTON(TokenType::CPARN, 127)
                     DEFAULTINVALID3("expression", "TokenType::CPARN", "primary expression")
                 }
                 break;
@@ -3075,26 +3195,57 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
             case 101:
                switch (lookahead.type)
                {
-                    SHIFTON(TokenType::COMMA, 128)
-                    SHIFTON(TokenType::SEMICOLON, 127)
+                    SHIFTON(TokenType::COMMA, 129)
+                    SHIFTON(TokenType::SEMICOLON, 128)
                     DEFAULTINVALID2("variable statement assignments", "either TokenType::COMMA or TokenType::SEMICOLON")
                 }
                 break;
             case 102:
                switch (lookahead.type)
                {
-                    SHIFTON(TokenType::EQUAL, 129)
+                    SHIFTON(TokenType::EQUAL, 130)
                     DEFAULTINVALID3("TokenType::IDENTIFIER", "TokenType::EQUAL", "variable statement assignments")
                 }
                 break;
             case 103:
                switch (lookahead.type)
                {
+                    case TokenType::BANG:
+                    case TokenType::BININTLIT:
                     case TokenType::CCURB:
+                    case TokenType::CHARLIT:
+                    case TokenType::DECINTLIT:
+                    case TokenType::FALSELIT:
+                    case TokenType::FLOATLIT:
+                    case TokenType::HEXINTLIT:
+                    case TokenType::MINUS:
+                    case TokenType::NULLPTRLIT:
+                    case TokenType::OCTINTLIT:
+                    case TokenType::OCURB:
+                    case TokenType::OPARN:
+                    case TokenType::RETURN:
+                    case TokenType::STRINGLIT:
+                    case TokenType::TILDE:
+                    case TokenType::TRUELIT:
+                    case TokenType::VAR:
+                        {
+                            REDUCET(2)
+                            REDUCEA(1)
+                            REDUCET(0)
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Retstmt>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::Retstmt>(stack.top()->state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
+                        }
+                        break;
+                    DEFAULTINVALID3("TokenType::SEMICOLON", "nothing", "return statement")
+                }
+                break;
+            case 104:
+               switch (lookahead.type)
+               {
                     case TokenType::COMMA:
                     case TokenType::CPARN:
                     case TokenType::SEMICOLON:
-                    case stmt:
                         {
                             REDUCEA(2)
                             REDUCET(1)
@@ -3107,18 +3258,17 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     DEFAULTINVALID3("assignment expression", "nothing", "assignment expression")
                 }
                 break;
-            case 104:
+            case 105:
                switch (lookahead.type)
                {
-                    SHIFTON(TokenType::COLON, 130)
+                    SHIFTON(TokenType::COLON, 131)
                     SHIFTON(TokenType::DOUBLEPIPE, 77)
                     DEFAULTINVALID2("binary or expression", "either TokenType::COLON or TokenType::DOUBLEPIPE")
                 }
                 break;
-            case 105:
+            case 106:
                switch (lookahead.type)
                {
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -3126,7 +3276,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::EQUAL:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                    case stmt:
                         {
                             REDUCEA(2)
                             REDUCET(1)
@@ -3140,10 +3289,9 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     DEFAULTINVALID2("binary and expression", "TokenType::DOUBLEAMPER")
                 }
                 break;
-            case 106:
+            case 107:
                switch (lookahead.type)
                {
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -3152,7 +3300,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::EQUAL:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                    case stmt:
                         {
                             REDUCEA(2)
                             REDUCET(1)
@@ -3165,42 +3312,10 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     DEFAULTINVALID3("binary not expression", "nothing", "binary and expression")
                 }
                 break;
-            case 107:
-               switch (lookahead.type)
-               {
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CCURB:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
-                    case stmt:
-                        {
-                            REDUCEA(2)
-                            REDUCET(1)
-                            REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Compeqexpr>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Compeqexpr>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
-                    SHIFTON(TokenType::GREATER, 83)
-                    SHIFTON(TokenType::GREATEREQUAL, 85)
-                    SHIFTON(TokenType::LESS, 82)
-                    SHIFTON(TokenType::LESSEQUAL, 84)
-                    DEFAULTINVALID2("comparison expression", "TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, or TokenType::LESSEQUAL")
-                }
-                break;
             case 108:
                switch (lookahead.type)
                {
                     case TokenType::BANGEQUAL:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -3210,7 +3325,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::EQUAL:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                    case stmt:
                         {
                             REDUCEA(2)
                             REDUCET(1)
@@ -3231,7 +3345,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::BANGEQUAL:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -3239,31 +3352,28 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::DOUBLEEQUAL:
                     case TokenType::DOUBLEPIPE:
                     case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                    case stmt:
                         {
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Complgtexpr>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Complgtexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Compeqexpr>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::Compeqexpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    SHIFTON(TokenType::CARET, 86)
-                    DEFAULTINVALID2("bitwise xor expression", "TokenType::CARET")
+                    SHIFTON(TokenType::GREATER, 83)
+                    SHIFTON(TokenType::GREATEREQUAL, 85)
+                    SHIFTON(TokenType::LESS, 82)
+                    SHIFTON(TokenType::LESSEQUAL, 84)
+                    DEFAULTINVALID2("comparison expression", "TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, or TokenType::LESSEQUAL")
                 }
                 break;
             case 110:
                switch (lookahead.type)
                {
                     case TokenType::BANGEQUAL:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -3277,7 +3387,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::LESSEQUAL:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                    case stmt:
                         {
                             REDUCEA(2)
                             REDUCET(1)
@@ -3295,7 +3404,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::BANGEQUAL:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -3309,7 +3417,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::LESSEQUAL:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                    case stmt:
                         {
                             REDUCEA(2)
                             REDUCET(1)
@@ -3327,7 +3434,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::BANGEQUAL:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -3341,7 +3447,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::LESSEQUAL:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                    case stmt:
                         {
                             REDUCEA(2)
                             REDUCET(1)
@@ -3359,8 +3464,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -3374,7 +3477,37 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::LESSEQUAL:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                    case stmt:
+                        {
+                            REDUCEA(2)
+                            REDUCET(1)
+                            REDUCEA(0)
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Complgtexpr>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::Complgtexpr>(stack.top()->state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
+                        }
+                        break;
+                    SHIFTON(TokenType::CARET, 86)
+                    DEFAULTINVALID2("bitwise xor expression", "TokenType::CARET")
+                }
+                break;
+            case 114:
+               switch (lookahead.type)
+               {
+                    case TokenType::BANGEQUAL:
+                    case TokenType::CARET:
+                    case TokenType::COLON:
+                    case TokenType::COMMA:
+                    case TokenType::CPARN:
+                    case TokenType::DOUBLEAMPER:
+                    case TokenType::DOUBLEEQUAL:
+                    case TokenType::DOUBLEPIPE:
+                    case TokenType::EQUAL:
+                    case TokenType::GREATER:
+                    case TokenType::GREATEREQUAL:
+                    case TokenType::LESS:
+                    case TokenType::LESSEQUAL:
+                    case TokenType::QUESTION:
+                    case TokenType::SEMICOLON:
                         {
                             REDUCEA(2)
                             REDUCET(1)
@@ -3388,13 +3521,12 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     DEFAULTINVALID2("bitwise or expression", "TokenType::PIPE")
                 }
                 break;
-            case 114:
+            case 115:
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::AMPER, 88)
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -3409,7 +3541,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::PIPE:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                    case stmt:
                         {
                             REDUCEA(2)
                             REDUCET(1)
@@ -3422,13 +3553,12 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     DEFAULTINVALID2("bitwise and expression", "TokenType::AMPER")
                 }
                 break;
-            case 115:
+            case 116:
                switch (lookahead.type)
                {
                     case TokenType::AMPER:
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -3443,7 +3573,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::PIPE:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                    case stmt:
                         {
                             REDUCEA(2)
                             REDUCET(1)
@@ -3458,51 +3587,12 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     DEFAULTINVALID2("bit shift expression", "either TokenType::DOUBLEGREATER or TokenType::DOUBLELESS")
                 }
                 break;
-            case 116:
-               switch (lookahead.type)
-               {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::CCURB:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::PIPE:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
-                    case stmt:
-                        {
-                            REDUCEA(2)
-                            REDUCET(1)
-                            REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Bitshiftexpr>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Bitshiftexpr>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
-                    SHIFTON(TokenType::MINUS, 92)
-                    SHIFTON(TokenType::PLUS, 91)
-                    DEFAULTINVALID2("addition expression", "either TokenType::MINUS or TokenType::PLUS")
-                }
-                break;
             case 117:
                switch (lookahead.type)
                {
                     case TokenType::AMPER:
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -3519,7 +3609,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::PIPE:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                    case stmt:
                         {
                             REDUCEA(2)
                             REDUCET(1)
@@ -3540,7 +3629,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::AMPER:
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -3554,25 +3642,21 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::GREATEREQUAL:
                     case TokenType::LESS:
                     case TokenType::LESSEQUAL:
-                    case TokenType::MINUS:
                     case TokenType::PIPE:
-                    case TokenType::PLUS:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                    case stmt:
                         {
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Additionexpr>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Additionexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Bitshiftexpr>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::Bitshiftexpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    SHIFTON(TokenType::PERCENT, 95)
-                    SHIFTON(TokenType::SLASH, 94)
-                    SHIFTON(TokenType::STAR, 93)
-                    DEFAULTINVALID2("multiplication expression", "TokenType::PERCENT, TokenType::SLASH, or TokenType::STAR")
+                    SHIFTON(TokenType::MINUS, 92)
+                    SHIFTON(TokenType::PLUS, 91)
+                    DEFAULTINVALID2("addition expression", "either TokenType::MINUS or TokenType::PLUS")
                 }
                 break;
             case 119:
@@ -3581,7 +3665,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::AMPER:
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -3600,7 +3683,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::PLUS:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                    case stmt:
                         {
                             REDUCEA(2)
                             REDUCET(1)
@@ -3622,7 +3704,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::AMPER:
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -3637,24 +3718,23 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::LESS:
                     case TokenType::LESSEQUAL:
                     case TokenType::MINUS:
-                    case TokenType::PERCENT:
                     case TokenType::PIPE:
                     case TokenType::PLUS:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                    case TokenType::SLASH:
-                    case TokenType::STAR:
-                    case stmt:
                         {
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Multexpr>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Multexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Additionexpr>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::Additionexpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("unary expression", "nothing", "multiplication expression")
+                    SHIFTON(TokenType::PERCENT, 95)
+                    SHIFTON(TokenType::SLASH, 94)
+                    SHIFTON(TokenType::STAR, 93)
+                    DEFAULTINVALID2("multiplication expression", "TokenType::PERCENT, TokenType::SLASH, or TokenType::STAR")
                 }
                 break;
             case 121:
@@ -3663,7 +3743,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::AMPER:
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -3685,7 +3764,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::SEMICOLON:
                     case TokenType::SLASH:
                     case TokenType::STAR:
-                    case stmt:
                         {
                             REDUCEA(2)
                             REDUCET(1)
@@ -3704,7 +3782,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::AMPER:
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -3726,7 +3803,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::SEMICOLON:
                     case TokenType::SLASH:
                     case TokenType::STAR:
-                    case stmt:
                         {
                             REDUCEA(2)
                             REDUCET(1)
@@ -3742,18 +3818,9 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
             case 123:
                switch (lookahead.type)
                {
-                    SHIFTON(TokenType::COMMA, 132)
-                    SHIFTON(TokenType::CPARN, 131)
-                    DEFAULTINVALID2("argument list", "either TokenType::COMMA or TokenType::CPARN")
-                }
-                break;
-            case 124:
-               switch (lookahead.type)
-               {
                     case TokenType::AMPER:
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -3775,7 +3842,53 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::SEMICOLON:
                     case TokenType::SLASH:
                     case TokenType::STAR:
-                    case stmt:
+                        {
+                            REDUCEA(2)
+                            REDUCET(1)
+                            REDUCEA(0)
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Multexpr>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::Multexpr>(stack.top()->state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
+                        }
+                        break;
+                    DEFAULTINVALID3("unary expression", "nothing", "multiplication expression")
+                }
+                break;
+            case 124:
+               switch (lookahead.type)
+               {
+                    SHIFTON(TokenType::COMMA, 133)
+                    SHIFTON(TokenType::CPARN, 132)
+                    DEFAULTINVALID2("argument list", "either TokenType::COMMA or TokenType::CPARN")
+                }
+                break;
+            case 125:
+               switch (lookahead.type)
+               {
+                    case TokenType::AMPER:
+                    case TokenType::BANGEQUAL:
+                    case TokenType::CARET:
+                    case TokenType::COLON:
+                    case TokenType::COMMA:
+                    case TokenType::CPARN:
+                    case TokenType::DOUBLEAMPER:
+                    case TokenType::DOUBLEEQUAL:
+                    case TokenType::DOUBLEGREATER:
+                    case TokenType::DOUBLELESS:
+                    case TokenType::DOUBLEPIPE:
+                    case TokenType::EQUAL:
+                    case TokenType::GREATER:
+                    case TokenType::GREATEREQUAL:
+                    case TokenType::LESS:
+                    case TokenType::LESSEQUAL:
+                    case TokenType::MINUS:
+                    case TokenType::PERCENT:
+                    case TokenType::PIPE:
+                    case TokenType::PLUS:
+                    case TokenType::QUESTION:
+                    case TokenType::SEMICOLON:
+                    case TokenType::SLASH:
+                    case TokenType::STAR:
                         {
                             REDUCET(2)
                             REDUCET(1)
@@ -3788,7 +3901,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     DEFAULTINVALID3("TokenType::CPARN", "nothing", "function call expression")
                 }
                 break;
-            case 125:
+            case 126:
                switch (lookahead.type)
                {
                     case TokenType::COMMA:
@@ -3798,13 +3911,12 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     DEFAULTINVALID3("expression", "nothing", "argument list")
                 }
                 break;
-            case 126:
+            case 127:
                switch (lookahead.type)
                {
                     case TokenType::AMPER:
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -3827,7 +3939,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::SEMICOLON:
                     case TokenType::SLASH:
                     case TokenType::STAR:
-                    case stmt:
                         {
                             REDUCET(2)
                             REDUCEA(1)
@@ -3840,11 +3951,27 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     DEFAULTINVALID3("TokenType::CPARN", "nothing", "primary expression")
                 }
                 break;
-            case 127:
+            case 128:
                switch (lookahead.type)
                {
+                    case TokenType::BANG:
+                    case TokenType::BININTLIT:
                     case TokenType::CCURB:
-                    case stmt:
+                    case TokenType::CHARLIT:
+                    case TokenType::DECINTLIT:
+                    case TokenType::FALSELIT:
+                    case TokenType::FLOATLIT:
+                    case TokenType::HEXINTLIT:
+                    case TokenType::MINUS:
+                    case TokenType::NULLPTRLIT:
+                    case TokenType::OCTINTLIT:
+                    case TokenType::OCURB:
+                    case TokenType::OPARN:
+                    case TokenType::RETURN:
+                    case TokenType::STRINGLIT:
+                    case TokenType::TILDE:
+                    case TokenType::TRUELIT:
+                    case TokenType::VAR:
                         {
                             REDUCET(3)
                             REDUCEA(2)
@@ -3858,31 +3985,11 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     DEFAULTINVALID3("TokenType::SEMICOLON", "nothing", "variable statement")
                 }
                 break;
-            case 128:
-               switch (lookahead.type)
-               {
-                    SHIFTON(TokenType::IDENTIFIER, 133)
-                    DEFAULTINVALID3("TokenType::COMMA", "TokenType::IDENTIFIER", "variable statement assignments")
-                }
-                break;
             case 129:
                switch (lookahead.type)
                {
-                    SHIFTON(TokenType::BANG, 43)
-                    SHIFTON(TokenType::BININTLIT, 63)
-                    SHIFTON(TokenType::CHARLIT, 65)
-                    SHIFTON(TokenType::DECINTLIT, 61)
-                    SHIFTON(TokenType::FALSELIT, 58)
-                    SHIFTON(TokenType::FLOATLIT, 59)
-                    SHIFTON(TokenType::HEXINTLIT, 64)
-                    SHIFTON(TokenType::MINUS, 54)
-                    SHIFTON(TokenType::NULLPTRLIT, 60)
-                    SHIFTON(TokenType::OCTINTLIT, 62)
-                    SHIFTON(TokenType::OPARN, 67)
-                    SHIFTON(TokenType::STRINGLIT, 66)
-                    SHIFTON(TokenType::TILDE, 53)
-                    SHIFTON(TokenType::TRUELIT, 57)
-                    DEFAULTINVALID3("TokenType::EQUAL", "expression", "variable statement assignments")
+                    SHIFTON(TokenType::IDENTIFIER, 134)
+                    DEFAULTINVALID3("TokenType::COMMA", "TokenType::IDENTIFIER", "variable statement assignments")
                 }
                 break;
             case 130:
@@ -3902,16 +4009,35 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 66)
                     SHIFTON(TokenType::TILDE, 53)
                     SHIFTON(TokenType::TRUELIT, 57)
-                    DEFAULTINVALID3("TokenType::COLON", "ternary expression", "ternary expression")
+                    DEFAULTINVALID3("TokenType::EQUAL", "expression", "variable statement assignments")
                 }
                 break;
             case 131:
                switch (lookahead.type)
                {
+                    SHIFTON(TokenType::BANG, 43)
+                    SHIFTON(TokenType::BININTLIT, 63)
+                    SHIFTON(TokenType::CHARLIT, 65)
+                    SHIFTON(TokenType::DECINTLIT, 61)
+                    SHIFTON(TokenType::FALSELIT, 58)
+                    SHIFTON(TokenType::FLOATLIT, 59)
+                    SHIFTON(TokenType::HEXINTLIT, 64)
+                    SHIFTON(TokenType::MINUS, 54)
+                    SHIFTON(TokenType::NULLPTRLIT, 60)
+                    SHIFTON(TokenType::OCTINTLIT, 62)
+                    SHIFTON(TokenType::OPARN, 67)
+                    SHIFTON(TokenType::STRINGLIT, 66)
+                    SHIFTON(TokenType::TILDE, 53)
+                    SHIFTON(TokenType::TRUELIT, 57)
+                    DEFAULTINVALID3("TokenType::COLON", "ternary expression", "ternary expression")
+                }
+                break;
+            case 132:
+               switch (lookahead.type)
+               {
                     case TokenType::AMPER:
                     case TokenType::BANGEQUAL:
                     case TokenType::CARET:
-                    case TokenType::CCURB:
                     case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
@@ -3933,7 +4059,6 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::SEMICOLON:
                     case TokenType::SLASH:
                     case TokenType::STAR:
-                    case stmt:
                         {
                             REDUCET(3)
                             REDUCEA(2)
@@ -3947,7 +4072,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     DEFAULTINVALID3("TokenType::CPARN", "nothing", "function call expression")
                 }
                 break;
-            case 132:
+            case 133:
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::BANG, 43)
@@ -3967,14 +4092,14 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     DEFAULTINVALID3("TokenType::COMMA", "expression", "argument list")
                 }
                 break;
-            case 133:
+            case 134:
                switch (lookahead.type)
                {
-                    SHIFTON(TokenType::EQUAL, 137)
+                    SHIFTON(TokenType::EQUAL, 138)
                     DEFAULTINVALID3("TokenType::IDENTIFIER", "TokenType::EQUAL", "variable statement assignments")
                 }
                 break;
-            case 134:
+            case 135:
                switch (lookahead.type)
                {
                     case TokenType::COMMA:
@@ -3991,15 +4116,13 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     DEFAULTINVALID3("expression", "nothing", "variable statement assignments")
                 }
                 break;
-            case 135:
+            case 136:
                switch (lookahead.type)
                {
-                    case TokenType::CCURB:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
                     case TokenType::EQUAL:
                     case TokenType::SEMICOLON:
-                    case stmt:
                         {
                             REDUCEA(4)
                             REDUCET(3)
@@ -4014,7 +4137,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     DEFAULTINVALID3("ternary expression", "nothing", "ternary expression")
                 }
                 break;
-            case 136:
+            case 137:
                switch (lookahead.type)
                {
                     case TokenType::COMMA:
@@ -4031,7 +4154,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     DEFAULTINVALID3("expression", "nothing", "argument list")
                 }
                 break;
-            case 137:
+            case 138:
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::BANG, 43)
@@ -4051,7 +4174,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     DEFAULTINVALID3("TokenType::EQUAL", "expression", "variable statement assignments")
                 }
                 break;
-            case 138:
+            case 139:
                switch (lookahead.type)
                {
                     case TokenType::COMMA:

@@ -398,10 +398,10 @@ void LocationVisitor::visitRetstmt(ASTNS::Retstmt *ast)
 {
     switch (ast->form)
     {
-        case ASTNS::Retstmt::Form::RET_EXPR:
+        case ASTNS::Retstmt::Form::RET_EXPR_SEMI:
             retl = ast->ret.start;
             retf = ast->ret.sourcefile;
-            retr = getR(ast->expr.get());
+            retr = ast->semi.end;
             break;
     }
 }

@@ -906,7 +906,7 @@ void PrintVisitor::visitRetstmt(ASTNS::Retstmt *a)
     ++indent;
     switch (a->form)
     {
-        case ASTNS::Retstmt::Form::RET_EXPR:
+        case ASTNS::Retstmt::Form::RET_EXPR_SEMI:
             pai("ret =");
             pai(" [");
             pai(std::string(a->ret.start, a->ret.end));
@@ -923,6 +923,10 @@ void PrintVisitor::visitRetstmt(ASTNS::Retstmt *a)
             {
                 pai(" nullptr\n");
             }
+            pai("semi =");
+            pai(" [");
+            pai(std::string(a->semi.start, a->semi.end));
+            pai("]\n");
             break;
     }
     --indent;

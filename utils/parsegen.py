@@ -115,7 +115,13 @@ class State:
 
     def setAction(self, sym, action):
         if sym in self.actions.keys():
-            raise Exception(f'action table conflict: {type(action)}/{type(self.actions[sym])}')
+            print(f'\033[1maction table conflict: {type(self.actions[sym])}/{type(action)}')
+            print(f'    : in state {self.seti}')
+            print(f'    : with set {self.set_}')
+            print(f'    : keys {self.actions.keys()}')
+            print(f'    : adding {action} for {sym}')
+            print(f'    : already have {self.actions[sym]} for {sym}\033[0m')
+            raise Exception(f'action table conflict')
 
         self.actions[sym] = action
 

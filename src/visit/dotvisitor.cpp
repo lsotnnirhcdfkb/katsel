@@ -1010,10 +1010,11 @@ void DotVisitor::visitRetstmt(ASTNS::Retstmt *a)
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::Retstmt::Form::RET_EXPR:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">Retstmt (RET_EXPR)</td></tr><tr>";
+        case ASTNS::Retstmt::Form::RET_EXPR_SEMI:
+            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">Retstmt (RET_EXPR_SEMI)</td></tr><tr>";
             std::cout << "<td port=\"ret\">ret</td>";
             std::cout << "<td port=\"expr\">expr</td>";
+            std::cout << "<td port=\"semi\">semi</td>";
             std::cout << "</tr></table>>]\n";
             {
                     std::string tokennodeid = makeTextNode("Token", a->ret.stringify());
@@ -1030,6 +1031,10 @@ void DotVisitor::visitRetstmt(ASTNS::Retstmt *a)
                         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
                         connect(thisid, "expr", nullptrnodeid);
                     }
+            }
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->semi.stringify());
+                    connect(thisid, "semi", tokennodeid);
             }
             break;
     }

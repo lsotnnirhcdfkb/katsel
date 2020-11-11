@@ -363,13 +363,14 @@ namespace ASTNS
     class Retstmt : public AST
     {
     public:
-        Retstmt(Token ret, std::unique_ptr<AST> expr);
+        Retstmt(Token ret, std::unique_ptr<AST> expr, Token semi);
         enum class Form
         {
-            RET_EXPR,
+            RET_EXPR_SEMI,
         };
         Token ret;
         std::unique_ptr<AST> expr;
+        Token semi;
         Form form;
         virtual void accept(ASTVisitor *v);
     };
