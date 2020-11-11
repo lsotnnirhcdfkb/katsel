@@ -16,7 +16,7 @@ class Parser
 public:
     Parser(Lexer &l, File &sourcefile);
 
-    std::unique_ptr<ASTNS::AST> parse();
+    std::unique_ptr<ASTNS::NewBaseAST> parse();
 
 private:
     Lexer &lexer;

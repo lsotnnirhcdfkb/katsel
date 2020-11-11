@@ -118,10 +118,13 @@ def genASTForwDecls():
 def genVisitorMethods(base=False):
     output = []
     for ast in asts:
+        if type(ast) == ASTBaseClass:
+            continue
+
         if base:
             output.append(f'virtual void visit{ast.name}(ASTNS::{ast.name} *ast) = 0;\n')
         else:
-            output.append(f'void visit{ast.name}(ASTNS::{ast.name} *ast);\n')
+            output.append(f'void visit{ast.name}(ASTNS::{ast.name} *ast) override;\n')
 
     return ''.join(output)
 # Generating printing stuff {{{2

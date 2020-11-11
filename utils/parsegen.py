@@ -459,6 +459,7 @@ def genLoop():
                                        '                            .primary(Error::Primary(lookahead)\n'
                                        '                                 .error("Invalid syntax"))\n'
                                        '                             .report();\n'))
+        output.append(                 '                        done = true;\n')
         output.append(                 '                        break;\n')
         output.append(                 '                }\n')
         output.append(                 '                break;\n')

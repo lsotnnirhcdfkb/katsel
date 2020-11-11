@@ -115,7 +115,7 @@ template <> size_t Parser::getGoto<ASTNS::Primary>(size_t state)
 // GETGOTO END
 // }}}
 
-std::unique_ptr<ASTNS::AST> Parser::parse()
+std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
 {
     struct stackitem
     {
@@ -184,6 +184,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             .primary(Error::Primary(lookahead)
                                  .error("Invalid syntax"))
                              .report();
+                        done = true;
                         break;
                 }
                 break;
@@ -200,6 +201,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             .primary(Error::Primary(lookahead)
                                  .error("Invalid syntax"))
                              .report();
+                        done = true;
                         break;
                 }
                 break;
@@ -221,6 +223,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             .primary(Error::Primary(lookahead)
                                  .error("Invalid syntax"))
                              .report();
+                        done = true;
                         break;
                 }
                 break;
@@ -266,6 +269,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             .primary(Error::Primary(lookahead)
                                  .error("Invalid syntax"))
                              .report();
+                        done = true;
                         break;
                 }
                 break;
@@ -319,6 +323,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             .primary(Error::Primary(lookahead)
                                  .error("Invalid syntax"))
                              .report();
+                        done = true;
                         break;
                 }
                 break;
@@ -372,6 +377,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             .primary(Error::Primary(lookahead)
                                  .error("Invalid syntax"))
                              .report();
+                        done = true;
                         break;
                 }
                 break;
@@ -397,6 +403,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             .primary(Error::Primary(lookahead)
                                  .error("Invalid syntax"))
                              .report();
+                        done = true;
                         break;
                 }
                 break;
@@ -422,6 +429,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             .primary(Error::Primary(lookahead)
                                  .error("Invalid syntax"))
                              .report();
+                        done = true;
                         break;
                 }
                 break;
@@ -475,6 +483,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             .primary(Error::Primary(lookahead)
                                  .error("Invalid syntax"))
                              .report();
+                        done = true;
                         break;
                 }
                 break;
@@ -546,6 +555,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             .primary(Error::Primary(lookahead)
                                  .error("Invalid syntax"))
                              .report();
+                        done = true;
                         break;
                 }
                 break;
@@ -585,6 +595,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             .primary(Error::Primary(lookahead)
                                  .error("Invalid syntax"))
                              .report();
+                        done = true;
                         break;
                 }
                 break;
@@ -624,6 +635,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             .primary(Error::Primary(lookahead)
                                  .error("Invalid syntax"))
                              .report();
+                        done = true;
                         break;
                 }
                 break;
@@ -663,6 +675,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             .primary(Error::Primary(lookahead)
                                  .error("Invalid syntax"))
                              .report();
+                        done = true;
                         break;
                 }
                 break;
@@ -702,6 +715,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             .primary(Error::Primary(lookahead)
                                  .error("Invalid syntax"))
                              .report();
+                        done = true;
                         break;
                 }
                 break;
@@ -741,6 +755,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             .primary(Error::Primary(lookahead)
                                  .error("Invalid syntax"))
                              .report();
+                        done = true;
                         break;
                 }
                 break;
@@ -830,6 +845,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             .primary(Error::Primary(lookahead)
                                  .error("Invalid syntax"))
                              .report();
+                        done = true;
                         break;
                 }
                 break;
@@ -919,6 +935,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             .primary(Error::Primary(lookahead)
                                  .error("Invalid syntax"))
                              .report();
+                        done = true;
                         break;
                 }
                 break;
@@ -937,6 +954,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             .primary(Error::Primary(lookahead)
                                  .error("Invalid syntax"))
                              .report();
+                        done = true;
                         break;
                 }
                 break;
@@ -1026,6 +1044,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             .primary(Error::Primary(lookahead)
                                  .error("Invalid syntax"))
                              .report();
+                        done = true;
                         break;
                 }
                 break;
@@ -1115,6 +1134,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             .primary(Error::Primary(lookahead)
                                  .error("Invalid syntax"))
                              .report();
+                        done = true;
                         break;
                 }
                 break;
@@ -1222,6 +1242,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             .primary(Error::Primary(lookahead)
                                  .error("Invalid syntax"))
                              .report();
+                        done = true;
                         break;
                 }
                 break;
@@ -1329,6 +1350,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             .primary(Error::Primary(lookahead)
                                  .error("Invalid syntax"))
                              .report();
+                        done = true;
                         break;
                 }
                 break;
@@ -1436,6 +1458,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                             .primary(Error::Primary(lookahead)
                                  .error("Invalid syntax"))
                              .report();
+                        done = true;
                         break;
                 }
                 break;
@@ -1451,6 +1474,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
     // PARSERLOOP END
     // }}}
 
+    return std::move(dynamic_cast<aststackitem*>(stack.top().get())->ast);
 }
 
 Token Parser::consume()
