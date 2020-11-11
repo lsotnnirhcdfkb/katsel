@@ -154,28 +154,28 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::DECINTLIT:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(9, last));
                             lookahead = consume();
                         }
                         break;
                     case TokenType::MINUS:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(6, last));
                             lookahead = consume();
                         }
                         break;
                     case TokenType::OPARN:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(10, last));
                             lookahead = consume();
                         }
                         break;
                     case TokenType::TILDE:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(7, last));
                             lookahead = consume();
                         }
                         break;
@@ -250,14 +250,14 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::MINUS:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(12, last));
                             lookahead = consume();
                         }
                         break;
                     case TokenType::PLUS:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(11, last));
                             lookahead = consume();
                         }
                         break;
@@ -274,55 +274,43 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                {
                     case TokenType::CPARN:
                         {
-                            std::unique_ptr<stackitem> _a0 = std::move(stack.top()); stack.pop();
-                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
-                            std::unique_ptr<ASTNS::AST> a0 (std::move(asi0->ast));
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Add>(std::move(a0));
+                            // skip actual reduction
                             size_t newstate = getGoto<ASTNS::Add>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
+                            stack.top()->state = newstate;
                         }
                         break;
                     case TokenType::EOF_:
                         {
-                            std::unique_ptr<stackitem> _a0 = std::move(stack.top()); stack.pop();
-                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
-                            std::unique_ptr<ASTNS::AST> a0 (std::move(asi0->ast));
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Add>(std::move(a0));
+                            // skip actual reduction
                             size_t newstate = getGoto<ASTNS::Add>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
+                            stack.top()->state = newstate;
                         }
                         break;
                     case TokenType::MINUS:
                         {
-                            std::unique_ptr<stackitem> _a0 = std::move(stack.top()); stack.pop();
-                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
-                            std::unique_ptr<ASTNS::AST> a0 (std::move(asi0->ast));
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Add>(std::move(a0));
+                            // skip actual reduction
                             size_t newstate = getGoto<ASTNS::Add>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
+                            stack.top()->state = newstate;
                         }
                         break;
                     case TokenType::PLUS:
                         {
-                            std::unique_ptr<stackitem> _a0 = std::move(stack.top()); stack.pop();
-                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
-                            std::unique_ptr<ASTNS::AST> a0 (std::move(asi0->ast));
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Add>(std::move(a0));
+                            // skip actual reduction
                             size_t newstate = getGoto<ASTNS::Add>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
+                            stack.top()->state = newstate;
                         }
                         break;
                     case TokenType::SLASH:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(14, last));
                             lookahead = consume();
                         }
                         break;
                     case TokenType::STAR:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(13, last));
                             lookahead = consume();
                         }
                         break;
@@ -339,62 +327,44 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                {
                     case TokenType::CPARN:
                         {
-                            std::unique_ptr<stackitem> _a0 = std::move(stack.top()); stack.pop();
-                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
-                            std::unique_ptr<ASTNS::AST> a0 (std::move(asi0->ast));
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Mult>(std::move(a0));
+                            // skip actual reduction
                             size_t newstate = getGoto<ASTNS::Mult>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
+                            stack.top()->state = newstate;
                         }
                         break;
                     case TokenType::EOF_:
                         {
-                            std::unique_ptr<stackitem> _a0 = std::move(stack.top()); stack.pop();
-                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
-                            std::unique_ptr<ASTNS::AST> a0 (std::move(asi0->ast));
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Mult>(std::move(a0));
+                            // skip actual reduction
                             size_t newstate = getGoto<ASTNS::Mult>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
+                            stack.top()->state = newstate;
                         }
                         break;
                     case TokenType::MINUS:
                         {
-                            std::unique_ptr<stackitem> _a0 = std::move(stack.top()); stack.pop();
-                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
-                            std::unique_ptr<ASTNS::AST> a0 (std::move(asi0->ast));
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Mult>(std::move(a0));
+                            // skip actual reduction
                             size_t newstate = getGoto<ASTNS::Mult>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
+                            stack.top()->state = newstate;
                         }
                         break;
                     case TokenType::PLUS:
                         {
-                            std::unique_ptr<stackitem> _a0 = std::move(stack.top()); stack.pop();
-                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
-                            std::unique_ptr<ASTNS::AST> a0 (std::move(asi0->ast));
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Mult>(std::move(a0));
+                            // skip actual reduction
                             size_t newstate = getGoto<ASTNS::Mult>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
+                            stack.top()->state = newstate;
                         }
                         break;
                     case TokenType::SLASH:
                         {
-                            std::unique_ptr<stackitem> _a0 = std::move(stack.top()); stack.pop();
-                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
-                            std::unique_ptr<ASTNS::AST> a0 (std::move(asi0->ast));
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Mult>(std::move(a0));
+                            // skip actual reduction
                             size_t newstate = getGoto<ASTNS::Mult>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
+                            stack.top()->state = newstate;
                         }
                         break;
                     case TokenType::STAR:
                         {
-                            std::unique_ptr<stackitem> _a0 = std::move(stack.top()); stack.pop();
-                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
-                            std::unique_ptr<ASTNS::AST> a0 (std::move(asi0->ast));
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Mult>(std::move(a0));
+                            // skip actual reduction
                             size_t newstate = getGoto<ASTNS::Mult>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
+                            stack.top()->state = newstate;
                         }
                         break;
                     default:
@@ -411,14 +381,14 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::MINUS:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(6, last));
                             lookahead = consume();
                         }
                         break;
                     case TokenType::TILDE:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(7, last));
                             lookahead = consume();
                         }
                         break;
@@ -436,14 +406,14 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::MINUS:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(6, last));
                             lookahead = consume();
                         }
                         break;
                     case TokenType::TILDE:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(7, last));
                             lookahead = consume();
                         }
                         break;
@@ -460,62 +430,44 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                {
                     case TokenType::CPARN:
                         {
-                            std::unique_ptr<stackitem> _a0 = std::move(stack.top()); stack.pop();
-                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
-                            std::unique_ptr<ASTNS::AST> a0 (std::move(asi0->ast));
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Unary>(std::move(a0));
+                            // skip actual reduction
                             size_t newstate = getGoto<ASTNS::Unary>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
+                            stack.top()->state = newstate;
                         }
                         break;
                     case TokenType::EOF_:
                         {
-                            std::unique_ptr<stackitem> _a0 = std::move(stack.top()); stack.pop();
-                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
-                            std::unique_ptr<ASTNS::AST> a0 (std::move(asi0->ast));
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Unary>(std::move(a0));
+                            // skip actual reduction
                             size_t newstate = getGoto<ASTNS::Unary>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
+                            stack.top()->state = newstate;
                         }
                         break;
                     case TokenType::MINUS:
                         {
-                            std::unique_ptr<stackitem> _a0 = std::move(stack.top()); stack.pop();
-                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
-                            std::unique_ptr<ASTNS::AST> a0 (std::move(asi0->ast));
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Unary>(std::move(a0));
+                            // skip actual reduction
                             size_t newstate = getGoto<ASTNS::Unary>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
+                            stack.top()->state = newstate;
                         }
                         break;
                     case TokenType::PLUS:
                         {
-                            std::unique_ptr<stackitem> _a0 = std::move(stack.top()); stack.pop();
-                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
-                            std::unique_ptr<ASTNS::AST> a0 (std::move(asi0->ast));
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Unary>(std::move(a0));
+                            // skip actual reduction
                             size_t newstate = getGoto<ASTNS::Unary>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
+                            stack.top()->state = newstate;
                         }
                         break;
                     case TokenType::SLASH:
                         {
-                            std::unique_ptr<stackitem> _a0 = std::move(stack.top()); stack.pop();
-                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
-                            std::unique_ptr<ASTNS::AST> a0 (std::move(asi0->ast));
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Unary>(std::move(a0));
+                            // skip actual reduction
                             size_t newstate = getGoto<ASTNS::Unary>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
+                            stack.top()->state = newstate;
                         }
                         break;
                     case TokenType::STAR:
                         {
-                            std::unique_ptr<stackitem> _a0 = std::move(stack.top()); stack.pop();
-                            aststackitem *asi0 = dynamic_cast<aststackitem*>(_a0.get());
-                            std::unique_ptr<ASTNS::AST> a0 (std::move(asi0->ast));
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Unary>(std::move(a0));
+                            // skip actual reduction
                             size_t newstate = getGoto<ASTNS::Unary>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
+                            stack.top()->state = newstate;
                         }
                         break;
                     default:
@@ -603,28 +555,28 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::DECINTLIT:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(9, last));
                             lookahead = consume();
                         }
                         break;
                     case TokenType::MINUS:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(6, last));
                             lookahead = consume();
                         }
                         break;
                     case TokenType::OPARN:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(10, last));
                             lookahead = consume();
                         }
                         break;
                     case TokenType::TILDE:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(7, last));
                             lookahead = consume();
                         }
                         break;
@@ -642,28 +594,28 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::DECINTLIT:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(9, last));
                             lookahead = consume();
                         }
                         break;
                     case TokenType::MINUS:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(6, last));
                             lookahead = consume();
                         }
                         break;
                     case TokenType::OPARN:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(10, last));
                             lookahead = consume();
                         }
                         break;
                     case TokenType::TILDE:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(7, last));
                             lookahead = consume();
                         }
                         break;
@@ -681,28 +633,28 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::DECINTLIT:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(9, last));
                             lookahead = consume();
                         }
                         break;
                     case TokenType::MINUS:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(6, last));
                             lookahead = consume();
                         }
                         break;
                     case TokenType::OPARN:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(10, last));
                             lookahead = consume();
                         }
                         break;
                     case TokenType::TILDE:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(7, last));
                             lookahead = consume();
                         }
                         break;
@@ -720,28 +672,28 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::DECINTLIT:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(9, last));
                             lookahead = consume();
                         }
                         break;
                     case TokenType::MINUS:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(6, last));
                             lookahead = consume();
                         }
                         break;
                     case TokenType::OPARN:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(10, last));
                             lookahead = consume();
                         }
                         break;
                     case TokenType::TILDE:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(7, last));
                             lookahead = consume();
                         }
                         break;
@@ -759,28 +711,28 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::DECINTLIT:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(9, last));
                             lookahead = consume();
                         }
                         break;
                     case TokenType::MINUS:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(6, last));
                             lookahead = consume();
                         }
                         break;
                     case TokenType::OPARN:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(10, last));
                             lookahead = consume();
                         }
                         break;
                     case TokenType::TILDE:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(7, last));
                             lookahead = consume();
                         }
                         break;
@@ -976,7 +928,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::CPARN:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(22, last));
                             lookahead = consume();
                         }
                         break;
@@ -1058,14 +1010,14 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::SLASH:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(14, last));
                             lookahead = consume();
                         }
                         break;
                     case TokenType::STAR:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(13, last));
                             lookahead = consume();
                         }
                         break;
@@ -1147,14 +1099,14 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
                     case TokenType::SLASH:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(14, last));
                             lookahead = consume();
                         }
                         break;
                     case TokenType::STAR:
                         {
                             Token last (lookahead);
-                            stack.push(std::make_unique<tokstackitem>(last));
+                            stack.push(std::make_unique<tokstackitem>(13, last));
                             lookahead = consume();
                         }
                         break;
@@ -1490,7 +1442,7 @@ std::unique_ptr<ASTNS::AST> Parser::parse()
             default:
                 Error(Error::MsgType::INTERR, lookahead, "Parser reached invalid state")
                     .primary(Error::Primary(lookahead)
-                        .error(static_cast<std::stringstream&>(std::stringstream() << "Parser reached invalid state: " << stack.top()->state).str()))
+                        .error(static_cast<std::stringstream>(std::stringstream() << "Parser reached invalid state: " << stack.top()->state).str()))
                     .reportAbort();
         }
     }

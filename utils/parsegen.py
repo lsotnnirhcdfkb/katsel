@@ -41,11 +41,13 @@ class Terminal:
 # rule {{{2
 class Rule:
     __num = 0
-    def __init__(self, symbol, expansion):
+    def __init__(self, symbol, expansion, skip, name):
         self.symbol = symbol
         self.expansion = expansion
         self.num = Rule.__num
         Rule.__num += 1
+        self.skip = skip
+        self.name = name
 
     def __repr__(self):
         return str(self)
@@ -272,7 +274,7 @@ _grammar = [
     {
         'symbol': 'new_stmt',
         'expansion': '$new_expr:expr',
-        'name': 'statemesymbol'
+        'name': 'statement'
     },
     {
         'symbol': 'new_expr',
@@ -354,10 +356,13 @@ for rule in _grammar:
         else:
             expansion[i] = Terminal(f'TokenType::{sname}')
 
-    grammar.append(Rule(NonTerminal(symbol), tuple(expansion)))
+    if 'skip' in rule and rule['skip']:
+        assert len(expansion) == 1 and type(expansion[0]) == NonTerminal, 'Skipped rule must expand to one nonterminal'
+
+    grammar.append(Rule(NonTerminal(symbol), tuple(expansion), rule['skip'] if 'skip' in rule else False, rule['name']))
 
 augmentSymbol = NonTerminal('augment')
-augmentRule = Rule(augmentSymbol, (grammar[0].symbol, ))
+augmentRule = Rule(augmentSymbol, (grammar[0].symbol, ), False, 'entire thing')
 grammar.append(augmentRule)
 
 eofSym = Terminal('TokenType::EOF_')
@@ -420,21 +425,27 @@ def genLoop():
 
             if type(ac) == ShiftAction:
                 output.append(         '                            Token last (lookahead);\n')
-                output.append(         '                            stack.push(std::make_unique<tokstackitem>(last));\n')
+                output.append(        f'                            stack.push(std::make_unique<tokstackitem>({ac.newstate}, last));\n')
                 output.append(         '                            lookahead = consume();\n')
             elif type(ac) == ReduceAction:
-                for i, sym in reversed(list(enumerate(ac.rule.expansion))):
-                    output.append(    f'                            std::unique_ptr<stackitem> _a{i} = std::move(stack.top()); stack.pop();\n')
-                    if type(sym) == Terminal:
-                        output.append(f'                            tokstackitem *tsi{i} = dynamic_cast<tokstackitem*>(_a{i}.get());\n')
-                        output.append(f'                            Token a{i} (tsi{i}->tok);\n') # TODO: add parser method to say internal error: invalid pop expected tokstackitem/aststackitem but got ...
-                    elif type(sym) == NonTerminal:
-                        output.append(f'                            aststackitem *asi{i} = dynamic_cast<aststackitem*>(_a{i}.get());\n')
-                        output.append(f'                            std::unique_ptr<ASTNS::AST> a{i} (std::move(asi{i}->ast));\n') # same TODO as above
+                if not ac.rule.skip:
+                    for i, sym in reversed(list(enumerate(ac.rule.expansion))):
+                        output.append(    f'                            std::unique_ptr<stackitem> _a{i} = std::move(stack.top()); stack.pop();\n')
+                        if type(sym) == Terminal:
+                            output.append(f'                            tokstackitem *tsi{i} = dynamic_cast<tokstackitem*>(_a{i}.get());\n')
+                            output.append(f'                            Token a{i} (tsi{i}->tok);\n') # TODO: add parser method to say internal error: invalid pop expected tokstackitem/aststackitem but got ...
+                        elif type(sym) == NonTerminal:
+                            output.append(f'                            aststackitem *asi{i} = dynamic_cast<aststackitem*>(_a{i}.get());\n')
+                            output.append(f'                            std::unique_ptr<ASTNS::AST> a{i} (std::move(asi{i}->ast));\n') # same TODO as above
 
-                output.append(        f'                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::{str(ac.rule.symbol).capitalize()}>({", ".join([f"std::move(a{i})" for i in range(len(ac.rule.expansion))])});\n')
-                output.append(        f'                            size_t newstate = getGoto<ASTNS::{str(ac.rule.symbol).capitalize()}>(stack.top()->state);\n')
-                output.append(        f'                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));\n')
+                    output.append(        f'                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::{str(ac.rule.symbol).capitalize()}>({", ".join([f"std::move(a{i})" for i in range(len(ac.rule.expansion))])});\n')
+                    output.append(        f'                            size_t newstate = getGoto<ASTNS::{str(ac.rule.symbol).capitalize()}>(stack.top()->state);\n')
+                    output.append(        f'                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));\n')
+                else:
+                    output.append(        f'                            // skip actual reduction\n')
+                    output.append(        f'                            size_t newstate = getGoto<ASTNS::{str(ac.rule.symbol).capitalize()}>(stack.top()->state);\n')
+                    output.append(        f'                            stack.top()->state = newstate;\n')
+
             elif type(ac) == AcceptAction:
                 output.append(         '                            done = true;\n')
             else:
@@ -444,7 +455,7 @@ def genLoop():
             output.append(             '                        break;\n')
 
         output.append(                 '                    default:\n')
-        output.append(                ('                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")\n'
+        output.append(                ('                        Error(Error::MsgType::ERROR, lookahead, "Invalid syntax")\n' # TODO: stop repeating this error on every state
                                        '                            .primary(Error::Primary(lookahead)\n'
                                        '                                 .error("Invalid syntax"))\n'
                                        '                             .report();\n'))
@@ -455,7 +466,7 @@ def genLoop():
     output.append(                     '            default:\n')
     output.append(                    ('                Error(Error::MsgType::INTERR, lookahead, "Parser reached invalid state")\n'
                                        '                    .primary(Error::Primary(lookahead)\n'
-                                       '                        .error(static_cast<std::stringstream&>(std::stringstream() << "Parser reached invalid state: " << stack.top()->state).str()))\n'
+                                       '                        .error(static_cast<std::stringstream>(std::stringstream() << "Parser reached invalid state: " << stack.top()->state).str()))\n'
                                        '                    .reportAbort();\n'))
 
     output.append(                     '        }\n')
