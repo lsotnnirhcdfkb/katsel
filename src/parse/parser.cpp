@@ -188,7 +188,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                     SHIFTON(TokenType::MINUS, 6)
                     SHIFTON(TokenType::OPARN, 10)
                     SHIFTON(TokenType::TILDE, 7)
-                    DEFAULTINVALID3("beginning", "new_stmt", "entire thing")
+                    DEFAULTINVALID3("beginning", "statement", "entire thing")
                 }
                 break;
             case 1:
@@ -197,7 +197,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                     case TokenType::EOF_:
                             done = true;
                         break;
-                    DEFAULTINVALID3("new_stmt", "nothing", "entire thing")
+                    DEFAULTINVALID3("statement", "nothing", "entire thing")
                 }
                 break;
             case 2:
@@ -211,7 +211,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("new_expr", "nothing", "statement")
+                    DEFAULTINVALID3("expression", "nothing", "statement")
                 }
                 break;
             case 3:
@@ -228,7 +228,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         break;
                     SHIFTON(TokenType::MINUS, 12)
                     SHIFTON(TokenType::PLUS, 11)
-                    DEFAULTINVALID2("add", "either TokenType::PLUS or TokenType::MINUS")
+                    DEFAULTINVALID2("addition expression", "either TokenType::MINUS or TokenType::PLUS")
                 }
                 break;
             case 4:
@@ -242,7 +242,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         break;
                     SHIFTON(TokenType::SLASH, 14)
                     SHIFTON(TokenType::STAR, 13)
-                    DEFAULTINVALID2("mult", "either TokenType::STAR or TokenType::SLASH")
+                    DEFAULTINVALID2("multiplication expression", "either TokenType::SLASH or TokenType::STAR")
                 }
                 break;
             case 5:
@@ -256,7 +256,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                     case TokenType::STAR:
                         REDUCESKIP(Mult);
                         break;
-                    DEFAULTINVALID3("unary", "nothing", "multiplication expression")
+                    DEFAULTINVALID3("unary expression", "nothing", "multiplication expression")
                 }
                 break;
             case 6:
@@ -266,7 +266,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                     SHIFTON(TokenType::MINUS, 6)
                     SHIFTON(TokenType::OPARN, 10)
                     SHIFTON(TokenType::TILDE, 7)
-                    DEFAULTINVALID3("TokenType::MINUS", "unary", "unary expression")
+                    DEFAULTINVALID3("TokenType::MINUS", "unary expression", "unary expression")
                 }
                 break;
             case 7:
@@ -276,7 +276,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                     SHIFTON(TokenType::MINUS, 6)
                     SHIFTON(TokenType::OPARN, 10)
                     SHIFTON(TokenType::TILDE, 7)
-                    DEFAULTINVALID3("TokenType::TILDE", "unary", "unary expression")
+                    DEFAULTINVALID3("TokenType::TILDE", "unary expression", "unary expression")
                 }
                 break;
             case 8:
@@ -290,7 +290,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                     case TokenType::STAR:
                         REDUCESKIP(Unary);
                         break;
-                    DEFAULTINVALID3("primary", "nothing", "unary expression")
+                    DEFAULTINVALID3("primary expression", "nothing", "unary expression")
                 }
                 break;
             case 9:
@@ -319,7 +319,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                     SHIFTON(TokenType::MINUS, 6)
                     SHIFTON(TokenType::OPARN, 10)
                     SHIFTON(TokenType::TILDE, 7)
-                    DEFAULTINVALID3("TokenType::OPARN", "new_expr", "primary expression")
+                    DEFAULTINVALID3("TokenType::OPARN", "expression", "primary expression")
                 }
                 break;
             case 11:
@@ -329,7 +329,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                     SHIFTON(TokenType::MINUS, 6)
                     SHIFTON(TokenType::OPARN, 10)
                     SHIFTON(TokenType::TILDE, 7)
-                    DEFAULTINVALID3("TokenType::PLUS", "mult", "addition expression")
+                    DEFAULTINVALID3("TokenType::PLUS", "multiplication expression", "addition expression")
                 }
                 break;
             case 12:
@@ -339,7 +339,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                     SHIFTON(TokenType::MINUS, 6)
                     SHIFTON(TokenType::OPARN, 10)
                     SHIFTON(TokenType::TILDE, 7)
-                    DEFAULTINVALID3("TokenType::MINUS", "mult", "addition expression")
+                    DEFAULTINVALID3("TokenType::MINUS", "multiplication expression", "addition expression")
                 }
                 break;
             case 13:
@@ -349,7 +349,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                     SHIFTON(TokenType::MINUS, 6)
                     SHIFTON(TokenType::OPARN, 10)
                     SHIFTON(TokenType::TILDE, 7)
-                    DEFAULTINVALID3("TokenType::STAR", "unary", "multiplication expression")
+                    DEFAULTINVALID3("TokenType::STAR", "unary expression", "multiplication expression")
                 }
                 break;
             case 14:
@@ -359,7 +359,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                     SHIFTON(TokenType::MINUS, 6)
                     SHIFTON(TokenType::OPARN, 10)
                     SHIFTON(TokenType::TILDE, 7)
-                    DEFAULTINVALID3("TokenType::SLASH", "unary", "multiplication expression")
+                    DEFAULTINVALID3("TokenType::SLASH", "unary expression", "multiplication expression")
                 }
                 break;
             case 15:
@@ -379,7 +379,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("unary", "nothing", "unary expression")
+                    DEFAULTINVALID3("unary expression", "nothing", "unary expression")
                 }
                 break;
             case 16:
@@ -399,14 +399,14 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("unary", "nothing", "unary expression")
+                    DEFAULTINVALID3("unary expression", "nothing", "unary expression")
                 }
                 break;
             case 17:
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::CPARN, 22)
-                    DEFAULTINVALID3("new_expr", "TokenType::CPARN", "primary expression")
+                    DEFAULTINVALID3("expression", "TokenType::CPARN", "primary expression")
                 }
                 break;
             case 18:
@@ -427,7 +427,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         break;
                     SHIFTON(TokenType::SLASH, 14)
                     SHIFTON(TokenType::STAR, 13)
-                    DEFAULTINVALID2("mult", "either TokenType::STAR or TokenType::SLASH")
+                    DEFAULTINVALID2("multiplication expression", "either TokenType::SLASH or TokenType::STAR")
                 }
                 break;
             case 19:
@@ -448,7 +448,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                         break;
                     SHIFTON(TokenType::SLASH, 14)
                     SHIFTON(TokenType::STAR, 13)
-                    DEFAULTINVALID2("mult", "either TokenType::STAR or TokenType::SLASH")
+                    DEFAULTINVALID2("multiplication expression", "either TokenType::SLASH or TokenType::STAR")
                 }
                 break;
             case 20:
@@ -469,7 +469,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("unary", "nothing", "multiplication expression")
+                    DEFAULTINVALID3("unary expression", "nothing", "multiplication expression")
                 }
                 break;
             case 21:
@@ -490,7 +490,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("unary", "nothing", "multiplication expression")
+                    DEFAULTINVALID3("unary expression", "nothing", "multiplication expression")
                 }
                 break;
             case 22:
@@ -574,7 +574,7 @@ void Parser::invalidSyntax(const char *justparsed, const char *expected, Token c
     ssl << "expected " << expected << " after " << justparsed << ", but got " << stringifyTokenType(lookahead.type) << " instead";
     sss << "expected " << expected;
     Error(Error::MsgType::ERROR, lookahead, ssl.str())
-        .primary(Error::Primary(lookahead)
+        .primary(Error::Primary(last)
             .error(sss.str()))
         .primary(Error::Primary(lookahead)
             .note("unexpected token here"))

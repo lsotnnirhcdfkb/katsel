@@ -130,12 +130,20 @@ class State:
 
         for item in self.set_.kernel:
             if item.index > 0:
-                justparsed.append(str(item.rule.expansion[item.index - 1]))
+                s = item.rule.expansion[item.index - 1]
+                if type(s) == NonTerminal:
+                    justparsed.append([r.name for r in grammar if r.symbol == s][0])
+                else:
+                    justparsed.append(str(s))
             else:
                 justparsed.append('beginning')
 
-            if item.getAfterDot() is not None:
-                expected.append(str(item.getAfterDot()))
+            after = item.getAfterDot()
+            if after is not None:
+                if type(after) == NonTerminal:
+                    expected.append([r.name for r in grammar if r.symbol == after][0])
+                else:
+                    expected.append(str(after))
 
             whileparsing.append(item.rule.name)
 
