@@ -222,7 +222,7 @@ def getFollows(sym):
                     else:
                         follows.extend(makeUnique(follows, getFollows(rule.symbol)))
             else:
-                if type(rule.expansion) == NonTerminal:
+                if type(rule.expansion[i + 1]) == NonTerminal:
                     if len(rule.expansion[i + 1].first):
                         follows.extend(makeUnique(follows, [x for x in rule.expansion[i + 1].first if x != Terminal('eof')]))
                     else:
@@ -494,26 +494,26 @@ def genLoop():
         output.append(                 '               {\n')
 
         stateactions = []
-        for nt, ac in sorted(state.actions.items(), key=lambda x:str(x[0])):
+        for term, ac in sorted(state.actions.items(), key=lambda x:str(x[0])):
             found = False
             for i, (ac2, _) in enumerate(stateactions):
                 if ac == ac2:
-                    stateactions[i][1].append(nt)
+                    stateactions[i][1].append(term)
                     found = True
                     break
 
             if not found:
-                stateactions.append((ac, [nt]))
+                stateactions.append((ac, [term]))
 
 
         for ac, nts in stateactions:
             if type(ac) == ShiftAction:
-                for nt in nts:
-                    output.append(    f'                    SHIFTON({str(nt)}, {ac.newstate})\n')
+                for term in nts:
+                    output.append(    f'                    SHIFTON({str(term)}, {ac.newstate})\n')
                 continue
 
-            for nt in nts:
-                output.append(        f'                    case {str(nt)}:\n')
+            for term in nts:
+                output.append(        f'                    case {str(term)}:\n')
 
             if type(ac) == ReduceAction:
                 if not ac.rule.skip:

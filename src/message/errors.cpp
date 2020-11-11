@@ -137,9 +137,9 @@ void LocationVisitor::visitAdditionexpr(ASTNS::Additionexpr *ast)
     switch (ast->form)
     {
         case ASTNS::Additionexpr::Form::LHS_OP_RHS:
-            retl = ast->lhs.start;
-            retf = ast->lhs.sourcefile;
-            retr = ast->rhs.end;
+            retl = getL(ast->lhs.get());
+            retf = getF(ast->lhs.get());
+            retr = getR(ast->rhs.get());
             break;
     }
 }
@@ -148,14 +148,14 @@ void LocationVisitor::visitArgs(ASTNS::Args *ast)
     switch (ast->form)
     {
         case ASTNS::Args::Form::ARGS_COMMA_EXPR:
-            retl = ast->args.start;
-            retf = ast->args.sourcefile;
-            retr = ast->expr.end;
+            retl = getL(ast->args.get());
+            retf = getF(ast->args.get());
+            retr = getR(ast->expr.get());
             break;
         case ASTNS::Args::Form::EXPR:
-            retl = ast->expr.start;
-            retf = ast->expr.sourcefile;
-            retr = ast->expr.end;
+            retl = getL(ast->expr.get());
+            retf = getF(ast->expr.get());
+            retr = getR(ast->expr.get());
             break;
     }
 }
@@ -164,9 +164,9 @@ void LocationVisitor::visitAssignmentexpr(ASTNS::Assignmentexpr *ast)
     switch (ast->form)
     {
         case ASTNS::Assignmentexpr::Form::TARGET_EQUAL_VALUE:
-            retl = ast->target.start;
-            retf = ast->target.sourcefile;
-            retr = ast->value.end;
+            retl = getL(ast->target.get());
+            retf = getF(ast->target.get());
+            retr = getR(ast->value.get());
             break;
     }
 }
@@ -175,9 +175,9 @@ void LocationVisitor::visitBinandexpr(ASTNS::Binandexpr *ast)
     switch (ast->form)
     {
         case ASTNS::Binandexpr::Form::LHS_OP_RHS:
-            retl = ast->lhs.start;
-            retf = ast->lhs.sourcefile;
-            retr = ast->rhs.end;
+            retl = getL(ast->lhs.get());
+            retf = getF(ast->lhs.get());
+            retr = getR(ast->rhs.get());
             break;
     }
 }
@@ -188,7 +188,7 @@ void LocationVisitor::visitBinnotexpr(ASTNS::Binnotexpr *ast)
         case ASTNS::Binnotexpr::Form::OP_OPERAND:
             retl = ast->op.start;
             retf = ast->op.sourcefile;
-            retr = ast->operand.end;
+            retr = getR(ast->operand.get());
             break;
     }
 }
@@ -197,9 +197,9 @@ void LocationVisitor::visitBinorexpr(ASTNS::Binorexpr *ast)
     switch (ast->form)
     {
         case ASTNS::Binorexpr::Form::LHS_OP_RHS:
-            retl = ast->lhs.start;
-            retf = ast->lhs.sourcefile;
-            retr = ast->rhs.end;
+            retl = getL(ast->lhs.get());
+            retf = getF(ast->lhs.get());
+            retr = getR(ast->rhs.get());
             break;
     }
 }
@@ -208,9 +208,9 @@ void LocationVisitor::visitBitandexpr(ASTNS::Bitandexpr *ast)
     switch (ast->form)
     {
         case ASTNS::Bitandexpr::Form::LHS_OP_RHS:
-            retl = ast->lhs.start;
-            retf = ast->lhs.sourcefile;
-            retr = ast->rhs.end;
+            retl = getL(ast->lhs.get());
+            retf = getF(ast->lhs.get());
+            retr = getR(ast->rhs.get());
             break;
     }
 }
@@ -219,9 +219,9 @@ void LocationVisitor::visitBitorexpr(ASTNS::Bitorexpr *ast)
     switch (ast->form)
     {
         case ASTNS::Bitorexpr::Form::LHS_OP_RHS:
-            retl = ast->lhs.start;
-            retf = ast->lhs.sourcefile;
-            retr = ast->rhs.end;
+            retl = getL(ast->lhs.get());
+            retf = getF(ast->lhs.get());
+            retr = getR(ast->rhs.get());
             break;
     }
 }
@@ -230,9 +230,9 @@ void LocationVisitor::visitBitshiftexpr(ASTNS::Bitshiftexpr *ast)
     switch (ast->form)
     {
         case ASTNS::Bitshiftexpr::Form::LHS_OP_RHS:
-            retl = ast->lhs.start;
-            retf = ast->lhs.sourcefile;
-            retr = ast->rhs.end;
+            retl = getL(ast->lhs.get());
+            retf = getF(ast->lhs.get());
+            retr = getR(ast->rhs.get());
             break;
     }
 }
@@ -241,9 +241,9 @@ void LocationVisitor::visitBitxorexpr(ASTNS::Bitxorexpr *ast)
     switch (ast->form)
     {
         case ASTNS::Bitxorexpr::Form::LHS_OP_RHS:
-            retl = ast->lhs.start;
-            retf = ast->lhs.sourcefile;
-            retr = ast->rhs.end;
+            retl = getL(ast->lhs.get());
+            retf = getF(ast->lhs.get());
+            retr = getR(ast->rhs.get());
             break;
     }
 }
@@ -263,13 +263,13 @@ void LocationVisitor::visitCall(ASTNS::Call *ast)
     switch (ast->form)
     {
         case ASTNS::Call::Form::CALLEE_OPARN_ARGS_CPARN:
-            retl = ast->callee.start;
-            retf = ast->callee.sourcefile;
+            retl = getL(ast->callee.get());
+            retf = getF(ast->callee.get());
             retr = ast->cparn.end;
             break;
         case ASTNS::Call::Form::CALLEE_OPARN_CPARN:
-            retl = ast->callee.start;
-            retf = ast->callee.sourcefile;
+            retl = getL(ast->callee.get());
+            retf = getF(ast->callee.get());
             retr = ast->cparn.end;
             break;
     }
@@ -279,9 +279,9 @@ void LocationVisitor::visitCompeqexpr(ASTNS::Compeqexpr *ast)
     switch (ast->form)
     {
         case ASTNS::Compeqexpr::Form::LHS_OP_RHS:
-            retl = ast->lhs.start;
-            retf = ast->lhs.sourcefile;
-            retr = ast->rhs.end;
+            retl = getL(ast->lhs.get());
+            retf = getF(ast->lhs.get());
+            retr = getR(ast->rhs.get());
             break;
     }
 }
@@ -290,9 +290,9 @@ void LocationVisitor::visitComplgtexpr(ASTNS::Complgtexpr *ast)
     switch (ast->form)
     {
         case ASTNS::Complgtexpr::Form::LHS_OP_RHS:
-            retl = ast->lhs.start;
-            retf = ast->lhs.sourcefile;
-            retr = ast->rhs.end;
+            retl = getL(ast->lhs.get());
+            retf = getF(ast->lhs.get());
+            retr = getR(ast->rhs.get());
             break;
     }
 }
@@ -329,8 +329,8 @@ void LocationVisitor::visitExprstmt(ASTNS::Exprstmt *ast)
     switch (ast->form)
     {
         case ASTNS::Exprstmt::Form::EXPR_SEMI:
-            retl = ast->expr.start;
-            retf = ast->expr.sourcefile;
+            retl = getL(ast->expr.get());
+            retf = getF(ast->expr.get());
             retr = ast->semi.end;
             break;
     }
@@ -356,9 +356,9 @@ void LocationVisitor::visitMultexpr(ASTNS::Multexpr *ast)
     switch (ast->form)
     {
         case ASTNS::Multexpr::Form::LHS_OP_RHS:
-            retl = ast->lhs.start;
-            retf = ast->lhs.sourcefile;
-            retr = ast->rhs.end;
+            retl = getL(ast->lhs.get());
+            retf = getF(ast->lhs.get());
+            retr = getR(ast->rhs.get());
             break;
     }
 }
@@ -367,13 +367,13 @@ void LocationVisitor::visitParamlist(ASTNS::Paramlist *ast)
     switch (ast->form)
     {
         case ASTNS::Paramlist::Form::PLIST_COMMA_TYPE_NAME:
-            retl = ast->plist.start;
-            retf = ast->plist.sourcefile;
+            retl = getL(ast->plist.get());
+            retf = getF(ast->plist.get());
             retr = ast->name.end;
             break;
         case ASTNS::Paramlist::Form::TYPE_NAME:
-            retl = ast->type.start;
-            retf = ast->type.sourcefile;
+            retl = getL(ast->type.get());
+            retf = getF(ast->type.get());
             retr = ast->name.end;
             break;
     }
@@ -401,7 +401,7 @@ void LocationVisitor::visitRetstmt(ASTNS::Retstmt *ast)
         case ASTNS::Retstmt::Form::RET_EXPR:
             retl = ast->ret.start;
             retf = ast->ret.sourcefile;
-            retr = ast->expr.end;
+            retr = getR(ast->expr.get());
             break;
     }
 }
@@ -427,9 +427,9 @@ void LocationVisitor::visitTernaryexpr(ASTNS::Ternaryexpr *ast)
     switch (ast->form)
     {
         case ASTNS::Ternaryexpr::Form::COND_QUEST_TRUES_COLON_FALSES:
-            retl = ast->cond.start;
-            retf = ast->cond.sourcefile;
-            retr = ast->falses.end;
+            retl = getL(ast->cond.get());
+            retf = getF(ast->cond.get());
+            retr = getR(ast->falses.get());
             break;
     }
 }
@@ -451,7 +451,7 @@ void LocationVisitor::visitUnary(ASTNS::Unary *ast)
         case ASTNS::Unary::Form::OP_OPERAND:
             retl = ast->op.start;
             retf = ast->op.sourcefile;
-            retr = ast->operand.end;
+            retr = getR(ast->operand.get());
             break;
     }
 }
@@ -471,8 +471,8 @@ void LocationVisitor::visitVarstmtfinisher(ASTNS::Varstmtfinisher *ast)
     switch (ast->form)
     {
         case ASTNS::Varstmtfinisher::Form::ASSIGNMENTS_COMMA_NAME_EQUAL_EXPR:
-            retl = ast->assignments.start;
-            retf = ast->assignments.sourcefile;
+            retl = getL(ast->assignments.get());
+            retf = getF(ast->assignments.get());
             retr = getR(ast->expr.get());
             break;
         case ASTNS::Varstmtfinisher::Form::NAME_EQUAL_EXPR:

@@ -50,154 +50,154 @@ namespace ASTNS
     class Additionexpr : public AST
     {
     public:
-        Additionexpr(Token lhs, Token op, Token rhs);
+        Additionexpr(std::unique_ptr<AST> lhs, Token op, std::unique_ptr<AST> rhs);
         enum class Form
         {
             LHS_OP_RHS,
         };
-        Token lhs;
+        std::unique_ptr<AST> lhs;
         Token op;
-        Token rhs;
+        std::unique_ptr<AST> rhs;
         Form form;
         virtual void accept(ASTVisitor *v);
     };
     class Args : public AST
     {
     public:
-        Args(Token args, Token comma, Token expr);
-        Args(Token expr);
+        Args(std::unique_ptr<AST> args, Token comma, std::unique_ptr<AST> expr);
+        Args(std::unique_ptr<AST> expr);
         enum class Form
         {
             ARGS_COMMA_EXPR,
             EXPR,
         };
-        Token args;
+        std::unique_ptr<AST> args;
         Token comma;
-        Token expr;
+        std::unique_ptr<AST> expr;
         Form form;
         virtual void accept(ASTVisitor *v);
     };
     class Assignmentexpr : public AST
     {
     public:
-        Assignmentexpr(Token target, Token equal, Token value);
+        Assignmentexpr(std::unique_ptr<AST> target, Token equal, std::unique_ptr<AST> value);
         enum class Form
         {
             TARGET_EQUAL_VALUE,
         };
-        Token target;
+        std::unique_ptr<AST> target;
         Token equal;
-        Token value;
+        std::unique_ptr<AST> value;
         Form form;
         virtual void accept(ASTVisitor *v);
     };
     class Binandexpr : public AST
     {
     public:
-        Binandexpr(Token lhs, Token op, Token rhs);
+        Binandexpr(std::unique_ptr<AST> lhs, Token op, std::unique_ptr<AST> rhs);
         enum class Form
         {
             LHS_OP_RHS,
         };
-        Token lhs;
+        std::unique_ptr<AST> lhs;
         Token op;
-        Token rhs;
+        std::unique_ptr<AST> rhs;
         Form form;
         virtual void accept(ASTVisitor *v);
     };
     class Binnotexpr : public AST
     {
     public:
-        Binnotexpr(Token op, Token operand);
+        Binnotexpr(Token op, std::unique_ptr<AST> operand);
         enum class Form
         {
             OP_OPERAND,
         };
         Token op;
-        Token operand;
+        std::unique_ptr<AST> operand;
         Form form;
         virtual void accept(ASTVisitor *v);
     };
     class Binorexpr : public AST
     {
     public:
-        Binorexpr(Token lhs, Token op, Token rhs);
+        Binorexpr(std::unique_ptr<AST> lhs, Token op, std::unique_ptr<AST> rhs);
         enum class Form
         {
             LHS_OP_RHS,
         };
-        Token lhs;
+        std::unique_ptr<AST> lhs;
         Token op;
-        Token rhs;
+        std::unique_ptr<AST> rhs;
         Form form;
         virtual void accept(ASTVisitor *v);
     };
     class Bitandexpr : public AST
     {
     public:
-        Bitandexpr(Token lhs, Token op, Token rhs);
+        Bitandexpr(std::unique_ptr<AST> lhs, Token op, std::unique_ptr<AST> rhs);
         enum class Form
         {
             LHS_OP_RHS,
         };
-        Token lhs;
+        std::unique_ptr<AST> lhs;
         Token op;
-        Token rhs;
+        std::unique_ptr<AST> rhs;
         Form form;
         virtual void accept(ASTVisitor *v);
     };
     class Bitorexpr : public AST
     {
     public:
-        Bitorexpr(Token lhs, Token op, Token rhs);
+        Bitorexpr(std::unique_ptr<AST> lhs, Token op, std::unique_ptr<AST> rhs);
         enum class Form
         {
             LHS_OP_RHS,
         };
-        Token lhs;
+        std::unique_ptr<AST> lhs;
         Token op;
-        Token rhs;
+        std::unique_ptr<AST> rhs;
         Form form;
         virtual void accept(ASTVisitor *v);
     };
     class Bitshiftexpr : public AST
     {
     public:
-        Bitshiftexpr(Token lhs, Token op, Token rhs);
+        Bitshiftexpr(std::unique_ptr<AST> lhs, Token op, std::unique_ptr<AST> rhs);
         enum class Form
         {
             LHS_OP_RHS,
         };
-        Token lhs;
+        std::unique_ptr<AST> lhs;
         Token op;
-        Token rhs;
+        std::unique_ptr<AST> rhs;
         Form form;
         virtual void accept(ASTVisitor *v);
     };
     class Bitxorexpr : public AST
     {
     public:
-        Bitxorexpr(Token lhs, Token op, Token rhs);
+        Bitxorexpr(std::unique_ptr<AST> lhs, Token op, std::unique_ptr<AST> rhs);
         enum class Form
         {
             LHS_OP_RHS,
         };
-        Token lhs;
+        std::unique_ptr<AST> lhs;
         Token op;
-        Token rhs;
+        std::unique_ptr<AST> rhs;
         Form form;
         virtual void accept(ASTVisitor *v);
     };
     class Block : public AST
     {
     public:
-        Block(Token ocurb, Token stmts, Token ccurb);
+        Block(Token ocurb, std::unique_ptr<AST> stmts, Token ccurb);
         enum class Form
         {
             OCURB_STMTS_CCURB,
         };
         Token ocurb;
-        Token stmts;
+        std::unique_ptr<AST> stmts;
         Token ccurb;
         Form form;
         virtual void accept(ASTVisitor *v);
@@ -205,16 +205,16 @@ namespace ASTNS
     class Call : public AST
     {
     public:
-        Call(Token callee, Token oparn, Token args, Token cparn);
-        Call(Token callee, Token oparn, Token cparn);
+        Call(std::unique_ptr<AST> callee, Token oparn, std::unique_ptr<AST> args, Token cparn);
+        Call(std::unique_ptr<AST> callee, Token oparn, Token cparn);
         enum class Form
         {
             CALLEE_OPARN_ARGS_CPARN,
             CALLEE_OPARN_CPARN,
         };
-        Token callee;
+        std::unique_ptr<AST> callee;
         Token oparn;
-        Token args;
+        std::unique_ptr<AST> args;
         Token cparn;
         Form form;
         virtual void accept(ASTVisitor *v);
@@ -222,28 +222,28 @@ namespace ASTNS
     class Compeqexpr : public AST
     {
     public:
-        Compeqexpr(Token lhs, Token op, Token rhs);
+        Compeqexpr(std::unique_ptr<AST> lhs, Token op, std::unique_ptr<AST> rhs);
         enum class Form
         {
             LHS_OP_RHS,
         };
-        Token lhs;
+        std::unique_ptr<AST> lhs;
         Token op;
-        Token rhs;
+        std::unique_ptr<AST> rhs;
         Form form;
         virtual void accept(ASTVisitor *v);
     };
     class Complgtexpr : public AST
     {
     public:
-        Complgtexpr(Token lhs, Token op, Token rhs);
+        Complgtexpr(std::unique_ptr<AST> lhs, Token op, std::unique_ptr<AST> rhs);
         enum class Form
         {
             LHS_OP_RHS,
         };
-        Token lhs;
+        std::unique_ptr<AST> lhs;
         Token op;
-        Token rhs;
+        std::unique_ptr<AST> rhs;
         Form form;
         virtual void accept(ASTVisitor *v);
     };
@@ -283,12 +283,12 @@ namespace ASTNS
     class Exprstmt : public AST
     {
     public:
-        Exprstmt(Token expr, Token semi);
+        Exprstmt(std::unique_ptr<AST> expr, Token semi);
         enum class Form
         {
             EXPR_SEMI,
         };
-        Token expr;
+        std::unique_ptr<AST> expr;
         Token semi;
         Form form;
         virtual void accept(ASTVisitor *v);
@@ -315,30 +315,30 @@ namespace ASTNS
     class Multexpr : public AST
     {
     public:
-        Multexpr(Token lhs, Token op, Token rhs);
+        Multexpr(std::unique_ptr<AST> lhs, Token op, std::unique_ptr<AST> rhs);
         enum class Form
         {
             LHS_OP_RHS,
         };
-        Token lhs;
+        std::unique_ptr<AST> lhs;
         Token op;
-        Token rhs;
+        std::unique_ptr<AST> rhs;
         Form form;
         virtual void accept(ASTVisitor *v);
     };
     class Paramlist : public AST
     {
     public:
-        Paramlist(Token plist, Token comma, Token type, Token name);
-        Paramlist(Token type, Token name);
+        Paramlist(std::unique_ptr<AST> plist, Token comma, std::unique_ptr<AST> type, Token name);
+        Paramlist(std::unique_ptr<AST> type, Token name);
         enum class Form
         {
             PLIST_COMMA_TYPE_NAME,
             TYPE_NAME,
         };
-        Token plist;
+        std::unique_ptr<AST> plist;
         Token comma;
-        Token type;
+        std::unique_ptr<AST> type;
         Token name;
         Form form;
         virtual void accept(ASTVisitor *v);
@@ -347,7 +347,7 @@ namespace ASTNS
     {
     public:
         Primary(Token value);
-        Primary(Token oparn, Token expr, Token cparn);
+        Primary(Token oparn, std::unique_ptr<AST> expr, Token cparn);
         enum class Form
         {
             VALUE,
@@ -355,7 +355,7 @@ namespace ASTNS
         };
         Token value;
         Token oparn;
-        Token expr;
+        std::unique_ptr<AST> expr;
         Token cparn;
         Form form;
         virtual void accept(ASTVisitor *v);
@@ -363,13 +363,13 @@ namespace ASTNS
     class Retstmt : public AST
     {
     public:
-        Retstmt(Token ret, Token expr);
+        Retstmt(Token ret, std::unique_ptr<AST> expr);
         enum class Form
         {
             RET_EXPR,
         };
         Token ret;
-        Token expr;
+        std::unique_ptr<AST> expr;
         Form form;
         virtual void accept(ASTVisitor *v);
     };
@@ -398,16 +398,16 @@ namespace ASTNS
     class Ternaryexpr : public AST
     {
     public:
-        Ternaryexpr(Token cond, Token quest, Token trues, Token colon, Token falses);
+        Ternaryexpr(std::unique_ptr<AST> cond, Token quest, std::unique_ptr<AST> trues, Token colon, std::unique_ptr<AST> falses);
         enum class Form
         {
             COND_QUEST_TRUES_COLON_FALSES,
         };
-        Token cond;
+        std::unique_ptr<AST> cond;
         Token quest;
-        Token trues;
+        std::unique_ptr<AST> trues;
         Token colon;
-        Token falses;
+        std::unique_ptr<AST> falses;
         Form form;
         virtual void accept(ASTVisitor *v);
     };
@@ -426,27 +426,27 @@ namespace ASTNS
     class Unary : public AST
     {
     public:
-        Unary(Token op, Token operand);
+        Unary(Token op, std::unique_ptr<AST> operand);
         enum class Form
         {
             OP_OPERAND,
         };
         Token op;
-        Token operand;
+        std::unique_ptr<AST> operand;
         Form form;
         virtual void accept(ASTVisitor *v);
     };
     class Varstmt : public AST
     {
     public:
-        Varstmt(Token var, Token type, Token assignments, Token semi);
+        Varstmt(Token var, std::unique_ptr<AST> type, std::unique_ptr<AST> assignments, Token semi);
         enum class Form
         {
             VAR_TYPE_ASSIGNMENTS_SEMI,
         };
         Token var;
-        Token type;
-        Token assignments;
+        std::unique_ptr<AST> type;
+        std::unique_ptr<AST> assignments;
         Token semi;
         Form form;
         virtual void accept(ASTVisitor *v);
@@ -454,14 +454,14 @@ namespace ASTNS
     class Varstmtfinisher : public AST
     {
     public:
-        Varstmtfinisher(Token assignments, Token comma, Token name, Token equal, std::unique_ptr<AST> expr);
+        Varstmtfinisher(std::unique_ptr<AST> assignments, Token comma, Token name, Token equal, std::unique_ptr<AST> expr);
         Varstmtfinisher(Token name, Token equal, std::unique_ptr<AST> expr);
         enum class Form
         {
             ASSIGNMENTS_COMMA_NAME_EQUAL_EXPR,
             NAME_EQUAL_EXPR,
         };
-        Token assignments;
+        std::unique_ptr<AST> assignments;
         Token comma;
         Token name;
         Token equal;

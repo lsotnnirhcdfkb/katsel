@@ -14,17 +14,33 @@ void PrintVisitor::visitAdditionexpr(ASTNS::Additionexpr *a)
     {
         case ASTNS::Additionexpr::Form::LHS_OP_RHS:
             pai("lhs =");
-            pai(" [");
-            pai(std::string(a->lhs.start, a->lhs.end));
-            pai("]\n");
+            if (a->lhs)
+            {
+                ++indent;
+                pai("\n");
+                a->lhs->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             pai("op =");
             pai(" [");
             pai(std::string(a->op.start, a->op.end));
             pai("]\n");
             pai("rhs =");
-            pai(" [");
-            pai(std::string(a->rhs.start, a->rhs.end));
-            pai("]\n");
+            if (a->rhs)
+            {
+                ++indent;
+                pai("\n");
+                a->rhs->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             break;
     }
     --indent;
@@ -37,23 +53,47 @@ void PrintVisitor::visitArgs(ASTNS::Args *a)
     {
         case ASTNS::Args::Form::ARGS_COMMA_EXPR:
             pai("args =");
-            pai(" [");
-            pai(std::string(a->args.start, a->args.end));
-            pai("]\n");
+            if (a->args)
+            {
+                ++indent;
+                pai("\n");
+                a->args->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             pai("comma =");
             pai(" [");
             pai(std::string(a->comma.start, a->comma.end));
             pai("]\n");
             pai("expr =");
-            pai(" [");
-            pai(std::string(a->expr.start, a->expr.end));
-            pai("]\n");
+            if (a->expr)
+            {
+                ++indent;
+                pai("\n");
+                a->expr->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             break;
         case ASTNS::Args::Form::EXPR:
             pai("expr =");
-            pai(" [");
-            pai(std::string(a->expr.start, a->expr.end));
-            pai("]\n");
+            if (a->expr)
+            {
+                ++indent;
+                pai("\n");
+                a->expr->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             break;
     }
     --indent;
@@ -66,17 +106,33 @@ void PrintVisitor::visitAssignmentexpr(ASTNS::Assignmentexpr *a)
     {
         case ASTNS::Assignmentexpr::Form::TARGET_EQUAL_VALUE:
             pai("target =");
-            pai(" [");
-            pai(std::string(a->target.start, a->target.end));
-            pai("]\n");
+            if (a->target)
+            {
+                ++indent;
+                pai("\n");
+                a->target->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             pai("equal =");
             pai(" [");
             pai(std::string(a->equal.start, a->equal.end));
             pai("]\n");
             pai("value =");
-            pai(" [");
-            pai(std::string(a->value.start, a->value.end));
-            pai("]\n");
+            if (a->value)
+            {
+                ++indent;
+                pai("\n");
+                a->value->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             break;
     }
     --indent;
@@ -89,17 +145,33 @@ void PrintVisitor::visitBinandexpr(ASTNS::Binandexpr *a)
     {
         case ASTNS::Binandexpr::Form::LHS_OP_RHS:
             pai("lhs =");
-            pai(" [");
-            pai(std::string(a->lhs.start, a->lhs.end));
-            pai("]\n");
+            if (a->lhs)
+            {
+                ++indent;
+                pai("\n");
+                a->lhs->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             pai("op =");
             pai(" [");
             pai(std::string(a->op.start, a->op.end));
             pai("]\n");
             pai("rhs =");
-            pai(" [");
-            pai(std::string(a->rhs.start, a->rhs.end));
-            pai("]\n");
+            if (a->rhs)
+            {
+                ++indent;
+                pai("\n");
+                a->rhs->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             break;
     }
     --indent;
@@ -116,9 +188,17 @@ void PrintVisitor::visitBinnotexpr(ASTNS::Binnotexpr *a)
             pai(std::string(a->op.start, a->op.end));
             pai("]\n");
             pai("operand =");
-            pai(" [");
-            pai(std::string(a->operand.start, a->operand.end));
-            pai("]\n");
+            if (a->operand)
+            {
+                ++indent;
+                pai("\n");
+                a->operand->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             break;
     }
     --indent;
@@ -131,17 +211,33 @@ void PrintVisitor::visitBinorexpr(ASTNS::Binorexpr *a)
     {
         case ASTNS::Binorexpr::Form::LHS_OP_RHS:
             pai("lhs =");
-            pai(" [");
-            pai(std::string(a->lhs.start, a->lhs.end));
-            pai("]\n");
+            if (a->lhs)
+            {
+                ++indent;
+                pai("\n");
+                a->lhs->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             pai("op =");
             pai(" [");
             pai(std::string(a->op.start, a->op.end));
             pai("]\n");
             pai("rhs =");
-            pai(" [");
-            pai(std::string(a->rhs.start, a->rhs.end));
-            pai("]\n");
+            if (a->rhs)
+            {
+                ++indent;
+                pai("\n");
+                a->rhs->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             break;
     }
     --indent;
@@ -154,17 +250,33 @@ void PrintVisitor::visitBitandexpr(ASTNS::Bitandexpr *a)
     {
         case ASTNS::Bitandexpr::Form::LHS_OP_RHS:
             pai("lhs =");
-            pai(" [");
-            pai(std::string(a->lhs.start, a->lhs.end));
-            pai("]\n");
+            if (a->lhs)
+            {
+                ++indent;
+                pai("\n");
+                a->lhs->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             pai("op =");
             pai(" [");
             pai(std::string(a->op.start, a->op.end));
             pai("]\n");
             pai("rhs =");
-            pai(" [");
-            pai(std::string(a->rhs.start, a->rhs.end));
-            pai("]\n");
+            if (a->rhs)
+            {
+                ++indent;
+                pai("\n");
+                a->rhs->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             break;
     }
     --indent;
@@ -177,17 +289,33 @@ void PrintVisitor::visitBitorexpr(ASTNS::Bitorexpr *a)
     {
         case ASTNS::Bitorexpr::Form::LHS_OP_RHS:
             pai("lhs =");
-            pai(" [");
-            pai(std::string(a->lhs.start, a->lhs.end));
-            pai("]\n");
+            if (a->lhs)
+            {
+                ++indent;
+                pai("\n");
+                a->lhs->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             pai("op =");
             pai(" [");
             pai(std::string(a->op.start, a->op.end));
             pai("]\n");
             pai("rhs =");
-            pai(" [");
-            pai(std::string(a->rhs.start, a->rhs.end));
-            pai("]\n");
+            if (a->rhs)
+            {
+                ++indent;
+                pai("\n");
+                a->rhs->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             break;
     }
     --indent;
@@ -200,17 +328,33 @@ void PrintVisitor::visitBitshiftexpr(ASTNS::Bitshiftexpr *a)
     {
         case ASTNS::Bitshiftexpr::Form::LHS_OP_RHS:
             pai("lhs =");
-            pai(" [");
-            pai(std::string(a->lhs.start, a->lhs.end));
-            pai("]\n");
+            if (a->lhs)
+            {
+                ++indent;
+                pai("\n");
+                a->lhs->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             pai("op =");
             pai(" [");
             pai(std::string(a->op.start, a->op.end));
             pai("]\n");
             pai("rhs =");
-            pai(" [");
-            pai(std::string(a->rhs.start, a->rhs.end));
-            pai("]\n");
+            if (a->rhs)
+            {
+                ++indent;
+                pai("\n");
+                a->rhs->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             break;
     }
     --indent;
@@ -223,17 +367,33 @@ void PrintVisitor::visitBitxorexpr(ASTNS::Bitxorexpr *a)
     {
         case ASTNS::Bitxorexpr::Form::LHS_OP_RHS:
             pai("lhs =");
-            pai(" [");
-            pai(std::string(a->lhs.start, a->lhs.end));
-            pai("]\n");
+            if (a->lhs)
+            {
+                ++indent;
+                pai("\n");
+                a->lhs->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             pai("op =");
             pai(" [");
             pai(std::string(a->op.start, a->op.end));
             pai("]\n");
             pai("rhs =");
-            pai(" [");
-            pai(std::string(a->rhs.start, a->rhs.end));
-            pai("]\n");
+            if (a->rhs)
+            {
+                ++indent;
+                pai("\n");
+                a->rhs->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             break;
     }
     --indent;
@@ -250,9 +410,17 @@ void PrintVisitor::visitBlock(ASTNS::Block *a)
             pai(std::string(a->ocurb.start, a->ocurb.end));
             pai("]\n");
             pai("stmts =");
-            pai(" [");
-            pai(std::string(a->stmts.start, a->stmts.end));
-            pai("]\n");
+            if (a->stmts)
+            {
+                ++indent;
+                pai("\n");
+                a->stmts->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             pai("ccurb =");
             pai(" [");
             pai(std::string(a->ccurb.start, a->ccurb.end));
@@ -269,17 +437,33 @@ void PrintVisitor::visitCall(ASTNS::Call *a)
     {
         case ASTNS::Call::Form::CALLEE_OPARN_ARGS_CPARN:
             pai("callee =");
-            pai(" [");
-            pai(std::string(a->callee.start, a->callee.end));
-            pai("]\n");
+            if (a->callee)
+            {
+                ++indent;
+                pai("\n");
+                a->callee->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             pai("oparn =");
             pai(" [");
             pai(std::string(a->oparn.start, a->oparn.end));
             pai("]\n");
             pai("args =");
-            pai(" [");
-            pai(std::string(a->args.start, a->args.end));
-            pai("]\n");
+            if (a->args)
+            {
+                ++indent;
+                pai("\n");
+                a->args->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             pai("cparn =");
             pai(" [");
             pai(std::string(a->cparn.start, a->cparn.end));
@@ -287,9 +471,17 @@ void PrintVisitor::visitCall(ASTNS::Call *a)
             break;
         case ASTNS::Call::Form::CALLEE_OPARN_CPARN:
             pai("callee =");
-            pai(" [");
-            pai(std::string(a->callee.start, a->callee.end));
-            pai("]\n");
+            if (a->callee)
+            {
+                ++indent;
+                pai("\n");
+                a->callee->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             pai("oparn =");
             pai(" [");
             pai(std::string(a->oparn.start, a->oparn.end));
@@ -310,17 +502,33 @@ void PrintVisitor::visitCompeqexpr(ASTNS::Compeqexpr *a)
     {
         case ASTNS::Compeqexpr::Form::LHS_OP_RHS:
             pai("lhs =");
-            pai(" [");
-            pai(std::string(a->lhs.start, a->lhs.end));
-            pai("]\n");
+            if (a->lhs)
+            {
+                ++indent;
+                pai("\n");
+                a->lhs->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             pai("op =");
             pai(" [");
             pai(std::string(a->op.start, a->op.end));
             pai("]\n");
             pai("rhs =");
-            pai(" [");
-            pai(std::string(a->rhs.start, a->rhs.end));
-            pai("]\n");
+            if (a->rhs)
+            {
+                ++indent;
+                pai("\n");
+                a->rhs->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             break;
     }
     --indent;
@@ -333,17 +541,33 @@ void PrintVisitor::visitComplgtexpr(ASTNS::Complgtexpr *a)
     {
         case ASTNS::Complgtexpr::Form::LHS_OP_RHS:
             pai("lhs =");
-            pai(" [");
-            pai(std::string(a->lhs.start, a->lhs.end));
-            pai("]\n");
+            if (a->lhs)
+            {
+                ++indent;
+                pai("\n");
+                a->lhs->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             pai("op =");
             pai(" [");
             pai(std::string(a->op.start, a->op.end));
             pai("]\n");
             pai("rhs =");
-            pai(" [");
-            pai(std::string(a->rhs.start, a->rhs.end));
-            pai("]\n");
+            if (a->rhs)
+            {
+                ++indent;
+                pai("\n");
+                a->rhs->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             break;
     }
     --indent;
@@ -423,9 +647,17 @@ void PrintVisitor::visitExprstmt(ASTNS::Exprstmt *a)
     {
         case ASTNS::Exprstmt::Form::EXPR_SEMI:
             pai("expr =");
-            pai(" [");
-            pai(std::string(a->expr.start, a->expr.end));
-            pai("]\n");
+            if (a->expr)
+            {
+                ++indent;
+                pai("\n");
+                a->expr->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             pai("semi =");
             pai(" [");
             pai(std::string(a->semi.start, a->semi.end));
@@ -539,17 +771,33 @@ void PrintVisitor::visitMultexpr(ASTNS::Multexpr *a)
     {
         case ASTNS::Multexpr::Form::LHS_OP_RHS:
             pai("lhs =");
-            pai(" [");
-            pai(std::string(a->lhs.start, a->lhs.end));
-            pai("]\n");
+            if (a->lhs)
+            {
+                ++indent;
+                pai("\n");
+                a->lhs->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             pai("op =");
             pai(" [");
             pai(std::string(a->op.start, a->op.end));
             pai("]\n");
             pai("rhs =");
-            pai(" [");
-            pai(std::string(a->rhs.start, a->rhs.end));
-            pai("]\n");
+            if (a->rhs)
+            {
+                ++indent;
+                pai("\n");
+                a->rhs->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             break;
     }
     --indent;
@@ -562,17 +810,33 @@ void PrintVisitor::visitParamlist(ASTNS::Paramlist *a)
     {
         case ASTNS::Paramlist::Form::PLIST_COMMA_TYPE_NAME:
             pai("plist =");
-            pai(" [");
-            pai(std::string(a->plist.start, a->plist.end));
-            pai("]\n");
+            if (a->plist)
+            {
+                ++indent;
+                pai("\n");
+                a->plist->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             pai("comma =");
             pai(" [");
             pai(std::string(a->comma.start, a->comma.end));
             pai("]\n");
             pai("type =");
-            pai(" [");
-            pai(std::string(a->type.start, a->type.end));
-            pai("]\n");
+            if (a->type)
+            {
+                ++indent;
+                pai("\n");
+                a->type->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             pai("name =");
             pai(" [");
             pai(std::string(a->name.start, a->name.end));
@@ -580,9 +844,17 @@ void PrintVisitor::visitParamlist(ASTNS::Paramlist *a)
             break;
         case ASTNS::Paramlist::Form::TYPE_NAME:
             pai("type =");
-            pai(" [");
-            pai(std::string(a->type.start, a->type.end));
-            pai("]\n");
+            if (a->type)
+            {
+                ++indent;
+                pai("\n");
+                a->type->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             pai("name =");
             pai(" [");
             pai(std::string(a->name.start, a->name.end));
@@ -609,9 +881,17 @@ void PrintVisitor::visitPrimary(ASTNS::Primary *a)
             pai(std::string(a->oparn.start, a->oparn.end));
             pai("]\n");
             pai("expr =");
-            pai(" [");
-            pai(std::string(a->expr.start, a->expr.end));
-            pai("]\n");
+            if (a->expr)
+            {
+                ++indent;
+                pai("\n");
+                a->expr->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             pai("cparn =");
             pai(" [");
             pai(std::string(a->cparn.start, a->cparn.end));
@@ -632,9 +912,17 @@ void PrintVisitor::visitRetstmt(ASTNS::Retstmt *a)
             pai(std::string(a->ret.start, a->ret.end));
             pai("]\n");
             pai("expr =");
-            pai(" [");
-            pai(std::string(a->expr.start, a->expr.end));
-            pai("]\n");
+            if (a->expr)
+            {
+                ++indent;
+                pai("\n");
+                a->expr->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             break;
     }
     --indent;
@@ -691,25 +979,49 @@ void PrintVisitor::visitTernaryexpr(ASTNS::Ternaryexpr *a)
     {
         case ASTNS::Ternaryexpr::Form::COND_QUEST_TRUES_COLON_FALSES:
             pai("cond =");
-            pai(" [");
-            pai(std::string(a->cond.start, a->cond.end));
-            pai("]\n");
+            if (a->cond)
+            {
+                ++indent;
+                pai("\n");
+                a->cond->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             pai("quest =");
             pai(" [");
             pai(std::string(a->quest.start, a->quest.end));
             pai("]\n");
             pai("trues =");
-            pai(" [");
-            pai(std::string(a->trues.start, a->trues.end));
-            pai("]\n");
+            if (a->trues)
+            {
+                ++indent;
+                pai("\n");
+                a->trues->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             pai("colon =");
             pai(" [");
             pai(std::string(a->colon.start, a->colon.end));
             pai("]\n");
             pai("falses =");
-            pai(" [");
-            pai(std::string(a->falses.start, a->falses.end));
-            pai("]\n");
+            if (a->falses)
+            {
+                ++indent;
+                pai("\n");
+                a->falses->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             break;
     }
     --indent;
@@ -741,9 +1053,17 @@ void PrintVisitor::visitUnary(ASTNS::Unary *a)
             pai(std::string(a->op.start, a->op.end));
             pai("]\n");
             pai("operand =");
-            pai(" [");
-            pai(std::string(a->operand.start, a->operand.end));
-            pai("]\n");
+            if (a->operand)
+            {
+                ++indent;
+                pai("\n");
+                a->operand->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             break;
     }
     --indent;
@@ -760,13 +1080,29 @@ void PrintVisitor::visitVarstmt(ASTNS::Varstmt *a)
             pai(std::string(a->var.start, a->var.end));
             pai("]\n");
             pai("type =");
-            pai(" [");
-            pai(std::string(a->type.start, a->type.end));
-            pai("]\n");
+            if (a->type)
+            {
+                ++indent;
+                pai("\n");
+                a->type->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             pai("assignments =");
-            pai(" [");
-            pai(std::string(a->assignments.start, a->assignments.end));
-            pai("]\n");
+            if (a->assignments)
+            {
+                ++indent;
+                pai("\n");
+                a->assignments->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             pai("semi =");
             pai(" [");
             pai(std::string(a->semi.start, a->semi.end));
@@ -783,9 +1119,17 @@ void PrintVisitor::visitVarstmtfinisher(ASTNS::Varstmtfinisher *a)
     {
         case ASTNS::Varstmtfinisher::Form::ASSIGNMENTS_COMMA_NAME_EQUAL_EXPR:
             pai("assignments =");
-            pai(" [");
-            pai(std::string(a->assignments.start, a->assignments.end));
-            pai("]\n");
+            if (a->assignments)
+            {
+                ++indent;
+                pai("\n");
+                a->assignments->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
             pai("comma =");
             pai(" [");
             pai(std::string(a->comma.start, a->comma.end));

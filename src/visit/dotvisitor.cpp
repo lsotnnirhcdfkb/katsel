@@ -18,16 +18,32 @@ void DotVisitor::visitAdditionexpr(ASTNS::Additionexpr *a)
             std::cout << "<td port=\"rhs\">rhs</td>";
             std::cout << "</tr></table>>]\n";
             {
-                    std::string tokennodeid = makeTextNode("Token", a->lhs.stringify());
-                    connect(thisid, "lhs", tokennodeid);
+                    if (a->lhs)
+                    {
+                        a->lhs->accept(this);
+                        connect(thisid, "lhs", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "lhs", nullptrnodeid);
+                    }
             }
             {
                     std::string tokennodeid = makeTextNode("Token", a->op.stringify());
                     connect(thisid, "op", tokennodeid);
             }
             {
-                    std::string tokennodeid = makeTextNode("Token", a->rhs.stringify());
-                    connect(thisid, "rhs", tokennodeid);
+                    if (a->rhs)
+                    {
+                        a->rhs->accept(this);
+                        connect(thisid, "rhs", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "rhs", nullptrnodeid);
+                    }
             }
             break;
     }
@@ -45,16 +61,32 @@ void DotVisitor::visitArgs(ASTNS::Args *a)
             std::cout << "<td port=\"expr\">expr</td>";
             std::cout << "</tr></table>>]\n";
             {
-                    std::string tokennodeid = makeTextNode("Token", a->args.stringify());
-                    connect(thisid, "args", tokennodeid);
+                    if (a->args)
+                    {
+                        a->args->accept(this);
+                        connect(thisid, "args", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "args", nullptrnodeid);
+                    }
             }
             {
                     std::string tokennodeid = makeTextNode("Token", a->comma.stringify());
                     connect(thisid, "comma", tokennodeid);
             }
             {
-                    std::string tokennodeid = makeTextNode("Token", a->expr.stringify());
-                    connect(thisid, "expr", tokennodeid);
+                    if (a->expr)
+                    {
+                        a->expr->accept(this);
+                        connect(thisid, "expr", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "expr", nullptrnodeid);
+                    }
             }
             break;
         case ASTNS::Args::Form::EXPR:
@@ -62,8 +94,16 @@ void DotVisitor::visitArgs(ASTNS::Args *a)
             std::cout << "<td port=\"expr\">expr</td>";
             std::cout << "</tr></table>>]\n";
             {
-                    std::string tokennodeid = makeTextNode("Token", a->expr.stringify());
-                    connect(thisid, "expr", tokennodeid);
+                    if (a->expr)
+                    {
+                        a->expr->accept(this);
+                        connect(thisid, "expr", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "expr", nullptrnodeid);
+                    }
             }
             break;
     }
@@ -81,16 +121,32 @@ void DotVisitor::visitAssignmentexpr(ASTNS::Assignmentexpr *a)
             std::cout << "<td port=\"value\">value</td>";
             std::cout << "</tr></table>>]\n";
             {
-                    std::string tokennodeid = makeTextNode("Token", a->target.stringify());
-                    connect(thisid, "target", tokennodeid);
+                    if (a->target)
+                    {
+                        a->target->accept(this);
+                        connect(thisid, "target", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "target", nullptrnodeid);
+                    }
             }
             {
                     std::string tokennodeid = makeTextNode("Token", a->equal.stringify());
                     connect(thisid, "equal", tokennodeid);
             }
             {
-                    std::string tokennodeid = makeTextNode("Token", a->value.stringify());
-                    connect(thisid, "value", tokennodeid);
+                    if (a->value)
+                    {
+                        a->value->accept(this);
+                        connect(thisid, "value", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "value", nullptrnodeid);
+                    }
             }
             break;
     }
@@ -108,16 +164,32 @@ void DotVisitor::visitBinandexpr(ASTNS::Binandexpr *a)
             std::cout << "<td port=\"rhs\">rhs</td>";
             std::cout << "</tr></table>>]\n";
             {
-                    std::string tokennodeid = makeTextNode("Token", a->lhs.stringify());
-                    connect(thisid, "lhs", tokennodeid);
+                    if (a->lhs)
+                    {
+                        a->lhs->accept(this);
+                        connect(thisid, "lhs", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "lhs", nullptrnodeid);
+                    }
             }
             {
                     std::string tokennodeid = makeTextNode("Token", a->op.stringify());
                     connect(thisid, "op", tokennodeid);
             }
             {
-                    std::string tokennodeid = makeTextNode("Token", a->rhs.stringify());
-                    connect(thisid, "rhs", tokennodeid);
+                    if (a->rhs)
+                    {
+                        a->rhs->accept(this);
+                        connect(thisid, "rhs", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "rhs", nullptrnodeid);
+                    }
             }
             break;
     }
@@ -138,8 +210,16 @@ void DotVisitor::visitBinnotexpr(ASTNS::Binnotexpr *a)
                     connect(thisid, "op", tokennodeid);
             }
             {
-                    std::string tokennodeid = makeTextNode("Token", a->operand.stringify());
-                    connect(thisid, "operand", tokennodeid);
+                    if (a->operand)
+                    {
+                        a->operand->accept(this);
+                        connect(thisid, "operand", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "operand", nullptrnodeid);
+                    }
             }
             break;
     }
@@ -157,16 +237,32 @@ void DotVisitor::visitBinorexpr(ASTNS::Binorexpr *a)
             std::cout << "<td port=\"rhs\">rhs</td>";
             std::cout << "</tr></table>>]\n";
             {
-                    std::string tokennodeid = makeTextNode("Token", a->lhs.stringify());
-                    connect(thisid, "lhs", tokennodeid);
+                    if (a->lhs)
+                    {
+                        a->lhs->accept(this);
+                        connect(thisid, "lhs", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "lhs", nullptrnodeid);
+                    }
             }
             {
                     std::string tokennodeid = makeTextNode("Token", a->op.stringify());
                     connect(thisid, "op", tokennodeid);
             }
             {
-                    std::string tokennodeid = makeTextNode("Token", a->rhs.stringify());
-                    connect(thisid, "rhs", tokennodeid);
+                    if (a->rhs)
+                    {
+                        a->rhs->accept(this);
+                        connect(thisid, "rhs", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "rhs", nullptrnodeid);
+                    }
             }
             break;
     }
@@ -184,16 +280,32 @@ void DotVisitor::visitBitandexpr(ASTNS::Bitandexpr *a)
             std::cout << "<td port=\"rhs\">rhs</td>";
             std::cout << "</tr></table>>]\n";
             {
-                    std::string tokennodeid = makeTextNode("Token", a->lhs.stringify());
-                    connect(thisid, "lhs", tokennodeid);
+                    if (a->lhs)
+                    {
+                        a->lhs->accept(this);
+                        connect(thisid, "lhs", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "lhs", nullptrnodeid);
+                    }
             }
             {
                     std::string tokennodeid = makeTextNode("Token", a->op.stringify());
                     connect(thisid, "op", tokennodeid);
             }
             {
-                    std::string tokennodeid = makeTextNode("Token", a->rhs.stringify());
-                    connect(thisid, "rhs", tokennodeid);
+                    if (a->rhs)
+                    {
+                        a->rhs->accept(this);
+                        connect(thisid, "rhs", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "rhs", nullptrnodeid);
+                    }
             }
             break;
     }
@@ -211,16 +323,32 @@ void DotVisitor::visitBitorexpr(ASTNS::Bitorexpr *a)
             std::cout << "<td port=\"rhs\">rhs</td>";
             std::cout << "</tr></table>>]\n";
             {
-                    std::string tokennodeid = makeTextNode("Token", a->lhs.stringify());
-                    connect(thisid, "lhs", tokennodeid);
+                    if (a->lhs)
+                    {
+                        a->lhs->accept(this);
+                        connect(thisid, "lhs", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "lhs", nullptrnodeid);
+                    }
             }
             {
                     std::string tokennodeid = makeTextNode("Token", a->op.stringify());
                     connect(thisid, "op", tokennodeid);
             }
             {
-                    std::string tokennodeid = makeTextNode("Token", a->rhs.stringify());
-                    connect(thisid, "rhs", tokennodeid);
+                    if (a->rhs)
+                    {
+                        a->rhs->accept(this);
+                        connect(thisid, "rhs", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "rhs", nullptrnodeid);
+                    }
             }
             break;
     }
@@ -238,16 +366,32 @@ void DotVisitor::visitBitshiftexpr(ASTNS::Bitshiftexpr *a)
             std::cout << "<td port=\"rhs\">rhs</td>";
             std::cout << "</tr></table>>]\n";
             {
-                    std::string tokennodeid = makeTextNode("Token", a->lhs.stringify());
-                    connect(thisid, "lhs", tokennodeid);
+                    if (a->lhs)
+                    {
+                        a->lhs->accept(this);
+                        connect(thisid, "lhs", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "lhs", nullptrnodeid);
+                    }
             }
             {
                     std::string tokennodeid = makeTextNode("Token", a->op.stringify());
                     connect(thisid, "op", tokennodeid);
             }
             {
-                    std::string tokennodeid = makeTextNode("Token", a->rhs.stringify());
-                    connect(thisid, "rhs", tokennodeid);
+                    if (a->rhs)
+                    {
+                        a->rhs->accept(this);
+                        connect(thisid, "rhs", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "rhs", nullptrnodeid);
+                    }
             }
             break;
     }
@@ -265,16 +409,32 @@ void DotVisitor::visitBitxorexpr(ASTNS::Bitxorexpr *a)
             std::cout << "<td port=\"rhs\">rhs</td>";
             std::cout << "</tr></table>>]\n";
             {
-                    std::string tokennodeid = makeTextNode("Token", a->lhs.stringify());
-                    connect(thisid, "lhs", tokennodeid);
+                    if (a->lhs)
+                    {
+                        a->lhs->accept(this);
+                        connect(thisid, "lhs", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "lhs", nullptrnodeid);
+                    }
             }
             {
                     std::string tokennodeid = makeTextNode("Token", a->op.stringify());
                     connect(thisid, "op", tokennodeid);
             }
             {
-                    std::string tokennodeid = makeTextNode("Token", a->rhs.stringify());
-                    connect(thisid, "rhs", tokennodeid);
+                    if (a->rhs)
+                    {
+                        a->rhs->accept(this);
+                        connect(thisid, "rhs", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "rhs", nullptrnodeid);
+                    }
             }
             break;
     }
@@ -296,8 +456,16 @@ void DotVisitor::visitBlock(ASTNS::Block *a)
                     connect(thisid, "ocurb", tokennodeid);
             }
             {
-                    std::string tokennodeid = makeTextNode("Token", a->stmts.stringify());
-                    connect(thisid, "stmts", tokennodeid);
+                    if (a->stmts)
+                    {
+                        a->stmts->accept(this);
+                        connect(thisid, "stmts", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "stmts", nullptrnodeid);
+                    }
             }
             {
                     std::string tokennodeid = makeTextNode("Token", a->ccurb.stringify());
@@ -320,16 +488,32 @@ void DotVisitor::visitCall(ASTNS::Call *a)
             std::cout << "<td port=\"cparn\">cparn</td>";
             std::cout << "</tr></table>>]\n";
             {
-                    std::string tokennodeid = makeTextNode("Token", a->callee.stringify());
-                    connect(thisid, "callee", tokennodeid);
+                    if (a->callee)
+                    {
+                        a->callee->accept(this);
+                        connect(thisid, "callee", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "callee", nullptrnodeid);
+                    }
             }
             {
                     std::string tokennodeid = makeTextNode("Token", a->oparn.stringify());
                     connect(thisid, "oparn", tokennodeid);
             }
             {
-                    std::string tokennodeid = makeTextNode("Token", a->args.stringify());
-                    connect(thisid, "args", tokennodeid);
+                    if (a->args)
+                    {
+                        a->args->accept(this);
+                        connect(thisid, "args", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "args", nullptrnodeid);
+                    }
             }
             {
                     std::string tokennodeid = makeTextNode("Token", a->cparn.stringify());
@@ -343,8 +527,16 @@ void DotVisitor::visitCall(ASTNS::Call *a)
             std::cout << "<td port=\"cparn\">cparn</td>";
             std::cout << "</tr></table>>]\n";
             {
-                    std::string tokennodeid = makeTextNode("Token", a->callee.stringify());
-                    connect(thisid, "callee", tokennodeid);
+                    if (a->callee)
+                    {
+                        a->callee->accept(this);
+                        connect(thisid, "callee", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "callee", nullptrnodeid);
+                    }
             }
             {
                     std::string tokennodeid = makeTextNode("Token", a->oparn.stringify());
@@ -370,16 +562,32 @@ void DotVisitor::visitCompeqexpr(ASTNS::Compeqexpr *a)
             std::cout << "<td port=\"rhs\">rhs</td>";
             std::cout << "</tr></table>>]\n";
             {
-                    std::string tokennodeid = makeTextNode("Token", a->lhs.stringify());
-                    connect(thisid, "lhs", tokennodeid);
+                    if (a->lhs)
+                    {
+                        a->lhs->accept(this);
+                        connect(thisid, "lhs", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "lhs", nullptrnodeid);
+                    }
             }
             {
                     std::string tokennodeid = makeTextNode("Token", a->op.stringify());
                     connect(thisid, "op", tokennodeid);
             }
             {
-                    std::string tokennodeid = makeTextNode("Token", a->rhs.stringify());
-                    connect(thisid, "rhs", tokennodeid);
+                    if (a->rhs)
+                    {
+                        a->rhs->accept(this);
+                        connect(thisid, "rhs", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "rhs", nullptrnodeid);
+                    }
             }
             break;
     }
@@ -397,16 +605,32 @@ void DotVisitor::visitComplgtexpr(ASTNS::Complgtexpr *a)
             std::cout << "<td port=\"rhs\">rhs</td>";
             std::cout << "</tr></table>>]\n";
             {
-                    std::string tokennodeid = makeTextNode("Token", a->lhs.stringify());
-                    connect(thisid, "lhs", tokennodeid);
+                    if (a->lhs)
+                    {
+                        a->lhs->accept(this);
+                        connect(thisid, "lhs", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "lhs", nullptrnodeid);
+                    }
             }
             {
                     std::string tokennodeid = makeTextNode("Token", a->op.stringify());
                     connect(thisid, "op", tokennodeid);
             }
             {
-                    std::string tokennodeid = makeTextNode("Token", a->rhs.stringify());
-                    connect(thisid, "rhs", tokennodeid);
+                    if (a->rhs)
+                    {
+                        a->rhs->accept(this);
+                        connect(thisid, "rhs", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "rhs", nullptrnodeid);
+                    }
             }
             break;
     }
@@ -494,8 +718,16 @@ void DotVisitor::visitExprstmt(ASTNS::Exprstmt *a)
             std::cout << "<td port=\"semi\">semi</td>";
             std::cout << "</tr></table>>]\n";
             {
-                    std::string tokennodeid = makeTextNode("Token", a->expr.stringify());
-                    connect(thisid, "expr", tokennodeid);
+                    if (a->expr)
+                    {
+                        a->expr->accept(this);
+                        connect(thisid, "expr", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "expr", nullptrnodeid);
+                    }
             }
             {
                     std::string tokennodeid = makeTextNode("Token", a->semi.stringify());
@@ -628,16 +860,32 @@ void DotVisitor::visitMultexpr(ASTNS::Multexpr *a)
             std::cout << "<td port=\"rhs\">rhs</td>";
             std::cout << "</tr></table>>]\n";
             {
-                    std::string tokennodeid = makeTextNode("Token", a->lhs.stringify());
-                    connect(thisid, "lhs", tokennodeid);
+                    if (a->lhs)
+                    {
+                        a->lhs->accept(this);
+                        connect(thisid, "lhs", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "lhs", nullptrnodeid);
+                    }
             }
             {
                     std::string tokennodeid = makeTextNode("Token", a->op.stringify());
                     connect(thisid, "op", tokennodeid);
             }
             {
-                    std::string tokennodeid = makeTextNode("Token", a->rhs.stringify());
-                    connect(thisid, "rhs", tokennodeid);
+                    if (a->rhs)
+                    {
+                        a->rhs->accept(this);
+                        connect(thisid, "rhs", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "rhs", nullptrnodeid);
+                    }
             }
             break;
     }
@@ -656,16 +904,32 @@ void DotVisitor::visitParamlist(ASTNS::Paramlist *a)
             std::cout << "<td port=\"name\">name</td>";
             std::cout << "</tr></table>>]\n";
             {
-                    std::string tokennodeid = makeTextNode("Token", a->plist.stringify());
-                    connect(thisid, "plist", tokennodeid);
+                    if (a->plist)
+                    {
+                        a->plist->accept(this);
+                        connect(thisid, "plist", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "plist", nullptrnodeid);
+                    }
             }
             {
                     std::string tokennodeid = makeTextNode("Token", a->comma.stringify());
                     connect(thisid, "comma", tokennodeid);
             }
             {
-                    std::string tokennodeid = makeTextNode("Token", a->type.stringify());
-                    connect(thisid, "type", tokennodeid);
+                    if (a->type)
+                    {
+                        a->type->accept(this);
+                        connect(thisid, "type", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "type", nullptrnodeid);
+                    }
             }
             {
                     std::string tokennodeid = makeTextNode("Token", a->name.stringify());
@@ -678,8 +942,16 @@ void DotVisitor::visitParamlist(ASTNS::Paramlist *a)
             std::cout << "<td port=\"name\">name</td>";
             std::cout << "</tr></table>>]\n";
             {
-                    std::string tokennodeid = makeTextNode("Token", a->type.stringify());
-                    connect(thisid, "type", tokennodeid);
+                    if (a->type)
+                    {
+                        a->type->accept(this);
+                        connect(thisid, "type", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "type", nullptrnodeid);
+                    }
             }
             {
                     std::string tokennodeid = makeTextNode("Token", a->name.stringify());
@@ -714,8 +986,16 @@ void DotVisitor::visitPrimary(ASTNS::Primary *a)
                     connect(thisid, "oparn", tokennodeid);
             }
             {
-                    std::string tokennodeid = makeTextNode("Token", a->expr.stringify());
-                    connect(thisid, "expr", tokennodeid);
+                    if (a->expr)
+                    {
+                        a->expr->accept(this);
+                        connect(thisid, "expr", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "expr", nullptrnodeid);
+                    }
             }
             {
                     std::string tokennodeid = makeTextNode("Token", a->cparn.stringify());
@@ -740,8 +1020,16 @@ void DotVisitor::visitRetstmt(ASTNS::Retstmt *a)
                     connect(thisid, "ret", tokennodeid);
             }
             {
-                    std::string tokennodeid = makeTextNode("Token", a->expr.stringify());
-                    connect(thisid, "expr", tokennodeid);
+                    if (a->expr)
+                    {
+                        a->expr->accept(this);
+                        connect(thisid, "expr", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "expr", nullptrnodeid);
+                    }
             }
             break;
     }
@@ -807,24 +1095,48 @@ void DotVisitor::visitTernaryexpr(ASTNS::Ternaryexpr *a)
             std::cout << "<td port=\"falses\">falses</td>";
             std::cout << "</tr></table>>]\n";
             {
-                    std::string tokennodeid = makeTextNode("Token", a->cond.stringify());
-                    connect(thisid, "cond", tokennodeid);
+                    if (a->cond)
+                    {
+                        a->cond->accept(this);
+                        connect(thisid, "cond", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "cond", nullptrnodeid);
+                    }
             }
             {
                     std::string tokennodeid = makeTextNode("Token", a->quest.stringify());
                     connect(thisid, "quest", tokennodeid);
             }
             {
-                    std::string tokennodeid = makeTextNode("Token", a->trues.stringify());
-                    connect(thisid, "trues", tokennodeid);
+                    if (a->trues)
+                    {
+                        a->trues->accept(this);
+                        connect(thisid, "trues", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "trues", nullptrnodeid);
+                    }
             }
             {
                     std::string tokennodeid = makeTextNode("Token", a->colon.stringify());
                     connect(thisid, "colon", tokennodeid);
             }
             {
-                    std::string tokennodeid = makeTextNode("Token", a->falses.stringify());
-                    connect(thisid, "falses", tokennodeid);
+                    if (a->falses)
+                    {
+                        a->falses->accept(this);
+                        connect(thisid, "falses", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "falses", nullptrnodeid);
+                    }
             }
             break;
     }
@@ -862,8 +1174,16 @@ void DotVisitor::visitUnary(ASTNS::Unary *a)
                     connect(thisid, "op", tokennodeid);
             }
             {
-                    std::string tokennodeid = makeTextNode("Token", a->operand.stringify());
-                    connect(thisid, "operand", tokennodeid);
+                    if (a->operand)
+                    {
+                        a->operand->accept(this);
+                        connect(thisid, "operand", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "operand", nullptrnodeid);
+                    }
             }
             break;
     }
@@ -886,12 +1206,28 @@ void DotVisitor::visitVarstmt(ASTNS::Varstmt *a)
                     connect(thisid, "var", tokennodeid);
             }
             {
-                    std::string tokennodeid = makeTextNode("Token", a->type.stringify());
-                    connect(thisid, "type", tokennodeid);
+                    if (a->type)
+                    {
+                        a->type->accept(this);
+                        connect(thisid, "type", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "type", nullptrnodeid);
+                    }
             }
             {
-                    std::string tokennodeid = makeTextNode("Token", a->assignments.stringify());
-                    connect(thisid, "assignments", tokennodeid);
+                    if (a->assignments)
+                    {
+                        a->assignments->accept(this);
+                        connect(thisid, "assignments", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "assignments", nullptrnodeid);
+                    }
             }
             {
                     std::string tokennodeid = makeTextNode("Token", a->semi.stringify());
@@ -915,8 +1251,16 @@ void DotVisitor::visitVarstmtfinisher(ASTNS::Varstmtfinisher *a)
             std::cout << "<td port=\"expr\">expr</td>";
             std::cout << "</tr></table>>]\n";
             {
-                    std::string tokennodeid = makeTextNode("Token", a->assignments.stringify());
-                    connect(thisid, "assignments", tokennodeid);
+                    if (a->assignments)
+                    {
+                        a->assignments->accept(this);
+                        connect(thisid, "assignments", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "assignments", nullptrnodeid);
+                    }
             }
             {
                     std::string tokennodeid = makeTextNode("Token", a->comma.stringify());
