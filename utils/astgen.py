@@ -55,6 +55,10 @@ for astname in sorted(_astnames):
 
     asts.append(ASTClass(astname.capitalize(), fields, forms))
 # Generating methods {{{1
+# helpers {{{2
+def stringifyForm(form):
+    return ''.join(map(lambda f: 'P' if f.type_.startswith('std::unique_ptr') else 'T', form))
+
 # Generating AST stuff {{{2
 # Generate AST declarations {{{3
 def genASTDecls():
@@ -68,11 +72,19 @@ def genASTDecls():
 
             output.append( '    {\n')
             output.append( '    public:\n')
+
             for form in ast.forms:
                 output.append(f'        {ast.name}({", ".join(f"{field.type_} {field.name}" for field in form)});\n')
 
+            output.append( '        enum class Form\n')
+            output.append( '        {\n')
+            for form in ast.forms:
+                output.append(f'            {stringifyForm(form)},\n')
+            output.append( '        };\n')
+
             for field in ast.fields:
                 output.append(f'        {field.type_} {field.name};\n')
+            output.append(f'        Form form;\n')
 
             output.append(f'        virtual void accept(ASTVisitor *v);\n')
 
@@ -100,6 +112,8 @@ def genASTDefs():
                         initializerList.append(f'{field.name}(std::move({field.name}))')
                     else:
                         initializerList.append(f'{field.name}({field.name})')
+
+                initializerList.append(f'form(ASTNS::{ast.name}::Form::{stringifyForm(form)})')
 
                 output.append(', '.join(initializerList))
                 output.append(' {}\n')
