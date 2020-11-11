@@ -1,0 +1,113 @@
+declarations             -> $declarations:decls $decl:decl                                                                   ; "declaration list"
+declarations             -> $decl:decl                                                                                       ; "declaration list"
+
+decl                     -> $function:_                                                                                      ; "declaration"
+
+function                 -> $type:retty IDENTIFIER:name OPARN:oparn CPARN:cparn $block:body                                  ; "function declaration"
+function                 -> $type:retty IDENTIFIER:name OPARN:oparn $paramlist:paramlist CPARN:cparn $block:body             ; "function declaration"
+
+stmts                    -> $stmts:stmts $stmt:stmt                                                                          ; "statements"
+stmts                    -> $stmt:_                                                                                          ; "statements"
+stmt                     -> $varstmt:_                                                                                       ; "statement"
+stmt                     -> $exprstmt:_                                                                                      ; "statement"
+stmt                     -> $retstmt:_                                                                                       ; "statement"
+stmt                     -> $block:_                                                                                         ; "statement"
+
+varstmt                  -> VAR:var $type:type $varstmtfinisher:assignments SEMICOLON:semi                                   ; "variable statement"
+exprstmt                 -> $expression:expr SEMICOLON:semi                                                                  ; "expression statement"
+retstmt                  -> RETURN:ret $expression:expr                                                                      ; "return statement"
+
+varstmtfinisher          -> $varstmtfinisher:assignments COMMA:comma IDENTIFIER:name EQUAL:equal $expression:expr            ; "variable statement assignments"
+varstmtfinisher          -> IDENTIFIER:name EQUAL:equal $expression:expr                                                     ; "variable statement assignments"
+
+block                    -> OCURB:ocurb $stmts:stmts CCURB:ccurb                                                             ; "code block"
+
+type                     -> UINT8:type                                                                                       ; "type specifier"
+type                     -> UINT16:type                                                                                      ; "type specifier"
+type                     -> UINT32:type                                                                                      ; "type specifier"
+type                     -> UINT64:type                                                                                      ; "type specifier"
+type                     -> SINT8:type                                                                                       ; "type specifier"
+type                     -> SINT16:type                                                                                      ; "type specifier"
+type                     -> SINT32:type                                                                                      ; "type specifier"
+type                     -> SINT64:type                                                                                      ; "type specifier"
+type                     -> FLOAT:type                                                                                       ; "type specifier"
+type                     -> BOOL:type                                                                                        ; "type specifier"
+type                     -> DOUBLE:type                                                                                      ; "type specifier"
+type                     -> VOID:type                                                                                        ; "type specifier"
+type                     -> CHAR:type                                                                                        ; "type specifier"
+
+args                     -> $args:args COMMA:comma $expression:expr                                                          ; "argument list"
+args                     -> $expression:expr                                                                                 ; "argument list"
+
+paramlist                -> $paramlist:plist COMMA:comma $type:type IDENTIFIER:name                                          ; "parameter list"
+paramlist                -> $type:type IDENTIFIER:name                                                                       ; "parameter list"
+
+expression               -> $assignmentexpr:_                                                                                ; "expression"
+
+assignmentexpr           -> $ternaryexpr:target EQUAL:equal $assignmentexpr:value                                            ; "assignment expression"
+assignmentexpr           -> $ternaryexpr:_                                                                                   ; "assignment expression"
+
+ternaryexpr              -> $binorexpr:_                                                                                     ; "ternary expression"
+ternaryexpr              -> $binorexpr:cond QUESTION:quest $binorexpr:trues COLON:colon $ternaryexpr:falses                  ; "ternary expression"
+
+binorexpr                -> $binorexpr:lhs DOUBLEPIPE:op $binandexpr:rhs                                                     ; "binary or expression"
+binorexpr                -> $binandexpr:_                                                                                    ; "binary or expression"
+
+binandexpr               -> $binandexpr:lhs DOUBLEAMPER:op $binnotexpr:rhs                                                   ; "binary and expression"
+binandexpr               -> $binnotexpr:_                                                                                    ; "binary and expression"
+
+binnotexpr               -> BANG:op $binnotexpr:operand                                                                      ; "binary not expression"
+binnotexpr               -> $compeqexpr:_                                                                                    ; "binary not expression"
+
+compeqexpr               -> $compeqexpr:lhs BANGEQUAL:op $complgtexpr:rhs                                                    ; "equality expression"
+compeqexpr               -> $compeqexpr:lhs DOUBLEEQUAL:op $complgtexpr:rhs                                                  ; "equality expression"
+compeqexpr               -> $complgtexpr:_                                                                                   ; "equality expression"
+
+complgtexpr              -> $complgtexpr:lhs LESS:op $bitxorexpr:rhs                                                         ; "comparison expression"
+complgtexpr              -> $complgtexpr:lhs GREATER:op $bitxorexpr:rhs                                                      ; "comparison expression"
+complgtexpr              -> $complgtexpr:lhs LESSEQUAL:op $bitxorexpr:rhs                                                    ; "comparison expression"
+complgtexpr              -> $complgtexpr:lhs GREATEREQUAL:op $bitxorexpr:rhs                                                 ; "comparison expression"
+complgtexpr              -> $bitxorexpr:_                                                                                    ; "comparison expression"
+
+bitxorexpr               -> $bitxorexpr:lhs CARET:op $bitorexpr:rhs                                                          ; "bitwise xor expression"
+bitxorexpr               -> $bitorexpr:_                                                                                     ; "bitwise xor expression"
+
+bitorexpr                -> $bitorexpr:lhs PIPE:op $bitandexpr:rhs                                                           ; "bitwise or expression"
+bitorexpr                -> $bitandexpr:_                                                                                    ; "bitwise or expression"
+
+bitandexpr               -> $bitandexpr:lhs AMPER:op $bitshiftexpr:rhs                                                       ; "bitwise and expression"
+bitandexpr               -> $bitshiftexpr:_                                                                                  ; "bitwise and expression"
+
+bitshiftexpr             -> $bitshiftexpr:lhs DOUBLEGREATER:op $additionexpr:rhs                                             ; "bit shift expression"
+bitshiftexpr             -> $bitshiftexpr:lhs DOUBLELESS:op $additionexpr:rhs                                                ; "bit shift expression"
+bitshiftexpr             -> $additionexpr:_                                                                                  ; "bit shift expression"
+
+additionexpr             -> $additionexpr:lhs PLUS:op $multexpr:rhs                                                          ; "addition expression"
+additionexpr             -> $additionexpr:lhs MINUS:op $multexpr:rhs                                                         ; "addition expression"
+additionexpr             -> $multexpr:_                                                                                      ; "addition expression"
+
+multexpr                 -> $multexpr:lhs STAR:op $unary:rhs                                                                 ; "multiplication expression"
+multexpr                 -> $multexpr:lhs SLASH:op $unary:rhs                                                                ; "multiplication expression"
+multexpr                 -> $multexpr:lhs PERCENT:op $unary:rhs                                                              ; "multiplication expression"
+multexpr                 -> $unary:_                                                                                         ; "multiplication expression"
+
+unary                    -> TILDE:op $unary:operand                                                                          ; "unary expression"
+unary                    -> MINUS:op $unary:operand                                                                          ; "unary expression"
+unary                    -> $call:_                                                                                          ; "unary expression"
+
+call                     -> $primary:callee OPARN:oparn $args:args CPARN:cparn                                               ; "function call expression"
+call                     -> $primary:callee OPARN:oparn CPARN:cparn                                                          ; "function call expression"
+call                     -> $primary:_                                                                                       ; "function call expression"
+
+primary                  -> TRUELIT:value                                                                                    ; "primary expression"
+primary                  -> FALSELIT:value                                                                                   ; "primary expression"
+primary                  -> FLOATLIT:value                                                                                   ; "primary expression"
+primary                  -> NULLPTRLIT:value                                                                                    ; "primary expression"
+primary                  -> DECINTLIT:value                                                                                  ; "primary expression"
+primary                  -> OCTINTLIT:value                                                                                  ; "primary expression"
+primary                  -> BININTLIT:value                                                                                  ; "primary expression"
+primary                  -> HEXINTLIT:value                                                                                  ; "primary expression"
+primary                  -> CHARLIT:value                                                                                    ; "primary expression"
+primary                  -> STRINGLIT:value                                                                                  ; "primary expression"
+primary                  -> OPARN:oparn $expression:expr CPARN:cparn                                                         ; "primary expression"
+
