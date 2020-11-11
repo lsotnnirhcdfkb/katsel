@@ -132,7 +132,7 @@ class State:
             if item.index > 0:
                 s = item.rule.expansion[item.index - 1]
                 if type(s) == NonTerminal:
-                    justparsed.append([r.name for r in grammar if r.symbol == s][0])
+                    justparsed.extend([r.name for r in grammar if r.symbol == s])
                 else:
                     justparsed.append(str(s))
             else:
@@ -141,7 +141,7 @@ class State:
             after = item.getAfterDot()
             if after is not None:
                 if type(after) == NonTerminal:
-                    expected.append([r.name for r in grammar if r.symbol == after][0])
+                    expected.extend([r.name for r in grammar if r.symbol == after])
                 else:
                     expected.append(str(after))
 
@@ -496,7 +496,7 @@ def genLoop():
 
     output.append(                     '    bool done = false;\n')
     output.append(                     '    Token lookahead (consume());\n')
-    output.append(                     '    Token lasttok;\n')
+    output.append(                     '    Token lasttok = lookahead;\n')
     output.append(                     '    std::stack<std::unique_ptr<stackitem>> stack;\n')
     output.append(                     '    stack.push(std::make_unique<stackitem>(0));\n')
 

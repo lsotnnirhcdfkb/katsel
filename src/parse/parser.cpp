@@ -174,7 +174,7 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
     }
     bool done = false;
     Token lookahead (consume());
-    Token lasttok;
+    Token lasttok = lookahead;
     std::stack<std::unique_ptr<stackitem>> stack;
     stack.push(std::make_unique<stackitem>(0));
     while (!done)
