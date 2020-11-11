@@ -482,6 +482,11 @@ def genLoop():
                                        '                    .reportAbort();\n'))
 
     output.append(                     '        }\n')
+    output.append(                    ('#undef SHIFT\n'
+                                       '#undef REDUCET\n'
+                                       '#undef REDUCEA\n'
+                                       '#undef REDUCESKIP\n')) # same TODO as above
+
     output.append(                     '    }\n')
 
     return ''.join(output)
