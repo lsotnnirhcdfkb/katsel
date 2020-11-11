@@ -417,7 +417,12 @@ def genLoop():
                                        '#define REDUCEA(n) \\\n'
                                        '    std::unique_ptr<stackitem> _a ## n = std::move(stack.top()); stack.pop();\\\n'
                                        '    aststackitem *si ## n = dynamic_cast<aststackitem*>(_a ## n .get());\\\n'
-                                       '    std::unique_ptr<ASTNS::NewBaseAST> a ## n (std::move(si ## n ->ast));\n')) # same TODO as above
+                                       '    std::unique_ptr<ASTNS::NewBaseAST> a ## n (std::move(si ## n ->ast));\n' # same TODO as above
+                                       '#define REDUCESKIP(cl) \\\n' # same TODO as above
+                                       '    std::unique_ptr<stackitem> popped (std::move(stack.top())); stack.pop();\\\n'
+                                       '    aststackitem *asi = dynamic_cast<aststackitem*>(popped.get());\\\n'
+                                       '    size_t newstate = getGoto<ASTNS::cl>(stack.top()->state);\\\n'
+                                       '    stack.push(std::make_unique<aststackitem>(newstate, std::move(asi->ast)));\n'))
 
     output.append(                     '    bool done = false;\n')
     output.append(                     '    Token lookahead (consume());\n')
@@ -452,11 +457,8 @@ def genLoop():
                     output.append(        f'                            size_t newstate = getGoto<ASTNS::{str(ac.rule.symbol).capitalize()}>(stack.top()->state);\n')
                     output.append(        f'                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));\n')
                 else:
-                    output.append(         '                            // skip actual reduction\n')
-                    output.append(         '                            std::unique_ptr<stackitem> popped (std::move(stack.top())); stack.pop();\n')
-                    output.append(         '                            aststackitem *asi = dynamic_cast<aststackitem*>(popped.get());\n')
-                    output.append(        f'                            size_t newstate = getGoto<ASTNS::{str(ac.rule.symbol).capitalize()}>(stack.top()->state);\n')
-                    output.append(         '                            stack.push(std::make_unique<aststackitem>(newstate, std::move(asi->ast)));\n')
+                    output.append(        f'                            REDUCESKIP({str(ac.rule.symbol).capitalize()});\n')
+
 
             elif type(ac) == AcceptAction:
                 output.append(         '                            done = true;\n')
