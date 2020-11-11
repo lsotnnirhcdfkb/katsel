@@ -4,182 +4,85 @@ import parsegen
 # Classes {{{1
 # ASTClass {{{2
 class ASTClass:
-    def __init__(self, name, fields=[], extends=None):
+    def __init__(self, name, fields, forms):
         self.name = name
         self.fields = fields
-        self.extends = extends
-# PureASTClass {{{2
-class PureASTClass:
-    def __init__(self, name):
-        self.name = name
+        self.forms = forms
+# ASTBaseClass {{{2
+class ASTBaseClass:
+    def __init__(self):
+        self.name = 'AST'
 # ASTField {{{2
 class ASTField:
-    # im for initialization method
-    IM_INITIALIZE = 0
-    IM_MOVE = 1
-
-    # pm for print method
-    PM_CHILD = 0
-    PM_TOKEN = 1
-    PM_ITERATE_CHILD = 2
-
-    def __init__(self, type_, name, passRef, initializationMethod, printMethod):
+    def __init__(self, type_, name):
         self.type_ = type_
         self.name = name
-        self.passRef = passRef
-        self.initializationMethod = initializationMethod
-        self.printMethod = printMethod
 
-    @staticmethod
-    def tokenField(name):
-        return ASTField('Token', name, False, ASTField.IM_INITIALIZE, ASTField.PM_TOKEN)
-    @staticmethod
-    def uptrField(pointto, name):
-        return ASTField(f'std::unique_ptr<{pointto}>', name, False, ASTField.IM_MOVE, ASTField.PM_CHILD)
-    @staticmethod
-    def opField():
-        return ASTField.tokenField('op')
-    @staticmethod
-    def exprField(name):
-        return ASTField.uptrField('Expr', name)
+    def __eq__(self, other):
+        return self.type_ == other.type_ and self.name == other.name
 # Classes to generate {{{1
-asts = [
-    PureASTClass('Expr'),
-    PureASTClass('Decl'),
-    PureASTClass('Type'),
-    PureASTClass('Stmt'),
+asts = [ASTBaseClass()]
+_astnames = set()
+_asts = []
+for rule in parsegen._grammar:
+    _astnames.add(rule['symbol'])
 
-    ASTClass('Program', fields=[
-            ASTField('std::vector<std::unique_ptr<Decl>>', 'decls', True, ASTField.IM_MOVE, ASTField.PM_ITERATE_CHILD),
-        ]),
+for astname in sorted(_astnames):
+    fields = []
+    forms = []
+    for rule in parsegen._grammar:
+        if rule['symbol'] == astname:
+            if 'skip' in rule and rule['skip']:
+                continue
 
-    ASTClass('BinaryExpr', fields=[
-            ASTField.exprField('lhs'),
-            ASTField.exprField('rhs'),
-            ASTField.opField(),
-        ], extends='Expr'),
+            form = []
+            for sym in rule['expansion'].split(' '):
+                s, v = sym.split(':')
+                if v == '_':
+                    continue
+                ty = 'std::unique_ptr<AST>' if s.startswith('$') else 'Token'
 
-    ASTClass('TernaryExpr', fields=[
-            ASTField.exprField('condition'),
-            ASTField.exprField('trues'),
-            ASTField.exprField('falses'),
-        ], extends='Expr'),
+                field = ASTField(ty, v)
+                if field not in fields:
+                    fields.append(field)
+                elif fields[fields.index(field)].type_ != ty:
+                    raise Exception(f'conflicting types for variable {v}: {fields[fi].type_}')
 
-    ASTClass('UnaryExpr', fields=[
-            ASTField.exprField('operand'),
-            ASTField.opField(),
-        ], extends='Expr'),
+                form.append(field)
 
-    ASTClass('PrimaryExpr', fields=[
-            ASTField.tokenField('value'),
-        ], extends='Expr'),
+            if len(form) and form not in forms:
+                forms.append(form)
 
-    ASTClass('CallExpr', fields=[
-            ASTField.exprField('func'),
-            ASTField.uptrField('Arg', 'args'),
-        ], extends='Expr'),
-
-    ASTClass('BlockStmt', fields=[
-            ASTField('std::vector<std::unique_ptr<Stmt>>', 'stmts', True, ASTField.IM_MOVE, ASTField.PM_ITERATE_CHILD),
-        ], extends='Stmt'),
-
-    ASTClass('ExprStmt', fields=[
-            ASTField.exprField('expr'),
-        ], extends='Stmt'),
-
-    ASTClass('ReturnStmt', fields=[
-            ASTField.exprField('val'),
-        ], extends='Stmt'),
-
-    ASTClass('VarStmt', fields=[
-            ASTField.uptrField('Type', 'type'),
-            ASTField('std::vector<std::unique_ptr<Expr>>', 'assignments', True, ASTField.IM_MOVE, ASTField.PM_ITERATE_CHILD),
-        ], extends='Stmt'),
-
-    ASTClass('BaseType', fields=[
-            ASTField.tokenField('type'),
-        ], extends='Type'),
-
-    ASTClass('FunctionDecl', fields=[
-            ASTField.uptrField('Type', 'rettype'),
-            ASTField.tokenField('name'),
-            ASTField.uptrField('Param', 'params'),
-            ASTField.uptrField('BlockStmt', 'block'),
-        ], extends='Decl'),
-
-    ASTClass('GlobalVarDecl', fields=[
-            ASTField.uptrField('Type', 'type'),
-            ASTField('std::vector<std::unique_ptr<Expr>>', 'assignments', True, ASTField.IM_MOVE, ASTField.PM_ITERATE_CHILD),
-        ], extends='Decl'),
-
-    ASTClass('Param', fields=[
-            ASTField.uptrField('Type', 'type'),
-            ASTField.tokenField('name'),
-            ASTField.uptrField('Param', 'next'),
-        ]),
-
-    ASTClass('Arg', fields=[
-            ASTField.exprField('value'),
-            ASTField.uptrField('Arg', 'next'),
-        ])
-]
+    asts.append(ASTClass(astname, fields, forms))
 # Generating methods {{{1
-# Generating helper methods {{{2
-def asArgument(field):
-    return f'{field.type_} {"&" if field.passRef else ""}{field.name}'
-def asDeclaration(field):
-    return f'{field.type_} {field.name};'
-def fieldInitialziation(field):
-    if field.initializationMethod == ASTField.IM_INITIALIZE:
-        return f'{field.name}({field.name})'
-    elif field.initializationMethod == ASTField.IM_MOVE:
-        return f'{field.name}(std::move({field.name}))'
-    else:
-        raise Exception(f'Inavlid initialization method {field.initializationMethod}')
 # Generating AST stuff {{{2
 # Generate AST declarations {{{3
 def genASTDecls():
     output = []
-
-    output.append( '    class AST\n')
-    output.append( '    {\n')
-    output.append( '    public:\n')
-    output.append( '        virtual ~AST() {}\n')
-    output.append( '    };\n')
-
     for ast in asts:
         output.append(f'    class {ast.name};\n')
 
     for ast in asts:
-        if type(ast) != PureASTClass:
-            if ast.extends is not None:
-                output.append(f'    class {ast.name} : public {ast.extends}\n')
-            else:
-                output.append(f'    class {ast.name} : public AST\n')
+        if type(ast) != ASTBaseClass:
+            output.append(f'    class {ast.name} : public AST\n')
 
             output.append( '    {\n')
             output.append( '    public:\n')
-            output.append(f'        {ast.name}({", ".join(asArgument(field) for field in ast.fields)});\n')
+            for form in ast.forms:
+                output.append(f'        {ast.name}({", ".join(f"{field.type_} {field.name}" for field in form)});\n')
 
             for field in ast.fields:
-                output.append('        ')
-                output.append(asDeclaration(field))
-                output.append('\n')
+                output.append(f'        {field.type_} {field.name};\n')
 
-            output.append(f'        virtual void accept({ast.name if ast.extends is None else ast.extends}Visitor *v);\n')
-
-            if ast.extends is None:
-                output.append(f'        virtual ~{ast.name}() {{}}\n')
+            output.append(f'        virtual void accept(ASTVisitor *v);\n')
 
             output.append( '    };\n')
         else:
-            output.append(f'    class {ast.name} : public AST\n')
+            output.append( '    class AST\n')
             output.append( '    {\n')
             output.append( '    public:\n')
-            output.append(f'        virtual ~{ast.name}() {{}}\n')
-
-            output.append(f'        virtual void accept({ast.name}Visitor *v) = 0;\n')
-
+            output.append( '        virtual ~AST() {}\n')
+            output.append( '        virtual void accept(ASTVisitor *v) = 0;\n')
             output.append( '    };\n')
 
     return ''.join(output)
@@ -187,17 +90,21 @@ def genASTDecls():
 def genASTDefs():
     output = ['#include "parse/ast.h"\n']
     for ast in asts:
-        if type(ast) != PureASTClass:
-            output.append(f'ASTNS::{ast.name}::{ast.name}({", ".join(asArgument(field) for field in ast.fields)}): ')
+        if type(ast) != ASTBaseClass:
+            for form in ast.forms:
+                output.append(f'ASTNS::{ast.name}::{ast.name}({", ".join(f"{field.type_} {field.name}" for field in form)}): ')
 
-            initializerList = []
-            for field in ast.fields:
-                initializerList.append(fieldInitialziation(field))
+                initializerList = []
+                for field in form:
+                    if field.type_.startswith('std::unique_ptr'):
+                        initializerList.append(f'{field.name}(std::move({field.name}))')
+                    else:
+                        initializerList.append(f'{field.name}({field.name})')
 
-            output.append(', '.join(initializerList))
-            output.append(' {}\n')
+                output.append(', '.join(initializerList))
+                output.append(' {}\n')
 
-            output.append(f'void ASTNS::{ast.name}::accept({ast.name if ast.extends is None else ast.extends}Visitor *v) {{ v->visit{ast.name}(this); }}\n')
+            output.append(f'void ASTNS::{ast.name}::accept(ASTVisitor *v) {{ v->visit{ast.name}(this); }}\n')
 
     return ''.join(output)
 # Generating Visitor stuff {{{2
@@ -207,41 +114,12 @@ def genASTForwDecls():
     for ast in asts:
         output.append(f'class {ast.name};\n')
     return ''.join(output)
-# Generate pure Visitor declarations {{{3
-def genPureASTVisitorDecls():
-    genclasses = [x for x in asts if type(x) == PureASTClass or x.extends is None]
-
-    output = []
-    for genclass in genclasses:
-        output.append(f'''class {genclass.name}Visitor
-{{
-public:
-''')
-
-        for ast in asts:
-            if type(ast) != PureASTClass and (ast.extends == genclass.name or ast.name == genclass.name):
-                output.append(f'    virtual void visit{ast.name}(ASTNS::{ast.name} *a) = 0;\n')
-
-        output.append(f'''    virtual ~{genclass.name}Visitor();
-}};
-''')
-
-    return ''.join(output)
-# Generate pure Visitor destructors {{{3
-def genPureASTVisitorDestructs():
-    genclasses = [x for x in asts if type(x) == PureASTClass or x.extends is None]
-
-    output = []
-    for genclass in genclasses:
-        output.append(f'{genclass.name}Visitor::~{genclass.name}Visitor() {{}}\n')
-
-    return ''.join(output)
 # Generating printing stuff {{{2
 # Genearte print visitor {{{3
 def genPrintVisitorMethods():
     output = []
     for ast in asts:
-        if type(ast) == PureASTClass:
+        if type(ast) == ASTBaseClass:
             continue
 
         output.append(        f'void PrintVisitor::visit{ast.name}(ASTNS::{ast.name} *a)\n')
@@ -250,7 +128,7 @@ def genPrintVisitorMethods():
         output.append(        f'    ++indent;\n')
         for field in ast.fields:
             output.append(    f'    pai("{field.name} =");\n')
-            if field.printMethod == ASTField.PM_CHILD:
+            if field.type_.startswith('std::unique_ptr'):
                 output.append(f'    if (a->{field.name})\n')
                 output.append( '    {\n')
                 output.append( '        ++indent;\n')
@@ -262,21 +140,10 @@ def genPrintVisitorMethods():
                 output.append( '    {\n')
                 output.append( '        pai(" nullptr\\n");\n')
                 output.append( '    }\n')
-            elif field.printMethod == ASTField.PM_TOKEN:
+            else:
                 output.append( '    pai(" [");\n')
                 output.append(f'    pai(std::string(a->{field.name}.start, a->{field.name}.end));\n')
                 output.append( '    pai("]\\n");\n')
-            elif field.printMethod == ASTField.PM_ITERATE_CHILD:
-                output.append( '    pai("\\n");\n')
-                output.append( '    ++indent;\n');
-                output.append(f'    for (auto &i : a->{field.name})\n')
-                output.append( '    {\n')
-                output.append( '        pai("- ");\n')
-                output.append(f'        i->accept(this);\n')
-                output.append( '    }\n')
-                output.append( '    --indent;\n');
-            else:
-                raise Exception(f'Invalid print method {field.printMethod}')
         output.append(        f'    --indent;\n')
         output.append(         '}\n')
 
@@ -285,7 +152,7 @@ def genPrintVisitorMethods():
 def genDotVisitorMethods():
     output = []
     for ast in asts:
-        if type(ast) == PureASTClass:
+        if type(ast) == ASTBaseClass:
             continue
 
         output.append(        f'void DotVisitor::visit{ast.name}(ASTNS::{ast.name} *a)\n')
@@ -301,7 +168,7 @@ def genDotVisitorMethods():
         output.append(        f'    std::cout << "</tr></table>>]\\n";\n')
 
         for field in ast.fields:
-            if field.printMethod == ASTField.PM_CHILD:
+            if field.type_.startswith('std::unique_ptr'):
                 output.append(f'    if (a->{field.name})\n')
                 output.append( '    {\n')
                 output.append(f'        a->{field.name}->accept(this);\n')
@@ -312,17 +179,9 @@ def genDotVisitorMethods():
                 output.append(f'        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");\n')
                 output.append(f'        connect(thisid, "{field.name}", nullptrnodeid);\n')
                 output.append( '    }\n')
-            elif field.printMethod == ASTField.PM_TOKEN:
+            else:
                 output.append(f'    std::string tokennodeid = makeTextNode("Token", a->{field.name}.stringify());\n')
                 output.append(f'    connect(thisid, "{field.name}", tokennodeid);\n')
-            elif field.printMethod == ASTField.PM_ITERATE_CHILD:
-                output.append(f'    for (auto &i : a->{field.name})\n')
-                output.append( '    {\n')
-                output.append(f'        i->accept(this);\n')
-                output.append(f'        connect(thisid, "{field.name}", lastid);\n')
-                output.append( '    }\n')
-            else:
-                raise Exception(f'Invalid print method {field.printMethod}')
 
         output.append(         '    lastid = std::move(thisid);\n')
         if ast.name == 'Program':
