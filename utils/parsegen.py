@@ -196,7 +196,10 @@ def getFirsts(sym):
                     firsts.append(eofSym)
             elif rule.expansion[0] != sym:
                 if type(rule.expansion[0]) == NonTerminal:
-                    firsts.extend(makeUnique(firsts, getFirsts(rule.expansion[0])))
+                    if len(rule.expansion[0].first):
+                        firsts.extend(makeUnique(firsts, rule.expansion[0].first))
+                    else:
+                        firsts.extend(makeUnique(firsts, getFirsts(rule.expansion[0])))
                 else:
                     if rule.expansion[0] not in firsts:
                         firsts.append(rule.expansion[0])
@@ -214,9 +217,19 @@ def getFollows(sym):
 
             if i + 1 >= len(rule.expansion):
                 if rule.symbol != sym:
-                    follows.extend(makeUnique(follows, getFollows(rule.symbol)))
+                    if len(rule.symbol.follow):
+                        follows.extend(makeUnique(follows, rule.symbol.follow))
+                    else:
+                        follows.extend(makeUnique(follows, getFollows(rule.symbol)))
             else:
-                follows.extend(makeUnique(follows, [x for x in getFirsts(rule.expansion[i + 1]) if x != Terminal('eof')]))
+                if type(rule.expansion) == NonTerminal:
+                    if len(rule.expansion[i + 1].first):
+                        follows.extend(makeUnique(follows, [x for x in rule.expansion[i + 1].first if x != Terminal('eof')]))
+                    else:
+                        follows.extend(makeUnique(follows, [x for x in getFirsts(rule.expansion[i + 1]) if x != Terminal('eof')]))
+                else:
+                    if rule.expansion[i + 1] not in follows:
+                        follows.append(rule.expansion[i + 1])
 
     return follows
 # closure {{{2
@@ -313,7 +326,11 @@ def fillParseTable(isets, transitions):
     return table
 # entry function {{{2
 def makeParseTable():
-    return fillParseTable(*getItemSets())
+    isets = getItemSets()
+    print('-- get item sets')
+    table = fillParseTable(*isets)
+    print('-- get table')
+    return table
 # rules {{{1
 with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'grammar'), 'r') as f:
     grammarstr = f.read()
@@ -363,9 +380,13 @@ for rule in _grammar:
 
     grammar.append(Rule(NonTerminal(symbol), tuple(expansion), skip, rule['name']))
 
+print('-- parsed grammar')
+
 augmentSymbol = NonTerminal('augment')
 augmentRule = Rule(augmentSymbol, (grammar[0].symbol, ), False, 'compilation unit')
 grammar.append(augmentRule)
+
+print('-- augment grammar')
 
 eofSym = Terminal('TokenType::EOF_')
 
@@ -378,6 +399,8 @@ for rule in grammar:
 
         if sym not in symbols:
             symbols.append(sym)
+
+print('-- got first and follows')
 
 # make the parse table {{{1
 table = makeParseTable()
