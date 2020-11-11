@@ -395,7 +395,7 @@ def printParseTable():
                 print(' ' * cw, end='')
 
         print()
-# generate getAction code {{{2
+# generate parser loop code {{{2
 def genLoop():
     output = []
 
@@ -406,7 +406,7 @@ def genLoop():
 
     output.append(                     '    while (true)\n')
     output.append(                     '    {\n')
-    output.append(                     '        switch(stack.top()->state)\n')
+    output.append(                     '        switch (stack.top()->state)\n')
     output.append(                     '        {\n')
 
     for staten, state in table.items():
@@ -462,4 +462,27 @@ def genLoop():
     output.append(                     '    }\n')
 
     return ''.join(output)
+# generate goto code {{{2
+def genGoto():
+    output = []
 
+
+    for nonterm in symbols:
+        if type(nonterm) == Terminal:
+            continue
+
+        output.append(        f'template <> size_t Parser::getGoto<ASTNS::{str(nonterm)}>(size_t state)\n')
+        output.append(         '{\n')
+        output.append(         '    switch (stack.top()->state)\n')
+        output.append(         '    {\n')
+        for staten, state in table.items():
+            if nonterm in state.goto:
+                output.append(f'        case {staten}:\n')
+                output.append(f'             return {state.goto[nonterm]};\n')
+
+        output.append(         '        default:\n')
+        output.append(        f'            reportAbortNoh("retrieve goto of nonterminal {str(nonterm)} in state {state}");\n')
+        output.append(         '    }\n')
+        output.append(         '}\n')
+
+    return ''.join(output)
