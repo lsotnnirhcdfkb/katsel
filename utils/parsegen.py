@@ -406,6 +406,19 @@ def printParseTable(pad=True):
 def genLoop():
     output = []
 
+    output.append(                    ('#define SHIFT(newstate) \\\n'
+                                       '    Token last(lookahead);\\\n'
+                                       '    stack.push(std::make_unique<tokstackitem>(newstate, last));\\\n'
+                                       '    lookahead = consume();\n'
+                                       '#define REDUCET(n) \\\n'
+                                       '    std::unique_ptr<stackitem> _a ## n = std::move(stack.top()); stack.pop();\\\n'
+                                       '    tokstackitem *si ## n = dynamic_cast<tokstackitem*>(_a ## n .get());\\\n'
+                                       '    Token a ## n (si ## n ->tok);\n' # TODO: add parser method to say internal error: invalid pop expected tokstackitem/aststackitem but got ...
+                                       '#define REDUCEA(n) \\\n'
+                                       '    std::unique_ptr<stackitem> _a ## n = std::move(stack.top()); stack.pop();\\\n'
+                                       '    aststackitem *si ## n = dynamic_cast<aststackitem*>(_a ## n .get());\\\n'
+                                       '    std::unique_ptr<ASTNS::NewBaseAST> a ## n (std::move(si ## n ->ast));\n')) # same TODO as above
+
     output.append(                     '    bool done = false;\n')
     output.append(                     '    Token lookahead (consume());\n')
     output.append(                     '    std::stack<std::unique_ptr<stackitem>> stack;\n')
@@ -426,19 +439,14 @@ def genLoop():
             output.append(             '                        {\n')
 
             if type(ac) == ShiftAction:
-                output.append(         '                            Token last (lookahead);\n')
-                output.append(        f'                            stack.push(std::make_unique<tokstackitem>({ac.newstate}, last));\n')
-                output.append(         '                            lookahead = consume();\n')
+                output.append(        f'                            SHIFT({ac.newstate});\n')
             elif type(ac) == ReduceAction:
                 if not ac.rule.skip:
                     for i, sym in reversed(list(enumerate(ac.rule.expansion))):
-                        output.append(    f'                            std::unique_ptr<stackitem> _a{i} = std::move(stack.top()); stack.pop();\n')
                         if type(sym) == Terminal:
-                            output.append(f'                            tokstackitem *tsi{i} = dynamic_cast<tokstackitem*>(_a{i}.get());\n')
-                            output.append(f'                            Token a{i} (tsi{i}->tok);\n') # TODO: add parser method to say internal error: invalid pop expected tokstackitem/aststackitem but got ...
+                            output.append(f'                            REDUCET({i})\n')
                         elif type(sym) == NonTerminal:
-                            output.append(f'                            aststackitem *asi{i} = dynamic_cast<aststackitem*>(_a{i}.get());\n')
-                            output.append(f'                            std::unique_ptr<ASTNS::NewBaseAST> a{i} (std::move(asi{i}->ast));\n') # same TODO as above
+                            output.append(f'                            REDUCEA({i})\n')
 
                     output.append(        f'                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::{str(ac.rule.symbol).capitalize()}>({", ".join([f"std::move(a{i})" for i in range(len(ac.rule.expansion))])});\n')
                     output.append(        f'                            size_t newstate = getGoto<ASTNS::{str(ac.rule.symbol).capitalize()}>(stack.top()->state);\n')
