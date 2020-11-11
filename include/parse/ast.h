@@ -102,21 +102,25 @@ namespace ASTNS
     {
     public:
         virtual ~Expr() {}
+        virtual void accept(ExprVisitor *v) = 0;
     };
     class Decl : public AST
     {
     public:
         virtual ~Decl() {}
+        virtual void accept(DeclVisitor *v) = 0;
     };
     class Type : public AST
     {
     public:
         virtual ~Type() {}
+        virtual void accept(TypeVisitor *v) = 0;
     };
     class Stmt : public AST
     {
     public:
         virtual ~Stmt() {}
+        virtual void accept(StmtVisitor *v) = 0;
     };
     class Program : public AST
     {

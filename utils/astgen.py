@@ -178,6 +178,7 @@ def genDotVisitorMethods():
         output.append(        f'    std::cout << "</tr></table>>]\\n";\n')
 
         for field in ast.fields:
+            output.append(     '    {\n')
             if field.type_.startswith('std::unique_ptr'):
                 output.append(f'    if (a->{field.name})\n')
                 output.append( '    {\n')
@@ -192,6 +193,7 @@ def genDotVisitorMethods():
             else:
                 output.append(f'    std::string tokennodeid = makeTextNode("Token", a->{field.name}.stringify());\n')
                 output.append(f'    connect(thisid, "{field.name}", tokennodeid);\n')
+            output.append(     '    }\n')
 
         output.append(         '    lastid = std::move(thisid);\n')
         if ast.name == 'Program':

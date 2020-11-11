@@ -11,12 +11,14 @@ jobs = [
     ('src/parse/ast.cpp'             , None                        , None                      , astgen.genASTDefs),
     ('include/parse/ast.h'           , 'ASTHEADER START'           , 'ASTHEADER END'           , astgen.genASTDecls),
     ('include/visit/visitor.h'       , 'ASTFORWDECL BEGIN'         , 'ASTFORWDECL END'         , astgen.genASTForwDecls),
-    ('include/visit/visitor.h'       , 'VISITMETHODS START'        , 'VISITMETHODS END'        , astgen.genVisitorMethods),
+    ('include/visit/visitor.h'       , 'VISITMETHODS START'        , 'VISITMETHODS END'        , lambda: astgen.genVisitorMethods(True)),
     # ('src/visit/visitor.cpp'         , 'PUREVISITDESTRUCT START'   , 'PUREVISITDESTRUCT END'   , astgen.genPureASTVisitorDestructs),
     ('src/visit/printvisitor.cpp'    , 'PRINTVISITOR START'        , 'PRINTVISITOR END'        , astgen.genPrintVisitorMethods),
     ('src/visit/dotvisitor.cpp'      , 'DOTVISITOR START'          , 'DOTVISITOR END'          , astgen.genDotVisitorMethods),
     ('src/parse/parser.cpp'          , 'PARSERLOOP START'          , 'PARSERLOOP END'          , parsegen.genLoop),
     ('src/parse/parser.cpp'          , 'GETGOTO START'             , 'GETGOTO END'             , parsegen.genGoto),
+    ('include/visit/printvisitor.h'  , 'PRINTVISITOR METHODS START', 'PRINTVISITOR METHODS END', astgen.genVisitorMethods),
+    ('include/visit/dotvisitor.h'    , 'DOTVISITOR METHODS START'  , 'DOTVISITOR METHODS END'  , astgen.genVisitorMethods),
 ]
 
 for jobi, job in enumerate(jobs):
