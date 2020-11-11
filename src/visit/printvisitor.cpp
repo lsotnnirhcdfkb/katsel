@@ -10,33 +10,38 @@ void PrintVisitor::visitAdd(ASTNS::Add *a)
 {
     pai("Add\n");
     ++indent;
-    pai("lhs =");
-    if (a->lhs)
+    switch (a->form)
     {
-        ++indent;
-        pai("\n");
-        a->lhs->accept(this);
-        --indent;
-    }
-    else
-    {
-        pai(" nullptr\n");
-    }
-    pai("op =");
-    pai(" [");
-    pai(std::string(a->op.start, a->op.end));
-    pai("]\n");
-    pai("rhs =");
-    if (a->rhs)
-    {
-        ++indent;
-        pai("\n");
-        a->rhs->accept(this);
-        --indent;
-    }
-    else
-    {
-        pai(" nullptr\n");
+        case ASTNS::Add::Form::ATA:
+            pai("lhs =");
+            if (a->lhs)
+            {
+                ++indent;
+                pai("\n");
+                a->lhs->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
+            pai("op =");
+            pai(" [");
+            pai(std::string(a->op.start, a->op.end));
+            pai("]\n");
+            pai("rhs =");
+            if (a->rhs)
+            {
+                ++indent;
+                pai("\n");
+                a->rhs->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
+            break;
     }
     --indent;
 }
@@ -44,33 +49,38 @@ void PrintVisitor::visitMult(ASTNS::Mult *a)
 {
     pai("Mult\n");
     ++indent;
-    pai("lhs =");
-    if (a->lhs)
+    switch (a->form)
     {
-        ++indent;
-        pai("\n");
-        a->lhs->accept(this);
-        --indent;
-    }
-    else
-    {
-        pai(" nullptr\n");
-    }
-    pai("op =");
-    pai(" [");
-    pai(std::string(a->op.start, a->op.end));
-    pai("]\n");
-    pai("rhs =");
-    if (a->rhs)
-    {
-        ++indent;
-        pai("\n");
-        a->rhs->accept(this);
-        --indent;
-    }
-    else
-    {
-        pai(" nullptr\n");
+        case ASTNS::Mult::Form::ATA:
+            pai("lhs =");
+            if (a->lhs)
+            {
+                ++indent;
+                pai("\n");
+                a->lhs->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
+            pai("op =");
+            pai(" [");
+            pai(std::string(a->op.start, a->op.end));
+            pai("]\n");
+            pai("rhs =");
+            if (a->rhs)
+            {
+                ++indent;
+                pai("\n");
+                a->rhs->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
+            break;
     }
     --indent;
 }
@@ -78,17 +88,22 @@ void PrintVisitor::visitNew_expr(ASTNS::New_expr *a)
 {
     pai("New_expr\n");
     ++indent;
-    pai("expr =");
-    if (a->expr)
+    switch (a->form)
     {
-        ++indent;
-        pai("\n");
-        a->expr->accept(this);
-        --indent;
-    }
-    else
-    {
-        pai(" nullptr\n");
+        case ASTNS::New_expr::Form::A:
+            pai("expr =");
+            if (a->expr)
+            {
+                ++indent;
+                pai("\n");
+                a->expr->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
+            break;
     }
     --indent;
 }
@@ -96,17 +111,22 @@ void PrintVisitor::visitNew_stmt(ASTNS::New_stmt *a)
 {
     pai("New_stmt\n");
     ++indent;
-    pai("expr =");
-    if (a->expr)
+    switch (a->form)
     {
-        ++indent;
-        pai("\n");
-        a->expr->accept(this);
-        --indent;
-    }
-    else
-    {
-        pai(" nullptr\n");
+        case ASTNS::New_stmt::Form::A:
+            pai("expr =");
+            if (a->expr)
+            {
+                ++indent;
+                pai("\n");
+                a->expr->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
+            break;
     }
     --indent;
 }
@@ -114,51 +134,63 @@ void PrintVisitor::visitPrimary(ASTNS::Primary *a)
 {
     pai("Primary\n");
     ++indent;
-    pai("value =");
-    pai(" [");
-    pai(std::string(a->value.start, a->value.end));
-    pai("]\n");
-    pai("oparn =");
-    pai(" [");
-    pai(std::string(a->oparn.start, a->oparn.end));
-    pai("]\n");
-    pai("expr =");
-    if (a->expr)
+    switch (a->form)
     {
-        ++indent;
-        pai("\n");
-        a->expr->accept(this);
-        --indent;
+        case ASTNS::Primary::Form::T:
+            pai("value =");
+            pai(" [");
+            pai(std::string(a->value.start, a->value.end));
+            pai("]\n");
+            break;
+        case ASTNS::Primary::Form::TAT:
+            pai("oparn =");
+            pai(" [");
+            pai(std::string(a->oparn.start, a->oparn.end));
+            pai("]\n");
+            pai("expr =");
+            if (a->expr)
+            {
+                ++indent;
+                pai("\n");
+                a->expr->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
+            pai("cparn =");
+            pai(" [");
+            pai(std::string(a->cparn.start, a->cparn.end));
+            pai("]\n");
+            break;
     }
-    else
-    {
-        pai(" nullptr\n");
-    }
-    pai("cparn =");
-    pai(" [");
-    pai(std::string(a->cparn.start, a->cparn.end));
-    pai("]\n");
     --indent;
 }
 void PrintVisitor::visitUnary(ASTNS::Unary *a)
 {
     pai("Unary\n");
     ++indent;
-    pai("op =");
-    pai(" [");
-    pai(std::string(a->op.start, a->op.end));
-    pai("]\n");
-    pai("operand =");
-    if (a->operand)
+    switch (a->form)
     {
-        ++indent;
-        pai("\n");
-        a->operand->accept(this);
-        --indent;
-    }
-    else
-    {
-        pai(" nullptr\n");
+        case ASTNS::Unary::Form::TA:
+            pai("op =");
+            pai(" [");
+            pai(std::string(a->op.start, a->op.end));
+            pai("]\n");
+            pai("operand =");
+            if (a->operand)
+            {
+                ++indent;
+                pai("\n");
+                a->operand->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
+            break;
     }
     --indent;
 }

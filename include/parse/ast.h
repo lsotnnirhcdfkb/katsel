@@ -29,7 +29,7 @@ namespace ASTNS
         Add(std::unique_ptr<NewBaseAST> lhs, Token op, std::unique_ptr<NewBaseAST> rhs);
         enum class Form
         {
-            PTP,
+            ATA,
         };
         std::unique_ptr<NewBaseAST> lhs;
         Token op;
@@ -43,7 +43,7 @@ namespace ASTNS
         Mult(std::unique_ptr<NewBaseAST> lhs, Token op, std::unique_ptr<NewBaseAST> rhs);
         enum class Form
         {
-            PTP,
+            ATA,
         };
         std::unique_ptr<NewBaseAST> lhs;
         Token op;
@@ -57,7 +57,7 @@ namespace ASTNS
         New_expr(std::unique_ptr<NewBaseAST> expr);
         enum class Form
         {
-            P,
+            A,
         };
         std::unique_ptr<NewBaseAST> expr;
         Form form;
@@ -69,7 +69,7 @@ namespace ASTNS
         New_stmt(std::unique_ptr<NewBaseAST> expr);
         enum class Form
         {
-            P,
+            A,
         };
         std::unique_ptr<NewBaseAST> expr;
         Form form;
@@ -83,7 +83,7 @@ namespace ASTNS
         enum class Form
         {
             T,
-            TPT,
+            TAT,
         };
         Token value;
         Token oparn;
@@ -98,7 +98,7 @@ namespace ASTNS
         Unary(Token op, std::unique_ptr<NewBaseAST> operand);
         enum class Form
         {
-            TP,
+            TA,
         };
         Token op;
         std::unique_ptr<NewBaseAST> operand;

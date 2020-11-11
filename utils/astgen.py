@@ -57,7 +57,7 @@ for astname in sorted(_astnames):
 # Generating methods {{{1
 # helpers {{{2
 def stringifyForm(form):
-    return ''.join(map(lambda f: 'P' if f.type_.startswith('std::unique_ptr') else 'T', form))
+    return ''.join(map(lambda f: 'A' if f.type_.startswith('std::unique_ptr') else 'T', form))
 
 # Generating AST stuff {{{2
 # Generate AST declarations {{{3
@@ -149,30 +149,36 @@ def genPrintVisitorMethods():
         if type(ast) == ASTBaseClass:
             continue
 
-        output.append(        f'void PrintVisitor::visit{ast.name}(ASTNS::{ast.name} *a)\n')
-        output.append(         '{\n')
-        output.append(        f'    pai("{ast.name}\\n");\n')
-        output.append(        f'    ++indent;\n')
-        for field in ast.fields:
-            output.append(    f'    pai("{field.name} =");\n')
-            if field.type_.startswith('std::unique_ptr'):
-                output.append(f'    if (a->{field.name})\n')
-                output.append( '    {\n')
-                output.append( '        ++indent;\n')
-                output.append( '        pai("\\n");\n')
-                output.append(f'        a->{field.name}->accept(this);\n')
-                output.append( '        --indent;\n')
-                output.append( '    }\n')
-                output.append( '    else\n')
-                output.append( '    {\n')
-                output.append( '        pai(" nullptr\\n");\n')
-                output.append( '    }\n')
-            else:
-                output.append( '    pai(" [");\n')
-                output.append(f'    pai(std::string(a->{field.name}.start, a->{field.name}.end));\n')
-                output.append( '    pai("]\\n");\n')
-        output.append(        f'    --indent;\n')
-        output.append(         '}\n')
+        output.append(            f'void PrintVisitor::visit{ast.name}(ASTNS::{ast.name} *a)\n')
+        output.append(             '{\n')
+        output.append(            f'    pai("{ast.name}\\n");\n')
+        output.append(            f'    ++indent;\n')
+        output.append(             '    switch (a->form)\n')
+        output.append(             '    {\n')
+        for form in ast.forms:
+            output.append(        f'        case ASTNS::{ast.name}::Form::{stringifyForm(form)}:\n')
+            for field in form:
+                output.append(    f'            pai("{field.name} =");\n')
+                if field.type_.startswith('std::unique_ptr'):
+                    output.append(f'            if (a->{field.name})\n')
+                    output.append( '            {\n')
+                    output.append( '                ++indent;\n')
+                    output.append( '                pai("\\n");\n')
+                    output.append(f'                a->{field.name}->accept(this);\n')
+                    output.append( '                --indent;\n')
+                    output.append( '            }\n')
+                    output.append( '            else\n')
+                    output.append( '            {\n')
+                    output.append( '                pai(" nullptr\\n");\n')
+                    output.append( '            }\n')
+                else:
+                    output.append( '            pai(" [");\n')
+                    output.append(f'            pai(std::string(a->{field.name}.start, a->{field.name}.end));\n')
+                    output.append( '            pai("]\\n");\n')
+            output.append(        f'            break;\n')
+        output.append(             '    }\n')
+        output.append(            f'    --indent;\n')
+        output.append(             '}\n')
 
     return ''.join(output)
 # Generate dot visitor {{{3
@@ -182,34 +188,40 @@ def genDotVisitorMethods():
         if type(ast) == ASTBaseClass:
             continue
 
-        output.append(        f'void DotVisitor::visit{ast.name}(ASTNS::{ast.name} *a)\n')
-        output.append(         '{\n')
-        output.append(         '    std::string thisid = curid();\n')
-        output.append(        f'    std::cout << thisid << " [label=<<table border=\\"0\\" cellborder=\\"1\\" cellspacing=\\"0\\"><tr><td port=\\"__heading\\" colspan=\\"{len(ast.fields)}\\">{ast.name}</td></tr><tr>";\n')
-        for field in ast.fields:
-            output.append(    f'    std::cout << "<td port=\\"{field.name}\\">{field.name}</td>";\n')
+        output.append(            f'void DotVisitor::visit{ast.name}(ASTNS::{ast.name} *a)\n')
+        output.append(             '{\n')
+        output.append(             '    std::string thisid = curid();\n')
+        output.append(             '    switch (a->form)\n')
+        output.append(             '    {\n')
+        for form in ast.forms:
+            output.append(        f'        case ASTNS::{ast.name}::Form::{stringifyForm(form)}:\n')
+            output.append(        f'            std::cout << thisid << " [label=<<table border=\\"0\\" cellborder=\\"1\\" cellspacing=\\"0\\"><tr><td port=\\"__heading\\" colspan=\\"{len(form)}\\">{ast.name} ({stringifyForm(form)})</td></tr><tr>";\n')
+            for field in form:
+                output.append(    f'            std::cout << "<td port=\\"{field.name}\\">{field.name}</td>";\n')
 
-        output.append(        f'    std::cout << "</tr></table>>]\\n";\n')
+            output.append(        f'            std::cout << "</tr></table>>]\\n";\n')
 
-        for field in ast.fields:
-            output.append(     '    {\n')
-            if field.type_.startswith('std::unique_ptr'):
-                output.append(f'    if (a->{field.name})\n')
-                output.append( '    {\n')
-                output.append(f'        a->{field.name}->accept(this);\n')
-                output.append(f'        connect(thisid, "{field.name}", lastid);\n')
-                output.append( '    }\n')
-                output.append( '    else\n')
-                output.append( '    {\n')
-                output.append(f'        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");\n')
-                output.append(f'        connect(thisid, "{field.name}", nullptrnodeid);\n')
-                output.append( '    }\n')
-            else:
-                output.append(f'    std::string tokennodeid = makeTextNode("Token", a->{field.name}.stringify());\n')
-                output.append(f'    connect(thisid, "{field.name}", tokennodeid);\n')
-            output.append(     '    }\n')
+            for field in form:
+                output.append(     '            {\n')
+                if field.type_.startswith('std::unique_ptr'):
+                    output.append(f'                    if (a->{field.name})\n')
+                    output.append( '                    {\n')
+                    output.append(f'                        a->{field.name}->accept(this);\n')
+                    output.append(f'                        connect(thisid, "{field.name}", lastid);\n')
+                    output.append( '                    }\n')
+                    output.append( '                    else\n')
+                    output.append( '                    {\n')
+                    output.append(f'                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");\n')
+                    output.append(f'                        connect(thisid, "{field.name}", nullptrnodeid);\n')
+                    output.append( '                    }\n')
+                else:
+                    output.append(f'                    std::string tokennodeid = makeTextNode("Token", a->{field.name}.stringify());\n')
+                    output.append(f'                    connect(thisid, "{field.name}", tokennodeid);\n')
+                output.append(     '            }\n')
+            output.append(         '            break;\n')
 
-        output.append(         '    lastid = std::move(thisid);\n')
-        output.append(         '}\n')
+        output.append(             '    }\n')
+        output.append(             '    lastid = std::move(thisid);\n')
+        output.append(             '}\n')
 
     return ''.join(output)
