@@ -125,14 +125,20 @@ class ShiftAction:
         self.newstate = newstate
     def __str__(self):
         return f's{self.newstate}'
+    def __eq__(self, other):
+        return type(self) == type(other) and self.newstate == other.newstate
 class ReduceAction:
     def __init__(self, rule):
         self.rule = rule
     def __str__(self):
         return f'r{self.rule.num}'
+    def __eq__(self, other):
+        return type(self) == type(other) and self.rule == other.rule
 class AcceptAction:
     def __str__(self):
         return 'acc'
+    def __eq__(self, other):
+        return True
 # helpers {{{1
 def makeUnique(already, new):
     return [x for x in new if x not in already]
@@ -439,8 +445,23 @@ def genLoop():
         output.append(                 '               switch (lookahead.type)\n')
         output.append(                 '               {\n')
 
+        stateactions = []
         for nt, ac in sorted(state.actions.items(), key=lambda x:str(x[0])):
-            output.append(            f'                    case {str(nt)}:\n')
+            found = False
+            for i, (ac2, _) in enumerate(stateactions):
+                if ac == ac2:
+                    stateactions[i][1].append(nt)
+                    found = True
+                    break
+
+            if not found:
+                stateactions.append((ac, [nt]))
+
+
+        for ac, nts in stateactions:
+            for nt in nts:
+                output.append(        f'                    case {str(nt)}:\n')
+
             output.append(             '                        {\n')
 
             if type(ac) == ShiftAction:

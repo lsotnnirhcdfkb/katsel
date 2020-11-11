@@ -229,13 +229,6 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::CPARN:
-                        {
-                            REDUCEA(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::New_expr>(std::move(a0));
-                            size_t newstate = getGoto<ASTNS::New_expr>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::EOF_:
                         {
                             REDUCEA(0)
@@ -264,20 +257,8 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::CPARN:
-                        {
-                            REDUCESKIP(Add);
-                        }
-                        break;
                     case TokenType::EOF_:
-                        {
-                            REDUCESKIP(Add);
-                        }
-                        break;
                     case TokenType::MINUS:
-                        {
-                            REDUCESKIP(Add);
-                        }
-                        break;
                     case TokenType::PLUS:
                         {
                             REDUCESKIP(Add);
@@ -303,30 +284,10 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::CPARN:
-                        {
-                            REDUCESKIP(Mult);
-                        }
-                        break;
                     case TokenType::EOF_:
-                        {
-                            REDUCESKIP(Mult);
-                        }
-                        break;
                     case TokenType::MINUS:
-                        {
-                            REDUCESKIP(Mult);
-                        }
-                        break;
                     case TokenType::PLUS:
-                        {
-                            REDUCESKIP(Mult);
-                        }
-                        break;
                     case TokenType::SLASH:
-                        {
-                            REDUCESKIP(Mult);
-                        }
-                        break;
                     case TokenType::STAR:
                         {
                             REDUCESKIP(Mult);
@@ -400,30 +361,10 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::CPARN:
-                        {
-                            REDUCESKIP(Unary);
-                        }
-                        break;
                     case TokenType::EOF_:
-                        {
-                            REDUCESKIP(Unary);
-                        }
-                        break;
                     case TokenType::MINUS:
-                        {
-                            REDUCESKIP(Unary);
-                        }
-                        break;
                     case TokenType::PLUS:
-                        {
-                            REDUCESKIP(Unary);
-                        }
-                        break;
                     case TokenType::SLASH:
-                        {
-                            REDUCESKIP(Unary);
-                        }
-                        break;
                     case TokenType::STAR:
                         {
                             REDUCESKIP(Unary);
@@ -439,45 +380,10 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::CPARN:
-                        {
-                            REDUCET(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Primary>(std::move(a0));
-                            size_t newstate = getGoto<ASTNS::Primary>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::EOF_:
-                        {
-                            REDUCET(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Primary>(std::move(a0));
-                            size_t newstate = getGoto<ASTNS::Primary>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::MINUS:
-                        {
-                            REDUCET(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Primary>(std::move(a0));
-                            size_t newstate = getGoto<ASTNS::Primary>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::PLUS:
-                        {
-                            REDUCET(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Primary>(std::move(a0));
-                            size_t newstate = getGoto<ASTNS::Primary>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::SLASH:
-                        {
-                            REDUCET(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Primary>(std::move(a0));
-                            size_t newstate = getGoto<ASTNS::Primary>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::STAR:
                         {
                             REDUCET(0)
@@ -641,50 +547,10 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::CPARN:
-                        {
-                            REDUCEA(1)
-                            REDUCET(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Unary>(std::move(a0), std::move(a1));
-                            size_t newstate = getGoto<ASTNS::Unary>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::EOF_:
-                        {
-                            REDUCEA(1)
-                            REDUCET(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Unary>(std::move(a0), std::move(a1));
-                            size_t newstate = getGoto<ASTNS::Unary>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::MINUS:
-                        {
-                            REDUCEA(1)
-                            REDUCET(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Unary>(std::move(a0), std::move(a1));
-                            size_t newstate = getGoto<ASTNS::Unary>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::PLUS:
-                        {
-                            REDUCEA(1)
-                            REDUCET(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Unary>(std::move(a0), std::move(a1));
-                            size_t newstate = getGoto<ASTNS::Unary>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::SLASH:
-                        {
-                            REDUCEA(1)
-                            REDUCET(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Unary>(std::move(a0), std::move(a1));
-                            size_t newstate = getGoto<ASTNS::Unary>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::STAR:
                         {
                             REDUCEA(1)
@@ -704,50 +570,10 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::CPARN:
-                        {
-                            REDUCEA(1)
-                            REDUCET(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Unary>(std::move(a0), std::move(a1));
-                            size_t newstate = getGoto<ASTNS::Unary>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::EOF_:
-                        {
-                            REDUCEA(1)
-                            REDUCET(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Unary>(std::move(a0), std::move(a1));
-                            size_t newstate = getGoto<ASTNS::Unary>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::MINUS:
-                        {
-                            REDUCEA(1)
-                            REDUCET(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Unary>(std::move(a0), std::move(a1));
-                            size_t newstate = getGoto<ASTNS::Unary>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::PLUS:
-                        {
-                            REDUCEA(1)
-                            REDUCET(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Unary>(std::move(a0), std::move(a1));
-                            size_t newstate = getGoto<ASTNS::Unary>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::SLASH:
-                        {
-                            REDUCEA(1)
-                            REDUCET(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Unary>(std::move(a0), std::move(a1));
-                            size_t newstate = getGoto<ASTNS::Unary>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::STAR:
                         {
                             REDUCEA(1)
@@ -781,35 +607,8 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::CPARN:
-                        {
-                            REDUCEA(2)
-                            REDUCET(1)
-                            REDUCEA(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Add>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Add>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::EOF_:
-                        {
-                            REDUCEA(2)
-                            REDUCET(1)
-                            REDUCEA(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Add>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Add>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::MINUS:
-                        {
-                            REDUCEA(2)
-                            REDUCET(1)
-                            REDUCEA(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Add>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Add>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::PLUS:
                         {
                             REDUCEA(2)
@@ -840,35 +639,8 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::CPARN:
-                        {
-                            REDUCEA(2)
-                            REDUCET(1)
-                            REDUCEA(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Add>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Add>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::EOF_:
-                        {
-                            REDUCEA(2)
-                            REDUCET(1)
-                            REDUCEA(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Add>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Add>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::MINUS:
-                        {
-                            REDUCEA(2)
-                            REDUCET(1)
-                            REDUCEA(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Add>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Add>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::PLUS:
                         {
                             REDUCEA(2)
@@ -899,55 +671,10 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::CPARN:
-                        {
-                            REDUCEA(2)
-                            REDUCET(1)
-                            REDUCEA(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Mult>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Mult>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::EOF_:
-                        {
-                            REDUCEA(2)
-                            REDUCET(1)
-                            REDUCEA(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Mult>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Mult>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::MINUS:
-                        {
-                            REDUCEA(2)
-                            REDUCET(1)
-                            REDUCEA(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Mult>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Mult>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::PLUS:
-                        {
-                            REDUCEA(2)
-                            REDUCET(1)
-                            REDUCEA(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Mult>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Mult>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::SLASH:
-                        {
-                            REDUCEA(2)
-                            REDUCET(1)
-                            REDUCEA(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Mult>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Mult>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::STAR:
                         {
                             REDUCEA(2)
@@ -968,55 +695,10 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::CPARN:
-                        {
-                            REDUCEA(2)
-                            REDUCET(1)
-                            REDUCEA(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Mult>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Mult>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::EOF_:
-                        {
-                            REDUCEA(2)
-                            REDUCET(1)
-                            REDUCEA(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Mult>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Mult>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::MINUS:
-                        {
-                            REDUCEA(2)
-                            REDUCET(1)
-                            REDUCEA(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Mult>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Mult>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::PLUS:
-                        {
-                            REDUCEA(2)
-                            REDUCET(1)
-                            REDUCEA(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Mult>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Mult>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::SLASH:
-                        {
-                            REDUCEA(2)
-                            REDUCET(1)
-                            REDUCEA(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Mult>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Mult>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::STAR:
                         {
                             REDUCEA(2)
@@ -1037,55 +719,10 @@ std::unique_ptr<ASTNS::NewBaseAST> Parser::parse()
                switch (lookahead.type)
                {
                     case TokenType::CPARN:
-                        {
-                            REDUCET(2)
-                            REDUCEA(1)
-                            REDUCET(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Primary>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Primary>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::EOF_:
-                        {
-                            REDUCET(2)
-                            REDUCEA(1)
-                            REDUCET(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Primary>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Primary>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::MINUS:
-                        {
-                            REDUCET(2)
-                            REDUCEA(1)
-                            REDUCET(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Primary>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Primary>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::PLUS:
-                        {
-                            REDUCET(2)
-                            REDUCEA(1)
-                            REDUCET(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Primary>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Primary>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::SLASH:
-                        {
-                            REDUCET(2)
-                            REDUCEA(1)
-                            REDUCET(0)
-                            std::unique_ptr<ASTNS::NewBaseAST> push = std::make_unique<ASTNS::Primary>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Primary>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
-                        break;
                     case TokenType::STAR:
                         {
                             REDUCET(2)
