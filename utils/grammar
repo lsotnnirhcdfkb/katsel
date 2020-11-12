@@ -25,6 +25,7 @@ varstmtitem              -> IDENTIFIER:name EQUAL:equal $expression:expr        
 varstmtitem              -> IDENTIFIER:name                                                                                  ; "variable statement assignment"
 
 block                    -> OCURB:ocurb $stmts:stmts CCURB:ccurb                                                             ; "code block"
+block                    -> OCURB:ocurb CCURB:ccurb                                                                          ; "code block"
 
 type                     -> UINT8:type                                                                                       ; "type specifier"
 type                     -> UINT16:type                                                                                      ; "type specifier"

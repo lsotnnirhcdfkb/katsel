@@ -472,6 +472,20 @@ void DotVisitor::visitBlock(ASTNS::Block *a)
                     connect(thisid, "ccurb", tokennodeid);
             }
             break;
+        case ASTNS::Block::Form::OCURB_CCURB:
+            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">Block (OCURB_CCURB)</td></tr><tr>";
+            std::cout << "<td port=\"ocurb\">ocurb</td>";
+            std::cout << "<td port=\"ccurb\">ccurb</td>";
+            std::cout << "</tr></table>>]\n";
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->ocurb.stringify());
+                    connect(thisid, "ocurb", tokennodeid);
+            }
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->ccurb.stringify());
+                    connect(thisid, "ccurb", tokennodeid);
+            }
+            break;
     }
     lastid = std::move(thisid);
 }

@@ -426,6 +426,16 @@ void PrintVisitor::visitBlock(ASTNS::Block *a)
             pai(std::string(a->ccurb.start, a->ccurb.end));
             pai("]\n");
             break;
+        case ASTNS::Block::Form::OCURB_CCURB:
+            pai("ocurb =");
+            pai(" [");
+            pai(std::string(a->ocurb.start, a->ocurb.end));
+            pai("]\n");
+            pai("ccurb =");
+            pai(" [");
+            pai(std::string(a->ccurb.start, a->ccurb.end));
+            pai("]\n");
+            break;
     }
     --indent;
 }

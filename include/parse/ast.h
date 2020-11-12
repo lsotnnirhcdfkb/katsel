@@ -194,9 +194,11 @@ namespace ASTNS
     {
     public:
         Block(Token ocurb, std::unique_ptr<AST> stmts, Token ccurb);
+        Block(Token ocurb, Token ccurb);
         enum class Form
         {
             OCURB_STMTS_CCURB,
+            OCURB_CCURB,
         };
         Token ocurb;
         std::unique_ptr<AST> stmts;

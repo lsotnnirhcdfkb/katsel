@@ -24,6 +24,7 @@ void ASTNS::Bitshiftexpr::accept(ASTVisitor *v) { v->visitBitshiftexpr(this); }
 ASTNS::Bitxorexpr::Bitxorexpr(std::unique_ptr<AST> lhs, Token op, std::unique_ptr<AST> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::Bitxorexpr::Form::LHS_OP_RHS) {}
 void ASTNS::Bitxorexpr::accept(ASTVisitor *v) { v->visitBitxorexpr(this); }
 ASTNS::Block::Block(Token ocurb, std::unique_ptr<AST> stmts, Token ccurb): ocurb(ocurb), stmts(std::move(stmts)), ccurb(ccurb), form(ASTNS::Block::Form::OCURB_STMTS_CCURB) {}
+ASTNS::Block::Block(Token ocurb, Token ccurb): ocurb(ocurb), ccurb(ccurb), form(ASTNS::Block::Form::OCURB_CCURB) {}
 void ASTNS::Block::accept(ASTVisitor *v) { v->visitBlock(this); }
 ASTNS::Callexpr::Callexpr(std::unique_ptr<AST> callee, Token oparn, std::unique_ptr<AST> args, Token cparn): callee(std::move(callee)), oparn(oparn), args(std::move(args)), cparn(cparn), form(ASTNS::Callexpr::Form::CALLEE_OPARN_ARGS_CPARN) {}
 ASTNS::Callexpr::Callexpr(std::unique_ptr<AST> callee, Token oparn, Token cparn): callee(std::move(callee)), oparn(oparn), cparn(cparn), form(ASTNS::Callexpr::Form::CALLEE_OPARN_CPARN) {}

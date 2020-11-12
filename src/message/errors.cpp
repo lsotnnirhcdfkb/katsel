@@ -258,6 +258,11 @@ void LocationVisitor::visitBlock(ASTNS::Block *ast)
             retf = ast->ocurb.sourcefile;
             retr = ast->ccurb.end;
             break;
+        case ASTNS::Block::Form::OCURB_CCURB:
+            retl = ast->ocurb.start;
+            retf = ast->ocurb.sourcefile;
+            retr = ast->ccurb.end;
+            break;
     }
 }
 void LocationVisitor::visitCallexpr(ASTNS::Callexpr *ast)
