@@ -106,4 +106,5 @@ std::string concatMsg(T ... items)
 {
     std::stringstream ss;
     _concatMsg(ss, items...);
+    return ss.str();
 }
