@@ -21,9 +21,9 @@ void GlobalsAssembler::visitFunction(ASTNS::Function *a)
     if (declbefore.val)
     {
         Error(Error::MsgType::ERROR, a->name, "Duplicate function")
-            .primary(Error::Primary(a->name)
+            .underline(Error::Underline(a->name, '^')
                 .error("Duplciate function"))
-            .primary(Error::Primary(declbefore)
+            .underline(Error::Underline(declbefore, '-')
                 .note("Previous declaration is here"))
             .report();
         return;

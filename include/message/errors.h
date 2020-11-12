@@ -31,7 +31,7 @@ public:
         std::string::iterator start, end;
     };
 
-    class Primary
+    class Underline
     {
     public:
         struct Message
@@ -42,18 +42,19 @@ public:
         };
         Location location;
         std::vector<Message> messages;
+        char ch;
 
-        Primary& error(std::string const &message);
-        Primary& warning(std::string const &message);
-        Primary& note(std::string const &message);
-        Primary& help(std::string const &message);
-        Primary& hint(std::string const &message);
-        Primary& message(std::string const &type, std::string const &message);
+        Underline& error(std::string const &message);
+        Underline& warning(std::string const &message);
+        Underline& note(std::string const &message);
+        Underline& help(std::string const &message);
+        Underline& hint(std::string const &message);
+        Underline& message(std::string const &type, std::string const &message);
 
-        Primary(Location const &location);
+        Underline(Location const &location, char ch);
 
     private:
-        Primary& addmsg(std::string const &type, char const * const color, std::string const &mesage);
+        Underline& addmsg(std::string const &type, char const * const color, std::string const &mesage);
     };
 
     enum class MsgType
@@ -65,22 +66,18 @@ public:
 
     Error(MsgType type, Location const &location, std::string message);
 
-    Error& primary(Primary const &primary);
-    Error& secondary(Location const &location);
+    Error& underline(Underline const &underline);
     Error& span(Location const &start, Location const &end);
 
     void report() const;
     void reportAbort [[ noreturn ]] ();
-
-    static Error makeBasicErr(Location const &l, std::string message);
 
 private:
     MsgType type;
     Location location;
     std::string message;
 
-    std::vector<Primary> primaries;
-    std::vector<Location> secondaries;
+    std::vector<Underline> underlines;
     std::vector<Span> spans;
 };
 

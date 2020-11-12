@@ -3988,7 +3988,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                 break;
             default:
                 Error(Error::MsgType::INTERR, lookahead, "Parser reached invalid state")
-                    .primary(Error::Primary(lookahead)
+                    .underline(Error::Underline(lookahead, '!')
                         .error(concatMsg("Parser reached invalid state: ", stack.top()->state)))
                     .reportAbort();
         }
@@ -4030,7 +4030,7 @@ Token Parser::consume()
         if (cur.type != TokenType::ERROR) return cur;
 
         Error(Error::MsgType::ERROR, cur, cur.message)
-            .primary(Error::Primary(cur)
+            .underline(Error::Underline(cur, '^')
                 .error(cur.message)
                 .note("erroneous tokens are ignored"))
             .report();
@@ -4047,13 +4047,13 @@ void Parser::invalidSyntax(const char *justparsed, const char *expected, const c
     ssl << "expected " << expected << " after " << justparsed << " of " << whileparsing << ", but got " << stringifyTokenType(lookahead.type) << " instead";
     sss << "expected " << expected;
     Error e = Error(Error::MsgType::ERROR, lookahead, ssl.str())
-        .primary(Error::Primary(last)
+        .underline(Error::Underline(last, '^')
             .error(sss.str()))
-        .primary(Error::Primary(lookahead)
+        .underline(Error::Underline(lookahead, '^')
             .note("unexpected token here"));
 
     for (Token const &t : errored)
-        e.primary(Error::Primary(t)
+        e.underline(Error::Underline(t, '-')
             .note(concatMsg("erroneous token ignored here with error message \"", t.message, "\"")));
 
     e.report();
@@ -4065,13 +4065,13 @@ void Parser::invalidSyntax(const char *justparsed, const char *expected, Token c
     ssl << "expected " << expected << " after " << justparsed << ", but got " << stringifyTokenType(lookahead.type) << " instead";
     sss << "expected " << expected;
     Error e = Error(Error::MsgType::ERROR, lookahead, ssl.str())
-        .primary(Error::Primary(last)
+        .underline(Error::Underline(last, '^')
             .error(sss.str()))
-        .primary(Error::Primary(lookahead)
+        .underline(Error::Underline(lookahead, '~')
             .note("unexpected token here"));
 
     for (Token const &t : errored)
-        e.primary(Error::Primary(t)
+        e.underline(Error::Underline(t, '-')
             .note(concatMsg("erroneous token ignored here with error message \"", t.message, "\"")));
     e.report();
 }

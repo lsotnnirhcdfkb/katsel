@@ -48,7 +48,7 @@ Value FunctionType::unaryOp(CodeGenContext &, Value, Token, ASTNS::AST *)
 Value FunctionType::castTo(CodeGenContext &, Value v)
 {
     Error(Error::MsgType::ERROR, v, "Invalid cast")
-        .primary(Error::Primary(v)
+        .underline(Error::Underline(v, '^')
             .error(concatMsg("Invalid cast form type \"", v.type->stringify(), "\" to \"", this->stringify(), "\"")))
         .report();
     return Value();

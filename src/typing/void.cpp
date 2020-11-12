@@ -31,7 +31,7 @@ Value VoidType::unaryOp(CodeGenContext &, Value, Token, ASTNS::AST *)
 Value VoidType::castTo(CodeGenContext &, Value v)
 {
     Error(Error::MsgType::ERROR, v, "Invalid cast")
-        .primary(Error::Primary(v)
+        .underline(Error::Underline(v, '^')
             .error(concatMsg("Invalid cast form type \"", v.type->stringify(), "\" to \"", this->stringify(), "\"")))
         .report();
     return Value();

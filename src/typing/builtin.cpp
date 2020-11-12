@@ -76,11 +76,11 @@ Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS:
     if (l.type != r.type)
     {
         Error(Error::MsgType::ERROR, op, "Cannot operate on values of different types")
-            .primary(Error::Primary(l)
+            .underline(Error::Underline(l, '^')
                 .note(l.type->stringify()))
-            .primary(Error::Primary(r)
+            .underline(Error::Underline(r, '^')
                 .note(r.type->stringify()))
-            .secondary(op)
+            .underline(Error::Underline(op, '-'))
             .report();
         return Value();
     }
@@ -172,7 +172,7 @@ Value BuiltinType::castTo(CodeGenContext &cgc, Value v)
     if (!sty)
     {
         Error(Error::MsgType::ERROR, v, "Invalid cast")
-            .primary(Error::Primary(v)
+            .underline(Error::Underline(v, '^')
                 .error(concatMsg("Invalid cast from type \"", v.type->stringify(), "\" to \"", this->stringify(), "\"")))
             .report();
         return Value();

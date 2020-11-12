@@ -528,14 +528,9 @@ Location::Location(ASTNS::AST *a)
 }
 // Error methods {{{1
 Error::Error(MsgType type, Location const &location, std::string message): type(type), location(location), message(message) {}
-Error& Error::primary(Primary const &primary)
+Error& Error::underline(Underline const &underline)
 {
-    primaries.push_back(primary);
-    return *this;
-}
-Error& Error::secondary(Location const &location)
-{
-    secondaries.push_back(location);
+    underlines.push_back(underline);
     return *this;
 }
 Error& Error::span(Location const &start, Location const &end)
@@ -586,17 +581,11 @@ void Error::report() const
             showlocs.push_back(showloc(&span.file, i));
     }
 
-    for (Error::Primary const &pr : primaries)
+    for (Error::Underline const &u : underlines)
     {
-        std::string::const_iterator begin = pr.location.file->source.begin();
-        for (int i = getLineN(begin, pr.location.start); i <= getLineN(begin, pr.location.end - 1); ++i)
-            showlocs.push_back(showloc(pr.location.file, i));
-    }
-    for (Location const &s : secondaries)
-    {
-        std::string::const_iterator begin = s.file->source.begin();
-        for (int i = getLineN(begin, s.start); i <= getLineN(begin, s.end - 1); ++i)
-            showlocs.push_back(showloc(s.file, i));
+        std::string::const_iterator begin = u.location.file->source.begin();
+        for (int i = getLineN(begin, u.location.start); i <= getLineN(begin, u.location.end - 1); ++i)
+            showlocs.push_back(showloc(u.location.file, i));
     }
 
     std::sort(showlocs.begin(), showlocs.end(), [](showloc const &a, showloc const &b) {
@@ -628,8 +617,6 @@ void Error::report() const
     File const *lastfile = nullptr;
     for (showloc const &sl : showlocs)
     {
-        using lprimaryty = std::pair<Error::Primary const *, int>;
-        std::vector<lprimaryty> lprimaries;
         if (sl.first != lastfile)
             std::cerr << pad << "> " << attr(A_FG_CYAN, sl.first->filename) << std::endl;
 
@@ -645,9 +632,11 @@ void Error::report() const
         std::string::const_iterator lstart, lend;
         getLine(lstart, lend, *sl.first, sl.second);
 
-        using inprimsec = std::pair<bool, bool>;
-        std::vector<inprimsec> chars;
-        chars.reserve(std::distance(lstart, lend));
+        std::vector<Underline const *> lchars;
+        using lunderlinety = std::pair<Underline const *, int>;
+        std::vector<lunderlinety> lunderlines;
+
+        lchars.reserve(std::distance(lstart, lend));
 
         auto itInLoc = [](std::string::const_iterator const &i, Location const &l)
         {
@@ -657,31 +646,29 @@ void Error::report() const
         bool needsecond = false;
         for (std::string::const_iterator i = lstart; i < lend; ++i)
         {
-            bool insec, inprim = insec = false;
-            for (Primary const &prim : primaries)
-                if (itInLoc(i, prim.location))
+            for (Underline const &u : underlines)
+                if (itInLoc(i, u.location))
                 {
-                    inprim = true;
-                    lprimaryty pair (&prim, getColN(prim.location.file->source.begin(), prim.location.end - 1));
-                    if (prim.location.end - 1 == i && std::find(lprimaries.begin(), lprimaries.end(), pair) == lprimaries.end())
-                        lprimaries.push_back(pair);
+                    lunderlinety pair (&u, getColN(u.location.file->source.begin(), u.location.end - 1));
+                    if (u.location.end - 1 == i && u.messages.size()) // can only ever be one location where this underline ends
+                        lunderlines.push_back(pair);
+                    needsecond = true;
                 }
 
-            for (Location const &sec: secondaries)
-                if (itInLoc(i, sec))
+            Underline const *charu = nullptr;
+            for (lunderlinety const &u : lunderlines)
+                if (itInLoc(i, u.first->location))
                 {
-                    insec = true;
+                    charu = u.first;
                     break;
                 }
 
-            needsecond |= inprim || insec;
+            lchars.push_back(charu);
 
-            chars.push_back(std::make_pair(inprim, insec));
-
-            if (inprim)
-                std::cerr << attr(A_FG_RED A_BOLD, std::string(1, *i));
-            else if (insec)
-                std::cerr << attr(A_FG_GREEN, std::string(1, *i));
+            if (charu && charu->messages.size())
+                std::cerr << attr(A_BOLD, attr(charu->messages[0].color, std::string(1, *i)));
+            else if (charu)
+                std::cerr << attr(A_BOLD, std::string(1, *i));
             else
                 std::cerr << *i;
         }
@@ -691,33 +678,33 @@ void Error::report() const
         if (needsecond)
         {
             std::cerr << pad << "| ";
-            for (inprimsec const &i : chars)
+            for (Underline const *&i : lchars)
             {
-                if (i.first) // in a primary
-                    std::cerr << attr(A_FG_RED A_BOLD, "^");
-                else if (i.second) // in a seconary
-                    std::cerr << attr(A_FG_GREEN, "-");
+                if (i && i->messages.size()) // in a underline
+                    std::cerr << attr(A_BOLD, attr(i->messages[0].color, std::string(1, i->ch)));
+                else if (i)
+                    std::cerr << attr(A_BOLD, std::string(1, i->ch));
                 else
                     std::cerr << " ";
             }
             std::cerr << std::endl;
 
-            if (lprimaries.size())
+            if (lunderlines.size())
             {
-                std::sort(lprimaries.begin(), lprimaries.end(), [](lprimaryty const &i1, lprimaryty const &i2)
+                std::sort(lunderlines.begin(), lunderlines.end(), [](lunderlinety const &i1, lunderlinety const &i2)
                     {
                         return i1.second > i2.second; // sort in reverse
                     });
 
-                for (auto i = lprimaries.begin(); i < lprimaries.end(); ++i)
+                for (auto i = lunderlines.begin(); i < lunderlines.end(); ++i)
                 {
                     size_t msgi = 0;
-                    for (Error::Primary::Message const &message : i->first->messages)
+                    for (Error::Underline::Message const &message : i->first->messages)
                     {
                         std::cerr << pad << "| ";
-                        for (auto j = lprimaries.end() - 1; j >= i; --j)
+                        for (auto j = lunderlines.end() - 1; j >= i; --j)
                         {
-                            int last = j + 1 == lprimaries.end() ? 0 : (j + 1)->second;
+                            int last = j + 1 == lunderlines.end() ? 0 : (j + 1)->second;
                             int diff = j->second - last;
                             if (!diff)
                                 continue;
@@ -734,7 +721,7 @@ void Error::report() const
                                     std::cerr << '|';
                         }
 
-                        std::cerr << "-- " << attr(message.color, message.type) << ": " << message.message << std::endl;
+                        std::cerr << attr(message.color, "-- " + message.type) << ": " << message.message << std::endl;
 
                         ++msgi;
                     }
@@ -750,33 +737,33 @@ void Error::reportAbort()
     report();
     std::abort();
 }
-// Primary message methods {{{1
-Error::Primary::Primary(Location const &location): location(location) { }
-Error::Primary& Error::Primary::error(std::string const &message)
+// Underline message methods {{{1
+Error::Underline::Underline(Location const &location, char ch): location(location), ch(ch) {}
+Error::Underline& Error::Underline::error(std::string const &message)
 {
     return addmsg("error", A_FG_RED, message);
 }
-Error::Primary& Error::Primary::warning(std::string const &message)
+Error::Underline& Error::Underline::warning(std::string const &message)
 {
     return addmsg("warning", A_FG_MAGENTA, message);
 }
-Error::Primary& Error::Primary::note(std::string const &message)
+Error::Underline& Error::Underline::note(std::string const &message)
 {
     return addmsg("note", A_FG_GREEN, message);
 }
-Error::Primary& Error::Primary::help(std::string const &message)
+Error::Underline& Error::Underline::help(std::string const &message)
 {
     return addmsg("help", A_FG_CYAN, message);
 }
-Error::Primary& Error::Primary::hint(std::string const &message)
+Error::Underline& Error::Underline::hint(std::string const &message)
 {
     return addmsg("hint", A_FG_YELLOW, message);
 }
-Error::Primary& Error::Primary::message(std::string const &type, std::string const &message)
+Error::Underline& Error::Underline::message(std::string const &type, std::string const &message)
 {
     return addmsg(type, A_FG_WHITE A_BOLD, message);
 }
-Error::Primary& Error::Primary::addmsg(std::string const &type, char const * const color, std::string const &message)
+Error::Underline& Error::Underline::addmsg(std::string const &type, char const * const color, std::string const &message)
 {
     messages.push_back(Message {type, message, color});
     return *this;
@@ -787,10 +774,10 @@ void reportAbortNoh(std::string const &message)
     std::cerr << "!!! - " << attr(A_BOLD A_FG_RED, "Internal error") << " " << message << std::endl;
     std::abort();
 }
-void invalidTok(std::string const &name, Token const &primary)
+void invalidTok(std::string const &name, Token const &underline)
 {
-    Error(Error::MsgType::INTERR, primary, "invalid token for " + name)
-        .primary(Error::Primary(primary)
+    Error(Error::MsgType::INTERR, underline, "invalid token for " + name)
+        .underline(Error::Underline(underline, '!')
             .error("invalid token")
             .note("for " + name))
         .reportAbort();
@@ -798,14 +785,14 @@ void invalidTok(std::string const &name, Token const &primary)
 void calledWithOpTyNEthis(std::string const &classN, std::string const &fnn, std::string const &opname, Value const &op)
 {
     Error(Error::MsgType::INTERR, op, classN + "::" + fnn + " called with " + opname + " type != this")
-        .primary(Error::Primary(op)
+        .underline(Error::Underline(op, '^')
             .error(opname + " type != this"))
         .reportAbort();
 }
 void outOSwitchDDefaultLab(std::string const &fnn, Location const &highlight)
 {
     Error(Error::MsgType::INTERR, highlight, fnn + " went out of switch despite default label")
-        .primary(Error::Primary(highlight)
+        .underline(Error::Underline(highlight, '^')
             .error("out of switch"))
         .reportAbort();
 }
@@ -816,11 +803,4 @@ void fCalled(std::string const &fnn)
 void outOSwitchNoh(std::string const &fnn)
 {
     reportAbortNoh(fnn + " went out of switch");
-}
-// shorthands for errors {{{1
-Error Error::makeBasicErr(Location const &l, std::string message)
-{
-    return Error(Error::MsgType::ERROR, l, message)
-        .primary(Error::Primary(l)
-            .error(message));
 }
