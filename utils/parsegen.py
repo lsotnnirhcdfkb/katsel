@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import os, re, colorama
+import os, re, colorama, itertools
 
 # classes {{{1
 # symbols {{{2
@@ -24,7 +24,7 @@ class NonTerminal:
     def updateFirsts(self):
         self.first = getFirsts(self)
     def updateFollows(self):
-        self.follow = getFollows(self)
+        self.follow, self.ntfollow = getFollows(self)
 
 class Terminal:
     def __init__(self, symbol):
@@ -156,7 +156,7 @@ class State:
                 else:
                     expected.append(str(after))
             else:
-                expected.append(str(item.lookahead))
+                expected.extend(itertools.chain.from_iterable(map(lambda nt: [r.name for r in grammar if r.symbol == nt], item.rule.symbol.ntfollow)))
 
             whileparsing.append(item.rule.name)
 
@@ -218,9 +218,10 @@ def getFirsts(sym):
     return firsts
 def getFollows(sym):
     if sym == augmentSymbol:
-        return [eofSym]
+        return [eofSym], []
 
     follows = []
+    ntfollows = []
     for rule in grammar:
         for i, gsym in enumerate(rule.expansion):
             if gsym != sym:
@@ -230,19 +231,23 @@ def getFollows(sym):
                 if rule.symbol != sym:
                     if len(rule.symbol.follow):
                         follows.extend(makeUnique(follows, rule.symbol.follow))
+                        ntfollows.extend(makeUnique(ntfollows, rule.symbol.ntfollow))
                     else:
-                        follows.extend(makeUnique(follows, getFollows(rule.symbol)))
+                        newfollows, newntfollows = getFollows(rule.symbol)
+                        follows.extend(makeUnique(follows, newfollows))
+                        ntfollows.extend(makeUnique(follows, newntfollows))
             else:
                 if type(rule.expansion[i + 1]) == NonTerminal:
                     if len(rule.expansion[i + 1].first):
                         follows.extend(makeUnique(follows, [x for x in rule.expansion[i + 1].first if x != Terminal('eof')]))
                     else:
                         follows.extend(makeUnique(follows, [x for x in getFirsts(rule.expansion[i + 1]) if x != Terminal('eof')]))
+                    ntfollows.append(rule.expansion[i + 1])
                 else:
                     if rule.expansion[i + 1] not in follows:
                         follows.append(rule.expansion[i + 1])
 
-    return follows
+    return follows, ntfollows
 # closure {{{2
 def getClosurelr0(lr0set):
     kernel = lr0set
