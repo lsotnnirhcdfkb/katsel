@@ -55,7 +55,7 @@ namespace ASTNS
         Additionexpr(std::unique_ptr<AST> lhs, Token op, std::unique_ptr<AST> rhs);
         enum class Form
         {
-            LHS_OP_RHS,
+            ATA,
         };
         std::unique_ptr<AST> lhs;
         Token op;
@@ -70,8 +70,8 @@ namespace ASTNS
         Args(std::unique_ptr<AST> expr);
         enum class Form
         {
-            ARGS_COMMA_EXPR,
-            EXPR,
+            ATA,
+            A,
         };
         std::unique_ptr<AST> args;
         Token comma;
@@ -85,7 +85,7 @@ namespace ASTNS
         Assignmentexpr(std::unique_ptr<AST> target, Token equal, std::unique_ptr<AST> value);
         enum class Form
         {
-            TARGET_EQUAL_VALUE,
+            ATA,
         };
         std::unique_ptr<AST> target;
         Token equal;
@@ -99,7 +99,7 @@ namespace ASTNS
         Binandexpr(std::unique_ptr<AST> lhs, Token op, std::unique_ptr<AST> rhs);
         enum class Form
         {
-            LHS_OP_RHS,
+            ATA,
         };
         std::unique_ptr<AST> lhs;
         Token op;
@@ -113,7 +113,7 @@ namespace ASTNS
         Binnotexpr(Token op, std::unique_ptr<AST> operand);
         enum class Form
         {
-            OP_OPERAND,
+            TA,
         };
         Token op;
         std::unique_ptr<AST> operand;
@@ -126,7 +126,7 @@ namespace ASTNS
         Binorexpr(std::unique_ptr<AST> lhs, Token op, std::unique_ptr<AST> rhs);
         enum class Form
         {
-            LHS_OP_RHS,
+            ATA,
         };
         std::unique_ptr<AST> lhs;
         Token op;
@@ -140,7 +140,7 @@ namespace ASTNS
         Bitandexpr(std::unique_ptr<AST> lhs, Token op, std::unique_ptr<AST> rhs);
         enum class Form
         {
-            LHS_OP_RHS,
+            ATA,
         };
         std::unique_ptr<AST> lhs;
         Token op;
@@ -154,7 +154,7 @@ namespace ASTNS
         Bitorexpr(std::unique_ptr<AST> lhs, Token op, std::unique_ptr<AST> rhs);
         enum class Form
         {
-            LHS_OP_RHS,
+            ATA,
         };
         std::unique_ptr<AST> lhs;
         Token op;
@@ -168,7 +168,7 @@ namespace ASTNS
         Bitshiftexpr(std::unique_ptr<AST> lhs, Token op, std::unique_ptr<AST> rhs);
         enum class Form
         {
-            LHS_OP_RHS,
+            ATA,
         };
         std::unique_ptr<AST> lhs;
         Token op;
@@ -182,7 +182,7 @@ namespace ASTNS
         Bitxorexpr(std::unique_ptr<AST> lhs, Token op, std::unique_ptr<AST> rhs);
         enum class Form
         {
-            LHS_OP_RHS,
+            ATA,
         };
         std::unique_ptr<AST> lhs;
         Token op;
@@ -197,8 +197,8 @@ namespace ASTNS
         Block(Token ocurb, Token ccurb);
         enum class Form
         {
-            OCURB_STMTS_CCURB,
-            OCURB_CCURB,
+            TAT,
+            TT,
         };
         Token ocurb;
         std::unique_ptr<AST> stmts;
@@ -213,8 +213,8 @@ namespace ASTNS
         Callexpr(std::unique_ptr<AST> callee, Token oparn, Token cparn);
         enum class Form
         {
-            CALLEE_OPARN_ARGS_CPARN,
-            CALLEE_OPARN_CPARN,
+            ATAT,
+            ATT,
         };
         std::unique_ptr<AST> callee;
         Token oparn;
@@ -229,7 +229,7 @@ namespace ASTNS
         Compeqexpr(std::unique_ptr<AST> lhs, Token op, std::unique_ptr<AST> rhs);
         enum class Form
         {
-            LHS_OP_RHS,
+            ATA,
         };
         std::unique_ptr<AST> lhs;
         Token op;
@@ -243,7 +243,7 @@ namespace ASTNS
         Complgtexpr(std::unique_ptr<AST> lhs, Token op, std::unique_ptr<AST> rhs);
         enum class Form
         {
-            LHS_OP_RHS,
+            ATA,
         };
         std::unique_ptr<AST> lhs;
         Token op;
@@ -267,8 +267,8 @@ namespace ASTNS
         Decls(std::unique_ptr<AST> decl);
         enum class Form
         {
-            DECLS_DECL,
-            DECL,
+            AA,
+            A,
         };
         std::unique_ptr<AST> decls;
         std::unique_ptr<AST> decl;
@@ -281,7 +281,7 @@ namespace ASTNS
         Emptystmt(Token semi);
         enum class Form
         {
-            SEMI,
+            T,
         };
         Token semi;
         Form form;
@@ -302,7 +302,7 @@ namespace ASTNS
         Exprstmt(std::unique_ptr<AST> expr, Token semi);
         enum class Form
         {
-            EXPR_SEMI,
+            AT,
         };
         std::unique_ptr<AST> expr;
         Token semi;
@@ -316,8 +316,8 @@ namespace ASTNS
         Function(Token fun, std::unique_ptr<AST> retty, Token name, Token oparn, std::unique_ptr<AST> paramlist, Token cparn, std::unique_ptr<AST> body);
         enum class Form
         {
-            FUN_RETTY_NAME_OPARN_CPARN_BODY,
-            FUN_RETTY_NAME_OPARN_PARAMLIST_CPARN_BODY,
+            TATTTA,
+            TATTATA,
         };
         Token fun;
         std::unique_ptr<AST> retty;
@@ -335,7 +335,7 @@ namespace ASTNS
         Multexpr(std::unique_ptr<AST> lhs, Token op, std::unique_ptr<AST> rhs);
         enum class Form
         {
-            LHS_OP_RHS,
+            ATA,
         };
         std::unique_ptr<AST> lhs;
         Token op;
@@ -350,8 +350,8 @@ namespace ASTNS
         Paramlist(std::unique_ptr<AST> type, Token name);
         enum class Form
         {
-            PLIST_COMMA_TYPE_NAME,
-            TYPE_NAME,
+            ATAT,
+            AT,
         };
         std::unique_ptr<AST> plist;
         Token comma;
@@ -367,8 +367,8 @@ namespace ASTNS
         Primaryexpr(Token oparn, std::unique_ptr<AST> expr, Token cparn);
         enum class Form
         {
-            VALUE,
-            OPARN_EXPR_CPARN,
+            T,
+            TAT,
         };
         Token value;
         Token oparn;
@@ -383,7 +383,7 @@ namespace ASTNS
         Retstmt(Token ret, std::unique_ptr<AST> expr, Token semi);
         enum class Form
         {
-            RET_EXPR_SEMI,
+            TAT,
         };
         Token ret;
         std::unique_ptr<AST> expr;
@@ -406,7 +406,7 @@ namespace ASTNS
         Stmts(std::unique_ptr<AST> stmts, std::unique_ptr<AST> stmt);
         enum class Form
         {
-            STMTS_STMT,
+            AA,
         };
         std::unique_ptr<AST> stmts;
         std::unique_ptr<AST> stmt;
@@ -419,7 +419,7 @@ namespace ASTNS
         Ternaryexpr(std::unique_ptr<AST> cond, Token quest, std::unique_ptr<AST> trues, Token colon, std::unique_ptr<AST> falses);
         enum class Form
         {
-            COND_QUEST_TRUES_COLON_FALSES,
+            ATATA,
         };
         std::unique_ptr<AST> cond;
         Token quest;
@@ -435,7 +435,7 @@ namespace ASTNS
         Type(Token type);
         enum class Form
         {
-            TYPE,
+            T,
         };
         Token type;
         Form form;
@@ -447,7 +447,7 @@ namespace ASTNS
         Unaryexpr(Token op, std::unique_ptr<AST> operand);
         enum class Form
         {
-            OP_OPERAND,
+            TA,
         };
         Token op;
         std::unique_ptr<AST> operand;
@@ -460,7 +460,7 @@ namespace ASTNS
         Varstmt(Token var, std::unique_ptr<AST> type, std::unique_ptr<AST> assignments, Token semi);
         enum class Form
         {
-            VAR_TYPE_ASSIGNMENTS_SEMI,
+            TAAT,
         };
         Token var;
         std::unique_ptr<AST> type;
@@ -476,8 +476,8 @@ namespace ASTNS
         Varstmtitem(Token name);
         enum class Form
         {
-            NAME_EQUAL_EXPR,
-            NAME,
+            TTA,
+            T,
         };
         Token name;
         Token equal;
@@ -492,8 +492,8 @@ namespace ASTNS
         Varstmtitems(std::unique_ptr<AST> item);
         enum class Form
         {
-            ITEMS_COMMA_ITEM,
-            ITEM,
+            ATA,
+            A,
         };
         std::unique_ptr<AST> items;
         Token comma;

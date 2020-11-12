@@ -32,7 +32,7 @@ void GlobalsAssembler::visitFunction(ASTNS::Function *a)
     Type *ret = codeGen.evalType(a->retty.get());
 
     std::vector<CodeGen::Param> params;
-    if (a->form == ASTNS::Function::Form::FUN_RETTY_NAME_OPARN_PARAMLIST_CPARN_BODY)
+    if (a->form == ASTNS::Function::Form::TATTATA)
         params = codeGen.evalParams(a->paramlist.get());
 
     std::vector<llvm::Type*> paramtysasllvm;

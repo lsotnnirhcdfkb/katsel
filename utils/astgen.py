@@ -58,7 +58,7 @@ for astname in sorted(_astnames):
 # Generating methods {{{1
 # helpers {{{2
 def stringifyForm(form):
-    return '_'.join(map(lambda f: f.name.upper(), form))
+    return ''.join(map(lambda f: 'A' if f.type_.startswith('std::unique_ptr<') else 'T', form))
 
 # Generating AST stuff {{{2
 # Generate AST declarations {{{3
