@@ -760,7 +760,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             done = true;
                         break;
                     SHIFTON(TokenType::FUN, 4)
-                    DEFAULTINVALID2("declaration list", "either TokenType::EOF_ or declaration")
+                    DEFAULTINVALID2("declaration list", "either EOF_ or declaration")
                 }
                 break;
             case 2:
@@ -770,7 +770,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::FUN:
                         REDUCESKIP(Decls);
                         break;
-                    DEFAULTINVALID3("declaration", "either TokenType::EOF_ or TokenType::FUN", "declaration list")
+                    DEFAULTINVALID3("declaration", "either EOF_ or FUN", "declaration list")
                 }
                 break;
             case 3:
@@ -780,7 +780,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::FUN:
                         REDUCESKIP(Decl);
                         break;
-                    DEFAULTINVALID3("function declaration", "either TokenType::EOF_ or TokenType::FUN", "declaration")
+                    DEFAULTINVALID3("function declaration", "either EOF_ or FUN", "declaration")
                 }
                 break;
             case 4:
@@ -799,7 +799,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::UINT64, 10)
                     SHIFTON(TokenType::UINT8, 7)
                     SHIFTON(TokenType::VOID, 18)
-                    DEFAULTINVALID3("TokenType::FUN", "type specifier", "function declaration")
+                    DEFAULTINVALID3("FUN", "type specifier", "function declaration")
                 }
                 break;
             case 5:
@@ -815,14 +815,14 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("declaration", "either TokenType::EOF_ or TokenType::FUN", "declaration list")
+                    DEFAULTINVALID3("declaration", "either EOF_ or FUN", "declaration list")
                 }
                 break;
             case 6:
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::IDENTIFIER, 20)
-                    DEFAULTINVALID3("type specifier", "TokenType::IDENTIFIER", "function declaration")
+                    DEFAULTINVALID3("type specifier", "IDENTIFIER", "function declaration")
                 }
                 break;
             case 7:
@@ -836,7 +836,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::UINT8", "TokenType::IDENTIFIER", "type specifier")
+                    DEFAULTINVALID3("UINT8", "IDENTIFIER", "type specifier")
                 }
                 break;
             case 8:
@@ -850,7 +850,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::UINT16", "TokenType::IDENTIFIER", "type specifier")
+                    DEFAULTINVALID3("UINT16", "IDENTIFIER", "type specifier")
                 }
                 break;
             case 9:
@@ -864,7 +864,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::UINT32", "TokenType::IDENTIFIER", "type specifier")
+                    DEFAULTINVALID3("UINT32", "IDENTIFIER", "type specifier")
                 }
                 break;
             case 10:
@@ -878,7 +878,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::UINT64", "TokenType::IDENTIFIER", "type specifier")
+                    DEFAULTINVALID3("UINT64", "IDENTIFIER", "type specifier")
                 }
                 break;
             case 11:
@@ -892,7 +892,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::SINT8", "TokenType::IDENTIFIER", "type specifier")
+                    DEFAULTINVALID3("SINT8", "IDENTIFIER", "type specifier")
                 }
                 break;
             case 12:
@@ -906,7 +906,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::SINT16", "TokenType::IDENTIFIER", "type specifier")
+                    DEFAULTINVALID3("SINT16", "IDENTIFIER", "type specifier")
                 }
                 break;
             case 13:
@@ -920,7 +920,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::SINT32", "TokenType::IDENTIFIER", "type specifier")
+                    DEFAULTINVALID3("SINT32", "IDENTIFIER", "type specifier")
                 }
                 break;
             case 14:
@@ -934,7 +934,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::SINT64", "TokenType::IDENTIFIER", "type specifier")
+                    DEFAULTINVALID3("SINT64", "IDENTIFIER", "type specifier")
                 }
                 break;
             case 15:
@@ -948,7 +948,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::FLOAT", "TokenType::IDENTIFIER", "type specifier")
+                    DEFAULTINVALID3("FLOAT", "IDENTIFIER", "type specifier")
                 }
                 break;
             case 16:
@@ -962,7 +962,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::BOOL", "TokenType::IDENTIFIER", "type specifier")
+                    DEFAULTINVALID3("BOOL", "IDENTIFIER", "type specifier")
                 }
                 break;
             case 17:
@@ -976,7 +976,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::DOUBLE", "TokenType::IDENTIFIER", "type specifier")
+                    DEFAULTINVALID3("DOUBLE", "IDENTIFIER", "type specifier")
                 }
                 break;
             case 18:
@@ -990,7 +990,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::VOID", "TokenType::IDENTIFIER", "type specifier")
+                    DEFAULTINVALID3("VOID", "IDENTIFIER", "type specifier")
                 }
                 break;
             case 19:
@@ -1004,14 +1004,14 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::CHAR", "TokenType::IDENTIFIER", "type specifier")
+                    DEFAULTINVALID3("CHAR", "IDENTIFIER", "type specifier")
                 }
                 break;
             case 20:
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::OPARN, 21)
-                    DEFAULTINVALID3("TokenType::IDENTIFIER", "TokenType::OPARN", "function declaration")
+                    DEFAULTINVALID3("IDENTIFIER", "OPARN", "function declaration")
                 }
                 break;
             case 21:
@@ -1031,14 +1031,14 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::UINT64, 10)
                     SHIFTON(TokenType::UINT8, 7)
                     SHIFTON(TokenType::VOID, 18)
-                    DEFAULTINVALID3("TokenType::OPARN", "either TokenType::CPARN or parameter list", "function declaration")
+                    DEFAULTINVALID3("OPARN", "either CPARN or parameter list", "function declaration")
                 }
                 break;
             case 22:
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::OCURB, 26)
-                    DEFAULTINVALID3("TokenType::CPARN", "code block", "function declaration")
+                    DEFAULTINVALID3("CPARN", "code block", "function declaration")
                 }
                 break;
             case 23:
@@ -1046,14 +1046,14 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                {
                     SHIFTON(TokenType::COMMA, 28)
                     SHIFTON(TokenType::CPARN, 27)
-                    DEFAULTINVALID2("parameter list", "either TokenType::COMMA or TokenType::CPARN")
+                    DEFAULTINVALID2("parameter list", "either COMMA or CPARN")
                 }
                 break;
             case 24:
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::IDENTIFIER, 29)
-                    DEFAULTINVALID3("type specifier", "TokenType::IDENTIFIER", "parameter list")
+                    DEFAULTINVALID3("type specifier", "IDENTIFIER", "parameter list")
                 }
                 break;
             case 25:
@@ -1073,7 +1073,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("code block", "either TokenType::EOF_ or TokenType::FUN", "function declaration")
+                    DEFAULTINVALID3("code block", "either EOF_ or FUN", "function declaration")
                 }
                 break;
             case 26:
@@ -1097,14 +1097,14 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
                     SHIFTON(TokenType::VAR, 36)
-                    DEFAULTINVALID3("TokenType::OCURB", "statements", "code block")
+                    DEFAULTINVALID3("OCURB", "statements", "code block")
                 }
                 break;
             case 27:
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::OCURB, 26)
-                    DEFAULTINVALID3("TokenType::CPARN", "code block", "function declaration")
+                    DEFAULTINVALID3("CPARN", "code block", "function declaration")
                 }
                 break;
             case 28:
@@ -1123,7 +1123,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::UINT64, 10)
                     SHIFTON(TokenType::UINT8, 7)
                     SHIFTON(TokenType::VOID, 18)
-                    DEFAULTINVALID3("TokenType::COMMA", "type specifier", "parameter list")
+                    DEFAULTINVALID3("COMMA", "type specifier", "parameter list")
                 }
                 break;
             case 29:
@@ -1139,7 +1139,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::IDENTIFIER", "either TokenType::COMMA or TokenType::CPARN", "parameter list")
+                    DEFAULTINVALID3("IDENTIFIER", "either COMMA or CPARN", "parameter list")
                 }
                 break;
             case 30:
@@ -1164,7 +1164,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
                     SHIFTON(TokenType::VAR, 36)
-                    DEFAULTINVALID2("statements", "either TokenType::CCURB or statement")
+                    DEFAULTINVALID2("statements", "either CCURB or statement")
                 }
                 break;
             case 31:
@@ -1191,7 +1191,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::VAR:
                         REDUCESKIP(Stmts);
                         break;
-                    DEFAULTINVALID3("statement", "TokenType::BANG, TokenType::BININTLIT, TokenType::CCURB, TokenType::CHARLIT, TokenType::DECINTLIT, TokenType::FALSELIT, TokenType::FLOATLIT, TokenType::HEXINTLIT, TokenType::IDENTIFIER, TokenType::MINUS, TokenType::NULLPTRLIT, TokenType::OCTINTLIT, TokenType::OCURB, TokenType::OPARN, TokenType::RETURN, TokenType::STRINGLIT, TokenType::TILDE, TokenType::TRUELIT, or TokenType::VAR", "statements")
+                    DEFAULTINVALID3("statement", "BANG, BININTLIT, CCURB, CHARLIT, DECINTLIT, FALSELIT, FLOATLIT, HEXINTLIT, IDENTIFIER, MINUS, NULLPTRLIT, OCTINTLIT, OCURB, OPARN, RETURN, STRINGLIT, TILDE, TRUELIT, or VAR", "statements")
                 }
                 break;
             case 32:
@@ -1218,7 +1218,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::VAR:
                         REDUCESKIP(Stmt);
                         break;
-                    DEFAULTINVALID3("variable statement", "TokenType::BANG, TokenType::BININTLIT, TokenType::CCURB, TokenType::CHARLIT, TokenType::DECINTLIT, TokenType::FALSELIT, TokenType::FLOATLIT, TokenType::HEXINTLIT, TokenType::IDENTIFIER, TokenType::MINUS, TokenType::NULLPTRLIT, TokenType::OCTINTLIT, TokenType::OCURB, TokenType::OPARN, TokenType::RETURN, TokenType::STRINGLIT, TokenType::TILDE, TokenType::TRUELIT, or TokenType::VAR", "statement")
+                    DEFAULTINVALID3("variable statement", "BANG, BININTLIT, CCURB, CHARLIT, DECINTLIT, FALSELIT, FLOATLIT, HEXINTLIT, IDENTIFIER, MINUS, NULLPTRLIT, OCTINTLIT, OCURB, OPARN, RETURN, STRINGLIT, TILDE, TRUELIT, or VAR", "statement")
                 }
                 break;
             case 33:
@@ -1245,7 +1245,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::VAR:
                         REDUCESKIP(Stmt);
                         break;
-                    DEFAULTINVALID3("expression statement", "TokenType::BANG, TokenType::BININTLIT, TokenType::CCURB, TokenType::CHARLIT, TokenType::DECINTLIT, TokenType::FALSELIT, TokenType::FLOATLIT, TokenType::HEXINTLIT, TokenType::IDENTIFIER, TokenType::MINUS, TokenType::NULLPTRLIT, TokenType::OCTINTLIT, TokenType::OCURB, TokenType::OPARN, TokenType::RETURN, TokenType::STRINGLIT, TokenType::TILDE, TokenType::TRUELIT, or TokenType::VAR", "statement")
+                    DEFAULTINVALID3("expression statement", "BANG, BININTLIT, CCURB, CHARLIT, DECINTLIT, FALSELIT, FLOATLIT, HEXINTLIT, IDENTIFIER, MINUS, NULLPTRLIT, OCTINTLIT, OCURB, OPARN, RETURN, STRINGLIT, TILDE, TRUELIT, or VAR", "statement")
                 }
                 break;
             case 34:
@@ -1272,7 +1272,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::VAR:
                         REDUCESKIP(Stmt);
                         break;
-                    DEFAULTINVALID3("return statement", "TokenType::BANG, TokenType::BININTLIT, TokenType::CCURB, TokenType::CHARLIT, TokenType::DECINTLIT, TokenType::FALSELIT, TokenType::FLOATLIT, TokenType::HEXINTLIT, TokenType::IDENTIFIER, TokenType::MINUS, TokenType::NULLPTRLIT, TokenType::OCTINTLIT, TokenType::OCURB, TokenType::OPARN, TokenType::RETURN, TokenType::STRINGLIT, TokenType::TILDE, TokenType::TRUELIT, or TokenType::VAR", "statement")
+                    DEFAULTINVALID3("return statement", "BANG, BININTLIT, CCURB, CHARLIT, DECINTLIT, FALSELIT, FLOATLIT, HEXINTLIT, IDENTIFIER, MINUS, NULLPTRLIT, OCTINTLIT, OCURB, OPARN, RETURN, STRINGLIT, TILDE, TRUELIT, or VAR", "statement")
                 }
                 break;
             case 35:
@@ -1299,7 +1299,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::VAR:
                         REDUCESKIP(Stmt);
                         break;
-                    DEFAULTINVALID3("code block", "TokenType::BANG, TokenType::BININTLIT, TokenType::CCURB, TokenType::CHARLIT, TokenType::DECINTLIT, TokenType::FALSELIT, TokenType::FLOATLIT, TokenType::HEXINTLIT, TokenType::IDENTIFIER, TokenType::MINUS, TokenType::NULLPTRLIT, TokenType::OCTINTLIT, TokenType::OCURB, TokenType::OPARN, TokenType::RETURN, TokenType::STRINGLIT, TokenType::TILDE, TokenType::TRUELIT, or TokenType::VAR", "statement")
+                    DEFAULTINVALID3("code block", "BANG, BININTLIT, CCURB, CHARLIT, DECINTLIT, FALSELIT, FLOATLIT, HEXINTLIT, IDENTIFIER, MINUS, NULLPTRLIT, OCTINTLIT, OCURB, OPARN, RETURN, STRINGLIT, TILDE, TRUELIT, or VAR", "statement")
                 }
                 break;
             case 36:
@@ -1318,14 +1318,14 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::UINT64, 10)
                     SHIFTON(TokenType::UINT8, 7)
                     SHIFTON(TokenType::VOID, 18)
-                    DEFAULTINVALID3("TokenType::VAR", "type specifier", "variable statement")
+                    DEFAULTINVALID3("VAR", "type specifier", "variable statement")
                 }
                 break;
             case 37:
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::SEMICOLON, 75)
-                    DEFAULTINVALID3("expression", "TokenType::SEMICOLON", "expression statement")
+                    DEFAULTINVALID3("expression", "SEMICOLON", "expression statement")
                 }
                 break;
             case 38:
@@ -1346,7 +1346,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::RETURN", "expression", "return statement")
+                    DEFAULTINVALID3("RETURN", "expression", "return statement")
                 }
                 break;
             case 39:
@@ -1358,7 +1358,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::SEMICOLON:
                         REDUCESKIP(Expression);
                         break;
-                    DEFAULTINVALID3("assignment expression", "TokenType::COLON, TokenType::COMMA, TokenType::CPARN, or TokenType::SEMICOLON", "expression")
+                    DEFAULTINVALID3("assignment expression", "COLON, COMMA, CPARN, or SEMICOLON", "expression")
                 }
                 break;
             case 40:
@@ -1371,7 +1371,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                         REDUCESKIP(Assignmentexpr);
                         break;
                     SHIFTON(TokenType::EQUAL, 77)
-                    DEFAULTINVALID3("ternary expression", "TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::EQUAL, or TokenType::SEMICOLON", "assignment expression")
+                    DEFAULTINVALID3("ternary expression", "COLON, COMMA, CPARN, EQUAL, or SEMICOLON", "assignment expression")
                 }
                 break;
             case 41:
@@ -1386,7 +1386,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                         break;
                     SHIFTON(TokenType::DOUBLEPIPE, 79)
                     SHIFTON(TokenType::QUESTION, 78)
-                    DEFAULTINVALID2("binary or expression", "TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::QUESTION, or TokenType::SEMICOLON")
+                    DEFAULTINVALID2("binary or expression", "COLON, COMMA, CPARN, DOUBLEPIPE, EQUAL, QUESTION, or SEMICOLON")
                 }
                 break;
             case 42:
@@ -1402,7 +1402,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                         REDUCESKIP(Binorexpr);
                         break;
                     SHIFTON(TokenType::DOUBLEAMPER, 80)
-                    DEFAULTINVALID2("binary and expression", "TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::QUESTION, or TokenType::SEMICOLON")
+                    DEFAULTINVALID2("binary and expression", "COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEPIPE, EQUAL, QUESTION, or SEMICOLON")
                 }
                 break;
             case 43:
@@ -1418,7 +1418,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::SEMICOLON:
                         REDUCESKIP(Binandexpr);
                         break;
-                    DEFAULTINVALID3("binary not expression", "TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::QUESTION, or TokenType::SEMICOLON", "binary and expression")
+                    DEFAULTINVALID3("binary not expression", "COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEPIPE, EQUAL, QUESTION, or SEMICOLON", "binary and expression")
                 }
                 break;
             case 44:
@@ -1439,7 +1439,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::BANG", "binary not expression", "binary not expression")
+                    DEFAULTINVALID3("BANG", "binary not expression", "binary not expression")
                 }
                 break;
             case 45:
@@ -1457,7 +1457,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                         REDUCESKIP(Binnotexpr);
                         break;
                     SHIFTON(TokenType::DOUBLEEQUAL, 83)
-                    DEFAULTINVALID2("equality expression", "TokenType::BANGEQUAL, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::QUESTION, or TokenType::SEMICOLON")
+                    DEFAULTINVALID2("equality expression", "BANGEQUAL, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEPIPE, EQUAL, QUESTION, or SEMICOLON")
                 }
                 break;
             case 46:
@@ -1479,7 +1479,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::GREATEREQUAL, 87)
                     SHIFTON(TokenType::LESS, 84)
                     SHIFTON(TokenType::LESSEQUAL, 86)
-                    DEFAULTINVALID2("comparison expression", "TokenType::BANGEQUAL, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::QUESTION, or TokenType::SEMICOLON")
+                    DEFAULTINVALID2("comparison expression", "BANGEQUAL, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, QUESTION, or SEMICOLON")
                 }
                 break;
             case 47:
@@ -1502,7 +1502,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                         REDUCESKIP(Complgtexpr);
                         break;
                     SHIFTON(TokenType::CARET, 88)
-                    DEFAULTINVALID2("bitwise xor expression", "TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::QUESTION, or TokenType::SEMICOLON")
+                    DEFAULTINVALID2("bitwise xor expression", "BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, QUESTION, or SEMICOLON")
                 }
                 break;
             case 48:
@@ -1526,7 +1526,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                         REDUCESKIP(Bitxorexpr);
                         break;
                     SHIFTON(TokenType::PIPE, 89)
-                    DEFAULTINVALID2("bitwise or expression", "TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::PIPE, TokenType::QUESTION, or TokenType::SEMICOLON")
+                    DEFAULTINVALID2("bitwise or expression", "BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, PIPE, QUESTION, or SEMICOLON")
                 }
                 break;
             case 49:
@@ -1551,7 +1551,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::SEMICOLON:
                         REDUCESKIP(Bitorexpr);
                         break;
-                    DEFAULTINVALID2("bitwise and expression", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::PIPE, TokenType::QUESTION, or TokenType::SEMICOLON")
+                    DEFAULTINVALID2("bitwise and expression", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, PIPE, QUESTION, or SEMICOLON")
                 }
                 break;
             case 50:
@@ -1578,7 +1578,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                         break;
                     SHIFTON(TokenType::DOUBLEGREATER, 91)
                     SHIFTON(TokenType::DOUBLELESS, 92)
-                    DEFAULTINVALID2("bit shift expression", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::PIPE, TokenType::QUESTION, or TokenType::SEMICOLON")
+                    DEFAULTINVALID2("bit shift expression", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, PIPE, QUESTION, or SEMICOLON")
                 }
                 break;
             case 51:
@@ -1607,7 +1607,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                         break;
                     SHIFTON(TokenType::MINUS, 94)
                     SHIFTON(TokenType::PLUS, 93)
-                    DEFAULTINVALID2("addition expression", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::MINUS, TokenType::PIPE, TokenType::PLUS, TokenType::QUESTION, or TokenType::SEMICOLON")
+                    DEFAULTINVALID2("addition expression", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, MINUS, PIPE, PLUS, QUESTION, or SEMICOLON")
                 }
                 break;
             case 52:
@@ -1639,7 +1639,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::PERCENT, 97)
                     SHIFTON(TokenType::SLASH, 96)
                     SHIFTON(TokenType::STAR, 95)
-                    DEFAULTINVALID2("multiplication expression", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::MINUS, TokenType::PERCENT, TokenType::PIPE, TokenType::PLUS, TokenType::QUESTION, TokenType::SEMICOLON, TokenType::SLASH, or TokenType::STAR")
+                    DEFAULTINVALID2("multiplication expression", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, MINUS, PERCENT, PIPE, PLUS, QUESTION, SEMICOLON, SLASH, or STAR")
                 }
                 break;
             case 53:
@@ -1671,7 +1671,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::STAR:
                         REDUCESKIP(Multexpr);
                         break;
-                    DEFAULTINVALID3("unary expression", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::MINUS, TokenType::PERCENT, TokenType::PIPE, TokenType::PLUS, TokenType::QUESTION, TokenType::SEMICOLON, TokenType::SLASH, or TokenType::STAR", "multiplication expression")
+                    DEFAULTINVALID3("unary expression", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, MINUS, PERCENT, PIPE, PLUS, QUESTION, SEMICOLON, SLASH, or STAR", "multiplication expression")
                 }
                 break;
             case 54:
@@ -1691,7 +1691,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::TILDE", "unary expression", "unary expression")
+                    DEFAULTINVALID3("TILDE", "unary expression", "unary expression")
                 }
                 break;
             case 55:
@@ -1711,7 +1711,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::MINUS", "unary expression", "unary expression")
+                    DEFAULTINVALID3("MINUS", "unary expression", "unary expression")
                 }
                 break;
             case 56:
@@ -1743,7 +1743,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::STAR:
                         REDUCESKIP(Unaryexpr);
                         break;
-                    DEFAULTINVALID3("function call expression", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::MINUS, TokenType::PERCENT, TokenType::PIPE, TokenType::PLUS, TokenType::QUESTION, TokenType::SEMICOLON, TokenType::SLASH, or TokenType::STAR", "unary expression")
+                    DEFAULTINVALID3("function call expression", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, MINUS, PERCENT, PIPE, PLUS, QUESTION, SEMICOLON, SLASH, or STAR", "unary expression")
                 }
                 break;
             case 57:
@@ -1776,7 +1776,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                         REDUCESKIP(Callexpr);
                         break;
                     SHIFTON(TokenType::OPARN, 100)
-                    DEFAULTINVALID3("primary expression", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::MINUS, TokenType::OPARN, TokenType::PERCENT, TokenType::PIPE, TokenType::PLUS, TokenType::QUESTION, TokenType::SEMICOLON, TokenType::SLASH, or TokenType::STAR", "function call expression")
+                    DEFAULTINVALID3("primary expression", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, MINUS, OPARN, PERCENT, PIPE, PLUS, QUESTION, SEMICOLON, SLASH, or STAR", "function call expression")
                 }
                 break;
             case 58:
@@ -1814,7 +1814,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::TRUELIT", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::MINUS, TokenType::OPARN, TokenType::PERCENT, TokenType::PIPE, TokenType::PLUS, TokenType::QUESTION, TokenType::SEMICOLON, TokenType::SLASH, or TokenType::STAR", "primary expression")
+                    DEFAULTINVALID3("TRUELIT", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, MINUS, OPARN, PERCENT, PIPE, PLUS, QUESTION, SEMICOLON, SLASH, or STAR", "primary expression")
                 }
                 break;
             case 59:
@@ -1852,7 +1852,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::FALSELIT", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::MINUS, TokenType::OPARN, TokenType::PERCENT, TokenType::PIPE, TokenType::PLUS, TokenType::QUESTION, TokenType::SEMICOLON, TokenType::SLASH, or TokenType::STAR", "primary expression")
+                    DEFAULTINVALID3("FALSELIT", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, MINUS, OPARN, PERCENT, PIPE, PLUS, QUESTION, SEMICOLON, SLASH, or STAR", "primary expression")
                 }
                 break;
             case 60:
@@ -1890,7 +1890,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::FLOATLIT", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::MINUS, TokenType::OPARN, TokenType::PERCENT, TokenType::PIPE, TokenType::PLUS, TokenType::QUESTION, TokenType::SEMICOLON, TokenType::SLASH, or TokenType::STAR", "primary expression")
+                    DEFAULTINVALID3("FLOATLIT", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, MINUS, OPARN, PERCENT, PIPE, PLUS, QUESTION, SEMICOLON, SLASH, or STAR", "primary expression")
                 }
                 break;
             case 61:
@@ -1928,7 +1928,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::NULLPTRLIT", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::MINUS, TokenType::OPARN, TokenType::PERCENT, TokenType::PIPE, TokenType::PLUS, TokenType::QUESTION, TokenType::SEMICOLON, TokenType::SLASH, or TokenType::STAR", "primary expression")
+                    DEFAULTINVALID3("NULLPTRLIT", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, MINUS, OPARN, PERCENT, PIPE, PLUS, QUESTION, SEMICOLON, SLASH, or STAR", "primary expression")
                 }
                 break;
             case 62:
@@ -1966,7 +1966,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::DECINTLIT", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::MINUS, TokenType::OPARN, TokenType::PERCENT, TokenType::PIPE, TokenType::PLUS, TokenType::QUESTION, TokenType::SEMICOLON, TokenType::SLASH, or TokenType::STAR", "primary expression")
+                    DEFAULTINVALID3("DECINTLIT", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, MINUS, OPARN, PERCENT, PIPE, PLUS, QUESTION, SEMICOLON, SLASH, or STAR", "primary expression")
                 }
                 break;
             case 63:
@@ -2004,7 +2004,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::OCTINTLIT", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::MINUS, TokenType::OPARN, TokenType::PERCENT, TokenType::PIPE, TokenType::PLUS, TokenType::QUESTION, TokenType::SEMICOLON, TokenType::SLASH, or TokenType::STAR", "primary expression")
+                    DEFAULTINVALID3("OCTINTLIT", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, MINUS, OPARN, PERCENT, PIPE, PLUS, QUESTION, SEMICOLON, SLASH, or STAR", "primary expression")
                 }
                 break;
             case 64:
@@ -2042,7 +2042,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::BININTLIT", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::MINUS, TokenType::OPARN, TokenType::PERCENT, TokenType::PIPE, TokenType::PLUS, TokenType::QUESTION, TokenType::SEMICOLON, TokenType::SLASH, or TokenType::STAR", "primary expression")
+                    DEFAULTINVALID3("BININTLIT", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, MINUS, OPARN, PERCENT, PIPE, PLUS, QUESTION, SEMICOLON, SLASH, or STAR", "primary expression")
                 }
                 break;
             case 65:
@@ -2080,7 +2080,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::HEXINTLIT", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::MINUS, TokenType::OPARN, TokenType::PERCENT, TokenType::PIPE, TokenType::PLUS, TokenType::QUESTION, TokenType::SEMICOLON, TokenType::SLASH, or TokenType::STAR", "primary expression")
+                    DEFAULTINVALID3("HEXINTLIT", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, MINUS, OPARN, PERCENT, PIPE, PLUS, QUESTION, SEMICOLON, SLASH, or STAR", "primary expression")
                 }
                 break;
             case 66:
@@ -2118,7 +2118,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::CHARLIT", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::MINUS, TokenType::OPARN, TokenType::PERCENT, TokenType::PIPE, TokenType::PLUS, TokenType::QUESTION, TokenType::SEMICOLON, TokenType::SLASH, or TokenType::STAR", "primary expression")
+                    DEFAULTINVALID3("CHARLIT", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, MINUS, OPARN, PERCENT, PIPE, PLUS, QUESTION, SEMICOLON, SLASH, or STAR", "primary expression")
                 }
                 break;
             case 67:
@@ -2156,7 +2156,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::STRINGLIT", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::MINUS, TokenType::OPARN, TokenType::PERCENT, TokenType::PIPE, TokenType::PLUS, TokenType::QUESTION, TokenType::SEMICOLON, TokenType::SLASH, or TokenType::STAR", "primary expression")
+                    DEFAULTINVALID3("STRINGLIT", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, MINUS, OPARN, PERCENT, PIPE, PLUS, QUESTION, SEMICOLON, SLASH, or STAR", "primary expression")
                 }
                 break;
             case 68:
@@ -2194,7 +2194,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::IDENTIFIER", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::MINUS, TokenType::OPARN, TokenType::PERCENT, TokenType::PIPE, TokenType::PLUS, TokenType::QUESTION, TokenType::SEMICOLON, TokenType::SLASH, or TokenType::STAR", "primary expression")
+                    DEFAULTINVALID3("IDENTIFIER", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, MINUS, OPARN, PERCENT, PIPE, PLUS, QUESTION, SEMICOLON, SLASH, or STAR", "primary expression")
                 }
                 break;
             case 69:
@@ -2215,7 +2215,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::OPARN", "expression", "primary expression")
+                    DEFAULTINVALID3("OPARN", "expression", "primary expression")
                 }
                 break;
             case 70:
@@ -2236,14 +2236,14 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("code block", "either TokenType::EOF_ or TokenType::FUN", "function declaration")
+                    DEFAULTINVALID3("code block", "either EOF_ or FUN", "function declaration")
                 }
                 break;
             case 71:
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::IDENTIFIER, 102)
-                    DEFAULTINVALID3("type specifier", "TokenType::IDENTIFIER", "parameter list")
+                    DEFAULTINVALID3("type specifier", "IDENTIFIER", "parameter list")
                 }
                 break;
             case 72:
@@ -2279,7 +2279,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::CCURB", "TokenType::BANG, TokenType::BININTLIT, TokenType::CCURB, TokenType::CHARLIT, TokenType::DECINTLIT, TokenType::EOF_, TokenType::FALSELIT, TokenType::FLOATLIT, TokenType::FUN, TokenType::HEXINTLIT, TokenType::IDENTIFIER, TokenType::MINUS, TokenType::NULLPTRLIT, TokenType::OCTINTLIT, TokenType::OCURB, TokenType::OPARN, TokenType::RETURN, TokenType::STRINGLIT, TokenType::TILDE, TokenType::TRUELIT, or TokenType::VAR", "code block")
+                    DEFAULTINVALID3("CCURB", "BANG, BININTLIT, CCURB, CHARLIT, DECINTLIT, EOF_, FALSELIT, FLOATLIT, FUN, HEXINTLIT, IDENTIFIER, MINUS, NULLPTRLIT, OCTINTLIT, OCURB, OPARN, RETURN, STRINGLIT, TILDE, TRUELIT, or VAR", "code block")
                 }
                 break;
             case 73:
@@ -2312,7 +2312,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("statement", "TokenType::BANG, TokenType::BININTLIT, TokenType::CCURB, TokenType::CHARLIT, TokenType::DECINTLIT, TokenType::FALSELIT, TokenType::FLOATLIT, TokenType::HEXINTLIT, TokenType::IDENTIFIER, TokenType::MINUS, TokenType::NULLPTRLIT, TokenType::OCTINTLIT, TokenType::OCURB, TokenType::OPARN, TokenType::RETURN, TokenType::STRINGLIT, TokenType::TILDE, TokenType::TRUELIT, or TokenType::VAR", "statements")
+                    DEFAULTINVALID3("statement", "BANG, BININTLIT, CCURB, CHARLIT, DECINTLIT, FALSELIT, FLOATLIT, HEXINTLIT, IDENTIFIER, MINUS, NULLPTRLIT, OCTINTLIT, OCURB, OPARN, RETURN, STRINGLIT, TILDE, TRUELIT, or VAR", "statements")
                 }
                 break;
             case 74:
@@ -2352,14 +2352,14 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::SEMICOLON", "TokenType::BANG, TokenType::BININTLIT, TokenType::CCURB, TokenType::CHARLIT, TokenType::DECINTLIT, TokenType::FALSELIT, TokenType::FLOATLIT, TokenType::HEXINTLIT, TokenType::IDENTIFIER, TokenType::MINUS, TokenType::NULLPTRLIT, TokenType::OCTINTLIT, TokenType::OCURB, TokenType::OPARN, TokenType::RETURN, TokenType::STRINGLIT, TokenType::TILDE, TokenType::TRUELIT, or TokenType::VAR", "expression statement")
+                    DEFAULTINVALID3("SEMICOLON", "BANG, BININTLIT, CCURB, CHARLIT, DECINTLIT, FALSELIT, FLOATLIT, HEXINTLIT, IDENTIFIER, MINUS, NULLPTRLIT, OCTINTLIT, OCURB, OPARN, RETURN, STRINGLIT, TILDE, TRUELIT, or VAR", "expression statement")
                 }
                 break;
             case 76:
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::SEMICOLON, 105)
-                    DEFAULTINVALID3("expression", "TokenType::SEMICOLON", "return statement")
+                    DEFAULTINVALID3("expression", "SEMICOLON", "return statement")
                 }
                 break;
             case 77:
@@ -2380,7 +2380,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::EQUAL", "assignment expression", "assignment expression")
+                    DEFAULTINVALID3("EQUAL", "assignment expression", "assignment expression")
                 }
                 break;
             case 78:
@@ -2401,7 +2401,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::QUESTION", "expression", "ternary expression")
+                    DEFAULTINVALID3("QUESTION", "expression", "ternary expression")
                 }
                 break;
             case 79:
@@ -2422,7 +2422,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::DOUBLEPIPE", "binary and expression", "binary or expression")
+                    DEFAULTINVALID3("DOUBLEPIPE", "binary and expression", "binary or expression")
                 }
                 break;
             case 80:
@@ -2443,7 +2443,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::DOUBLEAMPER", "binary not expression", "binary and expression")
+                    DEFAULTINVALID3("DOUBLEAMPER", "binary not expression", "binary and expression")
                 }
                 break;
             case 81:
@@ -2465,7 +2465,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("binary not expression", "TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::QUESTION, or TokenType::SEMICOLON", "binary not expression")
+                    DEFAULTINVALID3("binary not expression", "COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEPIPE, EQUAL, QUESTION, or SEMICOLON", "binary not expression")
                 }
                 break;
             case 82:
@@ -2485,7 +2485,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::BANGEQUAL", "comparison expression", "equality expression")
+                    DEFAULTINVALID3("BANGEQUAL", "comparison expression", "equality expression")
                 }
                 break;
             case 83:
@@ -2505,7 +2505,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::DOUBLEEQUAL", "comparison expression", "equality expression")
+                    DEFAULTINVALID3("DOUBLEEQUAL", "comparison expression", "equality expression")
                 }
                 break;
             case 84:
@@ -2525,7 +2525,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::LESS", "bitwise xor expression", "comparison expression")
+                    DEFAULTINVALID3("LESS", "bitwise xor expression", "comparison expression")
                 }
                 break;
             case 85:
@@ -2545,7 +2545,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::GREATER", "bitwise xor expression", "comparison expression")
+                    DEFAULTINVALID3("GREATER", "bitwise xor expression", "comparison expression")
                 }
                 break;
             case 86:
@@ -2565,7 +2565,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::LESSEQUAL", "bitwise xor expression", "comparison expression")
+                    DEFAULTINVALID3("LESSEQUAL", "bitwise xor expression", "comparison expression")
                 }
                 break;
             case 87:
@@ -2585,7 +2585,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::GREATEREQUAL", "bitwise xor expression", "comparison expression")
+                    DEFAULTINVALID3("GREATEREQUAL", "bitwise xor expression", "comparison expression")
                 }
                 break;
             case 88:
@@ -2605,7 +2605,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::CARET", "bitwise or expression", "bitwise xor expression")
+                    DEFAULTINVALID3("CARET", "bitwise or expression", "bitwise xor expression")
                 }
                 break;
             case 89:
@@ -2625,7 +2625,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::PIPE", "bitwise and expression", "bitwise or expression")
+                    DEFAULTINVALID3("PIPE", "bitwise and expression", "bitwise or expression")
                 }
                 break;
             case 90:
@@ -2645,7 +2645,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::AMPER", "bit shift expression", "bitwise and expression")
+                    DEFAULTINVALID3("AMPER", "bit shift expression", "bitwise and expression")
                 }
                 break;
             case 91:
@@ -2665,7 +2665,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::DOUBLEGREATER", "addition expression", "bit shift expression")
+                    DEFAULTINVALID3("DOUBLEGREATER", "addition expression", "bit shift expression")
                 }
                 break;
             case 92:
@@ -2685,7 +2685,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::DOUBLELESS", "addition expression", "bit shift expression")
+                    DEFAULTINVALID3("DOUBLELESS", "addition expression", "bit shift expression")
                 }
                 break;
             case 93:
@@ -2705,7 +2705,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::PLUS", "multiplication expression", "addition expression")
+                    DEFAULTINVALID3("PLUS", "multiplication expression", "addition expression")
                 }
                 break;
             case 94:
@@ -2725,7 +2725,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::MINUS", "multiplication expression", "addition expression")
+                    DEFAULTINVALID3("MINUS", "multiplication expression", "addition expression")
                 }
                 break;
             case 95:
@@ -2745,7 +2745,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::STAR", "unary expression", "multiplication expression")
+                    DEFAULTINVALID3("STAR", "unary expression", "multiplication expression")
                 }
                 break;
             case 96:
@@ -2765,7 +2765,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::SLASH", "unary expression", "multiplication expression")
+                    DEFAULTINVALID3("SLASH", "unary expression", "multiplication expression")
                 }
                 break;
             case 97:
@@ -2785,7 +2785,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::PERCENT", "unary expression", "multiplication expression")
+                    DEFAULTINVALID3("PERCENT", "unary expression", "multiplication expression")
                 }
                 break;
             case 98:
@@ -2823,7 +2823,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("unary expression", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::MINUS, TokenType::PERCENT, TokenType::PIPE, TokenType::PLUS, TokenType::QUESTION, TokenType::SEMICOLON, TokenType::SLASH, or TokenType::STAR", "unary expression")
+                    DEFAULTINVALID3("unary expression", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, MINUS, PERCENT, PIPE, PLUS, QUESTION, SEMICOLON, SLASH, or STAR", "unary expression")
                 }
                 break;
             case 99:
@@ -2861,7 +2861,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("unary expression", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::MINUS, TokenType::PERCENT, TokenType::PIPE, TokenType::PLUS, TokenType::QUESTION, TokenType::SEMICOLON, TokenType::SLASH, or TokenType::STAR", "unary expression")
+                    DEFAULTINVALID3("unary expression", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, MINUS, PERCENT, PIPE, PLUS, QUESTION, SEMICOLON, SLASH, or STAR", "unary expression")
                 }
                 break;
             case 100:
@@ -2883,14 +2883,14 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::OPARN", "either TokenType::CPARN or argument list", "function call expression")
+                    DEFAULTINVALID3("OPARN", "either CPARN or argument list", "function call expression")
                 }
                 break;
             case 101:
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::CPARN, 129)
-                    DEFAULTINVALID3("expression", "TokenType::CPARN", "primary expression")
+                    DEFAULTINVALID3("expression", "CPARN", "primary expression")
                 }
                 break;
             case 102:
@@ -2908,7 +2908,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::IDENTIFIER", "either TokenType::COMMA or TokenType::CPARN", "parameter list")
+                    DEFAULTINVALID3("IDENTIFIER", "either COMMA or CPARN", "parameter list")
                 }
                 break;
             case 103:
@@ -2916,14 +2916,14 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                {
                     SHIFTON(TokenType::COMMA, 131)
                     SHIFTON(TokenType::SEMICOLON, 130)
-                    DEFAULTINVALID2("variable statement assignments", "either TokenType::COMMA or TokenType::SEMICOLON")
+                    DEFAULTINVALID2("variable statement assignments", "either COMMA or SEMICOLON")
                 }
                 break;
             case 104:
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::EQUAL, 132)
-                    DEFAULTINVALID3("TokenType::IDENTIFIER", "TokenType::EQUAL", "variable statement assignments")
+                    DEFAULTINVALID3("IDENTIFIER", "EQUAL", "variable statement assignments")
                 }
                 break;
             case 105:
@@ -2957,7 +2957,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::SEMICOLON", "TokenType::BANG, TokenType::BININTLIT, TokenType::CCURB, TokenType::CHARLIT, TokenType::DECINTLIT, TokenType::FALSELIT, TokenType::FLOATLIT, TokenType::HEXINTLIT, TokenType::IDENTIFIER, TokenType::MINUS, TokenType::NULLPTRLIT, TokenType::OCTINTLIT, TokenType::OCURB, TokenType::OPARN, TokenType::RETURN, TokenType::STRINGLIT, TokenType::TILDE, TokenType::TRUELIT, or TokenType::VAR", "return statement")
+                    DEFAULTINVALID3("SEMICOLON", "BANG, BININTLIT, CCURB, CHARLIT, DECINTLIT, FALSELIT, FLOATLIT, HEXINTLIT, IDENTIFIER, MINUS, NULLPTRLIT, OCTINTLIT, OCURB, OPARN, RETURN, STRINGLIT, TILDE, TRUELIT, or VAR", "return statement")
                 }
                 break;
             case 106:
@@ -2976,14 +2976,14 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("assignment expression", "TokenType::COLON, TokenType::COMMA, TokenType::CPARN, or TokenType::SEMICOLON", "assignment expression")
+                    DEFAULTINVALID3("assignment expression", "COLON, COMMA, CPARN, or SEMICOLON", "assignment expression")
                 }
                 break;
             case 107:
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::COLON, 133)
-                    DEFAULTINVALID3("expression", "TokenType::COLON", "ternary expression")
+                    DEFAULTINVALID3("expression", "COLON", "ternary expression")
                 }
                 break;
             case 108:
@@ -3006,7 +3006,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                         }
                         break;
                     SHIFTON(TokenType::DOUBLEAMPER, 80)
-                    DEFAULTINVALID2("binary and expression", "TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::QUESTION, or TokenType::SEMICOLON")
+                    DEFAULTINVALID2("binary and expression", "COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEPIPE, EQUAL, QUESTION, or SEMICOLON")
                 }
                 break;
             case 109:
@@ -3029,7 +3029,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("binary not expression", "TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::QUESTION, or TokenType::SEMICOLON", "binary and expression")
+                    DEFAULTINVALID3("binary not expression", "COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEPIPE, EQUAL, QUESTION, or SEMICOLON", "binary and expression")
                 }
                 break;
             case 110:
@@ -3058,7 +3058,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::GREATEREQUAL, 87)
                     SHIFTON(TokenType::LESS, 84)
                     SHIFTON(TokenType::LESSEQUAL, 86)
-                    DEFAULTINVALID2("comparison expression", "TokenType::BANGEQUAL, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::QUESTION, or TokenType::SEMICOLON")
+                    DEFAULTINVALID2("comparison expression", "BANGEQUAL, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, QUESTION, or SEMICOLON")
                 }
                 break;
             case 111:
@@ -3087,7 +3087,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::GREATEREQUAL, 87)
                     SHIFTON(TokenType::LESS, 84)
                     SHIFTON(TokenType::LESSEQUAL, 86)
-                    DEFAULTINVALID2("comparison expression", "TokenType::BANGEQUAL, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::QUESTION, or TokenType::SEMICOLON")
+                    DEFAULTINVALID2("comparison expression", "BANGEQUAL, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, QUESTION, or SEMICOLON")
                 }
                 break;
             case 112:
@@ -3117,7 +3117,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                         }
                         break;
                     SHIFTON(TokenType::CARET, 88)
-                    DEFAULTINVALID2("bitwise xor expression", "TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::QUESTION, or TokenType::SEMICOLON")
+                    DEFAULTINVALID2("bitwise xor expression", "BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, QUESTION, or SEMICOLON")
                 }
                 break;
             case 113:
@@ -3147,7 +3147,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                         }
                         break;
                     SHIFTON(TokenType::CARET, 88)
-                    DEFAULTINVALID2("bitwise xor expression", "TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::QUESTION, or TokenType::SEMICOLON")
+                    DEFAULTINVALID2("bitwise xor expression", "BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, QUESTION, or SEMICOLON")
                 }
                 break;
             case 114:
@@ -3177,7 +3177,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                         }
                         break;
                     SHIFTON(TokenType::CARET, 88)
-                    DEFAULTINVALID2("bitwise xor expression", "TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::QUESTION, or TokenType::SEMICOLON")
+                    DEFAULTINVALID2("bitwise xor expression", "BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, QUESTION, or SEMICOLON")
                 }
                 break;
             case 115:
@@ -3207,7 +3207,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                         }
                         break;
                     SHIFTON(TokenType::CARET, 88)
-                    DEFAULTINVALID2("bitwise xor expression", "TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::QUESTION, or TokenType::SEMICOLON")
+                    DEFAULTINVALID2("bitwise xor expression", "BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, QUESTION, or SEMICOLON")
                 }
                 break;
             case 116:
@@ -3238,7 +3238,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                         }
                         break;
                     SHIFTON(TokenType::PIPE, 89)
-                    DEFAULTINVALID2("bitwise or expression", "TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::PIPE, TokenType::QUESTION, or TokenType::SEMICOLON")
+                    DEFAULTINVALID2("bitwise or expression", "BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, PIPE, QUESTION, or SEMICOLON")
                 }
                 break;
             case 117:
@@ -3270,7 +3270,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID2("bitwise and expression", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::PIPE, TokenType::QUESTION, or TokenType::SEMICOLON")
+                    DEFAULTINVALID2("bitwise and expression", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, PIPE, QUESTION, or SEMICOLON")
                 }
                 break;
             case 118:
@@ -3304,7 +3304,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                         break;
                     SHIFTON(TokenType::DOUBLEGREATER, 91)
                     SHIFTON(TokenType::DOUBLELESS, 92)
-                    DEFAULTINVALID2("bit shift expression", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::PIPE, TokenType::QUESTION, or TokenType::SEMICOLON")
+                    DEFAULTINVALID2("bit shift expression", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, PIPE, QUESTION, or SEMICOLON")
                 }
                 break;
             case 119:
@@ -3340,7 +3340,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                         break;
                     SHIFTON(TokenType::MINUS, 94)
                     SHIFTON(TokenType::PLUS, 93)
-                    DEFAULTINVALID2("addition expression", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::MINUS, TokenType::PIPE, TokenType::PLUS, TokenType::QUESTION, or TokenType::SEMICOLON")
+                    DEFAULTINVALID2("addition expression", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, MINUS, PIPE, PLUS, QUESTION, or SEMICOLON")
                 }
                 break;
             case 120:
@@ -3376,7 +3376,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                         break;
                     SHIFTON(TokenType::MINUS, 94)
                     SHIFTON(TokenType::PLUS, 93)
-                    DEFAULTINVALID2("addition expression", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::MINUS, TokenType::PIPE, TokenType::PLUS, TokenType::QUESTION, or TokenType::SEMICOLON")
+                    DEFAULTINVALID2("addition expression", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, MINUS, PIPE, PLUS, QUESTION, or SEMICOLON")
                 }
                 break;
             case 121:
@@ -3415,7 +3415,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::PERCENT, 97)
                     SHIFTON(TokenType::SLASH, 96)
                     SHIFTON(TokenType::STAR, 95)
-                    DEFAULTINVALID2("multiplication expression", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::MINUS, TokenType::PERCENT, TokenType::PIPE, TokenType::PLUS, TokenType::QUESTION, TokenType::SEMICOLON, TokenType::SLASH, or TokenType::STAR")
+                    DEFAULTINVALID2("multiplication expression", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, MINUS, PERCENT, PIPE, PLUS, QUESTION, SEMICOLON, SLASH, or STAR")
                 }
                 break;
             case 122:
@@ -3454,7 +3454,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::PERCENT, 97)
                     SHIFTON(TokenType::SLASH, 96)
                     SHIFTON(TokenType::STAR, 95)
-                    DEFAULTINVALID2("multiplication expression", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::MINUS, TokenType::PERCENT, TokenType::PIPE, TokenType::PLUS, TokenType::QUESTION, TokenType::SEMICOLON, TokenType::SLASH, or TokenType::STAR")
+                    DEFAULTINVALID2("multiplication expression", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, MINUS, PERCENT, PIPE, PLUS, QUESTION, SEMICOLON, SLASH, or STAR")
                 }
                 break;
             case 123:
@@ -3493,7 +3493,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("unary expression", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::MINUS, TokenType::PERCENT, TokenType::PIPE, TokenType::PLUS, TokenType::QUESTION, TokenType::SEMICOLON, TokenType::SLASH, or TokenType::STAR", "multiplication expression")
+                    DEFAULTINVALID3("unary expression", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, MINUS, PERCENT, PIPE, PLUS, QUESTION, SEMICOLON, SLASH, or STAR", "multiplication expression")
                 }
                 break;
             case 124:
@@ -3532,7 +3532,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("unary expression", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::MINUS, TokenType::PERCENT, TokenType::PIPE, TokenType::PLUS, TokenType::QUESTION, TokenType::SEMICOLON, TokenType::SLASH, or TokenType::STAR", "multiplication expression")
+                    DEFAULTINVALID3("unary expression", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, MINUS, PERCENT, PIPE, PLUS, QUESTION, SEMICOLON, SLASH, or STAR", "multiplication expression")
                 }
                 break;
             case 125:
@@ -3571,7 +3571,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("unary expression", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::MINUS, TokenType::PERCENT, TokenType::PIPE, TokenType::PLUS, TokenType::QUESTION, TokenType::SEMICOLON, TokenType::SLASH, or TokenType::STAR", "multiplication expression")
+                    DEFAULTINVALID3("unary expression", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, MINUS, PERCENT, PIPE, PLUS, QUESTION, SEMICOLON, SLASH, or STAR", "multiplication expression")
                 }
                 break;
             case 126:
@@ -3579,7 +3579,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                {
                     SHIFTON(TokenType::COMMA, 135)
                     SHIFTON(TokenType::CPARN, 134)
-                    DEFAULTINVALID2("argument list", "either TokenType::COMMA or TokenType::CPARN")
+                    DEFAULTINVALID2("argument list", "either COMMA or CPARN")
                 }
                 break;
             case 127:
@@ -3618,7 +3618,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::CPARN", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::MINUS, TokenType::PERCENT, TokenType::PIPE, TokenType::PLUS, TokenType::QUESTION, TokenType::SEMICOLON, TokenType::SLASH, or TokenType::STAR", "function call expression")
+                    DEFAULTINVALID3("CPARN", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, MINUS, PERCENT, PIPE, PLUS, QUESTION, SEMICOLON, SLASH, or STAR", "function call expression")
                 }
                 break;
             case 128:
@@ -3628,7 +3628,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::CPARN:
                         REDUCESKIP(Args);
                         break;
-                    DEFAULTINVALID3("expression", "either TokenType::COMMA or TokenType::CPARN", "argument list")
+                    DEFAULTINVALID3("expression", "either COMMA or CPARN", "argument list")
                 }
                 break;
             case 129:
@@ -3668,7 +3668,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::CPARN", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::MINUS, TokenType::OPARN, TokenType::PERCENT, TokenType::PIPE, TokenType::PLUS, TokenType::QUESTION, TokenType::SEMICOLON, TokenType::SLASH, or TokenType::STAR", "primary expression")
+                    DEFAULTINVALID3("CPARN", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, MINUS, OPARN, PERCENT, PIPE, PLUS, QUESTION, SEMICOLON, SLASH, or STAR", "primary expression")
                 }
                 break;
             case 130:
@@ -3703,14 +3703,14 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::SEMICOLON", "TokenType::BANG, TokenType::BININTLIT, TokenType::CCURB, TokenType::CHARLIT, TokenType::DECINTLIT, TokenType::FALSELIT, TokenType::FLOATLIT, TokenType::HEXINTLIT, TokenType::IDENTIFIER, TokenType::MINUS, TokenType::NULLPTRLIT, TokenType::OCTINTLIT, TokenType::OCURB, TokenType::OPARN, TokenType::RETURN, TokenType::STRINGLIT, TokenType::TILDE, TokenType::TRUELIT, or TokenType::VAR", "variable statement")
+                    DEFAULTINVALID3("SEMICOLON", "BANG, BININTLIT, CCURB, CHARLIT, DECINTLIT, FALSELIT, FLOATLIT, HEXINTLIT, IDENTIFIER, MINUS, NULLPTRLIT, OCTINTLIT, OCURB, OPARN, RETURN, STRINGLIT, TILDE, TRUELIT, or VAR", "variable statement")
                 }
                 break;
             case 131:
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::IDENTIFIER, 136)
-                    DEFAULTINVALID3("TokenType::COMMA", "TokenType::IDENTIFIER", "variable statement assignments")
+                    DEFAULTINVALID3("COMMA", "IDENTIFIER", "variable statement assignments")
                 }
                 break;
             case 132:
@@ -3731,7 +3731,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::EQUAL", "expression", "variable statement assignments")
+                    DEFAULTINVALID3("EQUAL", "expression", "variable statement assignments")
                 }
                 break;
             case 133:
@@ -3752,7 +3752,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::COLON", "ternary expression", "ternary expression")
+                    DEFAULTINVALID3("COLON", "ternary expression", "ternary expression")
                 }
                 break;
             case 134:
@@ -3792,7 +3792,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("TokenType::CPARN", "TokenType::AMPER, TokenType::BANGEQUAL, TokenType::CARET, TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::DOUBLEAMPER, TokenType::DOUBLEEQUAL, TokenType::DOUBLEGREATER, TokenType::DOUBLELESS, TokenType::DOUBLEPIPE, TokenType::EQUAL, TokenType::GREATER, TokenType::GREATEREQUAL, TokenType::LESS, TokenType::LESSEQUAL, TokenType::MINUS, TokenType::PERCENT, TokenType::PIPE, TokenType::PLUS, TokenType::QUESTION, TokenType::SEMICOLON, TokenType::SLASH, or TokenType::STAR", "function call expression")
+                    DEFAULTINVALID3("CPARN", "AMPER, BANGEQUAL, CARET, COLON, COMMA, CPARN, DOUBLEAMPER, DOUBLEEQUAL, DOUBLEGREATER, DOUBLELESS, DOUBLEPIPE, EQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL, MINUS, PERCENT, PIPE, PLUS, QUESTION, SEMICOLON, SLASH, or STAR", "function call expression")
                 }
                 break;
             case 135:
@@ -3813,14 +3813,14 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::COMMA", "expression", "argument list")
+                    DEFAULTINVALID3("COMMA", "expression", "argument list")
                 }
                 break;
             case 136:
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::EQUAL, 140)
-                    DEFAULTINVALID3("TokenType::IDENTIFIER", "TokenType::EQUAL", "variable statement assignments")
+                    DEFAULTINVALID3("IDENTIFIER", "EQUAL", "variable statement assignments")
                 }
                 break;
             case 137:
@@ -3837,7 +3837,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("expression", "either TokenType::COMMA or TokenType::SEMICOLON", "variable statement assignments")
+                    DEFAULTINVALID3("expression", "either COMMA or SEMICOLON", "variable statement assignments")
                 }
                 break;
             case 138:
@@ -3859,7 +3859,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("ternary expression", "TokenType::COLON, TokenType::COMMA, TokenType::CPARN, TokenType::EQUAL, or TokenType::SEMICOLON", "ternary expression")
+                    DEFAULTINVALID3("ternary expression", "COLON, COMMA, CPARN, EQUAL, or SEMICOLON", "ternary expression")
                 }
                 break;
             case 139:
@@ -3876,7 +3876,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("expression", "either TokenType::COMMA or TokenType::CPARN", "argument list")
+                    DEFAULTINVALID3("expression", "either COMMA or CPARN", "argument list")
                 }
                 break;
             case 140:
@@ -3897,7 +3897,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::EQUAL", "expression", "variable statement assignments")
+                    DEFAULTINVALID3("EQUAL", "expression", "variable statement assignments")
                 }
                 break;
             case 141:
@@ -3916,7 +3916,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("expression", "either TokenType::COMMA or TokenType::SEMICOLON", "variable statement assignments")
+                    DEFAULTINVALID3("expression", "either COMMA or SEMICOLON", "variable statement assignments")
                 }
                 break;
             default:

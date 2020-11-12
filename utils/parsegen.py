@@ -33,6 +33,9 @@ class Terminal:
     def __repr__(self):
         return str(self)
     def __str__(self):
+        return self.symbol[len('TokenType::'):]
+
+    def astt(self):
         return self.symbol
 
     def __hash__(self):
@@ -527,11 +530,11 @@ def genLoop():
         for ac, nts in stateactions:
             if type(ac) == ShiftAction:
                 for term in nts:
-                    output.append(    f'                    SHIFTON({str(term)}, {ac.newstate})\n')
+                    output.append(    f'                    SHIFTON({term.astt()}, {ac.newstate})\n')
                 continue
 
             for term in nts:
-                output.append(        f'                    case {str(term)}:\n')
+                output.append(        f'                    case {term.astt()}:\n')
 
             if type(ac) == ReduceAction:
                 if not ac.rule.skip:
