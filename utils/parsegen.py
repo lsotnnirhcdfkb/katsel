@@ -156,7 +156,10 @@ class State:
                 else:
                     expected.append(str(after))
             else:
-                expected.extend(itertools.chain.from_iterable(map(lambda nt: [r.name for r in grammar if r.symbol == nt], item.rule.symbol.ntfollow)))
+                if len(item.rule.symbol.follow) > 4:
+                    expected.extend(itertools.chain.from_iterable(map(lambda nt: [r.name for r in grammar if r.symbol == nt], item.rule.symbol.ntfollow)))
+                else:
+                    expected.extend(map(str, item.rule.symbol.follow))
 
             whileparsing.append(item.rule.name)
 

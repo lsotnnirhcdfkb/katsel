@@ -765,7 +765,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             done = true;
                         break;
                     SHIFTON(TokenType::FUN, 4)
-                    DEFAULTINVALID2("declaration list", "declaration")
+                    DEFAULTINVALID2("declaration list", "either EOF_ or declaration")
                 }
                 break;
             case 2:
@@ -775,7 +775,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::FUN:
                         REDUCESKIP(Decls);
                         break;
-                    DEFAULTINVALID3("declaration", "declaration", "declaration list")
+                    DEFAULTINVALID3("declaration", "either EOF_ or FUN", "declaration list")
                 }
                 break;
             case 3:
@@ -785,7 +785,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::FUN:
                         REDUCESKIP(Decl);
                         break;
-                    DEFAULTINVALID3("function declaration", "declaration", "declaration")
+                    DEFAULTINVALID3("function declaration", "either EOF_ or FUN", "declaration")
                 }
                 break;
             case 4:
@@ -820,7 +820,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("declaration", "declaration", "declaration list")
+                    DEFAULTINVALID3("declaration", "either EOF_ or FUN", "declaration list")
                 }
                 break;
             case 6:
@@ -841,7 +841,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("UINT8", "variable statement assignments", "type specifier")
+                    DEFAULTINVALID3("UINT8", "IDENTIFIER", "type specifier")
                 }
                 break;
             case 8:
@@ -855,7 +855,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("UINT16", "variable statement assignments", "type specifier")
+                    DEFAULTINVALID3("UINT16", "IDENTIFIER", "type specifier")
                 }
                 break;
             case 9:
@@ -869,7 +869,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("UINT32", "variable statement assignments", "type specifier")
+                    DEFAULTINVALID3("UINT32", "IDENTIFIER", "type specifier")
                 }
                 break;
             case 10:
@@ -883,7 +883,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("UINT64", "variable statement assignments", "type specifier")
+                    DEFAULTINVALID3("UINT64", "IDENTIFIER", "type specifier")
                 }
                 break;
             case 11:
@@ -897,7 +897,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("SINT8", "variable statement assignments", "type specifier")
+                    DEFAULTINVALID3("SINT8", "IDENTIFIER", "type specifier")
                 }
                 break;
             case 12:
@@ -911,7 +911,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("SINT16", "variable statement assignments", "type specifier")
+                    DEFAULTINVALID3("SINT16", "IDENTIFIER", "type specifier")
                 }
                 break;
             case 13:
@@ -925,7 +925,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("SINT32", "variable statement assignments", "type specifier")
+                    DEFAULTINVALID3("SINT32", "IDENTIFIER", "type specifier")
                 }
                 break;
             case 14:
@@ -939,7 +939,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("SINT64", "variable statement assignments", "type specifier")
+                    DEFAULTINVALID3("SINT64", "IDENTIFIER", "type specifier")
                 }
                 break;
             case 15:
@@ -953,7 +953,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("FLOAT", "variable statement assignments", "type specifier")
+                    DEFAULTINVALID3("FLOAT", "IDENTIFIER", "type specifier")
                 }
                 break;
             case 16:
@@ -967,7 +967,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("BOOL", "variable statement assignments", "type specifier")
+                    DEFAULTINVALID3("BOOL", "IDENTIFIER", "type specifier")
                 }
                 break;
             case 17:
@@ -981,7 +981,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("DOUBLE", "variable statement assignments", "type specifier")
+                    DEFAULTINVALID3("DOUBLE", "IDENTIFIER", "type specifier")
                 }
                 break;
             case 18:
@@ -995,7 +995,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("VOID", "variable statement assignments", "type specifier")
+                    DEFAULTINVALID3("VOID", "IDENTIFIER", "type specifier")
                 }
                 break;
             case 19:
@@ -1009,7 +1009,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("CHAR", "variable statement assignments", "type specifier")
+                    DEFAULTINVALID3("CHAR", "IDENTIFIER", "type specifier")
                 }
                 break;
             case 20:
@@ -1078,7 +1078,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("code block", "declaration", "function declaration")
+                    DEFAULTINVALID3("code block", "either EOF_ or FUN", "function declaration")
                 }
                 break;
             case 26:
@@ -1145,7 +1145,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("IDENTIFIER", "nothing", "parameter list")
+                    DEFAULTINVALID3("IDENTIFIER", "either COMMA or CPARN", "parameter list")
                 }
                 break;
             case 30:
@@ -1431,7 +1431,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::SEMICOLON:
                         REDUCESKIP(Expression);
                         break;
-                    DEFAULTINVALID3("assignment expression", "nothing", "expression")
+                    DEFAULTINVALID3("assignment expression", "COLON, COMMA, CPARN, or SEMICOLON", "expression")
                 }
                 break;
             case 42:
@@ -1444,7 +1444,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                         REDUCESKIP(Assignmentexpr);
                         break;
                     SHIFTON(TokenType::EQUAL, 79)
-                    DEFAULTINVALID3("ternary expression", "EQUAL", "assignment expression")
+                    DEFAULTINVALID3("ternary expression", "COLON, COMMA, CPARN, EQUAL, or SEMICOLON", "assignment expression")
                 }
                 break;
             case 43:
@@ -2309,7 +2309,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("code block", "declaration", "function declaration")
+                    DEFAULTINVALID3("code block", "either EOF_ or FUN", "function declaration")
                 }
                 break;
             case 73:
@@ -2984,7 +2984,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("IDENTIFIER", "nothing", "parameter list")
+                    DEFAULTINVALID3("IDENTIFIER", "either COMMA or CPARN", "parameter list")
                 }
                 break;
             case 105:
@@ -3002,7 +3002,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::SEMICOLON:
                         REDUCESKIP(Varstmtitems);
                         break;
-                    DEFAULTINVALID3("variable statement assignment", "nothing", "variable statement assignments")
+                    DEFAULTINVALID3("variable statement assignment", "either COMMA or SEMICOLON", "variable statement assignments")
                 }
                 break;
             case 107:
@@ -3018,7 +3018,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                         }
                         break;
                     SHIFTON(TokenType::EQUAL, 135)
-                    DEFAULTINVALID3("IDENTIFIER", "EQUAL", "variable statement assignment")
+                    DEFAULTINVALID3("IDENTIFIER", "COMMA, EQUAL, or SEMICOLON", "variable statement assignment")
                 }
                 break;
             case 108:
@@ -3072,7 +3072,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("assignment expression", "nothing", "assignment expression")
+                    DEFAULTINVALID3("assignment expression", "COLON, COMMA, CPARN, or SEMICOLON", "assignment expression")
                 }
                 break;
             case 110:
@@ -3724,7 +3724,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::CPARN:
                         REDUCESKIP(Args);
                         break;
-                    DEFAULTINVALID3("expression", "nothing", "argument list")
+                    DEFAULTINVALID3("expression", "either COMMA or CPARN", "argument list")
                 }
                 break;
             case 132:
@@ -3927,7 +3927,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("variable statement assignment", "nothing", "variable statement assignments")
+                    DEFAULTINVALID3("variable statement assignment", "either COMMA or SEMICOLON", "variable statement assignments")
                 }
                 break;
             case 140:
@@ -3944,7 +3944,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("expression", "nothing", "variable statement assignment")
+                    DEFAULTINVALID3("expression", "either COMMA or SEMICOLON", "variable statement assignment")
                 }
                 break;
             case 141:
@@ -3983,7 +3983,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("expression", "nothing", "argument list")
+                    DEFAULTINVALID3("expression", "either COMMA or CPARN", "argument list")
                 }
                 break;
             default:
