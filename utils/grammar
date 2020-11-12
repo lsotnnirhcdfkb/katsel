@@ -19,7 +19,7 @@ exprstmt                 -> $expression:expr SEMICOLON:semi                     
 retstmt                  -> RETURN:ret $expression:expr SEMICOLON:semi                                                       ; "return statement"
 emptystmt                -> SEMICOLON:semi                                                                                   ; "empty statement"
 
-varstmtitems             -> $varstmtitems:items $varstmtitem:item                                                            ; "variable statement assignments"
+varstmtitems             -> $varstmtitems:items COMMA:comma $varstmtitem:item                                                            ; "variable statement assignments"
 varstmtitems             -> $varstmtitem:item                                                                                ; "variable statement assignments"
 varstmtitem              -> IDENTIFIER:name EQUAL:equal $expression:expr                                                     ; "variable statement assignments"
 varstmtitem              -> IDENTIFIER:name                                                                                  ; "variable statement assignments"

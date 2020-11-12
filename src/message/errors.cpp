@@ -499,7 +499,7 @@ void LocationVisitor::visitVarstmtitems(ASTNS::Varstmtitems *ast)
 {
     switch (ast->form)
     {
-        case ASTNS::Varstmtitems::Form::ITEMS_ITEM:
+        case ASTNS::Varstmtitems::Form::ITEMS_COMMA_ITEM:
             retl = getL(ast->items.get());
             retf = getF(ast->items.get());
             retr = getR(ast->item.get());

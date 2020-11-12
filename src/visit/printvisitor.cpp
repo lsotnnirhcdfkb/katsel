@@ -1181,7 +1181,7 @@ void PrintVisitor::visitVarstmtitems(ASTNS::Varstmtitems *a)
     ++indent;
     switch (a->form)
     {
-        case ASTNS::Varstmtitems::Form::ITEMS_ITEM:
+        case ASTNS::Varstmtitems::Form::ITEMS_COMMA_ITEM:
             pai("items =");
             if (a->items)
             {
@@ -1194,6 +1194,10 @@ void PrintVisitor::visitVarstmtitems(ASTNS::Varstmtitems *a)
             {
                 pai(" nullptr\n");
             }
+            pai("comma =");
+            pai(" [");
+            pai(std::string(a->comma.start, a->comma.end));
+            pai("]\n");
             pai("item =");
             if (a->item)
             {

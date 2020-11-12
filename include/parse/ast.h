@@ -486,14 +486,15 @@ namespace ASTNS
     class Varstmtitems : public AST
     {
     public:
-        Varstmtitems(std::unique_ptr<AST> items, std::unique_ptr<AST> item);
+        Varstmtitems(std::unique_ptr<AST> items, Token comma, std::unique_ptr<AST> item);
         Varstmtitems(std::unique_ptr<AST> item);
         enum class Form
         {
-            ITEMS_ITEM,
+            ITEMS_COMMA_ITEM,
             ITEM,
         };
         std::unique_ptr<AST> items;
+        Token comma;
         std::unique_ptr<AST> item;
         Form form;
         virtual void accept(ASTVisitor *v);

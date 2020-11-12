@@ -1318,9 +1318,10 @@ void DotVisitor::visitVarstmtitems(ASTNS::Varstmtitems *a)
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::Varstmtitems::Form::ITEMS_ITEM:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">Varstmtitems (ITEMS_ITEM)</td></tr><tr>";
+        case ASTNS::Varstmtitems::Form::ITEMS_COMMA_ITEM:
+            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">Varstmtitems (ITEMS_COMMA_ITEM)</td></tr><tr>";
             std::cout << "<td port=\"items\">items</td>";
+            std::cout << "<td port=\"comma\">comma</td>";
             std::cout << "<td port=\"item\">item</td>";
             std::cout << "</tr></table>>]\n";
             {
@@ -1334,6 +1335,10 @@ void DotVisitor::visitVarstmtitems(ASTNS::Varstmtitems *a)
                         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
                         connect(thisid, "items", nullptrnodeid);
                     }
+            }
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->comma.stringify());
+                    connect(thisid, "comma", tokennodeid);
             }
             {
                     if (a->item)
