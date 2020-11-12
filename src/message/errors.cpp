@@ -656,10 +656,10 @@ void Error::report() const
                 }
 
             Underline const *charu = nullptr;
-            for (lunderlinety const &u : lunderlines)
-                if (itInLoc(i, u.first->location))
+            for (Underline const &u : underlines)
+                if (itInLoc(i, u.location))
                 {
-                    charu = u.first;
+                    charu = &u;
                     break;
                 }
 
