@@ -4054,8 +4054,7 @@ void Parser::invalidSyntax(const char *justparsed, const char *expected, const c
 
     for (Token const &t : errored)
         e.primary(Error::Primary(t)
-            .note("erroneous token ignored here with error message...")
-            .note(t.message));
+            .note(concatMsg("erroneous token ignored here with error message \"", t.message, "\"")));
 
     e.report();
 }
@@ -4065,10 +4064,14 @@ void Parser::invalidSyntax(const char *justparsed, const char *expected, Token c
     std::stringstream sss;
     ssl << "expected " << expected << " after " << justparsed << ", but got " << stringifyTokenType(lookahead.type) << " instead";
     sss << "expected " << expected;
-    Error(Error::MsgType::ERROR, lookahead, ssl.str())
+    Error e = Error(Error::MsgType::ERROR, lookahead, ssl.str())
         .primary(Error::Primary(last)
             .error(sss.str()))
         .primary(Error::Primary(lookahead)
-            .note("unexpected token here"))
-        .report();
+            .note("unexpected token here"));
+
+    for (Token const &t : errored)
+        e.primary(Error::Primary(t)
+            .note(concatMsg("erroneous token ignored here with error message \"", t.message, "\"")));
+    e.report();
 }
