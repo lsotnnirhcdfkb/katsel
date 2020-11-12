@@ -162,6 +162,8 @@ template <> size_t Parser::getGoto<ASTNS::Expression>(size_t state)
             return 76;
         case 69:
             return 101;
+        case 78:
+            return 107;
         case 100:
             return 128;
         case 132:
@@ -192,6 +194,7 @@ template <> size_t Parser::getGoto<ASTNS::Assignmentexpr>(size_t state)
         case 30:
         case 38:
         case 69:
+        case 78:
         case 100:
         case 132:
         case 135:
@@ -212,6 +215,7 @@ template <> size_t Parser::getGoto<ASTNS::Ternaryexpr>(size_t state)
         case 38:
         case 69:
         case 77:
+        case 78:
         case 100:
         case 132:
         case 135:
@@ -232,14 +236,13 @@ template <> size_t Parser::getGoto<ASTNS::Binorexpr>(size_t state)
         case 38:
         case 69:
         case 77:
+        case 78:
         case 100:
         case 132:
         case 133:
         case 135:
         case 140:
             return 41;
-        case 78:
-            return 107;
         default:
             reportAbortNoh("retrieve goto of nonterminal binorexpr in invalid state");
     }
@@ -1349,6 +1352,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
             case 39:
                switch (lookahead.type)
                {
+                    case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
                     case TokenType::SEMICOLON:
@@ -1360,6 +1364,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
             case 40:
                switch (lookahead.type)
                {
+                    case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
                     case TokenType::SEMICOLON:
@@ -1372,6 +1377,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
             case 41:
                switch (lookahead.type)
                {
+                    case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
                     case TokenType::EQUAL:
@@ -2395,7 +2401,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 67)
                     SHIFTON(TokenType::TILDE, 54)
                     SHIFTON(TokenType::TRUELIT, 58)
-                    DEFAULTINVALID3("TokenType::QUESTION", "binary or expression", "ternary expression")
+                    DEFAULTINVALID3("TokenType::QUESTION", "expression", "ternary expression")
                 }
                 break;
             case 79:
@@ -2957,6 +2963,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
             case 106:
                switch (lookahead.type)
                {
+                    case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
                     case TokenType::SEMICOLON:
@@ -2976,8 +2983,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::COLON, 133)
-                    SHIFTON(TokenType::DOUBLEPIPE, 79)
-                    DEFAULTINVALID2("binary or expression", "either TokenType::COLON or TokenType::DOUBLEPIPE")
+                    DEFAULTINVALID3("expression", "TokenType::COLON", "ternary expression")
                 }
                 break;
             case 108:
@@ -3837,6 +3843,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
             case 138:
                switch (lookahead.type)
                {
+                    case TokenType::COLON:
                     case TokenType::COMMA:
                     case TokenType::CPARN:
                     case TokenType::EQUAL:

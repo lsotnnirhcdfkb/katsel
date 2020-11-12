@@ -48,7 +48,7 @@ assignmentexpr           -> $ternaryexpr:target EQUAL:equal $assignmentexpr:valu
 assignmentexpr           -> $ternaryexpr:_                                                                                   ; "assignment expression"
 
 ternaryexpr              -> $binorexpr:_                                                                                     ; "ternary expression"
-ternaryexpr              -> $binorexpr:cond QUESTION:quest $binorexpr:trues COLON:colon $ternaryexpr:falses                  ; "ternary expression"
+ternaryexpr              -> $binorexpr:cond QUESTION:quest $expression:trues COLON:colon $ternaryexpr:falses                 ; "ternary expression"
 
 binorexpr                -> $binorexpr:lhs DOUBLEPIPE:op $binandexpr:rhs                                                     ; "binary or expression"
 binorexpr                -> $binandexpr:_                                                                                    ; "binary or expression"
