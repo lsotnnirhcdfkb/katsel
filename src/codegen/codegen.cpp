@@ -16,3 +16,8 @@ Type* CodeGen::evalType(ASTNS::AST *a)
     return typeRetVal;
 }
 
+std::vector<CodeGen::Param> CodeGen::evalParams(ASTNS::AST *a)
+{
+    
+}
+

@@ -29,36 +29,25 @@ void GlobalsAssembler::visitFunction(ASTNS::Function *a)
         return;
     }
 
+    Type *ret = codeGen.evalType(a->retty.get());
+
+    std::vector<CodeGen::Param> params;
+    if (a->form == ASTNS::Function::Form::FUN_RETTY_NAME_OPARN_PARAMLIST_CPARN_BODY)
+        params = codeGen.evalParams(a->paramlist.get());
+
+    std::vector<llvm::Type*> paramtysasllvm;
     std::vector<Type*> paramtys;
-    std::vector<llvm::Type*> paramtysllvm;
-    Type *ret = codeGen.evalType(a->rettype.get());
 
+    for (CodeGen::Param p : params)
     {
-        ASTNS::Param *p = a->params.get();
-        while (p)
-        {
-            Type *ty = codeGen.evalType(p->type.get());
-
-            paramtys.push_back(ty);
-            paramtysllvm.push_back(ty->toLLVMType(context.context));
-
-            p = p->next.get();
-        }
+        paramtys.push_back(p.ty);
+        paramtysasllvm.push_back(p.ty->toLLVMType(context.context));
     }
 
     llvm::Type *retTyllvm = ret->toLLVMType(context.context);
-    llvm::FunctionType *ft = llvm::FunctionType::get(retTyllvm, paramtysllvm, false);
+    llvm::FunctionType *ft = llvm::FunctionType::get(retTyllvm, paramtysasllvm, false);
     llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, a->name.stringify(), context.mod.get());
 
     context.globalSymbolTable[fnamestr] = Value(context.getFunctionType(ret, paramtys), f, a);
 }
 
-void GlobalsAssembler::visitGlobalVarDecl(ASTNS::GlobalVarDecl *a)
-{
-    Error(Error::MsgType::INTERR, a, "Global Variable Declarations are not supported yet")
-        .primary(Error::Primary(a)
-                .error("global variable declaration")
-                .note("coming soon!"))
-        .reportAbort();;
-    // TODO: this
-}

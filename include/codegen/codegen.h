@@ -61,6 +61,13 @@ void visitVarstmtfinisher(ASTNS::Varstmtfinisher *ast) override;
     Value evalExpr(ASTNS::AST *a);
     Type* evalType(ASTNS::AST *a);
 
+    struct Param
+    {
+        Type *ty;
+        Token name;
+    };
+    std::vector<Param> evalParams(ASTNS::AST *a);
+
 private:
     CodeGenContext &context;
 
