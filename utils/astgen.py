@@ -25,7 +25,8 @@ asts = [ASTBaseClass()]
 _astnames = set()
 _asts = []
 for rule in parsegen._grammar:
-    _astnames.add(rule['symbol'])
+    if 'skip' not in rule or not rule['skip']:
+        _astnames.add(rule['symbol'])
 
 for astname in sorted(_astnames):
     fields = []

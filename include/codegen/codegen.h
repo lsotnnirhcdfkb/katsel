@@ -66,6 +66,8 @@ void visitVarstmtfinisher(ASTNS::Varstmtfinisher *ast) override;
         Type *ty;
         Token name;
     };
+
+    Param evalParam(ASTNS::AST *a);
     std::vector<Param> evalParams(ASTNS::AST *a);
 
 private:
@@ -73,5 +75,7 @@ private:
 
     Value exprRetVal;
     Type *typeRetVal;
+    Param paramRetVal;
+    std::vector<Param> paramsRetVal;
 };
 

@@ -20,7 +20,6 @@ jobs = [
     ('include/visit/dotvisitor.h'          , 'DOTVISITOR METHODS START'  , 'DOTVISITOR METHODS END'  , astgen.genVisitorMethods),
     ('src/message/errors.cpp'              , 'LOCVISITOR METHODS START'  , 'LOCVISITOR METHODS END'  , astgen.genVisitorMethods),
     ('include/codegen/codegen.h'           , 'CODEGEN METHODS START'     , 'CODEGEN METHODS END'     , astgen.genVisitorMethods),
-    ('include/replicate/replicatevisitor.h', 'REPLICATE METHODS START'   , 'REPLICATE METHODS END'   , astgen.genVisitorMethods),
     ('include/codegen/globalsassembler.h'  , 'GLOBALS METHODS START'     , 'GLOBALS METHODS END'     , astgen.genVisitorMethods),
     ('src/message/errors.cpp'              , 'LOCVISITOR IMPL START'     , 'LOCVISITOR IMPL END'     , astgen.genLocVisit),
 ]

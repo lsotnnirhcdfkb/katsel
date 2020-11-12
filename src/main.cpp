@@ -17,7 +17,6 @@
 #include "codegen/context.h"
 #include "codegen/codegen.h"
 #include "codegen/globalsassembler.h"
-#include "replicate/replicatevisitor.h"
 
 #include "llvm/Support/raw_ostream.h"
 
@@ -25,7 +24,6 @@ enum Phases
 {
     LEX = 0,
     PARSE,
-    REPLICATE,
     DOT,
     GLOBALS,
     CODEGEN,
@@ -75,8 +73,6 @@ int main(int argc, char *argv[])
                     phasen = Phases::LEX;
                 else if (strcmp(optarg, "parse") == 0)
                     phasen = Phases::PARSE;
-                else if (strcmp(optarg, "replicate") == 0)
-                    phasen = Phases::REPLICATE;
                 else if (strcmp(optarg, "dot") == 0)
                     phasen = Phases::DOT;
                 else if (strcmp(optarg, "globals") == 0)
@@ -136,13 +132,6 @@ int main(int argc, char *argv[])
         {
             auto printv = std::make_unique<PrintVisitor>();
             parsed->accept(printv.get());
-            continue;
-        }
-
-        if (phasen == Phases::REPLICATE)
-        {
-            auto replicator = std::make_unique<ReplicateVisitor>();
-            parsed->accept(replicator.get());
             continue;
         }
 

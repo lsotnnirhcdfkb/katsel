@@ -51,3 +51,31 @@ void GlobalsAssembler::visitFunction(ASTNS::Function *a)
     context.globalSymbolTable[fnamestr] = Value(context.getFunctionType(ret, paramtys), f, a);
 }
 
+void GlobalsAssembler::visitAdditionexpr(ASTNS::Additionexpr *ast) {}
+void GlobalsAssembler::visitArgs(ASTNS::Args *ast) {}
+void GlobalsAssembler::visitAssignmentexpr(ASTNS::Assignmentexpr *ast) {}
+void GlobalsAssembler::visitBinandexpr(ASTNS::Binandexpr *ast) {}
+void GlobalsAssembler::visitBinnotexpr(ASTNS::Binnotexpr *ast) {}
+void GlobalsAssembler::visitBinorexpr(ASTNS::Binorexpr *ast) {}
+void GlobalsAssembler::visitBitandexpr(ASTNS::Bitandexpr *ast) {}
+void GlobalsAssembler::visitBitorexpr(ASTNS::Bitorexpr *ast) {}
+void GlobalsAssembler::visitBitshiftexpr(ASTNS::Bitshiftexpr *ast) {}
+void GlobalsAssembler::visitBitxorexpr(ASTNS::Bitxorexpr *ast) {}
+void GlobalsAssembler::visitBlock(ASTNS::Block *ast) {}
+void GlobalsAssembler::visitCallexpr(ASTNS::Callexpr *ast) {}
+void GlobalsAssembler::visitCompeqexpr(ASTNS::Compeqexpr *ast) {}
+void GlobalsAssembler::visitComplgtexpr(ASTNS::Complgtexpr *ast) {}
+void GlobalsAssembler::visitDecl(ASTNS::Decl *ast) {}
+void GlobalsAssembler::visitExpression(ASTNS::Expression *ast) {}
+void GlobalsAssembler::visitExprstmt(ASTNS::Exprstmt *ast) {}
+void GlobalsAssembler::visitMultexpr(ASTNS::Multexpr *ast) {}
+void GlobalsAssembler::visitParamlist(ASTNS::Paramlist *ast) {}
+void GlobalsAssembler::visitPrimaryexpr(ASTNS::Primaryexpr *ast) {}
+void GlobalsAssembler::visitRetstmt(ASTNS::Retstmt *ast) {}
+void GlobalsAssembler::visitStmt(ASTNS::Stmt *ast) {}
+void GlobalsAssembler::visitStmts(ASTNS::Stmts *ast) {}
+void GlobalsAssembler::visitTernaryexpr(ASTNS::Ternaryexpr *ast) {}
+void GlobalsAssembler::visitType(ASTNS::Type *ast) {}
+void GlobalsAssembler::visitUnaryexpr(ASTNS::Unaryexpr *ast) {}
+void GlobalsAssembler::visitVarstmt(ASTNS::Varstmt *ast) {}
+void GlobalsAssembler::visitVarstmtfinisher(ASTNS::Varstmtfinisher *ast) {}

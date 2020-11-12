@@ -3,8 +3,8 @@ decls                    -> $decl:decl                                          
 
 decl                     -> $function:_                                                                                      ; "declaration"
 
-function                 -> FUN:fun $type:retty IDENTIFIER:name OPARN:oparn CPARN:cparn $block:body                                  ; "function declaration"
-function                 -> FUN:fun $type:retty IDENTIFIER:name OPARN:oparn $paramlist:paramlist CPARN:cparn $block:body             ; "function declaration"
+function                 -> FUN:fun $type:retty IDENTIFIER:name OPARN:oparn CPARN:cparn $block:body                          ; "function declaration"
+function                 -> FUN:fun $type:retty IDENTIFIER:name OPARN:oparn $paramlist:paramlist CPARN:cparn $block:body     ; "function declaration"
 
 stmts                    -> $stmts:stmts $stmt:stmt                                                                          ; "statements"
 stmts                    -> $stmt:_                                                                                          ; "statements"
@@ -109,5 +109,6 @@ primaryexpr              -> BININTLIT:value                                     
 primaryexpr              -> HEXINTLIT:value                                                                                  ; "primary expression"
 primaryexpr              -> CHARLIT:value                                                                                    ; "primary expression"
 primaryexpr              -> STRINGLIT:value                                                                                  ; "primary expression"
+primaryexpr              -> IDENTIFIER:value                                                                                    ; "primary expression"
 primaryexpr              -> OPARN:oparn $expression:expr CPARN:cparn                                                         ; "primary expression"
 
