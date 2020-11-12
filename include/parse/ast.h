@@ -22,23 +22,23 @@ namespace ASTNS
     class Bitshiftexpr;
     class Bitxorexpr;
     class Block;
-    class Call;
+    class Callexpr;
     class Compeqexpr;
     class Complgtexpr;
     class Decl;
-    class Declarations;
+    class Decls;
     class Expression;
     class Exprstmt;
     class Function;
     class Multexpr;
     class Paramlist;
-    class Primary;
+    class Primaryexpr;
     class Retstmt;
     class Stmt;
     class Stmts;
     class Ternaryexpr;
     class Type;
-    class Unary;
+    class Unaryexpr;
     class Varstmt;
     class Varstmtfinisher;
     class AST
@@ -202,11 +202,11 @@ namespace ASTNS
         Form form;
         virtual void accept(ASTVisitor *v);
     };
-    class Call : public AST
+    class Callexpr : public AST
     {
     public:
-        Call(std::unique_ptr<AST> callee, Token oparn, std::unique_ptr<AST> args, Token cparn);
-        Call(std::unique_ptr<AST> callee, Token oparn, Token cparn);
+        Callexpr(std::unique_ptr<AST> callee, Token oparn, std::unique_ptr<AST> args, Token cparn);
+        Callexpr(std::unique_ptr<AST> callee, Token oparn, Token cparn);
         enum class Form
         {
             CALLEE_OPARN_ARGS_CPARN,
@@ -256,11 +256,11 @@ namespace ASTNS
         Form form;
         virtual void accept(ASTVisitor *v);
     };
-    class Declarations : public AST
+    class Decls : public AST
     {
     public:
-        Declarations(std::unique_ptr<AST> decls, std::unique_ptr<AST> decl);
-        Declarations(std::unique_ptr<AST> decl);
+        Decls(std::unique_ptr<AST> decls, std::unique_ptr<AST> decl);
+        Decls(std::unique_ptr<AST> decl);
         enum class Form
         {
             DECLS_DECL,
@@ -296,13 +296,14 @@ namespace ASTNS
     class Function : public AST
     {
     public:
-        Function(std::unique_ptr<AST> retty, Token name, Token oparn, Token cparn, std::unique_ptr<AST> body);
-        Function(std::unique_ptr<AST> retty, Token name, Token oparn, std::unique_ptr<AST> paramlist, Token cparn, std::unique_ptr<AST> body);
+        Function(Token fun, std::unique_ptr<AST> retty, Token name, Token oparn, Token cparn, std::unique_ptr<AST> body);
+        Function(Token fun, std::unique_ptr<AST> retty, Token name, Token oparn, std::unique_ptr<AST> paramlist, Token cparn, std::unique_ptr<AST> body);
         enum class Form
         {
-            RETTY_NAME_OPARN_CPARN_BODY,
-            RETTY_NAME_OPARN_PARAMLIST_CPARN_BODY,
+            FUN_RETTY_NAME_OPARN_CPARN_BODY,
+            FUN_RETTY_NAME_OPARN_PARAMLIST_CPARN_BODY,
         };
+        Token fun;
         std::unique_ptr<AST> retty;
         Token name;
         Token oparn;
@@ -343,11 +344,11 @@ namespace ASTNS
         Form form;
         virtual void accept(ASTVisitor *v);
     };
-    class Primary : public AST
+    class Primaryexpr : public AST
     {
     public:
-        Primary(Token value);
-        Primary(Token oparn, std::unique_ptr<AST> expr, Token cparn);
+        Primaryexpr(Token value);
+        Primaryexpr(Token oparn, std::unique_ptr<AST> expr, Token cparn);
         enum class Form
         {
             VALUE,
@@ -424,10 +425,10 @@ namespace ASTNS
         Form form;
         virtual void accept(ASTVisitor *v);
     };
-    class Unary : public AST
+    class Unaryexpr : public AST
     {
     public:
-        Unary(Token op, std::unique_ptr<AST> operand);
+        Unaryexpr(Token op, std::unique_ptr<AST> operand);
         enum class Form
         {
             OP_OPERAND,

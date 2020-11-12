@@ -8,13 +8,13 @@
 
 GlobalsAssembler::GlobalsAssembler(CodeGenContext &con, CodeGen &codeGen): context(con), codeGen(codeGen) {}
 
-void GlobalsAssembler::visitStmts(ASTNS::Program *a)
+void GlobalsAssembler::visitDecls(ASTNS::Decls *a)
 {
-    for (std::unique_ptr<ASTNS::Decl> &d : a->decls)
-        d->accept(this);
+    a->decls->accept(this);
+    a->decl->accept(this);
 }
 
-void GlobalsAssembler::visitFunctionDecl(ASTNS::FunctionDecl *a)
+void GlobalsAssembler::visitFunction(ASTNS::Function *a)
 {
     std::string fnamestr (a->name.stringify());
     Value declbefore = context.getGlobal(fnamestr);

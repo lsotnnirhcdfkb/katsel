@@ -475,13 +475,13 @@ void DotVisitor::visitBlock(ASTNS::Block *a)
     }
     lastid = std::move(thisid);
 }
-void DotVisitor::visitCall(ASTNS::Call *a)
+void DotVisitor::visitCallexpr(ASTNS::Callexpr *a)
 {
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::Call::Form::CALLEE_OPARN_ARGS_CPARN:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"4\">Call (CALLEE_OPARN_ARGS_CPARN)</td></tr><tr>";
+        case ASTNS::Callexpr::Form::CALLEE_OPARN_ARGS_CPARN:
+            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"4\">Callexpr (CALLEE_OPARN_ARGS_CPARN)</td></tr><tr>";
             std::cout << "<td port=\"callee\">callee</td>";
             std::cout << "<td port=\"oparn\">oparn</td>";
             std::cout << "<td port=\"args\">args</td>";
@@ -520,8 +520,8 @@ void DotVisitor::visitCall(ASTNS::Call *a)
                     connect(thisid, "cparn", tokennodeid);
             }
             break;
-        case ASTNS::Call::Form::CALLEE_OPARN_CPARN:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">Call (CALLEE_OPARN_CPARN)</td></tr><tr>";
+        case ASTNS::Callexpr::Form::CALLEE_OPARN_CPARN:
+            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">Callexpr (CALLEE_OPARN_CPARN)</td></tr><tr>";
             std::cout << "<td port=\"callee\">callee</td>";
             std::cout << "<td port=\"oparn\">oparn</td>";
             std::cout << "<td port=\"cparn\">cparn</td>";
@@ -644,13 +644,13 @@ void DotVisitor::visitDecl(ASTNS::Decl *a)
     }
     lastid = std::move(thisid);
 }
-void DotVisitor::visitDeclarations(ASTNS::Declarations *a)
+void DotVisitor::visitDecls(ASTNS::Decls *a)
 {
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::Declarations::Form::DECLS_DECL:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">Declarations (DECLS_DECL)</td></tr><tr>";
+        case ASTNS::Decls::Form::DECLS_DECL:
+            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">Decls (DECLS_DECL)</td></tr><tr>";
             std::cout << "<td port=\"decls\">decls</td>";
             std::cout << "<td port=\"decl\">decl</td>";
             std::cout << "</tr></table>>]\n";
@@ -679,8 +679,8 @@ void DotVisitor::visitDeclarations(ASTNS::Declarations *a)
                     }
             }
             break;
-        case ASTNS::Declarations::Form::DECL:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">Declarations (DECL)</td></tr><tr>";
+        case ASTNS::Decls::Form::DECL:
+            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">Decls (DECL)</td></tr><tr>";
             std::cout << "<td port=\"decl\">decl</td>";
             std::cout << "</tr></table>>]\n";
             {
@@ -742,14 +742,19 @@ void DotVisitor::visitFunction(ASTNS::Function *a)
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::Function::Form::RETTY_NAME_OPARN_CPARN_BODY:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"5\">Function (RETTY_NAME_OPARN_CPARN_BODY)</td></tr><tr>";
+        case ASTNS::Function::Form::FUN_RETTY_NAME_OPARN_CPARN_BODY:
+            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"6\">Function (FUN_RETTY_NAME_OPARN_CPARN_BODY)</td></tr><tr>";
+            std::cout << "<td port=\"fun\">fun</td>";
             std::cout << "<td port=\"retty\">retty</td>";
             std::cout << "<td port=\"name\">name</td>";
             std::cout << "<td port=\"oparn\">oparn</td>";
             std::cout << "<td port=\"cparn\">cparn</td>";
             std::cout << "<td port=\"body\">body</td>";
             std::cout << "</tr></table>>]\n";
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->fun.stringify());
+                    connect(thisid, "fun", tokennodeid);
+            }
             {
                     if (a->retty)
                     {
@@ -787,8 +792,9 @@ void DotVisitor::visitFunction(ASTNS::Function *a)
                     }
             }
             break;
-        case ASTNS::Function::Form::RETTY_NAME_OPARN_PARAMLIST_CPARN_BODY:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"6\">Function (RETTY_NAME_OPARN_PARAMLIST_CPARN_BODY)</td></tr><tr>";
+        case ASTNS::Function::Form::FUN_RETTY_NAME_OPARN_PARAMLIST_CPARN_BODY:
+            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"7\">Function (FUN_RETTY_NAME_OPARN_PARAMLIST_CPARN_BODY)</td></tr><tr>";
+            std::cout << "<td port=\"fun\">fun</td>";
             std::cout << "<td port=\"retty\">retty</td>";
             std::cout << "<td port=\"name\">name</td>";
             std::cout << "<td port=\"oparn\">oparn</td>";
@@ -796,6 +802,10 @@ void DotVisitor::visitFunction(ASTNS::Function *a)
             std::cout << "<td port=\"cparn\">cparn</td>";
             std::cout << "<td port=\"body\">body</td>";
             std::cout << "</tr></table>>]\n";
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->fun.stringify());
+                    connect(thisid, "fun", tokennodeid);
+            }
             {
                     if (a->retty)
                     {
@@ -961,13 +971,13 @@ void DotVisitor::visitParamlist(ASTNS::Paramlist *a)
     }
     lastid = std::move(thisid);
 }
-void DotVisitor::visitPrimary(ASTNS::Primary *a)
+void DotVisitor::visitPrimaryexpr(ASTNS::Primaryexpr *a)
 {
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::Primary::Form::VALUE:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">Primary (VALUE)</td></tr><tr>";
+        case ASTNS::Primaryexpr::Form::VALUE:
+            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">Primaryexpr (VALUE)</td></tr><tr>";
             std::cout << "<td port=\"value\">value</td>";
             std::cout << "</tr></table>>]\n";
             {
@@ -975,8 +985,8 @@ void DotVisitor::visitPrimary(ASTNS::Primary *a)
                     connect(thisid, "value", tokennodeid);
             }
             break;
-        case ASTNS::Primary::Form::OPARN_EXPR_CPARN:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">Primary (OPARN_EXPR_CPARN)</td></tr><tr>";
+        case ASTNS::Primaryexpr::Form::OPARN_EXPR_CPARN:
+            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">Primaryexpr (OPARN_EXPR_CPARN)</td></tr><tr>";
             std::cout << "<td port=\"oparn\">oparn</td>";
             std::cout << "<td port=\"expr\">expr</td>";
             std::cout << "<td port=\"cparn\">cparn</td>";
@@ -1164,13 +1174,13 @@ void DotVisitor::visitType(ASTNS::Type *a)
     }
     lastid = std::move(thisid);
 }
-void DotVisitor::visitUnary(ASTNS::Unary *a)
+void DotVisitor::visitUnaryexpr(ASTNS::Unaryexpr *a)
 {
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::Unary::Form::OP_OPERAND:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">Unary (OP_OPERAND)</td></tr><tr>";
+        case ASTNS::Unaryexpr::Form::OP_OPERAND:
+            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">Unaryexpr (OP_OPERAND)</td></tr><tr>";
             std::cout << "<td port=\"op\">op</td>";
             std::cout << "<td port=\"operand\">operand</td>";
             std::cout << "</tr></table>>]\n";

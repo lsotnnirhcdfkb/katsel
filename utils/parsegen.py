@@ -361,8 +361,14 @@ for rule in filter(len, grammarstr.split('\n')):
     _grammar.append(r)
 
 grammar = []
+found = set()
+missing = set()
 for rule in _grammar:
     symbol = rule['symbol']
+    if symbol in missing:
+        missing.remove(symbol)
+        found.add(symbol)
+
     expansion = list(filter(len, rule['expansion'].split(' ')))
     for i, s in enumerate(expansion):
         try:
@@ -373,6 +379,8 @@ for rule in _grammar:
 
         if sname.startswith('$'):
             expansion[i] = NonTerminal(sname[1:])
+            if sname[1:] not in found and sname[1:] not in missing:
+                missing.add(sname[1:])
         else:
             expansion[i] = Terminal(f'TokenType::{sname}')
             if sname.lower() == sname:
@@ -386,6 +394,8 @@ for rule in _grammar:
 
     grammar.append(Rule(NonTerminal(symbol), tuple(expansion), skip, rule['name']))
 
+for missingi in missing:
+    print(f'\033[35;1mwarning\033[0m: undefined terminal \033[1m{missingi}\033[0m')
 print('-- parsed grammar')
 
 augmentSymbol = NonTerminal('augment')
@@ -573,7 +583,6 @@ def genLoop():
 # generate goto code {{{2
 def genGoto():
     output = []
-
 
     for nonterm in symbols:
         if type(nonterm) == Terminal:

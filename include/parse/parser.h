@@ -16,7 +16,7 @@ class Parser
 public:
     Parser(Lexer &l, File &sourcefile);
 
-    std::unique_ptr<ASTNS::Declarations> parse();
+    std::unique_ptr<ASTNS::Decls> parse();
 
 private:
     Lexer &lexer;
