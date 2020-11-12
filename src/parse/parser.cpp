@@ -3989,7 +3989,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
             default:
                 Error(Error::MsgType::INTERR, lookahead, "Parser reached invalid state")
                     .primary(Error::Primary(lookahead)
-                        .error(static_cast<std::stringstream&>(std::stringstream() << "Parser reached invalid state: " << stack.top()->state).str()))
+                        .error(concatMsg("Parser reached invalid state: ", stack.top()->state)))
                     .reportAbort();
         }
     }
