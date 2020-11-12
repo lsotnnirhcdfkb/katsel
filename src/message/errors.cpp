@@ -615,10 +615,22 @@ void Error::report() const
 
     std::string pad (maxlinepad + 1, ' ');
     File const *lastfile = nullptr;
+    int lastnr = -1;
     for (showloc const &sl : showlocs)
     {
         if (sl.first != lastfile)
+        {
             std::cerr << pad << "> " << attr(A_FG_CYAN, sl.first->filename) << std::endl;
+            lastnr = -1;
+        }
+
+        if (sl.second != lastnr + 1 && lastnr != -1)
+        {
+            std::ios origState (nullptr);
+            origState.copyfmt(std::cerr);
+            std::cerr << std::setw(maxlinepad - 1) << std::right << std::string(std::min(3, maxlinepad), '.') << " | ...\n";
+            std::cerr.copyfmt(origState);
+        }
 
         {
             std::ios origState (nullptr);
@@ -730,6 +742,7 @@ void Error::report() const
         }
 
         lastfile = sl.first;
+        lastnr = sl.second;
     }
 }
 void Error::reportAbort()
