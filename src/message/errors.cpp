@@ -628,7 +628,7 @@ void Error::report() const
         {
             std::ios origState (nullptr);
             origState.copyfmt(std::cerr);
-            std::cerr << std::setw(maxlinepad - 1) << std::right << std::string(std::min(3, maxlinepad), '.') << " | ...\n";
+            std::cerr << std::setw(maxlinepad - 1) << std::right << std::string(maxlinepad, '.') << " | ...\n";
             std::cerr.copyfmt(origState);
         }
 
