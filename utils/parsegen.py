@@ -152,6 +152,8 @@ class State:
                     expected.extend([r.name for r in grammar if r.symbol == after])
                 else:
                     expected.append(str(after))
+            else:
+                expected.append(str(item.lookahead))
 
             whileparsing.append(item.rule.name)
 
