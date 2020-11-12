@@ -14,13 +14,15 @@ stmt                     -> $exprstmt:_                                         
 stmt                     -> $retstmt:_                                                                                       ; "statement"
 stmt                     -> $block:_                                                                                         ; "statement"
 
-varstmt                  -> VAR:var $type:type $varstmtfinisher:assignments SEMICOLON:semi                                   ; "variable statement"
+varstmt                  -> VAR:var $type:type $varstmtitems:assignments SEMICOLON:semi                                      ; "variable statement"
 exprstmt                 -> $expression:expr SEMICOLON:semi                                                                  ; "expression statement"
 retstmt                  -> RETURN:ret $expression:expr SEMICOLON:semi                                                       ; "return statement"
 emptystmt                -> SEMICOLON:semi                                                                                   ; "empty statement"
 
-varstmtfinisher          -> $varstmtfinisher:assignments COMMA:comma IDENTIFIER:name EQUAL:equal $expression:expr            ; "variable statement assignments"
-varstmtfinisher          -> IDENTIFIER:name EQUAL:equal $expression:expr                                                     ; "variable statement assignments"
+varstmtitems             -> $varstmtitems:items $varstmtitem:item                                                            ; "variable statement assignments"
+varstmtitems             -> $varstmtitem:item                                                                                ; "variable statement assignments"
+varstmtitem              -> IDENTIFIER:name EQUAL:equal $expression:expr                                                     ; "variable statement assignments"
+varstmtitem              -> IDENTIFIER:name                                                                                  ; "variable statement assignments"
 
 block                    -> OCURB:ocurb $stmts:stmts CCURB:ccurb                                                             ; "code block"
 

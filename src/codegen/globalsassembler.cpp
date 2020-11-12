@@ -78,5 +78,6 @@ void GlobalsAssembler::visitTernaryexpr(ASTNS::Ternaryexpr *ast) {}
 void GlobalsAssembler::visitType(ASTNS::Type *ast) {}
 void GlobalsAssembler::visitUnaryexpr(ASTNS::Unaryexpr *ast) {}
 void GlobalsAssembler::visitVarstmt(ASTNS::Varstmt *ast) {}
-void GlobalsAssembler::visitVarstmtfinisher(ASTNS::Varstmtfinisher *ast) {}
+void GlobalsAssembler::visitVarstmtitems(ASTNS::Varstmtitems *ast) {}
+void GlobalsAssembler::visitVarstmtitem(ASTNS::Varstmtitem *ast) {}
 void GlobalsAssembler::visitEmptystmt(ASTNS::Emptystmt *ast) {}

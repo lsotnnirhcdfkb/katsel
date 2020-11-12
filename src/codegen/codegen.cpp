@@ -50,5 +50,6 @@ void CodeGen::visitTernaryexpr(ASTNS::Ternaryexpr *ast) {}
 void CodeGen::visitType(ASTNS::Type *ast) {}
 void CodeGen::visitUnaryexpr(ASTNS::Unaryexpr *ast) {}
 void CodeGen::visitVarstmt(ASTNS::Varstmt *ast) {}
-void CodeGen::visitVarstmtfinisher(ASTNS::Varstmtfinisher *ast) {}
+void CodeGen::visitVarstmtitems(ASTNS::Varstmtitems *ast) {}
+void CodeGen::visitVarstmtitem(ASTNS::Varstmtitem *ast) {}
 void CodeGen::visitEmptystmt(ASTNS::Emptystmt *ast) {}

@@ -41,7 +41,8 @@ namespace ASTNS
     class Type;
     class Unaryexpr;
     class Varstmt;
-    class Varstmtfinisher;
+    class Varstmtitem;
+    class Varstmtitems;
     class AST
     {
     public:
@@ -466,21 +467,34 @@ namespace ASTNS
         Form form;
         virtual void accept(ASTVisitor *v);
     };
-    class Varstmtfinisher : public AST
+    class Varstmtitem : public AST
     {
     public:
-        Varstmtfinisher(std::unique_ptr<AST> assignments, Token comma, Token name, Token equal, std::unique_ptr<AST> expr);
-        Varstmtfinisher(Token name, Token equal, std::unique_ptr<AST> expr);
+        Varstmtitem(Token name, Token equal, std::unique_ptr<AST> expr);
+        Varstmtitem(Token name);
         enum class Form
         {
-            ASSIGNMENTS_COMMA_NAME_EQUAL_EXPR,
             NAME_EQUAL_EXPR,
+            NAME,
         };
-        std::unique_ptr<AST> assignments;
-        Token comma;
         Token name;
         Token equal;
         std::unique_ptr<AST> expr;
+        Form form;
+        virtual void accept(ASTVisitor *v);
+    };
+    class Varstmtitems : public AST
+    {
+    public:
+        Varstmtitems(std::unique_ptr<AST> items, std::unique_ptr<AST> item);
+        Varstmtitems(std::unique_ptr<AST> item);
+        enum class Form
+        {
+            ITEMS_ITEM,
+            ITEM,
+        };
+        std::unique_ptr<AST> items;
+        std::unique_ptr<AST> item;
         Form form;
         virtual void accept(ASTVisitor *v);
     };

@@ -1138,29 +1138,13 @@ void PrintVisitor::visitVarstmt(ASTNS::Varstmt *a)
     }
     --indent;
 }
-void PrintVisitor::visitVarstmtfinisher(ASTNS::Varstmtfinisher *a)
+void PrintVisitor::visitVarstmtitem(ASTNS::Varstmtitem *a)
 {
-    pai("Varstmtfinisher\n");
+    pai("Varstmtitem\n");
     ++indent;
     switch (a->form)
     {
-        case ASTNS::Varstmtfinisher::Form::ASSIGNMENTS_COMMA_NAME_EQUAL_EXPR:
-            pai("assignments =");
-            if (a->assignments)
-            {
-                ++indent;
-                pai("\n");
-                a->assignments->accept(this);
-                --indent;
-            }
-            else
-            {
-                pai(" nullptr\n");
-            }
-            pai("comma =");
-            pai(" [");
-            pai(std::string(a->comma.start, a->comma.end));
-            pai("]\n");
+        case ASTNS::Varstmtitem::Form::NAME_EQUAL_EXPR:
             pai("name =");
             pai(" [");
             pai(std::string(a->name.start, a->name.end));
@@ -1182,21 +1166,54 @@ void PrintVisitor::visitVarstmtfinisher(ASTNS::Varstmtfinisher *a)
                 pai(" nullptr\n");
             }
             break;
-        case ASTNS::Varstmtfinisher::Form::NAME_EQUAL_EXPR:
+        case ASTNS::Varstmtitem::Form::NAME:
             pai("name =");
             pai(" [");
             pai(std::string(a->name.start, a->name.end));
             pai("]\n");
-            pai("equal =");
-            pai(" [");
-            pai(std::string(a->equal.start, a->equal.end));
-            pai("]\n");
-            pai("expr =");
-            if (a->expr)
+            break;
+    }
+    --indent;
+}
+void PrintVisitor::visitVarstmtitems(ASTNS::Varstmtitems *a)
+{
+    pai("Varstmtitems\n");
+    ++indent;
+    switch (a->form)
+    {
+        case ASTNS::Varstmtitems::Form::ITEMS_ITEM:
+            pai("items =");
+            if (a->items)
             {
                 ++indent;
                 pai("\n");
-                a->expr->accept(this);
+                a->items->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
+            pai("item =");
+            if (a->item)
+            {
+                ++indent;
+                pai("\n");
+                a->item->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
+            break;
+        case ASTNS::Varstmtitems::Form::ITEM:
+            pai("item =");
+            if (a->item)
+            {
+                ++indent;
+                pai("\n");
+                a->item->accept(this);
                 --indent;
             }
             else

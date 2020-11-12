@@ -1269,35 +1269,17 @@ void DotVisitor::visitVarstmt(ASTNS::Varstmt *a)
     }
     lastid = std::move(thisid);
 }
-void DotVisitor::visitVarstmtfinisher(ASTNS::Varstmtfinisher *a)
+void DotVisitor::visitVarstmtitem(ASTNS::Varstmtitem *a)
 {
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::Varstmtfinisher::Form::ASSIGNMENTS_COMMA_NAME_EQUAL_EXPR:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"5\">Varstmtfinisher (ASSIGNMENTS_COMMA_NAME_EQUAL_EXPR)</td></tr><tr>";
-            std::cout << "<td port=\"assignments\">assignments</td>";
-            std::cout << "<td port=\"comma\">comma</td>";
+        case ASTNS::Varstmtitem::Form::NAME_EQUAL_EXPR:
+            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">Varstmtitem (NAME_EQUAL_EXPR)</td></tr><tr>";
             std::cout << "<td port=\"name\">name</td>";
             std::cout << "<td port=\"equal\">equal</td>";
             std::cout << "<td port=\"expr\">expr</td>";
             std::cout << "</tr></table>>]\n";
-            {
-                    if (a->assignments)
-                    {
-                        a->assignments->accept(this);
-                        connect(thisid, "assignments", lastid);
-                    }
-                    else
-                    {
-                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "assignments", nullptrnodeid);
-                    }
-            }
-            {
-                    std::string tokennodeid = makeTextNode("Token", a->comma.stringify());
-                    connect(thisid, "comma", tokennodeid);
-            }
             {
                     std::string tokennodeid = makeTextNode("Token", a->name.stringify());
                     connect(thisid, "name", tokennodeid);
@@ -1319,30 +1301,67 @@ void DotVisitor::visitVarstmtfinisher(ASTNS::Varstmtfinisher *a)
                     }
             }
             break;
-        case ASTNS::Varstmtfinisher::Form::NAME_EQUAL_EXPR:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">Varstmtfinisher (NAME_EQUAL_EXPR)</td></tr><tr>";
+        case ASTNS::Varstmtitem::Form::NAME:
+            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">Varstmtitem (NAME)</td></tr><tr>";
             std::cout << "<td port=\"name\">name</td>";
-            std::cout << "<td port=\"equal\">equal</td>";
-            std::cout << "<td port=\"expr\">expr</td>";
             std::cout << "</tr></table>>]\n";
             {
                     std::string tokennodeid = makeTextNode("Token", a->name.stringify());
                     connect(thisid, "name", tokennodeid);
             }
+            break;
+    }
+    lastid = std::move(thisid);
+}
+void DotVisitor::visitVarstmtitems(ASTNS::Varstmtitems *a)
+{
+    std::string thisid = curid();
+    switch (a->form)
+    {
+        case ASTNS::Varstmtitems::Form::ITEMS_ITEM:
+            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">Varstmtitems (ITEMS_ITEM)</td></tr><tr>";
+            std::cout << "<td port=\"items\">items</td>";
+            std::cout << "<td port=\"item\">item</td>";
+            std::cout << "</tr></table>>]\n";
             {
-                    std::string tokennodeid = makeTextNode("Token", a->equal.stringify());
-                    connect(thisid, "equal", tokennodeid);
-            }
-            {
-                    if (a->expr)
+                    if (a->items)
                     {
-                        a->expr->accept(this);
-                        connect(thisid, "expr", lastid);
+                        a->items->accept(this);
+                        connect(thisid, "items", lastid);
                     }
                     else
                     {
                         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "expr", nullptrnodeid);
+                        connect(thisid, "items", nullptrnodeid);
+                    }
+            }
+            {
+                    if (a->item)
+                    {
+                        a->item->accept(this);
+                        connect(thisid, "item", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "item", nullptrnodeid);
+                    }
+            }
+            break;
+        case ASTNS::Varstmtitems::Form::ITEM:
+            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">Varstmtitems (ITEM)</td></tr><tr>";
+            std::cout << "<td port=\"item\">item</td>";
+            std::cout << "</tr></table>>]\n";
+            {
+                    if (a->item)
+                    {
+                        a->item->accept(this);
+                        connect(thisid, "item", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "item", nullptrnodeid);
                     }
             }
             break;
