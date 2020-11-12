@@ -6,8 +6,8 @@ decl                     -> $function:_                                         
 function                 -> FUN:fun $type:retty IDENTIFIER:name OPARN:oparn CPARN:cparn $block:body                          ; "function declaration"
 function                 -> FUN:fun $type:retty IDENTIFIER:name OPARN:oparn $paramlist:paramlist CPARN:cparn $block:body     ; "function declaration"
 
-stmts                    -> $stmts:stmts $stmt:stmt                                                                          ; "statements"
-stmts                    -> $stmt:_                                                                                          ; "statements"
+stmts                    -> $stmts:stmts $stmt:stmt                                                                          ; "statement list"
+stmts                    -> $stmt:_                                                                                          ; "statement list"
 stmt                     -> $emptystmt:_                                                                                     ; "statement"
 stmt                     -> $varstmt:_                                                                                       ; "statement"
 stmt                     -> $exprstmt:_                                                                                      ; "statement"
@@ -19,10 +19,10 @@ exprstmt                 -> $expression:expr SEMICOLON:semi                     
 retstmt                  -> RETURN:ret $expression:expr SEMICOLON:semi                                                       ; "return statement"
 emptystmt                -> SEMICOLON:semi                                                                                   ; "empty statement"
 
-varstmtitems             -> $varstmtitems:items COMMA:comma $varstmtitem:item                                                            ; "variable statement assignments"
+varstmtitems             -> $varstmtitems:items COMMA:comma $varstmtitem:item                                                ; "variable statement assignments"
 varstmtitems             -> $varstmtitem:item                                                                                ; "variable statement assignments"
-varstmtitem              -> IDENTIFIER:name EQUAL:equal $expression:expr                                                     ; "variable statement assignments"
-varstmtitem              -> IDENTIFIER:name                                                                                  ; "variable statement assignments"
+varstmtitem              -> IDENTIFIER:name EQUAL:equal $expression:expr                                                     ; "variable statement assignment"
+varstmtitem              -> IDENTIFIER:name                                                                                  ; "variable statement assignment"
 
 block                    -> OCURB:ocurb $stmts:stmts CCURB:ccurb                                                             ; "code block"
 
@@ -113,6 +113,6 @@ primaryexpr              -> BININTLIT:value                                     
 primaryexpr              -> HEXINTLIT:value                                                                                  ; "primary expression"
 primaryexpr              -> CHARLIT:value                                                                                    ; "primary expression"
 primaryexpr              -> STRINGLIT:value                                                                                  ; "primary expression"
-primaryexpr              -> IDENTIFIER:value                                                                                    ; "primary expression"
+primaryexpr              -> IDENTIFIER:value                                                                                 ; "primary expression"
 primaryexpr              -> OPARN:oparn $expression:expr CPARN:cparn                                                         ; "primary expression"
 

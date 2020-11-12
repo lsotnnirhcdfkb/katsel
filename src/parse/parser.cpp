@@ -1103,7 +1103,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::TILDE, 56)
                     SHIFTON(TokenType::TRUELIT, 60)
                     SHIFTON(TokenType::VAR, 38)
-                    DEFAULTINVALID3("OCURB", "statements", "code block")
+                    DEFAULTINVALID3("OCURB", "statement list", "code block")
                 }
                 break;
             case 27:
@@ -1171,7 +1171,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::TILDE, 56)
                     SHIFTON(TokenType::TRUELIT, 60)
                     SHIFTON(TokenType::VAR, 38)
-                    DEFAULTINVALID2("statements", "either CCURB or statement")
+                    DEFAULTINVALID2("statement list", "either CCURB or statement")
                 }
                 break;
             case 31:
@@ -1199,7 +1199,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::VAR:
                         REDUCESKIP(Stmts);
                         break;
-                    DEFAULTINVALID3("statement", "BANG, BININTLIT, CCURB, CHARLIT, DECINTLIT, FALSELIT, FLOATLIT, HEXINTLIT, IDENTIFIER, MINUS, NULLPTRLIT, OCTINTLIT, OCURB, OPARN, RETURN, SEMICOLON, STRINGLIT, TILDE, TRUELIT, or VAR", "statements")
+                    DEFAULTINVALID3("statement", "BANG, BININTLIT, CCURB, CHARLIT, DECINTLIT, FALSELIT, FLOATLIT, HEXINTLIT, IDENTIFIER, MINUS, NULLPTRLIT, OCTINTLIT, OCURB, OPARN, RETURN, SEMICOLON, STRINGLIT, TILDE, TRUELIT, or VAR", "statement list")
                 }
                 break;
             case 32:
@@ -2387,7 +2387,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("statement", "BANG, BININTLIT, CCURB, CHARLIT, DECINTLIT, FALSELIT, FLOATLIT, HEXINTLIT, IDENTIFIER, MINUS, NULLPTRLIT, OCTINTLIT, OCURB, OPARN, RETURN, SEMICOLON, STRINGLIT, TILDE, TRUELIT, or VAR", "statements")
+                    DEFAULTINVALID3("statement", "BANG, BININTLIT, CCURB, CHARLIT, DECINTLIT, FALSELIT, FLOATLIT, HEXINTLIT, IDENTIFIER, MINUS, NULLPTRLIT, OCTINTLIT, OCURB, OPARN, RETURN, SEMICOLON, STRINGLIT, TILDE, TRUELIT, or VAR", "statement list")
                 }
                 break;
             case 76:
@@ -3002,7 +3002,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::SEMICOLON:
                         REDUCESKIP(Varstmtitems);
                         break;
-                    DEFAULTINVALID3("variable statement assignments", "either COMMA or SEMICOLON", "variable statement assignments")
+                    DEFAULTINVALID3("variable statement assignment", "either COMMA or SEMICOLON", "variable statement assignments")
                 }
                 break;
             case 107:
@@ -3018,7 +3018,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                         }
                         break;
                     SHIFTON(TokenType::EQUAL, 135)
-                    DEFAULTINVALID3("IDENTIFIER", "COMMA, EQUAL, or SEMICOLON", "variable statement assignments")
+                    DEFAULTINVALID3("IDENTIFIER", "COMMA, EQUAL, or SEMICOLON", "variable statement assignment")
                 }
                 break;
             case 108:
@@ -3807,7 +3807,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::IDENTIFIER, 107)
-                    DEFAULTINVALID3("COMMA", "variable statement assignments", "variable statement assignments")
+                    DEFAULTINVALID3("COMMA", "variable statement assignment", "variable statement assignments")
                 }
                 break;
             case 135:
@@ -3828,7 +3828,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     SHIFTON(TokenType::STRINGLIT, 69)
                     SHIFTON(TokenType::TILDE, 56)
                     SHIFTON(TokenType::TRUELIT, 60)
-                    DEFAULTINVALID3("EQUAL", "expression", "variable statement assignments")
+                    DEFAULTINVALID3("EQUAL", "expression", "variable statement assignment")
                 }
                 break;
             case 136:
@@ -3927,7 +3927,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("variable statement assignments", "either COMMA or SEMICOLON", "variable statement assignments")
+                    DEFAULTINVALID3("variable statement assignment", "either COMMA or SEMICOLON", "variable statement assignments")
                 }
                 break;
             case 140:
@@ -3944,7 +3944,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("expression", "either COMMA or SEMICOLON", "variable statement assignments")
+                    DEFAULTINVALID3("expression", "either COMMA or SEMICOLON", "variable statement assignment")
                 }
                 break;
             case 141:
