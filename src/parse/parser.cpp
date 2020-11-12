@@ -4023,6 +4023,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
 Token Parser::consume()
 {
     Token cur;
+    errored.clear();
     while (true)
     {
         cur = lexer.nextToken();
@@ -4030,8 +4031,10 @@ Token Parser::consume()
 
         Error(Error::MsgType::ERROR, cur, cur.message)
             .primary(Error::Primary(cur)
-                .error(cur.message))
+                .error(cur.message)
+                .note("erroneous tokens are ignored"))
             .report();
+        errored.push_back(cur);
     }
 
     return cur;
@@ -4043,12 +4046,18 @@ void Parser::invalidSyntax(const char *justparsed, const char *expected, const c
     std::stringstream sss;
     ssl << "expected " << expected << " after " << justparsed << " of " << whileparsing << ", but got " << stringifyTokenType(lookahead.type) << " instead";
     sss << "expected " << expected;
-    Error(Error::MsgType::ERROR, lookahead, ssl.str())
+    Error e = Error(Error::MsgType::ERROR, lookahead, ssl.str())
         .primary(Error::Primary(last)
             .error(sss.str()))
         .primary(Error::Primary(lookahead)
-            .note("unexpected token here"))
-        .report();
+            .note("unexpected token here"));
+
+    for (Token const &t : errored)
+        e.primary(Error::Primary(t)
+            .note("erroneous token ignored here with error message...")
+            .note(t.message));
+
+    e.report();
 }
 void Parser::invalidSyntax(const char *justparsed, const char *expected, Token const &lookahead, Token const &last)
 {

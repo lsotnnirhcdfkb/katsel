@@ -28,4 +28,6 @@ private:
     void invalidSyntax(const char *justparsed, const char *expected, const char *whileparsing, Token const &lookahead, Token const &last);
     void invalidSyntax(const char *justparsed, const char *expected, Token const &lookahead, Token const &last);
     Token consume();
+
+    std::vector<Token> errored;
 };
