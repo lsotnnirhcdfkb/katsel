@@ -699,6 +699,23 @@ void DotVisitor::visitDecls(ASTNS::Decls *a)
     }
     lastid = std::move(thisid);
 }
+void DotVisitor::visitEmptystmt(ASTNS::Emptystmt *a)
+{
+    std::string thisid = curid();
+    switch (a->form)
+    {
+        case ASTNS::Emptystmt::Form::SEMI:
+            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">Emptystmt (SEMI)</td></tr><tr>";
+            std::cout << "<td port=\"semi\">semi</td>";
+            std::cout << "</tr></table>>]\n";
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->semi.stringify());
+                    connect(thisid, "semi", tokennodeid);
+            }
+            break;
+    }
+    lastid = std::move(thisid);
+}
 void DotVisitor::visitExpression(ASTNS::Expression *a)
 {
     std::string thisid = curid();

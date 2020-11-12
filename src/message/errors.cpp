@@ -74,6 +74,7 @@ void visitCompeqexpr(ASTNS::Compeqexpr *ast) override;
 void visitComplgtexpr(ASTNS::Complgtexpr *ast) override;
 void visitDecl(ASTNS::Decl *ast) override;
 void visitDecls(ASTNS::Decls *ast) override;
+void visitEmptystmt(ASTNS::Emptystmt *ast) override;
 void visitExpression(ASTNS::Expression *ast) override;
 void visitExprstmt(ASTNS::Exprstmt *ast) override;
 void visitFunction(ASTNS::Function *ast) override;
@@ -315,6 +316,17 @@ void LocationVisitor::visitDecls(ASTNS::Decls *ast)
             retl = getL(ast->decl.get());
             retf = getF(ast->decl.get());
             retr = getR(ast->decl.get());
+            break;
+    }
+}
+void LocationVisitor::visitEmptystmt(ASTNS::Emptystmt *ast)
+{
+    switch (ast->form)
+    {
+        case ASTNS::Emptystmt::Form::SEMI:
+            retl = ast->semi.start;
+            retf = ast->semi.sourcefile;
+            retr = ast->semi.end;
             break;
     }
 }

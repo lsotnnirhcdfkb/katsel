@@ -27,6 +27,7 @@ namespace ASTNS
     class Complgtexpr;
     class Decl;
     class Decls;
+    class Emptystmt;
     class Expression;
     class Exprstmt;
     class Function;
@@ -268,6 +269,18 @@ namespace ASTNS
         };
         std::unique_ptr<AST> decls;
         std::unique_ptr<AST> decl;
+        Form form;
+        virtual void accept(ASTVisitor *v);
+    };
+    class Emptystmt : public AST
+    {
+    public:
+        Emptystmt(Token semi);
+        enum class Form
+        {
+            SEMI,
+        };
+        Token semi;
         Form form;
         virtual void accept(ASTVisitor *v);
     };

@@ -36,6 +36,8 @@ void ASTNS::Decl::accept(ASTVisitor *v) { v->visitDecl(this); }
 ASTNS::Decls::Decls(std::unique_ptr<AST> decls, std::unique_ptr<AST> decl): decls(std::move(decls)), decl(std::move(decl)), form(ASTNS::Decls::Form::DECLS_DECL) {}
 ASTNS::Decls::Decls(std::unique_ptr<AST> decl): decl(std::move(decl)), form(ASTNS::Decls::Form::DECL) {}
 void ASTNS::Decls::accept(ASTVisitor *v) { v->visitDecls(this); }
+ASTNS::Emptystmt::Emptystmt(Token semi): semi(semi), form(ASTNS::Emptystmt::Form::SEMI) {}
+void ASTNS::Emptystmt::accept(ASTVisitor *v) { v->visitEmptystmt(this); }
 void ASTNS::Expression::accept(ASTVisitor *v) { v->visitExpression(this); }
 ASTNS::Exprstmt::Exprstmt(std::unique_ptr<AST> expr, Token semi): expr(std::move(expr)), semi(semi), form(ASTNS::Exprstmt::Form::EXPR_SEMI) {}
 void ASTNS::Exprstmt::accept(ASTVisitor *v) { v->visitExprstmt(this); }

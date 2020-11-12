@@ -630,6 +630,21 @@ void PrintVisitor::visitDecls(ASTNS::Decls *a)
     }
     --indent;
 }
+void PrintVisitor::visitEmptystmt(ASTNS::Emptystmt *a)
+{
+    pai("Emptystmt\n");
+    ++indent;
+    switch (a->form)
+    {
+        case ASTNS::Emptystmt::Form::SEMI:
+            pai("semi =");
+            pai(" [");
+            pai(std::string(a->semi.start, a->semi.end));
+            pai("]\n");
+            break;
+    }
+    --indent;
+}
 void PrintVisitor::visitExpression(ASTNS::Expression *a)
 {
     pai("Expression\n");

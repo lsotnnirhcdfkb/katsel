@@ -8,6 +8,7 @@ function                 -> FUN:fun $type:retty IDENTIFIER:name OPARN:oparn $par
 
 stmts                    -> $stmts:stmts $stmt:stmt                                                                          ; "statements"
 stmts                    -> $stmt:_                                                                                          ; "statements"
+stmt                     -> $emptystmt:_                                                                                     ; "statement"
 stmt                     -> $varstmt:_                                                                                       ; "statement"
 stmt                     -> $exprstmt:_                                                                                      ; "statement"
 stmt                     -> $retstmt:_                                                                                       ; "statement"
@@ -16,6 +17,7 @@ stmt                     -> $block:_                                            
 varstmt                  -> VAR:var $type:type $varstmtfinisher:assignments SEMICOLON:semi                                   ; "variable statement"
 exprstmt                 -> $expression:expr SEMICOLON:semi                                                                  ; "expression statement"
 retstmt                  -> RETURN:ret $expression:expr SEMICOLON:semi                                                       ; "return statement"
+emptystmt                -> SEMICOLON:semi                                                                                   ; "empty statement"
 
 varstmtfinisher          -> $varstmtfinisher:assignments COMMA:comma IDENTIFIER:name EQUAL:equal $expression:expr            ; "variable statement assignments"
 varstmtfinisher          -> IDENTIFIER:name EQUAL:equal $expression:expr                                                     ; "variable statement assignments"

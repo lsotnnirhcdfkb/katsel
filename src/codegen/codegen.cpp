@@ -51,3 +51,4 @@ void CodeGen::visitType(ASTNS::Type *ast) {}
 void CodeGen::visitUnaryexpr(ASTNS::Unaryexpr *ast) {}
 void CodeGen::visitVarstmt(ASTNS::Varstmt *ast) {}
 void CodeGen::visitVarstmtfinisher(ASTNS::Varstmtfinisher *ast) {}
+void CodeGen::visitEmptystmt(ASTNS::Emptystmt *ast) {}

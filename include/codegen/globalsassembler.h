@@ -30,6 +30,7 @@ void visitCompeqexpr(ASTNS::Compeqexpr *ast) override;
 void visitComplgtexpr(ASTNS::Complgtexpr *ast) override;
 void visitDecl(ASTNS::Decl *ast) override;
 void visitDecls(ASTNS::Decls *ast) override;
+void visitEmptystmt(ASTNS::Emptystmt *ast) override;
 void visitExpression(ASTNS::Expression *ast) override;
 void visitExprstmt(ASTNS::Exprstmt *ast) override;
 void visitFunction(ASTNS::Function *ast) override;
