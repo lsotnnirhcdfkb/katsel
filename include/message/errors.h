@@ -92,7 +92,7 @@ void outOSwitchDDefaultLab [[ noreturn ]] (std::string const &fnn, Location cons
 void fCalled [[ noreturn ]] (std::string const &fnn);
 void outOSwitchNoh [[ noreturn ]] (std::string const &fnn);
 
-void _concatMsg(std::stringstream &ss) {}
+void _concatMsg(std::stringstream &) {}
 
 template <typename F, typename ... T>
 void _concatMsg(std::stringstream &ss, F first, T ... others)
