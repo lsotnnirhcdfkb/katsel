@@ -385,7 +385,10 @@ for rule in _grammar:
     expansion = list(filter(len, rule['expansion'].split(' ')))
     for i, s in enumerate(expansion):
         try:
-            sname, _ = s.split(':')
+            if i == 0:
+                sname, firstvname = s.split(':')
+            else:
+                sname, _ = s.split(':')
         except:
             print(f'\033[1mrule: {rule["symbol"]} -> {rule["expansion"]}\033[0m')
             raise
@@ -400,8 +403,12 @@ for rule in _grammar:
                 print(f'\033[35;1mwarning\033[0m: terminal {sname} in rule \033[1m{symbol} -> {expansion}\033[0m')
 
     if len(expansion) == 1 and type(expansion[0]) == NonTerminal:
-        skip = True
-        print('\033[34mrule is skip\033[0m', rule['symbol'], rule['expansion'])
+        if firstvname == '_':
+            skip = True
+            print('\033[34mrule is skip\033[0m', rule['symbol'], rule['expansion'])
+        else:
+            skip = False
+            print('\033[1mrule could be skip\033[0m', rule['symbol'], rule['expansion'])
     else:
         skip = False
 

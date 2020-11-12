@@ -3759,7 +3759,12 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                {
                     case TokenType::COMMA:
                     case TokenType::CPARN:
-                        REDUCESKIP(Args);
+                        {
+                            REDUCEA(0)
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Args>(std::move(a0));
+                            size_t newstate = getGoto<ASTNS::Args>(stack.top()->state);
+                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
+                        }
                         break;
                     DEFAULTINVALID3("expression", "either COMMA or CPARN", "argument list")
                 }

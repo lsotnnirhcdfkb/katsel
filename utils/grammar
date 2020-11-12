@@ -1,5 +1,5 @@
 decls                    -> $decls:decls $decl:decl                                                                          ; "declaration list"
-decls                    -> $decl:decl                                                                                       ; "declaration list"
+decls                    -> $decl:_                                                                                          ; "declaration list"
 
 decl                     -> $function:_                                                                                      ; "declaration"
 
@@ -20,7 +20,7 @@ retstmt                  -> RETURN:ret $expression:expr SEMICOLON:semi          
 emptystmt                -> SEMICOLON:semi                                                                                   ; "empty statement"
 
 varstmtitems             -> $varstmtitems:items COMMA:comma $varstmtitem:item                                                ; "variable statement assignments"
-varstmtitems             -> $varstmtitem:item                                                                                ; "variable statement assignments"
+varstmtitems             -> $varstmtitem:_                                                                                   ; "variable statement assignments"
 varstmtitem              -> IDENTIFIER:name EQUAL:equal $expression:expr                                                     ; "variable statement assignment"
 varstmtitem              -> IDENTIFIER:name                                                                                  ; "variable statement assignment"
 

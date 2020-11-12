@@ -623,20 +623,6 @@ void PrintVisitor::visitDecls(ASTNS::Decls *a)
                 pai(" nullptr\n");
             }
             break;
-        case ASTNS::Decls::Form::A:
-            pai("decl =");
-            if (a->decl)
-            {
-                ++indent;
-                pai("\n");
-                a->decl->accept(this);
-                --indent;
-            }
-            else
-            {
-                pai(" nullptr\n");
-            }
-            break;
     }
     --indent;
 }
@@ -1208,20 +1194,6 @@ void PrintVisitor::visitVarstmtitems(ASTNS::Varstmtitems *a)
             pai(" [");
             pai(std::string(a->comma.start, a->comma.end));
             pai("]\n");
-            pai("item =");
-            if (a->item)
-            {
-                ++indent;
-                pai("\n");
-                a->item->accept(this);
-                --indent;
-            }
-            else
-            {
-                pai(" nullptr\n");
-            }
-            break;
-        case ASTNS::Varstmtitems::Form::A:
             pai("item =");
             if (a->item)
             {

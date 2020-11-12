@@ -693,23 +693,6 @@ void DotVisitor::visitDecls(ASTNS::Decls *a)
                     }
             }
             break;
-        case ASTNS::Decls::Form::A:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">Decls (A)</td></tr><tr>";
-            std::cout << "<td port=\"decl\">decl</td>";
-            std::cout << "</tr></table>>]\n";
-            {
-                    if (a->decl)
-                    {
-                        a->decl->accept(this);
-                        connect(thisid, "decl", lastid);
-                    }
-                    else
-                    {
-                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "decl", nullptrnodeid);
-                    }
-            }
-            break;
     }
     lastid = std::move(thisid);
 }
@@ -1354,23 +1337,6 @@ void DotVisitor::visitVarstmtitems(ASTNS::Varstmtitems *a)
                     std::string tokennodeid = makeTextNode("Token", a->comma.stringify());
                     connect(thisid, "comma", tokennodeid);
             }
-            {
-                    if (a->item)
-                    {
-                        a->item->accept(this);
-                        connect(thisid, "item", lastid);
-                    }
-                    else
-                    {
-                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "item", nullptrnodeid);
-                    }
-            }
-            break;
-        case ASTNS::Varstmtitems::Form::A:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">Varstmtitems (A)</td></tr><tr>";
-            std::cout << "<td port=\"item\">item</td>";
-            std::cout << "</tr></table>>]\n";
             {
                     if (a->item)
                     {

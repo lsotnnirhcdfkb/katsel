@@ -264,11 +264,9 @@ namespace ASTNS
     {
     public:
         Decls(std::unique_ptr<AST> decls, std::unique_ptr<AST> decl);
-        Decls(std::unique_ptr<AST> decl);
         enum class Form
         {
             AA,
-            A,
         };
         std::unique_ptr<AST> decls;
         std::unique_ptr<AST> decl;
@@ -489,11 +487,9 @@ namespace ASTNS
     {
     public:
         Varstmtitems(std::unique_ptr<AST> items, Token comma, std::unique_ptr<AST> item);
-        Varstmtitems(std::unique_ptr<AST> item);
         enum class Form
         {
             ATA,
-            A,
         };
         std::unique_ptr<AST> items;
         Token comma;
