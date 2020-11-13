@@ -418,8 +418,10 @@ Token Lexer::nextToken()
     }
 
     if (isDigit(c))
-    { // check for number literal
+    {
+        // check for number literal
         TokenType inttype;
+        bool validint = true;
 
         if (isDigit(peek()) || c != '0' || !isAlpha(peek()))
         {
@@ -434,7 +436,7 @@ Token Lexer::nextToken()
                 case 'x': inttype = TokenType::HEXINTLIT; break;
 
                 default:
-                          return makeErrorToken("invalid base for integer literal (must be one of 0o, 0b, or 0x");
+                    validint = false;
             }
 
             advance(); // consume o, b, or x
@@ -443,17 +445,24 @@ Token Lexer::nextToken()
         while (isDigit(peek(), inttype) && !atEnd()) advance();
 
         if (peek() == '.' && isDigit(peekpeek(), inttype) && !atEnd())
-        { // is actually a decimal and is not integer literal
+        { 
+            // is actually a decimal and is not integer literal
             advance(); // consume decimal point
 
             while (isDigit(peek(), inttype) && !atEnd()) advance();
+
+            if (!validint)
+                return makeErrorToken("Invalid integer literal base");
 
             if (inttype != TokenType::DECINTLIT) return makeErrorToken("non-decimal floating point literals are not supported");
 
             return makeToken(TokenType::FLOATLIT);
         }
 
-        return makeToken(inttype);
+        if (!validint)
+            return makeErrorToken("Invalid integer literal base");
+        else
+            return makeToken(inttype);
     }
     else if (isAlpha(c))
     {
