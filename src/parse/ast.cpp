@@ -26,6 +26,8 @@ void ASTNS::BitxorExpr::accept(ExprBVisitor *v) { v->visitBitxorExpr(this); }
 ASTNS::Block::Block(Token ocurb, std::unique_ptr<StmtB> stmts, Token ccurb): ocurb(ocurb), stmts(std::move(stmts)), ccurb(ccurb), form(ASTNS::Block::Form::TAT) {}
 ASTNS::Block::Block(Token ocurb, Token ccurb): ocurb(ocurb), ccurb(ccurb), form(ASTNS::Block::Form::TT) {}
 void ASTNS::Block::accept(StmtBVisitor *v) { v->visitBlock(this); }
+ASTNS::BuiltinType::BuiltinType(Token type): type(type), form(ASTNS::BuiltinType::Form::T) {}
+void ASTNS::BuiltinType::accept(TypeBVisitor *v) { v->visitBuiltinType(this); }
 ASTNS::CallExpr::CallExpr(std::unique_ptr<ExprB> callee, Token oparn, std::unique_ptr<ArgsB> args, Token cparn): callee(std::move(callee)), oparn(oparn), args(std::move(args)), cparn(cparn), form(ASTNS::CallExpr::Form::ATAT) {}
 ASTNS::CallExpr::CallExpr(std::unique_ptr<ExprB> callee, Token oparn, Token cparn): callee(std::move(callee)), oparn(oparn), cparn(cparn), form(ASTNS::CallExpr::Form::ATT) {}
 void ASTNS::CallExpr::accept(ExprBVisitor *v) { v->visitCallExpr(this); }
@@ -59,7 +61,6 @@ ASTNS::Stmts::Stmts(std::unique_ptr<StmtB> stmts, std::unique_ptr<StmtB> stmt): 
 void ASTNS::Stmts::accept(StmtBVisitor *v) { v->visitStmts(this); }
 ASTNS::TernaryExpr::TernaryExpr(std::unique_ptr<ExprB> cond, Token quest, std::unique_ptr<ExprB> trues, Token colon, std::unique_ptr<ExprB> falses): cond(std::move(cond)), quest(quest), trues(std::move(trues)), colon(colon), falses(std::move(falses)), form(ASTNS::TernaryExpr::Form::ATATA) {}
 void ASTNS::TernaryExpr::accept(ExprBVisitor *v) { v->visitTernaryExpr(this); }
-ASTNS::Type::Type(Token type): type(type), form(ASTNS::Type::Form::T) {}
 void ASTNS::Type::accept(TypeBVisitor *v) { v->visitType(this); }
 ASTNS::UnaryExpr::UnaryExpr(Token op, std::unique_ptr<ExprB> operand): op(op), operand(std::move(operand)), form(ASTNS::UnaryExpr::Form::TA) {}
 void ASTNS::UnaryExpr::accept(ExprBVisitor *v) { v->visitUnaryExpr(this); }

@@ -29,6 +29,7 @@ namespace ASTNS
     class BitshiftExpr;
     class BitxorExpr;
     class Block;
+    class BuiltinType;
     class CallExpr;
     class CompeqExpr;
     class ComplgtExpr;
@@ -254,6 +255,18 @@ namespace ASTNS
         Form form;
         virtual void accept(StmtBVisitor *v);
     };
+    class BuiltinType : public AST
+    {
+    public:
+        BuiltinType(Token type);
+        enum class Form
+        {
+            T,
+        };
+        Token type;
+        Form form;
+        virtual void accept(TypeBVisitor *v);
+    };
     class CallExpr : public AST
     {
     public:
@@ -478,12 +491,9 @@ namespace ASTNS
     class Type : public AST
     {
     public:
-        Type(Token type);
         enum class Form
         {
-            T,
         };
-        Token type;
         Form form;
         virtual void accept(TypeBVisitor *v);
     };

@@ -76,6 +76,7 @@ void visitBitorExpr(ASTNS::BitorExpr *ast) override;
 void visitBitshiftExpr(ASTNS::BitshiftExpr *ast) override;
 void visitBitxorExpr(ASTNS::BitxorExpr *ast) override;
 void visitBlock(ASTNS::Block *ast) override;
+void visitBuiltinType(ASTNS::BuiltinType *ast) override;
 void visitCallExpr(ASTNS::CallExpr *ast) override;
 void visitCompeqExpr(ASTNS::CompeqExpr *ast) override;
 void visitComplgtExpr(ASTNS::ComplgtExpr *ast) override;
@@ -272,6 +273,17 @@ void LocationVisitor::visitBlock(ASTNS::Block *ast)
             break;
     }
 }
+void LocationVisitor::visitBuiltinType(ASTNS::BuiltinType *ast)
+{
+    switch (ast->form)
+    {
+        case ASTNS::BuiltinType::Form::T:
+            retl = ast->type.start;
+            retf = ast->type.sourcefile;
+            retr = ast->type.end;
+            break;
+    }
+}
 void LocationVisitor::visitCallExpr(ASTNS::CallExpr *ast)
 {
     switch (ast->form)
@@ -457,11 +469,6 @@ void LocationVisitor::visitType(ASTNS::Type *ast)
 {
     switch (ast->form)
     {
-        case ASTNS::Type::Form::T:
-            retl = ast->type.start;
-            retf = ast->type.sourcefile;
-            retr = ast->type.end;
-            break;
     }
 }
 void LocationVisitor::visitUnaryExpr(ASTNS::UnaryExpr *ast)

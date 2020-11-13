@@ -383,7 +383,8 @@ rule('VarStmtItem', 'variable statement assignment', 'VStmtIB', 'IDENTIFIER:name
 
 rule('Block', 'code block', 'StmtB', 'OCURB:ocurb $Stmts:stmts CCURB:ccurb', 'OCURB:ocurb CCURB:ccurb')
 
-rule('Type', 'type specifier', 'TypeB', 'UINT8:type', 'UINT16:type', 'UINT32:type', 'UINT64:type', 'SINT8:type', 'SINT16:type', 'SINT32:type', 'SINT64:type', 'FLOAT:type', 'BOOL:type', 'DOUBLE:type', 'VOID:type', 'CHAR:type')
+rule('Type', 'type specifier', 'TypeB', '$BuiltinType:_')
+rule('BuiltinType', 'builtin type specifier', 'TypeB', 'UINT8:type', 'UINT16:type', 'UINT32:type', 'UINT64:type', 'SINT8:type', 'SINT16:type', 'SINT32:type', 'SINT64:type', 'FLOAT:type', 'BOOL:type', 'DOUBLE:type', 'VOID:type', 'CHAR:type')
 
 rule('Args', 'argument list', 'ArgsB', '$Args:args COMMA:comma $Expr:expr', '$Expr:expr')
 
@@ -423,14 +424,10 @@ for sym, rule in _grammar.items():
         expansion = expansion.split(' ')
         for i, s in enumerate(expansion):
             try:
-                if i == 0:
-                    sname, firstvname = s.split(':')
-                    vnames.append(firstvname)
-                else:
-                    sname, vname = s.split(':')
-                    vnames.append(vname)
+                sname, vname = s.split(':')
+                vnames.append(vname)
             except:
-                print(f'\033[1mrule: {rule["symbol"]} -> {rule["expansion"]}\033[0m')
+                print(f'\033[1mrule: {sym} -> {rule["expansions"]}\033[0m')
                 raise
 
             if sname.startswith('$'):

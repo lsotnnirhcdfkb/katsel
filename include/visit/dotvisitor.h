@@ -28,6 +28,7 @@ void visitBitorExpr(ASTNS::BitorExpr *ast) override;
 void visitBitshiftExpr(ASTNS::BitshiftExpr *ast) override;
 void visitBitxorExpr(ASTNS::BitxorExpr *ast) override;
 void visitBlock(ASTNS::Block *ast) override;
+void visitBuiltinType(ASTNS::BuiltinType *ast) override;
 void visitCallExpr(ASTNS::CallExpr *ast) override;
 void visitCompeqExpr(ASTNS::CompeqExpr *ast) override;
 void visitComplgtExpr(ASTNS::ComplgtExpr *ast) override;

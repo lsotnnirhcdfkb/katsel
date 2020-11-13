@@ -439,6 +439,21 @@ void PrintVisitor::visitBlock(ASTNS::Block *a)
     }
     --indent;
 }
+void PrintVisitor::visitBuiltinType(ASTNS::BuiltinType *a)
+{
+    pai("BuiltinType\n");
+    ++indent;
+    switch (a->form)
+    {
+        case ASTNS::BuiltinType::Form::T:
+            pai("type =");
+            pai(" [");
+            pai(std::string(a->type.start, a->type.end));
+            pai("]\n");
+            break;
+    }
+    --indent;
+}
 void PrintVisitor::visitCallExpr(ASTNS::CallExpr *a)
 {
     pai("CallExpr\n");
@@ -1055,12 +1070,6 @@ void PrintVisitor::visitType(ASTNS::Type *a)
     ++indent;
     switch (a->form)
     {
-        case ASTNS::Type::Form::T:
-            pai("type =");
-            pai(" [");
-            pai(std::string(a->type.start, a->type.end));
-            pai("]\n");
-            break;
     }
     --indent;
 }

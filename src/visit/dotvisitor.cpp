@@ -489,6 +489,23 @@ void DotVisitor::visitBlock(ASTNS::Block *a)
     }
     lastid = std::move(thisid);
 }
+void DotVisitor::visitBuiltinType(ASTNS::BuiltinType *a)
+{
+    std::string thisid = curid();
+    switch (a->form)
+    {
+        case ASTNS::BuiltinType::Form::T:
+            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">BuiltinType (T)</td></tr><tr>";
+            std::cout << "<td port=\"type\">type</td>";
+            std::cout << "</tr></table>>]\n";
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->type.stringify());
+                    connect(thisid, "type", tokennodeid);
+            }
+            break;
+    }
+    lastid = std::move(thisid);
+}
 void DotVisitor::visitCallExpr(ASTNS::CallExpr *a)
 {
     std::string thisid = curid();
@@ -1176,15 +1193,6 @@ void DotVisitor::visitType(ASTNS::Type *a)
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::Type::Form::T:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">Type (T)</td></tr><tr>";
-            std::cout << "<td port=\"type\">type</td>";
-            std::cout << "</tr></table>>]\n";
-            {
-                    std::string tokennodeid = makeTextNode("Token", a->type.stringify());
-                    connect(thisid, "type", tokennodeid);
-            }
-            break;
     }
     lastid = std::move(thisid);
 }
