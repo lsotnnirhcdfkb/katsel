@@ -2429,7 +2429,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::IDENTIFIER, 108)
-                    DEFAULTINVALID3("type specifier", "variable statement assignments", "variable statement")
+                    DEFAULTINVALID3("type specifier", "variable statement assignment list", "variable statement")
                 }
                 break;
             case 78:
@@ -3027,7 +3027,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                {
                     SHIFTON(TokenType::COMMA, 135)
                     SHIFTON(TokenType::SEMICOLON, 134)
-                    DEFAULTINVALID2("variable statement assignments", "either COMMA or SEMICOLON")
+                    DEFAULTINVALID2("variable statement assignment list", "either COMMA or SEMICOLON")
                 }
                 break;
             case 107:
@@ -3042,7 +3042,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("variable statement assignment", "either COMMA or SEMICOLON", "variable statement assignments")
+                    DEFAULTINVALID3("variable statement assignment", "either COMMA or SEMICOLON", "variable statement assignment list")
                 }
                 break;
             case 108:
@@ -3852,7 +3852,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::IDENTIFIER, 108)
-                    DEFAULTINVALID3("COMMA", "variable statement assignment", "variable statement assignments")
+                    DEFAULTINVALID3("COMMA", "variable statement assignment", "variable statement assignment list")
                 }
                 break;
             case 136:
@@ -3972,7 +3972,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
-                    DEFAULTINVALID3("variable statement assignment", "either COMMA or SEMICOLON", "variable statement assignments")
+                    DEFAULTINVALID3("variable statement assignment", "either COMMA or SEMICOLON", "variable statement assignment list")
                 }
                 break;
             case 141:

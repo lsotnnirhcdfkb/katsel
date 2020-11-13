@@ -367,9 +367,7 @@ def rule(sym, name, base, *expansions):
 
 _grammar = {}
 rule('Decls', 'declaration list', '_DECLBASE', '$Decls:decls $Decl:decl', '$Decl:_')
-
 rule('Decl', 'declaration', '_DECLBASE', '$Function:_')
-
 rule('Function', 'function declaration', '_DECLBASE', 'FUN:fun $Type:retty IDENTIFIER:name OPARN:oparn CPARN:cparn $Block:body',  'FUN:fun $Type:retty IDENTIFIER:name OPARN:oparn $ParamList:paramlist CPARN:cparn $Block:body')
 
 rule('Stmts', 'statement list', '_STMTBASE', '$Stmts:stmts $Stmt:stmt',  '$Stmt:_')
@@ -380,7 +378,7 @@ rule('ExprStmt', 'expression statement', '_STMTBASE', '$Expression:expr SEMICOLO
 rule('RetStmt', 'return statement', '_STMTBASE', 'RETURN:ret $Expression:expr SEMICOLON:semi')
 rule('EmptyStmt', 'empty statement', '_STMTBASE', 'SEMICOLON:semi')
 
-rule('VarStmtItems', 'variable statement assignments', '_VSTMTIS', '$VarStmtItems:items COMMA:comma $VarStmtItem:item', '$VarStmtItem:_')
+rule('VarStmtItems', 'variable statement assignment list', '_VSTMTIS', '$VarStmtItems:items COMMA:comma $VarStmtItem:item', '$VarStmtItem:_')
 rule('VarStmtItem', 'variable statement assignment', '_VSTMTI', 'IDENTIFIER:name EQUAL:equal $Expression:expr', 'IDENTIFIER:name')
 
 rule('Block', 'code block', '_STMTBASE', 'OCURB:ocurb $Stmts:stmts CCURB:ccurb', 'OCURB:ocurb CCURB:ccurb')
