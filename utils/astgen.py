@@ -24,35 +24,41 @@ class ASTField:
 asts = [ASTBaseClass()]
 _astnames = set()
 _asts = []
-for rule in parsegen._grammar:
-    if 'skip' not in rule or not rule['skip']:
-        _astnames.add(rule['symbol'])
+for rule in parsegen.grammar:
+    if str(rule.symbol) == 'augment': continue
+    _astnames.add(str(rule.symbol))
 
 for astname in sorted(_astnames):
     fields = []
     forms = []
-    for rule in parsegen._grammar:
-        if rule['symbol'] == astname:
-            if 'skip' in rule and rule['skip']:
+    matchedrules = [rule for rule in parsegen.grammar if str(rule.symbol) == astname]
+
+    skiponly = all([r.skip for r in matchedrules])
+    if skiponly:
+        asts.append(ASTClass(astname, [], []))
+        continue
+
+    for rule in matchedrules:
+        if rule.skip:
+            continue
+
+        form = []
+        for sym, vname in zip(rule.expansion, rule.vnames):
+            if vname == '_':
                 continue
 
-            form = []
-            for sym in rule['expansion'].split(' '):
-                s, v = sym.split(':')
-                if v == '_':
-                    continue
-                ty = 'std::unique_ptr<AST>' if s.startswith('$') else 'Token'
+            ty = 'std::unique_ptr<AST>' if type(sym) == parsegen.NonTerminal else 'Token'
 
-                field = ASTField(ty, v)
-                if field not in fields:
-                    fields.append(field)
-                elif fields[fields.index(field)].type_ != ty:
-                    raise Exception(f'conflicting types for variable {v}: {fields[fi].type_}')
+            field = ASTField(ty, vname)
+            if field not in fields:
+                fields.append(field)
+            elif fields[fields.index(field)].type_ != ty:
+                raise Exception(f'conflicting types for variable {v}: {fields[fi].type_}')
 
-                form.append(field)
+            form.append(field)
 
-            if len(form) and form not in forms:
-                forms.append(form)
+        if len(form) and form not in forms:
+            forms.append(form)
 
     asts.append(ASTClass(astname, fields, forms))
 # Generating methods {{{1

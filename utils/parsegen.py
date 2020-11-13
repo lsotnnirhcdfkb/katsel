@@ -46,13 +46,14 @@ class Terminal:
 # rule {{{2
 class Rule:
     __num = 0
-    def __init__(self, symbol, expansion, skip, name):
+    def __init__(self, symbol, expansion, skip, name, vnames):
         self.symbol = symbol
         self.expansion = expansion
         self.num = Rule.__num
         Rule.__num += 1
         self.skip = skip
         self.name = name
+        self.vnames = vnames
 
     def __repr__(self):
         return str(self)
@@ -143,7 +144,7 @@ class State:
             if item.index > 0:
                 s = item.rule.expansion[item.index - 1]
                 if type(s) == NonTerminal:
-                    justparsed.extend([r.name for r in grammar if r.symbol == s])
+                    justparsed.append(_grammar[str(s)]['name'])
                 else:
                     justparsed.append(str(s))
             else:
@@ -157,7 +158,7 @@ class State:
                     expected.append(str(after))
             else:
                 if len(item.rule.symbol.follow) > 4:
-                    expected.extend(itertools.chain.from_iterable(map(lambda nt: [r.name for r in grammar if r.symbol == nt], item.rule.symbol.ntfollow)))
+                    expected.extend(map(lambda nt: _grammar[str(nt)]['name'], item.rule.symbol.ntfollow))
                 else:
                     expected.extend(map(str, item.rule.symbol.follow))
 
@@ -351,75 +352,113 @@ def makeParseTable():
     print('-- get table')
     return table
 # rules {{{1
-with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'grammar'), 'r') as f:
-    grammarstr = f.read()
-
 colorama.init()
 
-_grammar = []
-rulere = re.compile(r'\s*(\w+)\s*->\s*([^;]+);\s*"([^"]+)"\s*')
-for rule in filter(len, grammarstr.split('\n')):
-    if (match := rulere.fullmatch(rule)) is None:
-        raise Exception(f'rule "{rule}" does not match rulere')
+def rule(sym, name, *expansions):
+    if sym in _grammar:
+        raise Exception(f'duplicate rule symbol {sym}')
 
-    sym = match.group(1)
-    expansion = match.group(2).strip().rstrip()
-    name = match.group(3).strip().rstrip()
+    _grammar[sym] = {
+        'name': name,
+        'expansions': expansions
+    }
 
-    r = {}
-    r['symbol'] = sym
-    r['expansion'] = expansion
-    r['name'] = name
+_grammar = {}
+rule('Decls', 'declaration list', '$Decls:decls $Decl:decl', '$Decl:_')
 
-    _grammar.append(r)
+rule('Decl', 'declaration', '$Function:_')
+
+rule('Function', 'function declaration', 'FUN:fun $Type:retty IDENTIFIER:name OPARN:oparn CPARN:cparn $Block:body',  'FUN:fun $Type:retty IDENTIFIER:name OPARN:oparn $ParamList:paramlist CPARN:cparn $Block:body')
+
+rule('Stmts', 'statement list', '$Stmts:stmts $Stmt:stmt',  '$Stmt:_')
+rule('Stmt', 'statement', '$EmptyStmt:_', '$VarStmt:_', '$ExprStmt:_', '$RetStmt:_', '$Block:_')
+
+rule('VarStmt', 'variable statement', 'VAR:var $Type:type $VarStmtItems:assignments SEMICOLON:semi')
+rule('ExprStmt', 'expression statement', '$Expression:expr SEMICOLON:semi')
+rule('RetStmt', 'return statement', 'RETURN:ret $Expression:expr SEMICOLON:semi')
+rule('EmptyStmt', 'empty statement', 'SEMICOLON:semi')
+
+rule('VarStmtItems', 'variable statement assignments', '$VarStmtItems:items COMMA:comma $VarStmtItem:item', '$VarStmtItem:_')
+rule('VarStmtItem', 'variable statement assignment', 'IDENTIFIER:name EQUAL:equal $Expression:expr', 'IDENTIFIER:name')
+
+rule('Block', 'code block', 'OCURB:ocurb $Stmts:stmts CCURB:ccurb', 'OCURB:ocurb CCURB:ccurb')
+
+rule('Type', 'type specifier', 'UINT8:type', 'UINT16:type', 'UINT32:type', 'UINT64:type', 'SINT8:type', 'SINT16:type', 'SINT32:type', 'SINT64:type', 'FLOAT:type', 'BOOL:type', 'DOUBLE:type', 'VOID:type', 'CHAR:type')
+
+rule('Args', 'argument list', '$Args:args COMMA:comma $Expression:expr', '$Expression:expr')
+
+rule('ParamList', 'parameter list', '$ParamList:plist COMMA:comma $Type:type IDENTIFIER:name', '$Type:type IDENTIFIER:name')
+
+rule('Expression', 'expression', '$AssignmentExpr:_')
+rule('AssignmentExpr', 'assignment expression', '$TernaryExpr:target EQUAL:equal $AssignmentExpr:value', '$TernaryExpr:_')
+rule('TernaryExpr', 'ternary expression', '$BinorExpr:_', '$BinorExpr:cond QUESTION:quest $Expression:trues COLON:colon $TernaryExpr:falses')
+rule('BinorExpr', 'binary or expression', '$BinorExpr:lhs DOUBLEPIPE:op $BinandExpr:rhs', '$BinandExpr:_')
+rule('BinandExpr', 'binary and expression', '$BinandExpr:lhs DOUBLEAMPER:op $BinnotExpr:rhs', '$BinnotExpr:_')
+rule('BinnotExpr', 'binary not expression', 'BANG:op $BinnotExpr:operand', '$CompeqExpr:_')
+rule('CompeqExpr', 'equality expression', '$CompeqExpr:lhs BANGEQUAL:op $ComplgtExpr:rhs', '$CompeqExpr:lhs DOUBLEEQUAL:op $ComplgtExpr:rhs', '$ComplgtExpr:_')
+rule('ComplgtExpr', 'comparison expression', '$ComplgtExpr:lhs LESS:op $BitxorExpr:rhs', '$ComplgtExpr:lhs GREATER:op $BitxorExpr:rhs', '$ComplgtExpr:lhs LESSEQUAL:op $BitxorExpr:rhs', '$ComplgtExpr:lhs GREATEREQUAL:op $BitxorExpr:rhs', '$BitxorExpr:_')
+rule('BitxorExpr', 'bitwise xor expression', '$BitxorExpr:lhs CARET:op $BitorExpr:rhs', '$BitorExpr:_')
+rule('BitorExpr', 'bitwise or expression', '$BitorExpr:lhs PIPE:op $BitandExpr:rhs', '$BitandExpr:_')
+rule('BitandExpr', 'bitwise and expression', '$BitandExpr:lhs AMPER:op $BitshiftExpr:rhs', '$BitshiftExpr:_')
+rule('BitshiftExpr', 'bit shift expression', '$BitshiftExpr:lhs DOUBLEGREATER:op $AdditionExpr:rhs', '$BitshiftExpr:lhs DOUBLELESS:op $AdditionExpr:rhs', '$AdditionExpr:_')
+rule('AdditionExpr', 'addition expression', '$AdditionExpr:lhs PLUS:op $MultExpr:rhs', '$AdditionExpr:lhs MINUS:op $MultExpr:rhs', '$MultExpr:_')
+rule('MultExpr', 'multiplication expression', '$MultExpr:lhs STAR:op $UnaryExpr:rhs', '$MultExpr:lhs SLASH:op $UnaryExpr:rhs', '$MultExpr:lhs PERCENT:op $UnaryExpr:rhs', '$UnaryExpr:_')
+rule('UnaryExpr', 'unary expression', 'TILDE:op $UnaryExpr:operand', 'MINUS:op $UnaryExpr:operand', '$CallExpr:_')
+rule('CallExpr', 'function call expression', '$PrimaryExpr:callee OPARN:oparn $Args:args CPARN:cparn', '$PrimaryExpr:callee OPARN:oparn CPARN:cparn', '$PrimaryExpr:_')
+rule('PrimaryExpr', 'primary expression', 'TRUELIT:value', 'FALSELIT:value', 'FLOATLIT:value', 'NULLPTRLIT:value', 'DECINTLIT:value', 'OCTINTLIT:value', 'BININTLIT:value', 'HEXINTLIT:value', 'CHARLIT:value', 'STRINGLIT:value', 'IDENTIFIER:value', 'OPARN:oparn $Expression:expr CPARN:cparn')
 
 grammar = []
 found = set()
 missing = set()
-for rule in _grammar:
-    symbol = rule['symbol']
-    if symbol in missing:
-        missing.remove(symbol)
-    found.add(symbol)
+for sym, rule in _grammar.items():
+    if sym in missing:
+        missing.remove(sym)
 
-    expansion = list(filter(len, rule['expansion'].split(' ')))
-    for i, s in enumerate(expansion):
-        try:
-            if i == 0:
-                sname, firstvname = s.split(':')
+    found.add(sym)
+
+    expansions = rule['expansions']
+    for expansion in expansions:
+        vnames = []
+        expansion = expansion.split(' ')
+        for i, s in enumerate(expansion):
+            try:
+                if i == 0:
+                    sname, firstvname = s.split(':')
+                    vnames.append(firstvname)
+                else:
+                    sname, vname = s.split(':')
+                    vnames.append(vname)
+            except:
+                print(f'\033[1mrule: {rule["symbol"]} -> {rule["expansion"]}\033[0m')
+                raise
+
+            if sname.startswith('$'):
+                expansion[i] = NonTerminal(sname[1:])
+                if sname[1:] not in found:
+                    missing.add(sname[1:])
             else:
-                sname, _ = s.split(':')
-        except:
-            print(f'\033[1mrule: {rule["symbol"]} -> {rule["expansion"]}\033[0m')
-            raise
+                expansion[i] = Terminal(f'TokenType::{sname}')
+                if sname != sname.upper():
+                    print(f'\033[35;1mwarning\033[0m: terminal {sname} in rule \033[1m{symbol} -> {expansion}\033[0m')
 
-        if sname.startswith('$'):
-            expansion[i] = NonTerminal(sname[1:])
-            if sname[1:] not in found and sname[1:] not in missing:
-                missing.add(sname[1:])
-        else:
-            expansion[i] = Terminal(f'TokenType::{sname}')
-            if sname.lower() == sname:
-                print(f'\033[35;1mwarning\033[0m: terminal {sname} in rule \033[1m{symbol} -> {expansion}\033[0m')
-
-    if len(expansion) == 1 and type(expansion[0]) == NonTerminal:
-        if firstvname == '_':
-            skip = True
-            print('\033[34mrule is skip\033[0m', rule['symbol'], rule['expansion'])
+        if len(expansion) == 1 and type(expansion[0]) == NonTerminal:
+            if firstvname == '_':
+                skip = True
+                print('\033[34mrule is skip\033[0m', sym, expansion)
+            else:
+                skip = False
+                print('\033[1mrule could be skip\033[0m', sym, expansion)
         else:
             skip = False
-            print('\033[1mrule could be skip\033[0m', rule['symbol'], rule['expansion'])
-    else:
-        skip = False
 
-    grammar.append(Rule(NonTerminal(symbol), tuple(expansion), skip, rule['name']))
+        grammar.append(Rule(NonTerminal(sym), tuple(expansion), skip, rule['name'], vnames))
 
 for missingi in missing:
     print(f'\033[35;1mwarning\033[0m: undefined terminal \033[1m{missingi}\033[0m')
 print('-- parsed grammar')
 
 augmentSymbol = NonTerminal('augment')
-augmentRule = Rule(augmentSymbol, (grammar[0].symbol, ), False, 'compilation unit')
+augmentRule = Rule(augmentSymbol, (grammar[0].symbol, ), True, 'compilation unit', '_')
 grammar.append(augmentRule)
 
 print('-- augment grammar')
