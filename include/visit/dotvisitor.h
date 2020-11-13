@@ -5,14 +5,14 @@
 #include <string>
 
 class DotVisitor : 
-    public _DECLBASEVisitor,
-    public _ARGSBASEVisitor,
-    public _STMTBASEVisitor,
+    public _DECLVisitor,
+    public _ARGSVisitor,
+    public _STMTVisitor,
     public ExprVisitor,
     public _VSTMTISVisitor,
     public _VSTMTIVisitor,
-    public _PLISTBASEVisitor,
-    public _TYPEBASEVisitor
+    public _PLISTVisitor,
+    public _TYPEVisitor
 {
 public:
     // DOTVISIT METHODS START

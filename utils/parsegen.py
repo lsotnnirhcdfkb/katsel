@@ -366,28 +366,28 @@ def rule(sym, name, base, *expansions):
     }
 
 _grammar = {}
-rule('Decls', 'declaration list', '_DECLBASE', '$Decls:decls $Decl:decl', '$Decl:_')
-rule('Decl', 'declaration', '_DECLBASE', '$Function:_')
-rule('Function', 'function declaration', '_DECLBASE', 'FUN:fun $Type:retty IDENTIFIER:name OPARN:oparn CPARN:cparn $Block:body',  'FUN:fun $Type:retty IDENTIFIER:name OPARN:oparn $ParamList:paramlist CPARN:cparn $Block:body')
+rule('Decls', 'declaration list', '_DECL', '$Decls:decls $Decl:decl', '$Decl:_')
+rule('Decl', 'declaration', '_DECL', '$Function:_')
+rule('Function', 'function declaration', '_DECL', 'FUN:fun $Type:retty IDENTIFIER:name OPARN:oparn CPARN:cparn $Block:body',  'FUN:fun $Type:retty IDENTIFIER:name OPARN:oparn $ParamList:paramlist CPARN:cparn $Block:body')
 
-rule('Stmts', 'statement list', '_STMTBASE', '$Stmts:stmts $Stmt:stmt',  '$Stmt:_')
-rule('Stmt', 'statement', '_STMTBASE', '$EmptyStmt:_', '$VarStmt:_', '$ExprStmt:_', '$RetStmt:_', '$Block:_')
+rule('Stmts', 'statement list', '_STMT', '$Stmts:stmts $Stmt:stmt',  '$Stmt:_')
+rule('Stmt', 'statement', '_STMT', '$EmptyStmt:_', '$VarStmt:_', '$ExprStmt:_', '$RetStmt:_', '$Block:_')
 
-rule('VarStmt', 'variable statement', '_STMTBASE', 'VAR:var $Type:type $VarStmtItems:assignments SEMICOLON:semi')
-rule('ExprStmt', 'expression statement', '_STMTBASE', '$Expression:expr SEMICOLON:semi')
-rule('RetStmt', 'return statement', '_STMTBASE', 'RETURN:ret $Expression:expr SEMICOLON:semi')
-rule('EmptyStmt', 'empty statement', '_STMTBASE', 'SEMICOLON:semi')
+rule('VarStmt', 'variable statement', '_STMT', 'VAR:var $Type:type $VarStmtItems:assignments SEMICOLON:semi')
+rule('ExprStmt', 'expression statement', '_STMT', '$Expression:expr SEMICOLON:semi')
+rule('RetStmt', 'return statement', '_STMT', 'RETURN:ret $Expression:expr SEMICOLON:semi')
+rule('EmptyStmt', 'empty statement', '_STMT', 'SEMICOLON:semi')
 
 rule('VarStmtItems', 'variable statement assignment list', '_VSTMTIS', '$VarStmtItems:items COMMA:comma $VarStmtItem:item', '$VarStmtItem:_')
 rule('VarStmtItem', 'variable statement assignment', '_VSTMTI', 'IDENTIFIER:name EQUAL:equal $Expression:expr', 'IDENTIFIER:name')
 
-rule('Block', 'code block', '_STMTBASE', 'OCURB:ocurb $Stmts:stmts CCURB:ccurb', 'OCURB:ocurb CCURB:ccurb')
+rule('Block', 'code block', '_STMT', 'OCURB:ocurb $Stmts:stmts CCURB:ccurb', 'OCURB:ocurb CCURB:ccurb')
 
-rule('Type', 'type specifier', '_TYPEBASE', 'UINT8:type', 'UINT16:type', 'UINT32:type', 'UINT64:type', 'SINT8:type', 'SINT16:type', 'SINT32:type', 'SINT64:type', 'FLOAT:type', 'BOOL:type', 'DOUBLE:type', 'VOID:type', 'CHAR:type')
+rule('Type', 'type specifier', '_TYPE', 'UINT8:type', 'UINT16:type', 'UINT32:type', 'UINT64:type', 'SINT8:type', 'SINT16:type', 'SINT32:type', 'SINT64:type', 'FLOAT:type', 'BOOL:type', 'DOUBLE:type', 'VOID:type', 'CHAR:type')
 
-rule('Args', 'argument list', '_ARGSBASE', '$Args:args COMMA:comma $Expression:expr', '$Expression:expr')
+rule('Args', 'argument list', '_ARGS', '$Args:args COMMA:comma $Expression:expr', '$Expression:expr')
 
-rule('ParamList', 'parameter list', '_PLISTBASE', '$ParamList:plist COMMA:comma $Type:type IDENTIFIER:name', '$Type:type IDENTIFIER:name')
+rule('ParamList', 'parameter list', '_PLIST', '$ParamList:plist COMMA:comma $Type:type IDENTIFIER:name', '$Type:type IDENTIFIER:name')
 
 rule('Expression', 'expression', 'Expr', '$AssignmentExpr:_')
 rule('AssignmentExpr', 'assignment expression', 'Expr', '$TernaryExpr:target EQUAL:equal $AssignmentExpr:value', '$TernaryExpr:_')

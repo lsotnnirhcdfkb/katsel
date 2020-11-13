@@ -53,14 +53,14 @@ int getLineN(std::string::const_iterator const &start, std::string::iterator loc
 }
 // LocationVisitor {{{1
 class LocationVisitor : 
-    public _DECLBASEVisitor,
-    public _ARGSBASEVisitor,
-    public _STMTBASEVisitor,
+    public _DECLVisitor,
+    public _ARGSVisitor,
+    public _STMTVisitor,
     public ExprVisitor,
     public _VSTMTISVisitor,
     public _VSTMTIVisitor,
-    public _PLISTBASEVisitor,
-    public _TYPEBASEVisitor
+    public _PLISTVisitor,
+    public _TYPEVisitor
 {
 public:
     // LOCVISITOR METHODS START
@@ -538,14 +538,14 @@ Location::Location(ASTNS::AST *ast)
         end = locV.getR(casted ## ty); \
         file = locV.getF(casted ## ty); \
     }
-    CHECKTY(_DECLBASE)
-    CHECKTY(_ARGSBASE)
-    CHECKTY(_STMTBASE)
+    CHECKTY(_DECL)
+    CHECKTY(_ARGS)
+    CHECKTY(_STMT)
     CHECKTY(Expr)
     CHECKTY(_VSTMTIS)
     CHECKTY(_VSTMTI)
-    CHECKTY(_PLISTBASE)
-    CHECKTY(_TYPEBASE)
+    CHECKTY(_PLIST)
+    CHECKTY(_TYPE)
 #undef CHECKTY
     reportAbortNoh("Location constructor reached invalid ast type");
 }
