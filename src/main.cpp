@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
                     phasen = Phases::PARSE;
                 else if (strcmp(optarg, "dot") == 0)
                     phasen = Phases::DOT;
-                else if (strcmp(optarg, "globals") == 0)
+                else if (strcmp(optarg, "decls") == 0)
                     phasen = Phases::DECLS;
                 else if (strcmp(optarg, "codegen") == 0)
                     phasen = Phases::CODEGEN;
