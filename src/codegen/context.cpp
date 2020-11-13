@@ -3,6 +3,8 @@
 #include <iostream>
 #include "message/errors.h"
 
+CodeGen::Context::Context(std::string const &name): builder(context), mod(std::make_unique<llvm::Module>(name, context)) {}
+
 Type* CodeGen::Context::getBuiltinType(BuiltinType::Builtins bty)
 {
     for (std::unique_ptr<Type> &ty : types)

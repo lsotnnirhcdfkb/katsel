@@ -161,6 +161,7 @@ def genVisitorClasses():
         output.append(f'class {ast.name}Visitor\n')
         output.append( '{\n')
         output.append( 'public:\n')
+        output.append(f'    virtual ~{ast.name}Visitor() {{}}')
         for _ast in asts:
             if type(_ast) == ASTClass and _ast.base == ast.name:
                 output.append(f'    virtual void visit{_ast.name}(ASTNS::{_ast.name} *ast) = 0;\n')

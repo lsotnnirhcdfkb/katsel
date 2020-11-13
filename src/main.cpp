@@ -16,8 +16,6 @@
 #include "visit/dotvisitor.h"
 #include "codegen/codegen.h"
 
-#include "llvm/Support/raw_ostream.h"
-
 enum class Phases
 {
     LEX = 0,
@@ -140,25 +138,21 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        /*
-        auto cgcontext = std::make_unique<CodeGenContext>(source->filename);
-        auto codegen = std::make_unique<CodeGen>(*cgcontext);
-        auto globalsassembler = std::make_unique<GlobalsAssembler>(*cgcontext, *codegen);
+        auto codegen = std::make_unique<CodeGen::CodeGen>(source->filename);
 
-        globalsassembler->visitProgram(parsed.get());
+        codegen->declarate(parsed.get());
         if (phasen == Phases::DECLS)
         {
-            cgcontext->mod->print(llvm::outs(), nullptr);
+            codegen->printMod();
             continue;
         }
 
-        codegen->visitProgram(parsed.get());
+        codegen->codegen(parsed.get());
         if (phasen == Phases::CODEGEN)
         {
-            cgcontext->mod->print(llvm::outs(), nullptr);
+            codegen->printMod();
             continue;
         }
-        */
     }
 
     resetTerminal();

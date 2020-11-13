@@ -4,7 +4,7 @@
 #include <map>
 #include "llvm/IR/Type.h"
 #include "llvm/IR/LLVMContext.h"
-class Value;
+struct Value;
 
 #include "lex/token.h"
 #include "lex/tokentype.h"
