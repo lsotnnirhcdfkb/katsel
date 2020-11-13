@@ -665,14 +665,14 @@ void Error::report() const
         {
             std::ios origState (nullptr);
             origState.copyfmt(std::cerr);
-            std::cerr << std::setw(maxlinepad - 1) << std::right << std::string(maxlinepad, '.') << " | ...\n";
+            std::cerr << std::setw(maxlinepad) << std::right << std::string(maxlinepad, '.') << " | ...\n";
             std::cerr.copyfmt(origState);
         }
 
         {
             std::ios origState (nullptr);
             origState.copyfmt(std::cerr);
-            std::cerr << std::setw(maxlinepad - 1) << std::right << sl.second;
+            std::cerr << std::setw(maxlinepad) << std::right << sl.second;
             std::cerr.copyfmt(origState);
         }
 
