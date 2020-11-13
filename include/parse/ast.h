@@ -135,8 +135,8 @@ namespace ASTNS
     class Args : public AST
     {
     public:
-        Args(std::unique_ptr<_ARGSBASE> args, Token comma, std::unique_ptr<_ARGSBASE> expr);
-        Args(std::unique_ptr<_ARGSBASE> expr);
+        Args(std::unique_ptr<_ARGSBASE> args, Token comma, std::unique_ptr<Expr> expr);
+        Args(std::unique_ptr<Expr> expr);
         enum class Form
         {
             ATA,
@@ -144,7 +144,7 @@ namespace ASTNS
         };
         std::unique_ptr<_ARGSBASE> args;
         Token comma;
-        std::unique_ptr<_ARGSBASE> expr;
+        std::unique_ptr<Expr> expr;
         Form form;
         virtual void accept(_ARGSBASEVisitor *v);
     };
@@ -262,7 +262,7 @@ namespace ASTNS
     class Block : public AST
     {
     public:
-        Block(Token ocurb, std::unique_ptr<_STMTBASE> stmts, Token ccurb);
+        Block(Token ocurb, std::unique_ptr<_STMTSBASE> stmts, Token ccurb);
         Block(Token ocurb, Token ccurb);
         enum class Form
         {
@@ -270,7 +270,7 @@ namespace ASTNS
             TT,
         };
         Token ocurb;
-        std::unique_ptr<_STMTBASE> stmts;
+        std::unique_ptr<_STMTSBASE> stmts;
         Token ccurb;
         Form form;
         virtual void accept(_STMTBASEVisitor *v);
@@ -278,7 +278,7 @@ namespace ASTNS
     class CallExpr : public AST
     {
     public:
-        CallExpr(std::unique_ptr<Expr> callee, Token oparn, std::unique_ptr<Expr> args, Token cparn);
+        CallExpr(std::unique_ptr<Expr> callee, Token oparn, std::unique_ptr<_ARGSBASE> args, Token cparn);
         CallExpr(std::unique_ptr<Expr> callee, Token oparn, Token cparn);
         enum class Form
         {
@@ -287,7 +287,7 @@ namespace ASTNS
         };
         std::unique_ptr<Expr> callee;
         Token oparn;
-        std::unique_ptr<Expr> args;
+        std::unique_ptr<_ARGSBASE> args;
         Token cparn;
         Form form;
         virtual void accept(ExprVisitor *v);
@@ -332,13 +332,16 @@ namespace ASTNS
     class Decls : public AST
     {
     public:
-        Decls(std::unique_ptr<_DECLSBASE> decls, std::unique_ptr<_DECLSBASE> decl);
+        Decls(std::unique_ptr<_DECLSBASE> decls, std::unique_ptr<_DECLBASE> decl);
+        Decls(std::unique_ptr<_DECLBASE> _);
         enum class Form
         {
             AA,
+            A,
         };
         std::unique_ptr<_DECLSBASE> decls;
-        std::unique_ptr<_DECLSBASE> decl;
+        std::unique_ptr<_DECLBASE> decl;
+        std::unique_ptr<_DECLBASE> _;
         Form form;
         virtual void accept(_DECLSBASEVisitor *v);
     };
@@ -357,12 +360,12 @@ namespace ASTNS
     class ExprStmt : public AST
     {
     public:
-        ExprStmt(std::unique_ptr<_STMTBASE> expr, Token semi);
+        ExprStmt(std::unique_ptr<Expr> expr, Token semi);
         enum class Form
         {
             AT,
         };
-        std::unique_ptr<_STMTBASE> expr;
+        std::unique_ptr<Expr> expr;
         Token semi;
         Form form;
         virtual void accept(_STMTBASEVisitor *v);
@@ -379,20 +382,20 @@ namespace ASTNS
     class Function : public AST
     {
     public:
-        Function(Token fun, std::unique_ptr<_DECLBASE> retty, Token name, Token oparn, Token cparn, std::unique_ptr<_DECLBASE> body);
-        Function(Token fun, std::unique_ptr<_DECLBASE> retty, Token name, Token oparn, std::unique_ptr<_DECLBASE> paramlist, Token cparn, std::unique_ptr<_DECLBASE> body);
+        Function(Token fun, std::unique_ptr<_TYPEBASE> retty, Token name, Token oparn, Token cparn, std::unique_ptr<_STMTBASE> body);
+        Function(Token fun, std::unique_ptr<_TYPEBASE> retty, Token name, Token oparn, std::unique_ptr<_PLISTBASE> paramlist, Token cparn, std::unique_ptr<_STMTBASE> body);
         enum class Form
         {
             TATTTA,
             TATTATA,
         };
         Token fun;
-        std::unique_ptr<_DECLBASE> retty;
+        std::unique_ptr<_TYPEBASE> retty;
         Token name;
         Token oparn;
         Token cparn;
-        std::unique_ptr<_DECLBASE> body;
-        std::unique_ptr<_DECLBASE> paramlist;
+        std::unique_ptr<_STMTBASE> body;
+        std::unique_ptr<_PLISTBASE> paramlist;
         Form form;
         virtual void accept(_DECLBASEVisitor *v);
     };
@@ -413,8 +416,8 @@ namespace ASTNS
     class ParamList : public AST
     {
     public:
-        ParamList(std::unique_ptr<_PLISTBASE> plist, Token comma, std::unique_ptr<_PLISTBASE> type, Token name);
-        ParamList(std::unique_ptr<_PLISTBASE> type, Token name);
+        ParamList(std::unique_ptr<_PLISTBASE> plist, Token comma, std::unique_ptr<_TYPEBASE> type, Token name);
+        ParamList(std::unique_ptr<_TYPEBASE> type, Token name);
         enum class Form
         {
             ATAT,
@@ -422,7 +425,7 @@ namespace ASTNS
         };
         std::unique_ptr<_PLISTBASE> plist;
         Token comma;
-        std::unique_ptr<_PLISTBASE> type;
+        std::unique_ptr<_TYPEBASE> type;
         Token name;
         Form form;
         virtual void accept(_PLISTBASEVisitor *v);
@@ -447,13 +450,13 @@ namespace ASTNS
     class RetStmt : public AST
     {
     public:
-        RetStmt(Token ret, std::unique_ptr<_STMTBASE> expr, Token semi);
+        RetStmt(Token ret, std::unique_ptr<Expr> expr, Token semi);
         enum class Form
         {
             TAT,
         };
         Token ret;
-        std::unique_ptr<_STMTBASE> expr;
+        std::unique_ptr<Expr> expr;
         Token semi;
         Form form;
         virtual void accept(_STMTBASEVisitor *v);
@@ -470,13 +473,16 @@ namespace ASTNS
     class Stmts : public AST
     {
     public:
-        Stmts(std::unique_ptr<_STMTSBASE> stmts, std::unique_ptr<_STMTSBASE> stmt);
+        Stmts(std::unique_ptr<_STMTSBASE> stmts, std::unique_ptr<_STMTBASE> stmt);
+        Stmts(std::unique_ptr<_STMTBASE> _);
         enum class Form
         {
             AA,
+            A,
         };
         std::unique_ptr<_STMTSBASE> stmts;
-        std::unique_ptr<_STMTSBASE> stmt;
+        std::unique_ptr<_STMTBASE> stmt;
+        std::unique_ptr<_STMTBASE> _;
         Form form;
         virtual void accept(_STMTSBASEVisitor *v);
     };
@@ -524,14 +530,14 @@ namespace ASTNS
     class VarStmt : public AST
     {
     public:
-        VarStmt(Token var, std::unique_ptr<_STMTBASE> type, std::unique_ptr<_STMTBASE> assignments, Token semi);
+        VarStmt(Token var, std::unique_ptr<_TYPEBASE> type, std::unique_ptr<_VSTMTIS> assignments, Token semi);
         enum class Form
         {
             TAAT,
         };
         Token var;
-        std::unique_ptr<_STMTBASE> type;
-        std::unique_ptr<_STMTBASE> assignments;
+        std::unique_ptr<_TYPEBASE> type;
+        std::unique_ptr<_VSTMTIS> assignments;
         Token semi;
         Form form;
         virtual void accept(_STMTBASEVisitor *v);
@@ -539,7 +545,7 @@ namespace ASTNS
     class VarStmtItem : public AST
     {
     public:
-        VarStmtItem(Token name, Token equal, std::unique_ptr<_VSTMTI> expr);
+        VarStmtItem(Token name, Token equal, std::unique_ptr<Expr> expr);
         VarStmtItem(Token name);
         enum class Form
         {
@@ -548,21 +554,24 @@ namespace ASTNS
         };
         Token name;
         Token equal;
-        std::unique_ptr<_VSTMTI> expr;
+        std::unique_ptr<Expr> expr;
         Form form;
         virtual void accept(_VSTMTIVisitor *v);
     };
     class VarStmtItems : public AST
     {
     public:
-        VarStmtItems(std::unique_ptr<_VSTMTIS> items, Token comma, std::unique_ptr<_VSTMTIS> item);
+        VarStmtItems(std::unique_ptr<_VSTMTIS> items, Token comma, std::unique_ptr<_VSTMTI> item);
+        VarStmtItems(std::unique_ptr<_VSTMTI> _);
         enum class Form
         {
             ATA,
+            A,
         };
         std::unique_ptr<_VSTMTIS> items;
         Token comma;
-        std::unique_ptr<_VSTMTIS> item;
+        std::unique_ptr<_VSTMTI> item;
+        std::unique_ptr<_VSTMTI> _;
         Form form;
         virtual void accept(_VSTMTISVisitor *v);
     };

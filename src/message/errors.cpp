@@ -328,6 +328,11 @@ void LocationVisitor::visitDecls(ASTNS::Decls *ast)
             retf = getF(ast->decls.get());
             retr = getR(ast->decl.get());
             break;
+        case ASTNS::Decls::Form::A:
+            retl = getL(ast->_.get());
+            retf = getF(ast->_.get());
+            retr = getR(ast->_.get());
+            break;
     }
 }
 void LocationVisitor::visitEmptyStmt(ASTNS::EmptyStmt *ast)
@@ -443,6 +448,11 @@ void LocationVisitor::visitStmts(ASTNS::Stmts *ast)
             retf = getF(ast->stmts.get());
             retr = getR(ast->stmt.get());
             break;
+        case ASTNS::Stmts::Form::A:
+            retl = getL(ast->_.get());
+            retf = getF(ast->_.get());
+            retr = getR(ast->_.get());
+            break;
     }
 }
 void LocationVisitor::visitTernaryExpr(ASTNS::TernaryExpr *ast)
@@ -513,6 +523,11 @@ void LocationVisitor::visitVarStmtItems(ASTNS::VarStmtItems *ast)
             retl = getL(ast->items.get());
             retf = getF(ast->items.get());
             retr = getR(ast->item.get());
+            break;
+        case ASTNS::VarStmtItems::Form::A:
+            retl = getL(ast->_.get());
+            retf = getF(ast->_.get());
+            retr = getR(ast->_.get());
             break;
     }
 }

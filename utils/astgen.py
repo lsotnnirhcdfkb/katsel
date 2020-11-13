@@ -57,10 +57,7 @@ for astname in sorted(_astnames):
 
         form = []
         for sym, vname in zip(rule.expansion, rule.vnames):
-            if vname == '_':
-                continue
-
-            ty = f'std::unique_ptr<{_astbases[astname]}>' if type(sym) == parsegen.NonTerminal else 'Token'
+            ty = f'std::unique_ptr<{_astbases[str(sym)]}>' if type(sym) == parsegen.NonTerminal else 'Token'
 
             field = ASTField(ty, vname)
             if field not in fields:

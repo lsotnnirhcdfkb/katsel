@@ -623,6 +623,20 @@ void PrintVisitor::visitDecls(ASTNS::Decls *a)
                 pai(" nullptr\n");
             }
             break;
+        case ASTNS::Decls::Form::A:
+            pai("_ =");
+            if (a->_)
+            {
+                ++indent;
+                pai("\n");
+                a->_->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
+            break;
     }
     --indent;
 }
@@ -991,6 +1005,20 @@ void PrintVisitor::visitStmts(ASTNS::Stmts *a)
                 pai(" nullptr\n");
             }
             break;
+        case ASTNS::Stmts::Form::A:
+            pai("_ =");
+            if (a->_)
+            {
+                ++indent;
+                pai("\n");
+                a->_->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
+            break;
     }
     --indent;
 }
@@ -1200,6 +1228,20 @@ void PrintVisitor::visitVarStmtItems(ASTNS::VarStmtItems *a)
                 ++indent;
                 pai("\n");
                 a->item->accept(this);
+                --indent;
+            }
+            else
+            {
+                pai(" nullptr\n");
+            }
+            break;
+        case ASTNS::VarStmtItems::Form::A:
+            pai("_ =");
+            if (a->_)
+            {
+                ++indent;
+                pai("\n");
+                a->_->accept(this);
                 --indent;
             }
             else

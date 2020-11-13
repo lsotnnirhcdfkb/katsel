@@ -444,13 +444,9 @@ for sym, rule in _grammar.items():
                 if sname != sname.upper():
                     print(f'\033[35;1mwarning\033[0m: terminal {sname} in rule \033[1m{symbol} -> {expansion}\033[0m')
 
-        if len(expansion) == 1 and type(expansion[0]) == NonTerminal:
-            if firstvname == '_':
-                skip = True
-                print('\033[34mrule is skip\033[0m', sym, expansion)
-            else:
-                skip = False
-                print('\033[1mrule could be skip\033[0m', sym, expansion)
+        if len(expansion) == 1 and type(expansion[0]) == NonTerminal and _grammar[str(expansion[0])]['base'] == base:
+            skip = True
+            print('\033[34mrule is skip\033[0m', sym, expansion)
         else:
             skip = False
 
@@ -601,7 +597,7 @@ def genLoop():
                         if type(sym) == Terminal:
                             output.append(f'                            REDUCET({i})\n')
                         elif type(sym) == NonTerminal:
-                            output.append(f'                            REDUCEA({i}, {ac.rule.base})\n')
+                            output.append(f'                            REDUCEA({i}, {_grammar[str(sym)]["base"]})\n')
 
                     output.append(        f'                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::{str(ac.rule.symbol)}>({", ".join([f"std::move(a{i})" for i in range(len(ac.rule.expansion))])});\n')
                     output.append(        f'                            size_t newstate = getGoto<ASTNS::{str(ac.rule.symbol)}>(stack.top()->state);\n')
