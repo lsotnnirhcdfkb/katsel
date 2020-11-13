@@ -54,15 +54,13 @@ int getLineN(std::string::const_iterator const &start, std::string::iterator loc
 // LocationVisitor {{{1
 class LocationVisitor : 
     public _DECLBASEVisitor,
-    public _DECLSBASEVisitor,
     public _ARGSBASEVisitor,
     public _STMTBASEVisitor,
     public ExprVisitor,
     public _VSTMTISVisitor,
     public _VSTMTIVisitor,
     public _PLISTBASEVisitor,
-    public _TYPEBASEVisitor,
-    public _STMTSBASEVisitor
+    public _TYPEBASEVisitor
 {
 public:
     // LOCVISITOR METHODS START
@@ -328,11 +326,6 @@ void LocationVisitor::visitDecls(ASTNS::Decls *ast)
             retf = getF(ast->decls.get());
             retr = getR(ast->decl.get());
             break;
-        case ASTNS::Decls::Form::A:
-            retl = getL(ast->_.get());
-            retf = getF(ast->_.get());
-            retr = getR(ast->_.get());
-            break;
     }
 }
 void LocationVisitor::visitEmptyStmt(ASTNS::EmptyStmt *ast)
@@ -448,11 +441,6 @@ void LocationVisitor::visitStmts(ASTNS::Stmts *ast)
             retf = getF(ast->stmts.get());
             retr = getR(ast->stmt.get());
             break;
-        case ASTNS::Stmts::Form::A:
-            retl = getL(ast->_.get());
-            retf = getF(ast->_.get());
-            retr = getR(ast->_.get());
-            break;
     }
 }
 void LocationVisitor::visitTernaryExpr(ASTNS::TernaryExpr *ast)
@@ -551,7 +539,6 @@ Location::Location(ASTNS::AST *ast)
         file = locV.getF(casted ## ty); \
     }
     CHECKTY(_DECLBASE)
-    CHECKTY(_DECLSBASE)
     CHECKTY(_ARGSBASE)
     CHECKTY(_STMTBASE)
     CHECKTY(Expr)
@@ -559,7 +546,6 @@ Location::Location(ASTNS::AST *ast)
     CHECKTY(_VSTMTI)
     CHECKTY(_PLISTBASE)
     CHECKTY(_TYPEBASE)
-    CHECKTY(_STMTSBASE)
 #undef CHECKTY
     reportAbortNoh("Location constructor reached invalid ast type");
 }

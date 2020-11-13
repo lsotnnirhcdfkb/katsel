@@ -14,10 +14,8 @@ namespace ASTNS
     class Expr;
     class _ARGSBASE;
     class _DECLBASE;
-    class _DECLSBASE;
     class _PLISTBASE;
     class _STMTBASE;
-    class _STMTSBASE;
     class _TYPEBASE;
     class _VSTMTI;
     class _VSTMTIS;
@@ -76,12 +74,6 @@ namespace ASTNS
         virtual ~_DECLBASE() {}
         virtual void accept(_DECLBASEVisitor *v) = 0;
     };
-    class _DECLSBASE : public AST
-    {
-    public:
-        virtual ~_DECLSBASE() {}
-        virtual void accept(_DECLSBASEVisitor *v) = 0;
-    };
     class _PLISTBASE : public AST
     {
     public:
@@ -93,12 +85,6 @@ namespace ASTNS
     public:
         virtual ~_STMTBASE() {}
         virtual void accept(_STMTBASEVisitor *v) = 0;
-    };
-    class _STMTSBASE : public AST
-    {
-    public:
-        virtual ~_STMTSBASE() {}
-        virtual void accept(_STMTSBASEVisitor *v) = 0;
     };
     class _TYPEBASE : public AST
     {
@@ -262,7 +248,7 @@ namespace ASTNS
     class Block : public AST
     {
     public:
-        Block(Token ocurb, std::unique_ptr<_STMTSBASE> stmts, Token ccurb);
+        Block(Token ocurb, std::unique_ptr<_STMTBASE> stmts, Token ccurb);
         Block(Token ocurb, Token ccurb);
         enum class Form
         {
@@ -270,7 +256,7 @@ namespace ASTNS
             TT,
         };
         Token ocurb;
-        std::unique_ptr<_STMTSBASE> stmts;
+        std::unique_ptr<_STMTBASE> stmts;
         Token ccurb;
         Form form;
         virtual void accept(_STMTBASEVisitor *v);
@@ -332,18 +318,15 @@ namespace ASTNS
     class Decls : public AST
     {
     public:
-        Decls(std::unique_ptr<_DECLSBASE> decls, std::unique_ptr<_DECLBASE> decl);
-        Decls(std::unique_ptr<_DECLBASE> _);
+        Decls(std::unique_ptr<_DECLBASE> decls, std::unique_ptr<_DECLBASE> decl);
         enum class Form
         {
             AA,
-            A,
         };
-        std::unique_ptr<_DECLSBASE> decls;
+        std::unique_ptr<_DECLBASE> decls;
         std::unique_ptr<_DECLBASE> decl;
-        std::unique_ptr<_DECLBASE> _;
         Form form;
-        virtual void accept(_DECLSBASEVisitor *v);
+        virtual void accept(_DECLBASEVisitor *v);
     };
     class EmptyStmt : public AST
     {
@@ -473,18 +456,15 @@ namespace ASTNS
     class Stmts : public AST
     {
     public:
-        Stmts(std::unique_ptr<_STMTSBASE> stmts, std::unique_ptr<_STMTBASE> stmt);
-        Stmts(std::unique_ptr<_STMTBASE> _);
+        Stmts(std::unique_ptr<_STMTBASE> stmts, std::unique_ptr<_STMTBASE> stmt);
         enum class Form
         {
             AA,
-            A,
         };
-        std::unique_ptr<_STMTSBASE> stmts;
+        std::unique_ptr<_STMTBASE> stmts;
         std::unique_ptr<_STMTBASE> stmt;
-        std::unique_ptr<_STMTBASE> _;
         Form form;
-        virtual void accept(_STMTSBASEVisitor *v);
+        virtual void accept(_STMTBASEVisitor *v);
     };
     class TernaryExpr : public AST
     {

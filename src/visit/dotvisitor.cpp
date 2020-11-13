@@ -693,23 +693,6 @@ void DotVisitor::visitDecls(ASTNS::Decls *a)
                     }
             }
             break;
-        case ASTNS::Decls::Form::A:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">Decls (A)</td></tr><tr>";
-            std::cout << "<td port=\"_\">_</td>";
-            std::cout << "</tr></table>>]\n";
-            {
-                    if (a->_)
-                    {
-                        a->_->accept(this);
-                        connect(thisid, "_", lastid);
-                    }
-                    else
-                    {
-                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "_", nullptrnodeid);
-                    }
-            }
-            break;
     }
     lastid = std::move(thisid);
 }
@@ -1121,23 +1104,6 @@ void DotVisitor::visitStmts(ASTNS::Stmts *a)
                     {
                         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
                         connect(thisid, "stmt", nullptrnodeid);
-                    }
-            }
-            break;
-        case ASTNS::Stmts::Form::A:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">Stmts (A)</td></tr><tr>";
-            std::cout << "<td port=\"_\">_</td>";
-            std::cout << "</tr></table>>]\n";
-            {
-                    if (a->_)
-                    {
-                        a->_->accept(this);
-                        connect(thisid, "_", lastid);
-                    }
-                    else
-                    {
-                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "_", nullptrnodeid);
                     }
             }
             break;

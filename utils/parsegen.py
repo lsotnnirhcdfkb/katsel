@@ -366,13 +366,13 @@ def rule(sym, name, base, *expansions):
     }
 
 _grammar = {}
-rule('Decls', 'declaration list', '_DECLSBASE', '$Decls:decls $Decl:decl', '$Decl:_')
+rule('Decls', 'declaration list', '_DECLBASE', '$Decls:decls $Decl:decl', '$Decl:_')
 
 rule('Decl', 'declaration', '_DECLBASE', '$Function:_')
 
 rule('Function', 'function declaration', '_DECLBASE', 'FUN:fun $Type:retty IDENTIFIER:name OPARN:oparn CPARN:cparn $Block:body',  'FUN:fun $Type:retty IDENTIFIER:name OPARN:oparn $ParamList:paramlist CPARN:cparn $Block:body')
 
-rule('Stmts', 'statement list', '_STMTSBASE', '$Stmts:stmts $Stmt:stmt',  '$Stmt:_')
+rule('Stmts', 'statement list', '_STMTBASE', '$Stmts:stmts $Stmt:stmt',  '$Stmt:_')
 rule('Stmt', 'statement', '_STMTBASE', '$EmptyStmt:_', '$VarStmt:_', '$ExprStmt:_', '$RetStmt:_', '$Block:_')
 
 rule('VarStmt', 'variable statement', '_STMTBASE', 'VAR:var $Type:type $VarStmtItems:assignments SEMICOLON:semi')

@@ -5,15 +5,13 @@
 
 class PrintVisitor : 
     public _DECLBASEVisitor,
-    public _DECLSBASEVisitor,
     public _ARGSBASEVisitor,
     public _STMTBASEVisitor,
     public ExprVisitor,
     public _VSTMTISVisitor,
     public _VSTMTIVisitor,
     public _PLISTBASEVisitor,
-    public _TYPEBASEVisitor,
-    public _STMTSBASEVisitor
+    public _TYPEBASEVisitor
 {
 public:
     // PRINTVISIT METHODS START

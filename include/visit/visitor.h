@@ -9,10 +9,8 @@ class AST;
 class Expr;
 class _ARGSBASE;
 class _DECLBASE;
-class _DECLSBASE;
 class _PLISTBASE;
 class _STMTBASE;
-class _STMTSBASE;
 class _TYPEBASE;
 class _VSTMTI;
 class _VSTMTIS;
@@ -86,12 +84,8 @@ class _DECLBASEVisitor
 {
 public:
     virtual void visitDecl(ASTNS::Decl *ast) = 0;
-    virtual void visitFunction(ASTNS::Function *ast) = 0;
-};
-class _DECLSBASEVisitor
-{
-public:
     virtual void visitDecls(ASTNS::Decls *ast) = 0;
+    virtual void visitFunction(ASTNS::Function *ast) = 0;
 };
 class _PLISTBASEVisitor
 {
@@ -106,12 +100,8 @@ public:
     virtual void visitExprStmt(ASTNS::ExprStmt *ast) = 0;
     virtual void visitRetStmt(ASTNS::RetStmt *ast) = 0;
     virtual void visitStmt(ASTNS::Stmt *ast) = 0;
-    virtual void visitVarStmt(ASTNS::VarStmt *ast) = 0;
-};
-class _STMTSBASEVisitor
-{
-public:
     virtual void visitStmts(ASTNS::Stmts *ast) = 0;
+    virtual void visitVarStmt(ASTNS::VarStmt *ast) = 0;
 };
 class _TYPEBASEVisitor
 {

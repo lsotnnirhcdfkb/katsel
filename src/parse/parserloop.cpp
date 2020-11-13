@@ -771,12 +771,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                {
                     case TokenType::EOF_:
                     case TokenType::FUN:
-                        {
-                            REDUCEA(0, _DECLBASE)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Decls>(std::move(a0));
-                            size_t newstate = getGoto<ASTNS::Decls>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
+                        REDUCESKIP(Decls);
                         break;
                     DEFAULTINVALID3("declaration", "either EOF_ or FUN", "declaration list")
                 }
@@ -817,7 +812,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::FUN:
                         {
                             REDUCEA(1, _DECLBASE)
-                            REDUCEA(0, _DECLSBASE)
+                            REDUCEA(0, _DECLBASE)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Decls>(std::move(a0), std::move(a1));
                             size_t newstate = getGoto<ASTNS::Decls>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -1237,12 +1232,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::TILDE:
                     case TokenType::TRUELIT:
                     case TokenType::VAR:
-                        {
-                            REDUCEA(0, _STMTBASE)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Stmts>(std::move(a0));
-                            size_t newstate = getGoto<ASTNS::Stmts>(stack.top()->state);
-                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
-                        }
+                        REDUCESKIP(Stmts);
                         break;
                     DEFAULTINVALID3("statement", "statement", "statement list")
                 }
@@ -2391,7 +2381,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::VAR:
                         {
                             REDUCET(2)
-                            REDUCEA(1, _STMTSBASE)
+                            REDUCEA(1, _STMTBASE)
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Block>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::Block>(stack.top()->state);
@@ -2426,7 +2416,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::VAR:
                         {
                             REDUCEA(1, _STMTBASE)
-                            REDUCEA(0, _STMTSBASE)
+                            REDUCEA(0, _STMTBASE)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Stmts>(std::move(a0), std::move(a1));
                             size_t newstate = getGoto<ASTNS::Stmts>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
