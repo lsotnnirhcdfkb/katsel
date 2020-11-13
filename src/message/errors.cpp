@@ -628,6 +628,15 @@ void Error::report() const
             ++i;
     }
 
+    for (size_t i = 0; i + 1 < showlocs.size(); ++i)
+    {
+        if (showlocs[i].first == showlocs[i + 1].first && showlocs[i + 1].second - showlocs[i].second > 1 && showlocs[i + 1].second - showlocs[i].second <= 3)
+        {
+            for (int j = showlocs[i].second + 1; j < showlocs[i + 1].second; ++j)
+                showlocs.insert(showlocs.begin() + i + 1, showloc(showlocs[i].first, j));
+        }
+    }
+
     for (showloc const &s : showlocs)
     {
         int linew = 1, linenr = s.second;

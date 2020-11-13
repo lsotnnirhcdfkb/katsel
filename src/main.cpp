@@ -18,12 +18,12 @@
 
 #include "llvm/Support/raw_ostream.h"
 
-enum Phases
+enum class Phases
 {
     LEX = 0,
     PARSE,
     DOT,
-    GLOBALS,
+    DECLS,
     CODEGEN,
     OBJECT,
     ALL,
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
                 else if (strcmp(optarg, "dot") == 0)
                     phasen = Phases::DOT;
                 else if (strcmp(optarg, "globals") == 0)
-                    phasen = Phases::GLOBALS;
+                    phasen = Phases::DECLS;
                 else if (strcmp(optarg, "codegen") == 0)
                     phasen = Phases::CODEGEN;
                 else if (strcmp(optarg, "all") == 0)
@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
         auto globalsassembler = std::make_unique<GlobalsAssembler>(*cgcontext, *codegen);
 
         globalsassembler->visitProgram(parsed.get());
-        if (phasen == Phases::GLOBALS)
+        if (phasen == Phases::DECLS)
         {
             cgcontext->mod->print(llvm::outs(), nullptr);
             continue;
