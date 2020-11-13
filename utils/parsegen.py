@@ -540,7 +540,12 @@ def genLoop():
                                        '        break;\n'
                                        '#define DEFAULTINVALID3(justparsed, expected, whileparsing) \\\n'
                                        '    default: \\\n'
-                                       '        invalidSyntax(justparsed, expected, whileparsing, lookahead, lasttok);\\\n'
+                                       '        invalidSyntaxWhile(justparsed, expected, whileparsing, lookahead, lasttok);\\\n'
+                                       '        done = true;\\\n'
+                                       '        break;\n'
+                                       '#define DEFAULTINVALIDNOEXPECT(justparsed, whileparsing) \\\n'
+                                       '    default: \\\n'
+                                       '        invalidSyntaxNoExpect(justparsed, whileparsing, lookahead, lasttok);\\\n'
                                        '        done = true;\\\n'
                                        '        break;\n'
                                        '#define REDUCESKIP(cl) \\\n'
@@ -615,7 +620,10 @@ def genLoop():
             output.append(             '                        break;\n')
 
         if state.whileparsing is not None:
-            output.append(            f'                    DEFAULTINVALID3("{state.justparsed}", "{formatList(state.expected)}", "{state.whileparsing}")\n')
+            if len(state.expected):
+                output.append(        f'                    DEFAULTINVALID3("{state.justparsed}", "{formatList(state.expected)}", "{state.whileparsing}")\n')
+            else:
+                output.append(        f'                    DEFAULTINVALIDNOEXPECT("{state.justparsed}", "{state.whileparsing}")\n')
         else:
             output.append(            f'                    DEFAULTINVALID2("{state.justparsed}", "{formatList(state.expected)}")\n')
         output.append(                 '                }\n')

@@ -25,8 +25,9 @@ private:
     template <typename AST>
     size_t getGoto(size_t state);
 
-    void invalidSyntax(const char *justparsed, const char *expected, const char *whileparsing, Token const &lookahead, Token const &last);
+    void invalidSyntaxWhile(const char *justparsed, const char *expected, const char *whileparsing, Token const &lookahead, Token const &last);
     void invalidSyntax(const char *justparsed, const char *expected, Token const &lookahead, Token const &last);
+    void invalidSyntaxNoExpect(const char *justparsed, const char *whileparsing, Token const &lookahead, Token const &last);
     Token consume();
 
     std::vector<Token> errored;
