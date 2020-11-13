@@ -46,7 +46,7 @@ class Terminal:
 # rule {{{2
 class Rule:
     __num = 0
-    def __init__(self, symbol, expansion, skip, name, vnames):
+    def __init__(self, symbol, expansion, skip, name, vnames, base):
         self.symbol = symbol
         self.expansion = expansion
         self.num = Rule.__num
@@ -54,6 +54,7 @@ class Rule:
         self.skip = skip
         self.name = name
         self.vnames = vnames
+        self.base = base
 
     def __repr__(self):
         return str(self)
@@ -354,58 +355,59 @@ def makeParseTable():
 # rules {{{1
 colorama.init()
 
-def rule(sym, name, *expansions):
+def rule(sym, name, base, *expansions):
     if sym in _grammar:
         raise Exception(f'duplicate rule symbol {sym}')
 
     _grammar[sym] = {
         'name': name,
-        'expansions': expansions
+        'expansions': expansions,
+        'base': base
     }
 
 _grammar = {}
-rule('Decls', 'declaration list', '$Decls:decls $Decl:decl', '$Decl:_')
+rule('Decls', 'declaration list', '_DECLSBASE', '$Decls:decls $Decl:decl', '$Decl:_')
 
-rule('Decl', 'declaration', '$Function:_')
+rule('Decl', 'declaration', '_DECLBASE', '$Function:_')
 
-rule('Function', 'function declaration', 'FUN:fun $Type:retty IDENTIFIER:name OPARN:oparn CPARN:cparn $Block:body',  'FUN:fun $Type:retty IDENTIFIER:name OPARN:oparn $ParamList:paramlist CPARN:cparn $Block:body')
+rule('Function', 'function declaration', '_DECLBASE', 'FUN:fun $Type:retty IDENTIFIER:name OPARN:oparn CPARN:cparn $Block:body',  'FUN:fun $Type:retty IDENTIFIER:name OPARN:oparn $ParamList:paramlist CPARN:cparn $Block:body')
 
-rule('Stmts', 'statement list', '$Stmts:stmts $Stmt:stmt',  '$Stmt:_')
-rule('Stmt', 'statement', '$EmptyStmt:_', '$VarStmt:_', '$ExprStmt:_', '$RetStmt:_', '$Block:_')
+rule('Stmts', 'statement list', '_STMTSBASE', '$Stmts:stmts $Stmt:stmt',  '$Stmt:_')
+rule('Stmt', 'statement', '_STMTBASE', '$EmptyStmt:_', '$VarStmt:_', '$ExprStmt:_', '$RetStmt:_', '$Block:_')
 
-rule('VarStmt', 'variable statement', 'VAR:var $Type:type $VarStmtItems:assignments SEMICOLON:semi')
-rule('ExprStmt', 'expression statement', '$Expression:expr SEMICOLON:semi')
-rule('RetStmt', 'return statement', 'RETURN:ret $Expression:expr SEMICOLON:semi')
-rule('EmptyStmt', 'empty statement', 'SEMICOLON:semi')
+rule('VarStmt', 'variable statement', '_STMTBASE', 'VAR:var $Type:type $VarStmtItems:assignments SEMICOLON:semi')
+rule('ExprStmt', 'expression statement', '_STMTBASE', '$Expression:expr SEMICOLON:semi')
+rule('RetStmt', 'return statement', '_STMTBASE', 'RETURN:ret $Expression:expr SEMICOLON:semi')
+rule('EmptyStmt', 'empty statement', '_STMTBASE', 'SEMICOLON:semi')
 
-rule('VarStmtItems', 'variable statement assignments', '$VarStmtItems:items COMMA:comma $VarStmtItem:item', '$VarStmtItem:_')
-rule('VarStmtItem', 'variable statement assignment', 'IDENTIFIER:name EQUAL:equal $Expression:expr', 'IDENTIFIER:name')
+rule('VarStmtItems', 'variable statement assignments', '_VSTMTIS', '$VarStmtItems:items COMMA:comma $VarStmtItem:item', '$VarStmtItem:_')
+rule('VarStmtItem', 'variable statement assignment', '_VSTMTI', 'IDENTIFIER:name EQUAL:equal $Expression:expr', 'IDENTIFIER:name')
 
-rule('Block', 'code block', 'OCURB:ocurb $Stmts:stmts CCURB:ccurb', 'OCURB:ocurb CCURB:ccurb')
+rule('Block', 'code block', '_STMTBASE', 'OCURB:ocurb $Stmts:stmts CCURB:ccurb', 'OCURB:ocurb CCURB:ccurb')
 
-rule('Type', 'type specifier', 'UINT8:type', 'UINT16:type', 'UINT32:type', 'UINT64:type', 'SINT8:type', 'SINT16:type', 'SINT32:type', 'SINT64:type', 'FLOAT:type', 'BOOL:type', 'DOUBLE:type', 'VOID:type', 'CHAR:type')
+rule('Type', 'type specifier', '_TYPEBASE', 'UINT8:type', 'UINT16:type', 'UINT32:type', 'UINT64:type', 'SINT8:type', 'SINT16:type', 'SINT32:type', 'SINT64:type', 'FLOAT:type', 'BOOL:type', 'DOUBLE:type', 'VOID:type', 'CHAR:type')
 
-rule('Args', 'argument list', '$Args:args COMMA:comma $Expression:expr', '$Expression:expr')
+rule('Args', 'argument list', '_ARGSBASE', '$Args:args COMMA:comma $Expression:expr', '$Expression:expr')
 
-rule('ParamList', 'parameter list', '$ParamList:plist COMMA:comma $Type:type IDENTIFIER:name', '$Type:type IDENTIFIER:name')
+rule('ParamList', 'parameter list', '_PLISTBASE', '$ParamList:plist COMMA:comma $Type:type IDENTIFIER:name', '$Type:type IDENTIFIER:name')
 
-rule('Expression', 'expression', '$AssignmentExpr:_')
-rule('AssignmentExpr', 'assignment expression', '$TernaryExpr:target EQUAL:equal $AssignmentExpr:value', '$TernaryExpr:_')
-rule('TernaryExpr', 'ternary expression', '$BinorExpr:_', '$BinorExpr:cond QUESTION:quest $Expression:trues COLON:colon $TernaryExpr:falses')
-rule('BinorExpr', 'binary or expression', '$BinorExpr:lhs DOUBLEPIPE:op $BinandExpr:rhs', '$BinandExpr:_')
-rule('BinandExpr', 'binary and expression', '$BinandExpr:lhs DOUBLEAMPER:op $BinnotExpr:rhs', '$BinnotExpr:_')
-rule('BinnotExpr', 'binary not expression', 'BANG:op $BinnotExpr:operand', '$CompeqExpr:_')
-rule('CompeqExpr', 'equality expression', '$CompeqExpr:lhs BANGEQUAL:op $ComplgtExpr:rhs', '$CompeqExpr:lhs DOUBLEEQUAL:op $ComplgtExpr:rhs', '$ComplgtExpr:_')
-rule('ComplgtExpr', 'comparison expression', '$ComplgtExpr:lhs LESS:op $BitxorExpr:rhs', '$ComplgtExpr:lhs GREATER:op $BitxorExpr:rhs', '$ComplgtExpr:lhs LESSEQUAL:op $BitxorExpr:rhs', '$ComplgtExpr:lhs GREATEREQUAL:op $BitxorExpr:rhs', '$BitxorExpr:_')
-rule('BitxorExpr', 'bitwise xor expression', '$BitxorExpr:lhs CARET:op $BitorExpr:rhs', '$BitorExpr:_')
-rule('BitorExpr', 'bitwise or expression', '$BitorExpr:lhs PIPE:op $BitandExpr:rhs', '$BitandExpr:_')
-rule('BitandExpr', 'bitwise and expression', '$BitandExpr:lhs AMPER:op $BitshiftExpr:rhs', '$BitshiftExpr:_')
-rule('BitshiftExpr', 'bit shift expression', '$BitshiftExpr:lhs DOUBLEGREATER:op $AdditionExpr:rhs', '$BitshiftExpr:lhs DOUBLELESS:op $AdditionExpr:rhs', '$AdditionExpr:_')
-rule('AdditionExpr', 'addition expression', '$AdditionExpr:lhs PLUS:op $MultExpr:rhs', '$AdditionExpr:lhs MINUS:op $MultExpr:rhs', '$MultExpr:_')
-rule('MultExpr', 'multiplication expression', '$MultExpr:lhs STAR:op $UnaryExpr:rhs', '$MultExpr:lhs SLASH:op $UnaryExpr:rhs', '$MultExpr:lhs PERCENT:op $UnaryExpr:rhs', '$UnaryExpr:_')
-rule('UnaryExpr', 'unary expression', 'TILDE:op $UnaryExpr:operand', 'MINUS:op $UnaryExpr:operand', '$CallExpr:_')
-rule('CallExpr', 'function call expression', '$PrimaryExpr:callee OPARN:oparn $Args:args CPARN:cparn', '$PrimaryExpr:callee OPARN:oparn CPARN:cparn', '$PrimaryExpr:_')
-rule('PrimaryExpr', 'primary expression', 'TRUELIT:value', 'FALSELIT:value', 'FLOATLIT:value', 'NULLPTRLIT:value', 'DECINTLIT:value', 'OCTINTLIT:value', 'BININTLIT:value', 'HEXINTLIT:value', 'CHARLIT:value', 'STRINGLIT:value', 'IDENTIFIER:value', 'OPARN:oparn $Expression:expr CPARN:cparn')
+rule('Expression', 'expression', 'Expr', '$AssignmentExpr:_')
+rule('AssignmentExpr', 'assignment expression', 'Expr', '$TernaryExpr:target EQUAL:equal $AssignmentExpr:value', '$TernaryExpr:_')
+rule('TernaryExpr', 'ternary expression', 'Expr', '$BinorExpr:_', '$BinorExpr:cond QUESTION:quest $Expression:trues COLON:colon $TernaryExpr:falses')
+rule('BinorExpr', 'binary or expression', 'Expr', '$BinorExpr:lhs DOUBLEPIPE:op $BinandExpr:rhs', '$BinandExpr:_')
+rule('BinandExpr', 'binary and expression', 'Expr', '$BinandExpr:lhs DOUBLEAMPER:op $BinnotExpr:rhs', '$BinnotExpr:_')
+rule('BinnotExpr', 'binary not expression', 'Expr', 'BANG:op $BinnotExpr:operand', '$CompeqExpr:_')
+rule('CompeqExpr', 'equality expression', 'Expr', '$CompeqExpr:lhs BANGEQUAL:op $ComplgtExpr:rhs', '$CompeqExpr:lhs DOUBLEEQUAL:op $ComplgtExpr:rhs', '$ComplgtExpr:_')
+rule('ComplgtExpr', 'comparison expression', 'Expr', '$ComplgtExpr:lhs LESS:op $BitxorExpr:rhs', '$ComplgtExpr:lhs GREATER:op $BitxorExpr:rhs', '$ComplgtExpr:lhs LESSEQUAL:op $BitxorExpr:rhs', '$ComplgtExpr:lhs GREATEREQUAL:op $BitxorExpr:rhs', '$BitxorExpr:_')
+rule('BitxorExpr', 'bitwise xor expression', 'Expr', '$BitxorExpr:lhs CARET:op $BitorExpr:rhs', '$BitorExpr:_')
+rule('BitorExpr', 'bitwise or expression', 'Expr', '$BitorExpr:lhs PIPE:op $BitandExpr:rhs', '$BitandExpr:_')
+rule('BitandExpr', 'bitwise and expression', 'Expr', '$BitandExpr:lhs AMPER:op $BitshiftExpr:rhs', '$BitshiftExpr:_')
+rule('BitshiftExpr', 'bit shift expression', 'Expr', '$BitshiftExpr:lhs DOUBLEGREATER:op $AdditionExpr:rhs', '$BitshiftExpr:lhs DOUBLELESS:op $AdditionExpr:rhs', '$AdditionExpr:_')
+rule('AdditionExpr', 'addition expression', 'Expr', '$AdditionExpr:lhs PLUS:op $MultExpr:rhs', '$AdditionExpr:lhs MINUS:op $MultExpr:rhs', '$MultExpr:_')
+rule('MultExpr', 'multiplication expression', 'Expr', '$MultExpr:lhs STAR:op $UnaryExpr:rhs', '$MultExpr:lhs SLASH:op $UnaryExpr:rhs', '$MultExpr:lhs PERCENT:op $UnaryExpr:rhs', '$UnaryExpr:_')
+rule('UnaryExpr', 'unary expression', 'Expr', 'TILDE:op $UnaryExpr:operand', 'MINUS:op $UnaryExpr:operand', '$CallExpr:_')
+rule('CallExpr', 'function call expression', 'Expr', '$PrimaryExpr:callee OPARN:oparn $Args:args CPARN:cparn', '$PrimaryExpr:callee OPARN:oparn CPARN:cparn', '$PrimaryExpr:_')
+rule('PrimaryExpr', 'primary expression', 'Expr', 'TRUELIT:value', 'FALSELIT:value', 'FLOATLIT:value', 'NULLPTRLIT:value', 'DECINTLIT:value', 'OCTINTLIT:value', 'BININTLIT:value', 'HEXINTLIT:value', 'CHARLIT:value', 'STRINGLIT:value', 'IDENTIFIER:value', 'OPARN:oparn $Expression:expr CPARN:cparn')
 
 grammar = []
 found = set()
@@ -417,6 +419,7 @@ for sym, rule in _grammar.items():
     found.add(sym)
 
     expansions = rule['expansions']
+    base = rule['base']
     for expansion in expansions:
         vnames = []
         expansion = expansion.split(' ')
@@ -451,14 +454,14 @@ for sym, rule in _grammar.items():
         else:
             skip = False
 
-        grammar.append(Rule(NonTerminal(sym), tuple(expansion), skip, rule['name'], vnames))
+        grammar.append(Rule(NonTerminal(sym), tuple(expansion), skip, rule['name'], vnames, base))
 
 for missingi in missing:
     print(f'\033[35;1mwarning\033[0m: undefined terminal \033[1m{missingi}\033[0m')
 print('-- parsed grammar')
 
 augmentSymbol = NonTerminal('augment')
-augmentRule = Rule(augmentSymbol, (grammar[0].symbol, ), True, 'compilation unit', '_')
+augmentRule = Rule(augmentSymbol, (grammar[0].symbol, ), True, 'compilation unit', '_', '')
 grammar.append(augmentRule)
 
 print('-- augment grammar')
@@ -525,12 +528,12 @@ def genLoop():
                                        '    lookahead = consume();\n'
                                        '#define REDUCET(n) \\\n'
                                        '    std::unique_ptr<stackitem> _a ## n = std::move(stack.top()); stack.pop();\\\n'
-                                       '    tokstackitem *si ## n = dynamic_cast<tokstackitem*>(_a ## n .get());\\\n'
+                                       '    tokstackitem *si ## n = static_cast<tokstackitem*>(_a ## n .get());\\\n'
                                        '    Token a ## n (si ## n ->tok);\n' # TODO: add parser method to say internal error: invalid pop expected tokstackitem/aststackitem but got ...
-                                       '#define REDUCEA(n) \\\n'
+                                       '#define REDUCEA(n, base) \\\n'
                                        '    std::unique_ptr<stackitem> _a ## n = std::move(stack.top()); stack.pop();\\\n'
-                                       '    aststackitem *si ## n = dynamic_cast<aststackitem*>(_a ## n .get());\\\n'
-                                       '    std::unique_ptr<ASTNS::AST> a ## n (std::move(si ## n ->ast));\n' # same TODO as above
+                                       '    aststackitem *si ## n = static_cast<aststackitem*>(_a ## n .get());\\\n'
+                                       '    std::unique_ptr<ASTNS::base> a ## n (std::unique_ptr<ASTNS::base>(static_cast<ASTNS::base*>(si ## n ->ast.release())));\n' # same TODO as above
                                        '#define SHIFTON(ty, n) \\\n'
                                        '    case ty: \\\n'
                                        '        {SHIFT(n)} break;\n'
@@ -547,7 +550,7 @@ def genLoop():
                                        '#define REDUCESKIP(cl) \\\n'
                                        '    {\\\n'
                                        '        std::unique_ptr<stackitem> popped (std::move(stack.top())); stack.pop();\\\n'
-                                       '        aststackitem *asi = dynamic_cast<aststackitem*>(popped.get());\\\n'
+                                       '        aststackitem *asi = static_cast<aststackitem*>(popped.get());\\\n'
                                        '        size_t newstate = getGoto<ASTNS::cl>(stack.top()->state);\\\n'
                                        '        stack.push(std::make_unique<aststackitem>(newstate, std::move(asi->ast)));\\\n'
                                        '    }\n'))
@@ -598,7 +601,7 @@ def genLoop():
                         if type(sym) == Terminal:
                             output.append(f'                            REDUCET({i})\n')
                         elif type(sym) == NonTerminal:
-                            output.append(f'                            REDUCEA({i})\n')
+                            output.append(f'                            REDUCEA({i}, {ac.rule.base})\n')
 
                     output.append(        f'                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::{str(ac.rule.symbol)}>({", ".join([f"std::move(a{i})" for i in range(len(ac.rule.expansion))])});\n')
                     output.append(        f'                            size_t newstate = getGoto<ASTNS::{str(ac.rule.symbol)}>(stack.top()->state);\n')

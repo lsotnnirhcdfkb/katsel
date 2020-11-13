@@ -4,12 +4,17 @@ import parsegen
 # Classes {{{1
 # ASTClass {{{2
 class ASTClass:
-    def __init__(self, name, fields, forms):
+    def __init__(self, name, fields, forms, base):
         self.name = name
         self.fields = fields
         self.forms = forms
+        self.base = base
 # ASTBaseClass {{{2
 class ASTBaseClass:
+    def __init__(self, name):
+        self.name = name
+# ASTSuperBaseClass {{{2
+class ASTSuperBaseClass:
     def __init__(self):
         self.name = 'AST'
 # ASTField {{{2
@@ -21,21 +26,29 @@ class ASTField:
     def __eq__(self, other):
         return self.type_ == other.type_ and self.name == other.name
 # Classes to generate {{{1
-asts = [ASTBaseClass()]
+asts = [ASTSuperBaseClass()]
+_bases = set()
+_astbases = {}
 _astnames = set()
 _asts = []
 for rule in parsegen.grammar:
     if str(rule.symbol) == 'augment': continue
     _astnames.add(str(rule.symbol))
+    _bases.add(rule.base)
+    _astbases[str(rule.symbol)] = rule.base
+
+for base in sorted(_bases):
+    asts.append(ASTBaseClass(base))
 
 for astname in sorted(_astnames):
     fields = []
     forms = []
     matchedrules = [rule for rule in parsegen.grammar if str(rule.symbol) == astname]
 
+    base = matchedrules[0].base
     skiponly = all([r.skip for r in matchedrules])
     if skiponly:
-        asts.append(ASTClass(astname, [], []))
+        asts.append(ASTClass(astname, [], [], base))
         continue
 
     for rule in matchedrules:
@@ -47,7 +60,7 @@ for astname in sorted(_astnames):
             if vname == '_':
                 continue
 
-            ty = 'std::unique_ptr<AST>' if type(sym) == parsegen.NonTerminal else 'Token'
+            ty = f'std::unique_ptr<{_astbases[astname]}>' if type(sym) == parsegen.NonTerminal else 'Token'
 
             field = ASTField(ty, vname)
             if field not in fields:
@@ -60,7 +73,7 @@ for astname in sorted(_astnames):
         if len(form) and form not in forms:
             forms.append(form)
 
-    asts.append(ASTClass(astname, fields, forms))
+    asts.append(ASTClass(astname, fields, forms, base))
 # Generating methods {{{1
 # helpers {{{2
 def stringifyForm(form):
@@ -74,7 +87,7 @@ def genASTDecls():
         output.append(f'    class {ast.name};\n')
 
     for ast in asts:
-        if type(ast) != ASTBaseClass:
+        if type(ast) == ASTClass:
             output.append(f'    class {ast.name} : public AST\n')
 
             output.append( '    {\n')
@@ -93,15 +106,21 @@ def genASTDecls():
                 output.append(f'        {field.type_} {field.name};\n')
             output.append(f'        Form form;\n')
 
-            output.append(f'        virtual void accept(ASTVisitor *v);\n')
+            output.append(f'        virtual void accept({ast.base}Visitor *v);\n')
 
+            output.append( '    };\n')
+        elif type(ast) == ASTBaseClass:
+            output.append(f'    class {ast.name} : public AST\n')
+            output.append( '    {\n')
+            output.append( '    public:\n')
+            output.append(f'        virtual ~{ast.name}() {{}}\n')
+            output.append(f'        virtual void accept({ast.name}Visitor *v) = 0;\n')
             output.append( '    };\n')
         else:
             output.append( '    class AST\n')
             output.append( '    {\n')
             output.append( '    public:\n')
             output.append( '        virtual ~AST() {}\n')
-            output.append( '        virtual void accept(ASTVisitor *v) = 0;\n')
             output.append( '    };\n')
 
     return ''.join(output)
@@ -109,7 +128,7 @@ def genASTDecls():
 def genASTDefs():
     output = ['#include "parse/ast.h"\n']
     for ast in asts:
-        if type(ast) != ASTBaseClass:
+        if type(ast) == ASTClass:
             for form in ast.forms:
                 output.append(f'ASTNS::{ast.name}::{ast.name}({", ".join(f"{field.type_} {field.name}" for field in form)}): ')
 
@@ -125,7 +144,7 @@ def genASTDefs():
                 output.append(', '.join(initializerList))
                 output.append(' {}\n')
 
-            output.append(f'void ASTNS::{ast.name}::accept(ASTVisitor *v) {{ v->visit{ast.name}(this); }}\n')
+            output.append(f'void ASTNS::{ast.name}::accept({ast.base}Visitor *v) {{ v->visit{ast.name}(this); }}\n')
 
     return ''.join(output)
 # Generating Visitor stuff {{{2
@@ -135,16 +154,30 @@ def genASTForwDecls():
     for ast in asts:
         output.append(f'class {ast.name};\n')
     return ''.join(output)
-# Generate visitor method declarations {{{3
-def genVisitorMethods(base=False):
+# Generate visitor classes {{{3
+def genVisitorClasses():
     output = []
     for ast in asts:
-        if type(ast) == ASTBaseClass:
+        if type(ast) != ASTBaseClass:
             continue
 
-        if base:
-            output.append(f'virtual void visit{ast.name}(ASTNS::{ast.name} *ast) = 0;\n')
-        else:
+        output.append(f'class {ast.name}Visitor\n')
+        output.append( '{\n')
+        output.append( 'public:\n')
+        for _ast in asts:
+            if type(_ast) == ASTClass and _ast.base == ast.name:
+                output.append(f'    virtual void visit{_ast.name}(ASTNS::{_ast.name} *ast) = 0;\n')
+        output.append( '};\n')
+
+    return ''.join(output)
+# Generate overrided functions for visitor classes {{{3
+def genVisitorMethods(bases):
+    output = []
+    for ast in asts:
+        if type(ast) != ASTClass:
+            continue
+
+        if ast.base in bases or bases == 'all':
             output.append(f'void visit{ast.name}(ASTNS::{ast.name} *ast) override;\n')
 
     return ''.join(output)
@@ -152,7 +185,7 @@ def genVisitorMethods(base=False):
 def genLocVisit():
     output = []
     for ast in asts:
-        if type(ast) == ASTBaseClass:
+        if type(ast) != ASTClass:
             continue
 
         output.append(        f'void LocationVisitor::visit{ast.name}(ASTNS::{ast.name} *ast)\n')
@@ -186,7 +219,7 @@ def genLocVisit():
 def genPrintVisitorMethods():
     output = []
     for ast in asts:
-        if type(ast) == ASTBaseClass:
+        if type(ast) != ASTClass:
             continue
 
         output.append(            f'void PrintVisitor::visit{ast.name}(ASTNS::{ast.name} *a)\n')
@@ -225,7 +258,7 @@ def genPrintVisitorMethods():
 def genDotVisitorMethods():
     output = []
     for ast in asts:
-        if type(ast) == ASTBaseClass:
+        if type(ast) != ASTClass:
             continue
 
         output.append(            f'void DotVisitor::visit{ast.name}(ASTNS::{ast.name} *a)\n')

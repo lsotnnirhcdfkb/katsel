@@ -52,7 +52,17 @@ int getLineN(std::string::const_iterator const &start, std::string::iterator loc
     return linen + 1;
 }
 // LocationVisitor {{{1
-class LocationVisitor : public ASTVisitor
+class LocationVisitor : 
+    public _DECLBASEVisitor,
+    public _DECLSBASEVisitor,
+    public _ARGSBASEVisitor,
+    public _STMTBASEVisitor,
+    public ExprVisitor,
+    public _VSTMTISVisitor,
+    public _VSTMTIVisitor,
+    public _PLISTBASEVisitor,
+    public _TYPEBASEVisitor,
+    public _STMTSBASEVisitor
 {
 public:
     // LOCVISITOR METHODS START

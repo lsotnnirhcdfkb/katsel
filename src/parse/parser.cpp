@@ -699,7 +699,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
         Token tok;
         tokstackitem(size_t state, Token tok): stackitem(state), tok(tok) {}
     };
-    
+
     struct aststackitem : public stackitem
     {
         std::unique_ptr<ASTNS::AST> ast;
@@ -716,12 +716,12 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
     lookahead = consume();
 #define REDUCET(n) \
     std::unique_ptr<stackitem> _a ## n = std::move(stack.top()); stack.pop();\
-    tokstackitem *si ## n = dynamic_cast<tokstackitem*>(_a ## n .get());\
+    tokstackitem *si ## n = static_cast<tokstackitem*>(_a ## n .get());\
     Token a ## n (si ## n ->tok);
-#define REDUCEA(n) \
+#define REDUCEA(n, base) \
     std::unique_ptr<stackitem> _a ## n = std::move(stack.top()); stack.pop();\
-    aststackitem *si ## n = dynamic_cast<aststackitem*>(_a ## n .get());\
-    std::unique_ptr<ASTNS::AST> a ## n (std::move(si ## n ->ast));
+    aststackitem *si ## n = static_cast<aststackitem*>(_a ## n .get());\
+    std::unique_ptr<ASTNS::base> a ## n (std::unique_ptr<ASTNS::base>(static_cast<ASTNS::base*>(si ## n ->ast.release())));
 #define SHIFTON(ty, n) \
     case ty: \
         {SHIFT(n)} break;
@@ -738,7 +738,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
 #define REDUCESKIP(cl) \
     {\
         std::unique_ptr<stackitem> popped (std::move(stack.top())); stack.pop();\
-        aststackitem *asi = dynamic_cast<aststackitem*>(popped.get());\
+        aststackitem *asi = static_cast<aststackitem*>(popped.get());\
         size_t newstate = getGoto<ASTNS::cl>(stack.top()->state);\
         stack.push(std::make_unique<aststackitem>(newstate, std::move(asi->ast)));\
     }
@@ -813,8 +813,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::EOF_:
                     case TokenType::FUN:
                         {
-                            REDUCEA(1)
-                            REDUCEA(0)
+                            REDUCEA(1, _DECLSBASE)
+                            REDUCEA(0, _DECLSBASE)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Decls>(std::move(a0), std::move(a1));
                             size_t newstate = getGoto<ASTNS::Decls>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -1067,11 +1067,11 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::EOF_:
                     case TokenType::FUN:
                         {
-                            REDUCEA(5)
+                            REDUCEA(5, _DECLBASE)
                             REDUCET(4)
                             REDUCET(3)
                             REDUCET(2)
-                            REDUCEA(1)
+                            REDUCEA(1, _DECLBASE)
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Function>(std::move(a0), std::move(a1), std::move(a2), std::move(a3), std::move(a4), std::move(a5));
                             size_t newstate = getGoto<ASTNS::Function>(stack.top()->state);
@@ -1140,7 +1140,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::CPARN:
                         {
                             REDUCET(1)
-                            REDUCEA(0)
+                            REDUCEA(0, _PLISTBASE)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::ParamList>(std::move(a0), std::move(a1));
                             size_t newstate = getGoto<ASTNS::ParamList>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -2334,12 +2334,12 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::EOF_:
                     case TokenType::FUN:
                         {
-                            REDUCEA(6)
+                            REDUCEA(6, _DECLBASE)
                             REDUCET(5)
-                            REDUCEA(4)
+                            REDUCEA(4, _DECLBASE)
                             REDUCET(3)
                             REDUCET(2)
-                            REDUCEA(1)
+                            REDUCEA(1, _DECLBASE)
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Function>(std::move(a0), std::move(a1), std::move(a2), std::move(a3), std::move(a4), std::move(a5), std::move(a6));
                             size_t newstate = getGoto<ASTNS::Function>(stack.top()->state);
@@ -2383,7 +2383,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::VAR:
                         {
                             REDUCET(2)
-                            REDUCEA(1)
+                            REDUCEA(1, _STMTBASE)
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Block>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::Block>(stack.top()->state);
@@ -2417,8 +2417,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::TRUELIT:
                     case TokenType::VAR:
                         {
-                            REDUCEA(1)
-                            REDUCEA(0)
+                            REDUCEA(1, _STMTSBASE)
+                            REDUCEA(0, _STMTSBASE)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Stmts>(std::move(a0), std::move(a1));
                             size_t newstate = getGoto<ASTNS::Stmts>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -2459,7 +2459,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::VAR:
                         {
                             REDUCET(1)
-                            REDUCEA(0)
+                            REDUCEA(0, _STMTBASE)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::ExprStmt>(std::move(a0), std::move(a1));
                             size_t newstate = getGoto<ASTNS::ExprStmt>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -2571,7 +2571,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
                         {
-                            REDUCEA(1)
+                            REDUCEA(1, Expr)
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::BinnotExpr>(std::move(a0), std::move(a1));
                             size_t newstate = getGoto<ASTNS::BinnotExpr>(stack.top()->state);
@@ -2929,7 +2929,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::SLASH:
                     case TokenType::STAR:
                         {
-                            REDUCEA(1)
+                            REDUCEA(1, Expr)
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::UnaryExpr>(std::move(a0), std::move(a1));
                             size_t newstate = getGoto<ASTNS::UnaryExpr>(stack.top()->state);
@@ -2967,7 +2967,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::SLASH:
                     case TokenType::STAR:
                         {
-                            REDUCEA(1)
+                            REDUCEA(1, Expr)
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::UnaryExpr>(std::move(a0), std::move(a1));
                             size_t newstate = getGoto<ASTNS::UnaryExpr>(stack.top()->state);
@@ -3013,9 +3013,9 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::CPARN:
                         {
                             REDUCET(3)
-                            REDUCEA(2)
+                            REDUCEA(2, _PLISTBASE)
                             REDUCET(1)
-                            REDUCEA(0)
+                            REDUCEA(0, _PLISTBASE)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::ParamList>(std::move(a0), std::move(a1), std::move(a2), std::move(a3));
                             size_t newstate = getGoto<ASTNS::ParamList>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -3083,7 +3083,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::VAR:
                         {
                             REDUCET(2)
-                            REDUCEA(1)
+                            REDUCEA(1, _STMTBASE)
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::RetStmt>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::RetStmt>(stack.top()->state);
@@ -3101,9 +3101,9 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::CPARN:
                     case TokenType::SEMICOLON:
                         {
-                            REDUCEA(2)
+                            REDUCEA(2, Expr)
                             REDUCET(1)
-                            REDUCEA(0)
+                            REDUCEA(0, Expr)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::AssignmentExpr>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::AssignmentExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -3130,9 +3130,9 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
                         {
-                            REDUCEA(2)
+                            REDUCEA(2, Expr)
                             REDUCET(1)
-                            REDUCEA(0)
+                            REDUCEA(0, Expr)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::BinorExpr>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::BinorExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -3154,9 +3154,9 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
                         {
-                            REDUCEA(2)
+                            REDUCEA(2, Expr)
                             REDUCET(1)
-                            REDUCEA(0)
+                            REDUCEA(0, Expr)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::BinandExpr>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::BinandExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -3179,9 +3179,9 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
                         {
-                            REDUCEA(2)
+                            REDUCEA(2, Expr)
                             REDUCET(1)
-                            REDUCEA(0)
+                            REDUCEA(0, Expr)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::CompeqExpr>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::CompeqExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -3208,9 +3208,9 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
                         {
-                            REDUCEA(2)
+                            REDUCEA(2, Expr)
                             REDUCET(1)
-                            REDUCEA(0)
+                            REDUCEA(0, Expr)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::CompeqExpr>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::CompeqExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -3241,9 +3241,9 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
                         {
-                            REDUCEA(2)
+                            REDUCEA(2, Expr)
                             REDUCET(1)
-                            REDUCEA(0)
+                            REDUCEA(0, Expr)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::ComplgtExpr>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::ComplgtExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -3271,9 +3271,9 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
                         {
-                            REDUCEA(2)
+                            REDUCEA(2, Expr)
                             REDUCET(1)
-                            REDUCEA(0)
+                            REDUCEA(0, Expr)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::ComplgtExpr>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::ComplgtExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -3301,9 +3301,9 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
                         {
-                            REDUCEA(2)
+                            REDUCEA(2, Expr)
                             REDUCET(1)
-                            REDUCEA(0)
+                            REDUCEA(0, Expr)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::ComplgtExpr>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::ComplgtExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -3331,9 +3331,9 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
                         {
-                            REDUCEA(2)
+                            REDUCEA(2, Expr)
                             REDUCET(1)
-                            REDUCEA(0)
+                            REDUCEA(0, Expr)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::ComplgtExpr>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::ComplgtExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -3362,9 +3362,9 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
                         {
-                            REDUCEA(2)
+                            REDUCEA(2, Expr)
                             REDUCET(1)
-                            REDUCEA(0)
+                            REDUCEA(0, Expr)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::BitxorExpr>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::BitxorExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -3395,9 +3395,9 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
                         {
-                            REDUCEA(2)
+                            REDUCEA(2, Expr)
                             REDUCET(1)
-                            REDUCEA(0)
+                            REDUCEA(0, Expr)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::BitorExpr>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::BitorExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -3427,9 +3427,9 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
                         {
-                            REDUCEA(2)
+                            REDUCEA(2, Expr)
                             REDUCET(1)
-                            REDUCEA(0)
+                            REDUCEA(0, Expr)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::BitandExpr>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::BitandExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -3463,9 +3463,9 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
                         {
-                            REDUCEA(2)
+                            REDUCEA(2, Expr)
                             REDUCET(1)
-                            REDUCEA(0)
+                            REDUCEA(0, Expr)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::BitshiftExpr>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::BitshiftExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -3499,9 +3499,9 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
                         {
-                            REDUCEA(2)
+                            REDUCEA(2, Expr)
                             REDUCET(1)
-                            REDUCEA(0)
+                            REDUCEA(0, Expr)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::BitshiftExpr>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::BitshiftExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -3537,9 +3537,9 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
                         {
-                            REDUCEA(2)
+                            REDUCEA(2, Expr)
                             REDUCET(1)
-                            REDUCEA(0)
+                            REDUCEA(0, Expr)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::AdditionExpr>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::AdditionExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -3576,9 +3576,9 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
                         {
-                            REDUCEA(2)
+                            REDUCEA(2, Expr)
                             REDUCET(1)
-                            REDUCEA(0)
+                            REDUCEA(0, Expr)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::AdditionExpr>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::AdditionExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -3618,9 +3618,9 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::SLASH:
                     case TokenType::STAR:
                         {
-                            REDUCEA(2)
+                            REDUCEA(2, Expr)
                             REDUCET(1)
-                            REDUCEA(0)
+                            REDUCEA(0, Expr)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::MultExpr>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::MultExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -3657,9 +3657,9 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::SLASH:
                     case TokenType::STAR:
                         {
-                            REDUCEA(2)
+                            REDUCEA(2, Expr)
                             REDUCET(1)
-                            REDUCEA(0)
+                            REDUCEA(0, Expr)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::MultExpr>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::MultExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -3696,9 +3696,9 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::SLASH:
                     case TokenType::STAR:
                         {
-                            REDUCEA(2)
+                            REDUCEA(2, Expr)
                             REDUCET(1)
-                            REDUCEA(0)
+                            REDUCEA(0, Expr)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::MultExpr>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::MultExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -3745,7 +3745,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                         {
                             REDUCET(2)
                             REDUCET(1)
-                            REDUCEA(0)
+                            REDUCEA(0, Expr)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::CallExpr>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::CallExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -3760,7 +3760,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::COMMA:
                     case TokenType::CPARN:
                         {
-                            REDUCEA(0)
+                            REDUCEA(0, _ARGSBASE)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Args>(std::move(a0));
                             size_t newstate = getGoto<ASTNS::Args>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -3799,7 +3799,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::STAR:
                         {
                             REDUCET(2)
-                            REDUCEA(1)
+                            REDUCEA(1, Expr)
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::PrimaryExpr>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::PrimaryExpr>(stack.top()->state);
@@ -3834,8 +3834,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::VAR:
                         {
                             REDUCET(3)
-                            REDUCEA(2)
-                            REDUCEA(1)
+                            REDUCEA(2, _STMTBASE)
+                            REDUCEA(1, _STMTBASE)
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::VarStmt>(std::move(a0), std::move(a1), std::move(a2), std::move(a3));
                             size_t newstate = getGoto<ASTNS::VarStmt>(stack.top()->state);
@@ -3923,9 +3923,9 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::STAR:
                         {
                             REDUCET(3)
-                            REDUCEA(2)
+                            REDUCEA(2, Expr)
                             REDUCET(1)
-                            REDUCEA(0)
+                            REDUCEA(0, Expr)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::CallExpr>(std::move(a0), std::move(a1), std::move(a2), std::move(a3));
                             size_t newstate = getGoto<ASTNS::CallExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -3961,9 +3961,9 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::COMMA:
                     case TokenType::SEMICOLON:
                         {
-                            REDUCEA(2)
+                            REDUCEA(2, _VSTMTIS)
                             REDUCET(1)
-                            REDUCEA(0)
+                            REDUCEA(0, _VSTMTIS)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::VarStmtItems>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::VarStmtItems>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -3978,7 +3978,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::COMMA:
                     case TokenType::SEMICOLON:
                         {
-                            REDUCEA(2)
+                            REDUCEA(2, _VSTMTI)
                             REDUCET(1)
                             REDUCET(0)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::VarStmtItem>(std::move(a0), std::move(a1), std::move(a2));
@@ -3998,11 +3998,11 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::EQUAL:
                     case TokenType::SEMICOLON:
                         {
-                            REDUCEA(4)
+                            REDUCEA(4, Expr)
                             REDUCET(3)
-                            REDUCEA(2)
+                            REDUCEA(2, Expr)
                             REDUCET(1)
-                            REDUCEA(0)
+                            REDUCEA(0, Expr)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::TernaryExpr>(std::move(a0), std::move(a1), std::move(a2), std::move(a3), std::move(a4));
                             size_t newstate = getGoto<ASTNS::TernaryExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
@@ -4017,9 +4017,9 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::COMMA:
                     case TokenType::CPARN:
                         {
-                            REDUCEA(2)
+                            REDUCEA(2, _ARGSBASE)
                             REDUCET(1)
-                            REDUCEA(0)
+                            REDUCEA(0, _ARGSBASE)
                             std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Args>(std::move(a0), std::move(a1), std::move(a2));
                             size_t newstate = getGoto<ASTNS::Args>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
