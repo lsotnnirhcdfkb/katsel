@@ -56,7 +56,7 @@ void visitVarStmtItems(ASTNS::VarStmtItems *ast) override;
 
     // DOTVISIT METHODS END
 
-    void dotVisit(ASTNS::AST *ast);
+    void dotVisit(ASTNS::Decls *ast);
 private:
     int _curid = 0;
     std::string curid();
