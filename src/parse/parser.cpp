@@ -19,7 +19,7 @@ template <> size_t Parser::getGoto<ASTNS::Decls>(size_t state)
         case 0:
             return 1;
         default:
-            reportAbortNoh("retrieve goto of nonterminal decls in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal Decls in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Decl>(size_t state)
@@ -31,7 +31,7 @@ template <> size_t Parser::getGoto<ASTNS::Decl>(size_t state)
         case 1:
             return 5;
         default:
-            reportAbortNoh("retrieve goto of nonterminal decl in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal Decl in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Function>(size_t state)
@@ -42,7 +42,7 @@ template <> size_t Parser::getGoto<ASTNS::Function>(size_t state)
         case 1:
             return 3;
         default:
-            reportAbortNoh("retrieve goto of nonterminal function in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal Function in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Type>(size_t state)
@@ -58,7 +58,7 @@ template <> size_t Parser::getGoto<ASTNS::Type>(size_t state)
         case 39:
             return 77;
         default:
-            reportAbortNoh("retrieve goto of nonterminal type in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal Type in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Block>(size_t state)
@@ -73,17 +73,17 @@ template <> size_t Parser::getGoto<ASTNS::Block>(size_t state)
         case 27:
             return 73;
         default:
-            reportAbortNoh("retrieve goto of nonterminal block in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal Block in invalid state");
     }
 }
-template <> size_t Parser::getGoto<ASTNS::Paramlist>(size_t state)
+template <> size_t Parser::getGoto<ASTNS::ParamList>(size_t state)
 {
     switch (state)
     {
         case 21:
             return 23;
         default:
-            reportAbortNoh("retrieve goto of nonterminal paramlist in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal ParamList in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Stmts>(size_t state)
@@ -93,7 +93,7 @@ template <> size_t Parser::getGoto<ASTNS::Stmts>(size_t state)
         case 26:
             return 30;
         default:
-            reportAbortNoh("retrieve goto of nonterminal stmts in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal Stmts in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Stmt>(size_t state)
@@ -105,10 +105,10 @@ template <> size_t Parser::getGoto<ASTNS::Stmt>(size_t state)
         case 30:
             return 76;
         default:
-            reportAbortNoh("retrieve goto of nonterminal stmt in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal Stmt in invalid state");
     }
 }
-template <> size_t Parser::getGoto<ASTNS::Emptystmt>(size_t state)
+template <> size_t Parser::getGoto<ASTNS::EmptyStmt>(size_t state)
 {
     switch (state)
     {
@@ -116,10 +116,10 @@ template <> size_t Parser::getGoto<ASTNS::Emptystmt>(size_t state)
         case 30:
             return 33;
         default:
-            reportAbortNoh("retrieve goto of nonterminal emptystmt in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal EmptyStmt in invalid state");
     }
 }
-template <> size_t Parser::getGoto<ASTNS::Varstmt>(size_t state)
+template <> size_t Parser::getGoto<ASTNS::VarStmt>(size_t state)
 {
     switch (state)
     {
@@ -127,10 +127,10 @@ template <> size_t Parser::getGoto<ASTNS::Varstmt>(size_t state)
         case 30:
             return 34;
         default:
-            reportAbortNoh("retrieve goto of nonterminal varstmt in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal VarStmt in invalid state");
     }
 }
-template <> size_t Parser::getGoto<ASTNS::Exprstmt>(size_t state)
+template <> size_t Parser::getGoto<ASTNS::ExprStmt>(size_t state)
 {
     switch (state)
     {
@@ -138,10 +138,10 @@ template <> size_t Parser::getGoto<ASTNS::Exprstmt>(size_t state)
         case 30:
             return 35;
         default:
-            reportAbortNoh("retrieve goto of nonterminal exprstmt in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal ExprStmt in invalid state");
     }
 }
-template <> size_t Parser::getGoto<ASTNS::Retstmt>(size_t state)
+template <> size_t Parser::getGoto<ASTNS::RetStmt>(size_t state)
 {
     switch (state)
     {
@@ -149,17 +149,17 @@ template <> size_t Parser::getGoto<ASTNS::Retstmt>(size_t state)
         case 30:
             return 36;
         default:
-            reportAbortNoh("retrieve goto of nonterminal retstmt in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal RetStmt in invalid state");
     }
 }
-template <> size_t Parser::getGoto<ASTNS::Varstmtitems>(size_t state)
+template <> size_t Parser::getGoto<ASTNS::VarStmtItems>(size_t state)
 {
     switch (state)
     {
         case 77:
             return 106;
         default:
-            reportAbortNoh("retrieve goto of nonterminal varstmtitems in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal VarStmtItems in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Expression>(size_t state)
@@ -182,10 +182,10 @@ template <> size_t Parser::getGoto<ASTNS::Expression>(size_t state)
         case 139:
             return 143;
         default:
-            reportAbortNoh("retrieve goto of nonterminal expression in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal Expression in invalid state");
     }
 }
-template <> size_t Parser::getGoto<ASTNS::Varstmtitem>(size_t state)
+template <> size_t Parser::getGoto<ASTNS::VarStmtItem>(size_t state)
 {
     switch (state)
     {
@@ -194,7 +194,7 @@ template <> size_t Parser::getGoto<ASTNS::Varstmtitem>(size_t state)
         case 135:
             return 140;
         default:
-            reportAbortNoh("retrieve goto of nonterminal varstmtitem in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal VarStmtItem in invalid state");
     }
 }
 template <> size_t Parser::getGoto<ASTNS::Args>(size_t state)
@@ -204,10 +204,10 @@ template <> size_t Parser::getGoto<ASTNS::Args>(size_t state)
         case 103:
             return 130;
         default:
-            reportAbortNoh("retrieve goto of nonterminal args in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal Args in invalid state");
     }
 }
-template <> size_t Parser::getGoto<ASTNS::Assignmentexpr>(size_t state)
+template <> size_t Parser::getGoto<ASTNS::AssignmentExpr>(size_t state)
 {
     switch (state)
     {
@@ -223,10 +223,10 @@ template <> size_t Parser::getGoto<ASTNS::Assignmentexpr>(size_t state)
         case 80:
             return 110;
         default:
-            reportAbortNoh("retrieve goto of nonterminal assignmentexpr in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal AssignmentExpr in invalid state");
     }
 }
-template <> size_t Parser::getGoto<ASTNS::Ternaryexpr>(size_t state)
+template <> size_t Parser::getGoto<ASTNS::TernaryExpr>(size_t state)
 {
     switch (state)
     {
@@ -243,10 +243,10 @@ template <> size_t Parser::getGoto<ASTNS::Ternaryexpr>(size_t state)
         case 137:
             return 142;
         default:
-            reportAbortNoh("retrieve goto of nonterminal ternaryexpr in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal TernaryExpr in invalid state");
     }
 }
-template <> size_t Parser::getGoto<ASTNS::Binorexpr>(size_t state)
+template <> size_t Parser::getGoto<ASTNS::BinorExpr>(size_t state)
 {
     switch (state)
     {
@@ -262,10 +262,10 @@ template <> size_t Parser::getGoto<ASTNS::Binorexpr>(size_t state)
         case 139:
             return 44;
         default:
-            reportAbortNoh("retrieve goto of nonterminal binorexpr in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal BinorExpr in invalid state");
     }
 }
-template <> size_t Parser::getGoto<ASTNS::Binandexpr>(size_t state)
+template <> size_t Parser::getGoto<ASTNS::BinandExpr>(size_t state)
 {
     switch (state)
     {
@@ -283,10 +283,10 @@ template <> size_t Parser::getGoto<ASTNS::Binandexpr>(size_t state)
         case 82:
             return 112;
         default:
-            reportAbortNoh("retrieve goto of nonterminal binandexpr in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal BinandExpr in invalid state");
     }
 }
-template <> size_t Parser::getGoto<ASTNS::Binnotexpr>(size_t state)
+template <> size_t Parser::getGoto<ASTNS::BinnotExpr>(size_t state)
 {
     switch (state)
     {
@@ -307,10 +307,10 @@ template <> size_t Parser::getGoto<ASTNS::Binnotexpr>(size_t state)
         case 83:
             return 113;
         default:
-            reportAbortNoh("retrieve goto of nonterminal binnotexpr in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal BinnotExpr in invalid state");
     }
 }
-template <> size_t Parser::getGoto<ASTNS::Compeqexpr>(size_t state)
+template <> size_t Parser::getGoto<ASTNS::CompeqExpr>(size_t state)
 {
     switch (state)
     {
@@ -329,10 +329,10 @@ template <> size_t Parser::getGoto<ASTNS::Compeqexpr>(size_t state)
         case 139:
             return 48;
         default:
-            reportAbortNoh("retrieve goto of nonterminal compeqexpr in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal CompeqExpr in invalid state");
     }
 }
-template <> size_t Parser::getGoto<ASTNS::Complgtexpr>(size_t state)
+template <> size_t Parser::getGoto<ASTNS::ComplgtExpr>(size_t state)
 {
     switch (state)
     {
@@ -355,10 +355,10 @@ template <> size_t Parser::getGoto<ASTNS::Complgtexpr>(size_t state)
         case 86:
             return 115;
         default:
-            reportAbortNoh("retrieve goto of nonterminal complgtexpr in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal ComplgtExpr in invalid state");
     }
 }
-template <> size_t Parser::getGoto<ASTNS::Bitxorexpr>(size_t state)
+template <> size_t Parser::getGoto<ASTNS::BitxorExpr>(size_t state)
 {
     switch (state)
     {
@@ -387,10 +387,10 @@ template <> size_t Parser::getGoto<ASTNS::Bitxorexpr>(size_t state)
         case 90:
             return 119;
         default:
-            reportAbortNoh("retrieve goto of nonterminal bitxorexpr in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal BitxorExpr in invalid state");
     }
 }
-template <> size_t Parser::getGoto<ASTNS::Bitorexpr>(size_t state)
+template <> size_t Parser::getGoto<ASTNS::BitorExpr>(size_t state)
 {
     switch (state)
     {
@@ -417,10 +417,10 @@ template <> size_t Parser::getGoto<ASTNS::Bitorexpr>(size_t state)
         case 91:
             return 120;
         default:
-            reportAbortNoh("retrieve goto of nonterminal bitorexpr in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal BitorExpr in invalid state");
     }
 }
-template <> size_t Parser::getGoto<ASTNS::Bitandexpr>(size_t state)
+template <> size_t Parser::getGoto<ASTNS::BitandExpr>(size_t state)
 {
     switch (state)
     {
@@ -448,10 +448,10 @@ template <> size_t Parser::getGoto<ASTNS::Bitandexpr>(size_t state)
         case 92:
             return 121;
         default:
-            reportAbortNoh("retrieve goto of nonterminal bitandexpr in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal BitandExpr in invalid state");
     }
 }
-template <> size_t Parser::getGoto<ASTNS::Bitshiftexpr>(size_t state)
+template <> size_t Parser::getGoto<ASTNS::BitshiftExpr>(size_t state)
 {
     switch (state)
     {
@@ -480,10 +480,10 @@ template <> size_t Parser::getGoto<ASTNS::Bitshiftexpr>(size_t state)
         case 93:
             return 122;
         default:
-            reportAbortNoh("retrieve goto of nonterminal bitshiftexpr in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal BitshiftExpr in invalid state");
     }
 }
-template <> size_t Parser::getGoto<ASTNS::Additionexpr>(size_t state)
+template <> size_t Parser::getGoto<ASTNS::AdditionExpr>(size_t state)
 {
     switch (state)
     {
@@ -515,10 +515,10 @@ template <> size_t Parser::getGoto<ASTNS::Additionexpr>(size_t state)
         case 95:
             return 124;
         default:
-            reportAbortNoh("retrieve goto of nonterminal additionexpr in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal AdditionExpr in invalid state");
     }
 }
-template <> size_t Parser::getGoto<ASTNS::Multexpr>(size_t state)
+template <> size_t Parser::getGoto<ASTNS::MultExpr>(size_t state)
 {
     switch (state)
     {
@@ -552,10 +552,10 @@ template <> size_t Parser::getGoto<ASTNS::Multexpr>(size_t state)
         case 97:
             return 126;
         default:
-            reportAbortNoh("retrieve goto of nonterminal multexpr in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal MultExpr in invalid state");
     }
 }
-template <> size_t Parser::getGoto<ASTNS::Unaryexpr>(size_t state)
+template <> size_t Parser::getGoto<ASTNS::UnaryExpr>(size_t state)
 {
     switch (state)
     {
@@ -597,10 +597,10 @@ template <> size_t Parser::getGoto<ASTNS::Unaryexpr>(size_t state)
         case 100:
             return 129;
         default:
-            reportAbortNoh("retrieve goto of nonterminal unaryexpr in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal UnaryExpr in invalid state");
     }
 }
-template <> size_t Parser::getGoto<ASTNS::Callexpr>(size_t state)
+template <> size_t Parser::getGoto<ASTNS::CallExpr>(size_t state)
 {
     switch (state)
     {
@@ -637,10 +637,10 @@ template <> size_t Parser::getGoto<ASTNS::Callexpr>(size_t state)
         case 139:
             return 59;
         default:
-            reportAbortNoh("retrieve goto of nonterminal callexpr in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal CallExpr in invalid state");
     }
 }
-template <> size_t Parser::getGoto<ASTNS::Primaryexpr>(size_t state)
+template <> size_t Parser::getGoto<ASTNS::PrimaryExpr>(size_t state)
 {
     switch (state)
     {
@@ -677,7 +677,7 @@ template <> size_t Parser::getGoto<ASTNS::Primaryexpr>(size_t state)
         case 139:
             return 60;
         default:
-            reportAbortNoh("retrieve goto of nonterminal primaryexpr in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal PrimaryExpr in invalid state");
     }
 }
 // This code was autogenerated - see the utils/ directory
@@ -1141,8 +1141,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                         {
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Paramlist>(std::move(a0), std::move(a1));
-                            size_t newstate = getGoto<ASTNS::Paramlist>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::ParamList>(std::move(a0), std::move(a1));
+                            size_t newstate = getGoto<ASTNS::ParamList>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -1404,8 +1404,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::VAR:
                         {
                             REDUCET(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Emptystmt>(std::move(a0));
-                            size_t newstate = getGoto<ASTNS::Emptystmt>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::EmptyStmt>(std::move(a0));
+                            size_t newstate = getGoto<ASTNS::EmptyStmt>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -1478,7 +1478,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::COMMA:
                     case TokenType::CPARN:
                     case TokenType::SEMICOLON:
-                        REDUCESKIP(Assignmentexpr);
+                        REDUCESKIP(AssignmentExpr);
                         break;
                     SHIFTON(TokenType::EQUAL, 80)
                     DEFAULTINVALID3("ternary expression", "COLON, COMMA, CPARN, EQUAL, or SEMICOLON", "assignment expression")
@@ -1492,7 +1492,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::CPARN:
                     case TokenType::EQUAL:
                     case TokenType::SEMICOLON:
-                        REDUCESKIP(Ternaryexpr);
+                        REDUCESKIP(TernaryExpr);
                         break;
                     SHIFTON(TokenType::DOUBLEPIPE, 82)
                     SHIFTON(TokenType::QUESTION, 81)
@@ -1509,7 +1509,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::EQUAL:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                        REDUCESKIP(Binorexpr);
+                        REDUCESKIP(BinorExpr);
                         break;
                     SHIFTON(TokenType::DOUBLEAMPER, 83)
                     DEFAULTINVALID2("binary and expression", "DOUBLEAMPER")
@@ -1526,7 +1526,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::EQUAL:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                        REDUCESKIP(Binandexpr);
+                        REDUCESKIP(BinandExpr);
                         break;
                     DEFAULTINVALID3("binary not expression", "nothing", "binary and expression")
                 }
@@ -1564,7 +1564,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::EQUAL:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                        REDUCESKIP(Binnotexpr);
+                        REDUCESKIP(BinnotExpr);
                         break;
                     SHIFTON(TokenType::DOUBLEEQUAL, 86)
                     DEFAULTINVALID2("equality expression", "either BANGEQUAL or DOUBLEEQUAL")
@@ -1583,7 +1583,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::EQUAL:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                        REDUCESKIP(Compeqexpr);
+                        REDUCESKIP(CompeqExpr);
                         break;
                     SHIFTON(TokenType::GREATER, 88)
                     SHIFTON(TokenType::GREATEREQUAL, 90)
@@ -1609,7 +1609,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::LESSEQUAL:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                        REDUCESKIP(Complgtexpr);
+                        REDUCESKIP(ComplgtExpr);
                         break;
                     SHIFTON(TokenType::CARET, 91)
                     DEFAULTINVALID2("bitwise xor expression", "CARET")
@@ -1633,7 +1633,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::LESSEQUAL:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                        REDUCESKIP(Bitxorexpr);
+                        REDUCESKIP(BitxorExpr);
                         break;
                     SHIFTON(TokenType::PIPE, 92)
                     DEFAULTINVALID2("bitwise or expression", "PIPE")
@@ -1659,7 +1659,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::PIPE:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                        REDUCESKIP(Bitorexpr);
+                        REDUCESKIP(BitorExpr);
                         break;
                     DEFAULTINVALID2("bitwise and expression", "AMPER")
                 }
@@ -1684,7 +1684,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::PIPE:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                        REDUCESKIP(Bitandexpr);
+                        REDUCESKIP(BitandExpr);
                         break;
                     SHIFTON(TokenType::DOUBLEGREATER, 94)
                     SHIFTON(TokenType::DOUBLELESS, 95)
@@ -1713,7 +1713,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::PIPE:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                        REDUCESKIP(Bitshiftexpr);
+                        REDUCESKIP(BitshiftExpr);
                         break;
                     SHIFTON(TokenType::MINUS, 97)
                     SHIFTON(TokenType::PLUS, 96)
@@ -1744,7 +1744,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::PLUS:
                     case TokenType::QUESTION:
                     case TokenType::SEMICOLON:
-                        REDUCESKIP(Additionexpr);
+                        REDUCESKIP(AdditionExpr);
                         break;
                     SHIFTON(TokenType::PERCENT, 100)
                     SHIFTON(TokenType::SLASH, 99)
@@ -1779,7 +1779,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::SEMICOLON:
                     case TokenType::SLASH:
                     case TokenType::STAR:
-                        REDUCESKIP(Multexpr);
+                        REDUCESKIP(MultExpr);
                         break;
                     DEFAULTINVALID3("unary expression", "nothing", "multiplication expression")
                 }
@@ -1851,7 +1851,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::SEMICOLON:
                     case TokenType::SLASH:
                     case TokenType::STAR:
-                        REDUCESKIP(Unaryexpr);
+                        REDUCESKIP(UnaryExpr);
                         break;
                     DEFAULTINVALID3("function call expression", "nothing", "unary expression")
                 }
@@ -1883,7 +1883,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::SEMICOLON:
                     case TokenType::SLASH:
                     case TokenType::STAR:
-                        REDUCESKIP(Callexpr);
+                        REDUCESKIP(CallExpr);
                         break;
                     SHIFTON(TokenType::OPARN, 103)
                     DEFAULTINVALID3("primary expression", "OPARN", "function call expression")
@@ -1919,8 +1919,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::STAR:
                         {
                             REDUCET(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Primaryexpr>(std::move(a0));
-                            size_t newstate = getGoto<ASTNS::Primaryexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::PrimaryExpr>(std::move(a0));
+                            size_t newstate = getGoto<ASTNS::PrimaryExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -1957,8 +1957,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::STAR:
                         {
                             REDUCET(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Primaryexpr>(std::move(a0));
-                            size_t newstate = getGoto<ASTNS::Primaryexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::PrimaryExpr>(std::move(a0));
+                            size_t newstate = getGoto<ASTNS::PrimaryExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -1995,8 +1995,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::STAR:
                         {
                             REDUCET(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Primaryexpr>(std::move(a0));
-                            size_t newstate = getGoto<ASTNS::Primaryexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::PrimaryExpr>(std::move(a0));
+                            size_t newstate = getGoto<ASTNS::PrimaryExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -2033,8 +2033,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::STAR:
                         {
                             REDUCET(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Primaryexpr>(std::move(a0));
-                            size_t newstate = getGoto<ASTNS::Primaryexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::PrimaryExpr>(std::move(a0));
+                            size_t newstate = getGoto<ASTNS::PrimaryExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -2071,8 +2071,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::STAR:
                         {
                             REDUCET(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Primaryexpr>(std::move(a0));
-                            size_t newstate = getGoto<ASTNS::Primaryexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::PrimaryExpr>(std::move(a0));
+                            size_t newstate = getGoto<ASTNS::PrimaryExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -2109,8 +2109,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::STAR:
                         {
                             REDUCET(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Primaryexpr>(std::move(a0));
-                            size_t newstate = getGoto<ASTNS::Primaryexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::PrimaryExpr>(std::move(a0));
+                            size_t newstate = getGoto<ASTNS::PrimaryExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -2147,8 +2147,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::STAR:
                         {
                             REDUCET(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Primaryexpr>(std::move(a0));
-                            size_t newstate = getGoto<ASTNS::Primaryexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::PrimaryExpr>(std::move(a0));
+                            size_t newstate = getGoto<ASTNS::PrimaryExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -2185,8 +2185,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::STAR:
                         {
                             REDUCET(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Primaryexpr>(std::move(a0));
-                            size_t newstate = getGoto<ASTNS::Primaryexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::PrimaryExpr>(std::move(a0));
+                            size_t newstate = getGoto<ASTNS::PrimaryExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -2223,8 +2223,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::STAR:
                         {
                             REDUCET(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Primaryexpr>(std::move(a0));
-                            size_t newstate = getGoto<ASTNS::Primaryexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::PrimaryExpr>(std::move(a0));
+                            size_t newstate = getGoto<ASTNS::PrimaryExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -2261,8 +2261,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::STAR:
                         {
                             REDUCET(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Primaryexpr>(std::move(a0));
-                            size_t newstate = getGoto<ASTNS::Primaryexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::PrimaryExpr>(std::move(a0));
+                            size_t newstate = getGoto<ASTNS::PrimaryExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -2299,8 +2299,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::STAR:
                         {
                             REDUCET(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Primaryexpr>(std::move(a0));
-                            size_t newstate = getGoto<ASTNS::Primaryexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::PrimaryExpr>(std::move(a0));
+                            size_t newstate = getGoto<ASTNS::PrimaryExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -2460,8 +2460,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                         {
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Exprstmt>(std::move(a0), std::move(a1));
-                            size_t newstate = getGoto<ASTNS::Exprstmt>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::ExprStmt>(std::move(a0), std::move(a1));
+                            size_t newstate = getGoto<ASTNS::ExprStmt>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -2573,8 +2573,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                         {
                             REDUCEA(1)
                             REDUCET(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Binnotexpr>(std::move(a0), std::move(a1));
-                            size_t newstate = getGoto<ASTNS::Binnotexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::BinnotExpr>(std::move(a0), std::move(a1));
+                            size_t newstate = getGoto<ASTNS::BinnotExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -2931,8 +2931,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                         {
                             REDUCEA(1)
                             REDUCET(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Unaryexpr>(std::move(a0), std::move(a1));
-                            size_t newstate = getGoto<ASTNS::Unaryexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::UnaryExpr>(std::move(a0), std::move(a1));
+                            size_t newstate = getGoto<ASTNS::UnaryExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -2969,8 +2969,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                         {
                             REDUCEA(1)
                             REDUCET(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Unaryexpr>(std::move(a0), std::move(a1));
-                            size_t newstate = getGoto<ASTNS::Unaryexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::UnaryExpr>(std::move(a0), std::move(a1));
+                            size_t newstate = getGoto<ASTNS::UnaryExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -3016,8 +3016,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Paramlist>(std::move(a0), std::move(a1), std::move(a2), std::move(a3));
-                            size_t newstate = getGoto<ASTNS::Paramlist>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::ParamList>(std::move(a0), std::move(a1), std::move(a2), std::move(a3));
+                            size_t newstate = getGoto<ASTNS::ParamList>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -3037,7 +3037,7 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                {
                     case TokenType::COMMA:
                     case TokenType::SEMICOLON:
-                        REDUCESKIP(Varstmtitems);
+                        REDUCESKIP(VarStmtItems);
                         break;
                     DEFAULTINVALID3("variable statement assignment", "either COMMA or SEMICOLON", "variable statement assignments")
                 }
@@ -3049,8 +3049,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                     case TokenType::SEMICOLON:
                         {
                             REDUCET(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Varstmtitem>(std::move(a0));
-                            size_t newstate = getGoto<ASTNS::Varstmtitem>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::VarStmtItem>(std::move(a0));
+                            size_t newstate = getGoto<ASTNS::VarStmtItem>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -3085,8 +3085,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             REDUCET(2)
                             REDUCEA(1)
                             REDUCET(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Retstmt>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Retstmt>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::RetStmt>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::RetStmt>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -3104,8 +3104,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Assignmentexpr>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Assignmentexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::AssignmentExpr>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::AssignmentExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -3133,8 +3133,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Binorexpr>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Binorexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::BinorExpr>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::BinorExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -3157,8 +3157,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Binandexpr>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Binandexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::BinandExpr>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::BinandExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -3182,8 +3182,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Compeqexpr>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Compeqexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::CompeqExpr>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::CompeqExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -3211,8 +3211,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Compeqexpr>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Compeqexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::CompeqExpr>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::CompeqExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -3244,8 +3244,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Complgtexpr>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Complgtexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::ComplgtExpr>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::ComplgtExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -3274,8 +3274,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Complgtexpr>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Complgtexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::ComplgtExpr>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::ComplgtExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -3304,8 +3304,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Complgtexpr>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Complgtexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::ComplgtExpr>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::ComplgtExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -3334,8 +3334,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Complgtexpr>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Complgtexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::ComplgtExpr>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::ComplgtExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -3365,8 +3365,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Bitxorexpr>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Bitxorexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::BitxorExpr>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::BitxorExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -3398,8 +3398,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Bitorexpr>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Bitorexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::BitorExpr>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::BitorExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -3430,8 +3430,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Bitandexpr>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Bitandexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::BitandExpr>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::BitandExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -3466,8 +3466,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Bitshiftexpr>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Bitshiftexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::BitshiftExpr>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::BitshiftExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -3502,8 +3502,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Bitshiftexpr>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Bitshiftexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::BitshiftExpr>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::BitshiftExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -3540,8 +3540,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Additionexpr>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Additionexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::AdditionExpr>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::AdditionExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -3579,8 +3579,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Additionexpr>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Additionexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::AdditionExpr>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::AdditionExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -3621,8 +3621,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Multexpr>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Multexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::MultExpr>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::MultExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -3660,8 +3660,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Multexpr>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Multexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::MultExpr>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::MultExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -3699,8 +3699,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Multexpr>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Multexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::MultExpr>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::MultExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -3746,8 +3746,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             REDUCET(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Callexpr>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Callexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::CallExpr>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::CallExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -3801,8 +3801,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             REDUCET(2)
                             REDUCEA(1)
                             REDUCET(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Primaryexpr>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Primaryexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::PrimaryExpr>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::PrimaryExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -3837,8 +3837,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             REDUCEA(2)
                             REDUCEA(1)
                             REDUCET(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Varstmt>(std::move(a0), std::move(a1), std::move(a2), std::move(a3));
-                            size_t newstate = getGoto<ASTNS::Varstmt>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::VarStmt>(std::move(a0), std::move(a1), std::move(a2), std::move(a3));
+                            size_t newstate = getGoto<ASTNS::VarStmt>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -3926,8 +3926,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Callexpr>(std::move(a0), std::move(a1), std::move(a2), std::move(a3));
-                            size_t newstate = getGoto<ASTNS::Callexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::CallExpr>(std::move(a0), std::move(a1), std::move(a2), std::move(a3));
+                            size_t newstate = getGoto<ASTNS::CallExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -3964,8 +3964,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Varstmtitems>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Varstmtitems>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::VarStmtItems>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::VarStmtItems>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -3981,8 +3981,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCET(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Varstmtitem>(std::move(a0), std::move(a1), std::move(a2));
-                            size_t newstate = getGoto<ASTNS::Varstmtitem>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::VarStmtItem>(std::move(a0), std::move(a1), std::move(a2));
+                            size_t newstate = getGoto<ASTNS::VarStmtItem>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;
@@ -4003,8 +4003,8 @@ std::unique_ptr<ASTNS::Decls> Parser::parse()
                             REDUCEA(2)
                             REDUCET(1)
                             REDUCEA(0)
-                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::Ternaryexpr>(std::move(a0), std::move(a1), std::move(a2), std::move(a3), std::move(a4));
-                            size_t newstate = getGoto<ASTNS::Ternaryexpr>(stack.top()->state);
+                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::TernaryExpr>(std::move(a0), std::move(a1), std::move(a2), std::move(a3), std::move(a4));
+                            size_t newstate = getGoto<ASTNS::TernaryExpr>(stack.top()->state);
                             stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));
                         }
                         break;

@@ -54,7 +54,7 @@ for astname in sorted(_astnames):
             if len(form) and form not in forms:
                 forms.append(form)
 
-    asts.append(ASTClass(astname.capitalize(), fields, forms))
+    asts.append(ASTClass(astname, fields, forms))
 # Generating methods {{{1
 # helpers {{{2
 def stringifyForm(form):

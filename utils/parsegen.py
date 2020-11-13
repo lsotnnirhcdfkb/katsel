@@ -380,7 +380,7 @@ for rule in _grammar:
     symbol = rule['symbol']
     if symbol in missing:
         missing.remove(symbol)
-        found.add(symbol)
+    found.add(symbol)
 
     expansion = list(filter(len, rule['expansion'].split(' ')))
     for i, s in enumerate(expansion):
@@ -561,12 +561,12 @@ def genLoop():
                         elif type(sym) == NonTerminal:
                             output.append(f'                            REDUCEA({i})\n')
 
-                    output.append(        f'                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::{str(ac.rule.symbol).capitalize()}>({", ".join([f"std::move(a{i})" for i in range(len(ac.rule.expansion))])});\n')
-                    output.append(        f'                            size_t newstate = getGoto<ASTNS::{str(ac.rule.symbol).capitalize()}>(stack.top()->state);\n')
+                    output.append(        f'                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::{str(ac.rule.symbol)}>({", ".join([f"std::move(a{i})" for i in range(len(ac.rule.expansion))])});\n')
+                    output.append(        f'                            size_t newstate = getGoto<ASTNS::{str(ac.rule.symbol)}>(stack.top()->state);\n')
                     output.append(        f'                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));\n')
                     output.append(         '                        }\n')
                 else:
-                    output.append(        f'                        REDUCESKIP({str(ac.rule.symbol).capitalize()});\n')
+                    output.append(        f'                        REDUCESKIP({str(ac.rule.symbol)});\n')
 
 
             elif type(ac) == AcceptAction:
@@ -611,7 +611,7 @@ def genGoto():
         if nonterm == augmentSymbol:
             continue
 
-        output.append(        f'template <> size_t Parser::getGoto<ASTNS::{str(nonterm).capitalize()}>(size_t state)\n')
+        output.append(        f'template <> size_t Parser::getGoto<ASTNS::{str(nonterm)}>(size_t state)\n')
         output.append(         '{\n')
         output.append(         '    switch (state)\n')
         output.append(         '    {\n')
