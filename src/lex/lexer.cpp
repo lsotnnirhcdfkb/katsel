@@ -398,7 +398,7 @@ Token Lexer::nextToken()
                       char startingQuote = consumed();
                       advance(); // consume character
 
-                      if (!match(startingQuote)) return makeErrorToken("Unterminated character literal");
+                      if (!match(startingQuote)) return makeErrorToken("unterminated character literal");
 
                       return makeToken(TokenType::CHARLIT);
                   }
@@ -412,7 +412,7 @@ Token Lexer::nextToken()
                       advance();
                   }
 
-                  if (peek() != c) return makeErrorToken("Untermated string literal");
+                  if (peek() != c) return makeErrorToken("untermated string literal");
                   advance(); // consume closing quote/apostrophe
                   return makeToken(TokenType::STRINGLIT);
     }
@@ -434,7 +434,7 @@ Token Lexer::nextToken()
                 case 'x': inttype = TokenType::HEXINTLIT; break;
 
                 default:
-                          return makeErrorToken("Invalid base for integer literal (must be one of 0o, 0b, or 0x");
+                          return makeErrorToken("invalid base for integer literal (must be one of 0o, 0b, or 0x");
             }
 
             advance(); // consume o, b, or x
@@ -448,7 +448,7 @@ Token Lexer::nextToken()
 
             while (isDigit(peek(), inttype) && !atEnd()) advance();
 
-            if (inttype != TokenType::DECINTLIT) return makeErrorToken("Non-decimal floating point literals are not supported");
+            if (inttype != TokenType::DECINTLIT) return makeErrorToken("non-decimal floating point literals are not supported");
 
             return makeToken(TokenType::FLOATLIT);
         }
@@ -463,7 +463,7 @@ Token Lexer::nextToken()
         return makeToken(idenType);
     }
 
-    return makeErrorToken("Unexpected character");
+    return makeErrorToken("unexpected character");
 }
 // }}}
 // {{{1 other helpers
