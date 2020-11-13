@@ -5,7 +5,7 @@
 
 #include "llvm/IR/Type.h"
 
-#include "codegen/context.h"
+#include "codegen/codegen.h"
 
 // Constructor {{{1
 BuiltinType::BuiltinType(BuiltinType::Builtins b): type(b) {}
@@ -68,7 +68,7 @@ bool BuiltinType::hasOperator(TokenType)
     return true; // builtin has all operators
 }
 // binOp {{{1
-Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS::AST *ast)
+Value BuiltinType::binOp(CodeGen::Context &cgc, Value l, Value r, Token op, ASTNS::AST *ast)
 {
     if (l.type != this)
         calledWithOpTyNEthis("BuiltinType", "binOp", "left operand", l);
@@ -166,7 +166,7 @@ Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS:
     outOSwitchDDefaultLab("BuiltinType::binOp", op);
 }
 // castTo {{{1
-Value BuiltinType::castTo(CodeGenContext &cgc, Value v)
+Value BuiltinType::castTo(CodeGen::Context &cgc, Value v)
 {
     BuiltinType *sty = dynamic_cast<BuiltinType*> (v.type);
     if (!sty)
@@ -275,7 +275,7 @@ Value BuiltinType::castTo(CodeGenContext &cgc, Value v)
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
 }
 // unaryOp {{{1
-Value BuiltinType::unaryOp(CodeGenContext &cgc, Value v, Token op, ASTNS::AST *ast)
+Value BuiltinType::unaryOp(CodeGen::Context &cgc, Value v, Token op, ASTNS::AST *ast)
 {
     if (v.type != this)
         calledWithOpTyNEthis("BuiltinType", "unaryOp", "operand", v);
@@ -301,7 +301,7 @@ Value BuiltinType::unaryOp(CodeGenContext &cgc, Value v, Token op, ASTNS::AST *a
     outOSwitchDDefaultLab("BuiltinType::unaryOp", op);
 }
 // isTrue {{{1
-Value BuiltinType::isTrue(CodeGenContext &cgc, Value v)
+Value BuiltinType::isTrue(CodeGen::Context &cgc, Value v)
 {
     if (v.type != this)
         calledWithOpTyNEthis("BuiltinType", "isTrue", "value", v);

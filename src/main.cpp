@@ -14,9 +14,7 @@
 #include "message/ansistuff.h"
 #include "visit/printvisitor.h"
 #include "visit/dotvisitor.h"
-#include "codegen/context.h"
 #include "codegen/codegen.h"
-#include "codegen/globalsassembler.h"
 
 #include "llvm/Support/raw_ostream.h"
 

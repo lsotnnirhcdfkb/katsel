@@ -1,9 +1,9 @@
-#include "codegen/context.h"
+#include "codegen/codegen.h"
 
 #include <iostream>
 #include "message/errors.h"
 
-Type* CodeGenContext::getBuiltinType(BuiltinType::Builtins bty)
+Type* CodeGen::Context::getBuiltinType(BuiltinType::Builtins bty)
 {
     for (std::unique_ptr<Type> &ty : types)
     {
@@ -20,7 +20,7 @@ Type* CodeGenContext::getBuiltinType(BuiltinType::Builtins bty)
     return tyr;
 }
 
-Type* CodeGenContext::getFunctionType(Type *ret, std::vector<Type*> paramtys)
+Type* CodeGen::Context::getFunctionType(Type *ret, std::vector<Type*> paramtys)
 {
     for (std::unique_ptr<Type> &ty : types)
     {
@@ -37,7 +37,7 @@ Type* CodeGenContext::getFunctionType(Type *ret, std::vector<Type*> paramtys)
     return tyr;
 }
 
-Type* CodeGenContext::getVoidType()
+Type* CodeGen::Context::getVoidType()
 {
     for (std::unique_ptr<Type> &ty : types)
     {
@@ -53,20 +53,20 @@ Type* CodeGenContext::getVoidType()
     return tyr;
 }
 
-llvm::AllocaInst* CodeGenContext::createEntryAlloca(llvm::Function *f, llvm::Type* type, std::string const &name)
+llvm::AllocaInst* CodeGen::Context::createEntryAlloca(llvm::Function *f, llvm::Type* type, std::string const &name)
 {
     llvm::IRBuilder<> b (&f->getEntryBlock(), f->getEntryBlock().begin());
     return b.CreateAlloca(type, 0, name.c_str());
 }
 
-void CodeGenContext::addLocal(std::string const &name, Type *type, llvm::AllocaInst *alloca, ASTNS::AST *ast)
+void CodeGen::Context::addLocal(std::string const &name, Type *type, llvm::AllocaInst *alloca, ASTNS::AST *ast)
 {
     Value v (type, alloca, ast);
     Local l {curScope, v, name};
     locals.push_back(l);
 }
 
-void CodeGenContext::incScope()
+void CodeGen::Context::incScope()
 {
     ++curScope;
 
@@ -74,14 +74,14 @@ void CodeGenContext::incScope()
         reportAbortNoh("Scope index overflowed to 0");
 }
 
-void CodeGenContext::decScope()
+void CodeGen::Context::decScope()
 {
     --curScope;
 
     while (locals.size() && locals.back().scopenum > curScope) locals.pop_back();
 }
 
-Local* CodeGenContext::findLocal(std::string const &name)
+Local* CodeGen::Context::findLocal(std::string const &name)
 {
     for (auto last = locals.rbegin(); last != locals.rend(); ++last)
         if (last->name == name)
@@ -90,7 +90,7 @@ Local* CodeGenContext::findLocal(std::string const &name)
     return nullptr;
 }
 
-Value CodeGenContext::findValue(std::string const &name)
+Value CodeGen::Context::findValue(std::string const &name)
 {
     Local *l = findLocal(name);
     if (l)
@@ -99,7 +99,7 @@ Value CodeGenContext::findValue(std::string const &name)
     return globalSymbolTable[name];
 }
 
-Value CodeGenContext::getGlobal(std::string const &name)
+Value CodeGen::Context::findGlobal(std::string const &name)
 {
     auto v = globalSymbolTable.find(name);
     if (v == globalSymbolTable.end())

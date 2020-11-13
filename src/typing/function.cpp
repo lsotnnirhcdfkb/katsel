@@ -6,7 +6,6 @@
 
 #include <sstream>
 #include <iostream>
-#include <cstdlib>
 
 FunctionType::FunctionType(Type *ret, std::vector<Type*> paramtys): ret(ret), paramtys(paramtys) {}
 
@@ -35,17 +34,17 @@ bool FunctionType::hasOperator(TokenType)
     return false; // function has no operators
 }
 
-Value FunctionType::binOp(CodeGenContext &, Value, Value, Token, ASTNS::AST *)
+Value FunctionType::binOp(CodeGen::Context &, Value, Value, Token, ASTNS::AST *)
 {
     fCalled("FunctionType::binOp");
 }
 
-Value FunctionType::unaryOp(CodeGenContext &, Value, Token, ASTNS::AST *)
+Value FunctionType::unaryOp(CodeGen::Context &, Value, Token, ASTNS::AST *)
 {
     fCalled("FunctionType::unaryop");
 }
 
-Value FunctionType::castTo(CodeGenContext &, Value v)
+Value FunctionType::castTo(CodeGen::Context &, Value v)
 {
     Error(Error::MsgType::ERROR, v, "Invalid cast")
         .underline(Error::Underline(v, '^')
@@ -54,7 +53,7 @@ Value FunctionType::castTo(CodeGenContext &, Value v)
     return Value();
 }
 
-Value FunctionType::isTrue(CodeGenContext &, Value)
+Value FunctionType::isTrue(CodeGen::Context &, Value)
 {
     fCalled("FunctionType::isTrue");
 }

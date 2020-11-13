@@ -20,15 +20,15 @@ bool VoidType::hasOperator(TokenType)
     return false;
 }
 
-Value VoidType::binOp(CodeGenContext &, Value, Value, Token, ASTNS::AST *)
+Value VoidType::binOp(CodeGen::Context &, Value, Value, Token, ASTNS::AST *)
 {
     fCalled("VoidType::binOp");
 }
-Value VoidType::unaryOp(CodeGenContext &, Value, Token, ASTNS::AST *)
+Value VoidType::unaryOp(CodeGen::Context &, Value, Token, ASTNS::AST *)
 {
     fCalled("VoidType::unaryOp");
 }
-Value VoidType::castTo(CodeGenContext &, Value v)
+Value VoidType::castTo(CodeGen::Context &, Value v)
 {
     Error(Error::MsgType::ERROR, v, "Invalid cast")
         .underline(Error::Underline(v, '^')
@@ -36,7 +36,7 @@ Value VoidType::castTo(CodeGenContext &, Value v)
         .report();
     return Value();
 }
-Value VoidType::isTrue(CodeGenContext &, Value)
+Value VoidType::isTrue(CodeGen::Context &, Value)
 {
     fCalled("VoidType::isTrue");
 }
