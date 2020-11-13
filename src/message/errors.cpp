@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <cstdlib>
 #include <algorithm>
+#include <typeinfo>
 
 // getLine {{{1
 void getLine(std::string::const_iterator &lstarto, std::string::const_iterator &lendo, File const &f, int linenr)
@@ -538,6 +539,7 @@ Location::Location(ASTNS::AST *ast)
         start = locV.getL(casted ## ty); \
         end = locV.getR(casted ## ty); \
         file = locV.getF(casted ## ty); \
+        return; \
     }
     CHECKTY(DeclB)
     CHECKTY(ArgsB)
@@ -547,7 +549,7 @@ Location::Location(ASTNS::AST *ast)
     CHECKTY(PListB)
     CHECKTY(TypeB)
 #undef CHECKTY
-    reportAbortNoh("Location constructor reached invalid ast type");
+    reportAbortNoh(concatMsg("Location constructor reached invalid ast type: ", typeid(ast).name()));
 }
 // Error methods {{{1
 Error::Error(MsgType type, Location const &location, std::string message): type(type), location(location), message(message) {}

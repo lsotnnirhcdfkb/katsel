@@ -85,7 +85,7 @@ def genASTDecls():
 
     for ast in asts:
         if type(ast) == ASTClass:
-            output.append(f'    class {ast.name} : public AST\n')
+            output.append(f'    class {ast.name} : public {ast.base}\n')
 
             output.append( '    {\n')
             output.append( '    public:\n')

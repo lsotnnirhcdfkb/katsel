@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        auto codegen = std::make_unique<CodeGen::CodeGen>(source->filename);
+        auto codegen = std::make_unique<CodeGenNS::CodeGen>(source->filename);
 
         codegen->declarate(parsed.get());
         if (phasen == Phases::DECLS)

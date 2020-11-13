@@ -34,17 +34,17 @@ bool FunctionType::hasOperator(TokenType)
     return false; // function has no operators
 }
 
-Value FunctionType::binOp(CodeGen::Context &, Value, Value, Token, ASTNS::AST *)
+Value FunctionType::binOp(CodeGenNS::Context &, Value, Value, Token, ASTNS::AST *)
 {
     fCalled("FunctionType::binOp");
 }
 
-Value FunctionType::unaryOp(CodeGen::Context &, Value, Token, ASTNS::AST *)
+Value FunctionType::unaryOp(CodeGenNS::Context &, Value, Token, ASTNS::AST *)
 {
     fCalled("FunctionType::unaryop");
 }
 
-Value FunctionType::castTo(CodeGen::Context &, Value v)
+Value FunctionType::castTo(CodeGenNS::Context &, Value v)
 {
     Error(Error::MsgType::ERROR, v, "Invalid cast")
         .underline(Error::Underline(v, '^')
@@ -53,7 +53,7 @@ Value FunctionType::castTo(CodeGen::Context &, Value v)
     return Value();
 }
 
-Value FunctionType::isTrue(CodeGen::Context &, Value)
+Value FunctionType::isTrue(CodeGenNS::Context &, Value)
 {
     fCalled("FunctionType::isTrue");
 }

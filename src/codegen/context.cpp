@@ -3,9 +3,9 @@
 #include <iostream>
 #include "message/errors.h"
 
-CodeGen::Context::Context(std::string const &name): builder(context), mod(std::make_unique<llvm::Module>(name, context)) {}
+CodeGenNS::Context::Context(std::string const &name): builder(context), mod(std::make_unique<llvm::Module>(name, context)) {}
 
-Type* CodeGen::Context::getBuiltinType(BuiltinType::Builtins bty)
+Type* CodeGenNS::Context::getBuiltinType(BuiltinType::Builtins bty)
 {
     for (std::unique_ptr<Type> &ty : types)
     {
@@ -22,7 +22,7 @@ Type* CodeGen::Context::getBuiltinType(BuiltinType::Builtins bty)
     return tyr;
 }
 
-Type* CodeGen::Context::getFunctionType(Type *ret, std::vector<Type*> paramtys)
+Type* CodeGenNS::Context::getFunctionType(Type *ret, std::vector<Type*> paramtys)
 {
     for (std::unique_ptr<Type> &ty : types)
     {
@@ -39,7 +39,7 @@ Type* CodeGen::Context::getFunctionType(Type *ret, std::vector<Type*> paramtys)
     return tyr;
 }
 
-Type* CodeGen::Context::getVoidType()
+Type* CodeGenNS::Context::getVoidType()
 {
     for (std::unique_ptr<Type> &ty : types)
     {
@@ -55,20 +55,20 @@ Type* CodeGen::Context::getVoidType()
     return tyr;
 }
 
-llvm::AllocaInst* CodeGen::Context::createEntryAlloca(llvm::Function *f, llvm::Type* type, std::string const &name)
+llvm::AllocaInst* CodeGenNS::Context::createEntryAlloca(llvm::Function *f, llvm::Type* type, std::string const &name)
 {
     llvm::IRBuilder<> b (&f->getEntryBlock(), f->getEntryBlock().begin());
     return b.CreateAlloca(type, 0, name.c_str());
 }
 
-void CodeGen::Context::addLocal(std::string const &name, Type *type, llvm::AllocaInst *alloca, ASTNS::AST *ast)
+void CodeGenNS::Context::addLocal(std::string const &name, Type *type, llvm::AllocaInst *alloca, ASTNS::AST *ast)
 {
     Value v (type, alloca, ast);
     Local l {curScope, v, name};
     locals.push_back(l);
 }
 
-void CodeGen::Context::incScope()
+void CodeGenNS::Context::incScope()
 {
     ++curScope;
 
@@ -76,14 +76,14 @@ void CodeGen::Context::incScope()
         reportAbortNoh("Scope index overflowed to 0");
 }
 
-void CodeGen::Context::decScope()
+void CodeGenNS::Context::decScope()
 {
     --curScope;
 
     while (locals.size() && locals.back().scopenum > curScope) locals.pop_back();
 }
 
-Local* CodeGen::Context::findLocal(std::string const &name)
+Local* CodeGenNS::Context::findLocal(std::string const &name)
 {
     for (auto last = locals.rbegin(); last != locals.rend(); ++last)
         if (last->name == name)
@@ -92,7 +92,7 @@ Local* CodeGen::Context::findLocal(std::string const &name)
     return nullptr;
 }
 
-Value CodeGen::Context::findValue(std::string const &name)
+Value CodeGenNS::Context::findValue(std::string const &name)
 {
     Local *l = findLocal(name);
     if (l)
@@ -101,7 +101,7 @@ Value CodeGen::Context::findValue(std::string const &name)
     return globalSymbolTable[name];
 }
 
-Value CodeGen::Context::findGlobal(std::string const &name)
+Value CodeGenNS::Context::findGlobal(std::string const &name)
 {
     auto v = globalSymbolTable.find(name);
     if (v == globalSymbolTable.end())

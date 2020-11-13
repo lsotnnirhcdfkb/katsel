@@ -29,7 +29,7 @@ jobs = [
 
     ('include/codegen/codegen.h'           , 'TYPEVISITOR METHODS START' , 'TYPEVISITOR METHODS END' , lambda: astgen.genVisitorMethods('TypeB')),
     ('include/codegen/codegen.h'           , 'DECLARATOR METHODS START'  , 'DECLARATOR METHODS END'  , lambda: astgen.genVisitorMethods('DeclB')),
-    # ('include/codegen/globalsassembler.h'  , 'GLOBALS METHODS START'     , 'GLOBALS METHODS END'     , astgen.genVisitorMethods),
+    ('include/codegen/codegen.h'           , 'PARAMVISITOR METHODS START', 'PARAMVISITOR METHODS END', lambda: astgen.genVisitorMethods('PListB')),
 ]
 
 for jobi, job in enumerate(jobs):

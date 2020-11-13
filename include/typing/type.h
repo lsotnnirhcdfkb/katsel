@@ -10,7 +10,7 @@ struct Value;
 #include "lex/tokentype.h"
 #include "parse/ast.h"
 
-namespace CodeGen
+namespace CodeGenNS
 {
     class Context;
 }
@@ -23,11 +23,11 @@ public:
     virtual std::string stringify() = 0;
     virtual bool hasOperator(TokenType t) = 0;
 
-    virtual Value binOp(CodeGen::Context &cgc, Value l, Value r, Token op, ASTNS::AST *ast) = 0;
-    virtual Value unaryOp(CodeGen::Context &cgc, Value operand, Token op, ASTNS::AST *ast) = 0;
-    virtual Value isTrue(CodeGen::Context &cgc, Value v) = 0;
+    virtual Value binOp(CodeGenNS::Context &cgc, Value l, Value r, Token op, ASTNS::AST *ast) = 0;
+    virtual Value unaryOp(CodeGenNS::Context &cgc, Value operand, Token op, ASTNS::AST *ast) = 0;
+    virtual Value isTrue(CodeGenNS::Context &cgc, Value v) = 0;
 
-    virtual Value castTo(CodeGen::Context &cgc, Value v) = 0;
+    virtual Value castTo(CodeGenNS::Context &cgc, Value v) = 0;
 };
 
 class BuiltinType : public Type
@@ -57,11 +57,11 @@ public:
 
     bool hasOperator(TokenType t) override;
 
-    Value binOp(CodeGen::Context &cgc, Value l, Value r, Token op, ASTNS::AST *ast) override;
-    Value unaryOp(CodeGen::Context &cgc, Value operand, Token op, ASTNS::AST *ast) override;
-    Value isTrue(CodeGen::Context &cgc, Value v) override;
+    Value binOp(CodeGenNS::Context &cgc, Value l, Value r, Token op, ASTNS::AST *ast) override;
+    Value unaryOp(CodeGenNS::Context &cgc, Value operand, Token op, ASTNS::AST *ast) override;
+    Value isTrue(CodeGenNS::Context &cgc, Value v) override;
 
-    Value castTo(CodeGen::Context &cgc, Value v) override;
+    Value castTo(CodeGenNS::Context &cgc, Value v) override;
 };
 
 
@@ -75,11 +75,11 @@ public:
     llvm::Type* toLLVMType(llvm::LLVMContext &l) override;
     std::string stringify() override;
     bool hasOperator(TokenType t) override;
-    Value binOp(CodeGen::Context &cgc, Value l, Value r, Token op, ASTNS::AST *ast) override;
-    Value unaryOp(CodeGen::Context &cgc, Value operand, Token op, ASTNS::AST *ast) override;
-    Value isTrue(CodeGen::Context &cgc, Value v) override;
+    Value binOp(CodeGenNS::Context &cgc, Value l, Value r, Token op, ASTNS::AST *ast) override;
+    Value unaryOp(CodeGenNS::Context &cgc, Value operand, Token op, ASTNS::AST *ast) override;
+    Value isTrue(CodeGenNS::Context &cgc, Value v) override;
 
-    Value castTo(CodeGen::Context &cgc, Value v) override;
+    Value castTo(CodeGenNS::Context &cgc, Value v) override;
 };
 
 class VoidType : public Type
@@ -88,9 +88,9 @@ public:
     llvm::Type* toLLVMType(llvm::LLVMContext &l) override;
     std::string stringify() override;
     bool hasOperator(TokenType t) override;
-    Value binOp(CodeGen::Context &cgc, Value l, Value r, Token op, ASTNS::AST *ast) override;
-    Value unaryOp(CodeGen::Context &cgc, Value operand, Token op, ASTNS::AST *ast) override;
-    Value isTrue(CodeGen::Context &cgc, Value v) override;
+    Value binOp(CodeGenNS::Context &cgc, Value l, Value r, Token op, ASTNS::AST *ast) override;
+    Value unaryOp(CodeGenNS::Context &cgc, Value operand, Token op, ASTNS::AST *ast) override;
+    Value isTrue(CodeGenNS::Context &cgc, Value v) override;
 
-    Value castTo(CodeGen::Context &cgc, Value v) override;
+    Value castTo(CodeGenNS::Context &cgc, Value v) override;
 };

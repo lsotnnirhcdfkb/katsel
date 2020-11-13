@@ -98,7 +98,7 @@ namespace ASTNS
         virtual ~VStmtIB() {}
         virtual void accept(VStmtIBVisitor *v) = 0;
     };
-    class AdditionExpr : public AST
+    class AdditionExpr : public ExprB
     {
     public:
         AdditionExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs);
@@ -112,7 +112,7 @@ namespace ASTNS
         Form form;
         virtual void accept(ExprBVisitor *v);
     };
-    class Args : public AST
+    class Args : public ArgsB
     {
     public:
         Args(std::unique_ptr<ArgsB> args, Token comma, std::unique_ptr<ExprB> expr);
@@ -128,7 +128,7 @@ namespace ASTNS
         Form form;
         virtual void accept(ArgsBVisitor *v);
     };
-    class AssignmentExpr : public AST
+    class AssignmentExpr : public ExprB
     {
     public:
         AssignmentExpr(std::unique_ptr<ExprB> target, Token equal, std::unique_ptr<ExprB> value);
@@ -142,7 +142,7 @@ namespace ASTNS
         Form form;
         virtual void accept(ExprBVisitor *v);
     };
-    class BinandExpr : public AST
+    class BinandExpr : public ExprB
     {
     public:
         BinandExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs);
@@ -156,7 +156,7 @@ namespace ASTNS
         Form form;
         virtual void accept(ExprBVisitor *v);
     };
-    class BinnotExpr : public AST
+    class BinnotExpr : public ExprB
     {
     public:
         BinnotExpr(Token op, std::unique_ptr<ExprB> operand);
@@ -169,7 +169,7 @@ namespace ASTNS
         Form form;
         virtual void accept(ExprBVisitor *v);
     };
-    class BinorExpr : public AST
+    class BinorExpr : public ExprB
     {
     public:
         BinorExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs);
@@ -183,7 +183,7 @@ namespace ASTNS
         Form form;
         virtual void accept(ExprBVisitor *v);
     };
-    class BitandExpr : public AST
+    class BitandExpr : public ExprB
     {
     public:
         BitandExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs);
@@ -197,7 +197,7 @@ namespace ASTNS
         Form form;
         virtual void accept(ExprBVisitor *v);
     };
-    class BitorExpr : public AST
+    class BitorExpr : public ExprB
     {
     public:
         BitorExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs);
@@ -211,7 +211,7 @@ namespace ASTNS
         Form form;
         virtual void accept(ExprBVisitor *v);
     };
-    class BitshiftExpr : public AST
+    class BitshiftExpr : public ExprB
     {
     public:
         BitshiftExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs);
@@ -225,7 +225,7 @@ namespace ASTNS
         Form form;
         virtual void accept(ExprBVisitor *v);
     };
-    class BitxorExpr : public AST
+    class BitxorExpr : public ExprB
     {
     public:
         BitxorExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs);
@@ -239,7 +239,7 @@ namespace ASTNS
         Form form;
         virtual void accept(ExprBVisitor *v);
     };
-    class Block : public AST
+    class Block : public StmtB
     {
     public:
         Block(Token ocurb, std::unique_ptr<StmtB> stmts, Token ccurb);
@@ -255,7 +255,7 @@ namespace ASTNS
         Form form;
         virtual void accept(StmtBVisitor *v);
     };
-    class BuiltinType : public AST
+    class BuiltinType : public TypeB
     {
     public:
         BuiltinType(Token type);
@@ -267,7 +267,7 @@ namespace ASTNS
         Form form;
         virtual void accept(TypeBVisitor *v);
     };
-    class CallExpr : public AST
+    class CallExpr : public ExprB
     {
     public:
         CallExpr(std::unique_ptr<ExprB> callee, Token oparn, std::unique_ptr<ArgsB> args, Token cparn);
@@ -284,7 +284,7 @@ namespace ASTNS
         Form form;
         virtual void accept(ExprBVisitor *v);
     };
-    class CompeqExpr : public AST
+    class CompeqExpr : public ExprB
     {
     public:
         CompeqExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs);
@@ -298,7 +298,7 @@ namespace ASTNS
         Form form;
         virtual void accept(ExprBVisitor *v);
     };
-    class ComplgtExpr : public AST
+    class ComplgtExpr : public ExprB
     {
     public:
         ComplgtExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs);
@@ -312,7 +312,7 @@ namespace ASTNS
         Form form;
         virtual void accept(ExprBVisitor *v);
     };
-    class Decl : public AST
+    class Decl : public DeclB
     {
     public:
         enum class Form
@@ -321,7 +321,7 @@ namespace ASTNS
         Form form;
         virtual void accept(DeclBVisitor *v);
     };
-    class Decls : public AST
+    class Decls : public DeclB
     {
     public:
         Decls(std::unique_ptr<DeclB> decls, std::unique_ptr<DeclB> decl);
@@ -334,7 +334,7 @@ namespace ASTNS
         Form form;
         virtual void accept(DeclBVisitor *v);
     };
-    class EmptyStmt : public AST
+    class EmptyStmt : public StmtB
     {
     public:
         EmptyStmt(Token semi);
@@ -346,7 +346,7 @@ namespace ASTNS
         Form form;
         virtual void accept(StmtBVisitor *v);
     };
-    class Expr : public AST
+    class Expr : public ExprB
     {
     public:
         enum class Form
@@ -355,7 +355,7 @@ namespace ASTNS
         Form form;
         virtual void accept(ExprBVisitor *v);
     };
-    class ExprStmt : public AST
+    class ExprStmt : public StmtB
     {
     public:
         ExprStmt(std::unique_ptr<ExprB> expr, Token semi);
@@ -368,7 +368,7 @@ namespace ASTNS
         Form form;
         virtual void accept(StmtBVisitor *v);
     };
-    class Function : public AST
+    class Function : public DeclB
     {
     public:
         Function(Token fun, std::unique_ptr<TypeB> retty, Token name, Token oparn, Token cparn, std::unique_ptr<StmtB> body);
@@ -388,7 +388,7 @@ namespace ASTNS
         Form form;
         virtual void accept(DeclBVisitor *v);
     };
-    class MultExpr : public AST
+    class MultExpr : public ExprB
     {
     public:
         MultExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs);
@@ -402,7 +402,7 @@ namespace ASTNS
         Form form;
         virtual void accept(ExprBVisitor *v);
     };
-    class ParamList : public AST
+    class ParamList : public PListB
     {
     public:
         ParamList(std::unique_ptr<PListB> plist, Token comma, std::unique_ptr<TypeB> type, Token name);
@@ -419,7 +419,7 @@ namespace ASTNS
         Form form;
         virtual void accept(PListBVisitor *v);
     };
-    class PrimaryExpr : public AST
+    class PrimaryExpr : public ExprB
     {
     public:
         PrimaryExpr(Token value);
@@ -436,7 +436,7 @@ namespace ASTNS
         Form form;
         virtual void accept(ExprBVisitor *v);
     };
-    class RetStmt : public AST
+    class RetStmt : public StmtB
     {
     public:
         RetStmt(Token ret, std::unique_ptr<ExprB> expr, Token semi);
@@ -450,7 +450,7 @@ namespace ASTNS
         Form form;
         virtual void accept(StmtBVisitor *v);
     };
-    class Stmt : public AST
+    class Stmt : public StmtB
     {
     public:
         enum class Form
@@ -459,7 +459,7 @@ namespace ASTNS
         Form form;
         virtual void accept(StmtBVisitor *v);
     };
-    class Stmts : public AST
+    class Stmts : public StmtB
     {
     public:
         Stmts(std::unique_ptr<StmtB> stmts, std::unique_ptr<StmtB> stmt);
@@ -472,7 +472,7 @@ namespace ASTNS
         Form form;
         virtual void accept(StmtBVisitor *v);
     };
-    class TernaryExpr : public AST
+    class TernaryExpr : public ExprB
     {
     public:
         TernaryExpr(std::unique_ptr<ExprB> cond, Token quest, std::unique_ptr<ExprB> trues, Token colon, std::unique_ptr<ExprB> falses);
@@ -488,7 +488,7 @@ namespace ASTNS
         Form form;
         virtual void accept(ExprBVisitor *v);
     };
-    class Type : public AST
+    class Type : public TypeB
     {
     public:
         enum class Form
@@ -497,7 +497,7 @@ namespace ASTNS
         Form form;
         virtual void accept(TypeBVisitor *v);
     };
-    class UnaryExpr : public AST
+    class UnaryExpr : public ExprB
     {
     public:
         UnaryExpr(Token op, std::unique_ptr<ExprB> operand);
@@ -510,7 +510,7 @@ namespace ASTNS
         Form form;
         virtual void accept(ExprBVisitor *v);
     };
-    class VarStmt : public AST
+    class VarStmt : public StmtB
     {
     public:
         VarStmt(Token var, std::unique_ptr<TypeB> type, std::unique_ptr<VStmtIB> assignments, Token semi);
@@ -525,7 +525,7 @@ namespace ASTNS
         Form form;
         virtual void accept(StmtBVisitor *v);
     };
-    class VarStmtItem : public AST
+    class VarStmtItem : public VStmtIB
     {
     public:
         VarStmtItem(Token name, Token equal, std::unique_ptr<ExprB> expr);
@@ -541,7 +541,7 @@ namespace ASTNS
         Form form;
         virtual void accept(VStmtIBVisitor *v);
     };
-    class VarStmtItems : public AST
+    class VarStmtItems : public VStmtIB
     {
     public:
         VarStmtItems(std::unique_ptr<VStmtIB> items, Token comma, std::unique_ptr<VStmtIB> item);
