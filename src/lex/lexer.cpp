@@ -460,7 +460,7 @@ Token Lexer::nextToken()
         }
 
         if (!validint)
-            return makeErrorToken("Invalid integer literal base");
+            return makeErrorToken("invalid integer literal base");
         else
             return makeToken(inttype);
     }
