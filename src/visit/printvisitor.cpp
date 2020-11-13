@@ -641,6 +641,15 @@ void PrintVisitor::visitEmptyStmt(ASTNS::EmptyStmt *a)
     }
     --indent;
 }
+void PrintVisitor::visitExpr(ASTNS::Expr *a)
+{
+    pai("Expr\n");
+    ++indent;
+    switch (a->form)
+    {
+    }
+    --indent;
+}
 void PrintVisitor::visitExprStmt(ASTNS::ExprStmt *a)
 {
     pai("ExprStmt\n");
@@ -665,15 +674,6 @@ void PrintVisitor::visitExprStmt(ASTNS::ExprStmt *a)
             pai(std::string(a->semi.start, a->semi.end));
             pai("]\n");
             break;
-    }
-    --indent;
-}
-void PrintVisitor::visitExpression(ASTNS::Expression *a)
-{
-    pai("Expression\n");
-    ++indent;
-    switch (a->form)
-    {
     }
     --indent;
 }
@@ -1200,20 +1200,6 @@ void PrintVisitor::visitVarStmtItems(ASTNS::VarStmtItems *a)
                 ++indent;
                 pai("\n");
                 a->item->accept(this);
-                --indent;
-            }
-            else
-            {
-                pai(" nullptr\n");
-            }
-            break;
-        case ASTNS::VarStmtItems::Form::A:
-            pai("_ =");
-            if (a->_)
-            {
-                ++indent;
-                pai("\n");
-                a->_->accept(this);
                 --indent;
             }
             else

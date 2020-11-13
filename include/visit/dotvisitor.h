@@ -5,14 +5,13 @@
 #include <string>
 
 class DotVisitor : 
-    public _DECLVisitor,
-    public _ARGSVisitor,
-    public _STMTVisitor,
-    public ExprVisitor,
-    public _VSTMTISVisitor,
-    public _VSTMTIVisitor,
-    public _PLISTVisitor,
-    public _TYPEVisitor
+    public DeclBVisitor,
+    public ArgsBVisitor,
+    public StmtBVisitor,
+    public ExprBVisitor,
+    public VStmtIBVisitor,
+    public PListBVisitor,
+    public TypeBVisitor
 {
 public:
     // DOTVISIT METHODS START
@@ -35,8 +34,8 @@ void visitComplgtExpr(ASTNS::ComplgtExpr *ast) override;
 void visitDecl(ASTNS::Decl *ast) override;
 void visitDecls(ASTNS::Decls *ast) override;
 void visitEmptyStmt(ASTNS::EmptyStmt *ast) override;
+void visitExpr(ASTNS::Expr *ast) override;
 void visitExprStmt(ASTNS::ExprStmt *ast) override;
-void visitExpression(ASTNS::Expression *ast) override;
 void visitFunction(ASTNS::Function *ast) override;
 void visitMultExpr(ASTNS::MultExpr *ast) override;
 void visitParamList(ASTNS::ParamList *ast) override;

@@ -27,8 +27,8 @@ jobs = [
     ('src/message/errors.cpp'              , 'LOCVISITOR METHODS START'  , 'LOCVISITOR METHODS END'  , lambda: astgen.genVisitorMethods('all')),
     ('src/message/errors.cpp'              , 'LOCVISITOR IMPL START'     , 'LOCVISITOR IMPL END'     , astgen.genLocVisit),
 
-    ('include/codegen/codegen.h'           , 'TYPEVISITOR METHODS START' , 'TYPEVISITOR METHODS END' , lambda: astgen.genVisitorMethods('_TYPE')),
-    ('include/codegen/codegen.h'           , 'DECLARATOR METHODS START'  , 'DECLARATOR METHODS END'  , lambda: astgen.genVisitorMethods('_DECL')),
+    ('include/codegen/codegen.h'           , 'TYPEVISITOR METHODS START' , 'TYPEVISITOR METHODS END' , lambda: astgen.genVisitorMethods('TypeB')),
+    ('include/codegen/codegen.h'           , 'DECLARATOR METHODS START'  , 'DECLARATOR METHODS END'  , lambda: astgen.genVisitorMethods('DeclB')),
     # ('include/codegen/globalsassembler.h'  , 'GLOBALS METHODS START'     , 'GLOBALS METHODS END'     , astgen.genVisitorMethods),
 ]
 

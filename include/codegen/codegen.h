@@ -13,7 +13,7 @@
 namespace CodeGen
 {
     class CodeGen;
-    class TypeResolve : public _TYPEVisitor
+    class TypeResolve : public TypeBVisitor
     {
     public:
         TypeResolve(CodeGen &cg);
@@ -28,7 +28,7 @@ void visitType(ASTNS::Type *ast) override;
     private:
         CodeGen &cg;
     };
-    class Declarator : public _DECLVisitor
+    class Declarator : public DeclBVisitor
     {
     public:
         Declarator(CodeGen &cg);

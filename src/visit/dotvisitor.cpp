@@ -713,6 +713,14 @@ void DotVisitor::visitEmptyStmt(ASTNS::EmptyStmt *a)
     }
     lastid = std::move(thisid);
 }
+void DotVisitor::visitExpr(ASTNS::Expr *a)
+{
+    std::string thisid = curid();
+    switch (a->form)
+    {
+    }
+    lastid = std::move(thisid);
+}
 void DotVisitor::visitExprStmt(ASTNS::ExprStmt *a)
 {
     std::string thisid = curid();
@@ -740,14 +748,6 @@ void DotVisitor::visitExprStmt(ASTNS::ExprStmt *a)
                     connect(thisid, "semi", tokennodeid);
             }
             break;
-    }
-    lastid = std::move(thisid);
-}
-void DotVisitor::visitExpression(ASTNS::Expression *a)
-{
-    std::string thisid = curid();
-    switch (a->form)
-    {
     }
     lastid = std::move(thisid);
 }
@@ -1347,23 +1347,6 @@ void DotVisitor::visitVarStmtItems(ASTNS::VarStmtItems *a)
                     {
                         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
                         connect(thisid, "item", nullptrnodeid);
-                    }
-            }
-            break;
-        case ASTNS::VarStmtItems::Form::A:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">VarStmtItems (A)</td></tr><tr>";
-            std::cout << "<td port=\"_\">_</td>";
-            std::cout << "</tr></table>>]\n";
-            {
-                    if (a->_)
-                    {
-                        a->_->accept(this);
-                        connect(thisid, "_", lastid);
-                    }
-                    else
-                    {
-                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "_", nullptrnodeid);
                     }
             }
             break;
