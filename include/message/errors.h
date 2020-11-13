@@ -19,7 +19,6 @@ struct Location
     Location(std::string::iterator start, std::string::iterator end, File const *file);
     Location(Value const &v);
     Location(ASTNS::AST *ast);
-
 };
 // Error class {{{1
 class Error

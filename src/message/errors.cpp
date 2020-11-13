@@ -524,12 +524,29 @@ Location::Location(Token const &t): start(t.start), end(t.end), file(t.sourcefil
 Location::Location(Value const &v): Location(v.ast) {}
 Location::Location(std::string::iterator start, std::string::iterator end, File const *file): start(start), end(end), file(file) {}
 
-Location::Location(ASTNS::AST *a)
+Location::Location(ASTNS::AST *ast)
 {
-    LocationVisitor locV;
-    start = locV.getL(a);
-    end = locV.getR(a);
-    file = locV.getF(a);
+#define CHECKTY(ty) \
+    ASTNS::ty *casted ## ty; \
+    if ((casted ## ty = dynamic_cast<ASTNS::ty*>(ast))) \
+    { \
+        LocationVisitor locV; \
+        start = locV.getL(casted ## ty); \
+        end = locV.getR(casted ## ty); \
+        file = locV.getF(casted ## ty); \
+    }
+    CHECKTY(_DECLBASE)
+    CHECKTY(_DECLSBASE)
+    CHECKTY(_ARGSBASE)
+    CHECKTY(_STMTBASE)
+    CHECKTY(Expr)
+    CHECKTY(_VSTMTIS)
+    CHECKTY(_VSTMTI)
+    CHECKTY(_PLISTBASE)
+    CHECKTY(_TYPEBASE)
+    CHECKTY(_STMTSBASE)
+#undef CHECKTY
+    reportAbortNoh("Location constructor reached invalid ast type");
 }
 // Error methods {{{1
 Error::Error(MsgType type, Location const &location, std::string message): type(type), location(location), message(message) {}
