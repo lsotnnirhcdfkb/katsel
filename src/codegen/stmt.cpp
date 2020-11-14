@@ -16,11 +16,32 @@ void CodeGenNS::StmtCodeGen::visitBlock(ASTNS::Block *ast)
 }
 void CodeGenNS::StmtCodeGen::visitExprStmt(ASTNS::ExprStmt *ast)
 {
-    // TODO
+    cg.exprCodeGen.expr(ast->expr.get());
 }
 void CodeGenNS::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
 {
-    // TODO
+    if (ast->expr)
+    {
+        Value v = cg.exprCodeGen.expr(ast->expr.get());
+        if (!v.val)
+            return;
+
+        FunctionType *fty = dynamic_cast<FunctionType*>(cg.context.curFunc.type);
+        if (fty->ret != v.type)
+        {
+            Error(Error::MsgType::ERROR, v, "Cannot return value of different type than expected return value")
+                .underline(Error::Underline(v, '^')
+                    .error(concatMsg("returning ", v.type->stringify(), " here")))
+                .underline(Error::Underline(static_cast<ASTNS::Function*>(cg.context.curFunc.ast)->retty.get(), '-')
+                    .note(concatMsg("function returns ", fty->ret->stringify())))
+                .report();
+            return;
+        }
+
+        cg.context.builder.CreateRet(v.val);
+    }
+    else
+        cg.context.builder.CreateRetVoid();
 }
 void CodeGenNS::StmtCodeGen::visitVarStmt(ASTNS::VarStmt *ast)
 {
