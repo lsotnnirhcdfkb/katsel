@@ -549,7 +549,14 @@ Location::Location(ASTNS::AST *ast)
     CHECKTY(PListB)
     CHECKTY(TypeB)
 #undef CHECKTY
-    reportAbortNoh(concatMsg("Location constructor reached invalid ast type: ", typeid(ast).name()));
+    if (!ast)
+    {
+        reportAbortNoh(concatMsg("Location constructor called with nullptr ast"));
+    }
+    else
+    {
+        reportAbortNoh(concatMsg("Location constructor reached invalid ast type: ", typeid(ast).name()));
+    }
 }
 // Error methods {{{1
 Error::Error(MsgType type, Location const &location, std::string message): type(type), location(location), message(message) {}

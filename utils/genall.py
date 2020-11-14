@@ -33,6 +33,7 @@ jobs = [
     ('include/codegen/codegen.h'           , 'DECLCG METHODS START'      , 'DECLCG METHODS END'      , lambda: astgen.genVisitorMethods('DeclB')),
     ('include/codegen/codegen.h'           , 'STMTCG METHODS START'      , 'STMTCG METHODS END'      , lambda: astgen.genVisitorMethods('StmtB')),
     ('include/codegen/codegen.h'           , 'EXPRCG METHODS START'      , 'EXPRCG METHODS END'      , lambda: astgen.genVisitorMethods('ExprB')),
+    ('include/codegen/codegen.h'           , 'ARGSVISITOR METHODS START' , 'ARGSVISITOR METHODS END' , lambda: astgen.genVisitorMethods('ArgsB')),
 ]
 
 for jobi, job in enumerate(jobs):

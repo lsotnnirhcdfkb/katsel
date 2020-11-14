@@ -9,7 +9,7 @@ Type* CodeGenNS::TypeResolve::type(ASTNS::TypeB *ast) {
     return ret;
 }
 
-void CodeGenNS::TypeResolve::visitType(ASTNS::Type *ast) {}
+void CodeGenNS::TypeResolve::visitType(ASTNS::Type *) {}
 void CodeGenNS::TypeResolve::visitBuiltinType(ASTNS::BuiltinType *ast)
 {
     switch (ast->type.type)
