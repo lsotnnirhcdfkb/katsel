@@ -2,14 +2,17 @@
 
 #include "llvm/Support/raw_ostream.h"
 
-CodeGenNS::CodeGen::CodeGen(std::string const &name) : context(name), declarator(*this), typeResolver(*this), paramVisitor(*this) {}
+CodeGenNS::CodeGen::CodeGen(std::string const &name) : context(name), declarator(*this), typeResolver(*this), paramVisitor(*this), declCodeGen(*this) {}
 
 void CodeGenNS::CodeGen::declarate(ASTNS::Decls *decls)
 {
     decls->accept(&declarator);
 }
 
-void CodeGenNS::CodeGen::codegen(ASTNS::Decls *decls) {}
+void CodeGenNS::CodeGen::codegen(ASTNS::Decls *decls)
+{
+    decls->accept(&declCodeGen);
+}
 
 void CodeGenNS::CodeGen::printMod()
 {
@@ -30,6 +33,6 @@ void CodeGenNS::ParamVisitor::visitParamList(ASTNS::ParamList *ast)
 {
     Type *ty (cg.typeResolver.type(ast->type.get()));
     std::string name (ast->name.stringify());
-    CodeGenNS::ParamVisitor::Param p {ty, std::move(name)};
+    CodeGenNS::ParamVisitor::Param p {ty, std::move(name), ast};
     ret.push_back(p);
 }
