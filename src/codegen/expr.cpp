@@ -10,59 +10,72 @@ Value CodeGenNS::ExprCodeGen::expr(ASTNS::ExprB *ast)
     return ret;
 }
 
-void CodeGenNS::ExprCodeGen::visitAdditionExpr(ASTNS::AdditionExpr *ast)
-{
+#define BASICBINARYOP(exprtype)                                                                                                        \
+    void CodeGenNS::ExprCodeGen::visit##exprtype##Expr(ASTNS::exprtype##Expr *ast)                                                     \
+    {                                                                                                                                  \
+        Value lhs = expr(ast->lhs.get());                                                                                              \
+        Value rhs = expr(ast->rhs.get());                                                                                              \
+                                                                                                                                       \
+        if (!lhs.val || !rhs.val)                                                                                                      \
+        {                                                                                                                              \
+            ret = Value();                                                                                                             \
+            return;                                                                                                                    \
+        }                                                                                                                              \
+                                                                                                                                       \
+        if (!lhs.type->hasOperator(ast->op.type))                                                                                      \
+        {                                                                                                                              \
+            Error(Error::MsgType::ERROR, ast->op, "left-hand side of binary expression does not support operator")                     \
+                .underline(Error::Underline(ast->op, '^')                                                                              \
+                    .error(concatMsg("type "", lhs.type->stringify(), "" does not support operator "", ast->op.stringify(), """)))     \
+                .underline(Error::Underline(lhs, '~'))                                                                                 \
+                .underline(Error::Underline(rhs, '-'))                                                                                 \
+                .report();                                                                                                             \
+            ret = Value();                                                                                                             \
+            return;                                                                                                                    \
+        }                                                                                                                              \
+                                                                                                                                       \
+        ret = lhs.type->binOp(cg.context, lhs, rhs, ast->op, ast);                                                                     \
+    }
 
-}
-void CodeGenNS::ExprCodeGen::visitAssignmentExpr(ASTNS::AssignmentExpr *ast)
-{
+#define BASICUNARYOP(exprtype)                                                                                                                        \
+    void CodeGenNS::ExprCodeGen::visit##exprtype##Expr(ASTNS::exprtype##Expr *ast)                                                                    \
+    {                                                                                                                                                 \
+        Value oper = expr(ast->operand.get());                                                                                                        \
+        if (!oper.val)                                                                                                                                \
+        {                                                                                                                                             \
+            ret = Value();                                                                                                                            \
+            return;                                                                                                                                   \
+        }                                                                                                                                             \
+                                                                                                                                                      \
+        if (!oper.type->hasOperator(ast->op.type))                                                                                                    \
+        {                                                                                                                                             \
+            Error(Error::MsgType::ERROR, ast->operand.get(), "operand of unary expression does not support operator")                                 \
+                .underline(Error::Underline(ast->op, '^')                                                                                             \
+                    .error(concatMsg("operand of type \"", oper.type->stringify(), "\" does not support operator \"", ast->op.stringify(), "\"")))    \
+                .underline(Error::Underline(oper, '-'))                                                                                               \
+                .report();                                                                                                                            \
+                ret = Value();                                                                                                                        \
+                return;                                                                                                                               \
+        }                                                                                                                                             \
+                                                                                                                                                      \
+        ret = oper.type->unaryOp(cg.context, oper, ast->op, ast);                                                                                     \
+    }
 
-}
-void CodeGenNS::ExprCodeGen::visitBinandExpr(ASTNS::BinandExpr *ast)
-{
+BASICBINARYOP(Addition)
+BASICBINARYOP(Binand)
+BASICBINARYOP(Binor)
+BASICBINARYOP(Bitand)
+BASICBINARYOP(Bitor)
+BASICBINARYOP(Bitshift)
+BASICBINARYOP(Bitxor)
+BASICBINARYOP(Compeq)
+BASICBINARYOP(Complgt)
+BASICBINARYOP(Mult)
 
-}
-void CodeGenNS::ExprCodeGen::visitBinnotExpr(ASTNS::BinnotExpr *ast)
-{
+BASICUNARYOP(Binnot)
+BASICUNARYOP(Unary)
 
-}
-void CodeGenNS::ExprCodeGen::visitBinorExpr(ASTNS::BinorExpr *ast)
-{
-
-}
-void CodeGenNS::ExprCodeGen::visitBitandExpr(ASTNS::BitandExpr *ast)
-{
-
-}
-void CodeGenNS::ExprCodeGen::visitBitorExpr(ASTNS::BitorExpr *ast)
-{
-
-}
-void CodeGenNS::ExprCodeGen::visitBitshiftExpr(ASTNS::BitshiftExpr *ast)
-{
-
-}
-void CodeGenNS::ExprCodeGen::visitBitxorExpr(ASTNS::BitxorExpr *ast)
-{
-
-}
 void CodeGenNS::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
-{
-
-}
-void CodeGenNS::ExprCodeGen::visitCompeqExpr(ASTNS::CompeqExpr *ast)
-{
-
-}
-void CodeGenNS::ExprCodeGen::visitComplgtExpr(ASTNS::ComplgtExpr *ast)
-{
-
-}
-void CodeGenNS::ExprCodeGen::visitExpr(ASTNS::Expr *ast)
-{
-
-}
-void CodeGenNS::ExprCodeGen::visitMultExpr(ASTNS::MultExpr *ast)
 {
 
 }
@@ -74,8 +87,9 @@ void CodeGenNS::ExprCodeGen::visitTernaryExpr(ASTNS::TernaryExpr *ast)
 {
 
 }
-void CodeGenNS::ExprCodeGen::visitUnaryExpr(ASTNS::UnaryExpr *ast)
+void CodeGenNS::ExprCodeGen::visitAssignmentExpr(ASTNS::AssignmentExpr *ast)
 {
 
 }
 
+void CodeGenNS::ExprCodeGen::visitExpr(ASTNS::Expr *) {}
