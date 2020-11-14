@@ -48,7 +48,7 @@ void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
     }
 
     cg.context.curFunc = function;
-    // cg.stmtCodeGen.stmt(ast->block); // TODO
+    cg.stmtCodeGen.stmt(ast->body.get()); // TODO
     llvm::verifyFunction(*f);
 
     cg.context.decScope();
