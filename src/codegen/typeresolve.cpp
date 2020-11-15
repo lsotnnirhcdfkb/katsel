@@ -26,6 +26,7 @@ void CodeGenNS::TypeResolve::visitBuiltinType(ASTNS::BuiltinType *ast)
         TY(FLOAT)
         TY(DOUBLE)
         TY(BOOL)
+        TY(CHAR)
 #undef TY
         default:
             invalidTok("builtin type", ast->type);
