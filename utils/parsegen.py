@@ -515,23 +515,22 @@ def genLoop():
 
     output.append(                    ('#define SHIFT(newstate) \\\n'
                                        '    lasttok = lookahead;\\\n'
-                                       '    stack.push_back(std::make_unique<tokstackitem>(newstate, lasttok));\\\n'
+                                       '    stack.emplace_back(newstate, lasttok);\\\n'
                                        '    lookahead = p.consume();\\\n'
                                        '    ++steps;\n'
                                        '#define REDUCET(n) \\\n'
-                                       '    std::unique_ptr<stackitem> _a ## n = std::move(stack.back()); stack.pop_back();\\\n'
-                                       '    tokstackitem *si ## n = static_cast<tokstackitem*>(_a ## n .get());\\\n'
-                                       '    Token a ## n (si ## n ->tok);\n' # TODO: add parser method to say internal error: invalid pop expected tokstackitem/aststackitem but got ...
+                                       '    stackitem si ## n = std::move(stack.back()); stack.pop_back();\\\n'
+                                       '    Token a ## n (si ## n.tok);\n' # TODO: add parser method to say internal error: invalid pop expected tokstackitem/aststackitem but got ...
                                        '#define REDUCEA(n, base) \\\n'
-                                       '    std::unique_ptr<stackitem> _a ## n = std::move(stack.back()); stack.pop_back();\\\n'
-                                       '    aststackitem *si ## n = static_cast<aststackitem*>(_a ## n .get());\\\n'
-                                       '    std::unique_ptr<ASTNS::base> a ## n (std::unique_ptr<ASTNS::base>(static_cast<ASTNS::base*>(si ## n ->ast.release())));\n' # same TODO as above
+                                       '    stackitem si ## n = std::move(stack.back()); stack.pop_back();\\\n'
+                                       '    std::unique_ptr<ASTNS::base> a ## n (std::unique_ptr<ASTNS::base>(static_cast<ASTNS::base*>(si ## n .ast.release())));\n' # same TODO as above
                                        '#define SHIFTON(ty, n) \\\n'
                                        '    case ty: \\\n'
                                        '        {SHIFT(n)} break;\n'
                                        '#define DEFAULTINVALID2(justparsed, expected) \\\n'
                                        '    default: \\\n'
                                        '        {\\\n'
+                                       '            if (istrial) return false;\\\n'
                                        '            Error e = p.invalidSyntax(justparsed, expected, lookahead, lasttok);\\\n'
                                        '            if (!errorRecovery(p, stack, lookahead, e))\\\n'
                                        '                done = true;\\\n'
@@ -541,6 +540,7 @@ def genLoop():
                                        '#define DEFAULTINVALID3(justparsed, expected, whileparsing) \\\n'
                                        '    default: \\\n'
                                        '        {\\\n'
+                                       '            if (istrial) return false;\\\n'
                                        '            Error e = p.invalidSyntaxWhile(justparsed, expected, whileparsing, lookahead, lasttok);\\\n'
                                        '            if (!errorRecovery(p, stack, lookahead, e))\\\n'
                                        '                done = true;\\\n'
@@ -550,6 +550,7 @@ def genLoop():
                                        '#define DEFAULTINVALIDNOEXPECT(justparsed, whileparsing) \\\n'
                                        '    default: \\\n'
                                        '        {\\\n'
+                                       '            if (istrial) return false;\\\n'
                                        '            Error e = p.invalidSyntaxNoExpect(justparsed, whileparsing, lookahead, lasttok);\\\n'
                                        '            if (!errorRecovery(p, stack, lookahead, e))\\\n'
                                        '                done = true;\\\n'
@@ -558,24 +559,21 @@ def genLoop():
                                        '        break;\n'
                                        '#define REDUCESKIP(cl) \\\n'
                                        '    {\\\n'
-                                       '        std::unique_ptr<stackitem> popped (std::move(stack.back())); stack.pop_back();\\\n'
-                                       '        aststackitem *asi = static_cast<aststackitem*>(popped.get());\\\n'
-                                       '        size_t newstate = getGoto<ASTNS::cl>(stack.back()->state);\\\n'
-                                       '        stack.push_back(std::make_unique<aststackitem>(newstate, std::move(asi->ast)));\\\n'
+                                       '        stackitem popped (std::move(stack.back())); stack.pop_back();\\\n'
+                                       '        size_t newstate = getGoto<ASTNS::cl>(stack.back().state);\\\n'
+                                       '        stack.emplace_back(newstate, std::move(popped.ast));\\\n'
                                        '    }\n'))
 
     output.append(                     '    bool done = false;\n')
     output.append(                     '    int steps = 0;\n')
-    output.append(                     '    Token lookahead (p.consume());\n')
+    output.append(                     '    Token lookahead (_lookahead); // for when you need to inject a new token\n')
     output.append(                     '    Token lasttok = lookahead;\n')
-    output.append(                     '    std::vector<std::unique_ptr<stackitem>> stack;\n')
-    output.append(                     '    stack.push_back(std::make_unique<stackitem>(0));\n')
 
     output.append(                     '    while (!done)\n')
     output.append(                     '    {\n')
     output.append(                     '        if (istrial && steps > 5)\n')
     output.append(                     '            return true;\n')
-    output.append(                     '        switch (stack.back()->state)\n')
+    output.append(                     '        switch (stack.back().state)\n')
     output.append(                     '        {\n')
 
     for staten, state in sorted(table.items(), key=lambda x:x[0]):
@@ -616,8 +614,8 @@ def genLoop():
                             output.append(f'                            REDUCEA({i}, {_grammar[str(sym)]["base"]})\n')
 
                     output.append(        f'                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::{str(ac.rule.symbol)}>({", ".join([f"std::move(a{i})" for i in range(len(ac.rule.expansion))])});\n')
-                    output.append(        f'                            size_t newstate = getGoto<ASTNS::{str(ac.rule.symbol)}>(stack.back()->state);\n')
-                    output.append(        f'                            stack.push_back(std::make_unique<aststackitem>(newstate, std::move(push)));\n')
+                    output.append(        f'                            size_t newstate = getGoto<ASTNS::{str(ac.rule.symbol)}>(stack.back().state);\n')
+                    output.append(        f'                            stack.emplace_back(newstate, std::move(push));\n')
                     output.append(         '                        }\n')
                 else:
                     output.append(        f'                        REDUCESKIP({str(ac.rule.symbol)});\n')
@@ -643,7 +641,7 @@ def genLoop():
     output.append(                     '            default:\n')
     output.append(                    ('                Error(Error::MsgType::INTERR, lookahead, "Parser reached invalid state")\n'
                                        '                    .underline(Error::Underline(lookahead, \'!\')\n'
-                                       '                        .error(concatMsg("Parser reached invalid state: ", stack.back()->state)))\n'
+                                       '                        .error(concatMsg("Parser reached invalid state: ", stack.back().state)))\n'
                                        '                    .reportAbort();\n'))
 
     output.append(                     '        }\n')
@@ -712,25 +710,20 @@ def genPanicMode():
                            '    default:\\\n'
                            '        break;\n'
                            '#define SITOLOC(v)\\\n'
-                           '    aststackitem *v##ast (dynamic_cast<aststackitem*>(v));\\\n'
-                           '    tokstackitem *v##tok (dynamic_cast<tokstackitem*>(v));\\\n'
                            '    Location v##l ({}, {}, nullptr);\\\n'
-                           '    if (v##ast)\\\n'
-                           '        v##l = v##ast->ast.get();\\\n'
-                           '    else if (v##tok)\\\n'
-                           '        v##l = v##tok->tok;\\\n'
+                           '    if (v->istok)\\\n'
+                           '        v##l = v->tok;\\\n'
                            '    else\\\n'
-                           '        reportAbortNoh("cannot convert stack item to location");\n'
+                           '        v##l = v->ast.get();\n'
                            '    bool valid = false;\n'
-                           '    std::vector<std::unique_ptr<stackitem>>::reverse_iterator delto;\n'
+                           '    std::vector<stackitem>::reverse_iterator delto;\n'
                            '    while (!valid)\n'
                            '    {\n'
                            '        for (auto i = stack.rbegin(); i != stack.rend() && !valid; ++i)\n'
                            '        {\n'
-                           '            aststackitem *asi = dynamic_cast<aststackitem*>(i->get());\n'
-                           '            if (asi)\n'
+                           '            if (!i->istok)\n'
                            '            {\n'
-                           '                ASTNS::AST *ast = asi->ast.get();\n'))
+                           '                ASTNS::AST *ast = i->ast.get();\n'))
 
     for nonterm in symbols:
         if type(nonterm) == Terminal:
@@ -753,8 +746,8 @@ def genPanicMode():
                            '        if (lookahead.type == TokenType::EOF_)\n'
                            '            return false;\n'
                            '    }\n'
-                           '    stackitem *startabandon = delto.base()->get();\n'
-                           '    stackitem *endabandon = (stack.end() - 1)->get();\n'
+                           '    stackitem *startabandon = &*delto.base();\n'
+                           '    stackitem *endabandon = &*stack.end() - 1;\n'
                            '    SITOLOC(startabandon)\n'
                            '    SITOLOC(endabandon)\n'
                            '    e.underline(Error::Underline(Location(startabandonl.start, endabandonl.end, startabandonl.file), \'~\').note("erroneous syntax: abandoned this construct"));\n'
@@ -769,7 +762,35 @@ def genPanicMode():
 # generate single token insertion/deletion/substitution error recovery code {{{2
 def genSingleTok():
     output = []
+    output.append(             ('#define TRYINSERT(ty)\\\n'
+                                '    {\\\n'
+                                '        Lexer tempL (p.lexer);\\\n'
+                                '        Parser tempP (tempL, p.sourcefile);\\\n'
+                                '        Token tempLookahead (lookahead);\\\n'
+                                '        tempLookahead.type = ty;\\\n'
+                                '        std::vector<stackitem> tempstack;\\\n'
+                                '        for (auto const &si : stack)\\\n'
+                                '        {\\\n'
+                                '            if (si.istok)\\\n'
+                                '                tempstack.emplace_back(si.state, si.tok);\\\n'
+                                '            else\\\n'
+                                '                tempstack.emplace_back(si.state, nullptr);\\\n'
+                                '        }\\\n'
+                                '        std::unique_ptr<ASTNS::Decls> tempD (nullptr);\\\n'
+                                '        if (_parse(tempP, tempstack, true, tempD, tempLookahead))\\\n'
+                                '            e.underline(Error::Underline(tempLookahead, \'^\').note(concatMsg("insert ", stringifyTokenType(ty))));\\\n'
+                                '        else\\\n'
+                                '            e.underline(Error::Underline(tempLookahead, \'^\').note(concatMsg("do not ", stringifyTokenType(ty))));\\\n'
+                                '    }\n'))
 
+    output.append(              '    // try single-symbol insertions\n')
+
+    for terminal in symbols:
+        if type(terminal) == Terminal:
+            output.append(     f'    TRYINSERT({terminal.astt()})\n');
+
+
+    output.append(              '    return false;\n')
     return ''.join(output)
 # entry {{{1
 if __name__ == '__main__':

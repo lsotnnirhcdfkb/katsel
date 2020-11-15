@@ -24,9 +24,9 @@ public:
     Error invalidSyntax(const char *justparsed, const char *expected, Token const &lookahead, Token const &last);
     Error invalidSyntaxNoExpect(const char *justparsed, const char *whileparsing, Token const &lookahead, Token const &last);
 
-private:
     Lexer &lexer;
     File &sourcefile;
 
+private:
     std::vector<Token> errored;
 };

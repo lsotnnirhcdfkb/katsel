@@ -11,7 +11,11 @@ Parser::Parser(Lexer &l, File &sourcefile): lexer(l), sourcefile(sourcefile) {}
 std::unique_ptr<ASTNS::Decls> Parser::parse()
 {
     std::unique_ptr<ASTNS::Decls> ret (nullptr);
-    _parse(*this, false, ret);
+
+    std::vector<stackitem> stack;
+    stack.emplace_back(0);
+
+    _parse(*this, stack, false, ret, consume());
     return ret;
 }
 
