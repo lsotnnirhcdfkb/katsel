@@ -214,12 +214,9 @@ bool singleTok(Parser &p, std::vector<stackitem> &stack, Token &lookahead, Error
     {
         applyFix(fixes.front(), p, lookahead);
         u.note(concatMsg("applied fix: ", fixes.front().stringify()));
-    }
-
-    e.underline(u);
-
-    if (fixes.size())
+        e.underline(u);
         return true;
+    }
 
     return false;
 }
