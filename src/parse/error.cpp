@@ -208,7 +208,7 @@ bool singleTok(Parser &p, std::vector<stackitem> &stack, Token &lookahead, Error
         u.hint(i->stringify());
 
     if (fixes.size() > 5)
-        u.note(concatMsg(fixes.size(), " hints in total, stop at the top 5"));
+        u.note(concatMsg(fixes.size(), " hints in total, stopped at the top 5"));
 
     if (fixes.size())
     {
