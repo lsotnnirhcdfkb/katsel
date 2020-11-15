@@ -762,15 +762,15 @@ def genPanicMode():
 # generate single token insertion/deletion/substitution error recovery code {{{2
 def genSingleTok():
     output = []
-    output.append(              '#define TRYINSERT(ty) if (tryInsert(ty, p, lookahead, stack, e)) fixes.push_back(fix {fix::fixtype::INSERT, ty});;\n')
-    output.append(              '#define TRYSUB(ty) if (trySub(ty, p, lookahead, stack, e)) fixes.push_back(fix {fix::fixtype::SUBSTITUTE, ty});;\n')
+    output.append(              '#define TRYINSERT(ty) if (tryInsert(ty, p, lookahead, stack)) fixes.push_back(fix {fix::fixtype::INSERT, ty});;\n')
+    output.append(              '#define TRYSUB(ty) if (trySub(ty, p, lookahead, stack)) fixes.push_back(fix {fix::fixtype::SUBSTITUTE, ty});;\n')
     output.append(              '#define TRYTOKTY(ty) TRYINSERT(ty); TRYSUB(ty);\n')
 
     for terminal in symbols:
         if type(terminal) == Terminal:
             output.append(     f'    TRYTOKTY({terminal.astt()})\n');
 
-    output.append(              '    if (tryDel(p, lookahead, stack, e)) fixes.push_back(fix {fix::fixtype::REMOVE});\n')
+    output.append(              '    if (tryDel(p, stack)) fixes.push_back(fix {fix::fixtype::REMOVE});\n')
     return ''.join(output)
 # entry {{{1
 if __name__ == '__main__':
