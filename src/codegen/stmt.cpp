@@ -45,7 +45,21 @@ void CodeGenNS::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
 }
 void CodeGenNS::StmtCodeGen::visitVarStmt(ASTNS::VarStmt *ast)
 {
-    // TODO
+    Type *ty = cg.typeResolver.type(ast->type.get());
+
+    if (dynamic_cast<VoidType*>(ty))
+    {
+        Error(Error::MsgType::ERROR, ast->type.get(), "invalid variable type \"void\"")
+            .underline(Error::Underline(ast->type.get(), '^')
+                .error("Variable cannot be of type void"))
+            .report();
+
+        return;
+    }
+
+    varty = ty;
+    ast->assignments->accept(this);
+    varty = nullptr;
 }
 
 void CodeGenNS::StmtCodeGen::visitStmt(ASTNS::Stmt *) {}

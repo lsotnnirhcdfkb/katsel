@@ -169,13 +169,13 @@ def genVisitorClasses():
 
     return ''.join(output)
 # Generate overrided functions for visitor classes {{{3
-def genVisitorMethods(bases):
+def genVisitorMethods(*bases):
     output = []
     for ast in asts:
         if type(ast) != ASTClass:
             continue
 
-        if ast.base in bases or bases == 'all':
+        if ast.base in bases or bases == ('all',):
             output.append(f'void visit{ast.name}(ASTNS::{ast.name} *ast) override;\n')
 
     return ''.join(output)
