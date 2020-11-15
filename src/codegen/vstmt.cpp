@@ -24,6 +24,17 @@ void CodeGenNS::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem *ast)
     if (ast->expr)
     {
         Value val = cg.exprCodeGen.expr(ast->expr.get());
+        if (val.type != varty)
+        {
+            Error(Error::MsgType::ERROR, ast->equal, "assignment operands are of different types")
+                .underline(Error::Underline(val, '^')
+                    .note(val.type->stringify()))
+                .underline(Error::Underline(ast->name, '^')
+                    .note(varty->stringify()))
+                .underline(Error::Underline(ast->equal, '-'))
+                .report();
+            return;
+        }
         cg.context.builder.CreateStore(val.val, alloca);
     }
 }
