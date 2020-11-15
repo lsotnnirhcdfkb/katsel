@@ -15,6 +15,13 @@ public:
 
     Token nextToken();
 
+    inline void resetToTok(Token const &t)
+    {
+        start = end = t.start;
+        line = nextline = t.line;
+        column = nextcolumn = t.column;
+    }
+
     inline Token makeSOF()
     {
         return makeToken(TokenType::SOF);
