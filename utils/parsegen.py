@@ -764,7 +764,7 @@ def genSingleTok():
     output = []
     output.append(             ('#define TRYINSERT(ty)\\\n'
                                 '    {\\\n'
-                                '        Lexer tempL (p.lexer);\\\n'
+                                '        Lexer tempL (lookahead);\\\n'
                                 '        Parser tempP (tempL, p.sourcefile);\\\n'
                                 '        Token tempLookahead (lookahead);\\\n'
                                 '        tempLookahead.type = ty;\\\n'

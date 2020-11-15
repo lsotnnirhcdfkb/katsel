@@ -11,6 +11,7 @@ class Lexer
 {
 public:
     Lexer(File &sourcefile);
+    Lexer(Token const &t);
 
     Token nextToken();
 

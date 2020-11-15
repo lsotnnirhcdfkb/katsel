@@ -2,6 +2,7 @@
 #include "lex/lexer.h"
 
 Lexer::Lexer(File &sourcefile) : start(sourcefile.source.begin()), end(sourcefile.source.begin()), line(1), column(1), nextline(1), nextcolumn(1), srcend(sourcefile.source.end()), sourcefile(sourcefile) {}
+Lexer::Lexer(Token const &t) : start(t.start), end(t.start), line(t.line), column(t.column), nextline(t.line), nextcolumn(t.column), srcend(t.sourcefile->source.end()), sourcefile(*t.sourcefile) {}
 
 // {{{ getIdentifierType
 // KWGEN START
