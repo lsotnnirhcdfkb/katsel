@@ -20,16 +20,13 @@ public:
 
     Token consume();
 
-private:
-    Lexer &lexer;
-    File &sourcefile;
-
-    template <typename AST>
-    size_t getGoto(size_t state);
-
     Error invalidSyntaxWhile(const char *justparsed, const char *expected, const char *whileparsing, Token const &lookahead, Token const &last);
     Error invalidSyntax(const char *justparsed, const char *expected, Token const &lookahead, Token const &last);
     Error invalidSyntaxNoExpect(const char *justparsed, const char *whileparsing, Token const &lookahead, Token const &last);
+
+private:
+    Lexer &lexer;
+    File &sourcefile;
 
     std::vector<Token> errored;
 };

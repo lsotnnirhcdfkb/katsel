@@ -1,4 +1,5 @@
 #include "parse/parser.h"
+#include "parsestack.h"
 
 #include "lex/tokentype.h"
 #include "message/errors.h"
@@ -6,6 +7,13 @@
 #include <sstream>
 
 Parser::Parser(Lexer &l, File &sourcefile): lexer(l), sourcefile(sourcefile) {}
+
+std::unique_ptr<ASTNS::Decls> Parser::parse()
+{
+    std::unique_ptr<ASTNS::Decls> ret (nullptr);
+    _parse(*this, false, ret);
+    return ret;
+}
 
 Token Parser::consume()
 {

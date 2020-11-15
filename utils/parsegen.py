@@ -516,7 +516,7 @@ def genLoop():
     output.append(                    ('#define SHIFT(newstate) \\\n'
                                        '    lasttok = lookahead;\\\n'
                                        '    stack.push_back(std::make_unique<tokstackitem>(newstate, lasttok));\\\n'
-                                       '    lookahead = consume();\n'
+                                       '    lookahead = p.consume();\n'
                                        '#define REDUCET(n) \\\n'
                                        '    std::unique_ptr<stackitem> _a ## n = std::move(stack.back()); stack.pop_back();\\\n'
                                        '    tokstackitem *si ## n = static_cast<tokstackitem*>(_a ## n .get());\\\n'
@@ -531,8 +531,8 @@ def genLoop():
                                        '#define DEFAULTINVALID2(justparsed, expected) \\\n'
                                        '    default: \\\n'
                                        '        {\\\n'
-                                       '            Error e = invalidSyntax(justparsed, expected, lookahead, lasttok);\\\n'
-                                       '            if (!errorRecovery(*this, stack, lookahead, e))\\\n'
+                                       '            Error e = p.invalidSyntax(justparsed, expected, lookahead, lasttok);\\\n'
+                                       '            if (!errorRecovery(p, stack, lookahead, e))\\\n'
                                        '                done = true;\\\n'
                                        '            e.report();\\\n'
                                        '        }\\\n'
@@ -540,8 +540,8 @@ def genLoop():
                                        '#define DEFAULTINVALID3(justparsed, expected, whileparsing) \\\n'
                                        '    default: \\\n'
                                        '        {\\\n'
-                                       '            Error e = invalidSyntaxWhile(justparsed, expected, whileparsing, lookahead, lasttok);\\\n'
-                                       '            if (!errorRecovery(*this, stack, lookahead, e))\\\n'
+                                       '            Error e = p.invalidSyntaxWhile(justparsed, expected, whileparsing, lookahead, lasttok);\\\n'
+                                       '            if (!errorRecovery(p, stack, lookahead, e))\\\n'
                                        '                done = true;\\\n'
                                        '            e.report();\\\n'
                                        '        }\\\n'
@@ -549,8 +549,8 @@ def genLoop():
                                        '#define DEFAULTINVALIDNOEXPECT(justparsed, whileparsing) \\\n'
                                        '    default: \\\n'
                                        '        {\\\n'
-                                       '            Error e = invalidSyntaxNoExpect(justparsed, whileparsing, lookahead, lasttok);\\\n'
-                                       '            if (!errorRecovery(*this, stack, lookahead, e))\\\n'
+                                       '            Error e = p.invalidSyntaxNoExpect(justparsed, whileparsing, lookahead, lasttok);\\\n'
+                                       '            if (!errorRecovery(p, stack, lookahead, e))\\\n'
                                        '                done = true;\\\n'
                                        '            e.report();\\\n'
                                        '        }\\\n'
@@ -564,7 +564,7 @@ def genLoop():
                                        '    }\n'))
 
     output.append(                     '    bool done = false;\n')
-    output.append(                     '    Token lookahead (consume());\n')
+    output.append(                     '    Token lookahead (p.consume());\n')
     output.append(                     '    Token lasttok = lookahead;\n')
     output.append(                     '    std::vector<std::unique_ptr<stackitem>> stack;\n')
     output.append(                     '    stack.push_back(std::make_unique<stackitem>(0));\n')
@@ -664,7 +664,7 @@ def genGoto():
         if nonterm == augmentSymbol:
             continue
 
-        output.append(        f'template <> size_t Parser::getGoto<ASTNS::{str(nonterm)}>(size_t state)\n')
+        output.append(        f'template <> size_t getGoto<ASTNS::{str(nonterm)}>(size_t state)\n')
         output.append(         '{\n')
         output.append(         '    switch (state)\n')
         output.append(         '    {\n')
