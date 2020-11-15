@@ -20,7 +20,8 @@ jobs = [
 
     ('src/parse/parserloop.cpp'            , 'PARSERLOOP START'          , 'PARSERLOOP END'          , parsegen.genLoop),
     ('src/parse/parserloop.cpp'            , 'GETGOTO START'             , 'GETGOTO END'             , parsegen.genGoto),
-    ('src/parse/error.cpp'                 , 'PANIC MODE START'          , 'PANIC MODE END'          , parsegen.genErrRec),
+    ('src/parse/error.cpp'                 , 'PANIC MODE START'          , 'PANIC MODE END'          , parsegen.genPanicMode),
+    ('src/parse/error.cpp'                 , 'SINGLETOK START'           , 'SINGLETOK END'           , parsegen.genSingleTok),
 
     ('include/visit/printvisitor.h'        , 'PRINTVISIT METHODS START'  , 'PRINTVISIT METHODS END'  , lambda: astgen.genVisitorMethods('all')),
     ('include/visit/dotvisitor.h'          , 'DOTVISIT METHODS START'    , 'DOTVISIT METHODS END'    , lambda: astgen.genVisitorMethods('all')),

@@ -701,7 +701,8 @@ bool _parse(Parser &p, bool istrial, std::unique_ptr<ASTNS::Decls> &out)
 #define SHIFT(newstate) \
     lasttok = lookahead;\
     stack.push_back(std::make_unique<tokstackitem>(newstate, lasttok));\
-    lookahead = p.consume();
+    lookahead = p.consume();\
+    ++steps;
 #define REDUCET(n) \
     std::unique_ptr<stackitem> _a ## n = std::move(stack.back()); stack.pop_back();\
     tokstackitem *si ## n = static_cast<tokstackitem*>(_a ## n .get());\
@@ -748,12 +749,15 @@ bool _parse(Parser &p, bool istrial, std::unique_ptr<ASTNS::Decls> &out)
         stack.push_back(std::make_unique<aststackitem>(newstate, std::move(asi->ast)));\
     }
     bool done = false;
+    int steps = 0;
     Token lookahead (p.consume());
     Token lasttok = lookahead;
     std::vector<std::unique_ptr<stackitem>> stack;
     stack.push_back(std::make_unique<stackitem>(0));
     while (!done)
     {
+        if (isTrial && steps > 5)
+            return true;
         switch (stack.back()->state)
         {
             case 0:

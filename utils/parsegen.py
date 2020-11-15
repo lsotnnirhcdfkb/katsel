@@ -516,7 +516,8 @@ def genLoop():
     output.append(                    ('#define SHIFT(newstate) \\\n'
                                        '    lasttok = lookahead;\\\n'
                                        '    stack.push_back(std::make_unique<tokstackitem>(newstate, lasttok));\\\n'
-                                       '    lookahead = p.consume();\n'
+                                       '    lookahead = p.consume();\\\n'
+                                       '    ++steps;\n'
                                        '#define REDUCET(n) \\\n'
                                        '    std::unique_ptr<stackitem> _a ## n = std::move(stack.back()); stack.pop_back();\\\n'
                                        '    tokstackitem *si ## n = static_cast<tokstackitem*>(_a ## n .get());\\\n'
@@ -564,6 +565,7 @@ def genLoop():
                                        '    }\n'))
 
     output.append(                     '    bool done = false;\n')
+    output.append(                     '    int steps = 0;\n')
     output.append(                     '    Token lookahead (p.consume());\n')
     output.append(                     '    Token lasttok = lookahead;\n')
     output.append(                     '    std::vector<std::unique_ptr<stackitem>> stack;\n')
@@ -571,6 +573,8 @@ def genLoop():
 
     output.append(                     '    while (!done)\n')
     output.append(                     '    {\n')
+    output.append(                     '        if (isTrial && steps > 5)\n')
+    output.append(                     '            return true;\n')
     output.append(                     '        switch (stack.back()->state)\n')
     output.append(                     '        {\n')
 
@@ -689,8 +693,8 @@ def genGoto():
 
     return ''.join(output)
 
-# generate error recovery code {{{2
-def genErrRec():
+# generate panic mode error recovery code {{{2
+def genPanicMode():
     output = []
     output.append(        ('#define CHECKASI(ty)\\\n'
                            '    ASTNS::ty *ast##ty (dynamic_cast<ASTNS::ty*>(ast));\\\n'
@@ -758,7 +762,13 @@ def genErrRec():
                            '    stack.erase(delto.base(), stack.end());\n'
                            '#undef CHECKASI\n'
                            '#undef FINISHCHECKASI\n'
-                           '#undef RECOVERANDDEFBREAK\n'))
+                           '#undef RECOVERANDDEFBREAK\n'
+                           '    return true;\n'))
+
+    return ''.join(output)
+# generate single token insertion/deletion/substitution error recovery code {{{2
+def genSingleTok():
+    output = []
 
     return ''.join(output)
 # entry {{{1
