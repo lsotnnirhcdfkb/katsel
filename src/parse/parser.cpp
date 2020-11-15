@@ -35,7 +35,8 @@ Error Parser::invalidSyntaxWhile(const char *justparsed, const char *expected, c
     sss << "expected " << expected;
     Error e = Error(Error::MsgType::ERROR, lookahead, ssl.str())
         .underline(Error::Underline(last, '^')
-            .error(sss.str()))
+            .error(sss.str())
+            .note("erroneous syntax: abandoning construct"))
         .underline(Error::Underline(lookahead, '~')
             .note("unexpected token here"));
 
@@ -53,7 +54,8 @@ Error Parser::invalidSyntax(const char *justparsed, const char *expected, Token 
     sss << "expected " << expected;
     Error e = Error(Error::MsgType::ERROR, lookahead, ssl.str())
         .underline(Error::Underline(last, '^')
-            .error(sss.str()))
+            .error(sss.str())
+            .note("erroneous syntax: abandoning construct"))
         .underline(Error::Underline(lookahead, '~')
             .note("unexpected token here"));
 
@@ -67,7 +69,9 @@ Error Parser::invalidSyntaxNoExpect(const char *justparsed, const char *whilepar
     std::stringstream ssl;
     ssl << "invalid token to follow " << justparsed << " of " << whileparsing << ": " << stringifyTokenType(lookahead.type);
     Error e = Error(Error::MsgType::ERROR, lookahead, ssl.str())
-        .underline(Error::Underline(last, '^'))
+        .underline(Error::Underline(last, '^')
+            .error(concatMsg(stringifyTokenType(lookahead.type), " cannot follow ", justparsed, " of ", whileparsing))
+            .note("erroneous syntax: abandoning construct"))
         .underline(Error::Underline(lookahead, '~')
             .note("invalid token here"));
 
