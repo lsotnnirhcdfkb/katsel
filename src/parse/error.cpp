@@ -31,8 +31,6 @@ bool singleTok(Parser &p, std::vector<stackitem> &stack, Token &lookahead, Error
         std::unique_ptr<ASTNS::Decls> tempD (nullptr);\
         if (_parse(tempP, tempstack, true, tempD, tempLookahead))\
             e.underline(Error::Underline(tempLookahead, '^').note(concatMsg("insert ", stringifyTokenType(ty))));\
-        else\
-            e.underline(Error::Underline(tempLookahead, '^').note(concatMsg("do not ", stringifyTokenType(ty))));\
     }
     // try single-symbol insertions
     TRYINSERT(TokenType::EOF_)

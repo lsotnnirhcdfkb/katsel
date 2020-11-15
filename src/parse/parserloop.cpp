@@ -4063,6 +4063,9 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
     // PARSERLOOP END
     // }}}
 
+    if (istrial)
+        return true;
+
     stackitem topsi (std::move(stack.back()));
     if (topsi.istok)
     {

@@ -779,8 +779,6 @@ def genSingleTok():
                                 '        std::unique_ptr<ASTNS::Decls> tempD (nullptr);\\\n'
                                 '        if (_parse(tempP, tempstack, true, tempD, tempLookahead))\\\n'
                                 '            e.underline(Error::Underline(tempLookahead, \'^\').note(concatMsg("insert ", stringifyTokenType(ty))));\\\n'
-                                '        else\\\n'
-                                '            e.underline(Error::Underline(tempLookahead, \'^\').note(concatMsg("do not ", stringifyTokenType(ty))));\\\n'
                                 '    }\n'))
 
     output.append(              '    // try single-symbol insertions\n')
