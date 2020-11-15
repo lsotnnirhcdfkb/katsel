@@ -18,6 +18,8 @@ public:
 
     std::unique_ptr<ASTNS::Decls> parse();
 
+    Token consume();
+
 private:
     Lexer &lexer;
     File &sourcefile;
@@ -28,8 +30,6 @@ private:
     Error invalidSyntaxWhile(const char *justparsed, const char *expected, const char *whileparsing, Token const &lookahead, Token const &last);
     Error invalidSyntax(const char *justparsed, const char *expected, Token const &lookahead, Token const &last);
     Error invalidSyntaxNoExpect(const char *justparsed, const char *whileparsing, Token const &lookahead, Token const &last);
-
-    Token consume();
 
     std::vector<Token> errored;
 };

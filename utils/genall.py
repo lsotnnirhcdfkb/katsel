@@ -20,6 +20,7 @@ jobs = [
 
     ('src/parse/parserloop.cpp'            , 'PARSERLOOP START'          , 'PARSERLOOP END'          , parsegen.genLoop),
     ('src/parse/parserloop.cpp'            , 'GETGOTO START'             , 'GETGOTO END'             , parsegen.genGoto),
+    ('src/parse/parserloop.cpp'            , 'ERR RECOVERY START'        , 'ERR RECOVERY END'        , parsegen.genErrRec),
 
     ('include/visit/printvisitor.h'        , 'PRINTVISIT METHODS START'  , 'PRINTVISIT METHODS END'  , lambda: astgen.genVisitorMethods('all')),
     ('include/visit/dotvisitor.h'          , 'DOTVISIT METHODS START'    , 'DOTVISIT METHODS END'    , lambda: astgen.genVisitorMethods('all')),

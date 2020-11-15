@@ -532,7 +532,7 @@ def genLoop():
                                        '    default: \\\n'
                                        '        {\\\n'
                                        '            Error e = invalidSyntax(justparsed, expected, lookahead, lasttok);\\\n'
-                                       '            if (!errorRecovery(stack))\\\n'
+                                       '            if (!errorRecovery(*this, stack, lookahead))\\\n'
                                        '            {\\\n'
                                        '                done = true;\\\n'
                                        '            }\\\n'
@@ -543,7 +543,7 @@ def genLoop():
                                        '    default: \\\n'
                                        '        {\\\n'
                                        '            Error e = invalidSyntaxWhile(justparsed, expected, whileparsing, lookahead, lasttok);\\\n'
-                                       '            if (!errorRecovery(stack))\\\n'
+                                       '            if (!errorRecovery(*this, stack, lookahead))\\\n'
                                        '            {\\\n'
                                        '                done = true;\\\n'
                                        '            }\\\n'
@@ -554,7 +554,7 @@ def genLoop():
                                        '    default: \\\n'
                                        '        {\\\n'
                                        '            Error e = invalidSyntaxNoExpect(justparsed, whileparsing, lookahead, lasttok);\\\n'
-                                       '            if (!errorRecovery(stack))\\\n'
+                                       '            if (!errorRecovery(*this, stack, lookahead))\\\n'
                                        '            {\\\n'
                                        '                done = true;\\\n'
                                        '            }\\\n'
@@ -695,6 +695,59 @@ def genGoto():
 
     return ''.join(output)
 
+# generate error recovery code {{{2
+def genErrRec():
+    output = []
+    output.append(        ('#define CHECKASI(ty)\\\n'
+                           '    ASTNS::ty *ast##ty (dynamic_cast<ASTNS::ty*>(ast));\\\n'
+                           '    if (ast##ty)\\\n'
+                           '    {\\\n'
+                           '        switch (lookahead.type)\\\n'
+                           '        {\n'
+                           '#define FINISHCHECKASI()\\\n'
+                           '        }\\\n'
+                           '    }\n'
+                           '#define RECOVERANDDEFBREAK()\\\n'
+                           '        valid = true;\\\n'
+                           '        delto = i;\\\n'
+                           '        break;\\\n'
+                           '    default:\\\n'
+                           '        break;\n'
+                           '    bool valid = false;\n'
+                           '    std::vector<std::unique_ptr<stackitem>>::reverse_iterator delto;\n'
+                           '    while (!valid)\n'
+                           '    {\n'
+                           '        for (auto i = stack.rbegin(); i != stack.rend() && !valid; ++i)\n'
+                           '        {\n'
+                           '            aststackitem *asi = dynamic_cast<aststackitem*>(i->get());\n'
+                           '            if (asi)\n'
+                           '            {\n'
+                           '                ASTNS::AST *ast = asi->ast.get();\n'))
+
+    for nonterm in symbols:
+        if type(nonterm) == Terminal:
+            continue
+        if nonterm == augmentSymbol:
+            continue
+
+        output.append(    f'                CHECKASI({str(nonterm)})\n')
+        output.append(     '                       ')
+        for follow in nonterm.follow:
+            output.append(f' case {follow.astt()}:')
+        output.append(     '\n')
+        output.append(     '                            RECOVERANDDEFBREAK()\n')
+        output.append(     '                FINISHCHECKASI()\n')
+
+    output.append(        ('            }\n'
+                           '        }\n'
+                           '        if (!valid)\n'
+                           '            lookahead = p.consume();\n'
+                           '        if (lookahead.type == TokenType::EOF_)\n'
+                           '            return false;\n'
+                           '    }\n'
+                           '    stack.erase(delto.base(), stack.end());\n'))
+
+    return ''.join(output)
 # entry {{{1
 if __name__ == '__main__':
     printParseTable(False)
