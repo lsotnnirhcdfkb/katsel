@@ -14,6 +14,7 @@ AND NOt only that, but I also got a lot of helpful information from looking at t
 - [x] Expressions
 - [x] Variables
 - [ ] type casting
+- [ ] turing completeness
 - [ ] Function overloading
 - [ ] Arrays
 - [ ] More types
