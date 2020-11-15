@@ -515,14 +515,14 @@ def genLoop():
 
     output.append(                    ('#define SHIFT(newstate) \\\n'
                                        '    lasttok = lookahead;\\\n'
-                                       '    stack.push(std::make_unique<tokstackitem>(newstate, lasttok));\\\n'
+                                       '    stack.push_back(std::make_unique<tokstackitem>(newstate, lasttok));\\\n'
                                        '    lookahead = consume();\n'
                                        '#define REDUCET(n) \\\n'
-                                       '    std::unique_ptr<stackitem> _a ## n = std::move(stack.top()); stack.pop();\\\n'
+                                       '    std::unique_ptr<stackitem> _a ## n = std::move(stack.back()); stack.pop_back();\\\n'
                                        '    tokstackitem *si ## n = static_cast<tokstackitem*>(_a ## n .get());\\\n'
                                        '    Token a ## n (si ## n ->tok);\n' # TODO: add parser method to say internal error: invalid pop expected tokstackitem/aststackitem but got ...
                                        '#define REDUCEA(n, base) \\\n'
-                                       '    std::unique_ptr<stackitem> _a ## n = std::move(stack.top()); stack.pop();\\\n'
+                                       '    std::unique_ptr<stackitem> _a ## n = std::move(stack.back()); stack.pop_back();\\\n'
                                        '    aststackitem *si ## n = static_cast<aststackitem*>(_a ## n .get());\\\n'
                                        '    std::unique_ptr<ASTNS::base> a ## n (std::unique_ptr<ASTNS::base>(static_cast<ASTNS::base*>(si ## n ->ast.release())));\n' # same TODO as above
                                        '#define SHIFTON(ty, n) \\\n'
@@ -530,36 +530,54 @@ def genLoop():
                                        '        {SHIFT(n)} break;\n'
                                        '#define DEFAULTINVALID2(justparsed, expected) \\\n'
                                        '    default: \\\n'
-                                       '        invalidSyntax(justparsed, expected, lookahead, lasttok);\\\n'
-                                       '        done = true;\\\n'
+                                       '        {\\\n'
+                                       '            Error e = invalidSyntax(justparsed, expected, lookahead, lasttok);\\\n'
+                                       '            if (!errorRecovery(stack))\\\n'
+                                       '            {\\\n'
+                                       '                done = true;\\\n'
+                                       '            }\\\n'
+                                       '            e.report();\\\n'
+                                       '        }\\\n'
                                        '        break;\n'
                                        '#define DEFAULTINVALID3(justparsed, expected, whileparsing) \\\n'
                                        '    default: \\\n'
-                                       '        invalidSyntaxWhile(justparsed, expected, whileparsing, lookahead, lasttok);\\\n'
-                                       '        done = true;\\\n'
+                                       '        {\\\n'
+                                       '            Error e = invalidSyntaxWhile(justparsed, expected, whileparsing, lookahead, lasttok);\\\n'
+                                       '            if (!errorRecovery(stack))\\\n'
+                                       '            {\\\n'
+                                       '                done = true;\\\n'
+                                       '            }\\\n'
+                                       '            e.report();\\\n'
+                                       '        }\\\n'
                                        '        break;\n'
                                        '#define DEFAULTINVALIDNOEXPECT(justparsed, whileparsing) \\\n'
                                        '    default: \\\n'
-                                       '        invalidSyntaxNoExpect(justparsed, whileparsing, lookahead, lasttok);\\\n'
-                                       '        done = true;\\\n'
+                                       '        {\\\n'
+                                       '            Error e = invalidSyntaxNoExpect(justparsed, whileparsing, lookahead, lasttok);\\\n'
+                                       '            if (!errorRecovery(stack))\\\n'
+                                       '            {\\\n'
+                                       '                done = true;\\\n'
+                                       '            }\\\n'
+                                       '            e.report();\\\n'
+                                       '        }\\\n'
                                        '        break;\n'
                                        '#define REDUCESKIP(cl) \\\n'
                                        '    {\\\n'
-                                       '        std::unique_ptr<stackitem> popped (std::move(stack.top())); stack.pop();\\\n'
+                                       '        std::unique_ptr<stackitem> popped (std::move(stack.back())); stack.pop_back();\\\n'
                                        '        aststackitem *asi = static_cast<aststackitem*>(popped.get());\\\n'
-                                       '        size_t newstate = getGoto<ASTNS::cl>(stack.top()->state);\\\n'
-                                       '        stack.push(std::make_unique<aststackitem>(newstate, std::move(asi->ast)));\\\n'
+                                       '        size_t newstate = getGoto<ASTNS::cl>(stack.back()->state);\\\n'
+                                       '        stack.push_back(std::make_unique<aststackitem>(newstate, std::move(asi->ast)));\\\n'
                                        '    }\n'))
 
     output.append(                     '    bool done = false;\n')
     output.append(                     '    Token lookahead (consume());\n')
     output.append(                     '    Token lasttok = lookahead;\n')
-    output.append(                     '    std::stack<std::unique_ptr<stackitem>> stack;\n')
-    output.append(                     '    stack.push(std::make_unique<stackitem>(0));\n')
+    output.append(                     '    std::vector<std::unique_ptr<stackitem>> stack;\n')
+    output.append(                     '    stack.push_back(std::make_unique<stackitem>(0));\n')
 
     output.append(                     '    while (!done)\n')
     output.append(                     '    {\n')
-    output.append(                     '        switch (stack.top()->state)\n')
+    output.append(                     '        switch (stack.back()->state)\n')
     output.append(                     '        {\n')
 
     for staten, state in sorted(table.items(), key=lambda x:x[0]):
@@ -600,8 +618,8 @@ def genLoop():
                             output.append(f'                            REDUCEA({i}, {_grammar[str(sym)]["base"]})\n')
 
                     output.append(        f'                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::{str(ac.rule.symbol)}>({", ".join([f"std::move(a{i})" for i in range(len(ac.rule.expansion))])});\n')
-                    output.append(        f'                            size_t newstate = getGoto<ASTNS::{str(ac.rule.symbol)}>(stack.top()->state);\n')
-                    output.append(        f'                            stack.push(std::make_unique<aststackitem>(newstate, std::move(push)));\n')
+                    output.append(        f'                            size_t newstate = getGoto<ASTNS::{str(ac.rule.symbol)}>(stack.back()->state);\n')
+                    output.append(        f'                            stack.push_back(std::make_unique<aststackitem>(newstate, std::move(push)));\n')
                     output.append(         '                        }\n')
                 else:
                     output.append(        f'                        REDUCESKIP({str(ac.rule.symbol)});\n')
@@ -627,7 +645,7 @@ def genLoop():
     output.append(                     '            default:\n')
     output.append(                    ('                Error(Error::MsgType::INTERR, lookahead, "Parser reached invalid state")\n'
                                        '                    .underline(Error::Underline(lookahead, \'!\')\n'
-                                       '                        .error(concatMsg("Parser reached invalid state: ", stack.top()->state)))\n'
+                                       '                        .error(concatMsg("Parser reached invalid state: ", stack.back()->state)))\n'
                                        '                    .reportAbort();\n'))
 
     output.append(                     '        }\n')

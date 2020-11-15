@@ -27,7 +27,7 @@ Token Parser::consume()
     return cur;
 }
 
-void Parser::invalidSyntaxWhile(const char *justparsed, const char *expected, const char *whileparsing, Token const &lookahead, Token const &last)
+Error Parser::invalidSyntaxWhile(const char *justparsed, const char *expected, const char *whileparsing, Token const &lookahead, Token const &last)
 {
     std::stringstream ssl;
     std::stringstream sss;
@@ -43,9 +43,9 @@ void Parser::invalidSyntaxWhile(const char *justparsed, const char *expected, co
         e.underline(Error::Underline(t, '-')
             .note(concatMsg("erroneous token ignored here with error message \"", t.message, "\"")));
 
-    e.report();
+    return e;
 }
-void Parser::invalidSyntax(const char *justparsed, const char *expected, Token const &lookahead, Token const &last)
+Error Parser::invalidSyntax(const char *justparsed, const char *expected, Token const &lookahead, Token const &last)
 {
     std::stringstream ssl;
     std::stringstream sss;
@@ -60,9 +60,9 @@ void Parser::invalidSyntax(const char *justparsed, const char *expected, Token c
     for (Token const &t : errored)
         e.underline(Error::Underline(t, '-')
             .note(concatMsg("erroneous token ignored here with error message \"", t.message, "\"")));
-    e.report();
+    return e;
 }
-void Parser::invalidSyntaxNoExpect(const char *justparsed, const char *whileparsing, Token const &lookahead, Token const &last)
+Error Parser::invalidSyntaxNoExpect(const char *justparsed, const char *whileparsing, Token const &lookahead, Token const &last)
 {
     std::stringstream ssl;
     ssl << "invalid token to follow " << justparsed << " of " << whileparsing << ": " << stringifyTokenType(lookahead.type);
@@ -75,5 +75,5 @@ void Parser::invalidSyntaxNoExpect(const char *justparsed, const char *whilepars
         e.underline(Error::Underline(t, '-')
             .note(concatMsg("erroneous token ignored here with error message \"", t.message, "\"")));
 
-    e.report();
+    return e;
 }
