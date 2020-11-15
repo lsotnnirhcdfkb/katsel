@@ -573,7 +573,7 @@ def genLoop():
 
     output.append(                     '    while (!done)\n')
     output.append(                     '    {\n')
-    output.append(                     '        if (isTrial && steps > 5)\n')
+    output.append(                     '        if (istrial && steps > 5)\n')
     output.append(                     '            return true;\n')
     output.append(                     '        switch (stack.back()->state)\n')
     output.append(                     '        {\n')

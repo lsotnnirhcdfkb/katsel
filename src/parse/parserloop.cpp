@@ -756,7 +756,7 @@ bool _parse(Parser &p, bool istrial, std::unique_ptr<ASTNS::Decls> &out)
     stack.push_back(std::make_unique<stackitem>(0));
     while (!done)
     {
-        if (isTrial && steps > 5)
+        if (istrial && steps > 5)
             return true;
         switch (stack.back()->state)
         {
