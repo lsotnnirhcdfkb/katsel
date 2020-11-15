@@ -762,73 +762,15 @@ def genPanicMode():
 # generate single token insertion/deletion/substitution error recovery code {{{2
 def genSingleTok():
     output = []
-    output.append(             ('#define TRYINSERT(ty)\\\n'
-                                '    {\\\n'
-                                '        Lexer tempL (lookahead);\\\n'
-                                '        Parser tempP (tempL, p.sourcefile);\\\n'
-                                '        Token tempLookahead (lookahead);\\\n'
-                                '        tempLookahead.type = ty;\\\n'
-                                '        std::vector<stackitem> tempstack;\\\n'
-                                '        for (auto const &si : stack)\\\n'
-                                '        {\\\n'
-                                '            if (si.istok)\\\n'
-                                '                tempstack.emplace_back(si.state, si.tok);\\\n'
-                                '            else\\\n'
-                                '                tempstack.emplace_back(si.state, nullptr);\\\n'
-                                '        }\\\n'
-                                '        std::unique_ptr<ASTNS::Decls> tempD (nullptr);\\\n'
-                                '        if (_parse(tempP, tempstack, true, tempD, tempLookahead))\\\n'
-                                '            e.underline(Error::Underline(tempLookahead, \'^\').note(concatMsg("insert ", stringifyTokenType(ty), " before here")));\\\n'
-                                '    }\n'))
-    output.append(             ('#define TRYSUB(ty)\\\n'
-                                '    {\\\n'
-                                '        Lexer tempL (p.lexer);\\\n'
-                                '        Parser tempP (tempL, p.sourcefile);\\\n'
-                                '        Token tempLookahead (lookahead);\\\n'
-                                '        tempLookahead.type = ty;\\\n'
-                                '        std::vector<stackitem> tempstack;\\\n'
-                                '        for (auto const &si : stack)\\\n'
-                                '        {\\\n'
-                                '            if (si.istok)\\\n'
-                                '                tempstack.emplace_back(si.state, si.tok);\\\n'
-                                '            else\\\n'
-                                '                tempstack.emplace_back(si.state, nullptr);\\\n'
-                                '        }\\\n'
-                                '        std::unique_ptr<ASTNS::Decls> tempD (nullptr);\\\n'
-                                '        if (_parse(tempP, tempstack, true, tempD, tempLookahead))\\\n'
-                                '            e.underline(Error::Underline(tempLookahead, \'^\').note(concatMsg("substitute ", stringifyTokenType(ty), " into here")));\\\n'
-                                '    }\n'))
-
-    output.append(              '    // try single-symbol insertions\n')
+    output.append(              '#define TRYINSERT(ty) tryInsert(ty, p, lookahead, stack, e);\n')
+    output.append(              '#define TRYSUB(ty) trySub(ty, p, lookahead, stack, e);\n')
+    output.append(              '#define TRYTOKTY(ty) TRYINSERT(ty); TRYSUB(ty);\n')
 
     for terminal in symbols:
         if type(terminal) == Terminal:
-            output.append(     f'    TRYINSERT({terminal.astt()})\n');
+            output.append(     f'    TRYTOKTY({terminal.astt()})\n');
 
-    output.append(             ('    // try single-symbol deletion\n'
-                                '    {\n'
-                                '        Lexer tempL (p.lexer);\n'
-                                '        Parser tempP (tempL, p.sourcefile);\n'
-                                '        Token tempLookahead (tempP.consume());\n'
-                                '        std::vector<stackitem> tempstack;\n'
-                                '        for (auto const &si : stack)\n'
-                                '        {\n'
-                                '            if (si.istok)\n'
-                                '                tempstack.emplace_back(si.state, si.tok);\n'
-                                '            else\n'
-                                '                tempstack.emplace_back(si.state, nullptr);\n'
-                                '        }\n'
-                                '        std::unique_ptr<ASTNS::Decls> tempD (nullptr);\n'
-                                '        if (_parse(tempP, tempstack, true, tempD, tempLookahead))\n'
-                                '            e.underline(Error::Underline(tempLookahead, \'^\').note("delete one token so that this is lookahead"))\n'
-                                '             .underline(Error::Underline(lookahead, \'^\').note("deleted"));\n'
-                                '    }\n'))
-
-    output.append(              '    // try single-symbol substitutions\n')
-
-    for terminal in symbols:
-        if type(terminal) == Terminal:
-            output.append(     f'    TRYSUB({terminal.astt()})\n');
+    output.append(              '    tryDel(p, lookahead, stack, e);\n')
 
     output.append(              '    return false;\n')
     return ''.join(output)
