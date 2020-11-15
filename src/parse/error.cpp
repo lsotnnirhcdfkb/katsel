@@ -32,7 +32,7 @@ static bool tryInsert(TokenType ty, Parser const &p, Token const &lookahead, std
 
     bool success;
     if ((success = _parse(tempP, tempstack, true, tempD, tempLookahead)))
-        e.underline(Error::Underline(tempLookahead, '^').note(concatMsg("insert ", stringifyTokenType(ty), " before here")));
+        e.underline(Error::Underline(tempLookahead, '^').hint(concatMsg("insert ", stringifyTokenType(ty), " before here")));
 
     return success;
 }
@@ -49,8 +49,7 @@ static bool tryDel(Parser const &p, Token const &lookahead, std::vector<stackite
 
     bool success;
     if ((success = _parse(tempP, tempstack, true, tempD, tempLookahead)))
-        e.underline(Error::Underline(tempLookahead, '^').note("delete one token so that this is lookahead"))
-            .underline(Error::Underline(lookahead, '^').note("deleted"));
+        e.underline(Error::Underline(lookahead, '^').hint("delete this token"));
 
     return success;
 }
@@ -68,7 +67,7 @@ static bool trySub(TokenType ty, Parser const &p, Token const &lookahead, std::v
 
     bool success;
     if ((success = _parse(tempP, tempstack, true, tempD, tempLookahead)))
-        e.underline(Error::Underline(tempLookahead, '^').note(concatMsg("substitute ", stringifyTokenType(ty), " into here")));
+        e.underline(Error::Underline(tempLookahead, '^').hint(concatMsg("replace this token with ", stringifyTokenType(ty))));
 
     return success;
 }
