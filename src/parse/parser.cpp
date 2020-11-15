@@ -5,92 +5,75 @@
 
 #include <sstream>
 
-// Parser constructor {{{1
-Parser::Parser(Lexer &l, File &sourcefile): lexer(l), sourcefile(sourcefile), ispanic(false)
+Parser::Parser(Lexer &l, File &sourcefile): lexer(l), sourcefile(sourcefile) {}
+
+Token Parser::consume()
 {
-    consume();
-    prevToken = l.makeSOF();
-}
-// helper methods {{{1
-Token& Parser::consume()
-{
-    prevToken = currToken;
+    Token cur;
+    errored.clear();
     while (true)
     {
-        currToken = lexer.nextToken();
+        cur = lexer.nextToken();
+        if (cur.type != TokenType::ERROR) return cur;
 
-        if (currToken.type != TokenType::ERROR) break; // continue loop if it is an error token
-
-        Error(Error::MsgType::ERROR, peek(), peek().message)
-            .primary(Error::Primary(peek())
-                .error(peek().message))
+        Error(Error::MsgType::ERROR, cur, cur.message)
+            .underline(Error::Underline(cur, '^')
+                .error(cur.message)
+                .note("erroneous tokens are ignored"))
             .report();
+        errored.push_back(cur);
     }
 
-    return prev();
+    return cur;
 }
 
-bool Parser::assertConsume(TokenType type)
+void Parser::invalidSyntaxWhile(const char *justparsed, const char *expected, const char *whileparsing, Token const &lookahead, Token const &last)
 {
-    return assertConsume(type, 
-            Error(Error::MsgType::ERROR, peek(), "Unexpected token")
-                .primary(Error::Primary(peek())
-                    .error(static_cast<std::stringstream&>(std::stringstream() << "Unexpected token " << stringifyTokenType(peek().type) << ", expected " << stringifyTokenType(type)).str())));
+    std::stringstream ssl;
+    std::stringstream sss;
+    ssl << "expected " << expected << " after " << justparsed << " of " << whileparsing << ", but got " << stringifyTokenType(lookahead.type) << " instead";
+    sss << "expected " << expected;
+    Error e = Error(Error::MsgType::ERROR, lookahead, ssl.str())
+        .underline(Error::Underline(last, '^')
+            .error(sss.str()))
+        .underline(Error::Underline(lookahead, '~')
+            .note("unexpected token here"));
+
+    for (Token const &t : errored)
+        e.underline(Error::Underline(t, '-')
+            .note(concatMsg("erroneous token ignored here with error message \"", t.message, "\"")));
+
+    e.report();
 }
-
-bool Parser::assertConsume(TokenType type, Error const &error)
+void Parser::invalidSyntax(const char *justparsed, const char *expected, Token const &lookahead, Token const &last)
 {
-    bool correct = check(type);
+    std::stringstream ssl;
+    std::stringstream sss;
+    ssl << "expected " << expected << " after " << justparsed << ", but got " << stringifyTokenType(lookahead.type) << " instead";
+    sss << "expected " << expected;
+    Error e = Error(Error::MsgType::ERROR, lookahead, ssl.str())
+        .underline(Error::Underline(last, '^')
+            .error(sss.str()))
+        .underline(Error::Underline(lookahead, '~')
+            .note("unexpected token here"));
 
-    if (!correct)
-        error.report();
-
-    consume();
-    return correct;
+    for (Token const &t : errored)
+        e.underline(Error::Underline(t, '-')
+            .note(concatMsg("erroneous token ignored here with error message \"", t.message, "\"")));
+    e.report();
 }
-bool Parser::checkConsume(TokenType type)
+void Parser::invalidSyntaxNoExpect(const char *justparsed, const char *whileparsing, Token const &lookahead, Token const &last)
 {
-    if (check(type))
-    {
-        consume();
-        return true;
-    }
-    return false;
-}
+    std::stringstream ssl;
+    ssl << "invalid token to follow " << justparsed << " of " << whileparsing << ": " << stringifyTokenType(lookahead.type);
+    Error e = Error(Error::MsgType::ERROR, lookahead, ssl.str())
+        .underline(Error::Underline(last, '^'))
+        .underline(Error::Underline(lookahead, '~')
+            .note("invalid token here"));
 
-bool Parser::check(TokenType type)
-{
-    return peek().type == type;
-}
+    for (Token const &t : errored)
+        e.underline(Error::Underline(t, '-')
+            .note(concatMsg("erroneous token ignored here with error message \"", t.message, "\"")));
 
-
-bool Parser::atEnd()
-{
-    return check(TokenType::EOF_);
-}
-
-Token& Parser::peek()
-{
-    return currToken;
-}
-
-Token& Parser::prev()
-{
-    return prevToken;
-}
-
-// panic methods {{{1
-void Parser::panic()
-{
-    ispanic = true;
-}
-
-void Parser::unpanic()
-{
-    ispanic = false;
-}
-
-void Parser::syncTokens()
-{
-    while (!check(TokenType::FUN) && !atEnd()) consume(); // consume until next token is fun
+    e.report();
 }

@@ -3,45 +3,54 @@
 
 #include "llvm/IR/Verifier.h"
 
-void CodeGen::visitFunctionDecl(ASTNS::FunctionDecl *a)
+CodeGenNS::DeclCodeGen::DeclCodeGen(CodeGen &cg): cg(cg) {}
+
+void CodeGenNS::DeclCodeGen::visitDecl(ASTNS::Decl *) {}
+void CodeGenNS::DeclCodeGen::visitDecls(ASTNS::Decls *ast)
 {
-    std::string name = a->name.stringify();
-    Value function = context.getGlobal(name);
+    ast->decls->accept(this);
+    ast->decl->accept(this);
+}
+
+void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
+{
+    std::string name = ast->name.stringify();
+    Value function = cg.context.findGlobal(name);
     if (!dynamic_cast<FunctionType*>(function.type))
-        reportAbortNoh("In CodeGen::visitFunctionDecl, context.getGlobal(" + name + ") returned non-function");
+        reportAbortNoh(concatMsg("DeclCodeGen::visitFunction: context.getGlobal\"", name, "\") returned non-function"));
 
     llvm::Value *fv = function.val;
     llvm::Function *f = static_cast<llvm::Function*>(fv);
 
     if (!f->empty())
-        CG_RETURNNULL();
+        return;
 
-    llvm::BasicBlock *block = llvm::BasicBlock::Create(context.context, name + "Entry", f);
-    context.builder.SetInsertPoint(block);
+    llvm::BasicBlock *block = llvm::BasicBlock::Create(cg.context.context, name + "Entry", f);
+    cg.context.builder.SetInsertPoint(block);
 
-    context.incScope();
+    cg.context.incScope();
 
-    ASTNS::Param *paramast = a->params.get();
-    for (auto &param : f->args())
+    if (ast->paramlist)
     {
-        std::string pname = paramast->name.stringify();
-        llvm::AllocaInst *alloca = context.createEntryAlloca(f, param.getType(), pname);
+        std::vector<CodeGenNS::ParamVisitor::Param> params = cg.paramVisitor.params(ast->paramlist.get());
+        auto cparam = params.begin();
+        for (auto &param : f->args())
+        {
+            std::string pname = cparam->name;
+            llvm::AllocaInst *alloca = cg.context.createEntryAlloca(f, param.getType(), pname);
 
-        context.builder.CreateStore(&param, alloca);
+            cg.context.builder.CreateStore(&param, alloca);
 
-        context.addLocal(pname, evalType(paramast->type.get()), alloca, paramast);
+            cg.context.addLocal(pname, cparam->ty, alloca, cparam->ast);
 
-        paramast = paramast->next.get();
+            ++cparam;
+        }
     }
 
-    context.curFunc = function;
-    a->block->accept(this);
+    cg.context.curFunc = function;
+    cg.stmtCodeGen.stmt(ast->body.get()); // TODO
     llvm::verifyFunction(*f);
-    context.decScope();
-}
 
-void CodeGen::visitGlobalVarDecl(ASTNS::GlobalVarDecl *)
-{
-    // TODO: this
-    return;
+    cg.context.decScope();
+    cg.context.curFunc = Value();
 }

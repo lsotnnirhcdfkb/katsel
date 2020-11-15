@@ -8,7 +8,7 @@ returncode: 0
 0x1234567890abcdef // ---> lex.expect('HEXINTLIT') <
 0o01234567 // ---> lex.expect('OCTINTLIT') <
 
-0j1234 // ---> lex.expect('ERROR') < ---> lex.expect('IDENTIFIER') <
+0j1234 // ---> lex.expect('ERROR') <
 
 0.12345 // ---> lex.expect('FLOATLIT') <
 0b1001.1234 // ---> lex.expect('ERROR') <

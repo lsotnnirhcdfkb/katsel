@@ -14,20 +14,14 @@
 #include "message/ansistuff.h"
 #include "visit/printvisitor.h"
 #include "visit/dotvisitor.h"
-#include "codegen/context.h"
 #include "codegen/codegen.h"
-#include "codegen/globalsassembler.h"
-#include "replicate/replicatevisitor.h"
 
-#include "llvm/Support/raw_ostream.h"
-
-enum Phases
+enum class Phases
 {
     LEX = 0,
     PARSE,
-    REPLICATE,
     DOT,
-    GLOBALS,
+    DECLS,
     CODEGEN,
     OBJECT,
     ALL,
@@ -75,12 +69,10 @@ int main(int argc, char *argv[])
                     phasen = Phases::LEX;
                 else if (strcmp(optarg, "parse") == 0)
                     phasen = Phases::PARSE;
-                else if (strcmp(optarg, "replicate") == 0)
-                    phasen = Phases::REPLICATE;
                 else if (strcmp(optarg, "dot") == 0)
                     phasen = Phases::DOT;
-                else if (strcmp(optarg, "globals") == 0)
-                    phasen = Phases::GLOBALS;
+                else if (strcmp(optarg, "decls") == 0)
+                    phasen = Phases::DECLS;
                 else if (strcmp(optarg, "codegen") == 0)
                     phasen = Phases::CODEGEN;
                 else if (strcmp(optarg, "all") == 0)
@@ -127,44 +119,38 @@ int main(int argc, char *argv[])
         }
 
         auto parser = std::make_unique<Parser>(*lexer, *source);
-        std::unique_ptr<ASTNS::Program> parsed = parser->parse();
+        std::unique_ptr<ASTNS::Decls> parsed = parser->parse();
+
+        if (!parsed)
+            continue;
 
         if (phasen == Phases::PARSE) // stop at phase parse which means we don't need to do any more than parsing
         {
             auto printv = std::make_unique<PrintVisitor>();
-            printv->visitProgram(parsed.get());
-            continue;
-        }
-
-        if (phasen == Phases::REPLICATE)
-        {
-            auto replicator = std::make_unique<ReplicateVisitor>();
-            replicator->visitProgram(parsed.get());
+            parsed->accept(printv.get());
             continue;
         }
 
         if (phasen == Phases::DOT)
         {
             auto dotter = std::make_unique<DotVisitor>();
-            dotter->visitProgram(parsed.get());
+            dotter->dotVisit(parsed.get());
             continue;
         }
 
-        auto cgcontext = std::make_unique<CodeGenContext>(source->filename);
-        auto codegen = std::make_unique<CodeGen>(*cgcontext);
-        auto globalsassembler = std::make_unique<GlobalsAssembler>(*cgcontext, *codegen);
+        auto codegen = std::make_unique<CodeGenNS::CodeGen>(source->filename);
 
-        globalsassembler->visitProgram(parsed.get());
-        if (phasen == Phases::GLOBALS)
+        codegen->declarate(parsed.get());
+        if (phasen == Phases::DECLS)
         {
-            cgcontext->mod->print(llvm::outs(), nullptr);
+            codegen->printMod();
             continue;
         }
 
-        codegen->visitProgram(parsed.get());
+        codegen->codegen(parsed.get());
         if (phasen == Phases::CODEGEN)
         {
-            cgcontext->mod->print(llvm::outs(), nullptr);
+            codegen->printMod();
             continue;
         }
     }

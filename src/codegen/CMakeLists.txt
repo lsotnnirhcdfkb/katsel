@@ -1,1 +1,1 @@
-target_sources(coxianc PUBLIC codegen.cpp context.cpp globalsassembler.cpp expr.cpp decl.cpp stmt.cpp type.cpp program.cpp)
+target_sources(coxianc PUBLIC codegen.cpp context.cpp declarator.cpp typeresolve.cpp decl.cpp stmt.cpp expr.cpp vstmt.cpp)

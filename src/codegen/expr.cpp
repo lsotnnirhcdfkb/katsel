@@ -1,175 +1,205 @@
 #include "codegen/codegen.h"
 #include "message/errors.h"
 
-#include <iostream>
-#include <sstream>
+CodeGenNS::ExprCodeGen::ExprCodeGen(CodeGen &cg): cg(cg) {}
 
-void CodeGen::visitBinaryExpr(ASTNS::BinaryExpr *a)
+Value CodeGenNS::ExprCodeGen::expr(ASTNS::ExprB *ast)
 {
-    Value lhs = evalExpr(a->lhs.get());
-    Value rhs = evalExpr(a->rhs.get());
+    ret = Value();
+    ast->accept(this);
+    return ret;
+}
 
-    if (!lhs.val || !rhs.val)
-        CG_RETURNNULL();
+#define BASICBINARYOP(exprtype)                                                                                                        \
+    void CodeGenNS::ExprCodeGen::visit##exprtype##Expr(ASTNS::exprtype##Expr *ast)                                                     \
+    {                                                                                                                                  \
+        Value lhs = expr(ast->lhs.get());                                                                                              \
+        Value rhs = expr(ast->rhs.get());                                                                                              \
+                                                                                                                                       \
+        if (!lhs.val || !rhs.val)                                                                                                      \
+        {                                                                                                                              \
+            ret = Value();                                                                                                             \
+            return;                                                                                                                    \
+        }                                                                                                                              \
+                                                                                                                                       \
+        if (!lhs.type->hasOperator(ast->op.type))                                                                                      \
+        {                                                                                                                              \
+            Error(Error::MsgType::ERROR, ast->op, "left-hand side of binary expression does not support operator")                     \
+                .underline(Error::Underline(ast->op, '^')                                                                              \
+                    .error(concatMsg("type \"", lhs.type->stringify(), "\" does not support operator \"", ast->op.stringify(), "\""))) \
+                .underline(Error::Underline(lhs, '~'))                                                                                 \
+                .underline(Error::Underline(rhs, '-'))                                                                                 \
+                .report();                                                                                                             \
+            ret = Value();                                                                                                             \
+            return;                                                                                                                    \
+        }                                                                                                                              \
+                                                                                                                                       \
+        ret = lhs.type->binOp(cg.context, lhs, rhs, ast->op, ast);                                                                     \
+    }
 
-    if (a->op.type == TokenType::EQUAL)
+#define BASICUNARYOP(exprtype)                                                                                                                        \
+    void CodeGenNS::ExprCodeGen::visit##exprtype##Expr(ASTNS::exprtype##Expr *ast)                                                                    \
+    {                                                                                                                                                 \
+        Value oper = expr(ast->operand.get());                                                                                                        \
+        if (!oper.val)                                                                                                                                \
+        {                                                                                                                                             \
+            ret = Value();                                                                                                                            \
+            return;                                                                                                                                   \
+        }                                                                                                                                             \
+                                                                                                                                                      \
+        if (!oper.type->hasOperator(ast->op.type))                                                                                                    \
+        {                                                                                                                                             \
+            Error(Error::MsgType::ERROR, ast->operand.get(), "operand of unary expression does not support operator")                                 \
+                .underline(Error::Underline(ast->op, '^')                                                                                             \
+                    .error(concatMsg("operand of type \"", oper.type->stringify(), "\" does not support operator \"", ast->op.stringify(), "\"")))    \
+                .underline(Error::Underline(oper, '-'))                                                                                               \
+                .report();                                                                                                                            \
+                ret = Value();                                                                                                                        \
+                return;                                                                                                                               \
+        }                                                                                                                                             \
+                                                                                                                                                      \
+        ret = oper.type->unaryOp(cg.context, oper, ast->op, ast);                                                                                     \
+    }
+
+BASICBINARYOP(Addition)
+BASICBINARYOP(Binand)
+BASICBINARYOP(Binor)
+BASICBINARYOP(Bitand)
+BASICBINARYOP(Bitor)
+BASICBINARYOP(Bitshift)
+BASICBINARYOP(Bitxor)
+BASICBINARYOP(Compeq)
+BASICBINARYOP(Complgt)
+BASICBINARYOP(Mult)
+
+BASICUNARYOP(Binnot)
+BASICUNARYOP(Unary)
+
+void CodeGenNS::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
+{
+    Value func = expr(ast->callee.get());
+    if (!func.val)
     {
-        if (!llvm::isa<llvm::LoadInst>(lhs.val))
-        {
-            Error(Error::MsgType::ERROR, a->op, "Invalid assignment target")
-                .primary(Error::Primary(a->op)
-                    .error("Invalid assignment target"))
-                .secondary(a->lhs.get())
-                .report();
-            CG_RETURNNULL();
-        }
-        llvm::LoadInst *load = static_cast<llvm::LoadInst*>(lhs.val);
-
-        Value target = Value(lhs.type, load->getPointerOperand(), a->lhs.get());
-        
-        if (target.type != rhs.type)
-        {
-            Error(Error::MsgType::ERROR, a->op, "Assignment target and value do not have same type")
-                .primary(Error::Primary(rhs)
-                    .note(rhs.type->stringify()))
-                .primary(Error::Primary(target)
-                    .note(target.type->stringify()))
-                .secondary(a->op)
-                .report();
-            CG_RETURNNULL();
-        }
-        context.builder.CreateStore(rhs.val, target.val);
-        load->eraseFromParent(); // dont need the load anymore
-
-        exprRetVal = rhs;
+        ret = Value();
         return;
     }
 
-    if (!lhs.type->hasOperator(a->op.type))
+    FunctionType *fty = dynamic_cast<FunctionType*>(func.type);
+    if (!fty)
     {
-        Error(Error::MsgType::ERROR, a->op, "Left-hand side of binary expression does not support operator")
-            .primary(Error::Primary(a->op)
-                .error(static_cast<std::stringstream&>(std::stringstream() << "Type \"" << lhs.type->stringify() << "\" does not support operator \"" << a->op.stringify() << "\"").str()))
-            .secondary(lhs)
+        Error(Error::MsgType::ERROR, ast->oparn, "value not callable")
+            .underline(Error::Underline(func, '^')
+                .error(concatMsg("cannot call non-function of type \"", func.type->stringify(), "\"")))
             .report();
-        CG_RETURNNULL();
+        ret = Value();
+        return;
     }
 
-    exprRetVal = lhs.type->binOp(context, lhs, rhs, a->op, a);
-}
+    Type *retty = fty->ret;
+    std::vector<Value> args;
+    if (ast->args)
+        args = cg.argsVisitor.args(ast->args.get());
 
-void CodeGen::visitUnaryExpr(ASTNS::UnaryExpr *a)
-{
-	Value oper = evalExpr(a->operand.get());
-    if (!oper.val)
-        CG_RETURNNULL();
-
-    if (!oper.type->hasOperator(a->op.type))
+    if (args.size() != fty->paramtys.size())
     {
-        Error(Error::MsgType::ERROR, a->operand.get(), "Operand of unary expression does not support operator")
-            .primary(Error::Primary(a->op)
-                .error(static_cast<std::stringstream&>(std::stringstream() << "Type \"" << oper.type->stringify() << "\" does not support operator \"" << a->op.stringify() << "\"").str()))
-            .secondary(oper)
+        Error(Error::MsgType::ERROR, ast->oparn, "wrong number of arguments to function call")
+            .underline(Error::Underline(ast->args.get(), '^')
+                .error("wrong number of arguments to function call"))
+            .underline(Error::Underline(func, '-')
+                .note(concatMsg("function expects ", fty->paramtys.size(), " arguments, but got ", args.size(), " arguments")))
             .report();
-        CG_RETURNNULL();
+        ret = Value();
+        return;
     }
 
-    exprRetVal = oper.type->unaryOp(context, oper, a->op, a);
-}
-
-void CodeGen::visitTernaryExpr(ASTNS::TernaryExpr *a)
-{
-	Value cond = evalExpr(a->condition.get());
-    if (!cond.val) CG_RETURNNULL();
-    cond = cond.type->isTrue(context, cond);
-
-    llvm::Function *f = context.builder.GetInsertBlock()->getParent();
-    llvm::BasicBlock *trueb  = llvm::BasicBlock::Create(context.context, "trueb", f);
-    llvm::BasicBlock *falseb = llvm::BasicBlock::Create(context.context, "falseb");
-    llvm::BasicBlock *afterb = llvm::BasicBlock::Create(context.context, "afterb");
-
-    context.builder.CreateCondBr(cond.val, trueb, falseb);
-
-    context.builder.SetInsertPoint(trueb);
-    Value truev = evalExpr(a->trues.get());
-    if (!truev.val) CG_RETURNNULL();
-    context.builder.CreateBr(afterb);
-    trueb = context.builder.GetInsertBlock();
-
-    f->getBasicBlockList().push_back(falseb);
-    context.builder.SetInsertPoint(falseb);
-    Value falsev = evalExpr(a->falses.get());
-    if (!falsev.val) CG_RETURNNULL();
-    context.builder.CreateBr(afterb);
-    falseb = context.builder.GetInsertBlock();
-
-    if (truev.type != falsev.type)
+    bool argserr = false;
+    auto i = args.begin();
+    auto j = fty->paramtys.begin();
+    for (; i != args.end() && j != fty->paramtys.end(); ++i, ++j)
     {
-        Error(Error::MsgType::ERROR, a->condition.get(), "Two branches of ternary conditional expression of different types")
-            .primary(Error::Primary(truev)
-                .note(truev.type->stringify()))
-            .primary(Error::Primary(falsev)
-                .note(falsev.type->stringify()))
-            .secondary(a->condition.get())
-            .report();
-        CG_RETURNNULL();
+        if (!i->val)
+        {
+            argserr = true;
+            continue;
+        }
+
+        if (i->type != *j)
+        {
+            Error(Error::MsgType::ERROR, *i, "wrong argument to function call")
+                .underline(Error::Underline(*i, '^')
+                    .error(concatMsg("wrong argument to function call: argument is of type \"", i->type->stringify(), "\""))
+                    .note(concatMsg("passing to parameter of type \"", (*j)->stringify(), "\"")))
+                .report();
+            ret = Value();
+            return;
+        }
     }
 
-    f->getBasicBlockList().push_back(afterb);
-    context.builder.SetInsertPoint(afterb);
+    if (argserr)
+    {
+        ret = Value();
+        return;
+    }
 
-    llvm::PHINode *phi = context.builder.CreatePHI(truev.type->toLLVMType(context.context), 2);
-    phi->addIncoming(truev.val, trueb);
-    phi->addIncoming(falsev.val, falseb);
-    exprRetVal = Value(truev.type, phi, a);
+    std::vector<llvm::Value*> argsasllvm;
+    argsasllvm.reserve(args.size());
+    for (Value const &v : args)
+        argsasllvm.push_back(v.val);
+
+    llvm::FunctionType *ftyasllvm = static_cast<llvm::FunctionType*>(fty->toLLVMType(cg.context.context));
+
+    ret = Value(retty, cg.context.builder.CreateCall(ftyasllvm, func.val, argsasllvm), ast);
 }
 
-void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
+void CodeGenNS::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast)
 {
-    Value ret;
-    switch (a->value.type)
+    switch (ast->value.type)
     {
         case TokenType::TRUELIT:
-            ret = Value(context.getBuiltinType(BuiltinType::Builtins::BOOL), context.builder.getInt1(true), a);
-            break;
+            ret = Value(cg.context.getBuiltinType(BuiltinType::Builtins::BOOL), cg.context.builder.getInt1(true), ast);
+            return;
 
         case TokenType::FALSELIT:
-            ret = Value(context.getBuiltinType(BuiltinType::Builtins::BOOL), context.builder.getInt1(false), a);
-            break;
+            ret = Value(cg.context.getBuiltinType(BuiltinType::Builtins::BOOL), cg.context.builder.getInt1(false), ast);
+            return;
 
         case TokenType::FLOATLIT:
-            break;
+            Error(Error::MsgType::INTERR, ast->value, "floating point literals are not supported yet")
+                .underline(Error::Underline(ast->value, '^')
+                    .note("coming soon!"))
+                .reportAbort();
+            return;
 
         case TokenType::NULLPTRLIT:
-            Error(Error::MsgType::INTERR, a->value, "nullptr literals are not supported yet")
-                .primary(Error::Primary(a->value)
+            Error(Error::MsgType::INTERR, ast->value, "nullptr literals are not supported yet")
+                .underline(Error::Underline(ast->value, '^')
                     .error("pointers are not here yet!")
                     .note("coming soon!"))
                 .reportAbort();
 
         case TokenType::DECINTLIT:
-            ret = Value(context.getBuiltinType(BuiltinType::Builtins::UINT32), context.builder.getInt32(std::stoi(a->value.stringify())), a);
-            break;
+            ret = Value(cg.context.getBuiltinType(BuiltinType::Builtins::UINT32), cg.context.builder.getInt32(std::stoi(ast->value.stringify())), ast);
+            return;
 
         case TokenType::OCTINTLIT:
-            ret = Value(context.getBuiltinType(BuiltinType::Builtins::UINT32), context.builder.getInt32(std::stoi(a->value.stringify(), nullptr, 8)), a);
-            break;
+            ret = Value(cg.context.getBuiltinType(BuiltinType::Builtins::UINT32), cg.context.builder.getInt32(std::stoi(ast->value.stringify(), nullptr, 8)), ast);
+            return;
 
         case TokenType::BININTLIT:
-            ret = Value(context.getBuiltinType(BuiltinType::Builtins::UINT32), context.builder.getInt32(std::stoi(a->value.stringify(), nullptr, 2)), a);
-            break;
+            ret = Value(cg.context.getBuiltinType(BuiltinType::Builtins::UINT32), cg.context.builder.getInt32(std::stoi(ast->value.stringify(), nullptr, 2)), ast);
+            return;
 
         case TokenType::HEXINTLIT:
-            ret = Value(context.getBuiltinType(BuiltinType::Builtins::UINT32), context.builder.getInt32(std::stoi(a->value.stringify(), nullptr, 16)), a);
-            break;
+            ret = Value(cg.context.getBuiltinType(BuiltinType::Builtins::UINT32), cg.context.builder.getInt32(std::stoi(ast->value.stringify(), nullptr, 16)), ast);
+            return;
 
         case TokenType::CHARLIT:
-            ret = Value(context.getBuiltinType(BuiltinType::Builtins::CHAR), context.builder.getInt8(*(a->value.start + 1)), a);
-            break;
+            ret = Value(cg.context.getBuiltinType(BuiltinType::Builtins::CHAR), cg.context.builder.getInt8(*(ast->value.start + 1)), ast);
+            return;
 
         case TokenType::STRINGLIT:
-            Error(Error::MsgType::INTERR, a->value, "string literals are not supported yet")
-                .primary(Error::Primary(a->value)
+            Error(Error::MsgType::INTERR, ast->value, "string literals are not supported yet")
+                .underline(Error::Underline(ast->value, '^')
                     .error("strings")
                     .note("coming soon!")
                     .note("probably after nullptr literals though!"))
@@ -177,90 +207,135 @@ void CodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
 
         case TokenType::IDENTIFIER:
             {
-                Value v = context.findValue(a->value.stringify());
+                Value v = cg.context.findValue(ast->value.stringify());
                 if (!v.val)
                 {
-                    Error(Error::MsgType::ERROR, a->value, "Name is not defined")
-                        .primary(Error::Primary(a->value)
-                            .error("Name is not defined"))
+                    Error(Error::MsgType::ERROR, ast->value, "name is not defined")
+                        .underline(Error::Underline(ast->value, '^')
+                            .error("name is not defined"))
                         .report();
-                    CG_RETURNNULL();
+                    ret = Value();
+                    return;
                 }
                 if (llvm::isa<llvm::AllocaInst>(v.val))
                 {
-                    llvm::Value *loadInst = context.builder.CreateLoad(v.val);
-                    ret = Value(v.type, loadInst, a);
+                    llvm::Value *loadInst = cg.context.builder.CreateLoad(v.val);
+                    ret = Value(v.type, loadInst, ast);
                 }
                 else
-                    ret = Value(v.type, v.val, a);
+                    ret = Value(v.type, v.val, ast);
             }
-            break;
+            return;
 
         default:
-            invalidTok("primary token", a->value);
+            invalidTok("primary token", ast->value);
     }
-    exprRetVal = ret;
 }
 
-void CodeGen::visitCallExpr(ASTNS::CallExpr *a)
+void CodeGenNS::ExprCodeGen::visitTernaryExpr(ASTNS::TernaryExpr *ast)
 {
-    Value func = evalExpr(a->func.get());
-    if (!func.val)
-        CG_RETURNNULL();
-
-    FunctionType *fty = dynamic_cast<FunctionType*>(func.type);
-    if (!fty)
+	Value cond = expr(ast->cond.get());
+    if (!cond.val)
     {
-        Error(Error::MsgType::ERROR, func, "Value not callable")
-            .primary(Error::Primary(func)
-                .error("Cannot call non-function"))
+        ret = Value();
+        return;
+    }
+    cond = cond.type->isTrue(cg.context, cond);
+
+    llvm::Function *f = cg.context.builder.GetInsertBlock()->getParent();
+
+    llvm::BasicBlock *trueb  = llvm::BasicBlock::Create(cg.context.context, "trueb", f);
+    llvm::BasicBlock *falseb = llvm::BasicBlock::Create(cg.context.context, "falseb");
+    llvm::BasicBlock *afterb = llvm::BasicBlock::Create(cg.context.context, "afterb");
+
+    cg.context.builder.CreateCondBr(cond.val, trueb, falseb);
+
+    cg.context.builder.SetInsertPoint(trueb);
+    Value truev = expr(ast->trues.get());
+    if (!truev.val)
+    {
+        ret = Value();
+        return;
+    }
+    cg.context.builder.CreateBr(afterb);
+    trueb = cg.context.builder.GetInsertBlock();
+
+    f->getBasicBlockList().push_back(falseb);
+    cg.context.builder.SetInsertPoint(falseb);
+    Value falsev = expr(ast->falses.get());
+    if (!falsev.val)
+    {
+        ret = Value();
+        return;
+    }
+    cg.context.builder.CreateBr(afterb);
+    falseb = cg.context.builder.GetInsertBlock();
+
+    if (truev.type != falsev.type)
+    {
+        Error(Error::MsgType::ERROR, ast->colon, "Two branches of ternary conditional expression of different types")
+            .underline(Error::Underline(truev, '^')
+                .note(truev.type->stringify()))
+            .underline(Error::Underline(falsev, '^')
+                .note(falsev.type->stringify()))
+            .underline(Error::Underline(ast->colon, '-'))
+            .underline(Error::Underline(ast->quest, '-'))
             .report();
-        CG_RETURNNULL();
+        ret = Value();
+        return;
     }
 
-    Type *ret = fty->ret;
-    std::vector<Value> args;
-    std::vector<llvm::Value*> argsasllvm;
+    f->getBasicBlockList().push_back(afterb);
+    cg.context.builder.SetInsertPoint(afterb);
 
-    {
-        ASTNS::Arg *arg = a->args.get();
-        while (arg)
-        {
-            Value varg = evalExpr(arg->value.get());
-            if (!varg.val)
-                continue;
-            args.push_back(varg);
-            argsasllvm.push_back(args.back().val);
-            arg = arg->next.get();
-        }
-    }
-
-    if (args.size() != fty->paramtys.size())
-    {
-        Error(Error::MsgType::ERROR, a, "Wrong number of arguments to function call")
-            .primary(Error::Primary(a)
-                .error("Wrong number of arguments to function call"))
-            .report();
-        CG_RETURNNULL();
-    }
-
-    auto i = args.begin();
-    auto j = fty->paramtys.begin();
-    for (; i != args.end() && j != fty->paramtys.end(); ++i, ++j)
-    {
-        if (i->type != *j)
-        {
-            Error(Error::MsgType::ERROR, *i, "Wrong argument to function call")
-                .primary(Error::Primary(*i)
-                    .error("Wrong argumnet to function call")
-                    .note(static_cast<std::stringstream&>(std::stringstream() << "Argument is of type \"" << i->type->stringify() << "\", but is being passed to parameter of type \"" << (*j)->stringify() << "\"").str()))
-                .report();
-            CG_RETURNNULL();
-        }
-    }
-
-    llvm::FunctionType *ftyasllvm = static_cast<llvm::FunctionType*>(fty->toLLVMType(context.context));
-
-    exprRetVal = Value(ret, context.builder.CreateCall(ftyasllvm, func.val, argsasllvm), a);
+    llvm::PHINode *phi = cg.context.builder.CreatePHI(truev.type->toLLVMType(cg.context.context), 2);
+    phi->addIncoming(truev.val, trueb);
+    phi->addIncoming(falsev.val, falseb);
+    ret = Value(truev.type, phi, ast);
 }
 
+void CodeGenNS::ExprCodeGen::visitAssignmentExpr(ASTNS::AssignmentExpr *ast)
+{
+    Value lhs = expr(ast->target.get());
+    Value rhs = expr(ast->value.get());
+
+    if (!lhs.val|| !rhs.val)
+    {
+        ret = Value();
+        return;
+    }
+
+    if (!llvm::isa<llvm::LoadInst>(lhs.val))
+    {
+        Error(Error::MsgType::ERROR, ast->equal, "Invalid assignment target")
+            .underline(Error::Underline(ast->equal, '^')
+                .error("Invalid assignment target"))
+            .underline(Error::Underline(lhs, '~'))
+            .report();
+        ret = Value();
+        return;
+    }
+    llvm::LoadInst *load = static_cast<llvm::LoadInst*>(lhs.val);
+
+    Value target = Value(lhs.type, load->getPointerOperand(), ast->target.get());
+
+    if (target.type != rhs.type)
+    {
+        Error(Error::MsgType::ERROR, ast->equal, "Assignment target and value do not have same type")
+            .underline(Error::Underline(rhs, '^')
+                .note(rhs.type->stringify()))
+            .underline(Error::Underline(target, '^')
+                .note(target.type->stringify()))
+            .underline(Error::Underline(ast->equal, '-'))
+            .report();
+        ret = Value();
+        return;
+    }
+    cg.context.builder.CreateStore(rhs.val, target.val);
+    load->eraseFromParent(); // dont need the load anymore
+
+    ret = rhs;
+    return;
+}
+
+void CodeGenNS::ExprCodeGen::visitExpr(ASTNS::Expr *) {}

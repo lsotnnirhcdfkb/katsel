@@ -6,6 +6,7 @@
 #include "parse/ast.h"
 
 #include <vector>
+#include <sstream>
 
 // Location struct {{{1
 struct Location
@@ -17,12 +18,7 @@ struct Location
     Location(Token const &t);
     Location(std::string::iterator start, std::string::iterator end, File const *file);
     Location(Value const &v);
-
-    Location(ASTNS::Expr *a);
-    Location(ASTNS::Decl *a);
-    Location(ASTNS::Type *a);
-    Location(ASTNS::Stmt *a);
-    Location(ASTNS::AST *a);
+    Location(ASTNS::AST *ast);
 };
 // Error class {{{1
 class Error
@@ -34,7 +30,7 @@ public:
         std::string::iterator start, end;
     };
 
-    class Primary
+    class Underline
     {
     public:
         struct Message
@@ -45,18 +41,19 @@ public:
         };
         Location location;
         std::vector<Message> messages;
+        char ch;
 
-        Primary& error(std::string const &message);
-        Primary& warning(std::string const &message);
-        Primary& note(std::string const &message);
-        Primary& help(std::string const &message);
-        Primary& hint(std::string const &message);
-        Primary& message(std::string const &type, std::string const &message);
+        Underline& error(std::string const &message);
+        Underline& warning(std::string const &message);
+        Underline& note(std::string const &message);
+        Underline& help(std::string const &message);
+        Underline& hint(std::string const &message);
+        Underline& message(std::string const &type, std::string const &message);
 
-        Primary(Location const &location);
+        Underline(Location const &location, char ch);
 
     private:
-        Primary& addmsg(std::string const &type, char const * const color, std::string const &mesage);
+        Underline& addmsg(std::string const &type, char const * const color, std::string const &mesage);
     };
 
     enum class MsgType
@@ -68,22 +65,18 @@ public:
 
     Error(MsgType type, Location const &location, std::string message);
 
-    Error& primary(Primary const &primary);
-    Error& secondary(Location const &location);
+    Error& underline(Underline const &underline);
     Error& span(Location const &start, Location const &end);
 
     void report() const;
     void reportAbort [[ noreturn ]] ();
-
-    static Error makeBasicErr(Location const &l, std::string message);
 
 private:
     MsgType type;
     Location location;
     std::string message;
 
-    std::vector<Primary> primaries;
-    std::vector<Location> secondaries;
+    std::vector<Underline> underlines;
     std::vector<Span> spans;
 };
 
@@ -94,3 +87,20 @@ void calledWithOpTyNEthis [[ noreturn ]] (std::string const &classN, std::string
 void outOSwitchDDefaultLab [[ noreturn ]] (std::string const &fnn, Location const &highlight);
 void fCalled [[ noreturn ]] (std::string const &fnn);
 void outOSwitchNoh [[ noreturn ]] (std::string const &fnn);
+
+inline void _concatMsg(std::stringstream &) {}
+
+template <typename F, typename ... T>
+inline void _concatMsg(std::stringstream &ss, F first, T ... others)
+{
+    ss << first;
+    _concatMsg(ss, others...);
+}
+
+template <typename ... T>
+inline std::string concatMsg(T ... items)
+{
+    std::stringstream ss;
+    _concatMsg(ss, items...);
+    return ss.str();
+}

@@ -6,7 +6,6 @@
 
 #include <sstream>
 #include <iostream>
-#include <cstdlib>
 
 FunctionType::FunctionType(Type *ret, std::vector<Type*> paramtys): ret(ret), paramtys(paramtys) {}
 
@@ -35,26 +34,26 @@ bool FunctionType::hasOperator(TokenType)
     return false; // function has no operators
 }
 
-Value FunctionType::binOp(CodeGenContext &, Value, Value, Token, ASTNS::AST *)
+Value FunctionType::binOp(CodeGenNS::Context &, Value, Value, Token, ASTNS::AST *)
 {
     fCalled("FunctionType::binOp");
 }
 
-Value FunctionType::unaryOp(CodeGenContext &, Value, Token, ASTNS::AST *)
+Value FunctionType::unaryOp(CodeGenNS::Context &, Value, Token, ASTNS::AST *)
 {
     fCalled("FunctionType::unaryop");
 }
 
-Value FunctionType::castTo(CodeGenContext &, Value v)
+Value FunctionType::castTo(CodeGenNS::Context &, Value v)
 {
     Error(Error::MsgType::ERROR, v, "Invalid cast")
-        .primary(Error::Primary(v)
-            .error(static_cast<std::stringstream&>(std::stringstream() << "Invalid cast form type \"" << v.type->stringify() << "\" to \"" << this->stringify() << "\"").str()))
+        .underline(Error::Underline(v, '^')
+            .error(concatMsg("Invalid cast form type \"", v.type->stringify(), "\" to \"", this->stringify(), "\"")))
         .report();
     return Value();
 }
 
-Value FunctionType::isTrue(CodeGenContext &, Value)
+Value FunctionType::isTrue(CodeGenNS::Context &, Value)
 {
     fCalled("FunctionType::isTrue");
 }

@@ -92,6 +92,16 @@ class TrieNode:
         if len(self.nodes) == 0:
             return ''.join(output)
 
+        if self.canusestrcmp():
+            reststr = []
+            cur = self
+            while len(cur.nodes):
+                cur = cur.nodes[0]
+                reststr.append(cur.value)
+
+            output.append(f'{indentStr}if (std::distance(start, end) == {self.length + len(reststr)} && std::string(start + {self.length}, end) == "{"".join(reststr)}") return TokenType::{cur.tokentype};\n')
+            return ''.join(output)
+
         output.append(f'{indentStr}switch (*(start + {self.length}))\n{indentStr}{{\n')
         for node in self.nodes:
             output.append(f'{bodyIndentStr}case \'{node.value}\':\n')
@@ -104,6 +114,15 @@ class TrieNode:
     ## Get the string to pad with for a certain indent level
     def __getIndent(self, indent, tab=False):
         return ('\t' if tab else '    ') * indent
+
+    def canusestrcmp(self):
+        if len(self.nodes) == 0:
+            return True
+        elif len(self.nodes) == 1:
+            return self.nodes[0].canusestrcmp()
+
+        return False
+
 # }}}
 
 # {{{ keywords

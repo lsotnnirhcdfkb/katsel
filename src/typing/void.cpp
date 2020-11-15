@@ -20,23 +20,23 @@ bool VoidType::hasOperator(TokenType)
     return false;
 }
 
-Value VoidType::binOp(CodeGenContext &, Value, Value, Token, ASTNS::AST *)
+Value VoidType::binOp(CodeGenNS::Context &, Value, Value, Token, ASTNS::AST *)
 {
     fCalled("VoidType::binOp");
 }
-Value VoidType::unaryOp(CodeGenContext &, Value, Token, ASTNS::AST *)
+Value VoidType::unaryOp(CodeGenNS::Context &, Value, Token, ASTNS::AST *)
 {
     fCalled("VoidType::unaryOp");
 }
-Value VoidType::castTo(CodeGenContext &, Value v)
+Value VoidType::castTo(CodeGenNS::Context &, Value v)
 {
     Error(Error::MsgType::ERROR, v, "Invalid cast")
-        .primary(Error::Primary(v)
-            .error(static_cast<std::stringstream&>(std::stringstream() << "Invalid cast form type \"" << v.type->stringify() << "\" to \"" << this->stringify() << "\"").str()))
+        .underline(Error::Underline(v, '^')
+            .error(concatMsg("Invalid cast form type \"", v.type->stringify(), "\" to \"", this->stringify(), "\"")))
         .report();
     return Value();
 }
-Value VoidType::isTrue(CodeGenContext &, Value)
+Value VoidType::isTrue(CodeGenNS::Context &, Value)
 {
     fCalled("VoidType::isTrue");
 }

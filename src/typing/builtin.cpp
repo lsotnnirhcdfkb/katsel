@@ -5,7 +5,7 @@
 
 #include "llvm/IR/Type.h"
 
-#include "codegen/context.h"
+#include "codegen/codegen.h"
 
 // Constructor {{{1
 BuiltinType::BuiltinType(BuiltinType::Builtins b): type(b) {}
@@ -68,7 +68,7 @@ bool BuiltinType::hasOperator(TokenType)
     return true; // builtin has all operators
 }
 // binOp {{{1
-Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS::AST *ast)
+Value BuiltinType::binOp(CodeGenNS::Context &cgc, Value l, Value r, Token op, ASTNS::AST *ast)
 {
     if (l.type != this)
         calledWithOpTyNEthis("BuiltinType", "binOp", "left operand", l);
@@ -76,11 +76,11 @@ Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS:
     if (l.type != r.type)
     {
         Error(Error::MsgType::ERROR, op, "Cannot operate on values of different types")
-            .primary(Error::Primary(l)
+            .underline(Error::Underline(l, '^')
                 .note(l.type->stringify()))
-            .primary(Error::Primary(r)
+            .underline(Error::Underline(r, '^')
                 .note(r.type->stringify()))
-            .secondary(op)
+            .underline(Error::Underline(op, '-'))
             .report();
         return Value();
     }
@@ -166,14 +166,14 @@ Value BuiltinType::binOp(CodeGenContext &cgc, Value l, Value r, Token op, ASTNS:
     outOSwitchDDefaultLab("BuiltinType::binOp", op);
 }
 // castTo {{{1
-Value BuiltinType::castTo(CodeGenContext &cgc, Value v)
+Value BuiltinType::castTo(CodeGenNS::Context &cgc, Value v)
 {
     BuiltinType *sty = dynamic_cast<BuiltinType*> (v.type);
     if (!sty)
     {
         Error(Error::MsgType::ERROR, v, "Invalid cast")
-            .primary(Error::Primary(v)
-                .error(static_cast<std::stringstream&>(std::stringstream() << "Invalid cast form type \"" << v.type->stringify() << "\" to \"" << this->stringify() << "\"").str()))
+            .underline(Error::Underline(v, '^')
+                .error(concatMsg("Invalid cast from type \"", v.type->stringify(), "\" to \"", this->stringify(), "\"")))
             .report();
         return Value();
     }
@@ -275,7 +275,7 @@ Value BuiltinType::castTo(CodeGenContext &cgc, Value v)
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
 }
 // unaryOp {{{1
-Value BuiltinType::unaryOp(CodeGenContext &cgc, Value v, Token op, ASTNS::AST *ast)
+Value BuiltinType::unaryOp(CodeGenNS::Context &cgc, Value v, Token op, ASTNS::AST *ast)
 {
     if (v.type != this)
         calledWithOpTyNEthis("BuiltinType", "unaryOp", "operand", v);
@@ -301,7 +301,7 @@ Value BuiltinType::unaryOp(CodeGenContext &cgc, Value v, Token op, ASTNS::AST *a
     outOSwitchDDefaultLab("BuiltinType::unaryOp", op);
 }
 // isTrue {{{1
-Value BuiltinType::isTrue(CodeGenContext &cgc, Value v)
+Value BuiltinType::isTrue(CodeGenNS::Context &cgc, Value v)
 {
     if (v.type != this)
         calledWithOpTyNEthis("BuiltinType", "isTrue", "value", v);

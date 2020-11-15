@@ -1,107 +1,72 @@
 #include "codegen/codegen.h"
 #include "message/errors.h"
 
-void CodeGen::visitBlockStmt(ASTNS::BlockStmt *a)
+CodeGenNS::StmtCodeGen::StmtCodeGen(CodeGen &cg): cg(cg) {}
+
+void CodeGenNS::StmtCodeGen::stmt(ASTNS::StmtB *ast)
 {
-    context.incScope();
-    for (std::unique_ptr<ASTNS::Stmt> &s : a->stmts)
-        s->accept(this);
-    context.decScope();
+    ast->accept(this);
 }
-void CodeGen::visitExprStmt(ASTNS::ExprStmt *a)
+
+void CodeGenNS::StmtCodeGen::visitBlock(ASTNS::Block *ast)
 {
-    a->expr->accept(this);
+    cg.context.incScope();
+    ast->stmts->accept(this);
+    cg.context.decScope();
 }
-void CodeGen::visitReturnStmt(ASTNS::ReturnStmt *a)
+void CodeGenNS::StmtCodeGen::visitExprStmt(ASTNS::ExprStmt *ast)
 {
-    if (a->val)
+    cg.exprCodeGen.expr(ast->expr.get());
+}
+void CodeGenNS::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
+{
+    if (ast->expr)
     {
-        Value v = evalExpr(a->val.get());
+        Value v = cg.exprCodeGen.expr(ast->expr.get());
         if (!v.val)
-            CG_RETURNNULL();
+            return;
 
-        FunctionType *fty = dynamic_cast<FunctionType*>(context.curFunc.type);
-
+        FunctionType *fty = dynamic_cast<FunctionType*>(cg.context.curFunc.type);
         if (fty->ret != v.type)
         {
             Error(Error::MsgType::ERROR, v, "Cannot return value of different type than expected return value")
-                .primary(Error::Primary(v)
-                    .note(v.type->stringify()))
-                .primary(Error::Primary(context.curFunc)
-                    .note(fty->ret->stringify()))
+                .underline(Error::Underline(v, '^')
+                    .error(concatMsg("returning ", v.type->stringify(), " here")))
+                .underline(Error::Underline(static_cast<ASTNS::Function*>(cg.context.curFunc.ast)->retty.get(), '-')
+                    .note(concatMsg("function returns ", fty->ret->stringify())))
                 .report();
-            CG_RETURNNULL();
+            return;
         }
 
-        context.builder.CreateRet(v.val);
+        cg.context.builder.CreateRet(v.val);
     }
     else
-        context.builder.CreateRetVoid();
+        cg.context.builder.CreateRetVoid();
 }
-
-void CodeGen::visitVarStmt(ASTNS::VarStmt *a)
+void CodeGenNS::StmtCodeGen::visitVarStmt(ASTNS::VarStmt *ast)
 {
-    Type *ty = evalType(a->type.get());
+    Type *ty = cg.typeResolver.type(ast->type.get());
+
     if (dynamic_cast<VoidType*>(ty))
     {
-        Error(Error::MsgType::ERROR, a->type.get(), "Invalid variable type \"void\"")
-            .primary(Error::Primary(a->type.get())
+        Error(Error::MsgType::ERROR, ast->type.get(), "invalid variable type \"void\"")
+            .underline(Error::Underline(ast->type.get(), '^')
                 .error("Variable cannot be of type void"))
             .report();
-        
-        CG_RETURNNULL();
+
+        return;
     }
 
-    for (std::unique_ptr<ASTNS::Expr> const &a : a->assignments)
-    {
-        ASTNS::BinaryExpr *asb;
-        ASTNS::PrimaryExpr *asp;
-        Token nametok;
-        if ((asb = dynamic_cast<ASTNS::BinaryExpr*>(a.get())))
-        {
-            if (asb->op.type != TokenType::EQUAL)
-                Error(Error::MsgType::INTERR, asb, "Assignment expression does not have operator =")
-                    .primary(Error::Primary(asb->op)
-                        .error("not ="))
-                    .secondary(asb)
-                    .reportAbort();
-
-            ASTNS::PrimaryExpr *primary (dynamic_cast<ASTNS::PrimaryExpr*>(asb->lhs.get()));
-            if (!primary)
-                Error(Error::MsgType::INTERR, asb->lhs.get(), "lhs of assignment is not of type PrimaryExpr")
-                    .primary(Error::Primary(asb->lhs.get())
-                        .error("not primary"))
-                    .secondary(asb)
-                    .reportAbort();
-
-            nametok = primary->value;
-        }
-        else if ((asp = dynamic_cast<ASTNS::PrimaryExpr*>(a.get())))
-            nametok = asp->value;
-        else
-            Error(Error::MsgType::INTERR, a.get(), "expr is not of type BinaryExpr or PrimaryExpr")
-                .primary(Error::Primary(a.get())
-                    .error("not binary or primary"))
-                .reportAbort();
-
-        std::string varname = nametok.stringify();
-        Local *var = context.findLocal(varname);
-        if (var && var->scopenum == context.curScope)
-        {
-            Error(Error::MsgType::ERROR, nametok, "Duplicate variable")
-                .primary(Error::Primary(nametok)
-                    .error("Duplicate variable"))
-                .primary(Error::Primary(var->v.ast)
-                    .note("previous declaration is here"))
-                .report();
-            continue;
-        }
-
-        llvm::Function *f = context.builder.GetInsertBlock()->getParent();
-        llvm::AllocaInst *alloca = context.createEntryAlloca(f, ty->toLLVMType(context.context), varname);
-        context.addLocal(varname, ty, alloca, a.get());
-
-        if (asb)
-            asb->accept(this);
-    }
+    varty = ty;
+    ast->assignments->accept(this);
+    varty = nullptr;
 }
+
+void CodeGenNS::StmtCodeGen::visitStmt(ASTNS::Stmt *) {}
+void CodeGenNS::StmtCodeGen::visitEmptyStmt(ASTNS::EmptyStmt *) {}
+void CodeGenNS::StmtCodeGen::visitStmts(ASTNS::Stmts *ast)
+{
+    ast->stmts->accept(this);
+    ast->stmt->accept(this);
+}
+
