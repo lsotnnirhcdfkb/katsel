@@ -1,5 +1,6 @@
 #include "codegen/codegen.h"
 
+#include <iostream>
 #include "llvm/Support/raw_ostream.h"
 
 CodeGenNS::CodeGen::CodeGen(std::string const &name) : context(name), declarator(*this), typeResolver(*this), paramVisitor(*this), argsVisitor(*this), declCodeGen(*this), stmtCodeGen(*this), exprCodeGen(*this) {}
@@ -52,10 +53,19 @@ std::vector<Value> CodeGenNS::ArgsVisitor::args(ASTNS::ArgsB *ast)
 
 void CodeGenNS::ArgsVisitor::visitArgs(ASTNS::Args *ast)
 {
+    std::vector<Value> cret; // cannot do like params becasue args can be nested (through nested function calls) and that messes things up
     if (ast->args)
-        ast->args->accept(this);
+    {
+        std::vector<Value> r (args(ast->args.get()));
+        while (r.size())
+        {
+            cret.push_back(r.front());
+            r.erase(r.begin());
+        }
+    }
 
 
     Value v = cg.exprCodeGen.expr(ast->expr.get());
-    ret.push_back(v);
+    cret.push_back(v);
+    ret = cret;
 }

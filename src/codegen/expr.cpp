@@ -26,7 +26,7 @@ Value CodeGenNS::ExprCodeGen::expr(ASTNS::ExprB *ast)
         {                                                                                                                              \
             Error(Error::MsgType::ERROR, ast->op, "left-hand side of binary expression does not support operator")                     \
                 .underline(Error::Underline(ast->op, '^')                                                                              \
-                    .error(concatMsg("type "", lhs.type->stringify(), "" does not support operator "", ast->op.stringify(), """)))     \
+                    .error(concatMsg("type \"", lhs.type->stringify(), "\" does not support operator \"", ast->op.stringify(), "\""))) \
                 .underline(Error::Underline(lhs, '~'))                                                                                 \
                 .underline(Error::Underline(rhs, '-'))                                                                                 \
                 .report();                                                                                                             \
@@ -105,15 +105,24 @@ void CodeGenNS::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
         Error(Error::MsgType::ERROR, ast->oparn, "wrong number of arguments to function call")
             .underline(Error::Underline(ast->args.get(), '^')
                 .error("wrong number of arguments to function call"))
+            .underline(Error::Underline(func, '-')
+                .note(concatMsg("function expects ", fty->paramtys.size(), " arguments, but got ", args.size(), " arguments")))
             .report();
         ret = Value();
         return;
     }
 
+    bool argserr = false;
     auto i = args.begin();
     auto j = fty->paramtys.begin();
     for (; i != args.end() && j != fty->paramtys.end(); ++i, ++j)
     {
+        if (!i->val)
+        {
+            argserr = true;
+            continue;
+        }
+
         if (i->type != *j)
         {
             Error(Error::MsgType::ERROR, *i, "wrong argument to function call")
@@ -124,6 +133,12 @@ void CodeGenNS::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
             ret = Value();
             return;
         }
+    }
+
+    if (argserr)
+    {
+        ret = Value();
+        return;
     }
 
     std::vector<llvm::Value*> argsasllvm;
