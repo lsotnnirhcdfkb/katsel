@@ -513,59 +513,28 @@ def formatList(l):
 def genLoop():
     output = []
 
-    output.append(                    ('#define SHIFT(newstate) \\\n'
-                                       '    lasttok = lookahead;\\\n'
-                                       '    stack.emplace_back(newstate, lasttok);\\\n'
-                                       '    lookahead = p.consume();\\\n'
-                                       '    ++steps;\n'
-                                       '#define REDUCET(n) \\\n'
-                                       '    stackitem si ## n = std::move(stack.back()); stack.pop_back();\\\n'
-                                       '    Token a ## n (si ## n.tok);\n' # TODO: add parser method to say internal error: invalid pop expected tokstackitem/aststackitem but got ...
-                                       '#define REDUCEA(n, base) \\\n'
-                                       '    stackitem si ## n = std::move(stack.back()); stack.pop_back();\\\n'
-                                       '    std::unique_ptr<ASTNS::base> a ## n (std::unique_ptr<ASTNS::base>(static_cast<ASTNS::base*>(si ## n .ast.release())));\n' # same TODO as above
-                                       '#define SHIFTON(ty, n) \\\n'
-                                       '    case ty: \\\n'
-                                       '        {SHIFT(n)} break;\n'
-                                       '#define DEFAULTINVALID2(justparsed, expected) \\\n'
-                                       '    default: \\\n'
-                                       '        {\\\n'
-                                       '            if (istrial) return false;\\\n'
-                                       '            Error e = p.invalidSyntax(justparsed, expected, lookahead, lasttok);\\\n'
-                                       '            if (!errorRecovery(p, stack, lookahead, e))\\\n'
-                                       '                done = true;\\\n'
-                                       '            e.report();\\\n'
-                                       '            errored = true;\\\n'
-                                       '        }\\\n'
-                                       '        break;\n'
-                                       '#define DEFAULTINVALID3(justparsed, expected, whileparsing) \\\n'
-                                       '    default: \\\n'
-                                       '        {\\\n'
-                                       '            if (istrial) return false;\\\n'
-                                       '            Error e = p.invalidSyntaxWhile(justparsed, expected, whileparsing, lookahead, lasttok);\\\n'
-                                       '            if (!errorRecovery(p, stack, lookahead, e))\\\n'
-                                       '                done = true;\\\n'
-                                       '            e.report();\\\n'
-                                       '            errored = true;\\\n'
-                                       '        }\\\n'
-                                       '        break;\n'
-                                       '#define DEFAULTINVALIDNOEXPECT(justparsed, whileparsing) \\\n'
-                                       '    default: \\\n'
-                                       '        {\\\n'
-                                       '            if (istrial) return false;\\\n'
-                                       '            Error e = p.invalidSyntaxNoExpect(justparsed, whileparsing, lookahead, lasttok);\\\n'
-                                       '            if (!errorRecovery(p, stack, lookahead, e))\\\n'
-                                       '                done = true;\\\n'
-                                       '            e.report();\\\n'
-                                       '            errored = true;\\\n'
-                                       '        }\\\n'
-                                       '        break;\n'
-                                       '#define REDUCESKIP(cl) \\\n'
+    output.append(                    ('#define ERRORSTART() \\\n'
                                        '    {\\\n'
-                                       '        stackitem popped (std::move(stack.back())); stack.pop_back();\\\n'
-                                       '        size_t newstate = getGoto<ASTNS::cl>(stack.back().state);\\\n'
-                                       '        stack.emplace_back(newstate, std::move(popped.ast));\\\n'
-                                       '    }\n'))
+                                       '        if (istrial) return false;\n'
+                                       '#define ERROREND() \\\n'
+                                       '        if (!errorRecovery(p, stack, lookahead, e))\\\n'
+                                       '            done = true;\\\n'
+                                       '        e.report();\\\n'
+                                       '        errored = true;\\\n'
+                                       '    }\\\n'
+                                       '    break;\n'
+                                       '#define DEFAULTINVALID2(justparsed, expected) \\\n'
+                                       '    ERRORSTART()\\\n'
+                                       '        Error e = p.invalidSyntax(justparsed, expected, lookahead, lasttok);\\\n'
+                                       '    ERROREND()\n'
+                                       '#define DEFAULTINVALID3(justparsed, expected, whileparsing) \\\n'
+                                       '    ERRORSTART()\\\n'
+                                       '            Error e = p.invalidSyntaxWhile(justparsed, expected, whileparsing, lookahead, lasttok);\\\n'
+                                       '    ERROREND()\n'
+                                       '#define DEFAULTINVALIDNOEXPECT(justparsed, whileparsing) \\\n'
+                                       '    ERRORSTART()\\\n'
+                                       '            Error e = p.invalidSyntaxNoExpect(justparsed, whileparsing, lookahead, lasttok);\\\n'
+                                       '    ERROREND()\n'))
 
     output.append(                     '    bool done = false;\n')
     output.append(                     '    bool errored = false;\n')
@@ -601,7 +570,8 @@ def genLoop():
         for ac, nts in stateactions:
             if type(ac) == ShiftAction:
                 for term in nts:
-                    output.append(    f'                    SHIFTON({term.astt()}, {ac.newstate})\n')
+                    output.append(    f'                    case {term.astt()}:\n')
+                output.append(        f'                        shift(p, lasttok, lookahead, stack, steps, {ac.newstate}); break;\n')
                 continue
 
             for term in nts:
@@ -613,16 +583,16 @@ def genLoop():
 
                     for i, sym in reversed(list(enumerate(ac.rule.expansion))):
                         if type(sym) == Terminal:
-                            output.append(f'                            REDUCET({i})\n')
+                            output.append(f'                            auto a{i} (popT(stack));\n')
                         elif type(sym) == NonTerminal:
-                            output.append(f'                            REDUCEA({i}, {_grammar[str(sym)]["base"]})\n')
+                            output.append(f'                            auto a{i} (popA<ASTNS::{str(sym)}>(stack));\n')
 
                     output.append(        f'                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::{str(ac.rule.symbol)}>({", ".join([f"std::move(a{i})" for i in range(len(ac.rule.expansion))])});\n')
                     output.append(        f'                            size_t newstate = getGoto<ASTNS::{str(ac.rule.symbol)}>(stack.back().state);\n')
                     output.append(        f'                            stack.emplace_back(newstate, std::move(push));\n')
                     output.append(         '                        }\n')
                 else:
-                    output.append(        f'                        REDUCESKIP({str(ac.rule.symbol)});\n')
+                    output.append(        f'                        reduceSkip<ASTNS::{str(ac.rule.symbol)}>(stack);\n')
 
 
             elif type(ac) == AcceptAction:
@@ -632,13 +602,14 @@ def genLoop():
 
             output.append(             '                        break;\n')
 
+        output.append(                f'                    default:\n')
         if state.whileparsing is not None:
             if len(state.expected):
-                output.append(        f'                    DEFAULTINVALID3({state.justparsed}, {formatList(state.expected)}, {state.whileparsing})\n')
+                output.append(        f'                        DEFAULTINVALID3({state.justparsed}, {formatList(state.expected)}, {state.whileparsing})\n')
             else:
-                output.append(        f'                    DEFAULTINVALIDNOEXPECT({state.justparsed}, {state.whileparsing})\n')
+                output.append(        f'                        DEFAULTINVALIDNOEXPECT({state.justparsed}, {state.whileparsing})\n')
         else:
-            output.append(            f'                    DEFAULTINVALID2({state.justparsed}, {formatList(state.expected)})\n')
+            output.append(            f'                        DEFAULTINVALID2({state.justparsed}, {formatList(state.expected)})\n')
         output.append(                 '                }\n')
         output.append(                 '                break;\n')
 
@@ -650,11 +621,11 @@ def genLoop():
 
     output.append(                     '        }\n')
     output.append(                     '    }\n')
-    output.append(                    ('#undef SHIFT\n'
-                                       '#undef REDUCET\n'
-                                       '#undef REDUCEA\n'
-                                       '#undef REDUCESKIP\n'
-                                       '#undef SHIFTON\n'
+    output.append(                    (
+                                      
+                                     
+                                    
+                                   
                                        '#undef DEFAULTINVALID2\n'
                                        '#undef DEFAULTINVALID3\n'))
 

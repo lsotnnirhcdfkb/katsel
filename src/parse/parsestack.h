@@ -6,11 +6,12 @@
 
 struct stackitem
 {
-    stackitem(size_t state): state(state) {}
-    stackitem(size_t state, Token const &t): state(state), istok(true), tok(t) {}
-    stackitem(size_t state, std::unique_ptr<ASTNS::AST> ast): state(state), istok(false), ast(std::move(ast)) {}
+    stackitem(size_t state): state(state), istok(false), isinitial(true) {}
+    stackitem(size_t state, Token const &t): state(state), istok(true), isinitial(false), tok(t) {}
+    stackitem(size_t state, std::unique_ptr<ASTNS::AST> ast): state(state), istok(false), isinitial(false), ast(std::move(ast)) {}
     int state;
     bool istok;
+    bool isinitial;
     Token tok;
     std::unique_ptr<ASTNS::AST> ast;
 };
