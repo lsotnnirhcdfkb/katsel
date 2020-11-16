@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.17.3)
 
-project(COxian
-    DESCRIPTION "The C++ LLVM-Based Compiler Implementation of the Oxian Language"    
+project(Katsel
+    DESCRIPTION "The Katsel compiler"
     LANGUAGES CXX
     VERSION 0.0.0)
     

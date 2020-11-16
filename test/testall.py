@@ -42,7 +42,7 @@ def failTest(log, logname, fname):
 if len(sys.argv) == 2:
     EXECLOC = os.path.abspath(sys.argv[1])
 else:
-    print(f'Usage: {sys.argv[0]} <coxianc path>')
+    print(f'Usage: {sys.argv[0]} <katselc path>')
     sys.exit(1)
 
 orig = os.getcwd()
@@ -50,7 +50,7 @@ dirname = os.path.abspath(os.path.dirname(__file__))
 
 os.chdir(dirname)
 
-files = glob.glob('./**/*.oxian', recursive=True)
+files = glob.glob('./**/*.ksl', recursive=True)
 nfiles = len(files)
 
 anyFailed = False
@@ -88,7 +88,7 @@ for i, testfile in enumerate(files):
         failTest(log, faillog, testfile)
         continue
 
-    command = shlex.split(opts['command'].replace('<coxianc>', EXECLOC).replace('<file>', testfile))
+    command = shlex.split(opts['command'].replace('<katselc>', EXECLOC).replace('<file>', testfile))
     expectretc = opts['returncode']
 
     proc = subprocess.run(command, capture_output=True)

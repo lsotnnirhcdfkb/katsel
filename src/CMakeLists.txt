@@ -1,4 +1,4 @@
-add_executable(coxianc main.cpp)
+add_executable(katselc main.cpp)
 add_subdirectory(parse)
 add_subdirectory(message)
 add_subdirectory(lex)
@@ -8,7 +8,7 @@ add_subdirectory(typing)
 
 # Also (mostly) copied and pasted and shifted around a bit from LLVM Docs - Building LLVM with CMake - Embedding LLVM in your project
 # https://releases.llvm.org/3.6.0/docs/CMake.html#embedding-llvm-in-your-project
-target_include_directories(coxianc PRIVATE "../include" ${LLVM_INCLUDE_DIRS})
+target_include_directories(katselc PRIVATE "../include" ${LLVM_INCLUDE_DIRS})
 # end copy and paste
 
 # this is mostly from https://stackoverflow.com/questions/62926242/how-to-link-all-llvm-libraries-in-cmake
@@ -23,9 +23,9 @@ if (NOT ${llvm_config_result} EQUAL 0)
 endif()
 
 message(STATUS "Found libraries from llvm-config: ${llvm_libs}")
-target_link_libraries(coxianc ${llvm_libs})
+target_link_libraries(katselc ${llvm_libs})
 
-set_target_properties(coxianc PROPERTIES
+set_target_properties(katselc PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
-target_compile_options(coxianc PRIVATE -Wall -Wextra -pedantic -pg -static)
+target_compile_options(katselc PRIVATE -Wall -Wextra -pedantic -pg -static)

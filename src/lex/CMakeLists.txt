@@ -1,1 +1,1 @@
-target_sources(coxianc PUBLIC lexer.cpp)
+target_sources(katselc PUBLIC lexer.cpp)

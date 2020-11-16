@@ -1,1 +1,1 @@
-target_sources(coxianc PUBLIC printvisitor.cpp dotvisitor.cpp)
+target_sources(katselc PUBLIC printvisitor.cpp dotvisitor.cpp)
