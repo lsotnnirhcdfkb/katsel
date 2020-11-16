@@ -5,12 +5,12 @@
 
 CodeGenNS::CodeGen::CodeGen(std::string const &name) : context(name), declarator(*this), typeResolver(*this), paramVisitor(*this), argsVisitor(*this), declCodeGen(*this), stmtCodeGen(*this), exprCodeGen(*this) {}
 
-void CodeGenNS::CodeGen::declarate(ASTNS::Decls *decls)
+void CodeGenNS::CodeGen::declarate(ASTNS::DeclB *decls)
 {
     decls->accept(&declarator);
 }
 
-void CodeGenNS::CodeGen::codegen(ASTNS::Decls *decls)
+void CodeGenNS::CodeGen::codegen(ASTNS::DeclB *decls)
 {
     decls->accept(&declCodeGen);
 }

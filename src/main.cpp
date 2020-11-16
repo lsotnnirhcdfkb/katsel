@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
         }
 
         auto parser = std::make_unique<Parser>(*lexer, *source);
-        std::unique_ptr<ASTNS::Decls> parsed = parser->parse();
+        std::unique_ptr<ASTNS::DeclB> parsed = parser->parse();
 
         if (!parsed)
             continue;

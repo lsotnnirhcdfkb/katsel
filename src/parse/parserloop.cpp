@@ -692,7 +692,7 @@ template <> size_t getGoto<ASTNS::PrimaryExpr>(size_t state)
 // GETGOTO END
 // }}}
 
-bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_ptr<ASTNS::Decls> &out, Token const &_lookahead)
+bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_ptr<ASTNS::DeclB> &out, Token const &_lookahead)
 {
     // parser loop {{{
     // PARSERLOOP START
@@ -720,6 +720,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             if (!errorRecovery(p, stack, lookahead, e))\
                 done = true;\
             e.report();\
+            errored = true;\
         }\
         break;
 #define DEFAULTINVALID3(justparsed, expected, whileparsing) \
@@ -730,6 +731,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             if (!errorRecovery(p, stack, lookahead, e))\
                 done = true;\
             e.report();\
+            errored = true;\
         }\
         break;
 #define DEFAULTINVALIDNOEXPECT(justparsed, whileparsing) \
@@ -740,6 +742,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             if (!errorRecovery(p, stack, lookahead, e))\
                 done = true;\
             e.report();\
+            errored = true;\
         }\
         break;
 #define REDUCESKIP(cl) \
@@ -749,6 +752,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
         stack.emplace_back(newstate, std::move(popped.ast));\
     }
     bool done = false;
+    bool errored = false;
     int steps = 0;
     Token lookahead (_lookahead); // for when you need to inject a new token
     Token lasttok = lookahead;
@@ -4066,22 +4070,19 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
     if (istrial)
         return true;
 
+    if (errored)
+        return false;
+
     stackitem topsi (std::move(stack.back()));
     if (topsi.istok)
-    {
-        out = nullptr;
-        return false;
-    }
+        reportAbortNoh("topsi is tok when parser not errored");
 
     std::unique_ptr<ASTNS::AST> astu (std::move(topsi.ast));
-    ASTNS::Decls *decls = dynamic_cast<ASTNS::Decls*>(astu.get());
+    ASTNS::DeclB *decls = dynamic_cast<ASTNS::DeclB*>(astu.get());
     if (!decls)
-    {
-        out = nullptr;
-        return false;
-    }
+        reportAbortNoh("decls is not a DeclB despite parser not errored");
 
     astu.release();
-    out = std::unique_ptr<ASTNS::Decls> (decls);
+    out = std::unique_ptr<ASTNS::DeclB> (decls);
     return true;
 }

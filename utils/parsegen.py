@@ -535,6 +535,7 @@ def genLoop():
                                        '            if (!errorRecovery(p, stack, lookahead, e))\\\n'
                                        '                done = true;\\\n'
                                        '            e.report();\\\n'
+                                       '            errored = true;\\\n'
                                        '        }\\\n'
                                        '        break;\n'
                                        '#define DEFAULTINVALID3(justparsed, expected, whileparsing) \\\n'
@@ -545,6 +546,7 @@ def genLoop():
                                        '            if (!errorRecovery(p, stack, lookahead, e))\\\n'
                                        '                done = true;\\\n'
                                        '            e.report();\\\n'
+                                       '            errored = true;\\\n'
                                        '        }\\\n'
                                        '        break;\n'
                                        '#define DEFAULTINVALIDNOEXPECT(justparsed, whileparsing) \\\n'
@@ -555,6 +557,7 @@ def genLoop():
                                        '            if (!errorRecovery(p, stack, lookahead, e))\\\n'
                                        '                done = true;\\\n'
                                        '            e.report();\\\n'
+                                       '            errored = true;\\\n'
                                        '        }\\\n'
                                        '        break;\n'
                                        '#define REDUCESKIP(cl) \\\n'
@@ -565,6 +568,7 @@ def genLoop():
                                        '    }\n'))
 
     output.append(                     '    bool done = false;\n')
+    output.append(                     '    bool errored = false;\n')
     output.append(                     '    int steps = 0;\n')
     output.append(                     '    Token lookahead (_lookahead); // for when you need to inject a new token\n')
     output.append(                     '    Token lasttok = lookahead;\n')

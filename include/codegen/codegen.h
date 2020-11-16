@@ -221,8 +221,8 @@ void visitUnaryExpr(ASTNS::UnaryExpr *ast) override;
     public:
         CodeGen(std::string const &name);
 
-        void declarate(ASTNS::Decls *decls);
-        void codegen(ASTNS::Decls *decls);
+        void declarate(ASTNS::DeclB *decls);
+        void codegen(ASTNS::DeclB *decls);
 
         void printMod();
 

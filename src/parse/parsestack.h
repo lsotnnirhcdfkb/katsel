@@ -22,4 +22,4 @@ bool panicMode(Parser &p, std::vector<stackitem> &stack, Token &lookahead, Error
 
 template <typename AST>
 size_t getGoto(size_t state);
-bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_ptr<ASTNS::Decls> &out, Token const &_lookahead);
+bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_ptr<ASTNS::DeclB> &out, Token const &_lookahead);

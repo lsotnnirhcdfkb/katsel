@@ -28,7 +28,7 @@ static bool tryInsert(TokenType ty, Parser const &p, Token const &lookahead, std
 
     auto tempstack (copyStack(stack));
 
-    std::unique_ptr<ASTNS::Decls> tempD (nullptr);
+    std::unique_ptr<ASTNS::DeclB> tempD (nullptr);
 
     return _parse(tempP, tempstack, true, tempD, tempLookahead);
 }
@@ -41,7 +41,7 @@ static bool tryDel(Parser const &p, std::vector<stackitem> const &stack)
 
     auto tempstack (copyStack(stack));
 
-    std::unique_ptr<ASTNS::Decls> tempD (nullptr);
+    std::unique_ptr<ASTNS::DeclB> tempD (nullptr);
 
     return _parse(tempP, tempstack, true, tempD, tempLookahead);
 }
@@ -55,7 +55,7 @@ static bool trySub(TokenType ty, Parser const &p, Token const &lookahead, std::v
 
     auto tempstack (copyStack(stack));
 
-    std::unique_ptr<ASTNS::Decls> tempD (nullptr);
+    std::unique_ptr<ASTNS::DeclB> tempD (nullptr);
 
     return _parse(tempP, tempstack, true, tempD, tempLookahead);
 }
