@@ -1,5 +1,10 @@
 import os, sys, subprocess, glob, shlex, yaml, traceback
 
+try:
+    loader = yaml.CLoader
+except AttributeError:
+    loader = yaml.Loader
+
 functions = r'''
 class lex:
     @staticmethod
@@ -64,7 +69,7 @@ for i, testfile in enumerate(files):
         contents = f.read()
 
     try:
-        opts = yaml.load(contents[contents.index('/*') + 2 : contents.index('*/')], Loader=yaml.CLoader)
+        opts = yaml.load(contents[contents.index('/*') + 2 : contents.index('*/')], Loader=loader)
     except:
         failed = True
         log += 'Failed with yaml error:\n'
@@ -124,6 +129,11 @@ for i, testfile in enumerate(files):
             log += 'Failed with test error:\n'
             log += traceback.format_exc()
             log += '\n'
+
+    log += 'stdout:\n'
+    log += stdout
+    log += 'stderr:\n'
+    log += stderr
 
     if failed:
         failTest(log, faillog, testfile)

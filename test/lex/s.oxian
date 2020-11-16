@@ -1,5 +1,5 @@
 /*
-command: <coxianc> <file> -plex
+command: <coxianc> -plex <file>
 returncode: 0
 */
 
