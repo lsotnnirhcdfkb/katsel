@@ -3,22 +3,22 @@ command: <coxianc> -plex <file>
 returncode: 0
 */
 
-+= // ---> lex.expect('PLUSEQUAL') <
--= // ---> lex.expect('MINUSEQUAL') <
-&= // ---> lex.expect('AMPEREQUAL') <
-|= // ---> lex.expect('PIPEEQUAL') <
++= // ---> lex.expect('\'+=\'') <---
+-= // ---> lex.expect('\'-=\'') <---
+&= // ---> lex.expect('\'&=\'') <---
+|= // ---> lex.expect('\'|=\'') <---
 
-+ // ---> lex.expect('PLUS') <
-- // ---> lex.expect('MINUS') <
-& // ---> lex.expect('AMPER') <
-| // ---> lex.expect('PIPE') <
++ // ---> lex.expect('\'+\'') <---
+- // ---> lex.expect('\'-\'') <---
+& // ---> lex.expect('\'&\'') <---
+| // ---> lex.expect('\'|\'') <---
 
-++ // ---> lex.expect('DOUBLEPLUS') <
--- // ---> lex.expect('DOUBLEMINUS') <
-&& // ---> lex.expect('DOUBLEAMPER') <
-|| // ---> lex.expect('DOUBLEPIPE') <
+++ // ---> lex.expect('\'++\'') <---
+-- // ---> lex.expect('\'--\'') <---
+&& // ---> lex.expect('\'&&\'') <---
+|| // ---> lex.expect('\'||\'') <---
 
-+ + // ---> lex.expect('PLUS') < ---> lex.expect('PLUS') <
-- - // ---> lex.expect('MINUS') < - // ---> lex.expect('MINUS') <
-& & // ---> lex.expect('AMPER') < ---> lex.expect('AMPER') <
-| | // ---> lex.expect('PIPE') < ---> lex.expect('PIPE') <
++ + // ---> lex.expect('\'+\'') <--- ---> lex.expect('\'+\'') <---
+- - // ---> lex.expect('\'-\'') <---- // ---> lex.expect('\'-\'') <---
+& & // ---> lex.expect('\'&\'') <--- ---> lex.expect('\'&\'') <---
+| | // ---> lex.expect('\'|\'') <--- ---> lex.expect('\'|\'') <---

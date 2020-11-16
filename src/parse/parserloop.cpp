@@ -776,7 +776,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             done = true;
                         break;
                     SHIFTON(TokenType::FUN, 4)
-                    DEFAULTINVALID2("declaration list", "either EOF_ or declaration")
+                    DEFAULTINVALID2("declaration list", concatMsg("either ", "declaration", " or ", stringifyTokenType(TokenType::EOF_)))
                 }
                 break;
             case 2:
@@ -786,7 +786,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::FUN:
                         REDUCESKIP(Decls);
                         break;
-                    DEFAULTINVALID3("declaration", "either EOF_ or FUN", "declaration list")
+                    DEFAULTINVALID3("declaration", concatMsg("either ", stringifyTokenType(TokenType::EOF_), " or ", stringifyTokenType(TokenType::FUN)), "declaration list")
                 }
                 break;
             case 3:
@@ -796,7 +796,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::FUN:
                         REDUCESKIP(Decl);
                         break;
-                    DEFAULTINVALID3("function declaration", "either EOF_ or FUN", "declaration")
+                    DEFAULTINVALID3("function declaration", concatMsg("either ", stringifyTokenType(TokenType::EOF_), " or ", stringifyTokenType(TokenType::FUN)), "declaration")
                 }
                 break;
             case 4:
@@ -815,7 +815,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::UINT64, 11)
                     SHIFTON(TokenType::UINT8, 8)
                     SHIFTON(TokenType::VOID, 19)
-                    DEFAULTINVALID3("FUN", "type specifier", "function declaration")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::FUN), "type specifier", "function declaration")
                 }
                 break;
             case 5:
@@ -831,14 +831,14 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("declaration", "either EOF_ or FUN", "declaration list")
+                    DEFAULTINVALID3("declaration", concatMsg("either ", stringifyTokenType(TokenType::EOF_), " or ", stringifyTokenType(TokenType::FUN)), "declaration list")
                 }
                 break;
             case 6:
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::IDENTIFIER, 21)
-                    DEFAULTINVALID3("type specifier", "IDENTIFIER", "function declaration")
+                    DEFAULTINVALID3("type specifier", stringifyTokenType(TokenType::IDENTIFIER), "function declaration")
                 }
                 break;
             case 7:
@@ -847,7 +847,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::IDENTIFIER:
                         REDUCESKIP(Type);
                         break;
-                    DEFAULTINVALID3("builtin type specifier", "IDENTIFIER", "type specifier")
+                    DEFAULTINVALID3("builtin type specifier", stringifyTokenType(TokenType::IDENTIFIER), "type specifier")
                 }
                 break;
             case 8:
@@ -861,7 +861,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("UINT8", "IDENTIFIER", "builtin type specifier")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::UINT8), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
                 }
                 break;
             case 9:
@@ -875,7 +875,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("UINT16", "IDENTIFIER", "builtin type specifier")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::UINT16), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
                 }
                 break;
             case 10:
@@ -889,7 +889,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("UINT32", "IDENTIFIER", "builtin type specifier")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::UINT32), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
                 }
                 break;
             case 11:
@@ -903,7 +903,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("UINT64", "IDENTIFIER", "builtin type specifier")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::UINT64), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
                 }
                 break;
             case 12:
@@ -917,7 +917,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("SINT8", "IDENTIFIER", "builtin type specifier")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::SINT8), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
                 }
                 break;
             case 13:
@@ -931,7 +931,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("SINT16", "IDENTIFIER", "builtin type specifier")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::SINT16), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
                 }
                 break;
             case 14:
@@ -945,7 +945,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("SINT32", "IDENTIFIER", "builtin type specifier")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::SINT32), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
                 }
                 break;
             case 15:
@@ -959,7 +959,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("SINT64", "IDENTIFIER", "builtin type specifier")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::SINT64), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
                 }
                 break;
             case 16:
@@ -973,7 +973,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("FLOAT", "IDENTIFIER", "builtin type specifier")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::FLOAT), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
                 }
                 break;
             case 17:
@@ -987,7 +987,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("BOOL", "IDENTIFIER", "builtin type specifier")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::BOOL), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
                 }
                 break;
             case 18:
@@ -1001,7 +1001,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("DOUBLE", "IDENTIFIER", "builtin type specifier")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::DOUBLE), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
                 }
                 break;
             case 19:
@@ -1015,7 +1015,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("VOID", "IDENTIFIER", "builtin type specifier")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::VOID), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
                 }
                 break;
             case 20:
@@ -1029,14 +1029,14 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("CHAR", "IDENTIFIER", "builtin type specifier")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::CHAR), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
                 }
                 break;
             case 21:
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::OPARN, 22)
-                    DEFAULTINVALID3("IDENTIFIER", "OPARN", "function declaration")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::IDENTIFIER), stringifyTokenType(TokenType::OPARN), "function declaration")
                 }
                 break;
             case 22:
@@ -1056,14 +1056,14 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::UINT64, 11)
                     SHIFTON(TokenType::UINT8, 8)
                     SHIFTON(TokenType::VOID, 19)
-                    DEFAULTINVALID3("OPARN", "either CPARN or parameter list", "function declaration")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::OPARN), concatMsg("either ", "parameter list", " or ", stringifyTokenType(TokenType::CPARN)), "function declaration")
                 }
                 break;
             case 23:
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::OCURB, 27)
-                    DEFAULTINVALID3("CPARN", "code block", "function declaration")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::CPARN), "code block", "function declaration")
                 }
                 break;
             case 24:
@@ -1071,14 +1071,14 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     SHIFTON(TokenType::COMMA, 29)
                     SHIFTON(TokenType::CPARN, 28)
-                    DEFAULTINVALID2("parameter list", "either COMMA or CPARN")
+                    DEFAULTINVALID2("parameter list", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::CPARN)))
                 }
                 break;
             case 25:
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::IDENTIFIER, 30)
-                    DEFAULTINVALID3("type specifier", "IDENTIFIER", "parameter list")
+                    DEFAULTINVALID3("type specifier", stringifyTokenType(TokenType::IDENTIFIER), "parameter list")
                 }
                 break;
             case 26:
@@ -1098,7 +1098,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("code block", "either EOF_ or FUN", "function declaration")
+                    DEFAULTINVALID3("code block", concatMsg("either ", stringifyTokenType(TokenType::EOF_), " or ", stringifyTokenType(TokenType::FUN)), "function declaration")
                 }
                 break;
             case 27:
@@ -1124,14 +1124,14 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
                     SHIFTON(TokenType::VAR, 40)
-                    DEFAULTINVALID3("OCURB", "either CCURB or statement list", "code block")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::OCURB), concatMsg("either ", "statement list", " or ", stringifyTokenType(TokenType::CCURB)), "code block")
                 }
                 break;
             case 28:
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::OCURB, 27)
-                    DEFAULTINVALID3("CPARN", "code block", "function declaration")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::CPARN), "code block", "function declaration")
                 }
                 break;
             case 29:
@@ -1150,7 +1150,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::UINT64, 11)
                     SHIFTON(TokenType::UINT8, 8)
                     SHIFTON(TokenType::VOID, 19)
-                    DEFAULTINVALID3("COMMA", "type specifier", "parameter list")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::COMMA), "type specifier", "parameter list")
                 }
                 break;
             case 30:
@@ -1166,7 +1166,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("IDENTIFIER", "either COMMA or CPARN", "parameter list")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::IDENTIFIER), concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::CPARN)), "parameter list")
                 }
                 break;
             case 31:
@@ -1192,7 +1192,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
                     SHIFTON(TokenType::VAR, 40)
-                    DEFAULTINVALID2("statement list", "either CCURB or statement")
+                    DEFAULTINVALID2("statement list", concatMsg("either ", "statement", " or ", stringifyTokenType(TokenType::CCURB)))
                 }
                 break;
             case 32:
@@ -1228,7 +1228,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("CCURB", "either declaration or statement", "code block")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::CCURB), concatMsg("either ", "declaration", " or ", "statement"), "code block")
                 }
                 break;
             case 33:
@@ -1429,7 +1429,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("SEMICOLON", "statement", "empty statement")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::SEMICOLON), "statement", "empty statement")
                 }
                 break;
             case 40:
@@ -1448,14 +1448,14 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::UINT64, 11)
                     SHIFTON(TokenType::UINT8, 8)
                     SHIFTON(TokenType::VOID, 19)
-                    DEFAULTINVALID3("VAR", "type specifier", "variable statement")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::VAR), "type specifier", "variable statement")
                 }
                 break;
             case 41:
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::SEMICOLON, 79)
-                    DEFAULTINVALID3("expression", "SEMICOLON", "expression statement")
+                    DEFAULTINVALID3("expression", stringifyTokenType(TokenType::SEMICOLON), "expression statement")
                 }
                 break;
             case 42:
@@ -1476,7 +1476,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("RETURN", "expression", "return statement")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::RETURN), "expression", "return statement")
                 }
                 break;
             case 43:
@@ -1488,7 +1488,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::SEMICOLON:
                         REDUCESKIP(Expr);
                         break;
-                    DEFAULTINVALID3("assignment expression", "COLON, COMMA, CPARN, or SEMICOLON", "expression")
+                    DEFAULTINVALID3("assignment expression", concatMsg(stringifyTokenType(TokenType::COLON), stringifyTokenType(TokenType::COMMA), stringifyTokenType(TokenType::CPARN), " or ", stringifyTokenType(TokenType::SEMICOLON)), "expression")
                 }
                 break;
             case 44:
@@ -1501,7 +1501,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         REDUCESKIP(AssignmentExpr);
                         break;
                     SHIFTON(TokenType::EQUAL, 81)
-                    DEFAULTINVALID3("ternary expression", "COLON, COMMA, CPARN, EQUAL, or SEMICOLON", "assignment expression")
+                    DEFAULTINVALID3("ternary expression", concatMsg(stringifyTokenType(TokenType::COLON), stringifyTokenType(TokenType::COMMA), stringifyTokenType(TokenType::CPARN), stringifyTokenType(TokenType::EQUAL), " or ", stringifyTokenType(TokenType::SEMICOLON)), "assignment expression")
                 }
                 break;
             case 45:
@@ -1516,7 +1516,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     SHIFTON(TokenType::DOUBLEPIPE, 83)
                     SHIFTON(TokenType::QUESTION, 82)
-                    DEFAULTINVALID2("binary or expression", "either DOUBLEPIPE or QUESTION")
+                    DEFAULTINVALID2("binary or expression", concatMsg("either ", stringifyTokenType(TokenType::DOUBLEPIPE), " or ", stringifyTokenType(TokenType::QUESTION)))
                 }
                 break;
             case 46:
@@ -1532,7 +1532,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         REDUCESKIP(BinorExpr);
                         break;
                     SHIFTON(TokenType::DOUBLEAMPER, 84)
-                    DEFAULTINVALID2("binary and expression", "DOUBLEAMPER")
+                    DEFAULTINVALID2("binary and expression", stringifyTokenType(TokenType::DOUBLEAMPER))
                 }
                 break;
             case 47:
@@ -1569,7 +1569,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("BANG", "binary not expression", "binary not expression")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::BANG), "binary not expression", "binary not expression")
                 }
                 break;
             case 49:
@@ -1587,7 +1587,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         REDUCESKIP(BinnotExpr);
                         break;
                     SHIFTON(TokenType::DOUBLEEQUAL, 87)
-                    DEFAULTINVALID2("equality expression", "either BANGEQUAL or DOUBLEEQUAL")
+                    DEFAULTINVALID2("equality expression", concatMsg("either ", stringifyTokenType(TokenType::BANGEQUAL), " or ", stringifyTokenType(TokenType::DOUBLEEQUAL)))
                 }
                 break;
             case 50:
@@ -1609,7 +1609,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::GREATEREQUAL, 91)
                     SHIFTON(TokenType::LESS, 88)
                     SHIFTON(TokenType::LESSEQUAL, 90)
-                    DEFAULTINVALID2("comparison expression", "GREATER, GREATEREQUAL, LESS, or LESSEQUAL")
+                    DEFAULTINVALID2("comparison expression", concatMsg(stringifyTokenType(TokenType::GREATER), stringifyTokenType(TokenType::GREATEREQUAL), stringifyTokenType(TokenType::LESS), " or ", stringifyTokenType(TokenType::LESSEQUAL)))
                 }
                 break;
             case 51:
@@ -1632,7 +1632,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         REDUCESKIP(ComplgtExpr);
                         break;
                     SHIFTON(TokenType::CARET, 92)
-                    DEFAULTINVALID2("bitwise xor expression", "CARET")
+                    DEFAULTINVALID2("bitwise xor expression", stringifyTokenType(TokenType::CARET))
                 }
                 break;
             case 52:
@@ -1656,7 +1656,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         REDUCESKIP(BitxorExpr);
                         break;
                     SHIFTON(TokenType::PIPE, 93)
-                    DEFAULTINVALID2("bitwise or expression", "PIPE")
+                    DEFAULTINVALID2("bitwise or expression", stringifyTokenType(TokenType::PIPE))
                 }
                 break;
             case 53:
@@ -1681,7 +1681,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::SEMICOLON:
                         REDUCESKIP(BitorExpr);
                         break;
-                    DEFAULTINVALID2("bitwise and expression", "AMPER")
+                    DEFAULTINVALID2("bitwise and expression", stringifyTokenType(TokenType::AMPER))
                 }
                 break;
             case 54:
@@ -1708,7 +1708,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     SHIFTON(TokenType::DOUBLEGREATER, 95)
                     SHIFTON(TokenType::DOUBLELESS, 96)
-                    DEFAULTINVALID2("bit shift expression", "either DOUBLEGREATER or DOUBLELESS")
+                    DEFAULTINVALID2("bit shift expression", concatMsg("either ", stringifyTokenType(TokenType::DOUBLEGREATER), " or ", stringifyTokenType(TokenType::DOUBLELESS)))
                 }
                 break;
             case 55:
@@ -1737,7 +1737,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     SHIFTON(TokenType::MINUS, 98)
                     SHIFTON(TokenType::PLUS, 97)
-                    DEFAULTINVALID2("addition expression", "either MINUS or PLUS")
+                    DEFAULTINVALID2("addition expression", concatMsg("either ", stringifyTokenType(TokenType::MINUS), " or ", stringifyTokenType(TokenType::PLUS)))
                 }
                 break;
             case 56:
@@ -1769,7 +1769,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::PERCENT, 101)
                     SHIFTON(TokenType::SLASH, 100)
                     SHIFTON(TokenType::STAR, 99)
-                    DEFAULTINVALID2("multiplication expression", "PERCENT, SLASH, or STAR")
+                    DEFAULTINVALID2("multiplication expression", concatMsg(stringifyTokenType(TokenType::PERCENT), stringifyTokenType(TokenType::SLASH), " or ", stringifyTokenType(TokenType::STAR)))
                 }
                 break;
             case 57:
@@ -1821,7 +1821,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("TILDE", "unary expression", "unary expression")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::TILDE), "unary expression", "unary expression")
                 }
                 break;
             case 59:
@@ -1841,7 +1841,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("MINUS", "unary expression", "unary expression")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::MINUS), "unary expression", "unary expression")
                 }
                 break;
             case 60:
@@ -1906,7 +1906,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         REDUCESKIP(CallExpr);
                         break;
                     SHIFTON(TokenType::OPARN, 104)
-                    DEFAULTINVALID3("primary expression", "OPARN", "function call expression")
+                    DEFAULTINVALID3("primary expression", stringifyTokenType(TokenType::OPARN), "function call expression")
                 }
                 break;
             case 62:
@@ -1944,7 +1944,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALIDNOEXPECT("TRUELIT", "primary expression")
+                    DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::TRUELIT), "primary expression")
                 }
                 break;
             case 63:
@@ -1982,7 +1982,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALIDNOEXPECT("FALSELIT", "primary expression")
+                    DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::FALSELIT), "primary expression")
                 }
                 break;
             case 64:
@@ -2020,7 +2020,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALIDNOEXPECT("FLOATLIT", "primary expression")
+                    DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::FLOATLIT), "primary expression")
                 }
                 break;
             case 65:
@@ -2058,7 +2058,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALIDNOEXPECT("NULLPTRLIT", "primary expression")
+                    DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::NULLPTRLIT), "primary expression")
                 }
                 break;
             case 66:
@@ -2096,7 +2096,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALIDNOEXPECT("DECINTLIT", "primary expression")
+                    DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::DECINTLIT), "primary expression")
                 }
                 break;
             case 67:
@@ -2134,7 +2134,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALIDNOEXPECT("OCTINTLIT", "primary expression")
+                    DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::OCTINTLIT), "primary expression")
                 }
                 break;
             case 68:
@@ -2172,7 +2172,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALIDNOEXPECT("BININTLIT", "primary expression")
+                    DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::BININTLIT), "primary expression")
                 }
                 break;
             case 69:
@@ -2210,7 +2210,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALIDNOEXPECT("HEXINTLIT", "primary expression")
+                    DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::HEXINTLIT), "primary expression")
                 }
                 break;
             case 70:
@@ -2248,7 +2248,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALIDNOEXPECT("CHARLIT", "primary expression")
+                    DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::CHARLIT), "primary expression")
                 }
                 break;
             case 71:
@@ -2286,7 +2286,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALIDNOEXPECT("STRINGLIT", "primary expression")
+                    DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::STRINGLIT), "primary expression")
                 }
                 break;
             case 72:
@@ -2324,7 +2324,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALIDNOEXPECT("IDENTIFIER", "primary expression")
+                    DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::IDENTIFIER), "primary expression")
                 }
                 break;
             case 73:
@@ -2345,7 +2345,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("OPARN", "expression", "primary expression")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::OPARN), "expression", "primary expression")
                 }
                 break;
             case 74:
@@ -2366,14 +2366,14 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("code block", "either EOF_ or FUN", "function declaration")
+                    DEFAULTINVALID3("code block", concatMsg("either ", stringifyTokenType(TokenType::EOF_), " or ", stringifyTokenType(TokenType::FUN)), "function declaration")
                 }
                 break;
             case 75:
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::IDENTIFIER, 106)
-                    DEFAULTINVALID3("type specifier", "IDENTIFIER", "parameter list")
+                    DEFAULTINVALID3("type specifier", stringifyTokenType(TokenType::IDENTIFIER), "parameter list")
                 }
                 break;
             case 76:
@@ -2410,7 +2410,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("CCURB", "either declaration or statement", "code block")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::CCURB), concatMsg("either ", "declaration", " or ", "statement"), "code block")
                 }
                 break;
             case 77:
@@ -2485,14 +2485,14 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("SEMICOLON", "statement", "expression statement")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::SEMICOLON), "statement", "expression statement")
                 }
                 break;
             case 80:
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::SEMICOLON, 110)
-                    DEFAULTINVALID3("expression", "SEMICOLON", "return statement")
+                    DEFAULTINVALID3("expression", stringifyTokenType(TokenType::SEMICOLON), "return statement")
                 }
                 break;
             case 81:
@@ -2513,7 +2513,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("EQUAL", "assignment expression", "assignment expression")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::EQUAL), "assignment expression", "assignment expression")
                 }
                 break;
             case 82:
@@ -2534,7 +2534,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("QUESTION", "expression", "ternary expression")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::QUESTION), "expression", "ternary expression")
                 }
                 break;
             case 83:
@@ -2555,7 +2555,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("DOUBLEPIPE", "binary and expression", "binary or expression")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::DOUBLEPIPE), "binary and expression", "binary or expression")
                 }
                 break;
             case 84:
@@ -2576,7 +2576,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("DOUBLEAMPER", "binary not expression", "binary and expression")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::DOUBLEAMPER), "binary not expression", "binary and expression")
                 }
                 break;
             case 85:
@@ -2618,7 +2618,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("BANGEQUAL", "comparison expression", "equality expression")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::BANGEQUAL), "comparison expression", "equality expression")
                 }
                 break;
             case 87:
@@ -2638,7 +2638,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("DOUBLEEQUAL", "comparison expression", "equality expression")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::DOUBLEEQUAL), "comparison expression", "equality expression")
                 }
                 break;
             case 88:
@@ -2658,7 +2658,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("LESS", "bitwise xor expression", "comparison expression")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::LESS), "bitwise xor expression", "comparison expression")
                 }
                 break;
             case 89:
@@ -2678,7 +2678,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("GREATER", "bitwise xor expression", "comparison expression")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::GREATER), "bitwise xor expression", "comparison expression")
                 }
                 break;
             case 90:
@@ -2698,7 +2698,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("LESSEQUAL", "bitwise xor expression", "comparison expression")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::LESSEQUAL), "bitwise xor expression", "comparison expression")
                 }
                 break;
             case 91:
@@ -2718,7 +2718,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("GREATEREQUAL", "bitwise xor expression", "comparison expression")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::GREATEREQUAL), "bitwise xor expression", "comparison expression")
                 }
                 break;
             case 92:
@@ -2738,7 +2738,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("CARET", "bitwise or expression", "bitwise xor expression")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::CARET), "bitwise or expression", "bitwise xor expression")
                 }
                 break;
             case 93:
@@ -2758,7 +2758,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("PIPE", "bitwise and expression", "bitwise or expression")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::PIPE), "bitwise and expression", "bitwise or expression")
                 }
                 break;
             case 94:
@@ -2778,7 +2778,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("AMPER", "bit shift expression", "bitwise and expression")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::AMPER), "bit shift expression", "bitwise and expression")
                 }
                 break;
             case 95:
@@ -2798,7 +2798,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("DOUBLEGREATER", "addition expression", "bit shift expression")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::DOUBLEGREATER), "addition expression", "bit shift expression")
                 }
                 break;
             case 96:
@@ -2818,7 +2818,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("DOUBLELESS", "addition expression", "bit shift expression")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::DOUBLELESS), "addition expression", "bit shift expression")
                 }
                 break;
             case 97:
@@ -2838,7 +2838,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("PLUS", "multiplication expression", "addition expression")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::PLUS), "multiplication expression", "addition expression")
                 }
                 break;
             case 98:
@@ -2858,7 +2858,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("MINUS", "multiplication expression", "addition expression")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::MINUS), "multiplication expression", "addition expression")
                 }
                 break;
             case 99:
@@ -2878,7 +2878,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("STAR", "unary expression", "multiplication expression")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::STAR), "unary expression", "multiplication expression")
                 }
                 break;
             case 100:
@@ -2898,7 +2898,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("SLASH", "unary expression", "multiplication expression")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::SLASH), "unary expression", "multiplication expression")
                 }
                 break;
             case 101:
@@ -2918,7 +2918,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("PERCENT", "unary expression", "multiplication expression")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::PERCENT), "unary expression", "multiplication expression")
                 }
                 break;
             case 102:
@@ -3016,14 +3016,14 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("OPARN", "either CPARN or argument list", "function call expression")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::OPARN), concatMsg("either ", "argument list", " or ", stringifyTokenType(TokenType::CPARN)), "function call expression")
                 }
                 break;
             case 105:
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::CPARN, 134)
-                    DEFAULTINVALID3("expression", "CPARN", "primary expression")
+                    DEFAULTINVALID3("expression", stringifyTokenType(TokenType::CPARN), "primary expression")
                 }
                 break;
             case 106:
@@ -3041,7 +3041,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("IDENTIFIER", "either COMMA or CPARN", "parameter list")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::IDENTIFIER), concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::CPARN)), "parameter list")
                 }
                 break;
             case 107:
@@ -3049,7 +3049,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     SHIFTON(TokenType::COMMA, 136)
                     SHIFTON(TokenType::SEMICOLON, 135)
-                    DEFAULTINVALID2("variable statement assignment list", "either COMMA or SEMICOLON")
+                    DEFAULTINVALID2("variable statement assignment list", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::SEMICOLON)))
                 }
                 break;
             case 108:
@@ -3059,7 +3059,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::SEMICOLON:
                         REDUCESKIP(VarStmtItems);
                         break;
-                    DEFAULTINVALID3("variable statement assignment", "either COMMA or SEMICOLON", "variable statement assignment list")
+                    DEFAULTINVALID3("variable statement assignment", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::SEMICOLON)), "variable statement assignment list")
                 }
                 break;
             case 109:
@@ -3075,7 +3075,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     SHIFTON(TokenType::EQUAL, 137)
-                    DEFAULTINVALID3("IDENTIFIER", "COMMA, EQUAL, or SEMICOLON", "variable statement assignment")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::IDENTIFIER), concatMsg(stringifyTokenType(TokenType::COMMA), stringifyTokenType(TokenType::EQUAL), " or ", stringifyTokenType(TokenType::SEMICOLON)), "variable statement assignment")
                 }
                 break;
             case 110:
@@ -3110,7 +3110,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("SEMICOLON", "statement", "return statement")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::SEMICOLON), "statement", "return statement")
                 }
                 break;
             case 111:
@@ -3129,14 +3129,14 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("assignment expression", "COLON, COMMA, CPARN, or SEMICOLON", "assignment expression")
+                    DEFAULTINVALID3("assignment expression", concatMsg(stringifyTokenType(TokenType::COLON), stringifyTokenType(TokenType::COMMA), stringifyTokenType(TokenType::CPARN), " or ", stringifyTokenType(TokenType::SEMICOLON)), "assignment expression")
                 }
                 break;
             case 112:
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::COLON, 138)
-                    DEFAULTINVALID3("expression", "COLON", "ternary expression")
+                    DEFAULTINVALID3("expression", stringifyTokenType(TokenType::COLON), "ternary expression")
                 }
                 break;
             case 113:
@@ -3159,7 +3159,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     SHIFTON(TokenType::DOUBLEAMPER, 84)
-                    DEFAULTINVALID2("binary and expression", "DOUBLEAMPER")
+                    DEFAULTINVALID2("binary and expression", stringifyTokenType(TokenType::DOUBLEAMPER))
                 }
                 break;
             case 114:
@@ -3211,7 +3211,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::GREATEREQUAL, 91)
                     SHIFTON(TokenType::LESS, 88)
                     SHIFTON(TokenType::LESSEQUAL, 90)
-                    DEFAULTINVALID2("comparison expression", "GREATER, GREATEREQUAL, LESS, or LESSEQUAL")
+                    DEFAULTINVALID2("comparison expression", concatMsg(stringifyTokenType(TokenType::GREATER), stringifyTokenType(TokenType::GREATEREQUAL), stringifyTokenType(TokenType::LESS), " or ", stringifyTokenType(TokenType::LESSEQUAL)))
                 }
                 break;
             case 116:
@@ -3240,7 +3240,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::GREATEREQUAL, 91)
                     SHIFTON(TokenType::LESS, 88)
                     SHIFTON(TokenType::LESSEQUAL, 90)
-                    DEFAULTINVALID2("comparison expression", "GREATER, GREATEREQUAL, LESS, or LESSEQUAL")
+                    DEFAULTINVALID2("comparison expression", concatMsg(stringifyTokenType(TokenType::GREATER), stringifyTokenType(TokenType::GREATEREQUAL), stringifyTokenType(TokenType::LESS), " or ", stringifyTokenType(TokenType::LESSEQUAL)))
                 }
                 break;
             case 117:
@@ -3270,7 +3270,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     SHIFTON(TokenType::CARET, 92)
-                    DEFAULTINVALID2("bitwise xor expression", "CARET")
+                    DEFAULTINVALID2("bitwise xor expression", stringifyTokenType(TokenType::CARET))
                 }
                 break;
             case 118:
@@ -3300,7 +3300,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     SHIFTON(TokenType::CARET, 92)
-                    DEFAULTINVALID2("bitwise xor expression", "CARET")
+                    DEFAULTINVALID2("bitwise xor expression", stringifyTokenType(TokenType::CARET))
                 }
                 break;
             case 119:
@@ -3330,7 +3330,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     SHIFTON(TokenType::CARET, 92)
-                    DEFAULTINVALID2("bitwise xor expression", "CARET")
+                    DEFAULTINVALID2("bitwise xor expression", stringifyTokenType(TokenType::CARET))
                 }
                 break;
             case 120:
@@ -3360,7 +3360,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     SHIFTON(TokenType::CARET, 92)
-                    DEFAULTINVALID2("bitwise xor expression", "CARET")
+                    DEFAULTINVALID2("bitwise xor expression", stringifyTokenType(TokenType::CARET))
                 }
                 break;
             case 121:
@@ -3391,7 +3391,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     SHIFTON(TokenType::PIPE, 93)
-                    DEFAULTINVALID2("bitwise or expression", "PIPE")
+                    DEFAULTINVALID2("bitwise or expression", stringifyTokenType(TokenType::PIPE))
                 }
                 break;
             case 122:
@@ -3423,7 +3423,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID2("bitwise and expression", "AMPER")
+                    DEFAULTINVALID2("bitwise and expression", stringifyTokenType(TokenType::AMPER))
                 }
                 break;
             case 123:
@@ -3457,7 +3457,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     SHIFTON(TokenType::DOUBLEGREATER, 95)
                     SHIFTON(TokenType::DOUBLELESS, 96)
-                    DEFAULTINVALID2("bit shift expression", "either DOUBLEGREATER or DOUBLELESS")
+                    DEFAULTINVALID2("bit shift expression", concatMsg("either ", stringifyTokenType(TokenType::DOUBLEGREATER), " or ", stringifyTokenType(TokenType::DOUBLELESS)))
                 }
                 break;
             case 124:
@@ -3493,7 +3493,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     SHIFTON(TokenType::MINUS, 98)
                     SHIFTON(TokenType::PLUS, 97)
-                    DEFAULTINVALID2("addition expression", "either MINUS or PLUS")
+                    DEFAULTINVALID2("addition expression", concatMsg("either ", stringifyTokenType(TokenType::MINUS), " or ", stringifyTokenType(TokenType::PLUS)))
                 }
                 break;
             case 125:
@@ -3529,7 +3529,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     SHIFTON(TokenType::MINUS, 98)
                     SHIFTON(TokenType::PLUS, 97)
-                    DEFAULTINVALID2("addition expression", "either MINUS or PLUS")
+                    DEFAULTINVALID2("addition expression", concatMsg("either ", stringifyTokenType(TokenType::MINUS), " or ", stringifyTokenType(TokenType::PLUS)))
                 }
                 break;
             case 126:
@@ -3568,7 +3568,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::PERCENT, 101)
                     SHIFTON(TokenType::SLASH, 100)
                     SHIFTON(TokenType::STAR, 99)
-                    DEFAULTINVALID2("multiplication expression", "PERCENT, SLASH, or STAR")
+                    DEFAULTINVALID2("multiplication expression", concatMsg(stringifyTokenType(TokenType::PERCENT), stringifyTokenType(TokenType::SLASH), " or ", stringifyTokenType(TokenType::STAR)))
                 }
                 break;
             case 127:
@@ -3607,7 +3607,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::PERCENT, 101)
                     SHIFTON(TokenType::SLASH, 100)
                     SHIFTON(TokenType::STAR, 99)
-                    DEFAULTINVALID2("multiplication expression", "PERCENT, SLASH, or STAR")
+                    DEFAULTINVALID2("multiplication expression", concatMsg(stringifyTokenType(TokenType::PERCENT), stringifyTokenType(TokenType::SLASH), " or ", stringifyTokenType(TokenType::STAR)))
                 }
                 break;
             case 128:
@@ -3732,7 +3732,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     SHIFTON(TokenType::COMMA, 140)
                     SHIFTON(TokenType::CPARN, 139)
-                    DEFAULTINVALID2("argument list", "either COMMA or CPARN")
+                    DEFAULTINVALID2("argument list", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::CPARN)))
                 }
                 break;
             case 132:
@@ -3771,7 +3771,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALIDNOEXPECT("CPARN", "function call expression")
+                    DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::CPARN), "function call expression")
                 }
                 break;
             case 133:
@@ -3786,7 +3786,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("expression", "either COMMA or CPARN", "argument list")
+                    DEFAULTINVALID3("expression", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::CPARN)), "argument list")
                 }
                 break;
             case 134:
@@ -3826,7 +3826,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALIDNOEXPECT("CPARN", "primary expression")
+                    DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::CPARN), "primary expression")
                 }
                 break;
             case 135:
@@ -3862,14 +3862,14 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("SEMICOLON", "statement", "variable statement")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::SEMICOLON), "statement", "variable statement")
                 }
                 break;
             case 136:
                switch (lookahead.type)
                {
                     SHIFTON(TokenType::IDENTIFIER, 109)
-                    DEFAULTINVALID3("COMMA", "variable statement assignment", "variable statement assignment list")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::COMMA), "variable statement assignment", "variable statement assignment list")
                 }
                 break;
             case 137:
@@ -3890,7 +3890,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("EQUAL", "expression", "variable statement assignment")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::EQUAL), "expression", "variable statement assignment")
                 }
                 break;
             case 138:
@@ -3911,7 +3911,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("COLON", "ternary expression", "ternary expression")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::COLON), "ternary expression", "ternary expression")
                 }
                 break;
             case 139:
@@ -3951,7 +3951,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALIDNOEXPECT("CPARN", "function call expression")
+                    DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::CPARN), "function call expression")
                 }
                 break;
             case 140:
@@ -3972,7 +3972,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     SHIFTON(TokenType::STRINGLIT, 71)
                     SHIFTON(TokenType::TILDE, 58)
                     SHIFTON(TokenType::TRUELIT, 62)
-                    DEFAULTINVALID3("COMMA", "expression", "argument list")
+                    DEFAULTINVALID3(stringifyTokenType(TokenType::COMMA), "expression", "argument list")
                 }
                 break;
             case 141:
@@ -3989,7 +3989,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("variable statement assignment", "either COMMA or SEMICOLON", "variable statement assignment list")
+                    DEFAULTINVALID3("variable statement assignment", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::SEMICOLON)), "variable statement assignment list")
                 }
                 break;
             case 142:
@@ -4006,7 +4006,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("expression", "either COMMA or SEMICOLON", "variable statement assignment")
+                    DEFAULTINVALID3("expression", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::SEMICOLON)), "variable statement assignment")
                 }
                 break;
             case 143:
@@ -4045,7 +4045,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    DEFAULTINVALID3("expression", "either COMMA or CPARN", "argument list")
+                    DEFAULTINVALID3("expression", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::CPARN)), "argument list")
                 }
                 break;
             default:

@@ -145,23 +145,23 @@ class State:
             if item.index > 0:
                 s = item.rule.expansion[item.index - 1]
                 if type(s) == NonTerminal:
-                    justparsed.append(_grammar[str(s)]['name'])
+                    justparsed.append(f'"{_grammar[str(s)]["name"]}"')
                 else:
-                    justparsed.append(str(s))
+                    justparsed.append(f'stringifyTokenType({s.astt()})')
             else:
-                justparsed.append('beginning')
+                justparsed.append('"beginning"')
 
             after = item.getAfterDot()
             if after is not None:
                 if type(after) == NonTerminal:
-                    expected.extend([r.name for r in grammar if r.symbol == after])
+                    expected.extend([f'"{r.name}"' for r in grammar if r.symbol == after])
                 else:
-                    expected.append(str(after))
+                    expected.append(f'stringifyTokenType({after.astt()})')
             else:
                 if len(item.rule.symbol.follow) > 4:
-                    expected.extend(map(lambda nt: _grammar[str(nt)]['name'], item.rule.symbol.ntfollow))
+                    expected.extend(map(lambda nt: f'"{_grammar[str(nt)]["name"]}"', item.rule.symbol.ntfollow))
                 else:
-                    expected.extend(map(str, item.rule.symbol.follow))
+                    expected.extend(map(lambda x: f'stringifyTokenType({x.astt()})', item.rule.symbol.follow))
 
             whileparsing.append(item.rule.name)
 
@@ -172,7 +172,7 @@ class State:
         self.expected = list(set(expected))
         self.expected.sort()
         if len(set(whileparsing)) == 1:
-            self.whileparsing = whileparsing[0]
+            self.whileparsing = f'"{whileparsing[0]}"'
         else:
             self.whileparsing = None
 
@@ -502,13 +502,13 @@ def printParseTable(pad=True):
 # helper {{{
 def formatList(l):
     if len(l) == 1:
-        return l[0]
+        return f'{l[0]}'
     elif len(l) == 2:
-        return f'either {l[0]} or {l[1]}'
+        return f'concatMsg("either ", {l[0]}, " or ", {l[1]})'
     elif len(l) == 0:
-        return 'nothing'
+        return '"nothing"'
     else:
-        return ', '.join(l[:-1]) + ', or ' + l[-1]
+        return 'concatMsg(' + ', '.join(l[:-1]) + ', " or ", ' + l[-1] + ')'
 # }}}
 def genLoop():
     output = []
@@ -634,11 +634,11 @@ def genLoop():
 
         if state.whileparsing is not None:
             if len(state.expected):
-                output.append(        f'                    DEFAULTINVALID3("{state.justparsed}", "{formatList(state.expected)}", "{state.whileparsing}")\n')
+                output.append(        f'                    DEFAULTINVALID3({state.justparsed}, {formatList(state.expected)}, {state.whileparsing})\n')
             else:
-                output.append(        f'                    DEFAULTINVALIDNOEXPECT("{state.justparsed}", "{state.whileparsing}")\n')
+                output.append(        f'                    DEFAULTINVALIDNOEXPECT({state.justparsed}, {state.whileparsing})\n')
         else:
-            output.append(            f'                    DEFAULTINVALID2("{state.justparsed}", "{formatList(state.expected)}")\n')
+            output.append(            f'                    DEFAULTINVALID2({state.justparsed}, {formatList(state.expected)})\n')
         output.append(                 '                }\n')
         output.append(                 '                break;\n')
 

@@ -100,7 +100,7 @@ for i, testfile in enumerate(files):
     while i <= len(contents):
         try:
             i = contents.index('--->', i) + 4
-            iend = contents.index('<', i)
+            iend = contents.index('<---', i)
             tests.append({
                 'text': contents[i:iend].strip(),
                 'start': i,

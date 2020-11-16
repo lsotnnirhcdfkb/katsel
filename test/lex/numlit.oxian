@@ -3,12 +3,12 @@ command: <coxianc> -plex <file>
 returncode: 0
 */
 
-1234567890 // ---> lex.expect('DECINTLIT') <
-0b01100110 // ---> lex.expect('BININTLIT') <
-0x1234567890abcdef // ---> lex.expect('HEXINTLIT') <
-0o01234567 // ---> lex.expect('OCTINTLIT') <
+1234567890 // ---> lex.expect('decimal integer literal') <---
+0b01100110 // ---> lex.expect('binary integer literal') <---
+0x1234567890abcdef // ---> lex.expect('hexadecimal integer literal') <---
+0o01234567 // ---> lex.expect('octal integer literal') <---
 
-0j1234 // ---> lex.expect('ERROR') <
+0j1234 // ---> lex.expect('error token') <---
 
-0.12345 // ---> lex.expect('FLOATLIT') <
-0b1001.1234 // ---> lex.expect('ERROR') <
+0.12345 // ---> lex.expect('floating point literal') <---
+0b1001.1234 // ---> lex.expect('error token') <---

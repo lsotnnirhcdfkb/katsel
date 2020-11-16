@@ -3,13 +3,13 @@ command: <coxianc> -plex <file>
 returncode: 0
 */
 
-== // ---> lex.expect('DOUBLEEQUAL') <
-= // ---> lex.expect('EQUAL') <
-:: // ---> lex.expect('DOUBLECOLON') <
-: // ---> lex.expect('COLON') <
+== // ---> lex.expect('\'==\'') <---
+= // ---> lex.expect('\'=\'') <---
+:: // ---> lex.expect('\'::\'') <---
+: // ---> lex.expect('\':\'') <---
 
-=== // ---> lex.expect('DOUBLEEQUAL') < ---> lex.expect('EQUAL') <
-::: // ---> lex.expect('DOUBLECOLON') < ---> lex.expect('COLON') <
+=== // ---> lex.expect('\'==\'') <--- ---> lex.expect('\'=\'') <---
+::: // ---> lex.expect('\'::\'') <--- ---> lex.expect('\':\'') <---
 
-== = :: : // ---> lex.expect('DOUBLEEQUAL') < ---> lex.expect('EQUAL') < ---> lex.expect('DOUBLECOLON') < ---> lex.expect('COLON') <
-= == : :: // ---> lex.expect('EQUAL') < ---> lex.expect('DOUBLEEQUAL') < ---> lex.expect('COLON') < ---> lex.expect('DOUBLECOLON') <
+== = :: : // ---> lex.expect('\'==\'') <--- ---> lex.expect('\'=\'') <--- ---> lex.expect('\'::\'') <--- ---> lex.expect('\':\'') <---
+= == : :: // ---> lex.expect('\'=\'') <--- ---> lex.expect('\'==\'') <--- ---> lex.expect('\':\'') <--- ---> lex.expect('\'::\'') <---

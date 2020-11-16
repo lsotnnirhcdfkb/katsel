@@ -3,11 +3,11 @@ command: <coxianc> -plex <file>
 returncode: 0
 */
 
-() [ ] // ---> lex.expect('OPARN') < ---> lex.expect('CPARN') < ---> lex.expect('OSQUB') < ---> lex.expect('CSQUB') <
-{ } // ---> lex.expect('OCURB') < ---> lex.expect('CCURB') <
-, .  ; ? // ---> lex.expect('COMMA') < ---> lex.expect('PERIOD') < ---> lex.expect('SEMICOLON') < ---> lex.expect('QUESTION') <
-~ ~ ?  ; . // ---> lex.expect('TILDE') < ---> lex.expect('TILDE') < ---> lex.expect('QUESTION') < ---> lex.expect('SEMICOLON') < ---> lex.expect('PERIOD') <
-, } // ---> lex.expect('COMMA') < ---> lex.expect('CCURB') <
-{ ] // ---> lex.expect('OCURB') < ---> lex.expect('CSQUB') <
-[) // ---> lex.expect('OSQUB') < ---> lex.expect('CPARN') <
-( // ---> lex.expect('OPARN') <
+() [ ] // ---> lex.expect('\'(\'') <--- ---> lex.expect('\'[\'') <--- ---> lex.expect('\']\'') <---
+{ } // ---> lex.expect('\'{\'') <--- ---> lex.expect('\'}\'') <---
+, .  ; ? // ---> lex.expect('\',\'') <--- ---> lex.expect('\'.\'') <--- ---> lex.expect('\';\'') <--- ---> lex.expect('\'?\'') <---
+~ ~ ?  ; . // ---> lex.expect('\'~\'') <--- ---> lex.expect('\'~\'') <--- ---> lex.expect('\'?\'') <--- ---> lex.expect('\';\'') <--- ---> lex.expect('\'.\'') <---
+, } // ---> lex.expect('\',\'') <--- ---> lex.expect('\'}\'') <---
+{ ] // ---> lex.expect('\'{\'') <--- ---> lex.expect('\']\'') <---
+[) // ---> lex.expect('\'[\'') <---
+( // ---> lex.expect('\'(\'') <---

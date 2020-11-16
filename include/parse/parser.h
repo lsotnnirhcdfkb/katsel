@@ -20,9 +20,9 @@ public:
 
     Token consume();
 
-    Error invalidSyntaxWhile(const char *justparsed, const char *expected, const char *whileparsing, Token const &lookahead, Token const &last);
-    Error invalidSyntax(const char *justparsed, const char *expected, Token const &lookahead, Token const &last);
-    Error invalidSyntaxNoExpect(const char *justparsed, const char *whileparsing, Token const &lookahead, Token const &last);
+    Error invalidSyntaxWhile(std::string justparsed, std::string expected, std::string whileparsing, Token const &lookahead, Token const &last);
+    Error invalidSyntax(std::string justparsed, std::string expected, Token const &lookahead, Token const &last);
+    Error invalidSyntaxNoExpect(std::string justparsed, std::string whileparsing, Token const &lookahead, Token const &last);
 
     Lexer &lexer;
     File &sourcefile;

@@ -3,20 +3,20 @@ command: <coxianc> -plex <file>
 returncode: 0
 */
 
-"valid" // ---> lex.expect('STRINGLIT') <
-"      " // ---> lex.expect('STRINGLIT') <
-"" // ---> lex.expect('STRINGLIT') <
-"  spaces  " // ---> lex.expect('STRINGLIT') <
+"valid" // ---> lex.expect('string literal') <---
+"      " // ---> lex.expect('string literal') <---
+"" // ---> lex.expect('string literal') <---
+"  spaces  " // ---> lex.expect('string literal') <---
 
-"cannot span multiple lines // ---> lex.expect('ERROR') <
+"cannot span multiple lines // ---> lex.expect('error token') <---
 errors"
-"unterminated // ---> lex.expect('ERROR') <
+"unterminated // ---> lex.expect('error token') <---
 
-'single quote' // ---> lex.expect('STRINGLIT') <
-'      ' // ---> lex.expect('STRINGLIT') <
-'' // ---> lex.expect('STRINGLIT') <
-'  spaces with single quotes  ' // ---> lex.expect('STRINGLIT') <
+'single quote' // ---> lex.expect('string literal') <---
+'      ' // ---> lex.expect('string literal') <---
+'' // ---> lex.expect('string literal') <---
+'  spaces with single quotes  ' // ---> lex.expect('string literal') <---
 
-'still cannot span multiple lines // ---> lex.expect("ERROR") <
+'still cannot span multiple lines // ---> lex.expect("error token") <---
 still errors'
-'also unterminated // ---> lex.expect("ERROR") <
+'also unterminated // ---> lex.expect("error token") <---

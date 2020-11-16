@@ -3,14 +3,14 @@ command: <coxianc> -plex <file>
 returncode: 0
 */
 
-c'c' // ---> lex.expect("CHARLIT") <
-c"c" // ---> lex.expect("CHARLIT") <
+c'c' // ---> lex.expect("character literal") <---
+c"c" // ---> lex.expect("character literal") <---
 
-c'o' // ---> lex.expect("CHARLIT") <
-c"o" // ---> lex.expect("CHARLIT") <
+c'o' // ---> lex.expect("character literal") <---
+c"o" // ---> lex.expect("character literal") <---
 
-c"iden" // ---> lex.expect("ERROR") < ---> lex.expect("IDENTIFIER") < ---> lex.expect("ERROR") <
-c'iden' // ---> lex.expect("ERROR") < ---> lex.expect("IDENTIFIER") < ---> lex.expect("ERROR") <
+c"iden" // ---> lex.expect("error token") <--- ---> lex.expect("identifier") <--- ---> lex.expect("error token") <---
+c'iden' // ---> lex.expect("error token") <--- ---> lex.expect("identifier") <--- ---> lex.expect("error token") <---
 
-c'a // ---> lex.expect("ERROR") <
-c"a // ---> lex.expect("ERROR") <
+c'a // ---> lex.expect("error token") <---
+c"a // ---> lex.expect("error token") <---

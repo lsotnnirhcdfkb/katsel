@@ -39,7 +39,7 @@ Token Parser::consume()
     return cur;
 }
 
-Error Parser::invalidSyntaxWhile(const char *justparsed, const char *expected, const char *whileparsing, Token const &lookahead, Token const &last)
+Error Parser::invalidSyntaxWhile(std::string justparsed, std::string expected, std::string whileparsing, Token const &lookahead, Token const &last)
 {
     std::stringstream ssl;
     std::stringstream sss;
@@ -57,7 +57,7 @@ Error Parser::invalidSyntaxWhile(const char *justparsed, const char *expected, c
 
     return e;
 }
-Error Parser::invalidSyntax(const char *justparsed, const char *expected, Token const &lookahead, Token const &last)
+Error Parser::invalidSyntax(std::string justparsed, std::string expected, Token const &lookahead, Token const &last)
 {
     std::stringstream ssl;
     std::stringstream sss;
@@ -74,7 +74,7 @@ Error Parser::invalidSyntax(const char *justparsed, const char *expected, Token 
             .note(concatMsg("erroneous token ignored here with error message \"", t.message, "\"")));
     return e;
 }
-Error Parser::invalidSyntaxNoExpect(const char *justparsed, const char *whileparsing, Token const &lookahead, Token const &last)
+Error Parser::invalidSyntaxNoExpect(std::string justparsed, std::string whileparsing, Token const &lookahead, Token const &last)
 {
     std::stringstream ssl;
     ssl << "invalid token to follow " << justparsed << " of " << whileparsing << ": " << stringifyTokenType(lookahead.type);
