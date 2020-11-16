@@ -73,12 +73,14 @@ void CodeGenNS::Context::incScope()
     ++curScope;
 
     if (curScope == 0) // default curScope value is 1
-        reportAbortNoh("Scope index overflowed to 0");
+        reportAbortNoh("Scope index overflowed to 0 (too many nested scopes)");
 }
 
 void CodeGenNS::Context::decScope()
 {
     --curScope;
+    if (curScope == 0)
+        reportAbortNoh("Scope index reached 0 (compiler messed up)");
 
     while (locals.size() && locals.back().scopenum > curScope) locals.pop_back();
 }
