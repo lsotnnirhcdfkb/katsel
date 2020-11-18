@@ -3,9 +3,9 @@
 
 CodeGenNS::Declarator::Declarator(CodeGen &cg): cg(cg) {}
 
-void CodeGenNS::Declarator::visitDecls(ASTNS::Decls *ast)
+void CodeGenNS::Declarator::visitDeclList(ASTNS::DeclList *ast)
 {
-    ast->decls->accept(this);
+    ast->decllist->accept(this);
     ast->decl->accept(this);
 }
 

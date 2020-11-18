@@ -30,20 +30,25 @@ std::vector<CodeGenNS::ParamVisitor::Param> CodeGenNS::ParamVisitor::params(ASTN
     return ret;
 }
 
-void CodeGenNS::ParamVisitor::visitParamList(ASTNS::ParamList *ast)
+void CodeGenNS::ParamVisitor::visitParam(ASTNS::Param *ast)
 {
-    if (ast->plist)
-        ast->plist->accept(this);
-
     Type *ty (cg.typeResolver.type(ast->type.get()));
     std::string name (ast->name.stringify());
     CodeGenNS::ParamVisitor::Param p {ty, std::move(name), ast};
     ret.push_back(p);
 }
 
+void CodeGenNS::ParamVisitor::visitParamList(ASTNS::ParamList *ast)
+{
+    if (ast->paramlist)
+        ast->paramlist->accept(this);
+
+    ast->param->accept(this);
+}
+
 CodeGenNS::ArgsVisitor::ArgsVisitor::ArgsVisitor(CodeGenNS::CodeGen &cg): cg(cg) {}
 
-std::vector<Value> CodeGenNS::ArgsVisitor::args(ASTNS::ArgsB *ast)
+std::vector<Value> CodeGenNS::ArgsVisitor::args(ASTNS::ArgB *ast)
 {
     ret = {};
     ast->accept(this);
@@ -51,21 +56,19 @@ std::vector<Value> CodeGenNS::ArgsVisitor::args(ASTNS::ArgsB *ast)
     return ret;
 }
 
-void CodeGenNS::ArgsVisitor::visitArgs(ASTNS::Args *ast)
+void CodeGenNS::ArgsVisitor::visitArgList(ASTNS::ArgList *ast)
 {
-    std::vector<Value> cret; // cannot do like params becasue args can be nested (through nested function calls) and that messes things up
-    if (ast->args)
-    {
-        std::vector<Value> r (args(ast->args.get()));
-        while (r.size())
-        {
-            cret.push_back(r.front());
-            r.erase(r.begin());
-        }
-    }
+    std::vector<Value> cret (args(ast->arglist.get())); // cannot do like params becasue args can be nested (through nested function calls) and that messes things up
 
+    ast->arg->accept(this);
+    cret.reserve(cret.size() + ret.size());
+    cret.insert(cret.end(), ret.begin(), ret.end());
 
-    Value v = cg.exprCodeGen.expr(ast->expr.get());
-    cret.push_back(v);
     ret = cret;
+}
+
+void CodeGenNS::ArgsVisitor::visitArg(ASTNS::Arg *ast)
+{
+    Value v = cg.exprCodeGen.expr(ast->expr.get());
+    ret = {v};
 }

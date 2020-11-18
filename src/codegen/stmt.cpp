@@ -64,9 +64,9 @@ void CodeGenNS::StmtCodeGen::visitVarStmt(ASTNS::VarStmt *ast)
 
 void CodeGenNS::StmtCodeGen::visitStmt(ASTNS::Stmt *) {}
 void CodeGenNS::StmtCodeGen::visitEmptyStmt(ASTNS::EmptyStmt *) {}
-void CodeGenNS::StmtCodeGen::visitStmts(ASTNS::Stmts *ast)
+void CodeGenNS::StmtCodeGen::visitStmtList(ASTNS::StmtList *ast)
 {
-    ast->stmts->accept(this);
+    ast->stmtlist->accept(this);
     ast->stmt->accept(this);
 }
 

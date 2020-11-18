@@ -40,26 +40,13 @@ void PrintVisitor::visitAdditionExpr(ASTNS::AdditionExpr *a)
     --indent;
     pai("}\n");
 }
-void PrintVisitor::visitArgs(ASTNS::Args *a)
+void PrintVisitor::visitArg(ASTNS::Arg *a)
 {
-    pai("Args\n{\n");
+    pai("Arg\n{\n");
     ++indent;
     switch (a->form)
     {
-        case ASTNS::Args::Form::ATA:
-            pai("args = ");
-            if (a->args)
-            {
-                a->args->accept(this);
-            }
-            else
-            {
-                pai("nullptr\n");
-            }
-            pai("comma = ");
-            pai("[");
-            pai(std::string(a->comma.start, a->comma.end));
-            pai("]\n");
+        case ASTNS::Arg::Form::A:
             pai("expr = ");
             if (a->expr)
             {
@@ -70,11 +57,34 @@ void PrintVisitor::visitArgs(ASTNS::Args *a)
                 pai("nullptr\n");
             }
             break;
-        case ASTNS::Args::Form::A:
-            pai("expr = ");
-            if (a->expr)
+    }
+    --indent;
+    pai("}\n");
+}
+void PrintVisitor::visitArgList(ASTNS::ArgList *a)
+{
+    pai("ArgList\n{\n");
+    ++indent;
+    switch (a->form)
+    {
+        case ASTNS::ArgList::Form::ATA:
+            pai("arglist = ");
+            if (a->arglist)
             {
-                a->expr->accept(this);
+                a->arglist->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            pai("comma = ");
+            pai("[");
+            pai(std::string(a->comma.start, a->comma.end));
+            pai("]\n");
+            pai("arg = ");
+            if (a->arg)
+            {
+                a->arg->accept(this);
             }
             else
             {
@@ -538,17 +548,17 @@ void PrintVisitor::visitDecl(ASTNS::Decl *a)
     --indent;
     pai("}\n");
 }
-void PrintVisitor::visitDecls(ASTNS::Decls *a)
+void PrintVisitor::visitDeclList(ASTNS::DeclList *a)
 {
-    pai("Decls\n{\n");
+    pai("DeclList\n{\n");
     ++indent;
     switch (a->form)
     {
-        case ASTNS::Decls::Form::AA:
-            pai("decls = ");
-            if (a->decls)
+        case ASTNS::DeclList::Form::AA:
+            pai("decllist = ");
+            if (a->decllist)
             {
-                a->decls->accept(this);
+                a->decllist->accept(this);
             }
             else
             {
@@ -744,26 +754,13 @@ void PrintVisitor::visitMultExpr(ASTNS::MultExpr *a)
     --indent;
     pai("}\n");
 }
-void PrintVisitor::visitParamList(ASTNS::ParamList *a)
+void PrintVisitor::visitParam(ASTNS::Param *a)
 {
-    pai("ParamList\n{\n");
+    pai("Param\n{\n");
     ++indent;
     switch (a->form)
     {
-        case ASTNS::ParamList::Form::ATAT:
-            pai("plist = ");
-            if (a->plist)
-            {
-                a->plist->accept(this);
-            }
-            else
-            {
-                pai("nullptr\n");
-            }
-            pai("comma = ");
-            pai("[");
-            pai(std::string(a->comma.start, a->comma.end));
-            pai("]\n");
+        case ASTNS::Param::Form::AT:
             pai("type = ");
             if (a->type)
             {
@@ -778,20 +775,39 @@ void PrintVisitor::visitParamList(ASTNS::ParamList *a)
             pai(std::string(a->name.start, a->name.end));
             pai("]\n");
             break;
-        case ASTNS::ParamList::Form::AT:
-            pai("type = ");
-            if (a->type)
+    }
+    --indent;
+    pai("}\n");
+}
+void PrintVisitor::visitParamList(ASTNS::ParamList *a)
+{
+    pai("ParamList\n{\n");
+    ++indent;
+    switch (a->form)
+    {
+        case ASTNS::ParamList::Form::ATA:
+            pai("paramlist = ");
+            if (a->paramlist)
             {
-                a->type->accept(this);
+                a->paramlist->accept(this);
             }
             else
             {
                 pai("nullptr\n");
             }
-            pai("name = ");
+            pai("comma = ");
             pai("[");
-            pai(std::string(a->name.start, a->name.end));
+            pai(std::string(a->comma.start, a->comma.end));
             pai("]\n");
+            pai("param = ");
+            if (a->param)
+            {
+                a->param->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
             break;
     }
     --indent;
@@ -871,17 +887,17 @@ void PrintVisitor::visitStmt(ASTNS::Stmt *a)
     --indent;
     pai("}\n");
 }
-void PrintVisitor::visitStmts(ASTNS::Stmts *a)
+void PrintVisitor::visitStmtList(ASTNS::StmtList *a)
 {
-    pai("Stmts\n{\n");
+    pai("StmtList\n{\n");
     ++indent;
     switch (a->form)
     {
-        case ASTNS::Stmts::Form::AA:
-            pai("stmts = ");
-            if (a->stmts)
+        case ASTNS::StmtList::Form::AA:
+            pai("stmtlist = ");
+            if (a->stmtlist)
             {
-                a->stmts->accept(this);
+                a->stmtlist->accept(this);
             }
             else
             {
@@ -1056,17 +1072,17 @@ void PrintVisitor::visitVarStmtItem(ASTNS::VarStmtItem *a)
     --indent;
     pai("}\n");
 }
-void PrintVisitor::visitVarStmtItems(ASTNS::VarStmtItems *a)
+void PrintVisitor::visitVarStmtItemList(ASTNS::VarStmtItemList *a)
 {
-    pai("VarStmtItems\n{\n");
+    pai("VarStmtItemList\n{\n");
     ++indent;
     switch (a->form)
     {
-        case ASTNS::VarStmtItems::Form::ATA:
-            pai("items = ");
-            if (a->items)
+        case ASTNS::VarStmtItemList::Form::ATA:
+            pai("varstmtitemlist = ");
+            if (a->varstmtitemlist)
             {
-                a->items->accept(this);
+                a->varstmtitemlist->accept(this);
             }
             else
             {
@@ -1076,10 +1092,10 @@ void PrintVisitor::visitVarStmtItems(ASTNS::VarStmtItems *a)
             pai("[");
             pai(std::string(a->comma.start, a->comma.end));
             pai("]\n");
-            pai("item = ");
-            if (a->item)
+            pai("varstmtitem = ");
+            if (a->varstmtitem)
             {
-                a->item->accept(this);
+                a->varstmtitem->accept(this);
             }
             else
             {

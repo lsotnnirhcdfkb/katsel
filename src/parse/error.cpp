@@ -257,7 +257,7 @@ bool panicMode(Parser &p, std::vector<stackitem> &stack, Token &lookahead, Error
             if (!i->istok)
             {
                 ASTNS::AST *ast = i->ast.get();
-                CHECKASI(Decls)
+                CHECKASI(DeclList)
                         case TokenType::FUN: case TokenType::EOF_:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
@@ -281,7 +281,7 @@ bool panicMode(Parser &p, std::vector<stackitem> &stack, Token &lookahead, Error
                         case TokenType::CPARN: case TokenType::COMMA:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
-                CHECKASI(Stmts)
+                CHECKASI(StmtList)
                         case TokenType::SEMICOLON: case TokenType::VAR: case TokenType::BANG: case TokenType::TILDE: case TokenType::MINUS: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::OPARN: case TokenType::RETURN: case TokenType::OCURB: case TokenType::CCURB:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
@@ -305,7 +305,7 @@ bool panicMode(Parser &p, std::vector<stackitem> &stack, Token &lookahead, Error
                         case TokenType::SEMICOLON: case TokenType::VAR: case TokenType::BANG: case TokenType::TILDE: case TokenType::MINUS: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::OPARN: case TokenType::RETURN: case TokenType::OCURB: case TokenType::CCURB:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
-                CHECKASI(VarStmtItems)
+                CHECKASI(VarStmtItemList)
                         case TokenType::SEMICOLON: case TokenType::COMMA:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
@@ -321,8 +321,16 @@ bool panicMode(Parser &p, std::vector<stackitem> &stack, Token &lookahead, Error
                         case TokenType::IDENTIFIER:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
-                CHECKASI(Args)
+                CHECKASI(ArgList)
                         case TokenType::COMMA: case TokenType::CPARN:
+                            RECOVERANDDEFBREAK()
+                FINISHCHECKASI()
+                CHECKASI(Arg)
+                        case TokenType::COMMA: case TokenType::CPARN:
+                            RECOVERANDDEFBREAK()
+                FINISHCHECKASI()
+                CHECKASI(Param)
+                        case TokenType::CPARN: case TokenType::COMMA:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(AssignmentExpr)

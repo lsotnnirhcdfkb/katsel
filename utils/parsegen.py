@@ -5,7 +5,7 @@ import os, re, colorama, itertools
 # classes {{{1
 # symbols {{{2
 class NonTerminal:
-    def __init__(self, symbol, name):
+    def __init__(self, symbol, name=None):
         self.symbol = symbol
         self.first = []
         self.follow = []
@@ -21,6 +21,15 @@ class NonTerminal:
 
     def __hash__(self):
         return hash(self.symbol)
+
+    def getName(self):
+        if self.name is None:
+            for sym, rule in _grammar.items():
+                if sym == self.symbol:
+                    self.name = rule['name']
+                    break
+
+        return self.name
 
     def updateFirsts(self):
         self.first = getFirsts(self)
@@ -145,7 +154,7 @@ class State:
             if item.index > 0:
                 s = item.rule.expansion[item.index - 1]
                 if type(s) == NonTerminal:
-                    justparsed.append(f'"{_grammar[str(s)]["name"]}"')
+                    justparsed.append(f'"{s.getName()}"')
                 else:
                     justparsed.append(f'stringifyTokenType({s.astt()})')
             else:
@@ -154,7 +163,7 @@ class State:
             after = item.getAfterDot()
             if after is not None:
                 if type(after) == NonTerminal:
-                    expected.extend([f'"{r.symbol.name}"' for r in grammar if r.symbol == after])
+                    expected.extend([f'"{r.symbol.getName()}"' for r in grammar if r.symbol == after])
                 else:
                     expected.append(f'stringifyTokenType({after.astt()})')
             else:
@@ -165,8 +174,9 @@ class State:
 
             whileparsing.append(f'"{item.rule.symbol.name}"')
 
+        justparsed = list(set(justparsed))
         if len(set(justparsed)) > 1:
-            raise Exception(self.set_)
+            raise Exception('More than one justparsed: ' + str(justparsed) + ' from\n'+ str(self.set_))
 
         self.justparsed = justparsed[0]
 
@@ -357,41 +367,50 @@ colorama.init()
 
 def rule(sym, name, base, *expansions):
     if sym in _grammar:
-        raise Exception(f'duplicate rule symbol {sym}')
+        assert _grammar[sym]['name'] == name, f'name conflict for nonterminal {sym}: {_grammar[sym]["name"]} vs {name}'
+        assert _grammar[sym]['base'] == base, f'base conflict for nonterminal {sym}: {_grammar[sym]["base"]} vs {base}'
+        _grammar[sym]['expansions'].extend(expansions)
+        return
 
     _grammar[sym] = {
         'name': name,
-        'expansions': expansions,
+        'expansions': list(expansions),
         'base': base
     }
 
+def listRule(sym, name, base, delimit=None):
+    rule(sym + 'List', name + ' list', base, f'${sym}List:{sym.lower()}list {f"{delimit}:{delimit.lower()}" if delimit is not None else ""} ${sym}:{sym.lower()}', f'${sym}:{sym.lower()}')
+
 _grammar = {}
-rule('Decls', 'declaration list', 'DeclB', '$Decls:decls $Decl:decl', '$Decl:_')
+
+listRule('Decl', 'declaration', 'DeclB')
 rule('Decl', 'declaration', 'DeclB', '$Function:_')
 
 rule('Function', 'function declaration', 'DeclB',
     'FUN:fun $Type:retty IDENTIFIER:name OPARN:oparn                      CPARN:cparn $Block:body',
     'FUN:fun $Type:retty IDENTIFIER:name OPARN:oparn $ParamList:paramlist CPARN:cparn $Block:body')
 
-rule('Stmts', 'statement list', 'StmtB', '$Stmts:stmts $Stmt:stmt',  '$Stmt:_')
+listRule('Stmt', 'statement', 'StmtB')
 rule('Stmt', 'statement', 'StmtB', '$EmptyStmt:_', '$VarStmt:_', '$ExprStmt:_', '$RetStmt:_', '$Block:_')
 
-rule('VarStmt', 'variable statement', 'StmtB', 'VAR:var $Type:type $VarStmtItems:assignments SEMICOLON:semi')
+rule('VarStmt', 'variable statement', 'StmtB', 'VAR:var $Type:type $VarStmtItemList:assignments SEMICOLON:semi')
 rule('ExprStmt', 'expression statement', 'StmtB', '$Expr:expr SEMICOLON:semi')
 rule('RetStmt', 'return statement', 'StmtB', 'RETURN:ret $Expr:expr SEMICOLON:semi')
 rule('EmptyStmt', 'empty statement', 'StmtB', 'SEMICOLON:semi')
 
-rule('VarStmtItems', 'variable statement assignment list', 'VStmtIB', '$VarStmtItems:items COMMA:comma $VarStmtItem:item', '$VarStmtItem:_')
-rule('VarStmtItem', 'variable statement assignment', 'VStmtIB', 'IDENTIFIER:name EQUAL:equal $Expr:expr', 'IDENTIFIER:name')
+listRule('VarStmtItem', 'variable statement initialization', 'VStmtIB', 'COMMA')
+rule('VarStmtItem', 'variable statement initialization', 'VStmtIB', 'IDENTIFIER:name EQUAL:equal $Expr:expr', 'IDENTIFIER:name')
 
-rule('Block', 'code block', 'StmtB', 'OCURB:ocurb $Stmts:stmts CCURB:ccurb', 'OCURB:ocurb CCURB:ccurb')
+rule('Block', 'code block', 'StmtB', 'OCURB:ocurb $StmtList:stmts CCURB:ccurb', 'OCURB:ocurb CCURB:ccurb')
 
 rule('Type', 'type specifier', 'TypeB', '$BuiltinType:_')
 rule('BuiltinType', 'builtin type specifier', 'TypeB', 'UINT8:type', 'UINT16:type', 'UINT32:type', 'UINT64:type', 'SINT8:type', 'SINT16:type', 'SINT32:type', 'SINT64:type', 'FLOAT:type', 'BOOL:type', 'DOUBLE:type', 'VOID:type', 'CHAR:type')
 
-rule('Args', 'argument list', 'ArgsB', '$Args:args COMMA:comma $Expr:expr', '$Expr:expr')
+listRule('Arg', 'argument', 'ArgB', 'COMMA')
+rule('Arg', 'argument', 'ArgB', '$Expr:expr')
 
-rule('ParamList', 'parameter list', 'PListB', '$ParamList:plist COMMA:comma $Type:type IDENTIFIER:name', '$Type:type IDENTIFIER:name')
+listRule('Param', 'parameter', 'PListB', 'COMMA')
+rule('Param', 'parameter', 'PListB', '$Type:type IDENTIFIER:name')
 
 rule('Expr', 'expression', 'ExprB', '$AssignmentExpr:_')
 rule('AssignmentExpr', 'assignment expression', 'ExprB', '$TernaryExpr:target EQUAL:equal $AssignmentExpr:value', '$TernaryExpr:_')
@@ -408,12 +427,13 @@ rule('BitshiftExpr', 'bit shift expression', 'ExprB', '$BitshiftExpr:lhs DOUBLEG
 rule('AdditionExpr', 'addition expression', 'ExprB', '$AdditionExpr:lhs PLUS:op $MultExpr:rhs', '$AdditionExpr:lhs MINUS:op $MultExpr:rhs', '$MultExpr:_')
 rule('MultExpr', 'multiplication expression', 'ExprB', '$MultExpr:lhs STAR:op $UnaryExpr:rhs', '$MultExpr:lhs SLASH:op $UnaryExpr:rhs', '$MultExpr:lhs PERCENT:op $UnaryExpr:rhs', '$UnaryExpr:_')
 rule('UnaryExpr', 'unary expression', 'ExprB', 'TILDE:op $UnaryExpr:operand', 'MINUS:op $UnaryExpr:operand', '$CallExpr:_')
-rule('CallExpr', 'function call expression', 'ExprB', '$PrimaryExpr:callee OPARN:oparn $Args:args CPARN:cparn', '$PrimaryExpr:callee OPARN:oparn CPARN:cparn', '$PrimaryExpr:_')
+rule('CallExpr', 'function call expression', 'ExprB', '$PrimaryExpr:callee OPARN:oparn $ArgList:args CPARN:cparn', '$PrimaryExpr:callee OPARN:oparn CPARN:cparn', '$PrimaryExpr:_')
 rule('PrimaryExpr', 'primary expression', 'ExprB', 'TRUELIT:value', 'FALSELIT:value', 'FLOATLIT:value', 'NULLPTRLIT:value', 'DECINTLIT:value', 'OCTINTLIT:value', 'BININTLIT:value', 'HEXINTLIT:value', 'CHARLIT:value', 'STRINGLIT:value', 'IDENTIFIER:value', 'OPARN:oparn $Expr:expr CPARN:cparn')
 
 grammar = []
 found = set()
 missing = set()
+
 for sym, rule in _grammar.items():
     if sym in missing:
         missing.remove(sym)
@@ -442,7 +462,7 @@ for sym, rule in _grammar.items():
                 raise
 
             if sname.startswith('$'):
-                convertedexpansion.append(NonTerminal(sname[1:], rule['name']))
+                convertedexpansion.append(NonTerminal(sname[1:]))
                 if sname[1:] not in found:
                     missing.add(sname[1:])
             else:
@@ -459,7 +479,7 @@ for sym, rule in _grammar.items():
         grammar.append(Rule(NonTerminal(sym, rule['name']), tuple(convertedexpansion), skip, vnames, base))
 
 for missingi in missing:
-    print(f'\033[35;1mwarning\033[0m: undefined terminal \033[1m{missingi}\033[0m')
+    print(f'\033[35;1mwarning\033[0m: undefined nonterminal \033[1m{missingi}\033[0m')
 print('-- parsed grammar')
 
 augmentSymbol = NonTerminal('augment', 'compilation unit')

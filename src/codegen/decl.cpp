@@ -6,9 +6,9 @@
 CodeGenNS::DeclCodeGen::DeclCodeGen(CodeGen &cg): cg(cg) {}
 
 void CodeGenNS::DeclCodeGen::visitDecl(ASTNS::Decl *) {}
-void CodeGenNS::DeclCodeGen::visitDecls(ASTNS::Decls *ast)
+void CodeGenNS::DeclCodeGen::visitDeclList(ASTNS::DeclList *ast)
 {
-    ast->decls->accept(this);
+    ast->decllist->accept(this);
     ast->decl->accept(this);
 }
 

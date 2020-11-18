@@ -24,6 +24,9 @@ void CodeGenNS::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem *ast)
     if (ast->expr)
     {
         Value val = cg.exprCodeGen.expr(ast->expr.get());
+        if (!val.val)
+            return;
+
         if (val.type != varty)
         {
             Error(Error::MsgType::ERROR, ast->equal, concatMsg("cannot initialize variable of type \"", varty->stringify(), "\" with value of type \"", val.type->stringify(), "\""))
@@ -38,8 +41,8 @@ void CodeGenNS::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem *ast)
         cg.context.builder.CreateStore(val.val, alloca);
     }
 }
-void CodeGenNS::StmtCodeGen::visitVarStmtItems(ASTNS::VarStmtItems *ast)
+void CodeGenNS::StmtCodeGen::visitVarStmtItemList(ASTNS::VarStmtItemList *ast)
 {
-    ast->items->accept(this);
-    ast->item->accept(this);
+    ast->varstmtitemlist->accept(this);
+    ast->varstmtitem->accept(this);
 }
