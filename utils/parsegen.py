@@ -5,10 +5,11 @@ import os, re, colorama, itertools
 # classes {{{1
 # symbols {{{2
 class NonTerminal:
-    def __init__(self, symbol):
+    def __init__(self, symbol, name):
         self.symbol = symbol
         self.first = []
         self.follow = []
+        self.name = name
 
     def __repr__(self):
         return str(self)
@@ -46,13 +47,12 @@ class Terminal:
 # rule {{{2
 class Rule:
     __num = 0
-    def __init__(self, symbol, expansion, skip, name, vnames, base):
+    def __init__(self, symbol, expansion, skip, vnames, base):
         self.symbol = symbol
         self.expansion = expansion
         self.num = Rule.__num
         Rule.__num += 1
         self.skip = skip
-        self.name = name
         self.vnames = vnames
         self.base = base
 
@@ -154,7 +154,7 @@ class State:
             after = item.getAfterDot()
             if after is not None:
                 if type(after) == NonTerminal:
-                    expected.extend([f'"{r.name}"' for r in grammar if r.symbol == after])
+                    expected.extend([f'"{r.symbol.name}"' for r in grammar if r.symbol == after])
                 else:
                     expected.append(f'stringifyTokenType({after.astt()})')
             else:
@@ -163,7 +163,7 @@ class State:
                 else:
                     expected.extend(map(lambda x: f'stringifyTokenType({x.astt()})', item.rule.symbol.follow))
 
-            whileparsing.append(f'"{item.rule.name}"')
+            whileparsing.append(f'"{item.rule.symbol.name}"')
 
         if len(set(justparsed)) > 1:
             raise Exception(self.set_)
@@ -368,6 +368,7 @@ def rule(sym, name, base, *expansions):
 _grammar = {}
 rule('Decls', 'declaration list', 'DeclB', '$Decls:decls $Decl:decl', '$Decl:_')
 rule('Decl', 'declaration', 'DeclB', '$Function:_')
+
 rule('Function', 'function declaration', 'DeclB',
     'FUN:fun $Type:retty IDENTIFIER:name OPARN:oparn                      CPARN:cparn $Block:body',
     'FUN:fun $Type:retty IDENTIFIER:name OPARN:oparn $ParamList:paramlist CPARN:cparn $Block:body')
@@ -441,7 +442,7 @@ for sym, rule in _grammar.items():
                 raise
 
             if sname.startswith('$'):
-                convertedexpansion.append(NonTerminal(sname[1:]))
+                convertedexpansion.append(NonTerminal(sname[1:], rule['name']))
                 if sname[1:] not in found:
                     missing.add(sname[1:])
             else:
@@ -455,14 +456,14 @@ for sym, rule in _grammar.items():
         else:
             skip = False
 
-        grammar.append(Rule(NonTerminal(sym), tuple(convertedexpansion), skip, rule['name'], vnames, base))
+        grammar.append(Rule(NonTerminal(sym, rule['name']), tuple(convertedexpansion), skip, vnames, base))
 
 for missingi in missing:
     print(f'\033[35;1mwarning\033[0m: undefined terminal \033[1m{missingi}\033[0m')
 print('-- parsed grammar')
 
-augmentSymbol = NonTerminal('augment')
-augmentRule = Rule(augmentSymbol, (grammar[0].symbol, ), True, 'compilation unit', '_', '')
+augmentSymbol = NonTerminal('augment', 'compilation unit')
+augmentRule = Rule(augmentSymbol, (grammar[0].symbol, ), True, '_', '')
 grammar.append(augmentRule)
 
 print('-- augment grammar')
