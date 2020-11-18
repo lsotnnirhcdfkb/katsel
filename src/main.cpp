@@ -16,7 +16,7 @@
 #include "visit/dotvisitor.h"
 #include "codegen/codegen.h"
 
-enum class Phases
+enum class OutFormats
 {
     LEX = 0,
     PARSE,
@@ -59,29 +59,29 @@ File readFile(char *filename)
 int main(int argc, char *argv[])
 {
     int opt;
-    Phases phasen = Phases::ALL;
-    while ((opt = getopt(argc, argv, "p:")) != -1)
+    OutFormats outformat = OutFormats::ALL;
+    while ((opt = getopt(argc, argv, "f:")) != -1)
     {
         switch (opt)
         {
-            case 'p':
+            case 'f':
                 if (strcmp(optarg, "lex") == 0)
-                    phasen = Phases::LEX;
+                    outformat = OutFormats::LEX;
                 else if (strcmp(optarg, "parse") == 0)
-                    phasen = Phases::PARSE;
+                    outformat = OutFormats::PARSE;
                 else if (strcmp(optarg, "dot") == 0)
-                    phasen = Phases::DOT;
+                    outformat = OutFormats::DOT;
                 else if (strcmp(optarg, "decls") == 0)
-                    phasen = Phases::DECLS;
+                    outformat = OutFormats::DECLS;
                 else if (strcmp(optarg, "codegen") == 0)
-                    phasen = Phases::CODEGEN;
+                    outformat = OutFormats::CODEGEN;
                 else if (strcmp(optarg, "all") == 0)
-                    phasen = Phases::ALL;
+                    outformat = OutFormats::ALL;
                 else
                 {
                     std::cerr << "Invalid argument for option -p: '" << optarg << "\'\n";
                     std::cerr << "Defaulting to -pall\n";
-                    phasen = Phases::ALL;
+                    outformat = OutFormats::ALL;
                 }
                 break;
 
@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
             continue;
 
         auto lexer = std::make_unique<Lexer>(*source);
-        if (phasen == Phases::LEX)
+        if (outformat == OutFormats::LEX)
         {
             while (true)
             {
@@ -124,14 +124,14 @@ int main(int argc, char *argv[])
         if (!parsed)
             continue;
 
-        if (phasen == Phases::PARSE) // stop at phase parse which means we don't need to do any more than parsing
+        if (outformat == OutFormats::PARSE)
         {
             auto printv = std::make_unique<PrintVisitor>();
             parsed->accept(printv.get());
             continue;
         }
 
-        if (phasen == Phases::DOT)
+        if (outformat == OutFormats::DOT)
         {
             auto dotter = std::make_unique<DotVisitor>();
             dotter->dotVisit(parsed.get());
@@ -141,14 +141,14 @@ int main(int argc, char *argv[])
         auto codegen = std::make_unique<CodeGenNS::CodeGen>(source->filename);
 
         codegen->declarate(parsed.get());
-        if (phasen == Phases::DECLS)
+        if (outformat == OutFormats::DECLS)
         {
             codegen->printMod();
             continue;
         }
 
         codegen->codegen(parsed.get());
-        if (phasen == Phases::CODEGEN)
+        if (outformat == OutFormats::CODEGEN)
         {
             codegen->printMod();
             continue;

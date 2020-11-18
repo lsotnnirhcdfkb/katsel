@@ -1,5 +1,5 @@
 /*
-command: <katselc> -plex <file>
+command: <katselc> -flex <file>
 returncode: 0
 */
 
