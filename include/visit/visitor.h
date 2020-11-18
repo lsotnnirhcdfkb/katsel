@@ -25,7 +25,8 @@ class BitorExpr;
 class BitshiftExpr;
 class BitxorExpr;
 class Block;
-class BuiltinType;
+class BuiltinTypeNoVoid;
+class BuiltinTypeVoid;
 class CallExpr;
 class CompeqExpr;
 class ComplgtExpr;
@@ -43,7 +44,8 @@ class RetStmt;
 class Stmt;
 class StmtList;
 class TernaryExpr;
-class Type;
+class TypeNV;
+class TypeV;
 class UnaryExpr;
 class VarStmt;
 class VarStmtItem;
@@ -116,8 +118,10 @@ class TypeBVisitor
 {
 public:
     virtual ~TypeBVisitor() {}
-    virtual void visitBuiltinType(ASTNS::BuiltinType *ast) = 0;
-    virtual void visitType(ASTNS::Type *ast) = 0;
+    virtual void visitBuiltinTypeNoVoid(ASTNS::BuiltinTypeNoVoid *ast) = 0;
+    virtual void visitBuiltinTypeVoid(ASTNS::BuiltinTypeVoid *ast) = 0;
+    virtual void visitTypeNV(ASTNS::TypeNV *ast) = 0;
+    virtual void visitTypeV(ASTNS::TypeV *ast) = 0;
 };
 class VStmtIBVisitor
 {

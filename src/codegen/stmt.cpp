@@ -11,7 +11,8 @@ void CodeGenNS::StmtCodeGen::stmt(ASTNS::StmtB *ast)
 void CodeGenNS::StmtCodeGen::visitBlock(ASTNS::Block *ast)
 {
     cg.context.incScope();
-    ast->stmts->accept(this);
+    if (ast->stmts)
+        ast->stmts->accept(this);
     cg.context.decScope();
 }
 void CodeGenNS::StmtCodeGen::visitExprStmt(ASTNS::ExprStmt *ast)
@@ -46,16 +47,6 @@ void CodeGenNS::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
 void CodeGenNS::StmtCodeGen::visitVarStmt(ASTNS::VarStmt *ast)
 {
     Type *ty = cg.typeResolver.type(ast->type.get());
-
-    if (dynamic_cast<VoidType*>(ty))
-    {
-        Error(Error::MsgType::ERROR, ast->type.get(), "invalid variable type \"void\"")
-            .underline(Error::Underline(ast->type.get(), '^')
-                .error("Variable cannot be of type void"))
-            .report();
-
-        return;
-    }
 
     varty = ty;
     ast->assignments->accept(this);

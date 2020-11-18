@@ -387,13 +387,13 @@ listRule('Decl', 'declaration', 'DeclB')
 rule('Decl', 'declaration', 'DeclB', '$Function:_')
 
 rule('Function', 'function declaration', 'DeclB',
-    'FUN:fun $Type:retty IDENTIFIER:name OPARN:oparn                      CPARN:cparn $Block:body',
-    'FUN:fun $Type:retty IDENTIFIER:name OPARN:oparn $ParamList:paramlist CPARN:cparn $Block:body')
+    'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn                      CPARN:cparn $Block:body',
+    'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn $ParamList:paramlist CPARN:cparn $Block:body')
 
 listRule('Stmt', 'statement', 'StmtB')
 rule('Stmt', 'statement', 'StmtB', '$EmptyStmt:_', '$VarStmt:_', '$ExprStmt:_', '$RetStmt:_', '$Block:_')
 
-rule('VarStmt', 'variable statement', 'StmtB', 'VAR:var $Type:type $VarStmtItemList:assignments SEMICOLON:semi')
+rule('VarStmt', 'variable statement', 'StmtB', 'VAR:var $TypeNV:type $VarStmtItemList:assignments SEMICOLON:semi')
 rule('ExprStmt', 'expression statement', 'StmtB', '$Expr:expr SEMICOLON:semi')
 rule('RetStmt', 'return statement', 'StmtB', 'RETURN:ret $Expr:expr SEMICOLON:semi')
 rule('EmptyStmt', 'empty statement', 'StmtB', 'SEMICOLON:semi')
@@ -403,14 +403,16 @@ rule('VarStmtItem', 'variable statement initialization', 'VStmtIB', 'IDENTIFIER:
 
 rule('Block', 'code block', 'StmtB', 'OCURB:ocurb $StmtList:stmts CCURB:ccurb', 'OCURB:ocurb CCURB:ccurb')
 
-rule('Type', 'type specifier', 'TypeB', '$BuiltinType:_')
-rule('BuiltinType', 'builtin type specifier', 'TypeB', 'UINT8:type', 'UINT16:type', 'UINT32:type', 'UINT64:type', 'SINT8:type', 'SINT16:type', 'SINT32:type', 'SINT64:type', 'FLOAT:type', 'BOOL:type', 'DOUBLE:type', 'VOID:type', 'CHAR:type')
+rule('TypeNV', 'type specifier', 'TypeB', '$BuiltinTypeNoVoid:_')
+rule('TypeV', 'type specifier', 'TypeB', '$BuiltinTypeVoid:_')
+rule('BuiltinTypeVoid', 'builtin type specifier (with void)', 'TypeB', '$BuiltinTypeNoVoid:_', 'VOID:type')
+rule('BuiltinTypeNoVoid', 'builtin type specifier (not including void)', 'TypeB', 'UINT8:type', 'UINT16:type', 'UINT32:type', 'UINT64:type', 'SINT8:type', 'SINT16:type', 'SINT32:type', 'SINT64:type', 'FLOAT:type', 'BOOL:type', 'DOUBLE:type', 'CHAR:type')
 
 listRule('Arg', 'argument', 'ArgB', 'COMMA')
 rule('Arg', 'argument', 'ArgB', '$Expr:expr')
 
 listRule('Param', 'parameter', 'PListB', 'COMMA')
-rule('Param', 'parameter', 'PListB', '$Type:type IDENTIFIER:name')
+rule('Param', 'parameter', 'PListB', '$TypeNV:type IDENTIFIER:name')
 
 rule('Expr', 'expression', 'ExprB', '$AssignmentExpr:_')
 rule('AssignmentExpr', 'assignment expression', 'ExprB', '$TernaryExpr:target EQUAL:equal $AssignmentExpr:value', '$TernaryExpr:_')
@@ -614,7 +616,11 @@ def genLoop():
                         elif type(sym) == NonTerminal:
                             output.append(f'                            auto a{i} (popA<ASTNS::{str(sym)}>(stack));\n')
 
-                    output.append(        f'                            std::unique_ptr<ASTNS::AST> push = std::make_unique<ASTNS::{str(ac.rule.symbol)}>({", ".join([f"std::move(a{i})" for i in range(len(ac.rule.expansion))])});\n')
+                    if not len(ac.rule.expansion):
+                        output.append(        f'                            std::unique_ptr<ASTNS::AST> push (nullptr);\n')
+                    else:
+                        output.append(        f'                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::{str(ac.rule.symbol)}>({", ".join([f"std::move(a{i})" for i in range(len(ac.rule.expansion))])}));\n')
+
                     output.append(        f'                            size_t newstate = getGoto<ASTNS::{str(ac.rule.symbol)}>(stack.back().state);\n')
                     output.append(        f'                            stack.emplace_back(newstate, std::move(push));\n')
                     output.append(         '                        }\n')

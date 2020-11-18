@@ -30,7 +30,8 @@ namespace ASTNS
     class BitshiftExpr;
     class BitxorExpr;
     class Block;
-    class BuiltinType;
+    class BuiltinTypeNoVoid;
+    class BuiltinTypeVoid;
     class CallExpr;
     class CompeqExpr;
     class ComplgtExpr;
@@ -48,7 +49,8 @@ namespace ASTNS
     class Stmt;
     class StmtList;
     class TernaryExpr;
-    class Type;
+    class TypeNV;
+    class TypeV;
     class UnaryExpr;
     class VarStmt;
     class VarStmtItem;
@@ -267,10 +269,22 @@ namespace ASTNS
         Form form;
         virtual void accept(StmtBVisitor *v);
     };
-    class BuiltinType : public TypeB
+    class BuiltinTypeNoVoid : public TypeB
     {
     public:
-        BuiltinType(Token type);
+        BuiltinTypeNoVoid(Token type);
+        enum class Form
+        {
+            T,
+        };
+        Token type;
+        Form form;
+        virtual void accept(TypeBVisitor *v);
+    };
+    class BuiltinTypeVoid : public TypeB
+    {
+    public:
+        BuiltinTypeVoid(Token type);
         enum class Form
         {
             T,
@@ -510,7 +524,16 @@ namespace ASTNS
         Form form;
         virtual void accept(ExprBVisitor *v);
     };
-    class Type : public TypeB
+    class TypeNV : public TypeB
+    {
+    public:
+        enum class Form
+        {
+        };
+        Form form;
+        virtual void accept(TypeBVisitor *v);
+    };
+    class TypeV : public TypeB
     {
     public:
         enum class Form

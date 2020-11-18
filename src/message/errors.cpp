@@ -78,7 +78,8 @@ void visitBitorExpr(ASTNS::BitorExpr *ast) override;
 void visitBitshiftExpr(ASTNS::BitshiftExpr *ast) override;
 void visitBitxorExpr(ASTNS::BitxorExpr *ast) override;
 void visitBlock(ASTNS::Block *ast) override;
-void visitBuiltinType(ASTNS::BuiltinType *ast) override;
+void visitBuiltinTypeNoVoid(ASTNS::BuiltinTypeNoVoid *ast) override;
+void visitBuiltinTypeVoid(ASTNS::BuiltinTypeVoid *ast) override;
 void visitCallExpr(ASTNS::CallExpr *ast) override;
 void visitCompeqExpr(ASTNS::CompeqExpr *ast) override;
 void visitComplgtExpr(ASTNS::ComplgtExpr *ast) override;
@@ -96,7 +97,8 @@ void visitRetStmt(ASTNS::RetStmt *ast) override;
 void visitStmt(ASTNS::Stmt *ast) override;
 void visitStmtList(ASTNS::StmtList *ast) override;
 void visitTernaryExpr(ASTNS::TernaryExpr *ast) override;
-void visitType(ASTNS::Type *ast) override;
+void visitTypeNV(ASTNS::TypeNV *ast) override;
+void visitTypeV(ASTNS::TypeV *ast) override;
 void visitUnaryExpr(ASTNS::UnaryExpr *ast) override;
 void visitVarStmt(ASTNS::VarStmt *ast) override;
 void visitVarStmtItem(ASTNS::VarStmtItem *ast) override;
@@ -282,11 +284,22 @@ void LocationVisitor::visitBlock(ASTNS::Block *ast)
             break;
     }
 }
-void LocationVisitor::visitBuiltinType(ASTNS::BuiltinType *ast)
+void LocationVisitor::visitBuiltinTypeNoVoid(ASTNS::BuiltinTypeNoVoid *ast)
 {
     switch (ast->form)
     {
-        case ASTNS::BuiltinType::Form::T:
+        case ASTNS::BuiltinTypeNoVoid::Form::T:
+            retl = ast->type.start;
+            retf = ast->type.sourcefile;
+            retr = ast->type.end;
+            break;
+    }
+}
+void LocationVisitor::visitBuiltinTypeVoid(ASTNS::BuiltinTypeVoid *ast)
+{
+    switch (ast->form)
+    {
+        case ASTNS::BuiltinTypeVoid::Form::T:
             retl = ast->type.start;
             retf = ast->type.sourcefile;
             retr = ast->type.end;
@@ -480,7 +493,13 @@ void LocationVisitor::visitTernaryExpr(ASTNS::TernaryExpr *ast)
             break;
     }
 }
-void LocationVisitor::visitType(ASTNS::Type *ast)
+void LocationVisitor::visitTypeNV(ASTNS::TypeNV *ast)
+{
+    switch (ast->form)
+    {
+    }
+}
+void LocationVisitor::visitTypeV(ASTNS::TypeV *ast)
 {
     switch (ast->form)
     {

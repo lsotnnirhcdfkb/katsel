@@ -9,8 +9,10 @@ Type* CodeGenNS::TypeResolve::type(ASTNS::TypeB *ast) {
     return ret;
 }
 
-void CodeGenNS::TypeResolve::visitType(ASTNS::Type *) {}
-void CodeGenNS::TypeResolve::visitBuiltinType(ASTNS::BuiltinType *ast)
+void CodeGenNS::TypeResolve::visitTypeNV(ASTNS::TypeNV *) {}
+void CodeGenNS::TypeResolve::visitTypeV(ASTNS::TypeV *) {}
+
+void CodeGenNS::TypeResolve::visitBuiltinTypeNoVoid(ASTNS::BuiltinTypeNoVoid *ast)
 {
     switch (ast->type.type)
     {
@@ -31,5 +33,13 @@ void CodeGenNS::TypeResolve::visitBuiltinType(ASTNS::BuiltinType *ast)
         default:
             invalidTok("builtin type", ast->type);
     }
+}
+
+void CodeGenNS::TypeResolve::visitBuiltinTypeVoid(ASTNS::BuiltinTypeVoid *ast)
+{
+    if (ast->type.type != TokenType::VOID)
+        invalidTok("builtin type with void", ast->type);
+
+    ret =  cg.context.getVoidType();
 }
 
