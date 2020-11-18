@@ -403,10 +403,10 @@ rule('VarStmtItem', 'variable statement initialization', 'VStmtIB', 'IDENTIFIER:
 
 rule('Block', 'code block', 'StmtB', 'OCURB:ocurb $StmtList:stmts CCURB:ccurb', 'OCURB:ocurb CCURB:ccurb')
 
-rule('TypeNV', 'type specifier', 'TypeB', '$BuiltinTypeNoVoid:_')
-rule('TypeV', 'type specifier', 'TypeB', '$BuiltinTypeVoid:_')
-rule('BuiltinTypeVoid', 'builtin type specifier (with void)', 'TypeB', '$BuiltinTypeNoVoid:_', 'VOID:type')
-rule('BuiltinTypeNoVoid', 'builtin type specifier (not including void)', 'TypeB', 'UINT8:type', 'UINT16:type', 'UINT32:type', 'UINT64:type', 'SINT8:type', 'SINT16:type', 'SINT32:type', 'SINT64:type', 'FLOAT:type', 'BOOL:type', 'DOUBLE:type', 'CHAR:type')
+rule('TypeNV', 'non-void type specifier', 'TypeB', '$BuiltinTypeNoVoid:_')
+rule('TypeV', 'void-inclusive type specifier', 'TypeB', '$BuiltinTypeVoid:_')
+rule('BuiltinTypeVoid', 'void-inclusive builtin type specifier', 'TypeB', '$BuiltinTypeNoVoid:_', 'VOID:type')
+rule('BuiltinTypeNoVoid', 'non-void builtin type specifier', 'TypeB', 'UINT8:type', 'UINT16:type', 'UINT32:type', 'UINT64:type', 'SINT8:type', 'SINT16:type', 'SINT32:type', 'SINT64:type', 'FLOAT:type', 'BOOL:type', 'DOUBLE:type', 'CHAR:type')
 
 listRule('Arg', 'argument', 'ArgB', 'COMMA')
 rule('Arg', 'argument', 'ArgB', '$Expr:expr')

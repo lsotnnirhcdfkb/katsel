@@ -874,7 +874,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::VOID:
                         shift(p, lasttok, lookahead, stack, steps, 9); break;
                     default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::FUN), "type specifier", "function declaration")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::FUN), "void-inclusive type specifier", "function declaration")
                 }
                 break;
             case 5:
@@ -900,7 +900,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::IDENTIFIER:
                         shift(p, lasttok, lookahead, stack, steps, 22); break;
                     default:
-                        DEFAULTINVALIDWHILE("type specifier", stringifyTokenType(TokenType::IDENTIFIER), "function declaration")
+                        DEFAULTINVALIDWHILE("void-inclusive type specifier", stringifyTokenType(TokenType::IDENTIFIER), "function declaration")
                 }
                 break;
             case 7:
@@ -910,7 +910,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         reduceSkip<ASTNS::TypeV>(stack);
                         break;
                     default:
-                        DEFAULTINVALIDWHILE("builtin type specifier (with void)", stringifyTokenType(TokenType::IDENTIFIER), "type specifier")
+                        DEFAULTINVALIDWHILE("void-inclusive builtin type specifier", stringifyTokenType(TokenType::IDENTIFIER), "void-inclusive type specifier")
                 }
                 break;
             case 8:
@@ -920,7 +920,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         reduceSkip<ASTNS::BuiltinTypeVoid>(stack);
                         break;
                     default:
-                        DEFAULTINVALIDWHILE("builtin type specifier (not including void)", stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier (with void)")
+                        DEFAULTINVALIDWHILE("non-void builtin type specifier", stringifyTokenType(TokenType::IDENTIFIER), "void-inclusive builtin type specifier")
                 }
                 break;
             case 9:
@@ -935,7 +935,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::VOID), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier (with void)")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::VOID), stringifyTokenType(TokenType::IDENTIFIER), "void-inclusive builtin type specifier")
                 }
                 break;
             case 10:
@@ -950,7 +950,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::UINT8), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier (not including void)")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::UINT8), stringifyTokenType(TokenType::IDENTIFIER), "non-void builtin type specifier")
                 }
                 break;
             case 11:
@@ -965,7 +965,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::UINT16), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier (not including void)")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::UINT16), stringifyTokenType(TokenType::IDENTIFIER), "non-void builtin type specifier")
                 }
                 break;
             case 12:
@@ -980,7 +980,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::UINT32), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier (not including void)")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::UINT32), stringifyTokenType(TokenType::IDENTIFIER), "non-void builtin type specifier")
                 }
                 break;
             case 13:
@@ -995,7 +995,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::UINT64), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier (not including void)")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::UINT64), stringifyTokenType(TokenType::IDENTIFIER), "non-void builtin type specifier")
                 }
                 break;
             case 14:
@@ -1010,7 +1010,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::SINT8), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier (not including void)")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::SINT8), stringifyTokenType(TokenType::IDENTIFIER), "non-void builtin type specifier")
                 }
                 break;
             case 15:
@@ -1025,7 +1025,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::SINT16), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier (not including void)")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::SINT16), stringifyTokenType(TokenType::IDENTIFIER), "non-void builtin type specifier")
                 }
                 break;
             case 16:
@@ -1040,7 +1040,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::SINT32), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier (not including void)")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::SINT32), stringifyTokenType(TokenType::IDENTIFIER), "non-void builtin type specifier")
                 }
                 break;
             case 17:
@@ -1055,7 +1055,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::SINT64), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier (not including void)")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::SINT64), stringifyTokenType(TokenType::IDENTIFIER), "non-void builtin type specifier")
                 }
                 break;
             case 18:
@@ -1070,7 +1070,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::FLOAT), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier (not including void)")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::FLOAT), stringifyTokenType(TokenType::IDENTIFIER), "non-void builtin type specifier")
                 }
                 break;
             case 19:
@@ -1085,7 +1085,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::BOOL), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier (not including void)")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::BOOL), stringifyTokenType(TokenType::IDENTIFIER), "non-void builtin type specifier")
                 }
                 break;
             case 20:
@@ -1100,7 +1100,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::DOUBLE), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier (not including void)")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::DOUBLE), stringifyTokenType(TokenType::IDENTIFIER), "non-void builtin type specifier")
                 }
                 break;
             case 21:
@@ -1115,7 +1115,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::CHAR), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier (not including void)")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::CHAR), stringifyTokenType(TokenType::IDENTIFIER), "non-void builtin type specifier")
                 }
                 break;
             case 22:
@@ -1197,7 +1197,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::IDENTIFIER:
                         shift(p, lasttok, lookahead, stack, steps, 33); break;
                     default:
-                        DEFAULTINVALIDWHILE("type specifier", stringifyTokenType(TokenType::IDENTIFIER), "parameter")
+                        DEFAULTINVALIDWHILE("non-void type specifier", stringifyTokenType(TokenType::IDENTIFIER), "parameter")
                 }
                 break;
             case 28:
@@ -1207,7 +1207,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         reduceSkip<ASTNS::TypeNV>(stack);
                         break;
                     default:
-                        DEFAULTINVALIDWHILE("builtin type specifier (not including void)", stringifyTokenType(TokenType::IDENTIFIER), "type specifier")
+                        DEFAULTINVALIDWHILE("non-void builtin type specifier", stringifyTokenType(TokenType::IDENTIFIER), "non-void type specifier")
                 }
                 break;
             case 29:
@@ -1655,7 +1655,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::UINT8:
                         shift(p, lasttok, lookahead, stack, steps, 10); break;
                     default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::VAR), "type specifier", "variable statement")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::VAR), "non-void type specifier", "variable statement")
                 }
                 break;
             case 44:
@@ -2802,7 +2802,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::IDENTIFIER:
                         shift(p, lasttok, lookahead, stack, steps, 111); break;
                     default:
-                        DEFAULTINVALIDWHILE("type specifier", "variable statement initialization list", "variable statement")
+                        DEFAULTINVALIDWHILE("non-void type specifier", "variable statement initialization list", "variable statement")
                 }
                 break;
             case 82:
