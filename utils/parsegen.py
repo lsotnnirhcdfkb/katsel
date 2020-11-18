@@ -368,7 +368,9 @@ def rule(sym, name, base, *expansions):
 _grammar = {}
 rule('Decls', 'declaration list', 'DeclB', '$Decls:decls $Decl:decl', '$Decl:_')
 rule('Decl', 'declaration', 'DeclB', '$Function:_')
-rule('Function', 'function declaration', 'DeclB', 'FUN:fun $Type:retty IDENTIFIER:name OPARN:oparn CPARN:cparn $Block:body',  'FUN:fun $Type:retty IDENTIFIER:name OPARN:oparn $ParamList:paramlist CPARN:cparn $Block:body')
+rule('Function', 'function declaration', 'DeclB',
+    'FUN:fun $Type:retty IDENTIFIER:name OPARN:oparn                      CPARN:cparn $Block:body',
+    'FUN:fun $Type:retty IDENTIFIER:name OPARN:oparn $ParamList:paramlist CPARN:cparn $Block:body')
 
 rule('Stmts', 'statement list', 'StmtB', '$Stmts:stmts $Stmt:stmt',  '$Stmt:_')
 rule('Stmt', 'statement', 'StmtB', '$EmptyStmt:_', '$VarStmt:_', '$ExprStmt:_', '$RetStmt:_', '$Block:_')
@@ -418,34 +420,42 @@ for sym, rule in _grammar.items():
     found.add(sym)
 
     expansions = rule['expansions']
+
     base = rule['base']
     for expansion in expansions:
         vnames = []
         expansion = expansion.split(' ')
+
+        convertedexpansion = []
+
         for i, s in enumerate(expansion):
+            if len(s) == 0:
+                continue
+
             try:
                 sname, vname = s.split(':')
                 vnames.append(vname)
             except:
                 print(f'\033[1mrule: {sym} -> {rule["expansions"]}\033[0m')
+                print(f'\033[1m{repr(s)}\033[0m')
                 raise
 
             if sname.startswith('$'):
-                expansion[i] = NonTerminal(sname[1:])
+                convertedexpansion.append(NonTerminal(sname[1:]))
                 if sname[1:] not in found:
                     missing.add(sname[1:])
             else:
-                expansion[i] = Terminal(f'TokenType::{sname}')
+                convertedexpansion.append(Terminal(f'TokenType::{sname}'))
                 if sname != sname.upper():
                     print(f'\033[35;1mwarning\033[0m: terminal {sname} in rule \033[1m{symbol} -> {expansion}\033[0m')
 
-        if len(expansion) == 1 and type(expansion[0]) == NonTerminal and _grammar[str(expansion[0])]['base'] == base:
+        if len(convertedexpansion) == 1 and type(convertedexpansion[0]) == NonTerminal and _grammar[str(convertedexpansion[0])]['base'] == base:
             skip = True
             print('\033[34mrule is skip\033[0m', sym, expansion)
         else:
             skip = False
 
-        grammar.append(Rule(NonTerminal(sym), tuple(expansion), skip, rule['name'], vnames, base))
+        grammar.append(Rule(NonTerminal(sym), tuple(convertedexpansion), skip, rule['name'], vnames, base))
 
 for missingi in missing:
     print(f'\033[35;1mwarning\033[0m: undefined terminal \033[1m{missingi}\033[0m')
