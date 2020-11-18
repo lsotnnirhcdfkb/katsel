@@ -26,7 +26,7 @@ void CodeGenNS::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem *ast)
         Value val = cg.exprCodeGen.expr(ast->expr.get());
         if (val.type != varty)
         {
-            Error(Error::MsgType::ERROR, ast->equal, "assignment operands are of different types")
+            Error(Error::MsgType::ERROR, ast->equal, concatMsg("cannot initialize variable of type \"", varty->stringify(), "\" with value of type \"", val.type->stringify(), "\""))
                 .underline(Error::Underline(val, '^')
                     .note(val.type->stringify()))
                 .underline(Error::Underline(ast->name, '^')

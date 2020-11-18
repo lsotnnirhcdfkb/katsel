@@ -163,18 +163,18 @@ class State:
                 else:
                     expected.extend(map(lambda x: f'stringifyTokenType({x.astt()})', item.rule.symbol.follow))
 
-            whileparsing.append(item.rule.name)
+            whileparsing.append(f'"{item.rule.name}"')
 
         if len(set(justparsed)) > 1:
             raise Exception(self.set_)
 
         self.justparsed = justparsed[0]
+
         self.expected = list(set(expected))
         self.expected.sort()
-        if len(set(whileparsing)) == 1:
-            self.whileparsing = f'"{whileparsing[0]}"'
-        else:
-            self.whileparsing = None
+
+        self.whileparsing = list(set(whileparsing))
+        self.whileparsing.sort()
 
 # actions {{{2
 class ShiftAction:
@@ -523,11 +523,7 @@ def genLoop():
                                        '        errored = true;\\\n'
                                        '    }\\\n'
                                        '    break;\n'
-                                       '#define DEFAULTINVALID2(justparsed, expected) \\\n'
-                                       '    ERRORSTART()\\\n'
-                                       '        Error e = p.invalidSyntax(justparsed, expected, lookahead, lasttok);\\\n'
-                                       '    ERROREND()\n'
-                                       '#define DEFAULTINVALID3(justparsed, expected, whileparsing) \\\n'
+                                       '#define DEFAULTINVALIDWHILE(justparsed, expected, whileparsing) \\\n'
                                        '    ERRORSTART()\\\n'
                                        '            Error e = p.invalidSyntaxWhile(justparsed, expected, whileparsing, lookahead, lasttok);\\\n'
                                        '    ERROREND()\n'
@@ -603,13 +599,10 @@ def genLoop():
             output.append(             '                        break;\n')
 
         output.append(                f'                    default:\n')
-        if state.whileparsing is not None:
-            if len(state.expected):
-                output.append(        f'                        DEFAULTINVALID3({state.justparsed}, {formatList(state.expected)}, {state.whileparsing})\n')
-            else:
-                output.append(        f'                        DEFAULTINVALIDNOEXPECT({state.justparsed}, {state.whileparsing})\n')
+        if len(state.expected):
+            output.append(        f'                        DEFAULTINVALIDWHILE({state.justparsed}, {formatList(state.expected)}, {formatList(state.whileparsing)})\n')
         else:
-            output.append(            f'                        DEFAULTINVALID2({state.justparsed}, {formatList(state.expected)})\n')
+            output.append(        f'                        DEFAULTINVALIDNOEXPECT({state.justparsed}, {formatList(state.whileparsing)})\n')
         output.append(                 '                }\n')
         output.append(                 '                break;\n')
 
@@ -621,13 +614,10 @@ def genLoop():
 
     output.append(                     '        }\n')
     output.append(                     '    }\n')
-    output.append(                    (
-                                      
-                                     
-                                    
-                                   
-                                       '#undef DEFAULTINVALID2\n'
-                                       '#undef DEFAULTINVALID3\n'))
+    output.append(                    ('#undef DEFAULTINVALIDNOEXPECT\n'
+                                       '#undef DEFAULTINVALIDWHILE\n'
+                                       '#undef ERRORSTART\n'
+                                       '#undef ERROREND\n'))
 
     return ''.join(output)
 # generate goto code {{{2

@@ -741,11 +741,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
         errored = true;\
     }\
     break;
-#define DEFAULTINVALID2(justparsed, expected) \
-    ERRORSTART()\
-        Error e = p.invalidSyntax(justparsed, expected, lookahead, lasttok);\
-    ERROREND()
-#define DEFAULTINVALID3(justparsed, expected, whileparsing) \
+#define DEFAULTINVALIDWHILE(justparsed, expected, whileparsing) \
     ERRORSTART()\
             Error e = p.invalidSyntaxWhile(justparsed, expected, whileparsing, lookahead, lasttok);\
     ERROREND()
@@ -770,7 +766,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::FUN:
                         shift(p, lasttok, lookahead, stack, steps, 4); break;
                     default:
-                    DEFAULTINVALID3("beginning", "declaration list", "compilation unit")
+                        DEFAULTINVALIDWHILE("beginning", "declaration list", "compilation unit")
                 }
                 break;
             case 1:
@@ -782,7 +778,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::FUN:
                         shift(p, lasttok, lookahead, stack, steps, 4); break;
                     default:
-                    DEFAULTINVALID2("declaration list", concatMsg("either ", "declaration", " or ", stringifyTokenType(TokenType::EOF_)))
+                        DEFAULTINVALIDWHILE("declaration list", concatMsg("either ", "declaration", " or ", stringifyTokenType(TokenType::EOF_)), concatMsg("either ", "compilation unit", " or ", "declaration list"))
                 }
                 break;
             case 2:
@@ -793,7 +789,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         reduceSkip<ASTNS::Decls>(stack);
                         break;
                     default:
-                    DEFAULTINVALID3("declaration", concatMsg("either ", stringifyTokenType(TokenType::EOF_), " or ", stringifyTokenType(TokenType::FUN)), "declaration list")
+                        DEFAULTINVALIDWHILE("declaration", concatMsg("either ", stringifyTokenType(TokenType::EOF_), " or ", stringifyTokenType(TokenType::FUN)), "declaration list")
                 }
                 break;
             case 3:
@@ -804,7 +800,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         reduceSkip<ASTNS::Decl>(stack);
                         break;
                     default:
-                    DEFAULTINVALID3("function declaration", concatMsg("either ", stringifyTokenType(TokenType::EOF_), " or ", stringifyTokenType(TokenType::FUN)), "declaration")
+                        DEFAULTINVALIDWHILE("function declaration", concatMsg("either ", stringifyTokenType(TokenType::EOF_), " or ", stringifyTokenType(TokenType::FUN)), "declaration")
                 }
                 break;
             case 4:
@@ -837,7 +833,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::VOID:
                         shift(p, lasttok, lookahead, stack, steps, 19); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::FUN), "type specifier", "function declaration")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::FUN), "type specifier", "function declaration")
                 }
                 break;
             case 5:
@@ -854,7 +850,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3("declaration", concatMsg("either ", stringifyTokenType(TokenType::EOF_), " or ", stringifyTokenType(TokenType::FUN)), "declaration list")
+                        DEFAULTINVALIDWHILE("declaration", concatMsg("either ", stringifyTokenType(TokenType::EOF_), " or ", stringifyTokenType(TokenType::FUN)), "declaration list")
                 }
                 break;
             case 6:
@@ -863,7 +859,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::IDENTIFIER:
                         shift(p, lasttok, lookahead, stack, steps, 21); break;
                     default:
-                    DEFAULTINVALID3("type specifier", stringifyTokenType(TokenType::IDENTIFIER), "function declaration")
+                        DEFAULTINVALIDWHILE("type specifier", stringifyTokenType(TokenType::IDENTIFIER), "function declaration")
                 }
                 break;
             case 7:
@@ -873,7 +869,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         reduceSkip<ASTNS::Type>(stack);
                         break;
                     default:
-                    DEFAULTINVALID3("builtin type specifier", stringifyTokenType(TokenType::IDENTIFIER), "type specifier")
+                        DEFAULTINVALIDWHILE("builtin type specifier", stringifyTokenType(TokenType::IDENTIFIER), "type specifier")
                 }
                 break;
             case 8:
@@ -888,7 +884,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::UINT8), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::UINT8), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
                 }
                 break;
             case 9:
@@ -903,7 +899,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::UINT16), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::UINT16), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
                 }
                 break;
             case 10:
@@ -918,7 +914,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::UINT32), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::UINT32), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
                 }
                 break;
             case 11:
@@ -933,7 +929,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::UINT64), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::UINT64), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
                 }
                 break;
             case 12:
@@ -948,7 +944,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::SINT8), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::SINT8), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
                 }
                 break;
             case 13:
@@ -963,7 +959,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::SINT16), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::SINT16), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
                 }
                 break;
             case 14:
@@ -978,7 +974,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::SINT32), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::SINT32), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
                 }
                 break;
             case 15:
@@ -993,7 +989,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::SINT64), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::SINT64), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
                 }
                 break;
             case 16:
@@ -1008,7 +1004,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::FLOAT), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::FLOAT), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
                 }
                 break;
             case 17:
@@ -1023,7 +1019,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::BOOL), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::BOOL), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
                 }
                 break;
             case 18:
@@ -1038,7 +1034,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::DOUBLE), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::DOUBLE), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
                 }
                 break;
             case 19:
@@ -1053,7 +1049,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::VOID), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::VOID), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
                 }
                 break;
             case 20:
@@ -1068,7 +1064,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::CHAR), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::CHAR), stringifyTokenType(TokenType::IDENTIFIER), "builtin type specifier")
                 }
                 break;
             case 21:
@@ -1077,7 +1073,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::OPARN:
                         shift(p, lasttok, lookahead, stack, steps, 22); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::IDENTIFIER), stringifyTokenType(TokenType::OPARN), "function declaration")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::IDENTIFIER), stringifyTokenType(TokenType::OPARN), "function declaration")
                 }
                 break;
             case 22:
@@ -1112,7 +1108,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::VOID:
                         shift(p, lasttok, lookahead, stack, steps, 19); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::OPARN), concatMsg("either ", "parameter list", " or ", stringifyTokenType(TokenType::CPARN)), "function declaration")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::OPARN), concatMsg("either ", "parameter list", " or ", stringifyTokenType(TokenType::CPARN)), "function declaration")
                 }
                 break;
             case 23:
@@ -1121,7 +1117,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::OCURB:
                         shift(p, lasttok, lookahead, stack, steps, 27); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::CPARN), "code block", "function declaration")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::CPARN), "code block", "function declaration")
                 }
                 break;
             case 24:
@@ -1132,7 +1128,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::CPARN:
                         shift(p, lasttok, lookahead, stack, steps, 28); break;
                     default:
-                    DEFAULTINVALID2("parameter list", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::CPARN)))
+                        DEFAULTINVALIDWHILE("parameter list", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::CPARN)), concatMsg("either ", "function declaration", " or ", "parameter list"))
                 }
                 break;
             case 25:
@@ -1141,7 +1137,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::IDENTIFIER:
                         shift(p, lasttok, lookahead, stack, steps, 30); break;
                     default:
-                    DEFAULTINVALID3("type specifier", stringifyTokenType(TokenType::IDENTIFIER), "parameter list")
+                        DEFAULTINVALIDWHILE("type specifier", stringifyTokenType(TokenType::IDENTIFIER), "parameter list")
                 }
                 break;
             case 26:
@@ -1162,7 +1158,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3("code block", concatMsg("either ", stringifyTokenType(TokenType::EOF_), " or ", stringifyTokenType(TokenType::FUN)), "function declaration")
+                        DEFAULTINVALIDWHILE("code block", concatMsg("either ", stringifyTokenType(TokenType::EOF_), " or ", stringifyTokenType(TokenType::FUN)), "function declaration")
                 }
                 break;
             case 27:
@@ -1209,7 +1205,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::VAR:
                         shift(p, lasttok, lookahead, stack, steps, 40); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::OCURB), concatMsg("either ", "statement list", " or ", stringifyTokenType(TokenType::CCURB)), "code block")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::OCURB), concatMsg("either ", "statement list", " or ", stringifyTokenType(TokenType::CCURB)), "code block")
                 }
                 break;
             case 28:
@@ -1218,7 +1214,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::OCURB:
                         shift(p, lasttok, lookahead, stack, steps, 27); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::CPARN), "code block", "function declaration")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::CPARN), "code block", "function declaration")
                 }
                 break;
             case 29:
@@ -1251,7 +1247,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::VOID:
                         shift(p, lasttok, lookahead, stack, steps, 19); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::COMMA), "type specifier", "parameter list")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::COMMA), "type specifier", "parameter list")
                 }
                 break;
             case 30:
@@ -1268,7 +1264,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::IDENTIFIER), concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::CPARN)), "parameter list")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::IDENTIFIER), concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::CPARN)), "parameter list")
                 }
                 break;
             case 31:
@@ -1315,7 +1311,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::VAR:
                         shift(p, lasttok, lookahead, stack, steps, 40); break;
                     default:
-                    DEFAULTINVALID2("statement list", concatMsg("either ", "statement", " or ", stringifyTokenType(TokenType::CCURB)))
+                        DEFAULTINVALIDWHILE("statement list", concatMsg("either ", "statement", " or ", stringifyTokenType(TokenType::CCURB)), concatMsg("either ", "code block", " or ", "statement list"))
                 }
                 break;
             case 32:
@@ -1352,7 +1348,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::CCURB), concatMsg("either ", "declaration", " or ", "statement"), "code block")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::CCURB), concatMsg("either ", "declaration", " or ", "statement"), "code block")
                 }
                 break;
             case 33:
@@ -1381,7 +1377,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         reduceSkip<ASTNS::Stmts>(stack);
                         break;
                     default:
-                    DEFAULTINVALID3("statement", "statement", "statement list")
+                        DEFAULTINVALIDWHILE("statement", "statement", "statement list")
                 }
                 break;
             case 34:
@@ -1410,7 +1406,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         reduceSkip<ASTNS::Stmt>(stack);
                         break;
                     default:
-                    DEFAULTINVALID3("empty statement", "statement", "statement")
+                        DEFAULTINVALIDWHILE("empty statement", "statement", "statement")
                 }
                 break;
             case 35:
@@ -1439,7 +1435,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         reduceSkip<ASTNS::Stmt>(stack);
                         break;
                     default:
-                    DEFAULTINVALID3("variable statement", "statement", "statement")
+                        DEFAULTINVALIDWHILE("variable statement", "statement", "statement")
                 }
                 break;
             case 36:
@@ -1468,7 +1464,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         reduceSkip<ASTNS::Stmt>(stack);
                         break;
                     default:
-                    DEFAULTINVALID3("expression statement", "statement", "statement")
+                        DEFAULTINVALIDWHILE("expression statement", "statement", "statement")
                 }
                 break;
             case 37:
@@ -1497,7 +1493,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         reduceSkip<ASTNS::Stmt>(stack);
                         break;
                     default:
-                    DEFAULTINVALID3("return statement", "statement", "statement")
+                        DEFAULTINVALIDWHILE("return statement", "statement", "statement")
                 }
                 break;
             case 38:
@@ -1526,7 +1522,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         reduceSkip<ASTNS::Stmt>(stack);
                         break;
                     default:
-                    DEFAULTINVALID3("code block", "statement", "statement")
+                        DEFAULTINVALIDWHILE("code block", "statement", "statement")
                 }
                 break;
             case 39:
@@ -1560,7 +1556,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::SEMICOLON), "statement", "empty statement")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::SEMICOLON), "statement", "empty statement")
                 }
                 break;
             case 40:
@@ -1593,7 +1589,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::VOID:
                         shift(p, lasttok, lookahead, stack, steps, 19); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::VAR), "type specifier", "variable statement")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::VAR), "type specifier", "variable statement")
                 }
                 break;
             case 41:
@@ -1602,7 +1598,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::SEMICOLON:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     default:
-                    DEFAULTINVALID3("expression", stringifyTokenType(TokenType::SEMICOLON), "expression statement")
+                        DEFAULTINVALIDWHILE("expression", stringifyTokenType(TokenType::SEMICOLON), "expression statement")
                 }
                 break;
             case 42:
@@ -1639,7 +1635,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::RETURN), "expression", "return statement")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::RETURN), "expression", "return statement")
                 }
                 break;
             case 43:
@@ -1652,7 +1648,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         reduceSkip<ASTNS::Expr>(stack);
                         break;
                     default:
-                    DEFAULTINVALID3("assignment expression", concatMsg(stringifyTokenType(TokenType::COLON), stringifyTokenType(TokenType::COMMA), stringifyTokenType(TokenType::CPARN), " or ", stringifyTokenType(TokenType::SEMICOLON)), "expression")
+                        DEFAULTINVALIDWHILE("assignment expression", concatMsg(stringifyTokenType(TokenType::COLON), stringifyTokenType(TokenType::COMMA), stringifyTokenType(TokenType::CPARN), " or ", stringifyTokenType(TokenType::SEMICOLON)), "expression")
                 }
                 break;
             case 44:
@@ -1667,7 +1663,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::EQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 81); break;
                     default:
-                    DEFAULTINVALID3("ternary expression", concatMsg(stringifyTokenType(TokenType::COLON), stringifyTokenType(TokenType::COMMA), stringifyTokenType(TokenType::CPARN), stringifyTokenType(TokenType::EQUAL), " or ", stringifyTokenType(TokenType::SEMICOLON)), "assignment expression")
+                        DEFAULTINVALIDWHILE("ternary expression", concatMsg(stringifyTokenType(TokenType::COLON), stringifyTokenType(TokenType::COMMA), stringifyTokenType(TokenType::CPARN), stringifyTokenType(TokenType::EQUAL), " or ", stringifyTokenType(TokenType::SEMICOLON)), "assignment expression")
                 }
                 break;
             case 45:
@@ -1685,7 +1681,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::QUESTION:
                         shift(p, lasttok, lookahead, stack, steps, 82); break;
                     default:
-                    DEFAULTINVALID2("binary or expression", concatMsg("either ", stringifyTokenType(TokenType::DOUBLEPIPE), " or ", stringifyTokenType(TokenType::QUESTION)))
+                        DEFAULTINVALIDWHILE("binary or expression", concatMsg("either ", stringifyTokenType(TokenType::DOUBLEPIPE), " or ", stringifyTokenType(TokenType::QUESTION)), concatMsg("either ", "binary or expression", " or ", "ternary expression"))
                 }
                 break;
             case 46:
@@ -1703,7 +1699,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::DOUBLEAMPER:
                         shift(p, lasttok, lookahead, stack, steps, 84); break;
                     default:
-                    DEFAULTINVALID2("binary and expression", stringifyTokenType(TokenType::DOUBLEAMPER))
+                        DEFAULTINVALIDWHILE("binary and expression", stringifyTokenType(TokenType::DOUBLEAMPER), concatMsg("either ", "binary and expression", " or ", "binary or expression"))
                 }
                 break;
             case 47:
@@ -1720,7 +1716,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         reduceSkip<ASTNS::BinandExpr>(stack);
                         break;
                     default:
-                    DEFAULTINVALIDNOEXPECT("binary not expression", "binary and expression")
+                        DEFAULTINVALIDNOEXPECT("binary not expression", "binary and expression")
                 }
                 break;
             case 48:
@@ -1757,7 +1753,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::BANG), "binary not expression", "binary not expression")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::BANG), "binary not expression", "binary not expression")
                 }
                 break;
             case 49:
@@ -1778,7 +1774,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::DOUBLEEQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 87); break;
                     default:
-                    DEFAULTINVALID2("equality expression", concatMsg("either ", stringifyTokenType(TokenType::BANGEQUAL), " or ", stringifyTokenType(TokenType::DOUBLEEQUAL)))
+                        DEFAULTINVALIDWHILE("equality expression", concatMsg("either ", stringifyTokenType(TokenType::BANGEQUAL), " or ", stringifyTokenType(TokenType::DOUBLEEQUAL)), concatMsg("either ", "binary not expression", " or ", "equality expression"))
                 }
                 break;
             case 50:
@@ -1805,7 +1801,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::LESSEQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 90); break;
                     default:
-                    DEFAULTINVALID2("comparison expression", concatMsg(stringifyTokenType(TokenType::GREATER), stringifyTokenType(TokenType::GREATEREQUAL), stringifyTokenType(TokenType::LESS), " or ", stringifyTokenType(TokenType::LESSEQUAL)))
+                        DEFAULTINVALIDWHILE("comparison expression", concatMsg(stringifyTokenType(TokenType::GREATER), stringifyTokenType(TokenType::GREATEREQUAL), stringifyTokenType(TokenType::LESS), " or ", stringifyTokenType(TokenType::LESSEQUAL)), concatMsg("either ", "comparison expression", " or ", "equality expression"))
                 }
                 break;
             case 51:
@@ -1830,7 +1826,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::CARET:
                         shift(p, lasttok, lookahead, stack, steps, 92); break;
                     default:
-                    DEFAULTINVALID2("bitwise xor expression", stringifyTokenType(TokenType::CARET))
+                        DEFAULTINVALIDWHILE("bitwise xor expression", stringifyTokenType(TokenType::CARET), concatMsg("either ", "bitwise xor expression", " or ", "comparison expression"))
                 }
                 break;
             case 52:
@@ -1856,7 +1852,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::PIPE:
                         shift(p, lasttok, lookahead, stack, steps, 93); break;
                     default:
-                    DEFAULTINVALID2("bitwise or expression", stringifyTokenType(TokenType::PIPE))
+                        DEFAULTINVALIDWHILE("bitwise or expression", stringifyTokenType(TokenType::PIPE), concatMsg("either ", "bitwise or expression", " or ", "bitwise xor expression"))
                 }
                 break;
             case 53:
@@ -1883,7 +1879,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         reduceSkip<ASTNS::BitorExpr>(stack);
                         break;
                     default:
-                    DEFAULTINVALID2("bitwise and expression", stringifyTokenType(TokenType::AMPER))
+                        DEFAULTINVALIDWHILE("bitwise and expression", stringifyTokenType(TokenType::AMPER), concatMsg("either ", "bitwise and expression", " or ", "bitwise or expression"))
                 }
                 break;
             case 54:
@@ -1913,7 +1909,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::DOUBLELESS:
                         shift(p, lasttok, lookahead, stack, steps, 96); break;
                     default:
-                    DEFAULTINVALID2("bit shift expression", concatMsg("either ", stringifyTokenType(TokenType::DOUBLEGREATER), " or ", stringifyTokenType(TokenType::DOUBLELESS)))
+                        DEFAULTINVALIDWHILE("bit shift expression", concatMsg("either ", stringifyTokenType(TokenType::DOUBLEGREATER), " or ", stringifyTokenType(TokenType::DOUBLELESS)), concatMsg("either ", "bit shift expression", " or ", "bitwise and expression"))
                 }
                 break;
             case 55:
@@ -1945,7 +1941,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::PLUS:
                         shift(p, lasttok, lookahead, stack, steps, 97); break;
                     default:
-                    DEFAULTINVALID2("addition expression", concatMsg("either ", stringifyTokenType(TokenType::MINUS), " or ", stringifyTokenType(TokenType::PLUS)))
+                        DEFAULTINVALIDWHILE("addition expression", concatMsg("either ", stringifyTokenType(TokenType::MINUS), " or ", stringifyTokenType(TokenType::PLUS)), concatMsg("either ", "addition expression", " or ", "bit shift expression"))
                 }
                 break;
             case 56:
@@ -1981,7 +1977,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 99); break;
                     default:
-                    DEFAULTINVALID2("multiplication expression", concatMsg(stringifyTokenType(TokenType::PERCENT), stringifyTokenType(TokenType::SLASH), " or ", stringifyTokenType(TokenType::STAR)))
+                        DEFAULTINVALIDWHILE("multiplication expression", concatMsg(stringifyTokenType(TokenType::PERCENT), stringifyTokenType(TokenType::SLASH), " or ", stringifyTokenType(TokenType::STAR)), concatMsg("either ", "addition expression", " or ", "multiplication expression"))
                 }
                 break;
             case 57:
@@ -2014,7 +2010,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         reduceSkip<ASTNS::MultExpr>(stack);
                         break;
                     default:
-                    DEFAULTINVALIDNOEXPECT("unary expression", "multiplication expression")
+                        DEFAULTINVALIDNOEXPECT("unary expression", "multiplication expression")
                 }
                 break;
             case 58:
@@ -2049,7 +2045,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::TILDE), "unary expression", "unary expression")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::TILDE), "unary expression", "unary expression")
                 }
                 break;
             case 59:
@@ -2084,7 +2080,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::MINUS), "unary expression", "unary expression")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::MINUS), "unary expression", "unary expression")
                 }
                 break;
             case 60:
@@ -2117,7 +2113,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         reduceSkip<ASTNS::UnaryExpr>(stack);
                         break;
                     default:
-                    DEFAULTINVALIDNOEXPECT("function call expression", "unary expression")
+                        DEFAULTINVALIDNOEXPECT("function call expression", "unary expression")
                 }
                 break;
             case 61:
@@ -2152,7 +2148,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::OPARN:
                         shift(p, lasttok, lookahead, stack, steps, 104); break;
                     default:
-                    DEFAULTINVALID3("primary expression", stringifyTokenType(TokenType::OPARN), "function call expression")
+                        DEFAULTINVALIDWHILE("primary expression", stringifyTokenType(TokenType::OPARN), "function call expression")
                 }
                 break;
             case 62:
@@ -2191,7 +2187,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::TRUELIT), "primary expression")
+                        DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::TRUELIT), "primary expression")
                 }
                 break;
             case 63:
@@ -2230,7 +2226,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::FALSELIT), "primary expression")
+                        DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::FALSELIT), "primary expression")
                 }
                 break;
             case 64:
@@ -2269,7 +2265,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::FLOATLIT), "primary expression")
+                        DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::FLOATLIT), "primary expression")
                 }
                 break;
             case 65:
@@ -2308,7 +2304,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::NULLPTRLIT), "primary expression")
+                        DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::NULLPTRLIT), "primary expression")
                 }
                 break;
             case 66:
@@ -2347,7 +2343,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::DECINTLIT), "primary expression")
+                        DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::DECINTLIT), "primary expression")
                 }
                 break;
             case 67:
@@ -2386,7 +2382,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::OCTINTLIT), "primary expression")
+                        DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::OCTINTLIT), "primary expression")
                 }
                 break;
             case 68:
@@ -2425,7 +2421,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::BININTLIT), "primary expression")
+                        DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::BININTLIT), "primary expression")
                 }
                 break;
             case 69:
@@ -2464,7 +2460,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::HEXINTLIT), "primary expression")
+                        DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::HEXINTLIT), "primary expression")
                 }
                 break;
             case 70:
@@ -2503,7 +2499,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::CHARLIT), "primary expression")
+                        DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::CHARLIT), "primary expression")
                 }
                 break;
             case 71:
@@ -2542,7 +2538,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::STRINGLIT), "primary expression")
+                        DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::STRINGLIT), "primary expression")
                 }
                 break;
             case 72:
@@ -2581,7 +2577,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::IDENTIFIER), "primary expression")
+                        DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::IDENTIFIER), "primary expression")
                 }
                 break;
             case 73:
@@ -2618,7 +2614,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::OPARN), "expression", "primary expression")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::OPARN), "expression", "primary expression")
                 }
                 break;
             case 74:
@@ -2640,7 +2636,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3("code block", concatMsg("either ", stringifyTokenType(TokenType::EOF_), " or ", stringifyTokenType(TokenType::FUN)), "function declaration")
+                        DEFAULTINVALIDWHILE("code block", concatMsg("either ", stringifyTokenType(TokenType::EOF_), " or ", stringifyTokenType(TokenType::FUN)), "function declaration")
                 }
                 break;
             case 75:
@@ -2649,7 +2645,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::IDENTIFIER:
                         shift(p, lasttok, lookahead, stack, steps, 106); break;
                     default:
-                    DEFAULTINVALID3("type specifier", stringifyTokenType(TokenType::IDENTIFIER), "parameter list")
+                        DEFAULTINVALIDWHILE("type specifier", stringifyTokenType(TokenType::IDENTIFIER), "parameter list")
                 }
                 break;
             case 76:
@@ -2687,7 +2683,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::CCURB), concatMsg("either ", "declaration", " or ", "statement"), "code block")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::CCURB), concatMsg("either ", "declaration", " or ", "statement"), "code block")
                 }
                 break;
             case 77:
@@ -2722,7 +2718,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3("statement", "statement", "statement list")
+                        DEFAULTINVALIDWHILE("statement", "statement", "statement list")
                 }
                 break;
             case 78:
@@ -2731,7 +2727,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::IDENTIFIER:
                         shift(p, lasttok, lookahead, stack, steps, 109); break;
                     default:
-                    DEFAULTINVALID3("type specifier", "variable statement assignment list", "variable statement")
+                        DEFAULTINVALIDWHILE("type specifier", "variable statement assignment list", "variable statement")
                 }
                 break;
             case 79:
@@ -2766,7 +2762,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::SEMICOLON), "statement", "expression statement")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::SEMICOLON), "statement", "expression statement")
                 }
                 break;
             case 80:
@@ -2775,7 +2771,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::SEMICOLON:
                         shift(p, lasttok, lookahead, stack, steps, 110); break;
                     default:
-                    DEFAULTINVALID3("expression", stringifyTokenType(TokenType::SEMICOLON), "return statement")
+                        DEFAULTINVALIDWHILE("expression", stringifyTokenType(TokenType::SEMICOLON), "return statement")
                 }
                 break;
             case 81:
@@ -2812,7 +2808,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::EQUAL), "assignment expression", "assignment expression")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::EQUAL), "assignment expression", "assignment expression")
                 }
                 break;
             case 82:
@@ -2849,7 +2845,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::QUESTION), "expression", "ternary expression")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::QUESTION), "expression", "ternary expression")
                 }
                 break;
             case 83:
@@ -2886,7 +2882,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::DOUBLEPIPE), "binary and expression", "binary or expression")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::DOUBLEPIPE), "binary and expression", "binary or expression")
                 }
                 break;
             case 84:
@@ -2923,7 +2919,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::DOUBLEAMPER), "binary not expression", "binary and expression")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::DOUBLEAMPER), "binary not expression", "binary and expression")
                 }
                 break;
             case 85:
@@ -2946,7 +2942,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALIDNOEXPECT("binary not expression", "binary not expression")
+                        DEFAULTINVALIDNOEXPECT("binary not expression", "binary not expression")
                 }
                 break;
             case 86:
@@ -2981,7 +2977,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::BANGEQUAL), "comparison expression", "equality expression")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::BANGEQUAL), "comparison expression", "equality expression")
                 }
                 break;
             case 87:
@@ -3016,7 +3012,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::DOUBLEEQUAL), "comparison expression", "equality expression")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::DOUBLEEQUAL), "comparison expression", "equality expression")
                 }
                 break;
             case 88:
@@ -3051,7 +3047,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::LESS), "bitwise xor expression", "comparison expression")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::LESS), "bitwise xor expression", "comparison expression")
                 }
                 break;
             case 89:
@@ -3086,7 +3082,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::GREATER), "bitwise xor expression", "comparison expression")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::GREATER), "bitwise xor expression", "comparison expression")
                 }
                 break;
             case 90:
@@ -3121,7 +3117,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::LESSEQUAL), "bitwise xor expression", "comparison expression")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::LESSEQUAL), "bitwise xor expression", "comparison expression")
                 }
                 break;
             case 91:
@@ -3156,7 +3152,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::GREATEREQUAL), "bitwise xor expression", "comparison expression")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::GREATEREQUAL), "bitwise xor expression", "comparison expression")
                 }
                 break;
             case 92:
@@ -3191,7 +3187,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::CARET), "bitwise or expression", "bitwise xor expression")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::CARET), "bitwise or expression", "bitwise xor expression")
                 }
                 break;
             case 93:
@@ -3226,7 +3222,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::PIPE), "bitwise and expression", "bitwise or expression")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::PIPE), "bitwise and expression", "bitwise or expression")
                 }
                 break;
             case 94:
@@ -3261,7 +3257,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::AMPER), "bit shift expression", "bitwise and expression")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::AMPER), "bit shift expression", "bitwise and expression")
                 }
                 break;
             case 95:
@@ -3296,7 +3292,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::DOUBLEGREATER), "addition expression", "bit shift expression")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::DOUBLEGREATER), "addition expression", "bit shift expression")
                 }
                 break;
             case 96:
@@ -3331,7 +3327,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::DOUBLELESS), "addition expression", "bit shift expression")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::DOUBLELESS), "addition expression", "bit shift expression")
                 }
                 break;
             case 97:
@@ -3366,7 +3362,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::PLUS), "multiplication expression", "addition expression")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::PLUS), "multiplication expression", "addition expression")
                 }
                 break;
             case 98:
@@ -3401,7 +3397,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::MINUS), "multiplication expression", "addition expression")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::MINUS), "multiplication expression", "addition expression")
                 }
                 break;
             case 99:
@@ -3436,7 +3432,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::STAR), "unary expression", "multiplication expression")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::STAR), "unary expression", "multiplication expression")
                 }
                 break;
             case 100:
@@ -3471,7 +3467,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::SLASH), "unary expression", "multiplication expression")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::SLASH), "unary expression", "multiplication expression")
                 }
                 break;
             case 101:
@@ -3506,7 +3502,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::PERCENT), "unary expression", "multiplication expression")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::PERCENT), "unary expression", "multiplication expression")
                 }
                 break;
             case 102:
@@ -3545,7 +3541,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALIDNOEXPECT("unary expression", "unary expression")
+                        DEFAULTINVALIDNOEXPECT("unary expression", "unary expression")
                 }
                 break;
             case 103:
@@ -3584,7 +3580,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALIDNOEXPECT("unary expression", "unary expression")
+                        DEFAULTINVALIDNOEXPECT("unary expression", "unary expression")
                 }
                 break;
             case 104:
@@ -3623,7 +3619,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::OPARN), concatMsg("either ", "argument list", " or ", stringifyTokenType(TokenType::CPARN)), "function call expression")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::OPARN), concatMsg("either ", "argument list", " or ", stringifyTokenType(TokenType::CPARN)), "function call expression")
                 }
                 break;
             case 105:
@@ -3632,7 +3628,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::CPARN:
                         shift(p, lasttok, lookahead, stack, steps, 134); break;
                     default:
-                    DEFAULTINVALID3("expression", stringifyTokenType(TokenType::CPARN), "primary expression")
+                        DEFAULTINVALIDWHILE("expression", stringifyTokenType(TokenType::CPARN), "primary expression")
                 }
                 break;
             case 106:
@@ -3651,7 +3647,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::IDENTIFIER), concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::CPARN)), "parameter list")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::IDENTIFIER), concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::CPARN)), "parameter list")
                 }
                 break;
             case 107:
@@ -3662,7 +3658,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::SEMICOLON:
                         shift(p, lasttok, lookahead, stack, steps, 135); break;
                     default:
-                    DEFAULTINVALID2("variable statement assignment list", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::SEMICOLON)))
+                        DEFAULTINVALIDWHILE("variable statement assignment list", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::SEMICOLON)), concatMsg("either ", "variable statement assignment list", " or ", "variable statement"))
                 }
                 break;
             case 108:
@@ -3673,7 +3669,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         reduceSkip<ASTNS::VarStmtItems>(stack);
                         break;
                     default:
-                    DEFAULTINVALID3("variable statement assignment", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::SEMICOLON)), "variable statement assignment list")
+                        DEFAULTINVALIDWHILE("variable statement assignment", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::SEMICOLON)), "variable statement assignment list")
                 }
                 break;
             case 109:
@@ -3691,7 +3687,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::EQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 137); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::IDENTIFIER), concatMsg(stringifyTokenType(TokenType::COMMA), stringifyTokenType(TokenType::EQUAL), " or ", stringifyTokenType(TokenType::SEMICOLON)), "variable statement assignment")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::IDENTIFIER), concatMsg(stringifyTokenType(TokenType::COMMA), stringifyTokenType(TokenType::EQUAL), " or ", stringifyTokenType(TokenType::SEMICOLON)), "variable statement assignment")
                 }
                 break;
             case 110:
@@ -3727,7 +3723,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::SEMICOLON), "statement", "return statement")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::SEMICOLON), "statement", "return statement")
                 }
                 break;
             case 111:
@@ -3747,7 +3743,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3("assignment expression", concatMsg(stringifyTokenType(TokenType::COLON), stringifyTokenType(TokenType::COMMA), stringifyTokenType(TokenType::CPARN), " or ", stringifyTokenType(TokenType::SEMICOLON)), "assignment expression")
+                        DEFAULTINVALIDWHILE("assignment expression", concatMsg(stringifyTokenType(TokenType::COLON), stringifyTokenType(TokenType::COMMA), stringifyTokenType(TokenType::CPARN), " or ", stringifyTokenType(TokenType::SEMICOLON)), "assignment expression")
                 }
                 break;
             case 112:
@@ -3756,7 +3752,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::COLON:
                         shift(p, lasttok, lookahead, stack, steps, 138); break;
                     default:
-                    DEFAULTINVALID3("expression", stringifyTokenType(TokenType::COLON), "ternary expression")
+                        DEFAULTINVALIDWHILE("expression", stringifyTokenType(TokenType::COLON), "ternary expression")
                 }
                 break;
             case 113:
@@ -3781,7 +3777,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::DOUBLEAMPER:
                         shift(p, lasttok, lookahead, stack, steps, 84); break;
                     default:
-                    DEFAULTINVALID2("binary and expression", stringifyTokenType(TokenType::DOUBLEAMPER))
+                        DEFAULTINVALIDWHILE("binary and expression", stringifyTokenType(TokenType::DOUBLEAMPER), concatMsg("either ", "binary and expression", " or ", "binary or expression"))
                 }
                 break;
             case 114:
@@ -3805,7 +3801,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALIDNOEXPECT("binary not expression", "binary and expression")
+                        DEFAULTINVALIDNOEXPECT("binary not expression", "binary and expression")
                 }
                 break;
             case 115:
@@ -3839,7 +3835,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::LESSEQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 90); break;
                     default:
-                    DEFAULTINVALID2("comparison expression", concatMsg(stringifyTokenType(TokenType::GREATER), stringifyTokenType(TokenType::GREATEREQUAL), stringifyTokenType(TokenType::LESS), " or ", stringifyTokenType(TokenType::LESSEQUAL)))
+                        DEFAULTINVALIDWHILE("comparison expression", concatMsg(stringifyTokenType(TokenType::GREATER), stringifyTokenType(TokenType::GREATEREQUAL), stringifyTokenType(TokenType::LESS), " or ", stringifyTokenType(TokenType::LESSEQUAL)), concatMsg("either ", "comparison expression", " or ", "equality expression"))
                 }
                 break;
             case 116:
@@ -3873,7 +3869,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::LESSEQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 90); break;
                     default:
-                    DEFAULTINVALID2("comparison expression", concatMsg(stringifyTokenType(TokenType::GREATER), stringifyTokenType(TokenType::GREATEREQUAL), stringifyTokenType(TokenType::LESS), " or ", stringifyTokenType(TokenType::LESSEQUAL)))
+                        DEFAULTINVALIDWHILE("comparison expression", concatMsg(stringifyTokenType(TokenType::GREATER), stringifyTokenType(TokenType::GREATEREQUAL), stringifyTokenType(TokenType::LESS), " or ", stringifyTokenType(TokenType::LESSEQUAL)), concatMsg("either ", "comparison expression", " or ", "equality expression"))
                 }
                 break;
             case 117:
@@ -3905,7 +3901,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::CARET:
                         shift(p, lasttok, lookahead, stack, steps, 92); break;
                     default:
-                    DEFAULTINVALID2("bitwise xor expression", stringifyTokenType(TokenType::CARET))
+                        DEFAULTINVALIDWHILE("bitwise xor expression", stringifyTokenType(TokenType::CARET), concatMsg("either ", "bitwise xor expression", " or ", "comparison expression"))
                 }
                 break;
             case 118:
@@ -3937,7 +3933,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::CARET:
                         shift(p, lasttok, lookahead, stack, steps, 92); break;
                     default:
-                    DEFAULTINVALID2("bitwise xor expression", stringifyTokenType(TokenType::CARET))
+                        DEFAULTINVALIDWHILE("bitwise xor expression", stringifyTokenType(TokenType::CARET), concatMsg("either ", "bitwise xor expression", " or ", "comparison expression"))
                 }
                 break;
             case 119:
@@ -3969,7 +3965,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::CARET:
                         shift(p, lasttok, lookahead, stack, steps, 92); break;
                     default:
-                    DEFAULTINVALID2("bitwise xor expression", stringifyTokenType(TokenType::CARET))
+                        DEFAULTINVALIDWHILE("bitwise xor expression", stringifyTokenType(TokenType::CARET), concatMsg("either ", "bitwise xor expression", " or ", "comparison expression"))
                 }
                 break;
             case 120:
@@ -4001,7 +3997,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::CARET:
                         shift(p, lasttok, lookahead, stack, steps, 92); break;
                     default:
-                    DEFAULTINVALID2("bitwise xor expression", stringifyTokenType(TokenType::CARET))
+                        DEFAULTINVALIDWHILE("bitwise xor expression", stringifyTokenType(TokenType::CARET), concatMsg("either ", "bitwise xor expression", " or ", "comparison expression"))
                 }
                 break;
             case 121:
@@ -4034,7 +4030,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::PIPE:
                         shift(p, lasttok, lookahead, stack, steps, 93); break;
                     default:
-                    DEFAULTINVALID2("bitwise or expression", stringifyTokenType(TokenType::PIPE))
+                        DEFAULTINVALIDWHILE("bitwise or expression", stringifyTokenType(TokenType::PIPE), concatMsg("either ", "bitwise or expression", " or ", "bitwise xor expression"))
                 }
                 break;
             case 122:
@@ -4068,7 +4064,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID2("bitwise and expression", stringifyTokenType(TokenType::AMPER))
+                        DEFAULTINVALIDWHILE("bitwise and expression", stringifyTokenType(TokenType::AMPER), concatMsg("either ", "bitwise and expression", " or ", "bitwise or expression"))
                 }
                 break;
             case 123:
@@ -4105,7 +4101,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::DOUBLELESS:
                         shift(p, lasttok, lookahead, stack, steps, 96); break;
                     default:
-                    DEFAULTINVALID2("bit shift expression", concatMsg("either ", stringifyTokenType(TokenType::DOUBLEGREATER), " or ", stringifyTokenType(TokenType::DOUBLELESS)))
+                        DEFAULTINVALIDWHILE("bit shift expression", concatMsg("either ", stringifyTokenType(TokenType::DOUBLEGREATER), " or ", stringifyTokenType(TokenType::DOUBLELESS)), concatMsg("either ", "bit shift expression", " or ", "bitwise and expression"))
                 }
                 break;
             case 124:
@@ -4144,7 +4140,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::PLUS:
                         shift(p, lasttok, lookahead, stack, steps, 97); break;
                     default:
-                    DEFAULTINVALID2("addition expression", concatMsg("either ", stringifyTokenType(TokenType::MINUS), " or ", stringifyTokenType(TokenType::PLUS)))
+                        DEFAULTINVALIDWHILE("addition expression", concatMsg("either ", stringifyTokenType(TokenType::MINUS), " or ", stringifyTokenType(TokenType::PLUS)), concatMsg("either ", "addition expression", " or ", "bit shift expression"))
                 }
                 break;
             case 125:
@@ -4183,7 +4179,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::PLUS:
                         shift(p, lasttok, lookahead, stack, steps, 97); break;
                     default:
-                    DEFAULTINVALID2("addition expression", concatMsg("either ", stringifyTokenType(TokenType::MINUS), " or ", stringifyTokenType(TokenType::PLUS)))
+                        DEFAULTINVALIDWHILE("addition expression", concatMsg("either ", stringifyTokenType(TokenType::MINUS), " or ", stringifyTokenType(TokenType::PLUS)), concatMsg("either ", "addition expression", " or ", "bit shift expression"))
                 }
                 break;
             case 126:
@@ -4226,7 +4222,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 99); break;
                     default:
-                    DEFAULTINVALID2("multiplication expression", concatMsg(stringifyTokenType(TokenType::PERCENT), stringifyTokenType(TokenType::SLASH), " or ", stringifyTokenType(TokenType::STAR)))
+                        DEFAULTINVALIDWHILE("multiplication expression", concatMsg(stringifyTokenType(TokenType::PERCENT), stringifyTokenType(TokenType::SLASH), " or ", stringifyTokenType(TokenType::STAR)), concatMsg("either ", "addition expression", " or ", "multiplication expression"))
                 }
                 break;
             case 127:
@@ -4269,7 +4265,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 99); break;
                     default:
-                    DEFAULTINVALID2("multiplication expression", concatMsg(stringifyTokenType(TokenType::PERCENT), stringifyTokenType(TokenType::SLASH), " or ", stringifyTokenType(TokenType::STAR)))
+                        DEFAULTINVALIDWHILE("multiplication expression", concatMsg(stringifyTokenType(TokenType::PERCENT), stringifyTokenType(TokenType::SLASH), " or ", stringifyTokenType(TokenType::STAR)), concatMsg("either ", "addition expression", " or ", "multiplication expression"))
                 }
                 break;
             case 128:
@@ -4309,7 +4305,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALIDNOEXPECT("unary expression", "multiplication expression")
+                        DEFAULTINVALIDNOEXPECT("unary expression", "multiplication expression")
                 }
                 break;
             case 129:
@@ -4349,7 +4345,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALIDNOEXPECT("unary expression", "multiplication expression")
+                        DEFAULTINVALIDNOEXPECT("unary expression", "multiplication expression")
                 }
                 break;
             case 130:
@@ -4389,7 +4385,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALIDNOEXPECT("unary expression", "multiplication expression")
+                        DEFAULTINVALIDNOEXPECT("unary expression", "multiplication expression")
                 }
                 break;
             case 131:
@@ -4400,7 +4396,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::CPARN:
                         shift(p, lasttok, lookahead, stack, steps, 139); break;
                     default:
-                    DEFAULTINVALID2("argument list", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::CPARN)))
+                        DEFAULTINVALIDWHILE("argument list", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::CPARN)), concatMsg("either ", "argument list", " or ", "function call expression"))
                 }
                 break;
             case 132:
@@ -4440,7 +4436,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::CPARN), "function call expression")
+                        DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::CPARN), "function call expression")
                 }
                 break;
             case 133:
@@ -4456,7 +4452,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3("expression", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::CPARN)), "argument list")
+                        DEFAULTINVALIDWHILE("expression", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::CPARN)), "argument list")
                 }
                 break;
             case 134:
@@ -4497,7 +4493,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::CPARN), "primary expression")
+                        DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::CPARN), "primary expression")
                 }
                 break;
             case 135:
@@ -4534,7 +4530,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::SEMICOLON), "statement", "variable statement")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::SEMICOLON), "statement", "variable statement")
                 }
                 break;
             case 136:
@@ -4543,7 +4539,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::IDENTIFIER:
                         shift(p, lasttok, lookahead, stack, steps, 109); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::COMMA), "variable statement assignment", "variable statement assignment list")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::COMMA), "variable statement assignment", "variable statement assignment list")
                 }
                 break;
             case 137:
@@ -4580,7 +4576,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::EQUAL), "expression", "variable statement assignment")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::EQUAL), "expression", "variable statement assignment")
                 }
                 break;
             case 138:
@@ -4617,7 +4613,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::COLON), "ternary expression", "ternary expression")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::COLON), "ternary expression", "ternary expression")
                 }
                 break;
             case 139:
@@ -4658,7 +4654,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::CPARN), "function call expression")
+                        DEFAULTINVALIDNOEXPECT(stringifyTokenType(TokenType::CPARN), "function call expression")
                 }
                 break;
             case 140:
@@ -4695,7 +4691,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 62); break;
                     default:
-                    DEFAULTINVALID3(stringifyTokenType(TokenType::COMMA), "expression", "argument list")
+                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::COMMA), "expression", "argument list")
                 }
                 break;
             case 141:
@@ -4713,7 +4709,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3("variable statement assignment", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::SEMICOLON)), "variable statement assignment list")
+                        DEFAULTINVALIDWHILE("variable statement assignment", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::SEMICOLON)), "variable statement assignment list")
                 }
                 break;
             case 142:
@@ -4731,7 +4727,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3("expression", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::SEMICOLON)), "variable statement assignment")
+                        DEFAULTINVALIDWHILE("expression", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::SEMICOLON)), "variable statement assignment")
                 }
                 break;
             case 143:
@@ -4754,7 +4750,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALIDNOEXPECT("ternary expression", "ternary expression")
+                        DEFAULTINVALIDNOEXPECT("ternary expression", "ternary expression")
                 }
                 break;
             case 144:
@@ -4772,7 +4768,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                    DEFAULTINVALID3("expression", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::CPARN)), "argument list")
+                        DEFAULTINVALIDWHILE("expression", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::CPARN)), "argument list")
                 }
                 break;
             default:
@@ -4782,8 +4778,10 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     .reportAbort();
         }
     }
-#undef DEFAULTINVALID2
-#undef DEFAULTINVALID3
+#undef DEFAULTINVALIDNOEXPECT
+#undef DEFAULTINVALIDWHILE
+#undef ERRORSTART
+#undef ERROREND
 // This code was autogenerated - see the utils/ directory
 
     // PARSERLOOP END
