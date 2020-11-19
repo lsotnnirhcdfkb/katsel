@@ -1,1 +1,1 @@
-target_sources(value.cpp)
+target_sources(katselc PUBLIC value.cpp)
