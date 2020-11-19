@@ -4,7 +4,7 @@ add_subdirectory(message)
 add_subdirectory(lex)
 add_subdirectory(visit)
 add_subdirectory(ir)
-
+add_subdirectory(codegen)
 
 ## TEMPORARILY NOT COMPILING WITH LLVM AT ALL!!
 ## # Also (mostly) copied and pasted and shifted around a bit from LLVM Docs - Building LLVM with CMake - Embedding LLVM in your project
