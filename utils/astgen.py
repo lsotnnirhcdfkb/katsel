@@ -264,11 +264,11 @@ def genDotVisitorMethods():
         output.append(             '    {\n')
         for form in ast.forms:
             output.append(        f'        case ASTNS::{ast.name}::Form::{stringifyForm(form)}:\n')
-            output.append(        f'            std::cout << thisid << " [label=<<table border=\\"0\\" cellborder=\\"1\\" cellspacing=\\"0\\"><tr><td port=\\"__heading\\" colspan=\\"{len(form)}\\">{ast.name} ({stringifyForm(form)})</td></tr><tr>";\n')
+            output.append(        f'            ostream << thisid << " [label=<<table border=\\"0\\" cellborder=\\"1\\" cellspacing=\\"0\\"><tr><td port=\\"__heading\\" colspan=\\"{len(form)}\\">{ast.name} ({stringifyForm(form)})</td></tr><tr>";\n')
             for field in form:
-                output.append(    f'            std::cout << "<td port=\\"{field.name}\\">{field.name}</td>";\n')
+                output.append(    f'            ostream << "<td port=\\"{field.name}\\">{field.name}</td>";\n')
 
-            output.append(        f'            std::cout << "</tr></table>>]\\n";\n')
+            output.append(        f'            ostream << "</tr></table>>]\\n";\n')
 
             for field in form:
                 output.append(     '            {\n')

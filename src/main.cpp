@@ -140,7 +140,10 @@ int main(int argc, char *argv[])
         outputstream.open(opath, std::ios::out);
 
         if (source->filename.size() == 0)
+        {
+            outputstream.close();
             continue;
+        }
 
         auto lexer = std::make_unique<Lexer>(*source);
         if (outformat == OutFormats::LEX)
@@ -153,6 +156,7 @@ int main(int argc, char *argv[])
 
                 outputstream << t.sourcefile->filename << ':' << t.line << ':' << t.column << ": (" << stringifyTokenType(t.type) << ") \"" << std::string(t.start, t.end) << "\"\n";
             }
+            outputstream.close();
             continue;
         }
 
@@ -160,12 +164,16 @@ int main(int argc, char *argv[])
         std::unique_ptr<ASTNS::DeclB> parsed = parser->parse();
 
         if (!parsed)
+        {
+            outputstream.close();
             continue;
+        }
 
         if (outformat == OutFormats::PARSE)
         {
             auto printv = std::make_unique<PrintVisitor>(outputstream);
             parsed->accept(printv.get());
+            outputstream.close();
             continue;
         }
 
@@ -173,6 +181,7 @@ int main(int argc, char *argv[])
         {
             auto dotter = std::make_unique<DotVisitor>(outputstream);
             dotter->dotVisit(parsed.get());
+            outputstream.close();
             continue;
         }
 
@@ -182,6 +191,7 @@ int main(int argc, char *argv[])
         if (outformat == OutFormats::DECLS)
         {
             codegen->printMod(outputstream);
+            outputstream.close();
             continue;
         }
 
@@ -189,8 +199,11 @@ int main(int argc, char *argv[])
         if (outformat == OutFormats::CODEGEN)
         {
             codegen->printMod(outputstream);
+            outputstream.close();
             continue;
         }
+
+        outputstream.close();
     }
 
     resetTerminal();

@@ -1142,16 +1142,14 @@ void PrintVisitor::pai(std::string &s)
     {
         if (pindent)
             for (int j = 0; j < indent; ++j)
-                std::cout << "  ";
+                ostream << "  ";
 
         pindent = false;
-        std::cout << *i;
+        ostream << *i;
 
         if (*i == '\n')
             pindent = true;
     }
-
-    std::cout << std::flush;
 }
 void PrintVisitor::pai(std::string &&s)
 {
