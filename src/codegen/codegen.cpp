@@ -1,7 +1,6 @@
 #include "codegen/codegen.h"
 
 #include <iostream>
-#include "llvm/Support/raw_ostream.h"
 
 CodeGenNS::CodeGen::CodeGen(std::string const &name) : context(name), declarator(*this), typeResolver(*this), paramVisitor(*this), argsVisitor(*this), declCodeGen(*this), stmtCodeGen(*this), exprCodeGen(*this) {}
 

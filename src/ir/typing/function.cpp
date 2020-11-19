@@ -1,9 +1,6 @@
 #include "typing/type.h"
 #include "message/errors.h"
 
-#include "llvm/IR/Type.h"
-#include "llvm/IR/DerivedTypes.h"
-
 #include <sstream>
 #include <iostream>
 

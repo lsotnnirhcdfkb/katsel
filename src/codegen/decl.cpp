@@ -1,8 +1,6 @@
 #include "codegen/codegen.h"
 #include "message/errors.h"
 
-#include "llvm/IR/Verifier.h"
-
 CodeGenNS::DeclCodeGen::DeclCodeGen(CodeGen &cg): cg(cg) {}
 
 void CodeGenNS::DeclCodeGen::visitDecl(ASTNS::Decl *) {}

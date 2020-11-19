@@ -5,12 +5,8 @@
 #include "visit/visitor.h"
 #include "parse/ast.h"
 
-#include "value/value.h"
-#include "typing/type.h"
-
-#include "llvm/IR/Type.h"
-#include "llvm/IR/Value.h"
-#include "llvm/IR/IRBuilder.h"
+#include "ir/value/value.h"
+#include "ir/typing/type.h"
 
 namespace CodeGenNS
 {

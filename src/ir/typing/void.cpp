@@ -3,8 +3,6 @@
 #include "typing/type.h"
 #include "message/errors.h"
 
-#include "llvm/IR/Type.h"
-
 llvm::Type* VoidType::toLLVMType(llvm::LLVMContext &con)
 {
     return llvm::Type::getVoidTy(con);

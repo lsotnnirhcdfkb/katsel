@@ -13,11 +13,11 @@ option(GENDOC "Build documentation" ON)
 
 # Copied and pasted and shifted around a bit from LLVM Docs - Building LLVM with CMake - Embedding LLVM in your project
 # https://releases.llvm.org/3.6.0/docs/CMake.html#embedding-llvm-in-your-project
-find_package(LLVM REQUIRED CONFIG)
-message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
-message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+# find_package(LLVM REQUIRED CONFIG)
+# message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+# message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
-add_definitions(${LLVM_DEFINITIONS})
+# add_definitions(${LLVM_DEFINITIONS})
 # end copy and paste
 
 find_package(Python REQUIRED COMPONENTS Interpreter)

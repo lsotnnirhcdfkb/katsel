@@ -1,8 +1,8 @@
 #pragma once
 
 #include "lex/tokentype.h"
-#include "typing/type.h"
-#include "value/value.h"
+#include "ir/typing/type.h"
+#include "ir/value/value.h"
 #include "parse/ast.h"
 
 #include <vector>
