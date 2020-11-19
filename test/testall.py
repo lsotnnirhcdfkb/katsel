@@ -9,7 +9,7 @@ functions = r'''
 class lex:
     @staticmethod
     def expect(type):
-        lines = [l for l in stdout.split('\n') if l.startswith(f'{testfile}:{line}')]
+        lines = [l for l in output.split('\n') if l.startswith(f'{testfile}:{line}')]
         assert len(lines) > 0, f'no matching line for type {type}'
 
         found = False
@@ -82,18 +82,33 @@ for i, testfile in enumerate(files):
     if 'command' not in opts:
         log += 'Failed: command field not found in yaml\n\n'
         failTest(log, faillog, testfile)
+        anyFailed = True
         continue
     if 'returncode' not in opts:
         log += 'Failed: returncode field not found in yaml\n\n'
         failTest(log, faillog, testfile)
+        anyFailed = True
         continue
 
     command = shlex.split(opts['command'].replace('<katselc>', EXECLOC).replace('<file>', testfile))
     expectretc = opts['returncode']
 
     proc = subprocess.run(command, capture_output=True)
-    stdout = proc.stdout.decode('utf-8')
-    stderr = proc.stderr.decode('utf-8')
+    outglob = f'{os.path.splitext(testfile)[0]}.*'
+    outfiles = [p for p in glob.glob(outglob) if p != testfile]
+    if len(outfiles) > 1:
+        print(f'\033[0;1;33munknown\033[0m')
+        print(f'\t- muliple files for outfile with glob expr \'{outglob}\': {outfiles}\033[0m')
+        continue
+    elif len(outfiles) == 0:
+        print(f'\033[0;1;33munknown\033[0m')
+        print(f'\t- no possible output files with glob expr \'{outglob}\'\033[0m')
+        continue
+
+    with open(outfiles[0], 'r') as f:
+        output = f.read()
+
+    os.remove(outfiles[0])
 
     tests = []
     i = 0
@@ -120,8 +135,7 @@ for i, testfile in enumerate(files):
             ns = test
             ns['contents'] = contents
             ns['testfile'] = testfile
-            ns['stdout'] = stdout
-            ns['stderr'] = stderr
+            ns['output'] = output
 
             exec(functions + test['text'], ns)
         except Exception as e:
@@ -130,10 +144,8 @@ for i, testfile in enumerate(files):
             log += traceback.format_exc()
             log += '\n'
 
-    log += 'stdout:\n'
-    log += stdout
-    log += 'stderr:\n'
-    log += stderr
+    log += 'output:\n'
+    log += output
 
     if failed:
         failTest(log, faillog, testfile)

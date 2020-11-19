@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 #include <memory>
 #include <limits>
 
@@ -101,6 +102,43 @@ int main(int argc, char *argv[])
     for (; optind < argc; ++optind)
     {
         auto source = std::make_unique<File>(readFile(argv[optind]));
+        std::filesystem::path fpath = argv[optind];
+
+        std::filesystem::path opath (fpath);
+        char const *extrepl;
+
+        switch (outformat)
+        {
+            case OutFormats::LEX:
+                extrepl = ".lexed.txt";
+                break;
+
+            case OutFormats::PARSE:
+                extrepl = ".parsed.txt";
+                break;
+
+            case OutFormats::DOT:
+                extrepl = ".dot";
+                break;
+
+            case OutFormats::DECLS:
+                extrepl = ".decled.ll";
+                break;
+
+            case OutFormats::CODEGEN:
+                extrepl = ".ll";
+                break;
+
+            case OutFormats::OBJECT:
+            case OutFormats::ALL:
+                extrepl = ".o";
+                break;
+        }
+
+        opath.replace_extension(extrepl);
+        std::ofstream outputstream;
+        outputstream.open(opath, std::ios::out);
+
         if (source->filename.size() == 0)
             continue;
 
@@ -113,7 +151,7 @@ int main(int argc, char *argv[])
                 if (t.type == TokenType::EOF_)
                     break;
 
-                std::cout << t.sourcefile->filename << ':' << t.line << ':' << t.column << ": (" << stringifyTokenType(t.type) << ") \"" << std::string(t.start, t.end) << "\"\n";
+                outputstream << t.sourcefile->filename << ':' << t.line << ':' << t.column << ": (" << stringifyTokenType(t.type) << ") \"" << std::string(t.start, t.end) << "\"\n";
             }
             continue;
         }
@@ -126,14 +164,14 @@ int main(int argc, char *argv[])
 
         if (outformat == OutFormats::PARSE)
         {
-            auto printv = std::make_unique<PrintVisitor>();
+            auto printv = std::make_unique<PrintVisitor>(outputstream);
             parsed->accept(printv.get());
             continue;
         }
 
         if (outformat == OutFormats::DOT)
         {
-            auto dotter = std::make_unique<DotVisitor>();
+            auto dotter = std::make_unique<DotVisitor>(outputstream);
             dotter->dotVisit(parsed.get());
             continue;
         }
@@ -143,14 +181,14 @@ int main(int argc, char *argv[])
         codegen->declarate(parsed.get());
         if (outformat == OutFormats::DECLS)
         {
-            codegen->printMod();
+            codegen->printMod(outputstream);
             continue;
         }
 
         codegen->codegen(parsed.get());
         if (outformat == OutFormats::CODEGEN)
         {
-            codegen->printMod();
+            codegen->printMod(outputstream);
             continue;
         }
     }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ostream>
+
 #include "visit/visitor.h"
 #include "parse/ast.h"
 
@@ -228,7 +230,7 @@ void visitUnaryExpr(ASTNS::UnaryExpr *ast) override;
         void declarate(ASTNS::DeclB *decls);
         void codegen(ASTNS::DeclB *decls);
 
-        void printMod();
+        void printMod(std::ostream &ostream);
 
         Context context;
 

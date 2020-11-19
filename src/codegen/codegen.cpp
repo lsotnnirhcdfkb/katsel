@@ -15,7 +15,7 @@ void CodeGenNS::CodeGen::codegen(ASTNS::DeclB *decls)
     decls->accept(&declCodeGen);
 }
 
-void CodeGenNS::CodeGen::printMod()
+void CodeGenNS::CodeGen::printMod(std::ostream &ostream)
 {
     context.mod->print(llvm::outs(), nullptr);
 }

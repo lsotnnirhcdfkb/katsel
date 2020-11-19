@@ -1157,3 +1157,5 @@ void PrintVisitor::pai(std::string &&s)
 {
     pai(s);
 }
+
+PrintVisitor::PrintVisitor(std::ostream &ostream): ostream(ostream) {}

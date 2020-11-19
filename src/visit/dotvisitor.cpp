@@ -1436,3 +1436,5 @@ void DotVisitor::connect(std::string startid, std::string fieldname, std::string
 {
     std::cout << startid << ":" << fieldname << " -> " << connectto << ":__heading\n";
 }
+
+DotVisitor::DotVisitor(std::ostream &ostream): ostream(ostream) {}
