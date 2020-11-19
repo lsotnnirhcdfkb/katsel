@@ -8,7 +8,7 @@ struct Value
     Type *type;
     ASTNS::AST *ast; // won't be invalidated because values are only ever created during codegen, which is just visiting
 
-    Value(Type *t, ASTNS::AST *ast): type(t), ast(ast) {}
+    Value(Type *t, ASTNS::AST *ast);
     Value();
 };
 
