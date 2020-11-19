@@ -52,7 +52,7 @@ File readFile(char *filename)
     }
     else
     {
-        std::cerr << "Could not open file\n";
+        std::perror("Could not open file");
         return File{"", ""};
     }
 }
