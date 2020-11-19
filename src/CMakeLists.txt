@@ -3,7 +3,6 @@ add_subdirectory(parse)
 add_subdirectory(message)
 add_subdirectory(lex)
 add_subdirectory(visit)
-add_subdirectory(codegen)
 add_subdirectory(ir)
 
 

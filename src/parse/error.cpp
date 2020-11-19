@@ -1,4 +1,5 @@
 #include "parsestack.h"
+#include <algorithm>
 
 bool errorRecovery(Parser &p, std::vector<stackitem> &stack, Token &lookahead, Error &e)
 {
