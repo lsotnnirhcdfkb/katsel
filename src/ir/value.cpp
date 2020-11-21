@@ -13,7 +13,7 @@ ASTNS::AST* Register::ast() const
 }
 
 
-Function::Function(FunctionType *ty, std::string name, ASTNS::AST *ast): ty(ty), name(name), _ast(ast) {}
+Function::Function(FunctionType *ty, std::string name, ASTNS::Function *ast): ty(ty), name(name), _ast(ast) {}
 
 void Function::add(std::unique_ptr<Block> block)
 {

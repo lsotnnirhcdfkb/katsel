@@ -32,7 +32,7 @@ private:
 class Function : public Value
 {
 public:
-    Function(FunctionType *ty, std::string name, ASTNS::AST *ast);
+    Function(FunctionType *ty, std::string name, ASTNS::Function *ast);
 
     void add(std::unique_ptr<Block> block);
 
@@ -44,7 +44,7 @@ private:
     FunctionType *ty;
     std::string name;
 
-    ASTNS::AST *_ast;
+    ASTNS::Function *_ast;
 
     std::vector<std::unique_ptr<Register>> registers;
 };

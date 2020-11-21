@@ -5,52 +5,52 @@
 
 CodeGenNS::Context::Context(File const &file): unit(file) {}
 
-Type* CodeGenNS::Context::getBuiltinType(BuiltinType::Builtins bty)
+BuiltinType* CodeGenNS::Context::getBuiltinType(BuiltinType::Builtins bty)
 {
     for (std::unique_ptr<Type> &ty : types)
     {
         BuiltinType *b (dynamic_cast<BuiltinType*>(ty.get()));
         if (b && b->type == bty)
-            return ty.get();
+            return b;
     }
 
-    std::unique_ptr<Type> ty = std::make_unique<BuiltinType>(bty);
+    std::unique_ptr<BuiltinType> ty = std::make_unique<BuiltinType>(bty);
 
-    Type *tyr = ty.get();
+    BuiltinType *tyr = ty.get();
     types.push_back(std::move(ty));
 
     return tyr;
 }
 
-Type* CodeGenNS::Context::getFunctionType(Type *ret, std::vector<Type*> paramtys)
+FunctionType* CodeGenNS::Context::getFunctionType(Type *ret, std::vector<Type*> paramtys)
 {
     for (std::unique_ptr<Type> &ty : types)
     {
         FunctionType *f (dynamic_cast<FunctionType*>(ty.get()));
         if (f && f->ret == ret && f->paramtys == paramtys)
-            return ty.get();
+            return f;
     }
 
-    std::unique_ptr<Type> ty = std::make_unique<FunctionType>(ret, paramtys);
+    std::unique_ptr<FunctionType> ty = std::make_unique<FunctionType>(ret, paramtys);
 
-    Type *tyr = ty.get();
+    FunctionType *tyr = ty.get();
     types.push_back(std::move(ty));
 
     return tyr;
 }
 
-Type* CodeGenNS::Context::getVoidType()
+VoidType* CodeGenNS::Context::getVoidType()
 {
     for (std::unique_ptr<Type> &ty : types)
     {
         VoidType *v (dynamic_cast<VoidType*>(ty.get()));
         if (v)
-            return ty.get();
+            return v;
     }
 
-    std::unique_ptr<Type> ty = std::make_unique<VoidType>();
+    std::unique_ptr<VoidType> ty = std::make_unique<VoidType>();
 
-    Type *tyr = ty.get();
+    VoidType *tyr = ty.get();
     types.push_back(std::move(ty));
     return tyr;
 }

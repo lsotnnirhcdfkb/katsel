@@ -10,3 +10,9 @@ void Unit::print(std::ostream &ostream) const
         ostream << f.stringify() << std::endl;
     }
 }
+
+Function* Unit::addFunction(FunctionType *type, std::string name, ASTNS::Function *ast)
+{
+    functions.emplace_back(type, name, ast);
+    return &functions.back();
+}

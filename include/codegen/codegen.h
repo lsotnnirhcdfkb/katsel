@@ -198,9 +198,9 @@ void visitUnaryExpr(ASTNS::UnaryExpr *ast) override;
         std::vector<Local> locals;
         size_t curScope = 1;
 
-        Type* getBuiltinType(BuiltinType::Builtins ty);
-        Type* getFunctionType(Type *ret, std::vector<Type*> paramtys);
-        Type* getVoidType();
+        BuiltinType* getBuiltinType(BuiltinType::Builtins ty);
+        FunctionType* getFunctionType(Type *ret, std::vector<Type*> paramtys);
+        VoidType* getVoidType();
 
         // llvm::AllocaInst* createEntryAlloca(llvm::Function *f, llvm::Type *type, std::string const &name);
         // void addLocal(std::string const &name, Type *type, llvm::AllocaInst *alloca, ASTNS::AST *ast);

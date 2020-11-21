@@ -18,6 +18,7 @@ struct Location
     Location(Token const &t);
     Location(std::string::iterator start, std::string::iterator end, File const *file);
     Location(Value const &v);
+    Location(Value const *v);
     Location(ASTNS::AST *ast);
 };
 // Error class {{{1
