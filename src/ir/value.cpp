@@ -1,11 +1,12 @@
 #include "ir/value.h"
+#include "message/errors.h"
 #include <sstream>
 
 Register::Register(int index, Type *type, ASTNS::AST *ast): index(index), ty(type), _ast(ast) {}
 
 std::string Register::stringify() const
 {
-    return std::string(0, '#') + std::to_string(index);
+    return concatMsg(ty->stringify(), " #", index);
 }
 ASTNS::AST* Register::ast() const
 {
@@ -28,6 +29,8 @@ std::string Function::stringify() const
     std::stringstream ss;
     ss << "fun \"" << name << "\" " << ty->stringify() << "\n";
     ss << "{\n";
+    for (std::unique_ptr<Register> const &r : registers)
+        ss << r->stringify() << std::endl;
     for (std::unique_ptr<Block> const &b : blocks)
         b->stringify(ss);
     ss << "}\n";
