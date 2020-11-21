@@ -48,6 +48,7 @@ public:
     std::vector<std::unique_ptr<Block>> blocks;
 
     Block* addBlock(std::string name);
+    Register* addRegister(Type *ty, ASTNS::AST *ast);
 
 private:
     FunctionType *ty;
@@ -56,6 +57,7 @@ private:
     ASTNS::Function *_ast;
 
     size_t blocki;
+    size_t regi;
 
     std::vector<std::unique_ptr<Register>> registers;
 };

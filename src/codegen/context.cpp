@@ -55,18 +55,11 @@ VoidType* CodeGenNS::Context::getVoidType()
     return tyr;
 }
 
-// llvm::AllocaInst* CodeGenNS::Context::createEntryAlloca(llvm::Function *f, llvm::Type* type, std::string const &name)
-// {
-//     llvm::IRBuilder<> b (&f->getEntryBlock(), f->getEntryBlock().begin());
-//     return b.CreateAlloca(type, 0, name.c_str());
-// }
-// 
-// void CodeGenNS::Context::addLocal(std::string const &name, Type *type, llvm::AllocaInst *alloca, ASTNS::AST *ast)
-// {
-//     Value v (type, alloca, ast);
-//     Local l {curScope, v, name};
-//     locals.push_back(l);
-// }
+void CodeGenNS::Context::addLocal(std::string const &name, Value *val)
+{
+    Local l {curScope, val, name};
+    locals.push_back(l);
+}
 
 void CodeGenNS::Context::incScope()
 {

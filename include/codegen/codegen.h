@@ -4,6 +4,7 @@
 
 #include "visit/visitor.h"
 #include "parse/ast.h"
+#include "codegen/param.h"
 
 #include "ir/value.h"
 #include "ir/type.h"
@@ -55,12 +56,6 @@ void visitFunction(ASTNS::Function *ast) override;
     class ParamVisitor : public PListBVisitor
     {
     public:
-        struct Param
-        {
-            Type *ty;
-            std::string name;
-            ASTNS::Param *ast;
-        };
         ParamVisitor(CodeGen &cg);
 
         std::vector<Param> params(ASTNS::PListB *pl);
@@ -196,8 +191,7 @@ void visitUnaryExpr(ASTNS::UnaryExpr *ast) override;
         FunctionType* getFunctionType(Type *ret, std::vector<Type*> paramtys);
         VoidType* getVoidType();
 
-        // llvm::AllocaInst* createEntryAlloca(llvm::Function *f, llvm::Type *type, std::string const &name);
-        // void addLocal(std::string const &name, Type *type, llvm::AllocaInst *alloca, ASTNS::AST *ast);
+        void addLocal(std::string const &name, Value *val);
         Local* findLocal(std::string const &name);
         Value* findValue(std::string const &name);
         Value* findGlobal(std::string const &name);

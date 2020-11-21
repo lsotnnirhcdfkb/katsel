@@ -52,3 +52,10 @@ Block* Function::addBlock(std::string name)
 
     return blockraw;
 }
+Register* Function::addRegister(Type *type, ASTNS::AST *ast)
+{
+    std::unique_ptr<Register> reg = std::make_unique<Register>(regi++, type, ast);
+    Register *regraw = reg.get();
+    registers.push_back(std::move(reg));
+    return regraw;
+}

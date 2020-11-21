@@ -22,26 +22,21 @@ void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
     if (f->blocks.size() > 0)
         return;
 
-    Block *block = f->addBlock("entry");
+    f->addBlock("entry");
 
     cg.context.incScope();
 
-    // if (ast->paramlist) TODO!
-    // {
-    //     std::vector<CodeGenNS::ParamVisitor::Param> params = cg.paramVisitor.params(ast->paramlist.get());
-    //     auto cparam = params.begin();
-    //     for (auto &param : f->args())
-    //     {
-    //         std::string pname = cparam->name;
-    //         llvm::AllocaInst *alloca = cg.context.createEntryAlloca(f, param.getType(), pname);
+    if (ast->paramlist)
+    {
+        std::vector<Param> params = cg.paramVisitor.params(ast->paramlist.get());
 
-    //         cg.context.builder.CreateStore(&param, alloca);
-
-    //         cg.context.addLocal(pname, cparam->ty, alloca, cparam->ast);
-
-    //         ++cparam;
-    //     }
-    // }
+        for (auto const &param : params)
+        {
+            std::string pname = param.name;
+            Register *reg = f->addRegister(param.ty, param.ast);
+            cg.context.addLocal(pname, reg);
+        }
+    }
 
     cg.context.curFunc = f;
 

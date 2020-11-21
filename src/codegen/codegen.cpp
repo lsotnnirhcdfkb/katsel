@@ -11,7 +11,7 @@ void CodeGenNS::CodeGen::declarate(ASTNS::DeclB *decls)
 
 void CodeGenNS::CodeGen::codegen(ASTNS::DeclB *decls)
 {
-    // decls->accept(&declCodeGen);
+    decls->accept(&declCodeGen);
 }
 
 void CodeGenNS::CodeGen::printUnit(std::ostream &ostream)
@@ -21,7 +21,7 @@ void CodeGenNS::CodeGen::printUnit(std::ostream &ostream)
 
 CodeGenNS::ParamVisitor::ParamVisitor::ParamVisitor(CodeGenNS::CodeGen &cg): cg(cg) {}
 
-std::vector<CodeGenNS::ParamVisitor::Param> CodeGenNS::ParamVisitor::params(ASTNS::PListB *ast)
+std::vector<Param> CodeGenNS::ParamVisitor::params(ASTNS::PListB *ast)
 {
     ret.clear();
     ast->accept(this);
@@ -33,7 +33,7 @@ void CodeGenNS::ParamVisitor::visitParam(ASTNS::Param *ast)
 {
     Type *ty (cg.typeResolver.type(ast->type.get()));
     std::string name (ast->name.stringify());
-    CodeGenNS::ParamVisitor::Param p {ty, std::move(name), ast};
+    Param p {ty, std::move(name), ast};
     ret.push_back(p);
 }
 

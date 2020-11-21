@@ -29,12 +29,12 @@ void CodeGenNS::Declarator::visitFunction(ASTNS::Function *fun)
     if (!retty)
         return;
 
-    std::vector<CodeGenNS::ParamVisitor::Param> params;
+    std::vector<Param> params;
     if (fun->paramlist)
         params = cg.paramVisitor.params(fun->paramlist.get());
 
     std::vector<Type*> ptys;
-    for (CodeGenNS::ParamVisitor::Param const &p : params)
+    for (Param const &p : params)
         ptys.push_back(p.ty);
 
     FunctionType *ft = cg.context.getFunctionType(retty, ptys);
