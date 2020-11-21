@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <map>
-struct Value;
+class Value;
 
 #include "lex/token.h"
 #include "lex/tokentype.h"

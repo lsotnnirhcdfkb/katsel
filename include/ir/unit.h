@@ -1,7 +1,7 @@
 #pragma once
 
 #include "utils/file.h"
-#include "ir/function.h"
+#include "ir/value.h"
 
 #include <string>
 #include <vector>

@@ -1,6 +1,5 @@
-#pragma once
-
-#include "ir/register.h"
+class Register;
+class Value;
 
 namespace Instrs
 {
@@ -12,26 +11,15 @@ namespace Instrs
     };
 
 
-    class Load : public Instruction
+    class Store : public Instruction
     {
     public:
-        Load(Register *target, Register *value);
+        Store(Register *target, Value *value);
         void print() override;
 
     private:
         Register *target;
-        Register *value;
-    };
-
-    class LoadConst : public Instruction
-    {
-    public:
-        LoadConst(Register *target, int value);
-        void print() override;
-
-    private:
-        Register *target;
-        int value;
+        Value *value;
     };
 
     class Br

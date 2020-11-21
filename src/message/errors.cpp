@@ -559,7 +559,7 @@ void LocationVisitor::visitVarStmtItemList(ASTNS::VarStmtItemList *ast)
 // LOCVISITOR IMPL END
 // constructors for location {{{1
 Location::Location(Token const &t): start(t.start), end(t.end), file(t.sourcefile) {}
-Location::Location(Value const &v): Location(v.ast) {}
+Location::Location(Value const &v): Location(v.ast()) {}
 Location::Location(std::string::iterator start, std::string::iterator end, File const *file): start(start), end(end), file(file) {}
 
 Location::Location(ASTNS::AST *ast)

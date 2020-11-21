@@ -2,7 +2,7 @@
 
 #include "lex/tokentype.h"
 #include "ir/type.h"
-#include "ir/value/value.h"
+#include "ir/value.h"
 #include "parse/ast.h"
 
 #include <vector>
