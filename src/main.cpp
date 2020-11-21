@@ -15,7 +15,7 @@
 #include "message/ansistuff.h"
 #include "visit/printvisitor.h"
 #include "visit/dotvisitor.h"
-#include "codegen/codegen.h"
+// #include "codegen/codegen.h"
 
 enum class OutFormats
 {
@@ -176,21 +176,21 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        auto codegen = std::make_unique<CodeGenNS::CodeGen>(source->filename);
+        // auto codegen = std::make_unique<CodeGenNS::CodeGen>(source->filename);
 
-        codegen->declarate(parsed.get());
-        if (outformat == OutFormats::DECLS)
-        {
-            codegen->printMod(outputstream);
-            continue;
-        }
+        // codegen->declarate(parsed.get());
+        // if (outformat == OutFormats::DECLS)
+        // {
+        //     codegen->printMod(outputstream);
+        //     continue;
+        // }
 
-        codegen->codegen(parsed.get());
-        if (outformat == OutFormats::CODEGEN)
-        {
-            codegen->printMod(outputstream);
-            continue;
-        }
+        // codegen->codegen(parsed.get());
+        // if (outformat == OutFormats::CODEGEN)
+        // {
+        //     codegen->printMod(outputstream);
+        //     continue;
+        // }
     }
 
     resetTerminal();
