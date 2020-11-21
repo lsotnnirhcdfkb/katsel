@@ -7,6 +7,7 @@
 
 #include "ir/value/value.h"
 #include "ir/type.h"
+#include "ir/param.h"
 
 namespace CodeGenNS
 {
@@ -57,12 +58,6 @@ void visitFunction(ASTNS::Function *ast) override;
     class ParamVisitor : public PListBVisitor
     {
     public:
-        struct Param
-        {
-            Type *ty;
-            std::string name;
-            ASTNS::Param *ast;
-        };
         ParamVisitor(CodeGen &cg);
 
         std::vector<Param> params(ASTNS::PListB *pl);

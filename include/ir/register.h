@@ -1,13 +1,16 @@
 #pragma once
 
 #include "ir/type.h"
+#include <string>
 
-struct Register
+class Register
 {
+public:
+    Register(int index, Type *type);
+    std::string stringify();
+
+private:
     int index;
-    bool temp;
 
     Type *type;
-
-    Register(int index, bool temp, Type *type);
 };

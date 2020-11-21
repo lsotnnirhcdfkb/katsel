@@ -8,10 +8,10 @@
 class Block
 {
 public:
-    void add(std::unique_ptr<Instruction> instr);
-    void branch(std::unique_ptr<Branch> br);
+    void add(std::unique_ptr<Instrs::Instruction> instr);
+    void branch(std::unique_ptr<Instrs::Br> br);
 
 private:
-    std::vector<std::unique_ptr<Instruction>> instructions;
-    std::unique_ptr<Branch> br;
+    std::vector<std::unique_ptr<Instrs::Instruction>> instructions;
+    std::unique_ptr<Instrs::Br> br;
 };
