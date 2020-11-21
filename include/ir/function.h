@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ir/value/value.h"
 #include "ir/type.h"
 #include "ir/block.h"
 

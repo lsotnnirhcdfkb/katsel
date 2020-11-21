@@ -9,9 +9,9 @@
 class Unit
 {
 public:
-    Unit(File &file);
+    Unit(File const &file);
 
 private:
     std::vector<Function> functions;
-    File &file;
+    File const &file;
 };

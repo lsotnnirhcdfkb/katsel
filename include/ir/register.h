@@ -2,6 +2,7 @@
 
 #include "ir/type.h"
 #include <string>
+#include <cstddef>
 
 class Register
 {
