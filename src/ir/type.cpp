@@ -39,7 +39,7 @@ FunctionType::FunctionType(Type *ret, std::vector<Type*> paramtys): ret(ret), pa
 std::string FunctionType::stringify()
 {
     std::stringstream ss;
-    ss << "fun " << ret->stringify() << "(";
+    ss << ret->stringify() << "(";
     for (Type *pty : paramtys)
         ss << pty->stringify() << ", ";
     ss << ")";

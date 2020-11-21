@@ -25,7 +25,7 @@ void Function::add(std::unique_ptr<Block> block)
 
 std::string Function::stringify() const
 {
-    return concatMsg("<function \"", name, "\">");
+    return concatMsg("fun \"", name, "\" ", ty->stringify());
 }
 ASTNS::AST* Function::ast() const
 {
