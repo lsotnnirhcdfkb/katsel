@@ -1,8 +1,9 @@
 #include "ir/value.h"
+#include "message/errors.h"
 
 Register::Register(int index, Type *type, ASTNS::AST *ast): index(index), type(type), _ast(ast) {}
 
-std::string Register::stringify()
+std::string Register::stringify() const
 {
     return std::string(0, '#') + std::to_string(index);
 }
@@ -17,6 +18,11 @@ Function::Function(FunctionType *ty, std::string name, ASTNS::AST *ast): ty(ty),
 void Function::add(std::unique_ptr<Block> block)
 {
     blocks.push_back(std::move(block));
+}
+
+std::string Function::stringify() const
+{
+    return concatMsg("<function \"", name, "\">");
 }
 ASTNS::AST* Function::ast() const
 {
