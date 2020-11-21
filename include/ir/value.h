@@ -12,6 +12,8 @@ public:
     virtual ~Value() {};
     virtual ASTNS::AST* ast() const = 0;
     virtual std::string stringify() const = 0;
+
+    virtual Type* type() const = 0;
 };
 
 class Register : public Value
@@ -22,9 +24,11 @@ public:
     ASTNS::AST* ast() const override;
     std::string stringify() const override;
 
+    Type* type() const override;
+
 private:
     int index;
-    Type *type;
+    Type *ty;
 
     ASTNS::AST *_ast;
 };
@@ -38,6 +42,8 @@ public:
 
     ASTNS::AST* ast() const override;
     std::string stringify() const override;
+
+    Type* type() const override;
 
 private:
     std::vector<std::unique_ptr<Block>> blocks;
