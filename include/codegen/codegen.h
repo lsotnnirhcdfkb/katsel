@@ -6,7 +6,7 @@
 #include "parse/ast.h"
 
 #include "ir/value/value.h"
-#include "ir/typing/type.h"
+#include "ir/type.h"
 
 namespace CodeGenNS
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ir/typing/type.h"
+#include "ir/type.h"
 #include "parse/ast.h"
 
 struct Value
