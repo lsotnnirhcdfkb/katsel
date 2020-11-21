@@ -9,7 +9,7 @@ class Value
 {
 public:
     virtual ~Value() {};
-    virtual ASTNS::AST* ast() const;
+    virtual ASTNS::AST* ast() const = 0;
 };
 
 class Register : public Value
