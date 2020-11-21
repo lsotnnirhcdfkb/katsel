@@ -2,7 +2,7 @@
 
 Function::Function(FunctionType *ty, std::string name): ty(ty), name(name) {}
 
-void Function::add(std::unique_ptr<Instruction> instr)
+void Function::add(std::unique_ptr<Block> block)
 {
-    instructions.push_back(std::move(instr));
+    blocks.push_back(std::move(block));
 }

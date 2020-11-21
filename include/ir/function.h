@@ -2,7 +2,7 @@
 
 #include "ir/value/value.h"
 #include "ir/type.h"
-#include "ir/instruction.h"
+#include "ir/block.h"
 
 #include <string>
 #include <vector>
@@ -13,10 +13,10 @@ class Function
 public:
     Function(FunctionType *ty, std::string name);
 
-    void add(std::unique_ptr<Instruction> instr);
+    void add(std::unique_ptr<Block> block);
 
 private:
-    std::vector<std::unique_ptr<Instruction>> instructions;
+    std::vector<std::unique_ptr<Block>> blocks;
     FunctionType *ty;
     std::string name;
 };
