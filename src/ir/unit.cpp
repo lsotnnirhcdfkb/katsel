@@ -5,14 +5,16 @@ Unit::Unit(File const &file): file(file) {}
 void Unit::print(std::ostream &ostream) const
 {
     ostream << "Unit " << file.filename << std::endl;
-    for (Function const &f : functions)
+    for (std::unique_ptr<Function> const &f : functions)
     {
-        ostream << f.stringify() << std::endl;
+        ostream << f->stringify() << std::endl;
     }
 }
 
 Function* Unit::addFunction(FunctionType *type, std::string name, ASTNS::Function *ast)
 {
-    functions.emplace_back(type, name, ast);
-    return &functions.back();
+    std::unique_ptr<Function> f (std::make_unique<Function>(type, name, ast));
+    Function *fraw = f.get();
+    functions.push_back(std::move(f));
+    return fraw;
 }
