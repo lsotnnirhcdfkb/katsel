@@ -4,6 +4,7 @@
 #include "ir/block.h"
 #include <string>
 #include <cstddef>
+#include <vector>
 
 class Value
 {
@@ -44,4 +45,12 @@ private:
     std::string name;
 
     ASTNS::AST *_ast;
+
+    std::vector<std::unique_ptr<Register>> registers;
+};
+
+struct Local
+{
+    Value *val;
+    size_t scopenum;
 };
