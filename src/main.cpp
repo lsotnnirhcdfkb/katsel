@@ -122,11 +122,11 @@ int main(int argc, char *argv[])
                 break;
 
             case OutFormats::DECLS:
-                extrepl = ".decled.ll";
+                extrepl = ".decled.kslir";
                 break;
 
             case OutFormats::CODEGEN:
-                extrepl = ".ll";
+                extrepl = ".kslir";
                 break;
 
             case OutFormats::OBJECT:
