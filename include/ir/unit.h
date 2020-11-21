@@ -5,11 +5,14 @@
 
 #include <string>
 #include <vector>
+#include <ostream>
 
 class Unit
 {
 public:
     Unit(File const &file);
+
+    void print(std::ostream &ostream) const;
 
 private:
     std::vector<Function> functions;

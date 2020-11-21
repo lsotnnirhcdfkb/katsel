@@ -51,6 +51,7 @@ private:
 
 struct Local
 {
-    Value *val;
     size_t scopenum;
+    Value *v;
+    std::string name;
 };
