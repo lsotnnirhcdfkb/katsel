@@ -45,12 +45,17 @@ public:
 
     Type* type() const override;
 
-private:
     std::vector<std::unique_ptr<Block>> blocks;
+
+    Block* addBlock(std::string name);
+
+private:
     FunctionType *ty;
     std::string name;
 
     ASTNS::Function *_ast;
+
+    size_t blocki;
 
     std::vector<std::unique_ptr<Register>> registers;
 };

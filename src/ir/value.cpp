@@ -36,3 +36,12 @@ Type* Function::type() const
 {
     return ty;
 }
+
+Block* Function::addBlock(std::string name)
+{
+    std::unique_ptr<Block> block = std::make_unique<Block>(name, blocki++);
+    Block *blockraw = block.get();
+    blocks.push_back(std::move(block));
+
+    return blockraw;
+}
