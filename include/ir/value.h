@@ -15,21 +15,22 @@ public:
 class Register : public Value
 {
 public:
-    Register(int index, Type *type);
+    Register(int index, Type *type, ASTNS::AST *ast);
     std::string stringify();
 
     ASTNS::AST* ast() const override;
 
 private:
     int index;
-
     Type *type;
+
+    ASTNS::AST *_ast;
 };
 
 class Function : public Value
 {
 public:
-    Function(FunctionType *ty, std::string name);
+    Function(FunctionType *ty, std::string name, ASTNS::AST *ast);
 
     void add(std::unique_ptr<Block> block);
 
@@ -39,4 +40,6 @@ private:
     std::vector<std::unique_ptr<Block>> blocks;
     FunctionType *ty;
     std::string name;
+
+    ASTNS::AST *_ast;
 };
