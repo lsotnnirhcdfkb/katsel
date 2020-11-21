@@ -11,7 +11,7 @@ void CodeGenNS::CodeGen::declarate(ASTNS::DeclB *decls)
 
 void CodeGenNS::CodeGen::codegen(ASTNS::DeclB *decls)
 {
-    decls->accept(&declCodeGen);
+    // decls->accept(&declCodeGen);
 }
 
 void CodeGenNS::CodeGen::printUnit(std::ostream &ostream)
