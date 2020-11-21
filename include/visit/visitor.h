@@ -69,7 +69,6 @@ class DeclBVisitor
 {
 public:
     virtual ~DeclBVisitor() {}
-    virtual void visitDecl(ASTNS::Decl *ast) = 0;
     virtual void visitDeclList(ASTNS::DeclList *ast) = 0;
     virtual void visitFunction(ASTNS::Function *ast) = 0;
 };
@@ -89,7 +88,6 @@ public:
     virtual void visitCallExpr(ASTNS::CallExpr *ast) = 0;
     virtual void visitCompeqExpr(ASTNS::CompeqExpr *ast) = 0;
     virtual void visitComplgtExpr(ASTNS::ComplgtExpr *ast) = 0;
-    virtual void visitExpr(ASTNS::Expr *ast) = 0;
     virtual void visitMultExpr(ASTNS::MultExpr *ast) = 0;
     virtual void visitPrimaryExpr(ASTNS::PrimaryExpr *ast) = 0;
     virtual void visitTernaryExpr(ASTNS::TernaryExpr *ast) = 0;
@@ -110,7 +108,6 @@ public:
     virtual void visitEmptyStmt(ASTNS::EmptyStmt *ast) = 0;
     virtual void visitExprStmt(ASTNS::ExprStmt *ast) = 0;
     virtual void visitRetStmt(ASTNS::RetStmt *ast) = 0;
-    virtual void visitStmt(ASTNS::Stmt *ast) = 0;
     virtual void visitStmtList(ASTNS::StmtList *ast) = 0;
     virtual void visitVarStmt(ASTNS::VarStmt *ast) = 0;
 };
@@ -120,8 +117,6 @@ public:
     virtual ~TypeBVisitor() {}
     virtual void visitBuiltinTypeNoVoid(ASTNS::BuiltinTypeNoVoid *ast) = 0;
     virtual void visitBuiltinTypeVoid(ASTNS::BuiltinTypeVoid *ast) = 0;
-    virtual void visitTypeNV(ASTNS::TypeNV *ast) = 0;
-    virtual void visitTypeV(ASTNS::TypeV *ast) = 0;
 };
 class VStmtIBVisitor
 {

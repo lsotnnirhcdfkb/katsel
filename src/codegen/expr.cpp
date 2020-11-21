@@ -32,4 +32,3 @@ void CodeGenNS::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast) {}
 void CodeGenNS::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast) {}
 void CodeGenNS::ExprCodeGen::visitTernaryExpr(ASTNS::TernaryExpr *ast) {}
 void CodeGenNS::ExprCodeGen::visitAssignmentExpr(ASTNS::AssignmentExpr *ast) {}
-void CodeGenNS::ExprCodeGen::visitExpr(ASTNS::Expr *) {}

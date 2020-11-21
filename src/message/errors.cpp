@@ -83,10 +83,8 @@ void visitBuiltinTypeVoid(ASTNS::BuiltinTypeVoid *ast) override;
 void visitCallExpr(ASTNS::CallExpr *ast) override;
 void visitCompeqExpr(ASTNS::CompeqExpr *ast) override;
 void visitComplgtExpr(ASTNS::ComplgtExpr *ast) override;
-void visitDecl(ASTNS::Decl *ast) override;
 void visitDeclList(ASTNS::DeclList *ast) override;
 void visitEmptyStmt(ASTNS::EmptyStmt *ast) override;
-void visitExpr(ASTNS::Expr *ast) override;
 void visitExprStmt(ASTNS::ExprStmt *ast) override;
 void visitFunction(ASTNS::Function *ast) override;
 void visitMultExpr(ASTNS::MultExpr *ast) override;
@@ -94,11 +92,8 @@ void visitParam(ASTNS::Param *ast) override;
 void visitParamList(ASTNS::ParamList *ast) override;
 void visitPrimaryExpr(ASTNS::PrimaryExpr *ast) override;
 void visitRetStmt(ASTNS::RetStmt *ast) override;
-void visitStmt(ASTNS::Stmt *ast) override;
 void visitStmtList(ASTNS::StmtList *ast) override;
 void visitTernaryExpr(ASTNS::TernaryExpr *ast) override;
-void visitTypeNV(ASTNS::TypeNV *ast) override;
-void visitTypeV(ASTNS::TypeV *ast) override;
 void visitUnaryExpr(ASTNS::UnaryExpr *ast) override;
 void visitVarStmt(ASTNS::VarStmt *ast) override;
 void visitVarStmtItem(ASTNS::VarStmtItem *ast) override;
@@ -344,12 +339,6 @@ void LocationVisitor::visitComplgtExpr(ASTNS::ComplgtExpr *ast)
             break;
     }
 }
-void LocationVisitor::visitDecl(ASTNS::Decl *ast)
-{
-    switch (ast->form)
-    {
-    }
-}
 void LocationVisitor::visitDeclList(ASTNS::DeclList *ast)
 {
     switch (ast->form)
@@ -370,12 +359,6 @@ void LocationVisitor::visitEmptyStmt(ASTNS::EmptyStmt *ast)
             retf = ast->semi.sourcefile;
             retr = ast->semi.end;
             break;
-    }
-}
-void LocationVisitor::visitExpr(ASTNS::Expr *ast)
-{
-    switch (ast->form)
-    {
     }
 }
 void LocationVisitor::visitExprStmt(ASTNS::ExprStmt *ast)
@@ -465,12 +448,6 @@ void LocationVisitor::visitRetStmt(ASTNS::RetStmt *ast)
             break;
     }
 }
-void LocationVisitor::visitStmt(ASTNS::Stmt *ast)
-{
-    switch (ast->form)
-    {
-    }
-}
 void LocationVisitor::visitStmtList(ASTNS::StmtList *ast)
 {
     switch (ast->form)
@@ -491,18 +468,6 @@ void LocationVisitor::visitTernaryExpr(ASTNS::TernaryExpr *ast)
             retf = getF(ast->cond.get());
             retr = getR(ast->falses.get());
             break;
-    }
-}
-void LocationVisitor::visitTypeNV(ASTNS::TypeNV *ast)
-{
-    switch (ast->form)
-    {
-    }
-}
-void LocationVisitor::visitTypeV(ASTNS::TypeV *ast)
-{
-    switch (ast->form)
-    {
     }
 }
 void LocationVisitor::visitUnaryExpr(ASTNS::UnaryExpr *ast)

@@ -12,11 +12,11 @@ void DotVisitor::visitAdditionExpr(ASTNS::AdditionExpr *a)
     switch (a->form)
     {
         case ASTNS::AdditionExpr::Form::ATA:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">AdditionExpr (ATA)</td></tr><tr>";
-            std::cout << "<td port=\"lhs\">lhs</td>";
-            std::cout << "<td port=\"op\">op</td>";
-            std::cout << "<td port=\"rhs\">rhs</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">AdditionExpr (ATA)</td></tr><tr>";
+            ostream << "<td port=\"lhs\">lhs</td>";
+            ostream << "<td port=\"op\">op</td>";
+            ostream << "<td port=\"rhs\">rhs</td>";
+            ostream << "</tr></table>>]\n";
             {
                     if (a->lhs)
                     {
@@ -55,9 +55,9 @@ void DotVisitor::visitArg(ASTNS::Arg *a)
     switch (a->form)
     {
         case ASTNS::Arg::Form::A:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">Arg (A)</td></tr><tr>";
-            std::cout << "<td port=\"expr\">expr</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">Arg (A)</td></tr><tr>";
+            ostream << "<td port=\"expr\">expr</td>";
+            ostream << "</tr></table>>]\n";
             {
                     if (a->expr)
                     {
@@ -80,11 +80,11 @@ void DotVisitor::visitArgList(ASTNS::ArgList *a)
     switch (a->form)
     {
         case ASTNS::ArgList::Form::ATA:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">ArgList (ATA)</td></tr><tr>";
-            std::cout << "<td port=\"arglist\">arglist</td>";
-            std::cout << "<td port=\"comma\">comma</td>";
-            std::cout << "<td port=\"arg\">arg</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">ArgList (ATA)</td></tr><tr>";
+            ostream << "<td port=\"arglist\">arglist</td>";
+            ostream << "<td port=\"comma\">comma</td>";
+            ostream << "<td port=\"arg\">arg</td>";
+            ostream << "</tr></table>>]\n";
             {
                     if (a->arglist)
                     {
@@ -123,11 +123,11 @@ void DotVisitor::visitAssignmentExpr(ASTNS::AssignmentExpr *a)
     switch (a->form)
     {
         case ASTNS::AssignmentExpr::Form::ATA:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">AssignmentExpr (ATA)</td></tr><tr>";
-            std::cout << "<td port=\"target\">target</td>";
-            std::cout << "<td port=\"equal\">equal</td>";
-            std::cout << "<td port=\"value\">value</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">AssignmentExpr (ATA)</td></tr><tr>";
+            ostream << "<td port=\"target\">target</td>";
+            ostream << "<td port=\"equal\">equal</td>";
+            ostream << "<td port=\"value\">value</td>";
+            ostream << "</tr></table>>]\n";
             {
                     if (a->target)
                     {
@@ -166,11 +166,11 @@ void DotVisitor::visitBinandExpr(ASTNS::BinandExpr *a)
     switch (a->form)
     {
         case ASTNS::BinandExpr::Form::ATA:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">BinandExpr (ATA)</td></tr><tr>";
-            std::cout << "<td port=\"lhs\">lhs</td>";
-            std::cout << "<td port=\"op\">op</td>";
-            std::cout << "<td port=\"rhs\">rhs</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">BinandExpr (ATA)</td></tr><tr>";
+            ostream << "<td port=\"lhs\">lhs</td>";
+            ostream << "<td port=\"op\">op</td>";
+            ostream << "<td port=\"rhs\">rhs</td>";
+            ostream << "</tr></table>>]\n";
             {
                     if (a->lhs)
                     {
@@ -209,10 +209,10 @@ void DotVisitor::visitBinnotExpr(ASTNS::BinnotExpr *a)
     switch (a->form)
     {
         case ASTNS::BinnotExpr::Form::TA:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">BinnotExpr (TA)</td></tr><tr>";
-            std::cout << "<td port=\"op\">op</td>";
-            std::cout << "<td port=\"operand\">operand</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">BinnotExpr (TA)</td></tr><tr>";
+            ostream << "<td port=\"op\">op</td>";
+            ostream << "<td port=\"operand\">operand</td>";
+            ostream << "</tr></table>>]\n";
             {
                     std::string tokennodeid = makeTextNode("Token", a->op.stringify());
                     connect(thisid, "op", tokennodeid);
@@ -239,11 +239,11 @@ void DotVisitor::visitBinorExpr(ASTNS::BinorExpr *a)
     switch (a->form)
     {
         case ASTNS::BinorExpr::Form::ATA:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">BinorExpr (ATA)</td></tr><tr>";
-            std::cout << "<td port=\"lhs\">lhs</td>";
-            std::cout << "<td port=\"op\">op</td>";
-            std::cout << "<td port=\"rhs\">rhs</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">BinorExpr (ATA)</td></tr><tr>";
+            ostream << "<td port=\"lhs\">lhs</td>";
+            ostream << "<td port=\"op\">op</td>";
+            ostream << "<td port=\"rhs\">rhs</td>";
+            ostream << "</tr></table>>]\n";
             {
                     if (a->lhs)
                     {
@@ -282,11 +282,11 @@ void DotVisitor::visitBitandExpr(ASTNS::BitandExpr *a)
     switch (a->form)
     {
         case ASTNS::BitandExpr::Form::ATA:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">BitandExpr (ATA)</td></tr><tr>";
-            std::cout << "<td port=\"lhs\">lhs</td>";
-            std::cout << "<td port=\"op\">op</td>";
-            std::cout << "<td port=\"rhs\">rhs</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">BitandExpr (ATA)</td></tr><tr>";
+            ostream << "<td port=\"lhs\">lhs</td>";
+            ostream << "<td port=\"op\">op</td>";
+            ostream << "<td port=\"rhs\">rhs</td>";
+            ostream << "</tr></table>>]\n";
             {
                     if (a->lhs)
                     {
@@ -325,11 +325,11 @@ void DotVisitor::visitBitorExpr(ASTNS::BitorExpr *a)
     switch (a->form)
     {
         case ASTNS::BitorExpr::Form::ATA:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">BitorExpr (ATA)</td></tr><tr>";
-            std::cout << "<td port=\"lhs\">lhs</td>";
-            std::cout << "<td port=\"op\">op</td>";
-            std::cout << "<td port=\"rhs\">rhs</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">BitorExpr (ATA)</td></tr><tr>";
+            ostream << "<td port=\"lhs\">lhs</td>";
+            ostream << "<td port=\"op\">op</td>";
+            ostream << "<td port=\"rhs\">rhs</td>";
+            ostream << "</tr></table>>]\n";
             {
                     if (a->lhs)
                     {
@@ -368,11 +368,11 @@ void DotVisitor::visitBitshiftExpr(ASTNS::BitshiftExpr *a)
     switch (a->form)
     {
         case ASTNS::BitshiftExpr::Form::ATA:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">BitshiftExpr (ATA)</td></tr><tr>";
-            std::cout << "<td port=\"lhs\">lhs</td>";
-            std::cout << "<td port=\"op\">op</td>";
-            std::cout << "<td port=\"rhs\">rhs</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">BitshiftExpr (ATA)</td></tr><tr>";
+            ostream << "<td port=\"lhs\">lhs</td>";
+            ostream << "<td port=\"op\">op</td>";
+            ostream << "<td port=\"rhs\">rhs</td>";
+            ostream << "</tr></table>>]\n";
             {
                     if (a->lhs)
                     {
@@ -411,11 +411,11 @@ void DotVisitor::visitBitxorExpr(ASTNS::BitxorExpr *a)
     switch (a->form)
     {
         case ASTNS::BitxorExpr::Form::ATA:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">BitxorExpr (ATA)</td></tr><tr>";
-            std::cout << "<td port=\"lhs\">lhs</td>";
-            std::cout << "<td port=\"op\">op</td>";
-            std::cout << "<td port=\"rhs\">rhs</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">BitxorExpr (ATA)</td></tr><tr>";
+            ostream << "<td port=\"lhs\">lhs</td>";
+            ostream << "<td port=\"op\">op</td>";
+            ostream << "<td port=\"rhs\">rhs</td>";
+            ostream << "</tr></table>>]\n";
             {
                     if (a->lhs)
                     {
@@ -454,11 +454,11 @@ void DotVisitor::visitBlock(ASTNS::Block *a)
     switch (a->form)
     {
         case ASTNS::Block::Form::TAT:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">Block (TAT)</td></tr><tr>";
-            std::cout << "<td port=\"ocurb\">ocurb</td>";
-            std::cout << "<td port=\"stmts\">stmts</td>";
-            std::cout << "<td port=\"ccurb\">ccurb</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">Block (TAT)</td></tr><tr>";
+            ostream << "<td port=\"ocurb\">ocurb</td>";
+            ostream << "<td port=\"stmts\">stmts</td>";
+            ostream << "<td port=\"ccurb\">ccurb</td>";
+            ostream << "</tr></table>>]\n";
             {
                     std::string tokennodeid = makeTextNode("Token", a->ocurb.stringify());
                     connect(thisid, "ocurb", tokennodeid);
@@ -481,10 +481,10 @@ void DotVisitor::visitBlock(ASTNS::Block *a)
             }
             break;
         case ASTNS::Block::Form::TT:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">Block (TT)</td></tr><tr>";
-            std::cout << "<td port=\"ocurb\">ocurb</td>";
-            std::cout << "<td port=\"ccurb\">ccurb</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">Block (TT)</td></tr><tr>";
+            ostream << "<td port=\"ocurb\">ocurb</td>";
+            ostream << "<td port=\"ccurb\">ccurb</td>";
+            ostream << "</tr></table>>]\n";
             {
                     std::string tokennodeid = makeTextNode("Token", a->ocurb.stringify());
                     connect(thisid, "ocurb", tokennodeid);
@@ -503,9 +503,9 @@ void DotVisitor::visitBuiltinTypeNoVoid(ASTNS::BuiltinTypeNoVoid *a)
     switch (a->form)
     {
         case ASTNS::BuiltinTypeNoVoid::Form::T:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">BuiltinTypeNoVoid (T)</td></tr><tr>";
-            std::cout << "<td port=\"type\">type</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">BuiltinTypeNoVoid (T)</td></tr><tr>";
+            ostream << "<td port=\"type\">type</td>";
+            ostream << "</tr></table>>]\n";
             {
                     std::string tokennodeid = makeTextNode("Token", a->type.stringify());
                     connect(thisid, "type", tokennodeid);
@@ -520,9 +520,9 @@ void DotVisitor::visitBuiltinTypeVoid(ASTNS::BuiltinTypeVoid *a)
     switch (a->form)
     {
         case ASTNS::BuiltinTypeVoid::Form::T:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">BuiltinTypeVoid (T)</td></tr><tr>";
-            std::cout << "<td port=\"type\">type</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">BuiltinTypeVoid (T)</td></tr><tr>";
+            ostream << "<td port=\"type\">type</td>";
+            ostream << "</tr></table>>]\n";
             {
                     std::string tokennodeid = makeTextNode("Token", a->type.stringify());
                     connect(thisid, "type", tokennodeid);
@@ -537,12 +537,12 @@ void DotVisitor::visitCallExpr(ASTNS::CallExpr *a)
     switch (a->form)
     {
         case ASTNS::CallExpr::Form::ATAT:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"4\">CallExpr (ATAT)</td></tr><tr>";
-            std::cout << "<td port=\"callee\">callee</td>";
-            std::cout << "<td port=\"oparn\">oparn</td>";
-            std::cout << "<td port=\"args\">args</td>";
-            std::cout << "<td port=\"cparn\">cparn</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"4\">CallExpr (ATAT)</td></tr><tr>";
+            ostream << "<td port=\"callee\">callee</td>";
+            ostream << "<td port=\"oparn\">oparn</td>";
+            ostream << "<td port=\"args\">args</td>";
+            ostream << "<td port=\"cparn\">cparn</td>";
+            ostream << "</tr></table>>]\n";
             {
                     if (a->callee)
                     {
@@ -577,11 +577,11 @@ void DotVisitor::visitCallExpr(ASTNS::CallExpr *a)
             }
             break;
         case ASTNS::CallExpr::Form::ATT:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">CallExpr (ATT)</td></tr><tr>";
-            std::cout << "<td port=\"callee\">callee</td>";
-            std::cout << "<td port=\"oparn\">oparn</td>";
-            std::cout << "<td port=\"cparn\">cparn</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">CallExpr (ATT)</td></tr><tr>";
+            ostream << "<td port=\"callee\">callee</td>";
+            ostream << "<td port=\"oparn\">oparn</td>";
+            ostream << "<td port=\"cparn\">cparn</td>";
+            ostream << "</tr></table>>]\n";
             {
                     if (a->callee)
                     {
@@ -612,11 +612,11 @@ void DotVisitor::visitCompeqExpr(ASTNS::CompeqExpr *a)
     switch (a->form)
     {
         case ASTNS::CompeqExpr::Form::ATA:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">CompeqExpr (ATA)</td></tr><tr>";
-            std::cout << "<td port=\"lhs\">lhs</td>";
-            std::cout << "<td port=\"op\">op</td>";
-            std::cout << "<td port=\"rhs\">rhs</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">CompeqExpr (ATA)</td></tr><tr>";
+            ostream << "<td port=\"lhs\">lhs</td>";
+            ostream << "<td port=\"op\">op</td>";
+            ostream << "<td port=\"rhs\">rhs</td>";
+            ostream << "</tr></table>>]\n";
             {
                     if (a->lhs)
                     {
@@ -655,11 +655,11 @@ void DotVisitor::visitComplgtExpr(ASTNS::ComplgtExpr *a)
     switch (a->form)
     {
         case ASTNS::ComplgtExpr::Form::ATA:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">ComplgtExpr (ATA)</td></tr><tr>";
-            std::cout << "<td port=\"lhs\">lhs</td>";
-            std::cout << "<td port=\"op\">op</td>";
-            std::cout << "<td port=\"rhs\">rhs</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">ComplgtExpr (ATA)</td></tr><tr>";
+            ostream << "<td port=\"lhs\">lhs</td>";
+            ostream << "<td port=\"op\">op</td>";
+            ostream << "<td port=\"rhs\">rhs</td>";
+            ostream << "</tr></table>>]\n";
             {
                     if (a->lhs)
                     {
@@ -692,24 +692,16 @@ void DotVisitor::visitComplgtExpr(ASTNS::ComplgtExpr *a)
     }
     lastid = std::move(thisid);
 }
-void DotVisitor::visitDecl(ASTNS::Decl *a)
-{
-    std::string thisid = curid();
-    switch (a->form)
-    {
-    }
-    lastid = std::move(thisid);
-}
 void DotVisitor::visitDeclList(ASTNS::DeclList *a)
 {
     std::string thisid = curid();
     switch (a->form)
     {
         case ASTNS::DeclList::Form::AA:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">DeclList (AA)</td></tr><tr>";
-            std::cout << "<td port=\"decllist\">decllist</td>";
-            std::cout << "<td port=\"decl\">decl</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">DeclList (AA)</td></tr><tr>";
+            ostream << "<td port=\"decllist\">decllist</td>";
+            ostream << "<td port=\"decl\">decl</td>";
+            ostream << "</tr></table>>]\n";
             {
                     if (a->decllist)
                     {
@@ -744,22 +736,14 @@ void DotVisitor::visitEmptyStmt(ASTNS::EmptyStmt *a)
     switch (a->form)
     {
         case ASTNS::EmptyStmt::Form::T:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">EmptyStmt (T)</td></tr><tr>";
-            std::cout << "<td port=\"semi\">semi</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">EmptyStmt (T)</td></tr><tr>";
+            ostream << "<td port=\"semi\">semi</td>";
+            ostream << "</tr></table>>]\n";
             {
                     std::string tokennodeid = makeTextNode("Token", a->semi.stringify());
                     connect(thisid, "semi", tokennodeid);
             }
             break;
-    }
-    lastid = std::move(thisid);
-}
-void DotVisitor::visitExpr(ASTNS::Expr *a)
-{
-    std::string thisid = curid();
-    switch (a->form)
-    {
     }
     lastid = std::move(thisid);
 }
@@ -769,10 +753,10 @@ void DotVisitor::visitExprStmt(ASTNS::ExprStmt *a)
     switch (a->form)
     {
         case ASTNS::ExprStmt::Form::AT:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">ExprStmt (AT)</td></tr><tr>";
-            std::cout << "<td port=\"expr\">expr</td>";
-            std::cout << "<td port=\"semi\">semi</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">ExprStmt (AT)</td></tr><tr>";
+            ostream << "<td port=\"expr\">expr</td>";
+            ostream << "<td port=\"semi\">semi</td>";
+            ostream << "</tr></table>>]\n";
             {
                     if (a->expr)
                     {
@@ -799,14 +783,14 @@ void DotVisitor::visitFunction(ASTNS::Function *a)
     switch (a->form)
     {
         case ASTNS::Function::Form::TATTTA:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"6\">Function (TATTTA)</td></tr><tr>";
-            std::cout << "<td port=\"fun\">fun</td>";
-            std::cout << "<td port=\"retty\">retty</td>";
-            std::cout << "<td port=\"name\">name</td>";
-            std::cout << "<td port=\"oparn\">oparn</td>";
-            std::cout << "<td port=\"cparn\">cparn</td>";
-            std::cout << "<td port=\"body\">body</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"6\">Function (TATTTA)</td></tr><tr>";
+            ostream << "<td port=\"fun\">fun</td>";
+            ostream << "<td port=\"retty\">retty</td>";
+            ostream << "<td port=\"name\">name</td>";
+            ostream << "<td port=\"oparn\">oparn</td>";
+            ostream << "<td port=\"cparn\">cparn</td>";
+            ostream << "<td port=\"body\">body</td>";
+            ostream << "</tr></table>>]\n";
             {
                     std::string tokennodeid = makeTextNode("Token", a->fun.stringify());
                     connect(thisid, "fun", tokennodeid);
@@ -849,15 +833,15 @@ void DotVisitor::visitFunction(ASTNS::Function *a)
             }
             break;
         case ASTNS::Function::Form::TATTATA:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"7\">Function (TATTATA)</td></tr><tr>";
-            std::cout << "<td port=\"fun\">fun</td>";
-            std::cout << "<td port=\"retty\">retty</td>";
-            std::cout << "<td port=\"name\">name</td>";
-            std::cout << "<td port=\"oparn\">oparn</td>";
-            std::cout << "<td port=\"paramlist\">paramlist</td>";
-            std::cout << "<td port=\"cparn\">cparn</td>";
-            std::cout << "<td port=\"body\">body</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"7\">Function (TATTATA)</td></tr><tr>";
+            ostream << "<td port=\"fun\">fun</td>";
+            ostream << "<td port=\"retty\">retty</td>";
+            ostream << "<td port=\"name\">name</td>";
+            ostream << "<td port=\"oparn\">oparn</td>";
+            ostream << "<td port=\"paramlist\">paramlist</td>";
+            ostream << "<td port=\"cparn\">cparn</td>";
+            ostream << "<td port=\"body\">body</td>";
+            ostream << "</tr></table>>]\n";
             {
                     std::string tokennodeid = makeTextNode("Token", a->fun.stringify());
                     connect(thisid, "fun", tokennodeid);
@@ -920,11 +904,11 @@ void DotVisitor::visitMultExpr(ASTNS::MultExpr *a)
     switch (a->form)
     {
         case ASTNS::MultExpr::Form::ATA:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">MultExpr (ATA)</td></tr><tr>";
-            std::cout << "<td port=\"lhs\">lhs</td>";
-            std::cout << "<td port=\"op\">op</td>";
-            std::cout << "<td port=\"rhs\">rhs</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">MultExpr (ATA)</td></tr><tr>";
+            ostream << "<td port=\"lhs\">lhs</td>";
+            ostream << "<td port=\"op\">op</td>";
+            ostream << "<td port=\"rhs\">rhs</td>";
+            ostream << "</tr></table>>]\n";
             {
                     if (a->lhs)
                     {
@@ -963,10 +947,10 @@ void DotVisitor::visitParam(ASTNS::Param *a)
     switch (a->form)
     {
         case ASTNS::Param::Form::AT:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">Param (AT)</td></tr><tr>";
-            std::cout << "<td port=\"type\">type</td>";
-            std::cout << "<td port=\"name\">name</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">Param (AT)</td></tr><tr>";
+            ostream << "<td port=\"type\">type</td>";
+            ostream << "<td port=\"name\">name</td>";
+            ostream << "</tr></table>>]\n";
             {
                     if (a->type)
                     {
@@ -993,11 +977,11 @@ void DotVisitor::visitParamList(ASTNS::ParamList *a)
     switch (a->form)
     {
         case ASTNS::ParamList::Form::ATA:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">ParamList (ATA)</td></tr><tr>";
-            std::cout << "<td port=\"paramlist\">paramlist</td>";
-            std::cout << "<td port=\"comma\">comma</td>";
-            std::cout << "<td port=\"param\">param</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">ParamList (ATA)</td></tr><tr>";
+            ostream << "<td port=\"paramlist\">paramlist</td>";
+            ostream << "<td port=\"comma\">comma</td>";
+            ostream << "<td port=\"param\">param</td>";
+            ostream << "</tr></table>>]\n";
             {
                     if (a->paramlist)
                     {
@@ -1036,20 +1020,20 @@ void DotVisitor::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
     switch (a->form)
     {
         case ASTNS::PrimaryExpr::Form::T:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">PrimaryExpr (T)</td></tr><tr>";
-            std::cout << "<td port=\"value\">value</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">PrimaryExpr (T)</td></tr><tr>";
+            ostream << "<td port=\"value\">value</td>";
+            ostream << "</tr></table>>]\n";
             {
                     std::string tokennodeid = makeTextNode("Token", a->value.stringify());
                     connect(thisid, "value", tokennodeid);
             }
             break;
         case ASTNS::PrimaryExpr::Form::TAT:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">PrimaryExpr (TAT)</td></tr><tr>";
-            std::cout << "<td port=\"oparn\">oparn</td>";
-            std::cout << "<td port=\"expr\">expr</td>";
-            std::cout << "<td port=\"cparn\">cparn</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">PrimaryExpr (TAT)</td></tr><tr>";
+            ostream << "<td port=\"oparn\">oparn</td>";
+            ostream << "<td port=\"expr\">expr</td>";
+            ostream << "<td port=\"cparn\">cparn</td>";
+            ostream << "</tr></table>>]\n";
             {
                     std::string tokennodeid = makeTextNode("Token", a->oparn.stringify());
                     connect(thisid, "oparn", tokennodeid);
@@ -1080,11 +1064,11 @@ void DotVisitor::visitRetStmt(ASTNS::RetStmt *a)
     switch (a->form)
     {
         case ASTNS::RetStmt::Form::TAT:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">RetStmt (TAT)</td></tr><tr>";
-            std::cout << "<td port=\"ret\">ret</td>";
-            std::cout << "<td port=\"expr\">expr</td>";
-            std::cout << "<td port=\"semi\">semi</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">RetStmt (TAT)</td></tr><tr>";
+            ostream << "<td port=\"ret\">ret</td>";
+            ostream << "<td port=\"expr\">expr</td>";
+            ostream << "<td port=\"semi\">semi</td>";
+            ostream << "</tr></table>>]\n";
             {
                     std::string tokennodeid = makeTextNode("Token", a->ret.stringify());
                     connect(thisid, "ret", tokennodeid);
@@ -1109,24 +1093,16 @@ void DotVisitor::visitRetStmt(ASTNS::RetStmt *a)
     }
     lastid = std::move(thisid);
 }
-void DotVisitor::visitStmt(ASTNS::Stmt *a)
-{
-    std::string thisid = curid();
-    switch (a->form)
-    {
-    }
-    lastid = std::move(thisid);
-}
 void DotVisitor::visitStmtList(ASTNS::StmtList *a)
 {
     std::string thisid = curid();
     switch (a->form)
     {
         case ASTNS::StmtList::Form::AA:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">StmtList (AA)</td></tr><tr>";
-            std::cout << "<td port=\"stmtlist\">stmtlist</td>";
-            std::cout << "<td port=\"stmt\">stmt</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">StmtList (AA)</td></tr><tr>";
+            ostream << "<td port=\"stmtlist\">stmtlist</td>";
+            ostream << "<td port=\"stmt\">stmt</td>";
+            ostream << "</tr></table>>]\n";
             {
                     if (a->stmtlist)
                     {
@@ -1161,13 +1137,13 @@ void DotVisitor::visitTernaryExpr(ASTNS::TernaryExpr *a)
     switch (a->form)
     {
         case ASTNS::TernaryExpr::Form::ATATA:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"5\">TernaryExpr (ATATA)</td></tr><tr>";
-            std::cout << "<td port=\"cond\">cond</td>";
-            std::cout << "<td port=\"quest\">quest</td>";
-            std::cout << "<td port=\"trues\">trues</td>";
-            std::cout << "<td port=\"colon\">colon</td>";
-            std::cout << "<td port=\"falses\">falses</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"5\">TernaryExpr (ATATA)</td></tr><tr>";
+            ostream << "<td port=\"cond\">cond</td>";
+            ostream << "<td port=\"quest\">quest</td>";
+            ostream << "<td port=\"trues\">trues</td>";
+            ostream << "<td port=\"colon\">colon</td>";
+            ostream << "<td port=\"falses\">falses</td>";
+            ostream << "</tr></table>>]\n";
             {
                     if (a->cond)
                     {
@@ -1216,32 +1192,16 @@ void DotVisitor::visitTernaryExpr(ASTNS::TernaryExpr *a)
     }
     lastid = std::move(thisid);
 }
-void DotVisitor::visitTypeNV(ASTNS::TypeNV *a)
-{
-    std::string thisid = curid();
-    switch (a->form)
-    {
-    }
-    lastid = std::move(thisid);
-}
-void DotVisitor::visitTypeV(ASTNS::TypeV *a)
-{
-    std::string thisid = curid();
-    switch (a->form)
-    {
-    }
-    lastid = std::move(thisid);
-}
 void DotVisitor::visitUnaryExpr(ASTNS::UnaryExpr *a)
 {
     std::string thisid = curid();
     switch (a->form)
     {
         case ASTNS::UnaryExpr::Form::TA:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">UnaryExpr (TA)</td></tr><tr>";
-            std::cout << "<td port=\"op\">op</td>";
-            std::cout << "<td port=\"operand\">operand</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">UnaryExpr (TA)</td></tr><tr>";
+            ostream << "<td port=\"op\">op</td>";
+            ostream << "<td port=\"operand\">operand</td>";
+            ostream << "</tr></table>>]\n";
             {
                     std::string tokennodeid = makeTextNode("Token", a->op.stringify());
                     connect(thisid, "op", tokennodeid);
@@ -1268,12 +1228,12 @@ void DotVisitor::visitVarStmt(ASTNS::VarStmt *a)
     switch (a->form)
     {
         case ASTNS::VarStmt::Form::TAAT:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"4\">VarStmt (TAAT)</td></tr><tr>";
-            std::cout << "<td port=\"var\">var</td>";
-            std::cout << "<td port=\"type\">type</td>";
-            std::cout << "<td port=\"assignments\">assignments</td>";
-            std::cout << "<td port=\"semi\">semi</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"4\">VarStmt (TAAT)</td></tr><tr>";
+            ostream << "<td port=\"var\">var</td>";
+            ostream << "<td port=\"type\">type</td>";
+            ostream << "<td port=\"assignments\">assignments</td>";
+            ostream << "<td port=\"semi\">semi</td>";
+            ostream << "</tr></table>>]\n";
             {
                     std::string tokennodeid = makeTextNode("Token", a->var.stringify());
                     connect(thisid, "var", tokennodeid);
@@ -1316,11 +1276,11 @@ void DotVisitor::visitVarStmtItem(ASTNS::VarStmtItem *a)
     switch (a->form)
     {
         case ASTNS::VarStmtItem::Form::TTA:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">VarStmtItem (TTA)</td></tr><tr>";
-            std::cout << "<td port=\"name\">name</td>";
-            std::cout << "<td port=\"equal\">equal</td>";
-            std::cout << "<td port=\"expr\">expr</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">VarStmtItem (TTA)</td></tr><tr>";
+            ostream << "<td port=\"name\">name</td>";
+            ostream << "<td port=\"equal\">equal</td>";
+            ostream << "<td port=\"expr\">expr</td>";
+            ostream << "</tr></table>>]\n";
             {
                     std::string tokennodeid = makeTextNode("Token", a->name.stringify());
                     connect(thisid, "name", tokennodeid);
@@ -1343,9 +1303,9 @@ void DotVisitor::visitVarStmtItem(ASTNS::VarStmtItem *a)
             }
             break;
         case ASTNS::VarStmtItem::Form::T:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">VarStmtItem (T)</td></tr><tr>";
-            std::cout << "<td port=\"name\">name</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">VarStmtItem (T)</td></tr><tr>";
+            ostream << "<td port=\"name\">name</td>";
+            ostream << "</tr></table>>]\n";
             {
                     std::string tokennodeid = makeTextNode("Token", a->name.stringify());
                     connect(thisid, "name", tokennodeid);
@@ -1360,11 +1320,11 @@ void DotVisitor::visitVarStmtItemList(ASTNS::VarStmtItemList *a)
     switch (a->form)
     {
         case ASTNS::VarStmtItemList::Form::ATA:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">VarStmtItemList (ATA)</td></tr><tr>";
-            std::cout << "<td port=\"varstmtitemlist\">varstmtitemlist</td>";
-            std::cout << "<td port=\"comma\">comma</td>";
-            std::cout << "<td port=\"varstmtitem\">varstmtitem</td>";
-            std::cout << "</tr></table>>]\n";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">VarStmtItemList (ATA)</td></tr><tr>";
+            ostream << "<td port=\"varstmtitemlist\">varstmtitemlist</td>";
+            ostream << "<td port=\"comma\">comma</td>";
+            ostream << "<td port=\"varstmtitem\">varstmtitem</td>";
+            ostream << "</tr></table>>]\n";
             {
                     if (a->varstmtitemlist)
                     {
@@ -1402,10 +1362,10 @@ void DotVisitor::visitVarStmtItemList(ASTNS::VarStmtItemList *a)
 // DOTVISITOR END
 void DotVisitor::dotVisit(ASTNS::DeclB *ast)
 {
-    std::cout << "strict digraph {\n";
-    std::cout << "node [shape=plain]\n";
+    ostream << "strict digraph {\n";
+    ostream << "node [shape=plain]\n";
     ast->accept(this);
-    std::cout << "}\n";
+    ostream << "}\n";
 }
 std::string DotVisitor::curid()
 {
@@ -1429,12 +1389,12 @@ std::string DotVisitor::makeTextNode(std::string type, std::string text)
     FINDREP("\x07", "&")
 
 #undef FINDREP
-    std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td>" << type << "</td></tr><tr><td>" << text << "</td></tr></table>>]\n";
+    ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td>" << type << "</td></tr><tr><td>" << text << "</td></tr></table>>]\n";
     return thisid;
 }
 void DotVisitor::connect(std::string startid, std::string fieldname, std::string connectto)
 {
-    std::cout << startid << ":" << fieldname << " -> " << connectto << ":__heading\n";
+    ostream << startid << ":" << fieldname << " -> " << connectto << ":__heading\n";
 }
 
 DotVisitor::DotVisitor(std::ostream &ostream): ostream(ostream) {}

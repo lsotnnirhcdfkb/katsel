@@ -10,7 +10,6 @@ void CodeGenNS::StmtCodeGen::visitExprStmt(ASTNS::ExprStmt *ast) {}
 void CodeGenNS::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast) {}
 void CodeGenNS::StmtCodeGen::visitVarStmt(ASTNS::VarStmt *ast) {}
 
-void CodeGenNS::StmtCodeGen::visitStmt(ASTNS::Stmt *) {}
 void CodeGenNS::StmtCodeGen::visitEmptyStmt(ASTNS::EmptyStmt *) {}
 void CodeGenNS::StmtCodeGen::visitStmtList(ASTNS::StmtList *ast) {}
 

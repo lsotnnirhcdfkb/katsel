@@ -345,7 +345,6 @@ namespace ASTNS
         {
         };
         Form form;
-        virtual void accept(DeclBVisitor *v);
     };
     class DeclList : public DeclB
     {
@@ -379,7 +378,6 @@ namespace ASTNS
         {
         };
         Form form;
-        virtual void accept(ExprBVisitor *v);
     };
     class ExprStmt : public StmtB
     {
@@ -493,7 +491,6 @@ namespace ASTNS
         {
         };
         Form form;
-        virtual void accept(StmtBVisitor *v);
     };
     class StmtList : public StmtB
     {
@@ -531,7 +528,6 @@ namespace ASTNS
         {
         };
         Form form;
-        virtual void accept(TypeBVisitor *v);
     };
     class TypeV : public TypeB
     {
@@ -540,7 +536,6 @@ namespace ASTNS
         {
         };
         Form form;
-        virtual void accept(TypeBVisitor *v);
     };
     class UnaryExpr : public ExprB
     {

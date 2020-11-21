@@ -554,16 +554,6 @@ void PrintVisitor::visitComplgtExpr(ASTNS::ComplgtExpr *a)
     --indent;
     pai("}\n");
 }
-void PrintVisitor::visitDecl(ASTNS::Decl *a)
-{
-    pai("Decl\n{\n");
-    ++indent;
-    switch (a->form)
-    {
-    }
-    --indent;
-    pai("}\n");
-}
 void PrintVisitor::visitDeclList(ASTNS::DeclList *a)
 {
     pai("DeclList\n{\n");
@@ -606,16 +596,6 @@ void PrintVisitor::visitEmptyStmt(ASTNS::EmptyStmt *a)
             pai(std::string(a->semi.start, a->semi.end));
             pai("]\n");
             break;
-    }
-    --indent;
-    pai("}\n");
-}
-void PrintVisitor::visitExpr(ASTNS::Expr *a)
-{
-    pai("Expr\n{\n");
-    ++indent;
-    switch (a->form)
-    {
     }
     --indent;
     pai("}\n");
@@ -893,16 +873,6 @@ void PrintVisitor::visitRetStmt(ASTNS::RetStmt *a)
     --indent;
     pai("}\n");
 }
-void PrintVisitor::visitStmt(ASTNS::Stmt *a)
-{
-    pai("Stmt\n{\n");
-    ++indent;
-    switch (a->form)
-    {
-    }
-    --indent;
-    pai("}\n");
-}
 void PrintVisitor::visitStmtList(ASTNS::StmtList *a)
 {
     pai("StmtList\n{\n");
@@ -976,26 +946,6 @@ void PrintVisitor::visitTernaryExpr(ASTNS::TernaryExpr *a)
                 pai("nullptr\n");
             }
             break;
-    }
-    --indent;
-    pai("}\n");
-}
-void PrintVisitor::visitTypeNV(ASTNS::TypeNV *a)
-{
-    pai("TypeNV\n{\n");
-    ++indent;
-    switch (a->form)
-    {
-    }
-    --indent;
-    pai("}\n");
-}
-void PrintVisitor::visitTypeV(ASTNS::TypeV *a)
-{
-    pai("TypeV\n{\n");
-    ++indent;
-    switch (a->form)
-    {
     }
     --indent;
     pai("}\n");

@@ -4,11 +4,12 @@ import parsegen
 # Classes {{{1
 # ASTClass {{{2
 class ASTClass:
-    def __init__(self, name, fields, forms, base):
+    def __init__(self, name, fields, forms, base, skiponly):
         self.name = name
         self.fields = fields
         self.forms = forms
         self.base = base
+        self.skiponly = skiponly
 # ASTBaseClass {{{2
 class ASTBaseClass:
     def __init__(self, name):
@@ -48,7 +49,7 @@ for astname in sorted(_astnames):
     base = matchedrules[0].base
     skiponly = all([r.skip for r in matchedrules])
     if skiponly:
-        asts.append(ASTClass(astname, [], [], base))
+        asts.append(ASTClass(astname, [], [], base, True))
         continue
 
     for rule in matchedrules:
@@ -70,7 +71,7 @@ for astname in sorted(_astnames):
         if len(form) and form not in forms:
             forms.append(form)
 
-    asts.append(ASTClass(astname, fields, forms, base))
+    asts.append(ASTClass(astname, fields, forms, base, False))
 # Generating methods {{{1
 # helpers {{{2
 def stringifyForm(form):
@@ -103,7 +104,8 @@ def genASTDecls():
                 output.append(f'        {field.type_} {field.name};\n')
             output.append(f'        Form form;\n')
 
-            output.append(f'        virtual void accept({ast.base}Visitor *v);\n')
+            if not ast.skiponly:
+                output.append(f'        virtual void accept({ast.base}Visitor *v);\n')
 
             output.append( '    };\n')
         elif type(ast) == ASTBaseClass:
@@ -125,7 +127,7 @@ def genASTDecls():
 def genASTDefs():
     output = ['#include "parse/ast.h"\n']
     for ast in asts:
-        if type(ast) == ASTClass:
+        if type(ast) == ASTClass and not ast.skiponly:
             for form in ast.forms:
                 output.append(f'ASTNS::{ast.name}::{ast.name}({", ".join(f"{field.type_} {field.name}" for field in form)}): ')
 
@@ -163,7 +165,7 @@ def genVisitorClasses():
         output.append( 'public:\n')
         output.append(f'    virtual ~{ast.name}Visitor() {{}}\n')
         for _ast in asts:
-            if type(_ast) == ASTClass and _ast.base == ast.name:
+            if type(_ast) == ASTClass and _ast.base == ast.name and not _ast.skiponly:
                 output.append(f'    virtual void visit{_ast.name}(ASTNS::{_ast.name} *ast) = 0;\n')
         output.append( '};\n')
 
@@ -175,7 +177,7 @@ def genVisitorMethods(*bases):
         if type(ast) != ASTClass:
             continue
 
-        if ast.base in bases or bases == ('all',):
+        if (ast.base in bases or bases == ('all',)) and not ast.skiponly:
             output.append(f'void visit{ast.name}(ASTNS::{ast.name} *ast) override;\n')
 
     return ''.join(output)
@@ -183,7 +185,7 @@ def genVisitorMethods(*bases):
 def genLocVisit():
     output = []
     for ast in asts:
-        if type(ast) != ASTClass:
+        if type(ast) != ASTClass or ast.skiponly:
             continue
 
         output.append(        f'void LocationVisitor::visit{ast.name}(ASTNS::{ast.name} *ast)\n')
@@ -217,7 +219,7 @@ def genLocVisit():
 def genPrintVisitorMethods():
     output = []
     for ast in asts:
-        if type(ast) != ASTClass:
+        if type(ast) != ASTClass or ast.skiponly:
             continue
 
         output.append(            f'void PrintVisitor::visit{ast.name}(ASTNS::{ast.name} *a)\n')
@@ -254,7 +256,7 @@ def genPrintVisitorMethods():
 def genDotVisitorMethods():
     output = []
     for ast in asts:
-        if type(ast) != ASTClass:
+        if type(ast) != ASTClass or ast.skiponly:
             continue
 
         output.append(            f'void DotVisitor::visit{ast.name}(ASTNS::{ast.name} *a)\n')
@@ -264,11 +266,11 @@ def genDotVisitorMethods():
         output.append(             '    {\n')
         for form in ast.forms:
             output.append(        f'        case ASTNS::{ast.name}::Form::{stringifyForm(form)}:\n')
-            output.append(        f'            std::cout << thisid << " [label=<<table border=\\"0\\" cellborder=\\"1\\" cellspacing=\\"0\\"><tr><td port=\\"__heading\\" colspan=\\"{len(form)}\\">{ast.name} ({stringifyForm(form)})</td></tr><tr>";\n')
+            output.append(        f'            ostream << thisid << " [label=<<table border=\\"0\\" cellborder=\\"1\\" cellspacing=\\"0\\"><tr><td port=\\"__heading\\" colspan=\\"{len(form)}\\">{ast.name} ({stringifyForm(form)})</td></tr><tr>";\n')
             for field in form:
-                output.append(    f'            std::cout << "<td port=\\"{field.name}\\">{field.name}</td>";\n')
+                output.append(    f'            ostream << "<td port=\\"{field.name}\\">{field.name}</td>";\n')
 
-            output.append(        f'            std::cout << "</tr></table>>]\\n";\n')
+            output.append(        f'            ostream << "</tr></table>>]\\n";\n')
 
             for field in form:
                 output.append(     '            {\n')

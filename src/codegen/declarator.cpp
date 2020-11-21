@@ -9,8 +9,6 @@ void CodeGenNS::Declarator::visitDeclList(ASTNS::DeclList *ast)
     ast->decl->accept(this);
 }
 
-void CodeGenNS::Declarator::visitDecl(ASTNS::Decl *) {}
-
 void CodeGenNS::Declarator::visitFunction(ASTNS::Function *fun)
 {
     std::string fname (fun->name.stringify());
