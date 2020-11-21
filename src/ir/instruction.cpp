@@ -3,7 +3,7 @@
 #include <iostream>
 
 Instrs::Store::Store(Register *target, Value *value): target(target), value(value) {}
-void Instrs::Store::print()
+void Instrs::Store::stringify(std::ostream &s)
 {
-    std::cout << "store " << target->stringify() << " " << value->stringify() << std::endl;
+    s << "store " << target->stringify() << " " << value->stringify() << std::endl;
 }

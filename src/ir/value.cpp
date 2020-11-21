@@ -1,5 +1,5 @@
 #include "ir/value.h"
-#include "message/errors.h"
+#include <sstream>
 
 Register::Register(int index, Type *type, ASTNS::AST *ast): index(index), ty(type), _ast(ast) {}
 
@@ -25,7 +25,14 @@ void Function::add(std::unique_ptr<Block> block)
 
 std::string Function::stringify() const
 {
-    return concatMsg("fun \"", name, "\" ", ty->stringify());
+    std::stringstream ss;
+    ss << "fun \"" << name << "\" " << ty->stringify() << "\n";
+    ss << "{\n";
+    for (std::unique_ptr<Block> const &b : blocks)
+        b->stringify(ss);
+    ss << "}\n";
+
+    return ss.str();
 }
 ASTNS::AST* Function::ast() const
 {

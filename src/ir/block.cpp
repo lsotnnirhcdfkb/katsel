@@ -15,3 +15,14 @@ void Block::branch(std::unique_ptr<Instrs::Br> br)
 
     this->br = std::move(br);
 }
+
+void Block::stringify(std::ostream &os)
+{
+    os << name << "(" << num << "): {\n";
+    for (std::unique_ptr<Instrs::Instruction> const &i : instructions)
+        i->stringify(os);
+    os << "--\n";
+    if (br)
+        br->stringify(os);
+    os << "}\n";
+}

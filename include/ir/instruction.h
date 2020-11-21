@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ostream>
+
 class Register;
 class Value;
 
@@ -9,7 +11,7 @@ namespace Instrs
     {
     public:
         virtual ~Instruction() {};
-        virtual void print() = 0;
+        virtual void stringify(std::ostream &ss) = 0;
     };
 
 
@@ -17,7 +19,7 @@ namespace Instrs
     {
     public:
         Store(Register *target, Value *value);
-        void print() override;
+        void stringify(std::ostream &ss) override;
 
     private:
         Register *target;
@@ -28,7 +30,7 @@ namespace Instrs
     {
     public:
         virtual ~Br();
-        virtual void print() = 0;
+        virtual void stringify(std::ostream &ss) = 0;
     };
 }
 
