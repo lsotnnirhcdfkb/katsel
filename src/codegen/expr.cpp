@@ -143,7 +143,7 @@ void CodeGenNS::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast)
                     ret = nullptr;
                     return;
                 }
-                ret = v; // TODO: make load instruction to make this value's ast the primary ast
+                ret = cg.context.curFunc->addAlias(v, ast);
             }
             return;
 
@@ -222,7 +222,12 @@ void CodeGenNS::ExprCodeGen::visitAssignmentExpr(ASTNS::AssignmentExpr *ast)
     }
 
     Register *targetReg = dynamic_cast<Register*>(lhs);
-    if (!targetReg || targetReg->temp)
+    AliasVal *aliasVal = dynamic_cast<AliasVal*>(lhs);
+
+    if (aliasVal)
+        targetReg = dynamic_cast<Register*>(aliasVal->get());
+
+    if (!lhs->assignable())
     {
         Error(Error::MsgType::ERROR, ast->equal, "invalid assignment target")
             .underline(Error::Underline(ast->equal, '^')

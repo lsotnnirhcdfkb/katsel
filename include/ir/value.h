@@ -13,6 +13,8 @@ public:
     virtual ASTNS::AST* ast() const = 0;
     virtual std::string stringify() const = 0;
 
+    virtual bool assignable() const = 0;
+
     virtual Type* type() const = 0;
 };
 
@@ -26,28 +28,33 @@ public:
 
     Type* type() const override;
 
-    bool temp;
+    bool assignable() const override;
 
 private:
     int index;
     Type *ty;
+    bool temp;
 
     ASTNS::AST *_ast;
 };
 
-class AliasRegister : public Value
+class AliasVal : public Value
 {
 public:
-    AliasRegister(Register *reg);
+    AliasVal(Value *v, ASTNS::AST *ast);
 
     ASTNS::AST* ast() const override;
     std::string stringify() const override;
 
     Type* type() const override;
 
-    bool temp;
+    bool assignable() const override;
+
+    Value* get() const;
+
 private:
-    Register *reg;
+    Value *v;
+    ASTNS::AST *_ast;
 };
 
 class Function : public Value
@@ -62,10 +69,13 @@ public:
 
     Type* type() const override;
 
+    bool assignable() const override;
+
     std::vector<std::unique_ptr<Block>> blocks;
 
     Block* addBlock(std::string name);
     Register* addRegister(Type *ty, ASTNS::AST *ast, bool temp=true);
+    AliasVal* addAlias(Value *val, ASTNS::AST *ast);
 
 private:
     FunctionType *ty;
@@ -77,6 +87,7 @@ private:
     size_t regi;
 
     std::vector<std::unique_ptr<Register>> registers;
+    std::vector<std::unique_ptr<AliasVal>> aliases;
 };
 
 class ConstInt : public Value
@@ -88,6 +99,8 @@ public:
     std::string stringify() const override;
 
     Type* type() const override;
+
+    bool assignable() const override;
 
 private:
     int val;
