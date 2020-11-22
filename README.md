@@ -7,7 +7,8 @@ AND NOt only that, but I also got a lot of helpful information from looking at t
 
 - [x] Possibly dysfunctional lexing
 - [x] Rewritten parser
-- [x] Possibly dysfunctional code generation to LLVM IR
+- [ ] Possibly dysfunctional code generation to LLVM IR
+- [x] Compiling to some weird Katsel IR
 - [ ] Compiling to object code
 - [ ] Optimizing code with LLVM
 - [x] Functions
