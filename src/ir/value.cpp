@@ -21,28 +21,6 @@ bool Register::assignable() const
     return !temp;
 }
 
-AliasVal::AliasVal(Value *val, ASTNS::AST *ast): v(val), _ast(ast) {}
-std::string AliasVal::stringify() const
-{
-    return concatMsg("alias to ", v->stringify());
-}
-ASTNS::AST* AliasVal::ast() const
-{
-    return _ast;
-}
-Type* AliasVal::type() const
-{
-    return v->type();
-}
-bool AliasVal::assignable() const
-{
-    return v->assignable();
-}
-Value* AliasVal::get() const
-{
-    return v;
-}
-
 Function::Function(FunctionType *ty, std::string name, ASTNS::Function *ast): ty(ty), name(name), _ast(ast), blocki(0), regi(0) {}
 
 void Function::add(std::unique_ptr<Block> block)
@@ -91,13 +69,6 @@ Register* Function::addRegister(Type *type, ASTNS::AST *ast, bool temp)
     Register *regraw = reg.get();
     registers.push_back(std::move(reg));
     return regraw;
-}
-AliasVal* Function::addAlias(Value *val, ASTNS::AST *ast)
-{
-    std::unique_ptr<AliasVal> aval = std::make_unique<AliasVal>(val, ast);
-    AliasVal *avalraw = aval.get();
-    aliases.push_back(std::move(aval));
-    return avalraw;
 }
 
 ConstInt::ConstInt(BuiltinType *ty, ASTNS::AST *ast, int val): val(val), ty(ty), _ast(ast) {}

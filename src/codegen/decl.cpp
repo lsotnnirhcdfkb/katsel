@@ -29,9 +29,7 @@ void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
     cg.context.incScope();
     Register *retReg = nullptr;
     if (!dynamic_cast<VoidType*>(fty->ret))
-    {
         retReg = f->addRegister(fty->ret, ast, false);
-    }
 
     if (ast->paramlist)
     {
@@ -54,11 +52,7 @@ void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
 
     cg.context.decScope();
 
-    if (retReg)
-        cg.context.exitBlock->add(std::make_unique<Instrs::Return>(retReg));
-    else
-        cg.context.exitBlock->add(std::make_unique<Instrs::Return>(nullptr));
-
+    cg.context.exitBlock->add(std::make_unique<Instrs::Return>(retReg));
 
     cg.context.curBlock->branch(std::make_unique<Instrs::GotoBr>(cg.context.exitBlock));
 

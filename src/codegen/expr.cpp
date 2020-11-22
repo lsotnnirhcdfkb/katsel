@@ -145,7 +145,7 @@ void CodeGenNS::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
     if (!dynamic_cast<VoidType*>(retty))
         outReg = cg.context.curFunc->addRegister(retty, ast);
 
-    cg.context.curBlock->add(std::make_unique<Instrs::Call>(outReg, static_cast<Function*>(static_cast<AliasVal*>(func)->get()), args));
+    cg.context.curBlock->add(std::make_unique<Instrs::Call>(outReg, static_cast<Function*>(func), args));
 
     ret = outReg;
 }
@@ -216,7 +216,8 @@ void CodeGenNS::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast)
                     ret = nullptr;
                     return;
                 }
-                ret = cg.context.curFunc->addAlias(v, ast);
+                ret = v; // TODO: somehow associate a different ast with this value
+                         // TODO: by creating a register with a reference type
             }
             return;
 
@@ -295,12 +296,8 @@ void CodeGenNS::ExprCodeGen::visitAssignmentExpr(ASTNS::AssignmentExpr *ast)
     }
 
     Register *targetReg = dynamic_cast<Register*>(lhs);
-    AliasVal *aliasVal = dynamic_cast<AliasVal*>(lhs);
 
-    if (aliasVal)
-        targetReg = dynamic_cast<Register*>(aliasVal->get());
-
-    if (!lhs->assignable())
+    if (!lhs->assignable() || !targetReg)
     {
         Error(Error::MsgType::ERROR, ast->equal, "invalid assignment target")
             .underline(Error::Underline(ast->equal, '^')

@@ -38,25 +38,6 @@ private:
     ASTNS::AST *_ast;
 };
 
-class AliasVal : public Value
-{
-public:
-    AliasVal(Value *v, ASTNS::AST *ast);
-
-    ASTNS::AST* ast() const override;
-    std::string stringify() const override;
-
-    Type* type() const override;
-
-    bool assignable() const override;
-
-    Value* get() const;
-
-private:
-    Value *v;
-    ASTNS::AST *_ast;
-};
-
 class Function : public Value
 {
 public:
@@ -75,7 +56,6 @@ public:
 
     Block* addBlock(std::string name);
     Register* addRegister(Type *ty, ASTNS::AST *ast, bool temp=true);
-    AliasVal* addAlias(Value *val, ASTNS::AST *ast);
 
     FunctionType *ty;
     std::string name;
@@ -87,7 +67,6 @@ private:
     size_t regi;
 
     std::vector<std::unique_ptr<Register>> registers;
-    std::vector<std::unique_ptr<AliasVal>> aliases;
 };
 
 class ConstInt : public Value
