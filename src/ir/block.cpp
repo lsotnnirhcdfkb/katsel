@@ -43,4 +43,13 @@ void Block::cfgDot(std::ostream &os)
     for (std::unique_ptr<Instrs::Instruction> const &i : instructions)
         i->stringify(os);
     os << "\"]\n";
+    if (br)
+    {
+        os << "block" << this << " -> branch" << br.get() << std::endl;;
+        os << "branch" << br.get() << " [shape=record, label=\"";
+        br->stringify(os);
+        os << "\"]\n";
+
+        br->cfgDot(os);
+    }
 }

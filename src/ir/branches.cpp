@@ -8,9 +8,18 @@ void Instrs::GotoBr::stringify(std::ostream &os) const
 {
     os << "goto " << b->name << std::endl;
 }
+void Instrs::GotoBr::cfgDot(std::ostream &os) const
+{
+    os << "branch" << this << " -> block" << b << std::endl;
+}
 
 Instrs::CondBr::CondBr(Value *v, Block *trueb, Block *falseb): v(v), trueb(trueb), falseb(falseb) {}
 void Instrs::CondBr::stringify(std::ostream &os) const
 {
     os << "condbr " << v->stringify() << " " << trueb->name << " " << falseb->name << std::endl;
+}
+void Instrs::CondBr::cfgDot(std::ostream &os) const
+{
+    os << "branch" << this << " -> block" << trueb << std::endl;
+    os << "branch" << this << " -> block" << falseb << std::endl;
 }

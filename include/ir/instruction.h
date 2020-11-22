@@ -415,6 +415,7 @@ namespace Instrs
     public:
         virtual ~Br() {};
         virtual void stringify(std::ostream &os) const = 0;
+        virtual void cfgDot(std::ostream &os) const = 0;
     };
 
     class GotoBr : public Br
@@ -422,6 +423,7 @@ namespace Instrs
     public:
         GotoBr(Block *b);
         void stringify(std::ostream &os) const override;
+        void cfgDot(std::ostream &os) const override;
 
     private:
         Block *b;
@@ -431,6 +433,7 @@ namespace Instrs
     public:
         CondBr(Value *v, Block *trueb, Block *falseb);
         void stringify(std::ostream &os) const override;
+        void cfgDot(std::ostream &os) const override;
 
     private:
         Value *v;
