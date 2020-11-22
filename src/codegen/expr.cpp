@@ -5,14 +5,61 @@ CodeGenNS::ExprCodeGen::ExprCodeGen(CodeGen &cg): cg(cg) {}
 
 Value* CodeGenNS::ExprCodeGen::expr(ASTNS::ExprB *ast)
 {
-    return nullptr;
+    ret = nullptr;
+    ast->accept(this);
+    return ret;
 }
 
-#define BASICBINARYOP(exprtype) \
-    void CodeGenNS::ExprCodeGen::visit##exprtype##Expr(ASTNS::exprtype##Expr *ast) {}
+#define BASICBINARYOP(exprtype)                                                                                                           \
+    void CodeGenNS::ExprCodeGen::visit##exprtype##Expr(ASTNS::exprtype##Expr *ast)                                                        \
+    {                                                                                                                                     \
+        Value *lhs = expr(ast->lhs.get());                                                                                                \
+        Value *rhs = expr(ast->rhs.get());                                                                                                \
+                                                                                                                                          \
+        if (!lhs || !rhs)                                                                                                                 \
+        {                                                                                                                                 \
+            ret = nullptr;                                                                                                                \
+            return;                                                                                                                       \
+        }                                                                                                                                 \
+                                                                                                                                          \
+        if (!lhs->type()->hasOperator(ast->op.type))                                                                                      \
+        {                                                                                                                                 \
+            Error(Error::MsgType::ERROR, ast->op, "left-hand side of binary expression does not support operator")                        \
+                .underline(Error::Underline(ast->op, '^')                                                                                 \
+                    .error(concatMsg("type \"", lhs->type()->stringify(), "\" does not support operator \"", ast->op.stringify(), "\""))) \
+                .underline(Error::Underline(lhs, '~'))                                                                                    \
+                .underline(Error::Underline(rhs, '-'))                                                                                    \
+                .report();                                                                                                                \
+            ret = nullptr;                                                                                                                \
+            return;                                                                                                                       \
+        }                                                                                                                                 \
+                                                                                                                                          \
+        ret = lhs->type()->binOp(cg.context, lhs, rhs, ast->op, ast);                                                                     \
+    }
 
-#define BASICUNARYOP(exprtype) \
-    void CodeGenNS::ExprCodeGen::visit##exprtype##Expr(ASTNS::exprtype##Expr *ast) {}
+#define BASICUNARYOP(exprtype)                                                                                                                        \
+    void CodeGenNS::ExprCodeGen::visit##exprtype##Expr(ASTNS::exprtype##Expr *ast)                                                                    \
+    {                                                                                                                                                 \
+        Value *oper = expr(ast->operand.get());                                                                                                       \
+        if (!oper)                                                                                                                                    \
+        {                                                                                                                                             \
+            ret = nullptr;                                                                                                                            \
+            return;                                                                                                                                   \
+        }                                                                                                                                             \
+                                                                                                                                                      \
+        if (!oper->type()->hasOperator(ast->op.type))                                                                                                 \
+        {                                                                                                                                             \
+            Error(Error::MsgType::ERROR, ast->operand.get(), "operand of unary expression does not support operator")                                 \
+                .underline(Error::Underline(ast->op, '^')                                                                                             \
+                    .error(concatMsg("operand of type \"", oper->type()->stringify(), "\" does not support operator \"", ast->op.stringify(), "\""))) \
+                .underline(Error::Underline(oper, '-'))                                                                                               \
+                .report();                                                                                                                            \
+                ret = nullptr;                                                                                                                        \
+                return;                                                                                                                               \
+        }                                                                                                                                             \
+                                                                                                                                                      \
+        ret = oper->type()->unaryOp(cg.context, oper, ast->op, ast);                                                                                  \
+    }
 
 BASICBINARYOP(Addition)
 BASICBINARYOP(Binand)
