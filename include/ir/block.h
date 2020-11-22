@@ -15,6 +15,7 @@ public:
     void branch(std::unique_ptr<Instrs::Br> br);
 
     void stringify(std::ostream &os);
+    void definition(std::ostream &os);
 
     std::string name;
 private:

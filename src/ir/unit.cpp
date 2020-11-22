@@ -4,11 +4,9 @@ Unit::Unit(File const &file): file(file) {}
 
 void Unit::print(std::ostream &ostream) const
 {
-    ostream << "Unit " << file.filename << std::endl;
+    ostream << "> Unit \"" << file.filename << "\"" << std::endl;
     for (std::unique_ptr<Function> const &f : functions)
-    {
-        ostream << f->stringify() << std::endl;
-    }
+        f->definition(ostream);
 }
 
 Function* Unit::addFunction(FunctionType *type, std::string name, ASTNS::Function *ast)
