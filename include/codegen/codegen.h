@@ -202,6 +202,7 @@ void visitUnaryExpr(ASTNS::UnaryExpr *ast) override;
         Function *curFunc;
         Block *curBlock;
         Block *exitBlock;
+        Register *retReg;
 
     private:
         std::vector<std::unique_ptr<Type>> types;

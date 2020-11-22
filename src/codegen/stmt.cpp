@@ -21,31 +21,28 @@ void CodeGenNS::StmtCodeGen::visitExprStmt(ASTNS::ExprStmt *ast)
 }
 void CodeGenNS::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
 {
-    Value *ret = nullptr;
     if (ast->expr)
     {
         Value *v = cg.exprCodeGen.expr(ast->expr.get());
         if (!v)
             return;
 
-        FunctionType *fty = static_cast<FunctionType*>(cg.context.curFunc->type());
-        if (fty->ret != v->type())
+        if (cg.context.retReg->type() != v->type())
         {
             Error(Error::MsgType::ERROR, v, "cannot return value of different type than expected return value")
                 .underline(Error::Underline(v, '^')
                     .error(concatMsg("returning ", v->type()->stringify(), " here")))
                 .underline(Error::Underline(static_cast<ASTNS::Function*>(cg.context.curFunc->ast())->retty.get(), '-')
-                    .note(concatMsg("function returns ", fty->ret->stringify())))
+                    .note(concatMsg("function returns ", cg.context.retReg->type()->stringify())))
                 .report();
             return;
         }
 
-        ret = v;
+        cg.context.curBlock->add(std::make_unique<Instrs::Store>(cg.context.retReg, v));
     }
 
-    cg.context.curBlock->branch(std::make_unique<Instrs::GotoBr>(cg.context.exitBlock)); // TODO: this does not work properly
+    cg.context.curBlock->branch(std::make_unique<Instrs::GotoBr>(cg.context.exitBlock));
     cg.context.curBlock = cg.context.exitBlock;
-    cg.context.curBlock->add(std::make_unique<Instrs::Return>(ret));
 }
 void CodeGenNS::StmtCodeGen::visitVarStmt(ASTNS::VarStmt *ast)
 {

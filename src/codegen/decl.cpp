@@ -14,7 +14,8 @@ void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
 {
     std::string name = ast->name.stringify();
     Value *function = cg.context.findGlobal(name);
-    if (!dynamic_cast<FunctionType*>(function->type()))
+    FunctionType *fty;
+    if (!(fty = dynamic_cast<FunctionType*>(function->type())))
         reportAbortNoh(concatMsg("DeclCodeGen::visitFunction(): context.getGlobal\"", name, "\") returned non-function"));
 
     Function *f = static_cast<Function*>(function);
@@ -26,6 +27,11 @@ void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
     Block *exitBlock = f->addBlock("exit");
 
     cg.context.incScope();
+    Register *retReg = nullptr;
+    if (!dynamic_cast<VoidType*>(fty->ret))
+    {
+        retReg = f->addRegister(fty->ret, ast);
+    }
 
     if (ast->paramlist)
     {
@@ -42,10 +48,19 @@ void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
     cg.context.curFunc = f;
     cg.context.curBlock = entryBlock;
     cg.context.exitBlock = exitBlock;
+    cg.context.retReg = retReg;
 
     cg.stmtCodeGen.stmt(ast->body.get());
 
     cg.context.decScope();
+
+    if (retReg)
+        cg.context.exitBlock->add(std::make_unique<Instrs::Return>(retReg));
+    else
+        cg.context.exitBlock->add(std::make_unique<Instrs::Return>(nullptr));
+
     cg.context.curFunc = nullptr;
+    cg.context.curBlock = nullptr;
     cg.context.exitBlock = nullptr;
+    cg.context.retReg = nullptr;
 }
