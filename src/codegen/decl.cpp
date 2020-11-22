@@ -59,6 +59,9 @@ void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
     else
         cg.context.exitBlock->add(std::make_unique<Instrs::Return>(nullptr));
 
+
+    cg.context.curBlock->branch(std::make_unique<Instrs::GotoBr>(cg.context.exitBlock));
+
     cg.context.curFunc = nullptr;
     cg.context.curBlock = nullptr;
     cg.context.exitBlock = nullptr;
