@@ -9,6 +9,9 @@ class Function;
 class Value;
 class Type;
 
+class InstrVisitor;
+class BrVisitor;
+
 namespace Instrs
 {
     class Instruction
@@ -16,6 +19,8 @@ namespace Instrs
     public:
         virtual ~Instruction() {};
         virtual void stringify(std::ostream &os) const = 0;
+
+        virtual void accept(InstrVisitor *v) = 0;
     };
 
 
@@ -24,6 +29,8 @@ namespace Instrs
     public:
         Store(Register *target, Value *value);
         void stringify(std::ostream &os) const override;
+
+        void accept(InstrVisitor *v) override;
 
     private:
         Register *target;
@@ -36,6 +43,8 @@ namespace Instrs
         Or(Register *target, Value *lhs, Value *rhs);
         void stringify(std::ostream &os) const override;
 
+        void accept(InstrVisitor *v) override;
+
     private:
         Register *target;
         Value *lhs, *rhs;
@@ -45,6 +54,8 @@ namespace Instrs
     public:
         And(Register *target, Value *lhs, Value *rhs);
         void stringify(std::ostream &os) const override;
+
+        void accept(InstrVisitor *v) override;
 
     private:
         Register *target;
@@ -56,6 +67,8 @@ namespace Instrs
         IntCmpNE(Register *target, Value *lhs, Value *rhs);
         void stringify(std::ostream &os) const override;
 
+        void accept(InstrVisitor *v) override;
+
     private:
         Register *target;
         Value *lhs, *rhs;
@@ -65,6 +78,8 @@ namespace Instrs
     public:
         IntCmpEQ(Register *target, Value *lhs, Value *rhs);
         void stringify(std::ostream &os) const override;
+
+        void accept(InstrVisitor *v) override;
 
     private:
         Register *target;
@@ -76,6 +91,8 @@ namespace Instrs
         IntCmpULT(Register *target, Value *lhs, Value *rhs);
         void stringify(std::ostream &os) const override;
 
+        void accept(InstrVisitor *v) override;
+
     private:
         Register *target;
         Value *lhs, *rhs;
@@ -85,6 +102,8 @@ namespace Instrs
     public:
         IntCmpUGT(Register *target, Value *lhs, Value *rhs);
         void stringify(std::ostream &os) const override;
+
+        void accept(InstrVisitor *v) override;
 
     private:
         Register *target;
@@ -96,6 +115,8 @@ namespace Instrs
         IntCmpULE(Register *target, Value *lhs, Value *rhs);
         void stringify(std::ostream &os) const override;
 
+        void accept(InstrVisitor *v) override;
+
     private:
         Register *target;
         Value *lhs, *rhs;
@@ -105,6 +126,8 @@ namespace Instrs
     public:
         IntCmpUGE(Register *target, Value *lhs, Value *rhs);
         void stringify(std::ostream &os) const override;
+
+        void accept(InstrVisitor *v) override;
 
     private:
         Register *target;
@@ -116,6 +139,8 @@ namespace Instrs
         FloatCmpNE(Register *target, Value *lhs, Value *rhs);
         void stringify(std::ostream &os) const override;
 
+        void accept(InstrVisitor *v) override;
+
     private:
         Register *target;
         Value *lhs, *rhs;
@@ -125,6 +150,8 @@ namespace Instrs
     public:
         FloatCmpEQ(Register *target, Value *lhs, Value *rhs);
         void stringify(std::ostream &os) const override;
+
+        void accept(InstrVisitor *v) override;
 
     private:
         Register *target;
@@ -136,6 +163,8 @@ namespace Instrs
         FloatCmpULT(Register *target, Value *lhs, Value *rhs);
         void stringify(std::ostream &os) const override;
 
+        void accept(InstrVisitor *v) override;
+
     private:
         Register *target;
         Value *lhs, *rhs;
@@ -145,6 +174,8 @@ namespace Instrs
     public:
         FloatCmpUGT(Register *target, Value *lhs, Value *rhs);
         void stringify(std::ostream &os) const override;
+
+        void accept(InstrVisitor *v) override;
 
     private:
         Register *target;
@@ -156,6 +187,8 @@ namespace Instrs
         FloatCmpULE(Register *target, Value *lhs, Value *rhs);
         void stringify(std::ostream &os) const override;
 
+        void accept(InstrVisitor *v) override;
+
     private:
         Register *target;
         Value *lhs, *rhs;
@@ -165,6 +198,8 @@ namespace Instrs
     public:
         FloatCmpUGE(Register *target, Value *lhs, Value *rhs);
         void stringify(std::ostream &os) const override;
+
+        void accept(InstrVisitor *v) override;
 
     private:
         Register *target;
@@ -176,6 +211,8 @@ namespace Instrs
         BitXor(Register *target, Value *lhs, Value *rhs);
         void stringify(std::ostream &os) const override;
 
+        void accept(InstrVisitor *v) override;
+
     private:
         Register *target;
         Value *lhs, *rhs;
@@ -185,6 +222,8 @@ namespace Instrs
     public:
         BitOr(Register *target, Value *lhs, Value *rhs);
         void stringify(std::ostream &os) const override;
+
+        void accept(InstrVisitor *v) override;
 
     private:
         Register *target;
@@ -196,6 +235,8 @@ namespace Instrs
         BitAnd(Register *target, Value *lhs, Value *rhs);
         void stringify(std::ostream &os) const override;
 
+        void accept(InstrVisitor *v) override;
+
     private:
         Register *target;
         Value *lhs, *rhs;
@@ -205,6 +246,8 @@ namespace Instrs
     public:
         BitNot(Register *target, Value *op);
         void stringify(std::ostream &os) const override;
+
+        void accept(InstrVisitor *v) override;
 
     private:
         Register *target;
@@ -216,6 +259,8 @@ namespace Instrs
         ShiftR(Register *target, Value *lhs, Value *rhs);
         void stringify(std::ostream &os) const override;
 
+        void accept(InstrVisitor *v) override;
+
     private:
         Register *target;
         Value *lhs, *rhs;
@@ -225,6 +270,8 @@ namespace Instrs
     public:
         ShiftL(Register *target, Value *lhs, Value *rhs);
         void stringify(std::ostream &os) const override;
+
+        void accept(InstrVisitor *v) override;
 
     private:
         Register *target;
@@ -236,6 +283,8 @@ namespace Instrs
         Add(Register *target, Value *lhs, Value *rhs);
         void stringify(std::ostream &os) const override;
 
+        void accept(InstrVisitor *v) override;
+
     private:
         Register *target;
         Value *lhs, *rhs;
@@ -245,6 +294,8 @@ namespace Instrs
     public:
         Sub(Register *target, Value *lhs, Value *rhs);
         void stringify(std::ostream &os) const override;
+
+        void accept(InstrVisitor *v) override;
 
     private:
         Register *target;
@@ -256,6 +307,8 @@ namespace Instrs
         Mult(Register *target, Value *lhs, Value *rhs);
         void stringify(std::ostream &os) const override;
 
+        void accept(InstrVisitor *v) override;
+
     private:
         Register *target;
         Value *lhs, *rhs;
@@ -265,6 +318,8 @@ namespace Instrs
     public:
         Div(Register *target, Value *lhs, Value *rhs);
         void stringify(std::ostream &os) const override;
+
+        void accept(InstrVisitor *v) override;
 
     private:
         Register *target;
@@ -276,6 +331,8 @@ namespace Instrs
         Mod(Register *target, Value *lhs, Value *rhs);
         void stringify(std::ostream &os) const override;
 
+        void accept(InstrVisitor *v) override;
+
     private:
         Register *target;
         Value *lhs, *rhs;
@@ -286,6 +343,8 @@ namespace Instrs
         Neg(Register *target, Value *op);
         void stringify(std::ostream &os) const override;
 
+        void accept(InstrVisitor *v) override;
+
     private:
         Register *target;
         Value *op;
@@ -295,6 +354,8 @@ namespace Instrs
     public:
         Trunc(Register *target, Value *op, Type *newt);
         void stringify(std::ostream &os) const override;
+
+        void accept(InstrVisitor *v) override;
 
     private:
         Register *target;
@@ -307,6 +368,8 @@ namespace Instrs
         ZeroExt(Register *target, Value *op, Type *newt);
         void stringify(std::ostream &os) const override;
 
+        void accept(InstrVisitor *v) override;
+
     private:
         Register *target;
         Value *op;
@@ -317,6 +380,8 @@ namespace Instrs
     public:
         SignExt(Register *target, Value *op, Type *newt);
         void stringify(std::ostream &os) const override;
+
+        void accept(InstrVisitor *v) override;
 
     private:
         Register *target;
@@ -329,6 +394,8 @@ namespace Instrs
         FloatTrunc(Register *target, Value *op, Type *newt);
         void stringify(std::ostream &os) const override;
 
+        void accept(InstrVisitor *v) override;
+
     private:
         Register *target;
         Value *op;
@@ -339,6 +406,8 @@ namespace Instrs
     public:
         FloatExt(Register *target, Value *op, Type *newt);
         void stringify(std::ostream &os) const override;
+
+        void accept(InstrVisitor *v) override;
 
     private:
         Register *target;
@@ -351,6 +420,8 @@ namespace Instrs
         SIntToFloat(Register *target, Value *op, Type *newt);
         void stringify(std::ostream &os) const override;
 
+        void accept(InstrVisitor *v) override;
+
     private:
         Register *target;
         Value *op;
@@ -361,6 +432,8 @@ namespace Instrs
     public:
         UIntToFloat(Register *target, Value *op, Type *newt);
         void stringify(std::ostream &os) const override;
+
+        void accept(InstrVisitor *v) override;
 
     private:
         Register *target;
@@ -373,6 +446,8 @@ namespace Instrs
         FloatToSInt(Register *target, Value *op, Type *newt);
         void stringify(std::ostream &os) const override;
 
+        void accept(InstrVisitor *v) override;
+
     private:
         Register *target;
         Value *op;
@@ -383,6 +458,8 @@ namespace Instrs
     public:
         FloatToUInt(Register *target, Value *op, Type *newt);
         void stringify(std::ostream &os) const override;
+
+        void accept(InstrVisitor *v) override;
 
     private:
         Register *target;
@@ -395,6 +472,8 @@ namespace Instrs
         Return(Value *value);
         void stringify(std::ostream &os) const override;
 
+        void accept(InstrVisitor *v) override;
+
     private:
         Value *value;
     };
@@ -403,6 +482,8 @@ namespace Instrs
     public:
         Call(Register *reg, Function *f, std::vector<Value*> args);
         void stringify(std::ostream &os) const override;
+
+        void accept(InstrVisitor *v) override;
 
     private:
         Register *reg;
@@ -416,6 +497,8 @@ namespace Instrs
         virtual ~Br() {};
         virtual void stringify(std::ostream &os) const = 0;
         virtual void cfgDot(std::ostream &os) const = 0;
+
+        virtual void accept(BrVisitor *v) = 0;
     };
 
     class GotoBr : public Br
@@ -424,6 +507,8 @@ namespace Instrs
         GotoBr(Block *b);
         void stringify(std::ostream &os) const override;
         void cfgDot(std::ostream &os) const override;
+
+        void accept(BrVisitor *v) override;
 
     private:
         Block *b;
@@ -434,6 +519,8 @@ namespace Instrs
         CondBr(Value *v, Block *trueb, Block *falseb);
         void stringify(std::ostream &os) const override;
         void cfgDot(std::ostream &os) const override;
+
+        void accept(BrVisitor *v) override;
 
     private:
         Value *v;

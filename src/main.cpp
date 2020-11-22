@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <fstream>
 #include <filesystem>
@@ -25,6 +24,7 @@ enum class OutFormats
     DECLS,
     CODEGEN,
     CFGDOT,
+    LOWER,
     OBJECT,
     ALL,
 };
@@ -79,6 +79,8 @@ int main(int argc, char *argv[])
                     outformat = OutFormats::CODEGEN;
                 else if (strcmp(optarg, "cfgdot") == 0)
                     outformat = OutFormats::CFGDOT;
+                else if (strcmp(optarg, "lower") == 0)
+                    outformat = OutFormats::LOWER;
                 else if (strcmp(optarg, "all") == 0)
                     outformat = OutFormats::ALL;
                 else
@@ -131,6 +133,10 @@ int main(int argc, char *argv[])
 
             case OutFormats::CODEGEN:
                 extrepl = ".kslir";
+                break;
+
+            case OutFormats::LOWER:
+                extrepl = ".ll";
                 break;
 
             case OutFormats::OBJECT:
@@ -200,6 +206,11 @@ int main(int argc, char *argv[])
         {
             codegen->context.unit.cfgDot(outputstream);
             continue;
+        }
+
+        if (outformat == OutFormats::LOWER)
+        {
+
         }
     }
 

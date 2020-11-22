@@ -1,5 +1,6 @@
 #include "ir/instruction.h"
 #include "ir/value.h"
+#include "lower/visitor.h"
 #include <ostream>
 
 Instrs::Store::Store(Register *target, Value *value): target(target), value(value) {}
@@ -203,3 +204,47 @@ void Instrs::Call::stringify(std::ostream &os) const
     else
         os << std::endl;
 }
+
+#define ACCEPTMETHOD(cl)                     \
+    void Instrs::cl::accept(InstrVisitor *v) \
+    {                                        \
+        v->visit##cl(this);                  \
+    }
+ACCEPTMETHOD(Store)
+ACCEPTMETHOD(Or)
+ACCEPTMETHOD(And)
+ACCEPTMETHOD(IntCmpNE)
+ACCEPTMETHOD(IntCmpEQ)
+ACCEPTMETHOD(IntCmpULT)
+ACCEPTMETHOD(IntCmpUGT)
+ACCEPTMETHOD(IntCmpULE)
+ACCEPTMETHOD(IntCmpUGE)
+ACCEPTMETHOD(FloatCmpNE)
+ACCEPTMETHOD(FloatCmpEQ)
+ACCEPTMETHOD(FloatCmpULT)
+ACCEPTMETHOD(FloatCmpUGT)
+ACCEPTMETHOD(FloatCmpULE)
+ACCEPTMETHOD(FloatCmpUGE)
+ACCEPTMETHOD(BitXor)
+ACCEPTMETHOD(BitOr)
+ACCEPTMETHOD(BitAnd)
+ACCEPTMETHOD(BitNot)
+ACCEPTMETHOD(ShiftR)
+ACCEPTMETHOD(ShiftL)
+ACCEPTMETHOD(Add)
+ACCEPTMETHOD(Sub)
+ACCEPTMETHOD(Mult)
+ACCEPTMETHOD(Div)
+ACCEPTMETHOD(Mod)
+ACCEPTMETHOD(Neg)
+ACCEPTMETHOD(Trunc)
+ACCEPTMETHOD(ZeroExt)
+ACCEPTMETHOD(SignExt)
+ACCEPTMETHOD(FloatTrunc)
+ACCEPTMETHOD(FloatExt)
+ACCEPTMETHOD(SIntToFloat)
+ACCEPTMETHOD(UIntToFloat)
+ACCEPTMETHOD(FloatToSInt)
+ACCEPTMETHOD(FloatToUInt)
+ACCEPTMETHOD(Return)
+ACCEPTMETHOD(Call)
