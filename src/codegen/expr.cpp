@@ -156,4 +156,41 @@ void CodeGenNS::ExprCodeGen::visitTernaryExpr(ASTNS::TernaryExpr *ast)
 }
 void CodeGenNS::ExprCodeGen::visitAssignmentExpr(ASTNS::AssignmentExpr *ast)
 {
+    Value *lhs = expr(ast->target.get());
+    Value *rhs = expr(ast->value.get());
+
+    if (!lhs || !rhs)
+    {
+        ret = nullptr;
+        return;
+    }
+
+    Register *targetReg = dynamic_cast<Register*>(lhs);
+    if (!targetReg)
+    {
+        Error(Error::MsgType::ERROR, ast->equal, "invalid assignment target")
+            .underline(Error::Underline(ast->equal, '^')
+                .error("invalid assignment target"))
+            .underline(Error::Underline(lhs, '~'))
+            .report();
+        ret = nullptr;
+        return;
+    }
+
+    if (targetReg->type() != rhs->type())
+    {
+        Error(Error::MsgType::ERROR, ast->equal, "assignment target and value do not have same type")
+            .underline(Error::Underline(rhs, '^')
+                .note(rhs->type()->stringify()))
+            .underline(Error::Underline(targetReg, '^')
+                .note(targetReg->type()->stringify()))
+            .underline(Error::Underline(ast->equal, '-'))
+            .report();
+        ret = nullptr;
+        return;
+    }
+
+    cg.context.curBlock->add(std::make_unique<Instrs::Store>(targetReg, rhs));
+
+    ret = rhs;
 }
