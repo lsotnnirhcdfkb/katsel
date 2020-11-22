@@ -199,7 +199,7 @@ void Instrs::Call::stringify(std::ostream &os) const
         os << v->stringify() << " ";
 
     if (reg)
-        os << "-> " << reg->stringify() << std::endl;
+        os << "out to " << reg->stringify() << std::endl;
     else
         os << std::endl;
 }
