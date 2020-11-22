@@ -155,6 +155,7 @@ Value* BuiltinType::binOp(CodeGenNS::Context &cgc, Value *l, Value *r, Token op,
 
         case TokenType::PERCENT:
             cgc.curBlock->add(std::make_unique<Instrs::Mod>(outReg, l, r));
+            break;
 
         default:
             invalidTok("binary operator", op);
