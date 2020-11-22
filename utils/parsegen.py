@@ -594,7 +594,7 @@ def genLoop():
             if not found:
                 stateactions.append((ac, [term]))
 
-
+        reduceOnly = len(stateactions) == 1 and type(stateactions[0][0]) == ReduceAction
         for ac, nts in stateactions:
             if type(ac) == ShiftAction:
                 for term in nts:
@@ -602,8 +602,16 @@ def genLoop():
                 output.append(        f'                        shift(p, lasttok, lookahead, stack, steps, {ac.newstate}); break;\n')
                 continue
 
-            for term in nts:
-                output.append(        f'                    case {term.astt()}:\n')
+            if reduceOnly:
+                output.append(        f'                    default:\n')
+                # do not check for lookahead, just reduce to have better performance
+                # if reduceOnly, then all the actions of this state are to reduce the same rule
+                # and according to Wikipedia, just reducing regardless of the lookahead in
+                # these states will cause a few "harmless reductions," and errors will just be
+                # reported after a few reduces
+            else:
+                for term in nts:
+                    output.append(    f'                    case {term.astt()}:\n')
 
             if type(ac) == ReduceAction:
                 if not ac.rule.skip:
@@ -634,11 +642,12 @@ def genLoop():
 
             output.append(             '                        break;\n')
 
-        output.append(                f'                    default:\n')
-        if len(state.expected):
-            output.append(        f'                        DEFAULTINVALIDWHILE({state.justparsed}, {formatList(state.expected)}, {formatList(state.whileparsing)})\n')
-        else:
-            output.append(        f'                        DEFAULTINVALIDNOEXPECT({state.justparsed}, {formatList(state.whileparsing)})\n')
+        if not reduceOnly:
+            output.append(            f'                    default:\n')
+            if len(state.expected):
+                output.append(        f'                        DEFAULTINVALIDWHILE({state.justparsed}, {formatList(state.expected)}, {formatList(state.whileparsing)})\n')
+            else:
+                output.append(        f'                        DEFAULTINVALIDNOEXPECT({state.justparsed}, {formatList(state.whileparsing)})\n')
         output.append(                 '                }\n')
         output.append(                 '                break;\n')
 
