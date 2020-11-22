@@ -51,88 +51,114 @@ Value* BuiltinType::binOp(CodeGenNS::Context &cgc, Value *l, Value *r, Token op,
         return nullptr;
     }
 
-    /*
+    Type *retTy;
     switch (op.type)
     {
         case TokenType::DOUBLEPIPE:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateOr(l.val, r.val), ast); // TODO: Shortcircuit
-            break;
-
         case TokenType::DOUBLEAMPER:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateAnd(l.val, r.val), ast);
-            break;
-
         case TokenType::BANGEQUAL:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpNE(l.val, r.val), ast);
-            break;
-
         case TokenType::DOUBLEEQUAL:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpEQ(l.val, r.val), ast);
-            break;
-
         case TokenType::LESS:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpULT(l.val, r.val), ast); // TODO: unsigned and signed
-            break;
-
         case TokenType::GREATER:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpUGT(l.val, r.val), ast);
-            break;
-
         case TokenType::LESSEQUAL:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpULE(l.val, r.val), ast);
-            break;
-
         case TokenType::GREATEREQUAL:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpUGE(l.val, r.val), ast);
-            break;
+            retTy = cgc.getBuiltinType(BuiltinType::Builtins::BOOL);
 
         case TokenType::CARET:
-            return Value(l.type, cgc.builder.CreateXor(l.val, r.val), ast);
-            break;
-
         case TokenType::PIPE:
-            return Value(l.type, cgc.builder.CreateOr(l.val, r.val), ast);
-            break;
-
         case TokenType::AMPER:
-            return Value(l.type, cgc.builder.CreateAnd(l.val, r.val), ast);
-            break;
-
         case TokenType::DOUBLELESS:
-            return Value(l.type, cgc.builder.CreateShl(l.val, r.val), ast);
-            break;
-
         case TokenType::DOUBLEGREATER:
-            return Value(l.type, cgc.builder.CreateLShr(l.val, r.val), ast);
-            break;
-
         case TokenType::PLUS:
-            return Value(l.type, cgc.builder.CreateAdd(l.val, r.val), ast);
-            break;
-
         case TokenType::MINUS:
-            return Value(l.type, cgc.builder.CreateSub(l.val, r.val), ast);
-            break;
-
         case TokenType::STAR:
-            return Value(l.type, cgc.builder.CreateMul(l.val, r.val), ast);
-            break;
-
         case TokenType::SLASH:
-            return Value(l.type, cgc.builder.CreateUDiv(l.val, r.val), ast);
-            break;
-
         case TokenType::PERCENT:
-            return Value(l.type, cgc.builder.CreateURem(l.val, r.val), ast);
-            break;
+            retTy = l->type();
 
         default:
             invalidTok("binary operator", op);
     }
 
-    outOSwitchDDefaultLab("BuiltinType::binOp", op);
-    */
-    return nullptr;
+    Register *outReg = cgc.curFunc->addRegister(retTy, ast);
+    switch (op.type)
+    {
+        case TokenType::DOUBLEPIPE:
+            cgc.curBlock->add(std::make_unique<Instrs::Or>(outReg, l, r)); // TODO: shortcircuit
+            break;
+
+        case TokenType::DOUBLEAMPER:
+            cgc.curBlock->add(std::make_unique<Instrs::And>(outReg, l, r));
+            break;
+
+        case TokenType::BANGEQUAL:
+            cgc.curBlock->add(std::make_unique<Instrs::IntCmpNE>(outReg, l, r));
+            break;
+
+        case TokenType::DOUBLEEQUAL:
+            cgc.curBlock->add(std::make_unique<Instrs::IntCmpEQ>(outReg, l, r));
+            break;
+
+        case TokenType::LESS:
+            cgc.curBlock->add(std::make_unique<Instrs::IntCmpULT>(outReg, l, r)); // TODO: unsigned and signed
+            break;
+
+        case TokenType::GREATER:
+            cgc.curBlock->add(std::make_unique<Instrs::IntCmpUGT>(outReg, l, r));
+            break;
+
+        case TokenType::LESSEQUAL:
+            cgc.curBlock->add(std::make_unique<Instrs::IntCmpULE>(outReg, l, r));
+            break;
+
+        case TokenType::GREATEREQUAL:
+            cgc.curBlock->add(std::make_unique<Instrs::IntCmpUGE>(outReg, l, r));
+            break;
+
+        case TokenType::CARET:
+            cgc.curBlock->add(std::make_unique<Instrs::BitXor>(outReg, l, r));
+            break;
+
+        case TokenType::PIPE:
+            cgc.curBlock->add(std::make_unique<Instrs::BitOr>(outReg, l, r));
+            break;
+
+        case TokenType::AMPER:
+            cgc.curBlock->add(std::make_unique<Instrs::BitAnd>(outReg, l, r));
+            break;
+
+        case TokenType::DOUBLELESS:
+            cgc.curBlock->add(std::make_unique<Instrs::ShiftR>(outReg, l, r));
+            break;
+
+        case TokenType::DOUBLEGREATER:
+            cgc.curBlock->add(std::make_unique<Instrs::ShiftL>(outReg, l, r));
+            break;
+
+        case TokenType::PLUS:
+            cgc.curBlock->add(std::make_unique<Instrs::Add>(outReg, l, r));
+            break;
+
+        case TokenType::MINUS:
+            cgc.curBlock->add(std::make_unique<Instrs::Sub>(outReg, l, r));
+            break;
+
+        case TokenType::STAR:
+            cgc.curBlock->add(std::make_unique<Instrs::Mult>(outReg, l, r));
+            break;
+
+        case TokenType::SLASH:
+            cgc.curBlock->add(std::make_unique<Instrs::Div>(outReg, l, r));
+            break;
+
+        case TokenType::PERCENT:
+            cgc.curBlock->add(std::make_unique<Instrs::Mod>(outReg, l, r));
+
+        default:
+            invalidTok("binary operator", op);
+    }
+
+    return outReg;
 }
 // castTo {{{1
 Value* BuiltinType::castTo(CodeGenNS::Context &cgc, Value *v)
