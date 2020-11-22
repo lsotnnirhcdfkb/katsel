@@ -559,6 +559,10 @@ def genLoop():
                                        '    ERRORSTART()\\\n'
                                        '            Error e = p.invalidSyntaxWhile(justparsed, expected, whileparsing, lookahead, lasttok);\\\n'
                                        '    ERROREND()\n'
+                                       '#define DEFAULTINVALIDNOWHILE(justparsed, expected) \\\n'
+                                       '    ERRORSTART()\\\n'
+                                       '            Error e = p.invalidSyntax(justparsed, expected, lookahead, lasttok);\\\n'
+                                       '    ERROREND()\n'
                                        '#define DEFAULTINVALIDNOEXPECT(justparsed, whileparsing) \\\n'
                                        '    ERRORSTART()\\\n'
                                        '            Error e = p.invalidSyntaxNoExpect(justparsed, whileparsing, lookahead, lasttok);\\\n'
@@ -645,7 +649,10 @@ def genLoop():
         if not reduceOnly:
             output.append(            f'                    default:\n')
             if len(state.expected):
-                output.append(        f'                        DEFAULTINVALIDWHILE({state.justparsed}, {formatList(state.expected)}, {formatList(state.whileparsing)})\n')
+                if len(state.whileparsing) == 1:
+                    output.append(    f'                        DEFAULTINVALIDWHILE({state.justparsed}, {formatList(state.expected)}, {formatList(state.whileparsing)})\n')
+                else:
+                    output.append(    f'                        DEFAULTINVALIDNOWHILE({state.justparsed}, {formatList(state.expected)})\n')
             else:
                 output.append(        f'                        DEFAULTINVALIDNOEXPECT({state.justparsed}, {formatList(state.whileparsing)})\n')
         output.append(                 '                }\n')

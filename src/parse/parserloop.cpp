@@ -786,6 +786,10 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
     ERRORSTART()\
             Error e = p.invalidSyntaxWhile(justparsed, expected, whileparsing, lookahead, lasttok);\
     ERROREND()
+#define DEFAULTINVALIDNOWHILE(justparsed, expected) \
+    ERRORSTART()\
+            Error e = p.invalidSyntax(justparsed, expected, lookahead, lasttok);\
+    ERROREND()
 #define DEFAULTINVALIDNOEXPECT(justparsed, whileparsing) \
     ERRORSTART()\
             Error e = p.invalidSyntaxNoExpect(justparsed, whileparsing, lookahead, lasttok);\
@@ -819,7 +823,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::FUN:
                         shift(p, lasttok, lookahead, stack, steps, 4); break;
                     default:
-                        DEFAULTINVALIDWHILE("declaration list", concatMsg("either ", "declaration", " or ", stringifyTokenType(TokenType::EOF_)), concatMsg("either ", "compilation unit", " or ", "declaration list"))
+                        DEFAULTINVALIDNOWHILE("declaration list", concatMsg("either ", "declaration", " or ", stringifyTokenType(TokenType::EOF_)))
                 }
                 break;
             case 2:
@@ -1138,7 +1142,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::CPARN:
                         shift(p, lasttok, lookahead, stack, steps, 31); break;
                     default:
-                        DEFAULTINVALIDWHILE("parameter list", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::CPARN)), concatMsg("either ", "function declaration", " or ", "parameter list"))
+                        DEFAULTINVALIDNOWHILE("parameter list", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::CPARN)))
                 }
                 break;
             case 26:
@@ -1329,7 +1333,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::VAR:
                         shift(p, lasttok, lookahead, stack, steps, 43); break;
                     default:
-                        DEFAULTINVALIDWHILE("statement list", concatMsg("either ", "statement", " or ", stringifyTokenType(TokenType::CCURB)), concatMsg("either ", "code block", " or ", "statement list"))
+                        DEFAULTINVALIDNOWHILE("statement list", concatMsg("either ", "statement", " or ", stringifyTokenType(TokenType::CCURB)))
                 }
                 break;
             case 35:
@@ -1524,7 +1528,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::QUESTION:
                         shift(p, lasttok, lookahead, stack, steps, 86); break;
                     default:
-                        DEFAULTINVALIDWHILE("binary or expression", concatMsg("either ", stringifyTokenType(TokenType::DOUBLEPIPE), " or ", stringifyTokenType(TokenType::QUESTION)), concatMsg("either ", "binary or expression", " or ", "ternary expression"))
+                        DEFAULTINVALIDNOWHILE("binary or expression", concatMsg("either ", stringifyTokenType(TokenType::DOUBLEPIPE), " or ", stringifyTokenType(TokenType::QUESTION)))
                 }
                 break;
             case 49:
@@ -1542,7 +1546,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::DOUBLEAMPER:
                         shift(p, lasttok, lookahead, stack, steps, 88); break;
                     default:
-                        DEFAULTINVALIDWHILE("binary and expression", stringifyTokenType(TokenType::DOUBLEAMPER), concatMsg("either ", "binary and expression", " or ", "binary or expression"))
+                        DEFAULTINVALIDNOWHILE("binary and expression", stringifyTokenType(TokenType::DOUBLEAMPER))
                 }
                 break;
             case 50:
@@ -1608,7 +1612,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::DOUBLEEQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 91); break;
                     default:
-                        DEFAULTINVALIDWHILE("equality expression", concatMsg("either ", stringifyTokenType(TokenType::BANGEQUAL), " or ", stringifyTokenType(TokenType::DOUBLEEQUAL)), concatMsg("either ", "binary not expression", " or ", "equality expression"))
+                        DEFAULTINVALIDNOWHILE("equality expression", concatMsg("either ", stringifyTokenType(TokenType::BANGEQUAL), " or ", stringifyTokenType(TokenType::DOUBLEEQUAL)))
                 }
                 break;
             case 53:
@@ -1635,7 +1639,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::LESSEQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 94); break;
                     default:
-                        DEFAULTINVALIDWHILE("comparison expression", concatMsg(stringifyTokenType(TokenType::GREATER), stringifyTokenType(TokenType::GREATEREQUAL), stringifyTokenType(TokenType::LESS), " or ", stringifyTokenType(TokenType::LESSEQUAL)), concatMsg("either ", "comparison expression", " or ", "equality expression"))
+                        DEFAULTINVALIDNOWHILE("comparison expression", concatMsg(stringifyTokenType(TokenType::GREATER), stringifyTokenType(TokenType::GREATEREQUAL), stringifyTokenType(TokenType::LESS), " or ", stringifyTokenType(TokenType::LESSEQUAL)))
                 }
                 break;
             case 54:
@@ -1660,7 +1664,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::CARET:
                         shift(p, lasttok, lookahead, stack, steps, 96); break;
                     default:
-                        DEFAULTINVALIDWHILE("bitwise xor expression", stringifyTokenType(TokenType::CARET), concatMsg("either ", "bitwise xor expression", " or ", "comparison expression"))
+                        DEFAULTINVALIDNOWHILE("bitwise xor expression", stringifyTokenType(TokenType::CARET))
                 }
                 break;
             case 55:
@@ -1686,7 +1690,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::PIPE:
                         shift(p, lasttok, lookahead, stack, steps, 97); break;
                     default:
-                        DEFAULTINVALIDWHILE("bitwise or expression", stringifyTokenType(TokenType::PIPE), concatMsg("either ", "bitwise or expression", " or ", "bitwise xor expression"))
+                        DEFAULTINVALIDNOWHILE("bitwise or expression", stringifyTokenType(TokenType::PIPE))
                 }
                 break;
             case 56:
@@ -1713,7 +1717,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         reduceSkip<ASTNS::BitorExpr>(stack);
                         break;
                     default:
-                        DEFAULTINVALIDWHILE("bitwise and expression", stringifyTokenType(TokenType::AMPER), concatMsg("either ", "bitwise and expression", " or ", "bitwise or expression"))
+                        DEFAULTINVALIDNOWHILE("bitwise and expression", stringifyTokenType(TokenType::AMPER))
                 }
                 break;
             case 57:
@@ -1743,7 +1747,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::DOUBLELESS:
                         shift(p, lasttok, lookahead, stack, steps, 100); break;
                     default:
-                        DEFAULTINVALIDWHILE("bit shift expression", concatMsg("either ", stringifyTokenType(TokenType::DOUBLEGREATER), " or ", stringifyTokenType(TokenType::DOUBLELESS)), concatMsg("either ", "bit shift expression", " or ", "bitwise and expression"))
+                        DEFAULTINVALIDNOWHILE("bit shift expression", concatMsg("either ", stringifyTokenType(TokenType::DOUBLEGREATER), " or ", stringifyTokenType(TokenType::DOUBLELESS)))
                 }
                 break;
             case 58:
@@ -1775,7 +1779,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::PLUS:
                         shift(p, lasttok, lookahead, stack, steps, 101); break;
                     default:
-                        DEFAULTINVALIDWHILE("addition expression", concatMsg("either ", stringifyTokenType(TokenType::MINUS), " or ", stringifyTokenType(TokenType::PLUS)), concatMsg("either ", "addition expression", " or ", "bit shift expression"))
+                        DEFAULTINVALIDNOWHILE("addition expression", concatMsg("either ", stringifyTokenType(TokenType::MINUS), " or ", stringifyTokenType(TokenType::PLUS)))
                 }
                 break;
             case 59:
@@ -1811,7 +1815,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 103); break;
                     default:
-                        DEFAULTINVALIDWHILE("multiplication expression", concatMsg(stringifyTokenType(TokenType::PERCENT), stringifyTokenType(TokenType::SLASH), " or ", stringifyTokenType(TokenType::STAR)), concatMsg("either ", "addition expression", " or ", "multiplication expression"))
+                        DEFAULTINVALIDNOWHILE("multiplication expression", concatMsg(stringifyTokenType(TokenType::PERCENT), stringifyTokenType(TokenType::SLASH), " or ", stringifyTokenType(TokenType::STAR)))
                 }
                 break;
             case 60:
@@ -3030,7 +3034,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::SEMICOLON:
                         shift(p, lasttok, lookahead, stack, steps, 139); break;
                     default:
-                        DEFAULTINVALIDWHILE("variable statement initialization list", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::SEMICOLON)), concatMsg("either ", "variable statement initialization list", " or ", "variable statement"))
+                        DEFAULTINVALIDNOWHILE("variable statement initialization list", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::SEMICOLON)))
                 }
                 break;
             case 111:
@@ -3120,7 +3124,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::DOUBLEAMPER:
                         shift(p, lasttok, lookahead, stack, steps, 88); break;
                     default:
-                        DEFAULTINVALIDWHILE("binary and expression", stringifyTokenType(TokenType::DOUBLEAMPER), concatMsg("either ", "binary and expression", " or ", "binary or expression"))
+                        DEFAULTINVALIDNOWHILE("binary and expression", stringifyTokenType(TokenType::DOUBLEAMPER))
                 }
                 break;
             case 117:
@@ -3169,7 +3173,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::LESSEQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 94); break;
                     default:
-                        DEFAULTINVALIDWHILE("comparison expression", concatMsg(stringifyTokenType(TokenType::GREATER), stringifyTokenType(TokenType::GREATEREQUAL), stringifyTokenType(TokenType::LESS), " or ", stringifyTokenType(TokenType::LESSEQUAL)), concatMsg("either ", "comparison expression", " or ", "equality expression"))
+                        DEFAULTINVALIDNOWHILE("comparison expression", concatMsg(stringifyTokenType(TokenType::GREATER), stringifyTokenType(TokenType::GREATEREQUAL), stringifyTokenType(TokenType::LESS), " or ", stringifyTokenType(TokenType::LESSEQUAL)))
                 }
                 break;
             case 119:
@@ -3203,7 +3207,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::LESSEQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 94); break;
                     default:
-                        DEFAULTINVALIDWHILE("comparison expression", concatMsg(stringifyTokenType(TokenType::GREATER), stringifyTokenType(TokenType::GREATEREQUAL), stringifyTokenType(TokenType::LESS), " or ", stringifyTokenType(TokenType::LESSEQUAL)), concatMsg("either ", "comparison expression", " or ", "equality expression"))
+                        DEFAULTINVALIDNOWHILE("comparison expression", concatMsg(stringifyTokenType(TokenType::GREATER), stringifyTokenType(TokenType::GREATEREQUAL), stringifyTokenType(TokenType::LESS), " or ", stringifyTokenType(TokenType::LESSEQUAL)))
                 }
                 break;
             case 120:
@@ -3235,7 +3239,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::CARET:
                         shift(p, lasttok, lookahead, stack, steps, 96); break;
                     default:
-                        DEFAULTINVALIDWHILE("bitwise xor expression", stringifyTokenType(TokenType::CARET), concatMsg("either ", "bitwise xor expression", " or ", "comparison expression"))
+                        DEFAULTINVALIDNOWHILE("bitwise xor expression", stringifyTokenType(TokenType::CARET))
                 }
                 break;
             case 121:
@@ -3267,7 +3271,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::CARET:
                         shift(p, lasttok, lookahead, stack, steps, 96); break;
                     default:
-                        DEFAULTINVALIDWHILE("bitwise xor expression", stringifyTokenType(TokenType::CARET), concatMsg("either ", "bitwise xor expression", " or ", "comparison expression"))
+                        DEFAULTINVALIDNOWHILE("bitwise xor expression", stringifyTokenType(TokenType::CARET))
                 }
                 break;
             case 122:
@@ -3299,7 +3303,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::CARET:
                         shift(p, lasttok, lookahead, stack, steps, 96); break;
                     default:
-                        DEFAULTINVALIDWHILE("bitwise xor expression", stringifyTokenType(TokenType::CARET), concatMsg("either ", "bitwise xor expression", " or ", "comparison expression"))
+                        DEFAULTINVALIDNOWHILE("bitwise xor expression", stringifyTokenType(TokenType::CARET))
                 }
                 break;
             case 123:
@@ -3331,7 +3335,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::CARET:
                         shift(p, lasttok, lookahead, stack, steps, 96); break;
                     default:
-                        DEFAULTINVALIDWHILE("bitwise xor expression", stringifyTokenType(TokenType::CARET), concatMsg("either ", "bitwise xor expression", " or ", "comparison expression"))
+                        DEFAULTINVALIDNOWHILE("bitwise xor expression", stringifyTokenType(TokenType::CARET))
                 }
                 break;
             case 124:
@@ -3364,7 +3368,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::PIPE:
                         shift(p, lasttok, lookahead, stack, steps, 97); break;
                     default:
-                        DEFAULTINVALIDWHILE("bitwise or expression", stringifyTokenType(TokenType::PIPE), concatMsg("either ", "bitwise or expression", " or ", "bitwise xor expression"))
+                        DEFAULTINVALIDNOWHILE("bitwise or expression", stringifyTokenType(TokenType::PIPE))
                 }
                 break;
             case 125:
@@ -3398,7 +3402,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         }
                         break;
                     default:
-                        DEFAULTINVALIDWHILE("bitwise and expression", stringifyTokenType(TokenType::AMPER), concatMsg("either ", "bitwise and expression", " or ", "bitwise or expression"))
+                        DEFAULTINVALIDNOWHILE("bitwise and expression", stringifyTokenType(TokenType::AMPER))
                 }
                 break;
             case 126:
@@ -3435,7 +3439,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::DOUBLELESS:
                         shift(p, lasttok, lookahead, stack, steps, 100); break;
                     default:
-                        DEFAULTINVALIDWHILE("bit shift expression", concatMsg("either ", stringifyTokenType(TokenType::DOUBLEGREATER), " or ", stringifyTokenType(TokenType::DOUBLELESS)), concatMsg("either ", "bit shift expression", " or ", "bitwise and expression"))
+                        DEFAULTINVALIDNOWHILE("bit shift expression", concatMsg("either ", stringifyTokenType(TokenType::DOUBLEGREATER), " or ", stringifyTokenType(TokenType::DOUBLELESS)))
                 }
                 break;
             case 127:
@@ -3474,7 +3478,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::PLUS:
                         shift(p, lasttok, lookahead, stack, steps, 101); break;
                     default:
-                        DEFAULTINVALIDWHILE("addition expression", concatMsg("either ", stringifyTokenType(TokenType::MINUS), " or ", stringifyTokenType(TokenType::PLUS)), concatMsg("either ", "addition expression", " or ", "bit shift expression"))
+                        DEFAULTINVALIDNOWHILE("addition expression", concatMsg("either ", stringifyTokenType(TokenType::MINUS), " or ", stringifyTokenType(TokenType::PLUS)))
                 }
                 break;
             case 128:
@@ -3513,7 +3517,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::PLUS:
                         shift(p, lasttok, lookahead, stack, steps, 101); break;
                     default:
-                        DEFAULTINVALIDWHILE("addition expression", concatMsg("either ", stringifyTokenType(TokenType::MINUS), " or ", stringifyTokenType(TokenType::PLUS)), concatMsg("either ", "addition expression", " or ", "bit shift expression"))
+                        DEFAULTINVALIDNOWHILE("addition expression", concatMsg("either ", stringifyTokenType(TokenType::MINUS), " or ", stringifyTokenType(TokenType::PLUS)))
                 }
                 break;
             case 129:
@@ -3556,7 +3560,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 103); break;
                     default:
-                        DEFAULTINVALIDWHILE("multiplication expression", concatMsg(stringifyTokenType(TokenType::PERCENT), stringifyTokenType(TokenType::SLASH), " or ", stringifyTokenType(TokenType::STAR)), concatMsg("either ", "addition expression", " or ", "multiplication expression"))
+                        DEFAULTINVALIDNOWHILE("multiplication expression", concatMsg(stringifyTokenType(TokenType::PERCENT), stringifyTokenType(TokenType::SLASH), " or ", stringifyTokenType(TokenType::STAR)))
                 }
                 break;
             case 130:
@@ -3599,7 +3603,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 103); break;
                     default:
-                        DEFAULTINVALIDWHILE("multiplication expression", concatMsg(stringifyTokenType(TokenType::PERCENT), stringifyTokenType(TokenType::SLASH), " or ", stringifyTokenType(TokenType::STAR)), concatMsg("either ", "addition expression", " or ", "multiplication expression"))
+                        DEFAULTINVALIDNOWHILE("multiplication expression", concatMsg(stringifyTokenType(TokenType::PERCENT), stringifyTokenType(TokenType::SLASH), " or ", stringifyTokenType(TokenType::STAR)))
                 }
                 break;
             case 131:
@@ -3655,7 +3659,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::CPARN:
                         shift(p, lasttok, lookahead, stack, steps, 143); break;
                     default:
-                        DEFAULTINVALIDWHILE("argument list", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::CPARN)), concatMsg("either ", "argument list", " or ", "function call expression"))
+                        DEFAULTINVALIDNOWHILE("argument list", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::CPARN)))
                 }
                 break;
             case 135:
