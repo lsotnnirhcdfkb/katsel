@@ -62,6 +62,22 @@ private:
     std::vector<std::unique_ptr<Register>> registers;
 };
 
+class ConstInt : public Value
+{
+public:
+    ConstInt(BuiltinType *ty, ASTNS::AST *ast, int val);
+
+    ASTNS::AST* ast() const override;
+    std::string stringify() const override;
+
+    Type* type() const override;
+
+private:
+    int val;
+    BuiltinType *ty;
+    ASTNS::AST *_ast;
+};
+
 struct Local
 {
     size_t scopenum;

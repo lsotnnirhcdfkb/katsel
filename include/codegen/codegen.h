@@ -204,6 +204,9 @@ void visitUnaryExpr(ASTNS::UnaryExpr *ast) override;
         Block *exitBlock;
         Register *retReg;
 
+        std::vector<std::unique_ptr<ConstInt>> constants;
+        ConstInt* getConstInt(BuiltinType *ty, int val, ASTNS::AST *ast);
+
     private:
         std::vector<std::unique_ptr<Type>> types;
     };

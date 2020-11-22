@@ -62,3 +62,19 @@ Register* Function::addRegister(Type *type, ASTNS::AST *ast)
     registers.push_back(std::move(reg));
     return regraw;
 }
+
+ConstInt::ConstInt(BuiltinType *ty, ASTNS::AST *ast, int val): val(val), ty(ty), _ast(ast) {}
+
+ASTNS::AST* ConstInt::ast() const
+{
+    return _ast;
+}
+std::string ConstInt::stringify() const
+{
+    return std::to_string(val);
+}
+
+Type* ConstInt::type() const
+{
+    return ty;
+}

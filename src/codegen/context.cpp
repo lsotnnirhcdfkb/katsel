@@ -103,3 +103,12 @@ Value* CodeGenNS::Context::findGlobal(std::string const &name)
         return nullptr;
     return v->second;
 }
+
+ConstInt* CodeGenNS::Context::getConstInt(BuiltinType *ty, int val, ASTNS::AST *ast)
+{
+    std::unique_ptr<ConstInt> ci = std::make_unique<ConstInt>(ty, ast, val);
+    ConstInt *ciraw = ci.get();
+    constants.push_back(std::move(ci));
+
+    return ciraw;
+}

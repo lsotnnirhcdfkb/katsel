@@ -30,8 +30,8 @@ Value* CodeGenNS::ExprCodeGen::expr(ASTNS::ExprB *ast)
                 .underline(Error::Underline(lhs, '~'))                                                                                    \
                 .underline(Error::Underline(rhs, '-'))                                                                                    \
                 .report();                                                                                                                \
-            ret = nullptr;                                                                                                                \
-            return;                                                                                                                       \
+                ret = nullptr;                                                                                                            \
+                return;                                                                                                                   \
         }                                                                                                                                 \
                                                                                                                                           \
         ret = lhs->type()->binOp(cg.context, lhs, rhs, ast->op, ast);                                                                     \
@@ -54,8 +54,8 @@ Value* CodeGenNS::ExprCodeGen::expr(ASTNS::ExprB *ast)
                     .error(concatMsg("operand of type \"", oper->type()->stringify(), "\" does not support operator \"", ast->op.stringify(), "\""))) \
                 .underline(Error::Underline(oper, '-'))                                                                                               \
                 .report();                                                                                                                            \
-                ret = nullptr;                                                                                                                        \
-                return;                                                                                                                               \
+            ret = nullptr;                                                                                                                            \
+            return;                                                                                                                                   \
         }                                                                                                                                             \
                                                                                                                                                       \
         ret = oper->type()->unaryOp(cg.context, oper, ast->op, ast);                                                                                  \
@@ -75,8 +75,85 @@ BASICBINARYOP(Mult)
 BASICUNARYOP(Binnot)
 BASICUNARYOP(Unary)
 
-// TODO: these visiting methods
-void CodeGenNS::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast) {}
-void CodeGenNS::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast) {}
-void CodeGenNS::ExprCodeGen::visitTernaryExpr(ASTNS::TernaryExpr *ast) {}
-void CodeGenNS::ExprCodeGen::visitAssignmentExpr(ASTNS::AssignmentExpr *ast) {}
+void CodeGenNS::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast) {} // TODO: Calling
+
+void CodeGenNS::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast)
+{
+    switch (ast->value.type)
+    {
+        case TokenType::TRUELIT:
+            ret = cg.context.getConstInt(cg.context.getBuiltinType(BuiltinType::Builtins::BOOL), 1, ast);
+            return;
+
+        case TokenType::FALSELIT:
+            ret = cg.context.getConstInt(cg.context.getBuiltinType(BuiltinType::Builtins::BOOL), 0, ast);
+            return;
+
+        case TokenType::FLOATLIT:
+            Error(Error::MsgType::INTERR, ast->value, "floating point literals are not supported yet")
+                .underline(Error::Underline(ast->value, '^')
+                        .note("coming soon!"))
+                .reportAbort();
+            return;
+
+        case TokenType::NULLPTRLIT:
+            Error(Error::MsgType::INTERR, ast->value, "nullptr literals are not supported yet")
+                .underline(Error::Underline(ast->value, '^')
+                        .error("pointers are not here yet!")
+                        .note("coming soon!"))
+                .reportAbort();
+
+        case TokenType::DECINTLIT:
+            ret = cg.context.getConstInt(cg.context.getBuiltinType(BuiltinType::Builtins::UINT32), std::stoi(ast->value.stringify()), ast);
+            return;
+
+        case TokenType::OCTINTLIT:
+            ret = cg.context.getConstInt(cg.context.getBuiltinType(BuiltinType::Builtins::UINT32), std::stoi(ast->value.stringify(), nullptr, 8), ast);
+            return;
+
+        case TokenType::BININTLIT:
+            ret = cg.context.getConstInt(cg.context.getBuiltinType(BuiltinType::Builtins::UINT32), std::stoi(ast->value.stringify(), nullptr, 2), ast);
+            return;
+
+        case TokenType::HEXINTLIT:
+            ret = cg.context.getConstInt(cg.context.getBuiltinType(BuiltinType::Builtins::UINT32), std::stoi(ast->value.stringify(), nullptr, 16), ast);
+            return;
+
+        case TokenType::CHARLIT:
+            ret = cg.context.getConstInt(cg.context.getBuiltinType(BuiltinType::Builtins::CHAR), *(ast->value.start + 1), ast);
+            return;
+
+        case TokenType::STRINGLIT:
+            Error(Error::MsgType::INTERR, ast->value, "string literals are not supported yet")
+                .underline(Error::Underline(ast->value, '^')
+                        .error("strings")
+                        .note("coming soon!")
+                        .note("probably after nullptr literals though!"))
+                .reportAbort();
+
+        case TokenType::IDENTIFIER:
+            {
+                Value *v = cg.context.findValue(ast->value.stringify());
+                if (!v)
+                {
+                    Error(Error::MsgType::ERROR, ast->value, "name is not defined")
+                        .underline(Error::Underline(ast->value, '^')
+                                .error("name is not defined"))
+                        .report();
+                    ret = nullptr;
+                    return;
+                }
+                ret = v; // TODO: make load instruction to make this value's ast the primary ast
+            }
+            return;
+
+        default:
+            invalidTok("primary token", ast->value);
+    }
+}
+void CodeGenNS::ExprCodeGen::visitTernaryExpr(ASTNS::TernaryExpr *ast)
+{
+}
+void CodeGenNS::ExprCodeGen::visitAssignmentExpr(ASTNS::AssignmentExpr *ast)
+{
+}
