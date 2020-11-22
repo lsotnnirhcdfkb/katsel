@@ -41,7 +41,7 @@ Value* BuiltinType::binOp(CodeGenNS::Context &cgc, Value *l, Value *r, Token op,
 
     if (l->type() != r->type())
     {
-        Error(Error::MsgType::ERROR, op, "Cannot operate on values of different types")
+        Error(Error::MsgType::ERROR, op, "cannot operate on values of different types")
             .underline(Error::Underline(l, '^')
                 .note(l->type()->stringify()))
             .underline(Error::Underline(r, '^')
@@ -63,6 +63,7 @@ Value* BuiltinType::binOp(CodeGenNS::Context &cgc, Value *l, Value *r, Token op,
         case TokenType::LESSEQUAL:
         case TokenType::GREATEREQUAL:
             retTy = cgc.getBuiltinType(BuiltinType::Builtins::BOOL);
+            break;
 
         case TokenType::CARET:
         case TokenType::PIPE:
@@ -75,6 +76,7 @@ Value* BuiltinType::binOp(CodeGenNS::Context &cgc, Value *l, Value *r, Token op,
         case TokenType::SLASH:
         case TokenType::PERCENT:
             retTy = l->type();
+            break;
 
         default:
             invalidTok("binary operator", op);
