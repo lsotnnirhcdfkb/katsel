@@ -51,6 +51,16 @@ void CodeGenNS::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
 
         cg.context.curBlock->add(std::make_unique<Instrs::Store>(cg.context.retReg, v));
     }
+    else if (cg.context.retReg)
+    {
+        Error(Error::MsgType::ERROR, ast, "return from non-void function must return a value")
+            .underline(Error::Underline(ast, '^')
+                .error("returning nothing here"))
+            .underline(Error::Underline(static_cast<ASTNS::Function*>(cg.context.curFunc->ast())->retty.get(), '-')
+                .note(concatMsg("function returns ", cg.context.retReg->type()->stringify())))
+            .report();
+        return;
+    }
 
     cg.context.curBlock->branch(std::make_unique<Instrs::GotoBr>(cg.context.exitBlock));
     cg.context.curBlock = cg.context.exitBlock;
