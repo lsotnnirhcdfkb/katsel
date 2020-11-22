@@ -36,7 +36,7 @@ void CodeGenNS::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem *ast)
                 .report();
             return;
         }
-        // TODO: assign
+        cg.context.curBlock->add(std::make_unique<Instrs::Store>(reg, val));
     }
 }
 void CodeGenNS::StmtCodeGen::visitVarStmtItemList(ASTNS::VarStmtItemList *ast)
