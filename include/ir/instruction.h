@@ -12,7 +12,7 @@ namespace Instrs
     {
     public:
         virtual ~Instruction() {};
-        virtual void stringify(std::ostream &ss) const = 0;
+        virtual void stringify(std::ostream &os) const = 0;
     };
 
 
@@ -20,7 +20,7 @@ namespace Instrs
     {
     public:
         Store(Register *target, Value *value);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -31,7 +31,7 @@ namespace Instrs
     {
     public:
         Or(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -41,7 +41,7 @@ namespace Instrs
     {
     public:
         And(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -51,7 +51,7 @@ namespace Instrs
     {
     public:
         IntCmpNE(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -61,7 +61,7 @@ namespace Instrs
     {
     public:
         IntCmpEQ(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -71,7 +71,7 @@ namespace Instrs
     {
     public:
         IntCmpULT(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -81,7 +81,7 @@ namespace Instrs
     {
     public:
         IntCmpUGT(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -91,7 +91,7 @@ namespace Instrs
     {
     public:
         IntCmpULE(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -101,7 +101,7 @@ namespace Instrs
     {
     public:
         IntCmpUGE(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -111,7 +111,7 @@ namespace Instrs
     {
     public:
         FloatCmpNE(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -121,7 +121,7 @@ namespace Instrs
     {
     public:
         FloatCmpEQ(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -131,7 +131,7 @@ namespace Instrs
     {
     public:
         FloatCmpULT(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -141,7 +141,7 @@ namespace Instrs
     {
     public:
         FloatCmpUGT(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -151,7 +151,7 @@ namespace Instrs
     {
     public:
         FloatCmpULE(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -161,7 +161,7 @@ namespace Instrs
     {
     public:
         FloatCmpUGE(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -171,7 +171,7 @@ namespace Instrs
     {
     public:
         BitXor(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -181,7 +181,7 @@ namespace Instrs
     {
     public:
         BitOr(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -191,7 +191,7 @@ namespace Instrs
     {
     public:
         BitAnd(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -201,7 +201,7 @@ namespace Instrs
     {
     public:
         BitNot(Register *target, Value *op);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -211,7 +211,7 @@ namespace Instrs
     {
     public:
         ShiftR(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -221,7 +221,7 @@ namespace Instrs
     {
     public:
         ShiftL(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -231,7 +231,7 @@ namespace Instrs
     {
     public:
         Add(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -241,7 +241,7 @@ namespace Instrs
     {
     public:
         Sub(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -251,7 +251,7 @@ namespace Instrs
     {
     public:
         Mult(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -261,7 +261,7 @@ namespace Instrs
     {
     public:
         Div(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -271,7 +271,7 @@ namespace Instrs
     {
     public:
         Mod(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -281,7 +281,7 @@ namespace Instrs
     {
     public:
         Neg(Register *target, Value *op);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -291,7 +291,7 @@ namespace Instrs
     {
     public:
         Trunc(Register *target, Value *op);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -301,7 +301,7 @@ namespace Instrs
     {
     public:
         ZeroExt(Register *target, Value *op);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -311,7 +311,7 @@ namespace Instrs
     {
     public:
         SignExt(Register *target, Value *op);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -321,7 +321,7 @@ namespace Instrs
     {
     public:
         FloatTrunc(Register *target, Value *op);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -331,7 +331,7 @@ namespace Instrs
     {
     public:
         FloatExt(Register *target, Value *op);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -341,7 +341,7 @@ namespace Instrs
     {
     public:
         SIntToFloat(Register *target, Value *op);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -351,7 +351,7 @@ namespace Instrs
     {
     public:
         UIntToFloat(Register *target, Value *op);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -361,7 +361,7 @@ namespace Instrs
     {
     public:
         FloatToSInt(Register *target, Value *op);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -371,7 +371,7 @@ namespace Instrs
     {
     public:
         FloatToUInt(Register *target, Value *op);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
@@ -382,14 +382,14 @@ namespace Instrs
     {
     public:
         virtual ~Br();
-        virtual void stringify(std::ostream &ss) const = 0;
+        virtual void stringify(std::ostream &os) const = 0;
     };
 
     class GotoBr : public Br
     {
     public:
         GotoBr(Block *b);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Block *b;
@@ -399,7 +399,7 @@ namespace Instrs
     {
     public:
         Return(Value *value);
-        void stringify(std::ostream &ss) const override;
+        void stringify(std::ostream &os) const override;
 
     private:
         Value *value;
