@@ -54,3 +54,10 @@ void Function::definition(std::ostream &os) const
         b->definition(os);
     os << "}\n";
 }
+void Function::cfgDot(std::ostream &os) const
+{
+    os << "subgraph cluster_fun_" << name << "{\n";
+    for (std::unique_ptr<Block> const &b : blocks)
+        b->cfgDot(os);
+    os << "}\n";
+}

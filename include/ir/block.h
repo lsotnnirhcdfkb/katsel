@@ -16,6 +16,7 @@ public:
 
     void stringify(std::ostream &os);
     void definition(std::ostream &os);
+    void cfgDot(std::ostream &os);
 
     std::string name;
 private:

@@ -13,6 +13,7 @@ public:
     Unit(File const &file);
 
     void print(std::ostream &ostream) const;
+    void cfgDot(std::ostream &ostream) const;
 
     Function* addFunction(FunctionType *type, std::string name, ASTNS::Function *ast);
 

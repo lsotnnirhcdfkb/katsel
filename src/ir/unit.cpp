@@ -9,6 +9,14 @@ void Unit::print(std::ostream &ostream) const
         f->definition(ostream);
 }
 
+void Unit::cfgDot(std::ostream &ostream) const
+{
+    ostream << "strict digraph \"CFG for unit " << file.filename << "\" {\n";
+    for (std::unique_ptr<Function> const &f : functions)
+        f->cfgDot(ostream);
+    ostream << "}\n";
+}
+
 Function* Unit::addFunction(FunctionType *type, std::string name, ASTNS::Function *ast)
 {
     std::unique_ptr<Function> f (std::make_unique<Function>(type, name, ast));

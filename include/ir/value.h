@@ -49,6 +49,7 @@ public:
     ASTNS::AST* ast() const override;
     std::string stringify() const override;
     void definition(std::ostream &os) const;
+    void cfgDot(std::ostream &os) const;
 
     Type* type() const override;
 

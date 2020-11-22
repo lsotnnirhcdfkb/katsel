@@ -21,9 +21,10 @@ enum class OutFormats
 {
     LEX = 0,
     PARSE,
-    DOT,
+    ASTDOT,
     DECLS,
     CODEGEN,
+    CFGDOT,
     OBJECT,
     ALL,
 };
@@ -70,12 +71,14 @@ int main(int argc, char *argv[])
                     outformat = OutFormats::LEX;
                 else if (strcmp(optarg, "parse") == 0)
                     outformat = OutFormats::PARSE;
-                else if (strcmp(optarg, "dot") == 0)
-                    outformat = OutFormats::DOT;
+                else if (strcmp(optarg, "astdot") == 0)
+                    outformat = OutFormats::ASTDOT;
                 else if (strcmp(optarg, "decls") == 0)
                     outformat = OutFormats::DECLS;
                 else if (strcmp(optarg, "codegen") == 0)
                     outformat = OutFormats::CODEGEN;
+                else if (strcmp(optarg, "cfgdot") == 0)
+                    outformat = OutFormats::CFGDOT;
                 else if (strcmp(optarg, "all") == 0)
                     outformat = OutFormats::ALL;
                 else
@@ -117,7 +120,8 @@ int main(int argc, char *argv[])
                 extrepl = ".parsed.txt";
                 break;
 
-            case OutFormats::DOT:
+            case OutFormats::ASTDOT:
+            case OutFormats::CFGDOT:
                 extrepl = ".dot";
                 break;
 
@@ -169,7 +173,7 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        if (outformat == OutFormats::DOT)
+        if (outformat == OutFormats::ASTDOT)
         {
             auto dotter = std::make_unique<DotVisitor>(outputstream);
             dotter->dotVisit(parsed.get());
@@ -181,15 +185,21 @@ int main(int argc, char *argv[])
         codegen->declarate(parsed.get());
         if (outformat == OutFormats::DECLS)
         {
-        codegen->printUnit(outputstream);
-        continue;
+            codegen->printUnit(outputstream);
+            continue;
         }
 
         codegen->codegen(parsed.get());
         if (outformat == OutFormats::CODEGEN)
         {
-        codegen->printUnit(outputstream);
-        continue;
+            codegen->printUnit(outputstream);
+            continue;
+        }
+
+        if (outformat == OutFormats::CFGDOT)
+        {
+            codegen->context.unit.cfgDot(outputstream);
+            continue;
         }
     }
 

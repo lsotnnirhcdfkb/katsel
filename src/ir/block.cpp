@@ -37,3 +37,10 @@ void Block::definition(std::ostream &os)
     }
     os << "    }\n";
 }
+void Block::cfgDot(std::ostream &os)
+{
+    os << "block" << this << " [shape=record,label=\"";
+    for (std::unique_ptr<Instrs::Instruction> const &i : instructions)
+        i->stringify(os);
+    os << "\"]\n";
+}
