@@ -1,9 +1,11 @@
 #pragma once
 
 #include <ostream>
+#include <vector>
 
 class Block;
 class Register;
+class Function;
 class Value;
 class Type;
 
@@ -395,6 +397,17 @@ namespace Instrs
 
     private:
         Value *value;
+    };
+    class Call : public Instruction
+    {
+    public:
+        Call(Register *reg, Function *f, std::vector<Value*> args);
+        void stringify(std::ostream &os) const override;
+
+    private:
+        Register *reg;
+        Function *f;
+        std::vector<Value*> args;
     };
 
     class Br

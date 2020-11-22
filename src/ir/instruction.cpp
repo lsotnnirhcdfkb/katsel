@@ -191,3 +191,15 @@ void Instrs::Return::stringify(std::ostream &os) const
     else
         os << "ret void" << std::endl;
 }
+Instrs::Call::Call(Register *reg, Function *f, std::vector<Value*> args): reg(reg), f(f), args(args) {}
+void Instrs::Call::stringify(std::ostream &os) const
+{
+    os << "call " << f->name << " ";
+    for (Value const *v : args)
+        os << v->stringify() << " ";
+
+    if (reg)
+        os << "-> " << reg->stringify() << std::endl;
+    else
+        os << std::endl;
+}

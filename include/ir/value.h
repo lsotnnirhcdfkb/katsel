@@ -77,10 +77,10 @@ public:
     Register* addRegister(Type *ty, ASTNS::AST *ast, bool temp=true);
     AliasVal* addAlias(Value *val, ASTNS::AST *ast);
 
-private:
     FunctionType *ty;
     std::string name;
 
+private:
     ASTNS::Function *_ast;
 
     size_t blocki;

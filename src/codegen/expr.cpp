@@ -75,7 +75,80 @@ BASICBINARYOP(Mult)
 BASICUNARYOP(Binnot)
 BASICUNARYOP(Unary)
 
-void CodeGenNS::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast) {} // TODO: Calling
+void CodeGenNS::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
+{
+    Value *func = expr(ast->callee.get());
+    if (!func)
+    {
+        ret = nullptr;
+        return;
+    }
+
+    FunctionType *fty = dynamic_cast<FunctionType*>(func->type());
+    if (!fty)
+    {
+        Error(Error::MsgType::ERROR, ast->oparn, "value not callable")
+            .underline(Error::Underline(func, '^')
+                .error(concatMsg("cannot call non-function of type \"", func->type()->stringify(), "\"")))
+            .report();
+        ret = nullptr;
+        return;
+    }
+
+    Type *retty = fty->ret;
+    std::vector<Value*> args;
+    if (ast->args)
+        args = cg.argsVisitor.args(ast->args.get());
+
+    if (args.size() != fty->paramtys.size())
+    {
+        Error(Error::MsgType::ERROR, ast->oparn, "wrong number of arguments to function call")
+            .underline(Error::Underline(ast->args.get(), '^')
+                .error("wrong number of arguments to function call"))
+            .underline(Error::Underline(func, '-')
+                .note(concatMsg("function expects ", fty->paramtys.size(), " arguments, but got ", args.size(), " arguments")))
+            .report();
+        ret = nullptr;
+        return;
+    }
+
+    bool argserr = false;
+    auto i = args.begin();
+    auto j = fty->paramtys.begin();
+    for (; i != args.end() && j != fty->paramtys.end(); ++i, ++j)
+    {
+        if (!*i)
+        {
+            argserr = true;
+            continue;
+        }
+
+        if ((*i)->type() != *j)
+        {
+            Error(Error::MsgType::ERROR, *i, "wrong argument to function call")
+                .underline(Error::Underline(*i, '^')
+                    .error(concatMsg("wrong argument to function call: argument is of type \"", (*i)->type()->stringify(), "\""))
+                    .note(concatMsg("passing to parameter of type \"", (*j)->stringify(), "\"")))
+                .report();
+            ret = nullptr;
+            return;
+        }
+    }
+
+    if (argserr)
+    {
+        ret = nullptr;
+        return;
+    }
+
+    Register *outReg = nullptr;
+    if (!dynamic_cast<VoidType*>(retty))
+        outReg = cg.context.curFunc->addRegister(retty, ast);
+
+    cg.context.curBlock->add(std::make_unique<Instrs::Call>(outReg, static_cast<Function*>(static_cast<AliasVal*>(func)->get()), args));
+
+    ret = outReg;
+}
 
 void CodeGenNS::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast)
 {
