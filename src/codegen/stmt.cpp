@@ -27,6 +27,17 @@ void CodeGenNS::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
         if (!v)
             return;
 
+        if (!cg.context.retReg)
+        {
+            Error(Error::MsgType::ERROR, v, "cannot return value from function with return type \"void\"")
+                .underline(Error::Underline(v, '^')
+                    .error(concatMsg("returning ", v->type()->stringify(), " here")))
+                .underline(Error::Underline(static_cast<ASTNS::Function*>(cg.context.curFunc->ast())->retty.get(), '-')
+                    .note("returns void"))
+                .report();
+            return;
+        }
+
         if (cg.context.retReg->type() != v->type())
         {
             Error(Error::MsgType::ERROR, v, "cannot return value of different type than expected return value")
