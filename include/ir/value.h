@@ -35,6 +35,21 @@ private:
     ASTNS::AST *_ast;
 };
 
+class AliasRegister : public Value
+{
+public:
+    AliasRegister(Register *reg);
+
+    ASTNS::AST* ast() const override;
+    std::string stringify() const override;
+
+    Type* type() const override;
+
+    bool temp;
+private:
+    Register *reg;
+};
+
 class Function : public Value
 {
 public:

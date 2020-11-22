@@ -17,6 +17,20 @@ Type* Register::type() const
     return ty;
 }
 
+AliasRegister::AliasRegister(Register *reg): temp(reg->temp), reg(reg) {}
+std::string AliasRegister::stringify() const
+{
+    return concatMsg("alias to ", reg->stringify());
+}
+ASTNS::AST* AliasRegister::ast() const
+{
+    return reg->ast();
+}
+Type* AliasRegister::type() const
+{
+    return reg->type();
+}
+
 Function::Function(FunctionType *ty, std::string name, ASTNS::Function *ast): ty(ty), name(name), _ast(ast), blocki(0), regi(0) {}
 
 void Function::add(std::unique_ptr<Block> block)
