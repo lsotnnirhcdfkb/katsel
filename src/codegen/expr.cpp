@@ -153,7 +153,63 @@ void CodeGenNS::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast)
 }
 void CodeGenNS::ExprCodeGen::visitTernaryExpr(ASTNS::TernaryExpr *ast)
 {
+	Value *cond = expr(ast->cond.get());
+    if (!cond)
+    {
+        ret = nullptr;
+        return;
+    }
+    cond = cond->type()->isTrue(cg.context, cond);
+
+    Block *trueb  = cg.context.curFunc->addBlock("ternary_true");
+    Block *falseb = cg.context.curFunc->addBlock("ternary_false");
+    Block *afterb = cg.context.curFunc->addBlock("ternary_after");
+
+    cg.context.curBlock->branch(std::make_unique<Instrs::CondBr>(cond, trueb));
+
+    cg.context.curBlock = trueb;
+    Value *truev = expr(ast->trues.get());
+    if (!truev)
+    {
+        ret = nullptr;
+        return;
+    }
+    cg.context.curBlock->branch(std::make_unique<Instrs::GotoBr>(afterb));
+    trueb = cg.context.curBlock;
+
+    cg.context.curBlock = falseb;
+    Value *falsev = expr(ast->falses.get());
+    if (!falsev)
+    {
+        ret = nullptr;
+        return;
+    }
+    cg.context.curBlock->branch(std::make_unique<Instrs::GotoBr>(afterb));
+    trueb = cg.context.curBlock;
+
+    if (truev->type() != falsev->type())
+    {
+        Error(Error::MsgType::ERROR, ast->colon, "conflicting types for ternary expression")
+            .underline(Error::Underline(truev, '^')
+                .note(truev->type()->stringify()))
+            .underline(Error::Underline(falsev, '^')
+                .note(falsev->type()->stringify()))
+            .underline(Error::Underline(ast->colon, '-'))
+            .underline(Error::Underline(ast->quest, '-'))
+            .report();
+        ret = nullptr;
+        return;
+    }
+
+    cg.context.curBlock = afterb;
+    Register *outreg = cg.context.curFunc->addRegister(truev->type(), ast);
+
+    trueb->add(std::make_unique<Instrs::Store>(outreg, truev));
+    falseb->add(std::make_unique<Instrs::Store>(outreg, falsev));
+
+    ret = outreg;
 }
+
 void CodeGenNS::ExprCodeGen::visitAssignmentExpr(ASTNS::AssignmentExpr *ast)
 {
     Value *lhs = expr(ast->target.get());

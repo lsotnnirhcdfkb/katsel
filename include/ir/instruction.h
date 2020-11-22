@@ -413,5 +413,15 @@ namespace Instrs
     private:
         Block *b;
     };
+    class CondBr : public Br
+    {
+    public:
+        CondBr(Value *v, Block *b);
+        void stringify(std::ostream &os) const override;
+
+    private:
+        Value *v;
+        Block *b;
+    };
 }
 
