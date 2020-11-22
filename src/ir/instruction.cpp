@@ -138,50 +138,50 @@ void Instrs::Neg::stringify(std::ostream &os) const
 {
     os << "neg " << target->stringify() << " " << op->stringify() << std::endl;
 }
-Instrs::Trunc::Trunc(Register *target, Value *op): target(target), op(op) {}
+Instrs::Trunc::Trunc(Register *target, Value *op, Type *newt): target(target), op(op), newt(newt) {}
 void Instrs::Trunc::stringify(std::ostream &os) const
 {
-    os << "trunc " << target->stringify() << " " << op->stringify() << std::endl;
+    os << "trunc " << target->stringify() << " " << op->stringify() << " to " << newt->stringify() << std::endl;
 }
-Instrs::ZeroExt::ZeroExt(Register *target, Value *op): target(target), op(op) {}
+Instrs::ZeroExt::ZeroExt(Register *target, Value *op, Type *newt): target(target), op(op), newt(newt) {}
 void Instrs::ZeroExt::stringify(std::ostream &os) const
 {
-    os << "zeroext " << target->stringify() << " " << op->stringify() << std::endl;
+    os << "zeroext " << target->stringify() << " " << op->stringify() << " to " << newt->stringify() << std::endl;
 }
-Instrs::SignExt::SignExt(Register *target, Value *op): target(target), op(op) {}
+Instrs::SignExt::SignExt(Register *target, Value *op, Type *newt): target(target), op(op), newt(newt) {}
 void Instrs::SignExt::stringify(std::ostream &os) const
 {
-    os << "signext " << target->stringify() << " " << op->stringify() << std::endl;
+    os << "signext " << target->stringify() << " " << op->stringify() << " to " << newt->stringify() << std::endl;
 }
-Instrs::FloatTrunc::FloatTrunc(Register *target, Value *op): target(target), op(op) {}
+Instrs::FloatTrunc::FloatTrunc(Register *target, Value *op, Type *newt): target(target), op(op), newt(newt) {}
 void Instrs::FloatTrunc::stringify(std::ostream &os) const
 {
-    os << "floattrunc " << target->stringify() << " " << op->stringify() << std::endl;
+    os << "floattrunc " << target->stringify() << " " << op->stringify() << " to " << newt->stringify() << std::endl;
 }
-Instrs::FloatExt::FloatExt(Register *target, Value *op): target(target), op(op) {}
+Instrs::FloatExt::FloatExt(Register *target, Value *op, Type *newt): target(target), op(op), newt(newt) {}
 void Instrs::FloatExt::stringify(std::ostream &os) const
 {
-    os << "floatext " << target->stringify() << " " << op->stringify() << std::endl;
+    os << "floatext " << target->stringify() << " " << op->stringify() << " to " << newt->stringify() << std::endl;
 }
-Instrs::SIntToFloat::SIntToFloat(Register *target, Value *op): target(target), op(op) {}
+Instrs::SIntToFloat::SIntToFloat(Register *target, Value *op, Type *newt): target(target), op(op), newt(newt) {}
 void Instrs::SIntToFloat::stringify(std::ostream &os) const
 {
-    os << "sinttofloat " << target->stringify() << " " << op->stringify() << std::endl;
+    os << "sinttofloat " << target->stringify() << " " << op->stringify() << " to " << newt->stringify() << std::endl;
 }
-Instrs::UIntToFloat::UIntToFloat(Register *target, Value *op): target(target), op(op) {}
+Instrs::UIntToFloat::UIntToFloat(Register *target, Value *op, Type *newt): target(target), op(op), newt(newt) {}
 void Instrs::UIntToFloat::stringify(std::ostream &os) const
 {
-    os << "uinttofloat " << target->stringify() << " " << op->stringify() << std::endl;
+    os << "uinttofloat " << target->stringify() << " " << op->stringify() << " to " << newt->stringify() << std::endl;
 }
-Instrs::FloatToSInt::FloatToSInt(Register *target, Value *op): target(target), op(op) {}
+Instrs::FloatToSInt::FloatToSInt(Register *target, Value *op, Type *newt): target(target), op(op), newt(newt) {}
 void Instrs::FloatToSInt::stringify(std::ostream &os) const
 {
-    os << "floattosint " << target->stringify() << " " << op->stringify() << std::endl;
+    os << "floattosint " << target->stringify() << " " << op->stringify() << " to " << newt->stringify() << std::endl;
 }
-Instrs::FloatToUInt::FloatToUInt(Register *target, Value *op): target(target), op(op) {}
+Instrs::FloatToUInt::FloatToUInt(Register *target, Value *op, Type *newt): target(target), op(op), newt(newt) {}
 void Instrs::FloatToUInt::stringify(std::ostream &os) const
 {
-    os << "floattouint " << target->stringify() << " " << op->stringify() << std::endl;
+    os << "floattouint " << target->stringify() << " " << op->stringify() << " to " << newt->stringify() << std::endl;
 }
 Instrs::Return::Return(Value *value): value(value) {}
 void Instrs::Return::stringify(std::ostream &os) const

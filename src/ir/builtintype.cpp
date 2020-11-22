@@ -199,35 +199,35 @@ Value* BuiltinType::castTo(CodeGenNS::Context &cgc, Value *v)
         {BuiltinType::Builtins::DOUBLE, 64}
     };
 
-    /*
+    Register *outReg = cgc.curFunc->addRegister(this, v->ast());
     if (styintegral && etyintegral)
     {
         // int -> int
         int stySize = tysize.at(sty->type);
         int etySize = tysize.at(this->type);
         if (stySize > etySize)
-            return Value(this, cgc.builder.CreateTrunc(v.val, this->toLLVMType(cgc.context)), v.ast);
+            cgc.curBlock->add(std::make_unique<Instrs::Trunc>(outReg, v, this));
         else
             if (etysigned)
-                return Value(this, cgc.builder.CreateZExt(v.val, this->toLLVMType(cgc.context)), v.ast);
+                cgc.curBlock->add(std::make_unique<Instrs::ZeroExt>(outReg, v, this));
             else
-                return Value(this, cgc.builder.CreateSExt(v.val, this->toLLVMType(cgc.context)), v.ast);
+                cgc.curBlock->add(std::make_unique<Instrs::SignExt>(outReg, v, this));
     }
     else if (styintegral && !etyintegral)
     {
         // int -> fp
         if (stysigned)
-            return Value(this, cgc.builder.CreateSIToFP(v.val, this->toLLVMType(cgc.context)), v.ast);
+            cgc.curBlock->add(std::make_unique<Instrs::SIntToFloat>(outReg, v, this));
         else
-            return Value(this, cgc.builder.CreateUIToFP(v.val, this->toLLVMType(cgc.context)), v.ast);
+            cgc.curBlock->add(std::make_unique<Instrs::UIntToFloat>(outReg, v, this));
     }
     else if (!styintegral && etyintegral)
     {
         // fp -> int
         if (etysigned)
-            return Value(this, cgc.builder.CreateFPToSI(v.val, this->toLLVMType(cgc.context)), v.ast);
+            cgc.curBlock->add(std::make_unique<Instrs::FloatToSInt>(outReg, v, this));
         else
-            return Value(this, cgc.builder.CreateFPToUI(v.val, this->toLLVMType(cgc.context)), v.ast);
+            cgc.curBlock->add(std::make_unique<Instrs::FloatToUInt>(outReg, v, this));
     }
     else
     {
@@ -235,12 +235,10 @@ Value* BuiltinType::castTo(CodeGenNS::Context &cgc, Value *v)
         int stySize = tysize.at(sty->type);
         int etySize = tysize.at(this->type);
         if (stySize > etySize)
-            return Value(this, cgc.builder.CreateFPTrunc(v.val, this->toLLVMType(cgc.context)), v.ast);
+            cgc.curBlock->add(std::make_unique<Instrs::FloatTrunc>(outReg, v, this));
         else
-            return Value(this, cgc.builder.CreateFPExt(v.val, this->toLLVMType(cgc.context)), v.ast);
+            cgc.curBlock->add(std::make_unique<Instrs::FloatExt>(outReg, v, this));
     }
-    */
-    return nullptr;
 
     // From row to column cast -- this is what the code above should do
     // TODO: Turn this table into a unit test
@@ -271,6 +269,7 @@ Value* BuiltinType::castTo(CodeGenNS::Context &cgc, Value *v)
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
     // | DOUBLE | FPToUI | FPToUI | FPToUI | FPToUI | FPToSI | FPToSI | FPToSI | FPToSI | FPTrunc | FPToSI | FPToUI | None   |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
+    return outReg;
 }
 // unaryOp {{{1
 Value* BuiltinType::unaryOp(CodeGenNS::Context &cgc, Value *v, Token op, ASTNS::AST *ast)
@@ -278,28 +277,26 @@ Value* BuiltinType::unaryOp(CodeGenNS::Context &cgc, Value *v, Token op, ASTNS::
     if (v->type() != this)
         calledWithOpTyNEthis("BuiltinType", "unaryOp", "operand", *v);
 
-    /*
+    Register *outReg = cgc.curFunc->addRegister(v->type(), v->ast());
     switch (op.type)
     {
         case TokenType::BANG:
-            return Value(v.type, cgc.builder.CreateICmpEQ(v.val, llvm::ConstantInt::get(v.type->toLLVMType(cgc.context), 0)), ast);
-            break;
+            // cgc.curBlock->add(std::make_unique<Instrs::IntCmpEQ>(outReg, v, 0)); TODO: constants
+            // return Value(v.type, cgc.builder.CreateICmpEQ(v.val, llvm::ConstantInt::get(v.type->toLLVMType(cgc.context), 0)), ast);
 
         case TokenType::TILDE:
-            return Value(v.type, cgc.builder.CreateXor(v.val, llvm::ConstantInt::get(v.type->toLLVMType(cgc.context), -1)), ast);
-            break;
+            // cgc.curBlock->add(std::make_unique<Instrs::BitXor>(outReg, v, -1)); TODO: also constnants
+            // return Value(v.type, cgc.builder.CreateXor(v.val, llvm::ConstantInt::get(v.type->toLLVMType(cgc.context), -1)), ast);
 
         case TokenType::MINUS:
-            return Value(v.type, cgc.builder.CreateSub(llvm::ConstantInt::get(v.type->toLLVMType(cgc.context), 0), v.val), ast);
-            break;
+            // cgc.curBlock->add(std::make_unique<Instrs::FloatToUInt>(outReg, v, this)); TODO: also constants
+            // return Value(v.type, cgc.builder.CreateSub(llvm::ConstantInt::get(v.type->toLLVMType(cgc.context), 0), v.val), ast);
 
         default:
             invalidTok("unary operator", op);
     }
 
-    outOSwitchDDefaultLab("BuiltinType::unaryOp", op);
-    */
-    return nullptr;
+    return outReg;
 }
 // isTrue {{{1
 Value* BuiltinType::isTrue(CodeGenNS::Context &cgc, Value *v)
@@ -307,6 +304,8 @@ Value* BuiltinType::isTrue(CodeGenNS::Context &cgc, Value *v)
     if (v->type() != this)
         calledWithOpTyNEthis("BuiltinType", "isTrue", "value", *v);
 
+    // TODO: constants
+    reportAbortNoh("BuiltinType::isTrue not implemented");
     /*
     switch (type)
     {
@@ -328,7 +327,5 @@ Value* BuiltinType::isTrue(CodeGenNS::Context &cgc, Value *v)
         case BuiltinType::Builtins::DOUBLE:
             return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateFCmpONE(v.val, llvm::ConstantFP::get(v.type->toLLVMType(cgc.context), 0)), v.ast);
     }
-    outOSwitchNoh("BuiltinType::isTrue");
     */
-    return nullptr;
 }

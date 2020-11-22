@@ -5,6 +5,7 @@
 class Block;
 class Register;
 class Value;
+class Type;
 
 namespace Instrs
 {
@@ -290,92 +291,101 @@ namespace Instrs
     class Trunc : public Instruction
     {
     public:
-        Trunc(Register *target, Value *op);
+        Trunc(Register *target, Value *op, Type *newt);
         void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
         Value *op;
+        Type *newt;
     };
     class ZeroExt : public Instruction
     {
     public:
-        ZeroExt(Register *target, Value *op);
+        ZeroExt(Register *target, Value *op, Type *newt);
         void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
         Value *op;
+        Type *newt;
     };
     class SignExt : public Instruction
     {
     public:
-        SignExt(Register *target, Value *op);
+        SignExt(Register *target, Value *op, Type *newt);
         void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
         Value *op;
+        Type *newt;
     };
     class FloatTrunc : public Instruction
     {
     public:
-        FloatTrunc(Register *target, Value *op);
+        FloatTrunc(Register *target, Value *op, Type *newt);
         void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
         Value *op;
+        Type *newt;
     };
     class FloatExt : public Instruction
     {
     public:
-        FloatExt(Register *target, Value *op);
+        FloatExt(Register *target, Value *op, Type *newt);
         void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
         Value *op;
+        Type *newt;
     };
     class SIntToFloat : public Instruction
     {
     public:
-        SIntToFloat(Register *target, Value *op);
+        SIntToFloat(Register *target, Value *op, Type *newt);
         void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
         Value *op;
+        Type *newt;
     };
     class UIntToFloat : public Instruction
     {
     public:
-        UIntToFloat(Register *target, Value *op);
+        UIntToFloat(Register *target, Value *op, Type *newt);
         void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
         Value *op;
+        Type *newt;
     };
     class FloatToSInt : public Instruction
     {
     public:
-        FloatToSInt(Register *target, Value *op);
+        FloatToSInt(Register *target, Value *op, Type *newt);
         void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
         Value *op;
+        Type *newt;
     };
     class FloatToUInt : public Instruction
     {
     public:
-        FloatToUInt(Register *target, Value *op);
+        FloatToUInt(Register *target, Value *op, Type *newt);
         void stringify(std::ostream &os) const override;
 
     private:
         Register *target;
         Value *op;
+        Type *newt;
     };
     class Return : public Instruction
     {
