@@ -21,6 +21,7 @@ void CodeGenNS::StmtCodeGen::visitExprStmt(ASTNS::ExprStmt *ast)
 }
 void CodeGenNS::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
 {
+    Value *ret = nullptr;
     if (ast->expr)
     {
         Value *v = cg.exprCodeGen.expr(ast->expr.get());
@@ -39,11 +40,12 @@ void CodeGenNS::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
             return;
         }
 
-        // cg.context.builder.CreateRet(v.val); TODO
+        ret = v;
     }
-    else
-        // cg.context.builder.CreateRetVoid();
-        return;
+
+    cg.context.curBlock->branch(std::make_unique<Instrs::GotoBr>(cg.context.exitBlock)); // TODO: this does not work properly
+    cg.context.curBlock = cg.context.exitBlock;
+    cg.context.curBlock->add(std::make_unique<Instrs::Return>(ret));
 }
 void CodeGenNS::StmtCodeGen::visitVarStmt(ASTNS::VarStmt *ast)
 {

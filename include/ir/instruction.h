@@ -377,11 +377,20 @@ namespace Instrs
         Register *target;
         Value *op;
     };
+    class Return : public Instruction
+    {
+    public:
+        Return(Value *value);
+        void stringify(std::ostream &os) const override;
+
+    private:
+        Value *value;
+    };
 
     class Br
     {
     public:
-        virtual ~Br();
+        virtual ~Br() {};
         virtual void stringify(std::ostream &os) const = 0;
     };
 
@@ -393,16 +402,6 @@ namespace Instrs
 
     private:
         Block *b;
-    };
-
-    class Return : public Br
-    {
-    public:
-        Return(Value *value);
-        void stringify(std::ostream &os) const override;
-
-    private:
-        Value *value;
     };
 }
 

@@ -1,6 +1,6 @@
 #include "ir/instruction.h"
 #include "ir/value.h"
-#include <iostream>
+#include <ostream>
 
 Instrs::Store::Store(Register *target, Value *value): target(target), value(value) {}
 void Instrs::Store::stringify(std::ostream &os) const
@@ -182,4 +182,12 @@ Instrs::FloatToUInt::FloatToUInt(Register *target, Value *op): target(target), o
 void Instrs::FloatToUInt::stringify(std::ostream &os) const
 {
     os << "floattouint " << target->stringify() << " " << op->stringify() << std::endl;
+}
+Instrs::Return::Return(Value *value): value(value) {}
+void Instrs::Return::stringify(std::ostream &os) const
+{
+    if (value)
+        os << "ret " << value->stringify() << std::endl;
+    else
+        os << "ret void" << std::endl;
 }

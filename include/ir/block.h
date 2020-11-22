@@ -16,8 +16,8 @@ public:
 
     void stringify(std::ostream &os);
 
-private:
     std::string name;
+private:
     size_t num;
     std::vector<std::unique_ptr<Instrs::Instruction>> instructions;
     std::unique_ptr<Instrs::Br> br;
