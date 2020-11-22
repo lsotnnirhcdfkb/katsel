@@ -152,6 +152,12 @@ void CodeGenNS::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
 
 void CodeGenNS::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast)
 {
+    if (ast->form == ASTNS::PrimaryExpr::Form::TAT)
+    {
+        ast->expr->accept(this);
+        return;
+    }
+
     switch (ast->value.type)
     {
         case TokenType::TRUELIT:
