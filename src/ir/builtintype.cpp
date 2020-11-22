@@ -319,6 +319,7 @@ Value* BuiltinType::isTrue(CodeGenNS::Context &cgc, Value *v)
         case BuiltinType::Builtins::SINT64:
         case BuiltinType::Builtins::CHAR:
             cgc.curBlock->add(std::make_unique<Instrs::IntCmpNE>(outReg, v, cgc.getConstInt(this, 0, v->ast())));
+            break;
 
         case BuiltinType::Builtins::BOOL:
             return v;
@@ -326,6 +327,7 @@ Value* BuiltinType::isTrue(CodeGenNS::Context &cgc, Value *v)
         case BuiltinType::Builtins::FLOAT:
         case BuiltinType::Builtins::DOUBLE:
             cgc.curBlock->add(std::make_unique<Instrs::FloatCmpNE>(outReg, v, cgc.getConstInt(this, 0, v->ast())));
+            break;
     }
     return outReg;
 }

@@ -416,12 +416,13 @@ namespace Instrs
     class CondBr : public Br
     {
     public:
-        CondBr(Value *v, Block *b);
+        CondBr(Value *v, Block *trueb, Block *falseb);
         void stringify(std::ostream &os) const override;
 
     private:
         Value *v;
-        Block *b;
+        Block *trueb;
+        Block *falseb;
     };
 }
 

@@ -165,7 +165,7 @@ void CodeGenNS::ExprCodeGen::visitTernaryExpr(ASTNS::TernaryExpr *ast)
     Block *falseb = cg.context.curFunc->addBlock("ternary_false");
     Block *afterb = cg.context.curFunc->addBlock("ternary_after");
 
-    cg.context.curBlock->branch(std::make_unique<Instrs::CondBr>(cond, trueb));
+    cg.context.curBlock->branch(std::make_unique<Instrs::CondBr>(cond, trueb, falseb));
 
     cg.context.curBlock = trueb;
     Value *truev = expr(ast->trues.get());

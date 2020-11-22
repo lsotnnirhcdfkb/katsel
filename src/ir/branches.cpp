@@ -9,8 +9,8 @@ void Instrs::GotoBr::stringify(std::ostream &os) const
     os << "goto " << b->name << std::endl;
 }
 
-Instrs::CondBr::CondBr(Value *v, Block *b): v(v), b(b) {}
+Instrs::CondBr::CondBr(Value *v, Block *trueb, Block *falseb): v(v), trueb(trueb), falseb(falseb) {}
 void Instrs::CondBr::stringify(std::ostream &os) const
 {
-    os << "condbr " << v->stringify() << " " << b->name << std::endl;
+    os << "condbr " << v->stringify() << " " << trueb->name << " " << falseb->name << std::endl;
 }
