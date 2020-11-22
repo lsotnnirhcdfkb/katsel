@@ -17,7 +17,7 @@ Type* Register::type() const
     return ty;
 }
 
-Function::Function(FunctionType *ty, std::string name, ASTNS::Function *ast): ty(ty), name(name), _ast(ast) {}
+Function::Function(FunctionType *ty, std::string name, ASTNS::Function *ast): ty(ty), name(name), _ast(ast), blocki(0) {}
 
 void Function::add(std::unique_ptr<Block> block)
 {

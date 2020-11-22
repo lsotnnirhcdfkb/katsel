@@ -22,7 +22,8 @@ void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
     if (f->blocks.size() > 0)
         return;
 
-    f->addBlock("entry");
+    Block *entryBlock = f->addBlock("entry");
+    Block *exitBlock = f->addBlock("exit");
 
     cg.context.incScope();
 
@@ -39,9 +40,12 @@ void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
     }
 
     cg.context.curFunc = f;
+    cg.context.curBlock = entryBlock;
+    cg.context.exitBlock = exitBlock;
 
     cg.stmtCodeGen.stmt(ast->body.get());
 
     cg.context.decScope();
     cg.context.curFunc = nullptr;
+    cg.context.exitBlock = nullptr;
 }
