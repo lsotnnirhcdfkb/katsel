@@ -30,7 +30,7 @@ void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
     Register *retReg = nullptr;
     if (!dynamic_cast<VoidType*>(fty->ret))
     {
-        retReg = f->addRegister(fty->ret, ast);
+        retReg = f->addRegister(fty->ret, ast, false);
     }
 
     if (ast->paramlist)
@@ -40,7 +40,7 @@ void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
         for (auto const &param : params)
         {
             std::string pname = param.name;
-            Register *reg = f->addRegister(param.ty, param.ast);
+            Register *reg = f->addRegister(param.ty, param.ast, false);
             cg.context.addLocal(pname, reg);
         }
     }

@@ -222,7 +222,7 @@ void CodeGenNS::ExprCodeGen::visitAssignmentExpr(ASTNS::AssignmentExpr *ast)
     }
 
     Register *targetReg = dynamic_cast<Register*>(lhs);
-    if (!targetReg)
+    if (!targetReg || targetReg->temp)
     {
         Error(Error::MsgType::ERROR, ast->equal, "invalid assignment target")
             .underline(Error::Underline(ast->equal, '^')

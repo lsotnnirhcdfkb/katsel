@@ -19,12 +19,14 @@ public:
 class Register : public Value
 {
 public:
-    Register(int index, Type *type, ASTNS::AST *ast);
+    Register(int index, Type *type, ASTNS::AST *ast, bool temp=true);
 
     ASTNS::AST* ast() const override;
     std::string stringify() const override;
 
     Type* type() const override;
+
+    bool temp;
 
 private:
     int index;
@@ -48,7 +50,7 @@ public:
     std::vector<std::unique_ptr<Block>> blocks;
 
     Block* addBlock(std::string name);
-    Register* addRegister(Type *ty, ASTNS::AST *ast);
+    Register* addRegister(Type *ty, ASTNS::AST *ast, bool temp=true);
 
 private:
     FunctionType *ty;

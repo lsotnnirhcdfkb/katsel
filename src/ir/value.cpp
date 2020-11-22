@@ -2,7 +2,7 @@
 #include "message/errors.h"
 #include <sstream>
 
-Register::Register(int index, Type *type, ASTNS::AST *ast): index(index), ty(type), _ast(ast) {}
+Register::Register(int index, Type *type, ASTNS::AST *ast, bool temp): temp(temp), index(index), ty(type), _ast(ast) {}
 
 std::string Register::stringify() const
 {
@@ -55,9 +55,9 @@ Block* Function::addBlock(std::string name)
 
     return blockraw;
 }
-Register* Function::addRegister(Type *type, ASTNS::AST *ast)
+Register* Function::addRegister(Type *type, ASTNS::AST *ast, bool temp)
 {
-    std::unique_ptr<Register> reg = std::make_unique<Register>(regi++, type, ast);
+    std::unique_ptr<Register> reg = std::make_unique<Register>(regi++, type, ast, temp);
     Register *regraw = reg.get();
     registers.push_back(std::move(reg));
     return regraw;
