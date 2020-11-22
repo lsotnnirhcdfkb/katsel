@@ -5,7 +5,7 @@ Register::Register(int index, Type *type, ASTNS::AST *ast, bool temp): temp(temp
 
 std::string Register::stringify() const
 {
-    return concatMsg("#", index);
+    return concatMsg("%", index);
 }
 ASTNS::AST* Register::ast() const
 {
@@ -22,7 +22,7 @@ bool Register::assignable() const
 
 void Register::definition(std::ostream &os) const
 {
-    os << "    " << ty->stringify() << " #" << index << std::endl;;
+    os << "    " << ty->stringify() << " %" << index << std::endl;;
 }
 
 ConstInt::ConstInt(BuiltinType *ty, ASTNS::AST *ast, int val): val(val), ty(ty), _ast(ast) {}
