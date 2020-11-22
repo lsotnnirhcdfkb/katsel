@@ -3,7 +3,7 @@
 #include <iostream>
 #include "message/errors.h"
 
-CodeGenNS::Context::Context(File const &file): unit(file) {}
+CodeGenNS::Context::Context(File const &file): unit(file), blackHoleBlock(std::make_unique<Block>("blackHole", 0)) {}
 
 BuiltinType* CodeGenNS::Context::getBuiltinType(BuiltinType::Builtins bty)
 {

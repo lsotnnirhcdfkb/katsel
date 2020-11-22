@@ -63,7 +63,7 @@ void CodeGenNS::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
     }
 
     cg.context.curBlock->branch(std::make_unique<Instrs::GotoBr>(cg.context.exitBlock));
-    cg.context.curBlock = cg.context.exitBlock;
+    cg.context.curBlock = cg.context.blackHoleBlock.get();
 }
 void CodeGenNS::StmtCodeGen::visitVarStmt(ASTNS::VarStmt *ast)
 {

@@ -54,7 +54,8 @@ void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
 
     cg.context.exitBlock->add(std::make_unique<Instrs::Return>(retReg));
 
-    cg.context.curBlock->branch(std::make_unique<Instrs::GotoBr>(cg.context.exitBlock));
+    if (cg.context.curBlock != cg.context.blackHoleBlock.get())
+        cg.context.curBlock->branch(std::make_unique<Instrs::GotoBr>(cg.context.exitBlock));
 
     cg.context.curFunc = nullptr;
     cg.context.curBlock = nullptr;

@@ -203,6 +203,7 @@ void visitUnaryExpr(ASTNS::UnaryExpr *ast) override;
         Block *curBlock;
         Block *exitBlock;
         Register *retReg;
+        std::unique_ptr<Block> blackHoleBlock;
 
         std::vector<std::unique_ptr<ConstInt>> constants;
         ConstInt* getConstInt(BuiltinType *ty, int val, ASTNS::AST *ast);
