@@ -836,7 +836,7 @@ void invalidTok(std::string const &name, Token const &underline)
             .note("for " + name))
         .reportAbort();
 }
-void calledWithOpTyNEthis(std::string const &classN, std::string const &fnn, std::string const &opname, Value const &op)
+void calledWithOpTyNEthis(std::string const &classN, std::string const &fnn, std::string const &opname, Value const *op)
 {
     Error(Error::MsgType::INTERR, op, classN + "::" + fnn + " called with " + opname + " type != this")
         .underline(Error::Underline(op, '^')

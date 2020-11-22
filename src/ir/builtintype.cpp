@@ -37,7 +37,7 @@ bool BuiltinType::hasOperator(TokenType)
 Value* BuiltinType::binOp(CodeGenNS::Context &cgc, Value *l, Value *r, Token op, ASTNS::AST *ast)
 {
     if (l->type() != this)
-        calledWithOpTyNEthis("BuiltinType", "binOp", "left operand", *l);
+        calledWithOpTyNEthis("BuiltinType", "binOp", "left operand", l);
 
     if (l->type() != r->type())
     {
@@ -275,7 +275,7 @@ Value* BuiltinType::castTo(CodeGenNS::Context &cgc, Value *v)
 Value* BuiltinType::unaryOp(CodeGenNS::Context &cgc, Value *v, Token op, ASTNS::AST *ast)
 {
     if (v->type() != this)
-        calledWithOpTyNEthis("BuiltinType", "unaryOp", "operand", *v);
+        calledWithOpTyNEthis("BuiltinType", "unaryOp", "operand", v);
 
     Register *outReg = cgc.curFunc->addRegister(v->type(), v->ast());
     switch (op.type)
@@ -302,7 +302,7 @@ Value* BuiltinType::unaryOp(CodeGenNS::Context &cgc, Value *v, Token op, ASTNS::
 Value* BuiltinType::isTrue(CodeGenNS::Context &cgc, Value *v)
 {
     if (v->type() != this)
-        calledWithOpTyNEthis("BuiltinType", "isTrue", "value", *v);
+        calledWithOpTyNEthis("BuiltinType", "isTrue", "value", v);
 
     // TODO: constants
     reportAbortNoh("BuiltinType::isTrue not implemented");
