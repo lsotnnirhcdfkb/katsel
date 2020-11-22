@@ -474,7 +474,6 @@ for sym, rule in _grammar.items():
 
         if len(convertedexpansion) == 1 and type(convertedexpansion[0]) == NonTerminal and _grammar[str(convertedexpansion[0])]['base'] == base:
             skip = True
-            print('\033[34mrule is skip\033[0m', sym, expansion)
         else:
             skip = False
 

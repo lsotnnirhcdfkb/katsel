@@ -84,7 +84,6 @@ for jobi, job in enumerate(jobs):
     finaloutput = ''.join(flines)
 
     if finaloutput == backup:
-        print(f'Output is identical for {job[0]}. Skipping {job[0]}')
         continue
 
     try:
