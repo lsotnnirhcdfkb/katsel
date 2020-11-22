@@ -283,16 +283,16 @@ Value* BuiltinType::unaryOp(CodeGenNS::Context &cgc, Value *v, Token op, ASTNS::
     switch (op.type)
     {
         case TokenType::BANG:
-            // cgc.curBlock->add(std::make_unique<Instrs::IntCmpEQ>(outReg, v, 0)); TODO: constants
-            // return Value(v.type, cgc.builder.CreateICmpEQ(v.val, llvm::ConstantInt::get(v.type->toLLVMType(cgc.context), 0)), ast);
+            cgc.curBlock->add(std::make_unique<Instrs::IntCmpEQ>(outReg, v, cgc.getConstInt(this, 0, ast)));
+            break;
 
         case TokenType::TILDE:
-            // cgc.curBlock->add(std::make_unique<Instrs::BitXor>(outReg, v, -1)); TODO: also constnants
-            // return Value(v.type, cgc.builder.CreateXor(v.val, llvm::ConstantInt::get(v.type->toLLVMType(cgc.context), -1)), ast);
+            cgc.curBlock->add(std::make_unique<Instrs::BitXor>(outReg, v, cgc.getConstInt(this, -1, ast)));
+            break;
 
         case TokenType::MINUS:
-            // cgc.curBlock->add(std::make_unique<Instrs::FloatToUInt>(outReg, v, this)); TODO: also constants
-            // return Value(v.type, cgc.builder.CreateSub(llvm::ConstantInt::get(v.type->toLLVMType(cgc.context), 0), v.val), ast);
+            cgc.curBlock->add(std::make_unique<Instrs::Sub>(outReg, cgc.getConstInt(this, 0, ast), v));
+            break;
 
         default:
             invalidTok("unary operator", op);
@@ -306,9 +306,7 @@ Value* BuiltinType::isTrue(CodeGenNS::Context &cgc, Value *v)
     if (v->type() != this)
         calledWithOpTyNEthis("BuiltinType", "isTrue", "value", v);
 
-    // TODO: constants
-    reportAbortNoh("BuiltinType::isTrue not implemented");
-    /*
+    Register *outReg = cgc.curFunc->addRegister(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), v->ast());
     switch (type)
     {
         case BuiltinType::Builtins::UINT8:
@@ -320,14 +318,14 @@ Value* BuiltinType::isTrue(CodeGenNS::Context &cgc, Value *v)
         case BuiltinType::Builtins::SINT32:
         case BuiltinType::Builtins::SINT64:
         case BuiltinType::Builtins::CHAR:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpNE(v.val, llvm::ConstantInt::get(v.type->toLLVMType(cgc.context), 0)), v.ast);
+            cgc.curBlock->add(std::make_unique<Instrs::IntCmpNE>(outReg, v, cgc.getConstInt(this, 0, v->ast())));
 
         case BuiltinType::Builtins::BOOL:
             return v;
 
         case BuiltinType::Builtins::FLOAT:
         case BuiltinType::Builtins::DOUBLE:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateFCmpONE(v.val, llvm::ConstantFP::get(v.type->toLLVMType(cgc.context), 0)), v.ast);
+            cgc.curBlock->add(std::make_unique<Instrs::FloatCmpNE>(outReg, v, cgc.getConstInt(this, 0, v->ast())));
     }
-    */
+    return outReg;
 }

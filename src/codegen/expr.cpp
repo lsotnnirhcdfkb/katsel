@@ -185,7 +185,7 @@ void CodeGenNS::ExprCodeGen::visitTernaryExpr(ASTNS::TernaryExpr *ast)
         return;
     }
     cg.context.curBlock->branch(std::make_unique<Instrs::GotoBr>(afterb));
-    trueb = cg.context.curBlock;
+    falseb = cg.context.curBlock;
 
     if (truev->type() != falsev->type())
     {
