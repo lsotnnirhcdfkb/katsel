@@ -474,9 +474,11 @@ namespace ASTNS
     {
     public:
         RetStmt(Token ret, std::unique_ptr<ExprB> expr, Token semi);
+        RetStmt(Token ret, Token semi);
         enum class Form
         {
             TAT,
+            TT,
         };
         Token ret;
         std::unique_ptr<ExprB> expr;

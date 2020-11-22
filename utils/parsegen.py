@@ -395,7 +395,7 @@ rule('Stmt', 'statement', 'StmtB', '$EmptyStmt:_', '$VarStmt:_', '$ExprStmt:_', 
 
 rule('VarStmt', 'variable statement', 'StmtB', 'VAR:var $TypeNV:type $VarStmtItemList:assignments SEMICOLON:semi')
 rule('ExprStmt', 'expression statement', 'StmtB', '$Expr:expr SEMICOLON:semi')
-rule('RetStmt', 'return statement', 'StmtB', 'RETURN:ret $Expr:expr SEMICOLON:semi')
+rule('RetStmt', 'return statement', 'StmtB', 'RETURN:ret $Expr:expr SEMICOLON:semi', 'RETURN:ret SEMICOLON:semi')
 rule('EmptyStmt', 'empty statement', 'StmtB', 'SEMICOLON:semi')
 
 listRule('VarStmtItem', 'variable statement initialization', 'VStmtIB', 'COMMA')

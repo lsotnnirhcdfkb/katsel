@@ -869,6 +869,16 @@ void PrintVisitor::visitRetStmt(ASTNS::RetStmt *a)
             pai(std::string(a->semi.start, a->semi.end));
             pai("]\n");
             break;
+        case ASTNS::RetStmt::Form::TT:
+            pai("ret = ");
+            pai("[");
+            pai(std::string(a->ret.start, a->ret.end));
+            pai("]\n");
+            pai("semi = ");
+            pai("[");
+            pai(std::string(a->semi.start, a->semi.end));
+            pai("]\n");
+            break;
     }
     --indent;
     pai("}\n");
@@ -1092,16 +1102,16 @@ void PrintVisitor::pai(std::string &s)
     {
         if (pindent)
             for (int j = 0; j < indent; ++j)
-                std::cout << "  ";
+                ostream << "  ";
 
         pindent = false;
-        std::cout << *i;
+        ostream << *i;
 
         if (*i == '\n')
             pindent = true;
     }
 
-    std::cout << std::flush;
+    ostream << std::flush;
 }
 void PrintVisitor::pai(std::string &&s)
 {

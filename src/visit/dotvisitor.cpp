@@ -1090,6 +1090,20 @@ void DotVisitor::visitRetStmt(ASTNS::RetStmt *a)
                     connect(thisid, "semi", tokennodeid);
             }
             break;
+        case ASTNS::RetStmt::Form::TT:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">RetStmt (TT)</td></tr><tr>";
+            ostream << "<td port=\"ret\">ret</td>";
+            ostream << "<td port=\"semi\">semi</td>";
+            ostream << "</tr></table>>]\n";
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->ret.stringify());
+                    connect(thisid, "ret", tokennodeid);
+            }
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->semi.stringify());
+                    connect(thisid, "semi", tokennodeid);
+            }
+            break;
     }
     lastid = std::move(thisid);
 }

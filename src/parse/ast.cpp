@@ -57,6 +57,7 @@ ASTNS::PrimaryExpr::PrimaryExpr(Token value): value(value), form(ASTNS::PrimaryE
 ASTNS::PrimaryExpr::PrimaryExpr(Token oparn, std::unique_ptr<ExprB> expr, Token cparn): oparn(oparn), expr(std::move(expr)), cparn(cparn), form(ASTNS::PrimaryExpr::Form::TAT) {}
 void ASTNS::PrimaryExpr::accept(ExprBVisitor *v) { v->visitPrimaryExpr(this); }
 ASTNS::RetStmt::RetStmt(Token ret, std::unique_ptr<ExprB> expr, Token semi): ret(ret), expr(std::move(expr)), semi(semi), form(ASTNS::RetStmt::Form::TAT) {}
+ASTNS::RetStmt::RetStmt(Token ret, Token semi): ret(ret), semi(semi), form(ASTNS::RetStmt::Form::TT) {}
 void ASTNS::RetStmt::accept(StmtBVisitor *v) { v->visitRetStmt(this); }
 ASTNS::StmtList::StmtList(std::unique_ptr<StmtB> stmtlist, std::unique_ptr<StmtB> stmt): stmtlist(std::move(stmtlist)), stmt(std::move(stmt)), form(ASTNS::StmtList::Form::AA) {}
 void ASTNS::StmtList::accept(StmtBVisitor *v) { v->visitStmtList(this); }

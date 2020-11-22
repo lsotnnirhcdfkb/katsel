@@ -446,6 +446,11 @@ void LocationVisitor::visitRetStmt(ASTNS::RetStmt *ast)
             retf = ast->ret.sourcefile;
             retr = ast->semi.end;
             break;
+        case ASTNS::RetStmt::Form::TT:
+            retl = ast->ret.start;
+            retf = ast->ret.sourcefile;
+            retr = ast->semi.end;
+            break;
     }
 }
 void LocationVisitor::visitStmtList(ASTNS::StmtList *ast)
