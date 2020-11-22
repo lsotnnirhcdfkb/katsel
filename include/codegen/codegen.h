@@ -13,7 +13,7 @@
 namespace CodeGenNS
 {
     class CodeGen;
-    class TypeResolve : public TypeBVisitor
+    class TypeResolve : public Visitors::TypeBVisitor
     {
     public:
         TypeResolve(CodeGen &cg);
@@ -35,7 +35,7 @@ void visitBuiltinTypeVoid(ASTNS::BuiltinTypeVoid *ast) override;
         CodeGen &cg;
     };
 
-    class Declarator : public DeclBVisitor
+    class Declarator : public Visitors::DeclBVisitor
     {
     public:
         Declarator(CodeGen &cg);
@@ -53,7 +53,7 @@ void visitFunction(ASTNS::Function *ast) override;
         CodeGen &cg;
     };
 
-    class ParamVisitor : public PListBVisitor
+    class ParamVisitor : public Visitors::PListBVisitor
     {
     public:
         ParamVisitor(CodeGen &cg);
@@ -75,7 +75,7 @@ void visitParamList(ASTNS::ParamList *ast) override;
 
     };
 
-    class ArgsVisitor : public ArgBVisitor
+    class ArgsVisitor : public Visitors::ArgBVisitor
     {
     public:
         ArgsVisitor(CodeGen &cg);
@@ -96,7 +96,7 @@ void visitArgList(ASTNS::ArgList *ast) override;
         CodeGen &cg;
     };
 
-    class DeclCodeGen : public DeclBVisitor
+    class DeclCodeGen : public Visitors::DeclBVisitor
     {
     public:
         DeclCodeGen(CodeGen &cg);
@@ -114,7 +114,7 @@ void visitFunction(ASTNS::Function *ast) override;
         CodeGen &cg;
     };
 
-    class StmtCodeGen : public StmtBVisitor, public VStmtIBVisitor
+    class StmtCodeGen : public Visitors::StmtBVisitor, public Visitors::VStmtIBVisitor
     {
     public:
         StmtCodeGen(CodeGen &cg);
@@ -141,7 +141,7 @@ void visitVarStmtItemList(ASTNS::VarStmtItemList *ast) override;
         Type *varty;
     };
 
-    class ExprCodeGen : public ExprBVisitor
+    class ExprCodeGen : public Visitors::ExprBVisitor
     {
     public:
         ExprCodeGen(CodeGen &cg);

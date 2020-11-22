@@ -54,13 +54,13 @@ int getLineN(std::string::const_iterator const &start, std::string::iterator loc
 }
 // LocationVisitor {{{1
 class LocationVisitor : 
-    public DeclBVisitor,
-    public ArgBVisitor,
-    public StmtBVisitor,
-    public ExprBVisitor,
-    public VStmtIBVisitor,
-    public PListBVisitor,
-    public TypeBVisitor
+    public Visitors::DeclBVisitor,
+    public Visitors::ArgBVisitor,
+    public Visitors::StmtBVisitor,
+    public Visitors::ExprBVisitor,
+    public Visitors::VStmtIBVisitor,
+    public Visitors::PListBVisitor,
+    public Visitors::TypeBVisitor
 {
 public:
     // LOCVISITOR METHODS START

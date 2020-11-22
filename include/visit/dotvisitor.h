@@ -5,13 +5,13 @@
 #include <string>
 
 class DotVisitor : 
-    public DeclBVisitor,
-    public ArgBVisitor,
-    public StmtBVisitor,
-    public ExprBVisitor,
-    public VStmtIBVisitor,
-    public PListBVisitor,
-    public TypeBVisitor
+    public Visitors::DeclBVisitor,
+    public Visitors::ArgBVisitor,
+    public Visitors::StmtBVisitor,
+    public Visitors::ExprBVisitor,
+    public Visitors::VStmtIBVisitor,
+    public Visitors::PListBVisitor,
+    public Visitors::TypeBVisitor
 {
 public:
     DotVisitor(std::ostream &ostream);
