@@ -380,9 +380,9 @@ def nt(sym, name, base):
         'expansions': []
     }
 
-def rule(sym, expansion, highlighted):
+def rule(sym, expansion, histart='BEGIN', hiend='END'):
     assert sym in _grammar, f'defining an expansion for a symbol {sym} that is not in the grammar (yet)'
-    _grammar[sym]['expansions'].append((expansion, *highlighted))
+    _grammar[sym]['expansions'].append((expansion, histart, hiend))
 
 def listRule(sym, name, base, delimit=None):
     symlist = sym + 'List'
@@ -397,8 +397,8 @@ nt('Decl', 'declaration', 'DeclB')
 rule('Decl', '$Function:_')
 
 nt('Function', 'function declaration', 'DeclB')
-rule('Function', 'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn                      CPARN:cparn $Block:body')
-rule('Function', 'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn $ParamList:paramlist CPARN:cparn $Block:body')
+rule('Function', 'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn                      CPARN:cparn $Block:body', 'fun', 'cparn')
+rule('Function', 'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn $ParamList:paramlist CPARN:cparn $Block:body', 'fun', 'cparn')
 
 listRule('Stmt', 'statement', 'StmtB')
 nt('Stmt', 'statement', 'StmtB')
@@ -585,7 +585,7 @@ for missingi in missing:
 print('-- parsed grammar')
 
 augmentSymbol = NonTerminal('augment', 'compilation unit')
-augmentRule = Rule(augmentSymbol, (grammar[0].symbol, ), True, '_', '')
+augmentRule = Rule(augmentSymbol, (grammar[0].symbol, ), True, '_', '', 'START', 'END')
 grammar.append(augmentRule)
 
 print('-- augment grammar')
