@@ -163,31 +163,6 @@ void ASTNS::PrintVisitor::visitBinandExpr(ASTNS::BinandExpr *a)
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visitBinnotExpr(ASTNS::BinnotExpr *a)
-{
-    pai("BinnotExpr\n{\n");
-    ++indent;
-    switch (a->form)
-    {
-        case ASTNS::BinnotExpr::Form::TA:
-            pai("op = ");
-            pai("[");
-            pai(std::string(a->op.start, a->op.end));
-            pai("]\n");
-            pai("operand = ");
-            if (a->operand)
-            {
-                a->operand->accept(this);
-            }
-            else
-            {
-                pai("nullptr\n");
-            }
-            break;
-    }
-    --indent;
-    pai("}\n");
-}
 void ASTNS::PrintVisitor::visitBinorExpr(ASTNS::BinorExpr *a)
 {
     pai("BinorExpr\n{\n");

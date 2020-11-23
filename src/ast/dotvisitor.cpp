@@ -203,36 +203,6 @@ void ASTNS::DotVisitor::visitBinandExpr(ASTNS::BinandExpr *a)
     }
     lastid = std::move(thisid);
 }
-void ASTNS::DotVisitor::visitBinnotExpr(ASTNS::BinnotExpr *a)
-{
-    std::string thisid = curid();
-    switch (a->form)
-    {
-        case ASTNS::BinnotExpr::Form::TA:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">BinnotExpr (TA)</td></tr><tr>";
-            ostream << "<td port=\"op\">op</td>";
-            ostream << "<td port=\"operand\">operand</td>";
-            ostream << "</tr></table>>]\n";
-            {
-                    std::string tokennodeid = makeTextNode("Token", a->op.stringify());
-                    connect(thisid, "op", tokennodeid);
-            }
-            {
-                    if (a->operand)
-                    {
-                        a->operand->accept(this);
-                        connect(thisid, "operand", lastid);
-                    }
-                    else
-                    {
-                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "operand", nullptrnodeid);
-                    }
-            }
-            break;
-    }
-    lastid = std::move(thisid);
-}
 void ASTNS::DotVisitor::visitBinorExpr(ASTNS::BinorExpr *a)
 {
     std::string thisid = curid();

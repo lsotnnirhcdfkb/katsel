@@ -71,7 +71,6 @@ void visitArg(ASTNS::Arg *ast) override;
 void visitArgList(ASTNS::ArgList *ast) override;
 void visitAssignmentExpr(ASTNS::AssignmentExpr *ast) override;
 void visitBinandExpr(ASTNS::BinandExpr *ast) override;
-void visitBinnotExpr(ASTNS::BinnotExpr *ast) override;
 void visitBinorExpr(ASTNS::BinorExpr *ast) override;
 void visitBitandExpr(ASTNS::BitandExpr *ast) override;
 void visitBitorExpr(ASTNS::BitorExpr *ast) override;
@@ -194,17 +193,6 @@ void LocationVisitor::visitBinandExpr(ASTNS::BinandExpr *ast)
             retl = getL(ast->lhs.get());
             retf = getF(ast->lhs.get());
             retr = getR(ast->rhs.get());
-            break;
-    }
-}
-void LocationVisitor::visitBinnotExpr(ASTNS::BinnotExpr *ast)
-{
-    switch (ast->form)
-    {
-        case ASTNS::BinnotExpr::Form::TA:
-            retl = ast->op.start;
-            retf = ast->op.sourcefile;
-            retr = getR(ast->operand.get());
             break;
     }
 }

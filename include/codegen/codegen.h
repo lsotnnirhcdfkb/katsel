@@ -161,7 +161,6 @@ void visitVarStmtItemList(ASTNS::VarStmtItemList *ast) override;
 void visitAdditionExpr(ASTNS::AdditionExpr *ast) override;
 void visitAssignmentExpr(ASTNS::AssignmentExpr *ast) override;
 void visitBinandExpr(ASTNS::BinandExpr *ast) override;
-void visitBinnotExpr(ASTNS::BinnotExpr *ast) override;
 void visitBinorExpr(ASTNS::BinorExpr *ast) override;
 void visitBitandExpr(ASTNS::BitandExpr *ast) override;
 void visitBitorExpr(ASTNS::BitorExpr *ast) override;

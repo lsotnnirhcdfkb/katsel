@@ -12,8 +12,6 @@ ASTNS::AssignmentExpr::AssignmentExpr(std::unique_ptr<ExprB> target, Token equal
 void ASTNS::AssignmentExpr::accept(ASTNS::ExprBVisitor *v) { v->visitAssignmentExpr(this); }
 ASTNS::BinandExpr::BinandExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::BinandExpr::Form::ATA) {}
 void ASTNS::BinandExpr::accept(ASTNS::ExprBVisitor *v) { v->visitBinandExpr(this); }
-ASTNS::BinnotExpr::BinnotExpr(Token op, std::unique_ptr<ExprB> operand): op(op), operand(std::move(operand)), form(ASTNS::BinnotExpr::Form::TA) {}
-void ASTNS::BinnotExpr::accept(ASTNS::ExprBVisitor *v) { v->visitBinnotExpr(this); }
 ASTNS::BinorExpr::BinorExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::BinorExpr::Form::ATA) {}
 void ASTNS::BinorExpr::accept(ASTNS::ExprBVisitor *v) { v->visitBinorExpr(this); }
 ASTNS::BitandExpr::BitandExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::BitandExpr::Form::ATA) {}

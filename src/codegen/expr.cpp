@@ -72,7 +72,6 @@ BASICBINARYOP(Compeq)
 BASICBINARYOP(Complgt)
 BASICBINARYOP(Mult)
 
-BASICUNARYOP(Binnot)
 BASICUNARYOP(Unary)
 
 void CodeGenNS::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)

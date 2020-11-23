@@ -18,7 +18,6 @@ class Arg;
 class ArgList;
 class AssignmentExpr;
 class BinandExpr;
-class BinnotExpr;
 class BinorExpr;
 class BitandExpr;
 class BitorExpr;
@@ -77,7 +76,6 @@ public:
     virtual void visitAdditionExpr(ASTNS::AdditionExpr *ast) = 0;
     virtual void visitAssignmentExpr(ASTNS::AssignmentExpr *ast) = 0;
     virtual void visitBinandExpr(ASTNS::BinandExpr *ast) = 0;
-    virtual void visitBinnotExpr(ASTNS::BinnotExpr *ast) = 0;
     virtual void visitBinorExpr(ASTNS::BinorExpr *ast) = 0;
     virtual void visitBitandExpr(ASTNS::BitandExpr *ast) = 0;
     virtual void visitBitorExpr(ASTNS::BitorExpr *ast) = 0;

@@ -23,7 +23,6 @@ namespace ASTNS
     class ArgList;
     class AssignmentExpr;
     class BinandExpr;
-    class BinnotExpr;
     class BinorExpr;
     class BitandExpr;
     class BitorExpr;
@@ -167,19 +166,6 @@ namespace ASTNS
         std::unique_ptr<ExprB> lhs;
         Token op;
         std::unique_ptr<ExprB> rhs;
-        Form form;
-        virtual void accept(ASTNS::ExprBVisitor *v);
-    };
-    class BinnotExpr : public ExprB
-    {
-    public:
-        BinnotExpr(Token op, std::unique_ptr<ExprB> operand);
-        enum class Form
-        {
-            TA,
-        };
-        Token op;
-        std::unique_ptr<ExprB> operand;
         Form form;
         virtual void accept(ASTNS::ExprBVisitor *v);
     };
