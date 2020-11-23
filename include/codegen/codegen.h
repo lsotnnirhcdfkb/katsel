@@ -5,7 +5,6 @@
 #include "ast/visitor.h"
 #include "ast/ast.h"
 
-#include "ir/param.h"
 #include "ir/value.h"
 #include "ir/type.h"
 #include "ir/unit.h"
@@ -13,12 +12,12 @@
 namespace CodeGenNS
 {
     class CodeGen;
-    class TypeResolve : public Visitors::TypeBVisitor
+    class TypeResolve : public ASTNS::TypeBVisitor
     {
     public:
         TypeResolve(CodeGen &cg);
 
-        Type* type(ASTNS::TypeB *ast);
+        IR::Type* type(ASTNS::TypeB *ast);
 
     private:
         // TYPEVISITOR METHODS START
@@ -30,12 +29,12 @@ void visitBuiltinTypeVoid(ASTNS::BuiltinTypeVoid *ast) override;
 
         // TYPEVISITOR METHODS END
 
-        Type *ret;
+        IR::Type *ret;
 
         CodeGen &cg;
     };
 
-    class Declarator : public Visitors::DeclBVisitor
+    class Declarator : public ASTNS::DeclBVisitor
     {
     public:
         Declarator(CodeGen &cg);
@@ -53,9 +52,16 @@ void visitFunction(ASTNS::Function *ast) override;
         CodeGen &cg;
     };
 
-    class ParamVisitor : public Visitors::PListBVisitor
+    class ParamVisitor : public ASTNS::PListBVisitor
     {
     public:
+        struct Param
+        {
+            IR::Type *ty;
+            std::string name;
+            ASTNS::Param *ast;
+        };
+
         ParamVisitor(CodeGen &cg);
 
         std::vector<Param> params(ASTNS::PListB *pl);
@@ -75,12 +81,12 @@ void visitParamList(ASTNS::ParamList *ast) override;
 
     };
 
-    class ArgsVisitor : public Visitors::ArgBVisitor
+    class ArgsVisitor : public ASTNS::ArgBVisitor
     {
     public:
         ArgsVisitor(CodeGen &cg);
 
-        std::vector<Value*> args(ASTNS::ArgB *pl);
+        std::vector<IR::Value*> args(ASTNS::ArgB *pl);
 
     private:
         // ARGSVISITOR METHODS START
@@ -92,11 +98,11 @@ void visitArgList(ASTNS::ArgList *ast) override;
 
         // ARGSVISITOR METHODS END
 
-        std::vector<Value*> ret;
+        std::vector<IR::Value*> ret;
         CodeGen &cg;
     };
 
-    class DeclCodeGen : public Visitors::DeclBVisitor
+    class DeclCodeGen : public ASTNS::DeclBVisitor
     {
     public:
         DeclCodeGen(CodeGen &cg);
@@ -114,7 +120,7 @@ void visitFunction(ASTNS::Function *ast) override;
         CodeGen &cg;
     };
 
-    class StmtCodeGen : public Visitors::StmtBVisitor, public Visitors::VStmtIBVisitor
+    class StmtCodeGen : public ASTNS::StmtBVisitor, public ASTNS::VStmtIBVisitor
     {
     public:
         StmtCodeGen(CodeGen &cg);
@@ -138,15 +144,15 @@ void visitVarStmtItemList(ASTNS::VarStmtItemList *ast) override;
         // STMTCG METHODS END
 
         CodeGen &cg;
-        Type *varty;
+        IR::Type *varty;
     };
 
-    class ExprCodeGen : public Visitors::ExprBVisitor
+    class ExprCodeGen : public ASTNS::ExprBVisitor
     {
     public:
         ExprCodeGen(CodeGen &cg);
 
-        Value* expr(ASTNS::ExprB *ast);
+        IR::Value* expr(ASTNS::ExprB *ast);
 
     private:
         // EXPRCG METHODS START
@@ -172,44 +178,51 @@ void visitUnaryExpr(ASTNS::UnaryExpr *ast) override;
 
         // EXPRCG METHODS END
 
-        Value *ret;
+        IR::Value *ret;
         CodeGen &cg;
     };
 
     class Context
     {
     public:
+        struct Local
+        {
+            size_t scopenum;
+            IR::Value *v;
+            std::string name;
+        };
+
         Context(File const &file);
 
-        Unit unit;
-        std::map<std::string, Value*> globalSymbolTable;
+        IR::Unit unit;
+        std::map<std::string, IR::Value*> globalSymbolTable;
 
         std::vector<Local> locals;
         size_t curScope = 1;
 
-        BuiltinType* getBuiltinType(BuiltinType::Builtins ty);
-        FunctionType* getFunctionType(Type *ret, std::vector<Type*> paramtys);
-        VoidType* getVoidType();
+        IR::BuiltinType* getBuiltinType(IR::BuiltinType::Builtins ty);
+        IR::FunctionType* getFunctionType(IR::Type *ret, std::vector<IR::Type*> paramtys);
+        IR::VoidType* getVoidType();
 
-        void addLocal(std::string const &name, Value *val);
+        void addLocal(std::string const &name, IR::Value *val);
         Local* findLocal(std::string const &name);
-        Value* findValue(std::string const &name);
-        Value* findGlobal(std::string const &name);
+        IR::Value* findValue(std::string const &name);
+        IR::Value* findGlobal(std::string const &name);
 
         void incScope();
         void decScope();
 
-        Function *curFunc;
-        Block *curBlock;
-        Block *exitBlock;
-        Register *retReg;
-        std::unique_ptr<Block> blackHoleBlock;
+        IR::Function *curFunc;
+        IR::Block *curBlock;
+        IR::Block *exitBlock;
+        IR::Register *retReg;
+        std::unique_ptr<IR::Block> blackHoleBlock;
 
-        std::vector<std::unique_ptr<ConstInt>> constants;
-        ConstInt* getConstInt(BuiltinType *ty, int val, ASTNS::AST *ast);
+        std::vector<std::unique_ptr<IR::ConstInt>> constants;
+        IR::ConstInt* getConstInt(IR::BuiltinType *ty, int val, ASTNS::AST *ast);
 
     private:
-        std::vector<std::unique_ptr<Type>> types;
+        std::vector<std::unique_ptr<IR::Type>> types;
     };
 
     class CodeGen

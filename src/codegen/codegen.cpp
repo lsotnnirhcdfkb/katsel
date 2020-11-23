@@ -21,7 +21,7 @@ void CodeGenNS::CodeGen::printUnit(std::ostream &ostream)
 
 CodeGenNS::ParamVisitor::ParamVisitor::ParamVisitor(CodeGenNS::CodeGen &cg): cg(cg) {}
 
-std::vector<Param> CodeGenNS::ParamVisitor::params(ASTNS::PListB *ast)
+std::vector<CodeGenNS::ParamVisitor::Param> CodeGenNS::ParamVisitor::params(ASTNS::PListB *ast)
 {
     ret.clear();
     ast->accept(this);
@@ -31,7 +31,7 @@ std::vector<Param> CodeGenNS::ParamVisitor::params(ASTNS::PListB *ast)
 
 void CodeGenNS::ParamVisitor::visitParam(ASTNS::Param *ast)
 {
-    Type *ty (cg.typeResolver.type(ast->type.get()));
+    IR::Type *ty (cg.typeResolver.type(ast->type.get()));
     std::string name (ast->name.stringify());
     Param p {ty, std::move(name), ast};
     ret.push_back(p);
@@ -45,7 +45,7 @@ void CodeGenNS::ParamVisitor::visitParamList(ASTNS::ParamList *ast)
 
 CodeGenNS::ArgsVisitor::ArgsVisitor::ArgsVisitor(CodeGenNS::CodeGen &cg): cg(cg) {}
 
-std::vector<Value*> CodeGenNS::ArgsVisitor::args(ASTNS::ArgB *ast)
+std::vector<IR::Value*> CodeGenNS::ArgsVisitor::args(ASTNS::ArgB *ast)
 {
     ret.clear();
     ast->accept(this);
@@ -55,7 +55,7 @@ std::vector<Value*> CodeGenNS::ArgsVisitor::args(ASTNS::ArgB *ast)
 
 void CodeGenNS::ArgsVisitor::visitArgList(ASTNS::ArgList *ast)
 {
-    std::vector<Value*> cret (args(ast->arglist.get())); // cannot do like params becasue args can be nested (through nested function calls) and that messes things up
+    std::vector<IR::Value*> cret (args(ast->arglist.get())); // cannot do like params becasue args can be nested (through nested function calls) and that messes things up
 
     ast->arg->accept(this);
     cret.reserve(cret.size() + ret.size());
@@ -66,6 +66,6 @@ void CodeGenNS::ArgsVisitor::visitArgList(ASTNS::ArgList *ast)
 
 void CodeGenNS::ArgsVisitor::visitArg(ASTNS::Arg *ast)
 {
-    Value* v = cg.exprCodeGen.expr(ast->expr.get());
+    IR::Value* v = cg.exprCodeGen.expr(ast->expr.get());
     ret = {v};
 }

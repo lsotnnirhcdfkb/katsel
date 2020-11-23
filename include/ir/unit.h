@@ -7,17 +7,20 @@
 #include <vector>
 #include <ostream>
 
-class Unit
+namespace IR
 {
-public:
-    Unit(File const &file);
+    class Unit
+    {
+    public:
+        Unit(File const &file);
 
-    void print(std::ostream &ostream) const;
-    void cfgDot(std::ostream &ostream) const;
+        void print(std::ostream &ostream) const;
+        void cfgDot(std::ostream &ostream) const;
 
-    Function* addFunction(FunctionType *type, std::string name, ASTNS::Function *ast);
+        IR::Function* addFunction(FunctionType *type, std::string name, ASTNS::Function *ast);
 
-private:
-    std::vector<std::unique_ptr<Function>> functions;
-    File const &file;
-};
+    private:
+        std::vector<std::unique_ptr<IR::Function>> functions;
+        File const &file;
+    };
+}

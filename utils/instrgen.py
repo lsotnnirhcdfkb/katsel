@@ -31,13 +31,13 @@ class Field:
         elif self.printMethod == 'name':
             return f'os << {self.name}->name;'
         elif self.printMethod == 'iterval':
-            return f'''for (Value const *v : {self.name})
+            return f'''for (IR::Value const *v : {self.name})
 {{
     os << v->stringify();
 }}'''
         else:
             raise Exception(f'invalid print method {self.printMethod}')
-    
+
 # instructions {{{1
 instructions = [
     Instruction('Store', 'Instruction', 'Register* target', 'Value* value'),
@@ -109,8 +109,8 @@ def genDefs():
     output = []
 
     for instruction in instructions:
-        output.append(f'Instrs::{instruction.name}::{instruction.name}({asConstructor(instruction.fields)}): {asInitializerList(instruction.fields)} {{}}\n')
-        output.append(f'void Instrs::{instruction.name}::stringify(std::ostream &os) const\n')
+        output.append(f'IR::Instrs::{instruction.name}::{instruction.name}({asConstructor(instruction.fields)}): {asInitializerList(instruction.fields)} {{}}\n')
+        output.append(f'void IR::Instrs::{instruction.name}::stringify(std::ostream &os) const\n')
         output.append( '{\n')
         output.append(f'    os << "{instruction.name.lower()} ";\n')
         for i, field in enumerate(instruction.fields):
@@ -122,7 +122,7 @@ def genDefs():
         output.append('    os << std::endl;\n')
         output.append( '}\n')
 
-        output.append(f'void Instrs::{instruction.name}::accept({instruction.base}Visitor *v)\n')
+        output.append(f'void IR::Instrs::{instruction.name}::accept({instruction.base}Visitor *v)\n')
         output.append( '{\n')
         output.append(f'    v->visit{instruction.name}(this);\n')
         output.append( '}\n')

@@ -12,7 +12,7 @@ void CodeGenNS::Declarator::visitDeclList(ASTNS::DeclList *ast)
 void CodeGenNS::Declarator::visitFunction(ASTNS::Function *fun)
 {
     std::string fname (fun->name.stringify());
-    Value *declbefore = cg.context.findGlobal(fname);
+    IR::Value *declbefore = cg.context.findGlobal(fname);
 
     if (declbefore)
     {
@@ -25,20 +25,20 @@ void CodeGenNS::Declarator::visitFunction(ASTNS::Function *fun)
         return;
     }
 
-    Type *retty = cg.typeResolver.type(fun->retty.get());
+    IR::Type *retty = cg.typeResolver.type(fun->retty.get());
     if (!retty)
         return;
 
-    std::vector<Param> params;
+    std::vector<CodeGenNS::ParamVisitor::Param> params;
     if (fun->paramlist)
         params = cg.paramVisitor.params(fun->paramlist.get());
 
-    std::vector<Type*> ptys;
-    for (Param const &p : params)
+    std::vector<IR::Type*> ptys;
+    for (CodeGenNS::ParamVisitor::Param const &p : params)
         ptys.push_back(p.ty);
 
-    FunctionType *ft = cg.context.getFunctionType(retty, ptys);
-    Function *f = cg.context.unit.addFunction(ft, fname, fun);
+    IR::FunctionType *ft = cg.context.getFunctionType(retty, ptys);
+    IR::Function *f = cg.context.unit.addFunction(ft, fname, fun);
 
     cg.context.globalSymbolTable[fname] = f;
 }

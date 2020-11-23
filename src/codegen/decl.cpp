@@ -13,32 +13,32 @@ void CodeGenNS::DeclCodeGen::visitDeclList(ASTNS::DeclList *ast)
 void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
 {
     std::string name = ast->name.stringify();
-    Value *function = cg.context.findGlobal(name);
-    FunctionType *fty;
-    if (!(fty = dynamic_cast<FunctionType*>(function->type())))
+    IR::Value *function = cg.context.findGlobal(name);
+    IR::FunctionType *fty;
+    if (!(fty = dynamic_cast<IR::FunctionType*>(function->type())))
         reportAbortNoh(concatMsg("DeclCodeGen::visitFunction(): context.getGlobal\"", name, "\") returned non-function"));
 
-    Function *f = static_cast<Function*>(function);
+    IR::Function *f = static_cast<IR::Function*>(function);
 
     if (f->blocks.size() > 0)
         return;
 
-    Block *entryBlock = f->addBlock("entry");
-    Block *exitBlock = f->addBlock("exit");
+    IR::Block *entryBlock = f->addBlock("entry");
+    IR::Block *exitBlock = f->addBlock("exit");
 
     cg.context.incScope();
-    Register *retReg = nullptr;
-    if (!dynamic_cast<VoidType*>(fty->ret))
+    IR::Register *retReg = nullptr;
+    if (!dynamic_cast<IR::VoidType*>(fty->ret))
         retReg = f->addRegister(fty->ret, ast, false);
 
     if (ast->paramlist)
     {
-        std::vector<Param> params = cg.paramVisitor.params(ast->paramlist.get());
+        std::vector<CodeGenNS::ParamVisitor::Param> params = cg.paramVisitor.params(ast->paramlist.get());
 
         for (auto const &param : params)
         {
             std::string pname = param.name;
-            Register *reg = f->addRegister(param.ty, param.ast, false);
+            IR::Register *reg = f->addRegister(param.ty, param.ast, false);
             cg.context.addLocal(pname, reg);
         }
     }
@@ -52,10 +52,10 @@ void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
 
     cg.context.decScope();
 
-    cg.context.exitBlock->add(std::make_unique<Instrs::Return>(retReg));
+    cg.context.exitBlock->add(std::make_unique<IR::Instrs::Return>(retReg));
 
     if (cg.context.curBlock != cg.context.blackHoleBlock.get())
-        cg.context.curBlock->branch(std::make_unique<Instrs::GotoBr>(cg.context.exitBlock));
+        cg.context.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(cg.context.exitBlock));
 
     cg.context.curFunc = nullptr;
     cg.context.curBlock = nullptr;

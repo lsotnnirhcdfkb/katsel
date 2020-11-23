@@ -3,25 +3,25 @@
 #include "ir/type.h"
 #include "message/errors.h"
 
-std::string VoidType::stringify()
+std::string IR::VoidType::stringify()
 {
     return "void";
 }
 
-bool VoidType::hasOperator(TokenType)
+bool IR::VoidType::hasOperator(TokenType)
 {
     return false;
 }
 
-Value* VoidType::binOp(CodeGenNS::Context &, Value *, Value *, Token, ASTNS::AST *)
+IR::Value* IR::VoidType::binOp(CodeGenNS::Context &, IR::Value *, IR::Value *, Token, ASTNS::AST *)
 {
     fCalled("VoidType::binOp");
 }
-Value* VoidType::unaryOp(CodeGenNS::Context &, Value *, Token, ASTNS::AST *)
+IR::Value* IR::VoidType::unaryOp(CodeGenNS::Context &, IR::Value *, Token, ASTNS::AST *)
 {
     fCalled("VoidType::unaryOp");
 }
-Value* VoidType::castTo(CodeGenNS::Context &, Value *v)
+IR::Value* IR::VoidType::castTo(CodeGenNS::Context &, IR::Value *v)
 {
     Error(Error::MsgType::ERROR, v, "invalid cast")
         .underline(Error::Underline(v, '^')
@@ -29,14 +29,14 @@ Value* VoidType::castTo(CodeGenNS::Context &, Value *v)
         .report();
     return nullptr;
 }
-Value* VoidType::isTrue(CodeGenNS::Context &, Value *)
+IR::Value* IR::VoidType::isTrue(CodeGenNS::Context &, IR::Value *)
 {
     fCalled("VoidType::isTrue");
 }
 
-FunctionType::FunctionType(Type *ret, std::vector<Type*> paramtys): ret(ret), paramtys(paramtys) {}
+IR::FunctionType::FunctionType(Type *ret, std::vector<Type*> paramtys): ret(ret), paramtys(paramtys) {}
 
-std::string FunctionType::stringify()
+std::string IR::FunctionType::stringify()
 {
     std::stringstream ss;
     ss << ret->stringify() << "(";
@@ -46,21 +46,21 @@ std::string FunctionType::stringify()
     return ss.str();
 }
 
-bool FunctionType::hasOperator(TokenType)
+bool IR::FunctionType::hasOperator(TokenType)
 {
     return false; // function has no operators
 }
 
-Value* FunctionType::binOp(CodeGenNS::Context &, Value *, Value *, Token, ASTNS::AST *)
+IR::Value* IR::FunctionType::binOp(CodeGenNS::Context &, IR::Value *, IR::Value *, Token, ASTNS::AST *)
 {
     fCalled("FunctionType::binOp");
 }
-Value* FunctionType::unaryOp(CodeGenNS::Context &, Value *, Token, ASTNS::AST *)
+IR::Value* IR::FunctionType::unaryOp(CodeGenNS::Context &, IR::Value *, Token, ASTNS::AST *)
 {
     fCalled("FunctionType::unaryop");
 }
 
-Value* FunctionType::castTo(CodeGenNS::Context &, Value *v)
+IR::Value* IR::FunctionType::castTo(CodeGenNS::Context &, IR::Value *v)
 {
     Error(Error::MsgType::ERROR, v, "Invalid cast")
         .underline(Error::Underline(v, '^')
@@ -69,7 +69,7 @@ Value* FunctionType::castTo(CodeGenNS::Context &, Value *v)
     return nullptr;
 }
 
-Value* FunctionType::isTrue(CodeGenNS::Context &, Value *)
+IR::Value* IR::FunctionType::isTrue(CodeGenNS::Context &, IR::Value *)
 {
     fCalled("FunctionType::isTrue");
 }

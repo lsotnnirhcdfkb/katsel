@@ -6,9 +6,9 @@
 #include "codegen/codegen.h"
 
 // Constructor {{{1
-BuiltinType::BuiltinType(BuiltinType::Builtins b): type(b) {}
+IR::BuiltinType::BuiltinType(IR::BuiltinType::Builtins b): type(b) {}
 // stringify {{{1
-std::string BuiltinType::stringify()
+std::string IR::BuiltinType::stringify()
 {
     switch (type)
     {
@@ -29,12 +29,12 @@ std::string BuiltinType::stringify()
     outOSwitchNoh("BuiltinType::stringify");
 }
 // hasOperator {{{1
-bool BuiltinType::hasOperator(TokenType)
+bool IR::BuiltinType::hasOperator(TokenType)
 {
     return true; // builtin has all operators
 }
 // binOp {{{1
-Value* BuiltinType::binOp(CodeGenNS::Context &cgc, Value *l, Value *r, Token op, ASTNS::AST *ast)
+IR::Value* IR::BuiltinType::binOp(CodeGenNS::Context &cgc, IR::Value *l, IR::Value *r, Token op, ASTNS::AST *ast)
 {
     if (l->type() != this)
         calledWithOpTyNEthis("BuiltinType", "binOp", "left operand", l);
@@ -82,7 +82,7 @@ Value* BuiltinType::binOp(CodeGenNS::Context &cgc, Value *l, Value *r, Token op,
             invalidTok("binary operator", op);
     }
 
-    Register *outReg = cgc.curFunc->addRegister(retTy, ast);
+    IR::Register *outReg = cgc.curFunc->addRegister(retTy, ast);
     switch (op.type)
     {
         case TokenType::DOUBLEPIPE:
@@ -164,7 +164,7 @@ Value* BuiltinType::binOp(CodeGenNS::Context &cgc, Value *l, Value *r, Token op,
     return outReg;
 }
 // castTo {{{1
-Value* BuiltinType::castTo(CodeGenNS::Context &cgc, Value *v)
+IR::Value* IR::BuiltinType::castTo(CodeGenNS::Context &cgc, IR::Value *v)
 {
     BuiltinType *sty = dynamic_cast<BuiltinType*> (v->type());
     if (!sty)
@@ -202,7 +202,7 @@ Value* BuiltinType::castTo(CodeGenNS::Context &cgc, Value *v)
         {BuiltinType::Builtins::DOUBLE, 64}
     };
 
-    Register *outReg = cgc.curFunc->addRegister(this, v->ast());
+    IR::Register *outReg = cgc.curFunc->addRegister(this, v->ast());
     if (styintegral && etyintegral)
     {
         // int -> int
@@ -275,12 +275,12 @@ Value* BuiltinType::castTo(CodeGenNS::Context &cgc, Value *v)
     return outReg;
 }
 // unaryOp {{{1
-Value* BuiltinType::unaryOp(CodeGenNS::Context &cgc, Value *v, Token op, ASTNS::AST *ast)
+IR::Value* IR::BuiltinType::unaryOp(CodeGenNS::Context &cgc, IR::Value *v, Token op, ASTNS::AST *ast)
 {
     if (v->type() != this)
         calledWithOpTyNEthis("BuiltinType", "unaryOp", "operand", v);
 
-    Register *outReg = cgc.curFunc->addRegister(v->type(), v->ast());
+    IR::Register *outReg = cgc.curFunc->addRegister(v->type(), v->ast());
     switch (op.type)
     {
         case TokenType::BANG:
@@ -302,12 +302,12 @@ Value* BuiltinType::unaryOp(CodeGenNS::Context &cgc, Value *v, Token op, ASTNS::
     return outReg;
 }
 // isTrue {{{1
-Value* BuiltinType::isTrue(CodeGenNS::Context &cgc, Value *v)
+IR::Value* IR::BuiltinType::isTrue(CodeGenNS::Context &cgc, IR::Value *v)
 {
     if (v->type() != this)
         calledWithOpTyNEthis("BuiltinType", "isTrue", "value", v);
 
-    Register *outReg = cgc.curFunc->addRegister(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), v->ast());
+    IR::Register *outReg = cgc.curFunc->addRegister(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), v->ast());
     switch (type)
     {
         case BuiltinType::Builtins::UINT8:

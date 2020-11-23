@@ -2,7 +2,10 @@
 
 #include <vector>
 #include <map>
-class Value;
+namespace IR
+{
+    class Value;
+}
 
 #include "lex/token.h"
 #include "lex/tokentype.h"
@@ -13,80 +16,83 @@ namespace CodeGenNS
     class Context;
 }
 
-class Type
+namespace IR
 {
-public:
-    virtual ~Type() {};
-    virtual std::string stringify() = 0;
-    virtual bool hasOperator(TokenType t) = 0;
-
-    virtual Value* binOp(CodeGenNS::Context &cgc, Value *l, Value *r, Token op, ASTNS::AST *ast) = 0;
-    virtual Value* unaryOp(CodeGenNS::Context &cgc, Value *operand, Token op, ASTNS::AST *ast) = 0;
-    virtual Value* isTrue(CodeGenNS::Context &cgc, Value *v) = 0;
-
-    virtual Value* castTo(CodeGenNS::Context &cgc, Value *v) = 0;
-
-    ASTNS::TypeB *ast;
-};
-
-class BuiltinType : public Type
-{
-public:
-    enum class Builtins
+    class Type
     {
-        UINT8,
-        UINT16,
-        UINT32,
-        UINT64,
-        SINT8,
-        SINT16,
-        SINT32,
-        SINT64,
+    public:
+        virtual ~Type() {};
+        virtual std::string stringify() = 0;
+        virtual bool hasOperator(TokenType t) = 0;
 
-        FLOAT,
-        CHAR,
-        BOOL,
-        DOUBLE
+        virtual IR::Value* binOp(CodeGenNS::Context &cgc, IR::Value *l, IR::Value *r, Token op, ASTNS::AST *ast) = 0;
+        virtual IR::Value* unaryOp(CodeGenNS::Context &cgc, IR::Value *operand, Token op, ASTNS::AST *ast) = 0;
+        virtual IR::Value* isTrue(CodeGenNS::Context &cgc, IR::Value *v) = 0;
+
+        virtual IR::Value* castTo(CodeGenNS::Context &cgc, IR::Value *v) = 0;
+
+        ASTNS::TypeB *ast;
     };
-    Builtins type;
 
-    BuiltinType(Builtins b);
-    std::string stringify() override;
+    class BuiltinType : public Type
+    {
+    public:
+        enum class Builtins
+        {
+            UINT8,
+            UINT16,
+            UINT32,
+            UINT64,
+            SINT8,
+            SINT16,
+            SINT32,
+            SINT64,
 
-    bool hasOperator(TokenType t) override;
+            FLOAT,
+            CHAR,
+            BOOL,
+            DOUBLE
+        };
+        Builtins type;
 
-    Value* binOp(CodeGenNS::Context &cgc, Value *l, Value *r, Token op, ASTNS::AST *ast) override;
-    Value* unaryOp(CodeGenNS::Context &cgc, Value *operand, Token op, ASTNS::AST *ast) override;
-    Value* isTrue(CodeGenNS::Context &cgc, Value *v) override;
+        BuiltinType(Builtins b);
+        std::string stringify() override;
 
-    Value* castTo(CodeGenNS::Context &cgc, Value *v) override;
-};
+        bool hasOperator(TokenType t) override;
+
+        IR::Value* binOp(CodeGenNS::Context &cgc, IR::Value *l, IR::Value *r, Token op, ASTNS::AST *ast) override;
+        IR::Value* unaryOp(CodeGenNS::Context &cgc, IR::Value *operand, Token op, ASTNS::AST *ast) override;
+        IR::Value* isTrue(CodeGenNS::Context &cgc, IR::Value *v) override;
+
+        IR::Value* castTo(CodeGenNS::Context &cgc, IR::Value *v) override;
+    };
 
 
-class FunctionType : public Type
-{
-public:
-    Type *ret;
-    std::vector<Type*> paramtys;
+    class FunctionType : public Type
+    {
+    public:
+        Type *ret;
+        std::vector<Type*> paramtys;
 
-    FunctionType(Type *ret, std::vector<Type*> paramtys);
-    std::string stringify() override;
-    bool hasOperator(TokenType t) override;
-    Value* binOp(CodeGenNS::Context &cgc, Value *l, Value *r, Token op, ASTNS::AST *ast) override;
-    Value* unaryOp(CodeGenNS::Context &cgc, Value *operand, Token op, ASTNS::AST *ast) override;
-    Value* isTrue(CodeGenNS::Context &cgc, Value *v) override;
+        FunctionType(Type *ret, std::vector<Type*> paramtys);
+        std::string stringify() override;
+        bool hasOperator(TokenType t) override;
+        IR::Value* binOp(CodeGenNS::Context &cgc, IR::Value *l, IR::Value *r, Token op, ASTNS::AST *ast) override;
+        IR::Value* unaryOp(CodeGenNS::Context &cgc, IR::Value *operand, Token op, ASTNS::AST *ast) override;
+        IR::Value* isTrue(CodeGenNS::Context &cgc, IR::Value *v) override;
 
-    Value* castTo(CodeGenNS::Context &cgc, Value *v) override;
-};
+        IR::Value* castTo(CodeGenNS::Context &cgc, IR::Value *v) override;
+    };
 
-class VoidType : public Type
-{
-public:
-    std::string stringify() override;
-    bool hasOperator(TokenType t) override;
-    Value* binOp(CodeGenNS::Context &cgc, Value *l, Value *r, Token op, ASTNS::AST *ast) override;
-    Value* unaryOp(CodeGenNS::Context &cgc, Value *operand, Token op, ASTNS::AST *ast) override;
-    Value* isTrue(CodeGenNS::Context &cgc, Value *v) override;
+    class VoidType : public Type
+    {
+    public:
+        std::string stringify() override;
+        bool hasOperator(TokenType t) override;
+        IR::Value* binOp(CodeGenNS::Context &cgc, IR::Value *l, IR::Value *r, Token op, ASTNS::AST *ast) override;
+        IR::Value* unaryOp(CodeGenNS::Context &cgc, IR::Value *operand, Token op, ASTNS::AST *ast) override;
+        IR::Value* isTrue(CodeGenNS::Context &cgc, IR::Value *v) override;
 
-    Value* castTo(CodeGenNS::Context &cgc, Value *v) override;
-};
+        IR::Value* castTo(CodeGenNS::Context &cgc, IR::Value *v) override;
+    };
+}

@@ -1,14 +1,14 @@
 #include "ir/block.h"
 #include "message/errors.h"
 
-Block::Block(std::string name, size_t num): name(name), num(num) {}
+IR::Block::Block(std::string name, size_t num): name(name), num(num) {}
 
-void Block::add(std::unique_ptr<Instrs::Instruction> instr)
+void IR::Block::add(std::unique_ptr<IR::Instrs::Instruction> instr)
 {
     instructions.push_back(std::move(instr));
 }
 
-void Block::branch(std::unique_ptr<Instrs::Br> br)
+void IR::Block::branch(std::unique_ptr<IR::Instrs::Br> br)
 {
     if (this->br)
         reportAbortNoh("Block::branch called multiple times");
@@ -16,12 +16,12 @@ void Block::branch(std::unique_ptr<Instrs::Br> br)
     this->br = std::move(br);
 }
 
-void Block::stringify(std::ostream &os)
+void IR::Block::stringify(std::ostream &os)
 {
     os << name << "(" << num << ")";
 }
 
-void Block::definition(std::ostream &os)
+void IR::Block::definition(std::ostream &os)
 {
     os << "    " << name << "(" << num << "): {\n";
     for (std::unique_ptr<Instrs::Instruction> const &i : instructions)
@@ -37,7 +37,7 @@ void Block::definition(std::ostream &os)
     }
     os << "    }\n";
 }
-void Block::cfgDot(std::ostream &os)
+void IR::Block::cfgDot(std::ostream &os)
 {
     os << "block" << this << " [shape=record,label=\"";
     for (std::unique_ptr<Instrs::Instruction> const &i : instructions)

@@ -105,7 +105,7 @@ def genASTDecls():
             output.append(f'        Form form;\n')
 
             if not ast.skiponly:
-                output.append(f'        virtual void accept(Visitors::{ast.base}Visitor *v);\n')
+                output.append(f'        virtual void accept(ASTNS::{ast.base}Visitor *v);\n')
 
             output.append( '    };\n')
         elif type(ast) == ASTBaseClass:
@@ -113,7 +113,7 @@ def genASTDecls():
             output.append( '    {\n')
             output.append( '    public:\n')
             output.append(f'        virtual ~{ast.name}() {{}}\n')
-            output.append(f'        virtual void accept(Visitors::{ast.name}Visitor *v) = 0;\n')
+            output.append(f'        virtual void accept(ASTNS::{ast.name}Visitor *v) = 0;\n')
             output.append( '    };\n')
         else:
             output.append( '    class AST\n')
@@ -143,7 +143,7 @@ def genASTDefs():
                 output.append(', '.join(initializerList))
                 output.append(' {}\n')
 
-            output.append(f'void ASTNS::{ast.name}::accept(Visitors::{ast.base}Visitor *v) {{ v->visit{ast.name}(this); }}\n')
+            output.append(f'void ASTNS::{ast.name}::accept(ASTNS::{ast.base}Visitor *v) {{ v->visit{ast.name}(this); }}\n')
 
     return ''.join(output)
 # Generating Visitor stuff {{{2
@@ -222,7 +222,7 @@ def genPrintVisitorMethods():
         if type(ast) != ASTClass or ast.skiponly:
             continue
 
-        output.append(            f'void PrintVisitor::visit{ast.name}(ASTNS::{ast.name} *a)\n')
+        output.append(            f'void ASTNS::PrintVisitor::visit{ast.name}(ASTNS::{ast.name} *a)\n')
         output.append(             '{\n')
         output.append(             '    pai("{}\\n{{\\n");\n'.format(ast.name))
         output.append(             '    ++indent;\n')
@@ -259,7 +259,7 @@ def genDotVisitorMethods():
         if type(ast) != ASTClass or ast.skiponly:
             continue
 
-        output.append(            f'void DotVisitor::visit{ast.name}(ASTNS::{ast.name} *a)\n')
+        output.append(            f'void ASTNS::DotVisitor::visit{ast.name}(ASTNS::{ast.name} *a)\n')
         output.append(             '{\n')
         output.append(             '    std::string thisid = curid();\n')
         output.append(             '    switch (a->form)\n')

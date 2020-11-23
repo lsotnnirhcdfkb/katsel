@@ -53,14 +53,14 @@ int getLineN(std::string::const_iterator const &start, std::string::iterator loc
     return linen + 1;
 }
 // LocationVisitor {{{1
-class LocationVisitor : 
-    public Visitors::DeclBVisitor,
-    public Visitors::ArgBVisitor,
-    public Visitors::StmtBVisitor,
-    public Visitors::ExprBVisitor,
-    public Visitors::VStmtIBVisitor,
-    public Visitors::PListBVisitor,
-    public Visitors::TypeBVisitor
+class LocationVisitor :
+    public ASTNS::DeclBVisitor,
+    public ASTNS::ArgBVisitor,
+    public ASTNS::StmtBVisitor,
+    public ASTNS::ExprBVisitor,
+    public ASTNS::VStmtIBVisitor,
+    public ASTNS::PListBVisitor,
+    public ASTNS::TypeBVisitor
 {
 public:
     // LOCVISITOR METHODS START
@@ -529,8 +529,8 @@ void LocationVisitor::visitVarStmtItemList(ASTNS::VarStmtItemList *ast)
 // LOCVISITOR IMPL END
 // constructors for location {{{1
 Location::Location(Token const &t): start(t.start), end(t.end), file(t.sourcefile) {}
-Location::Location(Value const &v): Location(v.ast()) {}
-Location::Location(Value const *v): Location(v->ast()) {}
+Location::Location(IR::Value const &v): Location(v.ast()) {}
+Location::Location(IR::Value const *v): Location(v->ast()) {}
 Location::Location(std::string::iterator start, std::string::iterator end, File const *file): start(start), end(end), file(file) {}
 
 Location::Location(ASTNS::AST *ast)
@@ -836,7 +836,7 @@ void invalidTok(std::string const &name, Token const &underline)
             .note("for " + name))
         .reportAbort();
 }
-void calledWithOpTyNEthis(std::string const &classN, std::string const &fnn, std::string const &opname, Value const *op)
+void calledWithOpTyNEthis(std::string const &classN, std::string const &fnn, std::string const &opname, IR::Value const *op)
 {
     Error(Error::MsgType::INTERR, op, classN + "::" + fnn + " called with " + opname + " type != this")
         .underline(Error::Underline(op, '^')

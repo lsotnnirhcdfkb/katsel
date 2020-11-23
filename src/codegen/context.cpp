@@ -3,59 +3,59 @@
 #include <iostream>
 #include "message/errors.h"
 
-CodeGenNS::Context::Context(File const &file): unit(file), blackHoleBlock(std::make_unique<Block>("blackHole", 0)) {}
+CodeGenNS::Context::Context(File const &file): unit(file), blackHoleBlock(std::make_unique<IR::Block>("blackHole", 0)) {}
 
-BuiltinType* CodeGenNS::Context::getBuiltinType(BuiltinType::Builtins bty)
+IR::BuiltinType* CodeGenNS::Context::getBuiltinType(IR::BuiltinType::Builtins bty)
 {
-    for (std::unique_ptr<Type> &ty : types)
+    for (std::unique_ptr<IR::Type> &ty : types)
     {
-        BuiltinType *b (dynamic_cast<BuiltinType*>(ty.get()));
+        IR::BuiltinType *b (dynamic_cast<IR::BuiltinType*>(ty.get()));
         if (b && b->type == bty)
             return b;
     }
 
-    std::unique_ptr<BuiltinType> ty = std::make_unique<BuiltinType>(bty);
+    std::unique_ptr<IR::BuiltinType> ty = std::make_unique<IR::BuiltinType>(bty);
 
-    BuiltinType *tyr = ty.get();
+    IR::BuiltinType *tyr = ty.get();
     types.push_back(std::move(ty));
 
     return tyr;
 }
 
-FunctionType* CodeGenNS::Context::getFunctionType(Type *ret, std::vector<Type*> paramtys)
+IR::FunctionType* CodeGenNS::Context::getFunctionType(IR::Type *ret, std::vector<IR::Type*> paramtys)
 {
-    for (std::unique_ptr<Type> &ty : types)
+    for (std::unique_ptr<IR::Type> &ty : types)
     {
-        FunctionType *f (dynamic_cast<FunctionType*>(ty.get()));
+        IR::FunctionType *f (dynamic_cast<IR::FunctionType*>(ty.get()));
         if (f && f->ret == ret && f->paramtys == paramtys)
             return f;
     }
 
-    std::unique_ptr<FunctionType> ty = std::make_unique<FunctionType>(ret, paramtys);
+    std::unique_ptr<IR::FunctionType> ty = std::make_unique<IR::FunctionType>(ret, paramtys);
 
-    FunctionType *tyr = ty.get();
+    IR::FunctionType *tyr = ty.get();
     types.push_back(std::move(ty));
 
     return tyr;
 }
 
-VoidType* CodeGenNS::Context::getVoidType()
+IR::VoidType* CodeGenNS::Context::getVoidType()
 {
-    for (std::unique_ptr<Type> &ty : types)
+    for (std::unique_ptr<IR::Type> &ty : types)
     {
-        VoidType *v (dynamic_cast<VoidType*>(ty.get()));
+        IR::VoidType *v (dynamic_cast<IR::VoidType*>(ty.get()));
         if (v)
             return v;
     }
 
-    std::unique_ptr<VoidType> ty = std::make_unique<VoidType>();
+    std::unique_ptr<IR::VoidType> ty = std::make_unique<IR::VoidType>();
 
-    VoidType *tyr = ty.get();
+    IR::VoidType *tyr = ty.get();
     types.push_back(std::move(ty));
     return tyr;
 }
 
-void CodeGenNS::Context::addLocal(std::string const &name, Value *val)
+void CodeGenNS::Context::addLocal(std::string const &name, IR::Value *val)
 {
     Local l {curScope, val, name};
     locals.push_back(l);
@@ -78,7 +78,7 @@ void CodeGenNS::Context::decScope()
     while (locals.size() && locals.back().scopenum > curScope) locals.pop_back();
 }
 
-Local* CodeGenNS::Context::findLocal(std::string const &name)
+CodeGenNS::Context::Local* CodeGenNS::Context::findLocal(std::string const &name)
 {
     for (auto last = locals.rbegin(); last != locals.rend(); ++last)
         if (last->name == name)
@@ -87,7 +87,7 @@ Local* CodeGenNS::Context::findLocal(std::string const &name)
     return nullptr;
 }
 
-Value* CodeGenNS::Context::findValue(std::string const &name)
+IR::Value* CodeGenNS::Context::findValue(std::string const &name)
 {
     Local *l = findLocal(name);
     if (l)
@@ -96,7 +96,7 @@ Value* CodeGenNS::Context::findValue(std::string const &name)
     return globalSymbolTable[name];
 }
 
-Value* CodeGenNS::Context::findGlobal(std::string const &name)
+IR::Value* CodeGenNS::Context::findGlobal(std::string const &name)
 {
     auto v = globalSymbolTable.find(name);
     if (v == globalSymbolTable.end())
@@ -104,10 +104,10 @@ Value* CodeGenNS::Context::findGlobal(std::string const &name)
     return v->second;
 }
 
-ConstInt* CodeGenNS::Context::getConstInt(BuiltinType *ty, int val, ASTNS::AST *ast)
+IR::ConstInt* CodeGenNS::Context::getConstInt(IR::BuiltinType *ty, int val, ASTNS::AST *ast)
 {
-    std::unique_ptr<ConstInt> ci = std::make_unique<ConstInt>(ty, ast, val);
-    ConstInt *ciraw = ci.get();
+    std::unique_ptr<IR::ConstInt> ci = std::make_unique<IR::ConstInt>(ty, ast, val);
+    IR::ConstInt *ciraw = ci.get();
     constants.push_back(std::move(ci));
 
     return ciraw;

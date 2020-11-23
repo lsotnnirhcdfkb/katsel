@@ -23,7 +23,7 @@ void CodeGenNS::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
 {
     if (ast->expr)
     {
-        Value *v = cg.exprCodeGen.expr(ast->expr.get());
+        IR::Value *v = cg.exprCodeGen.expr(ast->expr.get());
         if (!v)
             return;
 
@@ -49,7 +49,7 @@ void CodeGenNS::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
             return;
         }
 
-        cg.context.curBlock->add(std::make_unique<Instrs::Store>(cg.context.retReg, v));
+        cg.context.curBlock->add(std::make_unique<IR::Instrs::Store>(cg.context.retReg, v));
     }
     else if (cg.context.retReg)
     {
@@ -62,12 +62,12 @@ void CodeGenNS::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
         return;
     }
 
-    cg.context.curBlock->branch(std::make_unique<Instrs::GotoBr>(cg.context.exitBlock));
+    cg.context.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(cg.context.exitBlock));
     cg.context.curBlock = cg.context.blackHoleBlock.get();
 }
 void CodeGenNS::StmtCodeGen::visitVarStmt(ASTNS::VarStmt *ast)
 {
-    Type *ty = cg.typeResolver.type(ast->type.get());
+    IR::Type *ty = cg.typeResolver.type(ast->type.get());
 
     varty = ty;
     ast->assignments->accept(this);

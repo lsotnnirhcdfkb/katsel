@@ -4,7 +4,7 @@
 void CodeGenNS::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem *ast)
 {
     std::string varname = ast->name.stringify();
-    Local *var = cg.context.findLocal(varname);
+    CodeGenNS::Context::Local *var = cg.context.findLocal(varname);
     if (var && var->scopenum == cg.context.curScope)
     {
         Error(Error::MsgType::ERROR, ast->name, "duplicate variable")
@@ -16,12 +16,12 @@ void CodeGenNS::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem *ast)
         return;
     }
 
-    Register *reg = cg.context.curFunc->addRegister(varty, ast, false);
+    IR::Register *reg = cg.context.curFunc->addRegister(varty, ast, false);
     cg.context.addLocal(varname, reg);
 
     if (ast->expr)
     {
-        Value *val = cg.exprCodeGen.expr(ast->expr.get());
+        IR::Value *val = cg.exprCodeGen.expr(ast->expr.get());
         if (!val)
             return;
 
@@ -36,7 +36,7 @@ void CodeGenNS::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem *ast)
                 .report();
             return;
         }
-        cg.context.curBlock->add(std::make_unique<Instrs::Store>(reg, val));
+        cg.context.curBlock->add(std::make_unique<IR::Instrs::Store>(reg, val));
     }
 }
 void CodeGenNS::StmtCodeGen::visitVarStmtItemList(ASTNS::VarStmtItemList *ast)

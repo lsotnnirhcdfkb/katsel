@@ -174,14 +174,14 @@ int main(int argc, char *argv[])
 
         if (outformat == OutFormats::PARSE)
         {
-            auto printv = std::make_unique<PrintVisitor>(outputstream);
+            auto printv = std::make_unique<ASTNS::PrintVisitor>(outputstream);
             parsed->accept(printv.get());
             continue;
         }
 
         if (outformat == OutFormats::ASTDOT)
         {
-            auto dotter = std::make_unique<DotVisitor>(outputstream);
+            auto dotter = std::make_unique<ASTNS::DotVisitor>(outputstream);
             dotter->dotVisit(parsed.get());
             continue;
         }
