@@ -403,6 +403,7 @@ listRule('Decl', 'declaration', 'DeclB')
 nt('Decl', 'declaration', 'DeclB')
 rule('Decl', '$Function:_')
 
+
 nt('Function', 'function declaration', 'DeclB')
 rule('Function', 'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn                      CPARN:cparn $Block:body', 'fun', 'cparn')
 rule('Function', 'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn $ParamList:paramlist CPARN:cparn $Block:body', 'fun', 'cparn')
@@ -576,7 +577,7 @@ for sym, rule in _grammar.items():
             else:
                 convertedexpansion.append(Terminal(f'TokenType::{sname}'))
                 if sname != sname.upper():
-                    print(f'\033[35;1mwarning\033[0m: terminal {sname} in rule \033[1m{symbol} -> {expansion}\033[0m')
+                    print(f'\033[35;1mwarning\033[0m: terminal {sname} in rule \033[1m{sym} -> {expansion}\033[0m')
 
         if len(convertedexpansion) == 1 and type(convertedexpansion[0]) == NonTerminal and _grammar[str(convertedexpansion[0])]['base'] == base:
             skip = True
