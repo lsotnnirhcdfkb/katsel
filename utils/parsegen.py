@@ -192,6 +192,8 @@ class ShiftAction:
         self.newstate = newstate
     def __str__(self):
         return f's{self.newstate}'
+    def __repr__(self):
+        return str(self)
     def __eq__(self, other):
         return type(self) == type(other) and self.newstate == other.newstate
 class ReduceAction:
@@ -199,11 +201,15 @@ class ReduceAction:
         self.rule = rule
     def __str__(self):
         return f'r{self.rule.num}'
+    def __repr__(self):
+        return str(self)
     def __eq__(self, other):
         return type(self) == type(other) and self.rule == other.rule
 class AcceptAction:
     def __str__(self):
         return 'acc'
+    def __repr__(self):
+        return str(self)
     def __eq__(self, other):
         return True
 # helpers {{{1
@@ -594,7 +600,7 @@ def genLoop():
             if not found:
                 stateactions.append((ac, [term]))
 
-        reduceOnly = len(stateactions) == 1 and type(stateactions[0][0]) == ReduceAction
+        reduceOnly = len([ac for ac in stateactions if type(ac[0]) == ReduceAction]) == 1
         for ac, nts in stateactions:
             if type(ac) == ShiftAction:
                 for term in nts:
@@ -650,6 +656,7 @@ def genLoop():
                 else:
                     output.append(    f'                        DEFAULTINVALIDNOWHILE({state.justparsed}, {formatList(state.expected)})\n')
             else:
+                print(state.actions)
                 raise Exception('no expect for non-reduceOnly state')
         output.append(                 '                }\n')
         output.append(                 '                break;\n')
