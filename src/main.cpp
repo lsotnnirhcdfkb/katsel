@@ -15,6 +15,7 @@
 #include "ast/printvisitor.h"
 #include "ast/dotvisitor.h"
 #include "codegen/codegen.h"
+#include "lower/lowerer.h"
 
 enum class OutFormats
 {
@@ -208,9 +209,11 @@ int main(int argc, char *argv[])
             continue;
         }
 
+        auto lowerer = std::make_unique<Lower::Lowerer>();
+        lowerer->lower(codegen->context.unit);
         if (outformat == OutFormats::LOWER)
         {
-
+            
         }
     }
 
