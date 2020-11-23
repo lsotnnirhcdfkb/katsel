@@ -7,13 +7,13 @@
 #include <unistd.h>
 #include <cstring>
 
-#include "parse/ast.h"
+#include "ast/ast.h"
 #include "parse/parser.h"
 #include "utils/file.h"
 #include "lex/lexer.h"
 #include "message/ansistuff.h"
-#include "visit/printvisitor.h"
-#include "visit/dotvisitor.h"
+#include "ast/printvisitor.h"
+#include "ast/dotvisitor.h"
 #include "codegen/codegen.h"
 
 enum class OutFormats

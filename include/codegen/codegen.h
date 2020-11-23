@@ -2,10 +2,10 @@
 
 #include <ostream>
 
-#include "visit/visitor.h"
-#include "parse/ast.h"
-#include "codegen/param.h"
+#include "ast/visitor.h"
+#include "ast/ast.h"
 
+#include "ir/param.h"
 #include "ir/value.h"
 #include "ir/type.h"
 #include "ir/unit.h"

@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 #include "lex/token.h"
-#include "visit/visitor.h"
+#include "ast/visitor.h"
 
 namespace ASTNS
 {

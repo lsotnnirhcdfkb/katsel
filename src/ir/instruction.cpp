@@ -1,6 +1,6 @@
 #include "ir/instruction.h"
 #include "ir/value.h"
-#include "lower/visitor.h"
+#include "ir/visitor.h"
 #include <ostream>
 
 // INSTR CPP START

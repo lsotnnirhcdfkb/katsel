@@ -1,7 +1,7 @@
 #pragma once
 
-#include "visit/visitor.h"
-#include "parse/ast.h"
+#include "ast/visitor.h"
+#include "ast/ast.h"
 #include <string>
 
 class DotVisitor : 

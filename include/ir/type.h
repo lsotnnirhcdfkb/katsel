@@ -6,7 +6,7 @@ class Value;
 
 #include "lex/token.h"
 #include "lex/tokentype.h"
-#include "parse/ast.h"
+#include "ast/ast.h"
 
 namespace CodeGenNS
 {

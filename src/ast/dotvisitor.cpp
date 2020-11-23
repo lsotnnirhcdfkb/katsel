@@ -1,4 +1,4 @@
-#include "visit/dotvisitor.h"
+#include "ast/dotvisitor.h"
 
 #include <iostream>
 #include <sstream>

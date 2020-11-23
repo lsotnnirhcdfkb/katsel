@@ -2,7 +2,7 @@
 
 #include "ir/type.h"
 #include <string>
-#include "parse/ast.h"
+#include "ast/ast.h"
 
 struct Param
 {

@@ -125,7 +125,7 @@ def genASTDecls():
     return ''.join(output)
 # Generate AST definitions {{{3
 def genASTDefs():
-    output = ['#include "parse/ast.h"\n']
+    output = ['#include "ast/ast.h"\n']
     for ast in asts:
         if type(ast) == ASTClass and not ast.skiponly:
             for form in ast.forms:

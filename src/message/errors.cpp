@@ -1,5 +1,5 @@
 #include "message/errors.h"
-#include "visit/visitor.h"
+#include "ast/visitor.h"
 #include "message/ansistuff.h"
 #include <iostream>
 #include <iomanip>

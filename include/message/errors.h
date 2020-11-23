@@ -3,7 +3,7 @@
 #include "lex/tokentype.h"
 #include "ir/type.h"
 #include "ir/value.h"
-#include "parse/ast.h"
+#include "ast/ast.h"
 
 #include <vector>
 #include <sstream>
