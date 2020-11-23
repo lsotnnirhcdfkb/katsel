@@ -56,6 +56,7 @@ for astname in sorted(_astnames):
         if rule.skip:
             continue
 
+        formhistart, formhiend = rule.exhistart, rule.exhiend
         form = []
         for sym, vname in zip(rule.expansion, rule.vnames):
             ty = f'std::unique_ptr<{_astbases[str(sym)]}>' if type(sym) == parsegen.NonTerminal else 'Token'
@@ -66,16 +67,26 @@ for astname in sorted(_astnames):
             elif fields[fields.index(field)].type_ != ty:
                 raise Exception(f'conflicting types for variable {v}: {fields[fi].type_}')
 
+            if isinstance(formhistart, str) and vname == formhistart:
+                formhistart = field
+            if isinstance(formhiend, str) and vname == formhiend:
+                formhiend = field
+
             form.append(field)
 
-        if len(form) and form not in forms:
-            forms.append(form)
+        if len(form) and form not in [x[0] for x in forms]:
+            if isinstance(formhistart, str) and formhistart == 'BEGIN':
+                formhistart = form[0]
+            if isinstance(formhiend, str) and formhiend == 'END':
+                formhiend = form[-1]
+
+            forms.append((form, formhistart, formhiend))
 
     asts.append(ASTClass(astname, fields, forms, base, False))
 # Generating methods {{{1
 # helpers {{{2
 def stringifyForm(form):
-    return ''.join(map(lambda f: 'A' if f.type_.startswith('std::unique_ptr<') else 'T', form))
+    return ''.join(map(lambda f: 'A' if f.type_.startswith('std::unique_ptr<') else 'T', form[0]))
 
 # Generating AST stuff {{{2
 # Generate AST declarations {{{3
@@ -92,7 +103,7 @@ def genASTDecls():
             output.append( '    public:\n')
 
             for form in ast.forms:
-                output.append(f'        {ast.name}({", ".join(f"{field.type_} {field.name}" for field in form)});\n')
+                output.append(f'        {ast.name}({", ".join(f"{field.type_} {field.name}" for field in form[0])});\n')
 
             output.append( '        enum class Form\n')
             output.append( '        {\n')
@@ -129,10 +140,10 @@ def genASTDefs():
     for ast in asts:
         if type(ast) == ASTClass and not ast.skiponly:
             for form in ast.forms:
-                output.append(f'ASTNS::{ast.name}::{ast.name}({", ".join(f"{field.type_} {field.name}" for field in form)}): ')
+                output.append(f'ASTNS::{ast.name}::{ast.name}({", ".join(f"{field.type_} {field.name}" for field in form[0])}): ')
 
                 initializerList = []
-                for field in form:
+                for field in form[0]:
                     if field.type_.startswith('std::unique_ptr'):
                         initializerList.append(f'{field.name}(std::move({field.name}))')
                     else:
@@ -194,20 +205,18 @@ def genLocVisit():
         output.append(         '    {\n')
         for form in ast.forms:
             output.append(    f'        case ASTNS::{ast.name}::Form::{stringifyForm(form)}:\n')
-            firstfield = form[0]
-            lastfield = form[-1]
 
-            if firstfield.type_.startswith('std::unique_ptr'):
-                output.append(f'            retl = getL(ast->{firstfield.name}.get());\n')
-                output.append(f'            retf = getF(ast->{firstfield.name}.get());\n')
+            if form[1].type_.startswith('std::unique_ptr'):
+                output.append(f'            retl = getL(ast->{form[1].name}.get());\n')
+                output.append(f'            retf = getF(ast->{form[1].name}.get());\n')
             else:
-                output.append(f'            retl = ast->{firstfield.name}.start;\n')
-                output.append(f'            retf = ast->{firstfield.name}.sourcefile;\n')
+                output.append(f'            retl = ast->{form[1].name}.start;\n')
+                output.append(f'            retf = ast->{form[1].name}.sourcefile;\n')
 
-            if lastfield.type_.startswith('std::unique_ptr'):
-                output.append(f'            retr = getR(ast->{lastfield.name}.get());\n')
+            if form[2].type_.startswith('std::unique_ptr'):
+                output.append(f'            retr = getR(ast->{form[2].name}.get());\n')
             else:
-                output.append(f'            retr = ast->{lastfield.name}.end;\n')
+                output.append(f'            retr = ast->{form[2].name}.end;\n')
 
             output.append(     '            break;\n')
         output.append(         '    }\n')
@@ -230,7 +239,7 @@ def genPrintVisitorMethods():
         output.append(             '    {\n')
         for form in ast.forms:
             output.append(        f'        case ASTNS::{ast.name}::Form::{stringifyForm(form)}:\n')
-            for field in form:
+            for field in form[0]:
                 output.append(    f'            pai("{field.name} = ");\n')
                 if field.type_.startswith('std::unique_ptr'):
                     output.append(f'            if (a->{field.name})\n')
@@ -266,13 +275,13 @@ def genDotVisitorMethods():
         output.append(             '    {\n')
         for form in ast.forms:
             output.append(        f'        case ASTNS::{ast.name}::Form::{stringifyForm(form)}:\n')
-            output.append(        f'            ostream << thisid << " [label=<<table border=\\"0\\" cellborder=\\"1\\" cellspacing=\\"0\\"><tr><td port=\\"__heading\\" colspan=\\"{len(form)}\\">{ast.name} ({stringifyForm(form)})</td></tr><tr>";\n')
-            for field in form:
+            output.append(        f'            ostream << thisid << " [label=<<table border=\\"0\\" cellborder=\\"1\\" cellspacing=\\"0\\"><tr><td port=\\"__heading\\" colspan=\\"{len(form[0])}\\">{ast.name} ({stringifyForm(form)})</td></tr><tr>";\n')
+            for field in form[0]:
                 output.append(    f'            ostream << "<td port=\\"{field.name}\\">{field.name}</td>";\n')
 
             output.append(        f'            ostream << "</tr></table>>]\\n";\n')
 
-            for field in form:
+            for field in form[0]:
                 output.append(     '            {\n')
                 if field.type_.startswith('std::unique_ptr'):
                     output.append(f'                    if (a->{field.name})\n')

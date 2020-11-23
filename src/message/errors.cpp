@@ -379,12 +379,12 @@ void LocationVisitor::visitFunction(ASTNS::Function *ast)
         case ASTNS::Function::Form::TATTTA:
             retl = ast->fun.start;
             retf = ast->fun.sourcefile;
-            retr = getR(ast->body.get());
+            retr = ast->cparn.end;
             break;
         case ASTNS::Function::Form::TATTATA:
             retl = ast->fun.start;
             retf = ast->fun.sourcefile;
-            retr = getR(ast->body.get());
+            retr = ast->cparn.end;
             break;
     }
 }
