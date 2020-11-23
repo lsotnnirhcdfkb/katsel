@@ -611,10 +611,15 @@ def genLoop():
             if reduceOnly:
                 output.append(        f'                    default:\n')
                 # do not check for lookahead, just reduce to have better performance
-                # if reduceOnly, then all the actions of this state are to reduce the same rule
+                # if reduceOnly, then all the reduce actions of this state reduce the same rule
                 # and according to Wikipedia, just reducing regardless of the lookahead in
                 # these states will cause a few "harmless reductions," and errors will just be
                 # reported after a few reduces
+                # this actually helps with error reporting because if you have "return 2",
+                # it will reduce 2 up the chain of expression precedence before reporting the error
+                # so the error message is "expected ';' after expression of return statement"
+                # wheras if it didnt reduce, you would get "invalid token to follow 2 of primary expression"
+                # which used to be the erorr format if there was an invalid lookahead token for a state that didn't have any shift actions
             else:
                 for term in nts:
                     output.append(    f'                    case {term.astt()}:\n')
