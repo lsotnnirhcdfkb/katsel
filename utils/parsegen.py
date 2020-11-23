@@ -135,7 +135,8 @@ class State:
             print(f'    : with set {self.set_}')
             print(f'    : keys {self.actions.keys()}')
             print(f'    : adding {action} for {sym}')
-            print(f'    : already have {self.actions[sym]} for {sym}\033[0m')
+            print(f'    : already have {self.actions[sym]} for {sym}')
+            print(f'    : summary: {type(self.actions[sym])}/{type(action)} conflict: while parsing {self.whileparsing}, found {sym}, {self.actions[sym].explain()} or {action.explain()}?\033[0m')
             raise Exception(f'action table conflict')
 
         self.actions[sym] = action
@@ -195,6 +196,8 @@ class ShiftAction:
         return f's{self.newstate}'
     def __repr__(self):
         return str(self)
+    def explain(self):
+        return f'shift and goto state {self.newstate}'
     def __eq__(self, other):
         return type(self) == type(other) and self.newstate == other.newstate
 class ReduceAction:
@@ -204,6 +207,8 @@ class ReduceAction:
         return f'r{self.rule.num}'
     def __repr__(self):
         return str(self)
+    def explain(self):
+        return f'reduce rule {self.rule}'
     def __eq__(self, other):
         return type(self) == type(other) and self.rule == other.rule
 class AcceptAction:
@@ -211,6 +216,8 @@ class AcceptAction:
         return 'acc'
     def __repr__(self):
         return str(self)
+    def explain(self):
+        return 'accept'
     def __eq__(self, other):
         return True
 # helpers {{{1
