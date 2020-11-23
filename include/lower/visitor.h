@@ -1,6 +1,6 @@
 #include "ir/instruction.h"
 
-class InstrVisitor
+class InstructionVisitor
 {
 public:
 #define VISITMETHOD(cl) virtual void visit##cl(Instrs::cl *c) const = 0;

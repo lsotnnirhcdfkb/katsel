@@ -3,7 +3,7 @@
 #  Generate all the code everywhere necessary in this project
 
 import io
-import astgen, kwgen, parsegen
+import astgen, kwgen, parsegen, instrgen
 
 ## A list of jobs to generate code for
 jobs = [
@@ -36,6 +36,9 @@ jobs = [
     ('include/codegen/codegen.h'           , 'STMTCG METHODS START'      , 'STMTCG METHODS END'      , lambda: astgen.genVisitorMethods('StmtB', 'VStmtIB')),
     ('include/codegen/codegen.h'           , 'EXPRCG METHODS START'      , 'EXPRCG METHODS END'      , lambda: astgen.genVisitorMethods('ExprB')),
     ('include/codegen/codegen.h'           , 'ARGSVISITOR METHODS START' , 'ARGSVISITOR METHODS END' , lambda: astgen.genVisitorMethods('ArgB')),
+
+    ('include/ir/instruction.h'            , 'INSTR CLASSES START'       , 'INSTR CLASSES END'       , instrgen.genDecls),
+    ('src/ir/instruction.cpp'              , 'INSTR CPP START'           , 'INSTR CPP END'           , instrgen.genDefs),
 ]
 
 for jobi, job in enumerate(jobs):

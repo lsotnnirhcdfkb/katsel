@@ -50,6 +50,6 @@ void Block::cfgDot(std::ostream &os)
         br->stringify(os);
         os << "\"]\n";
 
-        br->cfgDot(os);
+        // br->cfgDot(os); TODO: fix
     }
 }
