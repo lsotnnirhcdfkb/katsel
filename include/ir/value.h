@@ -85,8 +85,9 @@ namespace IR
 
         bool assignable() const override;
 
-    private:
         int val;
+
+    private:
         BuiltinType *ty;
         ASTNS::AST *_ast;
     };

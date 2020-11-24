@@ -64,6 +64,7 @@ namespace Lower
     private:
         void lower(IR::Function const &f);
         void lower(IR::Block const &b);
+        llvm::Value* lower(IR::Value const *v);
 
         IR::Unit const &unit;
 
@@ -71,7 +72,8 @@ namespace Lower
         llvm::IRBuilder<> builder;
         llvm::Module mod;
 
-        std::map<IR::Register*, llvm::AllocaInst*> allocas;
-        std::map<IR::Block*, llvm::BasicBlock*> blocks;
+        std::map<IR::Register const *, llvm::AllocaInst*> allocas;
+        std::map<IR::Block const *, llvm::BasicBlock*> blocks;
+        std::map<IR::Function const *, llvm::Function*> functions;
     };
 }
