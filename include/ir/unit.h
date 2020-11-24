@@ -19,8 +19,7 @@ namespace IR
 
         IR::Function* addFunction(FunctionType *type, std::string name, ASTNS::Function *ast);
 
-    private:
-        std::vector<std::unique_ptr<IR::Function>> functions;
         File const &file;
+        std::vector<std::unique_ptr<IR::Function>> functions;
     };
 }

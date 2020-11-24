@@ -7,6 +7,8 @@ namespace IR
     class InstructionVisitor
     {
     public:
+        virtual ~InstructionVisitor() {};
+
 #define VISITMETHOD(cl) virtual void visit##cl(Instrs::cl *c) = 0;
         VISITMETHOD(Store)
         VISITMETHOD(Or)
@@ -51,6 +53,7 @@ namespace IR
     class BrVisitor
     {
     public:
+        virtual ~BrVisitor() {};
         VISITMETHOD(GotoBr)
         VISITMETHOD(CondBr)
     };

@@ -4,11 +4,17 @@
 #include "ir/unit.h"
 #include "ir/visitor.h"
 
+#include "llvm/IR/Module.h"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/LLVMContext.h"
+
 namespace Lower
 {
     class Lowerer : public IR::InstructionVisitor, public IR::BrVisitor
     {
     public:
+        Lowerer(IR::Unit const &unit);
+
         void visitStore(IR::Instrs::Store *instr) override;
         void visitOr(IR::Instrs::Or *instr) override;
         void visitAnd(IR::Instrs::And *instr) override;
@@ -50,8 +56,15 @@ namespace Lower
         void visitGotoBr(IR::Instrs::GotoBr *instr) override;
         void visitCondBr(IR::Instrs::CondBr *instr) override;
 
-        void lower(IR::Unit const &unit);
+        void lower();
+
+        void printMod(std::ostream &ostream);
 
     private:
+        IR::Unit const &unit;
+
+        llvm::LLVMContext context;
+        llvm::IRBuilder<> builder;
+        llvm::Module mod;
     };
 }

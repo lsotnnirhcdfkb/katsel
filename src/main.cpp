@@ -209,11 +209,12 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        // auto lowerer = std::make_unique<Lower::Lowerer>();
-        // lowerer->lower(codegen->context.unit);
+        auto lowerer = std::make_unique<Lower::Lowerer>(codegen->context.unit);
+        lowerer->lower();
         if (outformat == OutFormats::LOWER)
         {
-            
+            lowerer->printMod(outputstream);
+            continue;
         }
     }
 
