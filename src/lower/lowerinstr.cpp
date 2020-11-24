@@ -106,7 +106,10 @@ void Lower::Lowerer::visitFloatToInt(IR::Instrs::FloatToInt *instr)
 }
 void Lower::Lowerer::visitReturn(IR::Instrs::Return *instr)
 {
-    builder.CreateRet(lower(instr->value));
+    if (instr->value)
+        builder.CreateRet(lower(instr->value));
+    else
+        builder.CreateRetVoid();
 }
 void Lower::Lowerer::visitCall(IR::Instrs::Call *instr)
 {
@@ -115,5 +118,9 @@ void Lower::Lowerer::visitCall(IR::Instrs::Call *instr)
     for (IR::Value const *v : instr->args)
         args.push_back(lower(v));
 
-    builder.CreateStore(builder.CreateCall(static_cast<llvm::Function*>(lower(instr->f)), args), allocas.at(instr->reg));
+    llvm::Function *callee = static_cast<llvm::Function*>(lower(instr->f));
+    llvm::Value *res = builder.CreateCall(callee, args);
+
+    if (instr->reg)
+        builder.CreateStore(res, allocas.at(instr->reg));
 }
