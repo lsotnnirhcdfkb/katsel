@@ -28,9 +28,10 @@ void Lower::Lowerer::lower(IR::Function const &f)
 {
     llvm::BasicBlock *entryBlock;
 
+    llvm::Function *fasllvm = functions.at(&f);
     for (std::unique_ptr<IR::Block> const &b : f.blocks)
     {
-        blocks[b.get()] = llvm::BasicBlock::Create(context, b->name, functions[&f]);
+        blocks[b.get()] = llvm::BasicBlock::Create(context, b->name, fasllvm);
         if (b->num == 0)
             entryBlock = blocks[b.get()];
     }
@@ -41,6 +42,13 @@ void Lower::Lowerer::lower(IR::Function const &f)
     builder.SetInsertPoint(entryBlock);
     for (std::unique_ptr<IR::Register> const &r : f.registers)
         allocas[r.get()] = builder.CreateAlloca(r->type()->toLLVMType(context), 0, "");
+
+    auto argiter = f.registers.begin();
+    if (!dynamic_cast<IR::VoidType*>(f.ty->ret))
+        ++argiter; // if return type is not void, then first register is reserved for return value
+
+    for (auto &arg : fasllvm->args())
+        builder.CreateStore(&arg, allocas[argiter++->get()]);
 
     for (std::unique_ptr<IR::Block> const &b : f.blocks)
         lower(*b);
