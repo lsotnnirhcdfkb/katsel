@@ -3,62 +3,64 @@
 
 CodeGenNS::ExprCodeGen::ExprCodeGen(CodeGen &cg): cg(cg) {}
 
-Value CodeGenNS::ExprCodeGen::expr(ASTNS::ExprB *ast)
+IR::Value* CodeGenNS::ExprCodeGen::expr(ASTNS::ExprB *ast)
 {
-    ret = Value();
+    ret = nullptr;
     ast->accept(this);
     return ret;
 }
 
-#define BASICBINARYOP(exprtype)                                                                                                        \
-    void CodeGenNS::ExprCodeGen::visit##exprtype##Expr(ASTNS::exprtype##Expr *ast)                                                     \
-    {                                                                                                                                  \
-        Value lhs = expr(ast->lhs.get());                                                                                              \
-        Value rhs = expr(ast->rhs.get());                                                                                              \
-                                                                                                                                       \
-        if (!lhs.val || !rhs.val)                                                                                                      \
-        {                                                                                                                              \
-            ret = Value();                                                                                                             \
-            return;                                                                                                                    \
-        }                                                                                                                              \
-                                                                                                                                       \
-        if (!lhs.type->hasOperator(ast->op.type))                                                                                      \
-        {                                                                                                                              \
-            Error(Error::MsgType::ERROR, ast->op, "left-hand side of binary expression does not support operator")                     \
-                .underline(Error::Underline(ast->op, '^')                                                                              \
-                    .error(concatMsg("type \"", lhs.type->stringify(), "\" does not support operator \"", ast->op.stringify(), "\""))) \
-                .underline(Error::Underline(lhs, '~'))                                                                                 \
-                .underline(Error::Underline(rhs, '-'))                                                                                 \
-                .report();                                                                                                             \
-            ret = Value();                                                                                                             \
-            return;                                                                                                                    \
-        }                                                                                                                              \
-                                                                                                                                       \
-        ret = lhs.type->binOp(cg.context, lhs, rhs, ast->op, ast);                                                                     \
+#define BASICBINARYOP(exprtype)                                                                                                           \
+    void CodeGenNS::ExprCodeGen::visit##exprtype##Expr(ASTNS::exprtype##Expr *ast)                                                        \
+    {                                                                                                                                     \
+        IR::Value *lhs = expr(ast->lhs.get());                                                                                            \
+        IR::Value *rhs = expr(ast->rhs.get());                                                                                            \
+                                                                                                                                          \
+        if (!lhs || !rhs)                                                                                                                 \
+        {                                                                                                                                 \
+            ret = nullptr;                                                                                                                \
+            return;                                                                                                                       \
+        }                                                                                                                                 \
+                                                                                                                                          \
+        if (!lhs->type()->hasOperator(ast->op.type))                                                                                      \
+        {                                                                                                                                 \
+            Error(Error::MsgType::ERROR, ast->op, "left-hand side of binary expression does not support operator")                        \
+                .underline(Error::Underline(ast->op, '^')                                                                                 \
+                    .error(concatMsg("type \"", lhs->type()->stringify(), "\" does not support operator \"", ast->op.stringify(), "\""))) \
+                .underline(Error::Underline(lhs, '~'))                                                                                    \
+                .underline(Error::Underline(rhs, '-'))                                                                                    \
+                .report();                                                                                                                \
+                ret = nullptr;                                                                                                            \
+            cg.errored = true;                                                                                                            \
+            return;                                                                                                                       \
+        }                                                                                                                                 \
+                                                                                                                                          \
+        ret = lhs->type()->binOp(cg.context, lhs, rhs, ast->op, ast);                                                                     \
     }
 
 #define BASICUNARYOP(exprtype)                                                                                                                        \
     void CodeGenNS::ExprCodeGen::visit##exprtype##Expr(ASTNS::exprtype##Expr *ast)                                                                    \
     {                                                                                                                                                 \
-        Value oper = expr(ast->operand.get());                                                                                                        \
-        if (!oper.val)                                                                                                                                \
+        IR::Value *oper = expr(ast->operand.get());                                                                                                   \
+        if (!oper)                                                                                                                                    \
         {                                                                                                                                             \
-            ret = Value();                                                                                                                            \
+            ret = nullptr;                                                                                                                            \
             return;                                                                                                                                   \
         }                                                                                                                                             \
                                                                                                                                                       \
-        if (!oper.type->hasOperator(ast->op.type))                                                                                                    \
+        if (!oper->type()->hasOperator(ast->op.type))                                                                                                 \
         {                                                                                                                                             \
             Error(Error::MsgType::ERROR, ast->operand.get(), "operand of unary expression does not support operator")                                 \
                 .underline(Error::Underline(ast->op, '^')                                                                                             \
-                    .error(concatMsg("operand of type \"", oper.type->stringify(), "\" does not support operator \"", ast->op.stringify(), "\"")))    \
+                    .error(concatMsg("operand of type \"", oper->type()->stringify(), "\" does not support operator \"", ast->op.stringify(), "\""))) \
                 .underline(Error::Underline(oper, '-'))                                                                                               \
                 .report();                                                                                                                            \
-                ret = Value();                                                                                                                        \
-                return;                                                                                                                               \
+            ret = nullptr;                                                                                                                            \
+            cg.errored = true;                                                                                                                        \
+            return;                                                                                                                                   \
         }                                                                                                                                             \
                                                                                                                                                       \
-        ret = oper.type->unaryOp(cg.context, oper, ast->op, ast);                                                                                     \
+        ret = oper->type()->unaryOp(cg.context, oper, ast->op, ast);                                                                                  \
     }
 
 BASICBINARYOP(Addition)
@@ -72,31 +74,31 @@ BASICBINARYOP(Compeq)
 BASICBINARYOP(Complgt)
 BASICBINARYOP(Mult)
 
-BASICUNARYOP(Binnot)
 BASICUNARYOP(Unary)
 
 void CodeGenNS::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
 {
-    Value func = expr(ast->callee.get());
-    if (!func.val)
+    IR::Value *func = expr(ast->callee.get());
+    if (!func)
     {
-        ret = Value();
+        ret = nullptr;
         return;
     }
 
-    FunctionType *fty = dynamic_cast<FunctionType*>(func.type);
+    IR::FunctionType *fty = dynamic_cast<IR::FunctionType*>(func->type());
     if (!fty)
     {
         Error(Error::MsgType::ERROR, ast->oparn, "value not callable")
             .underline(Error::Underline(func, '^')
-                .error(concatMsg("cannot call non-function of type \"", func.type->stringify(), "\"")))
+                .error(concatMsg("cannot call non-function of type \"", func->type()->stringify(), "\"")))
             .report();
-        ret = Value();
+        ret = nullptr;
+        cg.errored = true;
         return;
     }
 
-    Type *retty = fty->ret;
-    std::vector<Value> args;
+    IR::Type *retty = fty->ret;
+    std::vector<IR::Value*> args;
     if (ast->args)
         args = cg.argsVisitor.args(ast->args.get());
 
@@ -108,7 +110,8 @@ void CodeGenNS::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
             .underline(Error::Underline(func, '-')
                 .note(concatMsg("function expects ", fty->paramtys.size(), " arguments, but got ", args.size(), " arguments")))
             .report();
-        ret = Value();
+        cg.errored = true;
+        ret = nullptr;
         return;
     }
 
@@ -117,113 +120,114 @@ void CodeGenNS::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
     auto j = fty->paramtys.begin();
     for (; i != args.end() && j != fty->paramtys.end(); ++i, ++j)
     {
-        if (!i->val)
+        if (!*i)
         {
             argserr = true;
             continue;
         }
 
-        if (i->type != *j)
+        if ((*i)->type() != *j)
         {
             Error(Error::MsgType::ERROR, *i, "wrong argument to function call")
                 .underline(Error::Underline(*i, '^')
-                    .error(concatMsg("wrong argument to function call: argument is of type \"", i->type->stringify(), "\""))
+                    .error(concatMsg("wrong argument to function call: argument is of type \"", (*i)->type()->stringify(), "\""))
                     .note(concatMsg("passing to parameter of type \"", (*j)->stringify(), "\"")))
                 .report();
-            ret = Value();
+            ret = nullptr;
+            cg.errored = true;
             return;
         }
     }
 
     if (argserr)
     {
-        ret = Value();
+        ret = nullptr;
         return;
     }
 
-    std::vector<llvm::Value*> argsasllvm;
-    argsasllvm.reserve(args.size());
-    for (Value const &v : args)
-        argsasllvm.push_back(v.val);
+    IR::Register *outReg = nullptr;
+    if (!dynamic_cast<IR::VoidType*>(retty))
+        outReg = cg.context.curFunc->addRegister(retty, ast);
 
-    llvm::FunctionType *ftyasllvm = static_cast<llvm::FunctionType*>(fty->toLLVMType(cg.context.context));
+    cg.context.curBlock->add(std::make_unique<IR::Instrs::Call>(outReg, static_cast<IR::Function*>(func), args));
 
-    ret = Value(retty, cg.context.builder.CreateCall(ftyasllvm, func.val, argsasllvm), ast);
+    ret = outReg;
 }
 
 void CodeGenNS::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast)
 {
+    if (ast->form == ASTNS::PrimaryExpr::Form::TAT)
+    {
+        ast->expr->accept(this);
+        return;
+    }
+
     switch (ast->value.type)
     {
         case TokenType::TRUELIT:
-            ret = Value(cg.context.getBuiltinType(BuiltinType::Builtins::BOOL), cg.context.builder.getInt1(true), ast);
+            ret = cg.context.getConstInt(cg.context.getBuiltinType(IR::BuiltinType::Builtins::BOOL), 1, ast);
             return;
 
         case TokenType::FALSELIT:
-            ret = Value(cg.context.getBuiltinType(BuiltinType::Builtins::BOOL), cg.context.builder.getInt1(false), ast);
+            ret = cg.context.getConstInt(cg.context.getBuiltinType(IR::BuiltinType::Builtins::BOOL), 0, ast);
             return;
 
         case TokenType::FLOATLIT:
             Error(Error::MsgType::INTERR, ast->value, "floating point literals are not supported yet")
                 .underline(Error::Underline(ast->value, '^')
-                    .note("coming soon!"))
+                        .note("coming soon!"))
                 .reportAbort();
-            return;
 
         case TokenType::NULLPTRLIT:
             Error(Error::MsgType::INTERR, ast->value, "nullptr literals are not supported yet")
                 .underline(Error::Underline(ast->value, '^')
-                    .error("pointers are not here yet!")
-                    .note("coming soon!"))
+                        .error("pointers are not here yet!")
+                        .note("coming soon!"))
                 .reportAbort();
 
         case TokenType::DECINTLIT:
-            ret = Value(cg.context.getBuiltinType(BuiltinType::Builtins::UINT32), cg.context.builder.getInt32(std::stoi(ast->value.stringify())), ast);
+            ret = cg.context.getConstInt(cg.context.getBuiltinType(IR::BuiltinType::Builtins::UINT32), std::stoi(ast->value.stringify()), ast);
             return;
 
         case TokenType::OCTINTLIT:
-            ret = Value(cg.context.getBuiltinType(BuiltinType::Builtins::UINT32), cg.context.builder.getInt32(std::stoi(ast->value.stringify(), nullptr, 8)), ast);
+            ret = cg.context.getConstInt(cg.context.getBuiltinType(IR::BuiltinType::Builtins::UINT32), std::stoi(ast->value.stringify(), nullptr, 8), ast);
             return;
 
         case TokenType::BININTLIT:
-            ret = Value(cg.context.getBuiltinType(BuiltinType::Builtins::UINT32), cg.context.builder.getInt32(std::stoi(ast->value.stringify(), nullptr, 2)), ast);
+            ret = cg.context.getConstInt(cg.context.getBuiltinType(IR::BuiltinType::Builtins::UINT32), std::stoi(ast->value.stringify(), nullptr, 2), ast);
             return;
 
         case TokenType::HEXINTLIT:
-            ret = Value(cg.context.getBuiltinType(BuiltinType::Builtins::UINT32), cg.context.builder.getInt32(std::stoi(ast->value.stringify(), nullptr, 16)), ast);
+            ret = cg.context.getConstInt(cg.context.getBuiltinType(IR::BuiltinType::Builtins::UINT32), std::stoi(ast->value.stringify(), nullptr, 16), ast);
             return;
 
         case TokenType::CHARLIT:
-            ret = Value(cg.context.getBuiltinType(BuiltinType::Builtins::CHAR), cg.context.builder.getInt8(*(ast->value.start + 1)), ast);
+            ret = cg.context.getConstInt(cg.context.getBuiltinType(IR::BuiltinType::Builtins::CHAR), *(ast->value.start + 1), ast);
             return;
 
         case TokenType::STRINGLIT:
             Error(Error::MsgType::INTERR, ast->value, "string literals are not supported yet")
                 .underline(Error::Underline(ast->value, '^')
-                    .error("strings")
-                    .note("coming soon!")
-                    .note("probably after nullptr literals though!"))
+                        .error("strings")
+                        .note("coming soon!")
+                        .note("probably after nullptr literals though!"))
                 .reportAbort();
 
         case TokenType::IDENTIFIER:
             {
-                Value v = cg.context.findValue(ast->value.stringify());
-                if (!v.val)
+                IR::Value *v = cg.context.findValue(ast->value.stringify());
+                if (!v)
                 {
                     Error(Error::MsgType::ERROR, ast->value, "name is not defined")
                         .underline(Error::Underline(ast->value, '^')
-                            .error("name is not defined"))
+                                .error("name is not defined"))
                         .report();
-                    ret = Value();
+                    ret = nullptr;
+                    cg.errored = true;
                     return;
                 }
-                if (llvm::isa<llvm::AllocaInst>(v.val))
-                {
-                    llvm::Value *loadInst = cg.context.builder.CreateLoad(v.val);
-                    ret = Value(v.type, loadInst, ast);
-                }
-                else
-                    ret = Value(v.type, v.val, ast);
+                ret = v; // TODO: somehow associate a different ast with this value
+                         // TODO: by creating a register with a reference type
             }
             return;
 
@@ -231,111 +235,106 @@ void CodeGenNS::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast)
             invalidTok("primary token", ast->value);
     }
 }
-
 void CodeGenNS::ExprCodeGen::visitTernaryExpr(ASTNS::TernaryExpr *ast)
 {
-	Value cond = expr(ast->cond.get());
-    if (!cond.val)
+    IR::Value *cond = expr(ast->cond.get());
+    if (!cond)
     {
-        ret = Value();
+        ret = nullptr;
         return;
     }
-    cond = cond.type->isTrue(cg.context, cond);
+    cond = cond->type()->isTrue(cg.context, cond);
 
-    llvm::Function *f = cg.context.builder.GetInsertBlock()->getParent();
+    IR::Block *trueb  = cg.context.curFunc->addBlock("ternary_true");
+    IR::Block *falseb = cg.context.curFunc->addBlock("ternary_false");
+    IR::Block *afterb = cg.context.curFunc->addBlock("ternary_after");
 
-    llvm::BasicBlock *trueb  = llvm::BasicBlock::Create(cg.context.context, "trueb", f);
-    llvm::BasicBlock *falseb = llvm::BasicBlock::Create(cg.context.context, "falseb");
-    llvm::BasicBlock *afterb = llvm::BasicBlock::Create(cg.context.context, "afterb");
+    cg.context.curBlock->branch(std::make_unique<IR::Instrs::CondBr>(cond, trueb, falseb));
 
-    cg.context.builder.CreateCondBr(cond.val, trueb, falseb);
-
-    cg.context.builder.SetInsertPoint(trueb);
-    Value truev = expr(ast->trues.get());
-    if (!truev.val)
+    cg.context.curBlock = trueb;
+    IR::Value *truev = expr(ast->trues.get());
+    if (!truev)
     {
-        ret = Value();
+        ret = nullptr;
         return;
     }
-    cg.context.builder.CreateBr(afterb);
-    trueb = cg.context.builder.GetInsertBlock();
+    cg.context.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
+    trueb = cg.context.curBlock;
 
-    f->getBasicBlockList().push_back(falseb);
-    cg.context.builder.SetInsertPoint(falseb);
-    Value falsev = expr(ast->falses.get());
-    if (!falsev.val)
+    cg.context.curBlock = falseb;
+    IR::Value *falsev = expr(ast->falses.get());
+    if (!falsev)
     {
-        ret = Value();
+        ret = nullptr;
         return;
     }
-    cg.context.builder.CreateBr(afterb);
-    falseb = cg.context.builder.GetInsertBlock();
+    cg.context.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
+    falseb = cg.context.curBlock;
 
-    if (truev.type != falsev.type)
+    if (truev->type() != falsev->type())
     {
-        Error(Error::MsgType::ERROR, ast->colon, "Two branches of ternary conditional expression of different types")
+        Error(Error::MsgType::ERROR, ast->colon, "conflicting types for ternary expression")
             .underline(Error::Underline(truev, '^')
-                .note(truev.type->stringify()))
+                .note(truev->type()->stringify()))
             .underline(Error::Underline(falsev, '^')
-                .note(falsev.type->stringify()))
+                .note(falsev->type()->stringify()))
             .underline(Error::Underline(ast->colon, '-'))
             .underline(Error::Underline(ast->quest, '-'))
             .report();
-        ret = Value();
+        ret = nullptr;
+        cg.errored = true;
         return;
     }
 
-    f->getBasicBlockList().push_back(afterb);
-    cg.context.builder.SetInsertPoint(afterb);
+    cg.context.curBlock = afterb;
+    IR::Register *outreg = cg.context.curFunc->addRegister(truev->type(), ast);
 
-    llvm::PHINode *phi = cg.context.builder.CreatePHI(truev.type->toLLVMType(cg.context.context), 2);
-    phi->addIncoming(truev.val, trueb);
-    phi->addIncoming(falsev.val, falseb);
-    ret = Value(truev.type, phi, ast);
+    trueb->add(std::make_unique<IR::Instrs::Store>(outreg, truev));
+    falseb->add(std::make_unique<IR::Instrs::Store>(outreg, falsev));
+
+    ret = outreg;
 }
 
 void CodeGenNS::ExprCodeGen::visitAssignmentExpr(ASTNS::AssignmentExpr *ast)
 {
-    Value lhs = expr(ast->target.get());
-    Value rhs = expr(ast->value.get());
+    IR::Value *lhs = expr(ast->target.get());
+    IR::Value *rhs = expr(ast->value.get());
 
-    if (!lhs.val|| !rhs.val)
+    if (!lhs || !rhs)
     {
-        ret = Value();
+        ret = nullptr;
         return;
     }
 
-    if (!llvm::isa<llvm::LoadInst>(lhs.val))
+    IR::Register *targetReg = dynamic_cast<IR::Register*>(lhs);
+
+    if (!lhs->assignable() || !targetReg)
     {
-        Error(Error::MsgType::ERROR, ast->equal, "Invalid assignment target")
+        Error(Error::MsgType::ERROR, ast->equal, "invalid assignment target")
             .underline(Error::Underline(ast->equal, '^')
-                .error("Invalid assignment target"))
+                .error("invalid assignment target"))
             .underline(Error::Underline(lhs, '~'))
             .report();
-        ret = Value();
+        ret = nullptr;
+        cg.errored = true;
         return;
     }
-    llvm::LoadInst *load = static_cast<llvm::LoadInst*>(lhs.val);
 
-    Value target = Value(lhs.type, load->getPointerOperand(), ast->target.get());
-
-    if (target.type != rhs.type)
+    if (targetReg->type() != rhs->type())
     {
-        Error(Error::MsgType::ERROR, ast->equal, "Assignment target and value do not have same type")
+        Error(Error::MsgType::ERROR, ast->equal, "assignment target and value do not have same type")
             .underline(Error::Underline(rhs, '^')
-                .note(rhs.type->stringify()))
-            .underline(Error::Underline(target, '^')
-                .note(target.type->stringify()))
+                .note(rhs->type()->stringify()))
+            .underline(Error::Underline(targetReg, '^')
+                .note(targetReg->type()->stringify()))
             .underline(Error::Underline(ast->equal, '-'))
             .report();
-        ret = Value();
+        ret = nullptr;
+        cg.errored = true;
         return;
     }
-    cg.context.builder.CreateStore(rhs.val, target.val);
-    load->eraseFromParent(); // dont need the load anymore
+
+    cg.context.curBlock->add(std::make_unique<IR::Instrs::Store>(targetReg, rhs));
 
     ret = rhs;
-    return;
 }
-
-void CodeGenNS::ExprCodeGen::visitExpr(ASTNS::Expr *) {}

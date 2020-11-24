@@ -10,7 +10,7 @@ if (${GENDOC})
 
     file(MAKE_DIRECTORY ${DOXYGEN_OUTPUT_DIR})
 
-    add_custom_target(doxygendocs ALL 
+    add_custom_target(doxygendocs ALL
             COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE_OUT}
             WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
             COMMENT "Generating docs with Doxygen"

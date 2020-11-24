@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <fstream>
 #include <filesystem>
@@ -8,22 +7,25 @@
 #include <unistd.h>
 #include <cstring>
 
-#include "parse/ast.h"
+#include "ast/ast.h"
 #include "parse/parser.h"
 #include "utils/file.h"
 #include "lex/lexer.h"
 #include "message/ansistuff.h"
-#include "visit/printvisitor.h"
-#include "visit/dotvisitor.h"
+#include "ast/printvisitor.h"
+#include "ast/dotvisitor.h"
 #include "codegen/codegen.h"
+#include "lower/lowerer.h"
 
 enum class OutFormats
 {
     LEX = 0,
     PARSE,
-    DOT,
+    ASTDOT,
     DECLS,
     CODEGEN,
+    CFGDOT,
+    LOWER,
     OBJECT,
     ALL,
 };
@@ -70,12 +72,16 @@ int main(int argc, char *argv[])
                     outformat = OutFormats::LEX;
                 else if (strcmp(optarg, "parse") == 0)
                     outformat = OutFormats::PARSE;
-                else if (strcmp(optarg, "dot") == 0)
-                    outformat = OutFormats::DOT;
+                else if (strcmp(optarg, "astdot") == 0)
+                    outformat = OutFormats::ASTDOT;
                 else if (strcmp(optarg, "decls") == 0)
                     outformat = OutFormats::DECLS;
                 else if (strcmp(optarg, "codegen") == 0)
                     outformat = OutFormats::CODEGEN;
+                else if (strcmp(optarg, "cfgdot") == 0)
+                    outformat = OutFormats::CFGDOT;
+                else if (strcmp(optarg, "lower") == 0)
+                    outformat = OutFormats::LOWER;
                 else if (strcmp(optarg, "all") == 0)
                     outformat = OutFormats::ALL;
                 else
@@ -117,15 +123,20 @@ int main(int argc, char *argv[])
                 extrepl = ".parsed.txt";
                 break;
 
-            case OutFormats::DOT:
+            case OutFormats::ASTDOT:
+            case OutFormats::CFGDOT:
                 extrepl = ".dot";
                 break;
 
             case OutFormats::DECLS:
-                extrepl = ".decled.ll";
+                extrepl = ".decled.kslir";
                 break;
 
             case OutFormats::CODEGEN:
+                extrepl = ".kslir";
+                break;
+
+            case OutFormats::LOWER:
                 extrepl = ".ll";
                 break;
 
@@ -162,7 +173,6 @@ int main(int argc, char *argv[])
 
         auto parser = std::make_unique<Parser>(*lexer, *source);
         std::unique_ptr<ASTNS::DeclB> parsed = parser->parse();
-
         if (!parsed)
         {
             outputstream.close();
@@ -171,35 +181,57 @@ int main(int argc, char *argv[])
 
         if (outformat == OutFormats::PARSE)
         {
-            auto printv = std::make_unique<PrintVisitor>(outputstream);
+            auto printv = std::make_unique<ASTNS::PrintVisitor>(outputstream);
             parsed->accept(printv.get());
             outputstream.close();
             continue;
         }
 
-        if (outformat == OutFormats::DOT)
+        if (outformat == OutFormats::ASTDOT)
         {
-            auto dotter = std::make_unique<DotVisitor>(outputstream);
+            auto dotter = std::make_unique<ASTNS::DotVisitor>(outputstream);
             dotter->dotVisit(parsed.get());
             outputstream.close();
             continue;
         }
 
-        auto codegen = std::make_unique<CodeGenNS::CodeGen>(source->filename);
-
+        auto codegen = std::make_unique<CodeGenNS::CodeGen>(*source);
         codegen->declarate(parsed.get());
+        if (codegen->errored)
+            continue;
+
         if (outformat == OutFormats::DECLS)
         {
-            codegen->printMod(outputstream);
+            codegen->printUnit(outputstream);
             outputstream.close();
             continue;
         }
 
         codegen->codegen(parsed.get());
+        if (codegen->errored)
+            continue;
+
         if (outformat == OutFormats::CODEGEN)
         {
-            codegen->printMod(outputstream);
+            codegen->printUnit(outputstream);
             outputstream.close();
+            continue;
+        }
+
+        if (outformat == OutFormats::CFGDOT)
+        {
+            codegen->context.unit.cfgDot(outputstream);
+            continue;
+        }
+
+        auto lowerer = std::make_unique<Lower::Lowerer>(codegen->context.unit);
+        lowerer->lower();
+        if (lowerer->errored)
+            continue;
+
+        if (outformat == OutFormats::LOWER)
+        {
+            lowerer->printMod(outputstream);
             continue;
         }
 

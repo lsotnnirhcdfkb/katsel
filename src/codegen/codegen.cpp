@@ -1,9 +1,8 @@
 #include "codegen/codegen.h"
 
 #include <iostream>
-#include "llvm/Support/raw_ostream.h"
 
-CodeGenNS::CodeGen::CodeGen(std::string const &name) : context(name), declarator(*this), typeResolver(*this), paramVisitor(*this), argsVisitor(*this), declCodeGen(*this), stmtCodeGen(*this), exprCodeGen(*this) {}
+CodeGenNS::CodeGen::CodeGen(File const &file) : context(file), declarator(*this), typeResolver(*this), paramVisitor(*this), argsVisitor(*this), declCodeGen(*this), stmtCodeGen(*this), exprCodeGen(*this), errored(false) {}
 
 void CodeGenNS::CodeGen::declarate(ASTNS::DeclB *decls)
 {
@@ -15,9 +14,9 @@ void CodeGenNS::CodeGen::codegen(ASTNS::DeclB *decls)
     decls->accept(&declCodeGen);
 }
 
-void CodeGenNS::CodeGen::printMod(std::ostream &ostream)
+void CodeGenNS::CodeGen::printUnit(std::ostream &ostream)
 {
-    context.mod->print(llvm::outs(), nullptr);
+    context.unit.print(ostream);
 }
 
 CodeGenNS::ParamVisitor::ParamVisitor::ParamVisitor(CodeGenNS::CodeGen &cg): cg(cg) {}
@@ -32,9 +31,9 @@ std::vector<CodeGenNS::ParamVisitor::Param> CodeGenNS::ParamVisitor::params(ASTN
 
 void CodeGenNS::ParamVisitor::visitParam(ASTNS::Param *ast)
 {
-    Type *ty (cg.typeResolver.type(ast->type.get()));
+    IR::Type *ty (cg.typeResolver.type(ast->type.get()));
     std::string name (ast->name.stringify());
-    CodeGenNS::ParamVisitor::Param p {ty, std::move(name), ast};
+    Param p {ty, std::move(name), ast};
     ret.push_back(p);
 }
 
@@ -46,7 +45,7 @@ void CodeGenNS::ParamVisitor::visitParamList(ASTNS::ParamList *ast)
 
 CodeGenNS::ArgsVisitor::ArgsVisitor::ArgsVisitor(CodeGenNS::CodeGen &cg): cg(cg) {}
 
-std::vector<Value> CodeGenNS::ArgsVisitor::args(ASTNS::ArgB *ast)
+std::vector<IR::Value*> CodeGenNS::ArgsVisitor::args(ASTNS::ArgB *ast)
 {
     ret.clear();
     ast->accept(this);
@@ -56,7 +55,7 @@ std::vector<Value> CodeGenNS::ArgsVisitor::args(ASTNS::ArgB *ast)
 
 void CodeGenNS::ArgsVisitor::visitArgList(ASTNS::ArgList *ast)
 {
-    std::vector<Value> cret (args(ast->arglist.get())); // cannot do like params becasue args can be nested (through nested function calls) and that messes things up
+    std::vector<IR::Value*> cret (args(ast->arglist.get())); // cannot do like params becasue args can be nested (through nested function calls) and that messes things up
 
     ast->arg->accept(this);
     cret.reserve(cret.size() + ret.size());
@@ -67,6 +66,6 @@ void CodeGenNS::ArgsVisitor::visitArgList(ASTNS::ArgList *ast)
 
 void CodeGenNS::ArgsVisitor::visitArg(ASTNS::Arg *ast)
 {
-    Value v = cg.exprCodeGen.expr(ast->expr.get());
+    IR::Value* v = cg.exprCodeGen.expr(ast->expr.get());
     ret = {v};
 }

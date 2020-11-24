@@ -1,4 +1,5 @@
 #include "parsestack.h"
+#include <algorithm>
 
 bool errorRecovery(Parser &p, std::vector<stackitem> &stack, Token &lookahead, Error &e)
 {
@@ -148,7 +149,6 @@ bool singleTok(Parser &p, std::vector<stackitem> &stack, Token &lookahead, Error
     TRYTOKTY(TokenType::COLON)
     TRYTOKTY(TokenType::DOUBLEPIPE)
     TRYTOKTY(TokenType::DOUBLEAMPER)
-    TRYTOKTY(TokenType::BANG)
     TRYTOKTY(TokenType::BANGEQUAL)
     TRYTOKTY(TokenType::DOUBLEEQUAL)
     TRYTOKTY(TokenType::LESS)
@@ -166,6 +166,7 @@ bool singleTok(Parser &p, std::vector<stackitem> &stack, Token &lookahead, Error
     TRYTOKTY(TokenType::SLASH)
     TRYTOKTY(TokenType::PERCENT)
     TRYTOKTY(TokenType::TILDE)
+    TRYTOKTY(TokenType::BANG)
     TRYTOKTY(TokenType::TRUELIT)
     TRYTOKTY(TokenType::FALSELIT)
     TRYTOKTY(TokenType::FLOATLIT)
@@ -213,7 +214,7 @@ bool singleTok(Parser &p, std::vector<stackitem> &stack, Token &lookahead, Error
     if (fixes.size())
     {
         applyFix(fixes.front(), p, lookahead);
-        u.note(concatMsg("applied fix: ", fixes.front().stringify()));
+        u.note(concatMsg("implicitly applied fix: ", fixes.front().stringify()));
         e.underline(u);
         return true;
     }
@@ -274,7 +275,7 @@ bool panicMode(Parser &p, std::vector<stackitem> &stack, Token &lookahead, Error
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(Block)
-                        case TokenType::FUN: case TokenType::EOF_: case TokenType::SEMICOLON: case TokenType::VAR: case TokenType::BANG: case TokenType::TILDE: case TokenType::MINUS: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::OPARN: case TokenType::RETURN: case TokenType::OCURB: case TokenType::CCURB:
+                        case TokenType::FUN: case TokenType::EOF_: case TokenType::SEMICOLON: case TokenType::VAR: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::OPARN: case TokenType::RETURN: case TokenType::OCURB: case TokenType::CCURB:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(ParamList)
@@ -282,27 +283,27 @@ bool panicMode(Parser &p, std::vector<stackitem> &stack, Token &lookahead, Error
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(StmtList)
-                        case TokenType::SEMICOLON: case TokenType::VAR: case TokenType::BANG: case TokenType::TILDE: case TokenType::MINUS: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::OPARN: case TokenType::RETURN: case TokenType::OCURB: case TokenType::CCURB:
+                        case TokenType::SEMICOLON: case TokenType::VAR: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::OPARN: case TokenType::RETURN: case TokenType::OCURB: case TokenType::CCURB:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(Stmt)
-                        case TokenType::SEMICOLON: case TokenType::VAR: case TokenType::BANG: case TokenType::TILDE: case TokenType::MINUS: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::OPARN: case TokenType::RETURN: case TokenType::OCURB: case TokenType::CCURB:
+                        case TokenType::SEMICOLON: case TokenType::VAR: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::OPARN: case TokenType::RETURN: case TokenType::OCURB: case TokenType::CCURB:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(EmptyStmt)
-                        case TokenType::SEMICOLON: case TokenType::VAR: case TokenType::BANG: case TokenType::TILDE: case TokenType::MINUS: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::OPARN: case TokenType::RETURN: case TokenType::OCURB: case TokenType::CCURB:
+                        case TokenType::SEMICOLON: case TokenType::VAR: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::OPARN: case TokenType::RETURN: case TokenType::OCURB: case TokenType::CCURB:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(VarStmt)
-                        case TokenType::SEMICOLON: case TokenType::VAR: case TokenType::BANG: case TokenType::TILDE: case TokenType::MINUS: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::OPARN: case TokenType::RETURN: case TokenType::OCURB: case TokenType::CCURB:
+                        case TokenType::SEMICOLON: case TokenType::VAR: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::OPARN: case TokenType::RETURN: case TokenType::OCURB: case TokenType::CCURB:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(ExprStmt)
-                        case TokenType::SEMICOLON: case TokenType::VAR: case TokenType::BANG: case TokenType::TILDE: case TokenType::MINUS: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::OPARN: case TokenType::RETURN: case TokenType::OCURB: case TokenType::CCURB:
+                        case TokenType::SEMICOLON: case TokenType::VAR: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::OPARN: case TokenType::RETURN: case TokenType::OCURB: case TokenType::CCURB:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(RetStmt)
-                        case TokenType::SEMICOLON: case TokenType::VAR: case TokenType::BANG: case TokenType::TILDE: case TokenType::MINUS: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::OPARN: case TokenType::RETURN: case TokenType::OCURB: case TokenType::CCURB:
+                        case TokenType::SEMICOLON: case TokenType::VAR: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::OPARN: case TokenType::RETURN: case TokenType::OCURB: case TokenType::CCURB:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(TypeNV)
@@ -354,10 +355,6 @@ bool panicMode(Parser &p, std::vector<stackitem> &stack, Token &lookahead, Error
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(BinandExpr)
-                        case TokenType::EQUAL: case TokenType::SEMICOLON: case TokenType::COMMA: case TokenType::CPARN: case TokenType::COLON: case TokenType::QUESTION: case TokenType::DOUBLEPIPE: case TokenType::DOUBLEAMPER:
-                            RECOVERANDDEFBREAK()
-                FINISHCHECKASI()
-                CHECKASI(BinnotExpr)
                         case TokenType::EQUAL: case TokenType::SEMICOLON: case TokenType::COMMA: case TokenType::CPARN: case TokenType::COLON: case TokenType::QUESTION: case TokenType::DOUBLEPIPE: case TokenType::DOUBLEAMPER:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()

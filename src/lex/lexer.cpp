@@ -446,7 +446,7 @@ Token Lexer::nextToken()
         while (isDigit(peek(), inttype) && !atEnd()) advance();
 
         if (peek() == '.' && isDigit(peekpeek(), inttype) && !atEnd())
-        { 
+        {
             // is actually a decimal and is not integer literal
             advance(); // consume decimal point
 

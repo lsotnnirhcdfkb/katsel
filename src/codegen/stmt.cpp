@@ -23,37 +23,60 @@ void CodeGenNS::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
 {
     if (ast->expr)
     {
-        Value v = cg.exprCodeGen.expr(ast->expr.get());
-        if (!v.val)
+        IR::Value *v = cg.exprCodeGen.expr(ast->expr.get());
+        if (!v)
             return;
 
-        FunctionType *fty = dynamic_cast<FunctionType*>(cg.context.curFunc.type);
-        if (fty->ret != v.type)
+        if (!cg.context.retReg)
         {
-            Error(Error::MsgType::ERROR, v, "Cannot return value of different type than expected return value")
+            Error(Error::MsgType::ERROR, v, "cannot return value from function with return type \"void\"")
                 .underline(Error::Underline(v, '^')
-                    .error(concatMsg("returning ", v.type->stringify(), " here")))
-                .underline(Error::Underline(static_cast<ASTNS::Function*>(cg.context.curFunc.ast)->retty.get(), '-')
-                    .note(concatMsg("function returns ", fty->ret->stringify())))
+                    .error(concatMsg("returning ", v->type()->stringify(), " here")))
+                .underline(Error::Underline(static_cast<ASTNS::Function*>(cg.context.curFunc->ast())->retty.get(), '-')
+                    .note("returns void"))
                 .report();
+            cg.errored = true;
             return;
         }
 
-        cg.context.builder.CreateRet(v.val);
+        if (cg.context.retReg->type() != v->type())
+        {
+            Error(Error::MsgType::ERROR, v, "cannot return value of different type than expected return value")
+                .underline(Error::Underline(v, '^')
+                    .error(concatMsg("returning ", v->type()->stringify(), " here")))
+                .underline(Error::Underline(static_cast<ASTNS::Function*>(cg.context.curFunc->ast())->retty.get(), '-')
+                    .note(concatMsg("function returns ", cg.context.retReg->type()->stringify())))
+                .report();
+            cg.errored = true;
+            return;
+        }
+
+        cg.context.curBlock->add(std::make_unique<IR::Instrs::Store>(cg.context.retReg, v));
     }
-    else
-        cg.context.builder.CreateRetVoid();
+    else if (cg.context.retReg)
+    {
+        Error(Error::MsgType::ERROR, ast, "return from non-void function must return a value")
+            .underline(Error::Underline(ast, '^')
+                .error("returning nothing here"))
+            .underline(Error::Underline(static_cast<ASTNS::Function*>(cg.context.curFunc->ast())->retty.get(), '-')
+                .note(concatMsg("function returns ", cg.context.retReg->type()->stringify())))
+            .report();
+        cg.errored = true;
+        return;
+    }
+
+    cg.context.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(cg.context.exitBlock));
+    cg.context.curBlock = cg.context.blackHoleBlock.get();
 }
 void CodeGenNS::StmtCodeGen::visitVarStmt(ASTNS::VarStmt *ast)
 {
-    Type *ty = cg.typeResolver.type(ast->type.get());
+    IR::Type *ty = cg.typeResolver.type(ast->type.get());
 
     varty = ty;
     ast->assignments->accept(this);
     varty = nullptr;
 }
 
-void CodeGenNS::StmtCodeGen::visitStmt(ASTNS::Stmt *) {}
 void CodeGenNS::StmtCodeGen::visitEmptyStmt(ASTNS::EmptyStmt *) {}
 void CodeGenNS::StmtCodeGen::visitStmtList(ASTNS::StmtList *ast)
 {

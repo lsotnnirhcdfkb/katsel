@@ -1,16 +1,16 @@
 #include <sstream>
 
-#include "typing/type.h"
+#include "ir/type.h"
 #include "message/errors.h"
-
-#include "llvm/IR/Type.h"
 
 #include "codegen/codegen.h"
 
+#include "llvm/IR/DerivedTypes.h"
+
 // Constructor {{{1
-BuiltinType::BuiltinType(BuiltinType::Builtins b): type(b) {}
+IR::BuiltinType::BuiltinType(IR::BuiltinType::Builtins b): type(b) {}
 // toLLVMType {{{1
-llvm::Type* BuiltinType::toLLVMType(llvm::LLVMContext &con)
+llvm::Type* IR::BuiltinType::toLLVMType(llvm::LLVMContext &con) const
 {
     switch (type)
     {
@@ -42,7 +42,7 @@ llvm::Type* BuiltinType::toLLVMType(llvm::LLVMContext &con)
     outOSwitchNoh("BuiltinType::toLLVMType");
 }
 // stringify {{{1
-std::string BuiltinType::stringify()
+std::string IR::BuiltinType::stringify()
 {
     switch (type)
     {
@@ -63,128 +63,157 @@ std::string BuiltinType::stringify()
     outOSwitchNoh("BuiltinType::stringify");
 }
 // hasOperator {{{1
-bool BuiltinType::hasOperator(TokenType)
+bool IR::BuiltinType::hasOperator(TokenType)
 {
     return true; // builtin has all operators
 }
 // binOp {{{1
-Value BuiltinType::binOp(CodeGenNS::Context &cgc, Value l, Value r, Token op, ASTNS::AST *ast)
+IR::Value* IR::BuiltinType::binOp(CodeGenNS::Context &cgc, IR::Value *l, IR::Value *r, Token op, ASTNS::AST *ast)
 {
-    if (l.type != this)
+    if (l->type() != this)
         calledWithOpTyNEthis("BuiltinType", "binOp", "left operand", l);
 
-    if (l.type != r.type)
+    if (l->type() != r->type())
     {
-        Error(Error::MsgType::ERROR, op, "Cannot operate on values of different types")
+        Error(Error::MsgType::ERROR, op, "cannot operate on values of different types")
             .underline(Error::Underline(l, '^')
-                .note(l.type->stringify()))
+                .note(l->type()->stringify()))
             .underline(Error::Underline(r, '^')
-                .note(r.type->stringify()))
+                .note(r->type()->stringify()))
             .underline(Error::Underline(op, '-'))
             .report();
-        return Value();
+        return nullptr;
     }
 
+    Type *retTy;
     switch (op.type)
     {
         case TokenType::DOUBLEPIPE:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateOr(l.val, r.val), ast); // TODO: Shortcircuit
-            break;
-
         case TokenType::DOUBLEAMPER:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateAnd(l.val, r.val), ast);
-            break;
-
         case TokenType::BANGEQUAL:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpNE(l.val, r.val), ast);
-            break;
-
         case TokenType::DOUBLEEQUAL:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpEQ(l.val, r.val), ast);
-            break;
-
         case TokenType::LESS:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpULT(l.val, r.val), ast); // TODO: unsigned and signed
-            break;
-
         case TokenType::GREATER:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpUGT(l.val, r.val), ast);
-            break;
-
         case TokenType::LESSEQUAL:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpULE(l.val, r.val), ast);
-            break;
-
         case TokenType::GREATEREQUAL:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpUGE(l.val, r.val), ast);
+            retTy = cgc.getBuiltinType(BuiltinType::Builtins::BOOL);
             break;
 
         case TokenType::CARET:
-            return Value(l.type, cgc.builder.CreateXor(l.val, r.val), ast);
-            break;
-
         case TokenType::PIPE:
-            return Value(l.type, cgc.builder.CreateOr(l.val, r.val), ast);
-            break;
-
         case TokenType::AMPER:
-            return Value(l.type, cgc.builder.CreateAnd(l.val, r.val), ast);
-            break;
-
         case TokenType::DOUBLELESS:
-            return Value(l.type, cgc.builder.CreateShl(l.val, r.val), ast);
-            break;
-
         case TokenType::DOUBLEGREATER:
-            return Value(l.type, cgc.builder.CreateLShr(l.val, r.val), ast);
-            break;
-
         case TokenType::PLUS:
-            return Value(l.type, cgc.builder.CreateAdd(l.val, r.val), ast);
-            break;
-
         case TokenType::MINUS:
-            return Value(l.type, cgc.builder.CreateSub(l.val, r.val), ast);
-            break;
-
         case TokenType::STAR:
-            return Value(l.type, cgc.builder.CreateMul(l.val, r.val), ast);
-            break;
-
         case TokenType::SLASH:
-            return Value(l.type, cgc.builder.CreateUDiv(l.val, r.val), ast);
-            break;
-
         case TokenType::PERCENT:
-            return Value(l.type, cgc.builder.CreateURem(l.val, r.val), ast);
+            retTy = l->type();
             break;
 
         default:
             invalidTok("binary operator", op);
     }
 
-    outOSwitchDDefaultLab("BuiltinType::binOp", op);
+    IR::Register *outReg = cgc.curFunc->addRegister(retTy, ast);
+    switch (op.type)
+    {
+        case TokenType::DOUBLEPIPE:
+            cgc.curBlock->add(std::make_unique<Instrs::Or>(outReg, l, r)); // TODO: shortcircuit
+            break;
+
+        case TokenType::DOUBLEAMPER:
+            cgc.curBlock->add(std::make_unique<Instrs::And>(outReg, l, r));
+            break;
+
+        case TokenType::BANGEQUAL:
+            cgc.curBlock->add(std::make_unique<Instrs::CmpNE>(outReg, l, r));
+            break;
+
+        case TokenType::DOUBLEEQUAL:
+            cgc.curBlock->add(std::make_unique<Instrs::CmpEQ>(outReg, l, r));
+            break;
+
+        case TokenType::LESS:
+            cgc.curBlock->add(std::make_unique<Instrs::CmpLT>(outReg, l, r)); // TODO: unsigned and signed
+            break;
+
+        case TokenType::GREATER:
+            cgc.curBlock->add(std::make_unique<Instrs::CmpGT>(outReg, l, r));
+            break;
+
+        case TokenType::LESSEQUAL:
+            cgc.curBlock->add(std::make_unique<Instrs::CmpLE>(outReg, l, r));
+            break;
+
+        case TokenType::GREATEREQUAL:
+            cgc.curBlock->add(std::make_unique<Instrs::CmpGE>(outReg, l, r));
+            break;
+
+        case TokenType::CARET:
+            cgc.curBlock->add(std::make_unique<Instrs::BitXor>(outReg, l, r));
+            break;
+
+        case TokenType::PIPE:
+            cgc.curBlock->add(std::make_unique<Instrs::BitOr>(outReg, l, r));
+            break;
+
+        case TokenType::AMPER:
+            cgc.curBlock->add(std::make_unique<Instrs::BitAnd>(outReg, l, r));
+            break;
+
+        case TokenType::DOUBLELESS:
+            cgc.curBlock->add(std::make_unique<Instrs::ShiftR>(outReg, l, r));
+            break;
+
+        case TokenType::DOUBLEGREATER:
+            cgc.curBlock->add(std::make_unique<Instrs::ShiftL>(outReg, l, r));
+            break;
+
+        case TokenType::PLUS:
+            cgc.curBlock->add(std::make_unique<Instrs::Add>(outReg, l, r));
+            break;
+
+        case TokenType::MINUS:
+            cgc.curBlock->add(std::make_unique<Instrs::Sub>(outReg, l, r));
+            break;
+
+        case TokenType::STAR:
+            cgc.curBlock->add(std::make_unique<Instrs::Mult>(outReg, l, r));
+            break;
+
+        case TokenType::SLASH:
+            cgc.curBlock->add(std::make_unique<Instrs::Div>(outReg, l, r));
+            break;
+
+        case TokenType::PERCENT:
+            cgc.curBlock->add(std::make_unique<Instrs::Mod>(outReg, l, r));
+            break;
+
+        default:
+            invalidTok("binary operator", op);
+    }
+
+    return outReg;
 }
 // castTo {{{1
-Value BuiltinType::castTo(CodeGenNS::Context &cgc, Value v)
+IR::Value* IR::BuiltinType::castTo(CodeGenNS::Context &cgc, IR::Value *v)
 {
-    BuiltinType *sty = dynamic_cast<BuiltinType*> (v.type);
+    BuiltinType *sty = dynamic_cast<BuiltinType*> (v->type());
     if (!sty)
     {
         Error(Error::MsgType::ERROR, v, "Invalid cast")
             .underline(Error::Underline(v, '^')
-                .error(concatMsg("Invalid cast from type \"", v.type->stringify(), "\" to \"", this->stringify(), "\"")))
+                .error(concatMsg("Invalid cast from type \"", v->type()->stringify(), "\" to \"", this->stringify(), "\"")))
             .report();
-        return Value();
+        return nullptr;
     }
 
     if (sty == this)
         return v;
 
 #define TYPEIS(v, e) v->type == BuiltinType::Builtins::e
-    bool stysigned = TYPEIS(sty, SINT8) || TYPEIS(sty, SINT16) || TYPEIS(sty, SINT32) || TYPEIS(sty, SINT64) || TYPEIS(sty, FLOAT) || TYPEIS(sty, CHAR) || TYPEIS(sty, DOUBLE);
-    bool etysigned = TYPEIS(this, SINT8) || TYPEIS(this, SINT16) || TYPEIS(this, SINT32) || TYPEIS(this, SINT64) || TYPEIS(this, FLOAT) || TYPEIS(this, CHAR) || TYPEIS(this, DOUBLE);
-
     bool styintegral = TYPEIS(sty, CHAR) || TYPEIS(sty, BOOL) || TYPEIS(sty, UINT8) || TYPEIS(sty, UINT16) || TYPEIS(sty, UINT32) || TYPEIS(sty, UINT64) || TYPEIS(sty, SINT8) || TYPEIS(sty, SINT16) || TYPEIS(sty, SINT32) || TYPEIS(sty, SINT64);
     bool etyintegral = TYPEIS(this, CHAR) || TYPEIS(this, BOOL) || TYPEIS(this, UINT8) || TYPEIS(this, UINT16) || TYPEIS(this, UINT32) || TYPEIS(this, UINT64) || TYPEIS(this, SINT8) || TYPEIS(this, SINT16) || TYPEIS(this, SINT32) || TYPEIS(this, SINT64);
 #undef TYPEIS
@@ -204,44 +233,26 @@ Value BuiltinType::castTo(CodeGenNS::Context &cgc, Value v)
         {BuiltinType::Builtins::DOUBLE, 64}
     };
 
-    if (styintegral && etyintegral)
+    IR::Register *outReg = cgc.curFunc->addRegister(this, v->ast());
+    if (styintegral == etyintegral)
     {
         // int -> int
         int stySize = tysize.at(sty->type);
         int etySize = tysize.at(this->type);
         if (stySize > etySize)
-            return Value(this, cgc.builder.CreateTrunc(v.val, this->toLLVMType(cgc.context)), v.ast);
+            cgc.curBlock->add(std::make_unique<Instrs::Trunc>(outReg, v, this));
         else
-            if (etysigned)
-                return Value(this, cgc.builder.CreateZExt(v.val, this->toLLVMType(cgc.context)), v.ast);
-            else
-                return Value(this, cgc.builder.CreateSExt(v.val, this->toLLVMType(cgc.context)), v.ast);
+            cgc.curBlock->add(std::make_unique<Instrs::Ext>(outReg, v, this));
     }
     else if (styintegral && !etyintegral)
     {
         // int -> fp
-        if (stysigned)
-            return Value(this, cgc.builder.CreateSIToFP(v.val, this->toLLVMType(cgc.context)), v.ast);
-        else
-            return Value(this, cgc.builder.CreateUIToFP(v.val, this->toLLVMType(cgc.context)), v.ast);
+        cgc.curBlock->add(std::make_unique<Instrs::IntToFloat>(outReg, v, this));
     }
     else if (!styintegral && etyintegral)
     {
         // fp -> int
-        if (etysigned)
-            return Value(this, cgc.builder.CreateFPToSI(v.val, this->toLLVMType(cgc.context)), v.ast);
-        else
-            return Value(this, cgc.builder.CreateFPToUI(v.val, this->toLLVMType(cgc.context)), v.ast);
-    }
-    else
-    {
-        // fp -> fp
-        int stySize = tysize.at(sty->type);
-        int etySize = tysize.at(this->type);
-        if (stySize > etySize)
-            return Value(this, cgc.builder.CreateFPTrunc(v.val, this->toLLVMType(cgc.context)), v.ast);
-        else
-            return Value(this, cgc.builder.CreateFPExt(v.val, this->toLLVMType(cgc.context)), v.ast);
+        cgc.curBlock->add(std::make_unique<Instrs::FloatToInt>(outReg, v, this));
     }
 
     // From row to column cast -- this is what the code above should do
@@ -249,63 +260,66 @@ Value BuiltinType::castTo(CodeGenNS::Context &cgc, Value v)
     //          +--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
     //          | UINT8  | UINT16 | UINT32 | UINT64 | SINT8  | SINT16 | SINT32 | SINT64 | FLOAT   | CHAR   | BOOL   | DOUBLE |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
-    // | UINT8  | None   | ZExt   | ZExt   | ZExt   | None   | SExt   | SExt   | SExt   | UIToFP  | None   | Trunc  | UIToFP |
+    // | UINT8  | None   | Ext    | Ext    | Ext    | None   | Ext    | Ext    | Ext    | IToF    | None   | Trunc  | IToF   |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
-    // | UINT16 | Trunc  | None   | ZExt   | ZExt   | Trunc  | None   | SExt   | SExt   | UIToFP  | Trunc  | Trunc  | UIToFP |
+    // | UINT16 | Trunc  | None   | Ext    | Ext    | Trunc  | None   | Ext    | Ext    | IToF    | Trunc  | Trunc  | IToF   |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
-    // | UINT32 | Trunc  | Trunc  | None   | ZExt   | Trunc  | Trunc  | None   | SExt   | UIToFP  | Trunc  | Trunc  | UIToFP |
+    // | UINT32 | Trunc  | Trunc  | None   | Ext    | Trunc  | Trunc  | None   | Ext    | IToF    | Trunc  | Trunc  | IToF   |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
-    // | UINT64 | Trunc  | Trunc  | Trunc  | None   | Trunc  | Trunc  | Trunc  | None   | UIToFP  | Trunc  | Trunc  | UIToFP |
+    // | UINT64 | Trunc  | Trunc  | Trunc  | None   | Trunc  | Trunc  | Trunc  | None   | IToF    | Trunc  | Trunc  | IToF   |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
-    // | SINT8  | None   | ZExt   | ZExt   | ZExt   | None   | SExt   | SExt   | SExt   | SIToFP  | None   | Trunc  | SIToFP |
+    // | SINT8  | None   | Ext    | Ext    | Ext    | None   | Ext    | Ext    | Ext    | IToF    | None   | Trunc  | IToF   |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
-    // | SINT16 | Trunc  | None   | ZExt   | ZExt   | Trunc  | None   | SExt   | SExt   | SIToFP  | Trunc  | Trunc  | SIToFP |
+    // | SINT16 | Trunc  | None   | Ext    | Ext    | Trunc  | None   | Ext    | Ext    | IToF    | Trunc  | Trunc  | IToF   |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
-    // | SINT32 | Trunc  | Trunc  | None   | ZExt   | Trunc  | Trunc  | None   | SExt   | SIToFP  | Trunc  | Trunc  | SIToFP |
+    // | SINT32 | Trunc  | Trunc  | None   | Ext    | Trunc  | Trunc  | None   | Ext    | IToF    | Trunc  | Trunc  | IToF   |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
-    // | SINT64 | Trunc  | Trunc  | Trunc  | None   | Trunc  | Trunc  | Trunc  | None   | SIToFP  | Trunc  | Trunc  | SIToFP |
+    // | SINT64 | Trunc  | Trunc  | Trunc  | None   | Trunc  | Trunc  | Trunc  | None   | IToF    | Trunc  | Trunc  | IToF   |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
-    // | FLOAT  | FPToUI | FPToUI | FPToUI | FPToUI | FPToSI | FPToSI | FPToSI | FPToSI | None    | FPToUI | FPToUI | FPExt  |
+    // | FLOAT  | FToI   | FToI   | FToI   | FToI   | FToI   | FToI   | FToI   | FToI   | None    | FToI   | FToI   | Ext    |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
-    // | CHAR   | None   | ZExt   | ZExt   | ZExt   | None   | SExt   | SExt   | SExt   | SIToFP  | None   | Trunc  | SIToFP |
+    // | CHAR   | None   | Ext    | Ext    | Ext    | None   | Ext    | Ext    | Ext    | IToF    | None   | Trunc  | IToF   |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
-    // | BOOL   | ZExt   | ZExt   | ZExt   | ZExt   | SExt   | SExt   | SExt   | SExt   | UIToFP  | ZExt   | None   | UIToFP |
+    // | BOOL   | Ext    | Ext    | Ext    | Ext    | Ext    | Ext    | Ext    | Ext    | IToF    | Ext    | None   | IToF   |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
-    // | DOUBLE | FPToUI | FPToUI | FPToUI | FPToUI | FPToSI | FPToSI | FPToSI | FPToSI | FPTrunc | FPToSI | FPToUI | None   |
+    // | DOUBLE | FToI   | FToI   | FToI   | FToI   | FToI   | FToI   | FToI   | FToI   | Trunc   | FToI   | FToI   | None   |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
+    return outReg;
 }
 // unaryOp {{{1
-Value BuiltinType::unaryOp(CodeGenNS::Context &cgc, Value v, Token op, ASTNS::AST *ast)
+IR::Value* IR::BuiltinType::unaryOp(CodeGenNS::Context &cgc, IR::Value *v, Token op, ASTNS::AST *ast)
 {
-    if (v.type != this)
+    if (v->type() != this)
         calledWithOpTyNEthis("BuiltinType", "unaryOp", "operand", v);
 
+    IR::Register *outReg = cgc.curFunc->addRegister(v->type(), ast);
     switch (op.type)
     {
         case TokenType::BANG:
-            return Value(v.type, cgc.builder.CreateICmpEQ(v.val, llvm::ConstantInt::get(v.type->toLLVMType(cgc.context), 0)), ast);
+            cgc.curBlock->add(std::make_unique<Instrs::CmpEQ>(outReg, v, cgc.getConstInt(this, 0, ast)));
             break;
 
         case TokenType::TILDE:
-            return Value(v.type, cgc.builder.CreateXor(v.val, llvm::ConstantInt::get(v.type->toLLVMType(cgc.context), -1)), ast);
+            cgc.curBlock->add(std::make_unique<Instrs::BitXor>(outReg, v, cgc.getConstInt(this, -1, ast)));
             break;
 
         case TokenType::MINUS:
-            return Value(v.type, cgc.builder.CreateSub(llvm::ConstantInt::get(v.type->toLLVMType(cgc.context), 0), v.val), ast);
+            cgc.curBlock->add(std::make_unique<Instrs::Sub>(outReg, cgc.getConstInt(this, 0, ast), v));
             break;
 
         default:
             invalidTok("unary operator", op);
     }
 
-    outOSwitchDDefaultLab("BuiltinType::unaryOp", op);
+    return outReg;
 }
 // isTrue {{{1
-Value BuiltinType::isTrue(CodeGenNS::Context &cgc, Value v)
+IR::Value* IR::BuiltinType::isTrue(CodeGenNS::Context &cgc, IR::Value *v)
 {
-    if (v.type != this)
+    if (v->type() != this)
         calledWithOpTyNEthis("BuiltinType", "isTrue", "value", v);
 
+    IR::Register *outReg = cgc.curFunc->addRegister(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), v->ast());
     switch (type)
     {
         case BuiltinType::Builtins::UINT8:
@@ -317,14 +331,13 @@ Value BuiltinType::isTrue(CodeGenNS::Context &cgc, Value v)
         case BuiltinType::Builtins::SINT32:
         case BuiltinType::Builtins::SINT64:
         case BuiltinType::Builtins::CHAR:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateICmpNE(v.val, llvm::ConstantInt::get(v.type->toLLVMType(cgc.context), 0)), v.ast);
+        case BuiltinType::Builtins::FLOAT:
+        case BuiltinType::Builtins::DOUBLE:
+            cgc.curBlock->add(std::make_unique<Instrs::CmpNE>(outReg, v, cgc.getConstInt(this, 0, v->ast())));
+            break;
 
         case BuiltinType::Builtins::BOOL:
             return v;
-
-        case BuiltinType::Builtins::FLOAT:
-        case BuiltinType::Builtins::DOUBLE:
-            return Value(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), cgc.builder.CreateFCmpONE(v.val, llvm::ConstantFP::get(v.type->toLLVMType(cgc.context), 0)), v.ast);
     }
-    outOSwitchNoh("BuiltinType::isTrue");
+    return outReg;
 }

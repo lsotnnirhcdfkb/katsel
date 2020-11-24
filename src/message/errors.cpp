@@ -1,5 +1,5 @@
 #include "message/errors.h"
-#include "visit/visitor.h"
+#include "ast/visitor.h"
 #include "message/ansistuff.h"
 #include <iostream>
 #include <iomanip>
@@ -53,14 +53,14 @@ int getLineN(std::string::const_iterator const &start, std::string::iterator loc
     return linen + 1;
 }
 // LocationVisitor {{{1
-class LocationVisitor : 
-    public DeclBVisitor,
-    public ArgBVisitor,
-    public StmtBVisitor,
-    public ExprBVisitor,
-    public VStmtIBVisitor,
-    public PListBVisitor,
-    public TypeBVisitor
+class LocationVisitor :
+    public ASTNS::DeclBVisitor,
+    public ASTNS::ArgBVisitor,
+    public ASTNS::StmtBVisitor,
+    public ASTNS::ExprBVisitor,
+    public ASTNS::VStmtIBVisitor,
+    public ASTNS::PListBVisitor,
+    public ASTNS::TypeBVisitor
 {
 public:
     // LOCVISITOR METHODS START
@@ -71,7 +71,6 @@ void visitArg(ASTNS::Arg *ast) override;
 void visitArgList(ASTNS::ArgList *ast) override;
 void visitAssignmentExpr(ASTNS::AssignmentExpr *ast) override;
 void visitBinandExpr(ASTNS::BinandExpr *ast) override;
-void visitBinnotExpr(ASTNS::BinnotExpr *ast) override;
 void visitBinorExpr(ASTNS::BinorExpr *ast) override;
 void visitBitandExpr(ASTNS::BitandExpr *ast) override;
 void visitBitorExpr(ASTNS::BitorExpr *ast) override;
@@ -83,10 +82,8 @@ void visitBuiltinTypeVoid(ASTNS::BuiltinTypeVoid *ast) override;
 void visitCallExpr(ASTNS::CallExpr *ast) override;
 void visitCompeqExpr(ASTNS::CompeqExpr *ast) override;
 void visitComplgtExpr(ASTNS::ComplgtExpr *ast) override;
-void visitDecl(ASTNS::Decl *ast) override;
 void visitDeclList(ASTNS::DeclList *ast) override;
 void visitEmptyStmt(ASTNS::EmptyStmt *ast) override;
-void visitExpr(ASTNS::Expr *ast) override;
 void visitExprStmt(ASTNS::ExprStmt *ast) override;
 void visitFunction(ASTNS::Function *ast) override;
 void visitMultExpr(ASTNS::MultExpr *ast) override;
@@ -94,11 +91,8 @@ void visitParam(ASTNS::Param *ast) override;
 void visitParamList(ASTNS::ParamList *ast) override;
 void visitPrimaryExpr(ASTNS::PrimaryExpr *ast) override;
 void visitRetStmt(ASTNS::RetStmt *ast) override;
-void visitStmt(ASTNS::Stmt *ast) override;
 void visitStmtList(ASTNS::StmtList *ast) override;
 void visitTernaryExpr(ASTNS::TernaryExpr *ast) override;
-void visitTypeNV(ASTNS::TypeNV *ast) override;
-void visitTypeV(ASTNS::TypeV *ast) override;
 void visitUnaryExpr(ASTNS::UnaryExpr *ast) override;
 void visitVarStmt(ASTNS::VarStmt *ast) override;
 void visitVarStmtItem(ASTNS::VarStmtItem *ast) override;
@@ -199,17 +193,6 @@ void LocationVisitor::visitBinandExpr(ASTNS::BinandExpr *ast)
             retl = getL(ast->lhs.get());
             retf = getF(ast->lhs.get());
             retr = getR(ast->rhs.get());
-            break;
-    }
-}
-void LocationVisitor::visitBinnotExpr(ASTNS::BinnotExpr *ast)
-{
-    switch (ast->form)
-    {
-        case ASTNS::BinnotExpr::Form::TA:
-            retl = ast->op.start;
-            retf = ast->op.sourcefile;
-            retr = getR(ast->operand.get());
             break;
     }
 }
@@ -344,12 +327,6 @@ void LocationVisitor::visitComplgtExpr(ASTNS::ComplgtExpr *ast)
             break;
     }
 }
-void LocationVisitor::visitDecl(ASTNS::Decl *ast)
-{
-    switch (ast->form)
-    {
-    }
-}
 void LocationVisitor::visitDeclList(ASTNS::DeclList *ast)
 {
     switch (ast->form)
@@ -372,12 +349,6 @@ void LocationVisitor::visitEmptyStmt(ASTNS::EmptyStmt *ast)
             break;
     }
 }
-void LocationVisitor::visitExpr(ASTNS::Expr *ast)
-{
-    switch (ast->form)
-    {
-    }
-}
 void LocationVisitor::visitExprStmt(ASTNS::ExprStmt *ast)
 {
     switch (ast->form)
@@ -396,12 +367,12 @@ void LocationVisitor::visitFunction(ASTNS::Function *ast)
         case ASTNS::Function::Form::TATTTA:
             retl = ast->fun.start;
             retf = ast->fun.sourcefile;
-            retr = getR(ast->body.get());
+            retr = ast->cparn.end;
             break;
         case ASTNS::Function::Form::TATTATA:
             retl = ast->fun.start;
             retf = ast->fun.sourcefile;
-            retr = getR(ast->body.get());
+            retr = ast->cparn.end;
             break;
     }
 }
@@ -463,12 +434,11 @@ void LocationVisitor::visitRetStmt(ASTNS::RetStmt *ast)
             retf = ast->ret.sourcefile;
             retr = ast->semi.end;
             break;
-    }
-}
-void LocationVisitor::visitStmt(ASTNS::Stmt *ast)
-{
-    switch (ast->form)
-    {
+        case ASTNS::RetStmt::Form::TT:
+            retl = ast->ret.start;
+            retf = ast->ret.sourcefile;
+            retr = ast->semi.end;
+            break;
     }
 }
 void LocationVisitor::visitStmtList(ASTNS::StmtList *ast)
@@ -491,18 +461,6 @@ void LocationVisitor::visitTernaryExpr(ASTNS::TernaryExpr *ast)
             retf = getF(ast->cond.get());
             retr = getR(ast->falses.get());
             break;
-    }
-}
-void LocationVisitor::visitTypeNV(ASTNS::TypeNV *ast)
-{
-    switch (ast->form)
-    {
-    }
-}
-void LocationVisitor::visitTypeV(ASTNS::TypeV *ast)
-{
-    switch (ast->form)
-    {
     }
 }
 void LocationVisitor::visitUnaryExpr(ASTNS::UnaryExpr *ast)
@@ -559,7 +517,8 @@ void LocationVisitor::visitVarStmtItemList(ASTNS::VarStmtItemList *ast)
 // LOCVISITOR IMPL END
 // constructors for location {{{1
 Location::Location(Token const &t): start(t.start), end(t.end), file(t.sourcefile) {}
-Location::Location(Value const &v): Location(v.ast) {}
+Location::Location(IR::Value const &v): Location(v.ast()) {}
+Location::Location(IR::Value const *v): Location(v->ast()) {}
 Location::Location(std::string::iterator start, std::string::iterator end, File const *file): start(start), end(end), file(file) {}
 
 Location::Location(ASTNS::AST *ast)
@@ -865,7 +824,7 @@ void invalidTok(std::string const &name, Token const &underline)
             .note("for " + name))
         .reportAbort();
 }
-void calledWithOpTyNEthis(std::string const &classN, std::string const &fnn, std::string const &opname, Value const &op)
+void calledWithOpTyNEthis(std::string const &classN, std::string const &fnn, std::string const &opname, IR::Value const *op)
 {
     Error(Error::MsgType::INTERR, op, classN + "::" + fnn + " called with " + opname + " type != this")
         .underline(Error::Underline(op, '^')

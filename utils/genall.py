@@ -3,28 +3,28 @@
 #  Generate all the code everywhere necessary in this project
 
 import io
-import astgen, kwgen, parsegen
+import astgen, kwgen, parsegen, instrgen
 
 ## A list of jobs to generate code for
 jobs = [
     ('src/lex/lexer.cpp'                   , 'KWGEN START'               , 'KWGEN END'               , lambda: kwgen.trie.generate(doc='Check if an idenetifier token is a keyword type and return that type, or just return TokenType::IDENTIFIER')),
 
-    ('src/parse/ast.cpp'                   , 'ASTCPP START'              , 'ASTCPP END'              , astgen.genASTDefs),
-    ('include/parse/ast.h'                 , 'ASTHEADER START'           , 'ASTHEADER END'           , astgen.genASTDecls),
+    ('src/ast/ast.cpp'                     , 'ASTCPP START'              , 'ASTCPP END'              , astgen.genASTDefs),
+    ('include/ast/ast.h'                   , 'ASTHEADER START'           , 'ASTHEADER END'           , astgen.genASTDecls),
 
-    ('include/visit/visitor.h'             , 'ASTFORWDECL BEGIN'         , 'ASTFORWDECL END'         , astgen.genASTForwDecls),
-    ('include/visit/visitor.h'             , 'VISITCLASSES START'        , 'VISITCLASSES END'        , astgen.genVisitorClasses),
+    ('include/ast/visitor.h'               , 'ASTFORWDECL BEGIN'         , 'ASTFORWDECL END'         , astgen.genASTForwDecls),
+    ('include/ast/visitor.h'               , 'VISITCLASSES START'        , 'VISITCLASSES END'        , astgen.genVisitorClasses),
 
-    ('src/visit/printvisitor.cpp'          , 'PRINTVISITOR START'        , 'PRINTVISITOR END'        , astgen.genPrintVisitorMethods),
-    ('src/visit/dotvisitor.cpp'            , 'DOTVISITOR START'          , 'DOTVISITOR END'          , astgen.genDotVisitorMethods),
+    ('src/ast/printvisitor.cpp'            , 'PRINTVISITOR START'        , 'PRINTVISITOR END'        , astgen.genPrintVisitorMethods),
+    ('src/ast/dotvisitor.cpp'              , 'DOTVISITOR START'          , 'DOTVISITOR END'          , astgen.genDotVisitorMethods),
 
     ('src/parse/parserloop.cpp'            , 'PARSERLOOP START'          , 'PARSERLOOP END'          , parsegen.genLoop),
     ('src/parse/parserloop.cpp'            , 'GETGOTO START'             , 'GETGOTO END'             , parsegen.genGoto),
     ('src/parse/error.cpp'                 , 'PANIC MODE START'          , 'PANIC MODE END'          , parsegen.genPanicMode),
     ('src/parse/error.cpp'                 , 'SINGLETOK START'           , 'SINGLETOK END'           , parsegen.genSingleTok),
 
-    ('include/visit/printvisitor.h'        , 'PRINTVISIT METHODS START'  , 'PRINTVISIT METHODS END'  , lambda: astgen.genVisitorMethods('all')),
-    ('include/visit/dotvisitor.h'          , 'DOTVISIT METHODS START'    , 'DOTVISIT METHODS END'    , lambda: astgen.genVisitorMethods('all')),
+    ('include/ast/printvisitor.h'          , 'PRINTVISIT METHODS START'  , 'PRINTVISIT METHODS END'  , lambda: astgen.genVisitorMethods('all')),
+    ('include/ast/dotvisitor.h'            , 'DOTVISIT METHODS START'    , 'DOTVISIT METHODS END'    , lambda: astgen.genVisitorMethods('all')),
 
     ('src/message/errors.cpp'              , 'LOCVISITOR METHODS START'  , 'LOCVISITOR METHODS END'  , lambda: astgen.genVisitorMethods('all')),
     ('src/message/errors.cpp'              , 'LOCVISITOR IMPL START'     , 'LOCVISITOR IMPL END'     , astgen.genLocVisit),
@@ -36,6 +36,11 @@ jobs = [
     ('include/codegen/codegen.h'           , 'STMTCG METHODS START'      , 'STMTCG METHODS END'      , lambda: astgen.genVisitorMethods('StmtB', 'VStmtIB')),
     ('include/codegen/codegen.h'           , 'EXPRCG METHODS START'      , 'EXPRCG METHODS END'      , lambda: astgen.genVisitorMethods('ExprB')),
     ('include/codegen/codegen.h'           , 'ARGSVISITOR METHODS START' , 'ARGSVISITOR METHODS END' , lambda: astgen.genVisitorMethods('ArgB')),
+
+    ('include/ir/instruction.h'            , 'INSTR CLASSES START'       , 'INSTR CLASSES END'       , instrgen.genDecls),
+    ('src/ir/instruction.cpp'              , 'INSTR CPP START'           , 'INSTR CPP END'           , instrgen.genDefs),
+    ('src/ir/printer.cpp'                  , 'INSTR PRINTER START'       , 'INSTR PRINTER END'       , instrgen.genPrinter),
+    ('src/ir/cfgdotter.cpp'                , 'CFGDOTTER START'           , 'CFGDOTTER END'           , instrgen.genCFGDotter),
 ]
 
 for jobi, job in enumerate(jobs):
@@ -84,7 +89,6 @@ for jobi, job in enumerate(jobs):
     finaloutput = ''.join(flines)
 
     if finaloutput == backup:
-        print(f'Output is identical for {job[0]}. Skipping {job[0]}')
         continue
 
     try:

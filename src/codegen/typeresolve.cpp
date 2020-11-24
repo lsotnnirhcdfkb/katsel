@@ -1,22 +1,20 @@
+
 #include "codegen/codegen.h"
 #include "message/errors.h"
 
 CodeGenNS::TypeResolve::TypeResolve(CodeGen &cg): cg(cg) {}
 
-Type* CodeGenNS::TypeResolve::type(ASTNS::TypeB *ast) {
+IR::Type* CodeGenNS::TypeResolve::type(ASTNS::TypeB *ast) {
     ret = nullptr;
     ast->accept(this);
     return ret;
 }
 
-void CodeGenNS::TypeResolve::visitTypeNV(ASTNS::TypeNV *) {}
-void CodeGenNS::TypeResolve::visitTypeV(ASTNS::TypeV *) {}
-
 void CodeGenNS::TypeResolve::visitBuiltinTypeNoVoid(ASTNS::BuiltinTypeNoVoid *ast)
 {
     switch (ast->type.type)
     {
-#define TY(ty) case TokenType::ty: ret = cg.context.getBuiltinType(BuiltinType::Builtins::ty); return;
+#define TY(ty) case TokenType::ty: ret = cg.context.getBuiltinType(IR::BuiltinType::Builtins::ty); return;
         TY(UINT8)
         TY(UINT16)
         TY(UINT32)

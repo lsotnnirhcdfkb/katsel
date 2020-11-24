@@ -2,7 +2,7 @@
 
 #include "lex/lexer.h"
 #include "lex/token.h"
-#include "parse/ast.h"
+#include "ast/ast.h"
 #include "utils/file.h"
 #include "message/errors.h"
 

@@ -56,7 +56,7 @@ class Terminal:
 # rule {{{2
 class Rule:
     __num = 0
-    def __init__(self, symbol, expansion, skip, vnames, base):
+    def __init__(self, symbol, expansion, skip, vnames, base, exhistart, exhiend):
         self.symbol = symbol
         self.expansion = expansion
         self.num = Rule.__num
@@ -64,6 +64,7 @@ class Rule:
         self.skip = skip
         self.vnames = vnames
         self.base = base
+        self.exhistart, self.exhiend = exhistart, exhiend
 
     def __repr__(self):
         return str(self)
@@ -134,7 +135,8 @@ class State:
             print(f'    : with set {self.set_}')
             print(f'    : keys {self.actions.keys()}')
             print(f'    : adding {action} for {sym}')
-            print(f'    : already have {self.actions[sym]} for {sym}\033[0m')
+            print(f'    : already have {self.actions[sym]} for {sym}')
+            print(f'    : summary: {type(self.actions[sym])}/{type(action)} conflict: while parsing {self.whileparsing}, found {sym}, {self.actions[sym].explain()} or {action.explain()}?\033[0m')
             raise Exception(f'action table conflict')
 
         self.actions[sym] = action
@@ -192,6 +194,10 @@ class ShiftAction:
         self.newstate = newstate
     def __str__(self):
         return f's{self.newstate}'
+    def __repr__(self):
+        return str(self)
+    def explain(self):
+        return f'shift and goto state {self.newstate}'
     def __eq__(self, other):
         return type(self) == type(other) and self.newstate == other.newstate
 class ReduceAction:
@@ -199,11 +205,19 @@ class ReduceAction:
         self.rule = rule
     def __str__(self):
         return f'r{self.rule.num}'
+    def __repr__(self):
+        return str(self)
+    def explain(self):
+        return f'reduce rule {self.rule}'
     def __eq__(self, other):
         return type(self) == type(other) and self.rule == other.rule
 class AcceptAction:
     def __str__(self):
         return 'acc'
+    def __repr__(self):
+        return str(self)
+    def explain(self):
+        return 'accept'
     def __eq__(self, other):
         return True
 # helpers {{{1
@@ -365,72 +379,165 @@ def makeParseTable():
 # rules {{{1
 colorama.init()
 
-def rule(sym, name, base, *expansions):
-    if sym in _grammar:
-        assert _grammar[sym]['name'] == name, f'name conflict for nonterminal {sym}: {_grammar[sym]["name"]} vs {name}'
-        assert _grammar[sym]['base'] == base, f'base conflict for nonterminal {sym}: {_grammar[sym]["base"]} vs {base}'
-        _grammar[sym]['expansions'].extend(expansions)
-        return
-
+def nt(sym, name, base):
+    assert sym not in _grammar, f'redefinition of symbol {sym} in grammar'
     _grammar[sym] = {
         'name': name,
-        'expansions': list(expansions),
-        'base': base
+        'base': base,
+        'expansions': []
     }
 
+def rule(sym, expansion, histart='BEGIN', hiend='END'):
+    assert sym in _grammar, f'defining an expansion for a symbol {sym} that is not in the grammar (yet)'
+    _grammar[sym]['expansions'].append((expansion, histart, hiend))
+
 def listRule(sym, name, base, delimit=None):
-    rule(sym + 'List', name + ' list', base, f'${sym}List:{sym.lower()}list {f"{delimit}:{delimit.lower()}" if delimit is not None else ""} ${sym}:{sym.lower()}', f'${sym}:{sym.lower()}')
+    symlist = sym + 'List'
+    nt(symlist, name + ' list', base)
+    rule(symlist, f'${sym}List:{sym.lower()}list {f"{delimit}:{delimit.lower()}" if delimit is not None else ""} ${sym}:{sym.lower()}')
+    rule(symlist, f'${sym}:{sym.lower()}')
 
 _grammar = {}
 
 listRule('Decl', 'declaration', 'DeclB')
-rule('Decl', 'declaration', 'DeclB', '$Function:_')
+nt('Decl', 'declaration', 'DeclB')
+rule('Decl', '$Function:_')
 
-rule('Function', 'function declaration', 'DeclB',
-    'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn                      CPARN:cparn $Block:body',
-    'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn $ParamList:paramlist CPARN:cparn $Block:body')
+
+nt('Function', 'function declaration', 'DeclB')
+rule('Function', 'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn                      CPARN:cparn $Block:body', 'fun', 'cparn')
+rule('Function', 'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn $ParamList:paramlist CPARN:cparn $Block:body', 'fun', 'cparn')
 
 listRule('Stmt', 'statement', 'StmtB')
-rule('Stmt', 'statement', 'StmtB', '$EmptyStmt:_', '$VarStmt:_', '$ExprStmt:_', '$RetStmt:_', '$Block:_')
+nt('Stmt', 'statement', 'StmtB')
+rule('Stmt', '$EmptyStmt:_')
+rule('Stmt', '$VarStmt:_')
+rule('Stmt', '$ExprStmt:_')
+rule('Stmt', '$RetStmt:_')
+rule('Stmt', '$Block:_')
 
-rule('VarStmt', 'variable statement', 'StmtB', 'VAR:var $TypeNV:type $VarStmtItemList:assignments SEMICOLON:semi')
-rule('ExprStmt', 'expression statement', 'StmtB', '$Expr:expr SEMICOLON:semi')
-rule('RetStmt', 'return statement', 'StmtB', 'RETURN:ret $Expr:expr SEMICOLON:semi')
-rule('EmptyStmt', 'empty statement', 'StmtB', 'SEMICOLON:semi')
+nt('VarStmt', 'variable statement', 'StmtB')
+rule('VarStmt', 'VAR:var $TypeNV:type $VarStmtItemList:assignments SEMICOLON:semi')
+
+nt('ExprStmt', 'expression statement', 'StmtB')
+rule('ExprStmt', '$Expr:expr SEMICOLON:semi')
+
+nt('RetStmt', 'return statement', 'StmtB')
+rule('RetStmt' , 'RETURN:ret $Expr:expr SEMICOLON:semi')
+rule('RetStmt', 'RETURN:ret SEMICOLON:semi')
+
+nt('EmptyStmt', 'empty statement', 'StmtB')
+rule('EmptyStmt', 'SEMICOLON:semi')
 
 listRule('VarStmtItem', 'variable statement initialization', 'VStmtIB', 'COMMA')
-rule('VarStmtItem', 'variable statement initialization', 'VStmtIB', 'IDENTIFIER:name EQUAL:equal $Expr:expr', 'IDENTIFIER:name')
+nt('VarStmtItem', 'variable statement initialization', 'VStmtIB')
+rule('VarStmtItem', 'IDENTIFIER:name EQUAL:equal $Expr:expr')
+rule('VarStmtItem', 'IDENTIFIER:name')
 
-rule('Block', 'code block', 'StmtB', 'OCURB:ocurb $StmtList:stmts CCURB:ccurb', 'OCURB:ocurb CCURB:ccurb')
+nt('Block', 'code block', 'StmtB')
+rule('Block', 'OCURB:ocurb $StmtList:stmts CCURB:ccurb')
+rule('Block', 'OCURB:ocurb CCURB:ccurb')
 
-rule('TypeNV', 'non-void type specifier', 'TypeB', '$BuiltinTypeNoVoid:_')
-rule('TypeV', 'void-inclusive type specifier', 'TypeB', '$BuiltinTypeVoid:_')
-rule('BuiltinTypeVoid', 'void-inclusive builtin type specifier', 'TypeB', '$BuiltinTypeNoVoid:_', 'VOID:type')
-rule('BuiltinTypeNoVoid', 'non-void builtin type specifier', 'TypeB', 'UINT8:type', 'UINT16:type', 'UINT32:type', 'UINT64:type', 'SINT8:type', 'SINT16:type', 'SINT32:type', 'SINT64:type', 'FLOAT:type', 'BOOL:type', 'DOUBLE:type', 'CHAR:type')
+nt('TypeNV', 'non-void type specifier', 'TypeB')
+rule('TypeNV', '$BuiltinTypeNoVoid:_')
+
+nt('TypeV', 'void-inclusive type specifier', 'TypeB')
+rule('TypeV', '$BuiltinTypeVoid:_')
+
+nt('BuiltinTypeVoid', 'void-inclusive builtin type specifier', 'TypeB')
+rule('BuiltinTypeVoid', '$BuiltinTypeNoVoid:_')
+rule('BuiltinTypeVoid', 'VOID:type')
+
+nt('BuiltinTypeNoVoid', 'non-void builtin type specifier', 'TypeB')
+rule('BuiltinTypeNoVoid', 'UINT8:type')
+rule('BuiltinTypeNoVoid', 'UINT16:type')
+rule('BuiltinTypeNoVoid', 'UINT32:type')
+rule('BuiltinTypeNoVoid', 'UINT64:type')
+rule('BuiltinTypeNoVoid', 'SINT8:type')
+rule('BuiltinTypeNoVoid', 'SINT16:type')
+rule('BuiltinTypeNoVoid', 'SINT32:type')
+rule('BuiltinTypeNoVoid', 'SINT64:type')
+rule('BuiltinTypeNoVoid', 'FLOAT:type')
+rule('BuiltinTypeNoVoid', 'BOOL:type')
+rule('BuiltinTypeNoVoid', 'DOUBLE:type')
+rule('BuiltinTypeNoVoid', 'CHAR:type')
 
 listRule('Arg', 'argument', 'ArgB', 'COMMA')
-rule('Arg', 'argument', 'ArgB', '$Expr:expr')
+nt('Arg', 'argument', 'ArgB')
+rule('Arg', '$Expr:expr')
 
 listRule('Param', 'parameter', 'PListB', 'COMMA')
-rule('Param', 'parameter', 'PListB', '$TypeNV:type IDENTIFIER:name')
+nt('Param', 'parameter', 'PListB')
+rule('Param', '$TypeNV:type IDENTIFIER:name')
 
-rule('Expr', 'expression', 'ExprB', '$AssignmentExpr:_')
-rule('AssignmentExpr', 'assignment expression', 'ExprB', '$TernaryExpr:target EQUAL:equal $AssignmentExpr:value', '$TernaryExpr:_')
-rule('TernaryExpr', 'ternary expression', 'ExprB', '$BinorExpr:_', '$BinorExpr:cond QUESTION:quest $Expr:trues COLON:colon $TernaryExpr:falses')
-rule('BinorExpr', 'binary or expression', 'ExprB', '$BinorExpr:lhs DOUBLEPIPE:op $BinandExpr:rhs', '$BinandExpr:_')
-rule('BinandExpr', 'binary and expression', 'ExprB', '$BinandExpr:lhs DOUBLEAMPER:op $BinnotExpr:rhs', '$BinnotExpr:_')
-rule('BinnotExpr', 'binary not expression', 'ExprB', 'BANG:op $BinnotExpr:operand', '$CompeqExpr:_')
-rule('CompeqExpr', 'equality expression', 'ExprB', '$CompeqExpr:lhs BANGEQUAL:op $ComplgtExpr:rhs', '$CompeqExpr:lhs DOUBLEEQUAL:op $ComplgtExpr:rhs', '$ComplgtExpr:_')
-rule('ComplgtExpr', 'comparison expression', 'ExprB', '$ComplgtExpr:lhs LESS:op $BitxorExpr:rhs', '$ComplgtExpr:lhs GREATER:op $BitxorExpr:rhs', '$ComplgtExpr:lhs LESSEQUAL:op $BitxorExpr:rhs', '$ComplgtExpr:lhs GREATEREQUAL:op $BitxorExpr:rhs', '$BitxorExpr:_')
-rule('BitxorExpr', 'bitwise xor expression', 'ExprB', '$BitxorExpr:lhs CARET:op $BitorExpr:rhs', '$BitorExpr:_')
-rule('BitorExpr', 'bitwise or expression', 'ExprB', '$BitorExpr:lhs PIPE:op $BitandExpr:rhs', '$BitandExpr:_')
-rule('BitandExpr', 'bitwise and expression', 'ExprB', '$BitandExpr:lhs AMPER:op $BitshiftExpr:rhs', '$BitshiftExpr:_')
-rule('BitshiftExpr', 'bit shift expression', 'ExprB', '$BitshiftExpr:lhs DOUBLEGREATER:op $AdditionExpr:rhs', '$BitshiftExpr:lhs DOUBLELESS:op $AdditionExpr:rhs', '$AdditionExpr:_')
-rule('AdditionExpr', 'addition expression', 'ExprB', '$AdditionExpr:lhs PLUS:op $MultExpr:rhs', '$AdditionExpr:lhs MINUS:op $MultExpr:rhs', '$MultExpr:_')
-rule('MultExpr', 'multiplication expression', 'ExprB', '$MultExpr:lhs STAR:op $UnaryExpr:rhs', '$MultExpr:lhs SLASH:op $UnaryExpr:rhs', '$MultExpr:lhs PERCENT:op $UnaryExpr:rhs', '$UnaryExpr:_')
-rule('UnaryExpr', 'unary expression', 'ExprB', 'TILDE:op $UnaryExpr:operand', 'MINUS:op $UnaryExpr:operand', '$CallExpr:_')
-rule('CallExpr', 'function call expression', 'ExprB', '$PrimaryExpr:callee OPARN:oparn $ArgList:args CPARN:cparn', '$PrimaryExpr:callee OPARN:oparn CPARN:cparn', '$PrimaryExpr:_')
-rule('PrimaryExpr', 'primary expression', 'ExprB', 'TRUELIT:value', 'FALSELIT:value', 'FLOATLIT:value', 'NULLPTRLIT:value', 'DECINTLIT:value', 'OCTINTLIT:value', 'BININTLIT:value', 'HEXINTLIT:value', 'CHARLIT:value', 'STRINGLIT:value', 'IDENTIFIER:value', 'OPARN:oparn $Expr:expr CPARN:cparn')
+nt('Expr', 'expression', 'ExprB')
+rule('Expr', '$AssignmentExpr:_')
+nt('AssignmentExpr', 'assignment expression', 'ExprB')
+rule('AssignmentExpr', '$TernaryExpr:target EQUAL:equal $AssignmentExpr:value')
+rule('AssignmentExpr', '$TernaryExpr:_')
+nt('TernaryExpr', 'ternary expression', 'ExprB')
+rule('TernaryExpr', '$BinorExpr:_')
+rule('TernaryExpr', '$BinorExpr:cond QUESTION:quest $Expr:trues COLON:colon $TernaryExpr:falses')
+nt('BinorExpr', 'binary or expression', 'ExprB')
+rule('BinorExpr', '$BinorExpr:lhs DOUBLEPIPE:op $BinandExpr:rhs')
+rule('BinorExpr', '$BinandExpr:_')
+nt('BinandExpr', 'binary and expression', 'ExprB')
+rule('BinandExpr', '$BinandExpr:lhs DOUBLEAMPER:op $CompeqExpr:rhs')
+rule('BinandExpr', '$CompeqExpr:_')
+nt('CompeqExpr', 'equality expression', 'ExprB')
+rule('CompeqExpr', '$CompeqExpr:lhs BANGEQUAL:op $ComplgtExpr:rhs')
+rule('CompeqExpr', '$CompeqExpr:lhs DOUBLEEQUAL:op $ComplgtExpr:rhs')
+rule('CompeqExpr', '$ComplgtExpr:_')
+nt('ComplgtExpr', 'comparison expression', 'ExprB')
+rule('ComplgtExpr', '$ComplgtExpr:lhs LESS:op $BitxorExpr:rhs')
+rule('ComplgtExpr', '$ComplgtExpr:lhs GREATER:op $BitxorExpr:rhs')
+rule('ComplgtExpr', '$ComplgtExpr:lhs LESSEQUAL:op $BitxorExpr:rhs')
+rule('ComplgtExpr', '$ComplgtExpr:lhs GREATEREQUAL:op $BitxorExpr:rhs')
+rule('ComplgtExpr', '$BitxorExpr:_')
+nt('BitxorExpr', 'bitwise xor expression', 'ExprB')
+rule('BitxorExpr', '$BitxorExpr:lhs CARET:op $BitorExpr:rhs')
+rule('BitxorExpr', '$BitorExpr:_')
+nt('BitorExpr', 'bitwise or expression', 'ExprB')
+rule('BitorExpr', '$BitorExpr:lhs PIPE:op $BitandExpr:rhs')
+rule('BitorExpr', '$BitandExpr:_')
+nt('BitandExpr', 'bitwise and expression', 'ExprB')
+rule('BitandExpr', '$BitandExpr:lhs AMPER:op $BitshiftExpr:rhs')
+rule('BitandExpr', '$BitshiftExpr:_')
+nt('BitshiftExpr', 'bit shift expression', 'ExprB')
+rule('BitshiftExpr', '$BitshiftExpr:lhs DOUBLEGREATER:op $AdditionExpr:rhs')
+rule('BitshiftExpr', '$BitshiftExpr:lhs DOUBLELESS:op $AdditionExpr:rhs')
+rule('BitshiftExpr', '$AdditionExpr:_')
+nt('AdditionExpr', 'addition expression', 'ExprB')
+rule('AdditionExpr', '$AdditionExpr:lhs PLUS:op $MultExpr:rhs')
+rule('AdditionExpr', '$AdditionExpr:lhs MINUS:op $MultExpr:rhs')
+rule('AdditionExpr', '$MultExpr:_')
+nt('MultExpr', 'multiplication expression', 'ExprB')
+rule('MultExpr', '$MultExpr:lhs STAR:op $UnaryExpr:rhs')
+rule('MultExpr', '$MultExpr:lhs SLASH:op $UnaryExpr:rhs')
+rule('MultExpr', '$MultExpr:lhs PERCENT:op $UnaryExpr:rhs')
+rule('MultExpr', '$UnaryExpr:_')
+nt('UnaryExpr', 'unary expression', 'ExprB')
+rule('UnaryExpr', 'TILDE:op $UnaryExpr:operand')
+rule('UnaryExpr', 'MINUS:op $UnaryExpr:operand')
+rule('UnaryExpr', 'BANG:op $UnaryExpr:operand')
+rule('UnaryExpr', '$CallExpr:_')
+nt('CallExpr', 'function call expression', 'ExprB')
+rule('CallExpr', '$PrimaryExpr:callee OPARN:oparn $ArgList:args CPARN:cparn')
+rule('CallExpr', '$PrimaryExpr:callee OPARN:oparn CPARN:cparn')
+rule('CallExpr', '$PrimaryExpr:_')
+nt('PrimaryExpr', 'primary expression', 'ExprB')
+rule('PrimaryExpr', 'TRUELIT:value')
+rule('PrimaryExpr', 'FALSELIT:value')
+rule('PrimaryExpr', 'FLOATLIT:value')
+rule('PrimaryExpr', 'NULLPTRLIT:value')
+rule('PrimaryExpr', 'DECINTLIT:value')
+rule('PrimaryExpr', 'OCTINTLIT:value')
+rule('PrimaryExpr', 'BININTLIT:value')
+rule('PrimaryExpr', 'HEXINTLIT:value')
+rule('PrimaryExpr', 'CHARLIT:value')
+rule('PrimaryExpr', 'STRINGLIT:value')
+rule('PrimaryExpr', 'IDENTIFIER:value')
+rule('PrimaryExpr', 'OPARN:oparn $Expr:expr CPARN:cparn')
 
 grammar = []
 found = set()
@@ -445,7 +552,7 @@ for sym, rule in _grammar.items():
     expansions = rule['expansions']
 
     base = rule['base']
-    for expansion in expansions:
+    for expansion, exhistart, exhiend in expansions:
         vnames = []
         expansion = expansion.split(' ')
 
@@ -470,22 +577,21 @@ for sym, rule in _grammar.items():
             else:
                 convertedexpansion.append(Terminal(f'TokenType::{sname}'))
                 if sname != sname.upper():
-                    print(f'\033[35;1mwarning\033[0m: terminal {sname} in rule \033[1m{symbol} -> {expansion}\033[0m')
+                    print(f'\033[35;1mwarning\033[0m: terminal {sname} in rule \033[1m{sym} -> {expansion}\033[0m')
 
         if len(convertedexpansion) == 1 and type(convertedexpansion[0]) == NonTerminal and _grammar[str(convertedexpansion[0])]['base'] == base:
             skip = True
-            print('\033[34mrule is skip\033[0m', sym, expansion)
         else:
             skip = False
 
-        grammar.append(Rule(NonTerminal(sym, rule['name']), tuple(convertedexpansion), skip, vnames, base))
+        grammar.append(Rule(NonTerminal(sym, rule['name']), tuple(convertedexpansion), skip, vnames, base, exhistart, exhiend))
 
 for missingi in missing:
     print(f'\033[35;1mwarning\033[0m: undefined nonterminal \033[1m{missingi}\033[0m')
 print('-- parsed grammar')
 
 augmentSymbol = NonTerminal('augment', 'compilation unit')
-augmentRule = Rule(augmentSymbol, (grammar[0].symbol, ), True, '_', '')
+augmentRule = Rule(augmentSymbol, (grammar[0].symbol, ), True, '_', '', 'START', 'END')
 grammar.append(augmentRule)
 
 print('-- augment grammar')
@@ -560,9 +666,9 @@ def genLoop():
                                        '    ERRORSTART()\\\n'
                                        '            Error e = p.invalidSyntaxWhile(justparsed, expected, whileparsing, lookahead, lasttok);\\\n'
                                        '    ERROREND()\n'
-                                       '#define DEFAULTINVALIDNOEXPECT(justparsed, whileparsing) \\\n'
+                                       '#define DEFAULTINVALIDNOWHILE(justparsed, expected) \\\n'
                                        '    ERRORSTART()\\\n'
-                                       '            Error e = p.invalidSyntaxNoExpect(justparsed, whileparsing, lookahead, lasttok);\\\n'
+                                       '            Error e = p.invalidSyntax(justparsed, expected, lookahead, lasttok);\\\n'
                                        '    ERROREND()\n'))
 
     output.append(                     '    bool done = false;\n')
@@ -595,7 +701,7 @@ def genLoop():
             if not found:
                 stateactions.append((ac, [term]))
 
-
+        reduceOnly = len([ac for ac in stateactions if type(ac[0]) == ReduceAction]) == 1
         for ac, nts in stateactions:
             if type(ac) == ShiftAction:
                 for term in nts:
@@ -603,8 +709,21 @@ def genLoop():
                 output.append(        f'                        shift(p, lasttok, lookahead, stack, steps, {ac.newstate}); break;\n')
                 continue
 
-            for term in nts:
-                output.append(        f'                    case {term.astt()}:\n')
+            if reduceOnly:
+                output.append(        f'                    default:\n')
+                # do not check for lookahead, just reduce to have better performance
+                # if reduceOnly, then all the reduce actions of this state reduce the same rule
+                # and according to Wikipedia, just reducing regardless of the lookahead in
+                # these states will cause a few "harmless reductions," and errors will just be
+                # reported after a few reduces
+                # this actually helps with error reporting because if you have "return 2",
+                # it will reduce 2 up the chain of expression precedence before reporting the error
+                # so the error message is "expected ';' after expression of return statement"
+                # wheras if it didnt reduce, you would get "invalid token to follow 2 of primary expression"
+                # which used to be the erorr format if there was an invalid lookahead token for a state that didn't have any shift actions
+            else:
+                for term in nts:
+                    output.append(    f'                    case {term.astt()}:\n')
 
             if type(ac) == ReduceAction:
                 if not ac.rule.skip:
@@ -635,11 +754,16 @@ def genLoop():
 
             output.append(             '                        break;\n')
 
-        output.append(                f'                    default:\n')
-        if len(state.expected):
-            output.append(        f'                        DEFAULTINVALIDWHILE({state.justparsed}, {formatList(state.expected)}, {formatList(state.whileparsing)})\n')
-        else:
-            output.append(        f'                        DEFAULTINVALIDNOEXPECT({state.justparsed}, {formatList(state.whileparsing)})\n')
+        if not reduceOnly:
+            output.append(            f'                    default:\n')
+            if len(state.expected):
+                if len(state.whileparsing) == 1:
+                    output.append(    f'                        DEFAULTINVALIDWHILE({state.justparsed}, {formatList(state.expected)}, {formatList(state.whileparsing)})\n')
+                else:
+                    output.append(    f'                        DEFAULTINVALIDNOWHILE({state.justparsed}, {formatList(state.expected)})\n')
+            else:
+                print(state.actions)
+                raise Exception('no expect for non-reduceOnly state')
         output.append(                 '                }\n')
         output.append(                 '                break;\n')
 
@@ -651,8 +775,8 @@ def genLoop():
 
     output.append(                     '        }\n')
     output.append(                     '    }\n')
-    output.append(                    ('#undef DEFAULTINVALIDNOEXPECT\n'
-                                       '#undef DEFAULTINVALIDWHILE\n'
+    output.append(                    ('#undef DEFAULTINVALIDWHILE\n'
+                                       '#undef DEFAULTINVALIDNOWHILE\n'
                                        '#undef ERRORSTART\n'
                                        '#undef ERROREND\n'))
 
