@@ -73,9 +73,7 @@ llvm::Value* Lower::Lowerer::lower(IR::Value const *v)
     CHECKTY(Function)
         return functions.at(asFunction);
     CHECKTY(ConstInt)
-    {
         return llvm::ConstantInt::get(asConstInt->type()->toLLVMType(context), asConstInt->val);
-    }
 #undef CHECKTY
     else
     {
