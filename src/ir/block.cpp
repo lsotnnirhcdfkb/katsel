@@ -31,12 +31,14 @@ void IR::Block::definition(std::ostream &os)
     {
         os << "        ";
         i->accept(&p);
+        os << "\n";
     }
     os << "    ----\n";
     if (br)
     {
         os << "        ";
         br->accept(&p);
+        os << "\n";
     }
     os << "    }\n";
 }
@@ -45,15 +47,18 @@ void IR::Block::cfgDot(std::ostream &os)
     IR::Printer p (os);
     IR::CFGDotter c (os);
 
-    os << "block" << this << " [shape=record,label=\"";
+    os << "        block" << this << " [shape=record,label=\"";
     for (std::unique_ptr<Instrs::Instruction> const &i : instructions)
+    {
         i->accept(&p);
+        os << "\\l";
+    }
     os << "\"]\n";
 
     if (br)
     {
-        os << "block" << this << " -> branch" << br.get() << std::endl;;
-        os << "branch" << br.get() << " [shape=record, label=\"";
+        os << "        block" << this << " -> branch" << br.get() << std::endl;
+        os << "        branch" << br.get() << " [shape=record, label=\"";
         br->accept(&p);
         os << "\"]\n";
 

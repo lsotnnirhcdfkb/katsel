@@ -11,7 +11,6 @@ void IR::Printer::visitStore(IR::Instrs::Store *i)
     ostream << i->target->stringify();
     ostream << " ";
     ostream << i->value->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitOr(IR::Instrs::Or *i)
 {
@@ -21,7 +20,6 @@ void IR::Printer::visitOr(IR::Instrs::Or *i)
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitAnd(IR::Instrs::And *i)
 {
@@ -31,7 +29,6 @@ void IR::Printer::visitAnd(IR::Instrs::And *i)
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitIntCmpNE(IR::Instrs::IntCmpNE *i)
 {
@@ -41,7 +38,6 @@ void IR::Printer::visitIntCmpNE(IR::Instrs::IntCmpNE *i)
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitIntCmpEQ(IR::Instrs::IntCmpEQ *i)
 {
@@ -51,7 +47,6 @@ void IR::Printer::visitIntCmpEQ(IR::Instrs::IntCmpEQ *i)
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitIntCmpULT(IR::Instrs::IntCmpULT *i)
 {
@@ -61,7 +56,6 @@ void IR::Printer::visitIntCmpULT(IR::Instrs::IntCmpULT *i)
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitIntCmpUGT(IR::Instrs::IntCmpUGT *i)
 {
@@ -71,7 +65,6 @@ void IR::Printer::visitIntCmpUGT(IR::Instrs::IntCmpUGT *i)
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitIntCmpULE(IR::Instrs::IntCmpULE *i)
 {
@@ -81,7 +74,6 @@ void IR::Printer::visitIntCmpULE(IR::Instrs::IntCmpULE *i)
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitIntCmpUGE(IR::Instrs::IntCmpUGE *i)
 {
@@ -91,7 +83,6 @@ void IR::Printer::visitIntCmpUGE(IR::Instrs::IntCmpUGE *i)
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitFloatCmpNE(IR::Instrs::FloatCmpNE *i)
 {
@@ -101,7 +92,6 @@ void IR::Printer::visitFloatCmpNE(IR::Instrs::FloatCmpNE *i)
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitFloatCmpEQ(IR::Instrs::FloatCmpEQ *i)
 {
@@ -111,7 +101,6 @@ void IR::Printer::visitFloatCmpEQ(IR::Instrs::FloatCmpEQ *i)
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitFloatCmpULT(IR::Instrs::FloatCmpULT *i)
 {
@@ -121,7 +110,6 @@ void IR::Printer::visitFloatCmpULT(IR::Instrs::FloatCmpULT *i)
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitFloatCmpUGT(IR::Instrs::FloatCmpUGT *i)
 {
@@ -131,7 +119,6 @@ void IR::Printer::visitFloatCmpUGT(IR::Instrs::FloatCmpUGT *i)
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitFloatCmpULE(IR::Instrs::FloatCmpULE *i)
 {
@@ -141,7 +128,6 @@ void IR::Printer::visitFloatCmpULE(IR::Instrs::FloatCmpULE *i)
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitFloatCmpUGE(IR::Instrs::FloatCmpUGE *i)
 {
@@ -151,7 +137,6 @@ void IR::Printer::visitFloatCmpUGE(IR::Instrs::FloatCmpUGE *i)
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitBitXor(IR::Instrs::BitXor *i)
 {
@@ -161,7 +146,6 @@ void IR::Printer::visitBitXor(IR::Instrs::BitXor *i)
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitBitOr(IR::Instrs::BitOr *i)
 {
@@ -171,7 +155,6 @@ void IR::Printer::visitBitOr(IR::Instrs::BitOr *i)
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitBitAnd(IR::Instrs::BitAnd *i)
 {
@@ -181,7 +164,6 @@ void IR::Printer::visitBitAnd(IR::Instrs::BitAnd *i)
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitBitNot(IR::Instrs::BitNot *i)
 {
@@ -189,7 +171,6 @@ void IR::Printer::visitBitNot(IR::Instrs::BitNot *i)
     ostream << i->target->stringify();
     ostream << " ";
     ostream << i->op->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitShiftR(IR::Instrs::ShiftR *i)
 {
@@ -199,7 +180,6 @@ void IR::Printer::visitShiftR(IR::Instrs::ShiftR *i)
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitShiftL(IR::Instrs::ShiftL *i)
 {
@@ -209,7 +189,6 @@ void IR::Printer::visitShiftL(IR::Instrs::ShiftL *i)
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitAdd(IR::Instrs::Add *i)
 {
@@ -219,7 +198,6 @@ void IR::Printer::visitAdd(IR::Instrs::Add *i)
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitSub(IR::Instrs::Sub *i)
 {
@@ -229,7 +207,6 @@ void IR::Printer::visitSub(IR::Instrs::Sub *i)
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitMult(IR::Instrs::Mult *i)
 {
@@ -239,7 +216,6 @@ void IR::Printer::visitMult(IR::Instrs::Mult *i)
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitDiv(IR::Instrs::Div *i)
 {
@@ -249,7 +225,6 @@ void IR::Printer::visitDiv(IR::Instrs::Div *i)
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitMod(IR::Instrs::Mod *i)
 {
@@ -259,7 +234,6 @@ void IR::Printer::visitMod(IR::Instrs::Mod *i)
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitNeg(IR::Instrs::Neg *i)
 {
@@ -267,7 +241,6 @@ void IR::Printer::visitNeg(IR::Instrs::Neg *i)
     ostream << i->target->stringify();
     ostream << " ";
     ostream << i->op->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitTrunc(IR::Instrs::Trunc *i)
 {
@@ -277,7 +250,6 @@ void IR::Printer::visitTrunc(IR::Instrs::Trunc *i)
     ostream << i->op->stringify();
     ostream << " ";
     ostream << i->newt->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitZeroExt(IR::Instrs::ZeroExt *i)
 {
@@ -287,7 +259,6 @@ void IR::Printer::visitZeroExt(IR::Instrs::ZeroExt *i)
     ostream << i->op->stringify();
     ostream << " ";
     ostream << i->newt->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitSignExt(IR::Instrs::SignExt *i)
 {
@@ -297,7 +268,6 @@ void IR::Printer::visitSignExt(IR::Instrs::SignExt *i)
     ostream << i->op->stringify();
     ostream << " ";
     ostream << i->newt->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitFloatTrunc(IR::Instrs::FloatTrunc *i)
 {
@@ -307,7 +277,6 @@ void IR::Printer::visitFloatTrunc(IR::Instrs::FloatTrunc *i)
     ostream << i->op->stringify();
     ostream << " ";
     ostream << i->newt->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitFloatExt(IR::Instrs::FloatExt *i)
 {
@@ -317,7 +286,6 @@ void IR::Printer::visitFloatExt(IR::Instrs::FloatExt *i)
     ostream << i->op->stringify();
     ostream << " ";
     ostream << i->newt->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitSIntToFloat(IR::Instrs::SIntToFloat *i)
 {
@@ -327,7 +295,6 @@ void IR::Printer::visitSIntToFloat(IR::Instrs::SIntToFloat *i)
     ostream << i->op->stringify();
     ostream << " ";
     ostream << i->newt->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitUIntToFloat(IR::Instrs::UIntToFloat *i)
 {
@@ -337,7 +304,6 @@ void IR::Printer::visitUIntToFloat(IR::Instrs::UIntToFloat *i)
     ostream << i->op->stringify();
     ostream << " ";
     ostream << i->newt->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitFloatToSInt(IR::Instrs::FloatToSInt *i)
 {
@@ -347,7 +313,6 @@ void IR::Printer::visitFloatToSInt(IR::Instrs::FloatToSInt *i)
     ostream << i->op->stringify();
     ostream << " ";
     ostream << i->newt->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitFloatToUInt(IR::Instrs::FloatToUInt *i)
 {
@@ -357,13 +322,11 @@ void IR::Printer::visitFloatToUInt(IR::Instrs::FloatToUInt *i)
     ostream << i->op->stringify();
     ostream << " ";
     ostream << i->newt->stringify();
-    ostream << std::endl;
 }
 void IR::Printer::visitReturn(IR::Instrs::Return *i)
 {
     ostream << "return ";
     ostream << (i->value ? i->value->stringify() : "void");
-    ostream << std::endl;
 }
 void IR::Printer::visitCall(IR::Instrs::Call *i)
 {
@@ -376,13 +339,11 @@ void IR::Printer::visitCall(IR::Instrs::Call *i)
 {
     ostream << v->stringify() << " ";
 }
-    ostream << std::endl;
 }
 void IR::Printer::visitGotoBr(IR::Instrs::GotoBr *i)
 {
     ostream << "gotobr ";
     ostream << i->b->name;
-    ostream << std::endl;
 }
 void IR::Printer::visitCondBr(IR::Instrs::CondBr *i)
 {
@@ -392,7 +353,6 @@ void IR::Printer::visitCondBr(IR::Instrs::CondBr *i)
     ostream << i->trueb->name;
     ostream << " ";
     ostream << i->falseb->name;
-    ostream << std::endl;
 }
 // This code was autogenerated - see the utils/ directory
 

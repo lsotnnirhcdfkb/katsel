@@ -11,7 +11,7 @@ void IR::Function::add(std::unique_ptr<IR::Block> block)
 std::string IR::Function::stringify() const
 {
     std::stringstream ss;
-    ss << "fun \"" << name << "\"";
+    ss << "fun " << name;
     return ss.str();
 }
 ASTNS::AST* IR::Function::ast() const
@@ -46,7 +46,7 @@ IR::Register* IR::Function::addRegister(Type *type, ASTNS::AST *ast, bool temp)
 
 void IR::Function::definition(std::ostream &os) const
 {
-    os << "fun \"" << name << "\" " << ty->stringify() << " {\n";
+    os << "fun " << name << " " << ty->stringify() << " {\n";
     for (std::unique_ptr<Register> const &r : registers)
         r->definition(os);
 
@@ -56,8 +56,8 @@ void IR::Function::definition(std::ostream &os) const
 }
 void IR::Function::cfgDot(std::ostream &os) const
 {
-    os << "subgraph cluster_fun_" << name << "{\n";
+    os << "    subgraph cluster_fun_" << name << " {\n";
     for (std::unique_ptr<Block> const &b : blocks)
         b->cfgDot(os);
-    os << "}\n";
+    os << "    }\n";
 }

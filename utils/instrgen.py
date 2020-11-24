@@ -123,7 +123,6 @@ def genPrinter():
             output.append('    ')
             output.append(field.prin())
             output.append('\n')
-        output.append('    ostream << std::endl;\n')
         output.append( '}\n')
 
     return ''.join(output)
@@ -135,7 +134,7 @@ def genCFGDotter():
             output.append( '{\n')
             for field in instr.fields:
                 if field.type_ == 'Block*':
-                    output.append(f'    ostream << "branch" << i << " -> " << "block" << i->{field.name} << std::endl;;\n')
+                    output.append(f'    ostream << "        branch" << i << " -> " << "block" << i->{field.name} << std::endl;;\n')
             output.append( '}\n')
 
     return ''.join(output)
