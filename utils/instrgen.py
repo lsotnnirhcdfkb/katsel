@@ -135,7 +135,7 @@ def genCFGDotter():
             output.append( '{\n')
             for field in instr.fields:
                 if field.type_ == 'Block*':
-                    output.append(f'    ostream << "branch" << this << " -> " << "block" << i->{field.name}->name << std::endl;;\n')
+                    output.append(f'    ostream << "branch" << this << " -> " << "block" << i->{field.name} << std::endl;;\n')
             output.append( '}\n')
 
     return ''.join(output)
