@@ -12,30 +12,18 @@ IR::Instrs::Or::Or(Register *target, Value *lhs, Value *rhs): target(target), lh
 void IR::Instrs::Or::accept(InstructionVisitor *v) { v->visitOr(this); }
 IR::Instrs::And::And(Register *target, Value *lhs, Value *rhs): target(target), lhs(lhs), rhs(rhs) {}
 void IR::Instrs::And::accept(InstructionVisitor *v) { v->visitAnd(this); }
-IR::Instrs::IntCmpNE::IntCmpNE(Register *target, Value *lhs, Value *rhs): target(target), lhs(lhs), rhs(rhs) {}
-void IR::Instrs::IntCmpNE::accept(InstructionVisitor *v) { v->visitIntCmpNE(this); }
-IR::Instrs::IntCmpEQ::IntCmpEQ(Register *target, Value *lhs, Value *rhs): target(target), lhs(lhs), rhs(rhs) {}
-void IR::Instrs::IntCmpEQ::accept(InstructionVisitor *v) { v->visitIntCmpEQ(this); }
-IR::Instrs::IntCmpULT::IntCmpULT(Register *target, Value *lhs, Value *rhs): target(target), lhs(lhs), rhs(rhs) {}
-void IR::Instrs::IntCmpULT::accept(InstructionVisitor *v) { v->visitIntCmpULT(this); }
-IR::Instrs::IntCmpUGT::IntCmpUGT(Register *target, Value *lhs, Value *rhs): target(target), lhs(lhs), rhs(rhs) {}
-void IR::Instrs::IntCmpUGT::accept(InstructionVisitor *v) { v->visitIntCmpUGT(this); }
-IR::Instrs::IntCmpULE::IntCmpULE(Register *target, Value *lhs, Value *rhs): target(target), lhs(lhs), rhs(rhs) {}
-void IR::Instrs::IntCmpULE::accept(InstructionVisitor *v) { v->visitIntCmpULE(this); }
-IR::Instrs::IntCmpUGE::IntCmpUGE(Register *target, Value *lhs, Value *rhs): target(target), lhs(lhs), rhs(rhs) {}
-void IR::Instrs::IntCmpUGE::accept(InstructionVisitor *v) { v->visitIntCmpUGE(this); }
-IR::Instrs::FloatCmpNE::FloatCmpNE(Register *target, Value *lhs, Value *rhs): target(target), lhs(lhs), rhs(rhs) {}
-void IR::Instrs::FloatCmpNE::accept(InstructionVisitor *v) { v->visitFloatCmpNE(this); }
-IR::Instrs::FloatCmpEQ::FloatCmpEQ(Register *target, Value *lhs, Value *rhs): target(target), lhs(lhs), rhs(rhs) {}
-void IR::Instrs::FloatCmpEQ::accept(InstructionVisitor *v) { v->visitFloatCmpEQ(this); }
-IR::Instrs::FloatCmpULT::FloatCmpULT(Register *target, Value *lhs, Value *rhs): target(target), lhs(lhs), rhs(rhs) {}
-void IR::Instrs::FloatCmpULT::accept(InstructionVisitor *v) { v->visitFloatCmpULT(this); }
-IR::Instrs::FloatCmpUGT::FloatCmpUGT(Register *target, Value *lhs, Value *rhs): target(target), lhs(lhs), rhs(rhs) {}
-void IR::Instrs::FloatCmpUGT::accept(InstructionVisitor *v) { v->visitFloatCmpUGT(this); }
-IR::Instrs::FloatCmpULE::FloatCmpULE(Register *target, Value *lhs, Value *rhs): target(target), lhs(lhs), rhs(rhs) {}
-void IR::Instrs::FloatCmpULE::accept(InstructionVisitor *v) { v->visitFloatCmpULE(this); }
-IR::Instrs::FloatCmpUGE::FloatCmpUGE(Register *target, Value *lhs, Value *rhs): target(target), lhs(lhs), rhs(rhs) {}
-void IR::Instrs::FloatCmpUGE::accept(InstructionVisitor *v) { v->visitFloatCmpUGE(this); }
+IR::Instrs::CmpNE::CmpNE(Register *target, Value *lhs, Value *rhs): target(target), lhs(lhs), rhs(rhs) {}
+void IR::Instrs::CmpNE::accept(InstructionVisitor *v) { v->visitCmpNE(this); }
+IR::Instrs::CmpEQ::CmpEQ(Register *target, Value *lhs, Value *rhs): target(target), lhs(lhs), rhs(rhs) {}
+void IR::Instrs::CmpEQ::accept(InstructionVisitor *v) { v->visitCmpEQ(this); }
+IR::Instrs::CmpLT::CmpLT(Register *target, Value *lhs, Value *rhs): target(target), lhs(lhs), rhs(rhs) {}
+void IR::Instrs::CmpLT::accept(InstructionVisitor *v) { v->visitCmpLT(this); }
+IR::Instrs::CmpGT::CmpGT(Register *target, Value *lhs, Value *rhs): target(target), lhs(lhs), rhs(rhs) {}
+void IR::Instrs::CmpGT::accept(InstructionVisitor *v) { v->visitCmpGT(this); }
+IR::Instrs::CmpLE::CmpLE(Register *target, Value *lhs, Value *rhs): target(target), lhs(lhs), rhs(rhs) {}
+void IR::Instrs::CmpLE::accept(InstructionVisitor *v) { v->visitCmpLE(this); }
+IR::Instrs::CmpGE::CmpGE(Register *target, Value *lhs, Value *rhs): target(target), lhs(lhs), rhs(rhs) {}
+void IR::Instrs::CmpGE::accept(InstructionVisitor *v) { v->visitCmpGE(this); }
 IR::Instrs::BitXor::BitXor(Register *target, Value *lhs, Value *rhs): target(target), lhs(lhs), rhs(rhs) {}
 void IR::Instrs::BitXor::accept(InstructionVisitor *v) { v->visitBitXor(this); }
 IR::Instrs::BitOr::BitOr(Register *target, Value *lhs, Value *rhs): target(target), lhs(lhs), rhs(rhs) {}
@@ -62,22 +50,12 @@ IR::Instrs::Neg::Neg(Register *target, Value *op): target(target), op(op) {}
 void IR::Instrs::Neg::accept(InstructionVisitor *v) { v->visitNeg(this); }
 IR::Instrs::Trunc::Trunc(Register *target, Value *op, Type *newt): target(target), op(op), newt(newt) {}
 void IR::Instrs::Trunc::accept(InstructionVisitor *v) { v->visitTrunc(this); }
-IR::Instrs::ZeroExt::ZeroExt(Register *target, Value *op, Type *newt): target(target), op(op), newt(newt) {}
-void IR::Instrs::ZeroExt::accept(InstructionVisitor *v) { v->visitZeroExt(this); }
-IR::Instrs::SignExt::SignExt(Register *target, Value *op, Type *newt): target(target), op(op), newt(newt) {}
-void IR::Instrs::SignExt::accept(InstructionVisitor *v) { v->visitSignExt(this); }
-IR::Instrs::FloatTrunc::FloatTrunc(Register *target, Value *op, Type *newt): target(target), op(op), newt(newt) {}
-void IR::Instrs::FloatTrunc::accept(InstructionVisitor *v) { v->visitFloatTrunc(this); }
-IR::Instrs::FloatExt::FloatExt(Register *target, Value *op, Type *newt): target(target), op(op), newt(newt) {}
-void IR::Instrs::FloatExt::accept(InstructionVisitor *v) { v->visitFloatExt(this); }
-IR::Instrs::SIntToFloat::SIntToFloat(Register *target, Value *op, Type *newt): target(target), op(op), newt(newt) {}
-void IR::Instrs::SIntToFloat::accept(InstructionVisitor *v) { v->visitSIntToFloat(this); }
-IR::Instrs::UIntToFloat::UIntToFloat(Register *target, Value *op, Type *newt): target(target), op(op), newt(newt) {}
-void IR::Instrs::UIntToFloat::accept(InstructionVisitor *v) { v->visitUIntToFloat(this); }
-IR::Instrs::FloatToSInt::FloatToSInt(Register *target, Value *op, Type *newt): target(target), op(op), newt(newt) {}
-void IR::Instrs::FloatToSInt::accept(InstructionVisitor *v) { v->visitFloatToSInt(this); }
-IR::Instrs::FloatToUInt::FloatToUInt(Register *target, Value *op, Type *newt): target(target), op(op), newt(newt) {}
-void IR::Instrs::FloatToUInt::accept(InstructionVisitor *v) { v->visitFloatToUInt(this); }
+IR::Instrs::Ext::Ext(Register *target, Value *op, Type *newt): target(target), op(op), newt(newt) {}
+void IR::Instrs::Ext::accept(InstructionVisitor *v) { v->visitExt(this); }
+IR::Instrs::IntToFloat::IntToFloat(Register *target, Value *op, Type *newt): target(target), op(op), newt(newt) {}
+void IR::Instrs::IntToFloat::accept(InstructionVisitor *v) { v->visitIntToFloat(this); }
+IR::Instrs::FloatToInt::FloatToInt(Register *target, Value *op, Type *newt): target(target), op(op), newt(newt) {}
+void IR::Instrs::FloatToInt::accept(InstructionVisitor *v) { v->visitFloatToInt(this); }
 IR::Instrs::Return::Return(Value *value): value(value) {}
 void IR::Instrs::Return::accept(InstructionVisitor *v) { v->visitReturn(this); }
 IR::Instrs::Call::Call(Register *reg, Function *f, std::vector<Value*> args): reg(reg), f(f), args(args) {}

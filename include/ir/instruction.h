@@ -60,109 +60,55 @@ namespace IR
         Value *lhs;
         Value *rhs;
     };
-    class IntCmpNE : public Instruction
+    class CmpNE : public Instruction
     {
     public:
-        IntCmpNE(Register *target, Value *lhs, Value *rhs);
+        CmpNE(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
         Register *target;
         Value *lhs;
         Value *rhs;
     };
-    class IntCmpEQ : public Instruction
+    class CmpEQ : public Instruction
     {
     public:
-        IntCmpEQ(Register *target, Value *lhs, Value *rhs);
+        CmpEQ(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
         Register *target;
         Value *lhs;
         Value *rhs;
     };
-    class IntCmpULT : public Instruction
+    class CmpLT : public Instruction
     {
     public:
-        IntCmpULT(Register *target, Value *lhs, Value *rhs);
+        CmpLT(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
         Register *target;
         Value *lhs;
         Value *rhs;
     };
-    class IntCmpUGT : public Instruction
+    class CmpGT : public Instruction
     {
     public:
-        IntCmpUGT(Register *target, Value *lhs, Value *rhs);
+        CmpGT(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
         Register *target;
         Value *lhs;
         Value *rhs;
     };
-    class IntCmpULE : public Instruction
+    class CmpLE : public Instruction
     {
     public:
-        IntCmpULE(Register *target, Value *lhs, Value *rhs);
+        CmpLE(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
         Register *target;
         Value *lhs;
         Value *rhs;
     };
-    class IntCmpUGE : public Instruction
+    class CmpGE : public Instruction
     {
     public:
-        IntCmpUGE(Register *target, Value *lhs, Value *rhs);
-        void accept(InstructionVisitor *v) override;
-        Register *target;
-        Value *lhs;
-        Value *rhs;
-    };
-    class FloatCmpNE : public Instruction
-    {
-    public:
-        FloatCmpNE(Register *target, Value *lhs, Value *rhs);
-        void accept(InstructionVisitor *v) override;
-        Register *target;
-        Value *lhs;
-        Value *rhs;
-    };
-    class FloatCmpEQ : public Instruction
-    {
-    public:
-        FloatCmpEQ(Register *target, Value *lhs, Value *rhs);
-        void accept(InstructionVisitor *v) override;
-        Register *target;
-        Value *lhs;
-        Value *rhs;
-    };
-    class FloatCmpULT : public Instruction
-    {
-    public:
-        FloatCmpULT(Register *target, Value *lhs, Value *rhs);
-        void accept(InstructionVisitor *v) override;
-        Register *target;
-        Value *lhs;
-        Value *rhs;
-    };
-    class FloatCmpUGT : public Instruction
-    {
-    public:
-        FloatCmpUGT(Register *target, Value *lhs, Value *rhs);
-        void accept(InstructionVisitor *v) override;
-        Register *target;
-        Value *lhs;
-        Value *rhs;
-    };
-    class FloatCmpULE : public Instruction
-    {
-    public:
-        FloatCmpULE(Register *target, Value *lhs, Value *rhs);
-        void accept(InstructionVisitor *v) override;
-        Register *target;
-        Value *lhs;
-        Value *rhs;
-    };
-    class FloatCmpUGE : public Instruction
-    {
-    public:
-        FloatCmpUGE(Register *target, Value *lhs, Value *rhs);
+        CmpGE(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
         Register *target;
         Value *lhs;
@@ -283,73 +229,28 @@ namespace IR
         Value *op;
         Type *newt;
     };
-    class ZeroExt : public Instruction
+    class Ext : public Instruction
     {
     public:
-        ZeroExt(Register *target, Value *op, Type *newt);
+        Ext(Register *target, Value *op, Type *newt);
         void accept(InstructionVisitor *v) override;
         Register *target;
         Value *op;
         Type *newt;
     };
-    class SignExt : public Instruction
+    class IntToFloat : public Instruction
     {
     public:
-        SignExt(Register *target, Value *op, Type *newt);
+        IntToFloat(Register *target, Value *op, Type *newt);
         void accept(InstructionVisitor *v) override;
         Register *target;
         Value *op;
         Type *newt;
     };
-    class FloatTrunc : public Instruction
+    class FloatToInt : public Instruction
     {
     public:
-        FloatTrunc(Register *target, Value *op, Type *newt);
-        void accept(InstructionVisitor *v) override;
-        Register *target;
-        Value *op;
-        Type *newt;
-    };
-    class FloatExt : public Instruction
-    {
-    public:
-        FloatExt(Register *target, Value *op, Type *newt);
-        void accept(InstructionVisitor *v) override;
-        Register *target;
-        Value *op;
-        Type *newt;
-    };
-    class SIntToFloat : public Instruction
-    {
-    public:
-        SIntToFloat(Register *target, Value *op, Type *newt);
-        void accept(InstructionVisitor *v) override;
-        Register *target;
-        Value *op;
-        Type *newt;
-    };
-    class UIntToFloat : public Instruction
-    {
-    public:
-        UIntToFloat(Register *target, Value *op, Type *newt);
-        void accept(InstructionVisitor *v) override;
-        Register *target;
-        Value *op;
-        Type *newt;
-    };
-    class FloatToSInt : public Instruction
-    {
-    public:
-        FloatToSInt(Register *target, Value *op, Type *newt);
-        void accept(InstructionVisitor *v) override;
-        Register *target;
-        Value *op;
-        Type *newt;
-    };
-    class FloatToUInt : public Instruction
-    {
-    public:
-        FloatToUInt(Register *target, Value *op, Type *newt);
+        FloatToInt(Register *target, Value *op, Type *newt);
         void accept(InstructionVisitor *v) override;
         Register *target;
         Value *op;

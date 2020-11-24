@@ -128,27 +128,27 @@ IR::Value* IR::BuiltinType::binOp(CodeGenNS::Context &cgc, IR::Value *l, IR::Val
             break;
 
         case TokenType::BANGEQUAL:
-            cgc.curBlock->add(std::make_unique<Instrs::IntCmpNE>(outReg, l, r));
+            cgc.curBlock->add(std::make_unique<Instrs::CmpNE>(outReg, l, r));
             break;
 
         case TokenType::DOUBLEEQUAL:
-            cgc.curBlock->add(std::make_unique<Instrs::IntCmpEQ>(outReg, l, r));
+            cgc.curBlock->add(std::make_unique<Instrs::CmpEQ>(outReg, l, r));
             break;
 
         case TokenType::LESS:
-            cgc.curBlock->add(std::make_unique<Instrs::IntCmpULT>(outReg, l, r)); // TODO: unsigned and signed
+            cgc.curBlock->add(std::make_unique<Instrs::CmpLT>(outReg, l, r)); // TODO: unsigned and signed
             break;
 
         case TokenType::GREATER:
-            cgc.curBlock->add(std::make_unique<Instrs::IntCmpUGT>(outReg, l, r));
+            cgc.curBlock->add(std::make_unique<Instrs::CmpGT>(outReg, l, r));
             break;
 
         case TokenType::LESSEQUAL:
-            cgc.curBlock->add(std::make_unique<Instrs::IntCmpULE>(outReg, l, r));
+            cgc.curBlock->add(std::make_unique<Instrs::CmpLE>(outReg, l, r));
             break;
 
         case TokenType::GREATEREQUAL:
-            cgc.curBlock->add(std::make_unique<Instrs::IntCmpUGE>(outReg, l, r));
+            cgc.curBlock->add(std::make_unique<Instrs::CmpGE>(outReg, l, r));
             break;
 
         case TokenType::CARET:
@@ -214,9 +214,6 @@ IR::Value* IR::BuiltinType::castTo(CodeGenNS::Context &cgc, IR::Value *v)
         return v;
 
 #define TYPEIS(v, e) v->type == BuiltinType::Builtins::e
-    bool stysigned = TYPEIS(sty, SINT8) || TYPEIS(sty, SINT16) || TYPEIS(sty, SINT32) || TYPEIS(sty, SINT64) || TYPEIS(sty, FLOAT) || TYPEIS(sty, CHAR) || TYPEIS(sty, DOUBLE);
-    bool etysigned = TYPEIS(this, SINT8) || TYPEIS(this, SINT16) || TYPEIS(this, SINT32) || TYPEIS(this, SINT64) || TYPEIS(this, FLOAT) || TYPEIS(this, CHAR) || TYPEIS(this, DOUBLE);
-
     bool styintegral = TYPEIS(sty, CHAR) || TYPEIS(sty, BOOL) || TYPEIS(sty, UINT8) || TYPEIS(sty, UINT16) || TYPEIS(sty, UINT32) || TYPEIS(sty, UINT64) || TYPEIS(sty, SINT8) || TYPEIS(sty, SINT16) || TYPEIS(sty, SINT32) || TYPEIS(sty, SINT64);
     bool etyintegral = TYPEIS(this, CHAR) || TYPEIS(this, BOOL) || TYPEIS(this, UINT8) || TYPEIS(this, UINT16) || TYPEIS(this, UINT32) || TYPEIS(this, UINT64) || TYPEIS(this, SINT8) || TYPEIS(this, SINT16) || TYPEIS(this, SINT32) || TYPEIS(this, SINT64);
 #undef TYPEIS
@@ -237,7 +234,7 @@ IR::Value* IR::BuiltinType::castTo(CodeGenNS::Context &cgc, IR::Value *v)
     };
 
     IR::Register *outReg = cgc.curFunc->addRegister(this, v->ast());
-    if (styintegral && etyintegral)
+    if (styintegral == etyintegral)
     {
         // int -> int
         int stySize = tysize.at(sty->type);
@@ -245,36 +242,17 @@ IR::Value* IR::BuiltinType::castTo(CodeGenNS::Context &cgc, IR::Value *v)
         if (stySize > etySize)
             cgc.curBlock->add(std::make_unique<Instrs::Trunc>(outReg, v, this));
         else
-            if (etysigned)
-                cgc.curBlock->add(std::make_unique<Instrs::ZeroExt>(outReg, v, this));
-            else
-                cgc.curBlock->add(std::make_unique<Instrs::SignExt>(outReg, v, this));
+            cgc.curBlock->add(std::make_unique<Instrs::Ext>(outReg, v, this));
     }
     else if (styintegral && !etyintegral)
     {
         // int -> fp
-        if (stysigned)
-            cgc.curBlock->add(std::make_unique<Instrs::SIntToFloat>(outReg, v, this));
-        else
-            cgc.curBlock->add(std::make_unique<Instrs::UIntToFloat>(outReg, v, this));
+        cgc.curBlock->add(std::make_unique<Instrs::IntToFloat>(outReg, v, this));
     }
     else if (!styintegral && etyintegral)
     {
         // fp -> int
-        if (etysigned)
-            cgc.curBlock->add(std::make_unique<Instrs::FloatToSInt>(outReg, v, this));
-        else
-            cgc.curBlock->add(std::make_unique<Instrs::FloatToUInt>(outReg, v, this));
-    }
-    else
-    {
-        // fp -> fp
-        int stySize = tysize.at(sty->type);
-        int etySize = tysize.at(this->type);
-        if (stySize > etySize)
-            cgc.curBlock->add(std::make_unique<Instrs::FloatTrunc>(outReg, v, this));
-        else
-            cgc.curBlock->add(std::make_unique<Instrs::FloatExt>(outReg, v, this));
+        cgc.curBlock->add(std::make_unique<Instrs::FloatToInt>(outReg, v, this));
     }
 
     // From row to column cast -- this is what the code above should do
@@ -282,29 +260,29 @@ IR::Value* IR::BuiltinType::castTo(CodeGenNS::Context &cgc, IR::Value *v)
     //          +--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
     //          | UINT8  | UINT16 | UINT32 | UINT64 | SINT8  | SINT16 | SINT32 | SINT64 | FLOAT   | CHAR   | BOOL   | DOUBLE |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
-    // | UINT8  | None   | ZExt   | ZExt   | ZExt   | None   | SExt   | SExt   | SExt   | UIToFP  | None   | Trunc  | UIToFP |
+    // | UINT8  | None   | Ext    | Ext    | Ext    | None   | Ext    | Ext    | Ext    | IToF    | None   | Trunc  | IToF   |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
-    // | UINT16 | Trunc  | None   | ZExt   | ZExt   | Trunc  | None   | SExt   | SExt   | UIToFP  | Trunc  | Trunc  | UIToFP |
+    // | UINT16 | Trunc  | None   | Ext    | Ext    | Trunc  | None   | Ext    | Ext    | IToF    | Trunc  | Trunc  | IToF   |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
-    // | UINT32 | Trunc  | Trunc  | None   | ZExt   | Trunc  | Trunc  | None   | SExt   | UIToFP  | Trunc  | Trunc  | UIToFP |
+    // | UINT32 | Trunc  | Trunc  | None   | Ext    | Trunc  | Trunc  | None   | Ext    | IToF    | Trunc  | Trunc  | IToF   |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
-    // | UINT64 | Trunc  | Trunc  | Trunc  | None   | Trunc  | Trunc  | Trunc  | None   | UIToFP  | Trunc  | Trunc  | UIToFP |
+    // | UINT64 | Trunc  | Trunc  | Trunc  | None   | Trunc  | Trunc  | Trunc  | None   | IToF    | Trunc  | Trunc  | IToF   |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
-    // | SINT8  | None   | ZExt   | ZExt   | ZExt   | None   | SExt   | SExt   | SExt   | SIToFP  | None   | Trunc  | SIToFP |
+    // | SINT8  | None   | Ext    | Ext    | Ext    | None   | Ext    | Ext    | Ext    | IToF    | None   | Trunc  | IToF   |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
-    // | SINT16 | Trunc  | None   | ZExt   | ZExt   | Trunc  | None   | SExt   | SExt   | SIToFP  | Trunc  | Trunc  | SIToFP |
+    // | SINT16 | Trunc  | None   | Ext    | Ext    | Trunc  | None   | Ext    | Ext    | IToF    | Trunc  | Trunc  | IToF   |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
-    // | SINT32 | Trunc  | Trunc  | None   | ZExt   | Trunc  | Trunc  | None   | SExt   | SIToFP  | Trunc  | Trunc  | SIToFP |
+    // | SINT32 | Trunc  | Trunc  | None   | Ext    | Trunc  | Trunc  | None   | Ext    | IToF    | Trunc  | Trunc  | IToF   |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
-    // | SINT64 | Trunc  | Trunc  | Trunc  | None   | Trunc  | Trunc  | Trunc  | None   | SIToFP  | Trunc  | Trunc  | SIToFP |
+    // | SINT64 | Trunc  | Trunc  | Trunc  | None   | Trunc  | Trunc  | Trunc  | None   | IToF    | Trunc  | Trunc  | IToF   |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
-    // | FLOAT  | FPToUI | FPToUI | FPToUI | FPToUI | FPToSI | FPToSI | FPToSI | FPToSI | None    | FPToUI | FPToUI | FPExt  |
+    // | FLOAT  | FToI   | FToI   | FToI   | FToI   | FToI   | FToI   | FToI   | FToI   | None    | FToI   | FToI   | Ext    |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
-    // | CHAR   | None   | ZExt   | ZExt   | ZExt   | None   | SExt   | SExt   | SExt   | SIToFP  | None   | Trunc  | SIToFP |
+    // | CHAR   | None   | Ext    | Ext    | Ext    | None   | Ext    | Ext    | Ext    | IToF    | None   | Trunc  | IToF   |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
-    // | BOOL   | ZExt   | ZExt   | ZExt   | ZExt   | SExt   | SExt   | SExt   | SExt   | UIToFP  | ZExt   | None   | UIToFP |
+    // | BOOL   | Ext    | Ext    | Ext    | Ext    | Ext    | Ext    | Ext    | Ext    | IToF    | Ext    | None   | IToF   |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
-    // | DOUBLE | FPToUI | FPToUI | FPToUI | FPToUI | FPToSI | FPToSI | FPToSI | FPToSI | FPTrunc | FPToSI | FPToUI | None   |
+    // | DOUBLE | FToI   | FToI   | FToI   | FToI   | FToI   | FToI   | FToI   | FToI   | Trunc   | FToI   | FToI   | None   |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
     return outReg;
 }
@@ -318,7 +296,7 @@ IR::Value* IR::BuiltinType::unaryOp(CodeGenNS::Context &cgc, IR::Value *v, Token
     switch (op.type)
     {
         case TokenType::BANG:
-            cgc.curBlock->add(std::make_unique<Instrs::IntCmpEQ>(outReg, v, cgc.getConstInt(this, 0, ast)));
+            cgc.curBlock->add(std::make_unique<Instrs::CmpEQ>(outReg, v, cgc.getConstInt(this, 0, ast)));
             break;
 
         case TokenType::TILDE:
@@ -353,16 +331,13 @@ IR::Value* IR::BuiltinType::isTrue(CodeGenNS::Context &cgc, IR::Value *v)
         case BuiltinType::Builtins::SINT32:
         case BuiltinType::Builtins::SINT64:
         case BuiltinType::Builtins::CHAR:
-            cgc.curBlock->add(std::make_unique<Instrs::IntCmpNE>(outReg, v, cgc.getConstInt(this, 0, v->ast())));
+        case BuiltinType::Builtins::FLOAT:
+        case BuiltinType::Builtins::DOUBLE:
+            cgc.curBlock->add(std::make_unique<Instrs::CmpNE>(outReg, v, cgc.getConstInt(this, 0, v->ast())));
             break;
 
         case BuiltinType::Builtins::BOOL:
             return v;
-
-        case BuiltinType::Builtins::FLOAT:
-        case BuiltinType::Builtins::DOUBLE:
-            cgc.curBlock->add(std::make_unique<Instrs::FloatCmpNE>(outReg, v, cgc.getConstInt(this, 0, v->ast())));
-            break;
     }
     return outReg;
 }

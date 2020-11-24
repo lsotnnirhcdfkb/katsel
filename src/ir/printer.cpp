@@ -30,108 +30,54 @@ void IR::Printer::visitAnd(IR::Instrs::And *i)
     ostream << " ";
     ostream << i->rhs->stringify();
 }
-void IR::Printer::visitIntCmpNE(IR::Instrs::IntCmpNE *i)
+void IR::Printer::visitCmpNE(IR::Instrs::CmpNE *i)
 {
-    ostream << "intcmpne ";
+    ostream << "cmpne ";
     ostream << i->target->stringify();
     ostream << " ";
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
 }
-void IR::Printer::visitIntCmpEQ(IR::Instrs::IntCmpEQ *i)
+void IR::Printer::visitCmpEQ(IR::Instrs::CmpEQ *i)
 {
-    ostream << "intcmpeq ";
+    ostream << "cmpeq ";
     ostream << i->target->stringify();
     ostream << " ";
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
 }
-void IR::Printer::visitIntCmpULT(IR::Instrs::IntCmpULT *i)
+void IR::Printer::visitCmpLT(IR::Instrs::CmpLT *i)
 {
-    ostream << "intcmpult ";
+    ostream << "cmplt ";
     ostream << i->target->stringify();
     ostream << " ";
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
 }
-void IR::Printer::visitIntCmpUGT(IR::Instrs::IntCmpUGT *i)
+void IR::Printer::visitCmpGT(IR::Instrs::CmpGT *i)
 {
-    ostream << "intcmpugt ";
+    ostream << "cmpgt ";
     ostream << i->target->stringify();
     ostream << " ";
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
 }
-void IR::Printer::visitIntCmpULE(IR::Instrs::IntCmpULE *i)
+void IR::Printer::visitCmpLE(IR::Instrs::CmpLE *i)
 {
-    ostream << "intcmpule ";
+    ostream << "cmple ";
     ostream << i->target->stringify();
     ostream << " ";
     ostream << i->lhs->stringify();
     ostream << " ";
     ostream << i->rhs->stringify();
 }
-void IR::Printer::visitIntCmpUGE(IR::Instrs::IntCmpUGE *i)
+void IR::Printer::visitCmpGE(IR::Instrs::CmpGE *i)
 {
-    ostream << "intcmpuge ";
-    ostream << i->target->stringify();
-    ostream << " ";
-    ostream << i->lhs->stringify();
-    ostream << " ";
-    ostream << i->rhs->stringify();
-}
-void IR::Printer::visitFloatCmpNE(IR::Instrs::FloatCmpNE *i)
-{
-    ostream << "floatcmpne ";
-    ostream << i->target->stringify();
-    ostream << " ";
-    ostream << i->lhs->stringify();
-    ostream << " ";
-    ostream << i->rhs->stringify();
-}
-void IR::Printer::visitFloatCmpEQ(IR::Instrs::FloatCmpEQ *i)
-{
-    ostream << "floatcmpeq ";
-    ostream << i->target->stringify();
-    ostream << " ";
-    ostream << i->lhs->stringify();
-    ostream << " ";
-    ostream << i->rhs->stringify();
-}
-void IR::Printer::visitFloatCmpULT(IR::Instrs::FloatCmpULT *i)
-{
-    ostream << "floatcmpult ";
-    ostream << i->target->stringify();
-    ostream << " ";
-    ostream << i->lhs->stringify();
-    ostream << " ";
-    ostream << i->rhs->stringify();
-}
-void IR::Printer::visitFloatCmpUGT(IR::Instrs::FloatCmpUGT *i)
-{
-    ostream << "floatcmpugt ";
-    ostream << i->target->stringify();
-    ostream << " ";
-    ostream << i->lhs->stringify();
-    ostream << " ";
-    ostream << i->rhs->stringify();
-}
-void IR::Printer::visitFloatCmpULE(IR::Instrs::FloatCmpULE *i)
-{
-    ostream << "floatcmpule ";
-    ostream << i->target->stringify();
-    ostream << " ";
-    ostream << i->lhs->stringify();
-    ostream << " ";
-    ostream << i->rhs->stringify();
-}
-void IR::Printer::visitFloatCmpUGE(IR::Instrs::FloatCmpUGE *i)
-{
-    ostream << "floatcmpuge ";
+    ostream << "cmpge ";
     ostream << i->target->stringify();
     ostream << " ";
     ostream << i->lhs->stringify();
@@ -251,72 +197,27 @@ void IR::Printer::visitTrunc(IR::Instrs::Trunc *i)
     ostream << " ";
     ostream << i->newt->stringify();
 }
-void IR::Printer::visitZeroExt(IR::Instrs::ZeroExt *i)
+void IR::Printer::visitExt(IR::Instrs::Ext *i)
 {
-    ostream << "zeroext ";
+    ostream << "ext ";
     ostream << i->target->stringify();
     ostream << " ";
     ostream << i->op->stringify();
     ostream << " ";
     ostream << i->newt->stringify();
 }
-void IR::Printer::visitSignExt(IR::Instrs::SignExt *i)
+void IR::Printer::visitIntToFloat(IR::Instrs::IntToFloat *i)
 {
-    ostream << "signext ";
+    ostream << "inttofloat ";
     ostream << i->target->stringify();
     ostream << " ";
     ostream << i->op->stringify();
     ostream << " ";
     ostream << i->newt->stringify();
 }
-void IR::Printer::visitFloatTrunc(IR::Instrs::FloatTrunc *i)
+void IR::Printer::visitFloatToInt(IR::Instrs::FloatToInt *i)
 {
-    ostream << "floattrunc ";
-    ostream << i->target->stringify();
-    ostream << " ";
-    ostream << i->op->stringify();
-    ostream << " ";
-    ostream << i->newt->stringify();
-}
-void IR::Printer::visitFloatExt(IR::Instrs::FloatExt *i)
-{
-    ostream << "floatext ";
-    ostream << i->target->stringify();
-    ostream << " ";
-    ostream << i->op->stringify();
-    ostream << " ";
-    ostream << i->newt->stringify();
-}
-void IR::Printer::visitSIntToFloat(IR::Instrs::SIntToFloat *i)
-{
-    ostream << "sinttofloat ";
-    ostream << i->target->stringify();
-    ostream << " ";
-    ostream << i->op->stringify();
-    ostream << " ";
-    ostream << i->newt->stringify();
-}
-void IR::Printer::visitUIntToFloat(IR::Instrs::UIntToFloat *i)
-{
-    ostream << "uinttofloat ";
-    ostream << i->target->stringify();
-    ostream << " ";
-    ostream << i->op->stringify();
-    ostream << " ";
-    ostream << i->newt->stringify();
-}
-void IR::Printer::visitFloatToSInt(IR::Instrs::FloatToSInt *i)
-{
-    ostream << "floattosint ";
-    ostream << i->target->stringify();
-    ostream << " ";
-    ostream << i->op->stringify();
-    ostream << " ";
-    ostream << i->newt->stringify();
-}
-void IR::Printer::visitFloatToUInt(IR::Instrs::FloatToUInt *i)
-{
-    ostream << "floattouint ";
+    ostream << "floattoint ";
     ostream << i->target->stringify();
     ostream << " ";
     ostream << i->op->stringify();
