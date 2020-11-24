@@ -148,11 +148,11 @@ def genLowers():
         if instr.autogen:
             output.append(    f'void Lower::Lowerer::visit{instr.name}(IR::Instrs::{instr.name} *instr)\n')
             output.append(     '{\n')
-            output.append(    f'    builder.Create{instr.autogeninstr}(')
+            output.append(    f'    builder.CreateStore(builder.Create{instr.autogeninstr}(')
             for i, arg in enumerate(instr.autogenargs):
                 if i > 0:
                     output.append(', ')
-                output.append(f'lower(instr->{arg})')
+                output.append(f'lower(instr->{arg})), registers.at(instr->target))')
             output.append(    ');\n')
             output.append(     '}\n')
 
