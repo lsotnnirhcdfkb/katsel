@@ -11,6 +11,9 @@ namespace IR
 #include "lex/tokentype.h"
 #include "ast/ast.h"
 
+#include "llvm/IR/Type.h"
+#include "llvm/IR/LLVMContext.h"
+
 namespace CodeGenNS
 {
     class Context;
@@ -32,6 +35,8 @@ namespace IR
         virtual IR::Value* castTo(CodeGenNS::Context &cgc, IR::Value *v) = 0;
 
         ASTNS::TypeB *ast;
+
+        virtual llvm::Type* toLLVMType(llvm::LLVMContext &con) const = 0;
     };
 
     class BuiltinType : public Type
@@ -65,6 +70,8 @@ namespace IR
         IR::Value* isTrue(CodeGenNS::Context &cgc, IR::Value *v) override;
 
         IR::Value* castTo(CodeGenNS::Context &cgc, IR::Value *v) override;
+
+        llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
     };
 
 
@@ -82,6 +89,8 @@ namespace IR
         IR::Value* isTrue(CodeGenNS::Context &cgc, IR::Value *v) override;
 
         IR::Value* castTo(CodeGenNS::Context &cgc, IR::Value *v) override;
+
+        llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
     };
 
     class VoidType : public Type
@@ -94,5 +103,7 @@ namespace IR
         IR::Value* isTrue(CodeGenNS::Context &cgc, IR::Value *v) override;
 
         IR::Value* castTo(CodeGenNS::Context &cgc, IR::Value *v) override;
+
+        llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
     };
 }

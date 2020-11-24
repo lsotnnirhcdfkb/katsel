@@ -71,6 +71,7 @@ namespace Lower
         llvm::IRBuilder<> builder;
         llvm::Module mod;
 
-        std::map<Register*, llvm::AllocaInst*> allocas;
+        std::map<IR::Register*, llvm::AllocaInst*> allocas;
+        std::map<IR::Block*, llvm::BasicBlock*> blocks;
     };
 }
