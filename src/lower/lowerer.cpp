@@ -51,6 +51,7 @@ void Lower::Lowerer::lower(IR::Function const &f)
 
 void Lower::Lowerer::lower(IR::Block const &b)
 {
+    builder.SetInsertPoint(blocks[&b]);
     for (std::unique_ptr<IR::Instrs::Instruction> const &i : b.instructions)
         i->accept(this);
 
