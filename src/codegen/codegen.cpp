@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-CodeGenNS::CodeGen::CodeGen(File const &file) : context(file), declarator(*this), typeResolver(*this), paramVisitor(*this), argsVisitor(*this), declCodeGen(*this), stmtCodeGen(*this), exprCodeGen(*this) {}
+CodeGenNS::CodeGen::CodeGen(File const &file) : context(file), declarator(*this), typeResolver(*this), paramVisitor(*this), argsVisitor(*this), declCodeGen(*this), stmtCodeGen(*this), exprCodeGen(*this), errored(false) {}
 
 void CodeGenNS::CodeGen::declarate(ASTNS::DeclB *decls)
 {

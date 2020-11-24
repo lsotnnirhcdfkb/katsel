@@ -51,6 +51,8 @@ namespace Lower
 
         void printMod(std::ostream &ostream);
 
+        bool errored;
+
     private:
         void lower(IR::Function const &f);
         void lower(IR::Block const &b);

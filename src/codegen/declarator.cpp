@@ -22,6 +22,7 @@ void CodeGenNS::Declarator::visitFunction(ASTNS::Function *fun)
             .underline(Error::Underline(declbefore, '-')
                 .note("Previous declaration is here"))
             .report();
+        cg.errored = true;
         return;
     }
 

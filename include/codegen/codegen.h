@@ -244,5 +244,7 @@ void visitUnaryExpr(ASTNS::UnaryExpr *ast) override;
         DeclCodeGen declCodeGen;
         StmtCodeGen stmtCodeGen;
         ExprCodeGen exprCodeGen;
+
+        bool errored;
     };
 }

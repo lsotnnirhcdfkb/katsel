@@ -13,6 +13,7 @@ void CodeGenNS::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem *ast)
             .underline(Error::Underline(var->v->ast(), '-')
                 .note("previous declaration is here"))
             .report();
+        cg.errored = true;
         return;
     }
 
@@ -34,6 +35,7 @@ void CodeGenNS::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem *ast)
                     .note(varty->stringify()))
                 .underline(Error::Underline(ast->equal, '-'))
                 .report();
+            cg.errored = true;
             return;
         }
         cg.context.curBlock->add(std::make_unique<IR::Instrs::Store>(reg, val));

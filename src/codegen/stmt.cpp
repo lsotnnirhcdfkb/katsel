@@ -35,6 +35,7 @@ void CodeGenNS::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
                 .underline(Error::Underline(static_cast<ASTNS::Function*>(cg.context.curFunc->ast())->retty.get(), '-')
                     .note("returns void"))
                 .report();
+            cg.errored = true;
             return;
         }
 
@@ -46,6 +47,7 @@ void CodeGenNS::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
                 .underline(Error::Underline(static_cast<ASTNS::Function*>(cg.context.curFunc->ast())->retty.get(), '-')
                     .note(concatMsg("function returns ", cg.context.retReg->type()->stringify())))
                 .report();
+            cg.errored = true;
             return;
         }
 
@@ -59,6 +61,7 @@ void CodeGenNS::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
             .underline(Error::Underline(static_cast<ASTNS::Function*>(cg.context.curFunc->ast())->retty.get(), '-')
                 .note(concatMsg("function returns ", cg.context.retReg->type()->stringify())))
             .report();
+        cg.errored = true;
         return;
     }
 

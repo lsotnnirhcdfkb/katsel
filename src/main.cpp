@@ -169,7 +169,6 @@ int main(int argc, char *argv[])
 
         auto parser = std::make_unique<Parser>(*lexer, *source);
         std::unique_ptr<ASTNS::DeclB> parsed = parser->parse();
-
         if (!parsed)
             continue;
 
@@ -188,8 +187,10 @@ int main(int argc, char *argv[])
         }
 
         auto codegen = std::make_unique<CodeGenNS::CodeGen>(*source);
-
         codegen->declarate(parsed.get());
+        if (codegen->errored)
+            continue;
+
         if (outformat == OutFormats::DECLS)
         {
             codegen->printUnit(outputstream);
@@ -197,6 +198,9 @@ int main(int argc, char *argv[])
         }
 
         codegen->codegen(parsed.get());
+        if (codegen->errored)
+            continue;
+
         if (outformat == OutFormats::CODEGEN)
         {
             codegen->printUnit(outputstream);
@@ -211,6 +215,9 @@ int main(int argc, char *argv[])
 
         auto lowerer = std::make_unique<Lower::Lowerer>(codegen->context.unit);
         lowerer->lower();
+        if (lowerer->errored)
+            continue;
+
         if (outformat == OutFormats::LOWER)
         {
             lowerer->printMod(outputstream);

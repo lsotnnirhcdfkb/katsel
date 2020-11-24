@@ -13,8 +13,8 @@ IR::Value* CodeGenNS::ExprCodeGen::expr(ASTNS::ExprB *ast)
 #define BASICBINARYOP(exprtype)                                                                                                           \
     void CodeGenNS::ExprCodeGen::visit##exprtype##Expr(ASTNS::exprtype##Expr *ast)                                                        \
     {                                                                                                                                     \
-        IR::Value *lhs = expr(ast->lhs.get());                                                                                                \
-        IR::Value *rhs = expr(ast->rhs.get());                                                                                                \
+        IR::Value *lhs = expr(ast->lhs.get());                                                                                            \
+        IR::Value *rhs = expr(ast->rhs.get());                                                                                            \
                                                                                                                                           \
         if (!lhs || !rhs)                                                                                                                 \
         {                                                                                                                                 \
@@ -31,7 +31,8 @@ IR::Value* CodeGenNS::ExprCodeGen::expr(ASTNS::ExprB *ast)
                 .underline(Error::Underline(rhs, '-'))                                                                                    \
                 .report();                                                                                                                \
                 ret = nullptr;                                                                                                            \
-                return;                                                                                                                   \
+            cg.errored = true;                                                                                                            \
+            return;                                                                                                                       \
         }                                                                                                                                 \
                                                                                                                                           \
         ret = lhs->type()->binOp(cg.context, lhs, rhs, ast->op, ast);                                                                     \
@@ -40,7 +41,7 @@ IR::Value* CodeGenNS::ExprCodeGen::expr(ASTNS::ExprB *ast)
 #define BASICUNARYOP(exprtype)                                                                                                                        \
     void CodeGenNS::ExprCodeGen::visit##exprtype##Expr(ASTNS::exprtype##Expr *ast)                                                                    \
     {                                                                                                                                                 \
-        IR::Value *oper = expr(ast->operand.get());                                                                                                       \
+        IR::Value *oper = expr(ast->operand.get());                                                                                                   \
         if (!oper)                                                                                                                                    \
         {                                                                                                                                             \
             ret = nullptr;                                                                                                                            \
@@ -55,6 +56,7 @@ IR::Value* CodeGenNS::ExprCodeGen::expr(ASTNS::ExprB *ast)
                 .underline(Error::Underline(oper, '-'))                                                                                               \
                 .report();                                                                                                                            \
             ret = nullptr;                                                                                                                            \
+            cg.errored = true;                                                                                                                        \
             return;                                                                                                                                   \
         }                                                                                                                                             \
                                                                                                                                                       \
@@ -91,6 +93,7 @@ void CodeGenNS::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
                 .error(concatMsg("cannot call non-function of type \"", func->type()->stringify(), "\"")))
             .report();
         ret = nullptr;
+        cg.errored = true;
         return;
     }
 
@@ -107,6 +110,7 @@ void CodeGenNS::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
             .underline(Error::Underline(func, '-')
                 .note(concatMsg("function expects ", fty->paramtys.size(), " arguments, but got ", args.size(), " arguments")))
             .report();
+        cg.errored = true;
         ret = nullptr;
         return;
     }
@@ -130,6 +134,7 @@ void CodeGenNS::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
                     .note(concatMsg("passing to parameter of type \"", (*j)->stringify(), "\"")))
                 .report();
             ret = nullptr;
+            cg.errored = true;
             return;
         }
     }
@@ -172,7 +177,6 @@ void CodeGenNS::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast)
                 .underline(Error::Underline(ast->value, '^')
                         .note("coming soon!"))
                 .reportAbort();
-            return;
 
         case TokenType::NULLPTRLIT:
             Error(Error::MsgType::INTERR, ast->value, "nullptr literals are not supported yet")
@@ -219,6 +223,7 @@ void CodeGenNS::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast)
                                 .error("name is not defined"))
                         .report();
                     ret = nullptr;
+                    cg.errored = true;
                     return;
                 }
                 ret = v; // TODO: somehow associate a different ast with this value
@@ -277,6 +282,7 @@ void CodeGenNS::ExprCodeGen::visitTernaryExpr(ASTNS::TernaryExpr *ast)
             .underline(Error::Underline(ast->quest, '-'))
             .report();
         ret = nullptr;
+        cg.errored = true;
         return;
     }
 
@@ -310,6 +316,7 @@ void CodeGenNS::ExprCodeGen::visitAssignmentExpr(ASTNS::AssignmentExpr *ast)
             .underline(Error::Underline(lhs, '~'))
             .report();
         ret = nullptr;
+        cg.errored = true;
         return;
     }
 
@@ -323,6 +330,7 @@ void CodeGenNS::ExprCodeGen::visitAssignmentExpr(ASTNS::AssignmentExpr *ast)
             .underline(Error::Underline(ast->equal, '-'))
             .report();
         ret = nullptr;
+        cg.errored = true;
         return;
     }
 
