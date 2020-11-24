@@ -12,6 +12,7 @@ void IR::Unit::print(std::ostream &ostream) const
 void IR::Unit::cfgDot(std::ostream &ostream) const
 {
     ostream << "strict digraph \"CFG for unit " << file.filename << "\" {\n";
+    ostream << "    graph [label=\"CFG for unit " << file.filename << "\"]\n";
     for (std::unique_ptr<IR::Function> const &f : functions)
         f->cfgDot(ostream);
     ostream << "}\n";

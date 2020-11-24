@@ -47,7 +47,9 @@ void IR::Block::cfgDot(std::ostream &os)
     IR::Printer p (os);
     IR::CFGDotter c (os);
 
-    os << "        block" << this << " [shape=record,label=\"";
+    os << "        block" << this << " [shape=record,label=\"-- ";
+    stringify(os);
+    os << " --\\l";
     for (std::unique_ptr<Instrs::Instruction> const &i : instructions)
     {
         i->accept(&p);

@@ -57,6 +57,7 @@ void IR::Function::definition(std::ostream &os) const
 void IR::Function::cfgDot(std::ostream &os) const
 {
     os << "    subgraph cluster_fun_" << name << " {\n";
+    os << "        graph [label=\"" << stringify() << "\"]\n";
     for (std::unique_ptr<Block> const &b : blocks)
         b->cfgDot(os);
     os << "    }\n";
