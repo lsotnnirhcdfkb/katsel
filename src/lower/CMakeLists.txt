@@ -1,1 +1,1 @@
-target_sources(katselc PUBLIC lowerbr.cpp lowerinstr.cpp)
+target_sources(katselc PUBLIC lowerbr.cpp lowerinstr.cpp lowerer.cpp)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ir/instruction.h"
+#include "ir/value.h"
 #include "ir/unit.h"
 #include "ir/visitor.h"
 
@@ -61,10 +62,15 @@ namespace Lower
         void printMod(std::ostream &ostream);
 
     private:
+        void lower(IR::Function const &f);
+        void lower(IR::Block const &b);
+
         IR::Unit const &unit;
 
         llvm::LLVMContext context;
         llvm::IRBuilder<> builder;
         llvm::Module mod;
+
+        std::map<Register*, llvm::AllocaInst*> allocas;
     };
 }

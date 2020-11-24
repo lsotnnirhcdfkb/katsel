@@ -58,6 +58,7 @@ namespace IR
         bool assignable() const override;
 
         std::vector<std::unique_ptr<Block>> blocks;
+        std::vector<std::unique_ptr<Register>> registers;
 
         Block* addBlock(std::string name);
         Register* addRegister(Type *ty, ASTNS::AST *ast, bool temp=true);
@@ -70,8 +71,6 @@ namespace IR
 
         size_t blocki;
         size_t regi;
-
-        std::vector<std::unique_ptr<Register>> registers;
     };
 
     class ConstInt : public Value
