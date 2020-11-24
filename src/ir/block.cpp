@@ -48,8 +48,8 @@ void IR::Block::cfgDot(std::ostream &os)
     os << "block" << this << " [shape=record,label=\"";
     for (std::unique_ptr<Instrs::Instruction> const &i : instructions)
         i->accept(&p);
-
     os << "\"]\n";
+
     if (br)
     {
         os << "block" << this << " -> branch" << br.get() << std::endl;;
