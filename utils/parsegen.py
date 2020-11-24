@@ -7,8 +7,6 @@ import os, re, colorama, itertools
 class NonTerminal:
     def __init__(self, symbol, name=None):
         self.symbol = symbol
-        self.first = []
-        self.follow = []
         self.name = name
 
     def __repr__(self):
@@ -30,11 +28,6 @@ class NonTerminal:
                     break
 
         return self.name
-
-    def updateFirsts(self):
-        self.first = getFirsts(self)
-    def updateFollows(self):
-        self.follow, self.ntfollow = getFollows(self)
 
 class Terminal:
     def __init__(self, symbol):
@@ -169,16 +162,18 @@ class State:
                 else:
                     expected.append(f'stringifyTokenType({after.astt()})')
             else:
-                if len(item.rule.symbol.follow) > 4:
-                    expected.extend(map(lambda nt: f'"{_grammar[str(nt)]["name"]}"', item.rule.symbol.ntfollow))
+                if len(follows[item.rule.symbol]) > 4:
+                    expected.extend(map(lambda nt: f'"{_grammar[str(nt)]["name"]}"', ntfollows[item.rule.symbol]))
                 else:
-                    expected.extend(map(lambda x: f'stringifyTokenType({x.astt()})', item.rule.symbol.follow))
+                    expected.extend(map(lambda x: f'stringifyTokenType({x.astt()})', follows[item.rule.symbol]))
 
             whileparsing.append(f'"{item.rule.symbol.name}"')
 
         justparsed = list(set(justparsed))
         if len(set(justparsed)) > 1:
             raise Exception('More than one justparsed: ' + str(justparsed) + ' from\n'+ str(self.set_))
+
+        assert len(justparsed), 'No justparsed'
 
         self.justparsed = justparsed[0]
 
@@ -224,59 +219,85 @@ class AcceptAction:
 def makeUnique(already, new):
     return [x for x in new if x not in already]
 # first and follows functions {{{2
-def getFirsts(sym):
-    if type(sym) == Terminal:
-        return [sym]
+def findFirsts():
+    global firsts
+    firsts = {}
 
-    firsts = []
     for rule in grammar:
-        if rule.symbol == sym:
+        firsts[rule.symbol] = []
+
+    changed = True
+    while changed:
+        changed = False
+        for rule in grammar:
+            first = firsts[rule.symbol]
             if len(rule.expansion) == 0:
                 if eofSym not in firsts:
-                    firsts.append(eofSym)
-            elif rule.expansion[0] != sym:
+                    first.append(eofSym)
+                    changed = True
+            elif rule.expansion[0] != rule.symbol:
                 if type(rule.expansion[0]) == NonTerminal:
-                    if len(rule.expansion[0].first):
-                        firsts.extend(makeUnique(firsts, rule.expansion[0].first))
-                    else:
-                        firsts.extend(makeUnique(firsts, getFirsts(rule.expansion[0])))
+                    extension = makeUnique(first, firsts[rule.expansion[0]])
+                    if len(extension):
+                        first.extend(extension)
+                        changed = True
                 else:
-                    if rule.expansion[0] not in firsts:
-                        firsts.append(rule.expansion[0])
+                    if rule.expansion[0] not in first:
+                        first.append(rule.expansion[0])
+                        changed = True
 
-    return firsts
-def getFollows(sym):
-    if sym == augmentSymbol:
-        return [eofSym], []
+def findFollows():
+    global follows, ntfollows
+    follows = {}
+    ntfollows = {}
 
-    follows = []
-    ntfollows = []
     for rule in grammar:
-        for i, gsym in enumerate(rule.expansion):
-            if gsym != sym:
-                continue
+        for sym in filter(lambda x: type(x) == NonTerminal, [rule.symbol, *rule.expansion]):
+            follows[sym] = []
+            ntfollows[sym] = []
 
-            if i + 1 >= len(rule.expansion):
-                if rule.symbol != sym:
-                    if len(rule.symbol.follow):
-                        follows.extend(makeUnique(follows, rule.symbol.follow))
-                        ntfollows.extend(makeUnique(ntfollows, rule.symbol.ntfollow))
-                    else:
-                        newfollows, newntfollows = getFollows(rule.symbol)
-                        follows.extend(makeUnique(follows, newfollows))
-                        ntfollows.extend(makeUnique(follows, newntfollows))
-            else:
-                if type(rule.expansion[i + 1]) == NonTerminal:
-                    if len(rule.expansion[i + 1].first):
-                        follows.extend(makeUnique(follows, [x for x in rule.expansion[i + 1].first if x != Terminal('eof')]))
-                    else:
-                        follows.extend(makeUnique(follows, [x for x in getFirsts(rule.expansion[i + 1]) if x != Terminal('eof')]))
-                    ntfollows.append(rule.expansion[i + 1])
-                else:
-                    if rule.expansion[i + 1] not in follows:
-                        follows.append(rule.expansion[i + 1])
+    follows[augmentSymbol] = [eofSym]
 
-    return follows, ntfollows
+    changed = True
+    while changed:
+        changed = False
+        for rule in grammar:
+            for i, sym in enumerate(rule.expansion):
+                if type(sym) == NonTerminal:
+                    follow = follows[sym]
+                    ntfollow = ntfollows[sym]
+
+                    if sym == augmentSymbol:
+                        if eofSym not in follow:
+                            follow.append(eofSym)
+                            changed = True
+
+                    elif i + 1 >= len(rule.expansion):
+                        followextens = makeUnique(follow, follows[rule.symbol])
+                        ntextens = makeUnique(follow, ntfollows[rule.symbol])
+
+                        if len(followextens):
+                            follow.extend(followextens)
+                            changed = True
+                        if len(ntextens):
+                            ntfollow.extend(ntfollowextens)
+                            changed = True
+
+                    else:
+                        if type(rule.expansion[i + 1]) == NonTerminal:
+                            followextens = makeUnique(follows, [x for x in firsts[rule.expansion[i + 1]] if x != Terminal('eof')])
+                            if len(followextens):
+                                follows.extend(followextens)
+                                changed = True
+
+                            if rule.expansion[i + 1] not in ntfollow:
+                                ntfollows.append(rule.expansion[i + 1])
+                                changed = True
+                        else:
+                            if rule.expansion[i + 1] not in follow:
+                                follow.append(rule.expansion[i + 1])
+                                changed = True
+
 # closure {{{2
 def getClosurelr0(lr0set):
     kernel = lr0set
@@ -300,11 +321,11 @@ def getClosurelr0(lr0set):
 def lr0tolr1(kernel, extras):
     lr1set = ItemSet([])
     for kerneli in kernel:
-        for follow in kerneli[0].symbol.follow:
+        for follow in follows[kerneli[0].symbol]:
             lr1set.kernel.append(Item(kerneli[0], kerneli[1], follow))
 
     for extrai in extras:
-        for follow in extrai[0].symbol.follow:
+        for follow in follows[extrai[0].symbol]:
             lr1set.extras.append(Item(extrai[0], extrai[1], follow))
 
     return lr1set
@@ -546,6 +567,7 @@ rule('if', 'IF:if OPARN:oparn EXPR:expr CPARN:cparn $stmt:trues ELSE:else $stmt:
 # rule('PrimaryExpr', 'IDENTIFIER:value')
 # rule('PrimaryExpr', 'OPARN:oparn $Expr:expr CPARN:cparn')
 
+# convert grammar {{{1
 grammar = []
 found = set()
 missing = set()
@@ -608,13 +630,13 @@ eofSym = Terminal('TokenType::EOF_')
 symbols = [eofSym]
 for rule in grammar:
     for sym in [rule.symbol, *rule.expansion]:
-        if type(sym) == NonTerminal:
-            sym.updateFirsts()
-            sym.updateFollows()
-
         if sym not in symbols:
             symbols.append(sym)
 
+findFirsts()
+findFollows()
+
+print(firsts, follows, ntfollows)
 print('-- got first and follows')
 
 # make the parse table {{{1
