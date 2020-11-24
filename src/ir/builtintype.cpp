@@ -292,7 +292,7 @@ IR::Value* IR::BuiltinType::unaryOp(CodeGenNS::Context &cgc, IR::Value *v, Token
     if (v->type() != this)
         calledWithOpTyNEthis("BuiltinType", "unaryOp", "operand", v);
 
-    IR::Register *outReg = cgc.curFunc->addRegister(v->type(), v->ast());
+    IR::Register *outReg = cgc.curFunc->addRegister(v->type(), ast);
     switch (op.type)
     {
         case TokenType::BANG:
