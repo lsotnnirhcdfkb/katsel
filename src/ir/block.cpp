@@ -1,6 +1,7 @@
 #include "ir/block.h"
 #include "message/errors.h"
 #include "ir/printer.h"
+#include "ir/cfgdotter.h"
 
 IR::Block::Block(std::string name, size_t num): name(name), num(num) {}
 
@@ -42,6 +43,7 @@ void IR::Block::definition(std::ostream &os)
 void IR::Block::cfgDot(std::ostream &os)
 {
     IR::Printer p (os);
+    IR::CFGDotter c (os);
 
     os << "block" << this << " [shape=record,label=\"";
     for (std::unique_ptr<Instrs::Instruction> const &i : instructions)
@@ -55,6 +57,6 @@ void IR::Block::cfgDot(std::ostream &os)
         br->accept(&p);
         os << "\"]\n";
 
-        // br->cfgDot(os); TODO: fix
+        br->accept(&c);
     }
 }

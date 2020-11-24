@@ -40,6 +40,7 @@ jobs = [
     ('include/ir/instruction.h'            , 'INSTR CLASSES START'       , 'INSTR CLASSES END'       , instrgen.genDecls),
     ('src/ir/instruction.cpp'              , 'INSTR CPP START'           , 'INSTR CPP END'           , instrgen.genDefs),
     ('src/ir/printer.cpp'                  , 'INSTR PRINTER START'       , 'INSTR PRINTER END'       , instrgen.genPrinter),
+    ('src/ir/cfgdotter.cpp'                , 'CFGDOTTER START'           , 'CFGDOTTER END'           , instrgen.genCFGDotter),
 ]
 
 for jobi, job in enumerate(jobs):

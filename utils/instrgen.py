@@ -99,8 +99,6 @@ def genDecls():
                         '    public:\n'
                        f'        {instruction.name}({asConstructor(instruction.fields)});\n'
                        f'        void accept({instruction.base}Visitor *v) override;\n'
-                        '        friend class IR::Printer;\n'
-                        '    private:\n'
                        f'{asFields(instruction.fields)}'
                         '    };\n'))
 
@@ -127,5 +125,17 @@ def genPrinter():
             output.append('\n')
         output.append('    ostream << std::endl;\n')
         output.append( '}\n')
+
+    return ''.join(output)
+def genCFGDotter():
+    output = []
+    for instr in instructions:
+        if instr.base == 'Br':
+            output.append(f'void IR::CFGDotter::visit{instr.name}(IR::Instrs::{instr.name} *i)\n')
+            output.append( '{\n')
+            for field in instr.fields:
+                if field.type_ == 'Block*':
+                    output.append(f'    ostream << "branch" << this << " -> " << "block" << i->{field.name}->name << std::endl;;\n')
+            output.append( '}\n')
 
     return ''.join(output)

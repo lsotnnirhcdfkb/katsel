@@ -14,7 +14,6 @@ namespace IR
 
     class InstructionVisitor;
     class BrVisitor;
-    class Printer;
 
     namespace Instrs
     {
@@ -40,8 +39,6 @@ namespace IR
     public:
         Store(Register *target, Value *value);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *value;
     };
@@ -50,8 +47,6 @@ namespace IR
     public:
         Or(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *lhs;
         Value *rhs;
@@ -61,8 +56,6 @@ namespace IR
     public:
         And(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *lhs;
         Value *rhs;
@@ -72,8 +65,6 @@ namespace IR
     public:
         IntCmpNE(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *lhs;
         Value *rhs;
@@ -83,8 +74,6 @@ namespace IR
     public:
         IntCmpEQ(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *lhs;
         Value *rhs;
@@ -94,8 +83,6 @@ namespace IR
     public:
         IntCmpULT(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *lhs;
         Value *rhs;
@@ -105,8 +92,6 @@ namespace IR
     public:
         IntCmpUGT(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *lhs;
         Value *rhs;
@@ -116,8 +101,6 @@ namespace IR
     public:
         IntCmpULE(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *lhs;
         Value *rhs;
@@ -127,8 +110,6 @@ namespace IR
     public:
         IntCmpUGE(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *lhs;
         Value *rhs;
@@ -138,8 +119,6 @@ namespace IR
     public:
         FloatCmpNE(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *lhs;
         Value *rhs;
@@ -149,8 +128,6 @@ namespace IR
     public:
         FloatCmpEQ(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *lhs;
         Value *rhs;
@@ -160,8 +137,6 @@ namespace IR
     public:
         FloatCmpULT(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *lhs;
         Value *rhs;
@@ -171,8 +146,6 @@ namespace IR
     public:
         FloatCmpUGT(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *lhs;
         Value *rhs;
@@ -182,8 +155,6 @@ namespace IR
     public:
         FloatCmpULE(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *lhs;
         Value *rhs;
@@ -193,8 +164,6 @@ namespace IR
     public:
         FloatCmpUGE(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *lhs;
         Value *rhs;
@@ -204,8 +173,6 @@ namespace IR
     public:
         BitXor(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *lhs;
         Value *rhs;
@@ -215,8 +182,6 @@ namespace IR
     public:
         BitOr(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *lhs;
         Value *rhs;
@@ -226,8 +191,6 @@ namespace IR
     public:
         BitAnd(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *lhs;
         Value *rhs;
@@ -237,8 +200,6 @@ namespace IR
     public:
         BitNot(Register *target, Value *op);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *op;
     };
@@ -247,8 +208,6 @@ namespace IR
     public:
         ShiftR(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *lhs;
         Value *rhs;
@@ -258,8 +217,6 @@ namespace IR
     public:
         ShiftL(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *lhs;
         Value *rhs;
@@ -269,8 +226,6 @@ namespace IR
     public:
         Add(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *lhs;
         Value *rhs;
@@ -280,8 +235,6 @@ namespace IR
     public:
         Sub(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *lhs;
         Value *rhs;
@@ -291,8 +244,6 @@ namespace IR
     public:
         Mult(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *lhs;
         Value *rhs;
@@ -302,8 +253,6 @@ namespace IR
     public:
         Div(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *lhs;
         Value *rhs;
@@ -313,8 +262,6 @@ namespace IR
     public:
         Mod(Register *target, Value *lhs, Value *rhs);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *lhs;
         Value *rhs;
@@ -324,8 +271,6 @@ namespace IR
     public:
         Neg(Register *target, Value *op);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *op;
     };
@@ -334,8 +279,6 @@ namespace IR
     public:
         Trunc(Register *target, Value *op, Type *newt);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *op;
         Type *newt;
@@ -345,8 +288,6 @@ namespace IR
     public:
         ZeroExt(Register *target, Value *op, Type *newt);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *op;
         Type *newt;
@@ -356,8 +297,6 @@ namespace IR
     public:
         SignExt(Register *target, Value *op, Type *newt);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *op;
         Type *newt;
@@ -367,8 +306,6 @@ namespace IR
     public:
         FloatTrunc(Register *target, Value *op, Type *newt);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *op;
         Type *newt;
@@ -378,8 +315,6 @@ namespace IR
     public:
         FloatExt(Register *target, Value *op, Type *newt);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *op;
         Type *newt;
@@ -389,8 +324,6 @@ namespace IR
     public:
         SIntToFloat(Register *target, Value *op, Type *newt);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *op;
         Type *newt;
@@ -400,8 +333,6 @@ namespace IR
     public:
         UIntToFloat(Register *target, Value *op, Type *newt);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *op;
         Type *newt;
@@ -411,8 +342,6 @@ namespace IR
     public:
         FloatToSInt(Register *target, Value *op, Type *newt);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *op;
         Type *newt;
@@ -422,8 +351,6 @@ namespace IR
     public:
         FloatToUInt(Register *target, Value *op, Type *newt);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *target;
         Value *op;
         Type *newt;
@@ -433,8 +360,6 @@ namespace IR
     public:
         Return(Value *value);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Value *value;
     };
     class Call : public Instruction
@@ -442,8 +367,6 @@ namespace IR
     public:
         Call(Register *reg, Function *f, std::vector<Value*> args);
         void accept(InstructionVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Register *reg;
         Function *f;
         std::vector<Value*> args;
@@ -453,8 +376,6 @@ namespace IR
     public:
         GotoBr(Block *b);
         void accept(BrVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Block *b;
     };
     class CondBr : public Br
@@ -462,8 +383,6 @@ namespace IR
     public:
         CondBr(Value *v, Block *trueb, Block *falseb);
         void accept(BrVisitor *v) override;
-        friend class IR::Printer;
-    private:
         Value *v;
         Block *trueb;
         Block *falseb;
