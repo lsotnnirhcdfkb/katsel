@@ -41,6 +41,8 @@ jobs = [
     ('src/ir/instruction.cpp'              , 'INSTR CPP START'           , 'INSTR CPP END'           , instrgen.genDefs),
     ('src/ir/printer.cpp'                  , 'INSTR PRINTER START'       , 'INSTR PRINTER END'       , instrgen.genPrinter),
     ('src/ir/cfgdotter.cpp'                , 'CFGDOTTER START'           , 'CFGDOTTER END'           , instrgen.genCFGDotter),
+
+    ('src/lower/lowerinstr.cpp'            , 'AUTOGEN LOWER START'       , 'AUTOGEN LOWER END'       , instrgen.genLowers),
 ]
 
 for jobi, job in enumerate(jobs):

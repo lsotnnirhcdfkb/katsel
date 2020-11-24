@@ -3,9 +3,13 @@ import re
 
 # Instruction class {{{1
 class Instruction:
-    def __init__(self, name, base, *fields):
+    def __init__(self, name, base, autogen, *fields):
         self.name = name
         self.base = base
+        if autogen is not None:
+            self.autogen, self.autogeninstr, self.autogenargs = autogen
+        else:
+            self.autogen = False
         self.fields = list(map(Field, fields))
 
 class Field:
@@ -40,46 +44,46 @@ class Field:
 
 # instructions {{{1
 instructions = [
-    Instruction('Store', 'Instruction', 'Register* target', 'Value* value'),
-    Instruction('Or', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('And', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('IntCmpNE', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('IntCmpEQ', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('IntCmpULT', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('IntCmpUGT', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('IntCmpULE', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('IntCmpUGE', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('FloatCmpNE', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('FloatCmpEQ', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('FloatCmpULT', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('FloatCmpUGT', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('FloatCmpULE', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('FloatCmpUGE', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('BitXor', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('BitOr', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('BitAnd', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('BitNot', 'Instruction', 'Register* target', 'Value* op'),
-    Instruction('ShiftR', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('ShiftL', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('Add', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('Sub', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('Mult', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('Div', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('Mod', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('Neg', 'Instruction' , 'Register* target', 'Value* op'),
-    Instruction('Trunc', 'Instruction', 'Register* target', 'Value* op', 'Type* newt'),
-    Instruction('ZeroExt', 'Instruction', 'Register* target', 'Value* op', 'Type* newt'),
-    Instruction('SignExt', 'Instruction', 'Register* target', 'Value* op', 'Type* newt'),
-    Instruction('FloatTrunc', 'Instruction', 'Register* target', 'Value* op', 'Type* newt'),
-    Instruction('FloatExt', 'Instruction', 'Register* target', 'Value* op', 'Type* newt'),
-    Instruction('SIntToFloat', 'Instruction', 'Register* target', 'Value* op', 'Type* newt'),
-    Instruction('UIntToFloat', 'Instruction', 'Register* target', 'Value* op', 'Type* newt'),
-    Instruction('FloatToSInt', 'Instruction', 'Register* target', 'Value* op', 'Type* newt'),
-    Instruction('FloatToUInt', 'Instruction', 'Register* target', 'Value* op', 'Type* newt'),
-    Instruction('Return', 'Instruction', 'Value* value nullablestringify'),
-    Instruction('Call', 'Instruction', 'Register* reg nullablestringify', 'Function* f', 'std::vector<Value*> args iterval'),
-    Instruction('GotoBr', 'Br', 'Block* to name'),
-    Instruction('CondBr', 'Br', 'Value* v', 'Block* trueB name', 'Block* falseB name'),
+    Instruction('Store', 'Instruction', None, 'Register* target', 'Value* value'),
+    Instruction('Or', 'Instruction', None, 'Register* target', 'Value* lhs', 'Value* rhs'),
+    Instruction('And', 'Instruction', None, 'Register* target', 'Value* lhs', 'Value* rhs'),
+    Instruction('IntCmpNE', 'Instruction', None, 'Register* target', 'Value* lhs', 'Value* rhs'),
+    Instruction('IntCmpEQ', 'Instruction', None, 'Register* target', 'Value* lhs', 'Value* rhs'),
+    Instruction('IntCmpULT', 'Instruction', None, 'Register* target', 'Value* lhs', 'Value* rhs'),
+    Instruction('IntCmpUGT', 'Instruction', None, 'Register* target', 'Value* lhs', 'Value* rhs'),
+    Instruction('IntCmpULE', 'Instruction', None, 'Register* target', 'Value* lhs', 'Value* rhs'),
+    Instruction('IntCmpUGE', 'Instruction', None, 'Register* target', 'Value* lhs', 'Value* rhs'),
+    Instruction('FloatCmpNE', 'Instruction', None, 'Register* target', 'Value* lhs', 'Value* rhs'),
+    Instruction('FloatCmpEQ', 'Instruction', None, 'Register* target', 'Value* lhs', 'Value* rhs'),
+    Instruction('FloatCmpULT', 'Instruction', None, 'Register* target', 'Value* lhs', 'Value* rhs'),
+    Instruction('FloatCmpUGT', 'Instruction', None, 'Register* target', 'Value* lhs', 'Value* rhs'),
+    Instruction('FloatCmpULE', 'Instruction', None, 'Register* target', 'Value* lhs', 'Value* rhs'),
+    Instruction('FloatCmpUGE', 'Instruction', None, 'Register* target', 'Value* lhs', 'Value* rhs'),
+    Instruction('BitXor', 'Instruction', None, 'Register* target', 'Value* lhs', 'Value* rhs'),
+    Instruction('BitOr', 'Instruction', None, 'Register* target', 'Value* lhs', 'Value* rhs'),
+    Instruction('BitAnd', 'Instruction', None, 'Register* target', 'Value* lhs', 'Value* rhs'),
+    Instruction('BitNot', 'Instruction', None, 'Register* target', 'Value* op'),
+    Instruction('ShiftR', 'Instruction', None, 'Register* target', 'Value* lhs', 'Value* rhs'),
+    Instruction('ShiftL', 'Instruction', None, 'Register* target', 'Value* lhs', 'Value* rhs'),
+    Instruction('Add', 'Instruction', None, 'Register* target', 'Value* lhs', 'Value* rhs'),
+    Instruction('Sub', 'Instruction', None, 'Register* target', 'Value* lhs', 'Value* rhs'),
+    Instruction('Mult', 'Instruction', None, 'Register* target', 'Value* lhs', 'Value* rhs'),
+    Instruction('Div', 'Instruction', None, 'Register* target', 'Value* lhs', 'Value* rhs'),
+    Instruction('Mod', 'Instruction', None, 'Register* target', 'Value* lhs', 'Value* rhs'),
+    Instruction('Neg', 'Instruction' , None, 'Register* target', 'Value* op'),
+    Instruction('Trunc', 'Instruction', None, 'Register* target', 'Value* op', 'Type* newt'),
+    Instruction('ZeroExt', 'Instruction', None, 'Register* target', 'Value* op', 'Type* newt'),
+    Instruction('SignExt', 'Instruction', None, 'Register* target', 'Value* op', 'Type* newt'),
+    Instruction('FloatTrunc', 'Instruction', None, 'Register* target', 'Value* op', 'Type* newt'),
+    Instruction('FloatExt', 'Instruction', None, 'Register* target', 'Value* op', 'Type* newt'),
+    Instruction('SIntToFloat', 'Instruction', None, 'Register* target', 'Value* op', 'Type* newt'),
+    Instruction('UIntToFloat', 'Instruction', None, 'Register* target', 'Value* op', 'Type* newt'),
+    Instruction('FloatToSInt', 'Instruction', None, 'Register* target', 'Value* op', 'Type* newt'),
+    Instruction('FloatToUInt', 'Instruction', None, 'Register* target', 'Value* op', 'Type* newt'),
+    Instruction('Return', 'Instruction', None, 'Value* value nullablestringify'),
+    Instruction('Call', 'Instruction', None, 'Register* reg nullablestringify', 'Function* f', 'std::vector<Value*> args iterval'),
+    Instruction('GotoBr', 'Br', None, 'Block* to name'),
+    Instruction('CondBr', 'Br', None, 'Value* v', 'Block* trueB name', 'Block* falseB name'),
 ]
 
 # generating stuff {{{1
@@ -136,5 +140,20 @@ def genCFGDotter():
                 if field.type_ == 'Block*':
                     output.append(f'    ostream << "        branch" << i << " -> " << "block" << i->{field.name} << " [label=\\"{field.name}\\"]" << std::endl;;\n')
             output.append( '}\n')
+
+    return ''.join(output)
+def genLowers():
+    output = []
+    for instr in instructions:
+        if instr.autogen:
+            output.append(    f'void Lower::Lowerer::visit{instr.name}(IR::Instrs::{instr.name} *instr)\n')
+            output.append(     '{\n')
+            output.append(     '    return builder.Create{instr.autogeninstr}(')
+            for i, arg in enumerate(instr.autogenargs):
+                if i > 0:
+                    output.append(', ')
+                output.append( 'lower(instr->{arg})')
+            output.append(');')
+            output.append(     '}\n')
 
     return ''.join(output)
