@@ -45,7 +45,7 @@ class Field:
 # instructions {{{1
 instructions = [
     Instruction('Store', 'Instruction', None, 'Register* target', 'Value* value'),
-    Instruction('Or', 'Instruction', None, 'Register* target', 'Value* lhs', 'Value* rhs'),
+    Instruction('Or', 'Instruction', (True, 'Or', ('lhs', 'rhs')), 'Register* target', 'Value* lhs', 'Value* rhs'),
     Instruction('And', 'Instruction', None, 'Register* target', 'Value* lhs', 'Value* rhs'),
     Instruction('IntCmpNE', 'Instruction', None, 'Register* target', 'Value* lhs', 'Value* rhs'),
     Instruction('IntCmpEQ', 'Instruction', None, 'Register* target', 'Value* lhs', 'Value* rhs'),
@@ -152,8 +152,8 @@ def genLowers():
             for i, arg in enumerate(instr.autogenargs):
                 if i > 0:
                     output.append(', ')
-                output.append(f'lower(instr->{arg})), registers.at(instr->target))')
-            output.append(    ');\n')
+                output.append(    f'lower(instr->{arg})')
+            output.append(    '), allocas.at(instr->target));\n')
             output.append(     '}\n')
 
     return ''.join(output)
