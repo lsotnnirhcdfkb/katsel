@@ -78,8 +78,8 @@ instructions = [
     Instruction('FloatToUInt', 'Instruction', 'Register* target', 'Value* op', 'Type* newt'),
     Instruction('Return', 'Instruction', 'Value* value nullablestringify'),
     Instruction('Call', 'Instruction', 'Register* reg nullablestringify', 'Function* f', 'std::vector<Value*> args iterval'),
-    Instruction('GotoBr', 'Br', 'Block* b name'),
-    Instruction('CondBr', 'Br', 'Value* v', 'Block* trueb name', 'Block* falseb name'),
+    Instruction('GotoBr', 'Br', 'Block* to name'),
+    Instruction('CondBr', 'Br', 'Value* v', 'Block* trueB name', 'Block* falseB name'),
 ]
 
 # generating stuff {{{1
