@@ -40,8 +40,7 @@ void Lower::Lowerer::lower(IR::Function const &f)
 
     builder.SetInsertPoint(entryBlock);
     for (std::unique_ptr<IR::Register> const &r : f.registers)
-        if (r->assignable())
-            allocas[r.get()] = builder.CreateAlloca(r->type()->toLLVMType(context), 0, "");
+        allocas[r.get()] = builder.CreateAlloca(r->type()->toLLVMType(context), 0, "");
 
     for (std::unique_ptr<IR::Block> const &b : f.blocks)
         lower(*b);
@@ -69,9 +68,9 @@ llvm::Value* Lower::Lowerer::lower(IR::Value const *v)
     if ((as##ty = dynamic_cast<IR::ty const *>(v)))
 
     CHECKTY(Register)
-        return allocas[asRegister];
+        return builder.CreateLoad(allocas.at(asRegister));
     CHECKTY(Function)
-        return functions[asFunction];
+        return functions.at(asFunction);
     CHECKTY(ConstInt)
     {
         return llvm::ConstantInt::get(asConstInt->type()->toLLVMType(context), asConstInt->val);
