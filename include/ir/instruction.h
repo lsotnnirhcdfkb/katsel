@@ -14,6 +14,7 @@ namespace IR
 
     class InstructionVisitor;
     class BrVisitor;
+    class Printer;
 
     namespace Instrs
     {
@@ -21,7 +22,6 @@ namespace IR
         {
         public:
             virtual ~Instruction() {};
-            virtual void stringify(std::ostream &os) const = 0;
             virtual void accept(InstructionVisitor *v) = 0;
         };
 
@@ -29,7 +29,6 @@ namespace IR
         {
         public:
             virtual ~Br() {};
-            virtual void stringify(std::ostream &os) const = 0;
             virtual void accept(BrVisitor *v) = 0;
         };
 
@@ -40,8 +39,8 @@ namespace IR
     {
     public:
         Store(Register *target, Value *value);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *value;
@@ -50,8 +49,8 @@ namespace IR
     {
     public:
         Or(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *lhs;
@@ -61,8 +60,8 @@ namespace IR
     {
     public:
         And(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *lhs;
@@ -72,8 +71,8 @@ namespace IR
     {
     public:
         IntCmpNE(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *lhs;
@@ -83,8 +82,8 @@ namespace IR
     {
     public:
         IntCmpEQ(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *lhs;
@@ -94,8 +93,8 @@ namespace IR
     {
     public:
         IntCmpULT(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *lhs;
@@ -105,8 +104,8 @@ namespace IR
     {
     public:
         IntCmpUGT(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *lhs;
@@ -116,8 +115,8 @@ namespace IR
     {
     public:
         IntCmpULE(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *lhs;
@@ -127,8 +126,8 @@ namespace IR
     {
     public:
         IntCmpUGE(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *lhs;
@@ -138,8 +137,8 @@ namespace IR
     {
     public:
         FloatCmpNE(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *lhs;
@@ -149,8 +148,8 @@ namespace IR
     {
     public:
         FloatCmpEQ(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *lhs;
@@ -160,8 +159,8 @@ namespace IR
     {
     public:
         FloatCmpULT(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *lhs;
@@ -171,8 +170,8 @@ namespace IR
     {
     public:
         FloatCmpUGT(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *lhs;
@@ -182,8 +181,8 @@ namespace IR
     {
     public:
         FloatCmpULE(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *lhs;
@@ -193,8 +192,8 @@ namespace IR
     {
     public:
         FloatCmpUGE(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *lhs;
@@ -204,8 +203,8 @@ namespace IR
     {
     public:
         BitXor(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *lhs;
@@ -215,8 +214,8 @@ namespace IR
     {
     public:
         BitOr(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *lhs;
@@ -226,8 +225,8 @@ namespace IR
     {
     public:
         BitAnd(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *lhs;
@@ -237,8 +236,8 @@ namespace IR
     {
     public:
         BitNot(Register *target, Value *op);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *op;
@@ -247,8 +246,8 @@ namespace IR
     {
     public:
         ShiftR(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *lhs;
@@ -258,8 +257,8 @@ namespace IR
     {
     public:
         ShiftL(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *lhs;
@@ -269,8 +268,8 @@ namespace IR
     {
     public:
         Add(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *lhs;
@@ -280,8 +279,8 @@ namespace IR
     {
     public:
         Sub(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *lhs;
@@ -291,8 +290,8 @@ namespace IR
     {
     public:
         Mult(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *lhs;
@@ -302,8 +301,8 @@ namespace IR
     {
     public:
         Div(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *lhs;
@@ -313,8 +312,8 @@ namespace IR
     {
     public:
         Mod(Register *target, Value *lhs, Value *rhs);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *lhs;
@@ -324,8 +323,8 @@ namespace IR
     {
     public:
         Neg(Register *target, Value *op);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *op;
@@ -334,8 +333,8 @@ namespace IR
     {
     public:
         Trunc(Register *target, Value *op, Type *newt);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *op;
@@ -345,8 +344,8 @@ namespace IR
     {
     public:
         ZeroExt(Register *target, Value *op, Type *newt);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *op;
@@ -356,8 +355,8 @@ namespace IR
     {
     public:
         SignExt(Register *target, Value *op, Type *newt);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *op;
@@ -367,8 +366,8 @@ namespace IR
     {
     public:
         FloatTrunc(Register *target, Value *op, Type *newt);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *op;
@@ -378,8 +377,8 @@ namespace IR
     {
     public:
         FloatExt(Register *target, Value *op, Type *newt);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *op;
@@ -389,8 +388,8 @@ namespace IR
     {
     public:
         SIntToFloat(Register *target, Value *op, Type *newt);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *op;
@@ -400,8 +399,8 @@ namespace IR
     {
     public:
         UIntToFloat(Register *target, Value *op, Type *newt);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *op;
@@ -411,8 +410,8 @@ namespace IR
     {
     public:
         FloatToSInt(Register *target, Value *op, Type *newt);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *op;
@@ -422,8 +421,8 @@ namespace IR
     {
     public:
         FloatToUInt(Register *target, Value *op, Type *newt);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *target;
         Value *op;
@@ -433,8 +432,8 @@ namespace IR
     {
     public:
         Return(Value *value);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Value *value;
     };
@@ -442,8 +441,8 @@ namespace IR
     {
     public:
         Call(Register *reg, Function *f, std::vector<Value*> args);
-        void stringify(std::ostream &os) const override;
         void accept(InstructionVisitor *v) override;
+        friend class IR::Printer;
     private:
         Register *reg;
         Function *f;
@@ -453,8 +452,8 @@ namespace IR
     {
     public:
         GotoBr(Block *b);
-        void stringify(std::ostream &os) const override;
         void accept(BrVisitor *v) override;
+        friend class IR::Printer;
     private:
         Block *b;
     };
@@ -462,8 +461,8 @@ namespace IR
     {
     public:
         CondBr(Value *v, Block *trueb, Block *falseb);
-        void stringify(std::ostream &os) const override;
         void accept(BrVisitor *v) override;
+        friend class IR::Printer;
     private:
         Value *v;
         Block *trueb;

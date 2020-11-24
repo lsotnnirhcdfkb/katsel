@@ -25,15 +25,15 @@ class Field:
 
     def prin(self):
         if self.printMethod == 'stringify':
-            return f'os << {self.name}->stringify();'
+            return f'ostream << i->{self.name}->stringify();'
         if self.printMethod == 'nullablestringify':
-            return f'os << ({self.name} ? {self.name}->stringify() : "void");'
+            return f'ostream << (i->{self.name} ? i->{self.name}->stringify() : "void");'
         elif self.printMethod == 'name':
-            return f'os << {self.name}->name;'
+            return f'ostream << i->{self.name}->name;'
         elif self.printMethod == 'iterval':
-            return f'''for (IR::Value const *v : {self.name})
+            return f'''for (IR::Value const *v : i->{self.name})
 {{
-    os << v->stringify();
+    ostream << v->stringify() << " ";
 }}'''
         else:
             raise Exception(f'invalid print method {self.printMethod}')
@@ -98,8 +98,8 @@ def genDecls():
                         '    {\n'
                         '    public:\n'
                        f'        {instruction.name}({asConstructor(instruction.fields)});\n'
-                        '        void stringify(std::ostream &os) const override;\n'
                        f'        void accept({instruction.base}Visitor *v) override;\n'
+                        '        friend class IR::Printer;\n'
                         '    private:\n'
                        f'{asFields(instruction.fields)}'
                         '    };\n'))
@@ -110,21 +110,22 @@ def genDefs():
 
     for instruction in instructions:
         output.append(f'IR::Instrs::{instruction.name}::{instruction.name}({asConstructor(instruction.fields)}): {asInitializerList(instruction.fields)} {{}}\n')
-        output.append(f'void IR::Instrs::{instruction.name}::stringify(std::ostream &os) const\n')
+        output.append(f'void IR::Instrs::{instruction.name}::accept({instruction.base}Visitor *v) {{ v->visit{instruction.name}(this); }}\n')
+
+    return ''.join(output)
+def genPrinter():
+    output = []
+    for instr in instructions:
+        output.append(f'void IR::Printer::visit{instr.name}(IR::Instrs::{instr.name} *i)\n')
         output.append( '{\n')
-        output.append(f'    os << "{instruction.name.lower()} ";\n')
-        for i, field in enumerate(instruction.fields):
+        output.append(f'    ostream << "{instr.name.lower()} ";\n')
+        for i, field in enumerate(instr.fields):
             if i > 0:
-                output.append('    os << " ";\n')
+                output.append('    ostream << " ";\n')
             output.append('    ')
             output.append(field.prin())
             output.append('\n')
-        output.append('    os << std::endl;\n')
-        output.append( '}\n')
-
-        output.append(f'void IR::Instrs::{instruction.name}::accept({instruction.base}Visitor *v)\n')
-        output.append( '{\n')
-        output.append(f'    v->visit{instruction.name}(this);\n')
+        output.append('    ostream << std::endl;\n')
         output.append( '}\n')
 
     return ''.join(output)

@@ -1,5 +1,6 @@
 #include "ir/block.h"
 #include "message/errors.h"
+#include "ir/printer.h"
 
 IR::Block::Block(std::string name, size_t num): name(name), num(num) {}
 
@@ -23,31 +24,35 @@ void IR::Block::stringify(std::ostream &os)
 
 void IR::Block::definition(std::ostream &os)
 {
+    IR::Printer p (os);
     os << "    " << name << "(" << num << "): {\n";
     for (std::unique_ptr<Instrs::Instruction> const &i : instructions)
     {
         os << "        ";
-        i->stringify(os);
+        i->accept(&p);
     }
     os << "    ----\n";
     if (br)
     {
         os << "        ";
-        br->stringify(os);
+        br->accept(&p);
     }
     os << "    }\n";
 }
 void IR::Block::cfgDot(std::ostream &os)
 {
+    IR::Printer p (os);
+
     os << "block" << this << " [shape=record,label=\"";
     for (std::unique_ptr<Instrs::Instruction> const &i : instructions)
-        i->stringify(os);
+        i->accept(&p);
+
     os << "\"]\n";
     if (br)
     {
         os << "block" << this << " -> branch" << br.get() << std::endl;;
         os << "branch" << br.get() << " [shape=record, label=\"";
-        br->stringify(os);
+        br->accept(&p);
         os << "\"]\n";
 
         // br->cfgDot(os); TODO: fix
