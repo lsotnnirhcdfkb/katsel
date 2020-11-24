@@ -203,73 +203,7 @@ void ASTNS::DotVisitor::visitBinandExpr(ASTNS::BinandExpr *a)
     }
     lastid = std::move(thisid);
 }
-<<<<<<< HEAD:src/visit/dotvisitor.cpp
-void DotVisitor::visitBinnotExpr(ASTNS::BinnotExpr *a)
-{
-    std::string thisid = curid();
-    switch (a->form)
-    {
-        case ASTNS::BinnotExpr::Form::TA:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">BinnotExpr (TA)</td></tr><tr>";
-            ostream << "<td port=\"op\">op</td>";
-            ostream << "<td port=\"operand\">operand</td>";
-            ostream << "</tr></table>>]\n";
-            {
-                    std::string tokennodeid = makeTextNode("Token", a->op.stringify());
-                    connect(thisid, "op", tokennodeid);
-            }
-            {
-                    if (a->operand)
-                    {
-                        a->operand->accept(this);
-                        connect(thisid, "operand", lastid);
-                    }
-                    else
-                    {
-                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "operand", nullptrnodeid);
-                    }
-            }
-            break;
-    }
-    lastid = std::move(thisid);
-}
-void DotVisitor::visitBinorExpr(ASTNS::BinorExpr *a)
-||||||| bdb043f:src/visit/dotvisitor.cpp
-void DotVisitor::visitBinnotExpr(ASTNS::BinnotExpr *a)
-{
-    std::string thisid = curid();
-    switch (a->form)
-    {
-        case ASTNS::BinnotExpr::Form::TA:
-            std::cout << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">BinnotExpr (TA)</td></tr><tr>";
-            std::cout << "<td port=\"op\">op</td>";
-            std::cout << "<td port=\"operand\">operand</td>";
-            std::cout << "</tr></table>>]\n";
-            {
-                    std::string tokennodeid = makeTextNode("Token", a->op.stringify());
-                    connect(thisid, "op", tokennodeid);
-            }
-            {
-                    if (a->operand)
-                    {
-                        a->operand->accept(this);
-                        connect(thisid, "operand", lastid);
-                    }
-                    else
-                    {
-                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "operand", nullptrnodeid);
-                    }
-            }
-            break;
-    }
-    lastid = std::move(thisid);
-}
-void DotVisitor::visitBinorExpr(ASTNS::BinorExpr *a)
-=======
 void ASTNS::DotVisitor::visitBinorExpr(ASTNS::BinorExpr *a)
->>>>>>> ir:src/ast/dotvisitor.cpp
 {
     std::string thisid = curid();
     switch (a->form)
