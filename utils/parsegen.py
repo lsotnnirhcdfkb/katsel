@@ -267,14 +267,9 @@ def findFollows():
                     follow = follows[sym]
                     ntfollow = ntfollows[sym]
 
-                    if sym == augmentSymbol:
-                        if eofSym not in follow:
-                            follow.append(eofSym)
-                            changed = True
-
-                    elif i + 1 >= len(rule.expansion):
+                    if i + 1 >= len(rule.expansion):
                         followextens = makeUnique(follow, follows[rule.symbol])
-                        ntextens = makeUnique(follow, ntfollows[rule.symbol])
+                        ntextens = makeUnique(ntfollow, ntfollows[rule.symbol])
 
                         if len(followextens):
                             follow.extend(followextens)
@@ -285,7 +280,7 @@ def findFollows():
 
                     else:
                         if type(rule.expansion[i + 1]) == NonTerminal:
-                            followextens = makeUnique(follows, [x for x in firsts[rule.expansion[i + 1]] if x != Terminal('eof')])
+                            followextens = makeUnique(follow, [x for x in firsts[rule.expansion[i + 1]] if x != Terminal('eof')])
                             if len(followextens):
                                 follow.extend(followextens)
                                 changed = True
@@ -609,13 +604,10 @@ for sym, rule in _grammar.items():
 
 for missingi in missing:
     print(f'\033[35;1mwarning\033[0m: undefined nonterminal \033[1m{missingi}\033[0m')
-print('-- parsed grammar')
 
 augmentSymbol = NonTerminal('augment', 'compilation unit')
 augmentRule = Rule(augmentSymbol, (grammar[0].symbol, ), True, '_', '', 'START', 'END')
 grammar.append(augmentRule)
-
-print('-- augment grammar')
 
 eofSym = Terminal('TokenType::EOF_')
 
@@ -625,11 +617,10 @@ for rule in grammar:
         if sym not in symbols:
             symbols.append(sym)
 
+print('-- finding first and follows')
 findFirsts()
 findFollows()
-
-print(firsts, follows, ntfollows)
-print('-- got first and follows')
+print('   `- done')
 
 # make the parse table {{{1
 table = makeParseTable()
