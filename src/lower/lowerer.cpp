@@ -4,7 +4,7 @@
 
 #include "llvm/IR/DerivedTypes.h"
 
-Lower::Lowerer::Lowerer(IR::Unit const &unit): unit(unit), builder(context), mod(unit.file.filename, context), errored(false) {}
+Lower::Lowerer::Lowerer(IR::Unit const &unit): errored(false), unit(unit), builder(context), mod(unit.file.filename, context) {}
 
 void Lower::Lowerer::printMod(std::ostream &ostream)
 {

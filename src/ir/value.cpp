@@ -1,7 +1,7 @@
 #include "ir/value.h"
 #include "message/errors.h"
 
-IR::Register::Register(int index, IR::Type *type, ASTNS::AST *ast, bool temp): temp(temp), index(index), ty(type), _ast(ast) {}
+IR::Register::Register(int index, IR::Type *type, ASTNS::AST *ast, bool temp): index(index), temp(temp), ty(type), _ast(ast) {}
 
 std::string IR::Register::stringify() const
 {
