@@ -280,18 +280,18 @@ def findFollows():
                             follow.extend(followextens)
                             changed = True
                         if len(ntextens):
-                            ntfollow.extend(ntfollowextens)
+                            ntfollow.extend(ntextens)
                             changed = True
 
                     else:
                         if type(rule.expansion[i + 1]) == NonTerminal:
                             followextens = makeUnique(follows, [x for x in firsts[rule.expansion[i + 1]] if x != Terminal('eof')])
                             if len(followextens):
-                                follows.extend(followextens)
+                                follow.extend(followextens)
                                 changed = True
 
                             if rule.expansion[i + 1] not in ntfollow:
-                                ntfollows.append(rule.expansion[i + 1])
+                                ntfollow.append(rule.expansion[i + 1])
                                 changed = True
                         else:
                             if rule.expansion[i + 1] not in follow:
