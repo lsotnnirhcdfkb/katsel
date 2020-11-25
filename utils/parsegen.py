@@ -871,7 +871,7 @@ def genPanicMode():
 
         output.append(    f'                CHECKASI({str(nonterm)})\n')
         output.append(     '                       ')
-        for follow in nonterm.follow:
+        for follow in follows[nonterm]:
             output.append(f' case {follow.astt()}:')
         output.append(     '\n')
         output.append(     '                            RECOVERANDDEFBREAK()\n')
