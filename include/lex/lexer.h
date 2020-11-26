@@ -65,10 +65,10 @@ private:
         return *(end - 1);
     }
 
-    Token makeErrorToken(std::string message);
+    Token makeErrorToken(void (*errf));
     inline Token makeToken(TokenType type)
     {
-        return Token {type, start, end, "", line, column - 1, &sourcefile};
+        return Token {type, start, end, nullptr, line, column - 1, &sourcefile};
     }
 
     inline void nextLine()

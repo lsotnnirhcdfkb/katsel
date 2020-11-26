@@ -26,7 +26,4 @@ public:
 
     Lexer &lexer;
     File &sourcefile;
-
-private:
-    std::vector<Token> errored;
 };

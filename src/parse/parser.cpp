@@ -22,18 +22,12 @@ std::unique_ptr<ASTNS::DeclB> Parser::parse()
 Token Parser::consume()
 {
     Token cur;
-    errored.clear();
     while (true)
     {
         cur = lexer.nextToken();
         if (cur.type != TokenType::ERROR) return cur;
 
-        Error(Error::MsgType::ERROR, cur, cur.message)
-            .underline(Error::Underline(cur, '^')
-                .error(cur.message)
-                .note("erroneous tokens are ignored"))
-            .report();
-        errored.push_back(cur);
+        cur.errf();
     }
 
     return cur;
@@ -51,10 +45,6 @@ Error Parser::invalidSyntaxWhile(std::string justparsed, std::string expected, s
         .underline(Error::Underline(lookahead, '~')
             .note("unexpected token here"));
 
-    for (Token const &t : errored)
-        e.underline(Error::Underline(t, '-')
-            .note(concatMsg("erroneous token ignored here with error message \"", t.message, "\"")));
-
     return e;
 }
 Error Parser::invalidSyntax(std::string justparsed, std::string expected, Token const &lookahead, Token const &last)
@@ -69,9 +59,6 @@ Error Parser::invalidSyntax(std::string justparsed, std::string expected, Token 
         .underline(Error::Underline(lookahead, '~')
             .note("unexpected token here"));
 
-    for (Token const &t : errored)
-        e.underline(Error::Underline(t, '-')
-            .note(concatMsg("erroneous token ignored here with error message \"", t.message, "\"")));
     return e;
 }
 Error Parser::invalidSyntaxNoExpect(std::string justparsed, std::string whileparsing, Token const &lookahead, Token const &last)
@@ -83,10 +70,6 @@ Error Parser::invalidSyntaxNoExpect(std::string justparsed, std::string whilepar
             .error(concatMsg(stringifyTokenType(lookahead.type), " cannot follow ", justparsed, " of ", whileparsing)))
         .underline(Error::Underline(lookahead, '~')
             .note("invalid token here"));
-
-    for (Token const &t : errored)
-        e.underline(Error::Underline(t, '-')
-            .note(concatMsg("erroneous token ignored here with error message \"", t.message, "\"")));
 
     return e;
 }

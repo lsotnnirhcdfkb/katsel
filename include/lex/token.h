@@ -11,7 +11,7 @@ struct Token
     std::string::iterator start;
     std::string::iterator end;
 
-    std::string message;
+    void (*errf)();
 
     int line;
     int column;

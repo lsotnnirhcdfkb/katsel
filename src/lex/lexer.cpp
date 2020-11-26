@@ -477,11 +477,11 @@ Token Lexer::nextToken()
 }
 // }}}
 // {{{1 other helpers
-Token Lexer::makeErrorToken(std::string message)
+Token Lexer::makeErrorToken(void (*errf))
 {
     Token token = makeToken(TokenType::ERROR);
 
-    token.message = message;
+    token.errf = errf;
 
     return token;
 }
