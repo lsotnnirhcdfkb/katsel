@@ -14,14 +14,23 @@ void CodeGenNS::Declarator::visitFunction(ASTNS::Function *fun)
     std::string fname (fun->name.stringify());
     IR::Value *declbefore = cg.context.findGlobal(fname);
 
+    ASTNS::AST *prevdeclast;
+    IR::Function *asf = dynamic_cast<IR::Function*>(declbefore);
+
+    if (asf)
+        prevdeclast = asf->defAST();
+
     if (declbefore)
     {
-        Error(Error::MsgType::ERROR, fun->name, "redeclaration of symbol")
+        Error e = Error(Error::MsgType::ERROR, fun->name, "redeclaration of symbol")
             .underline(Error::Underline(fun->name, '^')
-                .error("redeclaration of symbol"))
-            // .underline(Error::Underline(f->defAST(), '-')
-                // .note("previous declaration")) // TODO: highlight this, hint make "declaration" class
-            .report();
+                .error("redeclaration of symbol"));
+
+        if (prevdeclast)
+            e.underline(Error::Underline(prevdeclast, '-')
+                .note("previous declaration"));
+
+        e.report();
         cg.errored = true;
         return;
     }
