@@ -151,7 +151,7 @@ void CodeGenNS::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
 
     cg.context.curBlock->add(std::make_unique<IR::Instrs::Call>(outReg, static_cast<IR::Function *>(func.val), args));
 
-    ret = IR::ASTValue(outReg, ast);
+    ret = IR::ASTValue(outReg, ast); // TODO: if calling void function, return value of nullptr is indistinguishable from errored return value of nullptr, except for ast field
 }
 
 void CodeGenNS::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast)
