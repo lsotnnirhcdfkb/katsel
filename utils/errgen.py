@@ -15,7 +15,6 @@ errors = [
         'code': 1,
         'name': 'unexpected-char',
         'desc': 'The lexer found an unexpected character that could not begin a token',
-        'enum': 'UNEXPECTEDCHAR',
         'inputs': 'Token const &tok',
         'highlights': [
             ('tok', UNDER0, ('error', 'unexpected character'))
@@ -26,23 +25,20 @@ errors = [
 def genH():
     output = []
 
-    output.append(     'enum class ErrCode\n')
-    output.append(     '{\n')
-    for error in errors:
-        output.append(f'    {error["enum"]},\n')
-    output.append(     '};\n')
-    output.append(     '\n')
-
     for (regionst, regione), desc in regions.items():
-        output.append(f'// Errors E{str(regionst).zfill(4)}-E{str(regione).zfill(4)}: {desc}\n')
+        output.append(f'// Errors E{str(regionst).zfill(PADAMT)}-E{str(regione).zfill(PADAMT)}: {desc}\n')
 
     output.append(     '\n')
 
     for error in errors:
-        code = str(error['code']).zfill(4)
+        code = str(error['code']).zfill(PADAMT)
         output.append(f'// E{code} - {error["name"]}\n')
         output.append(f'void E{code}({error["inputs"]});\n')
         output.append( '\n')
+
+    for error in errors:
+        output.append(f'#define ERR_{error["name"].upper().replace("-", "_")} E{str(error["code"]).zfill(PADAMT)}\n')
+
     return ''.join(output)
 
 def genCpp():
