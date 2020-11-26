@@ -1,1 +1,1 @@
-target_sources(katselc PUBLIC errors.cpp ansistuff.cpp)
+target_sources(katselc PUBLIC errors.cpp ansistuff.cpp errmsgs.cpp)
