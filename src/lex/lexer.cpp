@@ -474,11 +474,11 @@ Token Lexer::nextToken()
         return makeToken(idenType);
     }
 
-    return makeErrorToken(ERR_UNEXECPTED_CHAR);
+    return makeErrorToken(ERR_UNEXPECTED_CHAR);
 }
 // }}}
 // {{{1 other helpers
-Token Lexer::makeErrorToken(void (*errf)())
+Token Lexer::makeErrorToken(void (*errf)(Token const &))
 {
     Token token = makeToken(TokenType::ERROR);
 
