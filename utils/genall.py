@@ -3,7 +3,7 @@
 #  Generate all the code everywhere necessary in this project
 
 import io
-import astgen, kwgen, parsegen, instrgen
+import astgen, kwgen, parsegen, instrgen, errgen
 
 ## A list of jobs to generate code for
 jobs = [
@@ -40,6 +40,9 @@ jobs = [
     ('include/ir/instruction.h'            , 'INSTR CLASSES START'       , 'INSTR CLASSES END'       , instrgen.genDecls),
     ('src/ir/instruction.cpp'              , 'INSTR CPP START'           , 'INSTR CPP END'           , instrgen.genDefs),
     ('src/ir/cfgdotter.cpp'                , 'CFGDOTTER START'           , 'CFGDOTTER END'           , instrgen.genCFGDotter),
+
+    ('include/message/errmsgs.h'           , 'ERRH START'                , 'ERRH END'                , errgen.genH),
+    ('src/message/errmsgs.cpp'             , 'ERRCPP START'              , 'ERRCPP END'              , errgen.genCpp),
 ]
 
 for jobi, job in enumerate(jobs):
