@@ -41,7 +41,7 @@ def genCpp():
         output.append(        descWrapped)
         output.append(        f'void E{code}({error["inputs"]})\n')
         output.append(         '{\n')
-        output.append(        f'    Error(Error::MsgType::ERROR, {error["location"]}, "{error["name"]}")\n')
+        output.append(        f'    Error(Error::MsgType::ERROR, {error["location"]}, "E{code} ({error["name"]})")\n')
 
         for loc, und, msgs in error['highlights']:
             output.append(    f'        .underline(Error::Underline({loc}, \'{und}\')\n')

@@ -9,7 +9,7 @@
 // | a token.
 void E0000(Token const &tok)
 {
-    Error(Error::MsgType::ERROR, tok, "unexpected-char")
+    Error(Error::MsgType::ERROR, tok, "E0000 (unexpected-char)")
         .underline(Error::Underline(tok, '^')
             .error("unexpected character")
         )
@@ -21,7 +21,7 @@ void E0000(Token const &tok)
 // | character long.
 void E0001(Token const &tok)
 {
-    Error(Error::MsgType::ERROR, tok, "unterm-charlit")
+    Error(Error::MsgType::ERROR, tok, "E0001 (unterm-charlit)")
         .underline(Error::Underline(tok, '^')
             .error("unterminated character literal")
         )
@@ -33,7 +33,7 @@ void E0001(Token const &tok)
 // | the string literal must be escaped by putting `\n`.
 void E0002(Token const &tok)
 {
-    Error(Error::MsgType::ERROR, tok, "unterm-strlit")
+    Error(Error::MsgType::ERROR, tok, "E0002 (unterm-strlit)")
         .underline(Error::Underline(tok, '^')
             .error("unterminated string literal")
         )
@@ -43,7 +43,7 @@ void E0002(Token const &tok)
 // | The lexer found an integer literal that has an invalid base.
 void E0003(Token const &tok)
 {
-    Error(Error::MsgType::ERROR, tok, "invalid-intlit-base")
+    Error(Error::MsgType::ERROR, tok, "E0003 (invalid-intlit-base)")
         .underline(Error::Underline(tok, '^')
             .error("invalid integer literal base")
         )
@@ -53,7 +53,7 @@ void E0003(Token const &tok)
 // | The lexer found a non-decimal floating point literal.
 void E0004(Token const &tok)
 {
-    Error(Error::MsgType::ERROR, tok, "nondecimal-floatlit")
+    Error(Error::MsgType::ERROR, tok, "E0004 (nondecimal-floatlit)")
         .underline(Error::Underline(tok, '^')
             .error("invalid integer literal base")
         )
@@ -64,7 +64,7 @@ void E0004(Token const &tok)
 // | what construct was being parsed when the error happened.
 void E0100(std::string const &justparsed, std::string const &expected, std::string const &whileparsing, Token const &lookahead, Token const &last)
 {
-    Error(Error::MsgType::ERROR, last, "invalid-syntax-while")
+    Error(Error::MsgType::ERROR, last, "E0100 (invalid-syntax-while)")
         .underline(Error::Underline(last, '^')
             .error(concatMsg("expected ", expected, " after ", justparsed, ", but got ", stringifyTokenType(lookahead.type), " instead"))
         )
@@ -79,7 +79,7 @@ void E0100(std::string const &justparsed, std::string const &expected, std::stri
 // | error happened.
 void E0101(std::string const &justparsed, std::string const &expected, Token const &lookahead, Token const &last)
 {
-    Error(Error::MsgType::ERROR, last, "invalid-syntax")
+    Error(Error::MsgType::ERROR, last, "E0101 (invalid-syntax)")
         .underline(Error::Underline(last, '^')
             .error(concatMsg("expected ", expected, " after ", justparsed, " of ", whileparsing, ", but got ", stringifyTokenType(lookahead.type), " instead"))
         )
