@@ -105,3 +105,11 @@ def genCpp():
         output.append(         '}\n')
 
     return ''.join(output)
+
+def genFriends():
+    output = []
+    for error in errors:
+        n = 'E' + str(error['code']).zfill(PADAMT)
+        output.append(f'    friend void {n}({error["inputs"]});\n')
+
+    return ''.join(output)
