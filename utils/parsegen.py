@@ -667,19 +667,19 @@ def genLoop():
                                        '    {\\\n'
                                        '        if (istrial) return false;\n'
                                        '#define ERROREND() \\\n'
-                                       '        if (!errorRecovery(p, stack, lookahead, e))\\\n'
+                                       '        if (!errorRecovery(p, stack, lookahead))\\\n'
                                        '            done = true;\\\n'
-                                       '        e.report();\\\n'
-                                       '        errored = true;\\\n'
+                                       # '        e.report();\\\n' # TODO: fix this
+                                       # '        errored = true;\\\n'
                                        '    }\\\n'
                                        '    break;\n'
                                        '#define DEFAULTINVALIDWHILE(justparsed, expected, whileparsing) \\\n'
                                        '    ERRORSTART()\\\n'
-                                       '            Error e = p.invalidSyntaxWhile(justparsed, expected, whileparsing, lookahead, lasttok);\\\n'
+                                       '            ERR_INVALID_SYNTAX_WHILE(justparsed, expected, whileparsing, lookahead, lasttok);\\\n'
                                        '    ERROREND()\n'
                                        '#define DEFAULTINVALIDNOWHILE(justparsed, expected) \\\n'
                                        '    ERRORSTART()\\\n'
-                                       '            Error e = p.invalidSyntax(justparsed, expected, lookahead, lasttok);\\\n'
+                                       '            ERR_INVALID_SYNTAX(justparsed, expected, lookahead, lasttok);\\\n'
                                        '    ERROREND()\n'))
 
     output.append(                     '    bool done = false;\n')
@@ -779,16 +779,11 @@ def genLoop():
         output.append(                 '                break;\n')
 
     output.append(                     '            default:\n')
-    output.append(                    ('                Error(Error::MsgType::INTERR, lookahead, "Parser reached invalid state")\n'
-                                       '                    .underline(Error::Underline(lookahead, \'!\')\n'
-                                       '                        .error(concatMsg("Parser reached invalid state: ", stack.back().state)))\n'
-                                       '                    .reportAbort();\n'))
+    output.append(                     '                reportAbortNoh(concatMsg("Parser reached invalid state: ", stack.back().state));\n')
 
     output.append(                     '        }\n')
     output.append(                     '    }\n')
-    output.append(                    ('#undef DEFAULTINVALIDWHILE\n'
-                                       '#undef DEFAULTINVALIDNOWHILE\n'
-                                       '#undef ERRORSTART\n'
+    output.append(                    ('#undef ERRORSTART\n'
                                        '#undef ERROREND\n'))
 
     return ''.join(output)

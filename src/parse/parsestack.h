@@ -17,9 +17,9 @@ struct stackitem
 };
 
 
-bool errorRecovery(Parser &p, std::vector<stackitem> &stack, Token &lookahead, Error &e);
-bool singleTok(Parser &p, std::vector<stackitem> &stack, Token &lookahead, Error &e);
-bool panicMode(Parser &p, std::vector<stackitem> &stack, Token &lookahead, Error &e);
+bool errorRecovery(Parser &p, std::vector<stackitem> &stack, Token &lookahead);
+bool singleTok(Parser &p, std::vector<stackitem> &stack, Token &lookahead);
+bool panicMode(Parser &p, std::vector<stackitem> &stack, Token &lookahead);
 
 template <typename AST>
 size_t getGoto(size_t state);
