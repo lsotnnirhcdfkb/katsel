@@ -45,7 +45,7 @@ void CodeGenNS::ParamVisitor::visitParamList(ASTNS::ParamList *ast)
 
 CodeGenNS::ArgsVisitor::ArgsVisitor::ArgsVisitor(CodeGenNS::CodeGen &cg): cg(cg) {}
 
-std::vector<IR::Value*> CodeGenNS::ArgsVisitor::args(ASTNS::ArgB *ast)
+std::vector<IR::ASTValue> CodeGenNS::ArgsVisitor::args(ASTNS::ArgB *ast)
 {
     ret.clear();
     ast->accept(this);
@@ -55,7 +55,7 @@ std::vector<IR::Value*> CodeGenNS::ArgsVisitor::args(ASTNS::ArgB *ast)
 
 void CodeGenNS::ArgsVisitor::visitArgList(ASTNS::ArgList *ast)
 {
-    std::vector<IR::Value*> cret (args(ast->arglist.get())); // cannot do like params becasue args can be nested (through nested function calls) and that messes things up
+    std::vector<IR::ASTValue> cret (args(ast->arglist.get())); // cannot do like params becasue args can be nested (through nested function calls) and that messes things up
 
     ast->arg->accept(this);
     cret.reserve(cret.size() + ret.size());
@@ -66,6 +66,6 @@ void CodeGenNS::ArgsVisitor::visitArgList(ASTNS::ArgList *ast)
 
 void CodeGenNS::ArgsVisitor::visitArg(ASTNS::Arg *ast)
 {
-    IR::Value* v = cg.exprCodeGen.expr(ast->expr.get());
+    IR::ASTValue v = cg.exprCodeGen.expr(ast->expr.get());
     ret = {v};
 }

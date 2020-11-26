@@ -4,7 +4,7 @@
 #include <map>
 namespace IR
 {
-    class Value;
+    struct ASTValue;
 }
 
 #include "lex/token.h"
@@ -28,11 +28,11 @@ namespace IR
         virtual std::string stringify() = 0;
         virtual bool hasOperator(TokenType t) = 0;
 
-        virtual IR::Value* binOp(CodeGenNS::Context &cgc, IR::Value *l, IR::Value *r, Token op, ASTNS::AST *ast) = 0;
-        virtual IR::Value* unaryOp(CodeGenNS::Context &cgc, IR::Value *operand, Token op, ASTNS::AST *ast) = 0;
-        virtual IR::Value* isTrue(CodeGenNS::Context &cgc, IR::Value *v) = 0;
+        virtual IR::ASTValue binOp(CodeGenNS::Context &cgc, IR::ASTValue l, IR::ASTValue r, Token op, ASTNS::AST *ast) = 0;
+        virtual IR::ASTValue unaryOp(CodeGenNS::Context &cgc, IR::ASTValue operand, Token op, ASTNS::AST *ast) = 0;
+        virtual IR::ASTValue isTrue(CodeGenNS::Context &cgc, IR::ASTValue v) = 0;
 
-        virtual IR::Value* castTo(CodeGenNS::Context &cgc, IR::Value *v) = 0;
+        virtual IR::ASTValue castTo(CodeGenNS::Context &cgc, IR::ASTValue v) = 0;
 
         ASTNS::TypeB *ast;
 
@@ -65,11 +65,11 @@ namespace IR
 
         bool hasOperator(TokenType t) override;
 
-        IR::Value* binOp(CodeGenNS::Context &cgc, IR::Value *l, IR::Value *r, Token op, ASTNS::AST *ast) override;
-        IR::Value* unaryOp(CodeGenNS::Context &cgc, IR::Value *operand, Token op, ASTNS::AST *ast) override;
-        IR::Value* isTrue(CodeGenNS::Context &cgc, IR::Value *v) override;
+        IR::ASTValue binOp(CodeGenNS::Context &cgc, IR::ASTValue l, IR::ASTValue r, Token op, ASTNS::AST *ast) override;
+        IR::ASTValue unaryOp(CodeGenNS::Context &cgc, IR::ASTValue operand, Token op, ASTNS::AST *ast) override;
+        IR::ASTValue isTrue(CodeGenNS::Context &cgc, IR::ASTValue v) override;
 
-        IR::Value* castTo(CodeGenNS::Context &cgc, IR::Value *v) override;
+        IR::ASTValue castTo(CodeGenNS::Context &cgc, IR::ASTValue v) override;
 
         llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
     };
@@ -84,11 +84,11 @@ namespace IR
         FunctionType(Type *ret, std::vector<Type*> paramtys);
         std::string stringify() override;
         bool hasOperator(TokenType t) override;
-        IR::Value* binOp(CodeGenNS::Context &cgc, IR::Value *l, IR::Value *r, Token op, ASTNS::AST *ast) override;
-        IR::Value* unaryOp(CodeGenNS::Context &cgc, IR::Value *operand, Token op, ASTNS::AST *ast) override;
-        IR::Value* isTrue(CodeGenNS::Context &cgc, IR::Value *v) override;
+        IR::ASTValue binOp(CodeGenNS::Context &cgc, IR::ASTValue l, IR::ASTValue r, Token op, ASTNS::AST *ast) override;
+        IR::ASTValue unaryOp(CodeGenNS::Context &cgc, IR::ASTValue operand, Token op, ASTNS::AST *ast) override;
+        IR::ASTValue isTrue(CodeGenNS::Context &cgc, IR::ASTValue v) override;
 
-        IR::Value* castTo(CodeGenNS::Context &cgc, IR::Value *v) override;
+        IR::ASTValue castTo(CodeGenNS::Context &cgc, IR::ASTValue v) override;
 
         llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
     };
@@ -98,11 +98,11 @@ namespace IR
     public:
         std::string stringify() override;
         bool hasOperator(TokenType t) override;
-        IR::Value* binOp(CodeGenNS::Context &cgc, IR::Value *l, IR::Value *r, Token op, ASTNS::AST *ast) override;
-        IR::Value* unaryOp(CodeGenNS::Context &cgc, IR::Value *operand, Token op, ASTNS::AST *ast) override;
-        IR::Value* isTrue(CodeGenNS::Context &cgc, IR::Value *v) override;
+        IR::ASTValue binOp(CodeGenNS::Context &cgc, IR::ASTValue l, IR::ASTValue r, Token op, ASTNS::AST *ast) override;
+        IR::ASTValue unaryOp(CodeGenNS::Context &cgc, IR::ASTValue operand, Token op, ASTNS::AST *ast) override;
+        IR::ASTValue isTrue(CodeGenNS::Context &cgc, IR::ASTValue v) override;
 
-        IR::Value* castTo(CodeGenNS::Context &cgc, IR::Value *v) override;
+        IR::ASTValue castTo(CodeGenNS::Context &cgc, IR::ASTValue v) override;
 
         llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
     };

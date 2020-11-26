@@ -1,7 +1,8 @@
 #include "ir/value.h"
+#include "ir/instruction.h"
 #include "message/errors.h"
 
-IR::Function::Function(IR::FunctionType *ty, std::string name, ASTNS::Function *ast): ty(ty), name(name), _ast(ast), blocki(0), regi(0) {}
+IR::Function::Function(IR::FunctionType *ty, std::string name, ASTNS::Function *defAST): ty(ty), name(name), _defAST(defAST), blocki(0), regi(0) {}
 
 void IR::Function::add(std::unique_ptr<IR::Block> block)
 {
@@ -14,9 +15,9 @@ std::string IR::Function::stringify() const
     ss << "fun " << name;
     return ss.str();
 }
-ASTNS::AST* IR::Function::ast() const
+ASTNS::Function* IR::Function::defAST() const
 {
-    return _ast;
+    return _defAST;
 }
 
 IR::Type* IR::Function::type() const

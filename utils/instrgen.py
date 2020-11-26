@@ -10,11 +10,10 @@ class Instruction:
 
 class Field:
     def __init__(self, fromstr):
-        if len(splitted := fromstr.split(' ')) == 3:
-            self.type_, self.name, self.printMethod = splitted
-        else:
+        if len(splitted := fromstr.split(' ')) == 2:
             self.type_, self.name = splitted
-            self.printMethod = 'stringify'
+        else:
+            raise Exception('incorrect number of fields to get make field')
 
     def format(self):
         if self.type_.endswith('*'):
@@ -22,52 +21,37 @@ class Field:
         else:
             return f'{self.type_} {self.name}'
 
-    def prin(self):
-        if self.printMethod == 'stringify':
-            return f'ostream << i->{self.name}->stringify();'
-        if self.printMethod == 'nullablestringify':
-            return f'ostream << (i->{self.name} ? i->{self.name}->stringify() : "void");'
-        elif self.printMethod == 'name':
-            return f'ostream << i->{self.name}->name;'
-        elif self.printMethod == 'iterval':
-            return f'''for (IR::Value const *v : i->{self.name})
-{{
-    ostream << v->stringify() << " ";
-}}'''
-        else:
-            raise Exception(f'invalid print method {self.printMethod}')
-
 # instructions {{{1
 instructions = [
-    Instruction('Store', 'Instruction', 'Register* target', 'Value* value'),
-    Instruction('Or', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('And', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('CmpNE', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('CmpEQ', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('CmpLT', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('CmpGT', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('CmpLE', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('CmpGE', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('BitXor', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('BitOr', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('BitAnd', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('BitNot', 'Instruction', 'Register* target', 'Value* op'),
-    Instruction('ShiftR', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('ShiftL', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('Add', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('Sub', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('Mult', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('Div', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('Mod', 'Instruction', 'Register* target', 'Value* lhs', 'Value* rhs'),
-    Instruction('Neg', 'Instruction' , 'Register* target', 'Value* op'),
-    Instruction('Trunc', 'Instruction', 'Register* target', 'Value* op', 'Type* newt'),
-    Instruction('Ext', 'Instruction', 'Register* target', 'Value* op', 'Type* newt'),
-    Instruction('IntToFloat', 'Instruction', 'Register* target', 'Value* op', 'Type* newt'),
-    Instruction('FloatToInt', 'Instruction', 'Register* target', 'Value* op', 'Type* newt'),
-    Instruction('Return', 'Instruction', 'Value* value nullablestringify'),
-    Instruction('Call', 'Instruction', 'Register* reg nullablestringify', 'Function* f', 'std::vector<Value*> args iterval'),
-    Instruction('GotoBr', 'Br', 'Block* to name'),
-    Instruction('CondBr', 'Br', 'Value* v', 'Block* trueB name', 'Block* falseB name'),
+    Instruction('Store', 'Instruction', 'Register* target', 'ASTValue value'),
+    Instruction('Or', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
+    Instruction('And', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
+    Instruction('CmpNE', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
+    Instruction('CmpEQ', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
+    Instruction('CmpLT', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
+    Instruction('CmpGT', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
+    Instruction('CmpLE', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
+    Instruction('CmpGE', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
+    Instruction('BitXor', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
+    Instruction('BitOr', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
+    Instruction('BitAnd', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
+    Instruction('BitNot', 'Instruction', 'Register* target', 'ASTValue op'),
+    Instruction('ShiftR', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
+    Instruction('ShiftL', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
+    Instruction('Add', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
+    Instruction('Sub', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
+    Instruction('Mult', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
+    Instruction('Div', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
+    Instruction('Mod', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
+    Instruction('Neg', 'Instruction' , 'Register* target', 'ASTValue op'),
+    Instruction('Trunc', 'Instruction', 'Register* target', 'ASTValue op', 'Type* newt'),
+    Instruction('Ext', 'Instruction', 'Register* target', 'ASTValue op', 'Type* newt'),
+    Instruction('IntToFloat', 'Instruction', 'Register* target', 'ASTValue op', 'Type* newt'),
+    Instruction('FloatToInt', 'Instruction', 'Register* target', 'ASTValue op', 'Type* newt'),
+    Instruction('Return', 'Instruction', 'Register* value'),
+    Instruction('Call', 'Instruction', 'Register* reg', 'Function* f', 'std::vector<ASTValue> args'),
+    Instruction('GotoBr', 'Br', 'Block* to'),
+    Instruction('CondBr', 'Br', 'ASTValue v', 'Block* trueB', 'Block* falseB'),
 ]
 
 # generating stuff {{{1
@@ -97,21 +81,6 @@ def genDefs():
     for instruction in instructions:
         output.append(f'IR::Instrs::{instruction.name}::{instruction.name}({asConstructor(instruction.fields)}): {asInitializerList(instruction.fields)} {{}}\n')
         output.append(f'void IR::Instrs::{instruction.name}::accept({instruction.base}Visitor *v) {{ v->visit{instruction.name}(this); }}\n')
-
-    return ''.join(output)
-def genPrinter():
-    output = []
-    for instr in instructions:
-        output.append(f'void IR::Printer::visit{instr.name}(IR::Instrs::{instr.name} *i)\n')
-        output.append( '{\n')
-        output.append(f'    ostream << "{instr.name.lower()} ";\n')
-        for i, field in enumerate(instr.fields):
-            if i > 0:
-                output.append('    ostream << " ";\n')
-            output.append('    ')
-            output.append(field.prin())
-            output.append('\n')
-        output.append( '}\n')
 
     return ''.join(output)
 def genCFGDotter():

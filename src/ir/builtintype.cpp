@@ -1,6 +1,7 @@
 #include <sstream>
 
 #include "ir/type.h"
+#include "ir/instruction.h"
 #include "message/errors.h"
 
 #include "codegen/codegen.h"
@@ -68,21 +69,21 @@ bool IR::BuiltinType::hasOperator(TokenType)
     return true; // builtin has all operators
 }
 // binOp {{{1
-IR::Value* IR::BuiltinType::binOp(CodeGenNS::Context &cgc, IR::Value *l, IR::Value *r, Token op, ASTNS::AST *ast)
+IR::ASTValue IR::BuiltinType::binOp(CodeGenNS::Context &cgc, IR::ASTValue l, IR::ASTValue r, Token op, ASTNS::AST *ast)
 {
-    if (l->type() != this)
+    if (l.type() != this)
         calledWithOpTyNEthis("BuiltinType", "binOp", "left operand", l);
 
-    if (l->type() != r->type())
+    if (l.type() != r.type())
     {
         Error(Error::MsgType::ERROR, op, "cannot operate on values of different types")
             .underline(Error::Underline(l, '^')
-                .note(l->type()->stringify()))
+                .note(l.type()->stringify()))
             .underline(Error::Underline(r, '^')
-                .note(r->type()->stringify()))
+                .note(r.type()->stringify()))
             .underline(Error::Underline(op, '-'))
             .report();
-        return nullptr;
+        return ASTValue();
     }
 
     Type *retTy;
@@ -109,7 +110,7 @@ IR::Value* IR::BuiltinType::binOp(CodeGenNS::Context &cgc, IR::Value *l, IR::Val
         case TokenType::STAR:
         case TokenType::SLASH:
         case TokenType::PERCENT:
-            retTy = l->type();
+            retTy = l.type();
             break;
 
         default:
@@ -195,19 +196,19 @@ IR::Value* IR::BuiltinType::binOp(CodeGenNS::Context &cgc, IR::Value *l, IR::Val
             invalidTok("binary operator", op);
     }
 
-    return outReg;
+    return ASTValue(outReg, ast);
 }
 // castTo {{{1
-IR::Value* IR::BuiltinType::castTo(CodeGenNS::Context &cgc, IR::Value *v)
+IR::ASTValue IR::BuiltinType::castTo(CodeGenNS::Context &cgc, IR::ASTValue v)
 {
-    BuiltinType *sty = dynamic_cast<BuiltinType*> (v->type());
+    BuiltinType *sty = dynamic_cast<BuiltinType*> (v.type());
     if (!sty)
     {
         Error(Error::MsgType::ERROR, v, "Invalid cast")
             .underline(Error::Underline(v, '^')
-                .error(concatMsg("Invalid cast from type \"", v->type()->stringify(), "\" to \"", this->stringify(), "\"")))
+                .error(concatMsg("Invalid cast from type \"", v.type()->stringify(), "\" to \"", this->stringify(), "\"")))
             .report();
-        return nullptr;
+        return IR::ASTValue();
     }
 
     if (sty == this)
@@ -233,7 +234,7 @@ IR::Value* IR::BuiltinType::castTo(CodeGenNS::Context &cgc, IR::Value *v)
         {BuiltinType::Builtins::DOUBLE, 64}
     };
 
-    IR::Register *outReg = cgc.curFunc->addRegister(this, v->ast());
+    IR::Register *outReg = cgc.curFunc->addRegister(this, v.ast);
     if (styintegral == etyintegral)
     {
         // int -> int
@@ -284,42 +285,42 @@ IR::Value* IR::BuiltinType::castTo(CodeGenNS::Context &cgc, IR::Value *v)
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
     // | DOUBLE | FToI   | FToI   | FToI   | FToI   | FToI   | FToI   | FToI   | FToI   | Trunc   | FToI   | FToI   | None   |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
-    return outReg;
+    return ASTValue(outReg, ast);
 }
 // unaryOp {{{1
-IR::Value* IR::BuiltinType::unaryOp(CodeGenNS::Context &cgc, IR::Value *v, Token op, ASTNS::AST *ast)
+IR::ASTValue IR::BuiltinType::unaryOp(CodeGenNS::Context &cgc, IR::ASTValue v, Token op, ASTNS::AST *ast)
 {
-    if (v->type() != this)
+    if (v.type() != this)
         calledWithOpTyNEthis("BuiltinType", "unaryOp", "operand", v);
 
-    IR::Register *outReg = cgc.curFunc->addRegister(v->type(), ast);
+    IR::Register *outReg = cgc.curFunc->addRegister(v.type(), ast);
     switch (op.type)
     {
         case TokenType::BANG:
-            cgc.curBlock->add(std::make_unique<Instrs::CmpEQ>(outReg, v, cgc.getConstInt(this, 0, ast)));
+            cgc.curBlock->add(std::make_unique<Instrs::CmpEQ>(outReg, v, ASTValue(cgc.getConstInt(this, 0), ast)));
             break;
 
         case TokenType::TILDE:
-            cgc.curBlock->add(std::make_unique<Instrs::BitXor>(outReg, v, cgc.getConstInt(this, -1, ast)));
+            cgc.curBlock->add(std::make_unique<Instrs::BitXor>(outReg, v, ASTValue(cgc.getConstInt(this, -1), ast)));
             break;
 
         case TokenType::MINUS:
-            cgc.curBlock->add(std::make_unique<Instrs::Sub>(outReg, cgc.getConstInt(this, 0, ast), v));
+            cgc.curBlock->add(std::make_unique<Instrs::Sub>(outReg, ASTValue(cgc.getConstInt(this, 0), ast), v));
             break;
 
         default:
             invalidTok("unary operator", op);
     }
 
-    return outReg;
+    return ASTValue(outReg, ast);
 }
 // isTrue {{{1
-IR::Value* IR::BuiltinType::isTrue(CodeGenNS::Context &cgc, IR::Value *v)
+IR::ASTValue IR::BuiltinType::isTrue(CodeGenNS::Context &cgc, IR::ASTValue v)
 {
-    if (v->type() != this)
+    if (v.type() != this)
         calledWithOpTyNEthis("BuiltinType", "isTrue", "value", v);
 
-    IR::Register *outReg = cgc.curFunc->addRegister(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), v->ast());
+    IR::Register *outReg = cgc.curFunc->addRegister(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), v.ast);
     switch (type)
     {
         case BuiltinType::Builtins::UINT8:
@@ -333,11 +334,11 @@ IR::Value* IR::BuiltinType::isTrue(CodeGenNS::Context &cgc, IR::Value *v)
         case BuiltinType::Builtins::CHAR:
         case BuiltinType::Builtins::FLOAT:
         case BuiltinType::Builtins::DOUBLE:
-            cgc.curBlock->add(std::make_unique<Instrs::CmpNE>(outReg, v, cgc.getConstInt(this, 0, v->ast())));
+            cgc.curBlock->add(std::make_unique<Instrs::CmpNE>(outReg, v, ASTValue(cgc.getConstInt(this, 0), v.ast)));
             break;
 
         case BuiltinType::Builtins::BOOL:
             return v;
     }
-    return outReg;
+    return ASTValue(outReg, v.ast);
 }

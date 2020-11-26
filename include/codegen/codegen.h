@@ -8,6 +8,7 @@
 #include "ir/value.h"
 #include "ir/type.h"
 #include "ir/unit.h"
+#include "ir/instruction.h"
 
 namespace CodeGenNS
 {
@@ -86,7 +87,7 @@ void visitParamList(ASTNS::ParamList *ast) override;
     public:
         ArgsVisitor(CodeGen &cg);
 
-        std::vector<IR::Value*> args(ASTNS::ArgB *pl);
+        std::vector<IR::ASTValue> args(ASTNS::ArgB *pl);
 
     private:
         // ARGSVISITOR METHODS START
@@ -98,7 +99,7 @@ void visitArgList(ASTNS::ArgList *ast) override;
 
         // ARGSVISITOR METHODS END
 
-        std::vector<IR::Value*> ret;
+        std::vector<IR::ASTValue> ret;
         CodeGen &cg;
     };
 
@@ -152,7 +153,7 @@ void visitVarStmtItemList(ASTNS::VarStmtItemList *ast) override;
     public:
         ExprCodeGen(CodeGen &cg);
 
-        IR::Value* expr(ASTNS::ExprB *ast);
+        IR::ASTValue expr(ASTNS::ExprB *ast);
 
     private:
         // EXPRCG METHODS START
@@ -177,7 +178,7 @@ void visitUnaryExpr(ASTNS::UnaryExpr *ast) override;
 
         // EXPRCG METHODS END
 
-        IR::Value *ret;
+        IR::ASTValue ret;
         CodeGen &cg;
     };
 
@@ -187,7 +188,7 @@ void visitUnaryExpr(ASTNS::UnaryExpr *ast) override;
         struct Local
         {
             size_t scopenum;
-            IR::Value *v;
+            IR::Register *v;
             std::string name;
         };
 
@@ -203,7 +204,7 @@ void visitUnaryExpr(ASTNS::UnaryExpr *ast) override;
         IR::FunctionType* getFunctionType(IR::Type *ret, std::vector<IR::Type*> paramtys);
         IR::VoidType* getVoidType();
 
-        void addLocal(std::string const &name, IR::Value *val);
+        void addLocal(std::string const &name, IR::Register *val);
         Local* findLocal(std::string const &name);
         IR::Value* findValue(std::string const &name);
         IR::Value* findGlobal(std::string const &name);
@@ -218,7 +219,7 @@ void visitUnaryExpr(ASTNS::UnaryExpr *ast) override;
         std::unique_ptr<IR::Block> blackHoleBlock;
 
         std::vector<std::unique_ptr<IR::ConstInt>> constants;
-        IR::ConstInt* getConstInt(IR::BuiltinType *ty, int val, ASTNS::AST *ast);
+        IR::ConstInt* getConstInt(IR::BuiltinType *ty, int val);
 
     private:
         std::vector<std::unique_ptr<IR::Type>> types;

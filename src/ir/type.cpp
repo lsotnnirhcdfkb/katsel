@@ -16,23 +16,23 @@ bool IR::VoidType::hasOperator(TokenType)
     return false;
 }
 
-IR::Value* IR::VoidType::binOp(CodeGenNS::Context &, IR::Value *, IR::Value *, Token, ASTNS::AST *)
+IR::ASTValue IR::VoidType::binOp(CodeGenNS::Context &, IR::ASTValue , IR::ASTValue , Token, ASTNS::AST *)
 {
     fCalled("VoidType::binOp");
 }
-IR::Value* IR::VoidType::unaryOp(CodeGenNS::Context &, IR::Value *, Token, ASTNS::AST *)
+IR::ASTValue IR::VoidType::unaryOp(CodeGenNS::Context &, IR::ASTValue , Token, ASTNS::AST *)
 {
     fCalled("VoidType::unaryOp");
 }
-IR::Value* IR::VoidType::castTo(CodeGenNS::Context &, IR::Value *v)
+IR::ASTValue IR::VoidType::castTo(CodeGenNS::Context &, IR::ASTValue v)
 {
     Error(Error::MsgType::ERROR, v, "invalid cast")
         .underline(Error::Underline(v, '^')
-            .error(concatMsg("invalid cast form type \"", v->type()->stringify(), "\" to \"", this->stringify(), "\"")))
+            .error(concatMsg("invalid cast form type \"", v.type()->stringify(), "\" to \"", this->stringify(), "\"")))
         .report();
-    return nullptr;
+    return ASTValue();
 }
-IR::Value* IR::VoidType::isTrue(CodeGenNS::Context &, IR::Value *)
+IR::ASTValue IR::VoidType::isTrue(CodeGenNS::Context &, IR::ASTValue )
 {
     fCalled("VoidType::isTrue");
 }
@@ -59,25 +59,25 @@ bool IR::FunctionType::hasOperator(TokenType)
     return false; // function has no operators
 }
 
-IR::Value* IR::FunctionType::binOp(CodeGenNS::Context &, IR::Value *, IR::Value *, Token, ASTNS::AST *)
+IR::ASTValue IR::FunctionType::binOp(CodeGenNS::Context &, IR::ASTValue , IR::ASTValue , Token, ASTNS::AST *)
 {
     fCalled("FunctionType::binOp");
 }
-IR::Value* IR::FunctionType::unaryOp(CodeGenNS::Context &, IR::Value *, Token, ASTNS::AST *)
+IR::ASTValue IR::FunctionType::unaryOp(CodeGenNS::Context &, IR::ASTValue , Token, ASTNS::AST *)
 {
     fCalled("FunctionType::unaryop");
 }
 
-IR::Value* IR::FunctionType::castTo(CodeGenNS::Context &, IR::Value *v)
+IR::ASTValue IR::FunctionType::castTo(CodeGenNS::Context &, IR::ASTValue v)
 {
     Error(Error::MsgType::ERROR, v, "Invalid cast")
         .underline(Error::Underline(v, '^')
-            .error(concatMsg("Invalid cast form type \"", v->type()->stringify(), "\" to \"", this->stringify(), "\"")))
+            .error(concatMsg("Invalid cast form type \"", v.type()->stringify(), "\" to \"", this->stringify(), "\"")))
         .report();
-    return nullptr;
+    return ASTValue();
 }
 
-IR::Value* IR::FunctionType::isTrue(CodeGenNS::Context &, IR::Value *)
+IR::ASTValue IR::FunctionType::isTrue(CodeGenNS::Context &, IR::ASTValue )
 {
     fCalled("FunctionType::isTrue");
 }

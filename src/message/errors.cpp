@@ -517,8 +517,8 @@ void LocationVisitor::visitVarStmtItemList(ASTNS::VarStmtItemList *ast)
 // LOCVISITOR IMPL END
 // constructors for location {{{1
 Location::Location(Token const &t): start(t.start), end(t.end), file(t.sourcefile) {}
-Location::Location(IR::Value const &v): Location(v.ast()) {}
-Location::Location(IR::Value const *v): Location(v->ast()) {}
+Location::Location(IR::ASTValue const &v): Location(v.ast) {}
+Location::Location(IR::ASTValue const *v): Location(v->ast) {}
 Location::Location(std::string::iterator start, std::string::iterator end, File const *file): start(start), end(end), file(file) {}
 
 Location::Location(ASTNS::AST *ast)
@@ -824,7 +824,7 @@ void invalidTok(std::string const &name, Token const &underline)
             .note("for " + name))
         .reportAbort();
 }
-void calledWithOpTyNEthis(std::string const &classN, std::string const &fnn, std::string const &opname, IR::Value const *op)
+void calledWithOpTyNEthis(std::string const &classN, std::string const &fnn, std::string const &opname, IR::ASTValue const op)
 {
     Error(Error::MsgType::INTERR, op, classN + "::" + fnn + " called with " + opname + " type != this")
         .underline(Error::Underline(op, '^')

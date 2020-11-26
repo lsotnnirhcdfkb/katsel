@@ -23,7 +23,7 @@ void CodeGenNS::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
 {
     if (ast->expr)
     {
-        IR::Value *v = cg.exprCodeGen.expr(ast->expr.get());
+        IR::ASTValue v = cg.exprCodeGen.expr(ast->expr.get());
         if (!v)
             return;
 
@@ -31,20 +31,20 @@ void CodeGenNS::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
         {
             Error(Error::MsgType::ERROR, v, "cannot return value from function with return type \"void\"")
                 .underline(Error::Underline(v, '^')
-                    .error(concatMsg("returning ", v->type()->stringify(), " here")))
-                .underline(Error::Underline(static_cast<ASTNS::Function*>(cg.context.curFunc->ast())->retty.get(), '-')
+                    .error(concatMsg("returning ", v.type()->stringify(), " here")))
+                .underline(Error::Underline(cg.context.curFunc->defAST()->retty.get(), '-')
                     .note("returns void"))
                 .report();
             cg.errored = true;
             return;
         }
 
-        if (cg.context.retReg->type() != v->type())
+        if (cg.context.retReg->type() != v.type())
         {
             Error(Error::MsgType::ERROR, v, "cannot return value of different type than expected return value")
                 .underline(Error::Underline(v, '^')
-                    .error(concatMsg("returning ", v->type()->stringify(), " here")))
-                .underline(Error::Underline(static_cast<ASTNS::Function*>(cg.context.curFunc->ast())->retty.get(), '-')
+                    .error(concatMsg("returning ", v.type()->stringify(), " here")))
+                .underline(Error::Underline(cg.context.curFunc->defAST()->retty.get(), '-')
                     .note(concatMsg("function returns ", cg.context.retReg->type()->stringify())))
                 .report();
             cg.errored = true;
@@ -58,7 +58,7 @@ void CodeGenNS::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
         Error(Error::MsgType::ERROR, ast, "return from non-void function must return a value")
             .underline(Error::Underline(ast, '^')
                 .error("returning nothing here"))
-            .underline(Error::Underline(static_cast<ASTNS::Function*>(cg.context.curFunc->ast())->retty.get(), '-')
+            .underline(Error::Underline(cg.context.curFunc->defAST()->retty.get(), '-')
                 .note(concatMsg("function returns ", cg.context.retReg->type()->stringify())))
             .report();
         cg.errored = true;

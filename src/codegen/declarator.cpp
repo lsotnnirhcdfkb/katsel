@@ -16,11 +16,11 @@ void CodeGenNS::Declarator::visitFunction(ASTNS::Function *fun)
 
     if (declbefore)
     {
-        Error(Error::MsgType::ERROR, fun->name, "Duplicate function")
+        Error(Error::MsgType::ERROR, fun->name, "redeclaration of symbol")
             .underline(Error::Underline(fun->name, '^')
-                .error("Duplciate function"))
-            .underline(Error::Underline(declbefore, '-')
-                .note("Previous declaration is here"))
+                .error("redeclaration of symbol"))
+            // .underline(Error::Underline(f->defAST(), '-')
+                // .note("previous declaration")) // TODO: highlight this, hint make "declaration" class
             .report();
         cg.errored = true;
         return;

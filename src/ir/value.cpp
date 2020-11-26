@@ -1,15 +1,15 @@
 #include "ir/value.h"
 #include "message/errors.h"
 
-IR::Register::Register(int index, IR::Type *type, ASTNS::AST *ast, bool temp): index(index), ty(type), _ast(ast), temp(temp) {}
+IR::Register::Register(int index, IR::Type *type, ASTNS::AST *defAST, bool temp): _defAST(defAST), index(index), ty(type), temp(temp) {}
 
 std::string IR::Register::stringify() const
 {
     return concatMsg("%", index);
 }
-ASTNS::AST* IR::Register::ast() const
+ASTNS::AST* IR::Register::defAST() const
 {
-    return _ast;
+    return _defAST;
 }
 IR::Type* IR::Register::type() const
 {
@@ -25,12 +25,8 @@ void IR::Register::definition(std::ostream &os) const
     os << "    " << ty->stringify() << " %" << index << std::endl;;
 }
 
-IR::ConstInt::ConstInt(BuiltinType *ty, ASTNS::AST *ast, int val): val(val), ty(ty), _ast(ast) {}
+IR::ConstInt::ConstInt(BuiltinType *ty, int val): val(val), ty(ty) {}
 
-ASTNS::AST* IR::ConstInt::ast() const
-{
-    return _ast;
-}
 std::string IR::ConstInt::stringify() const
 {
     return std::to_string(val);

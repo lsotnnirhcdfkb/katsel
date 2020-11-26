@@ -1,4 +1,6 @@
 #include "ir/unit.h"
+#include "ir/value.h"
+#include "ir/instruction.h"
 
 IR::Unit::Unit(File const &file): file(file) {}
 

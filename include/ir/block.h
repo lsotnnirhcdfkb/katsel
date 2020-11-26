@@ -5,10 +5,15 @@
 #include <string>
 #include <ostream>
 
-#include "ir/instruction.h"
 
 namespace IR
 {
+    namespace Instrs
+    {
+        class Instruction;
+        class Br;
+    }
+
     class Block
     {
     public:

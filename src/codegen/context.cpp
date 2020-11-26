@@ -55,9 +55,9 @@ IR::VoidType* CodeGenNS::Context::getVoidType()
     return tyr;
 }
 
-void CodeGenNS::Context::addLocal(std::string const &name, IR::Value *val)
+void CodeGenNS::Context::addLocal(std::string const &name, IR::Register *reg)
 {
-    Local l {curScope, val, name};
+    Local l {curScope, reg, name};
     locals.push_back(l);
 }
 
@@ -104,9 +104,9 @@ IR::Value* CodeGenNS::Context::findGlobal(std::string const &name)
     return v->second;
 }
 
-IR::ConstInt* CodeGenNS::Context::getConstInt(IR::BuiltinType *ty, int val, ASTNS::AST *ast)
+IR::ConstInt* CodeGenNS::Context::getConstInt(IR::BuiltinType *ty, int val)
 {
-    std::unique_ptr<IR::ConstInt> ci = std::make_unique<IR::ConstInt>(ty, ast, val);
+    std::unique_ptr<IR::ConstInt> ci = std::make_unique<IR::ConstInt>(ty, val);
     IR::ConstInt *ciraw = ci.get();
     constants.push_back(std::move(ci));
 

@@ -88,3 +88,8 @@ llvm::Value* Lower::Lowerer::lower(IR::Value const *v)
         reportAbortNoh("lowerValue called with v of invlaid type");
     }
 }
+
+llvm::Value* Lower::Lowerer::lower(IR::ASTValue const &v)
+{
+    return lower(v.val);
+}

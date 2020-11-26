@@ -1,5 +1,6 @@
 #include "ir/instruction.h"
 #include "ir/visitor.h"
+#include "ir/type.h"
 #include "lower/lowerer.h"
 
 void Lower::Lowerer::visitStore(IR::Instrs::Store *instr)
@@ -54,7 +55,7 @@ void Lower::Lowerer::visitBitAnd(IR::Instrs::BitAnd *instr)
 }
 void Lower::Lowerer::visitBitNot(IR::Instrs::BitNot *instr)
 {
-    builder.CreateStore(builder.CreateXor(llvm::ConstantInt::get(instr->op->type()->toLLVMType(context), -1), lower(instr->op)), allocas.at(instr->target));
+    builder.CreateStore(builder.CreateXor(llvm::ConstantInt::get(instr->op.type()->toLLVMType(context), -1), lower(instr->op)), allocas.at(instr->target));
 }
 void Lower::Lowerer::visitShiftR(IR::Instrs::ShiftR *instr)
 {
@@ -86,7 +87,7 @@ void Lower::Lowerer::visitMod(IR::Instrs::Mod *instr)
 }
 void Lower::Lowerer::visitNeg(IR::Instrs::Neg *instr)
 {
-    builder.CreateStore(builder.CreateSub(llvm::ConstantInt::get(instr->op->type()->toLLVMType(context), 0), lower(instr->op)), allocas.at(instr->target)); // TODO: fneg
+    builder.CreateStore(builder.CreateSub(llvm::ConstantInt::get(instr->op.type()->toLLVMType(context), 0), lower(instr->op)), allocas.at(instr->target)); // TODO: fneg
 }
 void Lower::Lowerer::visitTrunc(IR::Instrs::Trunc *instr)
 {
@@ -115,7 +116,7 @@ void Lower::Lowerer::visitCall(IR::Instrs::Call *instr)
 {
     std::vector<llvm::Value*> args;
     args.reserve(instr->args.size());
-    for (IR::Value const *v : instr->args)
+    for (IR::ASTValue const &v : instr->args)
         args.push_back(lower(v));
 
     llvm::Function *callee = static_cast<llvm::Function*>(lower(instr->f));

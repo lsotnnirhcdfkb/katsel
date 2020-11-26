@@ -57,6 +57,7 @@ namespace Lower
         void lower(IR::Function const &f);
         void lower(IR::Block const &b);
         llvm::Value* lower(IR::Value const *v);
+        llvm::Value* lower(IR::ASTValue const &v);
 
         IR::Unit const &unit;
 

@@ -620,7 +620,6 @@ for rule in grammar:
 print('-- finding first and follows')
 findFirsts()
 findFollows()
-print('   `- done')
 
 # make the parse table {{{1
 table = makeParseTable()
