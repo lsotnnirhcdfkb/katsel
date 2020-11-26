@@ -1,5 +1,6 @@
 
 #include "lex/lexer.h"
+#include "message/errmsgs.h"
 
 Lexer::Lexer(File &sourcefile) : start(sourcefile.source.begin()), end(sourcefile.source.begin()), line(1), column(1), nextline(1), nextcolumn(1), srcend(sourcefile.source.end()), sourcefile(sourcefile) {}
 Lexer::Lexer(Token const &t) : start(t.start), end(t.start), line(t.line), column(t.column), nextline(t.line), nextcolumn(t.column), srcend(t.sourcefile->source.end()), sourcefile(*t.sourcefile) {}
@@ -399,7 +400,7 @@ Token Lexer::nextToken()
                       char startingQuote = consumed();
                       advance(); // consume character
 
-                      if (!match(startingQuote)) return makeErrorToken("unterminated character literal");
+                      if (!match(startingQuote)) return makeErrorToken(ERR_UNTERM_CHARLIT);
 
                       return makeToken(TokenType::CHARLIT);
                   }
@@ -413,7 +414,7 @@ Token Lexer::nextToken()
                       advance();
                   }
 
-                  if (peek() != c) return makeErrorToken("untermated string literal");
+                  if (peek() != c) return makeErrorToken(ERR_UNTERM_STRLIT);
                   advance(); // consume closing quote/apostrophe
                   return makeToken(TokenType::STRINGLIT);
     }
@@ -453,15 +454,15 @@ Token Lexer::nextToken()
             while (isDigit(peek(), inttype) && !atEnd()) advance();
 
             if (!validint)
-                return makeErrorToken("Invalid integer literal base");
+                return makeErrorToken(ERR_INVALID_INTLIT_BASE);
 
-            if (inttype != TokenType::DECINTLIT) return makeErrorToken("non-decimal floating point literals are not supported");
+            if (inttype != TokenType::DECINTLIT) return makeErrorToken(ERR_NONDECIMAL_FLOATLIT);
 
             return makeToken(TokenType::FLOATLIT);
         }
 
         if (!validint)
-            return makeErrorToken("invalid integer literal base");
+            return makeErrorToken(ERR_INVALID_INTLIT_BASE);
         else
             return makeToken(inttype);
     }
@@ -473,11 +474,11 @@ Token Lexer::nextToken()
         return makeToken(idenType);
     }
 
-    return makeErrorToken("unexpected character");
+    return makeErrorToken(ERR_UNEXECPTED_CHAR);
 }
 // }}}
 // {{{1 other helpers
-Token Lexer::makeErrorToken(void (*errf))
+Token Lexer::makeErrorToken(void (*errf)())
 {
     Token token = makeToken(TokenType::ERROR);
 

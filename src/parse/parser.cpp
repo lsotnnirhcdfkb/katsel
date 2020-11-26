@@ -27,7 +27,7 @@ Token Parser::consume()
         cur = lexer.nextToken();
         if (cur.type != TokenType::ERROR) return cur;
 
-        cur.errf();
+        cur.errf(cur);
     }
 
     return cur;

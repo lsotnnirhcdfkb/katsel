@@ -65,7 +65,7 @@ private:
         return *(end - 1);
     }
 
-    Token makeErrorToken(void (*errf));
+    Token makeErrorToken(void (*errf)());
     inline Token makeToken(TokenType type)
     {
         return Token {type, start, end, nullptr, line, column - 1, &sourcefile};

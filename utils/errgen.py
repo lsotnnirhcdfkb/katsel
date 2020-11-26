@@ -23,6 +23,46 @@ errors = [
             ('tok', UNDER0, [('error', '\"unexpected character\"')])
         ]
     },
+    {
+        'code': 2,
+        'name': 'unterm-charlit',
+        'desc': 'The lexer found an unterminated character literal. A common cause of this is character literals that are more than one character long.',
+        'inputs': 'Token const &tok',
+        'location': 'tok',
+        'highlights': [
+            ('tok', UNDER0, [('error', '\"unterminated character literal\"')])
+        ]
+    },
+    {
+        'code': 3,
+        'name': 'unterm-strlit',
+        'desc': 'The lexer found a newline in a string literal, thereby making it unterminated. Newlines that need to appear inside the string literal must be escaped by putting `\\n`.',
+        'inputs': 'Token const &tok',
+        'location': 'tok',
+        'highlights': [
+            ('tok', UNDER0, [('error', '\"unterminated string literal\"')])
+        ]
+    },
+    {
+        'code': 4,
+        'name': 'invalid-intlit-base',
+        'desc': 'The lexer found an integer literal that has an invalid base.',
+        'inputs': 'Token const &tok',
+        'location': 'tok',
+        'highlights': [
+            ('tok', UNDER0, [('error', '\"invalid integer literal base\"')])
+        ]
+    },
+    {
+        'code': 5,
+        'name': 'nondecimal-floatlit',
+        'desc': 'The lexer found a non-decimal floating point literal.',
+        'inputs': 'Token const &tok',
+        'location': 'tok',
+        'highlights': [
+            ('tok', UNDER0, [('error', '\"invalid integer literal base\"')])
+        ]
+    },
 ]
 
 def genH():
