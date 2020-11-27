@@ -173,17 +173,10 @@ void CodeGenNS::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast)
             return;
 
         case TokenType::FLOATLIT:
-            Error(Error::MsgType::INTERR, ast->value, "floating point literals are not supported yet")
-                .underline(Error::Underline(ast->value, '^')
-                        .note("coming soon!"))
-                .reportAbort();
+            reportAbortNoh("floating point literals are not supported yet");
 
         case TokenType::NULLPTRLIT:
-            Error(Error::MsgType::INTERR, ast->value, "nullptr literals are not supported yet")
-                .underline(Error::Underline(ast->value, '^')
-                        .error("pointers are not here yet!")
-                        .note("coming soon!"))
-                .reportAbort();
+            reportAbortNoh("nullptr literals are not supported yet");
 
         case TokenType::DECINTLIT:
             ret = IR::ASTValue(cg.context.getConstInt(cg.context.getBuiltinType(IR::BuiltinType::Builtins::UINT32), std::stoi(ast->value.stringify())), ast);
@@ -206,12 +199,7 @@ void CodeGenNS::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast)
             return;
 
         case TokenType::STRINGLIT:
-            Error(Error::MsgType::INTERR, ast->value, "string literals are not supported yet")
-                .underline(Error::Underline(ast->value, '^')
-                        .error("strings")
-                        .note("coming soon!")
-                        .note("probably after nullptr literals though!"))
-                .reportAbort();
+            reportAbortNoh("string literals are not supported yet");
 
         case TokenType::IDENTIFIER:
             {

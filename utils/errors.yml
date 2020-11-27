@@ -120,7 +120,8 @@ errors:
       - ['lookahead', *under1, [
           ['note', '"unexpected token here"']
         ]]
-  - code: 105
+  -
+    code: 105
     name: panicking-invalid-syntax
     desc: The parser found a syntax error, has conflicting information about what construct was being parsed when the error happened, and recovered via panic mode error recovery.
     inputs: 'std::string const &justparsed, std::string const &expected, Token const &last, Token const &lookahead'
@@ -131,4 +132,215 @@ errors:
         ]]
       - ['lookahead', *under1, [
           ['note', '"unexpected token here"']
+        ]]
+  -
+    code: 200
+    name: redecl-sym
+    desc: Symbol was redeclared
+    inputs: 'Token const &name, IR::Value *val'
+    location: name
+    highlights:
+      - ['name', *under0, [
+          ['error', '"redeclaration of symbol"']
+        ]]
+    extra: |
+      IR::Function *asf (dynamic_cast<IR::Function*>(val));
+      if (asf)
+        e.underline(Error::Underline(asf->defAST(), '^')
+          .note("previous declaration"));
+  -
+    code: 201
+    name: lhs-unsupported-op
+    desc: Left hand side of binary expression does not support operator
+    inputs: 'IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &op'
+    location: op
+    highlights:
+      - ['lhs', *under0, [
+          ['note', 'concatMsg("lhs is of type \"", lhs.type()->stringify(), "\"")']
+        ]]
+      - ['op', *under0, [
+          ['error', '"unsupported binary operator for left operand"']
+        ]]
+      - ['rhs', *under1, []]
+
+  -
+    code: 203
+    name: unary-unsupported-op
+    desc: Operand of unary expression does not support operator
+    inputs: 'IR::ASTValue const &operand, Token const &_operator'
+    location: _operator
+    highlights:
+      - ['operand', *under0, [
+          ['note', 'concatMsg("operand is of type \"", operand.type()->stringify(), "\"")']
+        ]]
+      - ['_operator', *under0, [
+          ['error', '"unsupported unary operator"']
+        ]]
+  -
+    code: 204
+    name: call-noncallable
+    desc: Non-callable value called
+    inputs: 'IR::ASTValue const &func, Token const &oparn'
+    location: oparn
+    highlights:
+      - ['func', *under0, [
+          ['error', '"calling of non-callable value"']
+        ]]
+  -
+    code: 205
+    name: wrong-num-args
+    desc: Wrong number of arguments to function call
+    inputs: 'IR::ASTValue const &func, Token const &oparn, ASTNS::ArgList *argsast, std::vector<IR::ASTValue> const &args'
+    location: oparn
+    highlights:
+      - ['argsast', *under0, [
+          ['error', '"wrong number of arguments to function call"']
+        ]]
+      - ['func', *under1, []]
+      - ['static_cast<IR::Function*>(func.val)->defAST()', *under1, [
+          ['note', 'concatMsg("function expects ", static_cast<IR::FunctionType*>(func.type())->paramtys.size(), " arguments, but got ", args.size(), "arguments")']
+        ]]
+  -
+    code: 206
+    name: incorrect-arg
+    desc: Incorrect argument to function call
+    inputs: 'IR::ASTValue const &arg, IR::Type const *expected'
+    location: arg
+    highlights:
+      - ['arg', *under0, [
+          ['error', '"invalid argument to function call"'],
+          ['note', 'concatMsg("argument is of type \"", arg.type()->stringify(), "\"")'],
+          ['note', 'concatMsg("function expects \"", expected->stringify(), "\"")'],
+      ]]
+
+  -
+    code: 207
+    name: undecl-symb
+    desc: undeclared symbol
+    inputs: 'Token const &sym'
+    location: sym
+    highlights:
+      - ['sym', *under0, [
+          ['error', '"undeclared symbol"']
+        ]]
+  -
+    code: 208
+    name: confl-tys-ternexpr
+    desc: Conflicting types for ternary expression
+    inputs: 'IR::ASTValue const &truev, IR::ASTValue const &falsev, Token const &quest'
+    location: quest
+    highlights:
+      - ['quest', *under0, [
+          ['error', '"conflicting types for ternary expression"']
+        ]]
+      - ['truev', *under1, [
+          ['note', 'truev.type()->stringify()']
+        ]]
+      - ['falsev', *under1, [
+          ['note', 'falsev.type()->stringify()']
+        ]]
+  -
+    code: 209
+    name: assign-invalid-lhs
+    desc: Invalid assignment target
+    inputs: 'Token const &eq, IR::ASTValue const &lhs'
+    location: eq
+    highlights:
+      - ['eq', *under0, [
+          ['error', '"non-lvalue assignment"']
+        ]]
+      - ['lhs', *under1, []]
+  -
+    code: 210
+    name: assign-conflict-tys
+    desc: Assignment target and value do not have same type
+    inputs: 'IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &eq'
+    location: eq
+    highlights:
+      - ['eq', *under0, [
+          ['error', '"conflicting types for assignment"']
+        ]]
+      - ['lhs', *under1, [
+          ['note', 'lhs.type()->stringify()']
+        ]]
+      - ['rhs', *under1, [
+          ['note', 'rhs.type()->stringify()']
+        ]]
+  -
+    code: 211
+    name: ret-val-void-fun
+    desc: Return statement in void function
+    inputs: 'IR::ASTValue const &val, IR::Function *f'
+    location: val
+    highlights:
+      - ['val', *under0, [
+          ['error', '"non-void return in void function"']
+        ]]
+      - ['f->defAST()->retty.get()', *under1, [
+          ['note', '"function returns void"']
+        ]]
+  -
+    code: 212
+    name: conflict-ret-ty
+    desc: Conflicting return types
+    inputs: 'IR::ASTValue const &val, IR::Function *f'
+    location: val
+    highlights:
+      - ['val', *under0, [
+          ['error', '"conflicting return type"']
+        ]]
+      - ['f->defAST()->retty.get()', *under1, [
+          ['note', 'concatMsg("function returns \"", f->ty->ret->stringify(), "\"")']
+        ]]
+  -
+    code: 213
+    name: ret-void-nonvoid-fun
+    desc: Void return in non-void function
+    inputs: 'IR::ASTValue const &val, IR::Function *f'
+    location: val
+    highlights:
+      - ['val', *under0, [
+          ['error', '"void return in non-void function"']
+        ]]
+      - ['f->defAST()->retty.get()', *under1, [
+          ['note', 'concatMsg("function returns \"", f->ty->ret->stringify(), "\"")']
+        ]]
+  -
+    code: 214
+    name: redecl-var
+    desc: Redeclaration of variable
+    inputs: 'Token const &name, IR::Register const *prev'
+    location: name
+    highlights:
+      - ['name', *under0, [
+          ['error', '"redeclaration of symbol"']
+        ]]
+      - ['prev->defAST()', *under1, [
+          ['note', '"previous declaration"']
+        ]]
+  -
+    code: 215
+    name: conflict-var-init-ty
+    desc: Conflicting type for variable initialization
+    inputs: 'Token const &eq, IR::ASTValue const &init, IR::Register const *var'
+    location: eq
+    highlights:
+      - ['eq', *under1, []]
+      - ['init', *under0, [
+          ['error', '"conflicting types for variable initialization"'],
+          ['note', 'init.type()->stringify()']
+        ]]
+      - ['var->defAST()', *under0, [
+          ['note', 'var->type()->stringify()']
+        ]]
+  -
+    code: 216
+    name: invalid-cast
+    desc: Invalid cast
+    inputs: 'ASTNS::AST const *ast, IR::ASTValue v, IR::Type const *newty'
+    location: ast
+    highlights:
+      - ['ast', *under0, [
+          ['error', '"invalid cast"'],
+          ['note', 'concatMsg("from \"", v.type()->stringify(), "\" to \"", newty->stringify(), "\"")']
         ]]

@@ -199,7 +199,7 @@ IR::ASTValue IR::BuiltinType::binOp(CodeGenNS::Context &cgc, IR::ASTValue l, IR:
     return ASTValue(outReg, ast);
 }
 // castTo {{{1
-IR::ASTValue IR::BuiltinType::castTo(CodeGenNS::Context &cgc, IR::ASTValue v)
+IR::ASTValue IR::BuiltinType::castTo(CodeGenNS::Context &cgc, IR::ASTValue v, ASTNS::AST *ast)
 {
     BuiltinType *sty = dynamic_cast<BuiltinType*> (v.type());
     if (!sty)
@@ -234,7 +234,7 @@ IR::ASTValue IR::BuiltinType::castTo(CodeGenNS::Context &cgc, IR::ASTValue v)
         {BuiltinType::Builtins::DOUBLE, 64}
     };
 
-    IR::Register *outReg = cgc.curFunc->addRegister(this, v.ast);
+    IR::Register *outReg = cgc.curFunc->addRegister(this, ast);
     if (styintegral == etyintegral)
     {
         // int -> int
