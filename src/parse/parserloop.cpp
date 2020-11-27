@@ -1,6 +1,5 @@
 #include "parse/parser.h"
 #include "parsestack.h" // in a private header file
-#include "message/errmsgs.h"
 #include <vector>
 
 // get goto {{{

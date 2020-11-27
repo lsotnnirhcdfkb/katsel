@@ -23,9 +23,10 @@ struct errorstate
     Token const &lasttok;
     Token &lookahead;
     std::string const &justparsed, &expected, &whileparsing;
+    bool w;
 
     inline errorstate(Parser &p, std::vector<stackitem> &stack, Token &lasttok, Token &lookahead, std::string const &justparsed, std::string const &expected, std::string const &whileparsing="")
-        : p(p), stack(stack), lasttok(lasttok), lookahead(lookahead), justparsed(justparsed), expected(expected), whileparsing(whileparsing) {}
+        : p(p), stack(stack), lasttok(lasttok), lookahead(lookahead), justparsed(justparsed), expected(expected), whileparsing(whileparsing), w(whileparsing.size()) {}
 };
 
 bool errorRecovery(errorstate const &e);

@@ -892,15 +892,15 @@ def genPanicMode():
 # generate single token insertion/deletion/substitution error recovery code {{{2
 def genSingleTok():
     output = []
-    output.append(              '#define TRYINSERT(ty) if (tryInsert(ty, e.p, e.lookahead, e.stack)) fixes.push_back(fix {fix::fixtype::INSERT, ty});;\n')
-    output.append(              '#define TRYSUB(ty) if (trySub(ty, e.p, e.lookahead, e.stack)) fixes.push_back(fix {fix::fixtype::SUBSTITUTE, ty});;\n')
+    output.append(              '#define TRYINSERT(ty) if (tryInsert(ty, e.p, e.lookahead, e.stack)) {fix f = fix {fix::fixtype::INSERT, ty}; if (score(f) > score(bestfix)) bestfix = f;};\n')
+    output.append(              '#define TRYSUB(ty) if (trySub(ty, e.p, e.lookahead, e.stack)) {fix f = fix {fix::fixtype::SUBSTITUTE, ty}; if (score(f) > score(bestfix)) bestfix = f;}\n')
     output.append(              '#define TRYTOKTY(ty) TRYINSERT(ty); TRYSUB(ty);\n')
 
     for terminal in symbols:
         if type(terminal) == Terminal:
             output.append(     f'    TRYTOKTY({terminal.astt()})\n');
 
-    output.append(              '    if (tryDel(e.p, e.stack)) fixes.push_back(fix {fix::fixtype::REMOVE});\n')
+    output.append(              '    if (tryDel(e.p, e.stack)) {fix f = fix {fix::fixtype::REMOVE}; if (score(f) > score(bestfix)) bestfix = f;};\n')
     return ''.join(output)
 # entry {{{1
 if __name__ == '__main__':

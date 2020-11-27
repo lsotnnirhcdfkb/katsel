@@ -63,7 +63,7 @@ void E0004(Token const &tok)
 // | The parser found an unrecoverable syntax error, and has
 // | information about what construct was being parsed when the
 // | error happened.
-void E0100(std::string const &justparsed, std::string const &expected, std::string const &whileparsing, Token const &lookahead, Token const &last)
+void E0100(std::string const &justparsed, std::string const &expected, std::string const &whileparsing, Token const &last, Token const &lookahead)
 {
     Error(Error::MsgType::ERROR, last, "E0100 (unrecoverable-invalid-syntax-while)")
         .underline(Error::Underline(last, '^')
@@ -78,7 +78,7 @@ void E0100(std::string const &justparsed, std::string const &expected, std::stri
 // | The parser found an unrecoverable syntax error, and has
 // | conflicting information about what construct was being
 // | parsed when the error happened.
-void E0101(std::string const &justparsed, std::string const &expected, Token const &lookahead, Token const &last)
+void E0101(std::string const &justparsed, std::string const &expected, Token const &last, Token const &lookahead)
 {
     Error(Error::MsgType::ERROR, last, "E0101 (unrecoverable-invalid-syntax)")
         .underline(Error::Underline(last, '^')
@@ -94,7 +94,7 @@ void E0101(std::string const &justparsed, std::string const &expected, Token con
 // | construct was being parsed when the error happened, and
 // | recovered by inserting, substituting, or removing a single
 // | token.
-void E0102(std::string const &justparsed, std::string const &expected, std::string const &whileparsing, Token const &lookahead, Token const &last)
+void E0102(std::string const &justparsed, std::string const &expected, std::string const &whileparsing, Token const &last, Token const &lookahead, std::string const &bestfix)
 {
     Error(Error::MsgType::ERROR, last, "E0102 (simple-invalid-syntax-while)")
         .underline(Error::Underline(last, '^')
@@ -102,6 +102,7 @@ void E0102(std::string const &justparsed, std::string const &expected, std::stri
         )
         .underline(Error::Underline(lookahead, '=')
             .note("unexpected token here")
+            .hint(bestfix)
         )
     ;
 }
@@ -110,7 +111,7 @@ void E0102(std::string const &justparsed, std::string const &expected, std::stri
 // | about what construct was being parsed when the error
 // | happened, and recovered by inserting, substituting, or
 // | removing a single token.
-void E0103(std::string const &justparsed, std::string const &expected, Token const &lookahead, Token const &last)
+void E0103(std::string const &justparsed, std::string const &expected, Token const &last, Token const &lookahead, std::string const &bestfix)
 {
     Error(Error::MsgType::ERROR, last, "E0103 (simple-invalid-syntax)")
         .underline(Error::Underline(last, '^')
@@ -118,6 +119,7 @@ void E0103(std::string const &justparsed, std::string const &expected, Token con
         )
         .underline(Error::Underline(lookahead, '=')
             .note("unexpected token here")
+            .hint(bestfix)
         )
     ;
 }
@@ -125,7 +127,7 @@ void E0103(std::string const &justparsed, std::string const &expected, Token con
 // | The parser found a syntax error, has information about what
 // | construct was being parsed when the error happened, and
 // | recovered via panic mode error recovery.
-void E0104(std::string const &justparsed, std::string const &expected, std::string const &whileparsing, Token const &lookahead, Token const &last)
+void E0104(std::string const &justparsed, std::string const &expected, std::string const &whileparsing, Token const &last, Token const &lookahead)
 {
     Error(Error::MsgType::ERROR, last, "E0104 (panicking-invalid-syntax-while)")
         .underline(Error::Underline(last, '^')
@@ -140,7 +142,7 @@ void E0104(std::string const &justparsed, std::string const &expected, std::stri
 // | The parser found a syntax error, has conflicting information
 // | about what construct was being parsed when the error
 // | happened, and recovered via panic mode error recovery.
-void E0105(std::string const &justparsed, std::string const &expected, Token const &lookahead, Token const &last)
+void E0105(std::string const &justparsed, std::string const &expected, Token const &last, Token const &lookahead)
 {
     Error(Error::MsgType::ERROR, last, "E0105 (panicking-invalid-syntax)")
         .underline(Error::Underline(last, '^')
