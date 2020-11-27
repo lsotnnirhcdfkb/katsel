@@ -752,11 +752,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
     break;
 #define DEFAULTINVALIDWHILE(justparsed, expected, whileparsing) \
     ERRORSTART()\
-        if (!errorRecovery(errorstate(p, stack, lookahead, lasttok, justparsed, expected, whileparsing)))\
+        if (!errorRecovery(errorstate(p, stack, lasttok, lookahead, justparsed, expected, whileparsing)))\
     ERROREND()
 #define DEFAULTINVALIDNOWHILE(justparsed, expected) \
     ERRORSTART()\
-        if (!errorRecovery(errorstate(p, stack, lookahead, lasttok, justparsed, expected, "")))\
+        if (!errorRecovery(errorstate(p, stack, lasttok, lookahead, justparsed, expected, "")))\
     ERROREND()
     bool done = false;
     bool errored = false;

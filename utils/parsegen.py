@@ -686,11 +686,11 @@ def genLoop():
                                        '    break;\n'
                                        '#define DEFAULTINVALIDWHILE(justparsed, expected, whileparsing) \\\n'
                                        '    ERRORSTART()\\\n'
-                                       '        if (!errorRecovery(errorstate(p, stack, lookahead, lasttok, justparsed, expected, whileparsing)))\\\n'
+                                       '        if (!errorRecovery(errorstate(p, stack, lasttok, lookahead, justparsed, expected, whileparsing)))\\\n'
                                        '    ERROREND()\n'
                                        '#define DEFAULTINVALIDNOWHILE(justparsed, expected) \\\n'
                                        '    ERRORSTART()\\\n'
-                                       '        if (!errorRecovery(errorstate(p, stack, lookahead, lasttok, justparsed, expected, \"\")))\\\n'
+                                       '        if (!errorRecovery(errorstate(p, stack, lasttok, lookahead, justparsed, expected, \"\")))\\\n'
                                        '    ERROREND()\n'))
 
     output.append(                     '    bool done = false;\n')
