@@ -1,8 +1,7 @@
 underlines:
   under0: &under0 '^'
-  under1: &under1 '='
-  under2: &under2 '~'
-  under3: &under3 '-'
+  under1: &under1 '~'
+  under2: &under2 '-'
 
 errors:
   -
