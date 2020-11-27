@@ -14,9 +14,9 @@ bool errorRecovery(errorstate const &e)
     else
     {
         if (e.w)
-            ERR_UNRECOVERABLE_INVALID_SYNTAX_WHILE(e.justparsed, e.expected, e.whileparsing, e.lasttok, e.lookahead);
+            ERR_UNRECOVERABLE_INVALID_SYNTAX_WHILE(e.justparsed, e.expected, e.whileparsing, e.lasttok, e.olh);
         else
-            ERR_UNRECOVERABLE_INVALID_SYNTAX(e.justparsed, e.expected, e.lasttok, e.lookahead);
+            ERR_UNRECOVERABLE_INVALID_SYNTAX(e.justparsed, e.expected, e.lasttok, e.olh);
 
         return false;
     }
@@ -220,9 +220,9 @@ bool singleTok(errorstate const &e)
     {
         applyFix(bestfix, e.p, e.lookahead);
         if (e.w)
-            ERR_SIMPLE_INVALID_SYNTAX_WHILE(e.justparsed, e.expected, e.whileparsing, e.lasttok, e.lookahead, bestfix.stringify());
+            ERR_SIMPLE_INVALID_SYNTAX_WHILE(e.justparsed, e.expected, e.whileparsing, e.lasttok, e.olh, bestfix.stringify());
         else
-            ERR_SIMPLE_INVALID_SYNTAX(e.justparsed, e.expected, e.lasttok, e.lookahead, bestfix.stringify());
+            ERR_SIMPLE_INVALID_SYNTAX(e.justparsed, e.expected, e.lasttok, e.olh, bestfix.stringify());
         return true;
     }
 
