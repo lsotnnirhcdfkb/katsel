@@ -2,11 +2,12 @@
 
 #include "ir/type.h"
 #include "message/errors.h"
+#include "message/errmsgs.h"
 
 #include "llvm/IR/Type.h"
 #include "llvm/IR/DerivedTypes.h"
 
-std::string IR::VoidType::stringify()
+std::string IR::VoidType::stringify() const
 {
     return "void";
 }
@@ -24,12 +25,9 @@ IR::ASTValue IR::VoidType::unaryOp(CodeGenNS::Context &, IR::ASTValue , Token, A
 {
     fCalled("VoidType::unaryOp");
 }
-IR::ASTValue IR::VoidType::castTo(CodeGenNS::Context &, IR::ASTValue v)
+IR::ASTValue IR::VoidType::castTo(CodeGenNS::Context &, IR::ASTValue v, ASTNS::AST *asts)
 {
-    Error(Error::MsgType::ERROR, v, "invalid cast")
-        .underline(Error::Underline(v, '^')
-            .error(concatMsg("invalid cast form type \"", v.type()->stringify(), "\" to \"", this->stringify(), "\"")))
-        .report();
+    ERR_INVALID_CAST(ast, v, this);
     return ASTValue();
 }
 IR::ASTValue IR::VoidType::isTrue(CodeGenNS::Context &, IR::ASTValue )
@@ -44,7 +42,7 @@ llvm::Type* IR::VoidType::toLLVMType(llvm::LLVMContext &con) const
 
 IR::FunctionType::FunctionType(Type *ret, std::vector<Type*> paramtys): ret(ret), paramtys(paramtys) {}
 
-std::string IR::FunctionType::stringify()
+std::string IR::FunctionType::stringify() const
 {
     std::stringstream ss;
     ss << ret->stringify() << "(";
@@ -68,12 +66,9 @@ IR::ASTValue IR::FunctionType::unaryOp(CodeGenNS::Context &, IR::ASTValue , Toke
     fCalled("FunctionType::unaryop");
 }
 
-IR::ASTValue IR::FunctionType::castTo(CodeGenNS::Context &, IR::ASTValue v)
+IR::ASTValue IR::FunctionType::castTo(CodeGenNS::Context &, IR::ASTValue v, ASTNS::AST *)
 {
-    Error(Error::MsgType::ERROR, v, "Invalid cast")
-        .underline(Error::Underline(v, '^')
-            .error(concatMsg("Invalid cast form type \"", v.type()->stringify(), "\" to \"", this->stringify(), "\"")))
-        .report();
+    ERR_INVALID_CAST(ast, v, this);
     return ASTValue();
 }
 

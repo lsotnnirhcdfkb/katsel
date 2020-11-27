@@ -1,5 +1,6 @@
 #include "codegen/codegen.h"
 #include "message/errors.h"
+#include "message/errmsgs.h"
 
 void CodeGenNS::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem *ast)
 {
@@ -7,12 +8,7 @@ void CodeGenNS::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem *ast)
     CodeGenNS::Context::Local *var = cg.context.findLocal(varname);
     if (var && var->scopenum == cg.context.curScope)
     {
-        Error(Error::MsgType::ERROR, ast->name, "duplicate variable")
-            .underline(Error::Underline(ast->name, '^')
-                .error("duplicate variable"))
-            .underline(Error::Underline(var->v->defAST(), '-')
-                .note("previous declaration"))
-            .report();
+        ERR_REDECL_VAR(ast->name, var->v);
         cg.errored = true;
         return;
     }
@@ -28,13 +24,7 @@ void CodeGenNS::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem *ast)
 
         if (val.type() != varty)
         {
-            Error(Error::MsgType::ERROR, ast->equal, concatMsg("cannot initialize variable of type \"", varty->stringify(), "\" with value of type \"", val.type()->stringify(), "\""))
-                .underline(Error::Underline(val, '^')
-                    .note(val.type()->stringify()))
-                .underline(Error::Underline(ast->name, '^')
-                    .note(varty->stringify()))
-                .underline(Error::Underline(ast->equal, '-'))
-                .report();
+            ERR_CONFLICT_VAR_INIT_TY(ast->equal, val, reg);
             cg.errored = true;
             return;
         }

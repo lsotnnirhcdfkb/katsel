@@ -1,5 +1,6 @@
 #include "codegen/codegen.h"
 #include "message/errors.h"
+#include "message/errmsgs.h"
 
 CodeGenNS::ExprCodeGen::ExprCodeGen(CodeGen &cg): cg(cg) {}
 
@@ -24,13 +25,8 @@ IR::ASTValue CodeGenNS::ExprCodeGen::expr(ASTNS::ExprB *ast)
                                                                                                                                           \
         if (!lhs.type()->hasOperator(ast->op.type))                                                                                       \
         {                                                                                                                                 \
-            Error(Error::MsgType::ERROR, ast->op, "left-hand side of binary expression does not support operator")                        \
-                .underline(Error::Underline(ast->op, '^')                                                                                 \
-                    .error(concatMsg("type \"", lhs.type()->stringify(), "\" does not support operator \"", ast->op.stringify(), "\"")))  \
-                .underline(Error::Underline(lhs, '~'))                                                                                    \
-                .underline(Error::Underline(rhs, '-'))                                                                                    \
-                .report();                                                                                                                \
-                ret = IR::ASTValue();                                                                                                     \
+            ERR_LHS_UNSUPPORTED_OP(lhs, rhs, ast->op);                                                                                    \
+            ret = IR::ASTValue();                                                                                                         \
             cg.errored = true;                                                                                                            \
             return;                                                                                                                       \
         }                                                                                                                                 \
@@ -50,11 +46,7 @@ IR::ASTValue CodeGenNS::ExprCodeGen::expr(ASTNS::ExprB *ast)
                                                                                                                                                       \
         if (!oper.type()->hasOperator(ast->op.type))                                                                                                  \
         {                                                                                                                                             \
-            Error(Error::MsgType::ERROR, ast->operand.get(), "operand of unary expression does not support operator")                                 \
-                .underline(Error::Underline(ast->op, '^')                                                                                             \
-                    .error(concatMsg("operand of type \"", oper.type()->stringify(), "\" does not support operator \"", ast->op.stringify(), "\"")))  \
-                .underline(Error::Underline(oper, '-'))                                                                                               \
-                .report();                                                                                                                            \
+            ERR_UNARY_UNSUPPORTED_OP(oper, ast->op);                                                                                                  \
             ret = IR::ASTValue();                                                                                                                     \
             cg.errored = true;                                                                                                                        \
             return;                                                                                                                                   \
@@ -88,10 +80,7 @@ void CodeGenNS::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
     IR::FunctionType *fty = dynamic_cast<IR::FunctionType*>(func.type());
     if (!fty)
     {
-        Error(Error::MsgType::ERROR, ast->oparn, "value not callable")
-            .underline(Error::Underline(func, '^')
-                .error(concatMsg("cannot call non-function of type \"", func.type()->stringify(), "\"")))
-            .report();
+        ERR_CALL_NONCALLABLE(func, ast->oparn);
         ret = IR::ASTValue();
         cg.errored = true;
         return;
@@ -104,12 +93,7 @@ void CodeGenNS::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
 
     if (args.size() != fty->paramtys.size())
     {
-        Error(Error::MsgType::ERROR, ast->oparn, "wrong number of arguments to function call")
-            .underline(Error::Underline(ast->args.get(), '^')
-                .error("wrong number of arguments to function call"))
-            .underline(Error::Underline(func, '-')
-                .note(concatMsg("function expects ", fty->paramtys.size(), " arguments, but got ", args.size(), " arguments")))
-            .report();
+        ERR_WRONG_NUM_ARGS(func, ast->oparn, ast->args.get(), args);
         cg.errored = true;
         ret = IR::ASTValue();
         return;
@@ -128,11 +112,7 @@ void CodeGenNS::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
 
         if ((*i).type() != *j)
         {
-            Error(Error::MsgType::ERROR, *i, "wrong argument to function call")
-                .underline(Error::Underline(*i, '^')
-                    .error(concatMsg("wrong argument to function call: argument is of type \"", (*i).type()->stringify(), "\""))
-                    .note(concatMsg("passing to parameter of type \"", (*j)->stringify(), "\"")))
-                .report();
+            ERR_INCORRECT_ARG(*i, *j);
             ret = IR::ASTValue();
             cg.errored = true;
             return;
@@ -206,10 +186,7 @@ void CodeGenNS::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast)
                 IR::Value *v = cg.context.findValue(ast->value.stringify());
                 if (!v)
                 {
-                    Error(Error::MsgType::ERROR, ast->value, "name is not defined")
-                        .underline(Error::Underline(ast->value, '^')
-                                .error("name is not defined"))
-                        .report();
+                    ERR_UNDECL_SYMB(ast->value);
                     ret = IR::ASTValue();
                     cg.errored = true;
                     return;
@@ -260,14 +237,7 @@ void CodeGenNS::ExprCodeGen::visitTernaryExpr(ASTNS::TernaryExpr *ast)
 
     if (truev.type() != falsev.type())
     {
-        Error(Error::MsgType::ERROR, ast->colon, "conflicting types for ternary expression")
-            .underline(Error::Underline(truev, '^')
-                .note(truev.type()->stringify()))
-            .underline(Error::Underline(falsev, '^')
-                .note(falsev.type()->stringify()))
-            .underline(Error::Underline(ast->colon, '-'))
-            .underline(Error::Underline(ast->quest, '-'))
-            .report();
+        ERR_CONFL_TYS_TERNEXPR(truev, falsev, ast->quest);
         ret = IR::ASTValue();
         cg.errored = true;
         return;
@@ -297,11 +267,7 @@ void CodeGenNS::ExprCodeGen::visitAssignmentExpr(ASTNS::AssignmentExpr *ast)
 
     if (!lhs.assignable() || !targetReg)
     {
-        Error(Error::MsgType::ERROR, ast->equal, "invalid assignment target")
-            .underline(Error::Underline(ast->equal, '^')
-                .error("invalid assignment target"))
-            .underline(Error::Underline(lhs, '~'))
-            .report();
+        ERR_ASSIGN_INVALID_LHS(ast->equal, lhs);
         ret = IR::ASTValue();
         cg.errored = true;
         return;
@@ -309,13 +275,7 @@ void CodeGenNS::ExprCodeGen::visitAssignmentExpr(ASTNS::AssignmentExpr *ast)
 
     if (targetReg->type() != rhs.type())
     {
-        Error(Error::MsgType::ERROR, ast->equal, "assignment target and value do not have same type")
-            .underline(Error::Underline(rhs, '^')
-                .note(rhs.type()->stringify()))
-            .underline(Error::Underline(lhs, '^')
-                .note(targetReg->type()->stringify()))
-            .underline(Error::Underline(ast->equal, '-'))
-            .report();
+        ERR_ASSIGN_CONFLICT_TYS(lhs, rhs, ast->equal);
         ret = IR::ASTValue();
         cg.errored = true;
         return;

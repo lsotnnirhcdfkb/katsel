@@ -1,5 +1,6 @@
 #include "codegen/codegen.h"
 #include "message/errors.h"
+#include "message/errmsgs.h"
 
 CodeGenNS::StmtCodeGen::StmtCodeGen(CodeGen &cg): cg(cg) {}
 
@@ -29,24 +30,14 @@ void CodeGenNS::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
 
         if (!cg.context.retReg)
         {
-            Error(Error::MsgType::ERROR, v, "cannot return value from function with return type \"void\"")
-                .underline(Error::Underline(v, '^')
-                    .error(concatMsg("returning ", v.type()->stringify(), " here")))
-                .underline(Error::Underline(cg.context.curFunc->defAST()->retty.get(), '-')
-                    .note("returns void"))
-                .report();
+            ERR_RET_VAL_VOID_FUN(v, cg.context.curFunc);
             cg.errored = true;
             return;
         }
 
         if (cg.context.retReg->type() != v.type())
         {
-            Error(Error::MsgType::ERROR, v, "cannot return value of different type than expected return value")
-                .underline(Error::Underline(v, '^')
-                    .error(concatMsg("returning ", v.type()->stringify(), " here")))
-                .underline(Error::Underline(cg.context.curFunc->defAST()->retty.get(), '-')
-                    .note(concatMsg("function returns ", cg.context.retReg->type()->stringify())))
-                .report();
+            ERR_CONFLICT_RET_TY(v, cg.context.curFunc);
             cg.errored = true;
             return;
         }
@@ -55,12 +46,7 @@ void CodeGenNS::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
     }
     else if (cg.context.retReg)
     {
-        Error(Error::MsgType::ERROR, ast, "return from non-void function must return a value")
-            .underline(Error::Underline(ast, '^')
-                .error("returning nothing here"))
-            .underline(Error::Underline(cg.context.curFunc->defAST()->retty.get(), '-')
-                .note(concatMsg("function returns ", cg.context.retReg->type()->stringify())))
-            .report();
+        ERR_RET_VOID_NONVOID_FUN(ast, cg.context.curFunc);
         cg.errored = true;
         return;
     }

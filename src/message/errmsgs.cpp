@@ -223,7 +223,7 @@ void E0204(IR::ASTValue const &func, Token const &oparn)
 }
 // E0205 - wrong-num-args
 // | Wrong number of arguments to function call
-void E0205(IR::ASTValue const &func, Token const &oparn, ASTNS::ArgList *argsast, std::vector<IR::ASTValue> const &args)
+void E0205(IR::ASTValue const &func, Token const &oparn, ASTNS::ArgB *argsast, std::vector<IR::ASTValue> const &args)
 {
     Error e = Error(Error::MsgType::ERROR, oparn, "E0205 (wrong-num-args)")
         .underline(Error::Underline(argsast, '^')
@@ -338,10 +338,10 @@ void E0212(IR::ASTValue const &val, IR::Function *f)
 }
 // E0213 - ret-void-nonvoid-fun
 // | Void return in non-void function
-void E0213(IR::ASTValue const &val, IR::Function *f)
+void E0213(ASTNS::AST *retstmt, IR::Function *f)
 {
-    Error e = Error(Error::MsgType::ERROR, val, "E0213 (ret-void-nonvoid-fun)")
-        .underline(Error::Underline(val, '^')
+    Error e = Error(Error::MsgType::ERROR, retstmt, "E0213 (ret-void-nonvoid-fun)")
+        .underline(Error::Underline(retstmt, '^')
             .error("void return in non-void function")
         )
         .underline(Error::Underline(f->defAST()->retty.get(), '=')
@@ -356,7 +356,7 @@ void E0214(Token const &name, IR::Register const *prev)
 {
     Error e = Error(Error::MsgType::ERROR, name, "E0214 (redecl-var)")
         .underline(Error::Underline(name, '^')
-            .error("redeclaration of symbol")
+            .error("redeclaration of variable")
         )
         .underline(Error::Underline(prev->defAST(), '=')
             .note("previous declaration")
@@ -383,12 +383,29 @@ void E0215(Token const &eq, IR::ASTValue const &init, IR::Register const *var)
 }
 // E0216 - invalid-cast
 // | Invalid cast
-void E0216(ASTNS::AST const *ast, IR::ASTValue v, IR::Type const *newty)
+void E0216(ASTNS::AST *ast, IR::ASTValue v, IR::Type const *newty)
 {
     Error e = Error(Error::MsgType::ERROR, ast, "E0216 (invalid-cast)")
         .underline(Error::Underline(ast, '^')
             .error("invalid cast")
             .note(concatMsg("from \"", v.type()->stringify(), "\" to \"", newty->stringify(), "\""))
+        )
+    ;
+    e.report();
+}
+// E0217 - conflict-tys-binary-op
+// | Conflicting types to binary operator
+void E0217(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &op)
+{
+    Error e = Error(Error::MsgType::ERROR, op, "E0217 (conflict-tys-binary-op)")
+        .underline(Error::Underline(lhs, '=')
+            .note(lhs.type()->stringify())
+        )
+        .underline(Error::Underline(rhs, '=')
+            .note(rhs.type()->stringify())
+        )
+        .underline(Error::Underline(op, '^')
+            .error("conflicting types to binary operator")
         )
     ;
     e.report();

@@ -1,5 +1,6 @@
 #include "codegen/codegen.h"
 #include "message/errors.h"
+#include "message/errmsgs.h"
 
 CodeGenNS::Declarator::Declarator(CodeGen &cg): cg(cg) {}
 
@@ -22,15 +23,7 @@ void CodeGenNS::Declarator::visitFunction(ASTNS::Function *fun)
 
     if (declbefore)
     {
-        Error e = Error(Error::MsgType::ERROR, fun->name, "redeclaration of symbol")
-            .underline(Error::Underline(fun->name, '^')
-                .error("redeclaration of symbol"));
-
-        if (prevdeclast)
-            e.underline(Error::Underline(prevdeclast, '-')
-                .note("previous declaration"));
-
-        e.report();
+        ERR_REDECL_SYM(fun->name, declbefore);
         cg.errored = true;
         return;
     }

@@ -3,6 +3,7 @@
 #include "ir/type.h"
 #include "ir/instruction.h"
 #include "message/errors.h"
+#include "message/errmsgs.h"
 
 #include "codegen/codegen.h"
 
@@ -43,7 +44,7 @@ llvm::Type* IR::BuiltinType::toLLVMType(llvm::LLVMContext &con) const
     outOSwitchNoh("BuiltinType::toLLVMType");
 }
 // stringify {{{1
-std::string IR::BuiltinType::stringify()
+std::string IR::BuiltinType::stringify() const
 {
     switch (type)
     {
@@ -72,17 +73,11 @@ bool IR::BuiltinType::hasOperator(TokenType)
 IR::ASTValue IR::BuiltinType::binOp(CodeGenNS::Context &cgc, IR::ASTValue l, IR::ASTValue r, Token op, ASTNS::AST *ast)
 {
     if (l.type() != this)
-        calledWithOpTyNEthis("BuiltinType", "binOp", "left operand", l);
+        calledWithOpTyNEthis("BuiltinType", "binOp", "left operand");
 
     if (l.type() != r.type())
     {
-        Error(Error::MsgType::ERROR, op, "cannot operate on values of different types")
-            .underline(Error::Underline(l, '^')
-                .note(l.type()->stringify()))
-            .underline(Error::Underline(r, '^')
-                .note(r.type()->stringify()))
-            .underline(Error::Underline(op, '-'))
-            .report();
+        ERR_CONFLICT_TYS_BINARY_OP(l, r, op);
         return ASTValue();
     }
 
@@ -204,10 +199,7 @@ IR::ASTValue IR::BuiltinType::castTo(CodeGenNS::Context &cgc, IR::ASTValue v, AS
     BuiltinType *sty = dynamic_cast<BuiltinType*> (v.type());
     if (!sty)
     {
-        Error(Error::MsgType::ERROR, v, "Invalid cast")
-            .underline(Error::Underline(v, '^')
-                .error(concatMsg("Invalid cast from type \"", v.type()->stringify(), "\" to \"", this->stringify(), "\"")))
-            .report();
+        ERR_INVALID_CAST(ast, v, this);
         return IR::ASTValue();
     }
 
@@ -291,7 +283,7 @@ IR::ASTValue IR::BuiltinType::castTo(CodeGenNS::Context &cgc, IR::ASTValue v, AS
 IR::ASTValue IR::BuiltinType::unaryOp(CodeGenNS::Context &cgc, IR::ASTValue v, Token op, ASTNS::AST *ast)
 {
     if (v.type() != this)
-        calledWithOpTyNEthis("BuiltinType", "unaryOp", "operand", v);
+        calledWithOpTyNEthis("BuiltinType", "unaryOp", "operand");
 
     IR::Register *outReg = cgc.curFunc->addRegister(v.type(), ast);
     switch (op.type)
@@ -318,7 +310,7 @@ IR::ASTValue IR::BuiltinType::unaryOp(CodeGenNS::Context &cgc, IR::ASTValue v, T
 IR::ASTValue IR::BuiltinType::isTrue(CodeGenNS::Context &cgc, IR::ASTValue v)
 {
     if (v.type() != this)
-        calledWithOpTyNEthis("BuiltinType", "isTrue", "value", v);
+        calledWithOpTyNEthis("BuiltinType", "isTrue", "value");
 
     IR::Register *outReg = cgc.curFunc->addRegister(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), v.ast);
     switch (type)

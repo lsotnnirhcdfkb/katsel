@@ -25,14 +25,14 @@ namespace IR
     {
     public:
         virtual ~Type() {};
-        virtual std::string stringify() = 0;
+        virtual std::string stringify() const = 0;
         virtual bool hasOperator(TokenType t) = 0;
 
         virtual IR::ASTValue binOp(CodeGenNS::Context &cgc, IR::ASTValue l, IR::ASTValue r, Token op, ASTNS::AST *ast) = 0;
         virtual IR::ASTValue unaryOp(CodeGenNS::Context &cgc, IR::ASTValue operand, Token op, ASTNS::AST *ast) = 0;
         virtual IR::ASTValue isTrue(CodeGenNS::Context &cgc, IR::ASTValue v) = 0;
 
-        virtual IR::ASTValue castTo(CodeGenNS::Context &cgc, IR::ASTValue v) = 0;
+        virtual IR::ASTValue castTo(CodeGenNS::Context &cgc, IR::ASTValue v, ASTNS::AST *ast) = 0;
 
         ASTNS::TypeB *ast;
 
@@ -61,7 +61,7 @@ namespace IR
         Builtins type;
 
         BuiltinType(Builtins b);
-        std::string stringify() override;
+        std::string stringify() const override;
 
         bool hasOperator(TokenType t) override;
 
@@ -69,7 +69,7 @@ namespace IR
         IR::ASTValue unaryOp(CodeGenNS::Context &cgc, IR::ASTValue operand, Token op, ASTNS::AST *ast) override;
         IR::ASTValue isTrue(CodeGenNS::Context &cgc, IR::ASTValue v) override;
 
-        IR::ASTValue castTo(CodeGenNS::Context &cgc, IR::ASTValue v) override;
+        IR::ASTValue castTo(CodeGenNS::Context &cgc, IR::ASTValue v, ASTNS::AST *ast) override;
 
         llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
     };
@@ -82,13 +82,13 @@ namespace IR
         std::vector<Type*> paramtys;
 
         FunctionType(Type *ret, std::vector<Type*> paramtys);
-        std::string stringify() override;
+        std::string stringify() const override;
         bool hasOperator(TokenType t) override;
         IR::ASTValue binOp(CodeGenNS::Context &cgc, IR::ASTValue l, IR::ASTValue r, Token op, ASTNS::AST *ast) override;
         IR::ASTValue unaryOp(CodeGenNS::Context &cgc, IR::ASTValue operand, Token op, ASTNS::AST *ast) override;
         IR::ASTValue isTrue(CodeGenNS::Context &cgc, IR::ASTValue v) override;
 
-        IR::ASTValue castTo(CodeGenNS::Context &cgc, IR::ASTValue v) override;
+        IR::ASTValue castTo(CodeGenNS::Context &cgc, IR::ASTValue v, ASTNS::AST *ast) override;
 
         llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
     };
@@ -96,13 +96,13 @@ namespace IR
     class VoidType : public Type
     {
     public:
-        std::string stringify() override;
+        std::string stringify() const override;
         bool hasOperator(TokenType t) override;
         IR::ASTValue binOp(CodeGenNS::Context &cgc, IR::ASTValue l, IR::ASTValue r, Token op, ASTNS::AST *ast) override;
         IR::ASTValue unaryOp(CodeGenNS::Context &cgc, IR::ASTValue operand, Token op, ASTNS::AST *ast) override;
         IR::ASTValue isTrue(CodeGenNS::Context &cgc, IR::ASTValue v) override;
 
-        IR::ASTValue castTo(CodeGenNS::Context &cgc, IR::ASTValue v) override;
+        IR::ASTValue castTo(CodeGenNS::Context &cgc, IR::ASTValue v, ASTNS::AST *ast) override;
 
         llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
     };
