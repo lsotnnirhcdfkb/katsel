@@ -818,31 +818,21 @@ void reportAbortNoh(std::string const &message)
 }
 void invalidTok(std::string const &name, Token const &underline)
 {
-    Error(Error::MsgType::INTERR, underline, "invalid token for " + name)
-        .underline(Error::Underline(underline, '!')
-            .error("invalid token")
-            .note("for " + name))
-        .reportAbort();
+    reportAbortNoh(concatMsg("invalid token for ", name, ": \"", underline.stringify(), "\"");
 }
 void calledWithOpTyNEthis(std::string const &classN, std::string const &fnn, std::string const &opname, IR::ASTValue const op)
 {
-    Error(Error::MsgType::INTERR, op, classN + "::" + fnn + " called with " + opname + " type != this")
-        .underline(Error::Underline(op, '^')
-            .error(opname + " type != this"))
-        .reportAbort();
+    reportAbortNoh(concatMsg(classN, "::", fnn, " called with ", opname, " type != this"))
 }
 void outOSwitchDDefaultLab(std::string const &fnn, Location const &highlight)
 {
-    Error(Error::MsgType::INTERR, highlight, fnn + " went out of switch despite default label")
-        .underline(Error::Underline(highlight, '^')
-            .error("out of switch"))
-        .reportAbort();
+    reportAbortNoh(concatMsg(fnn, " went out of switch despite default label"))
 }
 void fCalled(std::string const &fnn)
 {
-    reportAbortNoh(fnn + " called");
+    reportAbortNoh(concatMsg(fnn, " called"));
 }
 void outOSwitchNoh(std::string const &fnn)
 {
-    reportAbortNoh(fnn + " went out of switch");
+    reportAbortNoh(concatMsg(fnn, " went out of switch"));
 }

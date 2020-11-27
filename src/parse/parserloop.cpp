@@ -747,17 +747,17 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
     {\
         if (istrial) return false;
 #define ERROREND() \
-        if (!errorRecovery(p, stack, lookahead))\
             done = true;\
+        errored = true;\
     }\
     break;
 #define DEFAULTINVALIDWHILE(justparsed, expected, whileparsing) \
     ERRORSTART()\
-            ERR_INVALID_SYNTAX_WHILE(justparsed, expected, whileparsing, lookahead, lasttok);\
+        if (!errorRecovery(errorstate(p, stack, lookahead, lasttok, justparsed, expected, whileparsing)))\
     ERROREND()
 #define DEFAULTINVALIDNOWHILE(justparsed, expected) \
     ERRORSTART()\
-            ERR_INVALID_SYNTAX(justparsed, expected, lookahead, lasttok);\
+        if (!errorRecovery(errorstate(p, stack, lookahead, lasttok, justparsed, expected, "")))\
     ERROREND()
     bool done = false;
     bool errored = false;

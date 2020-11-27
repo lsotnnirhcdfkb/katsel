@@ -667,19 +667,17 @@ def genLoop():
                                        '    {\\\n'
                                        '        if (istrial) return false;\n'
                                        '#define ERROREND() \\\n'
-                                       '        if (!errorRecovery(p, stack, lookahead))\\\n'
                                        '            done = true;\\\n'
-                                       # '        e.report();\\\n' # TODO: fix this
-                                       # '        errored = true;\\\n'
+                                       '        errored = true;\\\n'
                                        '    }\\\n'
                                        '    break;\n'
                                        '#define DEFAULTINVALIDWHILE(justparsed, expected, whileparsing) \\\n'
                                        '    ERRORSTART()\\\n'
-                                       '            ERR_INVALID_SYNTAX_WHILE(justparsed, expected, whileparsing, lookahead, lasttok);\\\n'
+                                       '        if (!errorRecovery(errorstate(p, stack, lookahead, lasttok, justparsed, expected, whileparsing)))\\\n'
                                        '    ERROREND()\n'
                                        '#define DEFAULTINVALIDNOWHILE(justparsed, expected) \\\n'
                                        '    ERRORSTART()\\\n'
-                                       '            ERR_INVALID_SYNTAX(justparsed, expected, lookahead, lasttok);\\\n'
+                                       '        if (!errorRecovery(errorstate(p, stack, lookahead, lasttok, justparsed, expected, \"\")))\\\n'
                                        '    ERROREND()\n'))
 
     output.append(                     '    bool done = false;\n')
@@ -830,7 +828,7 @@ def genPanicMode():
                            '    ASTNS::ty *ast##ty (dynamic_cast<ASTNS::ty*>(ast));\\\n'
                            '    if (ast##ty)\\\n'
                            '    {\\\n'
-                           '        switch (lookahead.type)\\\n'
+                           '        switch (e.lookahead.type)\\\n'
                            '        {\n'
                            '#define FINISHCHECKASI()\\\n'
                            '        }\\\n'
@@ -851,7 +849,7 @@ def genPanicMode():
                            '    std::vector<stackitem>::reverse_iterator delto;\n'
                            '    while (!valid)\n'
                            '    {\n'
-                           '        for (auto i = stack.rbegin(); i != stack.rend() && !valid; ++i)\n'
+                           '        for (auto i = e.stack.rbegin(); i != e.stack.rend() && !valid; ++i)\n'
                            '        {\n'
                            '            if (!i->istok)\n'
                            '            {\n'
@@ -874,17 +872,17 @@ def genPanicMode():
     output.append(        ('            }\n'
                            '        }\n'
                            '        if (!valid)\n'
-                           '            lookahead = p.consume();\n'
-                           '        if (lookahead.type == TokenType::EOF_)\n'
+                           '            e.lookahead = e.p.consume();\n'
+                           '        if (e.lookahead.type == TokenType::EOF_)\n'
                            '            return false;\n'
                            '    }\n'
                            '    stackitem *startabandon = &*delto.base();\n'
-                           '    stackitem *endabandon = &*stack.end() - 1;\n'
+                           '    stackitem *endabandon = &*e.stack.end() - 1;\n'
                            '    SITOLOC(startabandon)\n'
                            '    SITOLOC(endabandon)\n'
-                           '    e.underline(Error::Underline(Location(startabandonl.start, endabandonl.end, startabandonl.file), \'~\').note("erroneous syntax: abandoned this construct"));\n'
-                           '    e.underline(Error::Underline(lookahead, \'-\').note("parser panicked until here"));\n'
-                           '    stack.erase(delto.base(), stack.end());\n'
+                           '    // TODO: e.underline(Error::Underline(Location(startabandonl.start, endabandonl.end, startabandonl.file), \'~\').note("erroneous syntax: abandoned this construct"));\n'
+                           '    // TODO: e.underline(Error::Underline(lookahead, \'-\').note("parser panicked until here"));\n'
+                           '    e.stack.erase(delto.base(), e.stack.end());\n'
                            '#undef CHECKASI\n'
                            '#undef FINISHCHECKASI\n'
                            '#undef RECOVERANDDEFBREAK\n'
@@ -894,15 +892,15 @@ def genPanicMode():
 # generate single token insertion/deletion/substitution error recovery code {{{2
 def genSingleTok():
     output = []
-    output.append(              '#define TRYINSERT(ty) if (tryInsert(ty, p, lookahead, stack)) fixes.push_back(fix {fix::fixtype::INSERT, ty});;\n')
-    output.append(              '#define TRYSUB(ty) if (trySub(ty, p, lookahead, stack)) fixes.push_back(fix {fix::fixtype::SUBSTITUTE, ty});;\n')
+    output.append(              '#define TRYINSERT(ty) if (tryInsert(ty, e.p, e.lookahead, e.stack)) fixes.push_back(fix {fix::fixtype::INSERT, ty});;\n')
+    output.append(              '#define TRYSUB(ty) if (trySub(ty, e.p, e.lookahead, e.stack)) fixes.push_back(fix {fix::fixtype::SUBSTITUTE, ty});;\n')
     output.append(              '#define TRYTOKTY(ty) TRYINSERT(ty); TRYSUB(ty);\n')
 
     for terminal in symbols:
         if type(terminal) == Terminal:
             output.append(     f'    TRYTOKTY({terminal.astt()})\n');
 
-    output.append(              '    if (tryDel(p, stack)) fixes.push_back(fix {fix::fixtype::REMOVE});\n')
+    output.append(              '    if (tryDel(e.p, e.stack)) fixes.push_back(fix {fix::fixtype::REMOVE});\n')
     return ''.join(output)
 # entry {{{1
 if __name__ == '__main__':
