@@ -1,7 +1,3 @@
-regions:
-  - [  0, 100, 'lexing errors']
-  - [100, 200, 'parsing errors']
-
 underlines:
   under0: &under0 '^'
   under1: &under1 '='

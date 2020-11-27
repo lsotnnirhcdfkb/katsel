@@ -10,15 +10,10 @@ except AttributeError:
 PADAMT = 4
 
 with open(os.path.join(os.path.dirname(__file__), 'errors.yml'), 'r') as f:
-    errors = yaml.load(f.read(), Loader=loader)
-    regions = errors['regions']
-    errors = errors['errors']
+    errors = yaml.load(f.read(), Loader=loader)['errors']
 
 def genH():
     output = []
-
-    for regionst, regione, desc in regions:
-        output.append(f'// Errors E{str(regionst).zfill(PADAMT)}-E{str(regione).zfill(PADAMT)}: {desc}\n')
 
     output.append(     '\n')
 
