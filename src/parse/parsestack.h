@@ -22,7 +22,7 @@ struct errorstate
     std::vector<stackitem> &stack;
     Token const &lasttok;
     Token &lookahead;
-    Token const &olh;
+    Token const olh;
     std::string const &justparsed, &expected, &whileparsing;
     bool w;
 
