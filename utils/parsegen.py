@@ -858,7 +858,7 @@ def genPanicMode():
                            '    {\n'
                            '        for (auto i = e.stack.rbegin(); i != e.stack.rend() && !valid; ++i)\n'
                            '        {\n'
-                           '            if (!i->istok)\n'
+                           '            if (!i->istok && !i->isinitial)\n'
                            '            {\n'
                            '                ASTNS::AST *ast = i->ast.get();\n'))
 

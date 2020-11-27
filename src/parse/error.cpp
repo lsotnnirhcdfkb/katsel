@@ -1,6 +1,5 @@
 #include "parsestack.h"
 #include "message/errmsgs.h"
-#include <algorithm>
 
 bool errorRecovery(errorstate const &e)
 {
@@ -257,7 +256,7 @@ bool panicMode(errorstate const &e)
     {
         for (auto i = e.stack.rbegin(); i != e.stack.rend() && !valid; ++i)
         {
-            if (!i->istok)
+            if (!i->istok && !i->isinitial)
             {
                 ASTNS::AST *ast = i->ast.get();
                 CHECKASI(DeclList)
