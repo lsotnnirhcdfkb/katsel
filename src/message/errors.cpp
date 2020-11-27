@@ -585,9 +585,6 @@ void Error::report() const
         case Error::MsgType::WARNING:
             std::cerr << attr(A_BOLD A_FG_MAGENTA, "Warning");
             break;
-        case Error::MsgType::INTERR:
-            std::cerr << "!!! - " << attr(A_BOLD A_FG_RED, "Internal error");
-            break;
     }
     std::string::const_iterator const fstart = location.file->source.cbegin();
     std::cerr << " at " << attr(A_FG_CYAN, location.file->filename, true) << ":" << getLineN(fstart, location.start) << ":" << getColN(fstart, location.start) << A_RESET << ": " << message << "\n";
@@ -774,11 +771,6 @@ void Error::report() const
         lastnr = sl.second;
     }
 }
-void Error::reportAbort()
-{
-    report();
-    std::abort();
-}
 // Underline message methods {{{1
 Error::Underline::Underline(Location const &location, char ch): location(location), ch(ch) {}
 Error::Underline& Error::Underline::error(std::string const &message)
@@ -818,15 +810,15 @@ void reportAbortNoh(std::string const &message)
 }
 void invalidTok(std::string const &name, Token const &underline)
 {
-    reportAbortNoh(concatMsg("invalid token for ", name, ": \"", underline.stringify(), "\"");
+    reportAbortNoh(concatMsg("invalid token for ", name, ": \"", underline.stringify(), "\""));
 }
-void calledWithOpTyNEthis(std::string const &classN, std::string const &fnn, std::string const &opname, IR::ASTValue const op)
+void calledWithOpTyNEthis(std::string const &classN, std::string const &fnn, std::string const &opname)
 {
-    reportAbortNoh(concatMsg(classN, "::", fnn, " called with ", opname, " type != this"))
+    reportAbortNoh(concatMsg(classN, "::", fnn, " called with ", opname, " type != this"));
 }
 void outOSwitchDDefaultLab(std::string const &fnn, Location const &highlight)
 {
-    reportAbortNoh(concatMsg(fnn, " went out of switch despite default label"))
+    reportAbortNoh(concatMsg(fnn, " went out of switch despite default label"));
 }
 void fCalled(std::string const &fnn)
 {

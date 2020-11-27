@@ -67,7 +67,7 @@ void E0100(std::string const &justparsed, std::string const &expected, std::stri
 {
     Error(Error::MsgType::ERROR, last, "E0100 (unrecoverable-invalid-syntax-while)")
         .underline(Error::Underline(last, '^')
-            .error(concatMsg("expected ", expected, " after ", justparsed, ", but got ", stringifyTokenType(lookahead.type), " instead"))
+            .error(concatMsg("expected ", expected, " after ", justparsed, " of ", whileparsing, ", but got ", stringifyTokenType(lookahead.type), " instead"))
         )
         .underline(Error::Underline(lookahead, '=')
             .note("unexpected token here")
@@ -82,7 +82,7 @@ void E0101(std::string const &justparsed, std::string const &expected, Token con
 {
     Error(Error::MsgType::ERROR, last, "E0101 (unrecoverable-invalid-syntax)")
         .underline(Error::Underline(last, '^')
-            .error(concatMsg("expected ", expected, " after ", justparsed, " of ", whileparsing, ", but got ", stringifyTokenType(lookahead.type), " instead"))
+            .error(concatMsg("expected ", expected, " after ", justparsed, ", but got ", stringifyTokenType(lookahead.type), " instead"))
         )
         .underline(Error::Underline(lookahead, '=')
             .note("unexpected token here")
@@ -98,7 +98,7 @@ void E0102(std::string const &justparsed, std::string const &expected, std::stri
 {
     Error(Error::MsgType::ERROR, last, "E0102 (simple-invalid-syntax-while)")
         .underline(Error::Underline(last, '^')
-            .error(concatMsg("expected ", expected, " after ", justparsed, ", but got ", stringifyTokenType(lookahead.type), " instead"))
+            .error(concatMsg("expected ", expected, " after ", justparsed, " of ", whileparsing, ", but got ", stringifyTokenType(lookahead.type), " instead"))
         )
         .underline(Error::Underline(lookahead, '=')
             .note("unexpected token here")
@@ -115,7 +115,7 @@ void E0103(std::string const &justparsed, std::string const &expected, Token con
 {
     Error(Error::MsgType::ERROR, last, "E0103 (simple-invalid-syntax)")
         .underline(Error::Underline(last, '^')
-            .error(concatMsg("expected ", expected, " after ", justparsed, " of ", whileparsing, ", but got ", stringifyTokenType(lookahead.type), " instead"))
+            .error(concatMsg("expected ", expected, " after ", justparsed, ", but got ", stringifyTokenType(lookahead.type), " instead"))
         )
         .underline(Error::Underline(lookahead, '=')
             .note("unexpected token here")
@@ -131,7 +131,7 @@ void E0104(std::string const &justparsed, std::string const &expected, std::stri
 {
     Error(Error::MsgType::ERROR, last, "E0104 (panicking-invalid-syntax-while)")
         .underline(Error::Underline(last, '^')
-            .error(concatMsg("expected ", expected, " after ", justparsed, ", but got ", stringifyTokenType(lookahead.type), " instead"))
+            .error(concatMsg("expected ", expected, " after ", justparsed, " of ", whileparsing, ", but got ", stringifyTokenType(lookahead.type), " instead"))
         )
         .underline(Error::Underline(lookahead, '=')
             .note("unexpected token here")
@@ -146,7 +146,7 @@ void E0105(std::string const &justparsed, std::string const &expected, Token con
 {
     Error(Error::MsgType::ERROR, last, "E0105 (panicking-invalid-syntax)")
         .underline(Error::Underline(last, '^')
-            .error(concatMsg("expected ", expected, " after ", justparsed, " of ", whileparsing, ", but got ", stringifyTokenType(lookahead.type), " instead"))
+            .error(concatMsg("expected ", expected, " after ", justparsed, ", but got ", stringifyTokenType(lookahead.type), " instead"))
         )
         .underline(Error::Underline(lookahead, '=')
             .note("unexpected token here")

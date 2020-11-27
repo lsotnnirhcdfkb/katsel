@@ -121,6 +121,9 @@ static void applyFix(fix const &f, Parser &p, Token &lookahead)
             p.lexer.resetToTok(lookahead);
             lookahead.type = f.ttype;
             break;
+
+        default:
+            reportAbortNoh("attempt to apply invalid fix type");
     }
 }
 

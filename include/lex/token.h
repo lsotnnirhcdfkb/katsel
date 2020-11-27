@@ -18,7 +18,7 @@ struct Token
 
     File *sourcefile;
 
-    inline std::string stringify()
+    inline std::string stringify() const
     {
         return std::string(start, end);
     }
