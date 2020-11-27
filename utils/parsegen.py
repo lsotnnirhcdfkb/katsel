@@ -130,15 +130,20 @@ class State:
             print(f'    : adding {action} for {sym}')
             print(f'    : already have {self.actions[sym]} for {sym}')
             print(f'    : summary: {type(self.actions[sym])}/{type(action)} conflict: while parsing {self.whileparsing}, found {sym}, {self.actions[sym].explain()} or {action.explain()}?\033[0m')
-            raise Exception(f'action table conflict')
+            self.actions[sym] = None
+            return False
 
         self.actions[sym] = action
+        return True
 
     def setGoto(self, sym, newstate):
         if sym in self.goto.keys():
-            raise Exception('goto conflict')
+            self.goto[sym] = None
+            print('goto conflict')
+            return False
 
         self.goto[sym] = newstate
+        return True
 
     def makeDescription(self):
         justparsed = []
@@ -368,29 +373,37 @@ def fillParseTable(isets, transitions):
         state = State(iset)
         table[iset.n] = state
 
+    conflicts = 0
+
     for fromseti, symbol, toseti in transitions:
         state = table[fromseti]
         if type(symbol) == Terminal:
-            state.setAction(symbol, ShiftAction(toseti))
+            if not state.setAction(symbol, ShiftAction(toseti)):
+                conflicts += 1
         else:
-            state.setGoto(symbol, toseti)
+            if not state.setGoto(symbol, toseti):
+                conflicts += 1
 
     for iset in isets:
         for item in iset.items():
             if item.getAfterDot() is None:
                 state = table[iset.n]
                 if item.rule.symbol != augmentSymbol:
-                    state.setAction(item.lookahead, ReduceAction(item.rule))
+                    if not state.setAction(item.lookahead, ReduceAction(item.rule)):
+                        conflicts += 1
                 else:
-                    state.setAction(item.lookahead, AcceptAction())
+                    if not state.setAction(item.lookahead, AcceptAction()):
+                        conflicts += 1
 
+    if conflicts:
+        raise Exception('conflicts')
     return table
 # entry function {{{2
 def makeParseTable():
+    print('-- finding item sets')
     isets = getItemSets()
-    print('-- get item sets')
+    print('-- getting table')
     table = fillParseTable(*isets)
-    print('-- get table')
     return table
 # rules {{{1
 colorama.init()
