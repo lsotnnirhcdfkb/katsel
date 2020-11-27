@@ -24,7 +24,7 @@ void CodeGenNS::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem *ast)
 
         if (val.type() != varty)
         {
-            ERR_CONFLICT_VAR_INIT_TY(ast->equal, val, reg);
+            ERR_CONFLICT_VAR_INIT_TY(ast->equal, ast->name, val, reg);
             cg.errored = true;
             return;
         }
