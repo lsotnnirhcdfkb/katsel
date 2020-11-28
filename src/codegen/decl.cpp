@@ -16,7 +16,7 @@ void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
     IR::Value *function = cg.context.findGlobal(name);
     IR::FunctionType *fty;
     if (!(fty = dynamic_cast<IR::FunctionType*>(function->type())))
-        reportAbortNoh(concatMsg("DeclCodeGen::visitFunction(): context.getGlobal\"", name, "\") returned non-function"));
+        reportAbortNoh(concatMsg("DeclCodeGen::visitFunction(): context.getGlobal(\"", name, "\") returned non-function"));
 
     IR::Function *f = static_cast<IR::Function*>(function);
 
