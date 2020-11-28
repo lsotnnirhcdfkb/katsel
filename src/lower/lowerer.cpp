@@ -5,7 +5,21 @@
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/Verifier.h"
 
-Lower::Lowerer::Lowerer(IR::Unit const &unit): errored(false), unit(unit), builder(context), mod(unit.file.filename, context) {}
+#include "llvm/Transforms/InstCombine/InstCombine.h"
+#include "llvm/Transforms/Scalar.h"
+#include "llvm/Transforms/Scalar/GVN.h"
+#include "llvm/Transforms/Utils.h"
+
+Lower::Lowerer::Lowerer(IR::Unit const &unit): errored(false), unit(unit), builder(context), mod(unit.file.filename, context), fpm(&mod)
+{
+    fpm.add(llvm::createPromoteMemoryToRegisterPass());
+    fpm.add(llvm::createInstructionCombiningPass());
+    fpm.add(llvm::createReassociatePass());
+    fpm.add(llvm::createGVNPass());
+    fpm.add(llvm::createCFGSimplificationPass());
+
+    fpm.doInitialization();
+}
 
 void Lower::Lowerer::printMod(std::ostream &ostream)
 {
@@ -58,6 +72,7 @@ void Lower::Lowerer::lower(IR::Function const &f)
     blocks.clear();
 
     llvm::verifyFunction(*fasllvm);
+    fpm.run(*fasllvm);
 }
 
 void Lower::Lowerer::lower(IR::Block const &b)

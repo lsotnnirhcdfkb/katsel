@@ -8,6 +8,7 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/LegacyPassManager.h"
 
 namespace Lower
 {
@@ -64,6 +65,7 @@ namespace Lower
         llvm::LLVMContext context;
         llvm::IRBuilder<> builder;
         llvm::Module mod;
+        llvm::legacy::FunctionPassManager fpm;
 
         std::map<IR::Register const *, llvm::AllocaInst*> allocas;
         std::map<IR::Block const *, llvm::BasicBlock*> blocks;
