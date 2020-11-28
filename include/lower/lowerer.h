@@ -49,6 +49,7 @@ namespace Lower
         void visitCondBr(IR::Instrs::CondBr *instr) override;
 
         void lower();
+        bool objectify(llvm::raw_fd_ostream &ostream);
 
         void printMod(llvm::raw_ostream &ostream);
 

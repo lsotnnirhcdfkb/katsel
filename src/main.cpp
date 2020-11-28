@@ -30,7 +30,6 @@ enum class OutFormats
     CFGDOT,
     LOWER,
     OBJECT,
-    ALL,
 };
 
 // read a file {{{1
@@ -195,6 +194,22 @@ int compileFile(OutFormats ofmt, char *filename)
         return true;
     }
 
+    if (ofmt == OutFormats::OBJECT)
+    {
+        OPENFILE(filename, ".o");
+        if (os.has_error())
+            return false;
+
+        if (!lowerer->objectify(os))
+        {
+            os.close();
+            return false;
+        }
+
+        os.close();
+        return true;
+    }
+
     return true;
 }
 
@@ -202,7 +217,7 @@ int compileFile(OutFormats ofmt, char *filename)
 int main(int argc, char *argv[])
 {
     int opt;
-    OutFormats ofmt = OutFormats::ALL;
+    OutFormats ofmt = OutFormats::OBJECT;
     while ((opt = getopt(argc, argv, "f:")) != -1)
     {
         switch (opt)
@@ -222,13 +237,13 @@ int main(int argc, char *argv[])
                     ofmt = OutFormats::CFGDOT;
                 else if (strcmp(optarg, "lower") == 0)
                     ofmt = OutFormats::LOWER;
-                else if (strcmp(optarg, "all") == 0)
-                    ofmt = OutFormats::ALL;
+                else if (strcmp(optarg, "object") == 0)
+                    ofmt = OutFormats::OBJECT;
                 else
                 {
-                    std::cerr << "Invalid argument for option -p: '" << optarg << "\'\n";
-                    std::cerr << "Defaulting to -pall\n";
-                    ofmt = OutFormats::ALL;
+                    std::cerr << "Invalid argument for option -p: '" << optarg << "'\n";
+                    std::cerr << "Defaulting to -pobject\n";
+                    ofmt = OutFormats::OBJECT;
                 }
                 break;
 

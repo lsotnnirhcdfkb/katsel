@@ -9,6 +9,11 @@
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/Transforms/Scalar/GVN.h"
 #include "llvm/Transforms/Utils.h"
+#include "llvm/Support/TargetRegistry.h"
+#include "llvm/Support/TargetSelect.h"
+#include "llvm/Support/Host.h"
+#include "llvm/Target/TargetMachine.h"
+#include "llvm/Target/TargetOptions.h"
 
 Lower::Lowerer::Lowerer(IR::Unit const &unit): errored(false), unit(unit), builder(context), mod(unit.file.filename, context), fpm(&mod)
 {
@@ -24,6 +29,44 @@ Lower::Lowerer::Lowerer(IR::Unit const &unit): errored(false), unit(unit), build
 void Lower::Lowerer::printMod(llvm::raw_ostream &ostream)
 {
     mod.print(ostream, nullptr);
+}
+
+bool Lower::Lowerer::objectify(llvm::raw_fd_ostream &ostream)
+{
+    llvm::InitializeAllTargetInfos();
+    llvm::InitializeAllTargets();
+    llvm::InitializeAllTargetMCs();
+    llvm::InitializeAllAsmParsers();
+    llvm::InitializeAllAsmPrinters();
+
+    auto targetTriple = llvm::sys::getDefaultTargetTriple();
+
+    std::string err;
+    auto target = llvm::TargetRegistry::lookupTarget(targetTriple, err);
+
+    if (!target)
+    {
+        llvm::errs() << err << "\n";
+        return false;
+    }
+
+    llvm::TargetOptions opt;
+    auto rm = llvm::Optional<llvm::Reloc::Model>();
+    auto targetMachine = target->createTargetMachine(targetTriple, "generic", "", opt, rm);
+
+    mod.setDataLayout(targetMachine->createDataLayout());
+    mod.setTargetTriple(targetTriple);
+
+    llvm::legacy::PassManager pm;
+    auto fty = llvm::CodeGenFileType::CGFT_ObjectFile;
+    if (targetMachine->addPassesToEmitFile(pm, ostream, nullptr, fty))
+    {
+        llvm::errs() << "Target machine cannot emit object file\n";
+        return false;
+    }
+
+    pm.run(mod);
+    return true;
 }
 
 void Lower::Lowerer::lower()
