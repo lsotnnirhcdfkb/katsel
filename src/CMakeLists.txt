@@ -29,4 +29,4 @@ target_link_libraries(katselc ${llvm_libs})
 set_target_properties(katselc PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
-target_compile_options(katselc PRIVATE -Wall -Wextra -pedantic -pg -static)
+target_compile_options(katselc PRIVATE -Wall -Wextra -pedantic)
