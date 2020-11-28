@@ -50,7 +50,7 @@ namespace Lower
 
         void lower();
 
-        void printMod(std::ostream &ostream);
+        void printMod(llvm::raw_ostream &ostream);
 
         bool errored;
 

@@ -17,6 +17,9 @@
 #include "codegen/codegen.h"
 #include "lower/lowerer.h"
 
+#include "llvm/Support/raw_ostream.h"
+
+// output formats {{{1
 enum class OutFormats
 {
     LEX = 0,
@@ -30,7 +33,8 @@ enum class OutFormats
     ALL,
 };
 
-File readFile(char *filename)
+// read a file {{{1
+std::unique_ptr<File> readFile(char *filename)
 {
     std::ifstream filein;
     filein.open(filename);
@@ -50,45 +54,181 @@ File readFile(char *filename)
 
         filein.close();
 
-        return File{std::string(filename), contents};
+        return std::make_unique<File>(File {std::string(filename), contents});
     }
     else
     {
         std::perror("Could not open file");
-        return File{"", ""};
+        return nullptr;
     }
 }
 
+// open a file {{{1
+// llvm::raw_fd_ostream has no move assignment operator, no move constructor
+#define OPENFILE(p, extrepl)                                                                         \
+    std::filesystem::path pathrepl (p);                                                              \
+    pathrepl.replace_extension(extrepl);                                                             \
+    std::string passtr (pathrepl.string());                                                          \
+    std::error_code ec;                                                                              \
+    llvm::raw_fd_ostream os (passtr, ec);                                                            \
+    if (ec)                                                                                          \
+        llvm::errs() << "Could not open output file \"" << passtr << "\": " << ec.message() << "\n";
+
+// compile a file {{{1
+int compileFile(OutFormats ofmt, char *filename)
+{
+    auto source (readFile(filename));
+    if (!source)
+        return false;
+
+    auto lexer = std::make_unique<Lexer>(*source);
+    if (ofmt == OutFormats::LEX)
+    {
+        OPENFILE(filename, ".lexed.txt");
+        if (os.has_error())
+            return false;
+
+        while (true)
+        {
+            Token t (lexer->nextToken());
+            if (t.type == TokenType::EOF_)
+                break;
+
+            os << t.sourcefile->filename << ':' << t.line << ':' << t.column << ": (" << stringifyTokenType(t.type) << ") \"" << std::string(t.start, t.end) << "\"\n";
+        }
+
+        os.close();
+        return true;
+    }
+
+    auto parser = std::make_unique<Parser>(*lexer, *source);
+    std::unique_ptr<ASTNS::DeclB> parsed = parser->parse();
+
+    if (!parsed)
+        return false;
+
+    if (ofmt == OutFormats::PARSE)
+    {
+        OPENFILE(filename, ".parsed.txt");
+        if (os.has_error())
+            return false;
+
+        auto printv = std::make_unique<ASTNS::PrintVisitor>(os);
+        parsed->accept(printv.get());
+
+        os.close();
+        return true;
+    }
+
+    if (ofmt == OutFormats::ASTDOT)
+    {
+        OPENFILE(filename, ".dot");
+        if (os.has_error())
+            return false;
+
+        auto dotter = std::make_unique<ASTNS::DotVisitor>(os);
+        dotter->dotVisit(parsed.get());
+
+        os.close();
+        return true;
+    }
+
+    auto codegen = std::make_unique<CodeGenNS::CodeGen>(*source);
+    codegen->declarate(parsed.get());
+    if (codegen->errored)
+        return false;
+
+    if (ofmt == OutFormats::DECLS)
+    {
+        OPENFILE(filename, ".kslir");
+        if (os.has_error())
+            return false;
+
+        codegen->printUnit(os);
+
+        os.close();
+        return true;
+    }
+
+    codegen->codegen(parsed.get());
+    if (codegen->errored)
+        return false;
+
+    if (ofmt == OutFormats::CODEGEN)
+    {
+        OPENFILE(filename, ".kslir");
+        if (os.has_error())
+            return false;
+
+        codegen->printUnit(os);
+        
+        os.close();
+        return true;
+    }
+
+    if (ofmt == OutFormats::CFGDOT)
+    {
+        OPENFILE(filename, ".dot");
+        if (os.has_error())
+            return false;
+
+        codegen->context.unit.cfgDot(os);
+
+        os.close();
+        return true;
+    }
+
+    auto lowerer = std::make_unique<Lower::Lowerer>(codegen->context.unit);
+    lowerer->lower();
+    if (lowerer->errored)
+        return false;
+
+    if (ofmt == OutFormats::LOWER)
+    {
+        OPENFILE(filename, ".ll");
+        if (os.has_error())
+            return false;
+
+        lowerer->printMod(os);
+
+        os.close();
+        return true;
+    }
+
+    return true;
+}
+
+// main {{{1
 int main(int argc, char *argv[])
 {
     int opt;
-    OutFormats outformat = OutFormats::ALL;
+    OutFormats ofmt = OutFormats::ALL;
     while ((opt = getopt(argc, argv, "f:")) != -1)
     {
         switch (opt)
         {
             case 'f':
                 if (strcmp(optarg, "lex") == 0)
-                    outformat = OutFormats::LEX;
+                    ofmt = OutFormats::LEX;
                 else if (strcmp(optarg, "parse") == 0)
-                    outformat = OutFormats::PARSE;
+                    ofmt = OutFormats::PARSE;
                 else if (strcmp(optarg, "astdot") == 0)
-                    outformat = OutFormats::ASTDOT;
+                    ofmt = OutFormats::ASTDOT;
                 else if (strcmp(optarg, "decls") == 0)
-                    outformat = OutFormats::DECLS;
+                    ofmt = OutFormats::DECLS;
                 else if (strcmp(optarg, "codegen") == 0)
-                    outformat = OutFormats::CODEGEN;
+                    ofmt = OutFormats::CODEGEN;
                 else if (strcmp(optarg, "cfgdot") == 0)
-                    outformat = OutFormats::CFGDOT;
+                    ofmt = OutFormats::CFGDOT;
                 else if (strcmp(optarg, "lower") == 0)
-                    outformat = OutFormats::LOWER;
+                    ofmt = OutFormats::LOWER;
                 else if (strcmp(optarg, "all") == 0)
-                    outformat = OutFormats::ALL;
+                    ofmt = OutFormats::ALL;
                 else
                 {
                     std::cerr << "Invalid argument for option -p: '" << optarg << "\'\n";
                     std::cerr << "Defaulting to -pall\n";
-                    outformat = OutFormats::ALL;
+                    ofmt = OutFormats::ALL;
                 }
                 break;
 
@@ -105,139 +245,13 @@ int main(int argc, char *argv[])
 
     enableTerminalCodes();
 
+    bool success = true;
     for (; optind < argc; ++optind)
     {
-        auto source = std::make_unique<File>(readFile(argv[optind]));
-        std::filesystem::path fpath = argv[optind];
-
-        std::filesystem::path opath (fpath);
-        char const *extrepl;
-
-        switch (outformat)
-        {
-            case OutFormats::LEX:
-                extrepl = ".lexed.txt";
-                break;
-
-            case OutFormats::PARSE:
-                extrepl = ".parsed.txt";
-                break;
-
-            case OutFormats::ASTDOT:
-            case OutFormats::CFGDOT:
-                extrepl = ".dot";
-                break;
-
-            case OutFormats::DECLS:
-                extrepl = ".decled.kslir";
-                break;
-
-            case OutFormats::CODEGEN:
-                extrepl = ".kslir";
-                break;
-
-            case OutFormats::LOWER:
-                extrepl = ".ll";
-                break;
-
-            case OutFormats::OBJECT:
-            case OutFormats::ALL:
-                extrepl = ".o";
-                break;
-        }
-
-        opath.replace_extension(extrepl);
-        std::ofstream outputstream;
-        outputstream.open(opath, std::ios::out);
-
-        if (source->filename.size() == 0)
-        {
-            outputstream.close();
-            continue;
-        }
-
-        auto lexer = std::make_unique<Lexer>(*source);
-        if (outformat == OutFormats::LEX)
-        {
-            while (true)
-            {
-                Token t (lexer->nextToken());
-                if (t.type == TokenType::EOF_)
-                    break;
-
-                outputstream << t.sourcefile->filename << ':' << t.line << ':' << t.column << ": (" << stringifyTokenType(t.type) << ") \"" << std::string(t.start, t.end) << "\"\n";
-            }
-            outputstream.close();
-            continue;
-        }
-
-        auto parser = std::make_unique<Parser>(*lexer, *source);
-        std::unique_ptr<ASTNS::DeclB> parsed = parser->parse();
-        if (!parsed)
-        {
-            outputstream.close();
-            continue;
-        }
-
-        if (outformat == OutFormats::PARSE)
-        {
-            auto printv = std::make_unique<ASTNS::PrintVisitor>(outputstream);
-            parsed->accept(printv.get());
-            outputstream.close();
-            continue;
-        }
-
-        if (outformat == OutFormats::ASTDOT)
-        {
-            auto dotter = std::make_unique<ASTNS::DotVisitor>(outputstream);
-            dotter->dotVisit(parsed.get());
-            outputstream.close();
-            continue;
-        }
-
-        auto codegen = std::make_unique<CodeGenNS::CodeGen>(*source);
-        codegen->declarate(parsed.get());
-        if (codegen->errored)
-            continue;
-
-        if (outformat == OutFormats::DECLS)
-        {
-            codegen->printUnit(outputstream);
-            outputstream.close();
-            continue;
-        }
-
-        codegen->codegen(parsed.get());
-        if (codegen->errored)
-            continue;
-
-        if (outformat == OutFormats::CODEGEN)
-        {
-            codegen->printUnit(outputstream);
-            outputstream.close();
-            continue;
-        }
-
-        if (outformat == OutFormats::CFGDOT)
-        {
-            codegen->context.unit.cfgDot(outputstream);
-            continue;
-        }
-
-        auto lowerer = std::make_unique<Lower::Lowerer>(codegen->context.unit);
-        lowerer->lower();
-        if (lowerer->errored)
-            continue;
-
-        if (outformat == OutFormats::LOWER)
-        {
-            lowerer->printMod(outputstream);
-            continue;
-        }
-
-        outputstream.close();
+        if (!compileFile(ofmt, argv[optind]))
+            success = false;
     }
 
     resetTerminal();
-    return 0;
+    return success ? 0 : 1;
 }

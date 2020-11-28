@@ -34,7 +34,7 @@ namespace IR
         Register(int index, Type *type, ASTNS::AST *defAST, bool temp=true);
 
         std::string stringify() const override;
-        void definition(std::ostream &os) const;
+        void definition(llvm::raw_ostream &os) const;
         ASTNS::AST* defAST() const;
 
         Type* type() const override;
@@ -56,9 +56,9 @@ namespace IR
         void add(std::unique_ptr<Block> block);
 
         std::string stringify() const override;
-        void definition(std::ostream &os) const;
+        void definition(llvm::raw_ostream &os) const;
         ASTNS::Function* defAST() const;
-        void cfgDot(std::ostream &os) const;
+        void cfgDot(llvm::raw_ostream &os) const;
 
         Type* type() const override;
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ostream>
+#include "llvm/Support/raw_ostream.h"
 #include <vector>
 
 #include "ir/value.h"

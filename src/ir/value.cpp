@@ -20,9 +20,9 @@ bool IR::Register::assignable() const
     return !temp;
 }
 
-void IR::Register::definition(std::ostream &os) const
+void IR::Register::definition(llvm::raw_ostream &os) const
 {
-    os << "    " << ty->stringify() << " %" << index << std::endl;;
+    os << "    " << ty->stringify() << " %" << index << "\n";
 }
 
 IR::ConstInt::ConstInt(BuiltinType *ty, int val): val(val), ty(ty) {}

@@ -2,14 +2,14 @@
 
 #include "ir/visitor.h"
 #include "ir/instruction.h"
-#include <ostream>
+#include "llvm/Support/raw_ostream.h"
 
 namespace IR
 {
     class Printer : public IR::InstructionVisitor, public IR::BrVisitor
     {
     public:
-        Printer(std::ostream &ostream);
+        Printer(llvm::raw_ostream &ostream);
 #define VISITMETHOD(cl) void visit##cl(Instrs::cl *i) override;
         VISITMETHOD(Store)
         VISITMETHOD(Or)
@@ -43,6 +43,6 @@ namespace IR
 #undef VISITMETHOD
 
     private:
-        std::ostream &ostream;
+        llvm::raw_ostream &ostream;
     };
 }

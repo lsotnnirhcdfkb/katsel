@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ostream>
+#include "llvm/Support/raw_ostream.h"
 
 #include "ast/visitor.h"
 #include "ast/ast.h"
@@ -233,7 +233,7 @@ void visitUnaryExpr(ASTNS::UnaryExpr *ast) override;
         void declarate(ASTNS::DeclB *decls);
         void codegen(ASTNS::DeclB *decls);
 
-        void printUnit(std::ostream &ostream);
+        void printUnit(llvm::raw_ostream &ostream);
 
         Context context;
 

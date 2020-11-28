@@ -1091,4 +1091,4 @@ void ASTNS::PrintVisitor::pai(std::string &&s)
     pai(s);
 }
 
-ASTNS::PrintVisitor::PrintVisitor(std::ostream &ostream): ostream(ostream) {}
+ASTNS::PrintVisitor::PrintVisitor(llvm::raw_ostream &ostream): ostream(ostream) {}

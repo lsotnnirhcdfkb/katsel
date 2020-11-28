@@ -45,7 +45,7 @@ IR::Register* IR::Function::addRegister(Type *type, ASTNS::AST *ast, bool temp)
     return regraw;
 }
 
-void IR::Function::definition(std::ostream &os) const
+void IR::Function::definition(llvm::raw_ostream &os) const
 {
     os << "fun " << name << " " << ty->stringify() << " {\n";
     for (std::unique_ptr<Register> const &r : registers)
@@ -55,7 +55,7 @@ void IR::Function::definition(std::ostream &os) const
         b->definition(os);
     os << "}\n";
 }
-void IR::Function::cfgDot(std::ostream &os) const
+void IR::Function::cfgDot(llvm::raw_ostream &os) const
 {
     os << "    subgraph cluster_fun_" << name << " {\n";
     os << "        graph [label=\"" << stringify() << "\"]\n";

@@ -2,7 +2,7 @@
 #include "ir/value.h"
 #include "ir/type.h"
 
-IR::Printer::Printer(std::ostream &ostream): ostream(ostream) {}
+IR::Printer::Printer(llvm::raw_ostream &ostream): ostream(ostream) {}
 
 void IR::Printer::visitStore(IR::Instrs::Store *i)
 {

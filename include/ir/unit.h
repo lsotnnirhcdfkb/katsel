@@ -5,7 +5,7 @@
 
 #include <string>
 #include <vector>
-#include <ostream>
+#include "llvm/Support/raw_ostream.h"
 
 namespace IR
 {
@@ -14,8 +14,8 @@ namespace IR
     public:
         Unit(File const &file);
 
-        void print(std::ostream &ostream) const;
-        void cfgDot(std::ostream &ostream) const;
+        void print(llvm::raw_ostream &ostream) const;
+        void cfgDot(llvm::raw_ostream &ostream) const;
 
         IR::Function* addFunction(FunctionType *type, std::string name, ASTNS::Function *ast);
 

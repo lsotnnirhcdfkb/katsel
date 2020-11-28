@@ -1381,4 +1381,4 @@ void ASTNS::DotVisitor::connect(std::string startid, std::string fieldname, std:
     ostream << startid << ":" << fieldname << " -> " << connectto << ":__heading\n";
 }
 
-ASTNS::DotVisitor::DotVisitor(std::ostream &ostream): ostream(ostream) {}
+ASTNS::DotVisitor::DotVisitor(llvm::raw_ostream &ostream): ostream(ostream) {}

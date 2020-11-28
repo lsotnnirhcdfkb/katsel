@@ -1,7 +1,7 @@
 #include "ir/instruction.h"
 #include "ir/value.h"
 #include "ir/visitor.h"
-#include <ostream>
+#include "llvm/Support/raw_ostream.h"
 
 // INSTR CPP START
 

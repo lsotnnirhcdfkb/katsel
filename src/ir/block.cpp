@@ -18,12 +18,12 @@ void IR::Block::branch(std::unique_ptr<IR::Instrs::Br> br)
     this->br = std::move(br);
 }
 
-void IR::Block::stringify(std::ostream &os)
+void IR::Block::stringify(llvm::raw_ostream &os)
 {
     os << name << "(" << num << ")";
 }
 
-void IR::Block::definition(std::ostream &os)
+void IR::Block::definition(llvm::raw_ostream &os)
 {
     IR::Printer p (os);
     os << "    " << name << "(" << num << "): {\n";
@@ -42,7 +42,7 @@ void IR::Block::definition(std::ostream &os)
     }
     os << "    }\n";
 }
-void IR::Block::cfgDot(std::ostream &os)
+void IR::Block::cfgDot(llvm::raw_ostream &os)
 {
     IR::Printer p (os);
     IR::CFGDotter c (os);
@@ -59,7 +59,7 @@ void IR::Block::cfgDot(std::ostream &os)
 
     if (br)
     {
-        os << "        block" << this << " -> branch" << br.get() << std::endl;
+        os << "        block" << this << " -> branch" << br.get() << "\n";
         os << "        branch" << br.get() << " [shape=record, label=\"";
         br->accept(&p);
         os << "\"]\n";

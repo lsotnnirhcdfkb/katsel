@@ -3,7 +3,7 @@
 #include <vector>
 #include <memory>
 #include <string>
-#include <ostream>
+#include "llvm/Support/raw_ostream.h"
 
 
 namespace IR
@@ -21,9 +21,9 @@ namespace IR
         void add(std::unique_ptr<Instrs::Instruction> instr);
         void branch(std::unique_ptr<Instrs::Br> br);
 
-        void stringify(std::ostream &os);
-        void definition(std::ostream &os);
-        void cfgDot(std::ostream &os);
+        void stringify(llvm::raw_ostream &os);
+        void definition(llvm::raw_ostream &os);
+        void cfgDot(llvm::raw_ostream &os);
 
         std::string name;
         size_t num;

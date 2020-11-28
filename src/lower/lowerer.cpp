@@ -21,9 +21,9 @@ Lower::Lowerer::Lowerer(IR::Unit const &unit): errored(false), unit(unit), build
     fpm.doInitialization();
 }
 
-void Lower::Lowerer::printMod(std::ostream &ostream)
+void Lower::Lowerer::printMod(llvm::raw_ostream &ostream)
 {
-    mod.print(llvm::outs(), nullptr);
+    mod.print(ostream, nullptr);
 }
 
 void Lower::Lowerer::lower()
