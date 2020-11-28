@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "llvm/IR/DerivedTypes.h"
+#include "llvm/IR/Verifier.h"
 
 Lower::Lowerer::Lowerer(IR::Unit const &unit): errored(false), unit(unit), builder(context), mod(unit.file.filename, context) {}
 
@@ -55,6 +56,8 @@ void Lower::Lowerer::lower(IR::Function const &f)
 
     allocas.clear();
     blocks.clear();
+
+    llvm::verifyFunction(*fasllvm);
 }
 
 void Lower::Lowerer::lower(IR::Block const &b)
