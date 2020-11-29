@@ -3,10 +3,11 @@ import re
 
 # Instruction class {{{1
 class Instruction:
-    def __init__(self, name, base, *fields):
+    def __init__(self, name, base, fields, assertions=[]):
         self.name = name
         self.base = base
         self.fields = list(map(Field, fields))
+        self.assertions = assertions
 
 class Field:
     def __init__(self, fromstr):
@@ -23,35 +24,35 @@ class Field:
 
 # instructions {{{1
 instructions = [
-    Instruction('Store', 'Instruction', 'Register* target', 'ASTValue value'),
-    Instruction('Or', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
-    Instruction('And', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
-    Instruction('CmpNE', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
-    Instruction('CmpEQ', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
-    Instruction('CmpLT', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
-    Instruction('CmpGT', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
-    Instruction('CmpLE', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
-    Instruction('CmpGE', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
-    Instruction('BitXor', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
-    Instruction('BitOr', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
-    Instruction('BitAnd', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
-    Instruction('BitNot', 'Instruction', 'Register* target', 'ASTValue op'),
-    Instruction('ShiftR', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
-    Instruction('ShiftL', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
-    Instruction('Add', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
-    Instruction('Sub', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
-    Instruction('Mult', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
-    Instruction('Div', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
-    Instruction('Mod', 'Instruction', 'Register* target', 'ASTValue lhs', 'ASTValue rhs'),
-    Instruction('Neg', 'Instruction' , 'Register* target', 'ASTValue op'),
-    Instruction('Trunc', 'Instruction', 'Register* target', 'ASTValue op', 'Type* newt'),
-    Instruction('Ext', 'Instruction', 'Register* target', 'ASTValue op', 'Type* newt'),
-    Instruction('IntToFloat', 'Instruction', 'Register* target', 'ASTValue op', 'Type* newt'),
-    Instruction('FloatToInt', 'Instruction', 'Register* target', 'ASTValue op', 'Type* newt'),
-    Instruction('Return', 'Instruction', 'Register* value'),
-    Instruction('Call', 'Instruction', 'Register* reg', 'Function* f', 'std::vector<ASTValue> args'),
-    Instruction('GotoBr', 'Br', 'Block* to'),
-    Instruction('CondBr', 'Br', 'ASTValue v', 'Block* trueB', 'Block* falseB'),
+    Instruction('Store'       , 'Instruction' , ['Register* target', 'ASTValue value'                         ], ['target->type() == value.type()']),
+    Instruction('Or'          , 'Instruction' , ['Register* target', 'ASTValue lhs', 'ASTValue rhs'           ], ['lhs.type() == rhs.type()', 'lhs.type() == target->type()']),
+    Instruction('And'         , 'Instruction' , ['Register* target', 'ASTValue lhs', 'ASTValue rhs'           ], ['lhs.type() == rhs.type()', 'lhs.type() == target->type()']),
+    Instruction('CmpNE'       , 'Instruction' , ['Register* target', 'ASTValue lhs', 'ASTValue rhs'           ], ['lhs.type() == rhs.type()']),
+    Instruction('CmpEQ'       , 'Instruction' , ['Register* target', 'ASTValue lhs', 'ASTValue rhs'           ], ['lhs.type() == rhs.type()']),
+    Instruction('CmpLT'       , 'Instruction' , ['Register* target', 'ASTValue lhs', 'ASTValue rhs'           ], ['lhs.type() == rhs.type()']),
+    Instruction('CmpGT'       , 'Instruction' , ['Register* target', 'ASTValue lhs', 'ASTValue rhs'           ], ['lhs.type() == rhs.type()']),
+    Instruction('CmpLE'       , 'Instruction' , ['Register* target', 'ASTValue lhs', 'ASTValue rhs'           ], ['lhs.type() == rhs.type()']),
+    Instruction('CmpGE'       , 'Instruction' , ['Register* target', 'ASTValue lhs', 'ASTValue rhs'           ], ['lhs.type() == rhs.type()']),
+    Instruction('BitXor'      , 'Instruction' , ['Register* target', 'ASTValue lhs', 'ASTValue rhs'           ], ['lhs.type() == rhs.type()', 'lhs.type() == target->type()']),
+    Instruction('BitOr'       , 'Instruction' , ['Register* target', 'ASTValue lhs', 'ASTValue rhs'           ], ['lhs.type() == rhs.type()', 'lhs.type() == target->type()']),
+    Instruction('BitAnd'      , 'Instruction' , ['Register* target', 'ASTValue lhs', 'ASTValue rhs'           ], ['lhs.type() == rhs.type()', 'lhs.type() == target->type()']),
+    Instruction('BitNot'      , 'Instruction' , ['Register* target', 'ASTValue op'                            ], ['op.type() == target->type()']),
+    Instruction('ShiftR'      , 'Instruction' , ['Register* target', 'ASTValue lhs', 'ASTValue rhs'           ], ['lhs.type() == rhs.type()', 'lhs.type() == target->type()']),
+    Instruction('ShiftL'      , 'Instruction' , ['Register* target', 'ASTValue lhs', 'ASTValue rhs'           ], ['lhs.type() == rhs.type()', 'lhs.type() == target->type()']),
+    Instruction('Add'         , 'Instruction' , ['Register* target', 'ASTValue lhs', 'ASTValue rhs'           ], ['lhs.type() == rhs.type()', 'lhs.type() == target->type()']),
+    Instruction('Sub'         , 'Instruction' , ['Register* target', 'ASTValue lhs', 'ASTValue rhs'           ], ['lhs.type() == rhs.type()', 'lhs.type() == target->type()']),
+    Instruction('Mult'        , 'Instruction' , ['Register* target', 'ASTValue lhs', 'ASTValue rhs'           ], ['lhs.type() == rhs.type()', 'lhs.type() == target->type()']),
+    Instruction('Div'         , 'Instruction' , ['Register* target', 'ASTValue lhs', 'ASTValue rhs'           ], ['lhs.type() == rhs.type()', 'lhs.type() == target->type()']),
+    Instruction('Mod'         , 'Instruction' , ['Register* target', 'ASTValue lhs', 'ASTValue rhs'           ], ['lhs.type() == rhs.type()', 'lhs.type() == target->type()']),
+    Instruction('Neg'         , 'Instruction' , ['Register* target', 'ASTValue op'                            ], ['op.type() == target->type()']),
+    Instruction('Trunc'       , 'Instruction' , ['Register* target', 'ASTValue op', 'Type* newt'              ], ['target->type() == newt']),
+    Instruction('Ext'         , 'Instruction' , ['Register* target', 'ASTValue op', 'Type* newt'              ], ['target->type() == newt']),
+    Instruction('IntToFloat'  , 'Instruction' , ['Register* target', 'ASTValue op', 'Type* newt'              ], ['target->type() == newt']),
+    Instruction('FloatToInt'  , 'Instruction' , ['Register* target', 'ASTValue op', 'Type* newt'              ], ['target->type() == newt']),
+    Instruction('Return'      , 'Instruction' , ['Register* value'                                            ], []),
+    Instruction('Call'        , 'Instruction' , ['Register* reg', 'Function* f', 'std::vector<ASTValue> args' ], []),
+    Instruction('GotoBr'      , 'Br'          , ['Block* to'                                                  ], []),
+    Instruction('CondBr'      , 'Br'          , ['ASTValue v', 'Block* trueB', 'Block* falseB'                ], []),
 ]
 
 # generating stuff {{{1
@@ -79,8 +80,12 @@ def genDefs():
     output = []
 
     for instruction in instructions:
-        output.append(f'IR::Instrs::{instruction.name}::{instruction.name}({asConstructor(instruction.fields)}): {asInitializerList(instruction.fields)} {{}}\n')
-        output.append(f'void IR::Instrs::{instruction.name}::accept({instruction.base}Visitor *v) {{ v->visit{instruction.name}(this); }}\n')
+        output.append(    f'IR::Instrs::{instruction.name}::{instruction.name}({asConstructor(instruction.fields)}): {asInitializerList(instruction.fields)}\n')
+        output.append(     '{\n')
+        for assertion in instruction.assertions:
+            output.append(f'    ASSERT({assertion})\n')
+        output.append(     '}\n')
+        output.append(    f'void IR::Instrs::{instruction.name}::accept({instruction.base}Visitor *v) {{ v->visit{instruction.name}(this); }}\n')
 
     return ''.join(output)
 def genCFGDotter():
