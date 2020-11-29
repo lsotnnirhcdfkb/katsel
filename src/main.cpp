@@ -223,22 +223,18 @@ int main(int argc, char *argv[])
         switch (opt)
         {
             case 'f':
-                if (strcmp(optarg, "lex") == 0)
-                    ofmt = OutFormats::LEX;
-                else if (strcmp(optarg, "parse") == 0)
-                    ofmt = OutFormats::PARSE;
-                else if (strcmp(optarg, "astdot") == 0)
-                    ofmt = OutFormats::ASTDOT;
-                else if (strcmp(optarg, "decls") == 0)
-                    ofmt = OutFormats::DECLS;
-                else if (strcmp(optarg, "codegen") == 0)
-                    ofmt = OutFormats::CODEGEN;
-                else if (strcmp(optarg, "cfgdot") == 0)
-                    ofmt = OutFormats::CFGDOT;
-                else if (strcmp(optarg, "lower") == 0)
-                    ofmt = OutFormats::LOWER;
-                else if (strcmp(optarg, "object") == 0)
-                    ofmt = OutFormats::OBJECT;
+#define OFMT(k, ku) \
+    if (strcmp(optarg, #k) == 0) \
+        ofmt = OutFormats::ku;
+#define EOFMT(k, ku) else OFMT(k, ku)
+                OFMT(lex, LEX)
+                EOFMT(parse, PARSE)
+                EOFMT(astdot, ASTDOT)
+                EOFMT(decls, DECLS)
+                EOFMT(codegen, CODEGEN)
+                EOFMT(cfgdot, CFGDOT)
+                EOFMT(lower, LOWER)
+                EOFMT(object, OBJECT)
                 else
                 {
                     std::cerr << "Invalid argument for option -p: '" << optarg << "'\n";
