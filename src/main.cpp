@@ -235,6 +235,8 @@ int main(int argc, char *argv[])
                 EOFMT(cfgdot, CFGDOT)
                 EOFMT(lower, LOWER)
                 EOFMT(object, OBJECT)
+#undef OFMT
+#undef EOFMT
                 else
                 {
                     std::cerr << "Invalid argument for option -p: '" << optarg << "'\n";
