@@ -404,6 +404,29 @@ void ASTNS::PrintVisitor::visitBuiltinTypeVoid(ASTNS::BuiltinTypeVoid *a)
     --indent;
     pai("}\n");
 }
+void ASTNS::PrintVisitor::visitCU(ASTNS::CU *a)
+{
+    pai("CU\n{\n");
+    ++indent;
+    switch (a->form)
+    {
+        case ASTNS::CU::Form::A:
+            pai("dl = ");
+            if (a->dl)
+            {
+                a->dl->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            break;
+        case ASTNS::CU::Form::EMPTY:
+            break;
+    }
+    --indent;
+    pai("}\n");
+}
 void ASTNS::PrintVisitor::visitCallExpr(ASTNS::CallExpr *a)
 {
     pai("CallExpr\n{\n");

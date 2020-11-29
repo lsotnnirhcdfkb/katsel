@@ -16,7 +16,7 @@ class Parser
 public:
     Parser(Lexer &l, File &sourcefile);
 
-    std::unique_ptr<ASTNS::DeclB> parse();
+    std::unique_ptr<ASTNS::CUB> parse();
 
     Token consume();
 

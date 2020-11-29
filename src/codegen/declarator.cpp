@@ -4,6 +4,12 @@
 
 CodeGenNS::Declarator::Declarator(CodeGen &cg): cg(cg) {}
 
+void CodeGenNS::Declarator::visitCU(ASTNS::CU *ast)
+{
+    if (ast->dl)
+        ast->dl->accept(this);
+}
+
 void CodeGenNS::Declarator::visitDeclList(ASTNS::DeclList *ast)
 {
     ast->decllist->accept(this);

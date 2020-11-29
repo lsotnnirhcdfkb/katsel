@@ -4,12 +4,12 @@
 
 CodeGenNS::CodeGen::CodeGen(File const &file) : context(file), declarator(*this), typeResolver(*this), paramVisitor(*this), argsVisitor(*this), declCodeGen(*this), stmtCodeGen(*this), exprCodeGen(*this), errored(false) {}
 
-void CodeGenNS::CodeGen::declarate(ASTNS::DeclB *decls)
+void CodeGenNS::CodeGen::declarate(ASTNS::CUB *decls)
 {
     decls->accept(&declarator);
 }
 
-void CodeGenNS::CodeGen::codegen(ASTNS::DeclB *decls)
+void CodeGenNS::CodeGen::codegen(ASTNS::CUB *decls)
 {
     decls->accept(&declCodeGen);
 }

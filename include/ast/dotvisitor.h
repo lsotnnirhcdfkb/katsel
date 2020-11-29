@@ -15,7 +15,8 @@ namespace ASTNS
         public ASTNS::ExprBVisitor,
         public ASTNS::VStmtIBVisitor,
         public ASTNS::PListBVisitor,
-        public ASTNS::TypeBVisitor
+        public ASTNS::TypeBVisitor,
+        public ASTNS::CUBVisitor
     {
     public:
         DotVisitor(llvm::raw_ostream &ostream);
@@ -35,6 +36,7 @@ void visitBitxorExpr(ASTNS::BitxorExpr *ast) override;
 void visitBlock(ASTNS::Block *ast) override;
 void visitBuiltinTypeNoVoid(ASTNS::BuiltinTypeNoVoid *ast) override;
 void visitBuiltinTypeVoid(ASTNS::BuiltinTypeVoid *ast) override;
+void visitCU(ASTNS::CU *ast) override;
 void visitCallExpr(ASTNS::CallExpr *ast) override;
 void visitCompeqExpr(ASTNS::CompeqExpr *ast) override;
 void visitComplgtExpr(ASTNS::ComplgtExpr *ast) override;
@@ -57,7 +59,7 @@ void visitVarStmtItemList(ASTNS::VarStmtItemList *ast) override;
 
         // DOTVISIT METHODS END
 
-        void dotVisit(ASTNS::DeclB *ast);
+        void dotVisit(ASTNS::CUB *ast);
     private:
         int _curid = 0;
         std::string curid();

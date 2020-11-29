@@ -14,7 +14,8 @@ namespace ASTNS
         public ASTNS::ExprBVisitor,
         public ASTNS::VStmtIBVisitor,
         public ASTNS::PListBVisitor,
-        public ASTNS::TypeBVisitor
+        public ASTNS::TypeBVisitor,
+        public ASTNS::CUBVisitor
     {
     public:
         PrintVisitor(llvm::raw_ostream &ostream);
@@ -34,6 +35,7 @@ void visitBitxorExpr(ASTNS::BitxorExpr *ast) override;
 void visitBlock(ASTNS::Block *ast) override;
 void visitBuiltinTypeNoVoid(ASTNS::BuiltinTypeNoVoid *ast) override;
 void visitBuiltinTypeVoid(ASTNS::BuiltinTypeVoid *ast) override;
+void visitCU(ASTNS::CU *ast) override;
 void visitCallExpr(ASTNS::CallExpr *ast) override;
 void visitCompeqExpr(ASTNS::CompeqExpr *ast) override;
 void visitComplgtExpr(ASTNS::ComplgtExpr *ast) override;

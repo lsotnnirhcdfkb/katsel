@@ -101,7 +101,7 @@ int compileFile(OutFormats ofmt, char *filename)
     }
 
     auto parser = std::make_unique<Parser>(*lexer, *source);
-    std::unique_ptr<ASTNS::DeclB> parsed = parser->parse();
+    std::unique_ptr<ASTNS::CUB> parsed = parser->parse();
 
     if (!parsed)
         return false;

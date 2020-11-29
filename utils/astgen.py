@@ -74,7 +74,11 @@ for astname in sorted(_astnames):
 
             form.append(field)
 
-        if len(form) and form not in [x[0] for x in forms]:
+        if form not in [x[0] for x in forms]:
+            if not len(form):
+                formhistart = None
+                formhiend = None
+
             if isinstance(formhistart, str) and formhistart == 'BEGIN':
                 formhistart = form[0]
             if isinstance(formhiend, str) and formhiend == 'END':
@@ -86,7 +90,10 @@ for astname in sorted(_astnames):
 # Generating methods {{{1
 # helpers {{{2
 def stringifyForm(form):
-    return ''.join(map(lambda f: 'A' if f.type_.startswith('std::unique_ptr<') else 'T', form[0]))
+    if len(form[0]):
+        return ''.join(map(lambda f: 'A' if f.type_.startswith('std::unique_ptr<') else 'T', form[0]))
+    else:
+        return 'EMPTY'
 
 # Generating AST stuff {{{2
 # Generate AST declarations {{{3
@@ -206,14 +213,18 @@ def genLocVisit():
         for form in ast.forms:
             output.append(    f'        case ASTNS::{ast.name}::Form::{stringifyForm(form)}:\n')
 
-            if form[1].type_.startswith('std::unique_ptr'):
+            if form[1] is None:
+                output.append( '            reportAbortNoh("get location of empty ast");\n')
+            elif form[1].type_.startswith('std::unique_ptr'):
                 output.append(f'            retl = getL(ast->{form[1].name}.get());\n')
                 output.append(f'            retf = getF(ast->{form[1].name}.get());\n')
             else:
                 output.append(f'            retl = ast->{form[1].name}.start;\n')
                 output.append(f'            retf = ast->{form[1].name}.sourcefile;\n')
 
-            if form[2].type_.startswith('std::unique_ptr'):
+            if form[2] is None:
+                pass
+            elif form[2].type_.startswith('std::unique_ptr'):
                 output.append(f'            retr = getR(ast->{form[2].name}.get());\n')
             else:
                 output.append(f'            retr = ast->{form[2].name}.end;\n')
@@ -275,11 +286,14 @@ def genDotVisitorMethods():
         output.append(             '    {\n')
         for form in ast.forms:
             output.append(        f'        case ASTNS::{ast.name}::Form::{stringifyForm(form)}:\n')
-            output.append(        f'            ostream << thisid << " [label=<<table border=\\"0\\" cellborder=\\"1\\" cellspacing=\\"0\\"><tr><td port=\\"__heading\\" colspan=\\"{len(form[0])}\\">{ast.name} ({stringifyForm(form)})</td></tr><tr>";\n')
-            for field in form[0]:
-                output.append(    f'            ostream << "<td port=\\"{field.name}\\">{field.name}</td>";\n')
+            if len(form[0]):
+                output.append(        f'            ostream << thisid << " [label=<<table border=\\"0\\" cellborder=\\"1\\" cellspacing=\\"0\\"><tr><td port=\\"__heading\\" colspan=\\"{len(form[0])}\\">{ast.name} ({stringifyForm(form)})</td></tr><tr>";\n')
+                for field in form[0]:
+                    output.append(    f'            ostream << "<td port=\\"{field.name}\\">{field.name}</td>";\n')
 
-            output.append(        f'            ostream << "</tr></table>>]\\n";\n')
+                output.append(        f'            ostream << "</tr></table>>]\\n";\n')
+            else:
+                output.append(        f'            ostream << thisid << " [label=\\"{ast.name} ({stringifyForm(form)})\\"]";\n')
 
             for field in form[0]:
                 output.append(     '            {\n')

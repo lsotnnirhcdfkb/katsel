@@ -60,7 +60,8 @@ class LocationVisitor :
     public ASTNS::ExprBVisitor,
     public ASTNS::VStmtIBVisitor,
     public ASTNS::PListBVisitor,
-    public ASTNS::TypeBVisitor
+    public ASTNS::TypeBVisitor,
+    public ASTNS::CUBVisitor
 {
 public:
     // LOCVISITOR METHODS START
@@ -79,6 +80,7 @@ void visitBitxorExpr(ASTNS::BitxorExpr *ast) override;
 void visitBlock(ASTNS::Block *ast) override;
 void visitBuiltinTypeNoVoid(ASTNS::BuiltinTypeNoVoid *ast) override;
 void visitBuiltinTypeVoid(ASTNS::BuiltinTypeVoid *ast) override;
+void visitCU(ASTNS::CU *ast) override;
 void visitCallExpr(ASTNS::CallExpr *ast) override;
 void visitCompeqExpr(ASTNS::CompeqExpr *ast) override;
 void visitComplgtExpr(ASTNS::ComplgtExpr *ast) override;
@@ -286,6 +288,20 @@ void LocationVisitor::visitBuiltinTypeVoid(ASTNS::BuiltinTypeVoid *ast)
             retl = ast->type.start;
             retf = ast->type.sourcefile;
             retr = ast->type.end;
+            break;
+    }
+}
+void LocationVisitor::visitCU(ASTNS::CU *ast)
+{
+    switch (ast->form)
+    {
+        case ASTNS::CU::Form::A:
+            retl = getL(ast->dl.get());
+            retf = getF(ast->dl.get());
+            retr = getR(ast->dl.get());
+            break;
+        case ASTNS::CU::Form::EMPTY:
+            reportAbortNoh("get location of empty ast");
             break;
     }
 }

@@ -237,7 +237,7 @@ def findFirsts():
         for rule in grammar:
             first = firsts[rule.symbol]
             if len(rule.expansion) == 0:
-                if eofSym not in firsts:
+                if eofSym not in first:
                     first.append(eofSym)
                     changed = True
             elif rule.expansion[0] != rule.symbol:
@@ -428,6 +428,9 @@ def listRule(sym, name, base, delimit=None):
 
 _grammar = {}
 
+nt('CU', 'compilation unit', 'CUB')
+rule('CU', '$DeclList:dl')
+rule('CU', '')
 listRule('Decl', 'declaration', 'DeclB')
 nt('Decl', 'declaration', 'DeclB')
 rule('Decl', '$Function:_')
@@ -618,7 +621,7 @@ for sym, rule in _grammar.items():
 for missingi in missing:
     print(f'\033[35;1mwarning\033[0m: undefined nonterminal \033[1m{missingi}\033[0m')
 
-augmentSymbol = NonTerminal('augment', 'compilation unit')
+augmentSymbol = NonTerminal('augment', '')
 augmentRule = Rule(augmentSymbol, (grammar[0].symbol, ), True, '_', '', 'START', 'END')
 grammar.append(augmentRule)
 
@@ -757,10 +760,7 @@ def genLoop():
                         elif type(sym) == NonTerminal:
                             output.append(f'                            auto a{i} (popA<ASTNS::{str(sym)}>(stack));\n')
 
-                    if not len(ac.rule.expansion):
-                        output.append(        f'                            std::unique_ptr<ASTNS::AST> push (nullptr);\n')
-                    else:
-                        output.append(        f'                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::{str(ac.rule.symbol)}>({", ".join([f"std::move(a{i})" for i in range(len(ac.rule.expansion))])}));\n')
+                    output.append(        f'                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::{str(ac.rule.symbol)}>({", ".join([f"std::move(a{i})" for i in range(len(ac.rule.expansion))])}));\n')
 
                     output.append(        f'                            size_t newstate = getGoto<ASTNS::{str(ac.rule.symbol)}>(stack.back().state);\n')
                     output.append(        f'                            stack.emplace_back(newstate, std::move(push));\n')

@@ -29,6 +29,9 @@ ASTNS::BuiltinTypeNoVoid::BuiltinTypeNoVoid(Token type): type(type), form(ASTNS:
 void ASTNS::BuiltinTypeNoVoid::accept(ASTNS::TypeBVisitor *v) { v->visitBuiltinTypeNoVoid(this); }
 ASTNS::BuiltinTypeVoid::BuiltinTypeVoid(Token type): type(type), form(ASTNS::BuiltinTypeVoid::Form::T) {}
 void ASTNS::BuiltinTypeVoid::accept(ASTNS::TypeBVisitor *v) { v->visitBuiltinTypeVoid(this); }
+ASTNS::CU::CU(std::unique_ptr<DeclB> dl): dl(std::move(dl)), form(ASTNS::CU::Form::A) {}
+ASTNS::CU::CU(): form(ASTNS::CU::Form::EMPTY) {}
+void ASTNS::CU::accept(ASTNS::CUBVisitor *v) { v->visitCU(this); }
 ASTNS::CallExpr::CallExpr(std::unique_ptr<ExprB> callee, Token oparn, std::unique_ptr<ArgB> args, Token cparn): callee(std::move(callee)), oparn(oparn), args(std::move(args)), cparn(cparn), form(ASTNS::CallExpr::Form::ATAT) {}
 ASTNS::CallExpr::CallExpr(std::unique_ptr<ExprB> callee, Token oparn, Token cparn): callee(std::move(callee)), oparn(oparn), cparn(cparn), form(ASTNS::CallExpr::Form::ATT) {}
 void ASTNS::CallExpr::accept(ASTNS::ExprBVisitor *v) { v->visitCallExpr(this); }

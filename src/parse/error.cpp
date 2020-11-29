@@ -42,9 +42,9 @@ static bool tryInsert(TokenType ty, Parser const &p, Token const &lookahead, std
 
     auto tempstack (copyStack(stack));
 
-    std::unique_ptr<ASTNS::DeclB> tempD (nullptr);
+    std::unique_ptr<ASTNS::CUB> tempC (nullptr);
 
-    return _parse(tempP, tempstack, true, tempD, tempLookahead);
+    return _parse(tempP, tempstack, true, tempC, tempLookahead);
 }
 
 static bool tryDel(Parser const &p, std::vector<stackitem> const &stack)
@@ -55,9 +55,9 @@ static bool tryDel(Parser const &p, std::vector<stackitem> const &stack)
 
     auto tempstack (copyStack(stack));
 
-    std::unique_ptr<ASTNS::DeclB> tempD (nullptr);
+    std::unique_ptr<ASTNS::CUB> tempC (nullptr);
 
-    return _parse(tempP, tempstack, true, tempD, tempLookahead);
+    return _parse(tempP, tempstack, true, tempC, tempLookahead);
 }
 
 static bool trySub(TokenType ty, Parser const &p, Token const &lookahead, std::vector<stackitem> const &stack)
@@ -69,9 +69,9 @@ static bool trySub(TokenType ty, Parser const &p, Token const &lookahead, std::v
 
     auto tempstack (copyStack(stack));
 
-    std::unique_ptr<ASTNS::DeclB> tempD (nullptr);
+    std::unique_ptr<ASTNS::CUB> tempC (nullptr);
 
-    return _parse(tempP, tempstack, true, tempD, tempLookahead);
+    return _parse(tempP, tempstack, true, tempC, tempLookahead);
 }
 // }}}
 struct fix
@@ -259,6 +259,10 @@ bool panicMode(errorstate const &e)
             if (!i->istok && !i->isinitial)
             {
                 ASTNS::AST *ast = i->ast.get();
+                CHECKASI(CU)
+                        case TokenType::EOF_:
+                            RECOVERANDDEFBREAK()
+                FINISHCHECKASI()
                 CHECKASI(DeclList)
                         case TokenType::FUN: case TokenType::EOF_:
                             RECOVERANDDEFBREAK()
