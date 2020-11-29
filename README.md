@@ -9,14 +9,15 @@ AND NOt only that, but I also got a lot of helpful information from looking at t
 - [x] Rewritten parser
 - [x] Possibly dysfunctional code generation to LLVM IR
 - [x] Compiling to some weird Katsel IR
-- [ ] Compiling to object code
-- [ ] Optimizing code with LLVM
+- [x] Compiling to object code
+- [x] Optimizing code with LLVM
 - [x] Functions
 - [x] Expressions
 - [x] Variables
-- [ ] type casting
+- [ ] Type casting
 - [ ] turing completeness
 - [ ] Function overloading
+- [ ] Name mangling
 - [ ] Arrays
 - [ ] More types
 - [ ] Control flow
