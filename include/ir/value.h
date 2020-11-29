@@ -4,12 +4,7 @@
 #include <string>
 #include <cstddef>
 #include <vector>
-
-namespace ASTNS
-{
-    class AST;
-    class Function;
-}
+#include "ast/ast.h"
 
 namespace IR
 {
@@ -28,14 +23,20 @@ namespace IR
         virtual Type* type() const = 0;
     };
 
-    class Register : public Value
+    class DeclaredValue
+    {
+    public:
+        virtual ASTNS::AST* defAST() const = 0;
+    };
+
+    class Register : public Value, public DeclaredValue
     {
     public:
         Register(int index, Type *type, ASTNS::AST *defAST, bool temp=true);
 
         std::string stringify() const override;
         void definition(llvm::raw_ostream &os) const;
-        ASTNS::AST* defAST() const;
+        ASTNS::AST* defAST() const override;
 
         Type* type() const override;
 
@@ -48,7 +49,7 @@ namespace IR
         bool temp;
     };
 
-    class Function : public Value
+    class Function : public Value, public DeclaredValue
     {
     public:
         Function(FunctionType *ty, std::string name, ASTNS::Function *defAST);
@@ -57,7 +58,7 @@ namespace IR
 
         std::string stringify() const override;
         void definition(llvm::raw_ostream &os) const;
-        ASTNS::Function* defAST() const;
+        ASTNS::Function* defAST() const override;
         void cfgDot(llvm::raw_ostream &os) const;
 
         Type* type() const override;

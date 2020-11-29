@@ -36,15 +36,26 @@ def genCpp():
         output.append(        descWrapped)
         output.append(        f'void E{code}({error["inputs"]})\n')
         output.append(         '{\n')
-        output.append(        f'    Error e = Error(Error::MsgType::ERROR, {error["location"]}, "E{code} ({error["name"]})")\n')
+        output.append(        f'    Error e = Error(Error::MsgType::ERROR, {error["location"]}, "E{code} ({error["name"]})");\n')
 
-        for loc, und, msgs in error['highlights']:
-            output.append(    f'        .underline(Error::Underline({loc}, \'{und}\')\n')
+        for hii, hi in enumerate(error['highlights']):
+            if len(hi) == 4:
+                loc, und, msgs, cond = hi
+            else:
+                loc, und, msgs, cond = (*hi, None)
+            if cond is not None:
+                condty, rest = cond.split(' ', 1)
+                if condty == 'dyncast':
+                    cty, casttoname, castfrom = rest.split(',')
+                    output.append(f'    {cty} *{casttoname};\n')
+                    output.append(f'    if (({casttoname} = dynamic_cast<{cty}*>({castfrom})))\n')
+                elif condty == 'if':
+                    output.append(f'    if ({rest})\n')
+
+            output.append(    f'    e.underline(Error::Underline({loc}, \'{und}\')\n')
             for ty, msg in msgs:
-                output.append(f'            .{ty}({msg})\n')
-            output.append(    '        )\n')
-
-        output.append(        '    ;\n')
+                output.append(f'        .{ty}({msg})\n')
+            output.append(    '    );\n')
 
         if 'extra' in error:
             output.append(error['extra'])
