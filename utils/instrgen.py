@@ -1,6 +1,4 @@
 
-import re
-
 # Instruction class {{{1
 class Instruction:
     def __init__(self, name, base, fields, assertions=[]):
