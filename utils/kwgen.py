@@ -150,8 +150,6 @@ keywords = [
 
     ('return', 'RETURN'),
 
-    ('this', 'THIS'),
-
     ('while', 'WHILE'),
     ('for', 'FOR'),
     ('if', 'IF'),
@@ -164,10 +162,6 @@ keywords = [
     ('breakall', 'BREAKALL'),
     ('breakto', 'BREAKTO'),
     ('continue', 'CONTINUE'),
-
-    ('inline', 'INLINE'),
-    ('volatile', 'VOLATILE'),
-    ('const', 'CONST'),
 
     ('true', 'TRUELIT'),
     ('false', 'FALSELIT'),

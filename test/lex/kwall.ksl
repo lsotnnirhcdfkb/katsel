@@ -24,7 +24,6 @@ namespace // ---> lex.expect('\'namespace\'') <---
 class // ---> lex.expect('\'class\'') <---
 enum // ---> lex.expect('\'enum\'') <---
 return // ---> lex.expect('\'return\'') <---
-this // ---> lex.expect('\'this\'') <---
 while // ---> lex.expect('\'while\'') <---
 for // ---> lex.expect('\'for\'') <---
 if // ---> lex.expect('\'if\'') <---
@@ -35,8 +34,5 @@ default // ---> lex.expect('\'default\'') <---
 break // ---> lex.expect('\'break\'') <---
 breakall // ---> lex.expect('\'breakall\'') <---
 breakto // ---> lex.expect('\'breakto\'') <---
-const // ---> lex.expect('\'const\'') <---
 continue // ---> lex.expect('\'continue\'') <---
-inline // ---> lex.expect('\'inline\'') <---
-volatile // ---> lex.expect('\'volatile\'') <---
 assert // ---> lex.expect('\'assert\'') <---

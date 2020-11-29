@@ -94,7 +94,6 @@ enum class TokenType
     CLASS,
     ENUM,
     RETURN,
-    THIS,
     WHILE,
     FOR,
     IF,
@@ -105,10 +104,7 @@ enum class TokenType
     BREAK,
     BREAKALL,
     BREAKTO,
-    CONST,
     CONTINUE,
-    INLINE,
-    VOLATILE,
     ASSERT,
 
     EOF_,
@@ -116,7 +112,7 @@ enum class TokenType
     SOF // start of file to make sure parser does not report error on invalid token with garbage values/zeroes
 };
 
-inline std::string stringifyTokenType(TokenType ty)
+inline constexpr char const * stringifyTokenType(TokenType ty)
 {
 #define STOKTY(type, str) case TokenType::type: return #str;
     switch (ty)
@@ -197,7 +193,6 @@ inline std::string stringifyTokenType(TokenType ty)
         STOKTY(CLASS, 'class')
         STOKTY(ENUM, 'enum')
         STOKTY(RETURN, 'return')
-        STOKTY(THIS, 'this')
         STOKTY(WHILE, 'while')
         STOKTY(FOR, 'for')
         STOKTY(IF, 'if')
@@ -208,10 +203,7 @@ inline std::string stringifyTokenType(TokenType ty)
         STOKTY(BREAK, 'break')
         STOKTY(BREAKALL, 'breakall')
         STOKTY(BREAKTO, 'breakto')
-        STOKTY(CONST, 'const')
         STOKTY(CONTINUE, 'continue')
-        STOKTY(INLINE, 'inline')
-        STOKTY(VOLATILE, 'volatile')
         STOKTY(ASSERT, 'assert')
         STOKTY(EOF_, end of file)
         STOKTY(ERROR, error token)
