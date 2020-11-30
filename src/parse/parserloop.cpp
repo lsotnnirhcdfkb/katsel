@@ -837,7 +837,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 0:
                switch (lookahead.type)
                {
-                    default:
+                    case TokenType::EOF_:
                         {
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::CU>());
                             size_t newstate = getGoto<ASTNS::CU>(stack.back().state);
@@ -846,6 +846,8 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     case TokenType::FUN:
                         shift(p, lasttok, lookahead, stack, steps, 5); break;
+                    default:
+                        DEFAULTINVALIDWHILE("beginning", "compilation unit", "")
                 }
                 break;
             case 1:
@@ -861,7 +863,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 2:
                switch (lookahead.type)
                {
-                    default:
+                    case TokenType::EOF_:
                         {
                             auto a0 (popA<ASTNS::DeclList>(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::CU>(std::move(a0)));
@@ -869,6 +871,8 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
+                    default:
+                        DEFAULTINVALIDWHILE("declaration list", stringifyTokenType(TokenType::EOF_), "compilation unit")
                 }
                 break;
             case 3:

@@ -49,7 +49,7 @@ class Terminal:
 # rule {{{2
 class Rule:
     __num = 0
-    def __init__(self, symbol, expansion, skip, vnames, base, exhistart, exhiend):
+    def __init__(self, symbol, expansion, skip, vnames, base, exhistart, exhiend, special):
         self.symbol = symbol
         self.expansion = expansion
         self.num = Rule.__num
@@ -58,6 +58,7 @@ class Rule:
         self.vnames = vnames
         self.base = base
         self.exhistart, self.exhiend = exhistart, exhiend
+        self.special = special
 
     def __repr__(self):
         return str(self)
@@ -420,9 +421,9 @@ def nt(sym, name, base):
         'expansions': []
     }
 
-def rule(sym, expansion, histart='BEGIN', hiend='END'):
+def rule(sym, expansion, histart='BEGIN', hiend='END', special=''):
     assert sym in _grammar, f'defining an expansion for a symbol {sym} that is not in the grammar (yet)'
-    _grammar[sym]['expansions'].append((expansion, histart, hiend))
+    _grammar[sym]['expansions'].append((expansion, histart, hiend, special))
 
 def listRule(sym, name, base, delimit=None):
     # symlist = sym + 'List'
@@ -443,8 +444,8 @@ def listRule(sym, name, base, delimit=None):
 _grammar = {}
 
 nt('CU', 'compilation unit', 'CUB')
-rule('CU', '$DeclList:dl')
-rule('CU', '')
+rule('CU', '$DeclList:dl', special='nodefaultreduce')
+rule('CU', '', special='nodefaultreduce')
 nt('Decl', 'declaration', 'DeclB')
 rule('Decl', '$Function:_')
 listRule('Decl', 'declaration', 'DeclB')
@@ -598,7 +599,7 @@ for sym, rule in _grammar.items():
     expansions = rule['expansions']
 
     base = rule['base']
-    for expansion, exhistart, exhiend in expansions:
+    for expansion, exhistart, exhiend, specials in expansions:
         vnames = []
         expansion = expansion.split(' ')
 
@@ -630,13 +631,27 @@ for sym, rule in _grammar.items():
         else:
             skip = False
 
-        grammar.append(Rule(NonTerminal(sym, rule['name']), tuple(convertedexpansion), skip, vnames, base, exhistart, exhiend))
+        rsp = {}
+        rsp['defaultreduce'] = True
+
+        for sp in specials.split(' '):
+            if not len(sp):
+                continue
+
+            v = not sp.startswith('no')
+            rest = sp[2:] if not v else sp
+            if rest in rsp:
+                rsp[rest] = v
+            else:
+                raise Exception(f'invalid special {rest}')
+
+        grammar.append(Rule(NonTerminal(sym, rule['name']), tuple(convertedexpansion), skip, vnames, base, exhistart, exhiend, rsp))
 
 for missingi in missing:
     print(f'\033[35;1mwarning\033[0m: undefined nonterminal \033[1m{missingi}\033[0m')
 
 augmentSymbol = NonTerminal('augment', '')
-augmentRule = Rule(augmentSymbol, (grammar[0].symbol, ), True, '_', '', 'START', 'END')
+augmentRule = Rule(augmentSymbol, (grammar[0].symbol, ), True, '_', '', 'START', 'END', {})
 grammar.append(augmentRule)
 
 eofSym = Terminal('TokenType::EOF_')
@@ -740,7 +755,10 @@ def genLoop():
             if not found:
                 stateactions.append((ac, [term]))
 
-        reduceOnly = len([ac for ac in stateactions if type(ac[0]) == ReduceAction]) == 1
+        statereduces = [ac for ac in stateactions if type(ac[0]) == ReduceAction]
+        reduceOnly = len(statereduces) == 1 and statereduces[0][0].rule.special['defaultreduce']
+        if reduceOnly:
+            print(reduceOnly, statereduces[0][0].rule, statereduces[0][0].rule.special)
         for ac, nts in stateactions:
             if type(ac) == ShiftAction:
                 for term in nts:
