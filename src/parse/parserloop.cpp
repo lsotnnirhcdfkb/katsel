@@ -837,7 +837,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 0:
                switch (lookahead.type)
                {
-                    case TokenType::EOF_:
+                    default:
                         {
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::CU>());
                             size_t newstate = getGoto<ASTNS::CU>(stack.back().state);
@@ -846,8 +846,6 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     case TokenType::FUN:
                         shift(p, lasttok, lookahead, stack, steps, 5); break;
-                    default:
-                        DEFAULTINVALIDWHILE("beginning", "compilation unit", "")
                 }
                 break;
             case 1:
@@ -863,7 +861,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 2:
                switch (lookahead.type)
                {
-                    case TokenType::EOF_:
+                    default:
                         {
                             auto a0 (popA<ASTNS::DeclList>(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::CU>(std::move(a0)));
@@ -871,14 +869,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("declaration list", stringifyTokenType(TokenType::EOF_), "compilation unit")
                 }
                 break;
             case 3:
                switch (lookahead.type)
                {
-                    case TokenType::EOF_:
+                    default:
                         {
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::MoreDecl>());
                             size_t newstate = getGoto<ASTNS::MoreDecl>(stack.back().state);
@@ -887,19 +883,14 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     case TokenType::FUN:
                         shift(p, lasttok, lookahead, stack, steps, 5); break;
-                    default:
-                        DEFAULTINVALIDWHILE("declaration", "more declarations", "declaration list")
                 }
                 break;
             case 4:
                switch (lookahead.type)
                {
-                    case TokenType::EOF_:
-                    case TokenType::FUN:
+                    default:
                         reduceSkip<ASTNS::Decl>(stack);
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("function declaration", concatMsg("either ", stringifyTokenType(TokenType::EOF_), " or ", stringifyTokenType(TokenType::FUN)), "declaration")
                 }
                 break;
             case 5:
@@ -938,7 +929,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 6:
                switch (lookahead.type)
                {
-                    case TokenType::EOF_:
+                    default:
                         {
                             auto a1 (popA<ASTNS::MoreDecl>(stack));
                             auto a0 (popA<ASTNS::Decl>(stack));
@@ -947,18 +938,14 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("more declarations", stringifyTokenType(TokenType::EOF_), "declaration list")
                 }
                 break;
             case 7:
                switch (lookahead.type)
                {
-                    case TokenType::EOF_:
+                    default:
                         reduceSkip<ASTNS::MoreDecl>(stack);
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("declaration list", stringifyTokenType(TokenType::EOF_), "more declarations")
                 }
                 break;
             case 8:
@@ -973,27 +960,23 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 9:
                switch (lookahead.type)
                {
-                    case TokenType::IDENTIFIER:
+                    default:
                         reduceSkip<ASTNS::TypeV>(stack);
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("void-inclusive builtin type specifier", stringifyTokenType(TokenType::IDENTIFIER), "void-inclusive type specifier")
                 }
                 break;
             case 10:
                switch (lookahead.type)
                {
-                    case TokenType::IDENTIFIER:
+                    default:
                         reduceSkip<ASTNS::BuiltinTypeVoid>(stack);
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("non-void builtin type specifier", stringifyTokenType(TokenType::IDENTIFIER), "void-inclusive builtin type specifier")
                 }
                 break;
             case 11:
                switch (lookahead.type)
                {
-                    case TokenType::IDENTIFIER:
+                    default:
                         {
                             auto a0 (popT(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BuiltinTypeVoid>(std::move(a0)));
@@ -1001,14 +984,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::VOID), stringifyTokenType(TokenType::IDENTIFIER), "void-inclusive builtin type specifier")
                 }
                 break;
             case 12:
                switch (lookahead.type)
                {
-                    case TokenType::IDENTIFIER:
+                    default:
                         {
                             auto a0 (popT(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BuiltinTypeNoVoid>(std::move(a0)));
@@ -1016,14 +997,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::UINT8), stringifyTokenType(TokenType::IDENTIFIER), "non-void builtin type specifier")
                 }
                 break;
             case 13:
                switch (lookahead.type)
                {
-                    case TokenType::IDENTIFIER:
+                    default:
                         {
                             auto a0 (popT(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BuiltinTypeNoVoid>(std::move(a0)));
@@ -1031,14 +1010,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::UINT16), stringifyTokenType(TokenType::IDENTIFIER), "non-void builtin type specifier")
                 }
                 break;
             case 14:
                switch (lookahead.type)
                {
-                    case TokenType::IDENTIFIER:
+                    default:
                         {
                             auto a0 (popT(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BuiltinTypeNoVoid>(std::move(a0)));
@@ -1046,14 +1023,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::UINT32), stringifyTokenType(TokenType::IDENTIFIER), "non-void builtin type specifier")
                 }
                 break;
             case 15:
                switch (lookahead.type)
                {
-                    case TokenType::IDENTIFIER:
+                    default:
                         {
                             auto a0 (popT(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BuiltinTypeNoVoid>(std::move(a0)));
@@ -1061,14 +1036,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::UINT64), stringifyTokenType(TokenType::IDENTIFIER), "non-void builtin type specifier")
                 }
                 break;
             case 16:
                switch (lookahead.type)
                {
-                    case TokenType::IDENTIFIER:
+                    default:
                         {
                             auto a0 (popT(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BuiltinTypeNoVoid>(std::move(a0)));
@@ -1076,14 +1049,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::SINT8), stringifyTokenType(TokenType::IDENTIFIER), "non-void builtin type specifier")
                 }
                 break;
             case 17:
                switch (lookahead.type)
                {
-                    case TokenType::IDENTIFIER:
+                    default:
                         {
                             auto a0 (popT(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BuiltinTypeNoVoid>(std::move(a0)));
@@ -1091,14 +1062,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::SINT16), stringifyTokenType(TokenType::IDENTIFIER), "non-void builtin type specifier")
                 }
                 break;
             case 18:
                switch (lookahead.type)
                {
-                    case TokenType::IDENTIFIER:
+                    default:
                         {
                             auto a0 (popT(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BuiltinTypeNoVoid>(std::move(a0)));
@@ -1106,14 +1075,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::SINT32), stringifyTokenType(TokenType::IDENTIFIER), "non-void builtin type specifier")
                 }
                 break;
             case 19:
                switch (lookahead.type)
                {
-                    case TokenType::IDENTIFIER:
+                    default:
                         {
                             auto a0 (popT(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BuiltinTypeNoVoid>(std::move(a0)));
@@ -1121,14 +1088,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::SINT64), stringifyTokenType(TokenType::IDENTIFIER), "non-void builtin type specifier")
                 }
                 break;
             case 20:
                switch (lookahead.type)
                {
-                    case TokenType::IDENTIFIER:
+                    default:
                         {
                             auto a0 (popT(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BuiltinTypeNoVoid>(std::move(a0)));
@@ -1136,14 +1101,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::FLOAT), stringifyTokenType(TokenType::IDENTIFIER), "non-void builtin type specifier")
                 }
                 break;
             case 21:
                switch (lookahead.type)
                {
-                    case TokenType::IDENTIFIER:
+                    default:
                         {
                             auto a0 (popT(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BuiltinTypeNoVoid>(std::move(a0)));
@@ -1151,14 +1114,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::BOOL), stringifyTokenType(TokenType::IDENTIFIER), "non-void builtin type specifier")
                 }
                 break;
             case 22:
                switch (lookahead.type)
                {
-                    case TokenType::IDENTIFIER:
+                    default:
                         {
                             auto a0 (popT(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BuiltinTypeNoVoid>(std::move(a0)));
@@ -1166,14 +1127,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::DOUBLE), stringifyTokenType(TokenType::IDENTIFIER), "non-void builtin type specifier")
                 }
                 break;
             case 23:
                switch (lookahead.type)
                {
-                    case TokenType::IDENTIFIER:
+                    default:
                         {
                             auto a0 (popT(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BuiltinTypeNoVoid>(std::move(a0)));
@@ -1181,8 +1140,6 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::CHAR), stringifyTokenType(TokenType::IDENTIFIER), "non-void builtin type specifier")
                 }
                 break;
             case 24:
@@ -1250,15 +1207,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     case TokenType::COMMA:
                         shift(p, lasttok, lookahead, stack, steps, 35); break;
-                    case TokenType::CPARN:
+                    default:
                         {
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::MoreParam>());
                             size_t newstate = getGoto<ASTNS::MoreParam>(stack.back().state);
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("parameter", "more parameters", "parameter list")
                 }
                 break;
             case 29:
@@ -1273,18 +1228,15 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 30:
                switch (lookahead.type)
                {
-                    case TokenType::IDENTIFIER:
+                    default:
                         reduceSkip<ASTNS::TypeNV>(stack);
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("non-void builtin type specifier", stringifyTokenType(TokenType::IDENTIFIER), "non-void type specifier")
                 }
                 break;
             case 31:
                switch (lookahead.type)
                {
-                    case TokenType::EOF_:
-                    case TokenType::FUN:
+                    default:
                         {
                             auto a5 (popA<ASTNS::Block>(stack));
                             auto a4 (popT(stack));
@@ -1297,8 +1249,6 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("code block", concatMsg("either ", stringifyTokenType(TokenType::EOF_), " or ", stringifyTokenType(TokenType::FUN)), "function declaration")
                 }
                 break;
             case 32:
@@ -1360,7 +1310,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 34:
                switch (lookahead.type)
                {
-                    case TokenType::CPARN:
+                    default:
                         {
                             auto a1 (popA<ASTNS::MoreParam>(stack));
                             auto a0 (popA<ASTNS::Param>(stack));
@@ -1369,8 +1319,6 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("more parameters", stringifyTokenType(TokenType::CPARN), "parameter list")
                 }
                 break;
             case 35:
@@ -1407,8 +1355,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 36:
                switch (lookahead.type)
                {
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
+                    default:
                         {
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::TypeNV>(stack));
@@ -1417,8 +1364,6 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::IDENTIFIER), concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::CPARN)), "parameter")
                 }
                 break;
             case 37:
@@ -1433,28 +1378,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 38:
                switch (lookahead.type)
                {
-                    case TokenType::BANG:
-                    case TokenType::BININTLIT:
-                    case TokenType::CCURB:
-                    case TokenType::CHARLIT:
-                    case TokenType::DECINTLIT:
-                    case TokenType::EOF_:
-                    case TokenType::FALSELIT:
-                    case TokenType::FLOATLIT:
-                    case TokenType::FUN:
-                    case TokenType::HEXINTLIT:
-                    case TokenType::IDENTIFIER:
-                    case TokenType::MINUS:
-                    case TokenType::NULLPTRLIT:
-                    case TokenType::OCTINTLIT:
-                    case TokenType::OCURB:
-                    case TokenType::OPARN:
-                    case TokenType::RETURN:
-                    case TokenType::SEMICOLON:
-                    case TokenType::STRINGLIT:
-                    case TokenType::TILDE:
-                    case TokenType::TRUELIT:
-                    case TokenType::VAR:
+                    default:
                         {
                             auto a1 (popT(stack));
                             auto a0 (popT(stack));
@@ -1463,8 +1387,6 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::CCURB), concatMsg("either ", "more declarations", " or ", "more statements"), "code block")
                 }
                 break;
             case 39:
@@ -1474,7 +1396,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 64); break;
                     case TokenType::BININTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::CCURB:
+                    default:
                         {
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::MoreStmt>());
                             size_t newstate = getGoto<ASTNS::MoreStmt>(stack.back().state);
@@ -1515,178 +1437,52 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 67); break;
                     case TokenType::VAR:
                         shift(p, lasttok, lookahead, stack, steps, 46); break;
-                    default:
-                        DEFAULTINVALIDWHILE("statement", "more statements", "statement list")
                 }
                 break;
             case 40:
                switch (lookahead.type)
                {
-                    case TokenType::BANG:
-                    case TokenType::BININTLIT:
-                    case TokenType::CCURB:
-                    case TokenType::CHARLIT:
-                    case TokenType::DECINTLIT:
-                    case TokenType::FALSELIT:
-                    case TokenType::FLOATLIT:
-                    case TokenType::HEXINTLIT:
-                    case TokenType::IDENTIFIER:
-                    case TokenType::MINUS:
-                    case TokenType::NULLPTRLIT:
-                    case TokenType::OCTINTLIT:
-                    case TokenType::OCURB:
-                    case TokenType::OPARN:
-                    case TokenType::RETURN:
-                    case TokenType::SEMICOLON:
-                    case TokenType::STRINGLIT:
-                    case TokenType::TILDE:
-                    case TokenType::TRUELIT:
-                    case TokenType::VAR:
+                    default:
                         reduceSkip<ASTNS::Stmt>(stack);
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("empty statement", "more statements", "statement")
                 }
                 break;
             case 41:
                switch (lookahead.type)
                {
-                    case TokenType::BANG:
-                    case TokenType::BININTLIT:
-                    case TokenType::CCURB:
-                    case TokenType::CHARLIT:
-                    case TokenType::DECINTLIT:
-                    case TokenType::FALSELIT:
-                    case TokenType::FLOATLIT:
-                    case TokenType::HEXINTLIT:
-                    case TokenType::IDENTIFIER:
-                    case TokenType::MINUS:
-                    case TokenType::NULLPTRLIT:
-                    case TokenType::OCTINTLIT:
-                    case TokenType::OCURB:
-                    case TokenType::OPARN:
-                    case TokenType::RETURN:
-                    case TokenType::SEMICOLON:
-                    case TokenType::STRINGLIT:
-                    case TokenType::TILDE:
-                    case TokenType::TRUELIT:
-                    case TokenType::VAR:
+                    default:
                         reduceSkip<ASTNS::Stmt>(stack);
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("variable statement", "more statements", "statement")
                 }
                 break;
             case 42:
                switch (lookahead.type)
                {
-                    case TokenType::BANG:
-                    case TokenType::BININTLIT:
-                    case TokenType::CCURB:
-                    case TokenType::CHARLIT:
-                    case TokenType::DECINTLIT:
-                    case TokenType::FALSELIT:
-                    case TokenType::FLOATLIT:
-                    case TokenType::HEXINTLIT:
-                    case TokenType::IDENTIFIER:
-                    case TokenType::MINUS:
-                    case TokenType::NULLPTRLIT:
-                    case TokenType::OCTINTLIT:
-                    case TokenType::OCURB:
-                    case TokenType::OPARN:
-                    case TokenType::RETURN:
-                    case TokenType::SEMICOLON:
-                    case TokenType::STRINGLIT:
-                    case TokenType::TILDE:
-                    case TokenType::TRUELIT:
-                    case TokenType::VAR:
+                    default:
                         reduceSkip<ASTNS::Stmt>(stack);
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("expression statement", "more statements", "statement")
                 }
                 break;
             case 43:
                switch (lookahead.type)
                {
-                    case TokenType::BANG:
-                    case TokenType::BININTLIT:
-                    case TokenType::CCURB:
-                    case TokenType::CHARLIT:
-                    case TokenType::DECINTLIT:
-                    case TokenType::FALSELIT:
-                    case TokenType::FLOATLIT:
-                    case TokenType::HEXINTLIT:
-                    case TokenType::IDENTIFIER:
-                    case TokenType::MINUS:
-                    case TokenType::NULLPTRLIT:
-                    case TokenType::OCTINTLIT:
-                    case TokenType::OCURB:
-                    case TokenType::OPARN:
-                    case TokenType::RETURN:
-                    case TokenType::SEMICOLON:
-                    case TokenType::STRINGLIT:
-                    case TokenType::TILDE:
-                    case TokenType::TRUELIT:
-                    case TokenType::VAR:
+                    default:
                         reduceSkip<ASTNS::Stmt>(stack);
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("return statement", "more statements", "statement")
                 }
                 break;
             case 44:
                switch (lookahead.type)
                {
-                    case TokenType::BANG:
-                    case TokenType::BININTLIT:
-                    case TokenType::CCURB:
-                    case TokenType::CHARLIT:
-                    case TokenType::DECINTLIT:
-                    case TokenType::FALSELIT:
-                    case TokenType::FLOATLIT:
-                    case TokenType::HEXINTLIT:
-                    case TokenType::IDENTIFIER:
-                    case TokenType::MINUS:
-                    case TokenType::NULLPTRLIT:
-                    case TokenType::OCTINTLIT:
-                    case TokenType::OCURB:
-                    case TokenType::OPARN:
-                    case TokenType::RETURN:
-                    case TokenType::SEMICOLON:
-                    case TokenType::STRINGLIT:
-                    case TokenType::TILDE:
-                    case TokenType::TRUELIT:
-                    case TokenType::VAR:
+                    default:
                         reduceSkip<ASTNS::Stmt>(stack);
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("code block", "more statements", "statement")
                 }
                 break;
             case 45:
                switch (lookahead.type)
                {
-                    case TokenType::BANG:
-                    case TokenType::BININTLIT:
-                    case TokenType::CCURB:
-                    case TokenType::CHARLIT:
-                    case TokenType::DECINTLIT:
-                    case TokenType::FALSELIT:
-                    case TokenType::FLOATLIT:
-                    case TokenType::HEXINTLIT:
-                    case TokenType::IDENTIFIER:
-                    case TokenType::MINUS:
-                    case TokenType::NULLPTRLIT:
-                    case TokenType::OCTINTLIT:
-                    case TokenType::OCURB:
-                    case TokenType::OPARN:
-                    case TokenType::RETURN:
-                    case TokenType::SEMICOLON:
-                    case TokenType::STRINGLIT:
-                    case TokenType::TILDE:
-                    case TokenType::TRUELIT:
-                    case TokenType::VAR:
+                    default:
                         {
                             auto a0 (popT(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::EmptyStmt>(std::move(a0)));
@@ -1694,8 +1490,6 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::SEMICOLON), "more statements", "empty statement")
                 }
                 break;
             case 46:
@@ -1780,65 +1574,41 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 49:
                switch (lookahead.type)
                {
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::SEMICOLON:
+                    default:
                         reduceSkip<ASTNS::Expr>(stack);
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("assignment expression", concatMsg(stringifyTokenType(TokenType::COLON), stringifyTokenType(TokenType::COMMA), stringifyTokenType(TokenType::CPARN), " or ", stringifyTokenType(TokenType::SEMICOLON)), "expression")
                 }
                 break;
             case 50:
                switch (lookahead.type)
                {
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::SEMICOLON:
+                    default:
                         reduceSkip<ASTNS::AssignmentExpr>(stack);
                         break;
                     case TokenType::EQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 88); break;
-                    default:
-                        DEFAULTINVALIDWHILE("ternary expression", concatMsg(stringifyTokenType(TokenType::COLON), stringifyTokenType(TokenType::COMMA), stringifyTokenType(TokenType::CPARN), stringifyTokenType(TokenType::EQUAL), " or ", stringifyTokenType(TokenType::SEMICOLON)), "assignment expression")
                 }
                 break;
             case 51:
                switch (lookahead.type)
                {
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::EQUAL:
-                    case TokenType::SEMICOLON:
+                    default:
                         reduceSkip<ASTNS::TernaryExpr>(stack);
                         break;
                     case TokenType::DOUBLEPIPE:
                         shift(p, lasttok, lookahead, stack, steps, 90); break;
                     case TokenType::QUESTION:
                         shift(p, lasttok, lookahead, stack, steps, 89); break;
-                    default:
-                        DEFAULTINVALIDNOWHILE("binary or expression", concatMsg("more arguments", "more variable statement initializations", stringifyTokenType(TokenType::DOUBLEPIPE), " or ", stringifyTokenType(TokenType::QUESTION)))
                 }
                 break;
             case 52:
                switch (lookahead.type)
                {
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
+                    default:
                         reduceSkip<ASTNS::BinorExpr>(stack);
                         break;
                     case TokenType::DOUBLEAMPER:
                         shift(p, lasttok, lookahead, stack, steps, 91); break;
-                    default:
-                        DEFAULTINVALIDNOWHILE("binary and expression", concatMsg("more arguments", "more variable statement initializations", " or ", stringifyTokenType(TokenType::DOUBLEAMPER)))
                 }
                 break;
             case 53:
@@ -1846,35 +1616,17 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     case TokenType::BANGEQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 92); break;
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
+                    default:
                         reduceSkip<ASTNS::BinandExpr>(stack);
                         break;
                     case TokenType::DOUBLEEQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 93); break;
-                    default:
-                        DEFAULTINVALIDNOWHILE("equality expression", concatMsg("more arguments", "more variable statement initializations", stringifyTokenType(TokenType::BANGEQUAL), " or ", stringifyTokenType(TokenType::DOUBLEEQUAL)))
                 }
                 break;
             case 54:
                switch (lookahead.type)
                {
-                    case TokenType::BANGEQUAL:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
+                    default:
                         reduceSkip<ASTNS::CompeqExpr>(stack);
                         break;
                     case TokenType::GREATER:
@@ -1885,59 +1637,26 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 94); break;
                     case TokenType::LESSEQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 96); break;
-                    default:
-                        DEFAULTINVALIDNOWHILE("comparison expression", concatMsg("more arguments", "more variable statement initializations", stringifyTokenType(TokenType::GREATER), stringifyTokenType(TokenType::GREATEREQUAL), stringifyTokenType(TokenType::LESS), " or ", stringifyTokenType(TokenType::LESSEQUAL)))
                 }
                 break;
             case 55:
                switch (lookahead.type)
                {
-                    case TokenType::BANGEQUAL:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
+                    default:
                         reduceSkip<ASTNS::ComplgtExpr>(stack);
                         break;
                     case TokenType::CARET:
                         shift(p, lasttok, lookahead, stack, steps, 98); break;
-                    default:
-                        DEFAULTINVALIDNOWHILE("bitwise xor expression", concatMsg("more arguments", "more variable statement initializations", " or ", stringifyTokenType(TokenType::CARET)))
                 }
                 break;
             case 56:
                switch (lookahead.type)
                {
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
+                    default:
                         reduceSkip<ASTNS::BitxorExpr>(stack);
                         break;
                     case TokenType::PIPE:
                         shift(p, lasttok, lookahead, stack, steps, 99); break;
-                    default:
-                        DEFAULTINVALIDNOWHILE("bitwise or expression", concatMsg("more arguments", "more variable statement initializations", " or ", stringifyTokenType(TokenType::PIPE)))
                 }
                 break;
             case 57:
@@ -1945,114 +1664,39 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     case TokenType::AMPER:
                         shift(p, lasttok, lookahead, stack, steps, 100); break;
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::PIPE:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
+                    default:
                         reduceSkip<ASTNS::BitorExpr>(stack);
                         break;
-                    default:
-                        DEFAULTINVALIDNOWHILE("bitwise and expression", concatMsg("more arguments", "more variable statement initializations", " or ", stringifyTokenType(TokenType::AMPER)))
                 }
                 break;
             case 58:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::PIPE:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
+                    default:
                         reduceSkip<ASTNS::BitandExpr>(stack);
                         break;
                     case TokenType::DOUBLEGREATER:
                         shift(p, lasttok, lookahead, stack, steps, 101); break;
                     case TokenType::DOUBLELESS:
                         shift(p, lasttok, lookahead, stack, steps, 102); break;
-                    default:
-                        DEFAULTINVALIDNOWHILE("bit shift expression", concatMsg("more arguments", "more variable statement initializations", stringifyTokenType(TokenType::DOUBLEGREATER), " or ", stringifyTokenType(TokenType::DOUBLELESS)))
                 }
                 break;
             case 59:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::PIPE:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
+                    default:
                         reduceSkip<ASTNS::BitshiftExpr>(stack);
                         break;
                     case TokenType::MINUS:
                         shift(p, lasttok, lookahead, stack, steps, 104); break;
                     case TokenType::PLUS:
                         shift(p, lasttok, lookahead, stack, steps, 103); break;
-                    default:
-                        DEFAULTINVALIDNOWHILE("addition expression", concatMsg("more arguments", "more variable statement initializations", stringifyTokenType(TokenType::MINUS), " or ", stringifyTokenType(TokenType::PLUS)))
                 }
                 break;
             case 60:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::MINUS:
-                    case TokenType::PIPE:
-                    case TokenType::PLUS:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
+                    default:
                         reduceSkip<ASTNS::AdditionExpr>(stack);
                         break;
                     case TokenType::PERCENT:
@@ -2061,41 +1705,14 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 106); break;
                     case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 105); break;
-                    default:
-                        DEFAULTINVALIDNOWHILE("multiplication expression", concatMsg("more arguments", "more variable statement initializations", stringifyTokenType(TokenType::PERCENT), stringifyTokenType(TokenType::SLASH), " or ", stringifyTokenType(TokenType::STAR)))
                 }
                 break;
             case 61:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::MINUS:
-                    case TokenType::PERCENT:
-                    case TokenType::PIPE:
-                    case TokenType::PLUS:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
-                    case TokenType::SLASH:
-                    case TokenType::STAR:
+                    default:
                         reduceSkip<ASTNS::MultExpr>(stack);
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("unary expression", concatMsg("either ", "more arguments", " or ", "more variable statement initializations"), "multiplication expression")
                 }
                 break;
             case 62:
@@ -2212,99 +1829,25 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 65:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::MINUS:
-                    case TokenType::PERCENT:
-                    case TokenType::PIPE:
-                    case TokenType::PLUS:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
-                    case TokenType::SLASH:
-                    case TokenType::STAR:
+                    default:
                         reduceSkip<ASTNS::UnaryExpr>(stack);
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("function call expression", concatMsg("either ", "more arguments", " or ", "more variable statement initializations"), "unary expression")
                 }
                 break;
             case 66:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::MINUS:
-                    case TokenType::PERCENT:
-                    case TokenType::PIPE:
-                    case TokenType::PLUS:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
-                    case TokenType::SLASH:
-                    case TokenType::STAR:
+                    default:
                         reduceSkip<ASTNS::CallExpr>(stack);
                         break;
                     case TokenType::OPARN:
                         shift(p, lasttok, lookahead, stack, steps, 111); break;
-                    default:
-                        DEFAULTINVALIDWHILE("primary expression", concatMsg("more arguments", "more variable statement initializations", " or ", stringifyTokenType(TokenType::OPARN)), "function call expression")
                 }
                 break;
             case 67:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::MINUS:
-                    case TokenType::OPARN:
-                    case TokenType::PERCENT:
-                    case TokenType::PIPE:
-                    case TokenType::PLUS:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
-                    case TokenType::SLASH:
-                    case TokenType::STAR:
+                    default:
                         {
                             auto a0 (popT(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::PrimaryExpr>(std::move(a0)));
@@ -2312,38 +1855,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::TRUELIT), concatMsg("either ", "more arguments", " or ", "more variable statement initializations"), "primary expression")
                 }
                 break;
             case 68:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::MINUS:
-                    case TokenType::OPARN:
-                    case TokenType::PERCENT:
-                    case TokenType::PIPE:
-                    case TokenType::PLUS:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
-                    case TokenType::SLASH:
-                    case TokenType::STAR:
+                    default:
                         {
                             auto a0 (popT(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::PrimaryExpr>(std::move(a0)));
@@ -2351,38 +1868,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::FALSELIT), concatMsg("either ", "more arguments", " or ", "more variable statement initializations"), "primary expression")
                 }
                 break;
             case 69:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::MINUS:
-                    case TokenType::OPARN:
-                    case TokenType::PERCENT:
-                    case TokenType::PIPE:
-                    case TokenType::PLUS:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
-                    case TokenType::SLASH:
-                    case TokenType::STAR:
+                    default:
                         {
                             auto a0 (popT(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::PrimaryExpr>(std::move(a0)));
@@ -2390,38 +1881,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::FLOATLIT), concatMsg("either ", "more arguments", " or ", "more variable statement initializations"), "primary expression")
                 }
                 break;
             case 70:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::MINUS:
-                    case TokenType::OPARN:
-                    case TokenType::PERCENT:
-                    case TokenType::PIPE:
-                    case TokenType::PLUS:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
-                    case TokenType::SLASH:
-                    case TokenType::STAR:
+                    default:
                         {
                             auto a0 (popT(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::PrimaryExpr>(std::move(a0)));
@@ -2429,38 +1894,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::NULLPTRLIT), concatMsg("either ", "more arguments", " or ", "more variable statement initializations"), "primary expression")
                 }
                 break;
             case 71:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::MINUS:
-                    case TokenType::OPARN:
-                    case TokenType::PERCENT:
-                    case TokenType::PIPE:
-                    case TokenType::PLUS:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
-                    case TokenType::SLASH:
-                    case TokenType::STAR:
+                    default:
                         {
                             auto a0 (popT(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::PrimaryExpr>(std::move(a0)));
@@ -2468,38 +1907,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::DECINTLIT), concatMsg("either ", "more arguments", " or ", "more variable statement initializations"), "primary expression")
                 }
                 break;
             case 72:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::MINUS:
-                    case TokenType::OPARN:
-                    case TokenType::PERCENT:
-                    case TokenType::PIPE:
-                    case TokenType::PLUS:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
-                    case TokenType::SLASH:
-                    case TokenType::STAR:
+                    default:
                         {
                             auto a0 (popT(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::PrimaryExpr>(std::move(a0)));
@@ -2507,38 +1920,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::OCTINTLIT), concatMsg("either ", "more arguments", " or ", "more variable statement initializations"), "primary expression")
                 }
                 break;
             case 73:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::MINUS:
-                    case TokenType::OPARN:
-                    case TokenType::PERCENT:
-                    case TokenType::PIPE:
-                    case TokenType::PLUS:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
-                    case TokenType::SLASH:
-                    case TokenType::STAR:
+                    default:
                         {
                             auto a0 (popT(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::PrimaryExpr>(std::move(a0)));
@@ -2546,38 +1933,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::BININTLIT), concatMsg("either ", "more arguments", " or ", "more variable statement initializations"), "primary expression")
                 }
                 break;
             case 74:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::MINUS:
-                    case TokenType::OPARN:
-                    case TokenType::PERCENT:
-                    case TokenType::PIPE:
-                    case TokenType::PLUS:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
-                    case TokenType::SLASH:
-                    case TokenType::STAR:
+                    default:
                         {
                             auto a0 (popT(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::PrimaryExpr>(std::move(a0)));
@@ -2585,38 +1946,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::HEXINTLIT), concatMsg("either ", "more arguments", " or ", "more variable statement initializations"), "primary expression")
                 }
                 break;
             case 75:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::MINUS:
-                    case TokenType::OPARN:
-                    case TokenType::PERCENT:
-                    case TokenType::PIPE:
-                    case TokenType::PLUS:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
-                    case TokenType::SLASH:
-                    case TokenType::STAR:
+                    default:
                         {
                             auto a0 (popT(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::PrimaryExpr>(std::move(a0)));
@@ -2624,38 +1959,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::CHARLIT), concatMsg("either ", "more arguments", " or ", "more variable statement initializations"), "primary expression")
                 }
                 break;
             case 76:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::MINUS:
-                    case TokenType::OPARN:
-                    case TokenType::PERCENT:
-                    case TokenType::PIPE:
-                    case TokenType::PLUS:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
-                    case TokenType::SLASH:
-                    case TokenType::STAR:
+                    default:
                         {
                             auto a0 (popT(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::PrimaryExpr>(std::move(a0)));
@@ -2663,38 +1972,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::STRINGLIT), concatMsg("either ", "more arguments", " or ", "more variable statement initializations"), "primary expression")
                 }
                 break;
             case 77:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::MINUS:
-                    case TokenType::OPARN:
-                    case TokenType::PERCENT:
-                    case TokenType::PIPE:
-                    case TokenType::PLUS:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
-                    case TokenType::SLASH:
-                    case TokenType::STAR:
+                    default:
                         {
                             auto a0 (popT(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::PrimaryExpr>(std::move(a0)));
@@ -2702,8 +1985,6 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::IDENTIFIER), concatMsg("either ", "more arguments", " or ", "more variable statement initializations"), "primary expression")
                 }
                 break;
             case 78:
@@ -2746,8 +2027,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 79:
                switch (lookahead.type)
                {
-                    case TokenType::EOF_:
-                    case TokenType::FUN:
+                    default:
                         {
                             auto a6 (popA<ASTNS::Block>(stack));
                             auto a5 (popT(stack));
@@ -2761,14 +2041,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("code block", concatMsg("either ", stringifyTokenType(TokenType::EOF_), " or ", stringifyTokenType(TokenType::FUN)), "function declaration")
                 }
                 break;
             case 80:
                switch (lookahead.type)
                {
-                    case TokenType::CPARN:
+                    default:
                         {
                             auto a1 (popA<ASTNS::ParamList>(stack));
                             auto a0 (popT(stack));
@@ -2777,35 +2055,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("parameter list", stringifyTokenType(TokenType::CPARN), "more parameters")
                 }
                 break;
             case 81:
                switch (lookahead.type)
                {
-                    case TokenType::BANG:
-                    case TokenType::BININTLIT:
-                    case TokenType::CCURB:
-                    case TokenType::CHARLIT:
-                    case TokenType::DECINTLIT:
-                    case TokenType::EOF_:
-                    case TokenType::FALSELIT:
-                    case TokenType::FLOATLIT:
-                    case TokenType::FUN:
-                    case TokenType::HEXINTLIT:
-                    case TokenType::IDENTIFIER:
-                    case TokenType::MINUS:
-                    case TokenType::NULLPTRLIT:
-                    case TokenType::OCTINTLIT:
-                    case TokenType::OCURB:
-                    case TokenType::OPARN:
-                    case TokenType::RETURN:
-                    case TokenType::SEMICOLON:
-                    case TokenType::STRINGLIT:
-                    case TokenType::TILDE:
-                    case TokenType::TRUELIT:
-                    case TokenType::VAR:
+                    default:
                         {
                             auto a2 (popT(stack));
                             auto a1 (popA<ASTNS::StmtList>(stack));
@@ -2815,14 +2070,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::CCURB), concatMsg("either ", "more declarations", " or ", "more statements"), "code block")
                 }
                 break;
             case 82:
                switch (lookahead.type)
                {
-                    case TokenType::CCURB:
+                    default:
                         {
                             auto a1 (popA<ASTNS::MoreStmt>(stack));
                             auto a0 (popA<ASTNS::Stmt>(stack));
@@ -2831,18 +2084,14 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("more statements", stringifyTokenType(TokenType::CCURB), "statement list")
                 }
                 break;
             case 83:
                switch (lookahead.type)
                {
-                    case TokenType::CCURB:
+                    default:
                         reduceSkip<ASTNS::MoreStmt>(stack);
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("statement list", stringifyTokenType(TokenType::CCURB), "more statements")
                 }
                 break;
             case 84:
@@ -2857,26 +2106,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 85:
                switch (lookahead.type)
                {
-                    case TokenType::BANG:
-                    case TokenType::BININTLIT:
-                    case TokenType::CCURB:
-                    case TokenType::CHARLIT:
-                    case TokenType::DECINTLIT:
-                    case TokenType::FALSELIT:
-                    case TokenType::FLOATLIT:
-                    case TokenType::HEXINTLIT:
-                    case TokenType::IDENTIFIER:
-                    case TokenType::MINUS:
-                    case TokenType::NULLPTRLIT:
-                    case TokenType::OCTINTLIT:
-                    case TokenType::OCURB:
-                    case TokenType::OPARN:
-                    case TokenType::RETURN:
-                    case TokenType::SEMICOLON:
-                    case TokenType::STRINGLIT:
-                    case TokenType::TILDE:
-                    case TokenType::TRUELIT:
-                    case TokenType::VAR:
+                    default:
                         {
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -2885,8 +2115,6 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::SEMICOLON), "more statements", "expression statement")
                 }
                 break;
             case 86:
@@ -2901,26 +2129,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 87:
                switch (lookahead.type)
                {
-                    case TokenType::BANG:
-                    case TokenType::BININTLIT:
-                    case TokenType::CCURB:
-                    case TokenType::CHARLIT:
-                    case TokenType::DECINTLIT:
-                    case TokenType::FALSELIT:
-                    case TokenType::FLOATLIT:
-                    case TokenType::HEXINTLIT:
-                    case TokenType::IDENTIFIER:
-                    case TokenType::MINUS:
-                    case TokenType::NULLPTRLIT:
-                    case TokenType::OCTINTLIT:
-                    case TokenType::OCURB:
-                    case TokenType::OPARN:
-                    case TokenType::RETURN:
-                    case TokenType::SEMICOLON:
-                    case TokenType::STRINGLIT:
-                    case TokenType::TILDE:
-                    case TokenType::TRUELIT:
-                    case TokenType::VAR:
+                    default:
                         {
                             auto a1 (popT(stack));
                             auto a0 (popT(stack));
@@ -2929,8 +2138,6 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::SEMICOLON), "more statements", "return statement")
                 }
                 break;
             case 88:
@@ -3676,30 +2883,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 108:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::MINUS:
-                    case TokenType::PERCENT:
-                    case TokenType::PIPE:
-                    case TokenType::PLUS:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
-                    case TokenType::SLASH:
-                    case TokenType::STAR:
+                    default:
                         {
                             auto a1 (popA<ASTNS::UnaryExpr>(stack));
                             auto a0 (popT(stack));
@@ -3708,37 +2892,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("unary expression", concatMsg("either ", "more arguments", " or ", "more variable statement initializations"), "unary expression")
                 }
                 break;
             case 109:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::MINUS:
-                    case TokenType::PERCENT:
-                    case TokenType::PIPE:
-                    case TokenType::PLUS:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
-                    case TokenType::SLASH:
-                    case TokenType::STAR:
+                    default:
                         {
                             auto a1 (popA<ASTNS::UnaryExpr>(stack));
                             auto a0 (popT(stack));
@@ -3747,37 +2906,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("unary expression", concatMsg("either ", "more arguments", " or ", "more variable statement initializations"), "unary expression")
                 }
                 break;
             case 110:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::MINUS:
-                    case TokenType::PERCENT:
-                    case TokenType::PIPE:
-                    case TokenType::PLUS:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
-                    case TokenType::SLASH:
-                    case TokenType::STAR:
+                    default:
                         {
                             auto a1 (popA<ASTNS::UnaryExpr>(stack));
                             auto a0 (popT(stack));
@@ -3786,8 +2920,6 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("unary expression", concatMsg("either ", "more arguments", " or ", "more variable statement initializations"), "unary expression")
                 }
                 break;
             case 111:
@@ -3852,22 +2984,19 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     case TokenType::COMMA:
                         shift(p, lasttok, lookahead, stack, steps, 144); break;
-                    case TokenType::SEMICOLON:
+                    default:
                         {
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::MoreVarStmtItem>());
                             size_t newstate = getGoto<ASTNS::MoreVarStmtItem>(stack.back().state);
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("variable statement initialization", "more variable statement initializations", "variable statement initialization list")
                 }
                 break;
             case 115:
                switch (lookahead.type)
                {
-                    case TokenType::COMMA:
-                    case TokenType::SEMICOLON:
+                    default:
                         {
                             auto a0 (popT(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::VarStmtItem>(std::move(a0)));
@@ -3877,33 +3006,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     case TokenType::EQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 145); break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::IDENTIFIER), concatMsg(stringifyTokenType(TokenType::COMMA), stringifyTokenType(TokenType::EQUAL), " or ", stringifyTokenType(TokenType::SEMICOLON)), "variable statement initialization")
                 }
                 break;
             case 116:
                switch (lookahead.type)
                {
-                    case TokenType::BANG:
-                    case TokenType::BININTLIT:
-                    case TokenType::CCURB:
-                    case TokenType::CHARLIT:
-                    case TokenType::DECINTLIT:
-                    case TokenType::FALSELIT:
-                    case TokenType::FLOATLIT:
-                    case TokenType::HEXINTLIT:
-                    case TokenType::IDENTIFIER:
-                    case TokenType::MINUS:
-                    case TokenType::NULLPTRLIT:
-                    case TokenType::OCTINTLIT:
-                    case TokenType::OCURB:
-                    case TokenType::OPARN:
-                    case TokenType::RETURN:
-                    case TokenType::SEMICOLON:
-                    case TokenType::STRINGLIT:
-                    case TokenType::TILDE:
-                    case TokenType::TRUELIT:
-                    case TokenType::VAR:
+                    default:
                         {
                             auto a2 (popT(stack));
                             auto a1 (popA<ASTNS::Expr>(stack));
@@ -3913,17 +3021,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::SEMICOLON), "more statements", "return statement")
                 }
                 break;
             case 117:
                switch (lookahead.type)
                {
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::SEMICOLON:
+                    default:
                         {
                             auto a2 (popA<ASTNS::AssignmentExpr>(stack));
                             auto a1 (popT(stack));
@@ -3933,8 +3036,6 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("assignment expression", concatMsg(stringifyTokenType(TokenType::COLON), stringifyTokenType(TokenType::COMMA), stringifyTokenType(TokenType::CPARN), " or ", stringifyTokenType(TokenType::SEMICOLON)), "assignment expression")
                 }
                 break;
             case 118:
@@ -3949,13 +3050,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 119:
                switch (lookahead.type)
                {
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
+                    default:
                         {
                             auto a2 (popA<ASTNS::BinandExpr>(stack));
                             auto a1 (popT(stack));
@@ -3967,8 +3062,6 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     case TokenType::DOUBLEAMPER:
                         shift(p, lasttok, lookahead, stack, steps, 91); break;
-                    default:
-                        DEFAULTINVALIDNOWHILE("binary and expression", concatMsg("more arguments", "more variable statement initializations", " or ", stringifyTokenType(TokenType::DOUBLEAMPER)))
                 }
                 break;
             case 120:
@@ -3976,14 +3069,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     case TokenType::BANGEQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 92); break;
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
+                    default:
                         {
                             auto a2 (popA<ASTNS::CompeqExpr>(stack));
                             auto a1 (popT(stack));
@@ -3995,23 +3081,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     case TokenType::DOUBLEEQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 93); break;
-                    default:
-                        DEFAULTINVALIDNOWHILE("equality expression", concatMsg("more arguments", "more variable statement initializations", stringifyTokenType(TokenType::BANGEQUAL), " or ", stringifyTokenType(TokenType::DOUBLEEQUAL)))
                 }
                 break;
             case 121:
                switch (lookahead.type)
                {
-                    case TokenType::BANGEQUAL:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
+                    default:
                         {
                             auto a2 (popA<ASTNS::ComplgtExpr>(stack));
                             auto a1 (popT(stack));
@@ -4029,23 +3104,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 94); break;
                     case TokenType::LESSEQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 96); break;
-                    default:
-                        DEFAULTINVALIDNOWHILE("comparison expression", concatMsg("more arguments", "more variable statement initializations", stringifyTokenType(TokenType::GREATER), stringifyTokenType(TokenType::GREATEREQUAL), stringifyTokenType(TokenType::LESS), " or ", stringifyTokenType(TokenType::LESSEQUAL)))
                 }
                 break;
             case 122:
                switch (lookahead.type)
                {
-                    case TokenType::BANGEQUAL:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
+                    default:
                         {
                             auto a2 (popA<ASTNS::ComplgtExpr>(stack));
                             auto a1 (popT(stack));
@@ -4063,27 +3127,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 94); break;
                     case TokenType::LESSEQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 96); break;
-                    default:
-                        DEFAULTINVALIDNOWHILE("comparison expression", concatMsg("more arguments", "more variable statement initializations", stringifyTokenType(TokenType::GREATER), stringifyTokenType(TokenType::GREATEREQUAL), stringifyTokenType(TokenType::LESS), " or ", stringifyTokenType(TokenType::LESSEQUAL)))
                 }
                 break;
             case 123:
                switch (lookahead.type)
                {
-                    case TokenType::BANGEQUAL:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
+                    default:
                         {
                             auto a2 (popA<ASTNS::BitxorExpr>(stack));
                             auto a1 (popT(stack));
@@ -4095,27 +3144,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     case TokenType::CARET:
                         shift(p, lasttok, lookahead, stack, steps, 98); break;
-                    default:
-                        DEFAULTINVALIDNOWHILE("bitwise xor expression", concatMsg("more arguments", "more variable statement initializations", " or ", stringifyTokenType(TokenType::CARET)))
                 }
                 break;
             case 124:
                switch (lookahead.type)
                {
-                    case TokenType::BANGEQUAL:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
+                    default:
                         {
                             auto a2 (popA<ASTNS::BitxorExpr>(stack));
                             auto a1 (popT(stack));
@@ -4127,27 +3161,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     case TokenType::CARET:
                         shift(p, lasttok, lookahead, stack, steps, 98); break;
-                    default:
-                        DEFAULTINVALIDNOWHILE("bitwise xor expression", concatMsg("more arguments", "more variable statement initializations", " or ", stringifyTokenType(TokenType::CARET)))
                 }
                 break;
             case 125:
                switch (lookahead.type)
                {
-                    case TokenType::BANGEQUAL:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
+                    default:
                         {
                             auto a2 (popA<ASTNS::BitxorExpr>(stack));
                             auto a1 (popT(stack));
@@ -4159,27 +3178,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     case TokenType::CARET:
                         shift(p, lasttok, lookahead, stack, steps, 98); break;
-                    default:
-                        DEFAULTINVALIDNOWHILE("bitwise xor expression", concatMsg("more arguments", "more variable statement initializations", " or ", stringifyTokenType(TokenType::CARET)))
                 }
                 break;
             case 126:
                switch (lookahead.type)
                {
-                    case TokenType::BANGEQUAL:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
+                    default:
                         {
                             auto a2 (popA<ASTNS::BitxorExpr>(stack));
                             auto a1 (popT(stack));
@@ -4191,28 +3195,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     case TokenType::CARET:
                         shift(p, lasttok, lookahead, stack, steps, 98); break;
-                    default:
-                        DEFAULTINVALIDNOWHILE("bitwise xor expression", concatMsg("more arguments", "more variable statement initializations", " or ", stringifyTokenType(TokenType::CARET)))
                 }
                 break;
             case 127:
                switch (lookahead.type)
                {
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
+                    default:
                         {
                             auto a2 (popA<ASTNS::BitorExpr>(stack));
                             auto a1 (popT(stack));
@@ -4224,8 +3212,6 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     case TokenType::PIPE:
                         shift(p, lasttok, lookahead, stack, steps, 99); break;
-                    default:
-                        DEFAULTINVALIDNOWHILE("bitwise or expression", concatMsg("more arguments", "more variable statement initializations", " or ", stringifyTokenType(TokenType::PIPE)))
                 }
                 break;
             case 128:
@@ -4233,22 +3219,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     case TokenType::AMPER:
                         shift(p, lasttok, lookahead, stack, steps, 100); break;
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::PIPE:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
+                    default:
                         {
                             auto a2 (popA<ASTNS::BitandExpr>(stack));
                             auto a1 (popT(stack));
@@ -4258,30 +3229,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDNOWHILE("bitwise and expression", concatMsg("more arguments", "more variable statement initializations", " or ", stringifyTokenType(TokenType::AMPER)))
                 }
                 break;
             case 129:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::PIPE:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
+                    default:
                         {
                             auto a2 (popA<ASTNS::BitshiftExpr>(stack));
                             auto a1 (popT(stack));
@@ -4295,32 +3248,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 101); break;
                     case TokenType::DOUBLELESS:
                         shift(p, lasttok, lookahead, stack, steps, 102); break;
-                    default:
-                        DEFAULTINVALIDNOWHILE("bit shift expression", concatMsg("more arguments", "more variable statement initializations", stringifyTokenType(TokenType::DOUBLEGREATER), " or ", stringifyTokenType(TokenType::DOUBLELESS)))
                 }
                 break;
             case 130:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::PIPE:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
+                    default:
                         {
                             auto a2 (popA<ASTNS::AdditionExpr>(stack));
                             auto a1 (popT(stack));
@@ -4334,32 +3267,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 104); break;
                     case TokenType::PLUS:
                         shift(p, lasttok, lookahead, stack, steps, 103); break;
-                    default:
-                        DEFAULTINVALIDNOWHILE("addition expression", concatMsg("more arguments", "more variable statement initializations", stringifyTokenType(TokenType::MINUS), " or ", stringifyTokenType(TokenType::PLUS)))
                 }
                 break;
             case 131:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::PIPE:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
+                    default:
                         {
                             auto a2 (popA<ASTNS::AdditionExpr>(stack));
                             auto a1 (popT(stack));
@@ -4373,34 +3286,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 104); break;
                     case TokenType::PLUS:
                         shift(p, lasttok, lookahead, stack, steps, 103); break;
-                    default:
-                        DEFAULTINVALIDNOWHILE("addition expression", concatMsg("more arguments", "more variable statement initializations", stringifyTokenType(TokenType::MINUS), " or ", stringifyTokenType(TokenType::PLUS)))
                 }
                 break;
             case 132:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::MINUS:
-                    case TokenType::PIPE:
-                    case TokenType::PLUS:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
+                    default:
                         {
                             auto a2 (popA<ASTNS::MultExpr>(stack));
                             auto a1 (popT(stack));
@@ -4416,34 +3307,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 106); break;
                     case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 105); break;
-                    default:
-                        DEFAULTINVALIDNOWHILE("multiplication expression", concatMsg("more arguments", "more variable statement initializations", stringifyTokenType(TokenType::PERCENT), stringifyTokenType(TokenType::SLASH), " or ", stringifyTokenType(TokenType::STAR)))
                 }
                 break;
             case 133:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::MINUS:
-                    case TokenType::PIPE:
-                    case TokenType::PLUS:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
+                    default:
                         {
                             auto a2 (popA<ASTNS::MultExpr>(stack));
                             auto a1 (popT(stack));
@@ -4459,37 +3328,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 106); break;
                     case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 105); break;
-                    default:
-                        DEFAULTINVALIDNOWHILE("multiplication expression", concatMsg("more arguments", "more variable statement initializations", stringifyTokenType(TokenType::PERCENT), stringifyTokenType(TokenType::SLASH), " or ", stringifyTokenType(TokenType::STAR)))
                 }
                 break;
             case 134:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::MINUS:
-                    case TokenType::PERCENT:
-                    case TokenType::PIPE:
-                    case TokenType::PLUS:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
-                    case TokenType::SLASH:
-                    case TokenType::STAR:
+                    default:
                         {
                             auto a2 (popA<ASTNS::UnaryExpr>(stack));
                             auto a1 (popT(stack));
@@ -4499,37 +3343,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("unary expression", concatMsg("either ", "more arguments", " or ", "more variable statement initializations"), "multiplication expression")
                 }
                 break;
             case 135:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::MINUS:
-                    case TokenType::PERCENT:
-                    case TokenType::PIPE:
-                    case TokenType::PLUS:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
-                    case TokenType::SLASH:
-                    case TokenType::STAR:
+                    default:
                         {
                             auto a2 (popA<ASTNS::UnaryExpr>(stack));
                             auto a1 (popT(stack));
@@ -4539,37 +3358,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("unary expression", concatMsg("either ", "more arguments", " or ", "more variable statement initializations"), "multiplication expression")
                 }
                 break;
             case 136:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::MINUS:
-                    case TokenType::PERCENT:
-                    case TokenType::PIPE:
-                    case TokenType::PLUS:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
-                    case TokenType::SLASH:
-                    case TokenType::STAR:
+                    default:
                         {
                             auto a2 (popA<ASTNS::UnaryExpr>(stack));
                             auto a1 (popT(stack));
@@ -4579,8 +3373,6 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("unary expression", concatMsg("either ", "more arguments", " or ", "more variable statement initializations"), "multiplication expression")
                 }
                 break;
             case 137:
@@ -4595,30 +3387,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 138:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::MINUS:
-                    case TokenType::PERCENT:
-                    case TokenType::PIPE:
-                    case TokenType::PLUS:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
-                    case TokenType::SLASH:
-                    case TokenType::STAR:
+                    default:
                         {
                             auto a2 (popT(stack));
                             auto a1 (popT(stack));
@@ -4628,8 +3397,6 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::CPARN), concatMsg("either ", "more arguments", " or ", "more variable statement initializations"), "function call expression")
                 }
                 break;
             case 139:
@@ -4637,22 +3404,19 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     case TokenType::COMMA:
                         shift(p, lasttok, lookahead, stack, steps, 149); break;
-                    case TokenType::CPARN:
+                    default:
                         {
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::MoreArg>());
                             size_t newstate = getGoto<ASTNS::MoreArg>(stack.back().state);
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("argument", "more arguments", "argument list")
                 }
                 break;
             case 140:
                switch (lookahead.type)
                {
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
+                    default:
                         {
                             auto a0 (popA<ASTNS::Expr>(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::Arg>(std::move(a0)));
@@ -4660,38 +3424,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("expression", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::CPARN)), "argument")
                 }
                 break;
             case 141:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::MINUS:
-                    case TokenType::OPARN:
-                    case TokenType::PERCENT:
-                    case TokenType::PIPE:
-                    case TokenType::PLUS:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
-                    case TokenType::SLASH:
-                    case TokenType::STAR:
+                    default:
                         {
                             auto a2 (popT(stack));
                             auto a1 (popA<ASTNS::Expr>(stack));
@@ -4701,33 +3439,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::CPARN), concatMsg("either ", "more arguments", " or ", "more variable statement initializations"), "primary expression")
                 }
                 break;
             case 142:
                switch (lookahead.type)
                {
-                    case TokenType::BANG:
-                    case TokenType::BININTLIT:
-                    case TokenType::CCURB:
-                    case TokenType::CHARLIT:
-                    case TokenType::DECINTLIT:
-                    case TokenType::FALSELIT:
-                    case TokenType::FLOATLIT:
-                    case TokenType::HEXINTLIT:
-                    case TokenType::IDENTIFIER:
-                    case TokenType::MINUS:
-                    case TokenType::NULLPTRLIT:
-                    case TokenType::OCTINTLIT:
-                    case TokenType::OCURB:
-                    case TokenType::OPARN:
-                    case TokenType::RETURN:
-                    case TokenType::SEMICOLON:
-                    case TokenType::STRINGLIT:
-                    case TokenType::TILDE:
-                    case TokenType::TRUELIT:
-                    case TokenType::VAR:
+                    default:
                         {
                             auto a3 (popT(stack));
                             auto a2 (popA<ASTNS::VarStmtItemList>(stack));
@@ -4738,14 +3455,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::SEMICOLON), "more statements", "variable statement")
                 }
                 break;
             case 143:
                switch (lookahead.type)
                {
-                    case TokenType::SEMICOLON:
+                    default:
                         {
                             auto a1 (popA<ASTNS::MoreVarStmtItem>(stack));
                             auto a0 (popA<ASTNS::VarStmtItem>(stack));
@@ -4754,8 +3469,6 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("more variable statement initializations", stringifyTokenType(TokenType::SEMICOLON), "variable statement initialization list")
                 }
                 break;
             case 144:
@@ -4844,30 +3557,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 147:
                switch (lookahead.type)
                {
-                    case TokenType::AMPER:
-                    case TokenType::BANGEQUAL:
-                    case TokenType::CARET:
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::DOUBLEAMPER:
-                    case TokenType::DOUBLEEQUAL:
-                    case TokenType::DOUBLEGREATER:
-                    case TokenType::DOUBLELESS:
-                    case TokenType::DOUBLEPIPE:
-                    case TokenType::EQUAL:
-                    case TokenType::GREATER:
-                    case TokenType::GREATEREQUAL:
-                    case TokenType::LESS:
-                    case TokenType::LESSEQUAL:
-                    case TokenType::MINUS:
-                    case TokenType::PERCENT:
-                    case TokenType::PIPE:
-                    case TokenType::PLUS:
-                    case TokenType::QUESTION:
-                    case TokenType::SEMICOLON:
-                    case TokenType::SLASH:
-                    case TokenType::STAR:
+                    default:
                         {
                             auto a3 (popT(stack));
                             auto a2 (popA<ASTNS::ArgList>(stack));
@@ -4878,14 +3568,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE(stringifyTokenType(TokenType::CPARN), concatMsg("either ", "more arguments", " or ", "more variable statement initializations"), "function call expression")
                 }
                 break;
             case 148:
                switch (lookahead.type)
                {
-                    case TokenType::CPARN:
+                    default:
                         {
                             auto a1 (popA<ASTNS::MoreArg>(stack));
                             auto a0 (popA<ASTNS::Arg>(stack));
@@ -4894,8 +3582,6 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("more arguments", stringifyTokenType(TokenType::CPARN), "argument list")
                 }
                 break;
             case 149:
@@ -4938,7 +3624,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 150:
                switch (lookahead.type)
                {
-                    case TokenType::SEMICOLON:
+                    default:
                         {
                             auto a1 (popA<ASTNS::VarStmtItemList>(stack));
                             auto a0 (popT(stack));
@@ -4947,15 +3633,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("variable statement initialization list", stringifyTokenType(TokenType::SEMICOLON), "more variable statement initializations")
                 }
                 break;
             case 151:
                switch (lookahead.type)
                {
-                    case TokenType::COMMA:
-                    case TokenType::SEMICOLON:
+                    default:
                         {
                             auto a2 (popA<ASTNS::Expr>(stack));
                             auto a1 (popT(stack));
@@ -4965,18 +3648,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("expression", concatMsg("either ", stringifyTokenType(TokenType::COMMA), " or ", stringifyTokenType(TokenType::SEMICOLON)), "variable statement initialization")
                 }
                 break;
             case 152:
                switch (lookahead.type)
                {
-                    case TokenType::COLON:
-                    case TokenType::COMMA:
-                    case TokenType::CPARN:
-                    case TokenType::EQUAL:
-                    case TokenType::SEMICOLON:
+                    default:
                         {
                             auto a4 (popA<ASTNS::TernaryExpr>(stack));
                             auto a3 (popT(stack));
@@ -4988,14 +3665,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("ternary expression", concatMsg("either ", "more arguments", " or ", "more variable statement initializations"), "ternary expression")
                 }
                 break;
             case 153:
                switch (lookahead.type)
                {
-                    case TokenType::CPARN:
+                    default:
                         {
                             auto a1 (popA<ASTNS::ArgList>(stack));
                             auto a0 (popT(stack));
@@ -5004,8 +3679,6 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
-                    default:
-                        DEFAULTINVALIDWHILE("argument list", stringifyTokenType(TokenType::CPARN), "more arguments")
                 }
                 break;
             default:

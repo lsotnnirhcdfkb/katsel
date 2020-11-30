@@ -740,8 +740,7 @@ def genLoop():
             if not found:
                 stateactions.append((ac, [term]))
 
-        # reduceOnly = len([ac for ac in stateactions if type(ac[0]) == ReduceAction]) == 1
-        reduceOnly = False
+        reduceOnly = len([ac for ac in stateactions if type(ac[0]) == ReduceAction]) == 1
         for ac, nts in stateactions:
             if type(ac) == ShiftAction:
                 for term in nts:
@@ -801,7 +800,6 @@ def genLoop():
             else:
                 print(state.actions)
                 raise Exception('no expect for non-reduceOnly state')
-                output.append('if (istrial) return false; std::cerr << "error" << std::endl; done = true; errored = true;\n')
         output.append(                 '                }\n')
         output.append(                 '                break;\n')
 
