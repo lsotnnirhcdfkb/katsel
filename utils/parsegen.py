@@ -237,9 +237,7 @@ def findFirsts():
         for rule in grammar:
             first = firsts[rule.symbol]
             if len(rule.expansion) == 0:
-                if eofSym not in first:
-                    first.append(eofSym)
-                    changed = True
+                pass
             elif rule.expansion[0] != rule.symbol:
                 if type(rule.expansion[0]) == NonTerminal:
                     extension = makeUnique(first, firsts[rule.expansion[0]])
@@ -272,31 +270,37 @@ def findFollows():
                     follow = follows[sym]
                     ntfollow = ntfollows[sym]
 
-                    if i + 1 >= len(rule.expansion):
-                        followextens = makeUnique(follow, follows[rule.symbol])
-                        ntextens = makeUnique(ntfollow, ntfollows[rule.symbol])
+                    def addFirstsOf(i):
+                        nonlocal changed
+                        if i >= len(rule.expansion):
+                            followextens = makeUnique(follow, follows[rule.symbol])
+                            ntextens = makeUnique(ntfollow, ntfollows[rule.symbol])
 
-                        if len(followextens):
-                            follow.extend(followextens)
-                            changed = True
-                        if len(ntextens):
-                            ntfollow.extend(ntextens)
-                            changed = True
-
-                    else:
-                        if type(rule.expansion[i + 1]) == NonTerminal:
-                            followextens = makeUnique(follow, [x for x in firsts[rule.expansion[i + 1]] if x != Terminal('eof')])
                             if len(followextens):
                                 follow.extend(followextens)
                                 changed = True
-
-                            if rule.expansion[i + 1] not in ntfollow:
-                                ntfollow.append(rule.expansion[i + 1])
+                            if len(ntextens):
+                                ntfollow.extend(ntextens)
                                 changed = True
                         else:
-                            if rule.expansion[i + 1] not in follow:
-                                follow.append(rule.expansion[i + 1])
-                                changed = True
+                            if type(rule.expansion[i]) == NonTerminal:
+                                followextens = makeUnique(follow, [x for x in firsts[rule.expansion[i]] if x != Terminal('eof')])
+                                if len(followextens):
+                                    follow.extend(followextens)
+                                    changed = True
+
+                                if rule.expansion[i] not in ntfollow:
+                                    ntfollow.append(rule.expansion[i])
+                                    changed = True
+                            else:
+                                if rule.expansion[i] not in follow:
+                                    follow.append(rule.expansion[i])
+                                    changed = True
+
+                    addamt = 1
+                    while addamt == 1 or any([len(r.expansion) == 0 for r in grammar if i + addamt - 1 < len(rule.expansion) and r.symbol == rule.expansion[i + addamt - 1]]):
+                        addFirstsOf(i + addamt)
+                        addamt += 1
 
 # closure {{{2
 def getClosurelr0(lr0set):
@@ -421,19 +425,29 @@ def rule(sym, expansion, histart='BEGIN', hiend='END'):
     _grammar[sym]['expansions'].append((expansion, histart, hiend))
 
 def listRule(sym, name, base, delimit=None):
+    # symlist = sym + 'List'
+    # nt(symlist, name + ' list', base)
+    # rule(symlist, f'${sym}List:{sym.lower()}list {f"{delimit}:{delimit.lower()}" if delimit is not None else ""} ${sym}:{sym.lower()}')
+    # rule(symlist, f'${sym}:{sym.lower()}')
+
     symlist = sym + 'List'
+    moresym = 'More' + sym
+
     nt(symlist, name + ' list', base)
-    rule(symlist, f'${sym}List:{sym.lower()}list {f"{delimit}:{delimit.lower()}" if delimit is not None else ""} ${sym}:{sym.lower()}')
-    rule(symlist, f'${sym}:{sym.lower()}')
+    rule(symlist, f'${sym}:{sym.lower()} ${moresym}:more{sym.lower()}')
+
+    nt(moresym, 'more ' + name + 's', base)
+    rule(moresym, f'{f"{delimit}:{delimit.lower()}" if delimit is not None else ""} ${symlist}:{symlist.lower()}')
+    rule(moresym, '')
 
 _grammar = {}
 
 nt('CU', 'compilation unit', 'CUB')
 rule('CU', '$DeclList:dl')
 rule('CU', '')
-listRule('Decl', 'declaration', 'DeclB')
 nt('Decl', 'declaration', 'DeclB')
 rule('Decl', '$Function:_')
+listRule('Decl', 'declaration', 'DeclB')
 
 nt('Function', 'function declaration', 'DeclB')
 rule('Function', 'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn                      CPARN:cparn $Block:body', 'fun', 'cparn')
@@ -726,7 +740,8 @@ def genLoop():
             if not found:
                 stateactions.append((ac, [term]))
 
-        reduceOnly = len([ac for ac in stateactions if type(ac[0]) == ReduceAction]) == 1
+        # reduceOnly = len([ac for ac in stateactions if type(ac[0]) == ReduceAction]) == 1
+        reduceOnly = False
         for ac, nts in stateactions:
             if type(ac) == ShiftAction:
                 for term in nts:
@@ -786,6 +801,7 @@ def genLoop():
             else:
                 print(state.actions)
                 raise Exception('no expect for non-reduceOnly state')
+                output.append('if (istrial) return false; std::cerr << "error" << std::endl; done = true; errored = true;\n')
         output.append(                 '                }\n')
         output.append(                 '                break;\n')
 
@@ -888,9 +904,9 @@ def genPanicMode():
                            '#undef FINISHCHECKASI\n'
                            '#undef RECOVERANDDEFBREAK\n'
                            '    if (e.w)\n'
-                           '        ERR_PANICKING_INVALID_SYNTAX_WHILE(e.justparsed, e.expected, e.whileparsing, e.lasttok, e.lookahead);\n'
+                           '        ERR_PANICKING_INVALID_SYNTAX_WHILE(e.justparsed, e.expected, e.whileparsing, e.lasttok, e.olh);\n'
                            '    else\n'
-                           '        ERR_PANICKING_INVALID_SYNTAX(e.justparsed, e.expected, e.lasttok, e.lookahead);\n'
+                           '        ERR_PANICKING_INVALID_SYNTAX(e.justparsed, e.expected, e.lasttok, e.olh);\n'
                            '    return true;\n'))
 
     return ''.join(output)

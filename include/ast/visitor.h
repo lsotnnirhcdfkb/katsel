@@ -37,6 +37,11 @@ class EmptyStmt;
 class Expr;
 class ExprStmt;
 class Function;
+class MoreArg;
+class MoreDecl;
+class MoreParam;
+class MoreStmt;
+class MoreVarStmtItem;
 class MultExpr;
 class Param;
 class ParamList;
@@ -63,6 +68,7 @@ public:
     virtual ~ArgBVisitor() {}
     virtual void visitArg(ASTNS::Arg *ast) = 0;
     virtual void visitArgList(ASTNS::ArgList *ast) = 0;
+    virtual void visitMoreArg(ASTNS::MoreArg *ast) = 0;
 };
 class CUBVisitor
 {
@@ -76,6 +82,7 @@ public:
     virtual ~DeclBVisitor() {}
     virtual void visitDeclList(ASTNS::DeclList *ast) = 0;
     virtual void visitFunction(ASTNS::Function *ast) = 0;
+    virtual void visitMoreDecl(ASTNS::MoreDecl *ast) = 0;
 };
 class ExprBVisitor
 {
@@ -101,6 +108,7 @@ class PListBVisitor
 {
 public:
     virtual ~PListBVisitor() {}
+    virtual void visitMoreParam(ASTNS::MoreParam *ast) = 0;
     virtual void visitParam(ASTNS::Param *ast) = 0;
     virtual void visitParamList(ASTNS::ParamList *ast) = 0;
 };
@@ -111,6 +119,7 @@ public:
     virtual void visitBlock(ASTNS::Block *ast) = 0;
     virtual void visitEmptyStmt(ASTNS::EmptyStmt *ast) = 0;
     virtual void visitExprStmt(ASTNS::ExprStmt *ast) = 0;
+    virtual void visitMoreStmt(ASTNS::MoreStmt *ast) = 0;
     virtual void visitRetStmt(ASTNS::RetStmt *ast) = 0;
     virtual void visitStmtList(ASTNS::StmtList *ast) = 0;
     virtual void visitVarStmt(ASTNS::VarStmt *ast) = 0;
@@ -126,6 +135,7 @@ class VStmtIBVisitor
 {
 public:
     virtual ~VStmtIBVisitor() {}
+    virtual void visitMoreVarStmtItem(ASTNS::MoreVarStmtItem *ast) = 0;
     virtual void visitVarStmtItem(ASTNS::VarStmtItem *ast) = 0;
     virtual void visitVarStmtItemList(ASTNS::VarStmtItemList *ast) = 0;
 };

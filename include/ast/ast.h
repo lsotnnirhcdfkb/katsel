@@ -42,6 +42,11 @@ namespace ASTNS
     class Expr;
     class ExprStmt;
     class Function;
+    class MoreArg;
+    class MoreDecl;
+    class MoreParam;
+    class MoreStmt;
+    class MoreVarStmtItem;
     class MultExpr;
     class Param;
     class ParamList;
@@ -138,14 +143,13 @@ namespace ASTNS
     class ArgList : public ArgB
     {
     public:
-        ArgList(std::unique_ptr<ArgB> arglist, Token comma, std::unique_ptr<ArgB> arg);
+        ArgList(std::unique_ptr<ArgB> arg, std::unique_ptr<ArgB> morearg);
         enum class Form
         {
-            ATA,
+            AA,
         };
-        std::unique_ptr<ArgB> arglist;
-        Token comma;
         std::unique_ptr<ArgB> arg;
+        std::unique_ptr<ArgB> morearg;
         Form form;
         virtual void accept(ASTNS::ArgBVisitor *v);
     };
@@ -357,13 +361,13 @@ namespace ASTNS
     class DeclList : public DeclB
     {
     public:
-        DeclList(std::unique_ptr<DeclB> decllist, std::unique_ptr<DeclB> decl);
+        DeclList(std::unique_ptr<DeclB> decl, std::unique_ptr<DeclB> moredecl);
         enum class Form
         {
             AA,
         };
-        std::unique_ptr<DeclB> decllist;
         std::unique_ptr<DeclB> decl;
+        std::unique_ptr<DeclB> moredecl;
         Form form;
         virtual void accept(ASTNS::DeclBVisitor *v);
     };
@@ -420,6 +424,73 @@ namespace ASTNS
         Form form;
         virtual void accept(ASTNS::DeclBVisitor *v);
     };
+    class MoreArg : public ArgB
+    {
+    public:
+        MoreArg(Token comma, std::unique_ptr<ArgB> arglist);
+        MoreArg();
+        enum class Form
+        {
+            TA,
+            EMPTY,
+        };
+        Token comma;
+        std::unique_ptr<ArgB> arglist;
+        Form form;
+        virtual void accept(ASTNS::ArgBVisitor *v);
+    };
+    class MoreDecl : public DeclB
+    {
+    public:
+        MoreDecl();
+        enum class Form
+        {
+            EMPTY,
+        };
+        Form form;
+        virtual void accept(ASTNS::DeclBVisitor *v);
+    };
+    class MoreParam : public PListB
+    {
+    public:
+        MoreParam(Token comma, std::unique_ptr<PListB> paramlist);
+        MoreParam();
+        enum class Form
+        {
+            TA,
+            EMPTY,
+        };
+        Token comma;
+        std::unique_ptr<PListB> paramlist;
+        Form form;
+        virtual void accept(ASTNS::PListBVisitor *v);
+    };
+    class MoreStmt : public StmtB
+    {
+    public:
+        MoreStmt();
+        enum class Form
+        {
+            EMPTY,
+        };
+        Form form;
+        virtual void accept(ASTNS::StmtBVisitor *v);
+    };
+    class MoreVarStmtItem : public VStmtIB
+    {
+    public:
+        MoreVarStmtItem(Token comma, std::unique_ptr<VStmtIB> varstmtitemlist);
+        MoreVarStmtItem();
+        enum class Form
+        {
+            TA,
+            EMPTY,
+        };
+        Token comma;
+        std::unique_ptr<VStmtIB> varstmtitemlist;
+        Form form;
+        virtual void accept(ASTNS::VStmtIBVisitor *v);
+    };
     class MultExpr : public ExprB
     {
     public:
@@ -450,14 +521,13 @@ namespace ASTNS
     class ParamList : public PListB
     {
     public:
-        ParamList(std::unique_ptr<PListB> paramlist, Token comma, std::unique_ptr<PListB> param);
+        ParamList(std::unique_ptr<PListB> param, std::unique_ptr<PListB> moreparam);
         enum class Form
         {
-            ATA,
+            AA,
         };
-        std::unique_ptr<PListB> paramlist;
-        Token comma;
         std::unique_ptr<PListB> param;
+        std::unique_ptr<PListB> moreparam;
         Form form;
         virtual void accept(ASTNS::PListBVisitor *v);
     };
@@ -505,13 +575,13 @@ namespace ASTNS
     class StmtList : public StmtB
     {
     public:
-        StmtList(std::unique_ptr<StmtB> stmtlist, std::unique_ptr<StmtB> stmt);
+        StmtList(std::unique_ptr<StmtB> stmt, std::unique_ptr<StmtB> morestmt);
         enum class Form
         {
             AA,
         };
-        std::unique_ptr<StmtB> stmtlist;
         std::unique_ptr<StmtB> stmt;
+        std::unique_ptr<StmtB> morestmt;
         Form form;
         virtual void accept(ASTNS::StmtBVisitor *v);
     };
@@ -594,14 +664,13 @@ namespace ASTNS
     class VarStmtItemList : public VStmtIB
     {
     public:
-        VarStmtItemList(std::unique_ptr<VStmtIB> varstmtitemlist, Token comma, std::unique_ptr<VStmtIB> varstmtitem);
+        VarStmtItemList(std::unique_ptr<VStmtIB> varstmtitem, std::unique_ptr<VStmtIB> morevarstmtitem);
         enum class Form
         {
-            ATA,
+            AA,
         };
-        std::unique_ptr<VStmtIB> varstmtitemlist;
-        Token comma;
         std::unique_ptr<VStmtIB> varstmtitem;
+        std::unique_ptr<VStmtIB> morevarstmtitem;
         Form form;
         virtual void accept(ASTNS::VStmtIBVisitor *v);
     };

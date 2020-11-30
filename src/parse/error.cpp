@@ -264,7 +264,7 @@ bool panicMode(errorstate const &e)
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(DeclList)
-                        case TokenType::FUN: case TokenType::EOF_:
+                        case TokenType::EOF_:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(Decl)
@@ -275,24 +275,32 @@ bool panicMode(errorstate const &e)
                         case TokenType::FUN: case TokenType::EOF_:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
+                CHECKASI(MoreDecl)
+                        case TokenType::EOF_:
+                            RECOVERANDDEFBREAK()
+                FINISHCHECKASI()
                 CHECKASI(TypeV)
                         case TokenType::IDENTIFIER:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(Block)
-                        case TokenType::FUN: case TokenType::SEMICOLON: case TokenType::VAR: case TokenType::RETURN: case TokenType::OCURB: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::OPARN: case TokenType::EOF_: case TokenType::CCURB:
+                        case TokenType::SEMICOLON: case TokenType::VAR: case TokenType::RETURN: case TokenType::OCURB: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::OPARN: case TokenType::FUN: case TokenType::CCURB: case TokenType::EOF_:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(ParamList)
-                        case TokenType::CPARN: case TokenType::COMMA:
+                        case TokenType::CPARN:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(StmtList)
-                        case TokenType::SEMICOLON: case TokenType::VAR: case TokenType::RETURN: case TokenType::OCURB: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::OPARN: case TokenType::CCURB:
+                        case TokenType::CCURB:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(Stmt)
                         case TokenType::SEMICOLON: case TokenType::VAR: case TokenType::RETURN: case TokenType::OCURB: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::OPARN: case TokenType::CCURB:
+                            RECOVERANDDEFBREAK()
+                FINISHCHECKASI()
+                CHECKASI(MoreStmt)
+                        case TokenType::CCURB:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(EmptyStmt)
@@ -316,7 +324,7 @@ bool panicMode(errorstate const &e)
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(VarStmtItemList)
-                        case TokenType::SEMICOLON: case TokenType::COMMA:
+                        case TokenType::SEMICOLON:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(Expr)
@@ -324,7 +332,11 @@ bool panicMode(errorstate const &e)
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(VarStmtItem)
-                        case TokenType::SEMICOLON: case TokenType::COMMA:
+                        case TokenType::COMMA: case TokenType::SEMICOLON:
+                            RECOVERANDDEFBREAK()
+                FINISHCHECKASI()
+                CHECKASI(MoreVarStmtItem)
+                        case TokenType::SEMICOLON:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(BuiltinTypeNoVoid)
@@ -336,15 +348,23 @@ bool panicMode(errorstate const &e)
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(ArgList)
-                        case TokenType::COMMA: case TokenType::CPARN:
+                        case TokenType::CPARN:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(Arg)
                         case TokenType::COMMA: case TokenType::CPARN:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
+                CHECKASI(MoreArg)
+                        case TokenType::CPARN:
+                            RECOVERANDDEFBREAK()
+                FINISHCHECKASI()
                 CHECKASI(Param)
-                        case TokenType::CPARN: case TokenType::COMMA:
+                        case TokenType::COMMA: case TokenType::CPARN:
+                            RECOVERANDDEFBREAK()
+                FINISHCHECKASI()
+                CHECKASI(MoreParam)
+                        case TokenType::CPARN:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(AssignmentExpr)
@@ -419,9 +439,9 @@ bool panicMode(errorstate const &e)
 #undef FINISHCHECKASI
 #undef RECOVERANDDEFBREAK
     if (e.w)
-        ERR_PANICKING_INVALID_SYNTAX_WHILE(e.justparsed, e.expected, e.whileparsing, e.lasttok, e.lookahead);
+        ERR_PANICKING_INVALID_SYNTAX_WHILE(e.justparsed, e.expected, e.whileparsing, e.lasttok, e.olh);
     else
-        ERR_PANICKING_INVALID_SYNTAX(e.justparsed, e.expected, e.lasttok, e.lookahead);
+        ERR_PANICKING_INVALID_SYNTAX(e.justparsed, e.expected, e.lasttok, e.olh);
     return true;
 // This code was autogenerated - see the utils/ directory
 

@@ -12,8 +12,8 @@ void CodeGenNS::Declarator::visitCU(ASTNS::CU *ast)
 
 void CodeGenNS::Declarator::visitDeclList(ASTNS::DeclList *ast)
 {
-    ast->decllist->accept(this);
     ast->decl->accept(this);
+    ast->moredecl->accept(this);
 }
 
 void CodeGenNS::Declarator::visitFunction(ASTNS::Function *fun)
@@ -47,3 +47,5 @@ void CodeGenNS::Declarator::visitFunction(ASTNS::Function *fun)
 
     cg.context.globalSymbolTable[fname] = f;
 }
+
+void CodeGenNS::Declarator::visitMoreDecl(ASTNS::MoreDecl *ast) {}

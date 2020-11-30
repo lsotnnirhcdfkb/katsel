@@ -12,8 +12,8 @@ void CodeGenNS::DeclCodeGen::visitCU(ASTNS::CU *ast)
 
 void CodeGenNS::DeclCodeGen::visitDeclList(ASTNS::DeclList *ast)
 {
-    ast->decllist->accept(this);
     ast->decl->accept(this);
+    ast->moredecl->accept(this);
 }
 
 void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
@@ -68,3 +68,5 @@ void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
     cg.context.exitBlock = nullptr;
     cg.context.retReg = nullptr;
 }
+
+void CodeGenNS::DeclCodeGen::visitMoreDecl(ASTNS::MoreDecl *ast) {}
