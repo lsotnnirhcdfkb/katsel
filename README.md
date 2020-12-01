@@ -16,7 +16,7 @@ AND NOt only that, but I also got a lot of helpful information from looking at t
 - [x] Variables
 - [ ] Better error messages
 - [ ] Type casting
-- [ ] turing completeness
+- [ ] Turing completeness
 - [ ] Function overloading
 - [ ] Name mangling
 - [ ] Arrays
