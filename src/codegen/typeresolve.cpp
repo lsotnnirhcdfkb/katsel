@@ -33,11 +33,7 @@ void CodeGenNS::TypeResolve::visitBuiltinTypeNoVoid(ASTNS::BuiltinTypeNoVoid *as
     }
 }
 
-void CodeGenNS::TypeResolve::visitBuiltinTypeVoid(ASTNS::BuiltinTypeVoid *ast)
+void CodeGenNS::TypeResolve::visitTypeV(ASTNS::TypeV *ast)
 {
-    if (ast->type.type != TokenType::VOID)
-        invalidTok("builtin type with void", ast->type);
-
-    ret =  cg.context.getVoidType();
+    ret = cg.context.getVoidType();
 }
-

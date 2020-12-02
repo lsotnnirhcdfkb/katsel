@@ -79,7 +79,6 @@ void visitBitshiftExpr(ASTNS::BitshiftExpr *ast) override;
 void visitBitxorExpr(ASTNS::BitxorExpr *ast) override;
 void visitBlock(ASTNS::Block *ast) override;
 void visitBuiltinTypeNoVoid(ASTNS::BuiltinTypeNoVoid *ast) override;
-void visitBuiltinTypeVoid(ASTNS::BuiltinTypeVoid *ast) override;
 void visitCU(ASTNS::CU *ast) override;
 void visitCallExpr(ASTNS::CallExpr *ast) override;
 void visitCompeqExpr(ASTNS::CompeqExpr *ast) override;
@@ -100,6 +99,7 @@ void visitPrimaryExpr(ASTNS::PrimaryExpr *ast) override;
 void visitRetStmt(ASTNS::RetStmt *ast) override;
 void visitStmtList(ASTNS::StmtList *ast) override;
 void visitTernaryExpr(ASTNS::TernaryExpr *ast) override;
+void visitTypeV(ASTNS::TypeV *ast) override;
 void visitUnaryExpr(ASTNS::UnaryExpr *ast) override;
 void visitVarStmt(ASTNS::VarStmt *ast) override;
 void visitVarStmtItem(ASTNS::VarStmtItem *ast) override;
@@ -279,17 +279,6 @@ void LocationVisitor::visitBuiltinTypeNoVoid(ASTNS::BuiltinTypeNoVoid *ast)
     switch (ast->form)
     {
         case ASTNS::BuiltinTypeNoVoid::Form::T:
-            retl = ast->type.start;
-            retf = ast->type.sourcefile;
-            retr = ast->type.end;
-            break;
-    }
-}
-void LocationVisitor::visitBuiltinTypeVoid(ASTNS::BuiltinTypeVoid *ast)
-{
-    switch (ast->form)
-    {
-        case ASTNS::BuiltinTypeVoid::Form::T:
             retl = ast->type.start;
             retf = ast->type.sourcefile;
             retr = ast->type.end;
@@ -541,6 +530,17 @@ void LocationVisitor::visitTernaryExpr(ASTNS::TernaryExpr *ast)
             retl = getL(ast->cond.get());
             retf = getF(ast->cond.get());
             retr = getR(ast->falses.get());
+            break;
+    }
+}
+void LocationVisitor::visitTypeV(ASTNS::TypeV *ast)
+{
+    switch (ast->form)
+    {
+        case ASTNS::TypeV::Form::T:
+            retl = ast->vo.start;
+            retf = ast->vo.sourcefile;
+            retr = ast->vo.end;
             break;
     }
 }

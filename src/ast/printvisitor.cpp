@@ -384,22 +384,6 @@ void ASTNS::PrintVisitor::visitBuiltinTypeNoVoid(ASTNS::BuiltinTypeNoVoid *a)
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visitBuiltinTypeVoid(ASTNS::BuiltinTypeVoid *a)
-{
-    pai("BuiltinTypeVoid\n{\n");
-    ++indent;
-    switch (a->form)
-    {
-        case ASTNS::BuiltinTypeVoid::Form::T:
-            pai("type = ");
-            pai("[");
-            pai(std::string(a->type.start, a->type.end));
-            pai("]\n");
-            break;
-    }
-    --indent;
-    pai("}\n");
-}
 void ASTNS::PrintVisitor::visitCU(ASTNS::CU *a)
 {
     pai("CU\n{\n");
@@ -1050,6 +1034,22 @@ void ASTNS::PrintVisitor::visitTernaryExpr(ASTNS::TernaryExpr *a)
             {
                 pai("nullptr\n");
             }
+            break;
+    }
+    --indent;
+    pai("}\n");
+}
+void ASTNS::PrintVisitor::visitTypeV(ASTNS::TypeV *a)
+{
+    pai("TypeV\n{\n");
+    ++indent;
+    switch (a->form)
+    {
+        case ASTNS::TypeV::Form::T:
+            pai("vo = ");
+            pai("[");
+            pai(std::string(a->vo.start, a->vo.end));
+            pai("]\n");
             break;
     }
     --indent;

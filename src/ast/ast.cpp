@@ -27,8 +27,6 @@ ASTNS::Block::Block(Token ocurb, Token ccurb): ocurb(ocurb), ccurb(ccurb), form(
 void ASTNS::Block::accept(ASTNS::StmtBVisitor *v) { v->visitBlock(this); }
 ASTNS::BuiltinTypeNoVoid::BuiltinTypeNoVoid(Token type): type(type), form(ASTNS::BuiltinTypeNoVoid::Form::T) {}
 void ASTNS::BuiltinTypeNoVoid::accept(ASTNS::TypeBVisitor *v) { v->visitBuiltinTypeNoVoid(this); }
-ASTNS::BuiltinTypeVoid::BuiltinTypeVoid(Token type): type(type), form(ASTNS::BuiltinTypeVoid::Form::T) {}
-void ASTNS::BuiltinTypeVoid::accept(ASTNS::TypeBVisitor *v) { v->visitBuiltinTypeVoid(this); }
 ASTNS::CU::CU(std::unique_ptr<DeclB> dl): dl(std::move(dl)), form(ASTNS::CU::Form::A) {}
 ASTNS::CU::CU(): form(ASTNS::CU::Form::EMPTY) {}
 void ASTNS::CU::accept(ASTNS::CUBVisitor *v) { v->visitCU(this); }
@@ -77,6 +75,8 @@ ASTNS::StmtList::StmtList(std::unique_ptr<StmtB> stmt, std::unique_ptr<StmtB> mo
 void ASTNS::StmtList::accept(ASTNS::StmtBVisitor *v) { v->visitStmtList(this); }
 ASTNS::TernaryExpr::TernaryExpr(std::unique_ptr<ExprB> cond, Token quest, std::unique_ptr<ExprB> trues, Token colon, std::unique_ptr<ExprB> falses): cond(std::move(cond)), quest(quest), trues(std::move(trues)), colon(colon), falses(std::move(falses)), form(ASTNS::TernaryExpr::Form::ATATA) {}
 void ASTNS::TernaryExpr::accept(ASTNS::ExprBVisitor *v) { v->visitTernaryExpr(this); }
+ASTNS::TypeV::TypeV(Token vo): vo(vo), form(ASTNS::TypeV::Form::T) {}
+void ASTNS::TypeV::accept(ASTNS::TypeBVisitor *v) { v->visitTypeV(this); }
 ASTNS::UnaryExpr::UnaryExpr(Token op, std::unique_ptr<ExprB> operand): op(op), operand(std::move(operand)), form(ASTNS::UnaryExpr::Form::TA) {}
 void ASTNS::UnaryExpr::accept(ASTNS::ExprBVisitor *v) { v->visitUnaryExpr(this); }
 ASTNS::VarStmt::VarStmt(Token var, std::unique_ptr<TypeB> type, std::unique_ptr<VStmtIB> assignments, Token semi): var(var), type(std::move(type)), assignments(std::move(assignments)), semi(semi), form(ASTNS::VarStmt::Form::TAAT) {}

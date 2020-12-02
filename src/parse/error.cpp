@@ -332,10 +332,6 @@ bool panicMode(errorstate const &e, std::vector<std::string> const &expectations
                         case TokenType::IDENTIFIER:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
-                CHECKASI(BuiltinTypeVoid)
-                        case TokenType::IDENTIFIER:
-                            RECOVERANDDEFBREAK()
-                FINISHCHECKASI()
                 CHECKASI(ArgList)
                         case TokenType::CPARN:
                             RECOVERANDDEFBREAK()

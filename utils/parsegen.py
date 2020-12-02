@@ -454,13 +454,10 @@ nt('TypeNV', 'non-void type specifier', 'TypeB')
 rule('TypeNV', '$BuiltinTypeNoVoid:_')
 
 nt('TypeV', 'void-inclusive type specifier', 'TypeB')
-rule('TypeV', '$BuiltinTypeVoid:_')
+rule('TypeV', '$TypeNV:_')
+rule('TypeV', 'VOID:vo')
 
-nt('BuiltinTypeVoid', 'void-inclusive builtin type specifier', 'TypeB')
-rule('BuiltinTypeVoid', '$BuiltinTypeNoVoid:_')
-rule('BuiltinTypeVoid', 'VOID:type')
-
-nt('BuiltinTypeNoVoid', 'non-void builtin type specifier', 'TypeB')
+nt('BuiltinTypeNoVoid', 'builtin type specifier', 'TypeB')
 rule('BuiltinTypeNoVoid', 'UINT8:type')
 rule('BuiltinTypeNoVoid', 'UINT16:type')
 rule('BuiltinTypeNoVoid', 'UINT32:type')
