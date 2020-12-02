@@ -54,84 +54,60 @@ errors:
       - ['tok', *under0, [
           ['error', '"invalid integer literal base"']
         ]]
-  -
-    code: 100
-    name: unrecoverable-invalid-syntax-while
-    desc: The parser found an unrecoverable syntax error, and has information about what construct was being parsed when the error happened.
-    inputs: 'std::string const &justparsed, std::string const &expected, std::string const &whileparsing, Token const &last, Token const &lookahead'
-    location: last
-    highlights:
-      - ['last', *under0, [
-          ['error', 'concatMsg("expected ", expected, " after ", justparsed, " of ", whileparsing, ", but got ", stringifyTokenType(lookahead.type), " instead")']
-        ]]
-      - ['lookahead', *under1, [
-          ['note', '"unexpected token here"']
-        ]]
-  - code: 101
+  - code: 100
     name: unrecoverable-invalid-syntax
     desc: The parser found an unrecoverable syntax error, and has conflicting information about what construct was being parsed when the error happened.
-    inputs: 'std::string const &justparsed, std::string const &expected, Token const &last, Token const &lookahead'
+    inputs: 'Token const &last, Token const &lookahead, std::vector<std::string> const &expectations'
     location: last
     highlights:
       - ['last', *under0, [
-          ['error', 'concatMsg("expected ", expected, " after ", justparsed, ", but got ", stringifyTokenType(lookahead.type), " instead")']
+          ['error', '"invalid syntax"']
         ]]
       - ['lookahead', *under1, [
           ['note', '"unexpected token here"']
         ]]
-  -
-    code: 102
-    name: simple-invalid-syntax-while
-    desc: The parser found a syntax error, has information about what construct was being parsed when the error happened, and recovered by inserting, substituting, or removing a single token.
-    inputs: 'std::string const &justparsed, std::string const &expected, std::string const &whileparsing, Token const &last, Token const &lookahead, std::string const &bestfix'
-    location: last
-    highlights:
-      - ['last', *under0, [
-          ['error', 'concatMsg("expected ", expected, " after ", justparsed, " of ", whileparsing, ", but got ", stringifyTokenType(lookahead.type), " instead")']
-        ]]
-      - ['lookahead', *under1, [
-          ['note', '"unexpected token here"'],
-          ['hint', 'bestfix']
-        ]]
-  - code: 103
+    extra: |
+      auto un (Error::Underline(last, '^'));
+      for (std::string const &expectation : expectations)
+        un.note(expectation);
+      e.underline(un);
+
+  - code: 101
     name: simple-invalid-syntax
     desc: The parser found a syntax error, has conflicting information about what construct was being parsed when the error happened, and recovered by inserting, substituting, or removing a single token.
-    inputs: 'std::string const &justparsed, std::string const &expected, Token const &last, Token const &lookahead, std::string const &bestfix'
+    inputs: 'Token const &last, Token const &lookahead, std::string const &bestfix, std::vector<std::string> const &expectations'
     location: last
     highlights:
       - ['last', *under0, [
-          ['error', 'concatMsg("expected ", expected, " after ", justparsed, ", but got ", stringifyTokenType(lookahead.type), " instead")']
+          ['error', '"invalid syntax"']
         ]]
       - ['lookahead', *under1, [
           ['note', '"unexpected token here"'],
           ['hint', 'bestfix']
         ]]
+    extra: |
+      auto un (Error::Underline(last, '^'));
+      for (std::string const &expectation : expectations)
+        un.note(expectation);
+      e.underline(un);
   -
-    code: 104
-    name: panicking-invalid-syntax-while
-    desc: The parser found a syntax error, has information about what construct was being parsed when the error happened, and recovered via panic mode error recovery.
-    inputs: 'std::string const &justparsed, std::string const &expected, std::string const &whileparsing, Token const &last, Token const &lookahead'
-    location: last
-    highlights:
-      - ['last', *under0, [
-          ['error', 'concatMsg("expected ", expected, " after ", justparsed, " of ", whileparsing, ", but got ", stringifyTokenType(lookahead.type), " instead")']
-        ]]
-      - ['lookahead', *under1, [
-          ['note', '"unexpected token here"']
-        ]]
-  -
-    code: 105
+    code: 102
     name: panicking-invalid-syntax
     desc: The parser found a syntax error, has conflicting information about what construct was being parsed when the error happened, and recovered via panic mode error recovery.
-    inputs: 'std::string const &justparsed, std::string const &expected, Token const &last, Token const &lookahead'
+    inputs: 'Token const &last, Token const &lookahead, std::vector<std::string> const &expectations'
     location: last
     highlights:
       - ['last', *under0, [
-          ['error', 'concatMsg("expected ", expected, " after ", justparsed, ", but got ", stringifyTokenType(lookahead.type), " instead")']
+          ['error', '"invalid syntax"']
         ]]
       - ['lookahead', *under1, [
           ['note', '"unexpected token here"']
         ]]
+    extra: |
+      auto un (Error::Underline(last, '^'));
+      for (std::string const &expectation : expectations)
+        un.note(expectation);
+      e.underline(un);
   -
     code: 200
     name: redecl-sym

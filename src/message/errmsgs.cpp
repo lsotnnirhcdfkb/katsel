@@ -59,98 +59,63 @@ void E0004(Token const &tok)
     );
     e.report();
 }
-// E0100 - unrecoverable-invalid-syntax-while
-// | The parser found an unrecoverable syntax error, and has
-// | information about what construct was being parsed when the
-// | error happened.
-void E0100(std::string const &justparsed, std::string const &expected, std::string const &whileparsing, Token const &last, Token const &lookahead)
-{
-    Error e = Error(Error::MsgType::ERROR, last, "E0100 (unrecoverable-invalid-syntax-while)");
-    e.underline(Error::Underline(last, '^')
-        .error(concatMsg("expected ", expected, " after ", justparsed, " of ", whileparsing, ", but got ", stringifyTokenType(lookahead.type), " instead"))
-    );
-    e.underline(Error::Underline(lookahead, '~')
-        .note("unexpected token here")
-    );
-    e.report();
-}
-// E0101 - unrecoverable-invalid-syntax
+// E0100 - unrecoverable-invalid-syntax
 // | The parser found an unrecoverable syntax error, and has
 // | conflicting information about what construct was being
 // | parsed when the error happened.
-void E0101(std::string const &justparsed, std::string const &expected, Token const &last, Token const &lookahead)
+void E0100(Token const &last, Token const &lookahead, std::vector<std::string> const &expectations)
 {
-    Error e = Error(Error::MsgType::ERROR, last, "E0101 (unrecoverable-invalid-syntax)");
+    Error e = Error(Error::MsgType::ERROR, last, "E0100 (unrecoverable-invalid-syntax)");
     e.underline(Error::Underline(last, '^')
-        .error(concatMsg("expected ", expected, " after ", justparsed, ", but got ", stringifyTokenType(lookahead.type), " instead"))
+        .error("invalid syntax")
     );
     e.underline(Error::Underline(lookahead, '~')
         .note("unexpected token here")
     );
+auto un (Error::Underline(last, '^'));
+for (std::string const &expectation : expectations)
+  un.note(expectation);
+e.underline(un);
     e.report();
 }
-// E0102 - simple-invalid-syntax-while
-// | The parser found a syntax error, has information about what
-// | construct was being parsed when the error happened, and
-// | recovered by inserting, substituting, or removing a single
-// | token.
-void E0102(std::string const &justparsed, std::string const &expected, std::string const &whileparsing, Token const &last, Token const &lookahead, std::string const &bestfix)
-{
-    Error e = Error(Error::MsgType::ERROR, last, "E0102 (simple-invalid-syntax-while)");
-    e.underline(Error::Underline(last, '^')
-        .error(concatMsg("expected ", expected, " after ", justparsed, " of ", whileparsing, ", but got ", stringifyTokenType(lookahead.type), " instead"))
-    );
-    e.underline(Error::Underline(lookahead, '~')
-        .note("unexpected token here")
-        .hint(bestfix)
-    );
-    e.report();
-}
-// E0103 - simple-invalid-syntax
+// E0101 - simple-invalid-syntax
 // | The parser found a syntax error, has conflicting information
 // | about what construct was being parsed when the error
 // | happened, and recovered by inserting, substituting, or
 // | removing a single token.
-void E0103(std::string const &justparsed, std::string const &expected, Token const &last, Token const &lookahead, std::string const &bestfix)
+void E0101(Token const &last, Token const &lookahead, std::string const &bestfix, std::vector<std::string> const &expectations)
 {
-    Error e = Error(Error::MsgType::ERROR, last, "E0103 (simple-invalid-syntax)");
+    Error e = Error(Error::MsgType::ERROR, last, "E0101 (simple-invalid-syntax)");
     e.underline(Error::Underline(last, '^')
-        .error(concatMsg("expected ", expected, " after ", justparsed, ", but got ", stringifyTokenType(lookahead.type), " instead"))
+        .error("invalid syntax")
     );
     e.underline(Error::Underline(lookahead, '~')
         .note("unexpected token here")
         .hint(bestfix)
     );
+auto un (Error::Underline(last, '^'));
+for (std::string const &expectation : expectations)
+  un.note(expectation);
+e.underline(un);
     e.report();
 }
-// E0104 - panicking-invalid-syntax-while
-// | The parser found a syntax error, has information about what
-// | construct was being parsed when the error happened, and
-// | recovered via panic mode error recovery.
-void E0104(std::string const &justparsed, std::string const &expected, std::string const &whileparsing, Token const &last, Token const &lookahead)
-{
-    Error e = Error(Error::MsgType::ERROR, last, "E0104 (panicking-invalid-syntax-while)");
-    e.underline(Error::Underline(last, '^')
-        .error(concatMsg("expected ", expected, " after ", justparsed, " of ", whileparsing, ", but got ", stringifyTokenType(lookahead.type), " instead"))
-    );
-    e.underline(Error::Underline(lookahead, '~')
-        .note("unexpected token here")
-    );
-    e.report();
-}
-// E0105 - panicking-invalid-syntax
+// E0102 - panicking-invalid-syntax
 // | The parser found a syntax error, has conflicting information
 // | about what construct was being parsed when the error
 // | happened, and recovered via panic mode error recovery.
-void E0105(std::string const &justparsed, std::string const &expected, Token const &last, Token const &lookahead)
+void E0102(Token const &last, Token const &lookahead, std::vector<std::string> const &expectations)
 {
-    Error e = Error(Error::MsgType::ERROR, last, "E0105 (panicking-invalid-syntax)");
+    Error e = Error(Error::MsgType::ERROR, last, "E0102 (panicking-invalid-syntax)");
     e.underline(Error::Underline(last, '^')
-        .error(concatMsg("expected ", expected, " after ", justparsed, ", but got ", stringifyTokenType(lookahead.type), " instead"))
+        .error("invalid syntax")
     );
     e.underline(Error::Underline(lookahead, '~')
         .note("unexpected token here")
     );
+auto un (Error::Underline(last, '^'));
+for (std::string const &expectation : expectations)
+  un.note(expectation);
+e.underline(un);
     e.report();
 }
 // E0200 - redecl-sym

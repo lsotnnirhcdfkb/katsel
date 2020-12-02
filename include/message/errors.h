@@ -35,12 +35,9 @@ public:
     friend void E0002(Token const &tok);
     friend void E0003(Token const &tok);
     friend void E0004(Token const &tok);
-    friend void E0100(std::string const &justparsed, std::string const &expected, std::string const &whileparsing, Token const &last, Token const &lookahead);
-    friend void E0101(std::string const &justparsed, std::string const &expected, Token const &last, Token const &lookahead);
-    friend void E0102(std::string const &justparsed, std::string const &expected, std::string const &whileparsing, Token const &last, Token const &lookahead, std::string const &bestfix);
-    friend void E0103(std::string const &justparsed, std::string const &expected, Token const &last, Token const &lookahead, std::string const &bestfix);
-    friend void E0104(std::string const &justparsed, std::string const &expected, std::string const &whileparsing, Token const &last, Token const &lookahead);
-    friend void E0105(std::string const &justparsed, std::string const &expected, Token const &last, Token const &lookahead);
+    friend void E0100(Token const &last, Token const &lookahead, std::vector<std::string> const &expectations);
+    friend void E0101(Token const &last, Token const &lookahead, std::string const &bestfix, std::vector<std::string> const &expectations);
+    friend void E0102(Token const &last, Token const &lookahead, std::vector<std::string> const &expectations);
     friend void E0200(Token const &name, IR::Value *val);
     friend void E0201(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &op);
     friend void E0203(IR::ASTValue const &operand, Token const &_operator);

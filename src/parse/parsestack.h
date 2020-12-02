@@ -23,16 +23,13 @@ struct errorstate
     Token const &lasttok;
     Token &lookahead;
     Token const olh;
-    std::string const &justparsed, &expected, &whileparsing;
-    bool w;
 
-    inline errorstate(Parser &p, std::vector<stackitem> &stack, Token &lasttok, Token &lookahead, std::string const &justparsed, std::string const &expected, std::string const &whileparsing="")
-        : p(p), stack(stack), lasttok(lasttok), lookahead(lookahead), olh(lookahead), justparsed(justparsed), expected(expected), whileparsing(whileparsing), w(whileparsing.size()) {}
+    inline errorstate(Parser &p, std::vector<stackitem> &stack, Token &lasttok, Token &lookahead) : p(p), stack(stack), lasttok(lasttok), lookahead(lookahead), olh(lookahead) {}
 };
 
-bool errorRecovery(errorstate const &e);
-bool singleTok(errorstate const &e);
-bool panicMode(errorstate const &e);
+bool errorRecovery(errorstate const &e, std::vector<std::string> const &expectations);
+bool singleTok(errorstate const &e, std::vector<std::string> const &expectations);
+bool panicMode(errorstate const &e, std::vector<std::string> const &expectations);
 
 template <typename AST>
 size_t getGoto(size_t state);

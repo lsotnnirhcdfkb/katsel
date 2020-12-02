@@ -28,29 +28,17 @@ void E0003(Token const &tok);
 #define ERR_NONDECIMAL_FLOATLIT E0004
 void E0004(Token const &tok);
 
-// E0100 - unrecoverable-invalid-syntax-while
-#define ERR_UNRECOVERABLE_INVALID_SYNTAX_WHILE E0100
-void E0100(std::string const &justparsed, std::string const &expected, std::string const &whileparsing, Token const &last, Token const &lookahead);
+// E0100 - unrecoverable-invalid-syntax
+#define ERR_UNRECOVERABLE_INVALID_SYNTAX E0100
+void E0100(Token const &last, Token const &lookahead, std::vector<std::string> const &expectations);
 
-// E0101 - unrecoverable-invalid-syntax
-#define ERR_UNRECOVERABLE_INVALID_SYNTAX E0101
-void E0101(std::string const &justparsed, std::string const &expected, Token const &last, Token const &lookahead);
+// E0101 - simple-invalid-syntax
+#define ERR_SIMPLE_INVALID_SYNTAX E0101
+void E0101(Token const &last, Token const &lookahead, std::string const &bestfix, std::vector<std::string> const &expectations);
 
-// E0102 - simple-invalid-syntax-while
-#define ERR_SIMPLE_INVALID_SYNTAX_WHILE E0102
-void E0102(std::string const &justparsed, std::string const &expected, std::string const &whileparsing, Token const &last, Token const &lookahead, std::string const &bestfix);
-
-// E0103 - simple-invalid-syntax
-#define ERR_SIMPLE_INVALID_SYNTAX E0103
-void E0103(std::string const &justparsed, std::string const &expected, Token const &last, Token const &lookahead, std::string const &bestfix);
-
-// E0104 - panicking-invalid-syntax-while
-#define ERR_PANICKING_INVALID_SYNTAX_WHILE E0104
-void E0104(std::string const &justparsed, std::string const &expected, std::string const &whileparsing, Token const &last, Token const &lookahead);
-
-// E0105 - panicking-invalid-syntax
-#define ERR_PANICKING_INVALID_SYNTAX E0105
-void E0105(std::string const &justparsed, std::string const &expected, Token const &last, Token const &lookahead);
+// E0102 - panicking-invalid-syntax
+#define ERR_PANICKING_INVALID_SYNTAX E0102
+void E0102(Token const &last, Token const &lookahead, std::vector<std::string> const &expectations);
 
 // E0200 - redecl-sym
 #define ERR_REDECL_SYM E0200

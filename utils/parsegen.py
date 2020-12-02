@@ -147,47 +147,13 @@ class State:
         return True
 
     def makeDescription(self):
-        justparsed = []
-        expected = []
-        whileparsing = []
-
+        self.futures = {}
         for item in self.set_.kernel:
-            if item.index > 0:
-                s = item.rule.expansion[item.index - 1]
-                if type(s) == NonTerminal:
-                    justparsed.append(f'"{s.getName()}"')
-                else:
-                    justparsed.append(f'stringifyTokenType({s.astt()})')
-            else:
-                justparsed.append('"beginning"')
-
-            after = item.getAfterDot()
-            if after is not None:
-                if type(after) == NonTerminal:
-                    expected.extend([f'"{r.symbol.getName()}"' for r in grammar if r.symbol == after])
-                else:
-                    expected.append(f'stringifyTokenType({after.astt()})')
-            else:
-                if len(follows[item.rule.symbol]) > 4:
-                    expected.extend(map(lambda nt: f'"{_grammar[str(nt)]["name"]}"', ntfollows[item.rule.symbol]))
-                else:
-                    expected.extend(makeUnique(expected, map(lambda x: f'stringifyTokenType({x.astt()})', follows[item.rule.symbol])))
-
-            whileparsing.append(f'"{item.rule.symbol.name}"')
-
-        justparsed = list(set(justparsed))
-        if len(set(justparsed)) > 1:
-            raise Exception('More than one justparsed: ' + str(justparsed) + ' from\n'+ str(self.set_))
-
-        assert len(justparsed), 'No justparsed'
-
-        self.justparsed = justparsed[0]
-
-        self.expected = list(set(expected))
-        self.expected.sort()
-
-        self.whileparsing = list(set(whileparsing))
-        self.whileparsing.sort()
+            if item.getAfterDot() is not None:
+                if item.rule.symbol not in self.futures:
+                    self.futures[item.rule.symbol] = []
+                if item.getAfterDot() not in self.futures[item.rule.symbol]:
+                    self.futures[item.rule.symbol].append(item.getAfterDot())
 
 # actions {{{2
 class ShiftAction:
@@ -708,23 +674,6 @@ def formatList(l):
 def genLoop():
     output = []
 
-    output.append(                    ('#define ERRORSTART() \\\n'
-                                       '    {\\\n'
-                                       '        if (istrial) return false;\n'
-                                       '#define ERROREND() \\\n'
-                                       '            done = true;\\\n'
-                                       '        errored = true;\\\n'
-                                       '    }\\\n'
-                                       '    break;\n'
-                                       '#define DEFAULTINVALIDWHILE(justparsed, expected, whileparsing) \\\n'
-                                       '    ERRORSTART()\\\n'
-                                       '        if (!errorRecovery(errorstate(p, stack, lasttok, lookahead, justparsed, expected, whileparsing)))\\\n'
-                                       '    ERROREND()\n'
-                                       '#define DEFAULTINVALIDNOWHILE(justparsed, expected) \\\n'
-                                       '    ERRORSTART()\\\n'
-                                       '        if (!errorRecovery(errorstate(p, stack, lasttok, lookahead, justparsed, expected, \"\")))\\\n'
-                                       '    ERROREND()\n'))
-
     output.append(                     '    bool done = false;\n')
     output.append(                     '    bool errored = false;\n')
     output.append(                     '    int steps = 0;\n')
@@ -807,15 +756,15 @@ def genLoop():
             output.append(             '                        break;\n')
 
         if not reduceOnly:
-            output.append(            f'                    default:\n')
-            if len(state.expected):
-                if len(state.whileparsing) == 1:
-                    output.append(    f'                        DEFAULTINVALIDWHILE({state.justparsed}, {formatList(state.expected)}, {formatList(state.whileparsing)})\n')
+            def stc(s):
+                if type(s) == NonTerminal:
+                    return f'"{s.getName()}"'
                 else:
-                    output.append(    f'                        DEFAULTINVALIDNOWHILE({state.justparsed}, {formatList(state.expected)})\n')
-            else:
-                print(state.actions)
-                raise Exception('no expect for non-reduceOnly state')
+                    return f'stringifyTokenType({s.astt()})'
+
+            output.append(             '                    default:\n')
+            output.append(             '                        if (istrial) return false;\n')
+            output.append(         '                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {' + ', '.join(f'concatMsg("expected ", {formatList([stc(p) for p in future])}, " for ", {stc(nt)})' for nt, future in state.futures.items()) + '});\n')
         output.append(                 '                }\n')
         output.append(                 '                break;\n')
 
@@ -824,8 +773,6 @@ def genLoop():
 
     output.append(                     '        }\n')
     output.append(                     '    }\n')
-    output.append(                    ('#undef ERRORSTART\n'
-                                       '#undef ERROREND\n'))
 
     return ''.join(output)
 # generate goto code {{{2
@@ -917,10 +864,7 @@ def genPanicMode():
                            '#undef CHECKASI\n'
                            '#undef FINISHCHECKASI\n'
                            '#undef RECOVERANDDEFBREAK\n'
-                           '    if (e.w)\n'
-                           '        ERR_PANICKING_INVALID_SYNTAX_WHILE(e.justparsed, e.expected, e.whileparsing, e.lasttok, e.olh);\n'
-                           '    else\n'
-                           '        ERR_PANICKING_INVALID_SYNTAX(e.justparsed, e.expected, e.lasttok, e.olh);\n'
+                           '    ERR_PANICKING_INVALID_SYNTAX(e.lasttok, e.olh, expectations);\n'
                            '    return true;\n'))
 
     return ''.join(output)
