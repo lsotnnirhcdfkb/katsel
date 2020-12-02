@@ -69,7 +69,7 @@ errors:
     extra: |
       auto un (Error::Underline(last, '^'));
       for (std::string const &expectation : expectations)
-        un.note(expectation);
+        un.hint(expectation);
       e.underline(un);
 
   - code: 101
@@ -83,12 +83,12 @@ errors:
         ]]
       - ['lookahead', *under1, [
           ['note', '"unexpected token here"'],
-          ['hint', 'bestfix']
+          ['note', 'bestfix']
         ]]
     extra: |
       auto un (Error::Underline(last, '^'));
       for (std::string const &expectation : expectations)
-        un.note(expectation);
+        un.hint(expectation);
       e.underline(un);
   -
     code: 102
@@ -106,7 +106,7 @@ errors:
     extra: |
       auto un (Error::Underline(last, '^'));
       for (std::string const &expectation : expectations)
-        un.note(expectation);
+        un.hint(expectation);
       e.underline(un);
   -
     code: 200

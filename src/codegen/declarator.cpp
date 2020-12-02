@@ -21,8 +21,6 @@ void CodeGenNS::Declarator::visitFunction(ASTNS::Function *fun)
     std::string fname (fun->name.stringify());
     IR::Value *declbefore = cg.context.findGlobal(fname);
 
-    IR::Function *asf = dynamic_cast<IR::Function*>(declbefore);
-
     if (declbefore)
     {
         ERR_REDECL_SYM(fun->name, declbefore);

@@ -82,13 +82,13 @@ struct fix
         switch (type)
         {
             case fix::fixtype::REMOVE:
-                return "remove token";
+                return "implicitly removed token";
 
             case fix::fixtype::SUBSTITUTE:
-                return concatMsg("replace token with ", stringifyTokenType(ttype));
+                return concatMsg("implicitly replaced token with ", stringifyTokenType(ttype));
 
             case fix::fixtype::INSERT:
-                return concatMsg("insert ", stringifyTokenType(ttype), " before token");
+                return concatMsg("implicitly inserted ", stringifyTokenType(ttype), " before token");
 
             default:
                 reportAbortNoh("invalid fix type");

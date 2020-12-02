@@ -74,7 +74,7 @@ void E0100(Token const &last, Token const &lookahead, std::vector<std::string> c
     );
 auto un (Error::Underline(last, '^'));
 for (std::string const &expectation : expectations)
-  un.note(expectation);
+  un.hint(expectation);
 e.underline(un);
     e.report();
 }
@@ -91,11 +91,11 @@ void E0101(Token const &last, Token const &lookahead, std::string const &bestfix
     );
     e.underline(Error::Underline(lookahead, '~')
         .note("unexpected token here")
-        .hint(bestfix)
+        .note(bestfix)
     );
 auto un (Error::Underline(last, '^'));
 for (std::string const &expectation : expectations)
-  un.note(expectation);
+  un.hint(expectation);
 e.underline(un);
     e.report();
 }
@@ -114,7 +114,7 @@ void E0102(Token const &last, Token const &lookahead, std::vector<std::string> c
     );
 auto un (Error::Underline(last, '^'));
 for (std::string const &expectation : expectations)
-  un.note(expectation);
+  un.hint(expectation);
 e.underline(un);
     e.report();
 }
