@@ -878,7 +878,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 3:
                switch (lookahead.type)
                {
-                    default:
+                    case TokenType::EOF_:
                         {
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::MoreDecl>());
                             size_t newstate = getGoto<ASTNS::MoreDecl>(stack.back().state);
@@ -887,6 +887,8 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     case TokenType::FUN:
                         shift(p, lasttok, lookahead, stack, steps, 5); break;
+                    default:
+                        DEFAULTINVALIDWHILE("declaration", "more declarations", "declaration list")
                 }
                 break;
             case 4:
@@ -933,7 +935,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 6:
                switch (lookahead.type)
                {
-                    default:
+                    case TokenType::EOF_:
                         {
                             auto a1 (popA<ASTNS::MoreDecl>(stack));
                             auto a0 (popA<ASTNS::Decl>(stack));
@@ -942,14 +944,18 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
+                    default:
+                        DEFAULTINVALIDWHILE("more declarations", stringifyTokenType(TokenType::EOF_), "declaration list")
                 }
                 break;
             case 7:
                switch (lookahead.type)
                {
-                    default:
+                    case TokenType::EOF_:
                         reduceSkip<ASTNS::MoreDecl>(stack);
                         break;
+                    default:
+                        DEFAULTINVALIDWHILE("declaration list", stringifyTokenType(TokenType::EOF_), "more declarations")
                 }
                 break;
             case 8:
@@ -1211,13 +1217,15 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     case TokenType::COMMA:
                         shift(p, lasttok, lookahead, stack, steps, 35); break;
-                    default:
+                    case TokenType::CPARN:
                         {
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::MoreParam>());
                             size_t newstate = getGoto<ASTNS::MoreParam>(stack.back().state);
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
+                    default:
+                        DEFAULTINVALIDWHILE("parameter", "more parameters", "parameter list")
                 }
                 break;
             case 29:
@@ -1314,7 +1322,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 34:
                switch (lookahead.type)
                {
-                    default:
+                    case TokenType::CPARN:
                         {
                             auto a1 (popA<ASTNS::MoreParam>(stack));
                             auto a0 (popA<ASTNS::Param>(stack));
@@ -1323,6 +1331,8 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
+                    default:
+                        DEFAULTINVALIDWHILE("more parameters", stringifyTokenType(TokenType::CPARN), "parameter list")
                 }
                 break;
             case 35:
@@ -1400,7 +1410,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 64); break;
                     case TokenType::BININTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    default:
+                    case TokenType::CCURB:
                         {
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::MoreStmt>());
                             size_t newstate = getGoto<ASTNS::MoreStmt>(stack.back().state);
@@ -1441,6 +1451,8 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 67); break;
                     case TokenType::VAR:
                         shift(p, lasttok, lookahead, stack, steps, 46); break;
+                    default:
+                        DEFAULTINVALIDWHILE("statement", "more statements", "statement list")
                 }
                 break;
             case 40:
@@ -2050,7 +2062,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 80:
                switch (lookahead.type)
                {
-                    default:
+                    case TokenType::CPARN:
                         {
                             auto a1 (popA<ASTNS::ParamList>(stack));
                             auto a0 (popT(stack));
@@ -2059,6 +2071,8 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
+                    default:
+                        DEFAULTINVALIDWHILE("parameter list", stringifyTokenType(TokenType::CPARN), "more parameters")
                 }
                 break;
             case 81:
@@ -2079,7 +2093,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 82:
                switch (lookahead.type)
                {
-                    default:
+                    case TokenType::CCURB:
                         {
                             auto a1 (popA<ASTNS::MoreStmt>(stack));
                             auto a0 (popA<ASTNS::Stmt>(stack));
@@ -2088,14 +2102,18 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
+                    default:
+                        DEFAULTINVALIDWHILE("more statements", stringifyTokenType(TokenType::CCURB), "statement list")
                 }
                 break;
             case 83:
                switch (lookahead.type)
                {
-                    default:
+                    case TokenType::CCURB:
                         reduceSkip<ASTNS::MoreStmt>(stack);
                         break;
+                    default:
+                        DEFAULTINVALIDWHILE("statement list", stringifyTokenType(TokenType::CCURB), "more statements")
                 }
                 break;
             case 84:
@@ -2988,13 +3006,15 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     case TokenType::COMMA:
                         shift(p, lasttok, lookahead, stack, steps, 144); break;
-                    default:
+                    case TokenType::SEMICOLON:
                         {
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::MoreVarStmtItem>());
                             size_t newstate = getGoto<ASTNS::MoreVarStmtItem>(stack.back().state);
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
+                    default:
+                        DEFAULTINVALIDWHILE("variable statement initialization", "more variable statement initializations", "variable statement initialization list")
                 }
                 break;
             case 115:
@@ -3408,13 +3428,15 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     case TokenType::COMMA:
                         shift(p, lasttok, lookahead, stack, steps, 149); break;
-                    default:
+                    case TokenType::CPARN:
                         {
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::MoreArg>());
                             size_t newstate = getGoto<ASTNS::MoreArg>(stack.back().state);
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
+                    default:
+                        DEFAULTINVALIDWHILE("argument", "more arguments", "argument list")
                 }
                 break;
             case 140:
@@ -3464,7 +3486,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 143:
                switch (lookahead.type)
                {
-                    default:
+                    case TokenType::SEMICOLON:
                         {
                             auto a1 (popA<ASTNS::MoreVarStmtItem>(stack));
                             auto a0 (popA<ASTNS::VarStmtItem>(stack));
@@ -3473,6 +3495,8 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
+                    default:
+                        DEFAULTINVALIDWHILE("more variable statement initializations", stringifyTokenType(TokenType::SEMICOLON), "variable statement initialization list")
                 }
                 break;
             case 144:
@@ -3577,7 +3601,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 148:
                switch (lookahead.type)
                {
-                    default:
+                    case TokenType::CPARN:
                         {
                             auto a1 (popA<ASTNS::MoreArg>(stack));
                             auto a0 (popA<ASTNS::Arg>(stack));
@@ -3586,6 +3610,8 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
+                    default:
+                        DEFAULTINVALIDWHILE("more arguments", stringifyTokenType(TokenType::CPARN), "argument list")
                 }
                 break;
             case 149:
@@ -3628,7 +3654,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 150:
                switch (lookahead.type)
                {
-                    default:
+                    case TokenType::SEMICOLON:
                         {
                             auto a1 (popA<ASTNS::VarStmtItemList>(stack));
                             auto a0 (popT(stack));
@@ -3637,6 +3663,8 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
+                    default:
+                        DEFAULTINVALIDWHILE("variable statement initialization list", stringifyTokenType(TokenType::SEMICOLON), "more variable statement initializations")
                 }
                 break;
             case 151:
@@ -3674,7 +3702,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 153:
                switch (lookahead.type)
                {
-                    default:
+                    case TokenType::CPARN:
                         {
                             auto a1 (popA<ASTNS::ArgList>(stack));
                             auto a0 (popT(stack));
@@ -3683,6 +3711,8 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(newstate, std::move(push));
                         }
                         break;
+                    default:
+                        DEFAULTINVALIDWHILE("argument list", stringifyTokenType(TokenType::CPARN), "more arguments")
                 }
                 break;
             default:

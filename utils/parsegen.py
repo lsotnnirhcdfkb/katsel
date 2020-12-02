@@ -171,7 +171,7 @@ class State:
                 if len(follows[item.rule.symbol]) > 4:
                     expected.extend(map(lambda nt: f'"{_grammar[str(nt)]["name"]}"', ntfollows[item.rule.symbol]))
                 else:
-                    expected.extend(map(lambda x: f'stringifyTokenType({x.astt()})', follows[item.rule.symbol]))
+                    expected.extend(makeUnique(expected, map(lambda x: f'stringifyTokenType({x.astt()})', follows[item.rule.symbol])))
 
             whileparsing.append(f'"{item.rule.symbol.name}"')
 
@@ -435,11 +435,11 @@ def listRule(sym, name, base, delimit=None):
     moresym = 'More' + sym
 
     nt(symlist, name + ' list', base)
-    rule(symlist, f'${sym}:{sym.lower()} ${moresym}:more{sym.lower()}')
+    rule(symlist, f'${sym}:{sym.lower()} ${moresym}:more{sym.lower()}', special='nodefaultreduce')
 
     nt(moresym, 'more ' + name + 's', base)
-    rule(moresym, f'{f"{delimit}:{delimit.lower()}" if delimit is not None else ""} ${symlist}:{symlist.lower()}')
-    rule(moresym, '')
+    rule(moresym, f'{f"{delimit}:{delimit.lower()}" if delimit is not None else ""} ${symlist}:{symlist.lower()}', special='nodefaultreduce')
+    rule(moresym, '', special='nodefaultreduce')
 
 _grammar = {}
 
@@ -757,8 +757,6 @@ def genLoop():
 
         statereduces = [ac for ac in stateactions if type(ac[0]) == ReduceAction]
         reduceOnly = len(statereduces) == 1 and statereduces[0][0].rule.special['defaultreduce']
-        if reduceOnly:
-            print(reduceOnly, statereduces[0][0].rule, statereduces[0][0].rule.special)
         for ac, nts in stateactions:
             if type(ac) == ShiftAction:
                 for term in nts:
