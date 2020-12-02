@@ -39,6 +39,16 @@ template <> size_t getGoto<ASTNS::Decl>(size_t state)
             reportAbortNoh("retrieve goto of nonterminal Decl in invalid state");
     }
 }
+template <> size_t getGoto<ASTNS::MoreDecl>(size_t state)
+{
+    switch (state)
+    {
+        case 3:
+            return 6;
+        default:
+            reportAbortNoh("retrieve goto of nonterminal MoreDecl in invalid state");
+    }
+}
 template <> size_t getGoto<ASTNS::Function>(size_t state)
 {
     switch (state)
@@ -48,16 +58,6 @@ template <> size_t getGoto<ASTNS::Function>(size_t state)
             return 4;
         default:
             reportAbortNoh("retrieve goto of nonterminal Function in invalid state");
-    }
-}
-template <> size_t getGoto<ASTNS::MoreDecl>(size_t state)
-{
-    switch (state)
-    {
-        case 3:
-            return 6;
-        default:
-            reportAbortNoh("retrieve goto of nonterminal MoreDecl in invalid state");
     }
 }
 template <> size_t getGoto<ASTNS::TypeV>(size_t state)

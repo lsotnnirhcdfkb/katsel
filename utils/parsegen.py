@@ -412,9 +412,10 @@ _grammar = {}
 nt('CU', 'compilation unit', 'CUB')
 rule('CU', '$DeclList:dl', special='nodefaultreduce')
 rule('CU', '', special='nodefaultreduce')
+
+listRule('Decl', 'declaration', 'DeclB')
 nt('Decl', 'declaration', 'DeclB')
 rule('Decl', '$Function:_')
-listRule('Decl', 'declaration', 'DeclB')
 
 nt('Function', 'function declaration', 'DeclB')
 rule('Function', 'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn                      CPARN:cparn $Block:body', 'fun', 'cparn')

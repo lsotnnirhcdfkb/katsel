@@ -260,12 +260,12 @@ bool panicMode(errorstate const &e, std::vector<std::string> const &expectations
                         case TokenType::FUN: case TokenType::EOF_:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
-                CHECKASI(Function)
-                        case TokenType::FUN: case TokenType::EOF_:
-                            RECOVERANDDEFBREAK()
-                FINISHCHECKASI()
                 CHECKASI(MoreDecl)
                         case TokenType::EOF_:
+                            RECOVERANDDEFBREAK()
+                FINISHCHECKASI()
+                CHECKASI(Function)
+                        case TokenType::FUN: case TokenType::EOF_:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(TypeV)
@@ -273,7 +273,7 @@ bool panicMode(errorstate const &e, std::vector<std::string> const &expectations
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(Block)
-                        case TokenType::SEMICOLON: case TokenType::VAR: case TokenType::RETURN: case TokenType::OCURB: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::OPARN: case TokenType::FUN: case TokenType::CCURB: case TokenType::EOF_:
+                        case TokenType::FUN: case TokenType::SEMICOLON: case TokenType::VAR: case TokenType::RETURN: case TokenType::OCURB: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::OPARN: case TokenType::EOF_: case TokenType::CCURB:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(ParamList)
