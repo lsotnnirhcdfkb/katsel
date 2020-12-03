@@ -148,12 +148,19 @@ class State:
 
     def makeDescription(self):
         self.futures = {}
+        self.terminates = {}
+
         for item in self.set_.kernel:
             if item.getAfterDot() is not None:
                 if item.rule.symbol not in self.futures:
                     self.futures[item.rule.symbol] = []
                 if item.getAfterDot() not in self.futures[item.rule.symbol]:
                     self.futures[item.rule.symbol].append(item.getAfterDot())
+            else:
+                if item.rule.symbol not in self.terminates:
+                    self.terminates[item.rule.symbol] = []
+                if item.lookahead not in self.terminates[item.rule.symbol]:
+                    self.terminates[item.rule.symbol].append(item.lookahead)
 
 # actions {{{2
 class ShiftAction:
@@ -762,7 +769,10 @@ def genLoop():
 
             output.append(             '                    default:\n')
             output.append(             '                        if (istrial) return false;\n')
-            output.append(         '                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {' + ', '.join(f'concatMsg("expected ", {formatList([stc(p) for p in future])}, " for ", {stc(nt)})' for nt, future in state.futures.items()) + '});\n')
+
+            futuress = [f'concatMsg("expected ", {formatList([stc(p) for p in future])}, " for ", {stc(nt)})' for nt, future in state.futures.items()]
+            terminatess = [f'concatMsg("expected ", {formatList([stc(p) for p in future])}, " to terminate ", {stc(nt)})' for nt, future in state.terminates.items()]
+            output.append(            f'                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {{  {", ".join(futuress + terminatess)}  }});\n')
         output.append(                 '                }\n')
         output.append(                 '                break;\n')
 

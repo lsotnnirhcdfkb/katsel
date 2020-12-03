@@ -831,7 +831,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 5); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "compilation unit", " for ", "")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "compilation unit", " for ", "")  });
                 }
                 break;
             case 1:
@@ -842,7 +842,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", stringifyTokenType(TokenType::EOF_), " to terminate ", "")  });
                 }
                 break;
             case 2:
@@ -858,7 +858,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", stringifyTokenType(TokenType::EOF_), " to terminate ", "compilation unit")  });
                 }
                 break;
             case 3:
@@ -875,7 +875,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 5); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "more declarations", " for ", "declaration list")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "more declarations", " for ", "declaration list")  });
                 }
                 break;
             case 4:
@@ -917,7 +917,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 10); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "void-inclusive type specifier", " for ", "function declaration")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "void-inclusive type specifier", " for ", "function declaration")  });
                 }
                 break;
             case 6:
@@ -934,7 +934,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", stringifyTokenType(TokenType::EOF_), " to terminate ", "declaration list")  });
                 }
                 break;
             case 7:
@@ -945,7 +945,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", stringifyTokenType(TokenType::EOF_), " to terminate ", "more declarations")  });
                 }
                 break;
             case 8:
@@ -955,7 +955,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 24); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", stringifyTokenType(TokenType::IDENTIFIER), " for ", "function declaration")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", stringifyTokenType(TokenType::IDENTIFIER), " for ", "function declaration")  });
                 }
                 break;
             case 9:
@@ -1150,7 +1150,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 25); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", stringifyTokenType(TokenType::OPARN), " for ", "function declaration")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", stringifyTokenType(TokenType::OPARN), " for ", "function declaration")  });
                 }
                 break;
             case 25:
@@ -1184,7 +1184,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 12); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", concatMsg("either ", stringifyTokenType(TokenType::CPARN), " or ", "parameter list"), " for ", "function declaration")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", concatMsg("either ", stringifyTokenType(TokenType::CPARN), " or ", "parameter list"), " for ", "function declaration")  });
                 }
                 break;
             case 26:
@@ -1194,7 +1194,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 31); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "code block", " for ", "function declaration")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "code block", " for ", "function declaration")  });
                 }
                 break;
             case 27:
@@ -1204,7 +1204,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 32); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", stringifyTokenType(TokenType::CPARN), " for ", "function declaration")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", stringifyTokenType(TokenType::CPARN), " for ", "function declaration")  });
                 }
                 break;
             case 28:
@@ -1221,7 +1221,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "more parameters", " for ", "parameter list")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "more parameters", " for ", "parameter list")  });
                 }
                 break;
             case 29:
@@ -1231,7 +1231,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 35); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", stringifyTokenType(TokenType::IDENTIFIER), " for ", "parameter")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", stringifyTokenType(TokenType::IDENTIFIER), " for ", "parameter")  });
                 }
                 break;
             case 30:
@@ -1297,7 +1297,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 45); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", concatMsg("either ", "statement list", " or ", stringifyTokenType(TokenType::CCURB)), " for ", "code block")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", concatMsg("either ", "statement list", " or ", stringifyTokenType(TokenType::CCURB)), " for ", "code block")  });
                 }
                 break;
             case 32:
@@ -1307,7 +1307,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 31); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "code block", " for ", "function declaration")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "code block", " for ", "function declaration")  });
                 }
                 break;
             case 33:
@@ -1324,7 +1324,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", stringifyTokenType(TokenType::CPARN), " to terminate ", "parameter list")  });
                 }
                 break;
             case 34:
@@ -1356,7 +1356,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 12); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "parameter list", " for ", "more parameters")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "parameter list", " for ", "more parameters")  });
                 }
                 break;
             case 35:
@@ -1380,7 +1380,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 80); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", stringifyTokenType(TokenType::CCURB), " for ", "code block")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", stringifyTokenType(TokenType::CCURB), " for ", "code block")  });
                 }
                 break;
             case 37:
@@ -1447,7 +1447,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 45); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "more statements", " for ", "statement list")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "more statements", " for ", "statement list")  });
                 }
                 break;
             case 39:
@@ -1532,7 +1532,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 12); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "non-void type specifier", " for ", "variable statement")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "non-void type specifier", " for ", "variable statement")  });
                 }
                 break;
             case 46:
@@ -1542,7 +1542,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 84); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", stringifyTokenType(TokenType::SEMICOLON), " for ", "expression statement")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", stringifyTokenType(TokenType::SEMICOLON), " for ", "expression statement")  });
                 }
                 break;
             case 47:
@@ -1582,7 +1582,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", concatMsg("either ", "expression", " or ", stringifyTokenType(TokenType::SEMICOLON)), " for ", "return statement")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", concatMsg("either ", "expression", " or ", stringifyTokenType(TokenType::SEMICOLON)), " for ", "return statement")  });
                 }
                 break;
             case 48:
@@ -1764,7 +1764,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "unary expression", " for ", "unary expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "unary expression", " for ", "unary expression")  });
                 }
                 break;
             case 62:
@@ -1802,7 +1802,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "unary expression", " for ", "unary expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "unary expression", " for ", "unary expression")  });
                 }
                 break;
             case 63:
@@ -1840,7 +1840,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "unary expression", " for ", "unary expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "unary expression", " for ", "unary expression")  });
                 }
                 break;
             case 64:
@@ -2039,7 +2039,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "expression", " for ", "primary expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "expression", " for ", "primary expression")  });
                 }
                 break;
             case 78:
@@ -2075,7 +2075,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", stringifyTokenType(TokenType::CPARN), " to terminate ", "more parameters")  });
                 }
                 break;
             case 80:
@@ -2107,7 +2107,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", stringifyTokenType(TokenType::CCURB), " to terminate ", "statement list")  });
                 }
                 break;
             case 82:
@@ -2118,7 +2118,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", stringifyTokenType(TokenType::CCURB), " to terminate ", "more statements")  });
                 }
                 break;
             case 83:
@@ -2128,7 +2128,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 114); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "variable statement initialization list", " for ", "variable statement")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "variable statement initialization list", " for ", "variable statement")  });
                 }
                 break;
             case 84:
@@ -2152,7 +2152,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 115); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", stringifyTokenType(TokenType::SEMICOLON), " for ", "return statement")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", stringifyTokenType(TokenType::SEMICOLON), " for ", "return statement")  });
                 }
                 break;
             case 86:
@@ -2204,7 +2204,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "assignment expression", " for ", "assignment expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "assignment expression", " for ", "assignment expression")  });
                 }
                 break;
             case 88:
@@ -2242,7 +2242,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "expression", " for ", "ternary expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "expression", " for ", "ternary expression")  });
                 }
                 break;
             case 89:
@@ -2280,7 +2280,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "binary and expression", " for ", "binary or expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "binary and expression", " for ", "binary or expression")  });
                 }
                 break;
             case 90:
@@ -2318,7 +2318,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "equality expression", " for ", "binary and expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "equality expression", " for ", "binary and expression")  });
                 }
                 break;
             case 91:
@@ -2356,7 +2356,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "comparison expression", " for ", "equality expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "comparison expression", " for ", "equality expression")  });
                 }
                 break;
             case 92:
@@ -2394,7 +2394,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "comparison expression", " for ", "equality expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "comparison expression", " for ", "equality expression")  });
                 }
                 break;
             case 93:
@@ -2432,7 +2432,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "bitwise xor expression", " for ", "comparison expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "bitwise xor expression", " for ", "comparison expression")  });
                 }
                 break;
             case 94:
@@ -2470,7 +2470,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "bitwise xor expression", " for ", "comparison expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "bitwise xor expression", " for ", "comparison expression")  });
                 }
                 break;
             case 95:
@@ -2508,7 +2508,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "bitwise xor expression", " for ", "comparison expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "bitwise xor expression", " for ", "comparison expression")  });
                 }
                 break;
             case 96:
@@ -2546,7 +2546,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "bitwise xor expression", " for ", "comparison expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "bitwise xor expression", " for ", "comparison expression")  });
                 }
                 break;
             case 97:
@@ -2584,7 +2584,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "bitwise or expression", " for ", "bitwise xor expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "bitwise or expression", " for ", "bitwise xor expression")  });
                 }
                 break;
             case 98:
@@ -2622,7 +2622,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "bitwise and expression", " for ", "bitwise or expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "bitwise and expression", " for ", "bitwise or expression")  });
                 }
                 break;
             case 99:
@@ -2660,7 +2660,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "bit shift expression", " for ", "bitwise and expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "bit shift expression", " for ", "bitwise and expression")  });
                 }
                 break;
             case 100:
@@ -2698,7 +2698,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "addition expression", " for ", "bit shift expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "addition expression", " for ", "bit shift expression")  });
                 }
                 break;
             case 101:
@@ -2736,7 +2736,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "addition expression", " for ", "bit shift expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "addition expression", " for ", "bit shift expression")  });
                 }
                 break;
             case 102:
@@ -2774,7 +2774,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "multiplication expression", " for ", "addition expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "multiplication expression", " for ", "addition expression")  });
                 }
                 break;
             case 103:
@@ -2812,7 +2812,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "multiplication expression", " for ", "addition expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "multiplication expression", " for ", "addition expression")  });
                 }
                 break;
             case 104:
@@ -2850,7 +2850,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "unary expression", " for ", "multiplication expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "unary expression", " for ", "multiplication expression")  });
                 }
                 break;
             case 105:
@@ -2888,7 +2888,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "unary expression", " for ", "multiplication expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "unary expression", " for ", "multiplication expression")  });
                 }
                 break;
             case 106:
@@ -2926,7 +2926,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "unary expression", " for ", "multiplication expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "unary expression", " for ", "multiplication expression")  });
                 }
                 break;
             case 107:
@@ -3008,7 +3008,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", concatMsg("either ", "argument list", " or ", stringifyTokenType(TokenType::CPARN)), " for ", "function call expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", concatMsg("either ", "argument list", " or ", stringifyTokenType(TokenType::CPARN)), " for ", "function call expression")  });
                 }
                 break;
             case 111:
@@ -3018,7 +3018,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 140); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", stringifyTokenType(TokenType::CPARN), " for ", "primary expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", stringifyTokenType(TokenType::CPARN), " for ", "primary expression")  });
                 }
                 break;
             case 112:
@@ -3028,7 +3028,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 141); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", stringifyTokenType(TokenType::SEMICOLON), " for ", "variable statement")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", stringifyTokenType(TokenType::SEMICOLON), " for ", "variable statement")  });
                 }
                 break;
             case 113:
@@ -3045,7 +3045,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "more variable statement initializations", " for ", "variable statement initialization list")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "more variable statement initializations", " for ", "variable statement initialization list")  });
                 }
                 break;
             case 114:
@@ -3100,7 +3100,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 145); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", stringifyTokenType(TokenType::COLON), " for ", "ternary expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", stringifyTokenType(TokenType::COLON), " for ", "ternary expression")  });
                 }
                 break;
             case 118:
@@ -3438,7 +3438,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 146); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", stringifyTokenType(TokenType::CPARN), " for ", "function call expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", stringifyTokenType(TokenType::CPARN), " for ", "function call expression")  });
                 }
                 break;
             case 137:
@@ -3470,7 +3470,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "more arguments", " for ", "argument list")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "more arguments", " for ", "argument list")  });
                 }
                 break;
             case 139:
@@ -3531,7 +3531,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", stringifyTokenType(TokenType::SEMICOLON), " to terminate ", "variable statement initialization list")  });
                 }
                 break;
             case 143:
@@ -3541,7 +3541,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 114); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "variable statement initialization list", " for ", "more variable statement initializations")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "variable statement initialization list", " for ", "more variable statement initializations")  });
                 }
                 break;
             case 144:
@@ -3579,7 +3579,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "expression", " for ", "variable statement initialization")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "expression", " for ", "variable statement initialization")  });
                 }
                 break;
             case 145:
@@ -3617,7 +3617,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "ternary expression", " for ", "ternary expression")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "ternary expression", " for ", "ternary expression")  });
                 }
                 break;
             case 146:
@@ -3650,7 +3650,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", stringifyTokenType(TokenType::CPARN), " to terminate ", "argument list")  });
                 }
                 break;
             case 148:
@@ -3688,7 +3688,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {concatMsg("expected ", "argument list", " for ", "more arguments")});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "argument list", " for ", "more arguments")  });
                 }
                 break;
             case 149:
@@ -3705,7 +3705,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", stringifyTokenType(TokenType::SEMICOLON), " to terminate ", "more variable statement initializations")  });
                 }
                 break;
             case 150:
@@ -3754,7 +3754,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {});
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", stringifyTokenType(TokenType::CPARN), " to terminate ", "more arguments")  });
                 }
                 break;
             default:
