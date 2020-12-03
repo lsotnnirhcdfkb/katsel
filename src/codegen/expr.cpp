@@ -125,9 +125,7 @@ void CodeGenNS::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
         return;
     }
 
-    IR::Register *outReg = nullptr;
-    if (!dynamic_cast<IR::VoidType*>(retty))
-        outReg = cg.context.curFunc->addRegister(retty, ast);
+    IR::Register *outReg = cg.context.curFunc->addRegister(retty, ast);
 
     cg.context.curBlock->add(std::make_unique<IR::Instrs::Call>(outReg, static_cast<IR::Function *>(func.val), args));
 

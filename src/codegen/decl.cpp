@@ -33,9 +33,7 @@ void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
     IR::Block *exitBlock = f->addBlock("exit");
 
     cg.context.incScope();
-    IR::Register *retReg = nullptr;
-    if (!dynamic_cast<IR::VoidType*>(fty->ret))
-        retReg = f->addRegister(fty->ret, ast, false);
+    IR::Register *retReg = f->addRegister(fty->ret, ast, false);
 
     if (ast->paramlist)
     {

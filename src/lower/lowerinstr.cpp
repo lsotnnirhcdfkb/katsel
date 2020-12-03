@@ -107,7 +107,7 @@ void Lower::Lowerer::visitFloatToInt(IR::Instrs::FloatToInt *instr)
 }
 void Lower::Lowerer::visitReturn(IR::Instrs::Return *instr)
 {
-    if (instr->value)
+    if (!dynamic_cast<IR::VoidType*>(instr->value))
         builder.CreateRet(lower(instr->value));
     else
         builder.CreateRetVoid();

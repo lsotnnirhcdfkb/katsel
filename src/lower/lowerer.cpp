@@ -99,11 +99,10 @@ void Lower::Lowerer::lower(IR::Function const &f)
 
     builder.SetInsertPoint(entryBlock);
     for (std::unique_ptr<IR::Register> const &r : f.registers)
-        allocas[r.get()] = builder.CreateAlloca(r->type()->toLLVMType(context), 0, "");
+        if (!dynamic_cast<IR::VoidType*>(r->type()))
+            allocas[r.get()] = builder.CreateAlloca(r->type()->toLLVMType(context), 0, "");
 
-    auto argiter = f.registers.begin();
-    if (!dynamic_cast<IR::VoidType*>(f.ty->ret))
-        ++argiter; // if return type is not void, then first register is reserved for return value
+    auto argiter = f.registers.begin() + 1;
 
     for (auto &arg : fasllvm->args())
         builder.CreateStore(&arg, allocas[argiter++->get()]);
