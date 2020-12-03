@@ -171,12 +171,12 @@ errors:
     inputs: 'IR::ASTValue const &func, Token const &oparn, ASTNS::ArgB *argsast, std::vector<IR::ASTValue> const &args'
     location: oparn
     highlights:
-      - ['argsast', *under0, [
+      - ['argsast ? Location(argsast) : Location(oparn)', *under0, [
           ['error', '"wrong number of arguments to function call"']
         ]]
       - ['func', *under1, []]
       - ['static_cast<IR::Function*>(func.val)->defAST()', *under1, [
-          ['note', 'concatMsg("function expects ", static_cast<IR::FunctionType*>(func.type())->paramtys.size(), " arguments, but got ", args.size(), "arguments")']
+          ['note', 'concatMsg("function expects ", static_cast<IR::FunctionType*>(func.type())->paramtys.size(), " arguments, but got ", args.size(), " arguments")']
         ]]
   -
     code: 206
