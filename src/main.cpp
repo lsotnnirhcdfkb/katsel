@@ -218,7 +218,7 @@ int main(int argc, char *argv[])
 {
     int opt;
     OutFormats ofmt = OutFormats::OBJECT;
-    while ((opt = getopt(argc, argv, "f:")) != -1)
+    while ((opt = getopt(argc, argv, "f:e:")) != -1)
     {
         switch (opt)
         {
@@ -242,6 +242,19 @@ int main(int argc, char *argv[])
                     std::cerr << "Invalid argument for option -p: '" << optarg << "'\n";
                     std::cerr << "Defaulting to -pobject\n";
                     ofmt = OutFormats::OBJECT;
+                }
+                break;
+
+            case 'e':
+                if (strcmp(optarg, "json") == 0)
+                    Error::format = Error::Format::JSON;
+                else if (strcmp(optarg, "human") == 0)
+                    Error::format = Error::Format::HUMAN;
+                else
+                {
+                    std::cerr << "Invalid argument for option -e: '" << optarg << "'\n";
+                    std::cerr << "Defaulting to -ehuman\n";
+                    Error::format = Error::Format::HUMAN;
                 }
                 break;
 

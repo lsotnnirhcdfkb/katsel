@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <typeinfo>
 
+Error::Format Error::format = Error::Format::HUMAN;
 // getLine {{{1
 void getLine(std::string::const_iterator &lstarto, std::string::const_iterator &lendo, File const &f, int linenr)
 {
@@ -42,7 +43,7 @@ int getColN(std::string::const_iterator const &start, std::string::const_iterato
     return coln;
 }
 // getLineN {{{1
-int getLineN(std::string::const_iterator const &start, std::string::iterator loc)
+int getLineN(std::string::const_iterator const &start, std::string::const_iterator loc)
 {
     int linen = 0;
     while (loc >= start)
@@ -639,198 +640,245 @@ inline std::string attr(std::string const &ansicode, std::string const &message,
 }
 void Error::report() const
 {
-    switch (type)
+    if (format == Format::HUMAN)
     {
-        case Error::MsgType::ERROR:
-            std::cerr << attr(A_BOLD A_FG_RED, "Error");
-            break;
-        case Error::MsgType::WARNING:
-            std::cerr << attr(A_BOLD A_FG_MAGENTA, "Warning");
-            break;
-    }
-    std::string::const_iterator const fstart = location.file->source.cbegin();
-    std::cerr << " at " << attr(A_FG_CYAN, location.file->filename, true) << ":" << getLineN(fstart, location.start) << ":" << getColN(fstart, location.start) << A_RESET << ": " << message << "\n";
+        switch (type)
+        {
+            case Error::MsgType::ERROR:
+                std::cerr << attr(A_BOLD A_FG_RED, "Error");
+                break;
+            case Error::MsgType::WARNING:
+                std::cerr << attr(A_BOLD A_FG_MAGENTA, "Warning");
+                break;
+        }
+        std::string::const_iterator const fstart = location.file->source.cbegin();
+        std::cerr << " at " << attr(A_FG_CYAN, location.file->filename, true) << ":" << getLineN(fstart, location.start) << ":" << getColN(fstart, location.start) << A_RESET << ": " << message << "\n";
 
-    using showloc = std::pair<const File*, int>; // in order to have a copy assignment constructor for sorting
-    std::vector<showloc> showlocs;
+        using showloc = std::pair<const File*, int>; // in order to have a copy assignment constructor for sorting
+        std::vector<showloc> showlocs;
 
-    for (Span const &span : spans)
-    {
-        for (int i = getLineN(span.file.source.begin(), span.start); i < getLineN(span.file.source.begin(), span.end); ++i)
-            showlocs.push_back(showloc(&span.file, i));
-    }
+        for (Span const &span : spans)
+        {
+            for (int i = getLineN(span.file.source.begin(), span.start); i < getLineN(span.file.source.begin(), span.end); ++i)
+                showlocs.push_back(showloc(&span.file, i));
+        }
 
-    for (Error::Underline const &u : underlines)
-    {
-        std::string::const_iterator begin = u.location.file->source.begin();
-        for (int i = getLineN(begin, u.location.start); i <= getLineN(begin, u.location.end - 1); ++i)
-            showlocs.push_back(showloc(u.location.file, i));
-    }
+        for (Error::Underline const &u : underlines)
+        {
+            std::string::const_iterator begin = u.location.file->source.begin();
+            for (int i = getLineN(begin, u.location.start); i <= getLineN(begin, u.location.end - 1); ++i)
+                showlocs.push_back(showloc(u.location.file, i));
+        }
 
-    std::sort(showlocs.begin(), showlocs.end(), [](showloc const &a, showloc const &b) {
+        std::sort(showlocs.begin(), showlocs.end(), [](showloc const &a, showloc const &b) {
                 return a.second < b.second;
-            });
-    std::stable_sort(showlocs.begin(), showlocs.end(), [](showloc const &a, showloc const &b) {
+                });
+        std::stable_sort(showlocs.begin(), showlocs.end(), [](showloc const &a, showloc const &b) {
                 return a.first->filename < b.first->filename;
-            });
+                });
 
-    int maxlinepad = 0;
-    // i + 1 < instead of i < size - 1 because - 1 can overflow to the highest value and become true
-    for (size_t i = 0; i + 1 < showlocs.size(); )
-    {
-        if (showlocs[i].first == showlocs[i + 1].first && showlocs[i].second == showlocs[i + 1].second)
-            showlocs.erase(showlocs.begin() + i + 1);
-        else
-            ++i;
-    }
-
-    for (size_t i = 0; i + 1 < showlocs.size(); ++i)
-    {
-        if (showlocs[i].first == showlocs[i + 1].first && showlocs[i + 1].second - showlocs[i].second > 1 && showlocs[i + 1].second - showlocs[i].second <= 3)
+        int maxlinepad = 0;
+        // i + 1 < instead of i < size - 1 because - 1 can overflow to the highest value and become true
+        for (size_t i = 0; i + 1 < showlocs.size(); )
         {
-            for (int j = showlocs[i].second + 1; j < showlocs[i + 1].second; ++j)
-                showlocs.insert(showlocs.begin() + i + 1, showloc(showlocs[i].first, j));
-        }
-    }
-
-    for (showloc const &s : showlocs)
-    {
-        int linew = 1, linenr = s.second;
-        while (linenr /= 10)
-            ++linew;
-        maxlinepad = std::max(linew, maxlinepad);
-    }
-
-    std::string pad (maxlinepad + 1, ' ');
-    File const *lastfile = nullptr;
-    int lastnr = -1;
-    for (showloc const &sl : showlocs)
-    {
-        if (sl.first != lastfile)
-        {
-            std::cerr << pad << "> " << attr(A_FG_CYAN, sl.first->filename) << std::endl;
-            lastnr = -1;
-        }
-
-        if (sl.second != lastnr + 1 && lastnr != -1)
-        {
-            std::ios origState (nullptr);
-            origState.copyfmt(std::cerr);
-            std::cerr << std::setw(maxlinepad) << std::right << std::string(maxlinepad, '.') << " | ...\n";
-            std::cerr.copyfmt(origState);
-        }
-
-        {
-            std::ios origState (nullptr);
-            origState.copyfmt(std::cerr);
-            std::cerr << std::setw(maxlinepad) << std::right << sl.second;
-            std::cerr.copyfmt(origState);
-        }
-
-        std::cerr << " | ";
-
-        std::string::const_iterator lstart, lend;
-        getLine(lstart, lend, *sl.first, sl.second);
-
-        std::vector<Underline const *> lchars;
-        using lunderlinety = std::pair<Underline const *, int>;
-        std::vector<lunderlinety> lunderlines;
-
-        lchars.reserve(std::distance(lstart, lend));
-
-        auto itInLoc = [](std::string::const_iterator const &i, Location const &l)
-        {
-            return i >= l.start && i < l.end;
-        };
-
-        bool needsecond = false;
-        for (std::string::const_iterator i = lstart; i < lend; ++i)
-        {
-            for (Underline const &u : underlines)
-                if (itInLoc(i, u.location))
-                {
-                    lunderlinety pair (&u, getColN(u.location.file->source.begin(), u.location.end - 1));
-                    if (u.location.end - 1 == i && u.messages.size()) // can only ever be one location where this underline ends
-                        lunderlines.push_back(pair);
-                    needsecond = true;
-                }
-
-            Underline const *charu = nullptr;
-            for (Underline const &u : underlines)
-                if (itInLoc(i, u.location))
-                {
-                    charu = &u;
-                    break;
-                }
-
-            lchars.push_back(charu);
-
-            if (charu && charu->messages.size())
-                std::cerr << attr(A_BOLD, attr(charu->messages[0].color, std::string(1, *i)));
-            else if (charu)
-                std::cerr << attr(A_BOLD, std::string(1, *i));
+            if (showlocs[i].first == showlocs[i + 1].first && showlocs[i].second == showlocs[i + 1].second)
+                showlocs.erase(showlocs.begin() + i + 1);
             else
-                std::cerr << *i;
+                ++i;
         }
 
-        std::cerr << std::endl;
-
-        if (needsecond)
+        for (size_t i = 0; i + 1 < showlocs.size(); ++i)
         {
-            std::cerr << pad << "| ";
-            for (Underline const *&i : lchars)
+            if (showlocs[i].first == showlocs[i + 1].first && showlocs[i + 1].second - showlocs[i].second > 1 && showlocs[i + 1].second - showlocs[i].second <= 3)
             {
-                if (i && i->messages.size()) // in a underline
-                    std::cerr << attr(A_BOLD, attr(i->messages[0].color, std::string(1, i->ch)));
-                else if (i)
-                    std::cerr << attr(A_BOLD, std::string(1, i->ch));
-                else
-                    std::cerr << " ";
+                for (int j = showlocs[i].second + 1; j < showlocs[i + 1].second; ++j)
+                    showlocs.insert(showlocs.begin() + i + 1, showloc(showlocs[i].first, j));
             }
+        }
+
+        for (showloc const &s : showlocs)
+        {
+            int linew = 1, linenr = s.second;
+            while (linenr /= 10)
+                ++linew;
+            maxlinepad = std::max(linew, maxlinepad);
+        }
+
+        std::string pad (maxlinepad + 1, ' ');
+        File const *lastfile = nullptr;
+        int lastnr = -1;
+        for (showloc const &sl : showlocs)
+        {
+            if (sl.first != lastfile)
+            {
+                std::cerr << pad << "> " << attr(A_FG_CYAN, sl.first->filename) << std::endl;
+                lastnr = -1;
+            }
+
+            if (sl.second != lastnr + 1 && lastnr != -1)
+            {
+                std::ios origState (nullptr);
+                origState.copyfmt(std::cerr);
+                std::cerr << std::setw(maxlinepad) << std::right << std::string(maxlinepad, '.') << " | ...\n";
+                std::cerr.copyfmt(origState);
+            }
+
+            {
+                std::ios origState (nullptr);
+                origState.copyfmt(std::cerr);
+                std::cerr << std::setw(maxlinepad) << std::right << sl.second;
+                std::cerr.copyfmt(origState);
+            }
+
+            std::cerr << " | ";
+
+            std::string::const_iterator lstart, lend;
+            getLine(lstart, lend, *sl.first, sl.second);
+
+            std::vector<Underline const *> lchars;
+            using lunderlinety = std::pair<Underline const *, int>;
+            std::vector<lunderlinety> lunderlines;
+
+            lchars.reserve(std::distance(lstart, lend));
+
+            auto itInLoc = [](std::string::const_iterator const &i, Location const &l)
+            {
+                return i >= l.start && i < l.end;
+            };
+
+            bool needsecond = false;
+            for (std::string::const_iterator i = lstart; i < lend; ++i)
+            {
+                for (Underline const &u : underlines)
+                    if (itInLoc(i, u.location))
+                    {
+                        lunderlinety pair (&u, getColN(u.location.file->source.begin(), u.location.end - 1));
+                        if (u.location.end - 1 == i && u.messages.size()) // can only ever be one location where this underline ends
+                            lunderlines.push_back(pair);
+                        needsecond = true;
+                    }
+
+                Underline const *charu = nullptr;
+                for (Underline const &u : underlines)
+                    if (itInLoc(i, u.location))
+                    {
+                        charu = &u;
+                        break;
+                    }
+
+                lchars.push_back(charu);
+
+                if (charu && charu->messages.size())
+                    std::cerr << attr(A_BOLD, attr(charu->messages[0].color, std::string(1, *i)));
+                else if (charu)
+                    std::cerr << attr(A_BOLD, std::string(1, *i));
+                else
+                    std::cerr << *i;
+            }
+
             std::cerr << std::endl;
 
-            if (lunderlines.size())
+            if (needsecond)
             {
-                std::sort(lunderlines.begin(), lunderlines.end(), [](lunderlinety const &i1, lunderlinety const &i2)
-                    {
-                        return i1.second > i2.second; // sort in reverse
-                    });
-
-                for (auto i = lunderlines.begin(); i < lunderlines.end(); ++i)
+                std::cerr << pad << "| ";
+                for (Underline const *&i : lchars)
                 {
-                    size_t msgi = 0;
-                    for (Error::Underline::Message const &message : i->first->messages)
+                    if (i && i->messages.size()) // in a underline
+                        std::cerr << attr(A_BOLD, attr(i->messages[0].color, std::string(1, i->ch)));
+                    else if (i)
+                        std::cerr << attr(A_BOLD, std::string(1, i->ch));
+                    else
+                        std::cerr << " ";
+                }
+                std::cerr << std::endl;
+
+                if (lunderlines.size())
+                {
+                    std::sort(lunderlines.begin(), lunderlines.end(), [](lunderlinety const &i1, lunderlinety const &i2)
+                            {
+                            return i1.second > i2.second; // sort in reverse
+                            });
+
+                    for (auto i = lunderlines.begin(); i < lunderlines.end(); ++i)
                     {
-                        std::cerr << pad << "| ";
-                        for (auto j = lunderlines.end() - 1; j >= i; --j)
+                        size_t msgi = 0;
+                        for (Error::Underline::Message const &message : i->first->messages)
                         {
-                            int last = j + 1 == lunderlines.end() ? 0 : (j + 1)->second;
-                            int diff = j->second - last;
-                            if (!diff)
-                                continue;
+                            std::cerr << pad << "| ";
+                            for (auto j = lunderlines.end() - 1; j >= i; --j)
+                            {
+                                int last = j + 1 == lunderlines.end() ? 0 : (j + 1)->second;
+                                int diff = j->second - last;
+                                if (!diff)
+                                    continue;
 
-                            int pamt = diff - 1;
+                                int pamt = diff - 1;
 
-                            std::cerr << std::string(pamt, ' ');
-                            if (j != i)
-                                std::cerr << '|';
-                            else
-                                if (msgi == i->first->messages.size() - 1)
-                                    std::cerr << '`';
-                                else
+                                std::cerr << std::string(pamt, ' ');
+                                if (j != i)
                                     std::cerr << '|';
+                                else
+                                    if (msgi == i->first->messages.size() - 1)
+                                        std::cerr << '`';
+                                    else
+                                        std::cerr << '|';
+                            }
+
+                            std::cerr << attr(message.color, "-- " + message.type) << ": " << message.message << std::endl;
+
+                            ++msgi;
                         }
-
-                        std::cerr << attr(message.color, "-- " + message.type) << ": " << message.message << std::endl;
-
-                        ++msgi;
                     }
                 }
             }
-        }
 
-        lastfile = sl.first;
-        lastnr = sl.second;
+            lastfile = sl.first;
+            lastnr = sl.second;
+        }
+    }
+    else
+    {
+        std::cerr << "{\"type\":\"";
+        switch (type)
+        {
+            case Error::MsgType::ERROR:
+                std::cerr << "error";
+                break;
+            case Error::MsgType::WARNING:
+                std::cerr << "warning";
+                break;
+        }
+        
+        auto formatLocation = [](File const &f, std::string::const_iterator const &loc, std::string::const_iterator const &fstart)
+        {
+            return concatMsg(f.filename, ":", getLineN(fstart, loc), ":", getColN(fstart, loc));
+        };
+
+        std::cerr << "\",";
+        std::string::const_iterator const fstart = location.file->source.cbegin();
+        std::cerr << "\"location\":\"" << formatLocation(*location.file, location.start, fstart) << "\",\"message\":\"" << message << "\",";
+
+        std::cerr << "\"underlines\":[";
+        bool f = true;
+        for (Underline const &u : underlines)
+        {
+            if (!f) std::cerr << ",";
+            f = false;
+
+            std::cerr << "{\"start\":\"" << formatLocation(*u.location.file, u.location.start, fstart) << "\", \"end\": \"" << formatLocation(*u.location.file, u.location.end, fstart) << "\",\"char\":\"" << u.ch << "\"," << "\"messages\": [";
+
+            bool fm = true;
+            for (Underline::Message const &m : u.messages)
+            {
+                if (!fm) std::cerr << ",";
+                fm = false;
+                std::cerr << "{\"type\":\"" << m.type << "\",\"message\":\"" << m.message << "\"}";
+            }
+            std::cerr << "]}";
+        }
+        std::cerr << "]";
+
+        std::cerr << "}\n";
     }
 }
 // Underline message methods {{{1

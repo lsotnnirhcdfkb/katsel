@@ -63,7 +63,7 @@ for testi, testfile in enumerate(TESTS):
     linked = False
     ran = False
 
-    compileCommand = [EXECLOC, testfile]
+    compileCommand = [EXECLOC, '-e', 'json', testfile]
     linkCommand = [LINKER, compiledfile, '-o', linkedfile]
     runCommand = [linkedfile]
 
@@ -93,6 +93,7 @@ for testi, testfile in enumerate(TESTS):
     print('): ', end='')
 
     passTest(testfile)
+    print(outputs['compile']['stderr'])
 
 if nfailed:
     sys.exit(1)
