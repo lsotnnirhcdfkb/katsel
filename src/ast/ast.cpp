@@ -45,6 +45,8 @@ ASTNS::ExprStmt::ExprStmt(std::unique_ptr<ExprB> expr, Token semi): expr(std::mo
 void ASTNS::ExprStmt::accept(ASTNS::StmtBVisitor *v) { v->visitExprStmt(this); }
 ASTNS::Function::Function(Token fun, std::unique_ptr<TypeB> retty, Token name, Token oparn, Token cparn, std::unique_ptr<StmtB> body): fun(fun), retty(std::move(retty)), name(name), oparn(oparn), cparn(cparn), body(std::move(body)), form(ASTNS::Function::Form::TATTTA) {}
 ASTNS::Function::Function(Token fun, std::unique_ptr<TypeB> retty, Token name, Token oparn, std::unique_ptr<PListB> paramlist, Token cparn, std::unique_ptr<StmtB> body): fun(fun), retty(std::move(retty)), name(name), oparn(oparn), paramlist(std::move(paramlist)), cparn(cparn), body(std::move(body)), form(ASTNS::Function::Form::TATTATA) {}
+ASTNS::Function::Function(Token fun, std::unique_ptr<TypeB> retty, Token name, Token oparn, Token cparn, Token semi): fun(fun), retty(std::move(retty)), name(name), oparn(oparn), cparn(cparn), semi(semi), form(ASTNS::Function::Form::TATTTT) {}
+ASTNS::Function::Function(Token fun, std::unique_ptr<TypeB> retty, Token name, Token oparn, std::unique_ptr<PListB> paramlist, Token cparn, Token semi): fun(fun), retty(std::move(retty)), name(name), oparn(oparn), paramlist(std::move(paramlist)), cparn(cparn), semi(semi), form(ASTNS::Function::Form::TATTATT) {}
 void ASTNS::Function::accept(ASTNS::DeclBVisitor *v) { v->visitFunction(this); }
 ASTNS::MoreArg::MoreArg(Token comma, std::unique_ptr<ArgB> arglist): comma(comma), arglist(std::move(arglist)), form(ASTNS::MoreArg::Form::TA) {}
 void ASTNS::MoreArg::accept(ASTNS::ArgBVisitor *v) { v->visitMoreArg(this); }

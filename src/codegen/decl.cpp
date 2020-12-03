@@ -29,6 +29,12 @@ void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
     if (f->blocks.size() > 0)
         return;
 
+    if (!ast->body)
+    {
+        f->prototypeonly = true;
+        return;
+    }
+
     IR::Block *entryBlock = f->addBlock("entry");
     IR::Block *exitBlock = f->addBlock("exit");
 

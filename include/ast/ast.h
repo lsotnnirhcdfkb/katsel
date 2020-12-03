@@ -396,10 +396,14 @@ namespace ASTNS
     public:
         Function(Token fun, std::unique_ptr<TypeB> retty, Token name, Token oparn, Token cparn, std::unique_ptr<StmtB> body);
         Function(Token fun, std::unique_ptr<TypeB> retty, Token name, Token oparn, std::unique_ptr<PListB> paramlist, Token cparn, std::unique_ptr<StmtB> body);
+        Function(Token fun, std::unique_ptr<TypeB> retty, Token name, Token oparn, Token cparn, Token semi);
+        Function(Token fun, std::unique_ptr<TypeB> retty, Token name, Token oparn, std::unique_ptr<PListB> paramlist, Token cparn, Token semi);
         enum class Form
         {
             TATTTA,
             TATTATA,
+            TATTTT,
+            TATTATT,
         };
         Token fun;
         std::unique_ptr<TypeB> retty;
@@ -408,6 +412,7 @@ namespace ASTNS
         Token cparn;
         std::unique_ptr<StmtB> body;
         std::unique_ptr<PListB> paramlist;
+        Token semi;
         Form form;
         virtual void accept(ASTNS::DeclBVisitor *v);
     };

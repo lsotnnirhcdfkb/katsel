@@ -69,6 +69,8 @@ namespace IR
         FunctionType *ty;
         std::string name;
 
+        bool prototypeonly;
+
     private:
         ASTNS::Function *_defAST;
 

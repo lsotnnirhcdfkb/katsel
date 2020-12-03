@@ -690,6 +690,77 @@ void ASTNS::PrintVisitor::visitFunction(ASTNS::Function *a)
                 pai("nullptr\n");
             }
             break;
+        case ASTNS::Function::Form::TATTTT:
+            pai("fun = ");
+            pai("[");
+            pai(std::string(a->fun.start, a->fun.end));
+            pai("]\n");
+            pai("retty = ");
+            if (a->retty)
+            {
+                a->retty->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            pai("name = ");
+            pai("[");
+            pai(std::string(a->name.start, a->name.end));
+            pai("]\n");
+            pai("oparn = ");
+            pai("[");
+            pai(std::string(a->oparn.start, a->oparn.end));
+            pai("]\n");
+            pai("cparn = ");
+            pai("[");
+            pai(std::string(a->cparn.start, a->cparn.end));
+            pai("]\n");
+            pai("semi = ");
+            pai("[");
+            pai(std::string(a->semi.start, a->semi.end));
+            pai("]\n");
+            break;
+        case ASTNS::Function::Form::TATTATT:
+            pai("fun = ");
+            pai("[");
+            pai(std::string(a->fun.start, a->fun.end));
+            pai("]\n");
+            pai("retty = ");
+            if (a->retty)
+            {
+                a->retty->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            pai("name = ");
+            pai("[");
+            pai(std::string(a->name.start, a->name.end));
+            pai("]\n");
+            pai("oparn = ");
+            pai("[");
+            pai(std::string(a->oparn.start, a->oparn.end));
+            pai("]\n");
+            pai("paramlist = ");
+            if (a->paramlist)
+            {
+                a->paramlist->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            pai("cparn = ");
+            pai("[");
+            pai(std::string(a->cparn.start, a->cparn.end));
+            pai("]\n");
+            pai("semi = ");
+            pai("[");
+            pai(std::string(a->semi.start, a->semi.end));
+            pai("]\n");
+            break;
     }
     --indent;
     pai("}\n");

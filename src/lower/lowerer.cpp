@@ -84,6 +84,9 @@ void Lower::Lowerer::lower()
 
 void Lower::Lowerer::lower(IR::Function const &f)
 {
+    if (f.prototypeonly)
+        return;
+
     llvm::BasicBlock *entryBlock;
 
     llvm::Function *fasllvm = functions.at(&f);

@@ -2,11 +2,14 @@
 #include "ir/instruction.h"
 #include "message/errors.h"
 
-IR::Function::Function(IR::FunctionType *ty, std::string name, ASTNS::Function *defAST): ty(ty), name(name), _defAST(defAST), blocki(0), regi(0) {}
+IR::Function::Function(IR::FunctionType *ty, std::string name, ASTNS::Function *defAST): ty(ty), name(name), _defAST(defAST), prototypeonly(false), blocki(0), regi(0) {}
 
 void IR::Function::add(std::unique_ptr<IR::Block> block)
 {
-    blocks.push_back(std::move(block));
+    if (prototypeonly)
+        blocks.push_back(std::move(block));
+    else
+        reportAbortNoh("push block on prototypeonly");
 }
 
 std::string IR::Function::stringify() const

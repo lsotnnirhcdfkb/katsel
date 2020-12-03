@@ -422,6 +422,8 @@ rule('Decl', '$Function:_')
 nt('Function', 'function declaration', 'DeclB')
 rule('Function', 'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn                      CPARN:cparn $Block:body', 'fun', 'cparn')
 rule('Function', 'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn $ParamList:paramlist CPARN:cparn $Block:body', 'fun', 'cparn')
+rule('Function', 'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn                      CPARN:cparn SEMICOLON:semi', 'fun', 'cparn')
+rule('Function', 'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn $ParamList:paramlist CPARN:cparn SEMICOLON:semi', 'fun', 'cparn')
 
 listRule('Stmt', 'statement', 'StmtB')
 nt('Stmt', 'statement', 'StmtB')

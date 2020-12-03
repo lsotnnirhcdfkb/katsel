@@ -871,6 +871,103 @@ void ASTNS::DotVisitor::visitFunction(ASTNS::Function *a)
                     }
             }
             break;
+        case ASTNS::Function::Form::TATTTT:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"6\">Function (TATTTT)</td></tr><tr>";
+            ostream << "<td port=\"fun\">fun</td>";
+            ostream << "<td port=\"retty\">retty</td>";
+            ostream << "<td port=\"name\">name</td>";
+            ostream << "<td port=\"oparn\">oparn</td>";
+            ostream << "<td port=\"cparn\">cparn</td>";
+            ostream << "<td port=\"semi\">semi</td>";
+            ostream << "</tr></table>>]\n";
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->fun.stringify());
+                    connect(thisid, "fun", tokennodeid);
+            }
+            {
+                    if (a->retty)
+                    {
+                        a->retty->accept(this);
+                        connect(thisid, "retty", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "retty", nullptrnodeid);
+                    }
+            }
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->name.stringify());
+                    connect(thisid, "name", tokennodeid);
+            }
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->oparn.stringify());
+                    connect(thisid, "oparn", tokennodeid);
+            }
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->cparn.stringify());
+                    connect(thisid, "cparn", tokennodeid);
+            }
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->semi.stringify());
+                    connect(thisid, "semi", tokennodeid);
+            }
+            break;
+        case ASTNS::Function::Form::TATTATT:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"7\">Function (TATTATT)</td></tr><tr>";
+            ostream << "<td port=\"fun\">fun</td>";
+            ostream << "<td port=\"retty\">retty</td>";
+            ostream << "<td port=\"name\">name</td>";
+            ostream << "<td port=\"oparn\">oparn</td>";
+            ostream << "<td port=\"paramlist\">paramlist</td>";
+            ostream << "<td port=\"cparn\">cparn</td>";
+            ostream << "<td port=\"semi\">semi</td>";
+            ostream << "</tr></table>>]\n";
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->fun.stringify());
+                    connect(thisid, "fun", tokennodeid);
+            }
+            {
+                    if (a->retty)
+                    {
+                        a->retty->accept(this);
+                        connect(thisid, "retty", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "retty", nullptrnodeid);
+                    }
+            }
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->name.stringify());
+                    connect(thisid, "name", tokennodeid);
+            }
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->oparn.stringify());
+                    connect(thisid, "oparn", tokennodeid);
+            }
+            {
+                    if (a->paramlist)
+                    {
+                        a->paramlist->accept(this);
+                        connect(thisid, "paramlist", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "paramlist", nullptrnodeid);
+                    }
+            }
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->cparn.stringify());
+                    connect(thisid, "cparn", tokennodeid);
+            }
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->semi.stringify());
+                    connect(thisid, "semi", tokennodeid);
+            }
+            break;
     }
     lastid = std::move(thisid);
 }

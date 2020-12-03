@@ -382,6 +382,16 @@ void LocationVisitor::visitFunction(ASTNS::Function *ast)
             retf = ast->fun.sourcefile;
             retr = ast->cparn.end;
             break;
+        case ASTNS::Function::Form::TATTTT:
+            retl = ast->fun.start;
+            retf = ast->fun.sourcefile;
+            retr = ast->cparn.end;
+            break;
+        case ASTNS::Function::Form::TATTATT:
+            retl = ast->fun.start;
+            retf = ast->fun.sourcefile;
+            retr = ast->cparn.end;
+            break;
     }
 }
 void LocationVisitor::visitMoreArg(ASTNS::MoreArg *ast)
