@@ -1,159 +1,98 @@
-import os, sys, subprocess, glob, shlex, yaml, traceback
+import os, sys, subprocess, glob, colorama, re
 
-try:
-    loader = yaml.CLoader
-except AttributeError:
-    loader = yaml.Loader
+colorama.init()
 
-functions = r'''
-class lex:
-    @staticmethod
-    def expect(type):
-        lines = [l for l in output.split('\n') if l.startswith(f'{testfile}:{line}')]
-        assert len(lines) > 0, f'no matching line for type {type}'
-
-        found = False
-        for l in lines:
-            if l[l.index('(') + 1:l.index(')')] == type:
-                found = True
-
-        if not found:
-            raise Exception(f'Token {type} not found on line {line}')
-'''
-
-def getLine(i, con):
-    count = 0
-    while i > 0:
-        if con[i] == '\n':
-            count += 1
-        i -= 1
-    return count + 1
-
-def failTest(log, logname, fname):
-    global anyFailed
-    print(f'\033[0;1;31mfailed\033[0m')
-    print(f'\t- For more information, check log written to \033[36m{faillog}\033[0m')
-    with open(logname, 'w') as f:
-        f.write(f'Error log for test file {fname}\n\n')
-        f.write(log)
-
-    anyFailed = True
-
-if len(sys.argv) == 2:
+if len(sys.argv) == 3:
     EXECLOC = os.path.abspath(sys.argv[1])
+    LINKER = os.path.abspath(sys.argv[2])
 else:
-    print(f'Usage: {sys.argv[0]} <katselc path>')
+    print(f'Usage: {sys.argv[0]} <katselc path> <linker>')
     sys.exit(1)
 
-orig = os.getcwd()
-dirname = os.path.abspath(os.path.dirname(__file__))
+def fail(testfile, msg):
+    global nfailed
+    nfailed += 1
+    print(f'\033[0;1;31mfailed\033[0m')
+    print(f'\t- {msg}')
 
-os.chdir(dirname)
+def passTest(testfile):
+    global npassed
+    npassed += 1
+    print(f'\033[0;1;32mpassed\033[0m')
 
-files = glob.glob('./**/*.ksl', recursive=True)
-nfiles = len(files)
+def setOutputs(outputs, category, process):
+    outputs[category]           = {}
+    outputs[category]['stdout'] = process.stdout.decode('utf-8')
+    outputs[category]['stderr'] = process.stderr.decode('utf-8')
 
-anyFailed = False
+TESTDIR = os.path.abspath(os.path.dirname(__file__))
 
-for i, testfile in enumerate(files):
-    print(f'[{i + 1}/{nfiles}] Testing \033[36m{testfile}\033[0m: ', end='')
+TESTS = glob.glob(f'{TESTDIR}/**/*.ksl', recursive=True)
+NTESTS = len(TESTS)
+NTESTWIDTH = len(str(NTESTS))
 
-    failed = False
-    log = ''
-    faillog = os.path.splitext(testfile)[0] + '.log'
+EXPECT_COMP_ERR_REGEX = re.compile(r'// expect compile error \(([\w-]+)\)$', re.MULTILINE)
+EXPECT_COMP_WARN_REGEX = re.compile(r'// expect compile warning \(([\w-]+)\)$', re.MULTILINE)
+EXPECT_RUN_ERR_REGEX = re.compile(r'// expect runtime error$', re.MULTILINE)
+EXPECT_PRINT_REGEX = re.compile(r'// expect output (.+)$', re.MULTILINE)
 
-    if os.path.exists(faillog):
-        os.remove(faillog)
+npassed = 0
+nfailed = 0
+
+for testi, testfile in enumerate(TESTS):
+    print(f'[{str(testi + 1).rjust(NTESTWIDTH)}/{NTESTS}] - \033[36m{testfile}\033[0m (', end='')
 
     with open(testfile, 'r') as f:
         contents = f.read()
 
-    try:
-        opts = yaml.load(contents[contents.index('/*') + 2 : contents.index('*/')], Loader=loader)
-    except:
-        failed = True
-        log += 'Failed with yaml error:\n'
-        log += traceback.format_exc()
-        log += '\n'
+    compErrExpectations  = EXPECT_COMP_ERR_REGEX  .findall(contents)
+    compWarnExpectations = EXPECT_COMP_WARN_REGEX .findall(contents)
+    runErrExpectations   = EXPECT_RUN_ERR_REGEX   .findall(contents)
+    printExpectations    = EXPECT_PRINT_REGEX     .findall(contents)
 
-        failTest(log, faillog, testfile)
-        continue
+    compiledfile = os.path.join(TESTDIR, os.path.splitext(testfile)[0] + '.o')
+    linkedfile = os.path.join(TESTDIR, 'testout')
 
-    if 'command' not in opts:
-        log += 'Failed: command field not found in yaml\n\n'
-        failTest(log, faillog, testfile)
-        anyFailed = True
-        continue
-    if 'returncode' not in opts:
-        log += 'Failed: returncode field not found in yaml\n\n'
-        failTest(log, faillog, testfile)
-        anyFailed = True
-        continue
+    outputs = {
+        'compile': None,
+        'linking': None,
+        'running': None
+    }
 
-    command = shlex.split(opts['command'].replace('<katselc>', EXECLOC).replace('<file>', testfile))
-    expectretc = opts['returncode']
+    compiled = False
+    linked = False
+    ran = False
 
-    proc = subprocess.run(command, capture_output=True)
-    outglob = f'{os.path.splitext(testfile)[0]}.*'
-    outfiles = [p for p in glob.glob(outglob) if p != testfile]
-    if len(outfiles) > 1:
-        print(f'\033[0;1;33munknown\033[0m')
-        print(f'\t- muliple files for outfile with glob expr \'{outglob}\': {outfiles}\033[0m')
-        continue
-    elif len(outfiles) == 0:
-        print(f'\033[0;1;33munknown\033[0m')
-        print(f'\t- no possible output files with glob expr \'{outglob}\'\033[0m')
-        continue
+    compileCommand = [EXECLOC, testfile]
+    linkCommand = [LINKER, compiledfile, '-o', linkedfile]
+    runCommand = [linkedfile]
 
-    with open(outfiles[0], 'r') as f:
-        output = f.read()
+    compilation = subprocess.run(compileCommand, capture_output=True)
+    compiled = compilation.returncode == 0
+    setOutputs(outputs, 'compile', compilation)
 
-    os.remove(outfiles[0])
+    if compiled:
+        linking = subprocess.run(linkCommand, capture_output=True)
+        linked = linking.returncode == 0
+        setOutputs(outputs, 'linking', linking)
 
-    tests = []
-    i = 0
-    while i <= len(contents):
-        try:
-            i = contents.index('--->', i) + 4
-            iend = contents.index('<---', i)
-            tests.append({
-                'text': contents[i:iend].strip(),
-                'start': i,
-                'end': iend,
-                'line': getLine(i, contents)
-            })
-        except ValueError:
-            break
+    if linked:
+        running = subprocess.run(runCommand, capture_output=True)
+        ran = True
+        setOutputs(outputs, 'running', running)
 
-    if proc.returncode != expectretc:
-        failed = True
-        log += f'Expected return code {expectretc}, got {proc.returncode}\n'
-        log += '\n'
+    if compiled:
+        os.remove(compiledfile)
+    if linked:
+        os.remove(linkedfile)
 
-    for test in tests:
-        try:
-            ns = test
-            ns['contents'] = contents
-            ns['testfile'] = testfile
-            ns['output'] = output
+    print('c' if compiled else '-', end='')
+    print('l' if linked   else '-', end='')
+    print('r' if ran      else '-', end='')
 
-            exec(functions + test['text'], ns)
-        except Exception as e:
-            failed = True
-            log += 'Failed with test error:\n'
-            log += traceback.format_exc()
-            log += '\n'
+    print('): ', end='')
 
-    log += 'output:\n'
-    log += output
+    passTest(testfile)
 
-    if failed:
-        failTest(log, faillog, testfile)
-        anyFailed = True
-    else:
-        print(f'\033[0;1;32mpassed\033[0m')
-
-os.chdir(orig)
-
-if anyFailed:
+if nfailed:
     sys.exit(1)

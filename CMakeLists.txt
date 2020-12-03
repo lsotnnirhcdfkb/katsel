@@ -10,6 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS NO)
 
 option(GENDOC "Build documentation" ON)
+option(DOTEST "Test executable" OFF)
 
 # Copied and pasted and shifted around a bit from LLVM Docs - Building LLVM with CMake - Embedding LLVM in your project
 # https://releases.llvm.org/3.6.0/docs/CMake.html#embedding-llvm-in-your-project
