@@ -669,7 +669,7 @@ def formatList(l):
     elif len(l) == 0:
         return '"nothing"'
     else:
-        return 'concatMsg(' + ', '.join(l[:-1]) + ', " or ", ' + l[-1] + ')'
+        return 'concatMsg(' + ', ", ", '.join(l[:-1]) + ', " or ", ' + l[-1] + ')'
 # }}}
 def genLoop():
     output = []
