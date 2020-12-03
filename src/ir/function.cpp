@@ -24,10 +24,6 @@ IR::Type* IR::Function::type() const
 {
     return ty;
 }
-bool IR::Function::assignable() const
-{
-    return false;
-}
 
 IR::Block* IR::Function::addBlock(std::string name)
 {

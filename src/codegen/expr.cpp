@@ -265,7 +265,7 @@ void CodeGenNS::ExprCodeGen::visitAssignmentExpr(ASTNS::AssignmentExpr *ast)
 
     IR::Register *targetReg = dynamic_cast<IR::Register*>(lhs.val);
 
-    if (!lhs.assignable() || !targetReg)
+    if (!targetReg || targetReg->temp)
     {
         ERR_ASSIGN_INVALID_LHS(ast->equal, lhs);
         ret = IR::ASTValue();

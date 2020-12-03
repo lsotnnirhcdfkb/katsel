@@ -18,8 +18,6 @@ namespace IR
         virtual ~Value() {};
         virtual std::string stringify() const = 0;
 
-        virtual bool assignable() const = 0;
-
         virtual Type* type() const = 0;
     };
 
@@ -40,13 +38,12 @@ namespace IR
 
         Type* type() const override;
 
-        bool assignable() const override;
+        bool temp;
 
     private:
         ASTNS::AST* _defAST;
         int index;
         Type *ty;
-        bool temp;
     };
 
     class Function : public Value, public DeclaredValue
@@ -62,8 +59,6 @@ namespace IR
         void cfgDot(llvm::raw_ostream &os) const;
 
         Type* type() const override;
-
-        bool assignable() const override;
 
         std::vector<std::unique_ptr<Block>> blocks;
         std::vector<std::unique_ptr<Register>> registers;
@@ -89,8 +84,6 @@ namespace IR
         std::string stringify() const override;
 
         Type* type() const override;
-
-        bool assignable() const override;
 
         int val;
 
@@ -123,10 +116,6 @@ namespace IR
         inline std::string stringify() const
         {
             return val->stringify();
-        }
-        inline bool assignable() const
-        {
-            return val->assignable();
         }
     };
 }

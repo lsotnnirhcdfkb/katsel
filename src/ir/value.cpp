@@ -15,10 +15,6 @@ IR::Type* IR::Register::type() const
 {
     return ty;
 }
-bool IR::Register::assignable() const
-{
-    return !temp;
-}
 
 void IR::Register::definition(llvm::raw_ostream &os) const
 {
@@ -35,8 +31,4 @@ std::string IR::ConstInt::stringify() const
 IR::Type* IR::ConstInt::type() const
 {
     return ty;
-}
-bool IR::ConstInt::assignable() const
-{
-    return false;
 }
