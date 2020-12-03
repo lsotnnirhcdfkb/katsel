@@ -97,9 +97,6 @@ TokenType Lexer::getIdentifierType()
                 case 'l':
                     if (std::distance(start, end) == 5 && std::string(start + 2, end) == "ass") return TokenType::CLASS;
                     break;
-                case 'a':
-                    if (std::distance(start, end) == 4 && std::string(start + 2, end) == "se") return TokenType::CASE;
-                    break;
                 case 'o':
                     if (std::distance(start, end) == 8 && std::string(start + 2, end) == "ntinue") return TokenType::CONTINUE;
                     break;
@@ -167,9 +164,6 @@ TokenType Lexer::getIdentifierType()
                             break;
                     }
                     break;
-                case 'w':
-                    if (std::distance(start, end) == 6 && std::string(start + 2, end) == "itch") return TokenType::SWITCH;
-                    break;
             }
             break;
         case 'n':
@@ -202,6 +196,9 @@ TokenType Lexer::getIdentifierType()
             break;
         case 'i':
             if (std::distance(start, end) == 2 && std::string(start + 1, end) == "f") return TokenType::IF;
+            break;
+        case 'p':
+            if (std::distance(start, end) == 7 && std::string(start + 1, end) == "attern") return TokenType::PATTERN;
             break;
         case 't':
             if (std::distance(start, end) == 4 && std::string(start + 1, end) == "rue") return TokenType::TRUELIT;

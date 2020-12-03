@@ -7,22 +7,18 @@ asdf // ---> lex.expect('identifier') <---
 a // ---> lex.expect('identifier') <---
 i j // ---> lex.expect('identifier') <--- ---> lex.expect('identifier') <---
 
-case // ---> lex.expect('\'case\'') <---
 if // ---> lex.expect('\'if\'') <---
 else // ---> lex.expect('\'else\'') <---
 for // ---> lex.expect('\'for\'') <---
 
-case_ // ---> lex.expect('identifier') <---
 if_ // ---> lex.expect('identifier') <---
 else_ // ---> lex.expect('identifier') <---
 for_ // ---> lex.expect('identifier') <---
 
-_case // ---> lex.expect('identifier') <---
 _if // ---> lex.expect('identifier') <---
 _else // ---> lex.expect('identifier') <---
 _for // ---> lex.expect('identifier') <---
 
-casee // ---> lex.expect('identifier') <---
 iff // ---> lex.expect('identifier') <---
 elsee // ---> lex.expect('identifier') <---
 forr // ---> lex.expect('identifier') <---

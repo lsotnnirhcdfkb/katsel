@@ -154,8 +154,7 @@ keywords = [
     ('for', 'FOR'),
     ('if', 'IF'),
     ('else', 'ELSE'),
-    ('switch', 'SWITCH'),
-    ('case', 'CASE'),
+    ('pattern', 'PATTERN'),
     ('default', 'DEFAULT'),
 
     ('break', 'BREAK'),

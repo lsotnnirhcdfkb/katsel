@@ -28,8 +28,6 @@ while // ---> lex.expect('\'while\'') <---
 for // ---> lex.expect('\'for\'') <---
 if // ---> lex.expect('\'if\'') <---
 else // ---> lex.expect('\'else\'') <---
-switch // ---> lex.expect('\'switch\'') <---
-case // ---> lex.expect('\'case\'') <---
 default // ---> lex.expect('\'default\'') <---
 break // ---> lex.expect('\'break\'') <---
 breakall // ---> lex.expect('\'breakall\'') <---

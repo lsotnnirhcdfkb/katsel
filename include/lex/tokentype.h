@@ -98,8 +98,7 @@ enum class TokenType
     FOR,
     IF,
     ELSE,
-    SWITCH,
-    CASE,
+    PATTERN,
     DEFAULT,
     BREAK,
     BREAKALL,
@@ -197,8 +196,7 @@ inline constexpr char const * stringifyTokenType(TokenType ty)
         STOKTY(FOR, 'for')
         STOKTY(IF, 'if')
         STOKTY(ELSE, 'else')
-        STOKTY(SWITCH, 'switch')
-        STOKTY(CASE, 'case')
+        STOKTY(PATTERN, 'pattern')
         STOKTY(DEFAULT, 'default')
         STOKTY(BREAK, 'break')
         STOKTY(BREAKALL, 'breakall')
