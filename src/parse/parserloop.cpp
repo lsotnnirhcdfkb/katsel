@@ -865,17 +865,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     case TokenType::EOF_:
-                        {
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::MoreDecl>());
-                            size_t newstate = getGoto<ASTNS::MoreDecl>(stack.back().state);
-                            stack.emplace_back(newstate, std::move(push));
-                        }
+                        reduceSkip<ASTNS::DeclList>(stack);
                         break;
                     case TokenType::FUN:
                         shift(p, lasttok, lookahead, stack, steps, 5); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "more declarations", " for ", "declaration list")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "more declarations", " for ", "declaration list"), concatMsg("expected ", stringifyTokenType(TokenType::EOF_), " to terminate ", "declaration list")  });
                 }
                 break;
             case 4:
@@ -1213,15 +1209,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::COMMA:
                         shift(p, lasttok, lookahead, stack, steps, 34); break;
                     case TokenType::CPARN:
-                        {
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::MoreParam>());
-                            size_t newstate = getGoto<ASTNS::MoreParam>(stack.back().state);
-                            stack.emplace_back(newstate, std::move(push));
-                        }
+                        reduceSkip<ASTNS::ParamList>(stack);
                         break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "more parameters", " for ", "parameter list")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "more parameters", " for ", "parameter list"), concatMsg("expected ", stringifyTokenType(TokenType::CPARN), " to terminate ", "parameter list")  });
                 }
                 break;
             case 29:
@@ -1405,11 +1397,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::BININTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 72); break;
                     case TokenType::CCURB:
-                        {
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::MoreStmt>());
-                            size_t newstate = getGoto<ASTNS::MoreStmt>(stack.back().state);
-                            stack.emplace_back(newstate, std::move(push));
-                        }
+                        reduceSkip<ASTNS::StmtList>(stack);
                         break;
                     case TokenType::CHARLIT:
                         shift(p, lasttok, lookahead, stack, steps, 74); break;
@@ -1447,7 +1435,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 45); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "more statements", " for ", "statement list")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "more statements", " for ", "statement list"), concatMsg("expected ", stringifyTokenType(TokenType::CCURB), " to terminate ", "statement list")  });
                 }
                 break;
             case 39:
@@ -3037,15 +3025,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::COMMA:
                         shift(p, lasttok, lookahead, stack, steps, 143); break;
                     case TokenType::SEMICOLON:
-                        {
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::MoreVarStmtItem>());
-                            size_t newstate = getGoto<ASTNS::MoreVarStmtItem>(stack.back().state);
-                            stack.emplace_back(newstate, std::move(push));
-                        }
+                        reduceSkip<ASTNS::VarStmtItemList>(stack);
                         break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "more variable statement initializations", " for ", "variable statement initialization list")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "more variable statement initializations", " for ", "variable statement initialization list"), concatMsg("expected ", stringifyTokenType(TokenType::SEMICOLON), " to terminate ", "variable statement initialization list")  });
                 }
                 break;
             case 114:
@@ -3462,15 +3446,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::COMMA:
                         shift(p, lasttok, lookahead, stack, steps, 148); break;
                     case TokenType::CPARN:
-                        {
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::MoreArg>());
-                            size_t newstate = getGoto<ASTNS::MoreArg>(stack.back().state);
-                            stack.emplace_back(newstate, std::move(push));
-                        }
+                        reduceSkip<ASTNS::ArgList>(stack);
                         break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "more arguments", " for ", "argument list")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", "more arguments", " for ", "argument list"), concatMsg("expected ", stringifyTokenType(TokenType::CPARN), " to terminate ", "argument list")  });
                 }
                 break;
             case 139:

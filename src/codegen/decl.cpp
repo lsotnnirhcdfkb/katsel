@@ -68,5 +68,3 @@ void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
     cg.context.exitBlock = nullptr;
     cg.context.retReg = nullptr;
 }
-
-void CodeGenNS::DeclCodeGen::visitMoreDecl(ASTNS::MoreDecl *ast) {}

@@ -69,5 +69,3 @@ void CodeGenNS::StmtCodeGen::visitStmtList(ASTNS::StmtList *ast)
     ast->stmt->accept(this);
     ast->morestmt->accept(this);
 }
-
-void CodeGenNS::StmtCodeGen::visitMoreStmt(ASTNS::MoreStmt *ast) {}

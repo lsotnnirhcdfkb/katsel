@@ -47,17 +47,10 @@ ASTNS::Function::Function(Token fun, std::unique_ptr<TypeB> retty, Token name, T
 ASTNS::Function::Function(Token fun, std::unique_ptr<TypeB> retty, Token name, Token oparn, std::unique_ptr<PListB> paramlist, Token cparn, std::unique_ptr<StmtB> body): fun(fun), retty(std::move(retty)), name(name), oparn(oparn), paramlist(std::move(paramlist)), cparn(cparn), body(std::move(body)), form(ASTNS::Function::Form::TATTATA) {}
 void ASTNS::Function::accept(ASTNS::DeclBVisitor *v) { v->visitFunction(this); }
 ASTNS::MoreArg::MoreArg(Token comma, std::unique_ptr<ArgB> arglist): comma(comma), arglist(std::move(arglist)), form(ASTNS::MoreArg::Form::TA) {}
-ASTNS::MoreArg::MoreArg(): form(ASTNS::MoreArg::Form::EMPTY) {}
 void ASTNS::MoreArg::accept(ASTNS::ArgBVisitor *v) { v->visitMoreArg(this); }
-ASTNS::MoreDecl::MoreDecl(): form(ASTNS::MoreDecl::Form::EMPTY) {}
-void ASTNS::MoreDecl::accept(ASTNS::DeclBVisitor *v) { v->visitMoreDecl(this); }
 ASTNS::MoreParam::MoreParam(Token comma, std::unique_ptr<PListB> paramlist): comma(comma), paramlist(std::move(paramlist)), form(ASTNS::MoreParam::Form::TA) {}
-ASTNS::MoreParam::MoreParam(): form(ASTNS::MoreParam::Form::EMPTY) {}
 void ASTNS::MoreParam::accept(ASTNS::PListBVisitor *v) { v->visitMoreParam(this); }
-ASTNS::MoreStmt::MoreStmt(): form(ASTNS::MoreStmt::Form::EMPTY) {}
-void ASTNS::MoreStmt::accept(ASTNS::StmtBVisitor *v) { v->visitMoreStmt(this); }
 ASTNS::MoreVarStmtItem::MoreVarStmtItem(Token comma, std::unique_ptr<VStmtIB> varstmtitemlist): comma(comma), varstmtitemlist(std::move(varstmtitemlist)), form(ASTNS::MoreVarStmtItem::Form::TA) {}
-ASTNS::MoreVarStmtItem::MoreVarStmtItem(): form(ASTNS::MoreVarStmtItem::Form::EMPTY) {}
 void ASTNS::MoreVarStmtItem::accept(ASTNS::VStmtIBVisitor *v) { v->visitMoreVarStmtItem(this); }
 ASTNS::MultExpr::MultExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::MultExpr::Form::ATA) {}
 void ASTNS::MultExpr::accept(ASTNS::ExprBVisitor *v) { v->visitMultExpr(this); }

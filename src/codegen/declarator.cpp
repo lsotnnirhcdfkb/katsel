@@ -45,5 +45,3 @@ void CodeGenNS::Declarator::visitFunction(ASTNS::Function *fun)
 
     cg.context.globalSymbolTable[fname] = f;
 }
-
-void CodeGenNS::Declarator::visitMoreDecl(ASTNS::MoreDecl *ast) {}

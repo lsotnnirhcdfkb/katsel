@@ -415,11 +415,9 @@ namespace ASTNS
     {
     public:
         MoreArg(Token comma, std::unique_ptr<ArgB> arglist);
-        MoreArg();
         enum class Form
         {
             TA,
-            EMPTY,
         };
         Token comma;
         std::unique_ptr<ArgB> arglist;
@@ -429,23 +427,18 @@ namespace ASTNS
     class MoreDecl : public DeclB
     {
     public:
-        MoreDecl();
         enum class Form
         {
-            EMPTY,
         };
         Form form;
-        virtual void accept(ASTNS::DeclBVisitor *v);
     };
     class MoreParam : public PListB
     {
     public:
         MoreParam(Token comma, std::unique_ptr<PListB> paramlist);
-        MoreParam();
         enum class Form
         {
             TA,
-            EMPTY,
         };
         Token comma;
         std::unique_ptr<PListB> paramlist;
@@ -455,23 +448,18 @@ namespace ASTNS
     class MoreStmt : public StmtB
     {
     public:
-        MoreStmt();
         enum class Form
         {
-            EMPTY,
         };
         Form form;
-        virtual void accept(ASTNS::StmtBVisitor *v);
     };
     class MoreVarStmtItem : public VStmtIB
     {
     public:
         MoreVarStmtItem(Token comma, std::unique_ptr<VStmtIB> varstmtitemlist);
-        MoreVarStmtItem();
         enum class Form
         {
             TA,
-            EMPTY,
         };
         Token comma;
         std::unique_ptr<VStmtIB> varstmtitemlist;

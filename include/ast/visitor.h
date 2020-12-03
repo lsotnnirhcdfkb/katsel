@@ -81,7 +81,6 @@ public:
     virtual ~DeclBVisitor() {}
     virtual void visitDeclList(ASTNS::DeclList *ast) = 0;
     virtual void visitFunction(ASTNS::Function *ast) = 0;
-    virtual void visitMoreDecl(ASTNS::MoreDecl *ast) = 0;
 };
 class ExprBVisitor
 {
@@ -118,7 +117,6 @@ public:
     virtual void visitBlock(ASTNS::Block *ast) = 0;
     virtual void visitEmptyStmt(ASTNS::EmptyStmt *ast) = 0;
     virtual void visitExprStmt(ASTNS::ExprStmt *ast) = 0;
-    virtual void visitMoreStmt(ASTNS::MoreStmt *ast) = 0;
     virtual void visitRetStmt(ASTNS::RetStmt *ast) = 0;
     virtual void visitStmtList(ASTNS::StmtList *ast) = 0;
     virtual void visitVarStmt(ASTNS::VarStmt *ast) = 0;

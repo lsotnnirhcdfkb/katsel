@@ -399,20 +399,15 @@ def rule(sym, expansion, histart='BEGIN', hiend='END', special=''):
     _grammar[sym]['expansions'].append((expansion, histart, hiend, special))
 
 def listRule(sym, name, base, delimit=None):
-    # symlist = sym + 'List'
-    # nt(symlist, name + ' list', base)
-    # rule(symlist, f'${sym}List:{sym.lower()}list {f"{delimit}:{delimit.lower()}" if delimit is not None else ""} ${sym}:{sym.lower()}')
-    # rule(symlist, f'${sym}:{sym.lower()}')
-
     symlist = sym + 'List'
     moresym = 'More' + sym
 
     nt(symlist, name + ' list', base)
     rule(symlist, f'${sym}:{sym.lower()} ${moresym}:more{sym.lower()}', special='nodefaultreduce')
+    rule(symlist, f'${sym}:{sym.lower()}', special='nodefaultreduce')
 
     nt(moresym, 'more ' + name + 's', base)
     rule(moresym, f'{f"{delimit}:{delimit.lower()}" if delimit is not None else ""} ${symlist}:{symlist.lower()}', special='nodefaultreduce')
-    rule(moresym, '', special='nodefaultreduce')
 
 _grammar = {}
 

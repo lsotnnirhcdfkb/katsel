@@ -901,20 +901,6 @@ void ASTNS::DotVisitor::visitMoreArg(ASTNS::MoreArg *a)
                     }
             }
             break;
-        case ASTNS::MoreArg::Form::EMPTY:
-            ostream << thisid << " [label=\"MoreArg (EMPTY)\"]";
-            break;
-    }
-    lastid = std::move(thisid);
-}
-void ASTNS::DotVisitor::visitMoreDecl(ASTNS::MoreDecl *a)
-{
-    std::string thisid = curid();
-    switch (a->form)
-    {
-        case ASTNS::MoreDecl::Form::EMPTY:
-            ostream << thisid << " [label=\"MoreDecl (EMPTY)\"]";
-            break;
     }
     lastid = std::move(thisid);
 }
@@ -945,20 +931,6 @@ void ASTNS::DotVisitor::visitMoreParam(ASTNS::MoreParam *a)
                     }
             }
             break;
-        case ASTNS::MoreParam::Form::EMPTY:
-            ostream << thisid << " [label=\"MoreParam (EMPTY)\"]";
-            break;
-    }
-    lastid = std::move(thisid);
-}
-void ASTNS::DotVisitor::visitMoreStmt(ASTNS::MoreStmt *a)
-{
-    std::string thisid = curid();
-    switch (a->form)
-    {
-        case ASTNS::MoreStmt::Form::EMPTY:
-            ostream << thisid << " [label=\"MoreStmt (EMPTY)\"]";
-            break;
     }
     lastid = std::move(thisid);
 }
@@ -988,9 +960,6 @@ void ASTNS::DotVisitor::visitMoreVarStmtItem(ASTNS::MoreVarStmtItem *a)
                         connect(thisid, "varstmtitemlist", nullptrnodeid);
                     }
             }
-            break;
-        case ASTNS::MoreVarStmtItem::Form::EMPTY:
-            ostream << thisid << " [label=\"MoreVarStmtItem (EMPTY)\"]";
             break;
     }
     lastid = std::move(thisid);

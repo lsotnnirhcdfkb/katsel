@@ -88,9 +88,7 @@ void visitEmptyStmt(ASTNS::EmptyStmt *ast) override;
 void visitExprStmt(ASTNS::ExprStmt *ast) override;
 void visitFunction(ASTNS::Function *ast) override;
 void visitMoreArg(ASTNS::MoreArg *ast) override;
-void visitMoreDecl(ASTNS::MoreDecl *ast) override;
 void visitMoreParam(ASTNS::MoreParam *ast) override;
-void visitMoreStmt(ASTNS::MoreStmt *ast) override;
 void visitMoreVarStmtItem(ASTNS::MoreVarStmtItem *ast) override;
 void visitMultExpr(ASTNS::MultExpr *ast) override;
 void visitParam(ASTNS::Param *ast) override;
@@ -395,18 +393,6 @@ void LocationVisitor::visitMoreArg(ASTNS::MoreArg *ast)
             retf = ast->comma.sourcefile;
             retr = getR(ast->arglist.get());
             break;
-        case ASTNS::MoreArg::Form::EMPTY:
-            reportAbortNoh("get location of empty ast");
-            break;
-    }
-}
-void LocationVisitor::visitMoreDecl(ASTNS::MoreDecl *ast)
-{
-    switch (ast->form)
-    {
-        case ASTNS::MoreDecl::Form::EMPTY:
-            reportAbortNoh("get location of empty ast");
-            break;
     }
 }
 void LocationVisitor::visitMoreParam(ASTNS::MoreParam *ast)
@@ -418,18 +404,6 @@ void LocationVisitor::visitMoreParam(ASTNS::MoreParam *ast)
             retf = ast->comma.sourcefile;
             retr = getR(ast->paramlist.get());
             break;
-        case ASTNS::MoreParam::Form::EMPTY:
-            reportAbortNoh("get location of empty ast");
-            break;
-    }
-}
-void LocationVisitor::visitMoreStmt(ASTNS::MoreStmt *ast)
-{
-    switch (ast->form)
-    {
-        case ASTNS::MoreStmt::Form::EMPTY:
-            reportAbortNoh("get location of empty ast");
-            break;
     }
 }
 void LocationVisitor::visitMoreVarStmtItem(ASTNS::MoreVarStmtItem *ast)
@@ -440,9 +414,6 @@ void LocationVisitor::visitMoreVarStmtItem(ASTNS::MoreVarStmtItem *ast)
             retl = ast->comma.start;
             retf = ast->comma.sourcefile;
             retr = getR(ast->varstmtitemlist.get());
-            break;
-        case ASTNS::MoreVarStmtItem::Form::EMPTY:
-            reportAbortNoh("get location of empty ast");
             break;
     }
 }

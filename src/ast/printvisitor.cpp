@@ -715,20 +715,6 @@ void ASTNS::PrintVisitor::visitMoreArg(ASTNS::MoreArg *a)
                 pai("nullptr\n");
             }
             break;
-        case ASTNS::MoreArg::Form::EMPTY:
-            break;
-    }
-    --indent;
-    pai("}\n");
-}
-void ASTNS::PrintVisitor::visitMoreDecl(ASTNS::MoreDecl *a)
-{
-    pai("MoreDecl\n{\n");
-    ++indent;
-    switch (a->form)
-    {
-        case ASTNS::MoreDecl::Form::EMPTY:
-            break;
     }
     --indent;
     pai("}\n");
@@ -754,20 +740,6 @@ void ASTNS::PrintVisitor::visitMoreParam(ASTNS::MoreParam *a)
                 pai("nullptr\n");
             }
             break;
-        case ASTNS::MoreParam::Form::EMPTY:
-            break;
-    }
-    --indent;
-    pai("}\n");
-}
-void ASTNS::PrintVisitor::visitMoreStmt(ASTNS::MoreStmt *a)
-{
-    pai("MoreStmt\n{\n");
-    ++indent;
-    switch (a->form)
-    {
-        case ASTNS::MoreStmt::Form::EMPTY:
-            break;
     }
     --indent;
     pai("}\n");
@@ -792,8 +764,6 @@ void ASTNS::PrintVisitor::visitMoreVarStmtItem(ASTNS::MoreVarStmtItem *a)
             {
                 pai("nullptr\n");
             }
-            break;
-        case ASTNS::MoreVarStmtItem::Form::EMPTY:
             break;
     }
     --indent;
