@@ -851,12 +851,12 @@ void Error::report() const
         
         auto formatLocation = [](File const &f, std::string::const_iterator const &loc, std::string::const_iterator const &fstart)
         {
-            return concatMsg(f.filename, ":", getLineN(fstart, loc), ":", getColN(fstart, loc));
+            return concatMsg("{\"file\":\"", f.filename, "\",\"line\":", getLineN(fstart, loc), ",\"column\":", getColN(fstart, loc), "}");
         };
 
         std::cerr << "\",";
         std::string::const_iterator const fstart = location.file->source.cbegin();
-        std::cerr << "\"location\":\"" << formatLocation(*location.file, location.start, fstart) << "\",\"message\":\"" << message << "\",";
+        std::cerr << "\"location\":" << formatLocation(*location.file, location.start, fstart) << ",\"message\":\"" << message << "\",";
 
         std::cerr << "\"underlines\":[";
         bool f = true;
@@ -865,7 +865,7 @@ void Error::report() const
             if (!f) std::cerr << ",";
             f = false;
 
-            std::cerr << "{\"start\":\"" << formatLocation(*u.location.file, u.location.start, fstart) << "\", \"end\": \"" << formatLocation(*u.location.file, u.location.end, fstart) << "\",\"char\":\"" << u.ch << "\"," << "\"messages\": [";
+            std::cerr << "{\"start\":" << formatLocation(*u.location.file, u.location.start, fstart) << ", \"end\": " << formatLocation(*u.location.file, u.location.end, fstart) << ",\"char\":\"" << u.ch << "\"," << "\"messages\": [";
 
             bool fm = true;
             for (Underline::Message const &m : u.messages)
