@@ -47,6 +47,7 @@ void CodeGenNS::ParamVisitor::visitMoreParam(ASTNS::MoreParam *ast)
     if (ast->paramlist)
         ast->paramlist->accept(this);
 }
+void CodeGenNS::ParamVisitor::visitParamList_OPT(ASTNS::ParamList_OPT *ast) {}
 
 CodeGenNS::ArgsVisitor::ArgsVisitor::ArgsVisitor(CodeGenNS::CodeGen &cg): cg(cg) {}
 

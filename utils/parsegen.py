@@ -409,6 +409,14 @@ def listRule(sym, name, base, delimit=None):
     nt(moresym, 'more ' + name + 's', base)
     rule(moresym, f'{f"{delimit}:{delimit.lower()}" if delimit is not None else ""} ${symlist}:{symlist.lower()}', special='nodefaultreduce')
 
+def makeOpt(toopt, newname=None):
+    if newname is None:
+        newname = 'optional ' + _grammar[toopt]['name']
+    optnt = toopt + '_OPT'
+    nt(optnt, newname, _grammar[toopt]['base'])
+    rule(optnt, f'${toopt}:{toopt.lower()}')
+    rule(optnt, '')
+
 _grammar = {}
 
 nt('CU', 'compilation unit', 'CUB')
@@ -420,10 +428,8 @@ nt('Decl', 'declaration', 'DeclB')
 rule('Decl', '$Function:_')
 
 nt('Function', 'function declaration', 'DeclB')
-rule('Function', 'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn                      CPARN:cparn $Block:body', 'fun', 'cparn')
-rule('Function', 'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn $ParamList:paramlist CPARN:cparn $Block:body', 'fun', 'cparn')
-rule('Function', 'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn                      CPARN:cparn SEMICOLON:semi', 'fun', 'cparn')
-rule('Function', 'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn $ParamList:paramlist CPARN:cparn SEMICOLON:semi', 'fun', 'cparn')
+rule('Function', 'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn $ParamList_OPT:paramlist CPARN:cparn $Block:body', 'fun', 'cparn')
+rule('Function', 'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn $ParamList_OPT:paramlist CPARN:cparn SEMICOLON:semi', 'fun', 'semi')
 
 listRule('Stmt', 'statement', 'StmtB')
 nt('Stmt', 'statement', 'StmtB')
@@ -481,6 +487,7 @@ nt('Arg', 'argument', 'ArgB')
 rule('Arg', '$Expr:expr')
 
 listRule('Param', 'parameter', 'PListB', 'COMMA')
+makeOpt('ParamList')
 nt('Param', 'parameter', 'PListB')
 rule('Param', '$TypeNV:type IDENTIFIER:name')
 

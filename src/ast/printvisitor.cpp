@@ -609,42 +609,6 @@ void ASTNS::PrintVisitor::visitFunction(ASTNS::Function *a)
     ++indent;
     switch (a->form)
     {
-        case ASTNS::Function::Form::TATTTA:
-            pai("fun = ");
-            pai("[");
-            pai(std::string(a->fun.start, a->fun.end));
-            pai("]\n");
-            pai("retty = ");
-            if (a->retty)
-            {
-                a->retty->accept(this);
-            }
-            else
-            {
-                pai("nullptr\n");
-            }
-            pai("name = ");
-            pai("[");
-            pai(std::string(a->name.start, a->name.end));
-            pai("]\n");
-            pai("oparn = ");
-            pai("[");
-            pai(std::string(a->oparn.start, a->oparn.end));
-            pai("]\n");
-            pai("cparn = ");
-            pai("[");
-            pai(std::string(a->cparn.start, a->cparn.end));
-            pai("]\n");
-            pai("body = ");
-            if (a->body)
-            {
-                a->body->accept(this);
-            }
-            else
-            {
-                pai("nullptr\n");
-            }
-            break;
         case ASTNS::Function::Form::TATTATA:
             pai("fun = ");
             pai("[");
@@ -689,37 +653,6 @@ void ASTNS::PrintVisitor::visitFunction(ASTNS::Function *a)
             {
                 pai("nullptr\n");
             }
-            break;
-        case ASTNS::Function::Form::TATTTT:
-            pai("fun = ");
-            pai("[");
-            pai(std::string(a->fun.start, a->fun.end));
-            pai("]\n");
-            pai("retty = ");
-            if (a->retty)
-            {
-                a->retty->accept(this);
-            }
-            else
-            {
-                pai("nullptr\n");
-            }
-            pai("name = ");
-            pai("[");
-            pai(std::string(a->name.start, a->name.end));
-            pai("]\n");
-            pai("oparn = ");
-            pai("[");
-            pai(std::string(a->oparn.start, a->oparn.end));
-            pai("]\n");
-            pai("cparn = ");
-            pai("[");
-            pai(std::string(a->cparn.start, a->cparn.end));
-            pai("]\n");
-            pai("semi = ");
-            pai("[");
-            pai(std::string(a->semi.start, a->semi.end));
-            pai("]\n");
             break;
         case ASTNS::Function::Form::TATTATT:
             pai("fun = ");
@@ -924,6 +857,18 @@ void ASTNS::PrintVisitor::visitParamList(ASTNS::ParamList *a)
             {
                 pai("nullptr\n");
             }
+            break;
+    }
+    --indent;
+    pai("}\n");
+}
+void ASTNS::PrintVisitor::visitParamList_OPT(ASTNS::ParamList_OPT *a)
+{
+    pai("ParamList_OPT\n{\n");
+    ++indent;
+    switch (a->form)
+    {
+        case ASTNS::ParamList_OPT::Form::EMPTY:
             break;
     }
     --indent;

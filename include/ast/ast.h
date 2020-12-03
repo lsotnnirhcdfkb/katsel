@@ -49,6 +49,7 @@ namespace ASTNS
     class MultExpr;
     class Param;
     class ParamList;
+    class ParamList_OPT;
     class PrimaryExpr;
     class RetStmt;
     class Stmt;
@@ -394,24 +395,20 @@ namespace ASTNS
     class Function : public DeclB
     {
     public:
-        Function(Token fun, std::unique_ptr<TypeB> retty, Token name, Token oparn, Token cparn, std::unique_ptr<StmtB> body);
         Function(Token fun, std::unique_ptr<TypeB> retty, Token name, Token oparn, std::unique_ptr<PListB> paramlist, Token cparn, std::unique_ptr<StmtB> body);
-        Function(Token fun, std::unique_ptr<TypeB> retty, Token name, Token oparn, Token cparn, Token semi);
         Function(Token fun, std::unique_ptr<TypeB> retty, Token name, Token oparn, std::unique_ptr<PListB> paramlist, Token cparn, Token semi);
         enum class Form
         {
-            TATTTA,
             TATTATA,
-            TATTTT,
             TATTATT,
         };
         Token fun;
         std::unique_ptr<TypeB> retty;
         Token name;
         Token oparn;
+        std::unique_ptr<PListB> paramlist;
         Token cparn;
         std::unique_ptr<StmtB> body;
-        std::unique_ptr<PListB> paramlist;
         Token semi;
         Form form;
         virtual void accept(ASTNS::DeclBVisitor *v);
@@ -508,6 +505,17 @@ namespace ASTNS
         };
         std::unique_ptr<PListB> param;
         std::unique_ptr<PListB> moreparam;
+        Form form;
+        virtual void accept(ASTNS::PListBVisitor *v);
+    };
+    class ParamList_OPT : public PListB
+    {
+    public:
+        ParamList_OPT();
+        enum class Form
+        {
+            EMPTY,
+        };
         Form form;
         virtual void accept(ASTNS::PListBVisitor *v);
     };

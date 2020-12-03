@@ -93,6 +93,7 @@ void visitMoreVarStmtItem(ASTNS::MoreVarStmtItem *ast) override;
 void visitMultExpr(ASTNS::MultExpr *ast) override;
 void visitParam(ASTNS::Param *ast) override;
 void visitParamList(ASTNS::ParamList *ast) override;
+void visitParamList_OPT(ASTNS::ParamList_OPT *ast) override;
 void visitPrimaryExpr(ASTNS::PrimaryExpr *ast) override;
 void visitRetStmt(ASTNS::RetStmt *ast) override;
 void visitStmtList(ASTNS::StmtList *ast) override;
@@ -372,17 +373,7 @@ void LocationVisitor::visitFunction(ASTNS::Function *ast)
 {
     switch (ast->form)
     {
-        case ASTNS::Function::Form::TATTTA:
-            retl = ast->fun.start;
-            retf = ast->fun.sourcefile;
-            retr = ast->cparn.end;
-            break;
         case ASTNS::Function::Form::TATTATA:
-            retl = ast->fun.start;
-            retf = ast->fun.sourcefile;
-            retr = ast->cparn.end;
-            break;
-        case ASTNS::Function::Form::TATTTT:
             retl = ast->fun.start;
             retf = ast->fun.sourcefile;
             retr = ast->cparn.end;
@@ -390,7 +381,7 @@ void LocationVisitor::visitFunction(ASTNS::Function *ast)
         case ASTNS::Function::Form::TATTATT:
             retl = ast->fun.start;
             retf = ast->fun.sourcefile;
-            retr = ast->cparn.end;
+            retr = ast->semi.end;
             break;
     }
 }
@@ -457,6 +448,15 @@ void LocationVisitor::visitParamList(ASTNS::ParamList *ast)
             retl = getL(ast->param.get());
             retf = getF(ast->param.get());
             retr = getR(ast->moreparam.get());
+            break;
+    }
+}
+void LocationVisitor::visitParamList_OPT(ASTNS::ParamList_OPT *ast)
+{
+    switch (ast->form)
+    {
+        case ASTNS::ParamList_OPT::Form::EMPTY:
+            reportAbortNoh("get location of empty ast");
             break;
     }
 }

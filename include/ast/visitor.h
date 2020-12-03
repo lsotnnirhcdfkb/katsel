@@ -44,6 +44,7 @@ class MoreVarStmtItem;
 class MultExpr;
 class Param;
 class ParamList;
+class ParamList_OPT;
 class PrimaryExpr;
 class RetStmt;
 class Stmt;
@@ -109,6 +110,7 @@ public:
     virtual void visitMoreParam(ASTNS::MoreParam *ast) = 0;
     virtual void visitParam(ASTNS::Param *ast) = 0;
     virtual void visitParamList(ASTNS::ParamList *ast) = 0;
+    virtual void visitParamList_OPT(ASTNS::ParamList_OPT *ast) = 0;
 };
 class StmtBVisitor
 {
