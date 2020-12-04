@@ -1,11 +1,12 @@
 #include "ir/value.h"
 #include "message/errors.h"
+#include "utils/format.h"
 
 IR::Register::Register(int index, IR::Type *type, ASTNS::AST *defAST, bool temp): _defAST(defAST), index(index), ty(type), temp(temp) {}
 
 std::string IR::Register::stringify() const
 {
-    return concatMsg("%", index);
+    return format("%%%", index);
 }
 ASTNS::AST* IR::Register::defAST() const
 {

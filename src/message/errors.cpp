@@ -1,13 +1,14 @@
 #include "message/errors.h"
 #include "ast/visitor.h"
 #include "message/ansistuff.h"
+#include "utils/format.h"
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
 #include <algorithm>
 #include <typeinfo>
 
-Error::Format Error::format = Error::Format::HUMAN;
+Error::Format Error::errformat = Error::Format::HUMAN;
 // getLine {{{1
 void getLine(std::string::const_iterator &lstarto, std::string::const_iterator &lendo, File const &f, int linenr)
 {
@@ -610,9 +611,9 @@ Location::Location(ASTNS::AST *ast)
     CHECKTY(TypeB)
 #undef CHECKTY
     if (!ast)
-        reportAbortNoh(concatMsg("Location constructor called with nullptr ast"));
+        reportAbortNoh("Location constructor called with nullptr ast");
     else
-        reportAbortNoh(concatMsg("Location constructor reached invalid ast type: ", typeid(ast).name()));
+        reportAbortNoh(format("Location constructor reached invalid ast type: %", typeid(ast).name()));
 }
 // Error methods {{{1
 Error::Error(MsgType type, Location const &location, std::string message): type(type), location(location), message(message) {}
@@ -645,7 +646,7 @@ inline std::string attr(std::string const &ansicode, std::string const &message,
 }
 void Error::report() const
 {
-    if (format == Format::HUMAN)
+    if (errformat == Format::HUMAN)
     {
         switch (type)
         {
@@ -854,9 +855,9 @@ void Error::report() const
                 break;
         }
         
-        auto formatLocation = [](File const &f, std::string::const_iterator const &loc, std::string::const_iterator const &fstart)
+        auto formatLocation = [](File const &f, std::string::const_iterator const &loc, std::string::const_iterator const &fstart) -> std::string
         {
-            return concatMsg("{\"file\":\"", f.filename, "\",\"line\":", getLineN(fstart, loc), ",\"column\":", getColN(fstart, loc), ",\"index\":", std::distance(fstart, loc), "}");
+            return format("{\"file\": \"%\", \"line\": %, \"column\", %, \"index\": %}", f.filename, getLineN(fstart, loc), getColN(fstart, loc), std::distance(fstart, loc));
         };
 
         std::cerr << "\",";
@@ -929,21 +930,21 @@ void reportAbortNoh(std::string const &message)
 }
 void invalidTok(std::string const &name, Token const &underline)
 {
-    reportAbortNoh(concatMsg("invalid token for ", name, ": \"", underline.stringify(), "\""));
+    reportAbortNoh(format("invalid token for %: \"%\"", name, underline.stringify()));
 }
 void calledWithOpTyNEthis(std::string const &classN, std::string const &fnn, std::string const &opname)
 {
-    reportAbortNoh(concatMsg(classN, "::", fnn, " called with ", opname, " type != this"));
+    reportAbortNoh(format("%::% called with % type != this", classN, fnn, opname));
 }
 void outOSwitchDDefaultLab(std::string const &fnn, Location const &highlight)
 {
-    reportAbortNoh(concatMsg(fnn, " went out of switch despite default label"));
+    reportAbortNoh(format("% went out of switch despite default label", fnn));
 }
 void fCalled(std::string const &fnn)
 {
-    reportAbortNoh(concatMsg(fnn, " called"));
+    reportAbortNoh(format("% called", fnn));
 }
 void outOSwitchNoh(std::string const &fnn)
 {
-    reportAbortNoh(concatMsg(fnn, " went out of switch"));
+    reportAbortNoh(format("% went out of switch", fnn));
 }

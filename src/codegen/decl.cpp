@@ -1,6 +1,7 @@
 #include "codegen/codegen.h"
 #include "codegen/codegen.h"
 #include "message/errors.h"
+#include "utils/format.h"
 
 CodeGenNS::DeclCodeGen::DeclCodeGen(CodeGen &cg): cg(cg) {}
 
@@ -22,7 +23,7 @@ void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
     IR::Value *function = cg.context.findGlobal(name);
     IR::FunctionType *fty;
     if (!(fty = dynamic_cast<IR::FunctionType*>(function->type())))
-        reportAbortNoh(concatMsg("DeclCodeGen::visitFunction(): context.getGlobal(\"", name, "\") returned non-function"));
+        reportAbortNoh(format("DeclCodeGen::visitFunction(): context.getGlobal(\"%\") returned non-function", name));
 
     IR::Function *f = static_cast<IR::Function*>(function);
 

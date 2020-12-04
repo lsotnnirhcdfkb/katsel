@@ -1,6 +1,8 @@
 #include "parsestack.h"
 #include "message/errmsgs.h"
 
+#include "utils/format.h"
+
 bool errorRecovery(errorstate const &e, std::vector<std::string> const &expectations)
 {
     if (singleTok(e, expectations) || panicMode(e, expectations))
@@ -85,10 +87,10 @@ struct fix
                 return "implicitly removed token";
 
             case fix::fixtype::SUBSTITUTE:
-                return concatMsg("implicitly replaced token with ", stringifyTokenType(ttype));
+                return format("inplicit replaced token with %", stringifyTokenType(ttype));
 
             case fix::fixtype::INSERT:
-                return concatMsg("implicitly inserted ", stringifyTokenType(ttype), " before token");
+                return format("implicitly inserted % before token", stringifyTokenType(ttype));
 
             default:
                 reportAbortNoh("invalid fix type");
