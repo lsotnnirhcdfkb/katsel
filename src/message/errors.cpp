@@ -851,7 +851,7 @@ void Error::report() const
         
         auto formatLocation = [](File const &f, std::string::const_iterator const &loc, std::string::const_iterator const &fstart)
         {
-            return concatMsg("{\"file\":\"", f.filename, "\",\"line\":", getLineN(fstart, loc), ",\"column\":", getColN(fstart, loc), "}");
+            return concatMsg("{\"file\":\"", f.filename, "\",\"line\":", getLineN(fstart, loc), ",\"column\":", getColN(fstart, loc), ",\"index\":", std::distance(fstart, loc), "}");
         };
 
         std::cerr << "\",";

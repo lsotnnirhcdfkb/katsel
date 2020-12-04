@@ -1,4 +1,4 @@
-import os, sys, subprocess, glob, colorama, re
+import os, sys, subprocess, glob, colorama, re, json
 
 colorama.init()
 
@@ -45,11 +45,6 @@ for testi, testfile in enumerate(TESTS):
     with open(testfile, 'r') as f:
         contents = f.read()
 
-    compErrExpectations  = EXPECT_COMP_ERR_REGEX  .findall(contents)
-    compWarnExpectations = EXPECT_COMP_WARN_REGEX .findall(contents)
-    runErrExpectations   = EXPECT_RUN_ERR_REGEX   .findall(contents)
-    printExpectations    = EXPECT_PRINT_REGEX     .findall(contents)
-
     compiledfile = os.path.join(TESTDIR, os.path.splitext(testfile)[0] + '.o')
     linkedfile = os.path.join(TESTDIR, 'testout')
 
@@ -92,8 +87,62 @@ for testi, testfile in enumerate(TESTS):
 
     print('): ', end='')
 
-    passTest(testfile)
-    print(outputs['compile']['stderr'])
+    compErrExpectations  = EXPECT_COMP_ERR_REGEX  .finditer(contents)
+    compWarnExpectations = EXPECT_COMP_WARN_REGEX .finditer(contents)
+    runErrExpectations   = EXPECT_RUN_ERR_REGEX   .finditer(contents)
+    printExpectations    = EXPECT_PRINT_REGEX     .finditer(contents)
+
+    compileMessages = [json.loads(e) for e in outputs['compile']['stderr'].split('\n') if len(e)]
+
+    failed = False
+    failmsg = ''
+
+    for expect in compErrExpectations:
+        expectNr = contents[:expect.start(0)].count('\n') + 1
+        matchede = [e for e in compileMessages if e['type'] == 'error' and e['location']['line'] == expectNr and os.path.abspath(e['location']['file']) == os.path.abspath(testfile) and e['message'].split(' ')[1] == f'({expect.group(1)})']
+        if len(matchede) != 1:
+            failed = True
+            failmsg = f'expected {expect.group(1)} on testfile line {expectNr}, but got {len(matchede)} matched errors'
+        else:
+            compileMessages.remove(matchede[0])
+
+    for expect in compWarnExpectations:
+        expectNr = contents[:expect.start(0)].count('\n') + 1
+        matchede = [e for e in compileMessages if e['type'] == 'warning' and e['location']['line'] == expectNr and os.path.abspath(e['location']['file']) == os.path.abspath(testfile) and e['message'].split(' ')[1] == f'({expect.group(1)})']
+        if len(matchede) != 1:
+            failed = True
+            failmsg = f'expected {expect.group(1)} on testfile line {expectNr}, but got {len(matchede)} matched warnings'
+        else:
+            compileMessages.remove(matchede[0])
+
+    if len(compileMessages):
+        failed = True
+        failmsg = f'got {len(compileMessages)} extra compile messages'
+
+    if ran:
+        ol = outputs['running']['stdout']
+        for expect in printExpectations:
+            if not len(ol):
+                failed = True
+                failmsg = 'have more print expects, but ran out of lines to check against'
+                break
+
+            if expect.group(1) != ol.pop(0):
+                failed = True
+
+        if len(ol):
+            failed = True
+            failmsg = 'got extra print lines'
+    else:
+        if len([0 for _ in printExpectations]):
+            failed = True
+            failmsg = 'expected runtime errors but did not run'
+
+
+    if failed:
+        fail(testfile, failmsg)
+    else:
+        passTest(testfile)
 
 if nfailed:
     sys.exit(1)
