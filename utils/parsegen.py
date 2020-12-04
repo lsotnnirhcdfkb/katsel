@@ -678,7 +678,7 @@ def formatList(l):
     elif len(l) == 0:
         return '"nothing"'
     else:
-        return 'format("' + ", ".join('%' for _ in l[:-1]) + ' or %", ' +  ', '.join(l)
+        return 'format("' + ", ".join('%' for _ in l[:-1]) + ' or %", ' +  ', '.join(l) + ')'
 # }}}
 def genLoop():
     output = []
