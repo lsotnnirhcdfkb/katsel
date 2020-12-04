@@ -83,3 +83,4 @@ void CodeGenNS::ArgsVisitor::visitMoreArg(ASTNS::MoreArg *ast)
     if (ast->arglist)
         ast->arglist->accept(this);
 }
+void CodeGenNS::ArgsVisitor::visitArgList_OPT(ASTNS::ArgList_OPT *ast) {}

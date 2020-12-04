@@ -112,6 +112,17 @@ void ASTNS::DotVisitor::visitArgList(ASTNS::ArgList *a)
     }
     lastid = std::move(thisid);
 }
+void ASTNS::DotVisitor::visitArgList_OPT(ASTNS::ArgList_OPT *a)
+{
+    std::string thisid = curid();
+    switch (a->form)
+    {
+        case ASTNS::ArgList_OPT::Form::EMPTY:
+            ostream << thisid << " [label=\"ArgList_OPT (EMPTY)\"]";
+            break;
+    }
+    lastid = std::move(thisid);
+}
 void ASTNS::DotVisitor::visitAssignmentExpr(ASTNS::AssignmentExpr *a)
 {
     std::string thisid = curid();
@@ -546,33 +557,6 @@ void ASTNS::DotVisitor::visitCallExpr(ASTNS::CallExpr *a)
                         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
                         connect(thisid, "args", nullptrnodeid);
                     }
-            }
-            {
-                    std::string tokennodeid = makeTextNode("Token", a->cparn.stringify());
-                    connect(thisid, "cparn", tokennodeid);
-            }
-            break;
-        case ASTNS::CallExpr::Form::ATT:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">CallExpr (ATT)</td></tr><tr>";
-            ostream << "<td port=\"callee\">callee</td>";
-            ostream << "<td port=\"oparn\">oparn</td>";
-            ostream << "<td port=\"cparn\">cparn</td>";
-            ostream << "</tr></table>>]\n";
-            {
-                    if (a->callee)
-                    {
-                        a->callee->accept(this);
-                        connect(thisid, "callee", lastid);
-                    }
-                    else
-                    {
-                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "callee", nullptrnodeid);
-                    }
-            }
-            {
-                    std::string tokennodeid = makeTextNode("Token", a->oparn.stringify());
-                    connect(thisid, "oparn", tokennodeid);
             }
             {
                     std::string tokennodeid = makeTextNode("Token", a->cparn.stringify());

@@ -178,6 +178,7 @@ void E0204(IR::ASTValue const &func, Token const &oparn)
     Error e = Error(Error::MsgType::ERROR, oparn, "E0204 (call-noncallable)");
     e.underline(Error::Underline(func, '^')
         .error("calling of non-callable value")
+        .note(concatMsg("value of type \"", func.type()->stringify(), "\""))
     );
     IR::DeclaredValue * fdecl;
     if (( fdecl = dynamic_cast<IR::DeclaredValue*>( func.val)))

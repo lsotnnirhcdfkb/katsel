@@ -22,6 +22,7 @@ namespace ASTNS
     class AdditionExpr;
     class Arg;
     class ArgList;
+    class ArgList_OPT;
     class AssignmentExpr;
     class BinandExpr;
     class BinorExpr;
@@ -150,6 +151,17 @@ namespace ASTNS
         };
         std::unique_ptr<ArgB> arg;
         std::unique_ptr<ArgB> morearg;
+        Form form;
+        virtual void accept(ASTNS::ArgBVisitor *v);
+    };
+    class ArgList_OPT : public ArgB
+    {
+    public:
+        ArgList_OPT();
+        enum class Form
+        {
+            EMPTY,
+        };
         Form form;
         virtual void accept(ASTNS::ArgBVisitor *v);
     };
@@ -297,11 +309,9 @@ namespace ASTNS
     {
     public:
         CallExpr(std::unique_ptr<ExprB> callee, Token oparn, std::unique_ptr<ArgB> args, Token cparn);
-        CallExpr(std::unique_ptr<ExprB> callee, Token oparn, Token cparn);
         enum class Form
         {
             ATAT,
-            ATT,
         };
         std::unique_ptr<ExprB> callee;
         Token oparn;

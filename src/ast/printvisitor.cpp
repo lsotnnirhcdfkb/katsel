@@ -91,6 +91,18 @@ void ASTNS::PrintVisitor::visitArgList(ASTNS::ArgList *a)
     --indent;
     pai("}\n");
 }
+void ASTNS::PrintVisitor::visitArgList_OPT(ASTNS::ArgList_OPT *a)
+{
+    pai("ArgList_OPT\n{\n");
+    ++indent;
+    switch (a->form)
+    {
+        case ASTNS::ArgList_OPT::Form::EMPTY:
+            break;
+    }
+    --indent;
+    pai("}\n");
+}
 void ASTNS::PrintVisitor::visitAssignmentExpr(ASTNS::AssignmentExpr *a)
 {
     pai("AssignmentExpr\n{\n");
@@ -436,25 +448,6 @@ void ASTNS::PrintVisitor::visitCallExpr(ASTNS::CallExpr *a)
             {
                 pai("nullptr\n");
             }
-            pai("cparn = ");
-            pai("[");
-            pai(std::string(a->cparn.start, a->cparn.end));
-            pai("]\n");
-            break;
-        case ASTNS::CallExpr::Form::ATT:
-            pai("callee = ");
-            if (a->callee)
-            {
-                a->callee->accept(this);
-            }
-            else
-            {
-                pai("nullptr\n");
-            }
-            pai("oparn = ");
-            pai("[");
-            pai(std::string(a->oparn.start, a->oparn.end));
-            pai("]\n");
             pai("cparn = ");
             pai("[");
             pai(std::string(a->cparn.start, a->cparn.end));

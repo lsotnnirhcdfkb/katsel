@@ -26,6 +26,7 @@ namespace ASTNS
 void visitAdditionExpr(ASTNS::AdditionExpr *ast) override;
 void visitArg(ASTNS::Arg *ast) override;
 void visitArgList(ASTNS::ArgList *ast) override;
+void visitArgList_OPT(ASTNS::ArgList_OPT *ast) override;
 void visitAssignmentExpr(ASTNS::AssignmentExpr *ast) override;
 void visitBinandExpr(ASTNS::BinandExpr *ast) override;
 void visitBinorExpr(ASTNS::BinorExpr *ast) override;

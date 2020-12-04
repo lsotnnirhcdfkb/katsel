@@ -17,6 +17,7 @@ class VStmtIB;
 class AdditionExpr;
 class Arg;
 class ArgList;
+class ArgList_OPT;
 class AssignmentExpr;
 class BinandExpr;
 class BinorExpr;
@@ -68,6 +69,7 @@ public:
     virtual ~ArgBVisitor() {}
     virtual void visitArg(ASTNS::Arg *ast) = 0;
     virtual void visitArgList(ASTNS::ArgList *ast) = 0;
+    virtual void visitArgList_OPT(ASTNS::ArgList_OPT *ast) = 0;
     virtual void visitMoreArg(ASTNS::MoreArg *ast) = 0;
 };
 class CUBVisitor

@@ -8,6 +8,8 @@ ASTNS::Arg::Arg(std::unique_ptr<ExprB> expr): expr(std::move(expr)), form(ASTNS:
 void ASTNS::Arg::accept(ASTNS::ArgBVisitor *v) { v->visitArg(this); }
 ASTNS::ArgList::ArgList(std::unique_ptr<ArgB> arg, std::unique_ptr<ArgB> morearg): arg(std::move(arg)), morearg(std::move(morearg)), form(ASTNS::ArgList::Form::AA) {}
 void ASTNS::ArgList::accept(ASTNS::ArgBVisitor *v) { v->visitArgList(this); }
+ASTNS::ArgList_OPT::ArgList_OPT(): form(ASTNS::ArgList_OPT::Form::EMPTY) {}
+void ASTNS::ArgList_OPT::accept(ASTNS::ArgBVisitor *v) { v->visitArgList_OPT(this); }
 ASTNS::AssignmentExpr::AssignmentExpr(std::unique_ptr<ExprB> target, Token equal, std::unique_ptr<ExprB> value): target(std::move(target)), equal(equal), value(std::move(value)), form(ASTNS::AssignmentExpr::Form::ATA) {}
 void ASTNS::AssignmentExpr::accept(ASTNS::ExprBVisitor *v) { v->visitAssignmentExpr(this); }
 ASTNS::BinandExpr::BinandExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::BinandExpr::Form::ATA) {}
@@ -31,7 +33,6 @@ ASTNS::CU::CU(std::unique_ptr<DeclB> dl): dl(std::move(dl)), form(ASTNS::CU::For
 ASTNS::CU::CU(): form(ASTNS::CU::Form::EMPTY) {}
 void ASTNS::CU::accept(ASTNS::CUBVisitor *v) { v->visitCU(this); }
 ASTNS::CallExpr::CallExpr(std::unique_ptr<ExprB> callee, Token oparn, std::unique_ptr<ArgB> args, Token cparn): callee(std::move(callee)), oparn(oparn), args(std::move(args)), cparn(cparn), form(ASTNS::CallExpr::Form::ATAT) {}
-ASTNS::CallExpr::CallExpr(std::unique_ptr<ExprB> callee, Token oparn, Token cparn): callee(std::move(callee)), oparn(oparn), cparn(cparn), form(ASTNS::CallExpr::Form::ATT) {}
 void ASTNS::CallExpr::accept(ASTNS::ExprBVisitor *v) { v->visitCallExpr(this); }
 ASTNS::CompeqExpr::CompeqExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::CompeqExpr::Form::ATA) {}
 void ASTNS::CompeqExpr::accept(ASTNS::ExprBVisitor *v) { v->visitCompeqExpr(this); }

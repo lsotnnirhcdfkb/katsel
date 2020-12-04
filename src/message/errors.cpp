@@ -71,6 +71,7 @@ public:
 void visitAdditionExpr(ASTNS::AdditionExpr *ast) override;
 void visitArg(ASTNS::Arg *ast) override;
 void visitArgList(ASTNS::ArgList *ast) override;
+void visitArgList_OPT(ASTNS::ArgList_OPT *ast) override;
 void visitAssignmentExpr(ASTNS::AssignmentExpr *ast) override;
 void visitBinandExpr(ASTNS::BinandExpr *ast) override;
 void visitBinorExpr(ASTNS::BinorExpr *ast) override;
@@ -178,6 +179,15 @@ void LocationVisitor::visitArgList(ASTNS::ArgList *ast)
             retl = getL(ast->arg.get());
             retf = getF(ast->arg.get());
             retr = getR(ast->morearg.get());
+            break;
+    }
+}
+void LocationVisitor::visitArgList_OPT(ASTNS::ArgList_OPT *ast)
+{
+    switch (ast->form)
+    {
+        case ASTNS::ArgList_OPT::Form::EMPTY:
+            reportAbortNoh("get location of empty ast");
             break;
     }
 }
@@ -304,11 +314,6 @@ void LocationVisitor::visitCallExpr(ASTNS::CallExpr *ast)
     switch (ast->form)
     {
         case ASTNS::CallExpr::Form::ATAT:
-            retl = getL(ast->callee.get());
-            retf = getF(ast->callee.get());
-            retr = ast->cparn.end;
-            break;
-        case ASTNS::CallExpr::Form::ATT:
             retl = getL(ast->callee.get());
             retf = getF(ast->callee.get());
             retr = ast->cparn.end;

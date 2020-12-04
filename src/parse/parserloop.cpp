@@ -258,7 +258,7 @@ template <> size_t getGoto<ASTNS::ArgList>(size_t state)
     switch (state)
     {
         case 110:
-            return 136;
+            return 137;
         case 148:
             return 152;
         default:
@@ -284,6 +284,16 @@ template <> size_t getGoto<ASTNS::MoreArg>(size_t state)
             return 147;
         default:
             reportAbortNoh("retrieve goto of nonterminal MoreArg in invalid state");
+    }
+}
+template <> size_t getGoto<ASTNS::ArgList_OPT>(size_t state)
+{
+    switch (state)
+    {
+        case 110:
+            return 136;
+        default:
+            reportAbortNoh("retrieve goto of nonterminal ArgList_OPT in invalid state");
     }
 }
 template <> size_t getGoto<ASTNS::ParamList>(size_t state)
@@ -1860,6 +1870,8 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         reduceSkip<ASTNS::UnaryExpr>(stack);
                         break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 110); break;
                 }
                 break;
             case 67:
@@ -1868,8 +1880,6 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         reduceSkip<ASTNS::CallExpr>(stack);
                         break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 110); break;
                 }
                 break;
             case 68:
@@ -2937,8 +2947,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::CHARLIT:
                         shift(p, lasttok, lookahead, stack, steps, 76); break;
-                    case TokenType::CPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 137); break;
+                    default:
+                        {
+                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::ArgList_OPT>());
+                            stack.emplace_back(getGoto<ASTNS::ArgList_OPT>(stack.back().state), std::move(push));
+                        }
+                        break;
                     case TokenType::DECINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 72); break;
                     case TokenType::FALSELIT:
@@ -2963,9 +2977,6 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 63); break;
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 68); break;
-                    default:
-                        if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  concatMsg("expected ", concatMsg("either ", "argument list", " or ", stringifyTokenType(TokenType::CPARN)), " for ", "function call expression")  });
                 }
                 break;
             case 111:
@@ -3377,13 +3388,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        {
-                            auto a2 (popT(stack));
-                            auto a1 (popT(stack));
-                            auto a0 (popA<ASTNS::PrimaryExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::CallExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::CallExpr>(stack.back().state), std::move(push));
-                        }
+                        reduceSkip<ASTNS::ArgList_OPT>(stack);
                         break;
                 }
                 break;
@@ -3549,9 +3554,9 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a3 (popT(stack));
-                            auto a2 (popA<ASTNS::ArgList>(stack));
+                            auto a2 (popA<ASTNS::ArgList_OPT>(stack));
                             auto a1 (popT(stack));
-                            auto a0 (popA<ASTNS::PrimaryExpr>(stack));
+                            auto a0 (popA<ASTNS::CallExpr>(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::CallExpr>(std::move(a0), std::move(a1), std::move(a2), std::move(a3)));
                             stack.emplace_back(getGoto<ASTNS::CallExpr>(stack.back().state), std::move(push));
                         }

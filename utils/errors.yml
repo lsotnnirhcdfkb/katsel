@@ -161,7 +161,8 @@ errors:
     location: oparn
     highlights:
       - ['func', *under0, [
-          ['error', '"calling of non-callable value"']
+          ['error', '"calling of non-callable value"'],
+          ['note', 'concatMsg("value of type \"", func.type()->stringify(), "\"")']
         ]]
       - ['fdecl->defAST()', *under1, [['note', '"callee declared here"']], 'dyncast IR::DeclaredValue, fdecl, func.val']
   -
