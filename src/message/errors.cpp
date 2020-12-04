@@ -857,7 +857,7 @@ void Error::report() const
         
         auto formatLocation = [](File const &f, std::string::const_iterator const &loc, std::string::const_iterator const &fstart) -> std::string
         {
-            return format("{\"file\": \"%\", \"line\": %, \"column\", %, \"index\": %}", f.filename, getLineN(fstart, loc), getColN(fstart, loc), std::distance(fstart, loc));
+            return format("{\"file\": \"%\", \"line\": %, \"column\": %, \"index\": %}", f.filename, getLineN(fstart, loc), getColN(fstart, loc), std::distance(fstart, loc));
         };
 
         std::cerr << "\",";
