@@ -116,11 +116,57 @@ IR::ASTValue IR::BuiltinType::binOp(CodeGenNS::Context &cgc, IR::ASTValue l, IR:
     switch (op.type)
     {
         case TokenType::DOUBLEPIPE:
-            cgc.curBlock->add(std::make_unique<Instrs::Or>(outReg, l, r)); // TODO: shortcircuit
+            {
+                IR::Block *ltrueb = cgc.curFunc->addBlock("binaryor_ltrueb");
+                IR::Block *checkbothb = cgc.curFunc->addBlock("binaryor_checkbothb");
+                IR::Block *afterb = cgc.curFunc->addBlock("binaryor_afterb");
+
+                // i || j
+                // becomes
+                // if (i)
+                //     true
+                //  else
+                //     j
+
+                cgc.curBlock->branch(std::make_unique<Instrs::CondBr>(l, ltrueb, checkbothb));
+
+                cgc.curBlock = ltrueb;
+                cgc.curBlock->add(std::make_unique<Instrs::Store>(outReg, ASTValue(cgc.getConstInt(cgc.getBuiltinType(Builtins::BOOL), 1), ast)));
+                cgc.curBlock->branch(std::make_unique<Instrs::GotoBr>(afterb));
+
+                cgc.curBlock = checkbothb;
+                cgc.curBlock->add(std::make_unique<Instrs::Store>(outReg, r.type()->isTrue(cgc, r)));
+                cgc.curBlock->branch(std::make_unique<Instrs::GotoBr>(afterb));
+
+                cgc.curBlock = afterb;
+            }
             break;
 
         case TokenType::DOUBLEAMPER:
-            cgc.curBlock->add(std::make_unique<Instrs::And>(outReg, l, r));
+            {
+                IR::Block *lfalseb = cgc.curFunc->addBlock("binaryand_lfalseb");
+                IR::Block *checkbothb = cgc.curFunc->addBlock("binaryand_checkbothb");
+                IR::Block *afterb = cgc.curFunc->addBlock("binaryand_afterb");
+
+                // i && j
+                // becomes
+                // if (i)
+                //     j
+                //  else
+                //     false
+
+                cgc.curBlock->branch(std::make_unique<Instrs::CondBr>(l, checkbothb, lfalseb));
+
+                cgc.curBlock = checkbothb;
+                cgc.curBlock->add(std::make_unique<Instrs::Store>(outReg, r.type()->isTrue(cgc, r)));
+                cgc.curBlock->branch(std::make_unique<Instrs::GotoBr>(afterb));
+
+                cgc.curBlock = lfalseb;
+                cgc.curBlock->add(std::make_unique<Instrs::Store>(outReg, ASTValue(cgc.getConstInt(cgc.getBuiltinType(Builtins::BOOL), 0), ast)));
+                cgc.curBlock->branch(std::make_unique<Instrs::GotoBr>(afterb));
+
+                cgc.curBlock = afterb;
+            }
             break;
 
         case TokenType::BANGEQUAL:
@@ -132,7 +178,7 @@ IR::ASTValue IR::BuiltinType::binOp(CodeGenNS::Context &cgc, IR::ASTValue l, IR:
             break;
 
         case TokenType::LESS:
-            cgc.curBlock->add(std::make_unique<Instrs::CmpLT>(outReg, l, r)); // TODO: unsigned and signed
+            cgc.curBlock->add(std::make_unique<Instrs::CmpLT>(outReg, l, r));
             break;
 
         case TokenType::GREATER:
