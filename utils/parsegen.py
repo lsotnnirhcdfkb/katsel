@@ -750,8 +750,7 @@ def genLoop():
 
                     output.append(        f'                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::{str(ac.rule.symbol)}>({", ".join([f"std::move(a{i})" for i in range(len(ac.rule.expansion))])}));\n')
 
-                    output.append(        f'                            size_t newstate = getGoto<ASTNS::{str(ac.rule.symbol)}>(stack.back().state);\n')
-                    output.append(        f'                            stack.emplace_back(newstate, std::move(push));\n')
+                    output.append(        f'                            stack.emplace_back(getGoto<ASTNS::{str(ac.rule.symbol)}>(stack.back().state), std::move(push));\n')
                     output.append(         '                        }\n')
                 else:
                     output.append(        f'                        reduceSkip<ASTNS::{str(ac.rule.symbol)}>(stack);\n')
