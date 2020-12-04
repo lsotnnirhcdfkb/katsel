@@ -225,38 +225,38 @@ namespace IR
     class Trunc : public Instruction
     {
     public:
-        Trunc(Register *target, ASTValue op, Type *newt);
+        Trunc(Register *target, ASTValue op, BuiltinType *newt);
         void accept(InstructionVisitor *v) override;
         Register *target;
         ASTValue op;
-        Type *newt;
+        BuiltinType *newt;
     };
     class Ext : public Instruction
     {
     public:
-        Ext(Register *target, ASTValue op, Type *newt);
+        Ext(Register *target, ASTValue op, BuiltinType *newt);
         void accept(InstructionVisitor *v) override;
         Register *target;
         ASTValue op;
-        Type *newt;
+        BuiltinType *newt;
     };
     class IntToFloat : public Instruction
     {
     public:
-        IntToFloat(Register *target, ASTValue op, Type *newt);
+        IntToFloat(Register *target, ASTValue op, BuiltinType *newt);
         void accept(InstructionVisitor *v) override;
         Register *target;
         ASTValue op;
-        Type *newt;
+        BuiltinType *newt;
     };
     class FloatToInt : public Instruction
     {
     public:
-        FloatToInt(Register *target, ASTValue op, Type *newt);
+        FloatToInt(Register *target, ASTValue op, BuiltinType *newt);
         void accept(InstructionVisitor *v) override;
         Register *target;
         ASTValue op;
-        Type *newt;
+        BuiltinType *newt;
     };
     class Return : public Instruction
     {

@@ -380,3 +380,14 @@ IR::ASTValue IR::BuiltinType::isTrue(CodeGenNS::Context &cgc, IR::ASTValue v)
     }
     return ASTValue(outReg, v.ast);
 }
+// isSigned and isFloating {{{1
+#define TYPEIS(t) type == Builtins::t
+bool IR::BuiltinType::isSigned()
+{
+    return TYPEIS(SINT8) || TYPEIS(SINT16) || TYPEIS(SINT32) || TYPEIS(SINT64) || TYPEIS(FLOAT) || TYPEIS(DOUBLE) || TYPEIS(CHAR);
+}
+bool IR::BuiltinType::isFloating()
+{
+    return TYPEIS(FLOAT) || TYPEIS(DOUBLE);
+}
+#undef TYPEIS

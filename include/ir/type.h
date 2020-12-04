@@ -72,6 +72,9 @@ namespace IR
         IR::ASTValue castTo(CodeGenNS::Context &cgc, IR::ASTValue v, ASTNS::AST *ast) override;
 
         llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
+
+        bool isFloating();
+        bool isSigned();
     };
 
 

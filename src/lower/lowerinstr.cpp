@@ -17,30 +17,34 @@ void Lower::Lowerer::visitAnd(IR::Instrs::And *instr)
 {
     builder.CreateStore(builder.CreateAnd(lower(instr->lhs), lower(instr->rhs)), allocas.at(instr->target));
 }
-void Lower::Lowerer::visitCmpNE(IR::Instrs::CmpNE *instr)
-{
-    builder.CreateStore(builder.CreateICmpNE(lower(instr->lhs), lower(instr->rhs)), allocas.at(instr->target)); // TODO: unsigned and signed and fcmp
-}
-void Lower::Lowerer::visitCmpEQ(IR::Instrs::CmpEQ *instr)
-{
-    builder.CreateStore(builder.CreateICmpEQ(lower(instr->lhs), lower(instr->rhs)), allocas.at(instr->target)); // TODO: unsigned and signed and fcmp
-}
-void Lower::Lowerer::visitCmpLT(IR::Instrs::CmpLT *instr)
-{
-    builder.CreateStore(builder.CreateICmpULT(lower(instr->lhs), lower(instr->rhs)), allocas.at(instr->target));// TODO: unsigned and signed and fcmp
-}
-void Lower::Lowerer::visitCmpGT(IR::Instrs::CmpGT *instr)
-{
-    builder.CreateStore(builder.CreateICmpUGT(lower(instr->lhs), lower(instr->rhs)), allocas.at(instr->target)); // TODO: unsigned and signed and fcmp
-}
-void Lower::Lowerer::visitCmpLE(IR::Instrs::CmpLE *instr)
-{
-    builder.CreateStore(builder.CreateICmpULE(lower(instr->lhs), lower(instr->rhs)), allocas.at(instr->target)); // TODO: unsigned and signed and fcmp
-}
-void Lower::Lowerer::visitCmpGE(IR::Instrs::CmpGE *instr)
-{
-    builder.CreateStore(builder.CreateICmpUGE(lower(instr->lhs), lower(instr->rhs)), allocas.at(instr->target)); // TODO: unsigned and signed and fcmp
-}
+
+#define DEF_BIN_INSTR(name, ifFloating, ifSignedInt, ifUnsignedInt)                                                               \
+    void Lower::Lowerer::visit##name(IR::Instrs::name *instr)                                                                     \
+    {                                                                                                                             \
+        IR::BuiltinType *bty = static_cast<IR::BuiltinType*>(instr->lhs.type());                                                  \
+        if (bty->isFloating())                                                                                                    \
+            builder.CreateStore(builder.Create##ifFloating (lower(instr->lhs), lower(instr->rhs)), allocas.at(instr->target));    \
+        else if (bty->isSigned())                                                                                                 \
+            builder.CreateStore(builder.Create##ifSignedInt (lower(instr->lhs), lower(instr->rhs)), allocas.at(instr->target));   \
+        else                                                                                                                      \
+            builder.CreateStore(builder.Create##ifUnsignedInt (lower(instr->lhs), lower(instr->rhs)), allocas.at(instr->target)); \
+    }
+
+//            name     ifFloating    ifSignedInt    ifUnsignedInt
+DEF_BIN_INSTR(CmpNE  , FCmpONE     , ICmpNE       , ICmpNE      )
+DEF_BIN_INSTR(CmpEQ  , FCmpOEQ     , ICmpEQ       , ICmpEQ      )
+DEF_BIN_INSTR(CmpLT  , FCmpOLT     , ICmpSLT      , ICmpULT     )
+DEF_BIN_INSTR(CmpGT  , FCmpOGT     , ICmpSGT      , ICmpUGT     )
+DEF_BIN_INSTR(CmpLE  , FCmpOLE     , ICmpSLE      , ICmpULE     )
+DEF_BIN_INSTR(CmpGE  , FCmpOGE     , ICmpSGE      , ICmpUGE     )
+
+DEF_BIN_INSTR(Add    , FAdd        , Add          , Add         )
+DEF_BIN_INSTR(Sub    , FSub        , Sub          , Sub         )
+DEF_BIN_INSTR(Mult   , FMul        , Mul          , Mul         )
+DEF_BIN_INSTR(Div    , FDiv        , SDiv         , UDiv        )
+DEF_BIN_INSTR(Mod    , FRem        , SRem         , URem        )
+#undef DEF_BIN_INSTR
+
 void Lower::Lowerer::visitBitXor(IR::Instrs::BitXor *instr)
 {
     builder.CreateStore(builder.CreateXor(lower(instr->lhs), lower(instr->rhs)), allocas.at(instr->target));
@@ -65,45 +69,46 @@ void Lower::Lowerer::visitShiftL(IR::Instrs::ShiftL *instr)
 {
     builder.CreateStore(builder.CreateShl(lower(instr->lhs), lower(instr->rhs)), allocas.at(instr->target));
 }
-void Lower::Lowerer::visitAdd(IR::Instrs::Add *instr)
-{
-    builder.CreateStore(builder.CreateAdd(lower(instr->lhs), lower(instr->rhs)), allocas.at(instr->target)); // TODO: fadd
-}
-void Lower::Lowerer::visitSub(IR::Instrs::Sub *instr)
-{
-    builder.CreateStore(builder.CreateSub(lower(instr->lhs), lower(instr->rhs)), allocas.at(instr->target)); // TODO: fsub
-}
-void Lower::Lowerer::visitMult(IR::Instrs::Mult *instr)
-{
-    builder.CreateStore(builder.CreateMul(lower(instr->lhs), lower(instr->rhs)), allocas.at(instr->target)); // TODO: fmul
-}
-void Lower::Lowerer::visitDiv(IR::Instrs::Div *instr)
-{
-    builder.CreateStore(builder.CreateUDiv(lower(instr->lhs), lower(instr->rhs)), allocas.at(instr->target)); // TODO: udiv, sdiv, and fdiv
-}
-void Lower::Lowerer::visitMod(IR::Instrs::Mod *instr)
-{
-    builder.CreateStore(builder.CreateURem(lower(instr->lhs), lower(instr->rhs)), allocas.at(instr->target)); // TODO: urem, srem, and frem
-}
 void Lower::Lowerer::visitNeg(IR::Instrs::Neg *instr)
 {
-    builder.CreateStore(builder.CreateSub(llvm::ConstantInt::get(instr->op.type()->toLLVMType(context), 0), lower(instr->op)), allocas.at(instr->target)); // TODO: fneg
+    IR::BuiltinType *bty = static_cast<IR::BuiltinType*>(instr->op.type());
+    if (bty->isFloating())
+        builder.CreateStore(builder.CreateFNeg(lower(instr->op)), allocas.at(instr->target));
+    else
+        builder.CreateStore(builder.CreateSub(llvm::ConstantInt::get(instr->op.type()->toLLVMType(context), 0), lower(instr->op)), allocas.at(instr->target));
 }
 void Lower::Lowerer::visitTrunc(IR::Instrs::Trunc *instr)
 {
-    builder.CreateStore(builder.CreateTrunc(lower(instr->op), instr->newt->toLLVMType(context)), allocas.at(instr->target)); // TODO: fptrunc and trunc
+    IR::BuiltinType *bty = static_cast<IR::BuiltinType*>(instr->op.type());
+    if (bty->isFloating())
+        builder.CreateStore(builder.CreateFPTrunc(lower(instr->op), instr->newt->toLLVMType(context)), allocas.at(instr->target));
+    else
+        builder.CreateStore(builder.CreateTrunc(lower(instr->op), instr->newt->toLLVMType(context)), allocas.at(instr->target));
 }
 void Lower::Lowerer::visitExt(IR::Instrs::Ext *instr)
 {
-    builder.CreateStore(builder.CreateZExt(lower(instr->op), instr->newt->toLLVMType(context)), allocas.at(instr->target)); // TODO: signed and unsigned and fpext
+    IR::BuiltinType *bty = static_cast<IR::BuiltinType*>(instr->op.type());
+    if (bty->isFloating())
+        builder.CreateStore(builder.CreateFPExt(lower(instr->op), instr->newt->toLLVMType(context)), allocas.at(instr->target));
+    else if (bty->isSigned())
+        builder.CreateStore(builder.CreateSExt(lower(instr->op), instr->newt->toLLVMType(context)), allocas.at(instr->target));
+    else
+        builder.CreateStore(builder.CreateZExt(lower(instr->op), instr->newt->toLLVMType(context)), allocas.at(instr->target));
 }
 void Lower::Lowerer::visitIntToFloat(IR::Instrs::IntToFloat *instr)
 {
-    builder.CreateStore(builder.CreateUIToFP(lower(instr->op), instr->newt->toLLVMType(context)), allocas.at(instr->target)); // TODO: SIToFP, UIToFP (signed and unsigned)
+    IR::BuiltinType *bty = static_cast<IR::BuiltinType*>(instr->op.type());
+    if (bty->isSigned())
+        builder.CreateStore(builder.CreateSIToFP(lower(instr->op), instr->newt->toLLVMType(context)), allocas.at(instr->target));
+    else
+        builder.CreateStore(builder.CreateUIToFP(lower(instr->op), instr->newt->toLLVMType(context)), allocas.at(instr->target));
 }
 void Lower::Lowerer::visitFloatToInt(IR::Instrs::FloatToInt *instr)
 {
-    builder.CreateStore(builder.CreateFPToUI(lower(instr->op), instr->newt->toLLVMType(context)), allocas.at(instr->target)); // TODO: FPTOSI, FPToUI (signed and unsigned)
+    if (instr->newt->isSigned())
+        builder.CreateStore(builder.CreateFPToSI(lower(instr->op), instr->newt->toLLVMType(context)), allocas.at(instr->target));
+    else
+        builder.CreateStore(builder.CreateFPToUI(lower(instr->op), instr->newt->toLLVMType(context)), allocas.at(instr->target));
 }
 void Lower::Lowerer::visitReturn(IR::Instrs::Return *instr)
 {
