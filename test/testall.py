@@ -4,9 +4,9 @@ colorama.init()
 
 if len(sys.argv) == 3:
     EXECLOC = os.path.abspath(sys.argv[1])
-    LINKER = os.path.abspath(sys.argv[2])
+    CPPCOMP = os.path.abspath(sys.argv[2])
 else:
-    print(f'Usage: {sys.argv[0]} <katselc path> <linker>')
+    print(f'Usage: {sys.argv[0]} <katselc path> <c++ compiler>')
     sys.exit(1)
 
 def fail(testfile, msg):
@@ -30,6 +30,30 @@ TESTDIR = os.path.abspath(os.path.dirname(__file__))
 TESTS = glob.glob(f'{TESTDIR}/**/*.ksl', recursive=True)
 NTESTS = len(TESTS)
 NTESTWIDTH = len(str(NTESTS))
+
+PRINTDEFF = 'printdef.c'
+
+with open(PRINTDEFF, 'w') as f:
+    f.write(r'''
+#include <stdio.h>
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C"
+#endif
+void printd(uint32_t i)
+{
+    printf("%d\n", i);
+}
+
+#ifdef __cplusplus
+extern "C"
+#endif
+void printc(uint32_t i)
+{
+    printf("%c", i);
+}
+''')
 
 EXPECT_COMP_ERR_REGEX = re.compile(r'// expect compile error \(([\w-]+)\)$', re.MULTILINE)
 EXPECT_COMP_WARN_REGEX = re.compile(r'// expect compile warning \(([\w-]+)\)$', re.MULTILINE)
@@ -59,7 +83,7 @@ for testi, testfile in enumerate(TESTS):
     ran = False
 
     compileCommand = [EXECLOC, '-e', 'json', testfile]
-    linkCommand = [LINKER, compiledfile, '-o', linkedfile]
+    linkCommand = [CPPCOMP, compiledfile, PRINTDEFF, '-o', linkedfile]
     runCommand = [linkedfile]
 
     compilation = subprocess.run(compileCommand, capture_output=True)
@@ -120,7 +144,10 @@ for testi, testfile in enumerate(TESTS):
         failmsg = f'got {len(compileMessages)} extra compile messages'
 
     if ran:
-        ol = outputs['running']['stdout']
+        ol = outputs['running']['stdout'].split('\n')
+        if not len(ol[-1]):
+            del ol[-1]
+
         for expect in printExpectations:
             if not len(ol):
                 failed = True
@@ -136,13 +163,14 @@ for testi, testfile in enumerate(TESTS):
     else:
         if len([0 for _ in printExpectations]):
             failed = True
-            failmsg = 'expected runtime errors but did not run'
-
+            failmsg = 'expected printing but did not run'
 
     if failed:
         fail(testfile, failmsg)
     else:
         passTest(testfile)
+
+os.remove(PRINTDEFF)
 
 if nfailed:
     sys.exit(1)
