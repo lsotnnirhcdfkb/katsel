@@ -11,62 +11,139 @@ IR::ASTValue CodeGenNS::ExprCodeGen::expr(ASTNS::ExprB *ast)
     return ret;
 }
 
-#define BASICBINARYOP(exprtype)                                                                                                           \
-    void CodeGenNS::ExprCodeGen::visit##exprtype##Expr(ASTNS::exprtype##Expr *ast)                                                        \
-    {                                                                                                                                     \
-        IR::ASTValue lhs = expr(ast->lhs.get());                                                                                          \
-        IR::ASTValue rhs = expr(ast->rhs.get());                                                                                          \
-                                                                                                                                          \
-        if (!lhs || !rhs)                                                                                                                 \
-        {                                                                                                                                 \
-            ret = IR::ASTValue();                                                                                                         \
-            return;                                                                                                                       \
-        }                                                                                                                                 \
-                                                                                                                                          \
-        if (!lhs.type()->hasOperator(ast->op.type))                                                                                       \
-        {                                                                                                                                 \
-            ERR_LHS_UNSUPPORTED_OP(lhs, rhs, ast->op);                                                                                    \
-            ret = IR::ASTValue();                                                                                                         \
-            cg.errored = true;                                                                                                            \
-            return;                                                                                                                       \
-        }                                                                                                                                 \
-                                                                                                                                          \
-        ret = lhs.type()->binOp(cg.context, lhs, rhs, ast->op, ast);                                                                      \
+#define BINARYOPSTART()                      \
+    IR::ASTValue lhs = expr(ast->lhs.get()); \
+    IR::ASTValue rhs = expr(ast->rhs.get()); \
+    if (!lhs || !rhs)                        \
+    {                                        \
+        ret = IR::ASTValue();                \
+        return;                              \
+    }
+#define BINARYOPEND()                                                  \
+    ret = lhs.type()->binOp(cg.context, oper, lhs, rhs, ast->op, ast); \
+    if (!ret)                                                          \
+        cg.errored = true;
+
+#define BINARYOPSWITCH() IR::Type::BinaryOperator oper; switch (ast->op.type) {
+#define BINARYOPSWITCHEND(astty)              \
+        default: invalidTok(#astty, ast->op); \
+    }
+#define BINARYOPCASE(tokentype, optype) case TokenType::tokentype: oper = IR::Type::BinaryOperator::optype; break;
+
+#define BINARYOPIS(operty) IR::Type::BinaryOperator oper = IR::Type::BinaryOperator::operty;
+
+void CodeGenNS::ExprCodeGen::visitBinandExpr(ASTNS::BinandExpr *ast)
+{
+    BINARYOPSTART()
+    BINARYOPIS(doubleamper)
+    BINARYOPEND()
+}
+void CodeGenNS::ExprCodeGen::visitBinorExpr(ASTNS::BinorExpr *ast)
+{
+    BINARYOPSTART()
+    BINARYOPIS(doublepipe)
+    BINARYOPEND()
+}
+void CodeGenNS::ExprCodeGen::visitBitandExpr(ASTNS::BitandExpr *ast)
+{
+    BINARYOPSTART()
+    BINARYOPIS(amper)
+    BINARYOPEND()
+}
+void CodeGenNS::ExprCodeGen::visitBitorExpr(ASTNS::BitorExpr *ast)
+{
+    BINARYOPSTART()
+    BINARYOPIS(pipe)
+    BINARYOPEND()
+}
+void CodeGenNS::ExprCodeGen::visitBitshiftExpr(ASTNS::BitshiftExpr *ast)
+{
+    BINARYOPSTART()
+    BINARYOPSWITCH()
+    BINARYOPCASE(DOUBLEGREATER, doublegreater)
+    BINARYOPCASE(DOUBLELESS, doubleless)
+    BINARYOPSWITCHEND(BitshiftExpr operator)
+    BINARYOPEND()
+}
+void CodeGenNS::ExprCodeGen::visitBitxorExpr(ASTNS::BitxorExpr *ast)
+{
+    BINARYOPSTART()
+    BINARYOPIS(caret);
+    BINARYOPEND()
+}
+void CodeGenNS::ExprCodeGen::visitCompeqExpr(ASTNS::CompeqExpr *ast)
+{
+    BINARYOPSTART()
+    BINARYOPSWITCH()
+    BINARYOPCASE(BANGEQUAL, bangequal)
+    BINARYOPCASE(DOUBLEEQUAL, doubleequal)
+    BINARYOPSWITCHEND(CompeqExpr operator)
+    BINARYOPEND()
+}
+void CodeGenNS::ExprCodeGen::visitComplgtExpr(ASTNS::ComplgtExpr *ast)
+{
+    BINARYOPSTART()
+    BINARYOPSWITCH()
+    BINARYOPCASE(LESS, less)
+    BINARYOPCASE(GREATER, greater)
+    BINARYOPCASE(LESSEQUAL, lessequal)
+    BINARYOPCASE(GREATEREQUAL, greaterequal)
+    BINARYOPSWITCHEND(ComplgtExpr operator)
+    BINARYOPEND()
+}
+void CodeGenNS::ExprCodeGen::visitMultExpr(ASTNS::MultExpr *ast)
+{
+    BINARYOPSTART()
+    BINARYOPSWITCH()
+    BINARYOPCASE(STAR, star)
+    BINARYOPCASE(SLASH, slash)
+    BINARYOPCASE(PERCENT, percent)
+    BINARYOPSWITCHEND(MultExpr operator)
+    BINARYOPEND()
+}
+void CodeGenNS::ExprCodeGen::visitAdditionExpr(ASTNS::AdditionExpr *ast)
+{
+    BINARYOPSTART()
+    BINARYOPSWITCH()
+    BINARYOPCASE(PLUS, plus)
+    BINARYOPCASE(MINUS, minus)
+    BINARYOPSWITCHEND(AdditionExpr operator)
+    BINARYOPEND()
+}
+#undef BINARYOPSTART
+#undef BINARYOPEND
+#undef BINARYOPSWITCH
+#undef BINARYOPSWITCHEND
+#undef BINARYOPCASE
+#undef BINARYOPIS
+
+void CodeGenNS::ExprCodeGen::visitUnaryExpr(ASTNS::UnaryExpr *ast)
+{
+    IR::ASTValue oper = expr(ast->operand.get());
+    if (!oper)
+    {
+        ret = IR::ASTValue();
+        return;
     }
 
-#define BASICUNARYOP(exprtype)                                                                                                                        \
-    void CodeGenNS::ExprCodeGen::visit##exprtype##Expr(ASTNS::exprtype##Expr *ast)                                                                    \
-    {                                                                                                                                                 \
-        IR::ASTValue oper = expr(ast->operand.get());                                                                                                 \
-        if (!oper)                                                                                                                                    \
-        {                                                                                                                                             \
-            ret = IR::ASTValue();                                                                                                                     \
-            return;                                                                                                                                   \
-        }                                                                                                                                             \
-                                                                                                                                                      \
-        if (!oper.type()->hasOperator(ast->op.type))                                                                                                  \
-        {                                                                                                                                             \
-            ERR_UNARY_UNSUPPORTED_OP(oper, ast->op);                                                                                                  \
-            ret = IR::ASTValue();                                                                                                                     \
-            cg.errored = true;                                                                                                                        \
-            return;                                                                                                                                   \
-        }                                                                                                                                             \
-                                                                                                                                                      \
-        ret = oper.type()->unaryOp(cg.context, oper, ast->op, ast);                                                                                   \
+    IR::Type::UnaryOperator opor;
+
+    switch (ast->op.type)
+    {
+        case TokenType::TILDE:
+            opor = IR::Type::UnaryOperator::tilde; break;
+        case TokenType::MINUS:
+            opor = IR::Type::UnaryOperator::minus; break;
+        case TokenType::BANG:
+            opor = IR::Type::UnaryOperator::bang; break;
+        default:
+            invalidTok("unary operator", ast->op);
     }
 
-BASICBINARYOP(Addition)
-BASICBINARYOP(Binand)
-BASICBINARYOP(Binor)
-BASICBINARYOP(Bitand)
-BASICBINARYOP(Bitor)
-BASICBINARYOP(Bitshift)
-BASICBINARYOP(Bitxor)
-BASICBINARYOP(Compeq)
-BASICBINARYOP(Complgt)
-BASICBINARYOP(Mult)
-
-BASICUNARYOP(Unary)
+    ret = oper.type()->unaryOp(cg.context, opor, oper, ast->op, ast);
+    if (!ret)
+        cg.errored = true;
+}
 
 void CodeGenNS::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
 {

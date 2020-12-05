@@ -64,58 +64,50 @@ std::string IR::BuiltinType::stringify() const
     }
     outOSwitchNoh("BuiltinType::stringify");
 }
-// hasOperator {{{1
-bool IR::BuiltinType::hasOperator(TokenType)
-{
-    return true; // builtin has all operators
-}
 // binOp {{{1
-IR::ASTValue IR::BuiltinType::binOp(CodeGenNS::Context &cgc, IR::ASTValue l, IR::ASTValue r, Token op, ASTNS::AST *ast)
+IR::ASTValue IR::BuiltinType::binOp(CodeGenNS::Context &cgc, IR::Type::BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast)
 {
     if (l.type() != this)
         calledWithOpTyNEthis("BuiltinType", "binOp", "left operand");
 
     if (l.type() != r.type())
     {
-        ERR_CONFLICT_TYS_BINARY_OP(l, r, op);
+        ERR_CONFLICT_TYS_BINARY_OP(l, r, optok);
         return ASTValue();
     }
 
     Type *retTy;
-    switch (op.type)
+    switch (op)
     {
-        case TokenType::DOUBLEPIPE:
-        case TokenType::DOUBLEAMPER:
-        case TokenType::BANGEQUAL:
-        case TokenType::DOUBLEEQUAL:
-        case TokenType::LESS:
-        case TokenType::GREATER:
-        case TokenType::LESSEQUAL:
-        case TokenType::GREATEREQUAL:
+        case Type::BinaryOperator::doublepipe:
+        case Type::BinaryOperator::doubleamper:
+        case Type::BinaryOperator::bangequal:
+        case Type::BinaryOperator::doubleequal:
+        case Type::BinaryOperator::less:
+        case Type::BinaryOperator::greater:
+        case Type::BinaryOperator::lessequal:
+        case Type::BinaryOperator::greaterequal:
             retTy = cgc.getBuiltinType(BuiltinType::Builtins::BOOL);
             break;
 
-        case TokenType::CARET:
-        case TokenType::PIPE:
-        case TokenType::AMPER:
-        case TokenType::DOUBLELESS:
-        case TokenType::DOUBLEGREATER:
-        case TokenType::PLUS:
-        case TokenType::MINUS:
-        case TokenType::STAR:
-        case TokenType::SLASH:
-        case TokenType::PERCENT:
+        case Type::BinaryOperator::caret:
+        case Type::BinaryOperator::pipe:
+        case Type::BinaryOperator::amper:
+        case Type::BinaryOperator::doubleless:
+        case Type::BinaryOperator::doublegreater:
+        case Type::BinaryOperator::plus:
+        case Type::BinaryOperator::minus:
+        case Type::BinaryOperator::star:
+        case Type::BinaryOperator::slash:
+        case Type::BinaryOperator::percent:
             retTy = l.type();
             break;
-
-        default:
-            invalidTok("binary operator", op);
     }
 
     IR::Register *outReg = cgc.curFunc->addRegister(retTy, ast);
-    switch (op.type)
+    switch (op)
     {
-        case TokenType::DOUBLEPIPE:
+        case Type::BinaryOperator::doublepipe:
             {
                 IR::Block *ltrueb = cgc.curFunc->addBlock("binaryor_ltrueb");
                 IR::Block *checkbothb = cgc.curFunc->addBlock("binaryor_checkbothb");
@@ -142,7 +134,7 @@ IR::ASTValue IR::BuiltinType::binOp(CodeGenNS::Context &cgc, IR::ASTValue l, IR:
             }
             break;
 
-        case TokenType::DOUBLEAMPER:
+        case Type::BinaryOperator::doubleamper:
             {
                 IR::Block *lfalseb = cgc.curFunc->addBlock("binaryand_lfalseb");
                 IR::Block *checkbothb = cgc.curFunc->addBlock("binaryand_checkbothb");
@@ -169,72 +161,69 @@ IR::ASTValue IR::BuiltinType::binOp(CodeGenNS::Context &cgc, IR::ASTValue l, IR:
             }
             break;
 
-        case TokenType::BANGEQUAL:
+        case Type::BinaryOperator::bangequal:
             cgc.curBlock->add(std::make_unique<Instrs::CmpNE>(outReg, l, r));
             break;
 
-        case TokenType::DOUBLEEQUAL:
+        case Type::BinaryOperator::doubleequal:
             cgc.curBlock->add(std::make_unique<Instrs::CmpEQ>(outReg, l, r));
             break;
 
-        case TokenType::LESS:
+        case Type::BinaryOperator::less:
             cgc.curBlock->add(std::make_unique<Instrs::CmpLT>(outReg, l, r));
             break;
 
-        case TokenType::GREATER:
+        case Type::BinaryOperator::greater:
             cgc.curBlock->add(std::make_unique<Instrs::CmpGT>(outReg, l, r));
             break;
 
-        case TokenType::LESSEQUAL:
+        case Type::BinaryOperator::lessequal:
             cgc.curBlock->add(std::make_unique<Instrs::CmpLE>(outReg, l, r));
             break;
 
-        case TokenType::GREATEREQUAL:
+        case Type::BinaryOperator::greaterequal:
             cgc.curBlock->add(std::make_unique<Instrs::CmpGE>(outReg, l, r));
             break;
 
-        case TokenType::CARET:
+        case Type::BinaryOperator::caret:
             cgc.curBlock->add(std::make_unique<Instrs::BitXor>(outReg, l, r));
             break;
 
-        case TokenType::PIPE:
+        case Type::BinaryOperator::pipe:
             cgc.curBlock->add(std::make_unique<Instrs::BitOr>(outReg, l, r));
             break;
 
-        case TokenType::AMPER:
+        case Type::BinaryOperator::amper:
             cgc.curBlock->add(std::make_unique<Instrs::BitAnd>(outReg, l, r));
             break;
 
-        case TokenType::DOUBLELESS:
+        case Type::BinaryOperator::doubleless:
             cgc.curBlock->add(std::make_unique<Instrs::ShiftR>(outReg, l, r));
             break;
 
-        case TokenType::DOUBLEGREATER:
+        case Type::BinaryOperator::doublegreater:
             cgc.curBlock->add(std::make_unique<Instrs::ShiftL>(outReg, l, r));
             break;
 
-        case TokenType::PLUS:
+        case Type::BinaryOperator::plus:
             cgc.curBlock->add(std::make_unique<Instrs::Add>(outReg, l, r));
             break;
 
-        case TokenType::MINUS:
+        case Type::BinaryOperator::minus:
             cgc.curBlock->add(std::make_unique<Instrs::Sub>(outReg, l, r));
             break;
 
-        case TokenType::STAR:
+        case Type::BinaryOperator::star:
             cgc.curBlock->add(std::make_unique<Instrs::Mult>(outReg, l, r));
             break;
 
-        case TokenType::SLASH:
+        case Type::BinaryOperator::slash:
             cgc.curBlock->add(std::make_unique<Instrs::Div>(outReg, l, r));
             break;
 
-        case TokenType::PERCENT:
+        case Type::BinaryOperator::percent:
             cgc.curBlock->add(std::make_unique<Instrs::Mod>(outReg, l, r));
             break;
-
-        default:
-            invalidTok("binary operator", op);
     }
 
     return ASTValue(outReg, ast);
@@ -326,28 +315,25 @@ IR::ASTValue IR::BuiltinType::castTo(CodeGenNS::Context &cgc, IR::ASTValue v, AS
     return ASTValue(outReg, ast);
 }
 // unaryOp {{{1
-IR::ASTValue IR::BuiltinType::unaryOp(CodeGenNS::Context &cgc, IR::ASTValue v, Token op, ASTNS::AST *ast)
+IR::ASTValue IR::BuiltinType::unaryOp(CodeGenNS::Context &cgc, IR::Type::UnaryOperator op, IR::ASTValue v, Token optok, ASTNS::AST *ast)
 {
     if (v.type() != this)
         calledWithOpTyNEthis("BuiltinType", "unaryOp", "operand");
 
     IR::Register *outReg = cgc.curFunc->addRegister(v.type(), ast);
-    switch (op.type)
+    switch (op)
     {
-        case TokenType::BANG:
+        case Type::UnaryOperator::bang:
             cgc.curBlock->add(std::make_unique<Instrs::CmpEQ>(outReg, v, ASTValue(cgc.getConstInt(this, 0), ast)));
             break;
 
-        case TokenType::TILDE:
+        case Type::UnaryOperator::tilde:
             cgc.curBlock->add(std::make_unique<Instrs::BitXor>(outReg, v, ASTValue(cgc.getConstInt(this, -1), ast)));
             break;
 
-        case TokenType::MINUS:
+        case Type::UnaryOperator::minus:
             cgc.curBlock->add(std::make_unique<Instrs::Sub>(outReg, ASTValue(cgc.getConstInt(this, 0), ast), v));
             break;
-
-        default:
-            invalidTok("unary operator", op);
     }
 
     return ASTValue(outReg, ast);

@@ -24,12 +24,44 @@ namespace IR
     class Type
     {
     public:
-        virtual ~Type() {};
+        virtual ~Type() {}
         virtual std::string stringify() const = 0;
-        virtual bool hasOperator(TokenType t) = 0;
 
-        virtual IR::ASTValue binOp(CodeGenNS::Context &cgc, IR::ASTValue l, IR::ASTValue r, Token op, ASTNS::AST *ast) = 0;
-        virtual IR::ASTValue unaryOp(CodeGenNS::Context &cgc, IR::ASTValue operand, Token op, ASTNS::AST *ast) = 0;
+        enum class BinaryOperator
+        {
+            plus,
+            minus,
+            star,
+            slash,
+            percent,
+            greater,
+            less,
+            greaterequal,
+            lessequal,
+            amper,
+            pipe,
+            caret,
+            doublegreater,
+            doubleless,
+            doubleamper,
+            doublepipe,
+            doubleequal,
+            bangequal
+        };
+        enum class UnaryOperator
+        {
+            bang,
+            tilde,
+            minus,
+            postfixdoubleplus,
+            postfixdoubleminus,
+            prefixdoubleplus,
+            prefixdoubleminus
+        };
+
+        virtual IR::ASTValue binOp(CodeGenNS::Context &cgc, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) = 0;
+        virtual IR::ASTValue unaryOp(CodeGenNS::Context &cgc, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) = 0;
+
         virtual IR::ASTValue isTrue(CodeGenNS::Context &cgc, IR::ASTValue v) = 0;
 
         virtual IR::ASTValue castTo(CodeGenNS::Context &cgc, IR::ASTValue v, ASTNS::AST *ast) = 0;
@@ -63,10 +95,9 @@ namespace IR
         BuiltinType(Builtins b);
         std::string stringify() const override;
 
-        bool hasOperator(TokenType t) override;
+        IR::ASTValue binOp(CodeGenNS::Context &cgc, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
+        IR::ASTValue unaryOp(CodeGenNS::Context &cgc, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;
 
-        IR::ASTValue binOp(CodeGenNS::Context &cgc, IR::ASTValue l, IR::ASTValue r, Token op, ASTNS::AST *ast) override;
-        IR::ASTValue unaryOp(CodeGenNS::Context &cgc, IR::ASTValue operand, Token op, ASTNS::AST *ast) override;
         IR::ASTValue isTrue(CodeGenNS::Context &cgc, IR::ASTValue v) override;
 
         IR::ASTValue castTo(CodeGenNS::Context &cgc, IR::ASTValue v, ASTNS::AST *ast) override;
@@ -86,9 +117,10 @@ namespace IR
 
         FunctionType(Type *ret, std::vector<Type*> paramtys);
         std::string stringify() const override;
-        bool hasOperator(TokenType t) override;
-        IR::ASTValue binOp(CodeGenNS::Context &cgc, IR::ASTValue l, IR::ASTValue r, Token op, ASTNS::AST *ast) override;
-        IR::ASTValue unaryOp(CodeGenNS::Context &cgc, IR::ASTValue operand, Token op, ASTNS::AST *ast) override;
+
+        IR::ASTValue binOp(CodeGenNS::Context &cgc, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
+        IR::ASTValue unaryOp(CodeGenNS::Context &cgc, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;
+
         IR::ASTValue isTrue(CodeGenNS::Context &cgc, IR::ASTValue v) override;
 
         IR::ASTValue castTo(CodeGenNS::Context &cgc, IR::ASTValue v, ASTNS::AST *ast) override;
@@ -100,9 +132,10 @@ namespace IR
     {
     public:
         std::string stringify() const override;
-        bool hasOperator(TokenType t) override;
-        IR::ASTValue binOp(CodeGenNS::Context &cgc, IR::ASTValue l, IR::ASTValue r, Token op, ASTNS::AST *ast) override;
-        IR::ASTValue unaryOp(CodeGenNS::Context &cgc, IR::ASTValue operand, Token op, ASTNS::AST *ast) override;
+
+        IR::ASTValue binOp(CodeGenNS::Context &cgc, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
+        IR::ASTValue unaryOp(CodeGenNS::Context &cgc, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;
+
         IR::ASTValue isTrue(CodeGenNS::Context &cgc, IR::ASTValue v) override;
 
         IR::ASTValue castTo(CodeGenNS::Context &cgc, IR::ASTValue v, ASTNS::AST *ast) override;
