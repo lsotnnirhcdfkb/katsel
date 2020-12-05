@@ -140,7 +140,7 @@ void E0201(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &op)
 {
     Error e = Error(Error::MsgType::ERROR, op, "E0201 (lhs-unsupported-op)");
     e.underline(Error::Underline(lhs, '^')
-        .note(format("lhs is of type \"%\"", lhs.type()->stringify()))
+        .note(format("lhs is of type '%'", lhs.type()->stringify()))
     );
     IR::DeclaredValue * asdeclval;
     if (( asdeclval = dynamic_cast<IR::DeclaredValue*>( lhs.val)))
@@ -160,7 +160,7 @@ void E0203(IR::ASTValue const &operand, Token const &_operator)
 {
     Error e = Error(Error::MsgType::ERROR, _operator, "E0203 (unary-unsupported-op)");
     e.underline(Error::Underline(operand, '^')
-        .note(format("operand is of type \"%\"", operand.type()->stringify()))
+        .note(format("operand is of type '%'", operand.type()->stringify()))
     );
     IR::DeclaredValue * asdeclval;
     if (( asdeclval = dynamic_cast<IR::DeclaredValue*>( operand.val)))
@@ -179,7 +179,7 @@ void E0204(IR::ASTValue const &func, Token const &oparn)
     Error e = Error(Error::MsgType::ERROR, oparn, "E0204 (call-noncallable)");
     e.underline(Error::Underline(func, '^')
         .error("calling of non-callable value")
-        .note(format("value of type \"%\"", func.type()->stringify()))
+        .note(format("value of type '%'", func.type()->stringify()))
     );
     IR::DeclaredValue * fdecl;
     if (( fdecl = dynamic_cast<IR::DeclaredValue*>( func.val)))
@@ -193,7 +193,7 @@ void E0204(IR::ASTValue const &func, Token const &oparn)
 void E0205(IR::ASTValue const &func, Token const &oparn, ASTNS::ArgB *argsast, std::vector<IR::ASTValue> const &args)
 {
     Error e = Error(Error::MsgType::ERROR, oparn, "E0205 (wrong-num-args)");
-    e.underline(Error::Underline(argsast ? Location(argsast) : Location(oparn), '^')
+    e.underline(Error::Underline(argsast && !argsast->empty() ? Location(argsast) : Location(oparn), '^')
         .error("wrong number of arguments to function call")
     );
     e.underline(Error::Underline(func, '~')
@@ -210,8 +210,8 @@ void E0206(IR::ASTValue const &arg, IR::Type const *expected)
     Error e = Error(Error::MsgType::ERROR, arg, "E0206 (incorrect-arg)");
     e.underline(Error::Underline(arg, '^')
         .error("invalid argument to function call")
-        .note(format("argument is of type \"%\"", arg.type()->stringify()))
-        .note(format("function expects \"%\"", expected->stringify()))
+        .note(format("argument is of type '%'", arg.type()->stringify()))
+        .note(format("function expects '%'", expected->stringify()))
     );
     e.report();
 }
@@ -291,7 +291,7 @@ void E0212(IR::ASTValue const &val, IR::Function *f)
         .error("conflicting return type")
     );
     e.underline(Error::Underline(f->defAST()->retty.get(), '~')
-        .note(format("function returns \"%\"", f->ty->ret->stringify()))
+        .note(format("function returns '%'", f->ty->ret->stringify()))
     );
     e.report();
 }
@@ -304,7 +304,7 @@ void E0213(ASTNS::AST *retstmt, IR::Function *f)
         .error("void return in non-void function")
     );
     e.underline(Error::Underline(f->defAST()->retty.get(), '~')
-        .note(format("function returns \"%\"", f->ty->ret->stringify()))
+        .note(format("function returns '%'", f->ty->ret->stringify()))
     );
     e.report();
 }
@@ -343,7 +343,7 @@ void E0216(ASTNS::AST *ast, IR::ASTValue v, IR::Type const *newty)
 {
     Error e = Error(Error::MsgType::ERROR, ast, "E0216 (invalid-cast)");
     e.underline(Error::Underline(ast, '^')
-        .error(format("invalid cast from \"%\" to \"%\"", v.type()->stringify(), newty->stringify()))
+        .error(format("invalid cast from '%' to '%'", v.type()->stringify(), newty->stringify()))
     );
     e.report();
 }

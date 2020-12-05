@@ -4,84 +4,121 @@
 #include "ast/ast.h"
 ASTNS::AdditionExpr::AdditionExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::AdditionExpr::Form::ATA) {}
 void ASTNS::AdditionExpr::accept(ASTNS::ExprBVisitor *v) { v->visitAdditionExpr(this); }
+bool ASTNS::AdditionExpr::empty() { return false; }
 ASTNS::Arg::Arg(std::unique_ptr<ExprB> expr): expr(std::move(expr)), form(ASTNS::Arg::Form::A) {}
 void ASTNS::Arg::accept(ASTNS::ArgBVisitor *v) { v->visitArg(this); }
+bool ASTNS::Arg::empty() { return false; }
 ASTNS::ArgList::ArgList(std::unique_ptr<ArgB> arg, std::unique_ptr<ArgB> morearg): arg(std::move(arg)), morearg(std::move(morearg)), form(ASTNS::ArgList::Form::AA) {}
 void ASTNS::ArgList::accept(ASTNS::ArgBVisitor *v) { v->visitArgList(this); }
+bool ASTNS::ArgList::empty() { return false; }
 ASTNS::ArgList_OPT::ArgList_OPT(): form(ASTNS::ArgList_OPT::Form::EMPTY) {}
 void ASTNS::ArgList_OPT::accept(ASTNS::ArgBVisitor *v) { v->visitArgList_OPT(this); }
+bool ASTNS::ArgList_OPT::empty() { return form == Form::EMPTY; }
 ASTNS::AssignmentExpr::AssignmentExpr(std::unique_ptr<ExprB> target, Token equal, std::unique_ptr<ExprB> value): target(std::move(target)), equal(equal), value(std::move(value)), form(ASTNS::AssignmentExpr::Form::ATA) {}
 void ASTNS::AssignmentExpr::accept(ASTNS::ExprBVisitor *v) { v->visitAssignmentExpr(this); }
+bool ASTNS::AssignmentExpr::empty() { return false; }
 ASTNS::BinandExpr::BinandExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::BinandExpr::Form::ATA) {}
 void ASTNS::BinandExpr::accept(ASTNS::ExprBVisitor *v) { v->visitBinandExpr(this); }
+bool ASTNS::BinandExpr::empty() { return false; }
 ASTNS::BinorExpr::BinorExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::BinorExpr::Form::ATA) {}
 void ASTNS::BinorExpr::accept(ASTNS::ExprBVisitor *v) { v->visitBinorExpr(this); }
+bool ASTNS::BinorExpr::empty() { return false; }
 ASTNS::BitandExpr::BitandExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::BitandExpr::Form::ATA) {}
 void ASTNS::BitandExpr::accept(ASTNS::ExprBVisitor *v) { v->visitBitandExpr(this); }
+bool ASTNS::BitandExpr::empty() { return false; }
 ASTNS::BitorExpr::BitorExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::BitorExpr::Form::ATA) {}
 void ASTNS::BitorExpr::accept(ASTNS::ExprBVisitor *v) { v->visitBitorExpr(this); }
+bool ASTNS::BitorExpr::empty() { return false; }
 ASTNS::BitshiftExpr::BitshiftExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::BitshiftExpr::Form::ATA) {}
 void ASTNS::BitshiftExpr::accept(ASTNS::ExprBVisitor *v) { v->visitBitshiftExpr(this); }
+bool ASTNS::BitshiftExpr::empty() { return false; }
 ASTNS::BitxorExpr::BitxorExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::BitxorExpr::Form::ATA) {}
 void ASTNS::BitxorExpr::accept(ASTNS::ExprBVisitor *v) { v->visitBitxorExpr(this); }
+bool ASTNS::BitxorExpr::empty() { return false; }
 ASTNS::Block::Block(Token ocurb, std::unique_ptr<StmtB> stmts, Token ccurb): ocurb(ocurb), stmts(std::move(stmts)), ccurb(ccurb), form(ASTNS::Block::Form::TAT) {}
 ASTNS::Block::Block(Token ocurb, Token ccurb): ocurb(ocurb), ccurb(ccurb), form(ASTNS::Block::Form::TT) {}
 void ASTNS::Block::accept(ASTNS::StmtBVisitor *v) { v->visitBlock(this); }
+bool ASTNS::Block::empty() { return false; }
 ASTNS::BuiltinTypeNoVoid::BuiltinTypeNoVoid(Token type): type(type), form(ASTNS::BuiltinTypeNoVoid::Form::T) {}
 void ASTNS::BuiltinTypeNoVoid::accept(ASTNS::TypeBVisitor *v) { v->visitBuiltinTypeNoVoid(this); }
+bool ASTNS::BuiltinTypeNoVoid::empty() { return false; }
 ASTNS::CU::CU(std::unique_ptr<DeclB> dl): dl(std::move(dl)), form(ASTNS::CU::Form::A) {}
 ASTNS::CU::CU(): form(ASTNS::CU::Form::EMPTY) {}
 void ASTNS::CU::accept(ASTNS::CUBVisitor *v) { v->visitCU(this); }
+bool ASTNS::CU::empty() { return form == Form::EMPTY; }
 ASTNS::CallExpr::CallExpr(std::unique_ptr<ExprB> callee, Token oparn, std::unique_ptr<ArgB> args, Token cparn): callee(std::move(callee)), oparn(oparn), args(std::move(args)), cparn(cparn), form(ASTNS::CallExpr::Form::ATAT) {}
 void ASTNS::CallExpr::accept(ASTNS::ExprBVisitor *v) { v->visitCallExpr(this); }
+bool ASTNS::CallExpr::empty() { return false; }
 ASTNS::CompeqExpr::CompeqExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::CompeqExpr::Form::ATA) {}
 void ASTNS::CompeqExpr::accept(ASTNS::ExprBVisitor *v) { v->visitCompeqExpr(this); }
+bool ASTNS::CompeqExpr::empty() { return false; }
 ASTNS::ComplgtExpr::ComplgtExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::ComplgtExpr::Form::ATA) {}
 void ASTNS::ComplgtExpr::accept(ASTNS::ExprBVisitor *v) { v->visitComplgtExpr(this); }
+bool ASTNS::ComplgtExpr::empty() { return false; }
 ASTNS::DeclList::DeclList(std::unique_ptr<DeclB> decl, std::unique_ptr<DeclB> moredecl): decl(std::move(decl)), moredecl(std::move(moredecl)), form(ASTNS::DeclList::Form::AA) {}
 void ASTNS::DeclList::accept(ASTNS::DeclBVisitor *v) { v->visitDeclList(this); }
+bool ASTNS::DeclList::empty() { return false; }
 ASTNS::EmptyStmt::EmptyStmt(Token semi): semi(semi), form(ASTNS::EmptyStmt::Form::T) {}
 void ASTNS::EmptyStmt::accept(ASTNS::StmtBVisitor *v) { v->visitEmptyStmt(this); }
+bool ASTNS::EmptyStmt::empty() { return false; }
 ASTNS::ExprStmt::ExprStmt(std::unique_ptr<ExprB> expr, Token semi): expr(std::move(expr)), semi(semi), form(ASTNS::ExprStmt::Form::AT) {}
 void ASTNS::ExprStmt::accept(ASTNS::StmtBVisitor *v) { v->visitExprStmt(this); }
+bool ASTNS::ExprStmt::empty() { return false; }
 ASTNS::Function::Function(Token fun, std::unique_ptr<TypeB> retty, Token name, Token oparn, std::unique_ptr<PListB> paramlist, Token cparn, std::unique_ptr<StmtB> body): fun(fun), retty(std::move(retty)), name(name), oparn(oparn), paramlist(std::move(paramlist)), cparn(cparn), body(std::move(body)), form(ASTNS::Function::Form::TATTATA) {}
 ASTNS::Function::Function(Token fun, std::unique_ptr<TypeB> retty, Token name, Token oparn, std::unique_ptr<PListB> paramlist, Token cparn, Token semi): fun(fun), retty(std::move(retty)), name(name), oparn(oparn), paramlist(std::move(paramlist)), cparn(cparn), semi(semi), form(ASTNS::Function::Form::TATTATT) {}
 void ASTNS::Function::accept(ASTNS::DeclBVisitor *v) { v->visitFunction(this); }
+bool ASTNS::Function::empty() { return false; }
 ASTNS::MoreArg::MoreArg(Token comma, std::unique_ptr<ArgB> arglist): comma(comma), arglist(std::move(arglist)), form(ASTNS::MoreArg::Form::TA) {}
 void ASTNS::MoreArg::accept(ASTNS::ArgBVisitor *v) { v->visitMoreArg(this); }
+bool ASTNS::MoreArg::empty() { return false; }
 ASTNS::MoreParam::MoreParam(Token comma, std::unique_ptr<PListB> paramlist): comma(comma), paramlist(std::move(paramlist)), form(ASTNS::MoreParam::Form::TA) {}
 void ASTNS::MoreParam::accept(ASTNS::PListBVisitor *v) { v->visitMoreParam(this); }
+bool ASTNS::MoreParam::empty() { return false; }
 ASTNS::MoreVarStmtItem::MoreVarStmtItem(Token comma, std::unique_ptr<VStmtIB> varstmtitemlist): comma(comma), varstmtitemlist(std::move(varstmtitemlist)), form(ASTNS::MoreVarStmtItem::Form::TA) {}
 void ASTNS::MoreVarStmtItem::accept(ASTNS::VStmtIBVisitor *v) { v->visitMoreVarStmtItem(this); }
+bool ASTNS::MoreVarStmtItem::empty() { return false; }
 ASTNS::MultExpr::MultExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::MultExpr::Form::ATA) {}
 void ASTNS::MultExpr::accept(ASTNS::ExprBVisitor *v) { v->visitMultExpr(this); }
+bool ASTNS::MultExpr::empty() { return false; }
 ASTNS::Param::Param(std::unique_ptr<TypeB> type, Token name): type(std::move(type)), name(name), form(ASTNS::Param::Form::AT) {}
 void ASTNS::Param::accept(ASTNS::PListBVisitor *v) { v->visitParam(this); }
+bool ASTNS::Param::empty() { return false; }
 ASTNS::ParamList::ParamList(std::unique_ptr<PListB> param, std::unique_ptr<PListB> moreparam): param(std::move(param)), moreparam(std::move(moreparam)), form(ASTNS::ParamList::Form::AA) {}
 void ASTNS::ParamList::accept(ASTNS::PListBVisitor *v) { v->visitParamList(this); }
+bool ASTNS::ParamList::empty() { return false; }
 ASTNS::ParamList_OPT::ParamList_OPT(): form(ASTNS::ParamList_OPT::Form::EMPTY) {}
 void ASTNS::ParamList_OPT::accept(ASTNS::PListBVisitor *v) { v->visitParamList_OPT(this); }
+bool ASTNS::ParamList_OPT::empty() { return form == Form::EMPTY; }
 ASTNS::PrimaryExpr::PrimaryExpr(Token value): value(value), form(ASTNS::PrimaryExpr::Form::T) {}
 ASTNS::PrimaryExpr::PrimaryExpr(Token oparn, std::unique_ptr<ExprB> expr, Token cparn): oparn(oparn), expr(std::move(expr)), cparn(cparn), form(ASTNS::PrimaryExpr::Form::TAT) {}
 void ASTNS::PrimaryExpr::accept(ASTNS::ExprBVisitor *v) { v->visitPrimaryExpr(this); }
+bool ASTNS::PrimaryExpr::empty() { return false; }
 ASTNS::RetStmt::RetStmt(Token ret, std::unique_ptr<ExprB> expr, Token semi): ret(ret), expr(std::move(expr)), semi(semi), form(ASTNS::RetStmt::Form::TAT) {}
 ASTNS::RetStmt::RetStmt(Token ret, Token semi): ret(ret), semi(semi), form(ASTNS::RetStmt::Form::TT) {}
 void ASTNS::RetStmt::accept(ASTNS::StmtBVisitor *v) { v->visitRetStmt(this); }
+bool ASTNS::RetStmt::empty() { return false; }
 ASTNS::StmtList::StmtList(std::unique_ptr<StmtB> stmt, std::unique_ptr<StmtB> morestmt): stmt(std::move(stmt)), morestmt(std::move(morestmt)), form(ASTNS::StmtList::Form::AA) {}
 void ASTNS::StmtList::accept(ASTNS::StmtBVisitor *v) { v->visitStmtList(this); }
+bool ASTNS::StmtList::empty() { return false; }
 ASTNS::TernaryExpr::TernaryExpr(std::unique_ptr<ExprB> cond, Token quest, std::unique_ptr<ExprB> trues, Token colon, std::unique_ptr<ExprB> falses): cond(std::move(cond)), quest(quest), trues(std::move(trues)), colon(colon), falses(std::move(falses)), form(ASTNS::TernaryExpr::Form::ATATA) {}
 void ASTNS::TernaryExpr::accept(ASTNS::ExprBVisitor *v) { v->visitTernaryExpr(this); }
+bool ASTNS::TernaryExpr::empty() { return false; }
 ASTNS::TypeV::TypeV(Token vo): vo(vo), form(ASTNS::TypeV::Form::T) {}
 void ASTNS::TypeV::accept(ASTNS::TypeBVisitor *v) { v->visitTypeV(this); }
+bool ASTNS::TypeV::empty() { return false; }
 ASTNS::UnaryExpr::UnaryExpr(Token op, std::unique_ptr<ExprB> operand): op(op), operand(std::move(operand)), form(ASTNS::UnaryExpr::Form::TA) {}
 void ASTNS::UnaryExpr::accept(ASTNS::ExprBVisitor *v) { v->visitUnaryExpr(this); }
+bool ASTNS::UnaryExpr::empty() { return false; }
 ASTNS::VarStmt::VarStmt(Token var, std::unique_ptr<TypeB> type, std::unique_ptr<VStmtIB> assignments, Token semi): var(var), type(std::move(type)), assignments(std::move(assignments)), semi(semi), form(ASTNS::VarStmt::Form::TAAT) {}
 void ASTNS::VarStmt::accept(ASTNS::StmtBVisitor *v) { v->visitVarStmt(this); }
+bool ASTNS::VarStmt::empty() { return false; }
 ASTNS::VarStmtItem::VarStmtItem(Token name, Token equal, std::unique_ptr<ExprB> expr): name(name), equal(equal), expr(std::move(expr)), form(ASTNS::VarStmtItem::Form::TTA) {}
 ASTNS::VarStmtItem::VarStmtItem(Token name): name(name), form(ASTNS::VarStmtItem::Form::T) {}
 void ASTNS::VarStmtItem::accept(ASTNS::VStmtIBVisitor *v) { v->visitVarStmtItem(this); }
+bool ASTNS::VarStmtItem::empty() { return false; }
 ASTNS::VarStmtItemList::VarStmtItemList(std::unique_ptr<VStmtIB> varstmtitem, std::unique_ptr<VStmtIB> morevarstmtitem): varstmtitem(std::move(varstmtitem)), morevarstmtitem(std::move(morevarstmtitem)), form(ASTNS::VarStmtItemList::Form::AA) {}
 void ASTNS::VarStmtItemList::accept(ASTNS::VStmtIBVisitor *v) { v->visitVarStmtItemList(this); }
+bool ASTNS::VarStmtItemList::empty() { return false; }
 // This code was autogenerated - see the utils/ directory
 
 // ASTCPP END

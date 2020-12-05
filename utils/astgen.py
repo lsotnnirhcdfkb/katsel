@@ -123,7 +123,8 @@ def genASTDecls():
             output.append(f'        Form form;\n')
 
             if not ast.skiponly:
-                output.append(f'        virtual void accept(ASTNS::{ast.base}Visitor *v);\n')
+                output.append( '        bool empty() override;\n')
+                output.append(f'        virtual void accept(ASTNS::{ast.base}Visitor *v) override;\n')
 
             output.append( '    };\n')
         elif type(ast) == ASTBaseClass:
@@ -132,6 +133,7 @@ def genASTDecls():
             output.append( '    public:\n')
             output.append(f'        virtual ~{ast.name}() {{}}\n')
             output.append(f'        virtual void accept(ASTNS::{ast.name}Visitor *v) = 0;\n')
+            output.append( '        virtual bool empty() = 0;\n')
             output.append( '    };\n')
         else:
             output.append( '    class AST\n')
@@ -162,6 +164,7 @@ def genASTDefs():
                 output.append(' {}\n')
 
             output.append(f'void ASTNS::{ast.name}::accept(ASTNS::{ast.base}Visitor *v) {{ v->visit{ast.name}(this); }}\n')
+            output.append(f'bool ASTNS::{ast.name}::empty() {{ {"return form == Form::EMPTY;" if len(list(filter(lambda form: not len(form[0]), ast.forms))) else "return false;"} }}\n')
 
     return ''.join(output)
 # Generating Visitor stuff {{{2
