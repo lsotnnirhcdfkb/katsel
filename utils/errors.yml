@@ -133,7 +133,7 @@ errors:
       - ['lhs', *under0, [
           ['note', 'format("lhs is of type ''%''", lhs.type()->stringify())']
         ]]
-      - ['asdeclval->defAST()', *under1, [['note', '"lhs declared here"']], 'dyncast IR::DeclaredValue, asdeclval, lhs.val']
+      - ['lhs_val_asdeclared->defAST()', *under1, [['note', '"lhs declared here"']], 'isdeclared lhs.val']
       - ['op', *under0, [
           ['error', '"unsupported binary operator for left operand"']
         ]]
@@ -149,7 +149,7 @@ errors:
       - ['operand', *under0, [
           ['note', 'format("operand is of type ''%''", operand.type()->stringify())']
         ]]
-      - ['asdeclval->defAST()', *under1, [['note', '"operand declared here"']], 'dyncast IR::DeclaredValue, asdeclval, operand.val']
+      - ['operand_val_asdeclared->defAST()', *under1, [['note', '"operand declared here"']], 'isdeclared operand.val']
       - ['_operator', *under0, [
           ['error', '"unsupported unary operator"']
         ]]
@@ -164,7 +164,7 @@ errors:
           ['error', '"calling of non-callable value"'],
           ['note', 'format("value of type ''%''", func.type()->stringify())']
         ]]
-      - ['fdecl->defAST()', *under1, [['note', '"callee declared here"']], 'dyncast IR::DeclaredValue, fdecl, func.val']
+      - ['func_val_asdeclared->defAST()', *under1, [['note', '"callee declared here"']], 'isdeclared func.val']
   -
     code: 205
     name: wrong-num-args

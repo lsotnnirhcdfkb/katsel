@@ -10,7 +10,10 @@ std::string IR::Register::stringify() const
 }
 ASTNS::AST* IR::Register::defAST() const
 {
-    return _defAST;
+    if (temp)
+        return nullptr;
+    else
+        return _defAST;
 }
 IR::Type* IR::Register::type() const
 {
