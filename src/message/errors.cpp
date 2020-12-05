@@ -694,13 +694,9 @@ void Error::report() const
         }
 
         for (size_t i = 0; i + 1 < showlocs.size(); ++i)
-        {
             if (showlocs[i].first == showlocs[i + 1].first && showlocs[i + 1].second - showlocs[i].second > 1 && showlocs[i + 1].second - showlocs[i].second <= 3)
-            {
                 for (int j = showlocs[i].second + 1; j < showlocs[i + 1].second; ++j)
                     showlocs.insert(showlocs.begin() + i + 1, showloc(showlocs[i].first, j));
-            }
-        }
 
         for (showloc const &s : showlocs)
         {
@@ -721,17 +717,13 @@ void Error::report() const
                 lastnr = -1;
             }
 
-            if (sl.second != lastnr + 1 && lastnr != -1)
             {
                 std::ios origState (nullptr);
                 origState.copyfmt(std::cerr);
-                std::cerr << std::setw(maxlinepad) << std::right << std::string(maxlinepad, '.') << " | ...\n";
-                std::cerr.copyfmt(origState);
-            }
 
-            {
-                std::ios origState (nullptr);
-                origState.copyfmt(std::cerr);
+                if (sl.second != lastnr + 1 && lastnr != -1)
+                    std::cerr << std::setw(maxlinepad) << std::right << std::string(maxlinepad, '.') << " | ...\n";
+
                 std::cerr << std::setw(maxlinepad) << std::right << sl.second;
                 std::cerr.copyfmt(origState);
             }
@@ -758,8 +750,8 @@ void Error::report() const
                 for (Underline const &u : underlines)
                     if (itInLoc(i, u.location))
                     {
-                        lunderlinety pair (&u, getColN(u.location.file->source.begin(), u.location.end - 1));
-                        if (u.location.end - 1 == i && u.messages.size()) // can only ever be one location where this underline ends
+                        lunderlinety pair (&u, getColN(u.location.file->source.begin(), u.location.start));
+                        if (u.location.start == i && u.messages.size()) // can only ever be one location where this underline ends
                             lunderlines.push_back(pair);
                         needsecond = true;
                     }
@@ -802,7 +794,7 @@ void Error::report() const
                 {
                     std::sort(lunderlines.begin(), lunderlines.end(), [](lunderlinety const &i1, lunderlinety const &i2)
                             {
-                            return i1.second > i2.second; // sort in reverse
+                                return i1.second > i2.second; // sort in reverse
                             });
 
                     for (auto i = lunderlines.begin(); i < lunderlines.end(); ++i)
