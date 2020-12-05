@@ -1,3 +1,3 @@
 
 
-fun void a(uint32 a, uint32 a); // expect compile error (redecl-param)
+fun void a(uint32 a, uint32 a) {} // expect compile error (redecl-param)

@@ -338,3 +338,16 @@ errors:
       - ['op', *under0, [
           ['error', '"conflicting types to binary operator"']
         ]]
+  -
+    code: 218
+    name: redecl-param
+    desc: Redeclaraion of parameter in function declaration
+    inputs: 'Token const &name, IR::Register const *prev'
+    location: name
+    highlights:
+      - ['name', *under0, [
+          ['error', '"redeclaration of parameter"']
+        ]]
+      - ['prev->defAST()', *under1, [
+          ['note', '"previous declaration"']
+        ]]

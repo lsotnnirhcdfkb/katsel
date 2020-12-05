@@ -1,6 +1,7 @@
 #include "codegen/codegen.h"
 #include "codegen/codegen.h"
 #include "message/errors.h"
+#include "message/errmsgs.h"
 #include "utils/format.h"
 
 CodeGenNS::DeclCodeGen::DeclCodeGen(CodeGen &cg): cg(cg) {}
@@ -50,7 +51,15 @@ void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
         {
             std::string pname = param.name;
             IR::Register *reg = f->addRegister(param.ty, param.ast, false);
-            cg.context.addLocal(pname, reg);
+
+            CodeGenNS::Context::Local *foundparam = cg.context.findLocal(pname);
+            if (foundparam)
+            {
+                ERR_REDECL_PARAM(param.ast->name, foundparam->v);
+                cg.errored = true;
+            }
+            else
+                cg.context.addLocal(pname, reg);
         }
     }
 
