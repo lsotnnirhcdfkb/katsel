@@ -1,0 +1,6 @@
+
+
+fun uint32 main() {}
+
+fun uint32 main(); // expect compile error (redecl-sym)
+fun uint32 main() {} // expect compile error (redecl-sym)

@@ -1,0 +1,6 @@
+
+
+fun void test(bool i)
+{
+    test(0); // expect compile error (incorrect-arg)
+}

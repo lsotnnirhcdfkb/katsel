@@ -1,0 +1,6 @@
+
+
+fun void test()
+{
+    i; // expect compile error (undecl-symb)
+}

@@ -1,0 +1,7 @@
+
+
+fun void test()
+{
+    -test(); // expect compile error (unary-unsupported-op)
+    -test; // expect compile error (unary-unsupported-op)
+}
