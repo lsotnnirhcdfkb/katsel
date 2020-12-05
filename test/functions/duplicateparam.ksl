@@ -1,3 +1,9 @@
 
 
 fun void a(uint32 a, uint32 a) {} // expect compile error (redecl-param)
+
+fun void b(uint64 b, uint32 b) // expect compile error (redecl-param)
+{
+    var uint32 x;
+    b = x; // expect compile error (assign-conflict-tys)
+}
