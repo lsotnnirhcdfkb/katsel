@@ -1,4 +1,4 @@
-import os, sys, subprocess, glob, colorama, re, json
+import os, sys, subprocess, glob, colorama, re, json, time
 
 colorama.init()
 
@@ -18,7 +18,7 @@ def fail(testfile, msg):
 def passTest(testfile):
     global npassed
     npassed += 1
-    print(f'\033[0;1;32mpassed\033[0m')
+    print(f'\033[0;1;32mpassed\033[0m', end='')
 
 def setOutputs(outputs, category, process):
     outputs[category]           = {}
@@ -30,6 +30,7 @@ TESTDIR = os.path.abspath(os.path.dirname(__file__))
 TESTS = glob.glob(f'{TESTDIR}/**/*.ksl', recursive=True)
 NTESTS = len(TESTS)
 NTESTWIDTH = len(str(NTESTS))
+LONGESTNAME = max(map(len, TESTS))
 
 PRINTDEFF = 'printdef.c'
 
@@ -64,7 +65,8 @@ npassed = 0
 nfailed = 0
 
 for testi, testfile in enumerate(TESTS):
-    print(f'[{str(testi + 1).rjust(NTESTWIDTH)}/{NTESTS}] - \033[36m{testfile}\033[0m (', end='')
+    teststart = time.perf_counter()
+    print(f'[{str(testi + 1).rjust(NTESTWIDTH)}/{NTESTS}] \033[36m{testfile.ljust(LONGESTNAME)}\033[0m (', end='')
     sys.stdout.flush()
 
     with open(testfile, 'r') as f:
@@ -112,7 +114,7 @@ for testi, testfile in enumerate(TESTS):
     if linked:
         os.remove(linkedfile)
 
-    print('): ', end='')
+    print(') ', end='')
     sys.stdout.flush()
 
     compErrExpectations  = EXPECT_COMP_ERR_REGEX  .finditer(contents)
@@ -173,6 +175,8 @@ for testi, testfile in enumerate(TESTS):
         fail(testfile, failmsg)
     else:
         passTest(testfile)
+        print(' in', round(time.perf_counter() - teststart, 3), 'seconds')
+
     sys.stdout.flush()
 
 os.remove(PRINTDEFF)
