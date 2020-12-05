@@ -168,9 +168,9 @@ for testi, testfile in enumerate(TESTS):
                 failmsg = 'have more print expects, but ran out of lines to check against'
                 break
 
-            if expect.group(1) != ol.pop(0):
+            if expect.group(1) != (l := ol.pop(0)):
                 failed = True
-                failmsg = 'printed wrong thing'
+                failmsg = f'printed wrong thing (expected {expect.group(1)} but got {l})'
 
         if len(ol):
             failed = True
