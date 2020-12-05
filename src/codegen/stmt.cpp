@@ -22,13 +22,14 @@ void CodeGenNS::StmtCodeGen::visitExprStmt(ASTNS::ExprStmt *ast)
 }
 void CodeGenNS::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
 {
+    bool retRegIsVoid = dynamic_cast<IR::VoidType*>(cg.context.retReg->type());
     if (ast->expr)
     {
         IR::ASTValue v = cg.exprCodeGen.expr(ast->expr.get());
         if (!v)
             return;
 
-        if (!cg.context.retReg)
+        if (retRegIsVoid)
         {
             ERR_RET_VAL_VOID_FUN(v, cg.context.curFunc);
             cg.errored = true;
@@ -44,7 +45,7 @@ void CodeGenNS::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
 
         cg.context.curBlock->add(std::make_unique<IR::Instrs::Store>(cg.context.retReg, v));
     }
-    else if (cg.context.retReg)
+    else if (!retRegIsVoid)
     {
         ERR_RET_VOID_NONVOID_FUN(ast, cg.context.curFunc);
         cg.errored = true;
