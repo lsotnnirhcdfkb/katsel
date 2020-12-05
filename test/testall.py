@@ -65,6 +65,7 @@ nfailed = 0
 
 for testi, testfile in enumerate(TESTS):
     print(f'[{str(testi + 1).rjust(NTESTWIDTH)}/{NTESTS}] - \033[36m{testfile}\033[0m (', end='')
+    sys.stdout.flush()
 
     with open(testfile, 'r') as f:
         contents = f.read()
@@ -89,27 +90,30 @@ for testi, testfile in enumerate(TESTS):
     compilation = subprocess.run(compileCommand, capture_output=True)
     compiled = compilation.returncode == 0
     setOutputs(outputs, 'compile', compilation)
+    print('c' if compiled else '-', end='')
+    sys.stdout.flush()
 
     if compiled:
         linking = subprocess.run(linkCommand, capture_output=True)
         linked = linking.returncode == 0
         setOutputs(outputs, 'linking', linking)
+    print('l' if linked else '-', end='')
+    sys.stdout.flush()
 
     if linked:
         running = subprocess.run(runCommand, capture_output=True)
         ran = True
         setOutputs(outputs, 'running', running)
+    print('r' if ran else '-', end='')
+    sys.stdout.flush()
 
     if compiled:
         os.remove(compiledfile)
     if linked:
         os.remove(linkedfile)
 
-    print('c' if compiled else '-', end='')
-    print('l' if linked   else '-', end='')
-    print('r' if ran      else '-', end='')
-
     print('): ', end='')
+    sys.stdout.flush()
 
     compErrExpectations  = EXPECT_COMP_ERR_REGEX  .finditer(contents)
     compWarnExpectations = EXPECT_COMP_WARN_REGEX .finditer(contents)
@@ -169,6 +173,7 @@ for testi, testfile in enumerate(TESTS):
         fail(testfile, failmsg)
     else:
         passTest(testfile)
+    sys.stdout.flush()
 
 os.remove(PRINTDEFF)
 
