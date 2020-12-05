@@ -63,10 +63,13 @@ void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
 
     cg.context.decScope();
 
-    cg.context.exitBlock->add(std::make_unique<IR::Instrs::Return>(retReg));
+    if (!cg.errored)
+    {
+        cg.context.exitBlock->add(std::make_unique<IR::Instrs::Return>(retReg));
 
-    if (cg.context.curBlock != cg.context.blackHoleBlock.get())
-        cg.context.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(cg.context.exitBlock));
+        if (cg.context.curBlock != cg.context.blackHoleBlock.get())
+            cg.context.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(cg.context.exitBlock));
+    }
 
     cg.context.curFunc = nullptr;
     cg.context.curBlock = nullptr;
