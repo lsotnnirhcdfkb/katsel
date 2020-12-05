@@ -29,6 +29,7 @@ class Block;
 class BuiltinTypeNoVoid;
 class CU;
 class CallExpr;
+class CastExpr;
 class CompEQExpr;
 class CompLGTExpr;
 class Decl;
@@ -98,6 +99,7 @@ public:
     virtual void visitBitShiftExpr(ASTNS::BitShiftExpr *ast) = 0;
     virtual void visitBitXorExpr(ASTNS::BitXorExpr *ast) = 0;
     virtual void visitCallExpr(ASTNS::CallExpr *ast) = 0;
+    virtual void visitCastExpr(ASTNS::CastExpr *ast) = 0;
     virtual void visitCompEQExpr(ASTNS::CompEQExpr *ast) = 0;
     virtual void visitCompLGTExpr(ASTNS::CompLGTExpr *ast) = 0;
     virtual void visitMultExpr(ASTNS::MultExpr *ast) = 0;

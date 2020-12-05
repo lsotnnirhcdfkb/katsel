@@ -566,6 +566,54 @@ void ASTNS::DotVisitor::visitCallExpr(ASTNS::CallExpr *a)
     }
     lastid = std::move(thisid);
 }
+void ASTNS::DotVisitor::visitCastExpr(ASTNS::CastExpr *a)
+{
+    std::string thisid = curid();
+    switch (a->form)
+    {
+        case ASTNS::CastExpr::Form::TATA:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"4\">CastExpr (TATA)</td></tr><tr>";
+            ostream << "<td port=\"oparn\">oparn</td>";
+            ostream << "<td port=\"type\">type</td>";
+            ostream << "<td port=\"cparn\">cparn</td>";
+            ostream << "<td port=\"operand\">operand</td>";
+            ostream << "</tr></table>>]\n";
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->oparn.stringify());
+                    connect(thisid, "oparn", tokennodeid);
+            }
+            {
+                    if (a->type)
+                    {
+                        a->type->accept(this);
+                        connect(thisid, "type", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "type", nullptrnodeid);
+                    }
+            }
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->cparn.stringify());
+                    connect(thisid, "cparn", tokennodeid);
+            }
+            {
+                    if (a->operand)
+                    {
+                        a->operand->accept(this);
+                        connect(thisid, "operand", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "operand", nullptrnodeid);
+                    }
+            }
+            break;
+    }
+    lastid = std::move(thisid);
+}
 void ASTNS::DotVisitor::visitCompEQExpr(ASTNS::CompEQExpr *a)
 {
     std::string thisid = curid();

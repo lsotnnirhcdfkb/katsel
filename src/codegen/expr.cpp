@@ -363,3 +363,12 @@ void CodeGenNS::ExprCodeGen::visitAssignmentExpr(ASTNS::AssignmentExpr *ast)
 
     ret = rhs;
 }
+void CodeGenNS::ExprCodeGen::visitCastExpr(ASTNS::CastExpr *ast)
+{
+    IR::ASTValue oper = expr(ast->operand.get());
+
+    ret = cg.typeResolver.type(ast->type.get())->castTo(cg.context, oper, ast);
+
+    if (!ret)
+        cg.errored = true;
+}

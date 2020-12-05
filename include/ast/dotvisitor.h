@@ -38,6 +38,7 @@ void visitBlock(ASTNS::Block *ast) override;
 void visitBuiltinTypeNoVoid(ASTNS::BuiltinTypeNoVoid *ast) override;
 void visitCU(ASTNS::CU *ast) override;
 void visitCallExpr(ASTNS::CallExpr *ast) override;
+void visitCastExpr(ASTNS::CastExpr *ast) override;
 void visitCompEQExpr(ASTNS::CompEQExpr *ast) override;
 void visitCompLGTExpr(ASTNS::CompLGTExpr *ast) override;
 void visitDeclList(ASTNS::DeclList *ast) override;

@@ -175,6 +175,7 @@ void visitBitOrExpr(ASTNS::BitOrExpr *ast) override;
 void visitBitShiftExpr(ASTNS::BitShiftExpr *ast) override;
 void visitBitXorExpr(ASTNS::BitXorExpr *ast) override;
 void visitCallExpr(ASTNS::CallExpr *ast) override;
+void visitCastExpr(ASTNS::CastExpr *ast) override;
 void visitCompEQExpr(ASTNS::CompEQExpr *ast) override;
 void visitCompLGTExpr(ASTNS::CompLGTExpr *ast) override;
 void visitMultExpr(ASTNS::MultExpr *ast) override;

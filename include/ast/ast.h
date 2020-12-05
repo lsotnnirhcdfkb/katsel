@@ -34,6 +34,7 @@ namespace ASTNS
     class BuiltinTypeNoVoid;
     class CU;
     class CallExpr;
+    class CastExpr;
     class CompEQExpr;
     class CompLGTExpr;
     class Decl;
@@ -339,6 +340,22 @@ namespace ASTNS
         Token oparn;
         std::unique_ptr<ArgB> args;
         Token cparn;
+        Form form;
+        bool empty() override;
+        virtual void accept(ASTNS::ExprBVisitor *v) override;
+    };
+    class CastExpr : public ExprB
+    {
+    public:
+        CastExpr(Token oparn, std::unique_ptr<TypeB> type, Token cparn, std::unique_ptr<ExprB> operand);
+        enum class Form
+        {
+            TATA,
+        };
+        Token oparn;
+        std::unique_ptr<TypeB> type;
+        Token cparn;
+        std::unique_ptr<ExprB> operand;
         Form form;
         bool empty() override;
         virtual void accept(ASTNS::ExprBVisitor *v) override;

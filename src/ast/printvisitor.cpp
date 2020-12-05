@@ -457,6 +457,44 @@ void ASTNS::PrintVisitor::visitCallExpr(ASTNS::CallExpr *a)
     --indent;
     pai("}\n");
 }
+void ASTNS::PrintVisitor::visitCastExpr(ASTNS::CastExpr *a)
+{
+    pai("CastExpr\n{\n");
+    ++indent;
+    switch (a->form)
+    {
+        case ASTNS::CastExpr::Form::TATA:
+            pai("oparn = ");
+            pai("[");
+            pai(std::string(a->oparn.start, a->oparn.end));
+            pai("]\n");
+            pai("type = ");
+            if (a->type)
+            {
+                a->type->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            pai("cparn = ");
+            pai("[");
+            pai(std::string(a->cparn.start, a->cparn.end));
+            pai("]\n");
+            pai("operand = ");
+            if (a->operand)
+            {
+                a->operand->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            break;
+    }
+    --indent;
+    pai("}\n");
+}
 void ASTNS::PrintVisitor::visitCompEQExpr(ASTNS::CompEQExpr *a)
 {
     pai("CompEQExpr\n{\n");

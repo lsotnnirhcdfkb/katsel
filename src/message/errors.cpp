@@ -84,6 +84,7 @@ void visitBlock(ASTNS::Block *ast) override;
 void visitBuiltinTypeNoVoid(ASTNS::BuiltinTypeNoVoid *ast) override;
 void visitCU(ASTNS::CU *ast) override;
 void visitCallExpr(ASTNS::CallExpr *ast) override;
+void visitCastExpr(ASTNS::CastExpr *ast) override;
 void visitCompEQExpr(ASTNS::CompEQExpr *ast) override;
 void visitCompLGTExpr(ASTNS::CompLGTExpr *ast) override;
 void visitDeclList(ASTNS::DeclList *ast) override;
@@ -318,6 +319,17 @@ void LocationVisitor::visitCallExpr(ASTNS::CallExpr *ast)
             retl = getL(ast->callee.get());
             retf = getF(ast->callee.get());
             retr = ast->cparn.end;
+            break;
+    }
+}
+void LocationVisitor::visitCastExpr(ASTNS::CastExpr *ast)
+{
+    switch (ast->form)
+    {
+        case ASTNS::CastExpr::Form::TATA:
+            retl = ast->oparn.start;
+            retf = ast->oparn.sourcefile;
+            retr = getR(ast->operand.get());
             break;
     }
 }

@@ -49,6 +49,9 @@ bool ASTNS::CU::empty() { return form == Form::EMPTY; }
 ASTNS::CallExpr::CallExpr(std::unique_ptr<ExprB> callee, Token oparn, std::unique_ptr<ArgB> args, Token cparn): callee(std::move(callee)), oparn(oparn), args(std::move(args)), cparn(cparn), form(ASTNS::CallExpr::Form::ATAT) {}
 void ASTNS::CallExpr::accept(ASTNS::ExprBVisitor *v) { v->visitCallExpr(this); }
 bool ASTNS::CallExpr::empty() { return false; }
+ASTNS::CastExpr::CastExpr(Token oparn, std::unique_ptr<TypeB> type, Token cparn, std::unique_ptr<ExprB> operand): oparn(oparn), type(std::move(type)), cparn(cparn), operand(std::move(operand)), form(ASTNS::CastExpr::Form::TATA) {}
+void ASTNS::CastExpr::accept(ASTNS::ExprBVisitor *v) { v->visitCastExpr(this); }
+bool ASTNS::CastExpr::empty() { return false; }
 ASTNS::CompEQExpr::CompEQExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::CompEQExpr::Form::ATA) {}
 void ASTNS::CompEQExpr::accept(ASTNS::ExprBVisitor *v) { v->visitCompEQExpr(this); }
 bool ASTNS::CompEQExpr::empty() { return false; }
