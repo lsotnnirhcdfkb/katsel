@@ -370,35 +370,35 @@ bool panicMode(errorstate const &e, std::vector<std::string> const &expectations
                         case TokenType::EQUAL: case TokenType::SEMICOLON: case TokenType::COMMA: case TokenType::COLON: case TokenType::CPARN:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
-                CHECKASI(BinorExpr)
+                CHECKASI(BinOrExpr)
                         case TokenType::EQUAL: case TokenType::SEMICOLON: case TokenType::COMMA: case TokenType::QUESTION: case TokenType::DOUBLEPIPE: case TokenType::COLON: case TokenType::CPARN:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
-                CHECKASI(BinandExpr)
+                CHECKASI(BinAndExpr)
                         case TokenType::EQUAL: case TokenType::SEMICOLON: case TokenType::COMMA: case TokenType::QUESTION: case TokenType::DOUBLEPIPE: case TokenType::DOUBLEAMPER: case TokenType::COLON: case TokenType::CPARN:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
-                CHECKASI(CompeqExpr)
+                CHECKASI(CompEQExpr)
                         case TokenType::EQUAL: case TokenType::SEMICOLON: case TokenType::COMMA: case TokenType::QUESTION: case TokenType::DOUBLEPIPE: case TokenType::DOUBLEAMPER: case TokenType::BANGEQUAL: case TokenType::DOUBLEEQUAL: case TokenType::COLON: case TokenType::CPARN:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
-                CHECKASI(ComplgtExpr)
+                CHECKASI(CompLGTExpr)
                         case TokenType::EQUAL: case TokenType::SEMICOLON: case TokenType::COMMA: case TokenType::QUESTION: case TokenType::DOUBLEPIPE: case TokenType::DOUBLEAMPER: case TokenType::BANGEQUAL: case TokenType::DOUBLEEQUAL: case TokenType::LESS: case TokenType::GREATER: case TokenType::LESSEQUAL: case TokenType::GREATEREQUAL: case TokenType::COLON: case TokenType::CPARN:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
-                CHECKASI(BitxorExpr)
+                CHECKASI(BitXorExpr)
                         case TokenType::EQUAL: case TokenType::SEMICOLON: case TokenType::COMMA: case TokenType::QUESTION: case TokenType::DOUBLEPIPE: case TokenType::DOUBLEAMPER: case TokenType::BANGEQUAL: case TokenType::DOUBLEEQUAL: case TokenType::LESS: case TokenType::GREATER: case TokenType::LESSEQUAL: case TokenType::GREATEREQUAL: case TokenType::CARET: case TokenType::COLON: case TokenType::CPARN:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
-                CHECKASI(BitorExpr)
+                CHECKASI(BitOrExpr)
                         case TokenType::EQUAL: case TokenType::SEMICOLON: case TokenType::COMMA: case TokenType::QUESTION: case TokenType::DOUBLEPIPE: case TokenType::DOUBLEAMPER: case TokenType::BANGEQUAL: case TokenType::DOUBLEEQUAL: case TokenType::LESS: case TokenType::GREATER: case TokenType::LESSEQUAL: case TokenType::GREATEREQUAL: case TokenType::CARET: case TokenType::PIPE: case TokenType::COLON: case TokenType::CPARN:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
-                CHECKASI(BitandExpr)
+                CHECKASI(BitAndExpr)
                         case TokenType::EQUAL: case TokenType::SEMICOLON: case TokenType::COMMA: case TokenType::QUESTION: case TokenType::DOUBLEPIPE: case TokenType::DOUBLEAMPER: case TokenType::BANGEQUAL: case TokenType::DOUBLEEQUAL: case TokenType::LESS: case TokenType::GREATER: case TokenType::LESSEQUAL: case TokenType::GREATEREQUAL: case TokenType::CARET: case TokenType::PIPE: case TokenType::AMPER: case TokenType::COLON: case TokenType::CPARN:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
-                CHECKASI(BitshiftExpr)
+                CHECKASI(BitShiftExpr)
                         case TokenType::EQUAL: case TokenType::SEMICOLON: case TokenType::COMMA: case TokenType::QUESTION: case TokenType::DOUBLEPIPE: case TokenType::DOUBLEAMPER: case TokenType::BANGEQUAL: case TokenType::DOUBLEEQUAL: case TokenType::LESS: case TokenType::GREATER: case TokenType::LESSEQUAL: case TokenType::GREATEREQUAL: case TokenType::CARET: case TokenType::PIPE: case TokenType::AMPER: case TokenType::DOUBLEGREATER: case TokenType::DOUBLELESS: case TokenType::COLON: case TokenType::CPARN:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()

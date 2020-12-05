@@ -137,13 +137,13 @@ void ASTNS::PrintVisitor::visitAssignmentExpr(ASTNS::AssignmentExpr *a)
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visitBinandExpr(ASTNS::BinandExpr *a)
+void ASTNS::PrintVisitor::visitBinAndExpr(ASTNS::BinAndExpr *a)
 {
-    pai("BinandExpr\n{\n");
+    pai("BinAndExpr\n{\n");
     ++indent;
     switch (a->form)
     {
-        case ASTNS::BinandExpr::Form::ATA:
+        case ASTNS::BinAndExpr::Form::ATA:
             pai("lhs = ");
             if (a->lhs)
             {
@@ -171,13 +171,13 @@ void ASTNS::PrintVisitor::visitBinandExpr(ASTNS::BinandExpr *a)
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visitBinorExpr(ASTNS::BinorExpr *a)
+void ASTNS::PrintVisitor::visitBinOrExpr(ASTNS::BinOrExpr *a)
 {
-    pai("BinorExpr\n{\n");
+    pai("BinOrExpr\n{\n");
     ++indent;
     switch (a->form)
     {
-        case ASTNS::BinorExpr::Form::ATA:
+        case ASTNS::BinOrExpr::Form::ATA:
             pai("lhs = ");
             if (a->lhs)
             {
@@ -205,13 +205,13 @@ void ASTNS::PrintVisitor::visitBinorExpr(ASTNS::BinorExpr *a)
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visitBitandExpr(ASTNS::BitandExpr *a)
+void ASTNS::PrintVisitor::visitBitAndExpr(ASTNS::BitAndExpr *a)
 {
-    pai("BitandExpr\n{\n");
+    pai("BitAndExpr\n{\n");
     ++indent;
     switch (a->form)
     {
-        case ASTNS::BitandExpr::Form::ATA:
+        case ASTNS::BitAndExpr::Form::ATA:
             pai("lhs = ");
             if (a->lhs)
             {
@@ -239,13 +239,13 @@ void ASTNS::PrintVisitor::visitBitandExpr(ASTNS::BitandExpr *a)
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visitBitorExpr(ASTNS::BitorExpr *a)
+void ASTNS::PrintVisitor::visitBitOrExpr(ASTNS::BitOrExpr *a)
 {
-    pai("BitorExpr\n{\n");
+    pai("BitOrExpr\n{\n");
     ++indent;
     switch (a->form)
     {
-        case ASTNS::BitorExpr::Form::ATA:
+        case ASTNS::BitOrExpr::Form::ATA:
             pai("lhs = ");
             if (a->lhs)
             {
@@ -273,13 +273,13 @@ void ASTNS::PrintVisitor::visitBitorExpr(ASTNS::BitorExpr *a)
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visitBitshiftExpr(ASTNS::BitshiftExpr *a)
+void ASTNS::PrintVisitor::visitBitShiftExpr(ASTNS::BitShiftExpr *a)
 {
-    pai("BitshiftExpr\n{\n");
+    pai("BitShiftExpr\n{\n");
     ++indent;
     switch (a->form)
     {
-        case ASTNS::BitshiftExpr::Form::ATA:
+        case ASTNS::BitShiftExpr::Form::ATA:
             pai("lhs = ");
             if (a->lhs)
             {
@@ -307,13 +307,13 @@ void ASTNS::PrintVisitor::visitBitshiftExpr(ASTNS::BitshiftExpr *a)
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visitBitxorExpr(ASTNS::BitxorExpr *a)
+void ASTNS::PrintVisitor::visitBitXorExpr(ASTNS::BitXorExpr *a)
 {
-    pai("BitxorExpr\n{\n");
+    pai("BitXorExpr\n{\n");
     ++indent;
     switch (a->form)
     {
-        case ASTNS::BitxorExpr::Form::ATA:
+        case ASTNS::BitXorExpr::Form::ATA:
             pai("lhs = ");
             if (a->lhs)
             {
@@ -457,13 +457,13 @@ void ASTNS::PrintVisitor::visitCallExpr(ASTNS::CallExpr *a)
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visitCompeqExpr(ASTNS::CompeqExpr *a)
+void ASTNS::PrintVisitor::visitCompEQExpr(ASTNS::CompEQExpr *a)
 {
-    pai("CompeqExpr\n{\n");
+    pai("CompEQExpr\n{\n");
     ++indent;
     switch (a->form)
     {
-        case ASTNS::CompeqExpr::Form::ATA:
+        case ASTNS::CompEQExpr::Form::ATA:
             pai("lhs = ");
             if (a->lhs)
             {
@@ -491,13 +491,13 @@ void ASTNS::PrintVisitor::visitCompeqExpr(ASTNS::CompeqExpr *a)
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visitComplgtExpr(ASTNS::ComplgtExpr *a)
+void ASTNS::PrintVisitor::visitCompLGTExpr(ASTNS::CompLGTExpr *a)
 {
-    pai("ComplgtExpr\n{\n");
+    pai("CompLGTExpr\n{\n");
     ++indent;
     switch (a->form)
     {
-        case ASTNS::ComplgtExpr::Form::ATA:
+        case ASTNS::CompLGTExpr::Form::ATA:
             pai("lhs = ");
             if (a->lhs)
             {

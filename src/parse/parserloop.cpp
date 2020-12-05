@@ -369,7 +369,7 @@ template <> size_t getGoto<ASTNS::TernaryExpr>(size_t state)
             reportAbortNoh("retrieve goto of nonterminal TernaryExpr in invalid state");
     }
 }
-template <> size_t getGoto<ASTNS::BinorExpr>(size_t state)
+template <> size_t getGoto<ASTNS::BinOrExpr>(size_t state)
 {
     switch (state)
     {
@@ -385,10 +385,10 @@ template <> size_t getGoto<ASTNS::BinorExpr>(size_t state)
         case 148:
             return 52;
         default:
-            reportAbortNoh("retrieve goto of nonterminal BinorExpr in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal BinOrExpr in invalid state");
     }
 }
-template <> size_t getGoto<ASTNS::BinandExpr>(size_t state)
+template <> size_t getGoto<ASTNS::BinAndExpr>(size_t state)
 {
     switch (state)
     {
@@ -406,10 +406,10 @@ template <> size_t getGoto<ASTNS::BinandExpr>(size_t state)
         case 89:
             return 118;
         default:
-            reportAbortNoh("retrieve goto of nonterminal BinandExpr in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal BinAndExpr in invalid state");
     }
 }
-template <> size_t getGoto<ASTNS::CompeqExpr>(size_t state)
+template <> size_t getGoto<ASTNS::CompEQExpr>(size_t state)
 {
     switch (state)
     {
@@ -428,10 +428,10 @@ template <> size_t getGoto<ASTNS::CompeqExpr>(size_t state)
         case 90:
             return 119;
         default:
-            reportAbortNoh("retrieve goto of nonterminal CompeqExpr in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal CompEQExpr in invalid state");
     }
 }
-template <> size_t getGoto<ASTNS::ComplgtExpr>(size_t state)
+template <> size_t getGoto<ASTNS::CompLGTExpr>(size_t state)
 {
     switch (state)
     {
@@ -453,10 +453,10 @@ template <> size_t getGoto<ASTNS::ComplgtExpr>(size_t state)
         case 92:
             return 121;
         default:
-            reportAbortNoh("retrieve goto of nonterminal ComplgtExpr in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal CompLGTExpr in invalid state");
     }
 }
-template <> size_t getGoto<ASTNS::BitxorExpr>(size_t state)
+template <> size_t getGoto<ASTNS::BitXorExpr>(size_t state)
 {
     switch (state)
     {
@@ -484,10 +484,10 @@ template <> size_t getGoto<ASTNS::BitxorExpr>(size_t state)
         case 96:
             return 125;
         default:
-            reportAbortNoh("retrieve goto of nonterminal BitxorExpr in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal BitXorExpr in invalid state");
     }
 }
-template <> size_t getGoto<ASTNS::BitorExpr>(size_t state)
+template <> size_t getGoto<ASTNS::BitOrExpr>(size_t state)
 {
     switch (state)
     {
@@ -513,10 +513,10 @@ template <> size_t getGoto<ASTNS::BitorExpr>(size_t state)
         case 97:
             return 126;
         default:
-            reportAbortNoh("retrieve goto of nonterminal BitorExpr in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal BitOrExpr in invalid state");
     }
 }
-template <> size_t getGoto<ASTNS::BitandExpr>(size_t state)
+template <> size_t getGoto<ASTNS::BitAndExpr>(size_t state)
 {
     switch (state)
     {
@@ -543,10 +543,10 @@ template <> size_t getGoto<ASTNS::BitandExpr>(size_t state)
         case 98:
             return 127;
         default:
-            reportAbortNoh("retrieve goto of nonterminal BitandExpr in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal BitAndExpr in invalid state");
     }
 }
-template <> size_t getGoto<ASTNS::BitshiftExpr>(size_t state)
+template <> size_t getGoto<ASTNS::BitShiftExpr>(size_t state)
 {
     switch (state)
     {
@@ -574,7 +574,7 @@ template <> size_t getGoto<ASTNS::BitshiftExpr>(size_t state)
         case 99:
             return 128;
         default:
-            reportAbortNoh("retrieve goto of nonterminal BitshiftExpr in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal BitShiftExpr in invalid state");
     }
 }
 template <> size_t getGoto<ASTNS::AdditionExpr>(size_t state)
@@ -1641,7 +1641,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::BinorExpr>(stack);
+                        reduceSkip<ASTNS::BinOrExpr>(stack);
                         break;
                     case TokenType::DOUBLEAMPER:
                         shift(p, lasttok, lookahead, stack, steps, 90); break;
@@ -1653,7 +1653,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::BANGEQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 91); break;
                     default:
-                        reduceSkip<ASTNS::BinandExpr>(stack);
+                        reduceSkip<ASTNS::BinAndExpr>(stack);
                         break;
                     case TokenType::DOUBLEEQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 92); break;
@@ -1663,7 +1663,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::CompeqExpr>(stack);
+                        reduceSkip<ASTNS::CompEQExpr>(stack);
                         break;
                     case TokenType::GREATER:
                         shift(p, lasttok, lookahead, stack, steps, 94); break;
@@ -1679,7 +1679,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::ComplgtExpr>(stack);
+                        reduceSkip<ASTNS::CompLGTExpr>(stack);
                         break;
                     case TokenType::CARET:
                         shift(p, lasttok, lookahead, stack, steps, 97); break;
@@ -1689,7 +1689,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::BitxorExpr>(stack);
+                        reduceSkip<ASTNS::BitXorExpr>(stack);
                         break;
                     case TokenType::PIPE:
                         shift(p, lasttok, lookahead, stack, steps, 98); break;
@@ -1701,7 +1701,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::AMPER:
                         shift(p, lasttok, lookahead, stack, steps, 99); break;
                     default:
-                        reduceSkip<ASTNS::BitorExpr>(stack);
+                        reduceSkip<ASTNS::BitOrExpr>(stack);
                         break;
                 }
                 break;
@@ -1709,7 +1709,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::BitandExpr>(stack);
+                        reduceSkip<ASTNS::BitAndExpr>(stack);
                         break;
                     case TokenType::DOUBLEGREATER:
                         shift(p, lasttok, lookahead, stack, steps, 100); break;
@@ -1721,7 +1721,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::BitshiftExpr>(stack);
+                        reduceSkip<ASTNS::BitShiftExpr>(stack);
                         break;
                     case TokenType::MINUS:
                         shift(p, lasttok, lookahead, stack, steps, 103); break;
@@ -3070,11 +3070,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     default:
                         {
-                            auto a2 (popA<ASTNS::BinandExpr>(stack));
+                            auto a2 (popA<ASTNS::BinAndExpr>(stack));
                             auto a1 (popT(stack));
-                            auto a0 (popA<ASTNS::BinorExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BinorExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::BinorExpr>(stack.back().state), std::move(push));
+                            auto a0 (popA<ASTNS::BinOrExpr>(stack));
+                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BinOrExpr>(std::move(a0), std::move(a1), std::move(a2)));
+                            stack.emplace_back(getGoto<ASTNS::BinOrExpr>(stack.back().state), std::move(push));
                         }
                         break;
                     case TokenType::DOUBLEAMPER:
@@ -3088,11 +3088,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 91); break;
                     default:
                         {
-                            auto a2 (popA<ASTNS::CompeqExpr>(stack));
+                            auto a2 (popA<ASTNS::CompEQExpr>(stack));
                             auto a1 (popT(stack));
-                            auto a0 (popA<ASTNS::BinandExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BinandExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::BinandExpr>(stack.back().state), std::move(push));
+                            auto a0 (popA<ASTNS::BinAndExpr>(stack));
+                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BinAndExpr>(std::move(a0), std::move(a1), std::move(a2)));
+                            stack.emplace_back(getGoto<ASTNS::BinAndExpr>(stack.back().state), std::move(push));
                         }
                         break;
                     case TokenType::DOUBLEEQUAL:
@@ -3104,11 +3104,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     default:
                         {
-                            auto a2 (popA<ASTNS::ComplgtExpr>(stack));
+                            auto a2 (popA<ASTNS::CompLGTExpr>(stack));
                             auto a1 (popT(stack));
-                            auto a0 (popA<ASTNS::CompeqExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::CompeqExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::CompeqExpr>(stack.back().state), std::move(push));
+                            auto a0 (popA<ASTNS::CompEQExpr>(stack));
+                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::CompEQExpr>(std::move(a0), std::move(a1), std::move(a2)));
+                            stack.emplace_back(getGoto<ASTNS::CompEQExpr>(stack.back().state), std::move(push));
                         }
                         break;
                     case TokenType::GREATER:
@@ -3126,11 +3126,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     default:
                         {
-                            auto a2 (popA<ASTNS::ComplgtExpr>(stack));
+                            auto a2 (popA<ASTNS::CompLGTExpr>(stack));
                             auto a1 (popT(stack));
-                            auto a0 (popA<ASTNS::CompeqExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::CompeqExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::CompeqExpr>(stack.back().state), std::move(push));
+                            auto a0 (popA<ASTNS::CompEQExpr>(stack));
+                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::CompEQExpr>(std::move(a0), std::move(a1), std::move(a2)));
+                            stack.emplace_back(getGoto<ASTNS::CompEQExpr>(stack.back().state), std::move(push));
                         }
                         break;
                     case TokenType::GREATER:
@@ -3148,11 +3148,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     default:
                         {
-                            auto a2 (popA<ASTNS::BitxorExpr>(stack));
+                            auto a2 (popA<ASTNS::BitXorExpr>(stack));
                             auto a1 (popT(stack));
-                            auto a0 (popA<ASTNS::ComplgtExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::ComplgtExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::ComplgtExpr>(stack.back().state), std::move(push));
+                            auto a0 (popA<ASTNS::CompLGTExpr>(stack));
+                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::CompLGTExpr>(std::move(a0), std::move(a1), std::move(a2)));
+                            stack.emplace_back(getGoto<ASTNS::CompLGTExpr>(stack.back().state), std::move(push));
                         }
                         break;
                     case TokenType::CARET:
@@ -3164,11 +3164,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     default:
                         {
-                            auto a2 (popA<ASTNS::BitxorExpr>(stack));
+                            auto a2 (popA<ASTNS::BitXorExpr>(stack));
                             auto a1 (popT(stack));
-                            auto a0 (popA<ASTNS::ComplgtExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::ComplgtExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::ComplgtExpr>(stack.back().state), std::move(push));
+                            auto a0 (popA<ASTNS::CompLGTExpr>(stack));
+                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::CompLGTExpr>(std::move(a0), std::move(a1), std::move(a2)));
+                            stack.emplace_back(getGoto<ASTNS::CompLGTExpr>(stack.back().state), std::move(push));
                         }
                         break;
                     case TokenType::CARET:
@@ -3180,11 +3180,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     default:
                         {
-                            auto a2 (popA<ASTNS::BitxorExpr>(stack));
+                            auto a2 (popA<ASTNS::BitXorExpr>(stack));
                             auto a1 (popT(stack));
-                            auto a0 (popA<ASTNS::ComplgtExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::ComplgtExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::ComplgtExpr>(stack.back().state), std::move(push));
+                            auto a0 (popA<ASTNS::CompLGTExpr>(stack));
+                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::CompLGTExpr>(std::move(a0), std::move(a1), std::move(a2)));
+                            stack.emplace_back(getGoto<ASTNS::CompLGTExpr>(stack.back().state), std::move(push));
                         }
                         break;
                     case TokenType::CARET:
@@ -3196,11 +3196,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     default:
                         {
-                            auto a2 (popA<ASTNS::BitxorExpr>(stack));
+                            auto a2 (popA<ASTNS::BitXorExpr>(stack));
                             auto a1 (popT(stack));
-                            auto a0 (popA<ASTNS::ComplgtExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::ComplgtExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::ComplgtExpr>(stack.back().state), std::move(push));
+                            auto a0 (popA<ASTNS::CompLGTExpr>(stack));
+                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::CompLGTExpr>(std::move(a0), std::move(a1), std::move(a2)));
+                            stack.emplace_back(getGoto<ASTNS::CompLGTExpr>(stack.back().state), std::move(push));
                         }
                         break;
                     case TokenType::CARET:
@@ -3212,11 +3212,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     default:
                         {
-                            auto a2 (popA<ASTNS::BitorExpr>(stack));
+                            auto a2 (popA<ASTNS::BitOrExpr>(stack));
                             auto a1 (popT(stack));
-                            auto a0 (popA<ASTNS::BitxorExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BitxorExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::BitxorExpr>(stack.back().state), std::move(push));
+                            auto a0 (popA<ASTNS::BitXorExpr>(stack));
+                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BitXorExpr>(std::move(a0), std::move(a1), std::move(a2)));
+                            stack.emplace_back(getGoto<ASTNS::BitXorExpr>(stack.back().state), std::move(push));
                         }
                         break;
                     case TokenType::PIPE:
@@ -3230,11 +3230,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 99); break;
                     default:
                         {
-                            auto a2 (popA<ASTNS::BitandExpr>(stack));
+                            auto a2 (popA<ASTNS::BitAndExpr>(stack));
                             auto a1 (popT(stack));
-                            auto a0 (popA<ASTNS::BitorExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BitorExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::BitorExpr>(stack.back().state), std::move(push));
+                            auto a0 (popA<ASTNS::BitOrExpr>(stack));
+                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BitOrExpr>(std::move(a0), std::move(a1), std::move(a2)));
+                            stack.emplace_back(getGoto<ASTNS::BitOrExpr>(stack.back().state), std::move(push));
                         }
                         break;
                 }
@@ -3244,11 +3244,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     default:
                         {
-                            auto a2 (popA<ASTNS::BitshiftExpr>(stack));
+                            auto a2 (popA<ASTNS::BitShiftExpr>(stack));
                             auto a1 (popT(stack));
-                            auto a0 (popA<ASTNS::BitandExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BitandExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::BitandExpr>(stack.back().state), std::move(push));
+                            auto a0 (popA<ASTNS::BitAndExpr>(stack));
+                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BitAndExpr>(std::move(a0), std::move(a1), std::move(a2)));
+                            stack.emplace_back(getGoto<ASTNS::BitAndExpr>(stack.back().state), std::move(push));
                         }
                         break;
                     case TokenType::DOUBLEGREATER:
@@ -3264,9 +3264,9 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         {
                             auto a2 (popA<ASTNS::AdditionExpr>(stack));
                             auto a1 (popT(stack));
-                            auto a0 (popA<ASTNS::BitshiftExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BitshiftExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::BitshiftExpr>(stack.back().state), std::move(push));
+                            auto a0 (popA<ASTNS::BitShiftExpr>(stack));
+                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BitShiftExpr>(std::move(a0), std::move(a1), std::move(a2)));
+                            stack.emplace_back(getGoto<ASTNS::BitShiftExpr>(stack.back().state), std::move(push));
                         }
                         break;
                     case TokenType::MINUS:
@@ -3282,9 +3282,9 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         {
                             auto a2 (popA<ASTNS::AdditionExpr>(stack));
                             auto a1 (popT(stack));
-                            auto a0 (popA<ASTNS::BitshiftExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BitshiftExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::BitshiftExpr>(stack.back().state), std::move(push));
+                            auto a0 (popA<ASTNS::BitShiftExpr>(stack));
+                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BitShiftExpr>(std::move(a0), std::move(a1), std::move(a2)));
+                            stack.emplace_back(getGoto<ASTNS::BitShiftExpr>(stack.back().state), std::move(push));
                         }
                         break;
                     case TokenType::MINUS:
@@ -3657,7 +3657,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a3 (popT(stack));
                             auto a2 (popA<ASTNS::Expr>(stack));
                             auto a1 (popT(stack));
-                            auto a0 (popA<ASTNS::BinorExpr>(stack));
+                            auto a0 (popA<ASTNS::BinOrExpr>(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::TernaryExpr>(std::move(a0), std::move(a1), std::move(a2), std::move(a3), std::move(a4)));
                             stack.emplace_back(getGoto<ASTNS::TernaryExpr>(stack.back().state), std::move(push));
                         }

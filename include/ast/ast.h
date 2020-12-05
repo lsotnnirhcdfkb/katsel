@@ -24,18 +24,18 @@ namespace ASTNS
     class ArgList;
     class ArgList_OPT;
     class AssignmentExpr;
-    class BinandExpr;
-    class BinorExpr;
-    class BitandExpr;
-    class BitorExpr;
-    class BitshiftExpr;
-    class BitxorExpr;
+    class BinAndExpr;
+    class BinOrExpr;
+    class BitAndExpr;
+    class BitOrExpr;
+    class BitShiftExpr;
+    class BitXorExpr;
     class Block;
     class BuiltinTypeNoVoid;
     class CU;
     class CallExpr;
-    class CompeqExpr;
-    class ComplgtExpr;
+    class CompEQExpr;
+    class CompLGTExpr;
     class Decl;
     class DeclList;
     class EmptyStmt;
@@ -192,10 +192,10 @@ namespace ASTNS
         bool empty() override;
         virtual void accept(ASTNS::ExprBVisitor *v) override;
     };
-    class BinandExpr : public ExprB
+    class BinAndExpr : public ExprB
     {
     public:
-        BinandExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs);
+        BinAndExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs);
         enum class Form
         {
             ATA,
@@ -207,10 +207,10 @@ namespace ASTNS
         bool empty() override;
         virtual void accept(ASTNS::ExprBVisitor *v) override;
     };
-    class BinorExpr : public ExprB
+    class BinOrExpr : public ExprB
     {
     public:
-        BinorExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs);
+        BinOrExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs);
         enum class Form
         {
             ATA,
@@ -222,10 +222,10 @@ namespace ASTNS
         bool empty() override;
         virtual void accept(ASTNS::ExprBVisitor *v) override;
     };
-    class BitandExpr : public ExprB
+    class BitAndExpr : public ExprB
     {
     public:
-        BitandExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs);
+        BitAndExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs);
         enum class Form
         {
             ATA,
@@ -237,10 +237,10 @@ namespace ASTNS
         bool empty() override;
         virtual void accept(ASTNS::ExprBVisitor *v) override;
     };
-    class BitorExpr : public ExprB
+    class BitOrExpr : public ExprB
     {
     public:
-        BitorExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs);
+        BitOrExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs);
         enum class Form
         {
             ATA,
@@ -252,10 +252,10 @@ namespace ASTNS
         bool empty() override;
         virtual void accept(ASTNS::ExprBVisitor *v) override;
     };
-    class BitshiftExpr : public ExprB
+    class BitShiftExpr : public ExprB
     {
     public:
-        BitshiftExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs);
+        BitShiftExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs);
         enum class Form
         {
             ATA,
@@ -267,10 +267,10 @@ namespace ASTNS
         bool empty() override;
         virtual void accept(ASTNS::ExprBVisitor *v) override;
     };
-    class BitxorExpr : public ExprB
+    class BitXorExpr : public ExprB
     {
     public:
-        BitxorExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs);
+        BitXorExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs);
         enum class Form
         {
             ATA,
@@ -343,10 +343,10 @@ namespace ASTNS
         bool empty() override;
         virtual void accept(ASTNS::ExprBVisitor *v) override;
     };
-    class CompeqExpr : public ExprB
+    class CompEQExpr : public ExprB
     {
     public:
-        CompeqExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs);
+        CompEQExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs);
         enum class Form
         {
             ATA,
@@ -358,10 +358,10 @@ namespace ASTNS
         bool empty() override;
         virtual void accept(ASTNS::ExprBVisitor *v) override;
     };
-    class ComplgtExpr : public ExprB
+    class CompLGTExpr : public ExprB
     {
     public:
-        ComplgtExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs);
+        CompLGTExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs);
         enum class Form
         {
             ATA,

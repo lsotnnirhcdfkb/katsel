@@ -74,18 +74,18 @@ void visitArg(ASTNS::Arg *ast) override;
 void visitArgList(ASTNS::ArgList *ast) override;
 void visitArgList_OPT(ASTNS::ArgList_OPT *ast) override;
 void visitAssignmentExpr(ASTNS::AssignmentExpr *ast) override;
-void visitBinandExpr(ASTNS::BinandExpr *ast) override;
-void visitBinorExpr(ASTNS::BinorExpr *ast) override;
-void visitBitandExpr(ASTNS::BitandExpr *ast) override;
-void visitBitorExpr(ASTNS::BitorExpr *ast) override;
-void visitBitshiftExpr(ASTNS::BitshiftExpr *ast) override;
-void visitBitxorExpr(ASTNS::BitxorExpr *ast) override;
+void visitBinAndExpr(ASTNS::BinAndExpr *ast) override;
+void visitBinOrExpr(ASTNS::BinOrExpr *ast) override;
+void visitBitAndExpr(ASTNS::BitAndExpr *ast) override;
+void visitBitOrExpr(ASTNS::BitOrExpr *ast) override;
+void visitBitShiftExpr(ASTNS::BitShiftExpr *ast) override;
+void visitBitXorExpr(ASTNS::BitXorExpr *ast) override;
 void visitBlock(ASTNS::Block *ast) override;
 void visitBuiltinTypeNoVoid(ASTNS::BuiltinTypeNoVoid *ast) override;
 void visitCU(ASTNS::CU *ast) override;
 void visitCallExpr(ASTNS::CallExpr *ast) override;
-void visitCompeqExpr(ASTNS::CompeqExpr *ast) override;
-void visitComplgtExpr(ASTNS::ComplgtExpr *ast) override;
+void visitCompEQExpr(ASTNS::CompEQExpr *ast) override;
+void visitCompLGTExpr(ASTNS::CompLGTExpr *ast) override;
 void visitDeclList(ASTNS::DeclList *ast) override;
 void visitEmptyStmt(ASTNS::EmptyStmt *ast) override;
 void visitExprStmt(ASTNS::ExprStmt *ast) override;
@@ -203,66 +203,66 @@ void LocationVisitor::visitAssignmentExpr(ASTNS::AssignmentExpr *ast)
             break;
     }
 }
-void LocationVisitor::visitBinandExpr(ASTNS::BinandExpr *ast)
+void LocationVisitor::visitBinAndExpr(ASTNS::BinAndExpr *ast)
 {
     switch (ast->form)
     {
-        case ASTNS::BinandExpr::Form::ATA:
+        case ASTNS::BinAndExpr::Form::ATA:
             retl = getL(ast->lhs.get());
             retf = getF(ast->lhs.get());
             retr = getR(ast->rhs.get());
             break;
     }
 }
-void LocationVisitor::visitBinorExpr(ASTNS::BinorExpr *ast)
+void LocationVisitor::visitBinOrExpr(ASTNS::BinOrExpr *ast)
 {
     switch (ast->form)
     {
-        case ASTNS::BinorExpr::Form::ATA:
+        case ASTNS::BinOrExpr::Form::ATA:
             retl = getL(ast->lhs.get());
             retf = getF(ast->lhs.get());
             retr = getR(ast->rhs.get());
             break;
     }
 }
-void LocationVisitor::visitBitandExpr(ASTNS::BitandExpr *ast)
+void LocationVisitor::visitBitAndExpr(ASTNS::BitAndExpr *ast)
 {
     switch (ast->form)
     {
-        case ASTNS::BitandExpr::Form::ATA:
+        case ASTNS::BitAndExpr::Form::ATA:
             retl = getL(ast->lhs.get());
             retf = getF(ast->lhs.get());
             retr = getR(ast->rhs.get());
             break;
     }
 }
-void LocationVisitor::visitBitorExpr(ASTNS::BitorExpr *ast)
+void LocationVisitor::visitBitOrExpr(ASTNS::BitOrExpr *ast)
 {
     switch (ast->form)
     {
-        case ASTNS::BitorExpr::Form::ATA:
+        case ASTNS::BitOrExpr::Form::ATA:
             retl = getL(ast->lhs.get());
             retf = getF(ast->lhs.get());
             retr = getR(ast->rhs.get());
             break;
     }
 }
-void LocationVisitor::visitBitshiftExpr(ASTNS::BitshiftExpr *ast)
+void LocationVisitor::visitBitShiftExpr(ASTNS::BitShiftExpr *ast)
 {
     switch (ast->form)
     {
-        case ASTNS::BitshiftExpr::Form::ATA:
+        case ASTNS::BitShiftExpr::Form::ATA:
             retl = getL(ast->lhs.get());
             retf = getF(ast->lhs.get());
             retr = getR(ast->rhs.get());
             break;
     }
 }
-void LocationVisitor::visitBitxorExpr(ASTNS::BitxorExpr *ast)
+void LocationVisitor::visitBitXorExpr(ASTNS::BitXorExpr *ast)
 {
     switch (ast->form)
     {
-        case ASTNS::BitxorExpr::Form::ATA:
+        case ASTNS::BitXorExpr::Form::ATA:
             retl = getL(ast->lhs.get());
             retf = getF(ast->lhs.get());
             retr = getR(ast->rhs.get());
@@ -321,22 +321,22 @@ void LocationVisitor::visitCallExpr(ASTNS::CallExpr *ast)
             break;
     }
 }
-void LocationVisitor::visitCompeqExpr(ASTNS::CompeqExpr *ast)
+void LocationVisitor::visitCompEQExpr(ASTNS::CompEQExpr *ast)
 {
     switch (ast->form)
     {
-        case ASTNS::CompeqExpr::Form::ATA:
+        case ASTNS::CompEQExpr::Form::ATA:
             retl = getL(ast->lhs.get());
             retf = getF(ast->lhs.get());
             retr = getR(ast->rhs.get());
             break;
     }
 }
-void LocationVisitor::visitComplgtExpr(ASTNS::ComplgtExpr *ast)
+void LocationVisitor::visitCompLGTExpr(ASTNS::CompLGTExpr *ast)
 {
     switch (ast->form)
     {
-        case ASTNS::ComplgtExpr::Form::ATA:
+        case ASTNS::CompLGTExpr::Form::ATA:
             retl = getL(ast->lhs.get());
             retf = getF(ast->lhs.get());
             retr = getR(ast->rhs.get());

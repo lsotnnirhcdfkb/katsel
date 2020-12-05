@@ -166,13 +166,13 @@ void ASTNS::DotVisitor::visitAssignmentExpr(ASTNS::AssignmentExpr *a)
     }
     lastid = std::move(thisid);
 }
-void ASTNS::DotVisitor::visitBinandExpr(ASTNS::BinandExpr *a)
+void ASTNS::DotVisitor::visitBinAndExpr(ASTNS::BinAndExpr *a)
 {
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::BinandExpr::Form::ATA:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">BinandExpr (ATA)</td></tr><tr>";
+        case ASTNS::BinAndExpr::Form::ATA:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">BinAndExpr (ATA)</td></tr><tr>";
             ostream << "<td port=\"lhs\">lhs</td>";
             ostream << "<td port=\"op\">op</td>";
             ostream << "<td port=\"rhs\">rhs</td>";
@@ -209,13 +209,13 @@ void ASTNS::DotVisitor::visitBinandExpr(ASTNS::BinandExpr *a)
     }
     lastid = std::move(thisid);
 }
-void ASTNS::DotVisitor::visitBinorExpr(ASTNS::BinorExpr *a)
+void ASTNS::DotVisitor::visitBinOrExpr(ASTNS::BinOrExpr *a)
 {
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::BinorExpr::Form::ATA:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">BinorExpr (ATA)</td></tr><tr>";
+        case ASTNS::BinOrExpr::Form::ATA:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">BinOrExpr (ATA)</td></tr><tr>";
             ostream << "<td port=\"lhs\">lhs</td>";
             ostream << "<td port=\"op\">op</td>";
             ostream << "<td port=\"rhs\">rhs</td>";
@@ -252,13 +252,13 @@ void ASTNS::DotVisitor::visitBinorExpr(ASTNS::BinorExpr *a)
     }
     lastid = std::move(thisid);
 }
-void ASTNS::DotVisitor::visitBitandExpr(ASTNS::BitandExpr *a)
+void ASTNS::DotVisitor::visitBitAndExpr(ASTNS::BitAndExpr *a)
 {
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::BitandExpr::Form::ATA:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">BitandExpr (ATA)</td></tr><tr>";
+        case ASTNS::BitAndExpr::Form::ATA:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">BitAndExpr (ATA)</td></tr><tr>";
             ostream << "<td port=\"lhs\">lhs</td>";
             ostream << "<td port=\"op\">op</td>";
             ostream << "<td port=\"rhs\">rhs</td>";
@@ -295,13 +295,13 @@ void ASTNS::DotVisitor::visitBitandExpr(ASTNS::BitandExpr *a)
     }
     lastid = std::move(thisid);
 }
-void ASTNS::DotVisitor::visitBitorExpr(ASTNS::BitorExpr *a)
+void ASTNS::DotVisitor::visitBitOrExpr(ASTNS::BitOrExpr *a)
 {
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::BitorExpr::Form::ATA:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">BitorExpr (ATA)</td></tr><tr>";
+        case ASTNS::BitOrExpr::Form::ATA:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">BitOrExpr (ATA)</td></tr><tr>";
             ostream << "<td port=\"lhs\">lhs</td>";
             ostream << "<td port=\"op\">op</td>";
             ostream << "<td port=\"rhs\">rhs</td>";
@@ -338,13 +338,13 @@ void ASTNS::DotVisitor::visitBitorExpr(ASTNS::BitorExpr *a)
     }
     lastid = std::move(thisid);
 }
-void ASTNS::DotVisitor::visitBitshiftExpr(ASTNS::BitshiftExpr *a)
+void ASTNS::DotVisitor::visitBitShiftExpr(ASTNS::BitShiftExpr *a)
 {
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::BitshiftExpr::Form::ATA:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">BitshiftExpr (ATA)</td></tr><tr>";
+        case ASTNS::BitShiftExpr::Form::ATA:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">BitShiftExpr (ATA)</td></tr><tr>";
             ostream << "<td port=\"lhs\">lhs</td>";
             ostream << "<td port=\"op\">op</td>";
             ostream << "<td port=\"rhs\">rhs</td>";
@@ -381,13 +381,13 @@ void ASTNS::DotVisitor::visitBitshiftExpr(ASTNS::BitshiftExpr *a)
     }
     lastid = std::move(thisid);
 }
-void ASTNS::DotVisitor::visitBitxorExpr(ASTNS::BitxorExpr *a)
+void ASTNS::DotVisitor::visitBitXorExpr(ASTNS::BitXorExpr *a)
 {
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::BitxorExpr::Form::ATA:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">BitxorExpr (ATA)</td></tr><tr>";
+        case ASTNS::BitXorExpr::Form::ATA:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">BitXorExpr (ATA)</td></tr><tr>";
             ostream << "<td port=\"lhs\">lhs</td>";
             ostream << "<td port=\"op\">op</td>";
             ostream << "<td port=\"rhs\">rhs</td>";
@@ -566,13 +566,13 @@ void ASTNS::DotVisitor::visitCallExpr(ASTNS::CallExpr *a)
     }
     lastid = std::move(thisid);
 }
-void ASTNS::DotVisitor::visitCompeqExpr(ASTNS::CompeqExpr *a)
+void ASTNS::DotVisitor::visitCompEQExpr(ASTNS::CompEQExpr *a)
 {
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::CompeqExpr::Form::ATA:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">CompeqExpr (ATA)</td></tr><tr>";
+        case ASTNS::CompEQExpr::Form::ATA:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">CompEQExpr (ATA)</td></tr><tr>";
             ostream << "<td port=\"lhs\">lhs</td>";
             ostream << "<td port=\"op\">op</td>";
             ostream << "<td port=\"rhs\">rhs</td>";
@@ -609,13 +609,13 @@ void ASTNS::DotVisitor::visitCompeqExpr(ASTNS::CompeqExpr *a)
     }
     lastid = std::move(thisid);
 }
-void ASTNS::DotVisitor::visitComplgtExpr(ASTNS::ComplgtExpr *a)
+void ASTNS::DotVisitor::visitCompLGTExpr(ASTNS::CompLGTExpr *a)
 {
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::ComplgtExpr::Form::ATA:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">ComplgtExpr (ATA)</td></tr><tr>";
+        case ASTNS::CompLGTExpr::Form::ATA:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">CompLGTExpr (ATA)</td></tr><tr>";
             ostream << "<td port=\"lhs\">lhs</td>";
             ostream << "<td port=\"op\">op</td>";
             ostream << "<td port=\"rhs\">rhs</td>";

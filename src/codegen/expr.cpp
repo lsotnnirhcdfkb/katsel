@@ -32,31 +32,31 @@ IR::ASTValue CodeGenNS::ExprCodeGen::expr(ASTNS::ExprB *ast)
 
 #define BINARYOPIS(operty) IR::Type::BinaryOperator oper = IR::Type::BinaryOperator::operty;
 
-void CodeGenNS::ExprCodeGen::visitBinandExpr(ASTNS::BinandExpr *ast)
+void CodeGenNS::ExprCodeGen::visitBinAndExpr(ASTNS::BinAndExpr *ast)
 {
     BINARYOPSTART()
     BINARYOPIS(doubleamper)
     BINARYOPEND()
 }
-void CodeGenNS::ExprCodeGen::visitBinorExpr(ASTNS::BinorExpr *ast)
+void CodeGenNS::ExprCodeGen::visitBinOrExpr(ASTNS::BinOrExpr *ast)
 {
     BINARYOPSTART()
     BINARYOPIS(doublepipe)
     BINARYOPEND()
 }
-void CodeGenNS::ExprCodeGen::visitBitandExpr(ASTNS::BitandExpr *ast)
+void CodeGenNS::ExprCodeGen::visitBitAndExpr(ASTNS::BitAndExpr *ast)
 {
     BINARYOPSTART()
     BINARYOPIS(amper)
     BINARYOPEND()
 }
-void CodeGenNS::ExprCodeGen::visitBitorExpr(ASTNS::BitorExpr *ast)
+void CodeGenNS::ExprCodeGen::visitBitOrExpr(ASTNS::BitOrExpr *ast)
 {
     BINARYOPSTART()
     BINARYOPIS(pipe)
     BINARYOPEND()
 }
-void CodeGenNS::ExprCodeGen::visitBitshiftExpr(ASTNS::BitshiftExpr *ast)
+void CodeGenNS::ExprCodeGen::visitBitShiftExpr(ASTNS::BitShiftExpr *ast)
 {
     BINARYOPSTART()
     BINARYOPSWITCH()
@@ -65,13 +65,13 @@ void CodeGenNS::ExprCodeGen::visitBitshiftExpr(ASTNS::BitshiftExpr *ast)
     BINARYOPSWITCHEND(BitshiftExpr operator)
     BINARYOPEND()
 }
-void CodeGenNS::ExprCodeGen::visitBitxorExpr(ASTNS::BitxorExpr *ast)
+void CodeGenNS::ExprCodeGen::visitBitXorExpr(ASTNS::BitXorExpr *ast)
 {
     BINARYOPSTART()
     BINARYOPIS(caret);
     BINARYOPEND()
 }
-void CodeGenNS::ExprCodeGen::visitCompeqExpr(ASTNS::CompeqExpr *ast)
+void CodeGenNS::ExprCodeGen::visitCompEQExpr(ASTNS::CompEQExpr *ast)
 {
     BINARYOPSTART()
     BINARYOPSWITCH()
@@ -80,7 +80,7 @@ void CodeGenNS::ExprCodeGen::visitCompeqExpr(ASTNS::CompeqExpr *ast)
     BINARYOPSWITCHEND(CompeqExpr operator)
     BINARYOPEND()
 }
-void CodeGenNS::ExprCodeGen::visitComplgtExpr(ASTNS::ComplgtExpr *ast)
+void CodeGenNS::ExprCodeGen::visitCompLGTExpr(ASTNS::CompLGTExpr *ast)
 {
     BINARYOPSTART()
     BINARYOPSWITCH()

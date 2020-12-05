@@ -17,24 +17,24 @@ bool ASTNS::ArgList_OPT::empty() { return form == Form::EMPTY; }
 ASTNS::AssignmentExpr::AssignmentExpr(std::unique_ptr<ExprB> target, Token equal, std::unique_ptr<ExprB> value): target(std::move(target)), equal(equal), value(std::move(value)), form(ASTNS::AssignmentExpr::Form::ATA) {}
 void ASTNS::AssignmentExpr::accept(ASTNS::ExprBVisitor *v) { v->visitAssignmentExpr(this); }
 bool ASTNS::AssignmentExpr::empty() { return false; }
-ASTNS::BinandExpr::BinandExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::BinandExpr::Form::ATA) {}
-void ASTNS::BinandExpr::accept(ASTNS::ExprBVisitor *v) { v->visitBinandExpr(this); }
-bool ASTNS::BinandExpr::empty() { return false; }
-ASTNS::BinorExpr::BinorExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::BinorExpr::Form::ATA) {}
-void ASTNS::BinorExpr::accept(ASTNS::ExprBVisitor *v) { v->visitBinorExpr(this); }
-bool ASTNS::BinorExpr::empty() { return false; }
-ASTNS::BitandExpr::BitandExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::BitandExpr::Form::ATA) {}
-void ASTNS::BitandExpr::accept(ASTNS::ExprBVisitor *v) { v->visitBitandExpr(this); }
-bool ASTNS::BitandExpr::empty() { return false; }
-ASTNS::BitorExpr::BitorExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::BitorExpr::Form::ATA) {}
-void ASTNS::BitorExpr::accept(ASTNS::ExprBVisitor *v) { v->visitBitorExpr(this); }
-bool ASTNS::BitorExpr::empty() { return false; }
-ASTNS::BitshiftExpr::BitshiftExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::BitshiftExpr::Form::ATA) {}
-void ASTNS::BitshiftExpr::accept(ASTNS::ExprBVisitor *v) { v->visitBitshiftExpr(this); }
-bool ASTNS::BitshiftExpr::empty() { return false; }
-ASTNS::BitxorExpr::BitxorExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::BitxorExpr::Form::ATA) {}
-void ASTNS::BitxorExpr::accept(ASTNS::ExprBVisitor *v) { v->visitBitxorExpr(this); }
-bool ASTNS::BitxorExpr::empty() { return false; }
+ASTNS::BinAndExpr::BinAndExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::BinAndExpr::Form::ATA) {}
+void ASTNS::BinAndExpr::accept(ASTNS::ExprBVisitor *v) { v->visitBinAndExpr(this); }
+bool ASTNS::BinAndExpr::empty() { return false; }
+ASTNS::BinOrExpr::BinOrExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::BinOrExpr::Form::ATA) {}
+void ASTNS::BinOrExpr::accept(ASTNS::ExprBVisitor *v) { v->visitBinOrExpr(this); }
+bool ASTNS::BinOrExpr::empty() { return false; }
+ASTNS::BitAndExpr::BitAndExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::BitAndExpr::Form::ATA) {}
+void ASTNS::BitAndExpr::accept(ASTNS::ExprBVisitor *v) { v->visitBitAndExpr(this); }
+bool ASTNS::BitAndExpr::empty() { return false; }
+ASTNS::BitOrExpr::BitOrExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::BitOrExpr::Form::ATA) {}
+void ASTNS::BitOrExpr::accept(ASTNS::ExprBVisitor *v) { v->visitBitOrExpr(this); }
+bool ASTNS::BitOrExpr::empty() { return false; }
+ASTNS::BitShiftExpr::BitShiftExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::BitShiftExpr::Form::ATA) {}
+void ASTNS::BitShiftExpr::accept(ASTNS::ExprBVisitor *v) { v->visitBitShiftExpr(this); }
+bool ASTNS::BitShiftExpr::empty() { return false; }
+ASTNS::BitXorExpr::BitXorExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::BitXorExpr::Form::ATA) {}
+void ASTNS::BitXorExpr::accept(ASTNS::ExprBVisitor *v) { v->visitBitXorExpr(this); }
+bool ASTNS::BitXorExpr::empty() { return false; }
 ASTNS::Block::Block(Token ocurb, std::unique_ptr<StmtB> stmts, Token ccurb): ocurb(ocurb), stmts(std::move(stmts)), ccurb(ccurb), form(ASTNS::Block::Form::TAT) {}
 ASTNS::Block::Block(Token ocurb, Token ccurb): ocurb(ocurb), ccurb(ccurb), form(ASTNS::Block::Form::TT) {}
 void ASTNS::Block::accept(ASTNS::StmtBVisitor *v) { v->visitBlock(this); }
@@ -49,12 +49,12 @@ bool ASTNS::CU::empty() { return form == Form::EMPTY; }
 ASTNS::CallExpr::CallExpr(std::unique_ptr<ExprB> callee, Token oparn, std::unique_ptr<ArgB> args, Token cparn): callee(std::move(callee)), oparn(oparn), args(std::move(args)), cparn(cparn), form(ASTNS::CallExpr::Form::ATAT) {}
 void ASTNS::CallExpr::accept(ASTNS::ExprBVisitor *v) { v->visitCallExpr(this); }
 bool ASTNS::CallExpr::empty() { return false; }
-ASTNS::CompeqExpr::CompeqExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::CompeqExpr::Form::ATA) {}
-void ASTNS::CompeqExpr::accept(ASTNS::ExprBVisitor *v) { v->visitCompeqExpr(this); }
-bool ASTNS::CompeqExpr::empty() { return false; }
-ASTNS::ComplgtExpr::ComplgtExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::ComplgtExpr::Form::ATA) {}
-void ASTNS::ComplgtExpr::accept(ASTNS::ExprBVisitor *v) { v->visitComplgtExpr(this); }
-bool ASTNS::ComplgtExpr::empty() { return false; }
+ASTNS::CompEQExpr::CompEQExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::CompEQExpr::Form::ATA) {}
+void ASTNS::CompEQExpr::accept(ASTNS::ExprBVisitor *v) { v->visitCompEQExpr(this); }
+bool ASTNS::CompEQExpr::empty() { return false; }
+ASTNS::CompLGTExpr::CompLGTExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_ptr<ExprB> rhs): lhs(std::move(lhs)), op(op), rhs(std::move(rhs)), form(ASTNS::CompLGTExpr::Form::ATA) {}
+void ASTNS::CompLGTExpr::accept(ASTNS::ExprBVisitor *v) { v->visitCompLGTExpr(this); }
+bool ASTNS::CompLGTExpr::empty() { return false; }
 ASTNS::DeclList::DeclList(std::unique_ptr<DeclB> decl, std::unique_ptr<DeclB> moredecl): decl(std::move(decl)), moredecl(std::move(moredecl)), form(ASTNS::DeclList::Form::AA) {}
 void ASTNS::DeclList::accept(ASTNS::DeclBVisitor *v) { v->visitDeclList(this); }
 bool ASTNS::DeclList::empty() { return false; }
