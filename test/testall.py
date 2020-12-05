@@ -52,7 +52,7 @@ extern "C"
 #endif
 void printd(uint32_t i)
 {
-    printf("%d\n", i);
+    printf("%u\n", i);
 }
 
 #ifdef __cplusplus

@@ -7,7 +7,9 @@ fun uint32 main()
     printd(100); // expect output 100
     printd(15); // expect output 15
     printd(42); // expect output 42
-    printd(-5); // expect output -5
+    printd(-5); // expect output 4294967291
+    printd(-0); // expect output 0
+    printd(-1); // expect output 4294967295
     return 0;
 }
 
