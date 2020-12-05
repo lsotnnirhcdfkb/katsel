@@ -1,0 +1,26 @@
+
+fun uint32 main()
+{
+    printd(0); // expect output 0
+    printd(100); // expect output 100
+    printd(64); // expect output 64
+
+    printd(0x0); // expect output 0
+    printd(0x100); // expect output 256
+    printd(0x64); // expect output 100
+    printd(0x40); // expect output 64
+
+    printd(0o0); // expect output 0
+    printd(0o144); // expect output 100
+    printd(0o100); // expect output 64
+    printd(0o64); // expect output 52
+
+    printd(0b0); // expect output 0
+    printd(0b100); // expect output 4
+    printd(0b1100100); // expect output 100
+    printd(0b1000000); // expect output 64
+
+    return 0;
+}
+
+fun void printd(uint32 i);

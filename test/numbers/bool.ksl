@@ -1,0 +1,9 @@
+
+
+fun uint32 main()
+{
+    printd(true); // expect output 1
+    printd(false); // expect output 0
+}
+
+fun uint32 printd(bool i);

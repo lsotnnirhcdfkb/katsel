@@ -1,0 +1,13 @@
+
+
+fun uint32 main()
+{
+    printd(2 + 2 * 3); // expect output 8
+    printd((2 + 2) * 3); // expect output 12
+
+    printd(2 / 2 * 3); // expect output 3
+    printd((2 / 2) * 3); // expect output 3
+    printd(2 / (2 * 3)); // expect output 0
+}
+
+fun void printd(uint32 i);
