@@ -217,6 +217,7 @@ void CodeGenNS::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast)
         return;
     }
 
+    int _intbase;
     switch (ast->value.type)
     {
         case TokenType::TRUELIT:
@@ -238,15 +239,17 @@ void CodeGenNS::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast)
             return;
 
         case TokenType::OCTINTLIT:
-            ret = IR::ASTValue(cg.context.getConstInt(cg.context.getBuiltinType(IR::BuiltinType::Builtins::UINT32), std::stoi(ast->value.stringify(), nullptr, 8)), ast);
-            return;
-
+            _intbase = 8;
+            goto makeIntLit;
         case TokenType::BININTLIT:
-            ret = IR::ASTValue(cg.context.getConstInt(cg.context.getBuiltinType(IR::BuiltinType::Builtins::UINT32), std::stoi(ast->value.stringify(), nullptr, 2)), ast);
-            return;
-
+            _intbase = 2;
+            goto makeIntLit;
         case TokenType::HEXINTLIT:
-            ret = IR::ASTValue(cg.context.getConstInt(cg.context.getBuiltinType(IR::BuiltinType::Builtins::UINT32), std::stoi(ast->value.stringify(), nullptr, 16)), ast);
+            _intbase = 16;
+            goto makeIntLit;
+
+makeIntLit:
+            ret = IR::ASTValue(cg.context.getConstInt(cg.context.getBuiltinType(IR::BuiltinType::Builtins::UINT32), std::stoi(ast->value.stringify().erase(0, 2), nullptr, _intbase)), ast);
             return;
 
         case TokenType::CHARLIT:
