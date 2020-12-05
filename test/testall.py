@@ -15,6 +15,14 @@ def fail(testfile, msg):
     print(f'\033[0;1;31mfailed\033[0m')
     print(f'\t- {msg}')
 
+    tmplog = f'/tmp/log_{os.path.basename(testfile)}.txt'
+
+    print(f'\t- log written to \033[36m{tmplog}\033[0m')
+
+    with open(tmplog, 'w') as f:
+        f.write('failed with {msg}\n')
+        f.write(str(outputs))
+
 def passTest(testfile):
     global npassed
     npassed += 1
@@ -162,6 +170,7 @@ for testi, testfile in enumerate(TESTS):
 
             if expect.group(1) != ol.pop(0):
                 failed = True
+                failmsg = 'printed wrong thing'
 
         if len(ol):
             failed = True
