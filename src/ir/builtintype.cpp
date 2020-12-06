@@ -120,7 +120,7 @@ IR::ASTValue IR::BuiltinType::binOp(CodeGenNS::Context &cgc, IR::Type::BinaryOpe
                 //  else
                 //     j
 
-                cgc.curBlock->branch(std::make_unique<Instrs::CondBr>(l, ltrueb, checkbothb));
+                cgc.curBlock->branch(std::make_unique<Instrs::CondBr>(l.type()->isTrue(cgc, l), ltrueb, checkbothb));
 
                 cgc.curBlock = ltrueb;
                 cgc.curBlock->branch(std::make_unique<Instrs::GotoBr>(afterb));
@@ -147,7 +147,7 @@ IR::ASTValue IR::BuiltinType::binOp(CodeGenNS::Context &cgc, IR::Type::BinaryOpe
                 //  else
                 //     false
 
-                cgc.curBlock->branch(std::make_unique<Instrs::CondBr>(l, checkbothb, lfalseb));
+                cgc.curBlock->branch(std::make_unique<Instrs::CondBr>(l.type()->isTrue(cgc, l), checkbothb, lfalseb));
 
                 cgc.curBlock = checkbothb;
                 IR::ASTValue rtrue = r.type()->isTrue(cgc, r);
