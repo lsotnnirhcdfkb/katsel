@@ -12,6 +12,7 @@ namespace IR
         Printer(llvm::raw_ostream &ostream);
 #define VISITMETHOD(cl) void visit##cl(Instrs::cl *i) override;
         VISITMETHOD(Store)
+        VISITMETHOD(Phi)
         VISITMETHOD(Or)
         VISITMETHOD(And)
         VISITMETHOD(CmpNE)

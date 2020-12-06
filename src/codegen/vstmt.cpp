@@ -13,7 +13,7 @@ void CodeGenNS::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem *ast)
         return;
     }
 
-    IR::Register *reg = cg.context.curFunc->addRegister(varty, ast, false);
+    IR::Register *reg = cg.context.curFunc->addRegister(varty, ast);
     cg.context.addLocal(varname, reg);
 
     if (ast->expr)

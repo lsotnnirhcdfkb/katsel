@@ -41,7 +41,7 @@ void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
     IR::Block *exitBlock = f->addBlock("exit");
 
     cg.context.incScope();
-    IR::Register *retReg = f->addRegister(fty->ret, ast, false);
+    IR::Register *retReg = f->addRegister(fty->ret, ast);
 
     if (ast->paramlist)
     {
@@ -50,7 +50,7 @@ void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
         for (auto const &param : params)
         {
             std::string pname = param.name;
-            IR::Register *reg = f->addRegister(param.ty, param.ast, false);
+            IR::Register *reg = f->addRegister(param.ty, param.ast);
 
             CodeGenNS::Context::Local *foundparam = cg.context.findLocal(pname);
             if (foundparam)

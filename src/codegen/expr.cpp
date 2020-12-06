@@ -202,7 +202,7 @@ void CodeGenNS::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
         return;
     }
 
-    IR::Register *outReg = cg.context.curFunc->addRegister(retty, ast);
+    IR::TempRegister *outReg = cg.context.curFunc->addTempRegister(retty);
 
     cg.context.curBlock->add(std::make_unique<IR::Instrs::Call>(outReg, static_cast<IR::Function *>(func.val), args));
 
@@ -322,10 +322,9 @@ void CodeGenNS::ExprCodeGen::visitTernaryExpr(ASTNS::TernaryExpr *ast)
     }
 
     cg.context.curBlock = afterb;
-    IR::Register *outreg = cg.context.curFunc->addRegister(truev.type(), ast);
+    IR::TempRegister *outreg = cg.context.curFunc->addTempRegister(truev.type());
 
-    trueb->add(std::make_unique<IR::Instrs::Store>(outreg, truev));
-    falseb->add(std::make_unique<IR::Instrs::Store>(outreg, falsev));
+    afterb->add(std::make_unique<IR::Instrs::Phi>(outreg, std::vector {std::make_pair(trueb, truev), std::make_pair(falseb, falsev)}));
 
     ret = IR::ASTValue(outreg, ast);
 }
@@ -343,7 +342,7 @@ void CodeGenNS::ExprCodeGen::visitAssignmentExpr(ASTNS::AssignmentExpr *ast)
 
     IR::Register *targetReg = dynamic_cast<IR::Register*>(lhs.val);
 
-    if (!targetReg || targetReg->temp)
+    if (!targetReg)
     {
         ERR_ASSIGN_INVALID_LHS(ast->equal, lhs);
         ret = IR::ASTValue();

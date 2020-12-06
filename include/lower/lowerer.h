@@ -18,6 +18,7 @@ namespace Lower
         Lowerer(IR::Unit const &unit);
 
         void visitStore(IR::Instrs::Store *instr) override;
+        void visitPhi(IR::Instrs::Phi *instr) override;
         void visitOr(IR::Instrs::Or *instr) override;
         void visitAnd(IR::Instrs::And *instr) override;
         void visitCmpNE(IR::Instrs::CmpNE *instr) override;
@@ -68,6 +69,7 @@ namespace Lower
         llvm::Module mod;
         llvm::legacy::FunctionPassManager fpm;
 
+        std::map<IR::TempRegister const *, llvm::Value*> tempregisters;
         std::map<IR::Register const *, llvm::AllocaInst*> allocas;
         std::map<IR::Block const *, llvm::BasicBlock*> blocks;
         std::map<IR::Function const *, llvm::Function*> functions;

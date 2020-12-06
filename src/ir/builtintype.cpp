@@ -104,7 +104,7 @@ IR::ASTValue IR::BuiltinType::binOp(CodeGenNS::Context &cgc, IR::Type::BinaryOpe
             break;
     }
 
-    IR::Register *outReg = cgc.curFunc->addRegister(retTy, ast);
+    IR::TempRegister *outReg = cgc.curFunc->addTempRegister(retTy);
     switch (op)
     {
         case Type::BinaryOperator::doublepipe:
@@ -123,14 +123,14 @@ IR::ASTValue IR::BuiltinType::binOp(CodeGenNS::Context &cgc, IR::Type::BinaryOpe
                 cgc.curBlock->branch(std::make_unique<Instrs::CondBr>(l, ltrueb, checkbothb));
 
                 cgc.curBlock = ltrueb;
-                cgc.curBlock->add(std::make_unique<Instrs::Store>(outReg, ASTValue(cgc.getConstInt(cgc.getBuiltinType(Builtins::BOOL), 1), ast)));
                 cgc.curBlock->branch(std::make_unique<Instrs::GotoBr>(afterb));
 
                 cgc.curBlock = checkbothb;
-                cgc.curBlock->add(std::make_unique<Instrs::Store>(outReg, r.type()->isTrue(cgc, r)));
+                IR::ASTValue rtrue = r.type()->isTrue(cgc, r);
                 cgc.curBlock->branch(std::make_unique<Instrs::GotoBr>(afterb));
 
                 cgc.curBlock = afterb;
+                cgc.curBlock->add(std::make_unique<Instrs::Phi>(outReg, std::vector {std::make_pair(ltrueb, ASTValue(cgc.getConstInt(cgc.getBuiltinType(Builtins::BOOL), 1), ast)), std::make_pair(checkbothb, rtrue)}));
             }
             break;
 
@@ -150,14 +150,14 @@ IR::ASTValue IR::BuiltinType::binOp(CodeGenNS::Context &cgc, IR::Type::BinaryOpe
                 cgc.curBlock->branch(std::make_unique<Instrs::CondBr>(l, checkbothb, lfalseb));
 
                 cgc.curBlock = checkbothb;
-                cgc.curBlock->add(std::make_unique<Instrs::Store>(outReg, r.type()->isTrue(cgc, r)));
+                IR::ASTValue rtrue = r.type()->isTrue(cgc, r);
                 cgc.curBlock->branch(std::make_unique<Instrs::GotoBr>(afterb));
 
                 cgc.curBlock = lfalseb;
-                cgc.curBlock->add(std::make_unique<Instrs::Store>(outReg, ASTValue(cgc.getConstInt(cgc.getBuiltinType(Builtins::BOOL), 0), ast)));
                 cgc.curBlock->branch(std::make_unique<Instrs::GotoBr>(afterb));
 
                 cgc.curBlock = afterb;
+                cgc.curBlock->add(std::make_unique<Instrs::Phi>(outReg, std::vector {std::make_pair(checkbothb, rtrue), std::make_pair(lfalseb, ASTValue(cgc.getConstInt(cgc.getBuiltinType(Builtins::BOOL), 0), ast))}));
             }
             break;
 
@@ -261,7 +261,7 @@ IR::ASTValue IR::BuiltinType::castTo(CodeGenNS::Context &cgc, IR::ASTValue v, AS
         {BuiltinType::Builtins::DOUBLE, 64}
     };
 
-    IR::Register *outReg = cgc.curFunc->addRegister(this, ast);
+    IR::TempRegister *outReg = cgc.curFunc->addTempRegister(this);
     if (styintegral == etyintegral)
     {
         // int -> int
@@ -320,7 +320,7 @@ IR::ASTValue IR::BuiltinType::unaryOp(CodeGenNS::Context &cgc, IR::Type::UnaryOp
     if (v.type() != this)
         calledWithOpTyNEthis("BuiltinType", "unaryOp", "operand");
 
-    IR::Register *outReg = cgc.curFunc->addRegister(v.type(), ast);
+    IR::TempRegister *outReg = cgc.curFunc->addTempRegister(v.type());
     switch (op)
     {
         case Type::UnaryOperator::bang:
@@ -344,7 +344,7 @@ IR::ASTValue IR::BuiltinType::isTrue(CodeGenNS::Context &cgc, IR::ASTValue v)
     if (v.type() != this)
         calledWithOpTyNEthis("BuiltinType", "isTrue", "value");
 
-    IR::Register *outReg = cgc.curFunc->addRegister(cgc.getBuiltinType(BuiltinType::Builtins::BOOL), v.ast);
+    IR::TempRegister *outReg = cgc.curFunc->addTempRegister(cgc.getBuiltinType(BuiltinType::Builtins::BOOL));
     switch (type)
     {
         case BuiltinType::Builtins::UINT8:

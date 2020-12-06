@@ -142,9 +142,9 @@ void E0201(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &op)
     e.underline(Error::Underline(lhs, '^')
         .note(format("lhs is of type %", lhs.type()))
     );
-    IR::DeclaredValue *lhs_val_asdeclared;
-    if ((lhs_val_asdeclared = dynamic_cast<IR::DeclaredValue*>(lhs.val)) && lhs_val_asdeclared->defAST())
-    e.underline(Error::Underline(lhs_val_asdeclared->defAST(), '~')
+    IR::DeclaredValue * asdeclared;
+    if (( asdeclared = dynamic_cast<IR::DeclaredValue*>( lhs.val)))
+    e.underline(Error::Underline(asdeclared->defAST(), '~')
         .note("lhs declared here")
     );
     e.underline(Error::Underline(op, '^')
@@ -162,9 +162,9 @@ void E0203(IR::ASTValue const &operand, Token const &_operator)
     e.underline(Error::Underline(operand, '^')
         .note(format("operand is of type %", operand.type()))
     );
-    IR::DeclaredValue *operand_val_asdeclared;
-    if ((operand_val_asdeclared = dynamic_cast<IR::DeclaredValue*>(operand.val)) && operand_val_asdeclared->defAST())
-    e.underline(Error::Underline(operand_val_asdeclared->defAST(), '~')
+    IR::DeclaredValue * asdeclared;
+    if (( asdeclared = dynamic_cast<IR::DeclaredValue*>( operand.val)))
+    e.underline(Error::Underline(asdeclared->defAST(), '~')
         .note("operand declared here")
     );
     e.underline(Error::Underline(_operator, '^')
@@ -181,9 +181,9 @@ void E0204(IR::ASTValue const &func, Token const &oparn)
         .error("calling of non-callable value")
         .note(format("value of type %", func.type()))
     );
-    IR::DeclaredValue *func_val_asdeclared;
-    if ((func_val_asdeclared = dynamic_cast<IR::DeclaredValue*>(func.val)) && func_val_asdeclared->defAST())
-    e.underline(Error::Underline(func_val_asdeclared->defAST(), '~')
+    IR::DeclaredValue * asdeclared;
+    if (( asdeclared = dynamic_cast<IR::DeclaredValue*>( func.val)))
+    e.underline(Error::Underline(asdeclared->defAST(), '~')
         .note("callee declared here")
     );
     e.report();

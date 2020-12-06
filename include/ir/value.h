@@ -30,7 +30,7 @@ namespace IR
     class Register : public Value, public DeclaredValue
     {
     public:
-        Register(int index, Type *type, ASTNS::AST *defAST, bool temp=true);
+        Register(int index, Type *type, ASTNS::AST *defAST);
 
         std::string stringify() const override;
         void definition(llvm::raw_ostream &os) const;
@@ -38,10 +38,22 @@ namespace IR
 
         Type* type() const override;
 
-        bool temp;
-
     private:
         ASTNS::AST* _defAST;
+        int index;
+        Type *ty;
+    };
+
+    class TempRegister : public Value
+    {
+    public:
+        TempRegister(int index, Type *type);
+
+        std::string stringify() const override;
+
+        Type* type() const override;
+
+    private:
         int index;
         Type *ty;
     };
@@ -62,9 +74,11 @@ namespace IR
 
         std::vector<std::unique_ptr<Block>> blocks;
         std::vector<std::unique_ptr<Register>> registers;
+        std::vector<std::unique_ptr<TempRegister>> tempregisters;
 
         Block* addBlock(std::string name);
-        Register* addRegister(Type *ty, ASTNS::AST *defAST, bool temp=true);
+        Register* addRegister(Type *ty, ASTNS::AST *defAST);
+        TempRegister* addTempRegister(Type *ty);
 
         FunctionType *ty;
         std::string name;
@@ -76,6 +90,7 @@ namespace IR
 
         size_t blocki;
         size_t regi;
+        size_t tempregi;
     };
 
     class ConstInt : public Value
@@ -97,7 +112,7 @@ namespace IR
     {
         // Because multiple ASTs can evaluate to the same value (same pointer)
         // (see primary expressions (multiple PrimaryASTs can evaluate to the same register),
-        // also especially since ConstInts are uniqued together), 
+        // also especially since ConstInts are uniqued together),
         // this struct allows values to be associated with an ast, and more importantly,
         // it isn't supposed to be heap-allocated and uniqued, so one value can have multiple ASTs
         Value *val;

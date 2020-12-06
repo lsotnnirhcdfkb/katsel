@@ -11,6 +11,20 @@ void IR::Printer::visitStore(IR::Instrs::Store *i)
     ostream << " ";
     ostream << i->value.stringify();
 }
+void IR::Printer::visitPhi(IR::Instrs::Phi *i)
+{
+    ostream << "phi " << i->target->stringify() << " ";
+    bool first = true;
+    for (auto &p : i->prevs)
+    {
+        if (!first)
+            ostream << ", ";
+        p.first->stringify(ostream);
+        ostream << ":" << p.second.stringify();
+
+        first = false;
+    }
+}
 void IR::Printer::visitOr(IR::Instrs::Or *i)
 {
     ostream << "or ";

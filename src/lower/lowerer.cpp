@@ -145,6 +145,8 @@ llvm::Value* Lower::Lowerer::lower(IR::Value const *v)
         return functions.at(asFunction);
     CHECKTY(ConstInt)
         return llvm::ConstantInt::get(asConstInt->type()->toLLVMType(context), asConstInt->val);
+    CHECKTY(TempRegister)
+        return tempregisters.at(asTempRegister);
 #undef CHECKTY
     else
     {

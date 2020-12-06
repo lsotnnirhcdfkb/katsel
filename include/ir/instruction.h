@@ -44,217 +44,225 @@ namespace IR
         Register *target;
         ASTValue value;
     };
+    class Phi : public Instruction
+    {
+    public:
+        Phi(TempRegister *target, std::vector<std::pair<Block*,ASTValue>> prevs);
+        void accept(InstructionVisitor *v) override;
+        TempRegister *target;
+        std::vector<std::pair<Block*,ASTValue>> prevs;
+    };
     class Or : public Instruction
     {
     public:
-        Or(Register *target, ASTValue lhs, ASTValue rhs);
+        Or(TempRegister *target, ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        Register *target;
+        TempRegister *target;
         ASTValue lhs;
         ASTValue rhs;
     };
     class And : public Instruction
     {
     public:
-        And(Register *target, ASTValue lhs, ASTValue rhs);
+        And(TempRegister *target, ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        Register *target;
+        TempRegister *target;
         ASTValue lhs;
         ASTValue rhs;
     };
     class CmpNE : public Instruction
     {
     public:
-        CmpNE(Register *target, ASTValue lhs, ASTValue rhs);
+        CmpNE(TempRegister *target, ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        Register *target;
+        TempRegister *target;
         ASTValue lhs;
         ASTValue rhs;
     };
     class CmpEQ : public Instruction
     {
     public:
-        CmpEQ(Register *target, ASTValue lhs, ASTValue rhs);
+        CmpEQ(TempRegister *target, ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        Register *target;
+        TempRegister *target;
         ASTValue lhs;
         ASTValue rhs;
     };
     class CmpLT : public Instruction
     {
     public:
-        CmpLT(Register *target, ASTValue lhs, ASTValue rhs);
+        CmpLT(TempRegister *target, ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        Register *target;
+        TempRegister *target;
         ASTValue lhs;
         ASTValue rhs;
     };
     class CmpGT : public Instruction
     {
     public:
-        CmpGT(Register *target, ASTValue lhs, ASTValue rhs);
+        CmpGT(TempRegister *target, ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        Register *target;
+        TempRegister *target;
         ASTValue lhs;
         ASTValue rhs;
     };
     class CmpLE : public Instruction
     {
     public:
-        CmpLE(Register *target, ASTValue lhs, ASTValue rhs);
+        CmpLE(TempRegister *target, ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        Register *target;
+        TempRegister *target;
         ASTValue lhs;
         ASTValue rhs;
     };
     class CmpGE : public Instruction
     {
     public:
-        CmpGE(Register *target, ASTValue lhs, ASTValue rhs);
+        CmpGE(TempRegister *target, ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        Register *target;
+        TempRegister *target;
         ASTValue lhs;
         ASTValue rhs;
     };
     class BitXor : public Instruction
     {
     public:
-        BitXor(Register *target, ASTValue lhs, ASTValue rhs);
+        BitXor(TempRegister *target, ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        Register *target;
+        TempRegister *target;
         ASTValue lhs;
         ASTValue rhs;
     };
     class BitOr : public Instruction
     {
     public:
-        BitOr(Register *target, ASTValue lhs, ASTValue rhs);
+        BitOr(TempRegister *target, ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        Register *target;
+        TempRegister *target;
         ASTValue lhs;
         ASTValue rhs;
     };
     class BitAnd : public Instruction
     {
     public:
-        BitAnd(Register *target, ASTValue lhs, ASTValue rhs);
+        BitAnd(TempRegister *target, ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        Register *target;
+        TempRegister *target;
         ASTValue lhs;
         ASTValue rhs;
     };
     class BitNot : public Instruction
     {
     public:
-        BitNot(Register *target, ASTValue op);
+        BitNot(TempRegister *target, ASTValue op);
         void accept(InstructionVisitor *v) override;
-        Register *target;
+        TempRegister *target;
         ASTValue op;
     };
     class ShiftR : public Instruction
     {
     public:
-        ShiftR(Register *target, ASTValue lhs, ASTValue rhs);
+        ShiftR(TempRegister *target, ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        Register *target;
+        TempRegister *target;
         ASTValue lhs;
         ASTValue rhs;
     };
     class ShiftL : public Instruction
     {
     public:
-        ShiftL(Register *target, ASTValue lhs, ASTValue rhs);
+        ShiftL(TempRegister *target, ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        Register *target;
+        TempRegister *target;
         ASTValue lhs;
         ASTValue rhs;
     };
     class Add : public Instruction
     {
     public:
-        Add(Register *target, ASTValue lhs, ASTValue rhs);
+        Add(TempRegister *target, ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        Register *target;
+        TempRegister *target;
         ASTValue lhs;
         ASTValue rhs;
     };
     class Sub : public Instruction
     {
     public:
-        Sub(Register *target, ASTValue lhs, ASTValue rhs);
+        Sub(TempRegister *target, ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        Register *target;
+        TempRegister *target;
         ASTValue lhs;
         ASTValue rhs;
     };
     class Mult : public Instruction
     {
     public:
-        Mult(Register *target, ASTValue lhs, ASTValue rhs);
+        Mult(TempRegister *target, ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        Register *target;
+        TempRegister *target;
         ASTValue lhs;
         ASTValue rhs;
     };
     class Div : public Instruction
     {
     public:
-        Div(Register *target, ASTValue lhs, ASTValue rhs);
+        Div(TempRegister *target, ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        Register *target;
+        TempRegister *target;
         ASTValue lhs;
         ASTValue rhs;
     };
     class Mod : public Instruction
     {
     public:
-        Mod(Register *target, ASTValue lhs, ASTValue rhs);
+        Mod(TempRegister *target, ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        Register *target;
+        TempRegister *target;
         ASTValue lhs;
         ASTValue rhs;
     };
     class Neg : public Instruction
     {
     public:
-        Neg(Register *target, ASTValue op);
+        Neg(TempRegister *target, ASTValue op);
         void accept(InstructionVisitor *v) override;
-        Register *target;
+        TempRegister *target;
         ASTValue op;
     };
     class Trunc : public Instruction
     {
     public:
-        Trunc(Register *target, ASTValue op, BuiltinType *newt);
+        Trunc(TempRegister *target, ASTValue op, BuiltinType *newt);
         void accept(InstructionVisitor *v) override;
-        Register *target;
+        TempRegister *target;
         ASTValue op;
         BuiltinType *newt;
     };
     class Ext : public Instruction
     {
     public:
-        Ext(Register *target, ASTValue op, BuiltinType *newt);
+        Ext(TempRegister *target, ASTValue op, BuiltinType *newt);
         void accept(InstructionVisitor *v) override;
-        Register *target;
+        TempRegister *target;
         ASTValue op;
         BuiltinType *newt;
     };
     class IntToFloat : public Instruction
     {
     public:
-        IntToFloat(Register *target, ASTValue op, BuiltinType *newt);
+        IntToFloat(TempRegister *target, ASTValue op, BuiltinType *newt);
         void accept(InstructionVisitor *v) override;
-        Register *target;
+        TempRegister *target;
         ASTValue op;
         BuiltinType *newt;
     };
     class FloatToInt : public Instruction
     {
     public:
-        FloatToInt(Register *target, ASTValue op, BuiltinType *newt);
+        FloatToInt(TempRegister *target, ASTValue op, BuiltinType *newt);
         void accept(InstructionVisitor *v) override;
-        Register *target;
+        TempRegister *target;
         ASTValue op;
         BuiltinType *newt;
     };
@@ -268,9 +276,9 @@ namespace IR
     class Call : public Instruction
     {
     public:
-        Call(Register *reg, Function *f, std::vector<ASTValue> args);
+        Call(TempRegister *reg, Function *f, std::vector<ASTValue> args);
         void accept(InstructionVisitor *v) override;
-        Register *reg;
+        TempRegister *reg;
         Function *f;
         std::vector<ASTValue> args;
     };

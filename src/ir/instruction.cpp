@@ -14,63 +14,68 @@ IR::Instrs::Store::Store(Register *target, ASTValue value): target(target), valu
     ASSERT(target->type() == value.type())
 }
 void IR::Instrs::Store::accept(InstructionVisitor *v) { v->visitStore(this); }
-IR::Instrs::Or::Or(Register *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
+IR::Instrs::Phi::Phi(TempRegister *target, std::vector<std::pair<Block*,ASTValue>> prevs): target(target), prevs(prevs)
+{
+    ASSERT(!dynamic_cast<IR::VoidType*>(target->type()))
+}
+void IR::Instrs::Phi::accept(InstructionVisitor *v) { v->visitPhi(this); }
+IR::Instrs::Or::Or(TempRegister *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
 {
     ASSERT(!dynamic_cast<IR::VoidType*>(target->type()))
     ASSERT(lhs.type() == rhs.type())
     ASSERT(lhs.type() == target->type())
 }
 void IR::Instrs::Or::accept(InstructionVisitor *v) { v->visitOr(this); }
-IR::Instrs::And::And(Register *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
+IR::Instrs::And::And(TempRegister *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
 {
     ASSERT(!dynamic_cast<IR::VoidType*>(target->type()))
     ASSERT(lhs.type() == rhs.type())
     ASSERT(lhs.type() == target->type())
 }
 void IR::Instrs::And::accept(InstructionVisitor *v) { v->visitAnd(this); }
-IR::Instrs::CmpNE::CmpNE(Register *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
+IR::Instrs::CmpNE::CmpNE(TempRegister *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
 {
     ASSERT(!dynamic_cast<IR::VoidType*>(target->type()))
     ASSERT(lhs.type() == rhs.type())
     ASSERT(dynamic_cast<BuiltinType*>(lhs.type()))
 }
 void IR::Instrs::CmpNE::accept(InstructionVisitor *v) { v->visitCmpNE(this); }
-IR::Instrs::CmpEQ::CmpEQ(Register *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
+IR::Instrs::CmpEQ::CmpEQ(TempRegister *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
 {
     ASSERT(!dynamic_cast<IR::VoidType*>(target->type()))
     ASSERT(lhs.type() == rhs.type())
     ASSERT(dynamic_cast<BuiltinType*>(lhs.type()))
 }
 void IR::Instrs::CmpEQ::accept(InstructionVisitor *v) { v->visitCmpEQ(this); }
-IR::Instrs::CmpLT::CmpLT(Register *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
+IR::Instrs::CmpLT::CmpLT(TempRegister *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
 {
     ASSERT(!dynamic_cast<IR::VoidType*>(target->type()))
     ASSERT(lhs.type() == rhs.type())
     ASSERT(dynamic_cast<BuiltinType*>(lhs.type()))
 }
 void IR::Instrs::CmpLT::accept(InstructionVisitor *v) { v->visitCmpLT(this); }
-IR::Instrs::CmpGT::CmpGT(Register *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
+IR::Instrs::CmpGT::CmpGT(TempRegister *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
 {
     ASSERT(!dynamic_cast<IR::VoidType*>(target->type()))
     ASSERT(lhs.type() == rhs.type())
     ASSERT(dynamic_cast<BuiltinType*>(lhs.type()))
 }
 void IR::Instrs::CmpGT::accept(InstructionVisitor *v) { v->visitCmpGT(this); }
-IR::Instrs::CmpLE::CmpLE(Register *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
+IR::Instrs::CmpLE::CmpLE(TempRegister *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
 {
     ASSERT(!dynamic_cast<IR::VoidType*>(target->type()))
     ASSERT(lhs.type() == rhs.type())
     ASSERT(dynamic_cast<BuiltinType*>(lhs.type()))
 }
 void IR::Instrs::CmpLE::accept(InstructionVisitor *v) { v->visitCmpLE(this); }
-IR::Instrs::CmpGE::CmpGE(Register *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
+IR::Instrs::CmpGE::CmpGE(TempRegister *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
 {
     ASSERT(!dynamic_cast<IR::VoidType*>(target->type()))
     ASSERT(lhs.type() == rhs.type())
     ASSERT(dynamic_cast<BuiltinType*>(lhs.type()))
 }
 void IR::Instrs::CmpGE::accept(InstructionVisitor *v) { v->visitCmpGE(this); }
-IR::Instrs::BitXor::BitXor(Register *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
+IR::Instrs::BitXor::BitXor(TempRegister *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
 {
     ASSERT(!dynamic_cast<IR::VoidType*>(target->type()))
     ASSERT(lhs.type() == rhs.type())
@@ -78,7 +83,7 @@ IR::Instrs::BitXor::BitXor(Register *target, ASTValue lhs, ASTValue rhs): target
     ASSERT(dynamic_cast<BuiltinType*>(lhs.type()))
 }
 void IR::Instrs::BitXor::accept(InstructionVisitor *v) { v->visitBitXor(this); }
-IR::Instrs::BitOr::BitOr(Register *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
+IR::Instrs::BitOr::BitOr(TempRegister *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
 {
     ASSERT(!dynamic_cast<IR::VoidType*>(target->type()))
     ASSERT(lhs.type() == rhs.type())
@@ -86,7 +91,7 @@ IR::Instrs::BitOr::BitOr(Register *target, ASTValue lhs, ASTValue rhs): target(t
     ASSERT(dynamic_cast<BuiltinType*>(lhs.type()))
 }
 void IR::Instrs::BitOr::accept(InstructionVisitor *v) { v->visitBitOr(this); }
-IR::Instrs::BitAnd::BitAnd(Register *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
+IR::Instrs::BitAnd::BitAnd(TempRegister *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
 {
     ASSERT(!dynamic_cast<IR::VoidType*>(target->type()))
     ASSERT(lhs.type() == rhs.type())
@@ -94,14 +99,14 @@ IR::Instrs::BitAnd::BitAnd(Register *target, ASTValue lhs, ASTValue rhs): target
     ASSERT(dynamic_cast<BuiltinType*>(lhs.type()))
 }
 void IR::Instrs::BitAnd::accept(InstructionVisitor *v) { v->visitBitAnd(this); }
-IR::Instrs::BitNot::BitNot(Register *target, ASTValue op): target(target), op(op)
+IR::Instrs::BitNot::BitNot(TempRegister *target, ASTValue op): target(target), op(op)
 {
     ASSERT(!dynamic_cast<IR::VoidType*>(target->type()))
     ASSERT(op.type() == target->type())
     ASSERT(dynamic_cast<BuiltinType*>(op.type()))
 }
 void IR::Instrs::BitNot::accept(InstructionVisitor *v) { v->visitBitNot(this); }
-IR::Instrs::ShiftR::ShiftR(Register *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
+IR::Instrs::ShiftR::ShiftR(TempRegister *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
 {
     ASSERT(!dynamic_cast<IR::VoidType*>(target->type()))
     ASSERT(lhs.type() == rhs.type())
@@ -109,7 +114,7 @@ IR::Instrs::ShiftR::ShiftR(Register *target, ASTValue lhs, ASTValue rhs): target
     ASSERT(dynamic_cast<BuiltinType*>(lhs.type()))
 }
 void IR::Instrs::ShiftR::accept(InstructionVisitor *v) { v->visitShiftR(this); }
-IR::Instrs::ShiftL::ShiftL(Register *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
+IR::Instrs::ShiftL::ShiftL(TempRegister *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
 {
     ASSERT(!dynamic_cast<IR::VoidType*>(target->type()))
     ASSERT(lhs.type() == rhs.type())
@@ -117,7 +122,7 @@ IR::Instrs::ShiftL::ShiftL(Register *target, ASTValue lhs, ASTValue rhs): target
     ASSERT(dynamic_cast<BuiltinType*>(lhs.type()))
 }
 void IR::Instrs::ShiftL::accept(InstructionVisitor *v) { v->visitShiftL(this); }
-IR::Instrs::Add::Add(Register *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
+IR::Instrs::Add::Add(TempRegister *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
 {
     ASSERT(!dynamic_cast<IR::VoidType*>(target->type()))
     ASSERT(lhs.type() == rhs.type())
@@ -125,7 +130,7 @@ IR::Instrs::Add::Add(Register *target, ASTValue lhs, ASTValue rhs): target(targe
     ASSERT(dynamic_cast<BuiltinType*>(lhs.type()))
 }
 void IR::Instrs::Add::accept(InstructionVisitor *v) { v->visitAdd(this); }
-IR::Instrs::Sub::Sub(Register *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
+IR::Instrs::Sub::Sub(TempRegister *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
 {
     ASSERT(!dynamic_cast<IR::VoidType*>(target->type()))
     ASSERT(lhs.type() == rhs.type())
@@ -133,7 +138,7 @@ IR::Instrs::Sub::Sub(Register *target, ASTValue lhs, ASTValue rhs): target(targe
     ASSERT(dynamic_cast<BuiltinType*>(lhs.type()))
 }
 void IR::Instrs::Sub::accept(InstructionVisitor *v) { v->visitSub(this); }
-IR::Instrs::Mult::Mult(Register *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
+IR::Instrs::Mult::Mult(TempRegister *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
 {
     ASSERT(!dynamic_cast<IR::VoidType*>(target->type()))
     ASSERT(lhs.type() == rhs.type())
@@ -141,7 +146,7 @@ IR::Instrs::Mult::Mult(Register *target, ASTValue lhs, ASTValue rhs): target(tar
     ASSERT(dynamic_cast<BuiltinType*>(lhs.type()))
 }
 void IR::Instrs::Mult::accept(InstructionVisitor *v) { v->visitMult(this); }
-IR::Instrs::Div::Div(Register *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
+IR::Instrs::Div::Div(TempRegister *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
 {
     ASSERT(!dynamic_cast<IR::VoidType*>(target->type()))
     ASSERT(lhs.type() == rhs.type())
@@ -149,7 +154,7 @@ IR::Instrs::Div::Div(Register *target, ASTValue lhs, ASTValue rhs): target(targe
     ASSERT(dynamic_cast<BuiltinType*>(lhs.type()))
 }
 void IR::Instrs::Div::accept(InstructionVisitor *v) { v->visitDiv(this); }
-IR::Instrs::Mod::Mod(Register *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
+IR::Instrs::Mod::Mod(TempRegister *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
 {
     ASSERT(!dynamic_cast<IR::VoidType*>(target->type()))
     ASSERT(lhs.type() == rhs.type())
@@ -157,28 +162,28 @@ IR::Instrs::Mod::Mod(Register *target, ASTValue lhs, ASTValue rhs): target(targe
     ASSERT(dynamic_cast<BuiltinType*>(lhs.type()))
 }
 void IR::Instrs::Mod::accept(InstructionVisitor *v) { v->visitMod(this); }
-IR::Instrs::Neg::Neg(Register *target, ASTValue op): target(target), op(op)
+IR::Instrs::Neg::Neg(TempRegister *target, ASTValue op): target(target), op(op)
 {
     ASSERT(!dynamic_cast<IR::VoidType*>(target->type()))
     ASSERT(op.type() == target->type())
     ASSERT(dynamic_cast<BuiltinType*>(op.type()))
 }
 void IR::Instrs::Neg::accept(InstructionVisitor *v) { v->visitNeg(this); }
-IR::Instrs::Trunc::Trunc(Register *target, ASTValue op, BuiltinType *newt): target(target), op(op), newt(newt)
+IR::Instrs::Trunc::Trunc(TempRegister *target, ASTValue op, BuiltinType *newt): target(target), op(op), newt(newt)
 {
     ASSERT(target->type() == newt)
     ASSERT(dynamic_cast<BuiltinType*>(op.type()))
     ASSERT(static_cast<BuiltinType*>(op.type())->isFloating() == newt->isFloating())
 }
 void IR::Instrs::Trunc::accept(InstructionVisitor *v) { v->visitTrunc(this); }
-IR::Instrs::Ext::Ext(Register *target, ASTValue op, BuiltinType *newt): target(target), op(op), newt(newt)
+IR::Instrs::Ext::Ext(TempRegister *target, ASTValue op, BuiltinType *newt): target(target), op(op), newt(newt)
 {
     ASSERT(target->type() == newt)
     ASSERT(dynamic_cast<BuiltinType*>(op.type()))
     ASSERT(static_cast<BuiltinType*>(op.type())->isFloating() == newt->isFloating())
 }
 void IR::Instrs::Ext::accept(InstructionVisitor *v) { v->visitExt(this); }
-IR::Instrs::IntToFloat::IntToFloat(Register *target, ASTValue op, BuiltinType *newt): target(target), op(op), newt(newt)
+IR::Instrs::IntToFloat::IntToFloat(TempRegister *target, ASTValue op, BuiltinType *newt): target(target), op(op), newt(newt)
 {
     ASSERT(target->type() == newt)
     ASSERT(dynamic_cast<BuiltinType*>(op.type()))
@@ -186,7 +191,7 @@ IR::Instrs::IntToFloat::IntToFloat(Register *target, ASTValue op, BuiltinType *n
     ASSERT(newt->isFloating())
 }
 void IR::Instrs::IntToFloat::accept(InstructionVisitor *v) { v->visitIntToFloat(this); }
-IR::Instrs::FloatToInt::FloatToInt(Register *target, ASTValue op, BuiltinType *newt): target(target), op(op), newt(newt)
+IR::Instrs::FloatToInt::FloatToInt(TempRegister *target, ASTValue op, BuiltinType *newt): target(target), op(op), newt(newt)
 {
     ASSERT(target->type() == newt)
     ASSERT(dynamic_cast<BuiltinType*>(op.type()))
@@ -198,7 +203,7 @@ IR::Instrs::Return::Return(Register *value): value(value)
 {
 }
 void IR::Instrs::Return::accept(InstructionVisitor *v) { v->visitReturn(this); }
-IR::Instrs::Call::Call(Register *reg, Function *f, std::vector<ASTValue> args): reg(reg), f(f), args(args)
+IR::Instrs::Call::Call(TempRegister *reg, Function *f, std::vector<ASTValue> args): reg(reg), f(f), args(args)
 {
     ASSERT(reg->type() == f->ty->ret)
 }

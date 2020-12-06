@@ -2,7 +2,7 @@
 #include "ir/instruction.h"
 #include "message/errors.h"
 
-IR::Function::Function(IR::FunctionType *ty, std::string name, ASTNS::Function *defAST): ty(ty), name(name), _defAST(defAST), prototypeonly(false), blocki(0), regi(0) {}
+IR::Function::Function(IR::FunctionType *ty, std::string name, ASTNS::Function *defAST): ty(ty), name(name), _defAST(defAST), prototypeonly(false), blocki(0), regi(0), tempregi(0) {}
 
 void IR::Function::add(std::unique_ptr<IR::Block> block)
 {
@@ -36,11 +36,18 @@ IR::Block* IR::Function::addBlock(std::string name)
 
     return blockraw;
 }
-IR::Register* IR::Function::addRegister(Type *type, ASTNS::AST *ast, bool temp)
+IR::Register* IR::Function::addRegister(Type *type, ASTNS::AST *ast)
 {
-    std::unique_ptr<Register> reg = std::make_unique<Register>(regi++, type, ast, temp);
+    std::unique_ptr<Register> reg = std::make_unique<Register>(regi++, type, ast);
     Register *regraw = reg.get();
     registers.push_back(std::move(reg));
+    return regraw;
+}
+IR::TempRegister* IR::Function::addTempRegister(Type *type)
+{
+    std::unique_ptr<TempRegister> reg = std::make_unique<TempRegister>(tempregi++, type);
+    TempRegister *regraw = reg.get();
+    tempregisters.push_back(std::move(reg));
     return regraw;
 }
 

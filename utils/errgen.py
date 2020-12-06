@@ -51,10 +51,6 @@ def genCpp():
                     output.append(f'    if (({casttoname} = dynamic_cast<{cty}*>({castfrom})))\n')
                 elif condty == 'if':
                     output.append(f'    if ({rest})\n')
-                elif condty == 'isdeclared':
-                    asdeclaredvar = rest.replace('.', '_').replace('-', '_').replace('>', '_') + '_asdeclared'
-                    output.append(f'    IR::DeclaredValue *{asdeclaredvar};\n')
-                    output.append(f'    if (({asdeclaredvar} = dynamic_cast<IR::DeclaredValue*>({rest})) && {asdeclaredvar}->defAST())\n')
                 else:
                     raise Exception(f'invalid condition {condty}')
 

@@ -11,6 +11,7 @@ namespace IR
 
 #define VISITMETHOD(cl) virtual void visit##cl(Instrs::cl *c) = 0;
         VISITMETHOD(Store)
+        VISITMETHOD(Phi)
         VISITMETHOD(Or)
         VISITMETHOD(And)
         VISITMETHOD(CmpNE)
