@@ -3885,7 +3885,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
         return true;
 
     if (errored)
+    {
+        p.errored = true;
+        out = nullptr;
         return false;
+    }
 
     stackitem topsi (std::move(stack.back()));
     if (topsi.istok)

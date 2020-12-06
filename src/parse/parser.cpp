@@ -6,7 +6,7 @@
 
 #include <sstream>
 
-Parser::Parser(Lexer &l, File &sourcefile): lexer(l), sourcefile(sourcefile) {}
+Parser::Parser(Lexer &l, File &sourcefile): lexer(l), sourcefile(sourcefile), errored(false) {}
 
 std::unique_ptr<ASTNS::CUB> Parser::parse()
 {
@@ -16,6 +16,9 @@ std::unique_ptr<ASTNS::CUB> Parser::parse()
     stack.emplace_back(0);
 
     _parse(*this, stack, false, ret, consume());
+
+    if (errored)
+        return nullptr;
 
     return ret;
 }
@@ -28,6 +31,7 @@ Token Parser::consume()
         cur = lexer.nextToken();
         if (cur.type != TokenType::ERROR) return cur;
 
+        errored = true;
         cur.errf(cur);
     }
 

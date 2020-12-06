@@ -22,4 +22,6 @@ public:
 
     Lexer &lexer;
     File &sourcefile;
+
+    bool errored;
 };
