@@ -15,7 +15,7 @@ AND NOt only that, but I also got a lot of helpful information from looking at t
 - [x] Expressions
 - [x] Variables
 - [ ] Better error messages
-- [ ] Type casting
+- [x] Type casting
 - [ ] Turing completeness
 - [ ] Function overloading
 - [ ] Name mangling
