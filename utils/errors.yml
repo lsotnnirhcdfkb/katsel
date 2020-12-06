@@ -131,7 +131,7 @@ errors:
     location: op
     highlights:
       - ['lhs', *under0, [
-          ['note', 'format("lhs is of type ''%''", lhs.type()->stringify())']
+          ['note', 'format("lhs is of type %", lhs.type())']
         ]]
       - ['lhs_val_asdeclared->defAST()', *under1, [['note', '"lhs declared here"']], 'isdeclared lhs.val']
       - ['op', *under0, [
@@ -147,7 +147,7 @@ errors:
     location: _operator
     highlights:
       - ['operand', *under0, [
-          ['note', 'format("operand is of type ''%''", operand.type()->stringify())']
+          ['note', 'format("operand is of type %", operand.type())']
         ]]
       - ['operand_val_asdeclared->defAST()', *under1, [['note', '"operand declared here"']], 'isdeclared operand.val']
       - ['_operator', *under0, [
@@ -162,7 +162,7 @@ errors:
     highlights:
       - ['func', *under0, [
           ['error', '"calling of non-callable value"'],
-          ['note', 'format("value of type ''%''", func.type()->stringify())']
+          ['note', 'format("value of type %", func.type())']
         ]]
       - ['func_val_asdeclared->defAST()', *under1, [['note', '"callee declared here"']], 'isdeclared func.val']
   -
@@ -188,8 +188,8 @@ errors:
     highlights:
       - ['arg', *under0, [
           ['error', '"invalid argument to function call"'],
-          ['note', 'format("argument is of type ''%''", arg.type()->stringify())'],
-          ['note', 'format("function expects ''%''", expected->stringify())'],
+          ['note', 'format("argument is of type %", arg.type())'],
+          ['note', 'format("function expects %", expected)'],
       ]]
 
   -
@@ -269,7 +269,7 @@ errors:
           ['error', '"conflicting return type"']
         ]]
       - ['f->defAST()->retty.get()', *under1, [
-          ['note', 'format("function returns ''%''", f->ty->ret->stringify())']
+          ['note', 'format("function returns %", f->ty->ret)']
         ]]
   -
     code: 213
@@ -282,7 +282,7 @@ errors:
           ['error', '"void return in non-void function"']
         ]]
       - ['f->defAST()->retty.get()', *under1, [
-          ['note', 'format("function returns ''%''", f->ty->ret->stringify())']
+          ['note', 'format("function returns %", f->ty->ret)']
         ]]
   -
     code: 214
@@ -320,7 +320,7 @@ errors:
     location: ast
     highlights:
       - ['ast', *under0, [
-          ['error', 'format("invalid cast from ''%'' to ''%''", v.type()->stringify(), newty->stringify())'],
+          ['error', 'format("invalid cast from % to %", v.type(), newty)'],
         ]]
   -
     code: 217

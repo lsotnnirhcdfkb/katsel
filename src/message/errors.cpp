@@ -934,7 +934,7 @@ void reportAbortNoh(std::string const &message)
 }
 void invalidTok(std::string const &name, Token const &underline)
 {
-    reportAbortNoh(format("invalid token for %: \"%\"", name, underline.stringify()));
+    reportAbortNoh(format("invalid token for %: \"%\"", name, underline));
 }
 void calledWithOpTyNEthis(std::string const &classN, std::string const &fnn, std::string const &opname)
 {
