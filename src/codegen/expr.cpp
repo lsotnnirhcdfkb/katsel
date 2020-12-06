@@ -235,7 +235,7 @@ void CodeGenNS::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast)
             reportAbortNoh("nullptr literals are not supported yet");
 
         case TokenType::DECINTLIT:
-            ret = IR::ASTValue(cg.context.getConstInt(cg.context.getBuiltinType(IR::BuiltinType::Builtins::UINT32), std::stoi(ast->value.stringify())), ast);
+            ret = IR::ASTValue(cg.context.getConstInt(cg.context.getBuiltinType(IR::BuiltinType::Builtins::UINT32), std::stoll(ast->value.stringify())), ast);
             return;
 
         case TokenType::OCTINTLIT:
@@ -249,7 +249,7 @@ void CodeGenNS::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast)
             goto makeIntLit;
 
 makeIntLit:
-            ret = IR::ASTValue(cg.context.getConstInt(cg.context.getBuiltinType(IR::BuiltinType::Builtins::UINT32), std::stoi(ast->value.stringify().erase(0, 2), nullptr, _intbase)), ast);
+            ret = IR::ASTValue(cg.context.getConstInt(cg.context.getBuiltinType(IR::BuiltinType::Builtins::UINT32), std::stoll(ast->value.stringify().erase(0, 2), nullptr, _intbase)), ast);
             return;
 
         case TokenType::CHARLIT:

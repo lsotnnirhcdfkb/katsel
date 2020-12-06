@@ -25,7 +25,7 @@ void IR::Register::definition(llvm::raw_ostream &os) const
     os << "    " << ty->stringify() << " %" << index << "\n";
 }
 
-IR::ConstInt::ConstInt(BuiltinType *ty, int val): val(val), ty(ty) {}
+IR::ConstInt::ConstInt(BuiltinType *ty, uint64_t val): val(val), ty(ty) {}
 
 std::string IR::ConstInt::stringify() const
 {

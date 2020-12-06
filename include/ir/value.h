@@ -81,13 +81,13 @@ namespace IR
     class ConstInt : public Value
     {
     public:
-        ConstInt(BuiltinType *ty, int val);
+        ConstInt(BuiltinType *ty, uint64_t val);
 
         std::string stringify() const override;
 
         Type* type() const override;
 
-        int val;
+        uint64_t val;
 
     private:
         BuiltinType *ty;
