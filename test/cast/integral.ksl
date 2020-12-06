@@ -1,0 +1,28 @@
+
+
+fun uint32 main()
+{
+    var uint8 i8 = (uint8) 16;
+    var uint16 i16 = (uint16) 16;
+    var uint32 i32 = (uint32) 16;
+    var uint64 i64 = (uint64) 16;
+
+    printunsigned((uint32) i8); // expect output 16
+    printunsigned((uint32) i16); // expect output 16
+    printunsigned((uint32) i32); // expect output 16
+    printunsigned((uint32) i64); // expect output 16
+
+    var sint8 s8 = (sint8) -16;
+    var sint16 s16 = (sint16) -16;
+    var sint32 s32 = (sint32) -16;
+    var sint64 s64 = (sint64) -16;
+
+    printunsigned((uint32) s8); // expect output 4294967280
+    printunsigned((uint32) s16); // expect output 4294967280
+    printunsigned((uint32) s32); // expect output 4294967280
+    printunsigned((uint32) s64); // expect output 4294967280
+
+    return 0;
+}
+
+fun void printunsigned(uint32 a);

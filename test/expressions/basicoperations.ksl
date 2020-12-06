@@ -2,22 +2,22 @@
 
 fun uint32 main()
 {
-    printd(1 + 1); // expect output 2
-    printd(1 - 1); // expect output 0
-    printd(1 * 1); // expect output 1
-    printd(1 / 1); // expect output 1
-    printd(1 % 1); // expect output 0
+    printunsigned(1 + 1); // expect output 2
+    printunsigned(1 - 1); // expect output 0
+    printunsigned(1 * 1); // expect output 1
+    printunsigned(1 / 1); // expect output 1
+    printunsigned(1 % 1); // expect output 0
 
-    printd(42 + 55); // expect output 97
-    printd(42 - 23); // expect output 19
-    printd(42 * 75); // expect output 3150
-    printd(42 / 4); // expect output 10
-    // printd(42.0 / 4.0); / expect output 10.5 TODO: make floating point literals
-    printd(42 % 5); // expect output 2
+    printunsigned(42 + 55); // expect output 97
+    printunsigned(42 - 23); // expect output 19
+    printunsigned(42 * 75); // expect output 3150
+    printunsigned(42 / 4); // expect output 10
+    // printdouble(42.0 / 4.0); / expect output 10.5 TODO: make floating point literals
+    printunsigned(42 % 5); // expect output 2
 
-    printd(-42 / 4); // expect output 1073741813
-    // printd(-42.0 / 4.0); / expect output -10.5 TODO: make floating point literals
-    printd(-42 % 5); // expect output 4
+    printunsigned(-42 / 4); // expect output 1073741813
+    // printdouble(-42.0 / 4.0); / expect output -10.5 TODO: make floating point literals
+    printunsigned(-42 % 5); // expect output 4
 }
 
-fun void printd(uint32 d);
+fun void printunsigned(uint32 d);
