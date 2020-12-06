@@ -44,8 +44,13 @@ PRINTDEFF = 'printdef.c'
 
 with open(PRINTDEFF, 'w') as f:
     f.write(r'''
+#ifdef __cplusplus
+#include <cstdio>
+#include <cstdint>
+#else
 #include <stdio.h>
 #include <stdint.h>
+#endif
 
 #ifdef __cplusplus
 extern "C"
