@@ -68,7 +68,7 @@ extern "C"
 #endif
 void printchar(uint32_t i)
 {
-    printf("%c", i);
+    printf("%c\n", i);
 }
 
 #ifdef __cplusplus
@@ -76,7 +76,7 @@ extern "C"
 #endif
 void printfloat(float i)
 {
-    printf("%f", i);
+    printf("%f\n", i);
 }
 
 #ifdef __cplusplus
@@ -84,7 +84,7 @@ extern "C"
 #endif
 void printdouble(double i)
 {
-    printf("%f", i);
+    printf("%f\n", i);
 }
 ''')
 

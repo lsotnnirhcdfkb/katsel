@@ -1,0 +1,28 @@
+
+
+fun uint32 main()
+{
+    printunsigned(thingy2(1, 2));          // expect output 3
+    printunsigned(thingy3(1, 2, 3));       // expect output 6
+    printunsigned(thingy4(1, 2, 3, 4));    // expect output 10
+    printunsigned(thingy5(1, 2, 3, 4, 5)); // expect output 15
+}
+
+fun void printunsigned(uint32 i);
+
+fun uint32 thingy2(uint32 a, uint32 b)
+{
+    return a + b;
+}
+fun uint32 thingy3(uint32 a, uint32 b, uint32 c)
+{
+    return a + b + c;
+}
+fun uint32 thingy4(uint32 a, uint32 b, uint32 c, uint32 d)
+{
+    return a + b + c + d;
+}
+fun uint32 thingy5(uint32 a, uint32 b, uint32 c, uint32 d, uint32 e)
+{
+    return a + b + c + d + e;
+}

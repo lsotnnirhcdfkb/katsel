@@ -1,0 +1,28 @@
+
+
+fun uint32 main()
+{
+    printunsigned((uint32) (1 == 1)); // expect output 1
+    printunsigned((uint32) (1 == 2)); // expect output 0
+
+    printunsigned((uint32) (1 != 1)); // expect output 0
+    printunsigned((uint32) (1 != 2)); // expect output 1
+
+    printunsigned((uint32) (1 < 1)); // expect output 0
+    printunsigned((uint32) (1 <= 1)); // expect output 1
+    printunsigned((uint32) (1 < 10)); // expect output 1
+    printunsigned((uint32) (1 <= 10)); // expect output 1
+    printunsigned((uint32) (10 < 1)); // expect output 0
+    printunsigned((uint32) (10 <= 1)); // expect output 0
+
+    printunsigned((uint32) (1 > 1)); // expect output 0
+    printunsigned((uint32) (1 >= 1)); // expect output 1
+    printunsigned((uint32) (1 > 10)); // expect output 0
+    printunsigned((uint32) (1 >= 10)); // expect output 0
+    printunsigned((uint32) (10 > 1)); // expect output 1
+    printunsigned((uint32) (10 >= 1)); // expect output 1
+
+    return 0;
+}
+
+fun void printunsigned(uint32 i);
