@@ -91,9 +91,7 @@ void E0007(Token const &tok)
     e.report();
 }
 // E0100 - unrecoverable-invalid-syntax
-// | The parser found an unrecoverable syntax error, and has
-// | conflicting information about what construct was being
-// | parsed when the error happened.
+// | The parser found an unrecoverable syntax error.
 void E0100(Token const &last, Token const &lookahead, std::vector<std::string> const &expectations)
 {
     Error e = Error(Error::MsgType::ERROR, last, "E0100 (unrecoverable-invalid-syntax)");
@@ -110,10 +108,8 @@ e.underline(un);
     e.report();
 }
 // E0101 - simple-invalid-syntax
-// | The parser found a syntax error, has conflicting information
-// | about what construct was being parsed when the error
-// | happened, and recovered by inserting, substituting, or
-// | removing a single token.
+// | The parser found a syntax error and recovered by inserting,
+// | substituting, or removing a single token.
 void E0101(Token const &last, Token const &lookahead, std::string const &bestfix, std::vector<std::string> const &expectations)
 {
     Error e = Error(Error::MsgType::ERROR, last, "E0101 (simple-invalid-syntax)");
@@ -131,9 +127,8 @@ e.underline(un);
     e.report();
 }
 // E0102 - panicking-invalid-syntax
-// | The parser found a syntax error, has conflicting information
-// | about what construct was being parsed when the error
-// | happened, and recovered via panic mode error recovery.
+// | The parser found a syntax error and recovered via panic mode
+// | error recovery.
 void E0102(Token const &last, Token const &lookahead, std::vector<std::string> const &expectations)
 {
     Error e = Error(Error::MsgType::ERROR, last, "E0102 (panicking-invalid-syntax)");
