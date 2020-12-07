@@ -28,6 +28,14 @@ void E0003(Token const &tok);
 #define ERR_NONDECIMAL_FLOATLIT E0004
 void E0004(Token const &tok);
 
+// E0005 - invalid-char-floatlit
+#define ERR_INVALID_CHAR_FLOATLIT E0005
+void E0005(Token const &tok);
+
+// E0006 - invalid-char-for-base
+#define ERR_INVALID_CHAR_FOR_BASE E0006
+void E0006(Token const &tok);
+
 // E0100 - unrecoverable-invalid-syntax
 #define ERR_UNRECOVERABLE_INVALID_SYNTAX E0100
 void E0100(Token const &last, Token const &lookahead, std::vector<std::string> const &expectations);

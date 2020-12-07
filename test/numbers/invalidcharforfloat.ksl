@@ -1,0 +1,9 @@
+
+fun uint32 main()
+{
+    0b10011.01100011; // expect compile error (nondecimal-floatlit)
+    0o01234567.654321; // expect compile error (nondecimal-floatlit)
+    0123456789.987654321;
+    0x0123456789abcdef.bcgadef28734; // expect compile error (nondecimal-floatlit)
+    01234abcdef.abcdef; // expect compile error (invalid-char-floatlit)
+}

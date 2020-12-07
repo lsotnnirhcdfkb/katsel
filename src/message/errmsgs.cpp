@@ -60,6 +60,26 @@ void E0004(Token const &tok)
     );
     e.report();
 }
+// E0005 - invalid-char-floatlit
+// | Invalid character for floating point literal
+void E0005(Token const &tok)
+{
+    Error e = Error(Error::MsgType::ERROR, tok, "E0005 (invalid-char-floatlit)");
+    e.underline(Error::Underline(tok, '^')
+        .error("invalid character in floating point literal")
+    );
+    e.report();
+}
+// E0006 - invalid-char-for-base
+// | Invalid character in integer literal for base
+void E0006(Token const &tok)
+{
+    Error e = Error(Error::MsgType::ERROR, tok, "E0006 (invalid-char-for-base)");
+    e.underline(Error::Underline(tok, '^')
+        .error("invalid character in integer literal for base")
+    );
+    e.report();
+}
 // E0100 - unrecoverable-invalid-syntax
 // | The parser found an unrecoverable syntax error, and has
 // | conflicting information about what construct was being

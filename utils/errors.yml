@@ -54,6 +54,26 @@ errors:
       - ['tok', *under0, [
           ['error', '"invalid integer literal base"']
         ]]
+  -
+    code: 5
+    name: invalid-char-floatlit
+    desc: Invalid character for floating point literal
+    inputs: 'Token const &tok'
+    location: tok
+    highlights:
+      - ['tok', *under0, [
+          ['error', '"invalid character in floating point literal"']
+        ]]
+  -
+    code: 6
+    name: invalid-char-for-base
+    desc: Invalid character in integer literal for base
+    inputs: 'Token const &tok'
+    location: tok
+    highlights:
+      - ['tok', *under0, [
+          ['error', '"invalid character in integer literal for base"']
+        ]]
   - code: 100
     name: unrecoverable-invalid-syntax
     desc: The parser found an unrecoverable syntax error, and has conflicting information about what construct was being parsed when the error happened.

@@ -215,28 +215,31 @@ TokenType Lexer::getIdentifierType()
 // KWGEN END
 // }}}
 // {{{ helper functions
-bool isDigit(char c)
+enum class IntBase
 {
-    return c >= '0' && c <= '9';
-}
-
-bool isDigit(char c, TokenType base)
-{ // overloaded method for dealing with non-decimal integer literals
+    dec,
+    oct,
+    hex,
+    bin,
+    inv
+};
+bool isDigit(char c, IntBase base)
+{
     switch (base)
     {
-        case TokenType::DECINTLIT:
-            return isDigit(c);
+        case IntBase::dec:
+            return c >= '0' && c <= '9';
 
-        case TokenType::OCTINTLIT:
+        case IntBase::oct:
             return c >= '0' && c < '8';
 
-        case TokenType::BININTLIT:
+        case IntBase::bin:
             return c == '0' || c == '1';
 
-        case TokenType::HEXINTLIT:
-            return isDigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
+        case IntBase::hex:
+            return isDigit(c, IntBase::dec) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
 
-        default: // invalid base
+        default:
             return false;
     }
 }
@@ -379,56 +382,66 @@ Token Lexer::nextToken()
                   return makeToken(TokenType::STRINGLIT);
     }
 
-    if (isDigit(c))
+    if (isDigit(c, IntBase::dec))
     {
-        // check for number literal
-        TokenType inttype;
-        bool validint = true;
+        IntBase base;
+        bool intvalid = true;
+        bool isfloat = false;
 
-        if (isDigit(peek()) || c != '0' || !isAlpha(peek()))
-        {
-            inttype = TokenType::DECINTLIT;
-        }
+        if (c != '0' || isDigit(peek(), IntBase::dec) || !isAlpha(peek()))
+            base = IntBase::dec;
         else
-        {
-            switch (peek())
+            switch (advance())
             {
-                case 'o': inttype = TokenType::OCTINTLIT; break;
-                case 'b': inttype = TokenType::BININTLIT; break;
-                case 'x': inttype = TokenType::HEXINTLIT; break;
-
+                case 'o': base = IntBase::oct; break;
+                case 'x': base = IntBase::hex; break;
+                case 'b': base = IntBase::bin; break;
                 default:
-                    validint = false;
+                    base = IntBase::inv;
             }
 
-            advance(); // consume o, b, or x
-        }
-
-        while (isDigit(peek(), inttype) && !atEnd()) advance();
-
-        if (peek() == '.' && isDigit(peekpeek(), inttype) && !atEnd())
+        char next;
+        while (!atEnd() && (isDigit(next = peek(), IntBase::hex) || next == '.'))
         {
-            // is actually a decimal and is not integer literal
-            advance(); // consume decimal point
+            advance();
 
-            while (isDigit(peek(), inttype) && !atEnd()) advance();
-
-            if (!validint)
-                return makeErrorToken(ERR_INVALID_INTLIT_BASE);
-
-            if (inttype != TokenType::DECINTLIT) return makeErrorToken(ERR_NONDECIMAL_FLOATLIT);
-
+            if (next == '.')
+                isfloat = true;
+            else if (base != IntBase::inv && !isDigit(next, base))
+                intvalid = false;
+        }
+        
+        if (isfloat)
+        {
+            if (base != IntBase::dec) return makeErrorToken(ERR_NONDECIMAL_FLOATLIT);
+            if (!intvalid) return makeErrorToken(ERR_INVALID_CHAR_FLOATLIT);
             return makeToken(TokenType::FLOATLIT);
         }
-
-        if (!validint)
-            return makeErrorToken(ERR_INVALID_INTLIT_BASE);
         else
-            return makeToken(inttype);
+            if (base == IntBase::inv)
+                return makeErrorToken(ERR_INVALID_INTLIT_BASE);
+            else if (!intvalid)
+                return makeErrorToken(ERR_INVALID_CHAR_FOR_BASE);
+            else
+            {
+                switch (base)
+                {
+                    case IntBase::dec:
+                        return makeToken(TokenType::DECINTLIT);
+                    case IntBase::hex:
+                        return makeToken(TokenType::HEXINTLIT);
+                    case IntBase::oct:
+                        return makeToken(TokenType::OCTINTLIT);
+                    case IntBase::bin:
+                        return makeToken(TokenType::BININTLIT);
+                    default:
+                        return makeToken(TokenType::ERROR);
+                }
+            }
     }
     else if (isAlpha(c))
     {
-        while (isAlpha(peek()) || isDigit(peek())) advance();
+        while (isAlpha(peek()) || isDigit(peek(), IntBase::dec)) advance();
 
         TokenType idenType = getIdentifierType();
         return makeToken(idenType);

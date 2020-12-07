@@ -893,7 +893,7 @@ def genSingleTok():
         if type(terminal) == Terminal:
             output.append(     f'    TRYTOKTY({terminal.astt()})\n');
 
-    output.append(              '    if (tryDel(e.p, e.stack)) {fix f = fix {fix::fixtype::REMOVE}; if (score(f) > score(bestfix)) bestfix = f;};\n')
+    output.append(              '    if (tryDel(e.p, e.stack)) {fix f = fix {fix::fixtype::REMOVE, static_cast<TokenType>(-1)}; if (score(f) > score(bestfix)) bestfix = f;};\n')
     return ''.join(output)
 # entry {{{1
 if __name__ == '__main__':
