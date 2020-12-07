@@ -80,6 +80,16 @@ void E0006(Token const &tok)
     );
     e.report();
 }
+// E0007 - intlit-no-digits
+// | Integer literal with no digits
+void E0007(Token const &tok)
+{
+    Error e = Error(Error::MsgType::ERROR, tok, "E0007 (intlit-no-digits)");
+    e.underline(Error::Underline(tok, '^')
+        .error("integer literal with no digits")
+    );
+    e.report();
+}
 // E0100 - unrecoverable-invalid-syntax
 // | The parser found an unrecoverable syntax error, and has
 // | conflicting information about what construct was being

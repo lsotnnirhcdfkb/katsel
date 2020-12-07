@@ -37,6 +37,7 @@ public:
     friend void E0004(Token const &tok);
     friend void E0005(Token const &tok);
     friend void E0006(Token const &tok);
+    friend void E0007(Token const &tok);
     friend void E0100(Token const &last, Token const &lookahead, std::vector<std::string> const &expectations);
     friend void E0101(Token const &last, Token const &lookahead, std::string const &bestfix, std::vector<std::string> const &expectations);
     friend void E0102(Token const &last, Token const &lookahead, std::vector<std::string> const &expectations);

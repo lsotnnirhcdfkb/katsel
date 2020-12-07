@@ -387,9 +387,13 @@ Token Lexer::nextToken()
         IntBase base;
         bool intvalid = true;
         bool isfloat = false;
+        int ndigits = 0;
 
         if (c != '0' || isDigit(peek(), IntBase::dec) || !isAlpha(peek()))
+        {
             base = IntBase::dec;
+            ++ndigits;
+        }
         else
             switch (advance())
             {
@@ -407,8 +411,12 @@ Token Lexer::nextToken()
 
             if (next == '.')
                 isfloat = true;
-            else if (base != IntBase::inv && !isDigit(next, base))
-                intvalid = false;
+            else
+            {
+                if (base != IntBase::inv && !isDigit(next, base))
+                    intvalid = false;
+                ++ndigits;
+            }
         }
         
         if (isfloat)
@@ -420,6 +428,8 @@ Token Lexer::nextToken()
         else
             if (base == IntBase::inv)
                 return makeErrorToken(ERR_INVALID_INTLIT_BASE);
+            else if (ndigits == 0)
+                return makeErrorToken(ERR_INTLIT_NO_DIGITS);
             else if (!intvalid)
                 return makeErrorToken(ERR_INVALID_CHAR_FOR_BASE);
             else
