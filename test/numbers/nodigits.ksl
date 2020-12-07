@@ -1,0 +1,8 @@
+
+fun uint32 main()
+{
+    0;
+    0b; // expect compile error (intlit-no-digits)
+    0x; // expect compile error (intlit-no-digits)
+    0o; // expect compile error (intlit-no-digits)
+}
