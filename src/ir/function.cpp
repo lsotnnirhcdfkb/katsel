@@ -1,6 +1,7 @@
 #include "ir/value.h"
 #include "ir/instruction.h"
 #include "message/errors.h"
+#include "utils/format.h"
 
 IR::Function::Function(IR::FunctionType *ty, std::string name, ASTNS::Function *defAST): ty(ty), name(name), prototypeonly(false), _defAST(defAST), blocki(0), regi(0), tempregi(0) {}
 
@@ -53,6 +54,11 @@ IR::TempRegister* IR::Function::addTempRegister(Type *type)
 
 void IR::Function::definition(llvm::raw_ostream &os) const
 {
+    if (prototypeonly)
+    {
+        os << format("fun % %;\n", name, ty->stringify());
+        return;
+    }
     os << "fun " << name << " " << ty->stringify() << " {\n";
     for (std::unique_ptr<Register> const &r : registers)
         r->definition(os);

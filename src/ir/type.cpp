@@ -43,8 +43,14 @@ std::string IR::FunctionType::stringify() const
 {
     std::stringstream ss;
     ss << ret->stringify() << "(";
+    bool first = true;
     for (Type *pty : paramtys)
-        ss << pty->stringify() << ", ";
+    {
+        if (!first)
+            ss << ", ";
+        ss << pty->stringify();
+        first = false;
+    }
     ss << ")";
     return ss.str();
 }

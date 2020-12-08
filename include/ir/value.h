@@ -136,3 +136,15 @@ namespace IR
         }
     };
 }
+
+inline std::ostream& operator<<(std::ostream& os, IR::Value *v)
+{
+    os << v->stringify();
+    return os;
+}
+
+inline std::ostream& operator<<(std::ostream &os, IR::ASTValue const &v)
+{
+    os << v.stringify();
+    return os;
+}

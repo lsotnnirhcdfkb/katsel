@@ -1,7 +1,9 @@
 #pragma once
 
 #include <string>
+#include <sstream>
 
+void reportAbortNoh [[ noreturn ]] (std::string const &message);
 static inline void _format(std::stringstream &ss, std::string const &fstr, std::string::const_iterator start)
 {
     for (auto i = start; i != fstr.cend(); ++i)
