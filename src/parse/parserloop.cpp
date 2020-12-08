@@ -854,7 +854,7 @@ static std::unique_ptr<A> popA(std::vector<stackitem> &stack)
     stackitem si = std::move(stack.back());
     stack.pop_back();
 
-    A* astraw = static_cast<A*>(si.ast.release());
+    A *astraw = static_cast<A*>(si.ast.release());
     return std::unique_ptr<A>(astraw);
 }
 
