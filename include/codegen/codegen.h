@@ -141,6 +141,7 @@ void visitEmptyStmt(ASTNS::EmptyStmt *ast) override;
 void visitExprStmt(ASTNS::ExprStmt *ast) override;
 void visitRetStmt(ASTNS::RetStmt *ast) override;
 void visitStmtList(ASTNS::StmtList *ast) override;
+void visitStmtList_OPT(ASTNS::StmtList_OPT *ast) override;
 void visitVarStmt(ASTNS::VarStmt *ast) override;
 void visitVarStmtItem(ASTNS::VarStmtItem *ast) override;
 void visitVarStmtItemList(ASTNS::VarStmtItemList *ast) override;

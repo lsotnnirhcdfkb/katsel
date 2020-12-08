@@ -461,20 +461,6 @@ void ASTNS::DotVisitor::visitBlock(ASTNS::Block *a)
                     connect(thisid, "ccurb", tokennodeid);
             }
             break;
-        case ASTNS::Block::Form::TT:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">Block (TT)</td></tr><tr>";
-            ostream << "<td port=\"ocurb\">ocurb</td>";
-            ostream << "<td port=\"ccurb\">ccurb</td>";
-            ostream << "</tr></table>>]\n";
-            {
-                    std::string tokennodeid = makeTextNode("Token", a->ocurb.stringify());
-                    connect(thisid, "ocurb", tokennodeid);
-            }
-            {
-                    std::string tokennodeid = makeTextNode("Token", a->ccurb.stringify());
-                    connect(thisid, "ccurb", tokennodeid);
-            }
-            break;
     }
     lastid = std::move(thisid);
 }
@@ -1170,6 +1156,17 @@ void ASTNS::DotVisitor::visitStmtList(ASTNS::StmtList *a)
                         connect(thisid, "anotherstmt", nullptrnodeid);
                     }
             }
+            break;
+    }
+    lastid = std::move(thisid);
+}
+void ASTNS::DotVisitor::visitStmtList_OPT(ASTNS::StmtList_OPT *a)
+{
+    std::string thisid = curid();
+    switch (a->form)
+    {
+        case ASTNS::StmtList_OPT::Form::EMPTY:
+            ostream << thisid << " [label=\"StmtList_OPT (EMPTY)\"]";
             break;
     }
     lastid = std::move(thisid);

@@ -56,6 +56,7 @@ namespace ASTNS
     class RetStmt;
     class Stmt;
     class StmtList;
+    class StmtList_OPT;
     class TernaryExpr;
     class TypeNV;
     class TypeV;
@@ -328,11 +329,9 @@ namespace ASTNS
     {
     public:
         Block(Token ocurb, std::unique_ptr<StmtB> stmts, Token ccurb);
-        Block(Token ocurb, Token ccurb);
         enum class Form
         {
             TAT,
-            TT,
         };
         Token ocurb;
         std::unique_ptr<StmtB> stmts;
@@ -619,6 +618,18 @@ namespace ASTNS
         };
         std::unique_ptr<StmtB> stmtlist;
         std::unique_ptr<StmtB> anotherstmt;
+        Form form;
+        bool empty() override;
+        virtual void accept(ASTNS::StmtBVisitor *v) override;
+    };
+    class StmtList_OPT : public StmtB
+    {
+    public:
+        StmtList_OPT();
+        enum class Form
+        {
+            EMPTY,
+        };
         Form form;
         bool empty() override;
         virtual void accept(ASTNS::StmtBVisitor *v) override;

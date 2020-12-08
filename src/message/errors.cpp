@@ -98,6 +98,7 @@ void visitParamList_OPT(ASTNS::ParamList_OPT *ast) override;
 void visitPrimaryExpr(ASTNS::PrimaryExpr *ast) override;
 void visitRetStmt(ASTNS::RetStmt *ast) override;
 void visitStmtList(ASTNS::StmtList *ast) override;
+void visitStmtList_OPT(ASTNS::StmtList_OPT *ast) override;
 void visitTernaryExpr(ASTNS::TernaryExpr *ast) override;
 void visitTypeV(ASTNS::TypeV *ast) override;
 void visitUnaryExpr(ASTNS::UnaryExpr *ast) override;
@@ -272,11 +273,6 @@ void LocationVisitor::visitBlock(ASTNS::Block *ast)
     switch (ast->form)
     {
         case ASTNS::Block::Form::TAT:
-            retl = ast->ocurb.start;
-            retf = ast->ocurb.sourcefile;
-            retr = ast->ccurb.end;
-            break;
-        case ASTNS::Block::Form::TT:
             retl = ast->ocurb.start;
             retf = ast->ocurb.sourcefile;
             retr = ast->ccurb.end;
@@ -483,6 +479,15 @@ void LocationVisitor::visitStmtList(ASTNS::StmtList *ast)
             retl = getL(ast->stmtlist.get());
             retf = getF(ast->stmtlist.get());
             retr = getR(ast->anotherstmt.get());
+            break;
+    }
+}
+void LocationVisitor::visitStmtList_OPT(ASTNS::StmtList_OPT *ast)
+{
+    switch (ast->form)
+    {
+        case ASTNS::StmtList_OPT::Form::EMPTY:
+            reportAbortNoh("get location of empty ast");
             break;
     }
 }

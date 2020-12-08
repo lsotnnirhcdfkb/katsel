@@ -36,7 +36,6 @@ ASTNS::BitXorExpr::BitXorExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_
 void ASTNS::BitXorExpr::accept(ASTNS::ExprBVisitor *v) { v->visitBitXorExpr(this); }
 bool ASTNS::BitXorExpr::empty() { return false; }
 ASTNS::Block::Block(Token ocurb, std::unique_ptr<StmtB> stmts, Token ccurb): ocurb(ocurb), stmts(std::move(stmts)), ccurb(ccurb), form(ASTNS::Block::Form::TAT) {}
-ASTNS::Block::Block(Token ocurb, Token ccurb): ocurb(ocurb), ccurb(ccurb), form(ASTNS::Block::Form::TT) {}
 void ASTNS::Block::accept(ASTNS::StmtBVisitor *v) { v->visitBlock(this); }
 bool ASTNS::Block::empty() { return false; }
 ASTNS::BuiltinTypeNoVoid::BuiltinTypeNoVoid(Token type): type(type), form(ASTNS::BuiltinTypeNoVoid::Form::T) {}
@@ -94,6 +93,9 @@ bool ASTNS::RetStmt::empty() { return false; }
 ASTNS::StmtList::StmtList(std::unique_ptr<StmtB> stmtlist, std::unique_ptr<StmtB> anotherstmt): stmtlist(std::move(stmtlist)), anotherstmt(std::move(anotherstmt)), form(ASTNS::StmtList::Form::AA) {}
 void ASTNS::StmtList::accept(ASTNS::StmtBVisitor *v) { v->visitStmtList(this); }
 bool ASTNS::StmtList::empty() { return false; }
+ASTNS::StmtList_OPT::StmtList_OPT(): form(ASTNS::StmtList_OPT::Form::EMPTY) {}
+void ASTNS::StmtList_OPT::accept(ASTNS::StmtBVisitor *v) { v->visitStmtList_OPT(this); }
+bool ASTNS::StmtList_OPT::empty() { return form == Form::EMPTY; }
 ASTNS::TernaryExpr::TernaryExpr(std::unique_ptr<ExprB> cond, Token quest, std::unique_ptr<ExprB> trues, Token colon, std::unique_ptr<ExprB> falses): cond(std::move(cond)), quest(quest), trues(std::move(trues)), colon(colon), falses(std::move(falses)), form(ASTNS::TernaryExpr::Form::ATATA) {}
 void ASTNS::TernaryExpr::accept(ASTNS::ExprBVisitor *v) { v->visitTernaryExpr(this); }
 bool ASTNS::TernaryExpr::empty() { return false; }

@@ -8,7 +8,6 @@ void CodeGenNS::StmtCodeGen::stmt(ASTNS::StmtB *ast)
 {
     ast->accept(this);
 }
-
 void CodeGenNS::StmtCodeGen::visitBlock(ASTNS::Block *ast)
 {
     cg.context.incScope();
@@ -65,8 +64,10 @@ void CodeGenNS::StmtCodeGen::visitVarStmt(ASTNS::VarStmt *ast)
 }
 
 void CodeGenNS::StmtCodeGen::visitEmptyStmt(ASTNS::EmptyStmt *) {}
+void CodeGenNS::StmtCodeGen::visitStmtList_OPT(ASTNS::StmtList_OPT *ast) {}
 void CodeGenNS::StmtCodeGen::visitStmtList(ASTNS::StmtList *ast)
 {
     ast->stmtlist->accept(this);
     ast->anotherstmt->accept(this);
 }
+

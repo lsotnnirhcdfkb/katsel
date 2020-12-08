@@ -51,6 +51,7 @@ class PrimaryExpr;
 class RetStmt;
 class Stmt;
 class StmtList;
+class StmtList_OPT;
 class TernaryExpr;
 class TypeNV;
 class TypeV;
@@ -123,6 +124,7 @@ public:
     virtual void visitExprStmt(ASTNS::ExprStmt *ast) = 0;
     virtual void visitRetStmt(ASTNS::RetStmt *ast) = 0;
     virtual void visitStmtList(ASTNS::StmtList *ast) = 0;
+    virtual void visitStmtList_OPT(ASTNS::StmtList_OPT *ast) = 0;
     virtual void visitVarStmt(ASTNS::VarStmt *ast) = 0;
 };
 class TypeBVisitor

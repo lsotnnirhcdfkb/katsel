@@ -426,7 +426,7 @@ def makeOpt(toopt, newname=None):
     optnt = toopt + '_OPT'
     nt(optnt, newname, _grammar[toopt]['base'])
     rule(optnt, f'${toopt}:{toopt.lower()}')
-    rule(optnt, '')
+    rule(optnt, '', special='nodefaultreduce')
 
 _grammar = {}
 
@@ -443,6 +443,7 @@ rule('Function', 'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn $ParamList_OP
 rule('Function', 'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn $ParamList_OPT:paramlist CPARN:cparn SEMICOLON:semi', 'fun', 'semi')
 
 listRule('Stmt', 'statement', 'StmtB')
+makeOpt('StmtList')
 nt('Stmt', 'statement', 'StmtB', panickable=True)
 rule('Stmt', '$EmptyStmt:_')
 rule('Stmt', '$VarStmt:_')
@@ -469,8 +470,7 @@ rule('VarStmtItem', 'IDENTIFIER:name EQUAL:equal $Expr:expr')
 rule('VarStmtItem', 'IDENTIFIER:name')
 
 nt('Block', 'code block', 'StmtB', panickable=True)
-rule('Block', 'OCURB:ocurb $StmtList:stmts CCURB:ccurb')
-rule('Block', 'OCURB:ocurb CCURB:ccurb')
+rule('Block', 'OCURB:ocurb $StmtList_OPT:stmts CCURB:ccurb')
 
 nt('TypeNV', 'non-void type specifier', 'TypeB')
 rule('TypeNV', '$BuiltinTypeNoVoid:_')

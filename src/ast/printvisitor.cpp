@@ -370,16 +370,6 @@ void ASTNS::PrintVisitor::visitBlock(ASTNS::Block *a)
             pai(std::string(a->ccurb.start, a->ccurb.end));
             pai("]\n");
             break;
-        case ASTNS::Block::Form::TT:
-            pai("ocurb = ");
-            pai("[");
-            pai(std::string(a->ocurb.start, a->ocurb.end));
-            pai("]\n");
-            pai("ccurb = ");
-            pai("[");
-            pai(std::string(a->ccurb.start, a->ccurb.end));
-            pai("]\n");
-            break;
     }
     --indent;
     pai("}\n");
@@ -937,6 +927,18 @@ void ASTNS::PrintVisitor::visitStmtList(ASTNS::StmtList *a)
             {
                 pai("nullptr\n");
             }
+            break;
+    }
+    --indent;
+    pai("}\n");
+}
+void ASTNS::PrintVisitor::visitStmtList_OPT(ASTNS::StmtList_OPT *a)
+{
+    pai("StmtList_OPT\n{\n");
+    ++indent;
+    switch (a->form)
+    {
+        case ASTNS::StmtList_OPT::Form::EMPTY:
             break;
     }
     --indent;
