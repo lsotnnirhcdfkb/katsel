@@ -50,7 +50,7 @@ void E0101(Token const &last, Token const &lookahead, std::string const &bestfix
 
 // E0102 - panicking-invalid-syntax
 #define ERR_PANICKING_INVALID_SYNTAX E0102
-void E0102(Token const &last, Token const &lookahead, std::vector<std::string> const &expectations);
+void E0102(Token const &last, Token const &lookahead, Token const &panicuntil, std::vector<std::string> const &expectations);
 
 // E0200 - redecl-sym
 #define ERR_REDECL_SYM E0200

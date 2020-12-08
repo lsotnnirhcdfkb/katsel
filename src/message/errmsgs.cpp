@@ -129,7 +129,7 @@ e.underline(un);
 // E0102 - panicking-invalid-syntax
 // | The parser found a syntax error and recovered via panic mode
 // | error recovery.
-void E0102(Token const &last, Token const &lookahead, std::vector<std::string> const &expectations)
+void E0102(Token const &last, Token const &lookahead, Token const &panicuntil, std::vector<std::string> const &expectations)
 {
     Error e = Error(Error::MsgType::ERROR, last, "E0102 (panicking-invalid-syntax)");
     e.underline(Error::Underline(last, '^')
@@ -137,6 +137,9 @@ void E0102(Token const &last, Token const &lookahead, std::vector<std::string> c
     );
     e.underline(Error::Underline(lookahead, '~')
         .note("unexpected token here")
+    );
+    e.underline(Error::Underline(panicuntil, '-')
+        .note("parser panicked until here")
     );
 auto un (Error::Underline(last, '^'));
 for (std::string const &expectation : expectations)
