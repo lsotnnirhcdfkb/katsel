@@ -891,7 +891,7 @@ void reportAbortNoh(std::string const &message)
 {
     std::cerr << "!!! " << attr(A_BOLD A_FG_RED, "Internal error") << " !!! - " << message << std::endl;
     std::cerr << "note: this is a bug - whether or not it has a bug report is unknown" << std::endl;
-    std::cerr << "    - bugs can be reported on the Katsel GitHub page: https://github.com/hpj2ltxry43b/Katsel/issues" << std::endl;
+    std::cerr << "    - bugs can be reported on the Katsel GitHub page: https://github.com/hpj2ltxry43b/katsel/issues" << std::endl;
     std::cerr << "    - please search far and wide (on the GitHub Issues page) before reporting a bug, so that there are no duplicate bug reports!" << std::endl;
     std::cerr << attr(A_BOLD, "Aborting...") << std::endl;
     std::abort();

@@ -123,7 +123,7 @@ errors:
     code: 102
     name: panicking-invalid-syntax
     desc: The parser found a syntax error and recovered via panic mode error recovery.
-    inputs: 'Token const &last, Token const &lookahead, std::vector<std::string> const &expectations'
+    inputs: 'Token const &last, Token const &lookahead, Token const &panicuntil, std::vector<std::string> const &expectations'
     location: last
     highlights:
       - ['last', *under0, [
@@ -131,6 +131,9 @@ errors:
         ]]
       - ['lookahead', *under1, [
           ['note', '"unexpected token here"']
+        ]]
+      - ['panicuntil', *under2, [
+          ['note', '"parser panicked until here"']
         ]]
     extra: |
       auto un (Error::Underline(last, '^'));

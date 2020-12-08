@@ -5,9 +5,10 @@ import os, re, colorama, itertools
 # classes {{{1
 # symbols {{{2
 class NonTerminal:
-    def __init__(self, symbol, name=None):
+    def __init__(self, symbol, panickable=None, name=None):
         self.symbol = symbol
         self.name = name
+        self.panickable = panickable
 
     def __repr__(self):
         return str(self)
@@ -28,6 +29,15 @@ class NonTerminal:
                     break
 
         return self.name
+
+    def isPanickable(self):
+        if self.panickable is None:
+            for sym, rule in _grammar.items():
+                if sym == self.symbol:
+                    self.panickable = rule['panickable']
+                    break
+
+        return self.panickable
 
 class Terminal:
     def __init__(self, symbol):
@@ -386,12 +396,13 @@ def makeParseTable():
 # rules {{{1
 colorama.init()
 
-def nt(sym, name, base):
+def nt(sym, name, base, panickable=False):
     assert sym not in _grammar, f'redefinition of symbol {sym} in grammar'
     _grammar[sym] = {
         'name': name,
         'base': base,
-        'expansions': []
+        'expansions': [],
+        'panickable': panickable,
     }
 
 def rule(sym, expansion, histart='BEGIN', hiend='END', special=''):
@@ -402,11 +413,11 @@ def listRule(sym, name, base, delimit=None):
     symlist = sym + 'List'
     anothersym = 'Another' + sym
 
-    nt(symlist, name + ' list', base)
+    nt(symlist, name + ' list', base, panickable=True)
     rule(symlist, f'${symlist}:{symlist.lower()} {f"{delimit}:{delimit.lower()}" if delimit is not None else ""} ${anothersym}:{anothersym.lower()}')
     rule(symlist, f'${sym}:{sym.lower()}')
 
-    nt(anothersym, 'another ' + name, base) # useless rule to take advantage of "expected another x"
+    nt(anothersym, 'another ' + name, base, panickable=True) # useless rule to take advantage of "expected another x"
     rule(anothersym, f'${sym}:{sym.lower()}')
 
 def makeOpt(toopt, newname=None):
@@ -424,32 +435,32 @@ rule('CU', '$DeclList:dl', special='nodefaultreduce')
 rule('CU', '', special='nodefaultreduce')
 
 listRule('Decl', 'declaration', 'DeclB')
-nt('Decl', 'declaration', 'DeclB')
+nt('Decl', 'declaration', 'DeclB', panickable=True)
 rule('Decl', '$Function:_')
 
-nt('Function', 'function declaration', 'DeclB')
+nt('Function', 'function declaration', 'DeclB', panickable=True)
 rule('Function', 'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn $ParamList_OPT:paramlist CPARN:cparn $Block:body', 'fun', 'cparn')
 rule('Function', 'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn $ParamList_OPT:paramlist CPARN:cparn SEMICOLON:semi', 'fun', 'semi')
 
 listRule('Stmt', 'statement', 'StmtB')
-nt('Stmt', 'statement', 'StmtB')
+nt('Stmt', 'statement', 'StmtB', panickable=True)
 rule('Stmt', '$EmptyStmt:_')
 rule('Stmt', '$VarStmt:_')
 rule('Stmt', '$ExprStmt:_')
 rule('Stmt', '$RetStmt:_')
 rule('Stmt', '$Block:_')
 
-nt('VarStmt', 'variable statement', 'StmtB')
+nt('VarStmt', 'variable statement', 'StmtB', panickable=True)
 rule('VarStmt', 'VAR:var $TypeNV:type $VarStmtItemList:assignments SEMICOLON:semi')
 
-nt('ExprStmt', 'expression statement', 'StmtB')
+nt('ExprStmt', 'expression statement', 'StmtB', panickable=True)
 rule('ExprStmt', '$Expr:expr SEMICOLON:semi')
 
-nt('RetStmt', 'return statement', 'StmtB')
+nt('RetStmt', 'return statement', 'StmtB', panickable=True)
 rule('RetStmt' , 'RETURN:ret $Expr:expr SEMICOLON:semi')
 rule('RetStmt', 'RETURN:ret SEMICOLON:semi')
 
-nt('EmptyStmt', 'empty statement', 'StmtB')
+nt('EmptyStmt', 'empty statement', 'StmtB', panickable=True)
 rule('EmptyStmt', 'SEMICOLON:semi')
 
 listRule('VarStmtItem', 'variable statement initialization', 'VStmtIB', 'COMMA')
@@ -457,7 +468,7 @@ nt('VarStmtItem', 'variable statement initialization', 'VStmtIB')
 rule('VarStmtItem', 'IDENTIFIER:name EQUAL:equal $Expr:expr')
 rule('VarStmtItem', 'IDENTIFIER:name')
 
-nt('Block', 'code block', 'StmtB')
+nt('Block', 'code block', 'StmtB', panickable=True)
 rule('Block', 'OCURB:ocurb $StmtList:stmts CCURB:ccurb')
 rule('Block', 'OCURB:ocurb CCURB:ccurb')
 
@@ -484,12 +495,12 @@ rule('BuiltinTypeNoVoid', 'CHAR:type')
 
 listRule('Arg', 'argument', 'ArgB', 'COMMA')
 makeOpt('ArgList')
-nt('Arg', 'argument', 'ArgB')
+nt('Arg', 'argument', 'ArgB', panickable=True)
 rule('Arg', '$Expr:expr')
 
 listRule('Param', 'parameter', 'PListB', 'COMMA')
 makeOpt('ParamList')
-nt('Param', 'parameter', 'PListB')
+nt('Param', 'parameter', 'PListB', panickable=True)
 rule('Param', '$TypeNV:type IDENTIFIER:name')
 
 nt('Expr', 'expression', 'ExprB')
@@ -623,12 +634,12 @@ for sym, rule in _grammar.items():
             else:
                 raise Exception(f'invalid special {rest}')
 
-        grammar.append(Rule(NonTerminal(sym, rule['name']), tuple(convertedexpansion), skip, vnames, base, exhistart, exhiend, rsp))
+        grammar.append(Rule(NonTerminal(sym, name=rule['name']), tuple(convertedexpansion), skip, vnames, base, exhistart, exhiend, rsp))
 
 for missingi in missing:
     print(f'\033[35;1mwarning\033[0m: undefined nonterminal \033[1m{missingi}\033[0m')
 
-augmentSymbol = NonTerminal('augment', '')
+augmentSymbol = NonTerminal('augment', False, '')
 augmentRule = Rule(augmentSymbol, (grammar[0].symbol, ), True, '_', '', 'START', 'END', {})
 grammar.append(augmentRule)
 
@@ -844,6 +855,7 @@ def genPanicMode():
                            '    default:\\\n'
                            '        break;\n'
                            '    bool valid = false;\n'
+                           '    e.lookahead = e.p.consume(); // prevent infinite panicking loops\n'
                            '    std::vector<stackitem>::reverse_iterator delto;\n'
                            '    while (!valid)\n'
                            '    {\n'
@@ -857,6 +869,8 @@ def genPanicMode():
         if type(nonterm) == Terminal:
             continue
         if nonterm == augmentSymbol:
+            continue
+        if not nonterm.isPanickable():
             continue
 
         output.append(    f'                CHECKASI({str(nonterm)})\n')
@@ -878,7 +892,7 @@ def genPanicMode():
                            '#undef CHECKASI\n'
                            '#undef FINISHCHECKASI\n'
                            '#undef RECOVERANDDEFBREAK\n'
-                           '    ERR_PANICKING_INVALID_SYNTAX(e.lasttok, e.olh, expectations);\n'
+                           '    ERR_PANICKING_INVALID_SYNTAX(e.lasttok, e.olh, e.lookahead, expectations);\n'
                            '    return true;\n'))
 
     return ''.join(output)
