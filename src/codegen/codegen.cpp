@@ -1,4 +1,5 @@
 #include "codegen/codegen.h"
+#include "utils/assert.h"
 
 #include <iostream>
 
@@ -39,13 +40,8 @@ void CodeGenNS::ParamVisitor::visitParam(ASTNS::Param *ast)
 
 void CodeGenNS::ParamVisitor::visitParamList(ASTNS::ParamList *ast)
 {
-    ast->param->accept(this);
-    ast->moreparam->accept(this);
-}
-void CodeGenNS::ParamVisitor::visitMoreParam(ASTNS::MoreParam *ast)
-{
-    if (ast->paramlist)
-        ast->paramlist->accept(this);
+    ast->paramlist->accept(this);
+    ast->anotherparam->accept(this);
 }
 void CodeGenNS::ParamVisitor::visitParamList_OPT(ASTNS::ParamList_OPT *ast) {}
 
@@ -61,13 +57,11 @@ std::vector<IR::ASTValue> CodeGenNS::ArgsVisitor::args(ASTNS::ArgB *ast)
 
 void CodeGenNS::ArgsVisitor::visitArgList(ASTNS::ArgList *ast)
 {
-    ast->arg->accept(this);
-    std::vector<IR::ASTValue> cret (std::move(ret));
+    std::vector<IR::ASTValue> cret (args(ast->arglist.get()));
 
-    ast->morearg->accept(this);
-
-    cret.reserve(cret.size() + ret.size());
-    cret.insert(cret.end(), ret.begin(), ret.end());
+    std::vector<IR::ASTValue> a (args(ast->anotherarg.get()));
+    ASSERT(a.size() == 1);
+    cret.push_back(a[0]);
 
     ret = std::move(cret);
 }
@@ -78,9 +72,4 @@ void CodeGenNS::ArgsVisitor::visitArg(ASTNS::Arg *ast)
     ret = {v};
 }
 
-void CodeGenNS::ArgsVisitor::visitMoreArg(ASTNS::MoreArg *ast)
-{
-    if (ast->arglist)
-        ast->arglist->accept(this);
-}
 void CodeGenNS::ArgsVisitor::visitArgList_OPT(ASTNS::ArgList_OPT *ast) {}

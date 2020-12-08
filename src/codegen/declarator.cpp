@@ -12,8 +12,8 @@ void CodeGenNS::Declarator::visitCU(ASTNS::CU *ast)
 
 void CodeGenNS::Declarator::visitDeclList(ASTNS::DeclList *ast)
 {
-    ast->decl->accept(this);
-    ast->moredecl->accept(this);
+    ast->decllist->accept(this);
+    ast->anotherdecl->accept(this);
 }
 
 void CodeGenNS::Declarator::visitFunction(ASTNS::Function *fun)

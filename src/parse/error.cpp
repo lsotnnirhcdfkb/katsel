@@ -255,15 +255,15 @@ bool panicMode(errorstate const &e, std::vector<std::string> const &expectations
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(DeclList)
-                        case TokenType::EOF_:
+                        case TokenType::FUN: case TokenType::EOF_:
+                            RECOVERANDDEFBREAK()
+                FINISHCHECKASI()
+                CHECKASI(AnotherDecl)
+                        case TokenType::FUN: case TokenType::EOF_:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(Decl)
                         case TokenType::FUN: case TokenType::EOF_:
-                            RECOVERANDDEFBREAK()
-                FINISHCHECKASI()
-                CHECKASI(MoreDecl)
-                        case TokenType::EOF_:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(Function)
@@ -283,15 +283,15 @@ bool panicMode(errorstate const &e, std::vector<std::string> const &expectations
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(StmtList)
-                        case TokenType::CCURB:
+                        case TokenType::SEMICOLON: case TokenType::VAR: case TokenType::RETURN: case TokenType::OCURB: case TokenType::OPARN: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::CCURB:
+                            RECOVERANDDEFBREAK()
+                FINISHCHECKASI()
+                CHECKASI(AnotherStmt)
+                        case TokenType::SEMICOLON: case TokenType::VAR: case TokenType::RETURN: case TokenType::OCURB: case TokenType::OPARN: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::CCURB:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(Stmt)
                         case TokenType::SEMICOLON: case TokenType::VAR: case TokenType::RETURN: case TokenType::OCURB: case TokenType::OPARN: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::CCURB:
-                            RECOVERANDDEFBREAK()
-                FINISHCHECKASI()
-                CHECKASI(MoreStmt)
-                        case TokenType::CCURB:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(EmptyStmt)
@@ -315,19 +315,19 @@ bool panicMode(errorstate const &e, std::vector<std::string> const &expectations
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(VarStmtItemList)
-                        case TokenType::SEMICOLON:
+                        case TokenType::SEMICOLON: case TokenType::COMMA:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(Expr)
                         case TokenType::SEMICOLON: case TokenType::COMMA: case TokenType::COLON: case TokenType::CPARN:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
-                CHECKASI(VarStmtItem)
-                        case TokenType::COMMA: case TokenType::SEMICOLON:
+                CHECKASI(AnotherVarStmtItem)
+                        case TokenType::SEMICOLON: case TokenType::COMMA:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
-                CHECKASI(MoreVarStmtItem)
-                        case TokenType::SEMICOLON:
+                CHECKASI(VarStmtItem)
+                        case TokenType::SEMICOLON: case TokenType::COMMA:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(BuiltinTypeNoVoid)
@@ -335,15 +335,15 @@ bool panicMode(errorstate const &e, std::vector<std::string> const &expectations
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(ArgList)
-                        case TokenType::CPARN:
+                        case TokenType::COMMA: case TokenType::CPARN:
+                            RECOVERANDDEFBREAK()
+                FINISHCHECKASI()
+                CHECKASI(AnotherArg)
+                        case TokenType::COMMA: case TokenType::CPARN:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(Arg)
                         case TokenType::COMMA: case TokenType::CPARN:
-                            RECOVERANDDEFBREAK()
-                FINISHCHECKASI()
-                CHECKASI(MoreArg)
-                        case TokenType::CPARN:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(ArgList_OPT)
@@ -351,15 +351,15 @@ bool panicMode(errorstate const &e, std::vector<std::string> const &expectations
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(ParamList)
-                        case TokenType::CPARN:
+                        case TokenType::COMMA: case TokenType::CPARN:
+                            RECOVERANDDEFBREAK()
+                FINISHCHECKASI()
+                CHECKASI(AnotherParam)
+                        case TokenType::COMMA: case TokenType::CPARN:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(Param)
                         case TokenType::COMMA: case TokenType::CPARN:
-                            RECOVERANDDEFBREAK()
-                FINISHCHECKASI()
-                CHECKASI(MoreParam)
-                        case TokenType::CPARN:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(AssignmentExpr)

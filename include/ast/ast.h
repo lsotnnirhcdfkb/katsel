@@ -20,6 +20,11 @@ namespace ASTNS
     class TypeB;
     class VStmtIB;
     class AdditionExpr;
+    class AnotherArg;
+    class AnotherDecl;
+    class AnotherParam;
+    class AnotherStmt;
+    class AnotherVarStmtItem;
     class Arg;
     class ArgList;
     class ArgList_OPT;
@@ -43,11 +48,6 @@ namespace ASTNS
     class Expr;
     class ExprStmt;
     class Function;
-    class MoreArg;
-    class MoreDecl;
-    class MoreParam;
-    class MoreStmt;
-    class MoreVarStmtItem;
     class MultExpr;
     class Param;
     class ParamList;
@@ -139,6 +139,46 @@ namespace ASTNS
         bool empty() override;
         virtual void accept(ASTNS::ExprBVisitor *v) override;
     };
+    class AnotherArg : public ArgB
+    {
+    public:
+        enum class Form
+        {
+        };
+        Form form;
+    };
+    class AnotherDecl : public DeclB
+    {
+    public:
+        enum class Form
+        {
+        };
+        Form form;
+    };
+    class AnotherParam : public PListB
+    {
+    public:
+        enum class Form
+        {
+        };
+        Form form;
+    };
+    class AnotherStmt : public StmtB
+    {
+    public:
+        enum class Form
+        {
+        };
+        Form form;
+    };
+    class AnotherVarStmtItem : public VStmtIB
+    {
+    public:
+        enum class Form
+        {
+        };
+        Form form;
+    };
     class Arg : public ArgB
     {
     public:
@@ -155,13 +195,14 @@ namespace ASTNS
     class ArgList : public ArgB
     {
     public:
-        ArgList(std::unique_ptr<ArgB> arg, std::unique_ptr<ArgB> morearg);
+        ArgList(std::unique_ptr<ArgB> arglist, Token comma, std::unique_ptr<ArgB> anotherarg);
         enum class Form
         {
-            AA,
+            ATA,
         };
-        std::unique_ptr<ArgB> arg;
-        std::unique_ptr<ArgB> morearg;
+        std::unique_ptr<ArgB> arglist;
+        Token comma;
+        std::unique_ptr<ArgB> anotherarg;
         Form form;
         bool empty() override;
         virtual void accept(ASTNS::ArgBVisitor *v) override;
@@ -401,13 +442,13 @@ namespace ASTNS
     class DeclList : public DeclB
     {
     public:
-        DeclList(std::unique_ptr<DeclB> decl, std::unique_ptr<DeclB> moredecl);
+        DeclList(std::unique_ptr<DeclB> decllist, std::unique_ptr<DeclB> anotherdecl);
         enum class Form
         {
             AA,
         };
-        std::unique_ptr<DeclB> decl;
-        std::unique_ptr<DeclB> moredecl;
+        std::unique_ptr<DeclB> decllist;
+        std::unique_ptr<DeclB> anotherdecl;
         Form form;
         bool empty() override;
         virtual void accept(ASTNS::DeclBVisitor *v) override;
@@ -469,64 +510,6 @@ namespace ASTNS
         bool empty() override;
         virtual void accept(ASTNS::DeclBVisitor *v) override;
     };
-    class MoreArg : public ArgB
-    {
-    public:
-        MoreArg(Token comma, std::unique_ptr<ArgB> arglist);
-        enum class Form
-        {
-            TA,
-        };
-        Token comma;
-        std::unique_ptr<ArgB> arglist;
-        Form form;
-        bool empty() override;
-        virtual void accept(ASTNS::ArgBVisitor *v) override;
-    };
-    class MoreDecl : public DeclB
-    {
-    public:
-        enum class Form
-        {
-        };
-        Form form;
-    };
-    class MoreParam : public PListB
-    {
-    public:
-        MoreParam(Token comma, std::unique_ptr<PListB> paramlist);
-        enum class Form
-        {
-            TA,
-        };
-        Token comma;
-        std::unique_ptr<PListB> paramlist;
-        Form form;
-        bool empty() override;
-        virtual void accept(ASTNS::PListBVisitor *v) override;
-    };
-    class MoreStmt : public StmtB
-    {
-    public:
-        enum class Form
-        {
-        };
-        Form form;
-    };
-    class MoreVarStmtItem : public VStmtIB
-    {
-    public:
-        MoreVarStmtItem(Token comma, std::unique_ptr<VStmtIB> varstmtitemlist);
-        enum class Form
-        {
-            TA,
-        };
-        Token comma;
-        std::unique_ptr<VStmtIB> varstmtitemlist;
-        Form form;
-        bool empty() override;
-        virtual void accept(ASTNS::VStmtIBVisitor *v) override;
-    };
     class MultExpr : public ExprB
     {
     public:
@@ -559,13 +542,14 @@ namespace ASTNS
     class ParamList : public PListB
     {
     public:
-        ParamList(std::unique_ptr<PListB> param, std::unique_ptr<PListB> moreparam);
+        ParamList(std::unique_ptr<PListB> paramlist, Token comma, std::unique_ptr<PListB> anotherparam);
         enum class Form
         {
-            AA,
+            ATA,
         };
-        std::unique_ptr<PListB> param;
-        std::unique_ptr<PListB> moreparam;
+        std::unique_ptr<PListB> paramlist;
+        Token comma;
+        std::unique_ptr<PListB> anotherparam;
         Form form;
         bool empty() override;
         virtual void accept(ASTNS::PListBVisitor *v) override;
@@ -628,13 +612,13 @@ namespace ASTNS
     class StmtList : public StmtB
     {
     public:
-        StmtList(std::unique_ptr<StmtB> stmt, std::unique_ptr<StmtB> morestmt);
+        StmtList(std::unique_ptr<StmtB> stmtlist, std::unique_ptr<StmtB> anotherstmt);
         enum class Form
         {
             AA,
         };
-        std::unique_ptr<StmtB> stmt;
-        std::unique_ptr<StmtB> morestmt;
+        std::unique_ptr<StmtB> stmtlist;
+        std::unique_ptr<StmtB> anotherstmt;
         Form form;
         bool empty() override;
         virtual void accept(ASTNS::StmtBVisitor *v) override;
@@ -727,13 +711,14 @@ namespace ASTNS
     class VarStmtItemList : public VStmtIB
     {
     public:
-        VarStmtItemList(std::unique_ptr<VStmtIB> varstmtitem, std::unique_ptr<VStmtIB> morevarstmtitem);
+        VarStmtItemList(std::unique_ptr<VStmtIB> varstmtitemlist, Token comma, std::unique_ptr<VStmtIB> anothervarstmtitem);
         enum class Form
         {
-            AA,
+            ATA,
         };
-        std::unique_ptr<VStmtIB> varstmtitem;
-        std::unique_ptr<VStmtIB> morevarstmtitem;
+        std::unique_ptr<VStmtIB> varstmtitemlist;
+        Token comma;
+        std::unique_ptr<VStmtIB> anothervarstmtitem;
         Form form;
         bool empty() override;
         virtual void accept(ASTNS::VStmtIBVisitor *v) override;

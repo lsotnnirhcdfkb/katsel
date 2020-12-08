@@ -91,9 +91,6 @@ void visitDeclList(ASTNS::DeclList *ast) override;
 void visitEmptyStmt(ASTNS::EmptyStmt *ast) override;
 void visitExprStmt(ASTNS::ExprStmt *ast) override;
 void visitFunction(ASTNS::Function *ast) override;
-void visitMoreArg(ASTNS::MoreArg *ast) override;
-void visitMoreParam(ASTNS::MoreParam *ast) override;
-void visitMoreVarStmtItem(ASTNS::MoreVarStmtItem *ast) override;
 void visitMultExpr(ASTNS::MultExpr *ast) override;
 void visitParam(ASTNS::Param *ast) override;
 void visitParamList(ASTNS::ParamList *ast) override;
@@ -177,10 +174,10 @@ void LocationVisitor::visitArgList(ASTNS::ArgList *ast)
 {
     switch (ast->form)
     {
-        case ASTNS::ArgList::Form::AA:
-            retl = getL(ast->arg.get());
-            retf = getF(ast->arg.get());
-            retr = getR(ast->morearg.get());
+        case ASTNS::ArgList::Form::ATA:
+            retl = getL(ast->arglist.get());
+            retf = getF(ast->arglist.get());
+            retr = getR(ast->anotherarg.get());
             break;
     }
 }
@@ -360,9 +357,9 @@ void LocationVisitor::visitDeclList(ASTNS::DeclList *ast)
     switch (ast->form)
     {
         case ASTNS::DeclList::Form::AA:
-            retl = getL(ast->decl.get());
-            retf = getF(ast->decl.get());
-            retr = getR(ast->moredecl.get());
+            retl = getL(ast->decllist.get());
+            retf = getF(ast->decllist.get());
+            retr = getR(ast->anotherdecl.get());
             break;
     }
 }
@@ -404,39 +401,6 @@ void LocationVisitor::visitFunction(ASTNS::Function *ast)
             break;
     }
 }
-void LocationVisitor::visitMoreArg(ASTNS::MoreArg *ast)
-{
-    switch (ast->form)
-    {
-        case ASTNS::MoreArg::Form::TA:
-            retl = ast->comma.start;
-            retf = ast->comma.sourcefile;
-            retr = getR(ast->arglist.get());
-            break;
-    }
-}
-void LocationVisitor::visitMoreParam(ASTNS::MoreParam *ast)
-{
-    switch (ast->form)
-    {
-        case ASTNS::MoreParam::Form::TA:
-            retl = ast->comma.start;
-            retf = ast->comma.sourcefile;
-            retr = getR(ast->paramlist.get());
-            break;
-    }
-}
-void LocationVisitor::visitMoreVarStmtItem(ASTNS::MoreVarStmtItem *ast)
-{
-    switch (ast->form)
-    {
-        case ASTNS::MoreVarStmtItem::Form::TA:
-            retl = ast->comma.start;
-            retf = ast->comma.sourcefile;
-            retr = getR(ast->varstmtitemlist.get());
-            break;
-    }
-}
 void LocationVisitor::visitMultExpr(ASTNS::MultExpr *ast)
 {
     switch (ast->form)
@@ -463,10 +427,10 @@ void LocationVisitor::visitParamList(ASTNS::ParamList *ast)
 {
     switch (ast->form)
     {
-        case ASTNS::ParamList::Form::AA:
-            retl = getL(ast->param.get());
-            retf = getF(ast->param.get());
-            retr = getR(ast->moreparam.get());
+        case ASTNS::ParamList::Form::ATA:
+            retl = getL(ast->paramlist.get());
+            retf = getF(ast->paramlist.get());
+            retr = getR(ast->anotherparam.get());
             break;
     }
 }
@@ -516,9 +480,9 @@ void LocationVisitor::visitStmtList(ASTNS::StmtList *ast)
     switch (ast->form)
     {
         case ASTNS::StmtList::Form::AA:
-            retl = getL(ast->stmt.get());
-            retf = getF(ast->stmt.get());
-            retr = getR(ast->morestmt.get());
+            retl = getL(ast->stmtlist.get());
+            retf = getF(ast->stmtlist.get());
+            retr = getR(ast->anotherstmt.get());
             break;
     }
 }
@@ -586,10 +550,10 @@ void LocationVisitor::visitVarStmtItemList(ASTNS::VarStmtItemList *ast)
 {
     switch (ast->form)
     {
-        case ASTNS::VarStmtItemList::Form::AA:
-            retl = getL(ast->varstmtitem.get());
-            retf = getF(ast->varstmtitem.get());
-            retr = getR(ast->morevarstmtitem.get());
+        case ASTNS::VarStmtItemList::Form::ATA:
+            retl = getL(ast->varstmtitemlist.get());
+            retf = getF(ast->varstmtitemlist.get());
+            retr = getR(ast->anothervarstmtitem.get());
             break;
     }
 }

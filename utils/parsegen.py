@@ -130,7 +130,7 @@ class State:
             print(f'    : keys {self.actions.keys()}')
             print(f'    : adding {action} for {sym}')
             print(f'    : already have {self.actions[sym]} for {sym}')
-            print(f'    : summary: {type(self.actions[sym])}/{type(action)} conflict: while parsing {self.whileparsing}, found {sym}, {self.actions[sym].explain()} or {action.explain()}?\033[0m')
+            print(f'    : summary: {type(self.actions[sym])}/{type(action)} conflict: found {sym}, {self.actions[sym].explain()} or {action.explain()}?\033[0m')
             self.actions[sym] = None
             return False
 
@@ -400,14 +400,14 @@ def rule(sym, expansion, histart='BEGIN', hiend='END', special=''):
 
 def listRule(sym, name, base, delimit=None):
     symlist = sym + 'List'
-    moresym = 'More' + sym
+    anothersym = 'Another' + sym
 
     nt(symlist, name + ' list', base)
-    rule(symlist, f'${sym}:{sym.lower()} ${moresym}:more{sym.lower()}', special='nodefaultreduce')
-    rule(symlist, f'${sym}:{sym.lower()}', special='nodefaultreduce')
+    rule(symlist, f'${symlist}:{symlist.lower()} {f"{delimit}:{delimit.lower()}" if delimit is not None else ""} ${anothersym}:{anothersym.lower()}')
+    rule(symlist, f'${sym}:{sym.lower()}')
 
-    nt(moresym, 'more ' + name + 's', base)
-    rule(moresym, f'{f"{delimit}:{delimit.lower()}" if delimit is not None else ""} ${symlist}:{symlist.lower()}', special='nodefaultreduce')
+    nt(anothersym, 'another ' + name, base) # useless rule to take advantage of "expected another x"
+    rule(anothersym, f'${sym}:{sym.lower()}')
 
 def makeOpt(toopt, newname=None):
     if newname is None:

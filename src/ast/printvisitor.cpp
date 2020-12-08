@@ -67,20 +67,24 @@ void ASTNS::PrintVisitor::visitArgList(ASTNS::ArgList *a)
     ++indent;
     switch (a->form)
     {
-        case ASTNS::ArgList::Form::AA:
-            pai("arg = ");
-            if (a->arg)
+        case ASTNS::ArgList::Form::ATA:
+            pai("arglist = ");
+            if (a->arglist)
             {
-                a->arg->accept(this);
+                a->arglist->accept(this);
             }
             else
             {
                 pai("nullptr\n");
             }
-            pai("morearg = ");
-            if (a->morearg)
+            pai("comma = ");
+            pai("[");
+            pai(std::string(a->comma.start, a->comma.end));
+            pai("]\n");
+            pai("anotherarg = ");
+            if (a->anotherarg)
             {
-                a->morearg->accept(this);
+                a->anotherarg->accept(this);
             }
             else
             {
@@ -570,19 +574,19 @@ void ASTNS::PrintVisitor::visitDeclList(ASTNS::DeclList *a)
     switch (a->form)
     {
         case ASTNS::DeclList::Form::AA:
-            pai("decl = ");
-            if (a->decl)
+            pai("decllist = ");
+            if (a->decllist)
             {
-                a->decl->accept(this);
+                a->decllist->accept(this);
             }
             else
             {
                 pai("nullptr\n");
             }
-            pai("moredecl = ");
-            if (a->moredecl)
+            pai("anotherdecl = ");
+            if (a->anotherdecl)
             {
-                a->moredecl->accept(this);
+                a->anotherdecl->accept(this);
             }
             else
             {
@@ -729,81 +733,6 @@ void ASTNS::PrintVisitor::visitFunction(ASTNS::Function *a)
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visitMoreArg(ASTNS::MoreArg *a)
-{
-    pai("MoreArg\n{\n");
-    ++indent;
-    switch (a->form)
-    {
-        case ASTNS::MoreArg::Form::TA:
-            pai("comma = ");
-            pai("[");
-            pai(std::string(a->comma.start, a->comma.end));
-            pai("]\n");
-            pai("arglist = ");
-            if (a->arglist)
-            {
-                a->arglist->accept(this);
-            }
-            else
-            {
-                pai("nullptr\n");
-            }
-            break;
-    }
-    --indent;
-    pai("}\n");
-}
-void ASTNS::PrintVisitor::visitMoreParam(ASTNS::MoreParam *a)
-{
-    pai("MoreParam\n{\n");
-    ++indent;
-    switch (a->form)
-    {
-        case ASTNS::MoreParam::Form::TA:
-            pai("comma = ");
-            pai("[");
-            pai(std::string(a->comma.start, a->comma.end));
-            pai("]\n");
-            pai("paramlist = ");
-            if (a->paramlist)
-            {
-                a->paramlist->accept(this);
-            }
-            else
-            {
-                pai("nullptr\n");
-            }
-            break;
-    }
-    --indent;
-    pai("}\n");
-}
-void ASTNS::PrintVisitor::visitMoreVarStmtItem(ASTNS::MoreVarStmtItem *a)
-{
-    pai("MoreVarStmtItem\n{\n");
-    ++indent;
-    switch (a->form)
-    {
-        case ASTNS::MoreVarStmtItem::Form::TA:
-            pai("comma = ");
-            pai("[");
-            pai(std::string(a->comma.start, a->comma.end));
-            pai("]\n");
-            pai("varstmtitemlist = ");
-            if (a->varstmtitemlist)
-            {
-                a->varstmtitemlist->accept(this);
-            }
-            else
-            {
-                pai("nullptr\n");
-            }
-            break;
-    }
-    --indent;
-    pai("}\n");
-}
 void ASTNS::PrintVisitor::visitMultExpr(ASTNS::MultExpr *a)
 {
     pai("MultExpr\n{\n");
@@ -869,20 +798,24 @@ void ASTNS::PrintVisitor::visitParamList(ASTNS::ParamList *a)
     ++indent;
     switch (a->form)
     {
-        case ASTNS::ParamList::Form::AA:
-            pai("param = ");
-            if (a->param)
+        case ASTNS::ParamList::Form::ATA:
+            pai("paramlist = ");
+            if (a->paramlist)
             {
-                a->param->accept(this);
+                a->paramlist->accept(this);
             }
             else
             {
                 pai("nullptr\n");
             }
-            pai("moreparam = ");
-            if (a->moreparam)
+            pai("comma = ");
+            pai("[");
+            pai(std::string(a->comma.start, a->comma.end));
+            pai("]\n");
+            pai("anotherparam = ");
+            if (a->anotherparam)
             {
-                a->moreparam->accept(this);
+                a->anotherparam->accept(this);
             }
             else
             {
@@ -986,19 +919,19 @@ void ASTNS::PrintVisitor::visitStmtList(ASTNS::StmtList *a)
     switch (a->form)
     {
         case ASTNS::StmtList::Form::AA:
-            pai("stmt = ");
-            if (a->stmt)
+            pai("stmtlist = ");
+            if (a->stmtlist)
             {
-                a->stmt->accept(this);
+                a->stmtlist->accept(this);
             }
             else
             {
                 pai("nullptr\n");
             }
-            pai("morestmt = ");
-            if (a->morestmt)
+            pai("anotherstmt = ");
+            if (a->anotherstmt)
             {
-                a->morestmt->accept(this);
+                a->anotherstmt->accept(this);
             }
             else
             {
@@ -1176,20 +1109,24 @@ void ASTNS::PrintVisitor::visitVarStmtItemList(ASTNS::VarStmtItemList *a)
     ++indent;
     switch (a->form)
     {
-        case ASTNS::VarStmtItemList::Form::AA:
-            pai("varstmtitem = ");
-            if (a->varstmtitem)
+        case ASTNS::VarStmtItemList::Form::ATA:
+            pai("varstmtitemlist = ");
+            if (a->varstmtitemlist)
             {
-                a->varstmtitem->accept(this);
+                a->varstmtitemlist->accept(this);
             }
             else
             {
                 pai("nullptr\n");
             }
-            pai("morevarstmtitem = ");
-            if (a->morevarstmtitem)
+            pai("comma = ");
+            pai("[");
+            pai(std::string(a->comma.start, a->comma.end));
+            pai("]\n");
+            pai("anothervarstmtitem = ");
+            if (a->anothervarstmtitem)
             {
-                a->morevarstmtitem->accept(this);
+                a->anothervarstmtitem->accept(this);
             }
             else
             {

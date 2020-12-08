@@ -15,6 +15,11 @@ class StmtB;
 class TypeB;
 class VStmtIB;
 class AdditionExpr;
+class AnotherArg;
+class AnotherDecl;
+class AnotherParam;
+class AnotherStmt;
+class AnotherVarStmtItem;
 class Arg;
 class ArgList;
 class ArgList_OPT;
@@ -38,11 +43,6 @@ class EmptyStmt;
 class Expr;
 class ExprStmt;
 class Function;
-class MoreArg;
-class MoreDecl;
-class MoreParam;
-class MoreStmt;
-class MoreVarStmtItem;
 class MultExpr;
 class Param;
 class ParamList;
@@ -71,7 +71,6 @@ public:
     virtual void visitArg(ASTNS::Arg *ast) = 0;
     virtual void visitArgList(ASTNS::ArgList *ast) = 0;
     virtual void visitArgList_OPT(ASTNS::ArgList_OPT *ast) = 0;
-    virtual void visitMoreArg(ASTNS::MoreArg *ast) = 0;
 };
 class CUBVisitor
 {
@@ -111,7 +110,6 @@ class PListBVisitor
 {
 public:
     virtual ~PListBVisitor() {}
-    virtual void visitMoreParam(ASTNS::MoreParam *ast) = 0;
     virtual void visitParam(ASTNS::Param *ast) = 0;
     virtual void visitParamList(ASTNS::ParamList *ast) = 0;
     virtual void visitParamList_OPT(ASTNS::ParamList_OPT *ast) = 0;
@@ -138,7 +136,6 @@ class VStmtIBVisitor
 {
 public:
     virtual ~VStmtIBVisitor() {}
-    virtual void visitMoreVarStmtItem(ASTNS::MoreVarStmtItem *ast) = 0;
     virtual void visitVarStmtItem(ASTNS::VarStmtItem *ast) = 0;
     virtual void visitVarStmtItemList(ASTNS::VarStmtItemList *ast) = 0;
 };

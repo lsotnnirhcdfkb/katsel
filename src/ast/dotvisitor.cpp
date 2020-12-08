@@ -79,33 +79,38 @@ void ASTNS::DotVisitor::visitArgList(ASTNS::ArgList *a)
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::ArgList::Form::AA:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">ArgList (AA)</td></tr><tr>";
-            ostream << "<td port=\"arg\">arg</td>";
-            ostream << "<td port=\"morearg\">morearg</td>";
+        case ASTNS::ArgList::Form::ATA:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">ArgList (ATA)</td></tr><tr>";
+            ostream << "<td port=\"arglist\">arglist</td>";
+            ostream << "<td port=\"comma\">comma</td>";
+            ostream << "<td port=\"anotherarg\">anotherarg</td>";
             ostream << "</tr></table>>]\n";
             {
-                    if (a->arg)
+                    if (a->arglist)
                     {
-                        a->arg->accept(this);
-                        connect(thisid, "arg", lastid);
+                        a->arglist->accept(this);
+                        connect(thisid, "arglist", lastid);
                     }
                     else
                     {
                         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "arg", nullptrnodeid);
+                        connect(thisid, "arglist", nullptrnodeid);
                     }
             }
             {
-                    if (a->morearg)
+                    std::string tokennodeid = makeTextNode("Token", a->comma.stringify());
+                    connect(thisid, "comma", tokennodeid);
+            }
+            {
+                    if (a->anotherarg)
                     {
-                        a->morearg->accept(this);
-                        connect(thisid, "morearg", lastid);
+                        a->anotherarg->accept(this);
+                        connect(thisid, "anotherarg", lastid);
                     }
                     else
                     {
                         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "morearg", nullptrnodeid);
+                        connect(thisid, "anotherarg", nullptrnodeid);
                     }
             }
             break;
@@ -707,31 +712,31 @@ void ASTNS::DotVisitor::visitDeclList(ASTNS::DeclList *a)
     {
         case ASTNS::DeclList::Form::AA:
             ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">DeclList (AA)</td></tr><tr>";
-            ostream << "<td port=\"decl\">decl</td>";
-            ostream << "<td port=\"moredecl\">moredecl</td>";
+            ostream << "<td port=\"decllist\">decllist</td>";
+            ostream << "<td port=\"anotherdecl\">anotherdecl</td>";
             ostream << "</tr></table>>]\n";
             {
-                    if (a->decl)
+                    if (a->decllist)
                     {
-                        a->decl->accept(this);
-                        connect(thisid, "decl", lastid);
+                        a->decllist->accept(this);
+                        connect(thisid, "decllist", lastid);
                     }
                     else
                     {
                         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "decl", nullptrnodeid);
+                        connect(thisid, "decllist", nullptrnodeid);
                     }
             }
             {
-                    if (a->moredecl)
+                    if (a->anotherdecl)
                     {
-                        a->moredecl->accept(this);
-                        connect(thisid, "moredecl", lastid);
+                        a->anotherdecl->accept(this);
+                        connect(thisid, "anotherdecl", lastid);
                     }
                     else
                     {
                         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "moredecl", nullptrnodeid);
+                        connect(thisid, "anotherdecl", nullptrnodeid);
                     }
             }
             break;
@@ -911,96 +916,6 @@ void ASTNS::DotVisitor::visitFunction(ASTNS::Function *a)
     }
     lastid = std::move(thisid);
 }
-void ASTNS::DotVisitor::visitMoreArg(ASTNS::MoreArg *a)
-{
-    std::string thisid = curid();
-    switch (a->form)
-    {
-        case ASTNS::MoreArg::Form::TA:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">MoreArg (TA)</td></tr><tr>";
-            ostream << "<td port=\"comma\">comma</td>";
-            ostream << "<td port=\"arglist\">arglist</td>";
-            ostream << "</tr></table>>]\n";
-            {
-                    std::string tokennodeid = makeTextNode("Token", a->comma.stringify());
-                    connect(thisid, "comma", tokennodeid);
-            }
-            {
-                    if (a->arglist)
-                    {
-                        a->arglist->accept(this);
-                        connect(thisid, "arglist", lastid);
-                    }
-                    else
-                    {
-                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "arglist", nullptrnodeid);
-                    }
-            }
-            break;
-    }
-    lastid = std::move(thisid);
-}
-void ASTNS::DotVisitor::visitMoreParam(ASTNS::MoreParam *a)
-{
-    std::string thisid = curid();
-    switch (a->form)
-    {
-        case ASTNS::MoreParam::Form::TA:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">MoreParam (TA)</td></tr><tr>";
-            ostream << "<td port=\"comma\">comma</td>";
-            ostream << "<td port=\"paramlist\">paramlist</td>";
-            ostream << "</tr></table>>]\n";
-            {
-                    std::string tokennodeid = makeTextNode("Token", a->comma.stringify());
-                    connect(thisid, "comma", tokennodeid);
-            }
-            {
-                    if (a->paramlist)
-                    {
-                        a->paramlist->accept(this);
-                        connect(thisid, "paramlist", lastid);
-                    }
-                    else
-                    {
-                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "paramlist", nullptrnodeid);
-                    }
-            }
-            break;
-    }
-    lastid = std::move(thisid);
-}
-void ASTNS::DotVisitor::visitMoreVarStmtItem(ASTNS::MoreVarStmtItem *a)
-{
-    std::string thisid = curid();
-    switch (a->form)
-    {
-        case ASTNS::MoreVarStmtItem::Form::TA:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">MoreVarStmtItem (TA)</td></tr><tr>";
-            ostream << "<td port=\"comma\">comma</td>";
-            ostream << "<td port=\"varstmtitemlist\">varstmtitemlist</td>";
-            ostream << "</tr></table>>]\n";
-            {
-                    std::string tokennodeid = makeTextNode("Token", a->comma.stringify());
-                    connect(thisid, "comma", tokennodeid);
-            }
-            {
-                    if (a->varstmtitemlist)
-                    {
-                        a->varstmtitemlist->accept(this);
-                        connect(thisid, "varstmtitemlist", lastid);
-                    }
-                    else
-                    {
-                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "varstmtitemlist", nullptrnodeid);
-                    }
-            }
-            break;
-    }
-    lastid = std::move(thisid);
-}
 void ASTNS::DotVisitor::visitMultExpr(ASTNS::MultExpr *a)
 {
     std::string thisid = curid();
@@ -1079,33 +994,38 @@ void ASTNS::DotVisitor::visitParamList(ASTNS::ParamList *a)
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::ParamList::Form::AA:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">ParamList (AA)</td></tr><tr>";
-            ostream << "<td port=\"param\">param</td>";
-            ostream << "<td port=\"moreparam\">moreparam</td>";
+        case ASTNS::ParamList::Form::ATA:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">ParamList (ATA)</td></tr><tr>";
+            ostream << "<td port=\"paramlist\">paramlist</td>";
+            ostream << "<td port=\"comma\">comma</td>";
+            ostream << "<td port=\"anotherparam\">anotherparam</td>";
             ostream << "</tr></table>>]\n";
             {
-                    if (a->param)
+                    if (a->paramlist)
                     {
-                        a->param->accept(this);
-                        connect(thisid, "param", lastid);
+                        a->paramlist->accept(this);
+                        connect(thisid, "paramlist", lastid);
                     }
                     else
                     {
                         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "param", nullptrnodeid);
+                        connect(thisid, "paramlist", nullptrnodeid);
                     }
             }
             {
-                    if (a->moreparam)
+                    std::string tokennodeid = makeTextNode("Token", a->comma.stringify());
+                    connect(thisid, "comma", tokennodeid);
+            }
+            {
+                    if (a->anotherparam)
                     {
-                        a->moreparam->accept(this);
-                        connect(thisid, "moreparam", lastid);
+                        a->anotherparam->accept(this);
+                        connect(thisid, "anotherparam", lastid);
                     }
                     else
                     {
                         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "moreparam", nullptrnodeid);
+                        connect(thisid, "anotherparam", nullptrnodeid);
                     }
             }
             break;
@@ -1223,31 +1143,31 @@ void ASTNS::DotVisitor::visitStmtList(ASTNS::StmtList *a)
     {
         case ASTNS::StmtList::Form::AA:
             ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">StmtList (AA)</td></tr><tr>";
-            ostream << "<td port=\"stmt\">stmt</td>";
-            ostream << "<td port=\"morestmt\">morestmt</td>";
+            ostream << "<td port=\"stmtlist\">stmtlist</td>";
+            ostream << "<td port=\"anotherstmt\">anotherstmt</td>";
             ostream << "</tr></table>>]\n";
             {
-                    if (a->stmt)
+                    if (a->stmtlist)
                     {
-                        a->stmt->accept(this);
-                        connect(thisid, "stmt", lastid);
+                        a->stmtlist->accept(this);
+                        connect(thisid, "stmtlist", lastid);
                     }
                     else
                     {
                         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "stmt", nullptrnodeid);
+                        connect(thisid, "stmtlist", nullptrnodeid);
                     }
             }
             {
-                    if (a->morestmt)
+                    if (a->anotherstmt)
                     {
-                        a->morestmt->accept(this);
-                        connect(thisid, "morestmt", lastid);
+                        a->anotherstmt->accept(this);
+                        connect(thisid, "anotherstmt", lastid);
                     }
                     else
                     {
                         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "morestmt", nullptrnodeid);
+                        connect(thisid, "anotherstmt", nullptrnodeid);
                     }
             }
             break;
@@ -1459,33 +1379,38 @@ void ASTNS::DotVisitor::visitVarStmtItemList(ASTNS::VarStmtItemList *a)
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::VarStmtItemList::Form::AA:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">VarStmtItemList (AA)</td></tr><tr>";
-            ostream << "<td port=\"varstmtitem\">varstmtitem</td>";
-            ostream << "<td port=\"morevarstmtitem\">morevarstmtitem</td>";
+        case ASTNS::VarStmtItemList::Form::ATA:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">VarStmtItemList (ATA)</td></tr><tr>";
+            ostream << "<td port=\"varstmtitemlist\">varstmtitemlist</td>";
+            ostream << "<td port=\"comma\">comma</td>";
+            ostream << "<td port=\"anothervarstmtitem\">anothervarstmtitem</td>";
             ostream << "</tr></table>>]\n";
             {
-                    if (a->varstmtitem)
+                    if (a->varstmtitemlist)
                     {
-                        a->varstmtitem->accept(this);
-                        connect(thisid, "varstmtitem", lastid);
+                        a->varstmtitemlist->accept(this);
+                        connect(thisid, "varstmtitemlist", lastid);
                     }
                     else
                     {
                         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "varstmtitem", nullptrnodeid);
+                        connect(thisid, "varstmtitemlist", nullptrnodeid);
                     }
             }
             {
-                    if (a->morevarstmtitem)
+                    std::string tokennodeid = makeTextNode("Token", a->comma.stringify());
+                    connect(thisid, "comma", tokennodeid);
+            }
+            {
+                    if (a->anothervarstmtitem)
                     {
-                        a->morevarstmtitem->accept(this);
-                        connect(thisid, "morevarstmtitem", lastid);
+                        a->anothervarstmtitem->accept(this);
+                        connect(thisid, "anothervarstmtitem", lastid);
                     }
                     else
                     {
                         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "morevarstmtitem", nullptrnodeid);
+                        connect(thisid, "anothervarstmtitem", nullptrnodeid);
                     }
             }
             break;
