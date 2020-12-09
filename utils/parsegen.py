@@ -413,9 +413,19 @@ def listRule(sym, name, base, delimit=None):
     symlist = sym + 'List'
     anothersym = 'Another' + sym
 
-    nt(symlist, name + ' list', base, panickable=True)
-    rule(symlist, f'${symlist}:{symlist.lower()} {f"{delimit}:{delimit.lower()}" if delimit is not None else ""} ${anothersym}:{anothersym.lower()}')
-    rule(symlist, f'${sym}:{sym.lower()}')
+    if delimit:
+        symsegment = sym + 'Segment'
+        nt(symlist, name + ' list', base, panickable=True)
+        rule(symlist, f'${symsegment}:{symsegment.lower()}')
+        rule(symlist, f'${symsegment}:{symsegment.lower()} {delimit}:{delimit.lower()}')
+
+        nt(symsegment, name + ' list', base, panickable=True)
+        rule(symsegment, f'${symsegment}:{symsegment.lower()} {f"{delimit}:{delimit.lower()}" if delimit is not None else ""} ${anothersym}:{anothersym.lower()}')
+        rule(symsegment, f'${sym}:{sym.lower()}')
+    else:
+        nt(symlist, name + ' list', base, panickable=True)
+        rule(symlist, f'${symlist}:{symlist.lower()} {f"{delimit}:{delimit.lower()}" if delimit is not None else ""} ${anothersym}:{anothersym.lower()}')
+        rule(symlist, f'${sym}:{sym.lower()}')
 
     nt(anothersym, 'another ' + name, base, panickable=True) # useless rule to take advantage of "expected another x"
     rule(anothersym, f'${sym}:{sym.lower()}')

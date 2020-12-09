@@ -28,6 +28,7 @@ namespace ASTNS
     class Arg;
     class ArgList;
     class ArgList_OPT;
+    class ArgSegment;
     class AssignmentExpr;
     class BinAndExpr;
     class BinOrExpr;
@@ -52,6 +53,7 @@ namespace ASTNS
     class Param;
     class ParamList;
     class ParamList_OPT;
+    class ParamSegment;
     class PrimaryExpr;
     class RetStmt;
     class Stmt;
@@ -64,6 +66,7 @@ namespace ASTNS
     class VarStmt;
     class VarStmtItem;
     class VarStmtItemList;
+    class VarStmtItemSegment;
     class AST
     {
     public:
@@ -196,14 +199,13 @@ namespace ASTNS
     class ArgList : public ArgB
     {
     public:
-        ArgList(std::unique_ptr<ArgB> arglist, Token comma, std::unique_ptr<ArgB> anotherarg);
+        ArgList(std::unique_ptr<ArgB> argsegment, Token comma);
         enum class Form
         {
-            ATA,
+            AT,
         };
-        std::unique_ptr<ArgB> arglist;
+        std::unique_ptr<ArgB> argsegment;
         Token comma;
-        std::unique_ptr<ArgB> anotherarg;
         Form form;
         bool empty() override;
         virtual void accept(ASTNS::ArgBVisitor *v) override;
@@ -216,6 +218,21 @@ namespace ASTNS
         {
             EMPTY,
         };
+        Form form;
+        bool empty() override;
+        virtual void accept(ASTNS::ArgBVisitor *v) override;
+    };
+    class ArgSegment : public ArgB
+    {
+    public:
+        ArgSegment(std::unique_ptr<ArgB> argsegment, Token comma, std::unique_ptr<ArgB> anotherarg);
+        enum class Form
+        {
+            ATA,
+        };
+        std::unique_ptr<ArgB> argsegment;
+        Token comma;
+        std::unique_ptr<ArgB> anotherarg;
         Form form;
         bool empty() override;
         virtual void accept(ASTNS::ArgBVisitor *v) override;
@@ -541,14 +558,13 @@ namespace ASTNS
     class ParamList : public PListB
     {
     public:
-        ParamList(std::unique_ptr<PListB> paramlist, Token comma, std::unique_ptr<PListB> anotherparam);
+        ParamList(std::unique_ptr<PListB> paramsegment, Token comma);
         enum class Form
         {
-            ATA,
+            AT,
         };
-        std::unique_ptr<PListB> paramlist;
+        std::unique_ptr<PListB> paramsegment;
         Token comma;
-        std::unique_ptr<PListB> anotherparam;
         Form form;
         bool empty() override;
         virtual void accept(ASTNS::PListBVisitor *v) override;
@@ -561,6 +577,21 @@ namespace ASTNS
         {
             EMPTY,
         };
+        Form form;
+        bool empty() override;
+        virtual void accept(ASTNS::PListBVisitor *v) override;
+    };
+    class ParamSegment : public PListB
+    {
+    public:
+        ParamSegment(std::unique_ptr<PListB> paramsegment, Token comma, std::unique_ptr<PListB> anotherparam);
+        enum class Form
+        {
+            ATA,
+        };
+        std::unique_ptr<PListB> paramsegment;
+        Token comma;
+        std::unique_ptr<PListB> anotherparam;
         Form form;
         bool empty() override;
         virtual void accept(ASTNS::PListBVisitor *v) override;
@@ -722,12 +753,26 @@ namespace ASTNS
     class VarStmtItemList : public VStmtIB
     {
     public:
-        VarStmtItemList(std::unique_ptr<VStmtIB> varstmtitemlist, Token comma, std::unique_ptr<VStmtIB> anothervarstmtitem);
+        VarStmtItemList(std::unique_ptr<VStmtIB> varstmtitemsegment, Token comma);
+        enum class Form
+        {
+            AT,
+        };
+        std::unique_ptr<VStmtIB> varstmtitemsegment;
+        Token comma;
+        Form form;
+        bool empty() override;
+        virtual void accept(ASTNS::VStmtIBVisitor *v) override;
+    };
+    class VarStmtItemSegment : public VStmtIB
+    {
+    public:
+        VarStmtItemSegment(std::unique_ptr<VStmtIB> varstmtitemsegment, Token comma, std::unique_ptr<VStmtIB> anothervarstmtitem);
         enum class Form
         {
             ATA,
         };
-        std::unique_ptr<VStmtIB> varstmtitemlist;
+        std::unique_ptr<VStmtIB> varstmtitemsegment;
         Token comma;
         std::unique_ptr<VStmtIB> anothervarstmtitem;
         Form form;

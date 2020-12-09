@@ -40,7 +40,11 @@ void CodeGenNS::ParamVisitor::visitParam(ASTNS::Param *ast)
 
 void CodeGenNS::ParamVisitor::visitParamList(ASTNS::ParamList *ast)
 {
-    ast->paramlist->accept(this);
+    ast->paramsegment->accept(this);
+}
+void CodeGenNS::ParamVisitor::visitParamSegment(ASTNS::ParamSegment *ast)
+{
+    ast->paramsegment->accept(this);
     ast->anotherparam->accept(this);
 }
 void CodeGenNS::ParamVisitor::visitParamList_OPT(ASTNS::ParamList_OPT *ast) {}
@@ -57,7 +61,11 @@ std::vector<IR::ASTValue> CodeGenNS::ArgsVisitor::args(ASTNS::ArgB *ast)
 
 void CodeGenNS::ArgsVisitor::visitArgList(ASTNS::ArgList *ast)
 {
-    std::vector<IR::ASTValue> cret (args(ast->arglist.get()));
+    ast->argsegment->accept(this);
+}
+void CodeGenNS::ArgsVisitor::visitArgSegment(ASTNS::ArgSegment *ast)
+{
+    std::vector<IR::ASTValue> cret (args(ast->argsegment.get()));
 
     std::vector<IR::ASTValue> a (args(ast->anotherarg.get()));
     ASSERT(a.size() == 1);

@@ -67,11 +67,48 @@ void ASTNS::PrintVisitor::visitArgList(ASTNS::ArgList *a)
     ++indent;
     switch (a->form)
     {
-        case ASTNS::ArgList::Form::ATA:
-            pai("arglist = ");
-            if (a->arglist)
+        case ASTNS::ArgList::Form::AT:
+            pai("argsegment = ");
+            if (a->argsegment)
             {
-                a->arglist->accept(this);
+                a->argsegment->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            pai("comma = ");
+            pai("[");
+            pai(std::string(a->comma.start, a->comma.end));
+            pai("]\n");
+            break;
+    }
+    --indent;
+    pai("}\n");
+}
+void ASTNS::PrintVisitor::visitArgList_OPT(ASTNS::ArgList_OPT *a)
+{
+    pai("ArgList_OPT\n{\n");
+    ++indent;
+    switch (a->form)
+    {
+        case ASTNS::ArgList_OPT::Form::EMPTY:
+            break;
+    }
+    --indent;
+    pai("}\n");
+}
+void ASTNS::PrintVisitor::visitArgSegment(ASTNS::ArgSegment *a)
+{
+    pai("ArgSegment\n{\n");
+    ++indent;
+    switch (a->form)
+    {
+        case ASTNS::ArgSegment::Form::ATA:
+            pai("argsegment = ");
+            if (a->argsegment)
+            {
+                a->argsegment->accept(this);
             }
             else
             {
@@ -90,18 +127,6 @@ void ASTNS::PrintVisitor::visitArgList(ASTNS::ArgList *a)
             {
                 pai("nullptr\n");
             }
-            break;
-    }
-    --indent;
-    pai("}\n");
-}
-void ASTNS::PrintVisitor::visitArgList_OPT(ASTNS::ArgList_OPT *a)
-{
-    pai("ArgList_OPT\n{\n");
-    ++indent;
-    switch (a->form)
-    {
-        case ASTNS::ArgList_OPT::Form::EMPTY:
             break;
     }
     --indent;
@@ -788,11 +813,48 @@ void ASTNS::PrintVisitor::visitParamList(ASTNS::ParamList *a)
     ++indent;
     switch (a->form)
     {
-        case ASTNS::ParamList::Form::ATA:
-            pai("paramlist = ");
-            if (a->paramlist)
+        case ASTNS::ParamList::Form::AT:
+            pai("paramsegment = ");
+            if (a->paramsegment)
             {
-                a->paramlist->accept(this);
+                a->paramsegment->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            pai("comma = ");
+            pai("[");
+            pai(std::string(a->comma.start, a->comma.end));
+            pai("]\n");
+            break;
+    }
+    --indent;
+    pai("}\n");
+}
+void ASTNS::PrintVisitor::visitParamList_OPT(ASTNS::ParamList_OPT *a)
+{
+    pai("ParamList_OPT\n{\n");
+    ++indent;
+    switch (a->form)
+    {
+        case ASTNS::ParamList_OPT::Form::EMPTY:
+            break;
+    }
+    --indent;
+    pai("}\n");
+}
+void ASTNS::PrintVisitor::visitParamSegment(ASTNS::ParamSegment *a)
+{
+    pai("ParamSegment\n{\n");
+    ++indent;
+    switch (a->form)
+    {
+        case ASTNS::ParamSegment::Form::ATA:
+            pai("paramsegment = ");
+            if (a->paramsegment)
+            {
+                a->paramsegment->accept(this);
             }
             else
             {
@@ -811,18 +873,6 @@ void ASTNS::PrintVisitor::visitParamList(ASTNS::ParamList *a)
             {
                 pai("nullptr\n");
             }
-            break;
-    }
-    --indent;
-    pai("}\n");
-}
-void ASTNS::PrintVisitor::visitParamList_OPT(ASTNS::ParamList_OPT *a)
-{
-    pai("ParamList_OPT\n{\n");
-    ++indent;
-    switch (a->form)
-    {
-        case ASTNS::ParamList_OPT::Form::EMPTY:
             break;
     }
     --indent;
@@ -1111,11 +1161,36 @@ void ASTNS::PrintVisitor::visitVarStmtItemList(ASTNS::VarStmtItemList *a)
     ++indent;
     switch (a->form)
     {
-        case ASTNS::VarStmtItemList::Form::ATA:
-            pai("varstmtitemlist = ");
-            if (a->varstmtitemlist)
+        case ASTNS::VarStmtItemList::Form::AT:
+            pai("varstmtitemsegment = ");
+            if (a->varstmtitemsegment)
             {
-                a->varstmtitemlist->accept(this);
+                a->varstmtitemsegment->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            pai("comma = ");
+            pai("[");
+            pai(std::string(a->comma.start, a->comma.end));
+            pai("]\n");
+            break;
+    }
+    --indent;
+    pai("}\n");
+}
+void ASTNS::PrintVisitor::visitVarStmtItemSegment(ASTNS::VarStmtItemSegment *a)
+{
+    pai("VarStmtItemSegment\n{\n");
+    ++indent;
+    switch (a->form)
+    {
+        case ASTNS::VarStmtItemSegment::Form::ATA:
+            pai("varstmtitemsegment = ");
+            if (a->varstmtitemsegment)
+            {
+                a->varstmtitemsegment->accept(this);
             }
             else
             {

@@ -33,6 +33,10 @@ void CodeGenNS::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem *ast)
 }
 void CodeGenNS::StmtCodeGen::visitVarStmtItemList(ASTNS::VarStmtItemList *ast)
 {
-    ast->varstmtitemlist->accept(this);
+    ast->varstmtitemsegment->accept(this);
+}
+void CodeGenNS::StmtCodeGen::visitVarStmtItemSegment(ASTNS::VarStmtItemSegment *ast)
+{
+    ast->varstmtitemsegment->accept(this);
     ast->anothervarstmtitem->accept(this);
 }

@@ -298,6 +298,10 @@ bool panicMode(errorstate const &e, std::vector<std::string> const &expectations
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(VarStmtItemList)
+                        case TokenType::SEMICOLON:
+                            RECOVERANDDEFBREAK()
+                FINISHCHECKASI()
+                CHECKASI(VarStmtItemSegment)
                         case TokenType::SEMICOLON: case TokenType::COMMA:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
@@ -306,6 +310,10 @@ bool panicMode(errorstate const &e, std::vector<std::string> const &expectations
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(ArgList)
+                        case TokenType::CPARN:
+                            RECOVERANDDEFBREAK()
+                FINISHCHECKASI()
+                CHECKASI(ArgSegment)
                         case TokenType::COMMA: case TokenType::CPARN:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
@@ -318,6 +326,10 @@ bool panicMode(errorstate const &e, std::vector<std::string> const &expectations
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(ParamList)
+                        case TokenType::CPARN:
+                            RECOVERANDDEFBREAK()
+                FINISHCHECKASI()
+                CHECKASI(ParamSegment)
                         case TokenType::COMMA: case TokenType::CPARN:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()

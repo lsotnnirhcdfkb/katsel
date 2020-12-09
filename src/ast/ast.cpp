@@ -8,12 +8,15 @@ bool ASTNS::AdditionExpr::empty() { return false; }
 ASTNS::Arg::Arg(std::unique_ptr<ExprB> expr): expr(std::move(expr)), form(ASTNS::Arg::Form::A) {}
 void ASTNS::Arg::accept(ASTNS::ArgBVisitor *v) { v->visitArg(this); }
 bool ASTNS::Arg::empty() { return false; }
-ASTNS::ArgList::ArgList(std::unique_ptr<ArgB> arglist, Token comma, std::unique_ptr<ArgB> anotherarg): arglist(std::move(arglist)), comma(comma), anotherarg(std::move(anotherarg)), form(ASTNS::ArgList::Form::ATA) {}
+ASTNS::ArgList::ArgList(std::unique_ptr<ArgB> argsegment, Token comma): argsegment(std::move(argsegment)), comma(comma), form(ASTNS::ArgList::Form::AT) {}
 void ASTNS::ArgList::accept(ASTNS::ArgBVisitor *v) { v->visitArgList(this); }
 bool ASTNS::ArgList::empty() { return false; }
 ASTNS::ArgList_OPT::ArgList_OPT(): form(ASTNS::ArgList_OPT::Form::EMPTY) {}
 void ASTNS::ArgList_OPT::accept(ASTNS::ArgBVisitor *v) { v->visitArgList_OPT(this); }
 bool ASTNS::ArgList_OPT::empty() { return form == Form::EMPTY; }
+ASTNS::ArgSegment::ArgSegment(std::unique_ptr<ArgB> argsegment, Token comma, std::unique_ptr<ArgB> anotherarg): argsegment(std::move(argsegment)), comma(comma), anotherarg(std::move(anotherarg)), form(ASTNS::ArgSegment::Form::ATA) {}
+void ASTNS::ArgSegment::accept(ASTNS::ArgBVisitor *v) { v->visitArgSegment(this); }
+bool ASTNS::ArgSegment::empty() { return false; }
 ASTNS::AssignmentExpr::AssignmentExpr(std::unique_ptr<ExprB> target, Token equal, std::unique_ptr<ExprB> value): target(std::move(target)), equal(equal), value(std::move(value)), form(ASTNS::AssignmentExpr::Form::ATA) {}
 void ASTNS::AssignmentExpr::accept(ASTNS::ExprBVisitor *v) { v->visitAssignmentExpr(this); }
 bool ASTNS::AssignmentExpr::empty() { return false; }
@@ -76,12 +79,15 @@ bool ASTNS::MultExpr::empty() { return false; }
 ASTNS::Param::Param(std::unique_ptr<TypeB> type, Token name): type(std::move(type)), name(name), form(ASTNS::Param::Form::AT) {}
 void ASTNS::Param::accept(ASTNS::PListBVisitor *v) { v->visitParam(this); }
 bool ASTNS::Param::empty() { return false; }
-ASTNS::ParamList::ParamList(std::unique_ptr<PListB> paramlist, Token comma, std::unique_ptr<PListB> anotherparam): paramlist(std::move(paramlist)), comma(comma), anotherparam(std::move(anotherparam)), form(ASTNS::ParamList::Form::ATA) {}
+ASTNS::ParamList::ParamList(std::unique_ptr<PListB> paramsegment, Token comma): paramsegment(std::move(paramsegment)), comma(comma), form(ASTNS::ParamList::Form::AT) {}
 void ASTNS::ParamList::accept(ASTNS::PListBVisitor *v) { v->visitParamList(this); }
 bool ASTNS::ParamList::empty() { return false; }
 ASTNS::ParamList_OPT::ParamList_OPT(): form(ASTNS::ParamList_OPT::Form::EMPTY) {}
 void ASTNS::ParamList_OPT::accept(ASTNS::PListBVisitor *v) { v->visitParamList_OPT(this); }
 bool ASTNS::ParamList_OPT::empty() { return form == Form::EMPTY; }
+ASTNS::ParamSegment::ParamSegment(std::unique_ptr<PListB> paramsegment, Token comma, std::unique_ptr<PListB> anotherparam): paramsegment(std::move(paramsegment)), comma(comma), anotherparam(std::move(anotherparam)), form(ASTNS::ParamSegment::Form::ATA) {}
+void ASTNS::ParamSegment::accept(ASTNS::PListBVisitor *v) { v->visitParamSegment(this); }
+bool ASTNS::ParamSegment::empty() { return false; }
 ASTNS::PrimaryExpr::PrimaryExpr(Token value): value(value), form(ASTNS::PrimaryExpr::Form::T) {}
 ASTNS::PrimaryExpr::PrimaryExpr(Token oparn, std::unique_ptr<ExprB> expr, Token cparn): oparn(oparn), expr(std::move(expr)), cparn(cparn), form(ASTNS::PrimaryExpr::Form::TAT) {}
 void ASTNS::PrimaryExpr::accept(ASTNS::ExprBVisitor *v) { v->visitPrimaryExpr(this); }
@@ -112,9 +118,12 @@ ASTNS::VarStmtItem::VarStmtItem(Token name, Token equal, std::unique_ptr<ExprB> 
 ASTNS::VarStmtItem::VarStmtItem(Token name): name(name), form(ASTNS::VarStmtItem::Form::T) {}
 void ASTNS::VarStmtItem::accept(ASTNS::VStmtIBVisitor *v) { v->visitVarStmtItem(this); }
 bool ASTNS::VarStmtItem::empty() { return false; }
-ASTNS::VarStmtItemList::VarStmtItemList(std::unique_ptr<VStmtIB> varstmtitemlist, Token comma, std::unique_ptr<VStmtIB> anothervarstmtitem): varstmtitemlist(std::move(varstmtitemlist)), comma(comma), anothervarstmtitem(std::move(anothervarstmtitem)), form(ASTNS::VarStmtItemList::Form::ATA) {}
+ASTNS::VarStmtItemList::VarStmtItemList(std::unique_ptr<VStmtIB> varstmtitemsegment, Token comma): varstmtitemsegment(std::move(varstmtitemsegment)), comma(comma), form(ASTNS::VarStmtItemList::Form::AT) {}
 void ASTNS::VarStmtItemList::accept(ASTNS::VStmtIBVisitor *v) { v->visitVarStmtItemList(this); }
 bool ASTNS::VarStmtItemList::empty() { return false; }
+ASTNS::VarStmtItemSegment::VarStmtItemSegment(std::unique_ptr<VStmtIB> varstmtitemsegment, Token comma, std::unique_ptr<VStmtIB> anothervarstmtitem): varstmtitemsegment(std::move(varstmtitemsegment)), comma(comma), anothervarstmtitem(std::move(anothervarstmtitem)), form(ASTNS::VarStmtItemSegment::Form::ATA) {}
+void ASTNS::VarStmtItemSegment::accept(ASTNS::VStmtIBVisitor *v) { v->visitVarStmtItemSegment(this); }
+bool ASTNS::VarStmtItemSegment::empty() { return false; }
 // This code was autogenerated - see the utils/ directory
 
 // ASTCPP END
