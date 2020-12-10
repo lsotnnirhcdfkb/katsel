@@ -16,6 +16,7 @@ void E0000(Token const &tok)
     );
     e.report();
 }
+
 // E0001 - unterm-charlit
 // | The lexer found an unterminated character literal. A common
 // | cause of this is character literals that are more than one
@@ -28,6 +29,7 @@ void E0001(Token const &tok)
     );
     e.report();
 }
+
 // E0002 - unterm-strlit
 // | The lexer found a newline in a string literal, thereby
 // | making it unterminated. Newlines that need to appear inside
@@ -40,6 +42,7 @@ void E0002(Token const &tok)
     );
     e.report();
 }
+
 // E0003 - invalid-intlit-base
 // | The lexer found an integer literal that has an invalid base.
 void E0003(Token const &tok)
@@ -50,6 +53,7 @@ void E0003(Token const &tok)
     );
     e.report();
 }
+
 // E0004 - nondecimal-floatlit
 // | The lexer found a non-decimal floating point literal.
 void E0004(Token const &tok)
@@ -60,6 +64,7 @@ void E0004(Token const &tok)
     );
     e.report();
 }
+
 // E0005 - invalid-char-floatlit
 // | Invalid character for floating point literal
 void E0005(Token const &tok)
@@ -70,6 +75,7 @@ void E0005(Token const &tok)
     );
     e.report();
 }
+
 // E0006 - invalid-char-for-base
 // | Invalid character in integer literal for base
 void E0006(Token const &tok)
@@ -80,6 +86,7 @@ void E0006(Token const &tok)
     );
     e.report();
 }
+
 // E0007 - intlit-no-digits
 // | Integer literal with no digits
 void E0007(Token const &tok)
@@ -90,6 +97,7 @@ void E0007(Token const &tok)
     );
     e.report();
 }
+
 // E0100 - unrecoverable-invalid-syntax
 // | The parser found an unrecoverable syntax error.
 void E0100(Token const &last, Token const &lookahead, std::vector<std::string> const &expectations)
@@ -107,6 +115,7 @@ for (std::string const &expectation : expectations)
 e.underline(un);
     e.report();
 }
+
 // E0101 - simple-invalid-syntax
 // | The parser found a syntax error and recovered by inserting,
 // | substituting, or removing a single token.
@@ -126,6 +135,7 @@ for (std::string const &expectation : expectations)
 e.underline(un);
     e.report();
 }
+
 // E0102 - panicking-invalid-syntax
 // | The parser found a syntax error and recovered via panic mode
 // | error recovery.
@@ -147,6 +157,7 @@ for (std::string const &expectation : expectations)
 e.underline(un);
     e.report();
 }
+
 // E0200 - redecl-sym
 // | Symbol was redeclared
 void E0200(Token const &name, IR::Value *val)
@@ -161,6 +172,7 @@ if (asf)
     .note("previous declaration"));
     e.report();
 }
+
 // E0201 - lhs-unsupported-op
 // | Left hand side of binary expression does not support
 // | operator
@@ -182,6 +194,7 @@ void E0201(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &op)
     );
     e.report();
 }
+
 // E0203 - unary-unsupported-op
 // | Operand of unary expression does not support operator
 void E0203(IR::ASTValue const &operand, Token const &_operator)
@@ -200,6 +213,7 @@ void E0203(IR::ASTValue const &operand, Token const &_operator)
     );
     e.report();
 }
+
 // E0204 - call-noncallable
 // | Non-callable value called
 void E0204(IR::ASTValue const &func, Token const &oparn)
@@ -216,6 +230,7 @@ void E0204(IR::ASTValue const &func, Token const &oparn)
     );
     e.report();
 }
+
 // E0205 - wrong-num-args
 // | Wrong number of arguments to function call
 void E0205(IR::ASTValue const &func, Token const &oparn, ASTNS::ArgB *argsast, std::vector<IR::ASTValue> const &args)
@@ -231,6 +246,7 @@ void E0205(IR::ASTValue const &func, Token const &oparn, ASTNS::ArgB *argsast, s
     );
     e.report();
 }
+
 // E0206 - incorrect-arg
 // | Incorrect argument to function call
 void E0206(IR::ASTValue const &arg, IR::Type const *expected)
@@ -243,6 +259,7 @@ void E0206(IR::ASTValue const &arg, IR::Type const *expected)
     );
     e.report();
 }
+
 // E0207 - undecl-symb
 // | undeclared symbol
 void E0207(Token const &sym)
@@ -253,6 +270,7 @@ void E0207(Token const &sym)
     );
     e.report();
 }
+
 // E0208 - confl-tys-ternexpr
 // | Conflicting types for ternary expression
 void E0208(IR::ASTValue const &truev, IR::ASTValue const &falsev, Token const &quest)
@@ -269,6 +287,7 @@ void E0208(IR::ASTValue const &truev, IR::ASTValue const &falsev, Token const &q
     );
     e.report();
 }
+
 // E0209 - assign-invalid-lhs
 // | Invalid assignment target
 void E0209(Token const &eq, IR::ASTValue const &lhs)
@@ -281,6 +300,7 @@ void E0209(Token const &eq, IR::ASTValue const &lhs)
     );
     e.report();
 }
+
 // E0210 - assign-conflict-tys
 // | Assignment target and value do not have same type
 void E0210(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &eq)
@@ -297,6 +317,7 @@ void E0210(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &eq)
     );
     e.report();
 }
+
 // E0211 - ret-val-void-fun
 // | Return statement in void function
 void E0211(IR::ASTValue const &val, IR::Function *f)
@@ -310,6 +331,7 @@ void E0211(IR::ASTValue const &val, IR::Function *f)
     );
     e.report();
 }
+
 // E0212 - conflict-ret-ty
 // | Conflicting return types
 void E0212(IR::ASTValue const &val, IR::Function *f)
@@ -323,6 +345,7 @@ void E0212(IR::ASTValue const &val, IR::Function *f)
     );
     e.report();
 }
+
 // E0213 - ret-void-nonvoid-fun
 // | Void return in non-void function
 void E0213(ASTNS::AST *retstmt, IR::Function *f)
@@ -336,6 +359,7 @@ void E0213(ASTNS::AST *retstmt, IR::Function *f)
     );
     e.report();
 }
+
 // E0214 - redecl-var
 // | Redeclaration of variable
 void E0214(Token const &name, IR::Register const *prev)
@@ -349,6 +373,7 @@ void E0214(Token const &name, IR::Register const *prev)
     );
     e.report();
 }
+
 // E0215 - conflict-var-init-ty
 // | Conflicting type for variable initialization
 void E0215(Token const &eq, Token const &name, IR::ASTValue const &init, IR::Register const *var)
@@ -365,6 +390,7 @@ void E0215(Token const &eq, Token const &name, IR::ASTValue const &init, IR::Reg
     );
     e.report();
 }
+
 // E0216 - invalid-cast
 // | Invalid cast
 void E0216(ASTNS::AST *ast, IR::ASTValue v, IR::Type const *newty)
@@ -375,6 +401,7 @@ void E0216(ASTNS::AST *ast, IR::ASTValue v, IR::Type const *newty)
     );
     e.report();
 }
+
 // E0217 - conflict-tys-binary-op
 // | Conflicting types to binary operator
 void E0217(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &op)
@@ -391,6 +418,7 @@ void E0217(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &op)
     );
     e.report();
 }
+
 // E0218 - redecl-param
 // | Redeclaraion of parameter in function declaration
 void E0218(Token const &name, IR::Register const *prev)
@@ -404,6 +432,7 @@ void E0218(Token const &name, IR::Register const *prev)
     );
     e.report();
 }
+
 // This code was autogenerated - see the utils/ directory
 
 // ERRCPP END

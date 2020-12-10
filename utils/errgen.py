@@ -64,7 +64,7 @@ def genCpp():
 
         output.append(         '    e.report();\n')
 
-        output.append(         '}\n')
+        output.append(         '}\n\n')
 
     return ''.join(output)
 
