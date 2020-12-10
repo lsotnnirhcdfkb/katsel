@@ -1,3 +1,4 @@
 
 
-c'f  // expect compile error (unterm-charlit)
+'f  // expect compile error (unterm-charlit)
+'fjwei' // expect compile error (multichar-charlit)

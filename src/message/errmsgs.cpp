@@ -98,6 +98,17 @@ void E0007(Token const &tok)
     e.report();
 }
 
+// E0008 - multichar-charlit
+// | Character literal with more than one character
+void E0008(Token const &tok)
+{
+    Error e = Error(Error::MsgType::ERROR, tok, "E0008 (multichar-charlit)");
+    e.underline(Error::Underline(tok, '^')
+        .error("character literal with more than one character")
+    );
+    e.report();
+}
+
 // E0100 - unrecoverable-invalid-syntax
 // | The parser found an unrecoverable syntax error.
 void E0100(Token const &last, Token const &lookahead, std::vector<std::string> const &expectations)

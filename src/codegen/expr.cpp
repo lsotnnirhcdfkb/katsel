@@ -253,7 +253,7 @@ makeIntLit:
             return;
 
         case TokenType::CHARLIT:
-            ret = IR::ASTValue(cg.context.getConstInt(cg.context.getBuiltinType(IR::BuiltinType::Builtins::CHAR), *(ast->value.start + 2)), ast);
+            ret = IR::ASTValue(cg.context.getConstInt(cg.context.getBuiltinType(IR::BuiltinType::Builtins::CHAR), *(ast->value.start + 1)), ast);
             return;
 
         case TokenType::STRINGLIT:

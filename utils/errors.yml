@@ -84,6 +84,17 @@ errors:
       - ['tok', *under0, [
           ['error', '"integer literal with no digits"']
         ]]
+  -
+    code: 8
+    name: multichar-charlit
+    desc: Character literal with more than one character
+    inputs: 'Token const &tok'
+    location: tok
+    highlights:
+      - ['tok', *under0, [
+          ['error', '"character literal with more than one character"']
+        ]]
+
   - code: 100
     name: unrecoverable-invalid-syntax
     desc: The parser found an unrecoverable syntax error.

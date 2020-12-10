@@ -2,16 +2,16 @@
 
 fun uint32 main()
 {
-    printunsigned((uint32) c'A'); // expect output 65
-    printunsigned((uint32) c'B'); // expect output 66
-    printunsigned((uint32) c'C'); // expect output 67
-    printunsigned((uint32) c'D'); // expect output 68
-    printunsigned((uint32) c'E'); // expect output 69
-    printchar(c'A'); // expect output A
-    printchar(c'B'); // expect output B
-    printchar(c'C'); // expect output C
-    printchar(c'D'); // expect output D
-    printchar(c'E'); // expect output E
+    printunsigned((uint32) 'A'); // expect output 65
+    printunsigned((uint32) 'B'); // expect output 66
+    printunsigned((uint32) 'C'); // expect output 67
+    printunsigned((uint32) 'D'); // expect output 68
+    printunsigned((uint32) 'E'); // expect output 69
+    printchar('A'); // expect output A
+    printchar('B'); // expect output B
+    printchar('C'); // expect output C
+    printchar('D'); // expect output D
+    printchar('E'); // expect output E
 }
 
 fun void printunsigned(uint32 i);

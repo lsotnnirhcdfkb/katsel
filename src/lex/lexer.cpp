@@ -357,28 +357,25 @@ Token Lexer::nextToken()
                   //        if matches double ? (is double so check if it has equal after it                    ) : (is not double so check if it has equal after it    )
         case '<': return makeToken(match('<') ? (match('=') ? TokenType::DOUBLELESSEQUAL : TokenType::DOUBLELESS) : (match('=') ? TokenType::LESSEQUAL : TokenType::LESS));
 
-        case 'c': // check for char literal
-                  if (match('\'') || match('"'))
-                  { // should consume quote
-                      char startingQuote = consumed();
-                      advance(); // consume character
-
-                      if (!match(startingQuote)) return makeErrorToken(ERR_UNTERM_CHARLIT);
-
-                      return makeToken(TokenType::CHARLIT);
-                  }
-                  break;
-
-        case '"':
         case '\'':
-                  // c is the starting string thing
-                  while (peek() != c && !atEnd() && peek() != '\n')
+        case '"':
+                  char startingQuote = consumed();
+                  while (peek() != startingQuote && !atEnd() && peek() != '\n')
                   {
                       advance();
                   }
 
-                  if (peek() != c) return makeErrorToken(ERR_UNTERM_STRLIT);
-                  advance(); // consume closing quote/apostrophe
+                  if (startingQuote == '"' && peek() != '"') return makeErrorToken(ERR_UNTERM_STRLIT);
+                  else if (startingQuote == '\'' && peek() != '\'') return makeErrorToken(ERR_UNTERM_CHARLIT);
+
+                  advance(); // consume closing quote
+
+                  if (startingQuote == '\'')
+                  {
+                      if (std::distance(start, end) != 3) return makeErrorToken(ERR_MULTICHAR_CHARLIT);
+                      else return makeToken(TokenType::CHARLIT);
+                  }
+
                   return makeToken(TokenType::STRINGLIT);
     }
 
@@ -401,7 +398,7 @@ Token Lexer::nextToken()
                 case 'x': base = IntBase::hex; break;
                 case 'b': base = IntBase::bin; break;
                 default:
-                    base = IntBase::inv;
+                          base = IntBase::inv;
             }
 
         char next;
@@ -418,7 +415,7 @@ Token Lexer::nextToken()
                 ++ndigits;
             }
         }
-        
+
         if (isfloat)
         {
             if (base != IntBase::dec) return makeErrorToken(ERR_NONDECIMAL_FLOATLIT);
