@@ -1298,9 +1298,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     case TokenType::COMMA:
                         shift(p, lasttok, lookahead, stack, steps, 32); break;
-                    default:
+                    case TokenType::CPARN:
                         reduceSkip<ASTNS::ParamList>(stack);
                         break;
+                    default:
+                        if (istrial) return false;
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::COMMA), "parameter list"), format("expected % for %", stringifyTokenType(TokenType::COMMA), "parameter list"), format("expected % to terminate %", stringifyTokenType(TokenType::CPARN), "parameter list")  });
                 }
                 break;
             case 29:
@@ -1340,7 +1343,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 21); break;
                     case TokenType::CHAR:
                         shift(p, lasttok, lookahead, stack, steps, 23); break;
-                    default:
+                    case TokenType::CPARN:
                         {
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::ParamSegment>(stack));
@@ -1368,6 +1371,9 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 15); break;
                     case TokenType::UINT8:
                         shift(p, lasttok, lookahead, stack, steps, 12); break;
+                    default:
+                        if (istrial) return false;
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "another parameter", "parameter list"), format("expected % to terminate %", stringifyTokenType(TokenType::CPARN), "parameter list")  });
                 }
                 break;
             case 33:
@@ -3166,9 +3172,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     case TokenType::COMMA:
                         shift(p, lasttok, lookahead, stack, steps, 149); break;
-                    default:
+                    case TokenType::SEMICOLON:
                         reduceSkip<ASTNS::VarStmtItemList>(stack);
                         break;
+                    default:
+                        if (istrial) return false;
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::COMMA), "variable statement initialization list"), format("expected % for %", stringifyTokenType(TokenType::COMMA), "variable statement initialization list"), format("expected % to terminate %", stringifyTokenType(TokenType::SEMICOLON), "variable statement initialization list")  });
                 }
                 break;
             case 118:
@@ -3616,9 +3625,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     case TokenType::COMMA:
                         shift(p, lasttok, lookahead, stack, steps, 154); break;
-                    default:
+                    case TokenType::CPARN:
                         reduceSkip<ASTNS::ArgList>(stack);
                         break;
+                    default:
+                        if (istrial) return false;
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::COMMA), "argument list"), format("expected % for %", stringifyTokenType(TokenType::COMMA), "argument list"), format("expected % to terminate %", stringifyTokenType(TokenType::CPARN), "argument list")  });
                 }
                 break;
             case 146:
@@ -3661,7 +3673,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     case TokenType::IDENTIFIER:
                         shift(p, lasttok, lookahead, stack, steps, 119); break;
-                    default:
+                    case TokenType::SEMICOLON:
                         {
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::VarStmtItemSegment>(stack));
@@ -3669,6 +3681,9 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(getGoto<ASTNS::VarStmtItemList>(stack.back().state), std::move(push));
                         }
                         break;
+                    default:
+                        if (istrial) return false;
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "another variable statement initialization", "variable statement initialization list"), format("expected % to terminate %", stringifyTokenType(TokenType::SEMICOLON), "variable statement initialization list")  });
                 }
                 break;
             case 150:
@@ -3786,7 +3801,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 77); break;
                     case TokenType::CHARLIT:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    default:
+                    case TokenType::CPARN:
                         {
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::ArgSegment>(stack));
@@ -3818,6 +3833,9 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 66); break;
                     case TokenType::TRUELIT:
                         shift(p, lasttok, lookahead, stack, steps, 71); break;
+                    default:
+                        if (istrial) return false;
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "another argument", "argument list"), format("expected % to terminate %", stringifyTokenType(TokenType::CPARN), "argument list")  });
                 }
                 break;
             case 155:

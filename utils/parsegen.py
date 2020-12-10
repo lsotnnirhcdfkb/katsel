@@ -416,8 +416,8 @@ def listRule(sym, name, base, delimit=None):
     if delimit:
         symsegment = sym + 'Segment'
         nt(symlist, name + ' list', base, panickable=True)
-        rule(symlist, f'${symsegment}:{symsegment.lower()}')
-        rule(symlist, f'${symsegment}:{symsegment.lower()} {delimit}:{delimit.lower()}')
+        rule(symlist, f'${symsegment}:{symsegment.lower()}', special='nodefaultreduce')
+        rule(symlist, f'${symsegment}:{symsegment.lower()} {delimit}:{delimit.lower()}', special='nodefaultreduce')
 
         nt(symsegment, name + ' list', base, panickable=True)
         rule(symsegment, f'${symsegment}:{symsegment.lower()} {f"{delimit}:{delimit.lower()}" if delimit is not None else ""} ${anothersym}:{anothersym.lower()}')
