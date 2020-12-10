@@ -665,26 +665,25 @@ void Error::report() const
 {
     if (errformat == Format::HUMAN)
     {
+        std::string msgtypestr;
         switch (type)
         {
             case Error::MsgType::ERROR:
-                std::cerr << attr(A_BOLD A_FG_RED, "Error");
+                msgtypestr = attr(A_BOLD A_FG_RED, "Error");
                 break;
             case Error::MsgType::WARNING:
-                std::cerr << attr(A_BOLD A_FG_MAGENTA, "Warning");
+                msgtypestr = attr(A_BOLD A_FG_MAGENTA, "Warning");
                 break;
         }
         std::string::const_iterator const fstart = location.file->source.cbegin();
-        std::cerr << " at " << attr(A_FG_CYAN, location.file->filename, true) << ":" << getLineN(fstart, location.start) << ":" << getColN(fstart, location.start) << A_RESET << ": " << message << "\n";
+        std::cerr << format("% at %:%:%" A_RESET ": %\n", msgtypestr, attr(A_FG_CYAN, location.file->filename, true), getLineN(fstart, location.start), getColN(fstart, location.start), message);
 
         using showloc = std::pair<const File*, int>; // in order to have a copy assignment constructor for sorting
         std::vector<showloc> showlocs;
 
         for (Span const &span : spans)
-        {
             for (int i = getLineN(span.file.source.begin(), span.start); i < getLineN(span.file.source.begin(), span.end); ++i)
                 showlocs.push_back(showloc(&span.file, i));
-        }
 
         for (Error::Underline const &u : underlines)
         {
@@ -930,10 +929,10 @@ Error::Underline& Error::Underline::addmsg(std::string const &type, char const *
 // other internal errors {{{1
 void reportAbortNoh(std::string const &message)
 {
-    std::cerr << "!!! " << attr(A_BOLD A_FG_RED, "Internal error") << " !!! - " << message << std::endl;
-    std::cerr << "note: this is a bug - whether or not it has a bug report is unknown" << std::endl;
-    std::cerr << "    - bugs can be reported on the Katsel GitHub page: https://github.com/hpj2ltxry43b/katsel/issues" << std::endl;
-    std::cerr << "    - please search far and wide (on the GitHub Issues page) before reporting a bug, so that there are no duplicate bug reports!" << std::endl;
+    std::cerr << "!!! " << attr(A_BOLD A_FG_RED, "Unrecoverable brokenness discovered in compiler") << " !!!: " << attr(A_BOLD, message) << std::endl;
+    std::cerr << "!!! this is a bug - whether or not it has a bug report is unknown" << std::endl;
+    std::cerr << "!!! bugs can be reported on the Katsel GitHub page: https://github.com/hpj2ltxry43b/katsel/issues" << std::endl;
+    std::cerr << "!!! please search far and wide (on the GitHub page) before reporting a bug, so that there are no duplicate bug reports!" << std::endl;
     std::cerr << attr(A_BOLD, "Aborting...") << std::endl;
     std::abort();
 }
