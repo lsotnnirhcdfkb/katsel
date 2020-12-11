@@ -27,9 +27,10 @@ IR::ASTValue IR::VoidType::castTo(CodeGenNS::Context &, IR::ASTValue v, ASTNS::A
     ERR_INVALID_CAST(ast, v, this);
     return ASTValue();
 }
-IR::ASTValue IR::VoidType::isTrue(CodeGenNS::Context &, IR::ASTValue )
+IR::ASTValue IR::VoidType::isTrue(CodeGenNS::Context &, IR::ASTValue v)
 {
-    fCalled("VoidType::isTrue");
+    ERR_NO_IS_TRUTHY(v);
+    return ASTValue();
 }
 
 llvm::Type* IR::VoidType::toLLVMType(llvm::LLVMContext &con) const
@@ -72,9 +73,10 @@ IR::ASTValue IR::FunctionType::castTo(CodeGenNS::Context &, IR::ASTValue v, ASTN
     return ASTValue();
 }
 
-IR::ASTValue IR::FunctionType::isTrue(CodeGenNS::Context &, IR::ASTValue )
+IR::ASTValue IR::FunctionType::isTrue(CodeGenNS::Context &, IR::ASTValue v)
 {
-    fCalled("FunctionType::isTrue");
+    ERR_NO_IS_TRUTHY(v);
+    return ASTValue();
 }
 
 llvm::Type* IR::FunctionType::toLLVMType(llvm::LLVMContext &con) const

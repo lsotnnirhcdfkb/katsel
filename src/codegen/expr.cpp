@@ -286,6 +286,12 @@ void CodeGenNS::ExprCodeGen::visitTernaryExpr(ASTNS::TernaryExpr *ast)
         return;
     }
     cond = cond.type()->isTrue(cg.context, cond);
+    if (!cond)
+    {
+        cg.errored = true;
+        ret = IR::ASTValue();
+        return;
+    }
 
     IR::Block *trueb  = cg.context.curFunc->addBlock("ternary_true");
     IR::Block *falseb = cg.context.curFunc->addBlock("ternary_false");

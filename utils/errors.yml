@@ -394,3 +394,13 @@ errors:
       - ['prev->defAST()', *under1, [
           ['note', '"previous declaration"']
         ]]
+  -
+    code: 219
+    name: no-is-truthy
+    desc: Cannot determine value's truthiness
+    inputs: 'IR::ASTValue const &v'
+    location: v
+    highlights:
+      - ['v', *under0, [
+          ['error', 'format("determination of truthiness of value of invalid type %", v.type())']
+        ]]
