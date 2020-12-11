@@ -1,0 +1,38 @@
+
+
+fun uint32 main()
+{
+    var uint32 a;
+
+    {
+        var uint32 b;
+
+        {
+            var uint32 c;
+
+            {
+                var uint32 d;
+
+                a;
+                b;
+                c;
+                d;
+            }
+
+            a;
+            b;
+            c;
+            d; // expect compile error (undecl-symb)
+        }
+
+        a;
+        b;
+        c; // expect compile error (undecl-symb)
+        d; // expect compile error (undecl-symb)
+    }
+
+    a;
+    b; // expect compile error (undecl-symb)
+    c; // expect compile error (undecl-symb)
+    d; // expect compile error (undecl-symb)
+}
