@@ -17,90 +17,130 @@ template <> size_t getGoto<ASTNS::CU>(size_t state)
             reportAbortNoh("retrieve goto of nonterminal CU in invalid state");
     }
 }
-template <> size_t getGoto<ASTNS::DeclList>(size_t state)
+template <> size_t getGoto<ASTNS::AnotherParam>(size_t state)
 {
     switch (state)
     {
-        case 0:
-            return 2;
+        case 32:
+            return 37;
         default:
-            reportAbortNoh("retrieve goto of nonterminal DeclList in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal AnotherParam in invalid state");
     }
 }
-template <> size_t getGoto<ASTNS::AnotherDecl>(size_t state)
-{
-    switch (state)
-    {
-        case 2:
-            return 6;
-        default:
-            reportAbortNoh("retrieve goto of nonterminal AnotherDecl in invalid state");
-    }
-}
-template <> size_t getGoto<ASTNS::Decl>(size_t state)
-{
-    switch (state)
-    {
-        case 0:
-            return 3;
-        case 2:
-            return 7;
-        default:
-            reportAbortNoh("retrieve goto of nonterminal Decl in invalid state");
-    }
-}
-template <> size_t getGoto<ASTNS::Function>(size_t state)
-{
-    switch (state)
-    {
-        case 0:
-        case 2:
-            return 4;
-        default:
-            reportAbortNoh("retrieve goto of nonterminal Function in invalid state");
-    }
-}
-template <> size_t getGoto<ASTNS::TypeV>(size_t state)
-{
-    switch (state)
-    {
-        case 5:
-            return 8;
-        default:
-            reportAbortNoh("retrieve goto of nonterminal TypeV in invalid state");
-    }
-}
-template <> size_t getGoto<ASTNS::ParamList_OPT>(size_t state)
+template <> size_t getGoto<ASTNS::Param>(size_t state)
 {
     switch (state)
     {
         case 25:
-            return 26;
+            return 29;
+        case 32:
+            return 38;
         default:
-            reportAbortNoh("retrieve goto of nonterminal ParamList_OPT in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal Param in invalid state");
     }
 }
-template <> size_t getGoto<ASTNS::Block>(size_t state)
+template <> size_t getGoto<ASTNS::ParamSegment>(size_t state)
 {
     switch (state)
     {
-        case 31:
-            return 34;
-        case 36:
-        case 40:
-            return 46;
+        case 25:
+            return 28;
         default:
-            reportAbortNoh("retrieve goto of nonterminal Block in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal ParamSegment in invalid state");
     }
 }
-template <> size_t getGoto<ASTNS::StmtList>(size_t state)
+template <> size_t getGoto<ASTNS::ParamList>(size_t state)
 {
     switch (state)
     {
-        case 36:
-            return 40;
+        case 25:
+            return 27;
         default:
-            reportAbortNoh("retrieve goto of nonterminal StmtList in invalid state");
+            reportAbortNoh("retrieve goto of nonterminal ParamList in invalid state");
+    }
+}
+template <> size_t getGoto<ASTNS::AnotherArg>(size_t state)
+{
+    switch (state)
+    {
+        case 154:
+            return 159;
+        default:
+            reportAbortNoh("retrieve goto of nonterminal AnotherArg in invalid state");
+    }
+}
+template <> size_t getGoto<ASTNS::Arg>(size_t state)
+{
+    switch (state)
+    {
+        case 115:
+            return 146;
+        case 154:
+            return 160;
+        default:
+            reportAbortNoh("retrieve goto of nonterminal Arg in invalid state");
+    }
+}
+template <> size_t getGoto<ASTNS::ArgSegment>(size_t state)
+{
+    switch (state)
+    {
+        case 115:
+            return 145;
+        default:
+            reportAbortNoh("retrieve goto of nonterminal ArgSegment in invalid state");
+    }
+}
+template <> size_t getGoto<ASTNS::ArgList>(size_t state)
+{
+    switch (state)
+    {
+        case 115:
+            return 144;
+        default:
+            reportAbortNoh("retrieve goto of nonterminal ArgList in invalid state");
+    }
+}
+template <> size_t getGoto<ASTNS::AnotherVarStmtItem>(size_t state)
+{
+    switch (state)
+    {
+        case 149:
+            return 155;
+        default:
+            reportAbortNoh("retrieve goto of nonterminal AnotherVarStmtItem in invalid state");
+    }
+}
+template <> size_t getGoto<ASTNS::VarStmtItem>(size_t state)
+{
+    switch (state)
+    {
+        case 85:
+            return 118;
+        case 149:
+            return 156;
+        default:
+            reportAbortNoh("retrieve goto of nonterminal VarStmtItem in invalid state");
+    }
+}
+template <> size_t getGoto<ASTNS::VarStmtItemSegment>(size_t state)
+{
+    switch (state)
+    {
+        case 85:
+            return 117;
+        default:
+            reportAbortNoh("retrieve goto of nonterminal VarStmtItemSegment in invalid state");
+    }
+}
+template <> size_t getGoto<ASTNS::VarStmtItemList>(size_t state)
+{
+    switch (state)
+    {
+        case 85:
+            return 116;
+        default:
+            reportAbortNoh("retrieve goto of nonterminal VarStmtItemList in invalid state");
     }
 }
 template <> size_t getGoto<ASTNS::AnotherStmt>(size_t state)
@@ -125,6 +165,68 @@ template <> size_t getGoto<ASTNS::Stmt>(size_t state)
             reportAbortNoh("retrieve goto of nonterminal Stmt in invalid state");
     }
 }
+template <> size_t getGoto<ASTNS::StmtList>(size_t state)
+{
+    switch (state)
+    {
+        case 36:
+            return 40;
+        default:
+            reportAbortNoh("retrieve goto of nonterminal StmtList in invalid state");
+    }
+}
+template <> size_t getGoto<ASTNS::AnotherDecl>(size_t state)
+{
+    switch (state)
+    {
+        case 2:
+            return 6;
+        default:
+            reportAbortNoh("retrieve goto of nonterminal AnotherDecl in invalid state");
+    }
+}
+template <> size_t getGoto<ASTNS::Decl>(size_t state)
+{
+    switch (state)
+    {
+        case 0:
+            return 3;
+        case 2:
+            return 7;
+        default:
+            reportAbortNoh("retrieve goto of nonterminal Decl in invalid state");
+    }
+}
+template <> size_t getGoto<ASTNS::DeclList>(size_t state)
+{
+    switch (state)
+    {
+        case 0:
+            return 2;
+        default:
+            reportAbortNoh("retrieve goto of nonterminal DeclList in invalid state");
+    }
+}
+template <> size_t getGoto<ASTNS::ParamList_OPT>(size_t state)
+{
+    switch (state)
+    {
+        case 25:
+            return 26;
+        default:
+            reportAbortNoh("retrieve goto of nonterminal ParamList_OPT in invalid state");
+    }
+}
+template <> size_t getGoto<ASTNS::ArgList_OPT>(size_t state)
+{
+    switch (state)
+    {
+        case 115:
+            return 143;
+        default:
+            reportAbortNoh("retrieve goto of nonterminal ArgList_OPT in invalid state");
+    }
+}
 template <> size_t getGoto<ASTNS::StmtList_OPT>(size_t state)
 {
     switch (state)
@@ -133,6 +235,40 @@ template <> size_t getGoto<ASTNS::StmtList_OPT>(size_t state)
             return 39;
         default:
             reportAbortNoh("retrieve goto of nonterminal StmtList_OPT in invalid state");
+    }
+}
+template <> size_t getGoto<ASTNS::Function>(size_t state)
+{
+    switch (state)
+    {
+        case 0:
+        case 2:
+            return 4;
+        default:
+            reportAbortNoh("retrieve goto of nonterminal Function in invalid state");
+    }
+}
+template <> size_t getGoto<ASTNS::TypeV>(size_t state)
+{
+    switch (state)
+    {
+        case 5:
+            return 8;
+        default:
+            reportAbortNoh("retrieve goto of nonterminal TypeV in invalid state");
+    }
+}
+template <> size_t getGoto<ASTNS::Block>(size_t state)
+{
+    switch (state)
+    {
+        case 31:
+            return 34;
+        case 36:
+        case 40:
+            return 46;
+        default:
+            reportAbortNoh("retrieve goto of nonterminal Block in invalid state");
     }
 }
 template <> size_t getGoto<ASTNS::EmptyStmt>(size_t state)
@@ -196,16 +332,6 @@ template <> size_t getGoto<ASTNS::TypeNV>(size_t state)
             reportAbortNoh("retrieve goto of nonterminal TypeNV in invalid state");
     }
 }
-template <> size_t getGoto<ASTNS::VarStmtItemList>(size_t state)
-{
-    switch (state)
-    {
-        case 85:
-            return 116;
-        default:
-            reportAbortNoh("retrieve goto of nonterminal VarStmtItemList in invalid state");
-    }
-}
 template <> size_t getGoto<ASTNS::Expr>(size_t state)
 {
     switch (state)
@@ -229,38 +355,6 @@ template <> size_t getGoto<ASTNS::Expr>(size_t state)
             reportAbortNoh("retrieve goto of nonterminal Expr in invalid state");
     }
 }
-template <> size_t getGoto<ASTNS::VarStmtItemSegment>(size_t state)
-{
-    switch (state)
-    {
-        case 85:
-            return 117;
-        default:
-            reportAbortNoh("retrieve goto of nonterminal VarStmtItemSegment in invalid state");
-    }
-}
-template <> size_t getGoto<ASTNS::AnotherVarStmtItem>(size_t state)
-{
-    switch (state)
-    {
-        case 149:
-            return 155;
-        default:
-            reportAbortNoh("retrieve goto of nonterminal AnotherVarStmtItem in invalid state");
-    }
-}
-template <> size_t getGoto<ASTNS::VarStmtItem>(size_t state)
-{
-    switch (state)
-    {
-        case 85:
-            return 118;
-        case 149:
-            return 156;
-        default:
-            reportAbortNoh("retrieve goto of nonterminal VarStmtItem in invalid state");
-    }
-}
 template <> size_t getGoto<ASTNS::BuiltinTypeNoVoid>(size_t state)
 {
     switch (state)
@@ -273,100 +367,6 @@ template <> size_t getGoto<ASTNS::BuiltinTypeNoVoid>(size_t state)
             return 11;
         default:
             reportAbortNoh("retrieve goto of nonterminal BuiltinTypeNoVoid in invalid state");
-    }
-}
-template <> size_t getGoto<ASTNS::ArgList>(size_t state)
-{
-    switch (state)
-    {
-        case 115:
-            return 144;
-        default:
-            reportAbortNoh("retrieve goto of nonterminal ArgList in invalid state");
-    }
-}
-template <> size_t getGoto<ASTNS::ArgSegment>(size_t state)
-{
-    switch (state)
-    {
-        case 115:
-            return 145;
-        default:
-            reportAbortNoh("retrieve goto of nonterminal ArgSegment in invalid state");
-    }
-}
-template <> size_t getGoto<ASTNS::AnotherArg>(size_t state)
-{
-    switch (state)
-    {
-        case 154:
-            return 159;
-        default:
-            reportAbortNoh("retrieve goto of nonterminal AnotherArg in invalid state");
-    }
-}
-template <> size_t getGoto<ASTNS::Arg>(size_t state)
-{
-    switch (state)
-    {
-        case 115:
-            return 146;
-        case 154:
-            return 160;
-        default:
-            reportAbortNoh("retrieve goto of nonterminal Arg in invalid state");
-    }
-}
-template <> size_t getGoto<ASTNS::ArgList_OPT>(size_t state)
-{
-    switch (state)
-    {
-        case 115:
-            return 143;
-        default:
-            reportAbortNoh("retrieve goto of nonterminal ArgList_OPT in invalid state");
-    }
-}
-template <> size_t getGoto<ASTNS::ParamList>(size_t state)
-{
-    switch (state)
-    {
-        case 25:
-            return 27;
-        default:
-            reportAbortNoh("retrieve goto of nonterminal ParamList in invalid state");
-    }
-}
-template <> size_t getGoto<ASTNS::ParamSegment>(size_t state)
-{
-    switch (state)
-    {
-        case 25:
-            return 28;
-        default:
-            reportAbortNoh("retrieve goto of nonterminal ParamSegment in invalid state");
-    }
-}
-template <> size_t getGoto<ASTNS::AnotherParam>(size_t state)
-{
-    switch (state)
-    {
-        case 32:
-            return 37;
-        default:
-            reportAbortNoh("retrieve goto of nonterminal AnotherParam in invalid state");
-    }
-}
-template <> size_t getGoto<ASTNS::Param>(size_t state)
-{
-    switch (state)
-    {
-        case 25:
-            return 29;
-        case 32:
-            return 38;
-        default:
-            reportAbortNoh("retrieve goto of nonterminal Param in invalid state");
     }
 }
 template <> size_t getGoto<ASTNS::AssignmentExpr>(size_t state)
@@ -933,7 +933,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 0:
                switch (lookahead.type)
                {
-                    case TokenType::EOF_:
+                    default:
                         {
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::CU>());
                             stack.emplace_back(getGoto<ASTNS::CU>(stack.back().state), std::move(push));
@@ -941,9 +941,6 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     case TokenType::FUN:
                         shift(p, lasttok, lookahead, stack, steps, 5); break;
-                    default:
-                        if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "compilation unit", "")  });
                 }
                 break;
             case 1:
@@ -960,7 +957,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 2:
                switch (lookahead.type)
                {
-                    case TokenType::EOF_:
+                    default:
                         {
                             auto a0 (popA<ASTNS::DeclList>(stack));
                             std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::CU>(std::move(a0)));
@@ -969,9 +966,6 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     case TokenType::FUN:
                         shift(p, lasttok, lookahead, stack, steps, 5); break;
-                    default:
-                        if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "another declaration", "declaration list"), format("expected % to terminate %", stringifyTokenType(TokenType::EOF_), "compilation unit")  });
                 }
                 break;
             case 3:

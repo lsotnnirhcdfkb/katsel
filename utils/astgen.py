@@ -35,8 +35,8 @@ _asts = []
 for rule in parsegen.grammar:
     if str(rule.symbol) == 'augment': continue
     _astnames.add(str(rule.symbol))
-    _bases.add(rule.base)
-    _astbases[str(rule.symbol)] = rule.base
+    _bases.add(rule.symbol.base)
+    _astbases[str(rule.symbol)] = rule.symbol.base
 
 for base in sorted(_bases):
     asts.append(ASTBaseClass(base))
@@ -46,7 +46,7 @@ for astname in sorted(_astnames):
     forms = []
     matchedrules = [rule for rule in parsegen.grammar if str(rule.symbol) == astname]
 
-    base = matchedrules[0].base
+    base = matchedrules[0].symbol.base
     skiponly = all([r.skip for r in matchedrules])
     if skiponly:
         asts.append(ASTClass(astname, [], [], base, True))
@@ -79,7 +79,7 @@ for astname in sorted(_astnames):
                 formhistart = None
                 formhiend = None
 
-            if isinstance(formhistart, str) and formhistart == 'BEGIN':
+            if isinstance(formhistart, str) and formhistart == 'START':
                 formhistart = form[0]
             if isinstance(formhiend, str) and formhiend == 'END':
                 formhiend = form[-1]

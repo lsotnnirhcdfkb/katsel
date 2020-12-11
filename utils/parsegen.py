@@ -5,10 +5,14 @@ import os, re, colorama, itertools
 # classes {{{1
 # symbols {{{2
 class NonTerminal:
-    def __init__(self, symbol, panickable=None, name=None):
+    nonterminals = []
+    def __init__(self, symbol, panickable, name, base):
         self.symbol = symbol
         self.name = name
         self.panickable = panickable
+        self.base = base
+        assert symbol not in NonTerminal.nonterminals
+        NonTerminal.nonterminals.append(symbol)
 
     def __repr__(self):
         return str(self)
@@ -21,24 +25,6 @@ class NonTerminal:
     def __hash__(self):
         return hash(self.symbol)
 
-    def getName(self):
-        if self.name is None:
-            for sym, rule in _grammar.items():
-                if sym == self.symbol:
-                    self.name = rule['name']
-                    break
-
-        return self.name
-
-    def isPanickable(self):
-        if self.panickable is None:
-            for sym, rule in _grammar.items():
-                if sym == self.symbol:
-                    self.panickable = rule['panickable']
-                    break
-
-        return self.panickable
-
 class Terminal:
     def __init__(self, symbol):
         self.symbol = symbol
@@ -46,10 +32,10 @@ class Terminal:
     def __repr__(self):
         return str(self)
     def __str__(self):
-        return self.symbol[len('TokenType::'):]
+        return self.symbol
 
     def astt(self):
-        return self.symbol
+        return 'TokenType::' + self.symbol
 
     def __hash__(self):
         return hash(self.symbol)
@@ -59,14 +45,13 @@ class Terminal:
 # rule {{{2
 class Rule:
     __num = 0
-    def __init__(self, symbol, expansion, skip, vnames, base, exhistart, exhiend, special):
+    def __init__(self, symbol, expansion, skip, vnames, exhistart, exhiend, special):
         self.symbol = symbol
         self.expansion = expansion
         self.num = Rule.__num
         Rule.__num += 1
         self.skip = skip
         self.vnames = vnames
-        self.base = base
         self.exhistart, self.exhiend = exhistart, exhiend
         self.special = special
 
@@ -77,6 +62,7 @@ class Rule:
 
     def __eq__(self, other):
         return type(self) == type(other) and self.symbol == other.symbol and self.expansion == other.expansion
+
 # item stuff {{{2
 class Item: # an LR1 item
     def __init__(self, rule, index, lookahead):
@@ -397,263 +383,283 @@ def makeParseTable():
 colorama.init()
 
 def nt(sym, name, base, panickable=False):
-    assert sym not in _grammar, f'redefinition of symbol {sym} in grammar'
-    _grammar[sym] = {
-        'name': name,
-        'base': base,
-        'expansions': [],
-        'panickable': panickable,
-    }
+    return NonTerminal(sym, panickable, name, base)
 
-def rule(sym, expansion, histart='BEGIN', hiend='END', special=''):
-    assert sym in _grammar, f'defining an expansion for a symbol {sym} that is not in the grammar (yet)'
-    _grammar[sym]['expansions'].append((expansion, histart, hiend, special))
+def rule(sym, expansion, histart='START', hiend='END', special=''):
+    vnames = []
+    syms = []
 
-def listRule(sym, name, base, delimit=None):
-    symlist = sym + 'List'
-    anothersym = 'Another' + sym
+    for exsym, vname in expansion:
+        syms.append(exsym)
+        vnames.append(vname)
 
-    if delimit:
-        symsegment = sym + 'Segment'
-        nt(symlist, name + ' list', base, panickable=True)
-        rule(symlist, f'${symsegment}:{symsegment.lower()}', special='nodefaultreduce')
-        rule(symlist, f'${symsegment}:{symsegment.lower()} {delimit}:{delimit.lower()}', special='nodefaultreduce')
-
-        nt(symsegment, name + ' list', base, panickable=True)
-        rule(symsegment, f'${symsegment}:{symsegment.lower()} {f"{delimit}:{delimit.lower()}" if delimit is not None else ""} ${anothersym}:{anothersym.lower()}')
-        rule(symsegment, f'${sym}:{sym.lower()}')
+    if len(expansion) == 1 and type(syms[0]) == NonTerminal and sym.base == syms[0].base:
+        skip = True
     else:
-        nt(symlist, name + ' list', base, panickable=True)
-        rule(symlist, f'${symlist}:{symlist.lower()} {f"{delimit}:{delimit.lower()}" if delimit is not None else ""} ${anothersym}:{anothersym.lower()}')
-        rule(symlist, f'${sym}:{sym.lower()}')
+        skip = False
 
-    nt(anothersym, 'another ' + name, base, panickable=True) # useless rule to take advantage of "expected another x"
-    rule(anothersym, f'${sym}:{sym.lower()}')
+    rsp = {}
+    rsp['defaultreduce'] = True
+
+    for sp in special.split(' '):
+        if not len(sp):
+            continue
+
+        v = not sp.startswith('no')
+        rest = sp[2:] if not v else sp
+        if rest in rsp:
+            rsp[rest] = v
+        else:
+            raise Exception(f'invalid special {rest}')
+
+    rule = Rule(sym, syms, skip, vnames, histart, hiend, rsp)
+    grammar.append(rule)
+    return rule
+
+def listRule(sym, base, delimit=None):
+    anothersym = nt('Another' + sym.symbol, 'another ' + sym.name, base, panickable=True) # useless rule to take advantage of "expected another x"
+    rule(anothersym, ((sym, sym.symbol.lower()),))
+
+    symlist = nt(sym.symbol + 'List', sym.name + ' list', base, panickable=True)
+
+    if delimit is not None:
+        symsegment = nt(sym.symbol + 'Segment', sym.name + ' list', base, panickable=True)
+        rule(symsegment, ((symsegment, symsegment.symbol.lower()), (delimit, str(delimit).lower()), (anothersym, anothersym.symbol.lower())))
+        rule(symsegment, ((sym, sym.name.lower()),))
+
+        rule(symlist, ((symsegment, symsegment.symbol.lower()),), special='nodefaultreduce')
+        rule(symlist, ((symsegment, symsegment.symbol.lower()), (delimit, str(delimit).lower())), special='nodefaultreduce')
+    else:
+        rule(symlist, ((symlist, symlist.symbol.lower()), (anothersym, anothersym.symbol.lower())))
+        rule(symlist, ((sym, sym.name.lower()),))
+
+    return symlist
 
 def makeOpt(toopt, newname=None):
     if newname is None:
-        newname = 'optional ' + _grammar[toopt]['name']
-    optnt = toopt + '_OPT'
-    nt(optnt, newname, _grammar[toopt]['base'])
-    rule(optnt, f'${toopt}:{toopt.lower()}')
-    rule(optnt, '', special='nodefaultreduce')
+        newname = 'optional ' + toopt.name
 
-_grammar = {}
+    optsym = toopt.symbol + '_OPT'
+    optnt = nt(optsym, newname, toopt.base)
+    rule(optnt, ((toopt, toopt.symbol.lower()),))
+    rule(optnt, (), special='nodefaultreduce')
+    return optnt
 
-nt('CU', 'compilation unit', 'CUB')
-rule('CU', '$DeclList:dl', special='nodefaultreduce')
-rule('CU', '', special='nodefaultreduce')
-
-listRule('Decl', 'declaration', 'DeclB')
-nt('Decl', 'declaration', 'DeclB', panickable=True)
-rule('Decl', '$Function:_')
-
-nt('Function', 'function declaration', 'DeclB', panickable=True)
-rule('Function', 'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn $ParamList_OPT:paramlist CPARN:cparn $Block:body', 'fun', 'cparn')
-rule('Function', 'FUN:fun $TypeV:retty IDENTIFIER:name OPARN:oparn $ParamList_OPT:paramlist CPARN:cparn SEMICOLON:semi', 'fun', 'semi')
-
-listRule('Stmt', 'statement', 'StmtB')
-makeOpt('StmtList')
-nt('Stmt', 'statement', 'StmtB', panickable=True)
-rule('Stmt', '$EmptyStmt:_')
-rule('Stmt', '$VarStmt:_')
-rule('Stmt', '$ExprStmt:_')
-rule('Stmt', '$RetStmt:_')
-rule('Stmt', '$Block:_')
-
-nt('VarStmt', 'variable statement', 'StmtB', panickable=True)
-rule('VarStmt', 'VAR:var $TypeNV:type $VarStmtItemList:assignments SEMICOLON:semi')
-
-nt('ExprStmt', 'expression statement', 'StmtB', panickable=True)
-rule('ExprStmt', '$Expr:expr SEMICOLON:semi')
-
-nt('RetStmt', 'return statement', 'StmtB', panickable=True)
-rule('RetStmt' , 'RETURN:ret $Expr:expr SEMICOLON:semi')
-rule('RetStmt', 'RETURN:ret SEMICOLON:semi')
-
-nt('EmptyStmt', 'empty statement', 'StmtB', panickable=True)
-rule('EmptyStmt', 'SEMICOLON:semi')
-
-listRule('VarStmtItem', 'variable statement initialization', 'VStmtIB', 'COMMA')
-nt('VarStmtItem', 'variable statement initialization', 'VStmtIB')
-rule('VarStmtItem', 'IDENTIFIER:name EQUAL:equal $Expr:expr')
-rule('VarStmtItem', 'IDENTIFIER:name')
-
-nt('Block', 'code block', 'StmtB', panickable=True)
-rule('Block', 'OCURB:ocurb $StmtList_OPT:stmts CCURB:ccurb')
-
-nt('TypeNV', 'non-void type specifier', 'TypeB')
-rule('TypeNV', '$BuiltinTypeNoVoid:_')
-
-nt('TypeV', 'void-inclusive type specifier', 'TypeB')
-rule('TypeV', '$TypeNV:_')
-rule('TypeV', 'VOID:vo')
-
-nt('BuiltinTypeNoVoid', 'builtin type specifier', 'TypeB')
-rule('BuiltinTypeNoVoid', 'UINT8:type')
-rule('BuiltinTypeNoVoid', 'UINT16:type')
-rule('BuiltinTypeNoVoid', 'UINT32:type')
-rule('BuiltinTypeNoVoid', 'UINT64:type')
-rule('BuiltinTypeNoVoid', 'SINT8:type')
-rule('BuiltinTypeNoVoid', 'SINT16:type')
-rule('BuiltinTypeNoVoid', 'SINT32:type')
-rule('BuiltinTypeNoVoid', 'SINT64:type')
-rule('BuiltinTypeNoVoid', 'FLOAT:type')
-rule('BuiltinTypeNoVoid', 'BOOL:type')
-rule('BuiltinTypeNoVoid', 'DOUBLE:type')
-rule('BuiltinTypeNoVoid', 'CHAR:type')
-
-listRule('Arg', 'argument', 'ArgB', 'COMMA')
-makeOpt('ArgList')
-nt('Arg', 'argument', 'ArgB', panickable=True)
-rule('Arg', '$Expr:expr')
-
-listRule('Param', 'parameter', 'PListB', 'COMMA')
-makeOpt('ParamList')
-nt('Param', 'parameter', 'PListB', panickable=True)
-rule('Param', '$TypeNV:type IDENTIFIER:name')
-
-nt('Expr', 'expression', 'ExprB')
-rule('Expr', '$AssignmentExpr:_')
-nt('AssignmentExpr', 'assignment expression', 'ExprB')
-rule('AssignmentExpr', '$TernaryExpr:target EQUAL:equal $AssignmentExpr:value')
-rule('AssignmentExpr', '$TernaryExpr:_')
-nt('TernaryExpr', 'ternary expression', 'ExprB')
-rule('TernaryExpr', '$BinOrExpr:_')
-rule('TernaryExpr', '$BinOrExpr:cond QUESTION:quest $Expr:trues COLON:colon $TernaryExpr:falses')
-nt('BinOrExpr', 'binary or expression', 'ExprB')
-rule('BinOrExpr', '$BinOrExpr:lhs DOUBLEPIPE:op $BinAndExpr:rhs')
-rule('BinOrExpr', '$BinAndExpr:_')
-nt('BinAndExpr', 'binary and expression', 'ExprB')
-rule('BinAndExpr', '$BinAndExpr:lhs DOUBLEAMPER:op $CompEQExpr:rhs')
-rule('BinAndExpr', '$CompEQExpr:_')
-nt('CompEQExpr', 'equality expression', 'ExprB')
-rule('CompEQExpr', '$CompEQExpr:lhs BANGEQUAL:op $CompLGTExpr:rhs')
-rule('CompEQExpr', '$CompEQExpr:lhs DOUBLEEQUAL:op $CompLGTExpr:rhs')
-rule('CompEQExpr', '$CompLGTExpr:_')
-nt('CompLGTExpr', 'comparison expression', 'ExprB')
-rule('CompLGTExpr', '$CompLGTExpr:lhs LESS:op $BitXorExpr:rhs')
-rule('CompLGTExpr', '$CompLGTExpr:lhs GREATER:op $BitXorExpr:rhs')
-rule('CompLGTExpr', '$CompLGTExpr:lhs LESSEQUAL:op $BitXorExpr:rhs')
-rule('CompLGTExpr', '$CompLGTExpr:lhs GREATEREQUAL:op $BitXorExpr:rhs')
-rule('CompLGTExpr', '$BitXorExpr:_')
-nt('BitXorExpr', 'bitwise xor expression', 'ExprB')
-rule('BitXorExpr', '$BitXorExpr:lhs CARET:op $BitOrExpr:rhs')
-rule('BitXorExpr', '$BitOrExpr:_')
-nt('BitOrExpr', 'bitwise or expression', 'ExprB')
-rule('BitOrExpr', '$BitOrExpr:lhs PIPE:op $BitAndExpr:rhs')
-rule('BitOrExpr', '$BitAndExpr:_')
-nt('BitAndExpr', 'bitwise and expression', 'ExprB')
-rule('BitAndExpr', '$BitAndExpr:lhs AMPER:op $BitShiftExpr:rhs')
-rule('BitAndExpr', '$BitShiftExpr:_')
-nt('BitShiftExpr', 'bit shift expression', 'ExprB')
-rule('BitShiftExpr', '$BitShiftExpr:lhs DOUBLEGREATER:op $AdditionExpr:rhs')
-rule('BitShiftExpr', '$BitShiftExpr:lhs DOUBLELESS:op $AdditionExpr:rhs')
-rule('BitShiftExpr', '$AdditionExpr:_')
-nt('AdditionExpr', 'addition expression', 'ExprB')
-rule('AdditionExpr', '$AdditionExpr:lhs PLUS:op $MultExpr:rhs')
-rule('AdditionExpr', '$AdditionExpr:lhs MINUS:op $MultExpr:rhs')
-rule('AdditionExpr', '$MultExpr:_')
-nt('MultExpr', 'multiplication expression', 'ExprB')
-rule('MultExpr', '$MultExpr:lhs STAR:op $UnaryExpr:rhs')
-rule('MultExpr', '$MultExpr:lhs SLASH:op $UnaryExpr:rhs')
-rule('MultExpr', '$MultExpr:lhs PERCENT:op $UnaryExpr:rhs')
-rule('MultExpr', '$CastExpr:_')
-nt('CastExpr', 'type cast expression', 'ExprB')
-rule('CastExpr', 'OPARN:oparn $TypeNV:type CPARN:cparn $CastExpr:operand')
-rule('CastExpr', '$UnaryExpr:_')
-nt('UnaryExpr', 'unary expression', 'ExprB')
-rule('UnaryExpr', 'TILDE:op $UnaryExpr:operand')
-rule('UnaryExpr', 'MINUS:op $UnaryExpr:operand')
-rule('UnaryExpr', 'BANG:op $UnaryExpr:operand')
-rule('UnaryExpr', '$CallExpr:_')
-nt('CallExpr', 'function call expression', 'ExprB')
-rule('CallExpr', '$CallExpr:callee OPARN:oparn $ArgList_OPT:args CPARN:cparn')
-rule('CallExpr', '$PrimaryExpr:_')
-nt('PrimaryExpr', 'primary expression', 'ExprB')
-rule('PrimaryExpr', 'TRUELIT:value')
-rule('PrimaryExpr', 'FALSELIT:value')
-rule('PrimaryExpr', 'FLOATLIT:value')
-rule('PrimaryExpr', 'NULLPTRLIT:value')
-rule('PrimaryExpr', 'DECINTLIT:value')
-rule('PrimaryExpr', 'OCTINTLIT:value')
-rule('PrimaryExpr', 'BININTLIT:value')
-rule('PrimaryExpr', 'HEXINTLIT:value')
-rule('PrimaryExpr', 'CHARLIT:value')
-rule('PrimaryExpr', 'STRINGLIT:value')
-rule('PrimaryExpr', 'IDENTIFIER:value')
-rule('PrimaryExpr', 'OPARN:oparn $Expr:expr CPARN:cparn')
-
-# convert grammar {{{1
 grammar = []
-found = set()
-missing = set()
 
-for sym, rule in _grammar.items():
-    if sym in missing:
-        missing.remove(sym)
+def makeGrammar():
+    global augmentRule, augmentSymbol
 
-    found.add(sym)
+    CU = nt('CU', 'compilation unit', 'CUB')
+    Decl = nt('Decl', 'declaration', 'DeclB', panickable=True)
+    Function = nt('Function', 'function declaration', 'DeclB', panickable=True)
+    Stmt = nt('Stmt', 'statement', 'StmtB', panickable=True)
+    VarStmt = nt('VarStmt', 'variable statement', 'StmtB', panickable=True)
+    ExprStmt = nt('ExprStmt', 'expression statement', 'StmtB', panickable=True)
+    RetStmt = nt('RetStmt', 'return statement', 'StmtB', panickable=True)
+    EmptyStmt = nt('EmptyStmt', 'empty statement', 'StmtB', panickable=True)
+    VarStmtItem = nt('VarStmtItem', 'variable statement initialization', 'VStmtIB')
+    Block = nt('Block', 'code block', 'StmtB', panickable=True)
+    TypeNV = nt('TypeNV', 'non-void type specifier', 'TypeB')
+    TypeV = nt('TypeV', 'void-inclusive type specifier', 'TypeB')
+    BuiltinTypeNoVoid = nt('BuiltinTypeNoVoid', 'builtin type specifier', 'TypeB')
+    Arg = nt('Arg', 'argument', 'ArgB', panickable=True)
+    Param = nt('Param', 'parameter', 'PListB', panickable=True)
+    Expr = nt('Expr', 'expression', 'ExprB')
+    AssignmentExpr = nt('AssignmentExpr', 'assignment expression', 'ExprB')
+    TernaryExpr = nt('TernaryExpr', 'ternary expression', 'ExprB')
+    BinOrExpr = nt('BinOrExpr', 'binary or expression', 'ExprB')
+    BinAndExpr = nt('BinAndExpr', 'binary and expression', 'ExprB')
+    CompEQExpr = nt('CompEQExpr', 'equality expression', 'ExprB')
+    CompLGTExpr = nt('CompLGTExpr', 'comparison expression', 'ExprB')
+    BitXorExpr = nt('BitXorExpr', 'bitwise xor expression', 'ExprB')
+    BitOrExpr = nt('BitOrExpr', 'bitwise or expression', 'ExprB')
+    BitAndExpr = nt('BitAndExpr', 'bitwise and expression', 'ExprB')
+    BitShiftExpr = nt('BitShiftExpr', 'bit shift expression', 'ExprB')
+    AdditionExpr = nt('AdditionExpr', 'addition expression', 'ExprB')
+    MultExpr = nt('MultExpr', 'multiplication expression', 'ExprB')
+    CastExpr = nt('CastExpr', 'type cast expression', 'ExprB')
+    UnaryExpr = nt('UnaryExpr', 'unary expression', 'ExprB')
+    CallExpr = nt('CallExpr', 'function call expression', 'ExprB')
+    PrimaryExpr = nt('PrimaryExpr', 'primary expression', 'ExprB')
 
-    expansions = rule['expansions']
+    augmentSymbol = NonTerminal('augment', False, '', '')
+    augmentRule = rule(augmentSymbol, ((CU, '_'),))
 
-    base = rule['base']
-    for expansion, exhistart, exhiend, specials in expansions:
-        vnames = []
-        expansion = expansion.split(' ')
+    AMPER = Terminal('AMPER')
+    BANG = Terminal('BANG')
+    BANGEQUAL = Terminal('BANGEQUAL')
+    BININTLIT = Terminal('BININTLIT')
+    BOOL = Terminal('BOOL')
+    CARET = Terminal('CARET')
+    CCURB = Terminal('CCURB')
+    CHAR = Terminal('CHAR')
+    CHARLIT = Terminal('CHARLIT')
+    COLON = Terminal('COLON')
+    COMMA = Terminal('COMMA')
+    CPARN = Terminal('CPARN')
+    DECINTLIT = Terminal('DECINTLIT')
+    DOUBLE = Terminal('DOUBLE')
+    DOUBLEAMPER = Terminal('DOUBLEAMPER')
+    DOUBLEEQUAL = Terminal('DOUBLEEQUAL')
+    DOUBLEGREATER = Terminal('DOUBLEGREATER')
+    DOUBLELESS = Terminal('DOUBLELESS')
+    DOUBLEPIPE = Terminal('DOUBLEPIPE')
+    EQUAL = Terminal('EQUAL')
+    FALSELIT = Terminal('FALSELIT')
+    FLOAT = Terminal('FLOAT')
+    FLOATLIT = Terminal('FLOATLIT')
+    FUN = Terminal('FUN')
+    GREATER = Terminal('GREATER')
+    GREATEREQUAL = Terminal('GREATEREQUAL')
+    HEXINTLIT = Terminal('HEXINTLIT')
+    IDENTIFIER = Terminal('IDENTIFIER')
+    LESS = Terminal('LESS')
+    LESSEQUAL = Terminal('LESSEQUAL')
+    MINUS = Terminal('MINUS')
+    NULLPTRLIT = Terminal('NULLPTRLIT')
+    OCTINTLIT = Terminal('OCTINTLIT')
+    OCURB = Terminal('OCURB')
+    OPARN = Terminal('OPARN')
+    PERCENT = Terminal('PERCENT')
+    PIPE = Terminal('PIPE')
+    PLUS = Terminal('PLUS')
+    QUESTION = Terminal('QUESTION')
+    RETURN = Terminal('RETURN')
+    SEMICOLON = Terminal('SEMICOLON')
+    SINT16 = Terminal('SINT16')
+    SINT32 = Terminal('SINT32')
+    SINT64 = Terminal('SINT64')
+    SINT8 = Terminal('SINT8')
+    SLASH = Terminal('SLASH')
+    STAR = Terminal('STAR')
+    STRINGLIT = Terminal('STRINGLIT')
+    TILDE = Terminal('TILDE')
+    TRUELIT = Terminal('TRUELIT')
+    UINT16 = Terminal('UINT16')
+    UINT32 = Terminal('UINT32')
+    UINT64 = Terminal('UINT64')
+    UINT8 = Terminal('UINT8')
+    VAR = Terminal('VAR')
+    VOID = Terminal('VOID')
 
-        convertedexpansion = []
+    ParamList = listRule(Param, 'PListB', COMMA)
+    ArgList = listRule(Arg, 'ArgB', COMMA)
+    VarStmtItemList = listRule(VarStmtItem, 'VStmtIB', COMMA)
+    StmtList = listRule(Stmt, 'StmtB')
+    DeclList = listRule(Decl, 'DeclB')
 
-        for i, s in enumerate(expansion):
-            if len(s) == 0:
-                continue
+    ParamListOpt = makeOpt(ParamList)
+    ArgListOpt = makeOpt(ArgList)
+    StmtListOpt = makeOpt(StmtList)
 
-            try:
-                sname, vname = s.split(':')
-                vnames.append(vname)
-            except:
-                print(f'\033[1mrule: {sym} -> {rule["expansions"]}\033[0m')
-                print(f'\033[1m{repr(s)}\033[0m')
-                raise
+    rule(CU, ((DeclList, 'dl'),))
+    rule(CU, ())
 
-            if sname.startswith('$'):
-                convertedexpansion.append(NonTerminal(sname[1:]))
-                if sname[1:] not in found:
-                    missing.add(sname[1:])
-            else:
-                convertedexpansion.append(Terminal(f'TokenType::{sname}'))
-                if sname != sname.upper():
-                    print(f'\033[35;1mwarning\033[0m: terminal {sname} in rule \033[1m{sym} -> {expansion}\033[0m')
+    rule(Decl, ((Function, '_'), ))
 
-        if len(convertedexpansion) == 1 and type(convertedexpansion[0]) == NonTerminal and _grammar[str(convertedexpansion[0])]['base'] == base:
-            skip = True
-        else:
-            skip = False
+    rule(Function, ((FUN, 'fun'),  (TypeV, 'retty'),  (IDENTIFIER, 'name'),  (OPARN, 'oparn'),  (ParamListOpt, 'paramlist'),  (CPARN, 'cparn'),  (Block, 'body'), ), 'fun', 'cparn')
+    rule(Function, ((FUN, 'fun'),  (TypeV, 'retty'),  (IDENTIFIER, 'name'),  (OPARN, 'oparn'),  (ParamListOpt, 'paramlist'),  (CPARN, 'cparn'),  (SEMICOLON, 'semi'), ), 'fun', 'semi')
 
-        rsp = {}
-        rsp['defaultreduce'] = True
+    rule(Stmt, ((EmptyStmt, '_'), ))
+    rule(Stmt, ((VarStmt, '_'), ))
+    rule(Stmt, ((ExprStmt, '_'), ))
+    rule(Stmt, ((RetStmt, '_'), ))
+    rule(Stmt, ((Block, '_'), ))
 
-        for sp in specials.split(' '):
-            if not len(sp):
-                continue
+    rule(VarStmt, ((VAR, 'var'),  (TypeNV, 'type'),  (VarStmtItemList, 'assignments'),  (SEMICOLON, 'semi'), ))
 
-            v = not sp.startswith('no')
-            rest = sp[2:] if not v else sp
-            if rest in rsp:
-                rsp[rest] = v
-            else:
-                raise Exception(f'invalid special {rest}')
+    rule(ExprStmt, ((Expr, 'expr'),  (SEMICOLON, 'semi'), ))
 
-        grammar.append(Rule(NonTerminal(sym, name=rule['name']), tuple(convertedexpansion), skip, vnames, base, exhistart, exhiend, rsp))
+    rule(RetStmt , ((RETURN, 'ret'),  (Expr, 'expr'),  (SEMICOLON, 'semi'), ))
+    rule(RetStmt, ((RETURN, 'ret'),  (SEMICOLON, 'semi'), ))
 
-for missingi in missing:
-    print(f'\033[35;1mwarning\033[0m: undefined nonterminal \033[1m{missingi}\033[0m')
+    rule(EmptyStmt, ((SEMICOLON, 'semi'), ))
 
-augmentSymbol = NonTerminal('augment', False, '')
-augmentRule = Rule(augmentSymbol, (grammar[0].symbol, ), True, '_', '', 'START', 'END', {})
-grammar.append(augmentRule)
+    rule(VarStmtItem, ((IDENTIFIER, 'name'),  (EQUAL, 'equal'),  (Expr, 'expr'), ))
+    rule(VarStmtItem, ((IDENTIFIER, 'name'), ))
 
-eofSym = Terminal('TokenType::EOF_')
+    rule(Block, ((OCURB, 'ocurb'),  (StmtListOpt, 'stmts'),  (CCURB, 'ccurb'), ))
+
+    rule(TypeNV, ((BuiltinTypeNoVoid, '_'), ))
+
+    rule(TypeV, ((TypeNV, '_'), ))
+    rule(TypeV, ((VOID, 'vo'), ))
+
+    rule(BuiltinTypeNoVoid, ((UINT8, 'type'), ))
+    rule(BuiltinTypeNoVoid, ((UINT16, 'type'), ))
+    rule(BuiltinTypeNoVoid, ((UINT32, 'type'), ))
+    rule(BuiltinTypeNoVoid, ((UINT64, 'type'), ))
+    rule(BuiltinTypeNoVoid, ((SINT8, 'type'), ))
+    rule(BuiltinTypeNoVoid, ((SINT16, 'type'), ))
+    rule(BuiltinTypeNoVoid, ((SINT32, 'type'), ))
+    rule(BuiltinTypeNoVoid, ((SINT64, 'type'), ))
+    rule(BuiltinTypeNoVoid, ((FLOAT, 'type'), ))
+    rule(BuiltinTypeNoVoid, ((BOOL, 'type'), ))
+    rule(BuiltinTypeNoVoid, ((DOUBLE, 'type'), ))
+    rule(BuiltinTypeNoVoid, ((CHAR, 'type'), ))
+
+    rule(Arg, ((Expr, 'expr'), ))
+
+    rule(Param, ((TypeNV, 'type'),  (IDENTIFIER, 'name'), ))
+
+    rule(Expr, ((AssignmentExpr, '_'), ))
+    rule(AssignmentExpr, ((TernaryExpr, 'target'),  (EQUAL, 'equal'),  (AssignmentExpr, 'value'), ))
+    rule(AssignmentExpr, ((TernaryExpr, '_'), ))
+    rule(TernaryExpr, ((BinOrExpr, '_'), ))
+    rule(TernaryExpr, ((BinOrExpr, 'cond'),  (QUESTION, 'quest'),  (Expr, 'trues'),  (COLON, 'colon'),  (TernaryExpr, 'falses'), ))
+    rule(BinOrExpr, ((BinOrExpr, 'lhs'),  (DOUBLEPIPE, 'op'),  (BinAndExpr, 'rhs'), ))
+    rule(BinOrExpr, ((BinAndExpr, '_'), ))
+    rule(BinAndExpr, ((BinAndExpr, 'lhs'),  (DOUBLEAMPER, 'op'),  (CompEQExpr, 'rhs'), ))
+    rule(BinAndExpr, ((CompEQExpr, '_'), ))
+    rule(CompEQExpr, ((CompEQExpr, 'lhs'),  (BANGEQUAL, 'op'),  (CompLGTExpr, 'rhs'), ))
+    rule(CompEQExpr, ((CompEQExpr, 'lhs'),  (DOUBLEEQUAL, 'op'),  (CompLGTExpr, 'rhs'), ))
+    rule(CompEQExpr, ((CompLGTExpr, '_'), ))
+    rule(CompLGTExpr, ((CompLGTExpr, 'lhs'),  (LESS, 'op'),  (BitXorExpr, 'rhs'), ))
+    rule(CompLGTExpr, ((CompLGTExpr, 'lhs'),  (GREATER, 'op'),  (BitXorExpr, 'rhs'), ))
+    rule(CompLGTExpr, ((CompLGTExpr, 'lhs'),  (LESSEQUAL, 'op'),  (BitXorExpr, 'rhs'), ))
+    rule(CompLGTExpr, ((CompLGTExpr, 'lhs'),  (GREATEREQUAL, 'op'),  (BitXorExpr, 'rhs'), ))
+    rule(CompLGTExpr, ((BitXorExpr, '_'), ))
+    rule(BitXorExpr, ((BitXorExpr, 'lhs'),  (CARET, 'op'),  (BitOrExpr, 'rhs'), ))
+    rule(BitXorExpr, ((BitOrExpr, '_'), ))
+    rule(BitOrExpr, ((BitOrExpr, 'lhs'),  (PIPE, 'op'),  (BitAndExpr, 'rhs'), ))
+    rule(BitOrExpr, ((BitAndExpr, '_'), ))
+    rule(BitAndExpr, ((BitAndExpr, 'lhs'),  (AMPER, 'op'),  (BitShiftExpr, 'rhs'), ))
+    rule(BitAndExpr, ((BitShiftExpr, '_'), ))
+    rule(BitShiftExpr, ((BitShiftExpr, 'lhs'),  (DOUBLEGREATER, 'op'),  (AdditionExpr, 'rhs'), ))
+    rule(BitShiftExpr, ((BitShiftExpr, 'lhs'),  (DOUBLELESS, 'op'),  (AdditionExpr, 'rhs'), ))
+    rule(BitShiftExpr, ((AdditionExpr, '_'), ))
+    rule(AdditionExpr, ((AdditionExpr, 'lhs'),  (PLUS, 'op'),  (MultExpr, 'rhs'), ))
+    rule(AdditionExpr, ((AdditionExpr, 'lhs'),  (MINUS, 'op'),  (MultExpr, 'rhs'), ))
+    rule(AdditionExpr, ((MultExpr, '_'), ))
+    rule(MultExpr, ((MultExpr, 'lhs'),  (STAR, 'op'),  (UnaryExpr, 'rhs'), ))
+    rule(MultExpr, ((MultExpr, 'lhs'),  (SLASH, 'op'),  (UnaryExpr, 'rhs'), ))
+    rule(MultExpr, ((MultExpr, 'lhs'),  (PERCENT, 'op'),  (UnaryExpr, 'rhs'), ))
+    rule(MultExpr, ((CastExpr, '_'), ))
+    rule(CastExpr, ((OPARN, 'oparn'),  (TypeNV, 'type'),  (CPARN, 'cparn'),  (CastExpr, 'operand'), ))
+    rule(CastExpr, ((UnaryExpr, '_'), ))
+    rule(UnaryExpr, ((TILDE, 'op'),  (UnaryExpr, 'operand'), ))
+    rule(UnaryExpr, ((MINUS, 'op'),  (UnaryExpr, 'operand'), ))
+    rule(UnaryExpr, ((BANG, 'op'),  (UnaryExpr, 'operand'), ))
+    rule(UnaryExpr, ((CallExpr, '_'), ))
+    rule(CallExpr, ((CallExpr, 'callee'),  (OPARN, 'oparn'),  (ArgListOpt, 'args'),  (CPARN, 'cparn'), ))
+    rule(CallExpr, ((PrimaryExpr, '_'), ))
+    rule(PrimaryExpr, ((TRUELIT, 'value'), ))
+    rule(PrimaryExpr, ((FALSELIT, 'value'), ))
+    rule(PrimaryExpr, ((FLOATLIT, 'value'), ))
+    rule(PrimaryExpr, ((NULLPTRLIT, 'value'), ))
+    rule(PrimaryExpr, ((DECINTLIT, 'value'), ))
+    rule(PrimaryExpr, ((OCTINTLIT, 'value'), ))
+    rule(PrimaryExpr, ((BININTLIT, 'value'), ))
+    rule(PrimaryExpr, ((HEXINTLIT, 'value'), ))
+    rule(PrimaryExpr, ((CHARLIT, 'value'), ))
+    rule(PrimaryExpr, ((STRINGLIT, 'value'), ))
+    rule(PrimaryExpr, ((IDENTIFIER, 'value'), ))
+    rule(PrimaryExpr, ((OPARN, 'oparn'),  (Expr, 'expr'),  (CPARN, 'cparn'), ))
+
+makeGrammar()
+# convert grammar {{{1
+eofSym = Terminal('EOF_')
 
 symbols = [eofSym]
 for rule in grammar:
@@ -790,7 +796,7 @@ def genLoop():
         if not reduceOnly:
             def stc(s):
                 if type(s) == NonTerminal:
-                    return f'"{s.getName()}"'
+                    return f'"{s.name}"'
                 else:
                     return f'stringifyTokenType({s.astt()})'
 
@@ -880,7 +886,7 @@ def genPanicMode():
             continue
         if nonterm == augmentSymbol:
             continue
-        if not nonterm.isPanickable():
+        if not nonterm.panickable:
             continue
 
         output.append(    f'                CHECKASI({str(nonterm)})\n')
