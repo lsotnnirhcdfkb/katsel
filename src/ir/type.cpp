@@ -88,7 +88,7 @@ llvm::Type* IR::FunctionType::toLLVMType(llvm::LLVMContext &con) const
     return llvm::FunctionType::get(ret->toLLVMType(con), paramsasllvm, false);
 }
 
-std::ostream& IR::operator<<(std::ostream &os, IR::Type const *ty)
+std::ostream& operator<<(std::ostream &os, IR::Type const *ty)
 {
     os << "'" << ty->stringify() << "'";
     return os;

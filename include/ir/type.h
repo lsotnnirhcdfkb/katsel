@@ -69,8 +69,6 @@ namespace IR
         ASTNS::TypeB *ast;
 
         virtual llvm::Type* toLLVMType(llvm::LLVMContext &con) const = 0;
-
-        friend std::ostream& operator<<(std::ostream&, Type const *);
     };
 
     class BuiltinType : public Type
@@ -145,3 +143,5 @@ namespace IR
         llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
     };
 }
+
+std::ostream& operator<<(std::ostream &os, IR::Type const *t);
