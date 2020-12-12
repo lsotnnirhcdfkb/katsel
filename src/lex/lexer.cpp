@@ -195,6 +195,7 @@ Token Lexer::nextToken()
                         ++endline;
                         endcolumn = 1;
                         indent = 0;
+                        startToEnd();
                     }
                     else
                         atWh = false;
@@ -209,8 +210,6 @@ Token Lexer::nextToken()
                 atWh = false;
         }
     }
-
-    startToEnd();
 
     if (indent > indentstack.top())
     {

@@ -757,17 +757,19 @@ void Error::report() const
 
             auto itInLoc = [](std::string::const_iterator const &i, Location const &l)
             {
+                if (l.start == l.end)
+                    return i == l.start;
                 return i >= l.start && i < l.end;
             };
 
             bool needsecond = false;
-            for (std::string::const_iterator i = lstart; i < lend; ++i)
+            for (std::string::const_iterator i = lstart; i <= lend; ++i)
             {
                 for (Underline const &u : underlines)
                     if (itInLoc(i, u.location))
                     {
                         lunderlinety pair (&u, getColN(u.location.file->source.begin(), u.location.start));
-                        if (u.location.start == i && u.messages.size()) // can only ever be one location where this underline ends
+                        if (u.location.end - 1 == i && u.messages.size()) // can only ever be one location where this underline ends
                             lunderlines.push_back(pair);
                         needsecond = true;
                     }
@@ -782,7 +784,8 @@ void Error::report() const
 
                 lchars.push_back(charu);
 
-                if (charu && charu->messages.size())
+                if (i == lend) {} // dont print newline
+                else if (charu && charu->messages.size())
                     std::cerr << attr(A_BOLD, attr(charu->messages[0].color, std::string(1, *i)));
                 else if (charu)
                     std::cerr << attr(A_BOLD, std::string(1, *i));
@@ -808,8 +811,12 @@ void Error::report() const
 
                 if (lunderlines.size())
                 {
-                    std::sort(lunderlines.begin(), lunderlines.end(), [](lunderlinety const &i1, lunderlinety const &i2)
+                    std::sort(lunderlines.begin(), lunderlines.end(), [&lend](lunderlinety const &i1, lunderlinety const &i2)
                             {
+                                if (i1.first->location.start == lend)
+                                    return true;
+                                if (i2.first->location.start == lend)
+                                    return false;
                                 return i1.second > i2.second; // sort in reverse
                             });
 
@@ -823,6 +830,8 @@ void Error::report() const
                             {
                                 int last = j + 1 == lunderlines.end() ? 0 : (j + 1)->second;
                                 int diff = j->second - last;
+                                if (j->second == 0)
+                                    diff = 1;
                                 if (!diff)
                                     continue;
 
