@@ -328,20 +328,19 @@ def getItemSets():
     while len(stack):
         origset = stack.pop(0)
 
-        afters = []
+        afters = {}
         for item in origset.items():
             after = item.getAfterDot()
-            if after is not None and after not in afters:
-                afters.append(after)
+            if after is not None:
+                if after not in afters:
+                    afters[after] = []
 
-        for after in afters:
-            newsetlr0 = []
-            for item in origset.items():
-                newlr0item = (item.rule, item.index + 1)
-                if item.getAfterDot() == after and newlr0item not in newsetlr0:
-                    newsetlr0.append(newlr0item)
+                newitem = (item.rule, item.index + 1)
+                if newitem not in afters[after]:
+                    afters[after].append(newitem)
 
-            newsetlr1 = getClosurelr0(newsetlr0)
+        for after, afternewset in afters.items():
+            newsetlr1 = getClosurelr0(afternewset)
             toseti = newsetlr1.n
             if newsetlr1 not in isets:
                 isets.append(newsetlr1)
