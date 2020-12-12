@@ -29,6 +29,9 @@ private:
 
     void startToEnd();
 
+    Token lexDigit(char current);
+    Token lexIdentifier();
+
     Token makeErrorToken(void (*errf)(Token const &));
     Token makeToken(TokenType type);
 
