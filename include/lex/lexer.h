@@ -15,77 +15,34 @@ public:
 
     Token nextToken();
 
-    inline void resetToTok(Token const &t)
-    {
-        start = end = t.start;
-        line = nextline = t.line;
-        column = nextcolumn = t.column;
-    }
-
-    inline Token makeSOF()
-    {
-        return makeToken(TokenType::SOF);
-    }
+    void resetToTok(Token const &t);
 
 private:
-    TokenType getIdentifierType();
-    inline bool atEnd()
-    {
-        return end >= srcend;
-    }
-    inline bool match(char c)
-    {
-        if (atEnd())
-            return false;
+    bool atEnd();
 
-        if (peek() == c)
-        {
-            advance();
-            return true;
-        }
+    char advance();
+    bool match(char c);
 
-        return false;
-    }
-    inline char advance()
-    {
-        ++nextcolumn;
-
-        return *(end++);
-    }
-    inline char peek()
-    {
-    return *(end);
-    }
-    inline char peekpeek()
-    {
-    return *(end + 1);
-    }
-    inline char consumed()
-    {
-        return *(end - 1);
-    }
+    char peek();
+    char peekpeek();
+    char consumed();
 
     Token makeErrorToken(void (*errf)(Token const &));
-    inline Token makeToken(TokenType type)
-    {
-        return Token {type, start, end, nullptr, line, column - 1, &sourcefile};
-    }
-
-    inline void nextLine()
-    {
-        ++nextline;
-        nextcolumn = 1;
-    }
+    Token makeToken(TokenType type);
 
     std::string::iterator start;
     std::string::iterator end;
 
-    int line;
-    int column;
-    int nextline;
-    int nextcolumn;
+    int startline;
+    int startcolumn;
+    int endline;
+    int endcolumn;
+
+    bool atLineStart;
 
     std::string::iterator srcend;
+
+    TokenType getIdentifierType();
 
     File &sourcefile;
 };
