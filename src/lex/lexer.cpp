@@ -129,16 +129,25 @@ Token Lexer::lexIdentifier()
 // nextToken {{{1
 Token Lexer::nextToken()
 {
-    if (consumed() != '\n' || start == srcstart) // if not at beginning of new line
     {
         bool atWh = true;
+        bool findingindent = start == srcstart || consumed() == '\n';
+        if (findingindent)
+            indent = 0;
+
         while (atWh)
         {
             switch (peek())
             {
-                case '\r':
+                case '\r': advance(); break;
                 case ' ':
+                    if (findingindent)
+                        ++indent;
+                    advance();
+                    break;
                 case '\t':
+                    if (findingindent)
+                        indent = (indent / 8 + 1) * 8; // go up to nearest multiple of 8
                     advance();
                     break;
 
@@ -157,7 +166,7 @@ Token Lexer::nextToken()
                     {
                         advance(); // consume '/'
                         advance(); // consume '*'
-                        while (!(peek() == '*' || peekpeek() == '/') && !atEnd())
+                        while (!(peek() == '*' && peekpeek() == '/') && !atEnd())
                         {
                             if (peek() == '\n')
                             {
@@ -177,6 +186,18 @@ Token Lexer::nextToken()
                         atWh = false;
                     break;
 
+                case '\n':
+                    if (findingindent) // the only way you can get to a \n while finding an indent is if the entire line is blank, because you would have started at the beginning of a line
+                    {
+                        advance();
+                        ++endline;
+                        endcolumn = 1;
+                        indent = 0;
+                    }
+                    else
+                        atWh = false;
+                    break;
+
                 default:
                     atWh = false;
                     break;
@@ -188,46 +209,6 @@ Token Lexer::nextToken()
     }
 
     startToEnd();
-
-    // at the beginning of a line
-    if (consumed() == '\n') {
-        bool blankline = true;
-
-        while (blankline) // assume this is a blank line
-        {
-            indent = 0;
-            while (true)
-            {
-                if (atEnd())
-                    break;
-                else if (peek() == ' ')
-                {
-                    ++indent;
-                    advance();
-                }
-                else if (peek() == '\t')
-                {
-                    indent = (indent / 8 + 1) * 8; // go up to nearest multiple of 8
-                    advance();
-                }
-                else
-                    break;
-            }
-
-            if (atEnd())
-                blankline = false;
-            else if (peek() == '\n') // if after the leading whitespace of this line there is \n then this is a blank line with only whitespace
-            {
-                blankline = true;
-                ++endline;
-                endcolumn = 1;
-                advance(); // consume \n
-                startToEnd();
-            }
-            else // if after the leading whitespace of this line, there is not \n then this is a non-blank line
-                blankline = false;
-        }
-    }
 
     if (indent > indentstack.top())
     {
