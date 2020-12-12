@@ -11,7 +11,7 @@ class NonTerminal:
         self.name = name
         self.panickable = panickable
         self.base = base
-        assert symbol not in NonTerminal.nonterminals
+        assert symbol not in NonTerminal.nonterminals, f'duplicate nonterminal {symbol}'
         NonTerminal.nonterminals.append(symbol)
 
     def __repr__(self):
@@ -19,15 +19,15 @@ class NonTerminal:
     def __str__(self):
         return self.symbol
 
-    def __eq__(self, other):
-        return type(self) == type(other) and (self.symbol == other.symbol)
-
     def __hash__(self):
         return hash(self.symbol)
 
 class Terminal:
+    terminals = []
     def __init__(self, symbol):
         self.symbol = symbol
+        assert symbol not in Terminal.terminals, f'duplicate terminal {symbol}'
+        Terminal.terminals.append(symbol)
 
     def __repr__(self):
         return str(self)
@@ -39,9 +39,6 @@ class Terminal:
 
     def __hash__(self):
         return hash(self.symbol)
-
-    def __eq__(self, other):
-        return type(self) == type(other) and (self.symbol == other.symbol)
 # rule {{{2
 class Rule:
     __num = 0
@@ -60,15 +57,26 @@ class Rule:
     def __str__(self):
         return f'{str(self.symbol)} -> {" ".join(map(str, self.expansion))}'
 
-    def __eq__(self, other):
-        return type(self) == type(other) and self.symbol == other.symbol and self.expansion == other.expansion
+    def __hash__(self):
+        return self.num # should be unique
 
 # item stuff {{{2
 class Item: # an LR1 item
+    items = {}
     def __init__(self, rule, index, lookahead):
         self.rule = rule
         self.index = index
         self.lookahead = lookahead
+
+    @staticmethod
+    def get(rule, index, lookahead):
+        itemtuple = (rule, index, lookahead)
+        if itemtuple in Item.items:
+            return Item.items[itemtuple]
+
+        i = Item(*itemtuple)
+        Item.items[itemtuple] = i
+        return i
 
     def getAfterDot(self):
         if self.index < len(self.rule.expansion):
@@ -83,16 +91,24 @@ class Item: # an LR1 item
         expansionstr.insert(self.index, '.')
         return str(self.rule.symbol) + ' -> ' + ' '.join(expansionstr) + ', ' + str(self.lookahead)
 
-    def __eq__(self, other):
-        return type(self) == type(other) and self.rule == other.rule and self.index == other.index and self.lookahead == other.lookahead
-
 class ItemSet: # an LR1 item set
+    sets = []
     __n = 0
-    def __init__(self, kernel):
+    def __init__(self, kernel, extras):
         self.kernel = kernel
-        self.extras = []
+        self.extras = extras
         self.n = ItemSet.__n
         ItemSet.__n += 1
+
+    @staticmethod
+    def get(kernel, extras):
+        for itemset in ItemSet.sets:
+            if itemset.kernel == kernel and itemset.extras == extras:
+                return itemset
+
+        iset = ItemSet(kernel, extras)
+        ItemSet.sets.append(iset)
+        return iset
 
     def items(self):
         return self.kernel + self.extras
@@ -103,11 +119,6 @@ class ItemSet: # an LR1 item set
         return f'Itemset {self.n}\n' + \
             ''.join(map(lambda x: 'K: ' + str(x) + '\n', self.kernel)) + \
             ''.join(map(lambda x: 'E: ' + str(x) + '\n', self.extras))
-    def __eq__(self, other):
-        return self.kernel == other.kernel and self.extras == other.extras
-
-    def __del__(self):
-        ItemSet.__n -= 1
 # state stuff {{{2
 class State:
     def __init__(self, set_):
@@ -254,7 +265,7 @@ def findFollows():
                                 changed = True
                         else:
                             if type(rule.expansion[i]) == NonTerminal:
-                                followextens = makeUnique(follow, [x for x in firsts[rule.expansion[i]] if x != Terminal('eof')])
+                                followextens = makeUnique(follow, [x for x in firsts[rule.expansion[i]] if x != eofSym])
                                 if len(followextens):
                                     follow.extend(followextens)
                                     changed = True
@@ -293,16 +304,18 @@ def getClosurelr0(lr0set):
     return lr0tolr1(kernel, extras)
 # lr0tolr1 {{{2
 def lr0tolr1(kernel, extras):
-    lr1set = ItemSet([])
+    lr1kernel = []
+    lr1extras = []
+
     for kerneli in kernel:
         for follow in follows[kerneli[0].symbol]:
-            lr1set.kernel.append(Item(kerneli[0], kerneli[1], follow))
+            lr1kernel.append(Item.get(kerneli[0], kerneli[1], follow))
 
     for extrai in extras:
         for follow in follows[extrai[0].symbol]:
-            lr1set.extras.append(Item(extrai[0], extrai[1], follow))
+            lr1extras.append(Item.get(extrai[0], extrai[1], follow))
 
-    return lr1set
+    return ItemSet.get(lr1kernel, lr1extras)
 # make parser table {{{1
 # find item sets {{{2
 def getItemSets():
@@ -335,7 +348,6 @@ def getItemSets():
                 stack.append(newsetlr1)
             else:
                 toseti = isets[isets.index(newsetlr1)].n
-                del newsetlr1
 
             transitions.append((origset.n, after, toseti))
 
