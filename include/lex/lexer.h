@@ -38,8 +38,6 @@ private:
     int endline;
     int endcolumn;
 
-    bool atLineStart;
-
     std::string::iterator srcend;
 
     TokenType getIdentifierType();

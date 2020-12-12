@@ -109,6 +109,17 @@ void E0008(Token const &tok)
     e.report();
 }
 
+// E0009 - unterm-multiline-comment
+// | Unterminated multiline comment
+void E0009(Token const &tok)
+{
+    Error e = Error(Error::MsgType::ERROR, tok, "E0009 (unterm-multiline-comment)");
+    e.underline(Error::Underline(tok, '^')
+        .error("unterminated multiline comment")
+    );
+    e.report();
+}
+
 // E0100 - unrecoverable-invalid-syntax
 // | The parser found an unrecoverable syntax error.
 void E0100(Token const &last, Token const &lookahead, std::vector<std::string> const &expectations)

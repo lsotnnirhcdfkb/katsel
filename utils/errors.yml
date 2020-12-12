@@ -94,7 +94,16 @@ errors:
       - ['tok', *under0, [
           ['error', '"character literal with more than one character"']
         ]]
-
+  -
+    code: 9
+    name: unterm-multiline-comment
+    desc: Unterminated multiline comment
+    inputs: 'Token const &tok'
+    location: tok
+    highlights:
+      - ['tok', *under0, [
+          ['error', '"unterminated multiline comment"']
+        ]]
   - code: 100
     name: unrecoverable-invalid-syntax
     desc: The parser found an unrecoverable syntax error.
