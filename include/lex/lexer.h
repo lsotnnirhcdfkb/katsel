@@ -2,6 +2,7 @@
 #pragma once
 
 #include <string>
+#include <stack>
 
 #include "utils/file.h"
 #include "lex/token.h"
@@ -11,7 +12,6 @@ class Lexer
 {
 public:
     Lexer(File &sourcefile);
-    Lexer(Token const &t);
 
     Token nextToken();
 
@@ -27,6 +27,8 @@ private:
     char peekpeek();
     char consumed();
 
+    void startToEnd();
+
     Token makeErrorToken(void (*errf)(Token const &));
     Token makeToken(TokenType type);
 
@@ -38,6 +40,10 @@ private:
     int endline;
     int endcolumn;
 
+    int indent;
+    std::stack<int> indentstack;
+
+    std::string::iterator srcstart;
     std::string::iterator srcend;
 
     TokenType getIdentifierType();

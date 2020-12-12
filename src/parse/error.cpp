@@ -27,43 +27,47 @@ static std::vector<stackitem> copyStack(std::vector<stackitem> const &stack)
 
 static bool tryInsert(TokenType ty, Parser const &p, Token const &lookahead, std::vector<stackitem> const &stack)
 {
-    Lexer tempL (lookahead);
-    Parser tempP (tempL, p.sourcefile);
-    Token tempLookahead (lookahead);
-    tempLookahead.type = ty;
+    // TODO: fix these b/c with new indentation you cant reset the lexer to a previous token
+    // Lexer tempL (lookahead);
+    // Parser tempP (tempL, p.sourcefile);
+    // Token tempLookahead (lookahead);
+    // tempLookahead.type = ty;
 
-    auto tempstack (copyStack(stack));
+    // auto tempstack (copyStack(stack));
 
-    std::unique_ptr<ASTNS::CUB> tempC (nullptr);
+    // std::unique_ptr<ASTNS::CUB> tempC (nullptr);
 
-    return _parse(tempP, tempstack, true, tempC, tempLookahead);
+    // return _parse(tempP, tempstack, true, tempC, tempLookahead);
+    return false;
 }
 
 static bool tryDel(Parser const &p, std::vector<stackitem> const &stack)
 {
-    Lexer tempL (p.lexer);
-    Parser tempP (tempL, p.sourcefile);
-    Token tempLookahead (tempP.consume());
+    // Lexer tempL (p.lexer);
+    // Parser tempP (tempL, p.sourcefile);
+    // Token tempLookahead (tempP.consume());
 
-    auto tempstack (copyStack(stack));
+    // auto tempstack (copyStack(stack));
 
-    std::unique_ptr<ASTNS::CUB> tempC (nullptr);
+    // std::unique_ptr<ASTNS::CUB> tempC (nullptr);
 
-    return _parse(tempP, tempstack, true, tempC, tempLookahead);
+    // return _parse(tempP, tempstack, true, tempC, tempLookahead);
+    return false;
 }
 
 static bool trySub(TokenType ty, Parser const &p, Token const &lookahead, std::vector<stackitem> const &stack)
 {
-    Lexer tempL (p.lexer);
-    Parser tempP (tempL, p.sourcefile);
-    Token tempLookahead (lookahead);
-    tempLookahead.type = ty;
+    // Lexer tempL (p.lexer);
+    // Parser tempP (tempL, p.sourcefile);
+    // Token tempLookahead (lookahead);
+    // tempLookahead.type = ty;
 
-    auto tempstack (copyStack(stack));
+    // auto tempstack (copyStack(stack));
 
-    std::unique_ptr<ASTNS::CUB> tempC (nullptr);
+    // std::unique_ptr<ASTNS::CUB> tempC (nullptr);
 
-    return _parse(tempP, tempstack, true, tempC, tempLookahead);
+    // return _parse(tempP, tempstack, true, tempC, tempLookahead);
+    return false;
 }
 // }}}
 struct fix

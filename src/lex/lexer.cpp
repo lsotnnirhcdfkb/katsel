@@ -3,8 +3,10 @@
 #include "message/errmsgs.h"
 
 // constructors {{{1
-Lexer::Lexer(File &sourcefile): start(sourcefile.source.begin()), end(start), startline(1), startcolumn(1), endline(1), endcolumn(1), srcend(sourcefile.source.end()), sourcefile(sourcefile) {}
-Lexer::Lexer(Token const &t): start(t.start), end(t.start), startline(t.line), startcolumn(t.column), endline(t.line), endcolumn(t.column), srcend(t.sourcefile->source.end()), sourcefile(*t.sourcefile) {}
+Lexer::Lexer(File &sourcefile): start(sourcefile.source.begin()), end(start), startline(1), startcolumn(1), endline(1), endcolumn(1), indent(0), srcstart(sourcefile.source.begin()), srcend(sourcefile.source.end()), sourcefile(sourcefile)
+{
+    indentstack.push(0);
+}
 
 // resetToTok {{{1
 void Lexer::resetToTok(Token const &t)
@@ -18,10 +20,10 @@ void Lexer::resetToTok(Token const &t)
 // nextToken {{{1
 Token Lexer::nextToken()
 {
-    if (consumed() != '\n') // if not at beginning of new line
+    if (consumed() != '\n' || start == srcstart) // if not at beginning of new line
     {
         bool atWh = true;
-        while (atWh == false)
+        while (atWh)
         {
             switch (peek())
             {
@@ -36,6 +38,8 @@ Token Lexer::nextToken()
                         while (peek() != '\n' && !atEnd()) advance();
                     else if (peekpeek() == '*')
                     {
+                        advance(); // consume '/'
+                        advance(); // consume '*'
                         while (!(peek() == '*' || peekpeek() == '/') && !atEnd())
                         {
                             if (peek() == '\n')
@@ -66,9 +70,58 @@ Token Lexer::nextToken()
         }
     }
 
-    start = end;
-    startline = endline;
-    startcolumn = endcolumn;
+    startToEnd();
+
+    // at the beginning of a line
+    if (consumed() == '\n') {
+        bool blankline = true;
+
+        while (blankline) // assume this is a blank line
+        {
+            indent = 0;
+            while (true)
+            {
+                if (atEnd())
+                    break;
+                else if (peek() == ' ')
+                {
+                    ++indent;
+                    advance();
+                }
+                else if (peek() == '\t')
+                {
+                    indent = (indent / 8 + 1) * 8; // go up to nearest multiple of 8
+                    advance();
+                }
+                else
+                    break;
+            }
+
+            if (atEnd())
+                blankline = false;
+            else if (peek() == '\n') // if after the leading whitespace of this line there is \n then this is a blank line with only whitespace
+            {
+                blankline = true;
+                advance(); // consume \n
+                startToEnd();
+            }
+            else // if after the leading whitespace of this line, there is not \n then this is a non-blank line
+                blankline = false;
+        }
+    }
+
+    if (indent > indentstack.top())
+    {
+        indentstack.push(indent);
+        return makeToken(TokenType::INDENT);
+    }
+    else if (indent < indentstack.top())
+    {
+        indentstack.pop();
+        return makeToken(TokenType::DEDENT);
+    }
+
+    startToEnd();
 
     if (atEnd())
         return makeToken(TokenType::EOF_);
@@ -117,6 +170,12 @@ Token Lexer::nextToken()
     return makeErrorToken(ERR_UNEXPECTED_CHAR);
 }
 // helpers {{{1
+void Lexer::startToEnd()
+{
+    start = end;
+    startline = endline;
+    startcolumn = endcolumn;
+}
 bool Lexer::atEnd()
 {
     return end >= srcend;
