@@ -1,4 +1,5 @@
 #include "codegen/codegen.h"
+#include "message/reportAbort.h"
 
 #include <iostream>
 #include "message/errors.h"

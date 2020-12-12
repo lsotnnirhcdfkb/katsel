@@ -1,5 +1,6 @@
 #include "codegen/codegen.h"
 #include "message/errors.h"
+#include "message/reportAbort.h"
 #include "message/errmsgs.h"
 
 CodeGenNS::ExprCodeGen::ExprCodeGen(CodeGen &cg): cg(cg) {}
