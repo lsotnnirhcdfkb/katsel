@@ -3,8 +3,8 @@
 #include "message/errmsgs.h"
 
 // constructors {{{1
-Lexer::Lexer(File &sourcefile): start(sourcefile.source.begin()), end(start), startline(1), startcolumn(1), endnextline(1), endnextcolumn(1), srcend(sourcefile.source.end()), atLineStart(true), sourcefile(sourcefile) {}
-Lexer::Lexer(Token const &t): start(t.start), end(t.start), startline(t.line), startcolumn(t.column), endnextline(t.line), endnextcolumn(t.column), srcend(t.sourcefile->source.end()), atLineStart(t.column == 1), sourcefile(*t.sourcefile) {}
+Lexer::Lexer(File &sourcefile): start(sourcefile.source.begin()), end(start), startline(1), startcolumn(1), endline(1), endcolumn(1), srcend(sourcefile.source.end()), atLineStart(true), sourcefile(sourcefile) {}
+Lexer::Lexer(Token const &t): start(t.start), end(t.start), startline(t.line), startcolumn(t.column), endline(t.line), endcolumn(t.column), srcend(t.sourcefile->source.end()), atLineStart(t.column == 1), sourcefile(*t.sourcefile) {}
 
 // resetToTok {{{1
 void Lexer::resetToTok(Token const &t)
