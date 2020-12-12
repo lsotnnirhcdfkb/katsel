@@ -77,7 +77,41 @@ Token Lexer::nextToken()
 
     switch (current)
     {
+        case '\n': return makeToken(TokenType::NEWLINE);
 
+        case '(': return makeToken(TokenType::OPARN);
+        case ')': return makeToken(TokenType::CPARN);
+        case '[': return makeToken(TokenType::OSQUB);
+        case ']': return makeToken(TokenType::CSQUB);
+        case '{': return makeToken(TokenType::OCURB);
+        case '}': return makeToken(TokenType::CCURB);
+        case ',': return makeToken(TokenType::COMMA);
+        case '.': return makeToken(TokenType::PERIOD);
+        case ';': return makeToken(TokenType::SEMICOLON);
+        case '?': return makeToken(TokenType::QUESTION);
+        case '~': return makeToken(TokenType::TILDE);
+
+        // double and single
+        case '=': return makeToken(match('=') ? TokenType::DOUBLEEQUAL : TokenType::EQUAL);
+        case ':': return makeToken(match(':') ? TokenType::DOUBLECOLON : TokenType::COLON);
+
+        // equal and single
+        case '*': return makeToken(match('=') ? TokenType::STAREQUAL    : TokenType::STAR);
+        case '/': return makeToken(match('=') ? TokenType::SLASHEQUAL   : TokenType::SLASH);
+        case '!': return makeToken(match('=') ? TokenType::BANGEQUAL    : TokenType::BANG);
+        case '%': return makeToken(match('=') ? TokenType::PERCENTEQUAL : TokenType::PERCENT);
+        case '^': return makeToken(match('=') ? TokenType::CARETEQUAL   : TokenType::CARET);
+
+        // double and equal and single
+        case '+': return makeToken(match('+') ? TokenType::DOUBLEPLUS  : (match('=') ? TokenType::PLUSEQUAL  : TokenType::PLUS));
+        case '-': return makeToken(match('-') ? TokenType::DOUBLEMINUS : (match('=') ? TokenType::MINUSEQUAL : TokenType::MINUS));
+        case '&': return makeToken(match('&') ? TokenType::DOUBLEAMPER : (match('=') ? TokenType::AMPEREQUAL : TokenType::AMPER));
+        case '|': return makeToken(match('|') ? TokenType::DOUBLEPIPE  : (match('=') ? TokenType::PIPEEQUAL  : TokenType::PIPE));
+
+        // double, doubleequal, singleequal, single
+        //                  if matches double ? (is double so check if it has equal after it                          ) : (is not double so check if it has equal after it          )
+        case '>': return makeToken(match('>') ? (match('=') ? TokenType::DOUBLEGREATEREQUAL : TokenType::DOUBLEGREATER) : (match('=') ? TokenType::GREATEREQUAL : TokenType::GREATER));
+        case '<': return makeToken(match('<') ? (match('=') ? TokenType::DOUBLELESSEQUAL    : TokenType::DOUBLELESS   ) : (match('=') ? TokenType::LESSEQUAL    : TokenType::LESS   ));
     }
 
     return makeErrorToken(ERR_UNEXPECTED_CHAR);
