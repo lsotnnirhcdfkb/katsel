@@ -48,6 +48,10 @@ void E0008(Token const &tok);
 #define ERR_UNTERM_MULTILINE_COMMENT E0009
 void E0009(Token const &tok);
 
+// E0010 - dedent-nomatch
+#define ERR_DEDENT_NOMATCH E0010
+void E0010(Token const &tok);
+
 // E0100 - unrecoverable-invalid-syntax
 #define ERR_UNRECOVERABLE_INVALID_SYNTAX E0100
 void E0100(Token const &last, Token const &lookahead, std::vector<std::string> const &expectations);

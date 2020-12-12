@@ -120,6 +120,17 @@ void E0009(Token const &tok)
     e.report();
 }
 
+// E0010 - dedent-nomatch
+// | Dedent level does not match any other indentation level
+void E0010(Token const &tok)
+{
+    Error e = Error(Error::MsgType::ERROR, tok, "E0010 (dedent-nomatch)");
+    e.underline(Error::Underline(tok, '^')
+        .error("dedent to unknown level")
+    );
+    e.report();
+}
+
 // E0100 - unrecoverable-invalid-syntax
 // | The parser found an unrecoverable syntax error.
 void E0100(Token const &last, Token const &lookahead, std::vector<std::string> const &expectations)

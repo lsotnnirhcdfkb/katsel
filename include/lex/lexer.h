@@ -41,6 +41,7 @@ private:
     int endcolumn;
 
     int indent;
+    bool dedenting;
     std::stack<int> indentstack;
 
     std::string::iterator srcstart;

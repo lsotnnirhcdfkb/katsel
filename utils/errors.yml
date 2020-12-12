@@ -104,6 +104,16 @@ errors:
       - ['tok', *under0, [
           ['error', '"unterminated multiline comment"']
         ]]
+  -
+    code: 10
+    name: dedent-nomatch
+    desc: Dedent level does not match any other indentation level
+    inputs: 'Token const &tok'
+    location: tok
+    highlights:
+      - ['tok', *under0, [
+          ['error', '"dedent to unknown level"']
+        ]]
   - code: 100
     name: unrecoverable-invalid-syntax
     desc: The parser found an unrecoverable syntax error.
