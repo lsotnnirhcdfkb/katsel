@@ -219,6 +219,8 @@ Token Lexer::nextToken()
             else if (peek() == '\n') // if after the leading whitespace of this line there is \n then this is a blank line with only whitespace
             {
                 blankline = true;
+                ++endline;
+                endcolumn = 1;
                 advance(); // consume \n
                 startToEnd();
             }
@@ -256,7 +258,10 @@ Token Lexer::nextToken()
 
     switch (current)
     {
-        case '\n': return makeToken(TokenType::NEWLINE);
+        case '\n':
+            ++endline;
+            endcolumn = 1;
+            return makeToken(TokenType::NEWLINE);
 
         case '(': return makeToken(TokenType::OPARN);
         case ')': return makeToken(TokenType::CPARN);
