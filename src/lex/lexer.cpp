@@ -156,6 +156,8 @@ Token Lexer::nextToken()
                     {
                         advance();
                         advance();
+                        ++endline;
+                        endcolumn = 1;
                     }
                     break;
 
