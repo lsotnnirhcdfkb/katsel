@@ -123,7 +123,6 @@ private:
 };
 
 // other reporting functions {{{1
-void reportAbortNoh [[ noreturn ]] (std::string const &message);
 void invalidTok [[ noreturn ]] (std::string const &name, Token const &primary);
 void calledWithOpTyNEthis [[ noreturn ]] (std::string const &classN, std::string const &fnn, std::string const &opname);
 void outOSwitchDDefaultLab [[ noreturn ]] (std::string const &fnn, Location const &highlight);

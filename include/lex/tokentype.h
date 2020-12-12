@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include "message/reportAbort.h"
 
 enum class TokenType
 {
@@ -106,6 +107,10 @@ enum class TokenType
     CONTINUE,
     ASSERT,
 
+    NEWLINE,
+    INDENT,
+    DEDENT,
+
     EOF_,
     ERROR,
     SOF // start of file to make sure parser does not report error on invalid token with garbage values/zeroes
@@ -208,7 +213,7 @@ inline constexpr char const * stringifyTokenType(TokenType ty)
         STOKTY(SOF, start of file)
 
         default:
-            return "unknown token type";
+            reportAbortNoh("stringifyTokenType called on unknown token type");
     }
 #undef STOKTY
 }
