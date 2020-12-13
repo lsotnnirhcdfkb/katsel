@@ -768,8 +768,8 @@ void Error::report() const
                 for (Underline const &u : underlines)
                     if (itInLoc(i, u.location))
                     {
-                        lunderlinety pair (&u, getColN(u.location.file->source.begin(), u.location.start));
-                        if (u.location.end - 1 == i && u.messages.size()) // can only ever be one location where this underline ends
+                        lunderlinety pair (&u, getColN(u.location.file->source.begin(), u.location.end - 1));
+                        if ((u.location.end - 1 == i && u.messages.size()) || (u.location.start == u.location.end && u.location.start == i)) // can only ever be one location where this underline ends
                             lunderlines.push_back(pair);
                         needsecond = true;
                     }
