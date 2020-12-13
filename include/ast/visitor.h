@@ -57,6 +57,7 @@ class PrimaryExpr;
 class RetExpr;
 class Stmt;
 class StmtEnding;
+class StmtEnding_OPT;
 class StmtList;
 class StmtList_OPT;
 class StmtSegment;
@@ -145,6 +146,7 @@ class StmtEndingBVisitor
 public:
     virtual ~StmtEndingBVisitor() {}
     virtual void visitStmtEnding(ASTNS::StmtEnding *ast) = 0;
+    virtual void visitStmtEnding_OPT(ASTNS::StmtEnding_OPT *ast) = 0;
 };
 class TypeBVisitor
 {

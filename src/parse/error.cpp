@@ -354,7 +354,7 @@ bool panicMode(errorstate const &e, std::vector<std::string> const &expectations
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(BracedBlock)
-                        case TokenType::FUN: case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::COMMA: case TokenType::COLON: case TokenType::CPARN: case TokenType::EOF_: case TokenType::CCURB: case TokenType::DEDENT: case TokenType::LEFTARROW:
+                        case TokenType::FUN: case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::COMMA: case TokenType::EOF_: case TokenType::COLON: case TokenType::CPARN: case TokenType::CCURB: case TokenType::DEDENT: case TokenType::LEFTARROW:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(IndentedBlock)

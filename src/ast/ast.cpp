@@ -39,6 +39,8 @@ ASTNS::BitXorExpr::BitXorExpr(std::unique_ptr<ExprB> lhs, Token op, std::unique_
 void ASTNS::BitXorExpr::accept(ASTNS::ExprBVisitor *v) { v->visitBitXorExpr(this); }
 bool ASTNS::BitXorExpr::empty() { return false; }
 ASTNS::BracedBlock::BracedBlock(Token ocurb, std::unique_ptr<StmtB> stmts, std::unique_ptr<ExprB> implret, Token ccurb): ocurb(ocurb), stmts(std::move(stmts)), implret(std::move(implret)), ccurb(ccurb), form(ASTNS::BracedBlock::Form::TAAT) {}
+ASTNS::BracedBlock::BracedBlock(Token ocurb, Token newlopt, std::unique_ptr<StmtB> stmts, std::unique_ptr<ExprB> implret, Token ccurb): ocurb(ocurb), newlopt(newlopt), stmts(std::move(stmts)), implret(std::move(implret)), ccurb(ccurb), form(ASTNS::BracedBlock::Form::TTAAT) {}
+ASTNS::BracedBlock::BracedBlock(Token ocurb, Token newlopt, Token indentopt, std::unique_ptr<StmtB> stmts, std::unique_ptr<ExprB> implret, Token dedentopt, Token ccurb): ocurb(ocurb), newlopt(newlopt), indentopt(indentopt), stmts(std::move(stmts)), implret(std::move(implret)), dedentopt(dedentopt), ccurb(ccurb), form(ASTNS::BracedBlock::Form::TTTAATT) {}
 void ASTNS::BracedBlock::accept(ASTNS::ExprBVisitor *v) { v->visitBracedBlock(this); }
 bool ASTNS::BracedBlock::empty() { return false; }
 ASTNS::BuiltinType::BuiltinType(Token type): type(type), form(ASTNS::BuiltinType::Form::T) {}
@@ -70,7 +72,7 @@ ASTNS::FunctionDecl::FunctionDecl(Token fun, std::unique_ptr<TypeB> retty, Token
 ASTNS::FunctionDecl::FunctionDecl(Token fun, std::unique_ptr<TypeB> retty, Token name, Token oparn, std::unique_ptr<PListB> paramlist, Token cparn, Token newl): fun(fun), retty(std::move(retty)), name(name), oparn(oparn), paramlist(std::move(paramlist)), cparn(cparn), newl(newl), form(ASTNS::FunctionDecl::Form::TATTATT) {}
 void ASTNS::FunctionDecl::accept(ASTNS::DeclBVisitor *v) { v->visitFunctionDecl(this); }
 bool ASTNS::FunctionDecl::empty() { return false; }
-ASTNS::ImplRet::ImplRet(Token leftarrow, std::unique_ptr<ExprB> expr): leftarrow(leftarrow), expr(std::move(expr)), form(ASTNS::ImplRet::Form::TA) {}
+ASTNS::ImplRet::ImplRet(Token leftarrow, std::unique_ptr<ExprB> expr, std::unique_ptr<StmtEndingB> ending): leftarrow(leftarrow), expr(std::move(expr)), ending(std::move(ending)), form(ASTNS::ImplRet::Form::TAA) {}
 void ASTNS::ImplRet::accept(ASTNS::ExprBVisitor *v) { v->visitImplRet(this); }
 bool ASTNS::ImplRet::empty() { return false; }
 ASTNS::ImplRet_OPT::ImplRet_OPT(): form(ASTNS::ImplRet_OPT::Form::EMPTY) {}
@@ -105,6 +107,9 @@ bool ASTNS::RetExpr::empty() { return false; }
 ASTNS::StmtEnding::StmtEnding(Token tok): tok(tok), form(ASTNS::StmtEnding::Form::T) {}
 void ASTNS::StmtEnding::accept(ASTNS::StmtEndingBVisitor *v) { v->visitStmtEnding(this); }
 bool ASTNS::StmtEnding::empty() { return false; }
+ASTNS::StmtEnding_OPT::StmtEnding_OPT(): form(ASTNS::StmtEnding_OPT::Form::EMPTY) {}
+void ASTNS::StmtEnding_OPT::accept(ASTNS::StmtEndingBVisitor *v) { v->visitStmtEnding_OPT(this); }
+bool ASTNS::StmtEnding_OPT::empty() { return form == Form::EMPTY; }
 ASTNS::StmtList::StmtList(std::unique_ptr<StmtB> stmtsegment, std::unique_ptr<StmtEndingB> stmtending): stmtsegment(std::move(stmtsegment)), stmtending(std::move(stmtending)), form(ASTNS::StmtList::Form::AA) {}
 void ASTNS::StmtList::accept(ASTNS::StmtBVisitor *v) { v->visitStmtList(this); }
 bool ASTNS::StmtList::empty() { return false; }

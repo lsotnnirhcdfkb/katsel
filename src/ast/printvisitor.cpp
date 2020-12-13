@@ -404,6 +404,78 @@ void ASTNS::PrintVisitor::visitBracedBlock(ASTNS::BracedBlock *a)
             pai(std::string(a->ccurb.start, a->ccurb.end));
             pai("]\n");
             break;
+        case ASTNS::BracedBlock::Form::TTAAT:
+            pai("ocurb = ");
+            pai("[");
+            pai(std::string(a->ocurb.start, a->ocurb.end));
+            pai("]\n");
+            pai("newlopt = ");
+            pai("[");
+            pai(std::string(a->newlopt.start, a->newlopt.end));
+            pai("]\n");
+            pai("stmts = ");
+            if (a->stmts)
+            {
+                a->stmts->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            pai("implret = ");
+            if (a->implret)
+            {
+                a->implret->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            pai("ccurb = ");
+            pai("[");
+            pai(std::string(a->ccurb.start, a->ccurb.end));
+            pai("]\n");
+            break;
+        case ASTNS::BracedBlock::Form::TTTAATT:
+            pai("ocurb = ");
+            pai("[");
+            pai(std::string(a->ocurb.start, a->ocurb.end));
+            pai("]\n");
+            pai("newlopt = ");
+            pai("[");
+            pai(std::string(a->newlopt.start, a->newlopt.end));
+            pai("]\n");
+            pai("indentopt = ");
+            pai("[");
+            pai(std::string(a->indentopt.start, a->indentopt.end));
+            pai("]\n");
+            pai("stmts = ");
+            if (a->stmts)
+            {
+                a->stmts->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            pai("implret = ");
+            if (a->implret)
+            {
+                a->implret->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            pai("dedentopt = ");
+            pai("[");
+            pai(std::string(a->dedentopt.start, a->dedentopt.end));
+            pai("]\n");
+            pai("ccurb = ");
+            pai("[");
+            pai(std::string(a->ccurb.start, a->ccurb.end));
+            pai("]\n");
+            break;
     }
     --indent;
     pai("}\n");
@@ -743,7 +815,7 @@ void ASTNS::PrintVisitor::visitImplRet(ASTNS::ImplRet *a)
     ++indent;
     switch (a->form)
     {
-        case ASTNS::ImplRet::Form::TA:
+        case ASTNS::ImplRet::Form::TAA:
             pai("leftarrow = ");
             pai("[");
             pai(std::string(a->leftarrow.start, a->leftarrow.end));
@@ -752,6 +824,15 @@ void ASTNS::PrintVisitor::visitImplRet(ASTNS::ImplRet *a)
             if (a->expr)
             {
                 a->expr->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            pai("ending = ");
+            if (a->ending)
+            {
+                a->ending->accept(this);
             }
             else
             {
@@ -1023,6 +1104,18 @@ void ASTNS::PrintVisitor::visitStmtEnding(ASTNS::StmtEnding *a)
             pai("[");
             pai(std::string(a->tok.start, a->tok.end));
             pai("]\n");
+            break;
+    }
+    --indent;
+    pai("}\n");
+}
+void ASTNS::PrintVisitor::visitStmtEnding_OPT(ASTNS::StmtEnding_OPT *a)
+{
+    pai("StmtEnding_OPT\n{\n");
+    ++indent;
+    switch (a->form)
+    {
+        case ASTNS::StmtEnding_OPT::Form::EMPTY:
             break;
     }
     --indent;
