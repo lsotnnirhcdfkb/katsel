@@ -41,9 +41,9 @@ bool ASTNS::BitXorExpr::empty() { return false; }
 ASTNS::BracedBlock::BracedBlock(Token ocurb, std::unique_ptr<StmtB> stmts, Token ccurb): ocurb(ocurb), stmts(std::move(stmts)), ccurb(ccurb), form(ASTNS::BracedBlock::Form::TAT) {}
 void ASTNS::BracedBlock::accept(ASTNS::ExprBVisitor *v) { v->visitBracedBlock(this); }
 bool ASTNS::BracedBlock::empty() { return false; }
-ASTNS::BuiltinTypeNoVoid::BuiltinTypeNoVoid(Token type): type(type), form(ASTNS::BuiltinTypeNoVoid::Form::T) {}
-void ASTNS::BuiltinTypeNoVoid::accept(ASTNS::TypeBVisitor *v) { v->visitBuiltinTypeNoVoid(this); }
-bool ASTNS::BuiltinTypeNoVoid::empty() { return false; }
+ASTNS::BuiltinType::BuiltinType(Token type): type(type), form(ASTNS::BuiltinType::Form::T) {}
+void ASTNS::BuiltinType::accept(ASTNS::TypeBVisitor *v) { v->visitBuiltinType(this); }
+bool ASTNS::BuiltinType::empty() { return false; }
 ASTNS::CU::CU(std::unique_ptr<DeclB> dl): dl(std::move(dl)), form(ASTNS::CU::Form::A) {}
 ASTNS::CU::CU(): form(ASTNS::CU::Form::EMPTY) {}
 void ASTNS::CU::accept(ASTNS::CUBVisitor *v) { v->visitCU(this); }
@@ -111,9 +111,6 @@ bool ASTNS::StmtSegment::empty() { return false; }
 ASTNS::TernaryExpr::TernaryExpr(std::unique_ptr<ExprB> cond, Token quest, std::unique_ptr<ExprB> trues, Token colon, std::unique_ptr<ExprB> falses): cond(std::move(cond)), quest(quest), trues(std::move(trues)), colon(colon), falses(std::move(falses)), form(ASTNS::TernaryExpr::Form::ATATA) {}
 void ASTNS::TernaryExpr::accept(ASTNS::ExprBVisitor *v) { v->visitTernaryExpr(this); }
 bool ASTNS::TernaryExpr::empty() { return false; }
-ASTNS::TypeV::TypeV(Token vo): vo(vo), form(ASTNS::TypeV::Form::T) {}
-void ASTNS::TypeV::accept(ASTNS::TypeBVisitor *v) { v->visitTypeV(this); }
-bool ASTNS::TypeV::empty() { return false; }
 ASTNS::UnaryExpr::UnaryExpr(Token op, std::unique_ptr<ExprB> operand): op(op), operand(std::move(operand)), form(ASTNS::UnaryExpr::Form::TA) {}
 void ASTNS::UnaryExpr::accept(ASTNS::ExprBVisitor *v) { v->visitUnaryExpr(this); }
 bool ASTNS::UnaryExpr::empty() { return false; }

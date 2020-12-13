@@ -83,7 +83,7 @@ void visitBitOrExpr(ASTNS::BitOrExpr *ast) override;
 void visitBitShiftExpr(ASTNS::BitShiftExpr *ast) override;
 void visitBitXorExpr(ASTNS::BitXorExpr *ast) override;
 void visitBracedBlock(ASTNS::BracedBlock *ast) override;
-void visitBuiltinTypeNoVoid(ASTNS::BuiltinTypeNoVoid *ast) override;
+void visitBuiltinType(ASTNS::BuiltinType *ast) override;
 void visitCU(ASTNS::CU *ast) override;
 void visitCallExpr(ASTNS::CallExpr *ast) override;
 void visitCastExpr(ASTNS::CastExpr *ast) override;
@@ -105,7 +105,6 @@ void visitStmtList(ASTNS::StmtList *ast) override;
 void visitStmtList_OPT(ASTNS::StmtList_OPT *ast) override;
 void visitStmtSegment(ASTNS::StmtSegment *ast) override;
 void visitTernaryExpr(ASTNS::TernaryExpr *ast) override;
-void visitTypeV(ASTNS::TypeV *ast) override;
 void visitUnaryExpr(ASTNS::UnaryExpr *ast) override;
 void visitVarStmt(ASTNS::VarStmt *ast) override;
 void visitVarStmtItem(ASTNS::VarStmtItem *ast) override;
@@ -296,11 +295,11 @@ void LocationVisitor::visitBracedBlock(ASTNS::BracedBlock *ast)
             break;
     }
 }
-void LocationVisitor::visitBuiltinTypeNoVoid(ASTNS::BuiltinTypeNoVoid *ast)
+void LocationVisitor::visitBuiltinType(ASTNS::BuiltinType *ast)
 {
     switch (ast->form)
     {
-        case ASTNS::BuiltinTypeNoVoid::Form::T:
+        case ASTNS::BuiltinType::Form::T:
             retl = ast->type.start;
             retf = ast->type.sourcefile;
             retr = ast->type.end;
@@ -549,17 +548,6 @@ void LocationVisitor::visitTernaryExpr(ASTNS::TernaryExpr *ast)
             retl = getL(ast->cond.get());
             retf = getF(ast->cond.get());
             retr = getR(ast->falses.get());
-            break;
-    }
-}
-void LocationVisitor::visitTypeV(ASTNS::TypeV *ast)
-{
-    switch (ast->form)
-    {
-        case ASTNS::TypeV::Form::T:
-            retl = ast->vo.start;
-            retf = ast->vo.sourcefile;
-            retr = ast->vo.end;
             break;
     }
 }

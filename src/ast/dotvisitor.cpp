@@ -494,13 +494,13 @@ void ASTNS::DotVisitor::visitBracedBlock(ASTNS::BracedBlock *a)
     }
     lastid = std::move(thisid);
 }
-void ASTNS::DotVisitor::visitBuiltinTypeNoVoid(ASTNS::BuiltinTypeNoVoid *a)
+void ASTNS::DotVisitor::visitBuiltinType(ASTNS::BuiltinType *a)
 {
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::BuiltinTypeNoVoid::Form::T:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">BuiltinTypeNoVoid (T)</td></tr><tr>";
+        case ASTNS::BuiltinType::Form::T:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">BuiltinType (T)</td></tr><tr>";
             ostream << "<td port=\"type\">type</td>";
             ostream << "</tr></table>>]\n";
             {
@@ -1363,23 +1363,6 @@ void ASTNS::DotVisitor::visitTernaryExpr(ASTNS::TernaryExpr *a)
                         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
                         connect(thisid, "falses", nullptrnodeid);
                     }
-            }
-            break;
-    }
-    lastid = std::move(thisid);
-}
-void ASTNS::DotVisitor::visitTypeV(ASTNS::TypeV *a)
-{
-    std::string thisid = curid();
-    switch (a->form)
-    {
-        case ASTNS::TypeV::Form::T:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">TypeV (T)</td></tr><tr>";
-            ostream << "<td port=\"vo\">vo</td>";
-            ostream << "</tr></table>>]\n";
-            {
-                    std::string tokennodeid = makeTextNode("Token", a->vo.stringify());
-                    connect(thisid, "vo", tokennodeid);
             }
             break;
     }

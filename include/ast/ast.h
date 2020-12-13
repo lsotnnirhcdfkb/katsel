@@ -39,7 +39,7 @@ namespace ASTNS
     class BitXorExpr;
     class Block;
     class BracedBlock;
-    class BuiltinTypeNoVoid;
+    class BuiltinType;
     class CU;
     class CallExpr;
     class CastExpr;
@@ -64,8 +64,7 @@ namespace ASTNS
     class StmtList_OPT;
     class StmtSegment;
     class TernaryExpr;
-    class TypeNV;
-    class TypeV;
+    class Type;
     class UnaryExpr;
     class VarStmt;
     class VarStmtItem;
@@ -376,10 +375,10 @@ namespace ASTNS
         bool empty() override;
         virtual void accept(ASTNS::ExprBVisitor *v) override;
     };
-    class BuiltinTypeNoVoid : public TypeB
+    class BuiltinType : public TypeB
     {
     public:
-        BuiltinTypeNoVoid(Token type);
+        BuiltinType(Token type);
         enum class Form
         {
             T,
@@ -730,26 +729,13 @@ namespace ASTNS
         bool empty() override;
         virtual void accept(ASTNS::ExprBVisitor *v) override;
     };
-    class TypeNV : public TypeB
+    class Type : public TypeB
     {
     public:
         enum class Form
         {
         };
         Form form;
-    };
-    class TypeV : public TypeB
-    {
-    public:
-        TypeV(Token vo);
-        enum class Form
-        {
-            T,
-        };
-        Token vo;
-        Form form;
-        bool empty() override;
-        virtual void accept(ASTNS::TypeBVisitor *v) override;
     };
     class UnaryExpr : public ExprB
     {

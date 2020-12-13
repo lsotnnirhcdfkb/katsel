@@ -10,7 +10,7 @@ IR::Type* CodeGenNS::TypeResolve::type(ASTNS::TypeB *ast) {
     return ret;
 }
 
-void CodeGenNS::TypeResolve::visitBuiltinTypeNoVoid(ASTNS::BuiltinTypeNoVoid *ast)
+void CodeGenNS::TypeResolve::visitBuiltinType(ASTNS::BuiltinType *ast)
 {
     switch (ast->type.type)
     {
@@ -28,12 +28,9 @@ void CodeGenNS::TypeResolve::visitBuiltinTypeNoVoid(ASTNS::BuiltinTypeNoVoid *as
         TY(BOOL)
         TY(CHAR)
 #undef TY
+        case TokenType::VOID: ret = cg.context.getVoidType();
+
         default:
             invalidTok("builtin type", ast->type);
     }
-}
-
-void CodeGenNS::TypeResolve::visitTypeV(ASTNS::TypeV *ast)
-{
-    ret = cg.context.getVoidType();
 }

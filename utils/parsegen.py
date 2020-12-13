@@ -474,9 +474,8 @@ def makeGrammar():
     Block = nt('Block', 'code block', 'ExprB', panickable=True)
     BracedBlock = nt('BracedBlock', 'braced code block', 'ExprB', panickable=True)
     IndentedBlock = nt('IndentedBlock', 'indented code block', 'ExprB', panickable=True)
-    TypeNV = nt('TypeNV', 'non-void type specifier', 'TypeB')
-    TypeV = nt('TypeV', 'void-inclusive type specifier', 'TypeB')
-    BuiltinTypeNoVoid = nt('BuiltinTypeNoVoid', 'builtin type specifier', 'TypeB')
+    Type = nt('Type', 'type specifier', 'TypeB')
+    BuiltinType= nt('BuiltinType', 'builtin type specifier', 'TypeB')
     Arg = nt('Arg', 'argument', 'ArgB', panickable=True)
     Param = nt('Param', 'parameter', 'PListB', panickable=True)
     Expr = nt('Expr', 'expression', 'ExprB')
@@ -575,15 +574,15 @@ def makeGrammar():
 
     rule(Decl, ((FunctionDecl, '_'), ))
 
-    rule(FunctionDecl, ((FUN, 'fun'),  (TypeV, 'retty'),  (IDENTIFIER, 'name'),  (OPARN, 'oparn'),  (ParamListOpt, 'paramlist'),  (CPARN, 'cparn'),  (Block, 'body'), ), 'fun', 'cparn')
-    rule(FunctionDecl, ((FUN, 'fun'),  (TypeV, 'retty'),  (IDENTIFIER, 'name'),  (OPARN, 'oparn'),  (ParamListOpt, 'paramlist'),  (CPARN, 'cparn'),  (NEWLINE, 'newl'), ), 'fun', 'newl')
+    rule(FunctionDecl, ((FUN, 'fun'),  (Type, 'retty'),  (IDENTIFIER, 'name'),  (OPARN, 'oparn'),  (ParamListOpt, 'paramlist'),  (CPARN, 'cparn'),  (Block, 'body'), ), 'fun', 'cparn')
+    rule(FunctionDecl, ((FUN, 'fun'),  (Type, 'retty'),  (IDENTIFIER, 'name'),  (OPARN, 'oparn'),  (ParamListOpt, 'paramlist'),  (CPARN, 'cparn'),  (NEWLINE, 'newl'), ), 'fun', 'newl')
 
     rule(Stmt, ((VarStmt, '_'), ))
     rule(Stmt, ((ExprStmt, '_'), ))
     rule(Expr, ((RetExpr, '_'), ))
     rule(Expr, ((BracedBlock, '_'), ))
 
-    rule(VarStmt, ((VAR, 'var'),  (TypeNV, 'type'),  (VarStmtItemList, 'assignments'),))
+    rule(VarStmt, ((VAR, 'var'),  (Type, 'type'),  (VarStmtItemList, 'assignments'),))
 
     rule(ExprStmt, ((Expr, 'expr'),))
 
@@ -601,27 +600,25 @@ def makeGrammar():
     rule(StmtEnding, ((NEWLINE, 'tok'),))
     rule(StmtEnding, ((SEMICOLON, 'tok'),))
 
-    rule(TypeNV, ((BuiltinTypeNoVoid, '_'), ))
+    rule(Type, ((BuiltinType, '_'), ))
 
-    rule(TypeV, ((TypeNV, '_'), ))
-    rule(TypeV, ((VOID, 'vo'), ))
-
-    rule(BuiltinTypeNoVoid, ((UINT8, 'type'), ))
-    rule(BuiltinTypeNoVoid, ((UINT16, 'type'), ))
-    rule(BuiltinTypeNoVoid, ((UINT32, 'type'), ))
-    rule(BuiltinTypeNoVoid, ((UINT64, 'type'), ))
-    rule(BuiltinTypeNoVoid, ((SINT8, 'type'), ))
-    rule(BuiltinTypeNoVoid, ((SINT16, 'type'), ))
-    rule(BuiltinTypeNoVoid, ((SINT32, 'type'), ))
-    rule(BuiltinTypeNoVoid, ((SINT64, 'type'), ))
-    rule(BuiltinTypeNoVoid, ((FLOAT, 'type'), ))
-    rule(BuiltinTypeNoVoid, ((BOOL, 'type'), ))
-    rule(BuiltinTypeNoVoid, ((DOUBLE, 'type'), ))
-    rule(BuiltinTypeNoVoid, ((CHAR, 'type'), ))
+    rule(BuiltinType, ((UINT8, 'type'), ))
+    rule(BuiltinType, ((UINT16, 'type'), ))
+    rule(BuiltinType, ((UINT32, 'type'), ))
+    rule(BuiltinType, ((UINT64, 'type'), ))
+    rule(BuiltinType, ((SINT8, 'type'), ))
+    rule(BuiltinType, ((SINT16, 'type'), ))
+    rule(BuiltinType, ((SINT32, 'type'), ))
+    rule(BuiltinType, ((SINT64, 'type'), ))
+    rule(BuiltinType, ((FLOAT, 'type'), ))
+    rule(BuiltinType, ((BOOL, 'type'), ))
+    rule(BuiltinType, ((DOUBLE, 'type'), ))
+    rule(BuiltinType, ((CHAR, 'type'), ))
+    rule(BuiltinType, ((VOID, 'type'), ))
 
     rule(Arg, ((Expr, 'expr'), ))
 
-    rule(Param, ((TypeNV, 'type'),  (IDENTIFIER, 'name'), ))
+    rule(Param, ((Type, 'type'),  (IDENTIFIER, 'name'), ))
 
     rule(Expr, ((AssignmentExpr, '_'), ))
     rule(AssignmentExpr, ((TernaryExpr, 'target'),  (EQUAL, 'equal'),  (AssignmentExpr, 'value'), ))
@@ -656,7 +653,7 @@ def makeGrammar():
     rule(MultExpr, ((MultExpr, 'lhs'),  (SLASH, 'op'),  (UnaryExpr, 'rhs'), ))
     rule(MultExpr, ((MultExpr, 'lhs'),  (PERCENT, 'op'),  (UnaryExpr, 'rhs'), ))
     rule(MultExpr, ((CastExpr, '_'), ))
-    rule(CastExpr, ((OPARN, 'oparn'),  (TypeNV, 'type'),  (CPARN, 'cparn'),  (CastExpr, 'operand'), ))
+    rule(CastExpr, ((OPARN, 'oparn'),  (Type, 'type'),  (CPARN, 'cparn'),  (CastExpr, 'operand'), ))
     rule(CastExpr, ((UnaryExpr, '_'), ))
     rule(UnaryExpr, ((TILDE, 'op'),  (UnaryExpr, 'operand'), ))
     rule(UnaryExpr, ((MINUS, 'op'),  (UnaryExpr, 'operand'), ))
