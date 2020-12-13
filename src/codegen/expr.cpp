@@ -385,6 +385,8 @@ void CodeGenNS::ExprCodeGen::visitIndentedBlock(ASTNS::IndentedBlock *ast)
     if (ast->stmts)
         ast->stmts->accept(&cg.stmtCodeGen);
     cg.context.decScope();
+
+    ret = IR::ASTValue(cg.context.getVoidValue(), ast);
 }
 void CodeGenNS::ExprCodeGen::visitBracedBlock(ASTNS::BracedBlock *ast)
 {
@@ -392,6 +394,8 @@ void CodeGenNS::ExprCodeGen::visitBracedBlock(ASTNS::BracedBlock *ast)
     if (ast->stmts)
         ast->stmts->accept(&cg.stmtCodeGen);
     cg.context.decScope();
+
+    ret = IR::ASTValue(cg.context.getVoidValue(), ast);
 }
 void CodeGenNS::ExprCodeGen::visitRetExpr(ASTNS::RetExpr *ast)
 {

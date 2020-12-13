@@ -28,7 +28,7 @@ void CodeGenNS::TypeResolve::visitBuiltinType(ASTNS::BuiltinType *ast)
         TY(BOOL)
         TY(CHAR)
 #undef TY
-        case TokenType::VOID: ret = cg.context.getVoidType();
+        case TokenType::VOID: ret = cg.context.getVoidType(); return;
 
         default:
             invalidTok("builtin type", ast->type);
