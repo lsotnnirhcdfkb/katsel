@@ -158,6 +158,7 @@ Token Lexer::nextToken()
                         advance();
                         ++endline;
                         endcolumn = 1;
+                        startToEnd();
                     }
                     else
                     {
