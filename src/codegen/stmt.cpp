@@ -16,10 +16,12 @@ void CodeGenNS::StmtCodeGen::visitVarStmt(ASTNS::VarStmt *ast)
 {
     IR::Type *ty = cg.typeResolver.type(ast->type.get());
 
+    IR::Type *oldvarty = varty;
     varty = ty;
     ast->assignments->accept(this);
-    varty = nullptr;
+    varty = oldvarty;
 }
+void CodeGenNS::StmtCodeGen::visitVarStmt_OPT(ASTNS::VarStmt_OPT *ast) {}
 void CodeGenNS::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
 {
     IR::ASTValue v;

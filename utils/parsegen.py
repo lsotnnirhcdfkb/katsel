@@ -483,6 +483,7 @@ def makeGrammar():
     BlockedExpr = nt('BlockedExpr', 'braced expression', 'ExprB')
     NotBlockedExpr = nt('NotBlockedExpr', 'non-braced expression', 'ExprB')
     IfExpr = nt('IfExpr', 'if expression', 'ExprB', panickable=True)
+    ForExpr = nt('ForExpr', 'for expression', 'ExprB', panickable=True)
     AssignmentExpr = nt('AssignmentExpr', 'assignment expression', 'ExprB')
     BinOrExpr = nt('BinOrExpr', 'binary or expression', 'ExprB')
     BinAndExpr = nt('BinAndExpr', 'binary and expression', 'ExprB')
@@ -527,6 +528,7 @@ def makeGrammar():
     FALSELIT = Terminal('FALSELIT')
     FLOAT = Terminal('FLOAT')
     FLOATLIT = Terminal('FLOATLIT')
+    FOR = Terminal('FOR')
     FUN = Terminal('FUN')
     GREATER = Terminal('GREATER')
     GREATEREQUAL = Terminal('GREATEREQUAL')
@@ -575,6 +577,8 @@ def makeGrammar():
     ArgListOpt = makeOpt(ArgList)
     StmtListOpt = makeOpt(StmtList)
     ImplRetOpt = makeOpt(ImplRet)
+    ExprOpt = makeOpt(Expr)
+    VarStmtOpt = makeOpt(VarStmt)
     StmtEndingOpt = makeOpt(StmtEnding)
 
     rule(CU, ((DeclList, 'dl'),))
@@ -636,12 +640,16 @@ def makeGrammar():
     rule(Expr, ((NotBlockedExpr, '_'),))
 
     rule(NotBlockedExpr, ((AssignmentExpr, '_'),))
+
     rule(BlockedExpr, ((IfExpr, '_'),))
+    rule(BlockedExpr, ((ForExpr, '_'),))
     rule(BlockedExpr, ((BracedBlock, '_'),))
 
     rule(IfExpr, ((IF, 'iftok'), (Expr, 'cond'), (Block, 'trues')))
     rule(IfExpr, ((IF, 'iftok'), (Expr, 'cond'), (Block, 'trues'), (ELSE, 'elsetok'), (Block, 'falses')))
     rule(IfExpr, ((IF, 'iftok'), (Expr, 'cond'), (Block, 'trues'), (ELSE, 'elsetok'), (IfExpr, 'falses')))
+
+    rule(ForExpr, ((FOR, 'fortok'), (VarStmtOpt, 'start'), (SEMICOLON, 'semi1'), (ExprOpt, 'cond'), (SEMICOLON, 'semi2'), (ExprOpt, 'increment'), (CPARN, 'cparn'), (Block, 'body')))
 
     rule(AssignmentExpr, ((BinOrExpr, 'target'),  (EQUAL, 'equal'),  (AssignmentExpr, 'value'), ))
     rule(AssignmentExpr, ((BinOrExpr, '_'),))

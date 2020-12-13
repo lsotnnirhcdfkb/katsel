@@ -910,6 +910,101 @@ void ASTNS::DotVisitor::visitExprStmt(ASTNS::ExprStmt *a)
     }
     lastid = std::move(thisid);
 }
+void ASTNS::DotVisitor::visitExpr_OPT(ASTNS::Expr_OPT *a)
+{
+    std::string thisid = curid();
+    switch (a->form)
+    {
+        case ASTNS::Expr_OPT::Form::EMPTY:
+            ostream << thisid << " [label=\"Expr_OPT (EMPTY)\"]";
+            break;
+    }
+    lastid = std::move(thisid);
+}
+void ASTNS::DotVisitor::visitForExpr(ASTNS::ForExpr *a)
+{
+    std::string thisid = curid();
+    switch (a->form)
+    {
+        case ASTNS::ForExpr::Form::TATATATA:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"8\">ForExpr (TATATATA)</td></tr><tr>";
+            ostream << "<td port=\"fortok\">fortok</td>";
+            ostream << "<td port=\"start\">start</td>";
+            ostream << "<td port=\"semi1\">semi1</td>";
+            ostream << "<td port=\"cond\">cond</td>";
+            ostream << "<td port=\"semi2\">semi2</td>";
+            ostream << "<td port=\"increment\">increment</td>";
+            ostream << "<td port=\"cparn\">cparn</td>";
+            ostream << "<td port=\"body\">body</td>";
+            ostream << "</tr></table>>]\n";
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->fortok.stringify());
+                    connect(thisid, "fortok", tokennodeid);
+            }
+            {
+                    if (a->start)
+                    {
+                        a->start->accept(this);
+                        connect(thisid, "start", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "start", nullptrnodeid);
+                    }
+            }
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->semi1.stringify());
+                    connect(thisid, "semi1", tokennodeid);
+            }
+            {
+                    if (a->cond)
+                    {
+                        a->cond->accept(this);
+                        connect(thisid, "cond", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "cond", nullptrnodeid);
+                    }
+            }
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->semi2.stringify());
+                    connect(thisid, "semi2", tokennodeid);
+            }
+            {
+                    if (a->increment)
+                    {
+                        a->increment->accept(this);
+                        connect(thisid, "increment", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "increment", nullptrnodeid);
+                    }
+            }
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->cparn.stringify());
+                    connect(thisid, "cparn", tokennodeid);
+            }
+            {
+                    if (a->body)
+                    {
+                        a->body->accept(this);
+                        connect(thisid, "body", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "body", nullptrnodeid);
+                    }
+            }
+            break;
+    }
+    lastid = std::move(thisid);
+}
 void ASTNS::DotVisitor::visitFunctionDecl(ASTNS::FunctionDecl *a)
 {
     std::string thisid = curid();
@@ -1795,6 +1890,17 @@ void ASTNS::DotVisitor::visitVarStmtItemSegment(ASTNS::VarStmtItemSegment *a)
                         connect(thisid, "anothervarstmtitem", nullptrnodeid);
                     }
             }
+            break;
+    }
+    lastid = std::move(thisid);
+}
+void ASTNS::DotVisitor::visitVarStmt_OPT(ASTNS::VarStmt_OPT *a)
+{
+    std::string thisid = curid();
+    switch (a->form)
+    {
+        case ASTNS::VarStmt_OPT::Form::EMPTY:
+            ostream << thisid << " [label=\"VarStmt_OPT (EMPTY)\"]";
             break;
     }
     lastid = std::move(thisid);

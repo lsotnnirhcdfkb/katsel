@@ -723,6 +723,82 @@ void ASTNS::PrintVisitor::visitExprStmt(ASTNS::ExprStmt *a)
     --indent;
     pai("}\n");
 }
+void ASTNS::PrintVisitor::visitExpr_OPT(ASTNS::Expr_OPT *a)
+{
+    pai("Expr_OPT\n{\n");
+    ++indent;
+    switch (a->form)
+    {
+        case ASTNS::Expr_OPT::Form::EMPTY:
+            break;
+    }
+    --indent;
+    pai("}\n");
+}
+void ASTNS::PrintVisitor::visitForExpr(ASTNS::ForExpr *a)
+{
+    pai("ForExpr\n{\n");
+    ++indent;
+    switch (a->form)
+    {
+        case ASTNS::ForExpr::Form::TATATATA:
+            pai("fortok = ");
+            pai("[");
+            pai(std::string(a->fortok.start, a->fortok.end));
+            pai("]\n");
+            pai("start = ");
+            if (a->start)
+            {
+                a->start->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            pai("semi1 = ");
+            pai("[");
+            pai(std::string(a->semi1.start, a->semi1.end));
+            pai("]\n");
+            pai("cond = ");
+            if (a->cond)
+            {
+                a->cond->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            pai("semi2 = ");
+            pai("[");
+            pai(std::string(a->semi2.start, a->semi2.end));
+            pai("]\n");
+            pai("increment = ");
+            if (a->increment)
+            {
+                a->increment->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            pai("cparn = ");
+            pai("[");
+            pai(std::string(a->cparn.start, a->cparn.end));
+            pai("]\n");
+            pai("body = ");
+            if (a->body)
+            {
+                a->body->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            break;
+    }
+    --indent;
+    pai("}\n");
+}
 void ASTNS::PrintVisitor::visitFunctionDecl(ASTNS::FunctionDecl *a)
 {
     pai("FunctionDecl\n{\n");
@@ -1428,6 +1504,18 @@ void ASTNS::PrintVisitor::visitVarStmtItemSegment(ASTNS::VarStmtItemSegment *a)
             {
                 pai("nullptr\n");
             }
+            break;
+    }
+    --indent;
+    pai("}\n");
+}
+void ASTNS::PrintVisitor::visitVarStmt_OPT(ASTNS::VarStmt_OPT *a)
+{
+    pai("VarStmt_OPT\n{\n");
+    ++indent;
+    switch (a->form)
+    {
+        case ASTNS::VarStmt_OPT::Form::EMPTY:
             break;
     }
     --indent;

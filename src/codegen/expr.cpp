@@ -360,6 +360,32 @@ void CodeGenNS::ExprCodeGen::visitIfExpr(ASTNS::IfExpr *ast)
         ret = IR::ASTValue(truev.val, ast);
 
 }
+void CodeGenNS::ExprCodeGen::visitForExpr(ASTNS::ForExpr *ast)
+{
+    cg.context.incScope();
+
+    cg.stmtCodeGen.stmt(ast->start.get());
+
+    IR::Block *loopCheckCond = cg.context.curFunc->addBlock("loop_checkcond");
+    IR::Block *loopBody = cg.context.curFunc->addBlock("loop_body");
+    IR::Block *loopAfter = cg.context.curFunc->addBlock("loop_after");
+
+    cg.context.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(loopCheckCond));
+    cg.context.curBlock = loopCheckCond;
+    IR::ASTValue cond = expr(ast->cond.get());
+    loopCheckCond->branch(std::make_unique<IR::Instrs::CondBr>(cond, loopBody, loopAfter));
+
+    cg.context.curBlock = loopBody;
+    expr(ast->body.get());
+
+    expr(ast->increment.get());
+    loopBody->branch(std::make_unique<IR::Instrs::GotoBr>(loopCheckCond));
+    cg.context.decScope();
+
+    cg.context.curBlock = loopAfter;
+
+    ret = IR::ASTValue(cg.context.getVoidValue(), ast);
+}
 
 void CodeGenNS::ExprCodeGen::visitAssignmentExpr(ASTNS::AssignmentExpr *ast)
 {
@@ -434,3 +460,5 @@ void CodeGenNS::ExprCodeGen::visitImplRet_OPT(ASTNS::ImplRet_OPT *ast)
 {
     ret = IR::ASTValue();
 }
+
+void CodeGenNS::ExprCodeGen::visitExpr_OPT(ASTNS::Expr_OPT *ast) {}
