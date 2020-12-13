@@ -17,6 +17,7 @@ namespace ASTNS
     class ExprB;
     class PListB;
     class StmtB;
+    class StmtEndingB;
     class TypeB;
     class VStmtIB;
     class AdditionExpr;
@@ -48,7 +49,7 @@ namespace ASTNS
     class DeclList;
     class Expr;
     class ExprStmt;
-    class Function;
+    class FunctionDecl;
     class IndentedBlock;
     class MultExpr;
     class Param;
@@ -58,6 +59,7 @@ namespace ASTNS
     class PrimaryExpr;
     class RetStmt;
     class Stmt;
+    class StmtEnding;
     class StmtList;
     class StmtList_OPT;
     class TernaryExpr;
@@ -113,6 +115,13 @@ namespace ASTNS
     public:
         virtual ~StmtB() {}
         virtual void accept(ASTNS::StmtBVisitor *v) = 0;
+        virtual bool empty() = 0;
+    };
+    class StmtEndingB : public AST
+    {
+    public:
+        virtual ~StmtEndingB() {}
+        virtual void accept(ASTNS::StmtEndingBVisitor *v) = 0;
         virtual bool empty() = 0;
     };
     class TypeB : public AST
@@ -354,14 +363,15 @@ namespace ASTNS
     class BracedBlock : public StmtB
     {
     public:
-        BracedBlock(Token ocurb, std::unique_ptr<StmtB> stmts, Token ccurb);
+        BracedBlock(Token ocurb, std::unique_ptr<StmtB> stmts, Token ccurb, std::unique_ptr<StmtEndingB> ending);
         enum class Form
         {
-            TAT,
+            TATA,
         };
         Token ocurb;
         std::unique_ptr<StmtB> stmts;
         Token ccurb;
+        std::unique_ptr<StmtEndingB> ending;
         Form form;
         bool empty() override;
         virtual void accept(ASTNS::StmtBVisitor *v) override;
@@ -489,22 +499,22 @@ namespace ASTNS
     class ExprStmt : public StmtB
     {
     public:
-        ExprStmt(std::unique_ptr<ExprB> expr, Token newl);
+        ExprStmt(std::unique_ptr<ExprB> expr, std::unique_ptr<StmtEndingB> ending);
         enum class Form
         {
-            AT,
+            AA,
         };
         std::unique_ptr<ExprB> expr;
-        Token newl;
+        std::unique_ptr<StmtEndingB> ending;
         Form form;
         bool empty() override;
         virtual void accept(ASTNS::StmtBVisitor *v) override;
     };
-    class Function : public DeclB
+    class FunctionDecl : public DeclB
     {
     public:
-        Function(Token fun, std::unique_ptr<TypeB> retty, Token name, Token oparn, std::unique_ptr<PListB> paramlist, Token cparn, std::unique_ptr<StmtB> body);
-        Function(Token fun, std::unique_ptr<TypeB> retty, Token name, Token oparn, std::unique_ptr<PListB> paramlist, Token cparn, Token newl);
+        FunctionDecl(Token fun, std::unique_ptr<TypeB> retty, Token name, Token oparn, std::unique_ptr<PListB> paramlist, Token cparn, std::unique_ptr<StmtB> body);
+        FunctionDecl(Token fun, std::unique_ptr<TypeB> retty, Token name, Token oparn, std::unique_ptr<PListB> paramlist, Token cparn, Token newl);
         enum class Form
         {
             TATTATA,
@@ -629,16 +639,16 @@ namespace ASTNS
     class RetStmt : public StmtB
     {
     public:
-        RetStmt(Token ret, std::unique_ptr<ExprB> expr, Token newl);
-        RetStmt(Token ret, Token newl);
+        RetStmt(Token ret, std::unique_ptr<ExprB> expr, std::unique_ptr<StmtEndingB> ending);
+        RetStmt(Token ret, std::unique_ptr<StmtEndingB> ending);
         enum class Form
         {
-            TAT,
-            TT,
+            TAA,
+            TA,
         };
         Token ret;
         std::unique_ptr<ExprB> expr;
-        Token newl;
+        std::unique_ptr<StmtEndingB> ending;
         Form form;
         bool empty() override;
         virtual void accept(ASTNS::StmtBVisitor *v) override;
@@ -650,6 +660,19 @@ namespace ASTNS
         {
         };
         Form form;
+    };
+    class StmtEnding : public StmtEndingB
+    {
+    public:
+        StmtEnding(Token tok);
+        enum class Form
+        {
+            T,
+        };
+        Token tok;
+        Form form;
+        bool empty() override;
+        virtual void accept(ASTNS::StmtEndingBVisitor *v) override;
     };
     class StmtList : public StmtB
     {
@@ -732,15 +755,15 @@ namespace ASTNS
     class VarStmt : public StmtB
     {
     public:
-        VarStmt(Token var, std::unique_ptr<TypeB> type, std::unique_ptr<VStmtIB> assignments, Token newl);
+        VarStmt(Token var, std::unique_ptr<TypeB> type, std::unique_ptr<VStmtIB> assignments, std::unique_ptr<StmtEndingB> ending);
         enum class Form
         {
-            TAAT,
+            TAAA,
         };
         Token var;
         std::unique_ptr<TypeB> type;
         std::unique_ptr<VStmtIB> assignments;
-        Token newl;
+        std::unique_ptr<StmtEndingB> ending;
         Form form;
         bool empty() override;
         virtual void accept(ASTNS::StmtBVisitor *v) override;

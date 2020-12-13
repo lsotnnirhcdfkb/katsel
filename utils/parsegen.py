@@ -435,14 +435,14 @@ def listRule(sym, base, delimit=None):
 
     if delimit is not None:
         symsegment = nt(sym.symbol + 'Segment', sym.name + ' list', base, panickable=True)
-        rule(symsegment, ((symsegment, symsegment.symbol.lower()), (delimit, str(delimit).lower()), (anothersym, anothersym.symbol.lower())))
-        rule(symsegment, ((sym, sym.name.lower()),))
+        rule(symsegment, ((symsegment, symsegment.symbol.lower()), (delimit, str(delimit).lower()), (anothersym, anothersym.symbol.lower())), special='nodefaultreduce')
+        rule(symsegment, ((sym, sym.name.lower()),), special='nodefaultreduce')
 
         rule(symlist, ((symsegment, symsegment.symbol.lower()),), special='nodefaultreduce')
         rule(symlist, ((symsegment, symsegment.symbol.lower()), (delimit, str(delimit).lower())), special='nodefaultreduce')
     else:
-        rule(symlist, ((symlist, symlist.symbol.lower()), (anothersym, anothersym.symbol.lower())))
-        rule(symlist, ((sym, sym.name.lower()),))
+        rule(symlist, ((symlist, symlist.symbol.lower()), (anothersym, anothersym.symbol.lower())), special='nodefaultreduce')
+        rule(symlist, ((sym, sym.name.lower()),), special='nodefaultreduce')
 
     return symlist
 
@@ -464,12 +464,13 @@ def makeGrammar():
 
     CU = nt('CU', 'compilation unit', 'CUB')
     Decl = nt('Decl', 'declaration', 'DeclB', panickable=True)
-    Function = nt('Function', 'function declaration', 'DeclB', panickable=True)
+    FunctionDecl = nt('FunctionDecl', 'function declaration', 'DeclB', panickable=True)
     Stmt = nt('Stmt', 'statement', 'StmtB', panickable=True)
     VarStmt = nt('VarStmt', 'variable statement', 'StmtB', panickable=True)
     ExprStmt = nt('ExprStmt', 'expression statement', 'StmtB', panickable=True)
     RetStmt = nt('RetStmt', 'return statement', 'StmtB', panickable=True)
     VarStmtItem = nt('VarStmtItem', 'variable statement initialization', 'VStmtIB')
+    StmtEnding = nt('StmtEnding', 'statement ending', 'StmtEndingB')
     Block = nt('Block', 'code block', 'StmtB', panickable=True)
     BracedBlock = nt('BracedBlock', 'braced code block', 'StmtB', panickable=True)
     IndentedBlock = nt('IndentedBlock', 'indented code block', 'StmtB', panickable=True)
@@ -572,30 +573,33 @@ def makeGrammar():
     rule(CU, ((DeclList, 'dl'),))
     rule(CU, ())
 
-    rule(Decl, ((Function, '_'), ))
+    rule(Decl, ((FunctionDecl, '_'), ))
 
-    rule(Function, ((FUN, 'fun'),  (TypeV, 'retty'),  (IDENTIFIER, 'name'),  (OPARN, 'oparn'),  (ParamListOpt, 'paramlist'),  (CPARN, 'cparn'),  (Block, 'body'), ), 'fun', 'cparn')
-    rule(Function, ((FUN, 'fun'),  (TypeV, 'retty'),  (IDENTIFIER, 'name'),  (OPARN, 'oparn'),  (ParamListOpt, 'paramlist'),  (CPARN, 'cparn'),  (NEWLINE, 'newl'), ), 'fun', 'newl')
+    rule(FunctionDecl, ((FUN, 'fun'),  (TypeV, 'retty'),  (IDENTIFIER, 'name'),  (OPARN, 'oparn'),  (ParamListOpt, 'paramlist'),  (CPARN, 'cparn'),  (Block, 'body'), ), 'fun', 'cparn')
+    rule(FunctionDecl, ((FUN, 'fun'),  (TypeV, 'retty'),  (IDENTIFIER, 'name'),  (OPARN, 'oparn'),  (ParamListOpt, 'paramlist'),  (CPARN, 'cparn'),  (NEWLINE, 'newl'), ), 'fun', 'newl')
 
     rule(Stmt, ((VarStmt, '_'), ))
     rule(Stmt, ((ExprStmt, '_'), ))
     rule(Stmt, ((RetStmt, '_'), ))
     rule(Stmt, ((BracedBlock, '_'), ))
 
-    rule(VarStmt, ((VAR, 'var'),  (TypeNV, 'type'),  (VarStmtItemList, 'assignments'),  (NEWLINE, 'newl'), ))
+    rule(VarStmt, ((VAR, 'var'),  (TypeNV, 'type'),  (VarStmtItemList, 'assignments'),  (StmtEnding, 'ending'), ))
 
-    rule(ExprStmt, ((Expr, 'expr'),  (NEWLINE, 'newl'), ))
+    rule(ExprStmt, ((Expr, 'expr'),  (StmtEnding, 'ending'), ))
 
-    rule(RetStmt , ((RETURN, 'ret'),  (Expr, 'expr'),  (NEWLINE, 'newl'), ))
-    rule(RetStmt, ((RETURN, 'ret'),  (NEWLINE, 'newl'), ))
+    rule(RetStmt , ((RETURN, 'ret'),  (Expr, 'expr'),  (StmtEnding, 'ending'), ))
+    rule(RetStmt, ((RETURN, 'ret'),  (StmtEnding, 'ending'), ))
 
     rule(VarStmtItem, ((IDENTIFIER, 'name'),  (EQUAL, 'equal'),  (Expr, 'expr'), ))
     rule(VarStmtItem, ((IDENTIFIER, 'name'), ))
 
-    rule(BracedBlock, ((OCURB, 'ocurb'), (StmtListOpt, 'stmts'),  (CCURB, 'ccurb'), ))
+    rule(BracedBlock, ((OCURB, 'ocurb'), (StmtListOpt, 'stmts'),  (CCURB, 'ccurb'), (StmtEnding, 'ending')))
     rule(IndentedBlock, ((NEWLINE, 'newl'), (INDENT, 'indent'), (StmtListOpt, 'stmts'), (DEDENT, 'dedent'), ))
     rule(Block, ((BracedBlock, '_'),))
     rule(Block, ((IndentedBlock, '_'),))
+
+    rule(StmtEnding, ((NEWLINE, 'tok'), ))
+    rule(StmtEnding, ((SEMICOLON, 'tok'), ))
 
     rule(TypeNV, ((BuiltinTypeNoVoid, '_'), ))
 

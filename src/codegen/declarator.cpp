@@ -16,7 +16,7 @@ void CodeGenNS::Declarator::visitDeclList(ASTNS::DeclList *ast)
     ast->anotherdecl->accept(this);
 }
 
-void CodeGenNS::Declarator::visitFunction(ASTNS::Function *fun)
+void CodeGenNS::Declarator::visitFunctionDecl(ASTNS::FunctionDecl *fun)
 {
     std::string fname (fun->name.stringify());
     IR::Value *declbefore = cg.context.findGlobal(fname);

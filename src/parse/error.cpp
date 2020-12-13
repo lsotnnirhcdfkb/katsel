@@ -163,6 +163,7 @@ bool singleTok(errorstate const &e, std::vector<std::string> const &expectations
     TRYTOKTY(TokenType::CCURB)
     TRYTOKTY(TokenType::INDENT)
     TRYTOKTY(TokenType::DEDENT)
+    TRYTOKTY(TokenType::SEMICOLON)
     TRYTOKTY(TokenType::VOID)
     TRYTOKTY(TokenType::UINT8)
     TRYTOKTY(TokenType::UINT16)
@@ -288,15 +289,15 @@ bool panicMode(errorstate const &e, std::vector<std::string> const &expectations
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(AnotherVarStmtItem)
-                        case TokenType::COMMA: case TokenType::NEWLINE:
+                        case TokenType::COMMA: case TokenType::NEWLINE: case TokenType::SEMICOLON:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(VarStmtItemSegment)
-                        case TokenType::COMMA: case TokenType::NEWLINE:
+                        case TokenType::COMMA: case TokenType::NEWLINE: case TokenType::SEMICOLON:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(VarStmtItemList)
-                        case TokenType::NEWLINE:
+                        case TokenType::NEWLINE: case TokenType::SEMICOLON:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(AnotherStmt)
@@ -323,7 +324,7 @@ bool panicMode(errorstate const &e, std::vector<std::string> const &expectations
                         case TokenType::FUN: case TokenType::EOF_:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
-                CHECKASI(Function)
+                CHECKASI(FunctionDecl)
                         case TokenType::FUN: case TokenType::EOF_:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()

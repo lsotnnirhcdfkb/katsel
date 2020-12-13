@@ -63,7 +63,8 @@ class LocationVisitor :
     public ASTNS::VStmtIBVisitor,
     public ASTNS::PListBVisitor,
     public ASTNS::TypeBVisitor,
-    public ASTNS::CUBVisitor
+    public ASTNS::CUBVisitor,
+    public ASTNS::StmtEndingBVisitor
 {
 public:
     // LOCVISITOR METHODS START
@@ -90,7 +91,7 @@ void visitCompEQExpr(ASTNS::CompEQExpr *ast) override;
 void visitCompLGTExpr(ASTNS::CompLGTExpr *ast) override;
 void visitDeclList(ASTNS::DeclList *ast) override;
 void visitExprStmt(ASTNS::ExprStmt *ast) override;
-void visitFunction(ASTNS::Function *ast) override;
+void visitFunctionDecl(ASTNS::FunctionDecl *ast) override;
 void visitIndentedBlock(ASTNS::IndentedBlock *ast) override;
 void visitMultExpr(ASTNS::MultExpr *ast) override;
 void visitParam(ASTNS::Param *ast) override;
@@ -99,6 +100,7 @@ void visitParamList_OPT(ASTNS::ParamList_OPT *ast) override;
 void visitParamSegment(ASTNS::ParamSegment *ast) override;
 void visitPrimaryExpr(ASTNS::PrimaryExpr *ast) override;
 void visitRetStmt(ASTNS::RetStmt *ast) override;
+void visitStmtEnding(ASTNS::StmtEnding *ast) override;
 void visitStmtList(ASTNS::StmtList *ast) override;
 void visitStmtList_OPT(ASTNS::StmtList_OPT *ast) override;
 void visitTernaryExpr(ASTNS::TernaryExpr *ast) override;
@@ -286,10 +288,10 @@ void LocationVisitor::visitBracedBlock(ASTNS::BracedBlock *ast)
 {
     switch (ast->form)
     {
-        case ASTNS::BracedBlock::Form::TAT:
+        case ASTNS::BracedBlock::Form::TATA:
             retl = ast->ocurb.start;
             retf = ast->ocurb.sourcefile;
-            retr = ast->ccurb.end;
+            retr = getR(ast->ending.get());
             break;
     }
 }
@@ -377,23 +379,23 @@ void LocationVisitor::visitExprStmt(ASTNS::ExprStmt *ast)
 {
     switch (ast->form)
     {
-        case ASTNS::ExprStmt::Form::AT:
+        case ASTNS::ExprStmt::Form::AA:
             retl = getL(ast->expr.get());
             retf = getF(ast->expr.get());
-            retr = ast->newl.end;
+            retr = getR(ast->ending.get());
             break;
     }
 }
-void LocationVisitor::visitFunction(ASTNS::Function *ast)
+void LocationVisitor::visitFunctionDecl(ASTNS::FunctionDecl *ast)
 {
     switch (ast->form)
     {
-        case ASTNS::Function::Form::TATTATA:
+        case ASTNS::FunctionDecl::Form::TATTATA:
             retl = ast->fun.start;
             retf = ast->fun.sourcefile;
             retr = ast->cparn.end;
             break;
-        case ASTNS::Function::Form::TATTATT:
+        case ASTNS::FunctionDecl::Form::TATTATT:
             retl = ast->fun.start;
             retf = ast->fun.sourcefile;
             retr = ast->newl.end;
@@ -484,15 +486,26 @@ void LocationVisitor::visitRetStmt(ASTNS::RetStmt *ast)
 {
     switch (ast->form)
     {
-        case ASTNS::RetStmt::Form::TAT:
+        case ASTNS::RetStmt::Form::TAA:
             retl = ast->ret.start;
             retf = ast->ret.sourcefile;
-            retr = ast->newl.end;
+            retr = getR(ast->ending.get());
             break;
-        case ASTNS::RetStmt::Form::TT:
+        case ASTNS::RetStmt::Form::TA:
             retl = ast->ret.start;
             retf = ast->ret.sourcefile;
-            retr = ast->newl.end;
+            retr = getR(ast->ending.get());
+            break;
+    }
+}
+void LocationVisitor::visitStmtEnding(ASTNS::StmtEnding *ast)
+{
+    switch (ast->form)
+    {
+        case ASTNS::StmtEnding::Form::T:
+            retl = ast->tok.start;
+            retf = ast->tok.sourcefile;
+            retr = ast->tok.end;
             break;
     }
 }
@@ -553,10 +566,10 @@ void LocationVisitor::visitVarStmt(ASTNS::VarStmt *ast)
 {
     switch (ast->form)
     {
-        case ASTNS::VarStmt::Form::TAAT:
+        case ASTNS::VarStmt::Form::TAAA:
             retl = ast->var.start;
             retf = ast->var.sourcefile;
-            retr = ast->newl.end;
+            retr = getR(ast->ending.get());
             break;
     }
 }

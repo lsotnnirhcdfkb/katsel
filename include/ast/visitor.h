@@ -12,6 +12,7 @@ class DeclB;
 class ExprB;
 class PListB;
 class StmtB;
+class StmtEndingB;
 class TypeB;
 class VStmtIB;
 class AdditionExpr;
@@ -43,7 +44,7 @@ class Decl;
 class DeclList;
 class Expr;
 class ExprStmt;
-class Function;
+class FunctionDecl;
 class IndentedBlock;
 class MultExpr;
 class Param;
@@ -53,6 +54,7 @@ class ParamSegment;
 class PrimaryExpr;
 class RetStmt;
 class Stmt;
+class StmtEnding;
 class StmtList;
 class StmtList_OPT;
 class TernaryExpr;
@@ -89,7 +91,7 @@ class DeclBVisitor
 public:
     virtual ~DeclBVisitor() {}
     virtual void visitDeclList(ASTNS::DeclList *ast) = 0;
-    virtual void visitFunction(ASTNS::Function *ast) = 0;
+    virtual void visitFunctionDecl(ASTNS::FunctionDecl *ast) = 0;
 };
 class ExprBVisitor
 {
@@ -132,6 +134,12 @@ public:
     virtual void visitStmtList(ASTNS::StmtList *ast) = 0;
     virtual void visitStmtList_OPT(ASTNS::StmtList_OPT *ast) = 0;
     virtual void visitVarStmt(ASTNS::VarStmt *ast) = 0;
+};
+class StmtEndingBVisitor
+{
+public:
+    virtual ~StmtEndingBVisitor() {}
+    virtual void visitStmtEnding(ASTNS::StmtEnding *ast) = 0;
 };
 class TypeBVisitor
 {

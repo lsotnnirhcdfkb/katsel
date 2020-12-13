@@ -17,7 +17,7 @@ namespace IR
         void print(llvm::raw_ostream &ostream) const;
         void cfgDot(llvm::raw_ostream &ostream) const;
 
-        IR::Function* addFunction(FunctionType *type, std::string name, ASTNS::Function *ast);
+        IR::Function* addFunction(FunctionType *type, std::string name, ASTNS::FunctionDecl *ast);
 
         File const &file;
         std::vector<std::unique_ptr<IR::Function>> functions;

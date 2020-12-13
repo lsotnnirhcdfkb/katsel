@@ -16,7 +16,8 @@ namespace ASTNS
         public ASTNS::VStmtIBVisitor,
         public ASTNS::PListBVisitor,
         public ASTNS::TypeBVisitor,
-        public ASTNS::CUBVisitor
+        public ASTNS::CUBVisitor,
+        public ASTNS::StmtEndingBVisitor
     {
     public:
         DotVisitor(llvm::raw_ostream &ostream);
@@ -44,7 +45,7 @@ void visitCompEQExpr(ASTNS::CompEQExpr *ast) override;
 void visitCompLGTExpr(ASTNS::CompLGTExpr *ast) override;
 void visitDeclList(ASTNS::DeclList *ast) override;
 void visitExprStmt(ASTNS::ExprStmt *ast) override;
-void visitFunction(ASTNS::Function *ast) override;
+void visitFunctionDecl(ASTNS::FunctionDecl *ast) override;
 void visitIndentedBlock(ASTNS::IndentedBlock *ast) override;
 void visitMultExpr(ASTNS::MultExpr *ast) override;
 void visitParam(ASTNS::Param *ast) override;
@@ -53,6 +54,7 @@ void visitParamList_OPT(ASTNS::ParamList_OPT *ast) override;
 void visitParamSegment(ASTNS::ParamSegment *ast) override;
 void visitPrimaryExpr(ASTNS::PrimaryExpr *ast) override;
 void visitRetStmt(ASTNS::RetStmt *ast) override;
+void visitStmtEnding(ASTNS::StmtEnding *ast) override;
 void visitStmtList(ASTNS::StmtList *ast) override;
 void visitStmtList_OPT(ASTNS::StmtList_OPT *ast) override;
 void visitTernaryExpr(ASTNS::TernaryExpr *ast) override;
