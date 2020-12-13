@@ -84,7 +84,7 @@ private:
         struct Message
         {
             std::string type;
-            std::string message;
+            std::string text;
             char const * const color;
         };
         Location location;
