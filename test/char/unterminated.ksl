@@ -1,5 +1,5 @@
 
 
-fun void test() // expect compile error (unrecoverable-invalid-syntax)
-    'f  // expect compile error (unterm-charlit)
+fun void test()
+    'f  // expect compile error (unterm-charlit) // expect compile error (unrecoverable-invalid-syntax)
     'fjwei' // expect compile error (multichar-charlit)

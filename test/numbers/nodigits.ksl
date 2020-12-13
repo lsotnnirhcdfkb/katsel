@@ -1,6 +1,7 @@
 
 fun uint32 main()
-    0 // expect compile error (panicking-invalid-syntax)
+    0
     0b /* expect compile error (intlit-no-digits) */ \
     0x /* expect compile error (intlit-no-digits) */ \
     0o /* expect compile error (intlit-no-digits) */ \
+    var uint32 x // in order to not have an error on the eof token

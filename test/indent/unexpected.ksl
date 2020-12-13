@@ -2,7 +2,7 @@
 
 fun uint32 main()
     var uint32 x
-    k // expect compile error (panicking-invalid-syntax)
-        asdf
+    k
+        asdf // expect compile error (panicking-invalid-syntax)
 
     var uint32 y // expect compile error (unrecoverable-invalid-syntax)
