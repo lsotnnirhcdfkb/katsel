@@ -178,8 +178,8 @@ bool singleTok(errorstate const &e, std::vector<std::string> const &expectations
     TRYTOKTY(TokenType::DOUBLE)
     TRYTOKTY(TokenType::CHAR)
     TRYTOKTY(TokenType::VOID)
-    TRYTOKTY(TokenType::QUESTION)
-    TRYTOKTY(TokenType::COLON)
+    TRYTOKTY(TokenType::IF)
+    TRYTOKTY(TokenType::ELSE)
     TRYTOKTY(TokenType::DOUBLEPIPE)
     TRYTOKTY(TokenType::DOUBLEAMPER)
     TRYTOKTY(TokenType::BANGEQUAL)
@@ -338,7 +338,7 @@ bool panicMode(errorstate const &e, std::vector<std::string> const &expectations
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(Block)
-                        case TokenType::FUN: case TokenType::EOF_:
+                        case TokenType::FUN: case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::COMMA: case TokenType::ELSE: case TokenType::EOF_: case TokenType::OCURB: case TokenType::CPARN: case TokenType::CCURB: case TokenType::DEDENT: case TokenType::LEFTARROW:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(VarStmt)
@@ -354,11 +354,15 @@ bool panicMode(errorstate const &e, std::vector<std::string> const &expectations
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(BracedBlock)
-                        case TokenType::FUN: case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::COMMA: case TokenType::EOF_: case TokenType::COLON: case TokenType::CPARN: case TokenType::CCURB: case TokenType::DEDENT: case TokenType::LEFTARROW:
+                        case TokenType::FUN: case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::COMMA: case TokenType::ELSE: case TokenType::EOF_: case TokenType::OCURB: case TokenType::CPARN: case TokenType::CCURB: case TokenType::DEDENT: case TokenType::LEFTARROW:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(IndentedBlock)
-                        case TokenType::FUN: case TokenType::EOF_:
+                        case TokenType::FUN: case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::COMMA: case TokenType::ELSE: case TokenType::EOF_: case TokenType::OCURB: case TokenType::CPARN: case TokenType::CCURB: case TokenType::DEDENT: case TokenType::LEFTARROW:
+                            RECOVERANDDEFBREAK()
+                FINISHCHECKASI()
+                CHECKASI(IfExpr)
+                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::COMMA: case TokenType::OCURB: case TokenType::CPARN: case TokenType::CCURB: case TokenType::DEDENT: case TokenType::LEFTARROW:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
             }

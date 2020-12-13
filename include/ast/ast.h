@@ -50,6 +50,7 @@ namespace ASTNS
     class Expr;
     class ExprStmt;
     class FunctionDecl;
+    class IfExpr;
     class ImplRet;
     class ImplRet_OPT;
     class IndentedBlock;
@@ -66,7 +67,6 @@ namespace ASTNS
     class StmtList;
     class StmtList_OPT;
     class StmtSegment;
-    class TernaryExpr;
     class Type;
     class UnaryExpr;
     class VarStmt;
@@ -541,6 +541,25 @@ namespace ASTNS
         bool empty() override;
         virtual void accept(ASTNS::DeclBVisitor *v) override;
     };
+    class IfExpr : public ExprB
+    {
+    public:
+        IfExpr(Token iftok, std::unique_ptr<ExprB> cond, std::unique_ptr<ExprB> trues);
+        IfExpr(Token iftok, std::unique_ptr<ExprB> cond, std::unique_ptr<ExprB> trues, Token elsetok, std::unique_ptr<ExprB> falses);
+        enum class Form
+        {
+            TAA,
+            TAATA,
+        };
+        Token iftok;
+        std::unique_ptr<ExprB> cond;
+        std::unique_ptr<ExprB> trues;
+        Token elsetok;
+        std::unique_ptr<ExprB> falses;
+        Form form;
+        bool empty() override;
+        virtual void accept(ASTNS::ExprBVisitor *v) override;
+    };
     class ImplRet : public ExprB
     {
     public:
@@ -765,23 +784,6 @@ namespace ASTNS
         Form form;
         bool empty() override;
         virtual void accept(ASTNS::StmtBVisitor *v) override;
-    };
-    class TernaryExpr : public ExprB
-    {
-    public:
-        TernaryExpr(std::unique_ptr<ExprB> cond, Token quest, std::unique_ptr<ExprB> trues, Token colon, std::unique_ptr<ExprB> falses);
-        enum class Form
-        {
-            ATATA,
-        };
-        std::unique_ptr<ExprB> cond;
-        Token quest;
-        std::unique_ptr<ExprB> trues;
-        Token colon;
-        std::unique_ptr<ExprB> falses;
-        Form form;
-        bool empty() override;
-        virtual void accept(ASTNS::ExprBVisitor *v) override;
     };
     class Type : public TypeB
     {

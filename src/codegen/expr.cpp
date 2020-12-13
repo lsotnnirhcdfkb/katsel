@@ -278,7 +278,7 @@ makeIntLit:
             invalidTok("primary token", ast->value);
     }
 }
-void CodeGenNS::ExprCodeGen::visitTernaryExpr(ASTNS::TernaryExpr *ast)
+void CodeGenNS::ExprCodeGen::visitIfExpr(ASTNS::IfExpr *ast)
 {
     IR::ASTValue cond = expr(ast->cond.get());
     if (!cond)
@@ -294,11 +294,14 @@ void CodeGenNS::ExprCodeGen::visitTernaryExpr(ASTNS::TernaryExpr *ast)
         return;
     }
 
-    IR::Block *trueb  = cg.context.curFunc->addBlock("ternary_true");
-    IR::Block *falseb = cg.context.curFunc->addBlock("ternary_false");
-    IR::Block *afterb = cg.context.curFunc->addBlock("ternary_after");
+    IR::Block *trueb  = cg.context.curFunc->addBlock("if_true");
+    IR::Block *falseb = ast->falses ? cg.context.curFunc->addBlock("if_false") : nullptr;
+    IR::Block *afterb = cg.context.curFunc->addBlock("if_after");
 
-    cg.context.curBlock->branch(std::make_unique<IR::Instrs::CondBr>(cond, trueb, falseb));
+    if (falseb)
+        cg.context.curBlock->branch(std::make_unique<IR::Instrs::CondBr>(cond, trueb, falseb));
+    else
+        cg.context.curBlock->branch(std::make_unique<IR::Instrs::CondBr>(cond, trueb, afterb));
 
     cg.context.curBlock = trueb;
     IR::ASTValue truev = expr(ast->trues.get());
@@ -310,30 +313,52 @@ void CodeGenNS::ExprCodeGen::visitTernaryExpr(ASTNS::TernaryExpr *ast)
     cg.context.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
     trueb = cg.context.curBlock;
 
-    cg.context.curBlock = falseb;
-    IR::ASTValue falsev = expr(ast->falses.get());
-    if (!falsev)
+    IR::ASTValue falsev;
+    if (falseb)
     {
-        ret = IR::ASTValue();
-        return;
+        cg.context.curBlock = falseb;
+        falsev = expr(ast->falses.get());
+        if (!falsev)
+        {
+            ret = IR::ASTValue();
+            return;
+        }
+        cg.context.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
+        falseb = cg.context.curBlock;
     }
-    cg.context.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
-    falseb = cg.context.curBlock;
 
-    if (truev.type() != falsev.type())
+    if (falseb)
     {
-        ERR_CONFL_TYS_TERNEXPR(truev, falsev, ast->quest);
-        ret = IR::ASTValue();
-        cg.errored = true;
-        return;
+        if (truev.type() != falsev.type())
+        {
+            ERR_CONFL_TYS_IFEXPR(truev, falsev, ast->iftok);
+            ret = IR::ASTValue();
+            cg.errored = true;
+            return;
+        }
+    }
+    else
+    {
+        if (!dynamic_cast<IR::VoidType*>(truev.type()))
+        {
+            ERR_NO_ELSE_NOT_VOID(truev, ast->iftok);
+            ret = IR::ASTValue();
+            cg.errored = true;
+            return;
+        }
     }
 
     cg.context.curBlock = afterb;
-    IR::TempRegister *outreg = cg.context.curFunc->addTempRegister(truev.type());
 
-    afterb->add(std::make_unique<IR::Instrs::Phi>(outreg, std::vector {std::make_pair(trueb, truev), std::make_pair(falseb, falsev)}));
+    if (falseb)
+    {
+        IR::TempRegister *outreg = cg.context.curFunc->addTempRegister(truev.type());
+        afterb->add(std::make_unique<IR::Instrs::Phi>(outreg, std::vector {std::make_pair(trueb, truev), std::make_pair(falseb, falsev)}));
+        ret = IR::ASTValue(outreg, ast);
+    }
+    else
+        ret = IR::ASTValue(truev.val, ast);
 
-    ret = IR::ASTValue(outreg, ast);
 }
 
 void CodeGenNS::ExprCodeGen::visitAssignmentExpr(ASTNS::AssignmentExpr *ast)

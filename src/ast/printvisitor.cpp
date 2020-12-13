@@ -809,6 +809,77 @@ void ASTNS::PrintVisitor::visitFunctionDecl(ASTNS::FunctionDecl *a)
     --indent;
     pai("}\n");
 }
+void ASTNS::PrintVisitor::visitIfExpr(ASTNS::IfExpr *a)
+{
+    pai("IfExpr\n{\n");
+    ++indent;
+    switch (a->form)
+    {
+        case ASTNS::IfExpr::Form::TAA:
+            pai("iftok = ");
+            pai("[");
+            pai(std::string(a->iftok.start, a->iftok.end));
+            pai("]\n");
+            pai("cond = ");
+            if (a->cond)
+            {
+                a->cond->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            pai("trues = ");
+            if (a->trues)
+            {
+                a->trues->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            break;
+        case ASTNS::IfExpr::Form::TAATA:
+            pai("iftok = ");
+            pai("[");
+            pai(std::string(a->iftok.start, a->iftok.end));
+            pai("]\n");
+            pai("cond = ");
+            if (a->cond)
+            {
+                a->cond->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            pai("trues = ");
+            if (a->trues)
+            {
+                a->trues->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            pai("elsetok = ");
+            pai("[");
+            pai(std::string(a->elsetok.start, a->elsetok.end));
+            pai("]\n");
+            pai("falses = ");
+            if (a->falses)
+            {
+                a->falses->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            break;
+    }
+    --indent;
+    pai("}\n");
+}
 void ASTNS::PrintVisitor::visitImplRet(ASTNS::ImplRet *a)
 {
     pai("ImplRet\n{\n");
@@ -1202,53 +1273,6 @@ void ASTNS::PrintVisitor::visitStmtSegment(ASTNS::StmtSegment *a)
             if (a->anotherstmt)
             {
                 a->anotherstmt->accept(this);
-            }
-            else
-            {
-                pai("nullptr\n");
-            }
-            break;
-    }
-    --indent;
-    pai("}\n");
-}
-void ASTNS::PrintVisitor::visitTernaryExpr(ASTNS::TernaryExpr *a)
-{
-    pai("TernaryExpr\n{\n");
-    ++indent;
-    switch (a->form)
-    {
-        case ASTNS::TernaryExpr::Form::ATATA:
-            pai("cond = ");
-            if (a->cond)
-            {
-                a->cond->accept(this);
-            }
-            else
-            {
-                pai("nullptr\n");
-            }
-            pai("quest = ");
-            pai("[");
-            pai(std::string(a->quest.start, a->quest.end));
-            pai("]\n");
-            pai("trues = ");
-            if (a->trues)
-            {
-                a->trues->accept(this);
-            }
-            else
-            {
-                pai("nullptr\n");
-            }
-            pai("colon = ");
-            pai("[");
-            pai(std::string(a->colon.start, a->colon.end));
-            pai("]\n");
-            pai("falses = ");
-            if (a->falses)
-            {
-                a->falses->accept(this);
             }
             else
             {

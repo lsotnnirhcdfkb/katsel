@@ -1023,6 +1023,102 @@ void ASTNS::DotVisitor::visitFunctionDecl(ASTNS::FunctionDecl *a)
     }
     lastid = std::move(thisid);
 }
+void ASTNS::DotVisitor::visitIfExpr(ASTNS::IfExpr *a)
+{
+    std::string thisid = curid();
+    switch (a->form)
+    {
+        case ASTNS::IfExpr::Form::TAA:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">IfExpr (TAA)</td></tr><tr>";
+            ostream << "<td port=\"iftok\">iftok</td>";
+            ostream << "<td port=\"cond\">cond</td>";
+            ostream << "<td port=\"trues\">trues</td>";
+            ostream << "</tr></table>>]\n";
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->iftok.stringify());
+                    connect(thisid, "iftok", tokennodeid);
+            }
+            {
+                    if (a->cond)
+                    {
+                        a->cond->accept(this);
+                        connect(thisid, "cond", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "cond", nullptrnodeid);
+                    }
+            }
+            {
+                    if (a->trues)
+                    {
+                        a->trues->accept(this);
+                        connect(thisid, "trues", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "trues", nullptrnodeid);
+                    }
+            }
+            break;
+        case ASTNS::IfExpr::Form::TAATA:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"5\">IfExpr (TAATA)</td></tr><tr>";
+            ostream << "<td port=\"iftok\">iftok</td>";
+            ostream << "<td port=\"cond\">cond</td>";
+            ostream << "<td port=\"trues\">trues</td>";
+            ostream << "<td port=\"elsetok\">elsetok</td>";
+            ostream << "<td port=\"falses\">falses</td>";
+            ostream << "</tr></table>>]\n";
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->iftok.stringify());
+                    connect(thisid, "iftok", tokennodeid);
+            }
+            {
+                    if (a->cond)
+                    {
+                        a->cond->accept(this);
+                        connect(thisid, "cond", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "cond", nullptrnodeid);
+                    }
+            }
+            {
+                    if (a->trues)
+                    {
+                        a->trues->accept(this);
+                        connect(thisid, "trues", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "trues", nullptrnodeid);
+                    }
+            }
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->elsetok.stringify());
+                    connect(thisid, "elsetok", tokennodeid);
+            }
+            {
+                    if (a->falses)
+                    {
+                        a->falses->accept(this);
+                        connect(thisid, "falses", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "falses", nullptrnodeid);
+                    }
+            }
+            break;
+    }
+    lastid = std::move(thisid);
+}
 void ASTNS::DotVisitor::visitImplRet(ASTNS::ImplRet *a)
 {
     std::string thisid = curid();
@@ -1506,67 +1602,6 @@ void ASTNS::DotVisitor::visitStmtSegment(ASTNS::StmtSegment *a)
                     {
                         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
                         connect(thisid, "anotherstmt", nullptrnodeid);
-                    }
-            }
-            break;
-    }
-    lastid = std::move(thisid);
-}
-void ASTNS::DotVisitor::visitTernaryExpr(ASTNS::TernaryExpr *a)
-{
-    std::string thisid = curid();
-    switch (a->form)
-    {
-        case ASTNS::TernaryExpr::Form::ATATA:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"5\">TernaryExpr (ATATA)</td></tr><tr>";
-            ostream << "<td port=\"cond\">cond</td>";
-            ostream << "<td port=\"quest\">quest</td>";
-            ostream << "<td port=\"trues\">trues</td>";
-            ostream << "<td port=\"colon\">colon</td>";
-            ostream << "<td port=\"falses\">falses</td>";
-            ostream << "</tr></table>>]\n";
-            {
-                    if (a->cond)
-                    {
-                        a->cond->accept(this);
-                        connect(thisid, "cond", lastid);
-                    }
-                    else
-                    {
-                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "cond", nullptrnodeid);
-                    }
-            }
-            {
-                    std::string tokennodeid = makeTextNode("Token", a->quest.stringify());
-                    connect(thisid, "quest", tokennodeid);
-            }
-            {
-                    if (a->trues)
-                    {
-                        a->trues->accept(this);
-                        connect(thisid, "trues", lastid);
-                    }
-                    else
-                    {
-                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "trues", nullptrnodeid);
-                    }
-            }
-            {
-                    std::string tokennodeid = makeTextNode("Token", a->colon.stringify());
-                    connect(thisid, "colon", tokennodeid);
-            }
-            {
-                    if (a->falses)
-                    {
-                        a->falses->accept(this);
-                        connect(thisid, "falses", lastid);
-                    }
-                    else
-                    {
-                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "falses", nullptrnodeid);
                     }
             }
             break;

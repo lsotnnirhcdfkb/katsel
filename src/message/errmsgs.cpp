@@ -309,13 +309,13 @@ void E0207(Token const &sym)
     e.report();
 }
 
-// E0208 - confl-tys-ternexpr
-// | Conflicting types for ternary expression
-void E0208(IR::ASTValue const &truev, IR::ASTValue const &falsev, Token const &quest)
+// E0208 - confl-tys-ifexpr
+// | Conflicting types for if expression
+void E0208(IR::ASTValue const &truev, IR::ASTValue const &falsev, Token const &iftok)
 {
-    Error e = Error(Error::MsgType::ERROR, quest, "E0208 (confl-tys-ternexpr)");
-    e.underline(Error::Underline(quest, '^')
-        .error("conflicting types for ternary expression")
+    Error e = Error(Error::MsgType::ERROR, iftok, "E0208 (confl-tys-ifexpr)");
+    e.underline(Error::Underline(iftok, '^')
+        .error("conflicting types for if expression")
     );
     e.underline(Error::Underline(truev, '~')
         .note(truev.type()->stringify())
@@ -451,6 +451,20 @@ void E0219(IR::ASTValue const &v)
     Error e = Error(Error::MsgType::ERROR, v, "E0219 (no-is-truthy)");
     e.underline(Error::Underline(v, '^')
         .error(format("determination of truthiness of value of invalid type %", v.type()))
+    );
+    e.report();
+}
+
+// E0220 - no-else-not-void
+// | If expression with non-void true expression and no else case
+void E0220(IR::ASTValue const &truev, Token const &iftok)
+{
+    Error e = Error(Error::MsgType::ERROR, iftok, "E0220 (no-else-not-void)");
+    e.underline(Error::Underline(iftok, '^')
+        .error("if expression with non-void true expression and no else case")
+    );
+    e.underline(Error::Underline(truev, '~')
+        .note(truev.type()->stringify())
     );
     e.report();
 }

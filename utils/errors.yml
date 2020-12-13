@@ -270,13 +270,13 @@ errors:
         ]]
   -
     code: 208
-    name: confl-tys-ternexpr
-    desc: Conflicting types for ternary expression
-    inputs: 'IR::ASTValue const &truev, IR::ASTValue const &falsev, Token const &quest'
-    location: quest
+    name: confl-tys-ifexpr
+    desc: Conflicting types for if expression
+    inputs: 'IR::ASTValue const &truev, IR::ASTValue const &falsev, Token const &iftok'
+    location: iftok
     highlights:
-      - ['quest', *under0, [
-          ['error', '"conflicting types for ternary expression"']
+      - ['iftok', *under0, [
+          ['error', '"conflicting types for if expression"']
         ]]
       - ['truev', *under1, [
           ['note', 'truev.type()->stringify()']
@@ -401,4 +401,17 @@ errors:
     highlights:
       - ['v', *under0, [
           ['error', 'format("determination of truthiness of value of invalid type %", v.type())']
+        ]]
+  -
+    code: 220
+    name: no-else-not-void
+    desc: If expression with non-void true expression and no else case
+    inputs: 'IR::ASTValue const &truev, Token const &iftok'
+    location: iftok
+    highlights:
+      - ['iftok', *under0, [
+          ['error', '"if expression with non-void true expression and no else case"']
+        ]]
+      - ['truev', *under1, [
+          ['note', 'truev.type()->stringify()']
         ]]

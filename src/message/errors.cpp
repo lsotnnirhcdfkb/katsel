@@ -45,6 +45,7 @@ void visitCompLGTExpr(ASTNS::CompLGTExpr *ast) override;
 void visitDeclList(ASTNS::DeclList *ast) override;
 void visitExprStmt(ASTNS::ExprStmt *ast) override;
 void visitFunctionDecl(ASTNS::FunctionDecl *ast) override;
+void visitIfExpr(ASTNS::IfExpr *ast) override;
 void visitImplRet(ASTNS::ImplRet *ast) override;
 void visitImplRet_OPT(ASTNS::ImplRet_OPT *ast) override;
 void visitIndentedBlock(ASTNS::IndentedBlock *ast) override;
@@ -60,7 +61,6 @@ void visitStmtEnding_OPT(ASTNS::StmtEnding_OPT *ast) override;
 void visitStmtList(ASTNS::StmtList *ast) override;
 void visitStmtList_OPT(ASTNS::StmtList_OPT *ast) override;
 void visitStmtSegment(ASTNS::StmtSegment *ast) override;
-void visitTernaryExpr(ASTNS::TernaryExpr *ast) override;
 void visitUnaryExpr(ASTNS::UnaryExpr *ast) override;
 void visitVarStmt(ASTNS::VarStmt *ast) override;
 void visitVarStmtItem(ASTNS::VarStmtItem *ast) override;
@@ -368,6 +368,22 @@ void LocationVisitor::visitFunctionDecl(ASTNS::FunctionDecl *ast)
             break;
     }
 }
+void LocationVisitor::visitIfExpr(ASTNS::IfExpr *ast)
+{
+    switch (ast->form)
+    {
+        case ASTNS::IfExpr::Form::TAA:
+            retl = ast->iftok.start;
+            retf = ast->iftok.sourcefile;
+            retr = getR(ast->trues.get());
+            break;
+        case ASTNS::IfExpr::Form::TAATA:
+            retl = ast->iftok.start;
+            retf = ast->iftok.sourcefile;
+            retr = getR(ast->falses.get());
+            break;
+    }
+}
 void LocationVisitor::visitImplRet(ASTNS::ImplRet *ast)
 {
     switch (ast->form)
@@ -537,17 +553,6 @@ void LocationVisitor::visitStmtSegment(ASTNS::StmtSegment *ast)
             retl = getL(ast->stmtsegment.get());
             retf = getF(ast->stmtsegment.get());
             retr = getR(ast->anotherstmt.get());
-            break;
-    }
-}
-void LocationVisitor::visitTernaryExpr(ASTNS::TernaryExpr *ast)
-{
-    switch (ast->form)
-    {
-        case ASTNS::TernaryExpr::Form::ATATA:
-            retl = getL(ast->cond.get());
-            retf = getF(ast->cond.get());
-            retr = getR(ast->falses.get());
             break;
     }
 }

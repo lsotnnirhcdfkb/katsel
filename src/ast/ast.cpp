@@ -72,6 +72,10 @@ ASTNS::FunctionDecl::FunctionDecl(Token fun, std::unique_ptr<TypeB> retty, Token
 ASTNS::FunctionDecl::FunctionDecl(Token fun, std::unique_ptr<TypeB> retty, Token name, Token oparn, std::unique_ptr<PListB> paramlist, Token cparn, Token newl): fun(fun), retty(std::move(retty)), name(name), oparn(oparn), paramlist(std::move(paramlist)), cparn(cparn), newl(newl), form(ASTNS::FunctionDecl::Form::TATTATT) {}
 void ASTNS::FunctionDecl::accept(ASTNS::DeclBVisitor *v) { v->visitFunctionDecl(this); }
 bool ASTNS::FunctionDecl::empty() { return false; }
+ASTNS::IfExpr::IfExpr(Token iftok, std::unique_ptr<ExprB> cond, std::unique_ptr<ExprB> trues): iftok(iftok), cond(std::move(cond)), trues(std::move(trues)), form(ASTNS::IfExpr::Form::TAA) {}
+ASTNS::IfExpr::IfExpr(Token iftok, std::unique_ptr<ExprB> cond, std::unique_ptr<ExprB> trues, Token elsetok, std::unique_ptr<ExprB> falses): iftok(iftok), cond(std::move(cond)), trues(std::move(trues)), elsetok(elsetok), falses(std::move(falses)), form(ASTNS::IfExpr::Form::TAATA) {}
+void ASTNS::IfExpr::accept(ASTNS::ExprBVisitor *v) { v->visitIfExpr(this); }
+bool ASTNS::IfExpr::empty() { return false; }
 ASTNS::ImplRet::ImplRet(Token leftarrow, std::unique_ptr<ExprB> expr, std::unique_ptr<StmtEndingB> ending): leftarrow(leftarrow), expr(std::move(expr)), ending(std::move(ending)), form(ASTNS::ImplRet::Form::TAA) {}
 void ASTNS::ImplRet::accept(ASTNS::ExprBVisitor *v) { v->visitImplRet(this); }
 bool ASTNS::ImplRet::empty() { return false; }
@@ -120,9 +124,6 @@ bool ASTNS::StmtList_OPT::empty() { return form == Form::EMPTY; }
 ASTNS::StmtSegment::StmtSegment(std::unique_ptr<StmtB> stmtsegment, std::unique_ptr<StmtEndingB> stmtending, std::unique_ptr<StmtB> anotherstmt): stmtsegment(std::move(stmtsegment)), stmtending(std::move(stmtending)), anotherstmt(std::move(anotherstmt)), form(ASTNS::StmtSegment::Form::AAA) {}
 void ASTNS::StmtSegment::accept(ASTNS::StmtBVisitor *v) { v->visitStmtSegment(this); }
 bool ASTNS::StmtSegment::empty() { return false; }
-ASTNS::TernaryExpr::TernaryExpr(std::unique_ptr<ExprB> cond, Token quest, std::unique_ptr<ExprB> trues, Token colon, std::unique_ptr<ExprB> falses): cond(std::move(cond)), quest(quest), trues(std::move(trues)), colon(colon), falses(std::move(falses)), form(ASTNS::TernaryExpr::Form::ATATA) {}
-void ASTNS::TernaryExpr::accept(ASTNS::ExprBVisitor *v) { v->visitTernaryExpr(this); }
-bool ASTNS::TernaryExpr::empty() { return false; }
 ASTNS::UnaryExpr::UnaryExpr(Token op, std::unique_ptr<ExprB> operand): op(op), operand(std::move(operand)), form(ASTNS::UnaryExpr::Form::TA) {}
 void ASTNS::UnaryExpr::accept(ASTNS::ExprBVisitor *v) { v->visitUnaryExpr(this); }
 bool ASTNS::UnaryExpr::empty() { return false; }
