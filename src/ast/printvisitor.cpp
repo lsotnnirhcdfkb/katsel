@@ -370,13 +370,13 @@ void ASTNS::PrintVisitor::visitBitXorExpr(ASTNS::BitXorExpr *a)
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visitBlock(ASTNS::Block *a)
+void ASTNS::PrintVisitor::visitBracedBlock(ASTNS::BracedBlock *a)
 {
-    pai("Block\n{\n");
+    pai("BracedBlock\n{\n");
     ++indent;
     switch (a->form)
     {
-        case ASTNS::Block::Form::TAT:
+        case ASTNS::BracedBlock::Form::TAT:
             pai("ocurb = ");
             pai("[");
             pai(std::string(a->ocurb.start, a->ocurb.end));
@@ -612,22 +612,6 @@ void ASTNS::PrintVisitor::visitDeclList(ASTNS::DeclList *a)
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visitEmptyStmt(ASTNS::EmptyStmt *a)
-{
-    pai("EmptyStmt\n{\n");
-    ++indent;
-    switch (a->form)
-    {
-        case ASTNS::EmptyStmt::Form::T:
-            pai("semi = ");
-            pai("[");
-            pai(std::string(a->semi.start, a->semi.end));
-            pai("]\n");
-            break;
-    }
-    --indent;
-    pai("}\n");
-}
 void ASTNS::PrintVisitor::visitExprStmt(ASTNS::ExprStmt *a)
 {
     pai("ExprStmt\n{\n");
@@ -644,9 +628,9 @@ void ASTNS::PrintVisitor::visitExprStmt(ASTNS::ExprStmt *a)
             {
                 pai("nullptr\n");
             }
-            pai("semi = ");
+            pai("newl = ");
             pai("[");
-            pai(std::string(a->semi.start, a->semi.end));
+            pai(std::string(a->newl.start, a->newl.end));
             pai("]\n");
             break;
     }
@@ -739,9 +723,42 @@ void ASTNS::PrintVisitor::visitFunction(ASTNS::Function *a)
             pai("[");
             pai(std::string(a->cparn.start, a->cparn.end));
             pai("]\n");
-            pai("semi = ");
+            pai("newl = ");
             pai("[");
-            pai(std::string(a->semi.start, a->semi.end));
+            pai(std::string(a->newl.start, a->newl.end));
+            pai("]\n");
+            break;
+    }
+    --indent;
+    pai("}\n");
+}
+void ASTNS::PrintVisitor::visitIndentedBlock(ASTNS::IndentedBlock *a)
+{
+    pai("IndentedBlock\n{\n");
+    ++indent;
+    switch (a->form)
+    {
+        case ASTNS::IndentedBlock::Form::TTAT:
+            pai("newl = ");
+            pai("[");
+            pai(std::string(a->newl.start, a->newl.end));
+            pai("]\n");
+            pai("indent = ");
+            pai("[");
+            pai(std::string(a->indent.start, a->indent.end));
+            pai("]\n");
+            pai("stmts = ");
+            if (a->stmts)
+            {
+                a->stmts->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            pai("dedent = ");
+            pai("[");
+            pai(std::string(a->dedent.start, a->dedent.end));
             pai("]\n");
             break;
     }
@@ -933,9 +950,9 @@ void ASTNS::PrintVisitor::visitRetStmt(ASTNS::RetStmt *a)
             {
                 pai("nullptr\n");
             }
-            pai("semi = ");
+            pai("newl = ");
             pai("[");
-            pai(std::string(a->semi.start, a->semi.end));
+            pai(std::string(a->newl.start, a->newl.end));
             pai("]\n");
             break;
         case ASTNS::RetStmt::Form::TT:
@@ -943,9 +960,9 @@ void ASTNS::PrintVisitor::visitRetStmt(ASTNS::RetStmt *a)
             pai("[");
             pai(std::string(a->ret.start, a->ret.end));
             pai("]\n");
-            pai("semi = ");
+            pai("newl = ");
             pai("[");
-            pai(std::string(a->semi.start, a->semi.end));
+            pai(std::string(a->newl.start, a->newl.end));
             pai("]\n");
             break;
     }
@@ -1111,9 +1128,9 @@ void ASTNS::PrintVisitor::visitVarStmt(ASTNS::VarStmt *a)
             {
                 pai("nullptr\n");
             }
-            pai("semi = ");
+            pai("newl = ");
             pai("[");
-            pai(std::string(a->semi.start, a->semi.end));
+            pai(std::string(a->newl.start, a->newl.end));
             pai("]\n");
             break;
     }

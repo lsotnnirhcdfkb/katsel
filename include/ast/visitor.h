@@ -32,6 +32,7 @@ class BitOrExpr;
 class BitShiftExpr;
 class BitXorExpr;
 class Block;
+class BracedBlock;
 class BuiltinTypeNoVoid;
 class CU;
 class CallExpr;
@@ -40,10 +41,10 @@ class CompEQExpr;
 class CompLGTExpr;
 class Decl;
 class DeclList;
-class EmptyStmt;
 class Expr;
 class ExprStmt;
 class Function;
+class IndentedBlock;
 class MultExpr;
 class Param;
 class ParamList;
@@ -124,9 +125,9 @@ class StmtBVisitor
 {
 public:
     virtual ~StmtBVisitor() {}
-    virtual void visitBlock(ASTNS::Block *ast) = 0;
-    virtual void visitEmptyStmt(ASTNS::EmptyStmt *ast) = 0;
+    virtual void visitBracedBlock(ASTNS::BracedBlock *ast) = 0;
     virtual void visitExprStmt(ASTNS::ExprStmt *ast) = 0;
+    virtual void visitIndentedBlock(ASTNS::IndentedBlock *ast) = 0;
     virtual void visitRetStmt(ASTNS::RetStmt *ast) = 0;
     virtual void visitStmtList(ASTNS::StmtList *ast) = 0;
     virtual void visitStmtList_OPT(ASTNS::StmtList_OPT *ast) = 0;

@@ -8,7 +8,14 @@ void CodeGenNS::StmtCodeGen::stmt(ASTNS::StmtB *ast)
 {
     ast->accept(this);
 }
-void CodeGenNS::StmtCodeGen::visitBlock(ASTNS::Block *ast)
+void CodeGenNS::StmtCodeGen::visitIndentedBlock(ASTNS::IndentedBlock *ast)
+{
+    cg.context.incScope();
+    if (ast->stmts)
+        ast->stmts->accept(this);
+    cg.context.decScope();
+}
+void CodeGenNS::StmtCodeGen::visitBracedBlock(ASTNS::BracedBlock *ast)
 {
     cg.context.incScope();
     if (ast->stmts)
@@ -63,7 +70,6 @@ void CodeGenNS::StmtCodeGen::visitVarStmt(ASTNS::VarStmt *ast)
     varty = nullptr;
 }
 
-void CodeGenNS::StmtCodeGen::visitEmptyStmt(ASTNS::EmptyStmt *) {}
 void CodeGenNS::StmtCodeGen::visitStmtList_OPT(ASTNS::StmtList_OPT *ast) {}
 void CodeGenNS::StmtCodeGen::visitStmtList(ASTNS::StmtList *ast)
 {

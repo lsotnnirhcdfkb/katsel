@@ -390,7 +390,7 @@ def makeParseTable():
     print('-- getting table')
     table = fillParseTable(*isets)
     return table
-# rules {{{1
+# rule shorthands {{{1
 colorama.init()
 
 def nt(sym, name, base, panickable=False):
@@ -458,6 +458,7 @@ def makeOpt(toopt, newname=None):
 
 grammar = []
 
+# rules {{{1
 def makeGrammar():
     global augmentRule, augmentSymbol
 
@@ -468,9 +469,10 @@ def makeGrammar():
     VarStmt = nt('VarStmt', 'variable statement', 'StmtB', panickable=True)
     ExprStmt = nt('ExprStmt', 'expression statement', 'StmtB', panickable=True)
     RetStmt = nt('RetStmt', 'return statement', 'StmtB', panickable=True)
-    EmptyStmt = nt('EmptyStmt', 'empty statement', 'StmtB', panickable=True)
     VarStmtItem = nt('VarStmtItem', 'variable statement initialization', 'VStmtIB')
     Block = nt('Block', 'code block', 'StmtB', panickable=True)
+    BracedBlock = nt('BracedBlock', 'braced code block', 'StmtB', panickable=True)
+    IndentedBlock = nt('IndentedBlock', 'indented code block', 'StmtB', panickable=True)
     TypeNV = nt('TypeNV', 'non-void type specifier', 'TypeB')
     TypeV = nt('TypeV', 'void-inclusive type specifier', 'TypeB')
     BuiltinTypeNoVoid = nt('BuiltinTypeNoVoid', 'builtin type specifier', 'TypeB')
@@ -510,6 +512,7 @@ def makeGrammar():
     COMMA = Terminal('COMMA')
     CPARN = Terminal('CPARN')
     DECINTLIT = Terminal('DECINTLIT')
+    DEDENT = Terminal('DEDENT')
     DOUBLE = Terminal('DOUBLE')
     DOUBLEAMPER = Terminal('DOUBLEAMPER')
     DOUBLEEQUAL = Terminal('DOUBLEEQUAL')
@@ -525,9 +528,11 @@ def makeGrammar():
     GREATEREQUAL = Terminal('GREATEREQUAL')
     HEXINTLIT = Terminal('HEXINTLIT')
     IDENTIFIER = Terminal('IDENTIFIER')
+    INDENT = Terminal('INDENT')
     LESS = Terminal('LESS')
     LESSEQUAL = Terminal('LESSEQUAL')
     MINUS = Terminal('MINUS')
+    NEWLINE = Terminal('NEWLINE')
     NULLPTRLIT = Terminal('NULLPTRLIT')
     OCTINTLIT = Terminal('OCTINTLIT')
     OCURB = Terminal('OCURB')
@@ -570,27 +575,27 @@ def makeGrammar():
     rule(Decl, ((Function, '_'), ))
 
     rule(Function, ((FUN, 'fun'),  (TypeV, 'retty'),  (IDENTIFIER, 'name'),  (OPARN, 'oparn'),  (ParamListOpt, 'paramlist'),  (CPARN, 'cparn'),  (Block, 'body'), ), 'fun', 'cparn')
-    rule(Function, ((FUN, 'fun'),  (TypeV, 'retty'),  (IDENTIFIER, 'name'),  (OPARN, 'oparn'),  (ParamListOpt, 'paramlist'),  (CPARN, 'cparn'),  (SEMICOLON, 'semi'), ), 'fun', 'semi')
+    rule(Function, ((FUN, 'fun'),  (TypeV, 'retty'),  (IDENTIFIER, 'name'),  (OPARN, 'oparn'),  (ParamListOpt, 'paramlist'),  (CPARN, 'cparn'),  (NEWLINE, 'newl'), ), 'fun', 'newl')
 
-    rule(Stmt, ((EmptyStmt, '_'), ))
     rule(Stmt, ((VarStmt, '_'), ))
     rule(Stmt, ((ExprStmt, '_'), ))
     rule(Stmt, ((RetStmt, '_'), ))
     rule(Stmt, ((Block, '_'), ))
 
-    rule(VarStmt, ((VAR, 'var'),  (TypeNV, 'type'),  (VarStmtItemList, 'assignments'),  (SEMICOLON, 'semi'), ))
+    rule(VarStmt, ((VAR, 'var'),  (TypeNV, 'type'),  (VarStmtItemList, 'assignments'),  (NEWLINE, 'newl'), ))
 
-    rule(ExprStmt, ((Expr, 'expr'),  (SEMICOLON, 'semi'), ))
+    rule(ExprStmt, ((Expr, 'expr'),  (NEWLINE, 'newl'), ))
 
-    rule(RetStmt , ((RETURN, 'ret'),  (Expr, 'expr'),  (SEMICOLON, 'semi'), ))
-    rule(RetStmt, ((RETURN, 'ret'),  (SEMICOLON, 'semi'), ))
-
-    rule(EmptyStmt, ((SEMICOLON, 'semi'), ))
+    rule(RetStmt , ((RETURN, 'ret'),  (Expr, 'expr'),  (NEWLINE, 'newl'), ))
+    rule(RetStmt, ((RETURN, 'ret'),  (NEWLINE, 'newl'), ))
 
     rule(VarStmtItem, ((IDENTIFIER, 'name'),  (EQUAL, 'equal'),  (Expr, 'expr'), ))
     rule(VarStmtItem, ((IDENTIFIER, 'name'), ))
 
-    rule(Block, ((OCURB, 'ocurb'),  (StmtListOpt, 'stmts'),  (CCURB, 'ccurb'), ))
+    rule(BracedBlock, ((OCURB, 'ocurb'), (StmtListOpt, 'stmts'),  (CCURB, 'ccurb'), ))
+    rule(IndentedBlock, ((NEWLINE, 'newl'), (INDENT, 'indent'), (StmtListOpt, 'stmts'), (DEDENT, 'dedent'), ))
+    rule(Block, ((BracedBlock, '_'),))
+    rule(Block, ((IndentedBlock, '_'),))
 
     rule(TypeNV, ((BuiltinTypeNoVoid, '_'), ))
 
