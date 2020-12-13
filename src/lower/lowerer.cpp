@@ -1,5 +1,6 @@
 #include "lower/lowerer.h"
 #include "message/errors.h"
+#include "message/reportAbort.h"
 #include <memory>
 
 #include "llvm/IR/DerivedTypes.h"

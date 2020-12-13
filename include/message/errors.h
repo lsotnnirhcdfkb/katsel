@@ -39,6 +39,9 @@ public:
     friend void E0006(Token const &tok);
     friend void E0007(Token const &tok);
     friend void E0008(Token const &tok);
+    friend void E0009(Token const &tok);
+    friend void E0010(Token const &tok);
+    friend void E0011(Token const &tok);
     friend void E0100(Token const &last, Token const &lookahead, std::vector<std::string> const &expectations);
     friend void E0101(Token const &last, Token const &lookahead, std::string const &bestfix, std::vector<std::string> const &expectations);
     friend void E0102(Token const &last, Token const &lookahead, Token const &panicuntil, std::vector<std::string> const &expectations);
@@ -52,9 +55,7 @@ public:
     friend void E0208(IR::ASTValue const &truev, IR::ASTValue const &falsev, Token const &quest);
     friend void E0209(Token const &eq, IR::ASTValue const &lhs);
     friend void E0210(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &eq);
-    friend void E0211(IR::ASTValue const &val, IR::Function *f);
     friend void E0212(IR::ASTValue const &val, IR::Function *f);
-    friend void E0213(ASTNS::AST *retstmt, IR::Function *f);
     friend void E0214(Token const &name, IR::Register const *prev);
     friend void E0215(Token const &eq, Token const &name, IR::ASTValue const &init, IR::Register const *var);
     friend void E0216(ASTNS::AST *ast, IR::ASTValue v, IR::Type const *newty);
@@ -83,7 +84,7 @@ private:
         struct Message
         {
             std::string type;
-            std::string message;
+            std::string text;
             char const * const color;
         };
         Location location;
@@ -123,7 +124,6 @@ private:
 };
 
 // other reporting functions {{{1
-void reportAbortNoh [[ noreturn ]] (std::string const &message);
 void invalidTok [[ noreturn ]] (std::string const &name, Token const &primary);
 void calledWithOpTyNEthis [[ noreturn ]] (std::string const &classN, std::string const &fnn, std::string const &opname);
 void outOSwitchDDefaultLab [[ noreturn ]] (std::string const &fnn, Location const &highlight);

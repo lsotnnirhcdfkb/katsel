@@ -44,6 +44,18 @@ void E0007(Token const &tok);
 #define ERR_MULTICHAR_CHARLIT E0008
 void E0008(Token const &tok);
 
+// E0009 - unterm-multiline-comment
+#define ERR_UNTERM_MULTILINE_COMMENT E0009
+void E0009(Token const &tok);
+
+// E0010 - dedent-nomatch
+#define ERR_DEDENT_NOMATCH E0010
+void E0010(Token const &tok);
+
+// E0011 - char-after-backslash
+#define ERR_CHAR_AFTER_BACKSLASH E0011
+void E0011(Token const &tok);
+
 // E0100 - unrecoverable-invalid-syntax
 #define ERR_UNRECOVERABLE_INVALID_SYNTAX E0100
 void E0100(Token const &last, Token const &lookahead, std::vector<std::string> const &expectations);
@@ -96,17 +108,9 @@ void E0209(Token const &eq, IR::ASTValue const &lhs);
 #define ERR_ASSIGN_CONFLICT_TYS E0210
 void E0210(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &eq);
 
-// E0211 - ret-val-void-fun
-#define ERR_RET_VAL_VOID_FUN E0211
-void E0211(IR::ASTValue const &val, IR::Function *f);
-
 // E0212 - conflict-ret-ty
 #define ERR_CONFLICT_RET_TY E0212
 void E0212(IR::ASTValue const &val, IR::Function *f);
-
-// E0213 - ret-void-nonvoid-fun
-#define ERR_RET_VOID_NONVOID_FUN E0213
-void E0213(ASTNS::AST *retstmt, IR::Function *f);
 
 // E0214 - redecl-var
 #define ERR_REDECL_VAR E0214

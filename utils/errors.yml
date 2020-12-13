@@ -94,7 +94,36 @@ errors:
       - ['tok', *under0, [
           ['error', '"character literal with more than one character"']
         ]]
-
+  -
+    code: 9
+    name: unterm-multiline-comment
+    desc: Unterminated multiline comment
+    inputs: 'Token const &tok'
+    location: tok
+    highlights:
+      - ['tok', *under0, [
+          ['error', '"unterminated multiline comment"']
+        ]]
+  -
+    code: 10
+    name: dedent-nomatch
+    desc: Dedent level does not match any other indentation level
+    inputs: 'Token const &tok'
+    location: tok
+    highlights:
+      - ['tok', *under0, [
+          ['error', '"dedent to unknown level"']
+        ]]
+  -
+    code: 11
+    name: char-after-backslash
+    desc: Character after line continuation backslash
+    inputs: 'Token const &tok'
+    location: tok
+    highlights:
+      - ['tok', *under0, [
+          ['error', '"character after line continuation backslash"']
+        ]]
   - code: 100
     name: unrecoverable-invalid-syntax
     desc: The parser found an unrecoverable syntax error.
@@ -105,7 +134,7 @@ errors:
           ['error', '"invalid syntax"']
         ]]
       - ['lookahead', *under1, [
-          ['note', '"unexpected token here"']
+          ['note', 'format("unexpected % here", stringifyTokenType(lookahead.type))']
         ]]
     extra: |
       auto un (Error::Underline(last, '^'));
@@ -122,7 +151,7 @@ errors:
           ['error', '"invalid syntax"']
         ]]
       - ['lookahead', *under1, [
-          ['note', '"unexpected token here"'],
+          ['note', 'format("unexpected % here", stringifyTokenType(lookahead.type))'],
           ['note', 'bestfix']
         ]]
     extra: |
@@ -141,7 +170,7 @@ errors:
           ['error', '"invalid syntax"']
         ]]
       - ['lookahead', *under1, [
-          ['note', '"unexpected token here"']
+          ['note', 'format("unexpected % here", stringifyTokenType(lookahead.type))']
         ]]
       - ['panicuntil', *under2, [
           ['note', '"parser panicked until here"']
@@ -289,19 +318,6 @@ errors:
           ['note', 'rhs.type()->stringify()']
         ]]
   -
-    code: 211
-    name: ret-val-void-fun
-    desc: Return statement in void function
-    inputs: 'IR::ASTValue const &val, IR::Function *f'
-    location: val
-    highlights:
-      - ['val', *under0, [
-          ['error', '"non-void return in void function"']
-        ]]
-      - ['f->defAST()->retty.get()', *under1, [
-          ['note', '"function returns void"']
-        ]]
-  -
     code: 212
     name: conflict-ret-ty
     desc: Conflicting return types
@@ -309,20 +325,8 @@ errors:
     location: val
     highlights:
       - ['val', *under0, [
-          ['error', '"conflicting return type"']
-        ]]
-      - ['f->defAST()->retty.get()', *under1, [
-          ['note', 'format("function returns %", f->ty->ret)']
-        ]]
-  -
-    code: 213
-    name: ret-void-nonvoid-fun
-    desc: Void return in non-void function
-    inputs: 'ASTNS::AST *retstmt, IR::Function *f'
-    location: retstmt
-    highlights:
-      - ['retstmt', *under0, [
-          ['error', '"void return in non-void function"']
+          ['error', '"conflicting return type"'],
+          ['note', 'format("returning %", val.type())']
         ]]
       - ['f->defAST()->retty.get()', *under1, [
           ['note', 'format("function returns %", f->ty->ret)']

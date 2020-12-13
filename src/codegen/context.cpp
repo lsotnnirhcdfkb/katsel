@@ -1,9 +1,10 @@
 #include "codegen/codegen.h"
+#include "message/reportAbort.h"
 
 #include <iostream>
 #include "message/errors.h"
 
-CodeGenNS::Context::Context(File const &file): unit(file), blackHoleBlock(std::make_unique<IR::Block>("blackHole", 0)) {}
+CodeGenNS::Context::Context(File const &file): unit(file), blackHoleBlock(std::make_unique<IR::Block>("blackHole", 0)), voidValue(getVoidType()) {}
 
 IR::BuiltinType* CodeGenNS::Context::getBuiltinType(IR::BuiltinType::Builtins bty)
 {
@@ -111,4 +112,8 @@ IR::ConstInt* CodeGenNS::Context::getConstInt(IR::BuiltinType *ty, int val)
     constants.push_back(std::move(ci));
 
     return ciraw;
+}
+IR::Void* CodeGenNS::Context::getVoidValue()
+{
+    return &voidValue;
 }

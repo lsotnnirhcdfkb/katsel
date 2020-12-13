@@ -18,7 +18,7 @@ void CodeGenNS::DeclCodeGen::visitDeclList(ASTNS::DeclList *ast)
     ast->anotherdecl->accept(this);
 }
 
-void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
+void CodeGenNS::DeclCodeGen::visitFunctionDecl(ASTNS::FunctionDecl *ast)
 {
     std::string name = ast->name.stringify();
     IR::Value *function = cg.context.findGlobal(name);
@@ -68,7 +68,7 @@ void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
     cg.context.exitBlock = exitBlock;
     cg.context.retReg = retReg;
 
-    cg.stmtCodeGen.stmt(ast->body.get());
+    IR::ASTValue ret = cg.exprCodeGen.expr(ast->body.get());
 
     cg.context.decScope();
 
@@ -76,8 +76,16 @@ void CodeGenNS::DeclCodeGen::visitFunction(ASTNS::Function *ast)
     {
         cg.context.exitBlock->add(std::make_unique<IR::Instrs::Return>(retReg));
 
-        if (cg.context.curBlock != cg.context.blackHoleBlock.get())
+        if (retReg->type() != ret.type())
+        {
+            ERR_CONFLICT_RET_TY(ret, f);
+            cg.errored = true;
+        }
+        else
+        {
+            cg.context.curBlock->add(std::make_unique<IR::Instrs::Store>(retReg, ret));
             cg.context.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(cg.context.exitBlock));
+        }
     }
 
     cg.context.curFunc = nullptr;

@@ -1,45 +1,43 @@
 
 
 fun void test()
-{
-    arg0();
-    arg0(0);                                                                                         // expect compile error (wrong-num-args)
-    arg0(0, 0);                                                                                      // expect compile error (wrong-num-args)
-    arg0(0, 0, 0);                                                                                   // expect compile error (wrong-num-args)
-    arg0(0, 0, 0, 0);                                                                                // expect compile error (wrong-num-args)
-    arg0(0, 0, 0, 0, 0);                                                                             // expect compile error (wrong-num-args)
+    arg0()
+    arg0(0)                                                                                         // expect compile error (wrong-num-args)
+    arg0(0, 0)                                                                                      // expect compile error (wrong-num-args)
+    arg0(0, 0, 0)                                                                                   // expect compile error (wrong-num-args)
+    arg0(0, 0, 0, 0)                                                                                // expect compile error (wrong-num-args)
+    arg0(0, 0, 0, 0, 0)                                                                             // expect compile error (wrong-num-args)
 
-    arg1();                                                                                          // expect compile error (wrong-num-args)
-    arg1(0);
-    arg1(0, 0);                                                                                      // expect compile error (wrong-num-args)
-    arg1(0, 0, 0);                                                                                   // expect compile error (wrong-num-args)
-    arg1(0, 0, 0, 0);                                                                                // expect compile error (wrong-num-args)
-    arg1(0, 0, 0, 0, 0);                                                                             // expect compile error (wrong-num-args)
+    arg1()                                                                                          // expect compile error (wrong-num-args)
+    arg1(0)
+    arg1(0, 0)                                                                                      // expect compile error (wrong-num-args)
+    arg1(0, 0, 0)                                                                                   // expect compile error (wrong-num-args)
+    arg1(0, 0, 0, 0)                                                                                // expect compile error (wrong-num-args)
+    arg1(0, 0, 0, 0, 0)                                                                             // expect compile error (wrong-num-args)
 
-    arg2();                                                                                          // expect compile error (wrong-num-args)
-    arg2(0);                                                                                         // expect compile error (wrong-num-args)
-    arg2(0, 0);
-    arg2(0, 0, 0);                                                                                   // expect compile error (wrong-num-args)
-    arg2(0, 0, 0, 0);                                                                                // expect compile error (wrong-num-args)
-    arg2(0, 0, 0, 0, 0);                                                                             // expect compile error (wrong-num-args)
+    arg2()                                                                                          // expect compile error (wrong-num-args)
+    arg2(0)                                                                                         // expect compile error (wrong-num-args)
+    arg2(0, 0)
+    arg2(0, 0, 0)                                                                                   // expect compile error (wrong-num-args)
+    arg2(0, 0, 0, 0)                                                                                // expect compile error (wrong-num-args)
+    arg2(0, 0, 0, 0, 0)                                                                             // expect compile error (wrong-num-args)
 
-    arg3();                                                                                          // expect compile error (wrong-num-args)
-    arg3(0);                                                                                         // expect compile error (wrong-num-args)
-    arg3(0, 0);                                                                                      // expect compile error (wrong-num-args)
-    arg3(0, 0, 0);
-    arg3(0, 0, 0, 0);                                                                                // expect compile error (wrong-num-args)
-    arg3(0, 0, 0, 0, 0);                                                                             // expect compile error (wrong-num-args)
+    arg3()                                                                                          // expect compile error (wrong-num-args)
+    arg3(0)                                                                                         // expect compile error (wrong-num-args)
+    arg3(0, 0)                                                                                      // expect compile error (wrong-num-args)
+    arg3(0, 0, 0)
+    arg3(0, 0, 0, 0)                                                                                // expect compile error (wrong-num-args)
+    arg3(0, 0, 0, 0, 0)                                                                             // expect compile error (wrong-num-args)
 
-    arg4();                                                                                          // expect compile error (wrong-num-args)
-    arg4(0);                                                                                         // expect compile error (wrong-num-args)
-    arg4(0, 0);                                                                                      // expect compile error (wrong-num-args)
-    arg4(0, 0, 0);                                                                                   // expect compile error (wrong-num-args)
-    arg4(0, 0, 0, 0);
-    arg4(0, 0, 0, 0, 0);                                                                             // expect compile error (wrong-num-args)
-}
+    arg4()                                                                                          // expect compile error (wrong-num-args)
+    arg4(0)                                                                                         // expect compile error (wrong-num-args)
+    arg4(0, 0)                                                                                      // expect compile error (wrong-num-args)
+    arg4(0, 0, 0)                                                                                   // expect compile error (wrong-num-args)
+    arg4(0, 0, 0, 0)
+    arg4(0, 0, 0, 0, 0)                                                                             // expect compile error (wrong-num-args)
 
-fun void arg0();
-fun void arg1(uint32 a);
-fun void arg2(uint32 a, uint32 b);
-fun void arg3(uint32 a, uint32 b, uint32 c);
-fun void arg4(uint32 a, uint32 b, uint32 c, uint32 d);
+fun void arg0()
+fun void arg1(uint32 a)
+fun void arg2(uint32 a, uint32 b)
+fun void arg3(uint32 a, uint32 b, uint32 c)
+fun void arg4(uint32 a, uint32 b, uint32 c, uint32 d)

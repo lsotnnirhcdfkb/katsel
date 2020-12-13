@@ -1,0 +1,8 @@
+
+
+fun uint32 main()
+    var uint32 x
+    k // expect compile error (panicking-invalid-syntax)
+        asdf
+
+    var uint32 y // expect compile error (unrecoverable-invalid-syntax)

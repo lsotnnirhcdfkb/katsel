@@ -1,8 +1,6 @@
 
 
 fun void test()
-{
-    var uint32 a;
-    var sint64 b;
-    0 ? a : b; // expect compile error (confl-tys-ternexpr)
-}
+    var uint32 a
+    var sint64 b
+    0 ? a : b // expect compile error (confl-tys-ternexpr)

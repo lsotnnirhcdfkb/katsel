@@ -1,9 +1,7 @@
 
 
 fun void test()
-{
-    var uint32 a;
-    var sint64 b;
+    var uint32 a
+    var sint64 b
 
-    a + b; // expect compile error (conflict-tys-binary-op)
-}
+    a + b // expect compile error (conflict-tys-binary-op)

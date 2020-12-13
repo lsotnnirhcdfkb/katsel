@@ -109,6 +109,39 @@ void E0008(Token const &tok)
     e.report();
 }
 
+// E0009 - unterm-multiline-comment
+// | Unterminated multiline comment
+void E0009(Token const &tok)
+{
+    Error e = Error(Error::MsgType::ERROR, tok, "E0009 (unterm-multiline-comment)");
+    e.underline(Error::Underline(tok, '^')
+        .error("unterminated multiline comment")
+    );
+    e.report();
+}
+
+// E0010 - dedent-nomatch
+// | Dedent level does not match any other indentation level
+void E0010(Token const &tok)
+{
+    Error e = Error(Error::MsgType::ERROR, tok, "E0010 (dedent-nomatch)");
+    e.underline(Error::Underline(tok, '^')
+        .error("dedent to unknown level")
+    );
+    e.report();
+}
+
+// E0011 - char-after-backslash
+// | Character after line continuation backslash
+void E0011(Token const &tok)
+{
+    Error e = Error(Error::MsgType::ERROR, tok, "E0011 (char-after-backslash)");
+    e.underline(Error::Underline(tok, '^')
+        .error("character after line continuation backslash")
+    );
+    e.report();
+}
+
 // E0100 - unrecoverable-invalid-syntax
 // | The parser found an unrecoverable syntax error.
 void E0100(Token const &last, Token const &lookahead, std::vector<std::string> const &expectations)
@@ -118,7 +151,7 @@ void E0100(Token const &last, Token const &lookahead, std::vector<std::string> c
         .error("invalid syntax")
     );
     e.underline(Error::Underline(lookahead, '~')
-        .note("unexpected token here")
+        .note(format("unexpected % here", stringifyTokenType(lookahead.type)))
     );
 auto un (Error::Underline(last, '^'));
 for (std::string const &expectation : expectations)
@@ -137,7 +170,7 @@ void E0101(Token const &last, Token const &lookahead, std::string const &bestfix
         .error("invalid syntax")
     );
     e.underline(Error::Underline(lookahead, '~')
-        .note("unexpected token here")
+        .note(format("unexpected % here", stringifyTokenType(lookahead.type)))
         .note(bestfix)
     );
 auto un (Error::Underline(last, '^'));
@@ -157,7 +190,7 @@ void E0102(Token const &last, Token const &lookahead, Token const &panicuntil, s
         .error("invalid syntax")
     );
     e.underline(Error::Underline(lookahead, '~')
-        .note("unexpected token here")
+        .note(format("unexpected % here", stringifyTokenType(lookahead.type)))
     );
     e.underline(Error::Underline(panicuntil, '-')
         .note("parser panicked until here")
@@ -329,20 +362,6 @@ void E0210(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &eq)
     e.report();
 }
 
-// E0211 - ret-val-void-fun
-// | Return statement in void function
-void E0211(IR::ASTValue const &val, IR::Function *f)
-{
-    Error e = Error(Error::MsgType::ERROR, val, "E0211 (ret-val-void-fun)");
-    e.underline(Error::Underline(val, '^')
-        .error("non-void return in void function")
-    );
-    e.underline(Error::Underline(f->defAST()->retty.get(), '~')
-        .note("function returns void")
-    );
-    e.report();
-}
-
 // E0212 - conflict-ret-ty
 // | Conflicting return types
 void E0212(IR::ASTValue const &val, IR::Function *f)
@@ -350,20 +369,7 @@ void E0212(IR::ASTValue const &val, IR::Function *f)
     Error e = Error(Error::MsgType::ERROR, val, "E0212 (conflict-ret-ty)");
     e.underline(Error::Underline(val, '^')
         .error("conflicting return type")
-    );
-    e.underline(Error::Underline(f->defAST()->retty.get(), '~')
-        .note(format("function returns %", f->ty->ret))
-    );
-    e.report();
-}
-
-// E0213 - ret-void-nonvoid-fun
-// | Void return in non-void function
-void E0213(ASTNS::AST *retstmt, IR::Function *f)
-{
-    Error e = Error(Error::MsgType::ERROR, retstmt, "E0213 (ret-void-nonvoid-fun)");
-    e.underline(Error::Underline(retstmt, '^')
-        .error("void return in non-void function")
+        .note(format("returning %", val.type()))
     );
     e.underline(Error::Underline(f->defAST()->retty.get(), '~')
         .note(format("function returns %", f->ty->ret))

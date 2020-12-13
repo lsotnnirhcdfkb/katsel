@@ -2,6 +2,7 @@
 #include "message/errors.h"
 #include "ir/printer.h"
 #include "ir/cfgdotter.h"
+#include "message/reportAbort.h"
 
 IR::Block::Block(std::string name, size_t num): name(name), num(num) {}
 

@@ -20,7 +20,7 @@ void IR::Unit::cfgDot(llvm::raw_ostream &ostream) const
     ostream << "}\n";
 }
 
-IR::Function* IR::Unit::addFunction(FunctionType *type, std::string name, ASTNS::Function *ast)
+IR::Function* IR::Unit::addFunction(FunctionType *type, std::string name, ASTNS::FunctionDecl *ast)
 {
     std::unique_ptr<IR::Function> f (std::make_unique<IR::Function>(type, name, ast));
     IR::Function *fraw = f.get();

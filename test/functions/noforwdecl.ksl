@@ -1,13 +1,9 @@
 
 
 fun uint32 main()
-{
-    thingy();
-    return 0;
-}
+    thingy()
+    <- 0
 
 fun uint32 thingy()
-{
-    return 2;
-}
+    <- 2
 

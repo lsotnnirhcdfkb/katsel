@@ -11,6 +11,7 @@ namespace IR
     class Type;
     class BuiltinType;
     class FunctionType;
+    class VoidType;
 
     class Value
     {
@@ -61,13 +62,13 @@ namespace IR
     class Function : public Value, public DeclaredValue
     {
     public:
-        Function(FunctionType *ty, std::string name, ASTNS::Function *defAST);
+        Function(FunctionType *ty, std::string name, ASTNS::FunctionDecl *defAST);
 
         void add(std::unique_ptr<Block> block);
 
         std::string stringify() const override;
         void definition(llvm::raw_ostream &os) const;
-        ASTNS::Function* defAST() const override;
+        ASTNS::FunctionDecl* defAST() const override;
         void cfgDot(llvm::raw_ostream &os) const;
 
         Type* type() const override;
@@ -86,7 +87,7 @@ namespace IR
         bool prototypeonly;
 
     private:
-        ASTNS::Function *_defAST;
+        ASTNS::FunctionDecl *_defAST;
 
         size_t blocki;
         size_t regi;
@@ -106,6 +107,16 @@ namespace IR
 
     private:
         BuiltinType *ty;
+    };
+
+    class Void : public Value
+    {
+    public:
+        Void(VoidType *ty);
+        std::string stringify() const override;
+        Type* type() const override;
+    private:
+        VoidType *ty;
     };
 
     struct ASTValue

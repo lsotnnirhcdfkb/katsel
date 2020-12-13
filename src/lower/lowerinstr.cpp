@@ -5,6 +5,9 @@
 
 void Lower::Lowerer::visitStore(IR::Instrs::Store *instr)
 {
+    if (dynamic_cast<IR::VoidType*>(instr->target->type()))
+        return;
+
     llvm::AllocaInst *target = allocas.at(instr->target);
     builder.CreateStore(lower(instr->value), target);
 }

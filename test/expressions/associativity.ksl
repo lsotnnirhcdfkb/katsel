@@ -1,18 +1,15 @@
-
-
 fun uint32 main()
-{
-    var uint32 a = 1, b = 2, c = 3;
+    var uint32 a = 1, b = 2, c = 3
 
-    printunsigned(a); // expect output 1
-    printunsigned(b); // expect output 2
-    printunsigned(c); // expect output 3
+    printunsigned(a) // expect output 1
+    printunsigned(b) // expect output 2
+    printunsigned(c) // expect output 3
 
-    a = b = c;
+    a = b = c
 
-    printunsigned(a); // expect output 3
-    printunsigned(b); // expect output 3
-    printunsigned(c); // expect output 3
-}
+    printunsigned(a) // expect output 3
+    printunsigned(b) // expect output 3
+    printunsigned(c) // expect output 3
+    <- 0
 
-fun void printunsigned(uint32 i);
+fun void printunsigned(uint32 i)

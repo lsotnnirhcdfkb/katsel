@@ -459,15 +459,16 @@ void ASTNS::DotVisitor::visitBitXorExpr(ASTNS::BitXorExpr *a)
     }
     lastid = std::move(thisid);
 }
-void ASTNS::DotVisitor::visitBlock(ASTNS::Block *a)
+void ASTNS::DotVisitor::visitBracedBlock(ASTNS::BracedBlock *a)
 {
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::Block::Form::TAT:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">Block (TAT)</td></tr><tr>";
+        case ASTNS::BracedBlock::Form::TAAT:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"4\">BracedBlock (TAAT)</td></tr><tr>";
             ostream << "<td port=\"ocurb\">ocurb</td>";
             ostream << "<td port=\"stmts\">stmts</td>";
+            ostream << "<td port=\"implret\">implret</td>";
             ostream << "<td port=\"ccurb\">ccurb</td>";
             ostream << "</tr></table>>]\n";
             {
@@ -487,6 +488,118 @@ void ASTNS::DotVisitor::visitBlock(ASTNS::Block *a)
                     }
             }
             {
+                    if (a->implret)
+                    {
+                        a->implret->accept(this);
+                        connect(thisid, "implret", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "implret", nullptrnodeid);
+                    }
+            }
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->ccurb.stringify());
+                    connect(thisid, "ccurb", tokennodeid);
+            }
+            break;
+        case ASTNS::BracedBlock::Form::TTAAT:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"5\">BracedBlock (TTAAT)</td></tr><tr>";
+            ostream << "<td port=\"ocurb\">ocurb</td>";
+            ostream << "<td port=\"newlopt\">newlopt</td>";
+            ostream << "<td port=\"stmts\">stmts</td>";
+            ostream << "<td port=\"implret\">implret</td>";
+            ostream << "<td port=\"ccurb\">ccurb</td>";
+            ostream << "</tr></table>>]\n";
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->ocurb.stringify());
+                    connect(thisid, "ocurb", tokennodeid);
+            }
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->newlopt.stringify());
+                    connect(thisid, "newlopt", tokennodeid);
+            }
+            {
+                    if (a->stmts)
+                    {
+                        a->stmts->accept(this);
+                        connect(thisid, "stmts", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "stmts", nullptrnodeid);
+                    }
+            }
+            {
+                    if (a->implret)
+                    {
+                        a->implret->accept(this);
+                        connect(thisid, "implret", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "implret", nullptrnodeid);
+                    }
+            }
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->ccurb.stringify());
+                    connect(thisid, "ccurb", tokennodeid);
+            }
+            break;
+        case ASTNS::BracedBlock::Form::TTTAATT:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"7\">BracedBlock (TTTAATT)</td></tr><tr>";
+            ostream << "<td port=\"ocurb\">ocurb</td>";
+            ostream << "<td port=\"newlopt\">newlopt</td>";
+            ostream << "<td port=\"indentopt\">indentopt</td>";
+            ostream << "<td port=\"stmts\">stmts</td>";
+            ostream << "<td port=\"implret\">implret</td>";
+            ostream << "<td port=\"dedentopt\">dedentopt</td>";
+            ostream << "<td port=\"ccurb\">ccurb</td>";
+            ostream << "</tr></table>>]\n";
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->ocurb.stringify());
+                    connect(thisid, "ocurb", tokennodeid);
+            }
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->newlopt.stringify());
+                    connect(thisid, "newlopt", tokennodeid);
+            }
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->indentopt.stringify());
+                    connect(thisid, "indentopt", tokennodeid);
+            }
+            {
+                    if (a->stmts)
+                    {
+                        a->stmts->accept(this);
+                        connect(thisid, "stmts", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "stmts", nullptrnodeid);
+                    }
+            }
+            {
+                    if (a->implret)
+                    {
+                        a->implret->accept(this);
+                        connect(thisid, "implret", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "implret", nullptrnodeid);
+                    }
+            }
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->dedentopt.stringify());
+                    connect(thisid, "dedentopt", tokennodeid);
+            }
+            {
                     std::string tokennodeid = makeTextNode("Token", a->ccurb.stringify());
                     connect(thisid, "ccurb", tokennodeid);
             }
@@ -494,13 +607,13 @@ void ASTNS::DotVisitor::visitBlock(ASTNS::Block *a)
     }
     lastid = std::move(thisid);
 }
-void ASTNS::DotVisitor::visitBuiltinTypeNoVoid(ASTNS::BuiltinTypeNoVoid *a)
+void ASTNS::DotVisitor::visitBuiltinType(ASTNS::BuiltinType *a)
 {
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::BuiltinTypeNoVoid::Form::T:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">BuiltinTypeNoVoid (T)</td></tr><tr>";
+        case ASTNS::BuiltinType::Form::T:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">BuiltinType (T)</td></tr><tr>";
             ostream << "<td port=\"type\">type</td>";
             ostream << "</tr></table>>]\n";
             {
@@ -759,32 +872,14 @@ void ASTNS::DotVisitor::visitDeclList(ASTNS::DeclList *a)
     }
     lastid = std::move(thisid);
 }
-void ASTNS::DotVisitor::visitEmptyStmt(ASTNS::EmptyStmt *a)
-{
-    std::string thisid = curid();
-    switch (a->form)
-    {
-        case ASTNS::EmptyStmt::Form::T:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">EmptyStmt (T)</td></tr><tr>";
-            ostream << "<td port=\"semi\">semi</td>";
-            ostream << "</tr></table>>]\n";
-            {
-                    std::string tokennodeid = makeTextNode("Token", a->semi.stringify());
-                    connect(thisid, "semi", tokennodeid);
-            }
-            break;
-    }
-    lastid = std::move(thisid);
-}
 void ASTNS::DotVisitor::visitExprStmt(ASTNS::ExprStmt *a)
 {
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::ExprStmt::Form::AT:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">ExprStmt (AT)</td></tr><tr>";
+        case ASTNS::ExprStmt::Form::A:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">ExprStmt (A)</td></tr><tr>";
             ostream << "<td port=\"expr\">expr</td>";
-            ostream << "<td port=\"semi\">semi</td>";
             ostream << "</tr></table>>]\n";
             {
                     if (a->expr)
@@ -798,21 +893,17 @@ void ASTNS::DotVisitor::visitExprStmt(ASTNS::ExprStmt *a)
                         connect(thisid, "expr", nullptrnodeid);
                     }
             }
-            {
-                    std::string tokennodeid = makeTextNode("Token", a->semi.stringify());
-                    connect(thisid, "semi", tokennodeid);
-            }
             break;
     }
     lastid = std::move(thisid);
 }
-void ASTNS::DotVisitor::visitFunction(ASTNS::Function *a)
+void ASTNS::DotVisitor::visitFunctionDecl(ASTNS::FunctionDecl *a)
 {
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::Function::Form::TATTATA:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"7\">Function (TATTATA)</td></tr><tr>";
+        case ASTNS::FunctionDecl::Form::TATTATA:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"7\">FunctionDecl (TATTATA)</td></tr><tr>";
             ostream << "<td port=\"fun\">fun</td>";
             ostream << "<td port=\"retty\">retty</td>";
             ostream << "<td port=\"name\">name</td>";
@@ -874,15 +965,15 @@ void ASTNS::DotVisitor::visitFunction(ASTNS::Function *a)
                     }
             }
             break;
-        case ASTNS::Function::Form::TATTATT:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"7\">Function (TATTATT)</td></tr><tr>";
+        case ASTNS::FunctionDecl::Form::TATTATT:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"7\">FunctionDecl (TATTATT)</td></tr><tr>";
             ostream << "<td port=\"fun\">fun</td>";
             ostream << "<td port=\"retty\">retty</td>";
             ostream << "<td port=\"name\">name</td>";
             ostream << "<td port=\"oparn\">oparn</td>";
             ostream << "<td port=\"paramlist\">paramlist</td>";
             ostream << "<td port=\"cparn\">cparn</td>";
-            ostream << "<td port=\"semi\">semi</td>";
+            ostream << "<td port=\"newl\">newl</td>";
             ostream << "</tr></table>>]\n";
             {
                     std::string tokennodeid = makeTextNode("Token", a->fun.stringify());
@@ -925,8 +1016,115 @@ void ASTNS::DotVisitor::visitFunction(ASTNS::Function *a)
                     connect(thisid, "cparn", tokennodeid);
             }
             {
-                    std::string tokennodeid = makeTextNode("Token", a->semi.stringify());
-                    connect(thisid, "semi", tokennodeid);
+                    std::string tokennodeid = makeTextNode("Token", a->newl.stringify());
+                    connect(thisid, "newl", tokennodeid);
+            }
+            break;
+    }
+    lastid = std::move(thisid);
+}
+void ASTNS::DotVisitor::visitImplRet(ASTNS::ImplRet *a)
+{
+    std::string thisid = curid();
+    switch (a->form)
+    {
+        case ASTNS::ImplRet::Form::TAA:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">ImplRet (TAA)</td></tr><tr>";
+            ostream << "<td port=\"leftarrow\">leftarrow</td>";
+            ostream << "<td port=\"expr\">expr</td>";
+            ostream << "<td port=\"ending\">ending</td>";
+            ostream << "</tr></table>>]\n";
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->leftarrow.stringify());
+                    connect(thisid, "leftarrow", tokennodeid);
+            }
+            {
+                    if (a->expr)
+                    {
+                        a->expr->accept(this);
+                        connect(thisid, "expr", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "expr", nullptrnodeid);
+                    }
+            }
+            {
+                    if (a->ending)
+                    {
+                        a->ending->accept(this);
+                        connect(thisid, "ending", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "ending", nullptrnodeid);
+                    }
+            }
+            break;
+    }
+    lastid = std::move(thisid);
+}
+void ASTNS::DotVisitor::visitImplRet_OPT(ASTNS::ImplRet_OPT *a)
+{
+    std::string thisid = curid();
+    switch (a->form)
+    {
+        case ASTNS::ImplRet_OPT::Form::EMPTY:
+            ostream << thisid << " [label=\"ImplRet_OPT (EMPTY)\"]";
+            break;
+    }
+    lastid = std::move(thisid);
+}
+void ASTNS::DotVisitor::visitIndentedBlock(ASTNS::IndentedBlock *a)
+{
+    std::string thisid = curid();
+    switch (a->form)
+    {
+        case ASTNS::IndentedBlock::Form::TTAAT:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"5\">IndentedBlock (TTAAT)</td></tr><tr>";
+            ostream << "<td port=\"newl\">newl</td>";
+            ostream << "<td port=\"indent\">indent</td>";
+            ostream << "<td port=\"stmts\">stmts</td>";
+            ostream << "<td port=\"implret\">implret</td>";
+            ostream << "<td port=\"dedent\">dedent</td>";
+            ostream << "</tr></table>>]\n";
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->newl.stringify());
+                    connect(thisid, "newl", tokennodeid);
+            }
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->indent.stringify());
+                    connect(thisid, "indent", tokennodeid);
+            }
+            {
+                    if (a->stmts)
+                    {
+                        a->stmts->accept(this);
+                        connect(thisid, "stmts", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "stmts", nullptrnodeid);
+                    }
+            }
+            {
+                    if (a->implret)
+                    {
+                        a->implret->accept(this);
+                        connect(thisid, "implret", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "implret", nullptrnodeid);
+                    }
+            }
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->dedent.stringify());
+                    connect(thisid, "dedent", tokennodeid);
             }
             break;
     }
@@ -1133,16 +1331,15 @@ void ASTNS::DotVisitor::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
     }
     lastid = std::move(thisid);
 }
-void ASTNS::DotVisitor::visitRetStmt(ASTNS::RetStmt *a)
+void ASTNS::DotVisitor::visitRetExpr(ASTNS::RetExpr *a)
 {
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::RetStmt::Form::TAT:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">RetStmt (TAT)</td></tr><tr>";
+        case ASTNS::RetExpr::Form::TA:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">RetExpr (TA)</td></tr><tr>";
             ostream << "<td port=\"ret\">ret</td>";
             ostream << "<td port=\"expr\">expr</td>";
-            ostream << "<td port=\"semi\">semi</td>";
             ostream << "</tr></table>>]\n";
             {
                     std::string tokennodeid = makeTextNode("Token", a->ret.stringify());
@@ -1160,24 +1357,57 @@ void ASTNS::DotVisitor::visitRetStmt(ASTNS::RetStmt *a)
                         connect(thisid, "expr", nullptrnodeid);
                     }
             }
-            {
-                    std::string tokennodeid = makeTextNode("Token", a->semi.stringify());
-                    connect(thisid, "semi", tokennodeid);
-            }
             break;
-        case ASTNS::RetStmt::Form::TT:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">RetStmt (TT)</td></tr><tr>";
+        case ASTNS::RetExpr::Form::T:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">RetExpr (T)</td></tr><tr>";
             ostream << "<td port=\"ret\">ret</td>";
-            ostream << "<td port=\"semi\">semi</td>";
             ostream << "</tr></table>>]\n";
             {
                     std::string tokennodeid = makeTextNode("Token", a->ret.stringify());
                     connect(thisid, "ret", tokennodeid);
             }
+            break;
+    }
+    lastid = std::move(thisid);
+}
+void ASTNS::DotVisitor::visitStmtEnding(ASTNS::StmtEnding *a)
+{
+    std::string thisid = curid();
+    switch (a->form)
+    {
+        case ASTNS::StmtEnding::Form::T:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">StmtEnding (T)</td></tr><tr>";
+            ostream << "<td port=\"tok\">tok</td>";
+            ostream << "</tr></table>>]\n";
             {
-                    std::string tokennodeid = makeTextNode("Token", a->semi.stringify());
-                    connect(thisid, "semi", tokennodeid);
+                    std::string tokennodeid = makeTextNode("Token", a->tok.stringify());
+                    connect(thisid, "tok", tokennodeid);
             }
+            break;
+        case ASTNS::StmtEnding::Form::TT:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">StmtEnding (TT)</td></tr><tr>";
+            ostream << "<td port=\"tok\">tok</td>";
+            ostream << "<td port=\"tok2\">tok2</td>";
+            ostream << "</tr></table>>]\n";
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->tok.stringify());
+                    connect(thisid, "tok", tokennodeid);
+            }
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->tok2.stringify());
+                    connect(thisid, "tok2", tokennodeid);
+            }
+            break;
+    }
+    lastid = std::move(thisid);
+}
+void ASTNS::DotVisitor::visitStmtEnding_OPT(ASTNS::StmtEnding_OPT *a)
+{
+    std::string thisid = curid();
+    switch (a->form)
+    {
+        case ASTNS::StmtEnding_OPT::Form::EMPTY:
+            ostream << thisid << " [label=\"StmtEnding_OPT (EMPTY)\"]";
             break;
     }
     lastid = std::move(thisid);
@@ -1189,19 +1419,81 @@ void ASTNS::DotVisitor::visitStmtList(ASTNS::StmtList *a)
     {
         case ASTNS::StmtList::Form::AA:
             ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">StmtList (AA)</td></tr><tr>";
-            ostream << "<td port=\"stmtlist\">stmtlist</td>";
-            ostream << "<td port=\"anotherstmt\">anotherstmt</td>";
+            ostream << "<td port=\"stmtsegment\">stmtsegment</td>";
+            ostream << "<td port=\"stmtending\">stmtending</td>";
             ostream << "</tr></table>>]\n";
             {
-                    if (a->stmtlist)
+                    if (a->stmtsegment)
                     {
-                        a->stmtlist->accept(this);
-                        connect(thisid, "stmtlist", lastid);
+                        a->stmtsegment->accept(this);
+                        connect(thisid, "stmtsegment", lastid);
                     }
                     else
                     {
                         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "stmtlist", nullptrnodeid);
+                        connect(thisid, "stmtsegment", nullptrnodeid);
+                    }
+            }
+            {
+                    if (a->stmtending)
+                    {
+                        a->stmtending->accept(this);
+                        connect(thisid, "stmtending", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "stmtending", nullptrnodeid);
+                    }
+            }
+            break;
+    }
+    lastid = std::move(thisid);
+}
+void ASTNS::DotVisitor::visitStmtList_OPT(ASTNS::StmtList_OPT *a)
+{
+    std::string thisid = curid();
+    switch (a->form)
+    {
+        case ASTNS::StmtList_OPT::Form::EMPTY:
+            ostream << thisid << " [label=\"StmtList_OPT (EMPTY)\"]";
+            break;
+    }
+    lastid = std::move(thisid);
+}
+void ASTNS::DotVisitor::visitStmtSegment(ASTNS::StmtSegment *a)
+{
+    std::string thisid = curid();
+    switch (a->form)
+    {
+        case ASTNS::StmtSegment::Form::AAA:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">StmtSegment (AAA)</td></tr><tr>";
+            ostream << "<td port=\"stmtsegment\">stmtsegment</td>";
+            ostream << "<td port=\"stmtending\">stmtending</td>";
+            ostream << "<td port=\"anotherstmt\">anotherstmt</td>";
+            ostream << "</tr></table>>]\n";
+            {
+                    if (a->stmtsegment)
+                    {
+                        a->stmtsegment->accept(this);
+                        connect(thisid, "stmtsegment", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "stmtsegment", nullptrnodeid);
+                    }
+            }
+            {
+                    if (a->stmtending)
+                    {
+                        a->stmtending->accept(this);
+                        connect(thisid, "stmtending", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "stmtending", nullptrnodeid);
                     }
             }
             {
@@ -1216,17 +1508,6 @@ void ASTNS::DotVisitor::visitStmtList(ASTNS::StmtList *a)
                         connect(thisid, "anotherstmt", nullptrnodeid);
                     }
             }
-            break;
-    }
-    lastid = std::move(thisid);
-}
-void ASTNS::DotVisitor::visitStmtList_OPT(ASTNS::StmtList_OPT *a)
-{
-    std::string thisid = curid();
-    switch (a->form)
-    {
-        case ASTNS::StmtList_OPT::Form::EMPTY:
-            ostream << thisid << " [label=\"StmtList_OPT (EMPTY)\"]";
             break;
     }
     lastid = std::move(thisid);
@@ -1292,23 +1573,6 @@ void ASTNS::DotVisitor::visitTernaryExpr(ASTNS::TernaryExpr *a)
     }
     lastid = std::move(thisid);
 }
-void ASTNS::DotVisitor::visitTypeV(ASTNS::TypeV *a)
-{
-    std::string thisid = curid();
-    switch (a->form)
-    {
-        case ASTNS::TypeV::Form::T:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">TypeV (T)</td></tr><tr>";
-            ostream << "<td port=\"vo\">vo</td>";
-            ostream << "</tr></table>>]\n";
-            {
-                    std::string tokennodeid = makeTextNode("Token", a->vo.stringify());
-                    connect(thisid, "vo", tokennodeid);
-            }
-            break;
-    }
-    lastid = std::move(thisid);
-}
 void ASTNS::DotVisitor::visitUnaryExpr(ASTNS::UnaryExpr *a)
 {
     std::string thisid = curid();
@@ -1344,12 +1608,11 @@ void ASTNS::DotVisitor::visitVarStmt(ASTNS::VarStmt *a)
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::VarStmt::Form::TAAT:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"4\">VarStmt (TAAT)</td></tr><tr>";
+        case ASTNS::VarStmt::Form::TAA:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">VarStmt (TAA)</td></tr><tr>";
             ostream << "<td port=\"var\">var</td>";
             ostream << "<td port=\"type\">type</td>";
             ostream << "<td port=\"assignments\">assignments</td>";
-            ostream << "<td port=\"semi\">semi</td>";
             ostream << "</tr></table>>]\n";
             {
                     std::string tokennodeid = makeTextNode("Token", a->var.stringify());
@@ -1378,10 +1641,6 @@ void ASTNS::DotVisitor::visitVarStmt(ASTNS::VarStmt *a)
                         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
                         connect(thisid, "assignments", nullptrnodeid);
                     }
-            }
-            {
-                    std::string tokennodeid = makeTextNode("Token", a->semi.stringify());
-                    connect(thisid, "semi", tokennodeid);
             }
             break;
     }

@@ -3,7 +3,7 @@
 #include "message/errors.h"
 #include "utils/format.h"
 
-IR::Function::Function(IR::FunctionType *ty, std::string name, ASTNS::Function *defAST): ty(ty), name(name), prototypeonly(false), _defAST(defAST), blocki(0), regi(0), tempregi(0) {}
+IR::Function::Function(IR::FunctionType *ty, std::string name, ASTNS::FunctionDecl *defAST): ty(ty), name(name), prototypeonly(false), _defAST(defAST), blocki(0), regi(0), tempregi(0) {}
 
 void IR::Function::add(std::unique_ptr<IR::Block> block)
 {
@@ -19,7 +19,7 @@ std::string IR::Function::stringify() const
     ss << "fun " << name;
     return ss.str();
 }
-ASTNS::Function* IR::Function::defAST() const
+ASTNS::FunctionDecl* IR::Function::defAST() const
 {
     return _defAST;
 }

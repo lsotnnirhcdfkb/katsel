@@ -1,9 +1,8 @@
 
 
 fun uint32 main()
-{
-    var uint32 i, j, k;
-    i;
-    j;
-    k;
-}
+    var uint32 i, j, k
+    i
+    j
+    k
+    <- 0
