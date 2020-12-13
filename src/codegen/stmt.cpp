@@ -47,11 +47,7 @@ void CodeGenNS::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
 void CodeGenNS::StmtCodeGen::visitStmtList_OPT(ASTNS::StmtList_OPT *ast) {}
 void CodeGenNS::StmtCodeGen::visitStmtList(ASTNS::StmtList *ast)
 {
-    ast->stmtsegment->accept(this);
-}
-void CodeGenNS::StmtCodeGen::visitStmtSegment(ASTNS::StmtSegment *ast)
-{
-    ast->stmtsegment->accept(this);
+    ast->stmtlist->accept(this);
     ast->anotherstmt->accept(this);
 }
 

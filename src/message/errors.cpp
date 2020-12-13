@@ -60,7 +60,6 @@ void visitStmtEnding(ASTNS::StmtEnding *ast) override;
 void visitStmtEnding_OPT(ASTNS::StmtEnding_OPT *ast) override;
 void visitStmtList(ASTNS::StmtList *ast) override;
 void visitStmtList_OPT(ASTNS::StmtList_OPT *ast) override;
-void visitStmtSegment(ASTNS::StmtSegment *ast) override;
 void visitUnaryExpr(ASTNS::UnaryExpr *ast) override;
 void visitVarStmt(ASTNS::VarStmt *ast) override;
 void visitVarStmtItem(ASTNS::VarStmtItem *ast) override;
@@ -345,10 +344,10 @@ void LocationVisitor::visitExprStmt(ASTNS::ExprStmt *ast)
 {
     switch (ast->form)
     {
-        case ASTNS::ExprStmt::Form::A:
+        case ASTNS::ExprStmt::Form::AA:
             retl = getL(ast->expr.get());
             retf = getF(ast->expr.get());
-            retr = getR(ast->expr.get());
+            retr = getR(ast->ending.get());
             break;
     }
 }
@@ -488,15 +487,15 @@ void LocationVisitor::visitRetStmt(ASTNS::RetStmt *ast)
 {
     switch (ast->form)
     {
+        case ASTNS::RetStmt::Form::TAA:
+            retl = ast->ret.start;
+            retf = ast->ret.sourcefile;
+            retr = getR(ast->ending.get());
+            break;
         case ASTNS::RetStmt::Form::TA:
             retl = ast->ret.start;
             retf = ast->ret.sourcefile;
-            retr = getR(ast->expr.get());
-            break;
-        case ASTNS::RetStmt::Form::T:
-            retl = ast->ret.start;
-            retf = ast->ret.sourcefile;
-            retr = ast->ret.end;
+            retr = getR(ast->ending.get());
             break;
     }
 }
@@ -530,9 +529,9 @@ void LocationVisitor::visitStmtList(ASTNS::StmtList *ast)
     switch (ast->form)
     {
         case ASTNS::StmtList::Form::AA:
-            retl = getL(ast->stmtsegment.get());
-            retf = getF(ast->stmtsegment.get());
-            retr = getR(ast->stmtending.get());
+            retl = getL(ast->stmtlist.get());
+            retf = getF(ast->stmtlist.get());
+            retr = getR(ast->anotherstmt.get());
             break;
     }
 }
@@ -542,17 +541,6 @@ void LocationVisitor::visitStmtList_OPT(ASTNS::StmtList_OPT *ast)
     {
         case ASTNS::StmtList_OPT::Form::EMPTY:
             reportAbortNoh("get location of empty ast");
-            break;
-    }
-}
-void LocationVisitor::visitStmtSegment(ASTNS::StmtSegment *ast)
-{
-    switch (ast->form)
-    {
-        case ASTNS::StmtSegment::Form::AAA:
-            retl = getL(ast->stmtsegment.get());
-            retf = getF(ast->stmtsegment.get());
-            retr = getR(ast->anotherstmt.get());
             break;
     }
 }
@@ -571,10 +559,10 @@ void LocationVisitor::visitVarStmt(ASTNS::VarStmt *ast)
 {
     switch (ast->form)
     {
-        case ASTNS::VarStmt::Form::TAA:
+        case ASTNS::VarStmt::Form::TAAA:
             retl = ast->var.start;
             retf = ast->var.sourcefile;
-            retr = getR(ast->assignments.get());
+            retr = getR(ast->ending.get());
             break;
     }
 }

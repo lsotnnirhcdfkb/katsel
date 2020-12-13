@@ -480,6 +480,8 @@ def makeGrammar():
     Arg = nt('Arg', 'argument', 'ArgB', panickable=True)
     Param = nt('Param', 'parameter', 'PListB', panickable=True)
     Expr = nt('Expr', 'expression', 'ExprB')
+    BlockedExpr = nt('BlockedExpr', 'braced expression', 'ExprB')
+    NotBlockedExpr = nt('NotBlockedExpr', 'non-braced expression', 'ExprB')
     IfExpr = nt('IfExpr', 'if expression', 'ExprB', panickable=True)
     AssignmentExpr = nt('AssignmentExpr', 'assignment expression', 'ExprB')
     BinOrExpr = nt('BinOrExpr', 'binary or expression', 'ExprB')
@@ -566,7 +568,7 @@ def makeGrammar():
     ParamList = listRule(Param, 'PListB', COMMA)
     ArgList = listRule(Arg, 'ArgB', COMMA)
     VarStmtItemList = listRule(VarStmtItem, 'VStmtIB', COMMA)
-    StmtList = listRule(Stmt, 'StmtB', StmtEnding)
+    StmtList = listRule(Stmt, 'StmtB')
     DeclList = listRule(Decl, 'DeclB')
 
     ParamListOpt = makeOpt(ParamList)
@@ -587,12 +589,13 @@ def makeGrammar():
     rule(Stmt, ((ExprStmt, '_'),))
     rule(Stmt, ((RetStmt, '_'),))
 
-    rule(VarStmt, ((VAR, 'var'),  (Type, 'type'),  (VarStmtItemList, 'assignments'),))
+    rule(VarStmt, ((VAR, 'var'),  (Type, 'type'),  (VarStmtItemList, 'assignments'), (StmtEnding, 'ending')))
 
-    rule(ExprStmt, ((Expr, 'expr'),))
+    rule(ExprStmt, ((NotBlockedExpr, 'expr'), (StmtEnding, 'ending')))
+    rule(ExprStmt, ((BlockedExpr, 'expr'), (StmtEndingOpt, 'ending')))
 
-    rule(RetStmt, ((RETURN, 'ret'), (Expr, 'expr')))
-    rule(RetStmt, ((RETURN, 'ret'),))
+    rule(RetStmt, ((RETURN, 'ret'), (Expr, 'expr'), (StmtEnding, 'ending')))
+    rule(RetStmt, ((RETURN, 'ret'), (StmtEnding, 'ending')))
 
     rule(VarStmtItem, ((IDENTIFIER, 'name'),  (EQUAL, 'equal'),  (Expr, 'expr'), ))
     rule(VarStmtItem, ((IDENTIFIER, 'name'),))
@@ -629,9 +632,12 @@ def makeGrammar():
 
     rule(Param, ((Type, 'type'),  (IDENTIFIER, 'name')))
 
-    rule(Expr, ((AssignmentExpr, '_'),))
-    rule(Expr, ((IfExpr, '_'),))
-    rule(Expr, ((BracedBlock, '_'),))
+    rule(Expr, ((BlockedExpr, '_'),))
+    rule(Expr, ((NotBlockedExpr, '_'),))
+
+    rule(NotBlockedExpr, ((AssignmentExpr, '_'),))
+    rule(BlockedExpr, ((IfExpr, '_'),))
+    rule(BlockedExpr, ((BracedBlock, '_'),))
 
     rule(IfExpr, ((IF, 'iftok'), (Expr, 'cond'), (Block, 'trues')))
     rule(IfExpr, ((IF, 'iftok'), (Expr, 'cond'), (Block, 'trues'), (ELSE, 'elsetok'), (Block, 'falses')))
