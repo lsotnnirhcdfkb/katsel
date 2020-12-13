@@ -1105,6 +1105,16 @@ void ASTNS::PrintVisitor::visitStmtEnding(ASTNS::StmtEnding *a)
             pai(std::string(a->tok.start, a->tok.end));
             pai("]\n");
             break;
+        case ASTNS::StmtEnding::Form::TT:
+            pai("tok = ");
+            pai("[");
+            pai(std::string(a->tok.start, a->tok.end));
+            pai("]\n");
+            pai("tok2 = ");
+            pai("[");
+            pai(std::string(a->tok2.start, a->tok2.end));
+            pai("]\n");
+            break;
     }
     --indent;
     pai("}\n");

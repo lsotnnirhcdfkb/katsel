@@ -701,11 +701,14 @@ namespace ASTNS
     {
     public:
         StmtEnding(Token tok);
+        StmtEnding(Token tok, Token tok2);
         enum class Form
         {
             T,
+            TT,
         };
         Token tok;
+        Token tok2;
         Form form;
         bool empty() override;
         virtual void accept(ASTNS::StmtEndingBVisitor *v) override;

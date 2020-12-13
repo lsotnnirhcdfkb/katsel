@@ -1384,6 +1384,20 @@ void ASTNS::DotVisitor::visitStmtEnding(ASTNS::StmtEnding *a)
                     connect(thisid, "tok", tokennodeid);
             }
             break;
+        case ASTNS::StmtEnding::Form::TT:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">StmtEnding (TT)</td></tr><tr>";
+            ostream << "<td port=\"tok\">tok</td>";
+            ostream << "<td port=\"tok2\">tok2</td>";
+            ostream << "</tr></table>>]\n";
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->tok.stringify());
+                    connect(thisid, "tok", tokennodeid);
+            }
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->tok2.stringify());
+                    connect(thisid, "tok2", tokennodeid);
+            }
+            break;
     }
     lastid = std::move(thisid);
 }

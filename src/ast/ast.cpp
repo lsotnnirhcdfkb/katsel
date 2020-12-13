@@ -105,6 +105,7 @@ ASTNS::RetExpr::RetExpr(Token ret): ret(ret), form(ASTNS::RetExpr::Form::T) {}
 void ASTNS::RetExpr::accept(ASTNS::ExprBVisitor *v) { v->visitRetExpr(this); }
 bool ASTNS::RetExpr::empty() { return false; }
 ASTNS::StmtEnding::StmtEnding(Token tok): tok(tok), form(ASTNS::StmtEnding::Form::T) {}
+ASTNS::StmtEnding::StmtEnding(Token tok, Token tok2): tok(tok), tok2(tok2), form(ASTNS::StmtEnding::Form::TT) {}
 void ASTNS::StmtEnding::accept(ASTNS::StmtEndingBVisitor *v) { v->visitStmtEnding(this); }
 bool ASTNS::StmtEnding::empty() { return false; }
 ASTNS::StmtEnding_OPT::StmtEnding_OPT(): form(ASTNS::StmtEnding_OPT::Form::EMPTY) {}

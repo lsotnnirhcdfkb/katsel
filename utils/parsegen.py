@@ -604,6 +604,7 @@ def makeGrammar():
 
     rule(StmtEnding, ((NEWLINE, 'tok'),))
     rule(StmtEnding, ((SEMICOLON, 'tok'),))
+    rule(StmtEnding, ((SEMICOLON, 'tok'), (NEWLINE, 'tok2')))
 
     rule(Type, ((BuiltinType, '_'),))
 

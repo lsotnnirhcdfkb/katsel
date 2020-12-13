@@ -540,6 +540,11 @@ void LocationVisitor::visitStmtEnding(ASTNS::StmtEnding *ast)
             retf = ast->tok.sourcefile;
             retr = ast->tok.end;
             break;
+        case ASTNS::StmtEnding::Form::TT:
+            retl = ast->tok.start;
+            retf = ast->tok.sourcefile;
+            retr = ast->tok2.end;
+            break;
     }
 }
 void LocationVisitor::visitStmtEnding_OPT(ASTNS::StmtEnding_OPT *ast)
