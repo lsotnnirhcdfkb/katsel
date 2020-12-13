@@ -133,7 +133,10 @@ Token Lexer::nextToken()
         bool atWh = true;
         bool findingindent = end == srcstart || consumed() == '\n';
         if (findingindent)
+        {
+            startToEnd();
             indent = 0;
+        }
 
         while (atWh)
         {
