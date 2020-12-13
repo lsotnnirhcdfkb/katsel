@@ -2,4 +2,4 @@
 
 fun void test() // expect compile error (unrecoverable-invalid-syntax)
     'f  // expect compile error (unterm-charlit)
-    'fjwei' // expect compile error (multichar-charlit) 
+    'fjwei' // expect compile error (multichar-charlit)
