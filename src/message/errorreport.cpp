@@ -252,11 +252,11 @@ void Error::report() const
 
                     bool lastmessage = mescol == linemessages.rend() - 1 || mescol->column != (mescol + 1)->column;
                     if (lastmessage)
-                        std::cerr << attr(mescol->message->color, "`");
+                        std::cerr << attr(mescol->message->color, "`", true);
                     else
-                        std::cerr << attr(mescol->message->color, "|");
+                        std::cerr << attr(mescol->message->color, "|", true);
 
-                    std::cerr << attr(mescol->message->color, "-- " + mescol->message->type) << ": " << mescol->message->text << std::endl;
+                    std::cerr << "-- " << mescol->message->type << resetIfNecessary() << ": " << mescol->message->text << std::endl;
                 }
             }
 
