@@ -6,7 +6,8 @@
 CodeGenNS::ExprCodeGen::ExprCodeGen(CodeGen &cg): cg(cg) {}
 
 IR::ASTValue CodeGenNS::ExprCodeGen::expr(ASTNS::ExprB *ast)
-{ ret = IR::ASTValue();
+{
+    ret = IR::ASTValue();
     ast->accept(this);
     return ret;
 }

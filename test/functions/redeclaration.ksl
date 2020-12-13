@@ -1,9 +1,12 @@
 
 
-fun uint32 main() {}
+fun uint32 main()
+    <- 0
 
-fun uint32 main(); // expect compile error (redecl-sym)
-fun uint32 main() {} // expect compile error (redecl-sym)
+fun uint32 main() // expect compile error (redecl-sym)
+fun uint32 main() // expect compile error (redecl-sym)
+    <- 0
 
-fun void test();
-fun void test() {} // expect compile error (redecl-sym)
+fun void test()
+fun void test() // expect compile error (redecl-sym)
+    <- 0

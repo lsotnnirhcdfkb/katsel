@@ -1,16 +1,13 @@
 
 
 fun void voidret()
-{
-    return;
+    return
 
-    return 2; // expect compile error (ret-val-void-fun)
-}
+    <- 2 // expect compile error (conflict-ret-ty)
 
 fun uint32 nonvoidret()
-{
-    return; // expect compile error (ret-void-nonvoid-fun)
+    return // expect compile error (conflict-ret-ty)
 
-    var sint64 a;
-    return a; // expect compile error (conflict-ret-ty)
-}
+    var sint64 a
+    return a // expect compile error (conflict-ret-ty)
+    <- a

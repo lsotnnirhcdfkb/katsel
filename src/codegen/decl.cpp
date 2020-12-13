@@ -80,11 +80,12 @@ void CodeGenNS::DeclCodeGen::visitFunctionDecl(ASTNS::FunctionDecl *ast)
         {
             ERR_CONFLICT_RET_TY(ret, f);
             cg.errored = true;
-            return;
         }
-
-        cg.context.curBlock->add(std::make_unique<IR::Instrs::Store>(retReg, ret));
-        cg.context.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(cg.context.exitBlock));
+        else
+        {
+            cg.context.curBlock->add(std::make_unique<IR::Instrs::Store>(retReg, ret));
+            cg.context.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(cg.context.exitBlock));
+        }
     }
 
     cg.context.curFunc = nullptr;

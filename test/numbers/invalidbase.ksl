@@ -1,3 +1,4 @@
 
 
-0j // expect compile error (invalid-intlit-base)
+fun void test() // expect compile error (unrecoverable-invalid-syntax)
+    0j // expect compile error (invalid-intlit-base)

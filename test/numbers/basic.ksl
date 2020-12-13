@@ -1,16 +1,14 @@
 
 
 fun uint32 main()
-{
-    printunsigned(0); // expect output 0
-    printunsigned(10); // expect output 10
-    printunsigned(100); // expect output 100
-    printunsigned(15); // expect output 15
-    printunsigned(42); // expect output 42
-    printunsigned(-5); // expect output 4294967291
-    printunsigned(-0); // expect output 0
-    printunsigned(-1); // expect output 4294967295
-    return 0;
-}
+    printunsigned(0) // expect output 0
+    printunsigned(10) // expect output 10
+    printunsigned(100) // expect output 100
+    printunsigned(15) // expect output 15
+    printunsigned(42) // expect output 42
+    printunsigned(-5) // expect output 4294967291
+    printunsigned(-0) // expect output 0
+    printunsigned(-1) // expect output 4294967295
+    <- 0
 
-fun void printunsigned(uint32 i);
+fun void printunsigned(uint32 i)

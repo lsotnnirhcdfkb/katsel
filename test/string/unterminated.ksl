@@ -1,3 +1,4 @@
 
 
-"fjwaoeigji // expect compile error (unterm-strlit)
+fun void test() // expect compile error (unrecoverable-invalid-syntax)
+    "fjwaoeigji // expect compile error (unterm-strlit)

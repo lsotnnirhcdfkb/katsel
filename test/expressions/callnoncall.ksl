@@ -1,7 +1,5 @@
 
 
 fun void test()
-{
-    var uint32 i;
-    i(); // expect compile error (call-noncallable)
-}
+    var uint32 i
+    i() // expect compile error (call-noncallable)

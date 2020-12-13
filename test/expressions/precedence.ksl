@@ -1,13 +1,13 @@
 
 
 fun uint32 main()
-{
-    printunsigned(2 + 2 * 3); // expect output 8
-    printunsigned((2 + 2) * 3); // expect output 12
+    printunsigned(2 + 2 * 3) // expect output 8
+    printunsigned((2 + 2) * 3) // expect output 12
 
-    printunsigned(2 / 2 * 3); // expect output 3
-    printunsigned((2 / 2) * 3); // expect output 3
-    printunsigned(2 / (2 * 3)); // expect output 0
-}
+    printunsigned(2 / 2 * 3) // expect output 3
+    printunsigned((2 / 2) * 3) // expect output 3
+    printunsigned(2 / (2 * 3)) // expect output 0
 
-fun void printunsigned(uint32 i);
+    <- 0
+
+fun void printunsigned(uint32 i)

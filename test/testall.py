@@ -20,7 +20,7 @@ def fail(testfile, msg):
     print(f'\t- log written to \033[36m{tmplog}\033[0m')
 
     with open(tmplog, 'w') as f:
-        f.write('failed with {msg}\n')
+        f.write(f'failed with {msg}\n')
         f.write(str(outputs))
 
 def passTest(testfile):
@@ -93,10 +93,10 @@ void printdouble(double i)
 }
 ''')
 
-EXPECT_COMP_ERR_REGEX = re.compile(r'// expect compile error \(([\w-]+)\)$', re.MULTILINE)
-EXPECT_COMP_WARN_REGEX = re.compile(r'// expect compile warning \(([\w-]+)\)$', re.MULTILINE)
-EXPECT_RUN_ERR_REGEX = re.compile(r'// expect runtime error$', re.MULTILINE)
-EXPECT_PRINT_REGEX = re.compile(r'// expect output (.+)$', re.MULTILINE)
+EXPECT_COMP_ERR_REGEX = re.compile(r'expect compile error \(([\w-]+)\)')
+EXPECT_COMP_WARN_REGEX = re.compile(r'expect compile warning \(([\w-]+)\)')
+EXPECT_RUN_ERR_REGEX = re.compile(r'expect runtime error')
+EXPECT_PRINT_REGEX = re.compile(r'expect output (.+)')
 
 npassed = 0
 nfailed = 0
