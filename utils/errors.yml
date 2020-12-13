@@ -114,6 +114,16 @@ errors:
       - ['tok', *under0, [
           ['error', '"dedent to unknown level"']
         ]]
+  -
+    code: 11
+    name: char-after-backslash
+    desc: Character after line continuation backslash
+    inputs: 'Token const &tok'
+    location: tok
+    highlights:
+      - ['tok', *under0, [
+          ['error', '"character after line continuation backslash"']
+        ]]
   - code: 100
     name: unrecoverable-invalid-syntax
     desc: The parser found an unrecoverable syntax error.

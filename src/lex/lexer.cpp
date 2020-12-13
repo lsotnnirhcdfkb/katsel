@@ -159,6 +159,11 @@ Token Lexer::nextToken()
                         ++endline;
                         endcolumn = 1;
                     }
+                    else
+                    {
+                        advance();
+                        return makeErrorToken(ERR_CHAR_AFTER_BACKSLASH);
+                    }
                     break;
 
                 case '/':

@@ -131,6 +131,17 @@ void E0010(Token const &tok)
     e.report();
 }
 
+// E0011 - char-after-backslash
+// | Character after line continuation backslash
+void E0011(Token const &tok)
+{
+    Error e = Error(Error::MsgType::ERROR, tok, "E0011 (char-after-backslash)");
+    e.underline(Error::Underline(tok, '^')
+        .error("character after line continuation backslash")
+    );
+    e.report();
+}
+
 // E0100 - unrecoverable-invalid-syntax
 // | The parser found an unrecoverable syntax error.
 void E0100(Token const &last, Token const &lookahead, std::vector<std::string> const &expectations)
