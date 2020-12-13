@@ -1842,7 +1842,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 92); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "statement ending", "statement list"), format("expected % for %", "statement ending", "statement list"), format("expected % to terminate %", format("%, % or %", stringifyTokenType(TokenType::LEFTARROW), stringifyTokenType(TokenType::CCURB), stringifyTokenType(TokenType::DEDENT)), "statement list")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "statement ending", "statement list"), format("expected % for %", "statement ending", "statement list"), format("expected % to terminate %", format("%, %, or %", stringifyTokenType(TokenType::LEFTARROW), stringifyTokenType(TokenType::CCURB), stringifyTokenType(TokenType::DEDENT)), "statement list")  });
                 }
                 break;
             case 45:
@@ -1857,7 +1857,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % to terminate %", format("%, %, %, % or %", stringifyTokenType(TokenType::NEWLINE), stringifyTokenType(TokenType::SEMICOLON), stringifyTokenType(TokenType::LEFTARROW), stringifyTokenType(TokenType::CCURB), stringifyTokenType(TokenType::DEDENT)), "statement list")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % to terminate %", format("%, %, %, %, or %", stringifyTokenType(TokenType::NEWLINE), stringifyTokenType(TokenType::SEMICOLON), stringifyTokenType(TokenType::LEFTARROW), stringifyTokenType(TokenType::CCURB), stringifyTokenType(TokenType::DEDENT)), "statement list")  });
                 }
                 break;
             case 46:
@@ -2665,7 +2665,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 48); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "another statement", "statement list"), format("expected % to terminate %", format("%, % or %", stringifyTokenType(TokenType::LEFTARROW), stringifyTokenType(TokenType::CCURB), stringifyTokenType(TokenType::DEDENT)), "statement list")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "another statement", "statement list"), format("expected % to terminate %", format("%, %, or %", stringifyTokenType(TokenType::LEFTARROW), stringifyTokenType(TokenType::CCURB), stringifyTokenType(TokenType::DEDENT)), "statement list")  });
                 }
                 break;
             case 91:
@@ -3719,7 +3719,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % to terminate %", format("%, %, %, % or %", stringifyTokenType(TokenType::NEWLINE), stringifyTokenType(TokenType::SEMICOLON), stringifyTokenType(TokenType::LEFTARROW), stringifyTokenType(TokenType::CCURB), stringifyTokenType(TokenType::DEDENT)), "statement list")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % to terminate %", format("%, %, %, %, or %", stringifyTokenType(TokenType::NEWLINE), stringifyTokenType(TokenType::SEMICOLON), stringifyTokenType(TokenType::LEFTARROW), stringifyTokenType(TokenType::CCURB), stringifyTokenType(TokenType::DEDENT)), "statement list")  });
                 }
                 break;
             case 128:
@@ -3771,7 +3771,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 166); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::COMMA), "variable statement initialization list"), format("expected % for %", stringifyTokenType(TokenType::COMMA), "variable statement initialization list"), format("expected % to terminate %", format("%, %, %, % or %", stringifyTokenType(TokenType::NEWLINE), stringifyTokenType(TokenType::SEMICOLON), stringifyTokenType(TokenType::LEFTARROW), stringifyTokenType(TokenType::CCURB), stringifyTokenType(TokenType::DEDENT)), "variable statement initialization list")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::COMMA), "variable statement initialization list"), format("expected % for %", stringifyTokenType(TokenType::COMMA), "variable statement initialization list"), format("expected % to terminate %", format("%, %, %, %, or %", stringifyTokenType(TokenType::NEWLINE), stringifyTokenType(TokenType::SEMICOLON), stringifyTokenType(TokenType::LEFTARROW), stringifyTokenType(TokenType::CCURB), stringifyTokenType(TokenType::DEDENT)), "variable statement initialization list")  });
                 }
                 break;
             case 132:
@@ -3787,7 +3787,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % to terminate %", format("%, %, %, %, % or %", stringifyTokenType(TokenType::COMMA), stringifyTokenType(TokenType::NEWLINE), stringifyTokenType(TokenType::SEMICOLON), stringifyTokenType(TokenType::LEFTARROW), stringifyTokenType(TokenType::CCURB), stringifyTokenType(TokenType::DEDENT)), "variable statement initialization list")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % to terminate %", format("%, %, %, %, %, or %", stringifyTokenType(TokenType::COMMA), stringifyTokenType(TokenType::NEWLINE), stringifyTokenType(TokenType::SEMICOLON), stringifyTokenType(TokenType::LEFTARROW), stringifyTokenType(TokenType::CCURB), stringifyTokenType(TokenType::DEDENT)), "variable statement initialization list")  });
                 }
                 break;
             case 133:
@@ -4328,7 +4328,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 133); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "another variable statement initialization", "variable statement initialization list"), format("expected % to terminate %", format("%, %, %, % or %", stringifyTokenType(TokenType::NEWLINE), stringifyTokenType(TokenType::SEMICOLON), stringifyTokenType(TokenType::LEFTARROW), stringifyTokenType(TokenType::CCURB), stringifyTokenType(TokenType::DEDENT)), "variable statement initialization list")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "another variable statement initialization", "variable statement initialization list"), format("expected % to terminate %", format("%, %, %, %, or %", stringifyTokenType(TokenType::NEWLINE), stringifyTokenType(TokenType::SEMICOLON), stringifyTokenType(TokenType::LEFTARROW), stringifyTokenType(TokenType::CCURB), stringifyTokenType(TokenType::DEDENT)), "variable statement initialization list")  });
                 }
                 break;
             case 167:
@@ -4520,7 +4520,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % to terminate %", format("%, %, %, %, % or %", stringifyTokenType(TokenType::COMMA), stringifyTokenType(TokenType::NEWLINE), stringifyTokenType(TokenType::SEMICOLON), stringifyTokenType(TokenType::LEFTARROW), stringifyTokenType(TokenType::CCURB), stringifyTokenType(TokenType::DEDENT)), "variable statement initialization list")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % to terminate %", format("%, %, %, %, %, or %", stringifyTokenType(TokenType::COMMA), stringifyTokenType(TokenType::NEWLINE), stringifyTokenType(TokenType::SEMICOLON), stringifyTokenType(TokenType::LEFTARROW), stringifyTokenType(TokenType::CCURB), stringifyTokenType(TokenType::DEDENT)), "variable statement initialization list")  });
                 }
                 break;
             case 174:
