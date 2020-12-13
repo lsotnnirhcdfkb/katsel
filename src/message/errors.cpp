@@ -678,24 +678,24 @@ void Error::report() const
         std::string::const_iterator const fstart = location.file->source.cbegin();
         std::cerr << format("% at %:%:%" A_RESET ": %\n", msgtypestr, attr(A_FG_CYAN, location.file->filename, true), getLineN(fstart, location.start), getColN(fstart, location.start), message);
 
-        using showloc = std::pair<const File*, int>; // in order to have a copy assignment constructor for sorting
-        std::vector<showloc> showlocs;
+        using showline = std::pair<const File*, int>; // in order to have a copy assignment constructor for sorting
+        std::vector<showline> showlocs;
 
         for (Span const &span : spans)
             for (int i = getLineN(span.file.source.begin(), span.start); i < getLineN(span.file.source.begin(), span.end); ++i)
-                showlocs.push_back(showloc(&span.file, i));
+                showlocs.push_back(showline(&span.file, i));
 
         for (Error::Underline const &u : underlines)
         {
             std::string::const_iterator begin = u.location.file->source.begin();
             for (int i = getLineN(begin, u.location.start); i <= getLineN(begin, u.location.end - 1); ++i)
-                showlocs.push_back(showloc(u.location.file, i));
+                showlocs.push_back(showline(u.location.file, i));
         }
 
-        std::sort(showlocs.begin(), showlocs.end(), [](showloc const &a, showloc const &b) {
+        std::sort(showlocs.begin(), showlocs.end(), [](showline const &a, showline const &b) {
                 return a.second < b.second;
                 });
-        std::stable_sort(showlocs.begin(), showlocs.end(), [](showloc const &a, showloc const &b) {
+        std::stable_sort(showlocs.begin(), showlocs.end(), [](showline const &a, showline const &b) {
                 return a.first->filename < b.first->filename;
                 });
 
@@ -712,9 +712,9 @@ void Error::report() const
         for (size_t i = 0; i + 1 < showlocs.size(); ++i)
             if (showlocs[i].first == showlocs[i + 1].first && showlocs[i + 1].second - showlocs[i].second > 1 && showlocs[i + 1].second - showlocs[i].second <= 3)
                 for (int j = showlocs[i].second + 1; j < showlocs[i + 1].second; ++j)
-                    showlocs.insert(showlocs.begin() + i + 1, showloc(showlocs[i].first, j));
+                    showlocs.insert(showlocs.begin() + i + 1, showline(showlocs[i].first, j));
 
-        for (showloc const &s : showlocs)
+        for (showline const &s : showlocs)
         {
             int linew = 1, linenr = s.second;
             while (linenr /= 10)
@@ -725,7 +725,7 @@ void Error::report() const
         std::string pad (maxlinepad + 1, ' ');
         File const *lastfile = nullptr;
         int lastnr = -1;
-        for (showloc const &sl : showlocs)
+        for (showline const &sl : showlocs)
         {
             if (sl.first != lastfile)
             {
@@ -750,8 +750,8 @@ void Error::report() const
             getLine(lstart, lend, *sl.first, sl.second);
 
             std::vector<Underline const *> lchars;
-            using lunderlinety = std::pair<Underline const *, int>;
-            std::vector<lunderlinety> lunderlines;
+            using underlineAndColumn = std::pair<Underline const *, int>;
+            std::vector<underlineAndColumn> lunderlines;
 
             lchars.reserve(std::distance(lstart, lend));
 
@@ -768,7 +768,7 @@ void Error::report() const
                 for (Underline const &u : underlines)
                     if (itInLoc(i, u.location))
                     {
-                        lunderlinety pair (&u, getColN(u.location.file->source.begin(), u.location.end - 1));
+                        underlineAndColumn pair (&u, getColN(u.location.file->source.begin(), u.location.end - 1));
                         if ((u.location.end - 1 == i && u.messages.size()) || (u.location.start == u.location.end && u.location.start == i)) // can only ever be one location where this underline ends
                             lunderlines.push_back(pair);
                         needsecond = true;
@@ -811,7 +811,7 @@ void Error::report() const
 
                 if (lunderlines.size())
                 {
-                    std::sort(lunderlines.begin(), lunderlines.end(), [&lend](lunderlinety const &i1, lunderlinety const &i2)
+                    std::sort(lunderlines.begin(), lunderlines.end(), [&lend](underlineAndColumn const &i1, underlineAndColumn const &i2)
                             {
                                 if (i1.first->location.start == lend)
                                     return true;
