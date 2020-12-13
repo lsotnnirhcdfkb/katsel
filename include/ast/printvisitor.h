@@ -54,7 +54,7 @@ void visitParamList(ASTNS::ParamList *ast) override;
 void visitParamList_OPT(ASTNS::ParamList_OPT *ast) override;
 void visitParamSegment(ASTNS::ParamSegment *ast) override;
 void visitPrimaryExpr(ASTNS::PrimaryExpr *ast) override;
-void visitRetExpr(ASTNS::RetExpr *ast) override;
+void visitRetStmt(ASTNS::RetStmt *ast) override;
 void visitStmtEnding(ASTNS::StmtEnding *ast) override;
 void visitStmtEnding_OPT(ASTNS::StmtEnding_OPT *ast) override;
 void visitStmtList(ASTNS::StmtList *ast) override;

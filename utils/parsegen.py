@@ -468,7 +468,7 @@ def makeGrammar():
     Stmt = nt('Stmt', 'statement', 'StmtB', panickable=True)
     VarStmt = nt('VarStmt', 'variable statement', 'StmtB', panickable=True)
     ExprStmt = nt('ExprStmt', 'expression statement', 'StmtB', panickable=True)
-    RetExpr = nt('RetExpr', 'return statement', 'ExprB', panickable=True)
+    RetStmt = nt('RetStmt', 'return statement', 'StmtB', panickable=True)
     VarStmtItem = nt('VarStmtItem', 'variable statement initialization', 'VStmtIB')
     StmtEnding = nt('StmtEnding', 'statement ending', 'StmtEndingB')
     Block = nt('Block', 'code block', 'ExprB', panickable=True)
@@ -583,13 +583,14 @@ def makeGrammar():
 
     rule(Stmt, ((VarStmt, '_'),))
     rule(Stmt, ((ExprStmt, '_'),))
+    rule(Stmt, ((RetStmt, '_'),))
 
     rule(VarStmt, ((VAR, 'var'),  (Type, 'type'),  (VarStmtItemList, 'assignments'),))
 
     rule(ExprStmt, ((Expr, 'expr'),))
 
-    rule(RetExpr, ((RETURN, 'ret'),  (Expr, 'expr')))
-    rule(RetExpr, ((RETURN, 'ret'),))
+    rule(RetStmt, ((RETURN, 'ret'), (Expr, 'expr')))
+    rule(RetStmt, ((RETURN, 'ret'),))
 
     rule(VarStmtItem, ((IDENTIFIER, 'name'),  (EQUAL, 'equal'),  (Expr, 'expr'), ))
     rule(VarStmtItem, ((IDENTIFIER, 'name'),))
@@ -627,7 +628,6 @@ def makeGrammar():
     rule(Param, ((Type, 'type'),  (IDENTIFIER, 'name')))
 
     rule(Expr, ((AssignmentExpr, '_'),))
-    rule(Expr, ((RetExpr, '_'),))
     rule(Expr, ((BracedBlock, '_'),))
 
     rule(AssignmentExpr, ((TernaryExpr, 'target'),  (EQUAL, 'equal'),  (AssignmentExpr, 'value'), ))

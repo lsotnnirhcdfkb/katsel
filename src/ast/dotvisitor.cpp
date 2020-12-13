@@ -1331,13 +1331,13 @@ void ASTNS::DotVisitor::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
     }
     lastid = std::move(thisid);
 }
-void ASTNS::DotVisitor::visitRetExpr(ASTNS::RetExpr *a)
+void ASTNS::DotVisitor::visitRetStmt(ASTNS::RetStmt *a)
 {
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::RetExpr::Form::TA:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">RetExpr (TA)</td></tr><tr>";
+        case ASTNS::RetStmt::Form::TA:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">RetStmt (TA)</td></tr><tr>";
             ostream << "<td port=\"ret\">ret</td>";
             ostream << "<td port=\"expr\">expr</td>";
             ostream << "</tr></table>>]\n";
@@ -1358,8 +1358,8 @@ void ASTNS::DotVisitor::visitRetExpr(ASTNS::RetExpr *a)
                     }
             }
             break;
-        case ASTNS::RetExpr::Form::T:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">RetExpr (T)</td></tr><tr>";
+        case ASTNS::RetStmt::Form::T:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">RetStmt (T)</td></tr><tr>";
             ostream << "<td port=\"ret\">ret</td>";
             ostream << "</tr></table>>]\n";
             {

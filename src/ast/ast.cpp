@@ -100,10 +100,10 @@ ASTNS::PrimaryExpr::PrimaryExpr(Token value): value(value), form(ASTNS::PrimaryE
 ASTNS::PrimaryExpr::PrimaryExpr(Token oparn, std::unique_ptr<ExprB> expr, Token cparn): oparn(oparn), expr(std::move(expr)), cparn(cparn), form(ASTNS::PrimaryExpr::Form::TAT) {}
 void ASTNS::PrimaryExpr::accept(ASTNS::ExprBVisitor *v) { v->visitPrimaryExpr(this); }
 bool ASTNS::PrimaryExpr::empty() { return false; }
-ASTNS::RetExpr::RetExpr(Token ret, std::unique_ptr<ExprB> expr): ret(ret), expr(std::move(expr)), form(ASTNS::RetExpr::Form::TA) {}
-ASTNS::RetExpr::RetExpr(Token ret): ret(ret), form(ASTNS::RetExpr::Form::T) {}
-void ASTNS::RetExpr::accept(ASTNS::ExprBVisitor *v) { v->visitRetExpr(this); }
-bool ASTNS::RetExpr::empty() { return false; }
+ASTNS::RetStmt::RetStmt(Token ret, std::unique_ptr<ExprB> expr): ret(ret), expr(std::move(expr)), form(ASTNS::RetStmt::Form::TA) {}
+ASTNS::RetStmt::RetStmt(Token ret): ret(ret), form(ASTNS::RetStmt::Form::T) {}
+void ASTNS::RetStmt::accept(ASTNS::StmtBVisitor *v) { v->visitRetStmt(this); }
+bool ASTNS::RetStmt::empty() { return false; }
 ASTNS::StmtEnding::StmtEnding(Token tok): tok(tok), form(ASTNS::StmtEnding::Form::T) {}
 ASTNS::StmtEnding::StmtEnding(Token tok, Token tok2): tok(tok), tok2(tok2), form(ASTNS::StmtEnding::Form::TT) {}
 void ASTNS::StmtEnding::accept(ASTNS::StmtEndingBVisitor *v) { v->visitStmtEnding(this); }

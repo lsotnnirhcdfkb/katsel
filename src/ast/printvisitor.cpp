@@ -1062,13 +1062,13 @@ void ASTNS::PrintVisitor::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visitRetExpr(ASTNS::RetExpr *a)
+void ASTNS::PrintVisitor::visitRetStmt(ASTNS::RetStmt *a)
 {
-    pai("RetExpr\n{\n");
+    pai("RetStmt\n{\n");
     ++indent;
     switch (a->form)
     {
-        case ASTNS::RetExpr::Form::TA:
+        case ASTNS::RetStmt::Form::TA:
             pai("ret = ");
             pai("[");
             pai(std::string(a->ret.start, a->ret.end));
@@ -1083,7 +1083,7 @@ void ASTNS::PrintVisitor::visitRetExpr(ASTNS::RetExpr *a)
                 pai("nullptr\n");
             }
             break;
-        case ASTNS::RetExpr::Form::T:
+        case ASTNS::RetStmt::Form::T:
             pai("ret = ");
             pai("[");
             pai(std::string(a->ret.start, a->ret.end));

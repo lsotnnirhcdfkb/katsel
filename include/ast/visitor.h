@@ -54,7 +54,7 @@ class ParamList;
 class ParamList_OPT;
 class ParamSegment;
 class PrimaryExpr;
-class RetExpr;
+class RetStmt;
 class Stmt;
 class StmtEnding;
 class StmtEnding_OPT;
@@ -118,7 +118,6 @@ public:
     virtual void visitIndentedBlock(ASTNS::IndentedBlock *ast) = 0;
     virtual void visitMultExpr(ASTNS::MultExpr *ast) = 0;
     virtual void visitPrimaryExpr(ASTNS::PrimaryExpr *ast) = 0;
-    virtual void visitRetExpr(ASTNS::RetExpr *ast) = 0;
     virtual void visitTernaryExpr(ASTNS::TernaryExpr *ast) = 0;
     virtual void visitUnaryExpr(ASTNS::UnaryExpr *ast) = 0;
 };
@@ -136,6 +135,7 @@ class StmtBVisitor
 public:
     virtual ~StmtBVisitor() {}
     virtual void visitExprStmt(ASTNS::ExprStmt *ast) = 0;
+    virtual void visitRetStmt(ASTNS::RetStmt *ast) = 0;
     virtual void visitStmtList(ASTNS::StmtList *ast) = 0;
     virtual void visitStmtList_OPT(ASTNS::StmtList_OPT *ast) = 0;
     virtual void visitStmtSegment(ASTNS::StmtSegment *ast) = 0;

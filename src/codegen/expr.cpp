@@ -401,31 +401,6 @@ void CodeGenNS::ExprCodeGen::visitBracedBlock(ASTNS::BracedBlock *ast)
     if (!ret)
         ret = IR::ASTValue(cg.context.getVoidValue(), ast);
 }
-void CodeGenNS::ExprCodeGen::visitRetExpr(ASTNS::RetExpr *ast)
-{
-    IR::ASTValue v;
-    if (ast->expr)
-    {
-        v = expr(ast->expr.get());
-        if (!v)
-            return;
-    }
-    else
-        v = IR::ASTValue(cg.context.getVoidValue(), ast);
-
-    if (cg.context.retReg->type() != v.type())
-    {
-        ERR_CONFLICT_RET_TY(v, cg.context.curFunc);
-        cg.errored = true;
-        return;
-    }
-
-    cg.context.curBlock->add(std::make_unique<IR::Instrs::Store>(cg.context.retReg, v));
-    cg.context.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(cg.context.exitBlock));
-    cg.context.curBlock = cg.context.blackHoleBlock.get();
-
-    ret = v;
-}
 void CodeGenNS::ExprCodeGen::visitImplRet(ASTNS::ImplRet *ast)
 {
     ret = expr(ast->expr.get());

@@ -59,7 +59,7 @@ namespace ASTNS
     class ParamList_OPT;
     class ParamSegment;
     class PrimaryExpr;
-    class RetExpr;
+    class RetStmt;
     class Stmt;
     class StmtEnding;
     class StmtEnding_OPT;
@@ -673,11 +673,11 @@ namespace ASTNS
         bool empty() override;
         virtual void accept(ASTNS::ExprBVisitor *v) override;
     };
-    class RetExpr : public ExprB
+    class RetStmt : public StmtB
     {
     public:
-        RetExpr(Token ret, std::unique_ptr<ExprB> expr);
-        RetExpr(Token ret);
+        RetStmt(Token ret, std::unique_ptr<ExprB> expr);
+        RetStmt(Token ret);
         enum class Form
         {
             TA,
@@ -687,7 +687,7 @@ namespace ASTNS
         std::unique_ptr<ExprB> expr;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::ExprBVisitor *v) override;
+        virtual void accept(ASTNS::StmtBVisitor *v) override;
     };
     class Stmt : public StmtB
     {

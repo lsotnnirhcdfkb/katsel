@@ -54,7 +54,7 @@ void visitParamList(ASTNS::ParamList *ast) override;
 void visitParamList_OPT(ASTNS::ParamList_OPT *ast) override;
 void visitParamSegment(ASTNS::ParamSegment *ast) override;
 void visitPrimaryExpr(ASTNS::PrimaryExpr *ast) override;
-void visitRetExpr(ASTNS::RetExpr *ast) override;
+void visitRetStmt(ASTNS::RetStmt *ast) override;
 void visitStmtEnding(ASTNS::StmtEnding *ast) override;
 void visitStmtEnding_OPT(ASTNS::StmtEnding_OPT *ast) override;
 void visitStmtList(ASTNS::StmtList *ast) override;
@@ -468,16 +468,16 @@ void LocationVisitor::visitPrimaryExpr(ASTNS::PrimaryExpr *ast)
             break;
     }
 }
-void LocationVisitor::visitRetExpr(ASTNS::RetExpr *ast)
+void LocationVisitor::visitRetStmt(ASTNS::RetStmt *ast)
 {
     switch (ast->form)
     {
-        case ASTNS::RetExpr::Form::TA:
+        case ASTNS::RetStmt::Form::TA:
             retl = ast->ret.start;
             retf = ast->ret.sourcefile;
             retr = getR(ast->expr.get());
             break;
-        case ASTNS::RetExpr::Form::T:
+        case ASTNS::RetStmt::Form::T:
             retl = ast->ret.start;
             retf = ast->ret.sourcefile;
             retr = ast->ret.end;
