@@ -167,6 +167,8 @@ keywords = [
     ('nullptr', 'NULLPTRLIT'),
 
     ('assert', 'ASSERT'),
+
+    ('boom', 'BOOM'),
 ]
 # }}}
 

@@ -109,6 +109,8 @@ enum class TokenType
     CONTINUE,
     ASSERT,
 
+    BOOM,
+
     NEWLINE,
     INDENT,
     DEDENT,
@@ -211,6 +213,7 @@ inline constexpr char const * stringifyTokenType(TokenType ty)
         STOKTY(BREAKTO, 'breakto')
         STOKTY(CONTINUE, 'continue')
         STOKTY(ASSERT, 'assert')
+        STOKTY(BOOM, boom)
         STOKTY(NEWLINE, newline)
         STOKTY(INDENT, indent)
         STOKTY(DEDENT, dedent)

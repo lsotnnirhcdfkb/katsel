@@ -26,13 +26,27 @@ std::unique_ptr<ASTNS::CUB> Parser::parse()
 Token Parser::consume()
 {
     Token cur;
+    bool lastboom = false;
     while (true)
     {
         cur = lexer.nextToken();
-        if (cur.type != TokenType::ERROR) return cur;
-
-        errored = true;
-        cur.errf(cur);
+        if (cur.type == TokenType::ERROR)
+        {
+            errored = true;
+            cur.errf(cur);
+        }
+        else if (cur.type == TokenType::BOOM)
+        {
+            lastboom = true;
+        }
+        else if (lastboom)
+        {
+            lastboom = false;
+        }
+        else
+        {
+            return cur;
+        }
     }
 
     return cur;

@@ -360,7 +360,20 @@ TokenType Lexer::getIdentifierType()
             switch (*(start + 1))
             {
                 case 'o':
-                    if (std::distance(start, end) == 4 && std::string(start + 2, end) == "ol") return TokenType::BOOL;
+                    switch (*(start + 2))
+                    {
+                        case 'o':
+                            switch (*(start + 3))
+                            {
+                                case 'l':
+                                    if (start + 4 == end) return TokenType::BOOL;
+                                    break;
+                                case 'm':
+                                    if (start + 4 == end) return TokenType::BOOM;
+                                    break;
+                            }
+                            break;
+                    }
                     break;
                 case 'r':
                     switch (*(start + 2))
