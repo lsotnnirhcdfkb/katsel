@@ -351,20 +351,6 @@ void E0210(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &eq)
     e.report();
 }
 
-// E0211 - ret-val-void-fun
-// | Return statement in void function
-void E0211(IR::ASTValue const &val, IR::Function *f)
-{
-    Error e = Error(Error::MsgType::ERROR, val, "E0211 (ret-val-void-fun)");
-    e.underline(Error::Underline(val, '^')
-        .error("non-void return in void function")
-    );
-    e.underline(Error::Underline(f->defAST()->retty.get(), '~')
-        .note("function returns void")
-    );
-    e.report();
-}
-
 // E0212 - conflict-ret-ty
 // | Conflicting return types
 void E0212(IR::ASTValue const &val, IR::Function *f)
@@ -372,20 +358,7 @@ void E0212(IR::ASTValue const &val, IR::Function *f)
     Error e = Error(Error::MsgType::ERROR, val, "E0212 (conflict-ret-ty)");
     e.underline(Error::Underline(val, '^')
         .error("conflicting return type")
-    );
-    e.underline(Error::Underline(f->defAST()->retty.get(), '~')
-        .note(format("function returns %", f->ty->ret))
-    );
-    e.report();
-}
-
-// E0213 - ret-void-nonvoid-fun
-// | Void return in non-void function
-void E0213(ASTNS::AST *retstmt, IR::Function *f)
-{
-    Error e = Error(Error::MsgType::ERROR, retstmt, "E0213 (ret-void-nonvoid-fun)");
-    e.underline(Error::Underline(retstmt, '^')
-        .error("void return in non-void function")
+        .note(format("returning %", val.type()))
     );
     e.underline(Error::Underline(f->defAST()->retty.get(), '~')
         .note(format("function returns %", f->ty->ret))

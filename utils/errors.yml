@@ -308,19 +308,6 @@ errors:
           ['note', 'rhs.type()->stringify()']
         ]]
   -
-    code: 211
-    name: ret-val-void-fun
-    desc: Return statement in void function
-    inputs: 'IR::ASTValue const &val, IR::Function *f'
-    location: val
-    highlights:
-      - ['val', *under0, [
-          ['error', '"non-void return in void function"']
-        ]]
-      - ['f->defAST()->retty.get()', *under1, [
-          ['note', '"function returns void"']
-        ]]
-  -
     code: 212
     name: conflict-ret-ty
     desc: Conflicting return types
@@ -328,20 +315,8 @@ errors:
     location: val
     highlights:
       - ['val', *under0, [
-          ['error', '"conflicting return type"']
-        ]]
-      - ['f->defAST()->retty.get()', *under1, [
-          ['note', 'format("function returns %", f->ty->ret)']
-        ]]
-  -
-    code: 213
-    name: ret-void-nonvoid-fun
-    desc: Void return in non-void function
-    inputs: 'ASTNS::AST *retstmt, IR::Function *f'
-    location: retstmt
-    highlights:
-      - ['retstmt', *under0, [
-          ['error', '"void return in non-void function"']
+          ['error', '"conflicting return type"'],
+          ['note', 'format("returning %", val.type())']
         ]]
       - ['f->defAST()->retty.get()', *under1, [
           ['note', 'format("function returns %", f->ty->ret)']

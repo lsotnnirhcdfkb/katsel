@@ -468,12 +468,12 @@ def makeGrammar():
     Stmt = nt('Stmt', 'statement', 'StmtB', panickable=True)
     VarStmt = nt('VarStmt', 'variable statement', 'StmtB', panickable=True)
     ExprStmt = nt('ExprStmt', 'expression statement', 'StmtB', panickable=True)
-    RetStmt = nt('RetStmt', 'return statement', 'StmtB', panickable=True)
+    RetExpr = nt('RetExpr', 'return statement', 'ExprB', panickable=True)
     VarStmtItem = nt('VarStmtItem', 'variable statement initialization', 'VStmtIB')
     StmtEnding = nt('StmtEnding', 'statement ending', 'StmtEndingB')
-    Block = nt('Block', 'code block', 'StmtB', panickable=True)
-    BracedBlock = nt('BracedBlock', 'braced code block', 'StmtB', panickable=True)
-    IndentedBlock = nt('IndentedBlock', 'indented code block', 'StmtB', panickable=True)
+    Block = nt('Block', 'code block', 'ExprB', panickable=True)
+    BracedBlock = nt('BracedBlock', 'braced code block', 'ExprB', panickable=True)
+    IndentedBlock = nt('IndentedBlock', 'indented code block', 'ExprB', panickable=True)
     TypeNV = nt('TypeNV', 'non-void type specifier', 'TypeB')
     TypeV = nt('TypeV', 'void-inclusive type specifier', 'TypeB')
     BuiltinTypeNoVoid = nt('BuiltinTypeNoVoid', 'builtin type specifier', 'TypeB')
@@ -563,7 +563,7 @@ def makeGrammar():
     ParamList = listRule(Param, 'PListB', COMMA)
     ArgList = listRule(Arg, 'ArgB', COMMA)
     VarStmtItemList = listRule(VarStmtItem, 'VStmtIB', COMMA)
-    StmtList = listRule(Stmt, 'StmtB')
+    StmtList = listRule(Stmt, 'StmtB', StmtEnding)
     DeclList = listRule(Decl, 'DeclB')
 
     ParamListOpt = makeOpt(ParamList)
@@ -580,26 +580,26 @@ def makeGrammar():
 
     rule(Stmt, ((VarStmt, '_'), ))
     rule(Stmt, ((ExprStmt, '_'), ))
-    rule(Stmt, ((RetStmt, '_'), ))
-    rule(Stmt, ((BracedBlock, '_'), ))
+    rule(Expr, ((RetExpr, '_'), ))
+    rule(Expr, ((BracedBlock, '_'), ))
 
-    rule(VarStmt, ((VAR, 'var'),  (TypeNV, 'type'),  (VarStmtItemList, 'assignments'),  (StmtEnding, 'ending'), ))
+    rule(VarStmt, ((VAR, 'var'),  (TypeNV, 'type'),  (VarStmtItemList, 'assignments'),))
 
-    rule(ExprStmt, ((Expr, 'expr'),  (StmtEnding, 'ending'), ))
+    rule(ExprStmt, ((Expr, 'expr'),))
 
-    rule(RetStmt , ((RETURN, 'ret'),  (Expr, 'expr'),  (StmtEnding, 'ending'), ))
-    rule(RetStmt, ((RETURN, 'ret'),  (StmtEnding, 'ending'), ))
+    rule(RetExpr, ((RETURN, 'ret'),  (Expr, 'expr'),))
+    rule(RetExpr, ((RETURN, 'ret'),))
 
     rule(VarStmtItem, ((IDENTIFIER, 'name'),  (EQUAL, 'equal'),  (Expr, 'expr'), ))
     rule(VarStmtItem, ((IDENTIFIER, 'name'), ))
 
-    rule(BracedBlock, ((OCURB, 'ocurb'), (StmtListOpt, 'stmts'),  (CCURB, 'ccurb'), (StmtEnding, 'ending')))
+    rule(BracedBlock, ((OCURB, 'ocurb'), (StmtListOpt, 'stmts'),  (CCURB, 'ccurb')))
     rule(IndentedBlock, ((NEWLINE, 'newl'), (INDENT, 'indent'), (StmtListOpt, 'stmts'), (DEDENT, 'dedent'), ))
     rule(Block, ((BracedBlock, '_'),))
     rule(Block, ((IndentedBlock, '_'),))
 
-    rule(StmtEnding, ((NEWLINE, 'tok'), ))
-    rule(StmtEnding, ((SEMICOLON, 'tok'), ))
+    rule(StmtEnding, ((NEWLINE, 'tok'),))
+    rule(StmtEnding, ((SEMICOLON, 'tok'),))
 
     rule(TypeNV, ((BuiltinTypeNoVoid, '_'), ))
 

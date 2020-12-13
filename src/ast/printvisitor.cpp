@@ -376,7 +376,7 @@ void ASTNS::PrintVisitor::visitBracedBlock(ASTNS::BracedBlock *a)
     ++indent;
     switch (a->form)
     {
-        case ASTNS::BracedBlock::Form::TATA:
+        case ASTNS::BracedBlock::Form::TAT:
             pai("ocurb = ");
             pai("[");
             pai(std::string(a->ocurb.start, a->ocurb.end));
@@ -394,15 +394,6 @@ void ASTNS::PrintVisitor::visitBracedBlock(ASTNS::BracedBlock *a)
             pai("[");
             pai(std::string(a->ccurb.start, a->ccurb.end));
             pai("]\n");
-            pai("ending = ");
-            if (a->ending)
-            {
-                a->ending->accept(this);
-            }
-            else
-            {
-                pai("nullptr\n");
-            }
             break;
     }
     --indent;
@@ -627,20 +618,11 @@ void ASTNS::PrintVisitor::visitExprStmt(ASTNS::ExprStmt *a)
     ++indent;
     switch (a->form)
     {
-        case ASTNS::ExprStmt::Form::AA:
+        case ASTNS::ExprStmt::Form::A:
             pai("expr = ");
             if (a->expr)
             {
                 a->expr->accept(this);
-            }
-            else
-            {
-                pai("nullptr\n");
-            }
-            pai("ending = ");
-            if (a->ending)
-            {
-                a->ending->accept(this);
             }
             else
             {
@@ -944,13 +926,13 @@ void ASTNS::PrintVisitor::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visitRetStmt(ASTNS::RetStmt *a)
+void ASTNS::PrintVisitor::visitRetExpr(ASTNS::RetExpr *a)
 {
-    pai("RetStmt\n{\n");
+    pai("RetExpr\n{\n");
     ++indent;
     switch (a->form)
     {
-        case ASTNS::RetStmt::Form::TAA:
+        case ASTNS::RetExpr::Form::TA:
             pai("ret = ");
             pai("[");
             pai(std::string(a->ret.start, a->ret.end));
@@ -964,30 +946,12 @@ void ASTNS::PrintVisitor::visitRetStmt(ASTNS::RetStmt *a)
             {
                 pai("nullptr\n");
             }
-            pai("ending = ");
-            if (a->ending)
-            {
-                a->ending->accept(this);
-            }
-            else
-            {
-                pai("nullptr\n");
-            }
             break;
-        case ASTNS::RetStmt::Form::TA:
+        case ASTNS::RetExpr::Form::T:
             pai("ret = ");
             pai("[");
             pai(std::string(a->ret.start, a->ret.end));
             pai("]\n");
-            pai("ending = ");
-            if (a->ending)
-            {
-                a->ending->accept(this);
-            }
-            else
-            {
-                pai("nullptr\n");
-            }
             break;
     }
     --indent;
@@ -1016,19 +980,19 @@ void ASTNS::PrintVisitor::visitStmtList(ASTNS::StmtList *a)
     switch (a->form)
     {
         case ASTNS::StmtList::Form::AA:
-            pai("stmtlist = ");
-            if (a->stmtlist)
+            pai("stmtsegment = ");
+            if (a->stmtsegment)
             {
-                a->stmtlist->accept(this);
+                a->stmtsegment->accept(this);
             }
             else
             {
                 pai("nullptr\n");
             }
-            pai("anotherstmt = ");
-            if (a->anotherstmt)
+            pai("stmtending = ");
+            if (a->stmtending)
             {
-                a->anotherstmt->accept(this);
+                a->stmtending->accept(this);
             }
             else
             {
@@ -1046,6 +1010,45 @@ void ASTNS::PrintVisitor::visitStmtList_OPT(ASTNS::StmtList_OPT *a)
     switch (a->form)
     {
         case ASTNS::StmtList_OPT::Form::EMPTY:
+            break;
+    }
+    --indent;
+    pai("}\n");
+}
+void ASTNS::PrintVisitor::visitStmtSegment(ASTNS::StmtSegment *a)
+{
+    pai("StmtSegment\n{\n");
+    ++indent;
+    switch (a->form)
+    {
+        case ASTNS::StmtSegment::Form::AAA:
+            pai("stmtsegment = ");
+            if (a->stmtsegment)
+            {
+                a->stmtsegment->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            pai("stmtending = ");
+            if (a->stmtending)
+            {
+                a->stmtending->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            pai("anotherstmt = ");
+            if (a->anotherstmt)
+            {
+                a->anotherstmt->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
             break;
     }
     --indent;
@@ -1145,7 +1148,7 @@ void ASTNS::PrintVisitor::visitVarStmt(ASTNS::VarStmt *a)
     ++indent;
     switch (a->form)
     {
-        case ASTNS::VarStmt::Form::TAAA:
+        case ASTNS::VarStmt::Form::TAA:
             pai("var = ");
             pai("[");
             pai(std::string(a->var.start, a->var.end));
@@ -1163,15 +1166,6 @@ void ASTNS::PrintVisitor::visitVarStmt(ASTNS::VarStmt *a)
             if (a->assignments)
             {
                 a->assignments->accept(this);
-            }
-            else
-            {
-                pai("nullptr\n");
-            }
-            pai("ending = ");
-            if (a->ending)
-            {
-                a->ending->accept(this);
             }
             else
             {

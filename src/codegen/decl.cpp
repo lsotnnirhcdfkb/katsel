@@ -68,7 +68,7 @@ void CodeGenNS::DeclCodeGen::visitFunctionDecl(ASTNS::FunctionDecl *ast)
     cg.context.exitBlock = exitBlock;
     cg.context.retReg = retReg;
 
-    cg.stmtCodeGen.stmt(ast->body.get());
+    IR::ASTValue ret = cg.exprCodeGen.expr(ast->body.get());
 
     cg.context.decScope();
 
@@ -77,7 +77,10 @@ void CodeGenNS::DeclCodeGen::visitFunctionDecl(ASTNS::FunctionDecl *ast)
         cg.context.exitBlock->add(std::make_unique<IR::Instrs::Return>(retReg));
 
         if (cg.context.curBlock != cg.context.blackHoleBlock.get())
+        {
+            cg.context.curBlock->add(std::make_unique<IR::Instrs::Store>(retReg, ret));
             cg.context.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(cg.context.exitBlock));
+        }
     }
 
     cg.context.curFunc = nullptr;

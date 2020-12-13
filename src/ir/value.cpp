@@ -44,3 +44,13 @@ IR::Type* IR::ConstInt::type() const
 {
     return ty;
 }
+
+IR::Void::Void(VoidType *ty): ty(ty) {}
+std::string IR::Void::stringify() const
+{
+    return "void";
+}
+IR::Type* IR::Void::type() const
+{
+    return ty;
+}

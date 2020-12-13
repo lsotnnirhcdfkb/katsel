@@ -54,9 +54,7 @@ public:
     friend void E0208(IR::ASTValue const &truev, IR::ASTValue const &falsev, Token const &quest);
     friend void E0209(Token const &eq, IR::ASTValue const &lhs);
     friend void E0210(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &eq);
-    friend void E0211(IR::ASTValue const &val, IR::Function *f);
     friend void E0212(IR::ASTValue const &val, IR::Function *f);
-    friend void E0213(ASTNS::AST *retstmt, IR::Function *f);
     friend void E0214(Token const &name, IR::Register const *prev);
     friend void E0215(Token const &eq, Token const &name, IR::ASTValue const &init, IR::Register const *var);
     friend void E0216(ASTNS::AST *ast, IR::ASTValue v, IR::Type const *newty);

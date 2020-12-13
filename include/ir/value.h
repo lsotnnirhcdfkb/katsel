@@ -11,6 +11,7 @@ namespace IR
     class Type;
     class BuiltinType;
     class FunctionType;
+    class VoidType;
 
     class Value
     {
@@ -106,6 +107,16 @@ namespace IR
 
     private:
         BuiltinType *ty;
+    };
+
+    class Void : public Value
+    {
+    public:
+        Void(VoidType *ty);
+        std::string stringify() const override;
+        Type* type() const override;
+    private:
+        VoidType *ty;
     };
 
     struct ASTValue

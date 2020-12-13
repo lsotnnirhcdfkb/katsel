@@ -289,27 +289,31 @@ bool panicMode(errorstate const &e, std::vector<std::string> const &expectations
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(AnotherVarStmtItem)
-                        case TokenType::COMMA: case TokenType::NEWLINE: case TokenType::SEMICOLON:
+                        case TokenType::COMMA: case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::CCURB: case TokenType::DEDENT:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(VarStmtItemSegment)
-                        case TokenType::COMMA: case TokenType::NEWLINE: case TokenType::SEMICOLON:
+                        case TokenType::COMMA: case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::CCURB: case TokenType::DEDENT:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(VarStmtItemList)
-                        case TokenType::NEWLINE: case TokenType::SEMICOLON:
+                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::CCURB: case TokenType::DEDENT:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(AnotherStmt)
-                        case TokenType::VAR: case TokenType::RETURN: case TokenType::OCURB: case TokenType::OPARN: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::CCURB: case TokenType::DEDENT:
+                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::CCURB: case TokenType::DEDENT:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(Stmt)
-                        case TokenType::VAR: case TokenType::RETURN: case TokenType::OCURB: case TokenType::OPARN: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::CCURB: case TokenType::DEDENT:
+                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::CCURB: case TokenType::DEDENT:
+                            RECOVERANDDEFBREAK()
+                FINISHCHECKASI()
+                CHECKASI(StmtSegment)
+                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::CCURB: case TokenType::DEDENT:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(StmtList)
-                        case TokenType::VAR: case TokenType::RETURN: case TokenType::OCURB: case TokenType::OPARN: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::CCURB: case TokenType::DEDENT:
+                        case TokenType::CCURB: case TokenType::DEDENT:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(AnotherDecl)
@@ -333,19 +337,19 @@ bool panicMode(errorstate const &e, std::vector<std::string> const &expectations
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(VarStmt)
-                        case TokenType::VAR: case TokenType::RETURN: case TokenType::OCURB: case TokenType::OPARN: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::CCURB: case TokenType::DEDENT:
+                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::CCURB: case TokenType::DEDENT:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(ExprStmt)
-                        case TokenType::VAR: case TokenType::RETURN: case TokenType::OCURB: case TokenType::OPARN: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::CCURB: case TokenType::DEDENT:
+                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::CCURB: case TokenType::DEDENT:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
-                CHECKASI(RetStmt)
-                        case TokenType::VAR: case TokenType::RETURN: case TokenType::OCURB: case TokenType::OPARN: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::CCURB: case TokenType::DEDENT:
+                CHECKASI(RetExpr)
+                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::COMMA: case TokenType::COLON: case TokenType::CPARN: case TokenType::CCURB: case TokenType::DEDENT:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(BracedBlock)
-                        case TokenType::VAR: case TokenType::RETURN: case TokenType::OCURB: case TokenType::OPARN: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::IDENTIFIER: case TokenType::FUN: case TokenType::EOF_: case TokenType::CCURB: case TokenType::DEDENT:
+                        case TokenType::FUN: case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::COMMA: case TokenType::COLON: case TokenType::CPARN: case TokenType::EOF_: case TokenType::CCURB: case TokenType::DEDENT:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(IndentedBlock)

@@ -52,11 +52,12 @@ class ParamList;
 class ParamList_OPT;
 class ParamSegment;
 class PrimaryExpr;
-class RetStmt;
+class RetExpr;
 class Stmt;
 class StmtEnding;
 class StmtList;
 class StmtList_OPT;
+class StmtSegment;
 class TernaryExpr;
 class TypeNV;
 class TypeV;
@@ -105,12 +106,15 @@ public:
     virtual void visitBitOrExpr(ASTNS::BitOrExpr *ast) = 0;
     virtual void visitBitShiftExpr(ASTNS::BitShiftExpr *ast) = 0;
     virtual void visitBitXorExpr(ASTNS::BitXorExpr *ast) = 0;
+    virtual void visitBracedBlock(ASTNS::BracedBlock *ast) = 0;
     virtual void visitCallExpr(ASTNS::CallExpr *ast) = 0;
     virtual void visitCastExpr(ASTNS::CastExpr *ast) = 0;
     virtual void visitCompEQExpr(ASTNS::CompEQExpr *ast) = 0;
     virtual void visitCompLGTExpr(ASTNS::CompLGTExpr *ast) = 0;
+    virtual void visitIndentedBlock(ASTNS::IndentedBlock *ast) = 0;
     virtual void visitMultExpr(ASTNS::MultExpr *ast) = 0;
     virtual void visitPrimaryExpr(ASTNS::PrimaryExpr *ast) = 0;
+    virtual void visitRetExpr(ASTNS::RetExpr *ast) = 0;
     virtual void visitTernaryExpr(ASTNS::TernaryExpr *ast) = 0;
     virtual void visitUnaryExpr(ASTNS::UnaryExpr *ast) = 0;
 };
@@ -127,12 +131,10 @@ class StmtBVisitor
 {
 public:
     virtual ~StmtBVisitor() {}
-    virtual void visitBracedBlock(ASTNS::BracedBlock *ast) = 0;
     virtual void visitExprStmt(ASTNS::ExprStmt *ast) = 0;
-    virtual void visitIndentedBlock(ASTNS::IndentedBlock *ast) = 0;
-    virtual void visitRetStmt(ASTNS::RetStmt *ast) = 0;
     virtual void visitStmtList(ASTNS::StmtList *ast) = 0;
     virtual void visitStmtList_OPT(ASTNS::StmtList_OPT *ast) = 0;
+    virtual void visitStmtSegment(ASTNS::StmtSegment *ast) = 0;
     virtual void visitVarStmt(ASTNS::VarStmt *ast) = 0;
 };
 class StmtEndingBVisitor

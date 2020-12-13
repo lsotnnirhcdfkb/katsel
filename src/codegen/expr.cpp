@@ -378,3 +378,43 @@ void CodeGenNS::ExprCodeGen::visitCastExpr(ASTNS::CastExpr *ast)
     if (!ret)
         cg.errored = true;
 }
+
+void CodeGenNS::ExprCodeGen::visitIndentedBlock(ASTNS::IndentedBlock *ast)
+{
+    cg.context.incScope();
+    if (ast->stmts)
+        ast->stmts->accept(&cg.stmtCodeGen);
+    cg.context.decScope();
+}
+void CodeGenNS::ExprCodeGen::visitBracedBlock(ASTNS::BracedBlock *ast)
+{
+    cg.context.incScope();
+    if (ast->stmts)
+        ast->stmts->accept(&cg.stmtCodeGen);
+    cg.context.decScope();
+}
+void CodeGenNS::ExprCodeGen::visitRetExpr(ASTNS::RetExpr *ast)
+{
+    IR::ASTValue v;
+    if (ast->expr)
+    {
+        v = expr(ast->expr.get());
+        if (!v)
+            return;
+    }
+    else
+        v = IR::ASTValue(cg.context.getVoidValue(), ast);
+
+    if (cg.context.retReg->type() != v.type())
+    {
+        ERR_CONFLICT_RET_TY(v, cg.context.curFunc);
+        cg.errored = true;
+        return;
+    }
+
+    cg.context.curBlock->add(std::make_unique<IR::Instrs::Store>(cg.context.retReg, v));
+    cg.context.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(cg.context.exitBlock));
+    cg.context.curBlock = cg.context.blackHoleBlock.get();
+
+    ret = v;
+}
