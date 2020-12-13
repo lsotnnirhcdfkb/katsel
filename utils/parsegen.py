@@ -580,7 +580,7 @@ def makeGrammar():
     rule(Stmt, ((VarStmt, '_'), ))
     rule(Stmt, ((ExprStmt, '_'), ))
     rule(Stmt, ((RetStmt, '_'), ))
-    rule(Stmt, ((Block, '_'), ))
+    rule(Stmt, ((BracedBlock, '_'), ))
 
     rule(VarStmt, ((VAR, 'var'),  (TypeNV, 'type'),  (VarStmtItemList, 'assignments'),  (NEWLINE, 'newl'), ))
 
