@@ -144,16 +144,14 @@ void E0011(Token const &tok)
 
 // E0100 - unrecoverable-invalid-syntax
 // | The parser found an unrecoverable syntax error.
-void E0100(Token const &last, Token const &lookahead, std::vector<std::string> const &expectations)
+void E0100(Token const &lookahead, std::vector<std::string> const &expectations)
 {
-    Error e = Error(Error::MsgType::ERROR, last, "E0100 (unrecoverable-invalid-syntax)");
-    e.underline(Error::Underline(last, '^')
+    Error e = Error(Error::MsgType::ERROR, lookahead, "E0100 (unrecoverable-invalid-syntax)");
+    e.underline(Error::Underline(lookahead, '^')
         .error("invalid syntax")
-    );
-    e.underline(Error::Underline(lookahead, '~')
         .note(format("unexpected % here", stringifyTokenType(lookahead.type)))
     );
-auto un (Error::Underline(last, '^'));
+auto un (Error::Underline(lookahead, '^'));
 for (std::string const &expectation : expectations)
   un.hint(expectation);
 e.underline(un);
@@ -163,17 +161,15 @@ e.underline(un);
 // E0101 - simple-invalid-syntax
 // | The parser found a syntax error and recovered by inserting,
 // | substituting, or removing a single token.
-void E0101(Token const &last, Token const &lookahead, std::string const &bestfix, std::vector<std::string> const &expectations)
+void E0101(Token const &lookahead, std::string const &bestfix, std::vector<std::string> const &expectations)
 {
-    Error e = Error(Error::MsgType::ERROR, last, "E0101 (simple-invalid-syntax)");
-    e.underline(Error::Underline(last, '^')
+    Error e = Error(Error::MsgType::ERROR, lookahead, "E0101 (simple-invalid-syntax)");
+    e.underline(Error::Underline(lookahead, '^')
         .error("invalid syntax")
-    );
-    e.underline(Error::Underline(lookahead, '~')
         .note(format("unexpected % here", stringifyTokenType(lookahead.type)))
         .note(bestfix)
     );
-auto un (Error::Underline(last, '^'));
+auto un (Error::Underline(lookahead, '^'));
 for (std::string const &expectation : expectations)
   un.hint(expectation);
 e.underline(un);
@@ -183,19 +179,17 @@ e.underline(un);
 // E0102 - panicking-invalid-syntax
 // | The parser found a syntax error and recovered via panic mode
 // | error recovery.
-void E0102(Token const &last, Token const &lookahead, Token const &panicuntil, std::vector<std::string> const &expectations)
+void E0102(Token const &lookahead, Token const &panicuntil, std::vector<std::string> const &expectations)
 {
-    Error e = Error(Error::MsgType::ERROR, last, "E0102 (panicking-invalid-syntax)");
-    e.underline(Error::Underline(last, '^')
+    Error e = Error(Error::MsgType::ERROR, lookahead, "E0102 (panicking-invalid-syntax)");
+    e.underline(Error::Underline(lookahead, '^')
         .error("invalid syntax")
-    );
-    e.underline(Error::Underline(lookahead, '~')
         .note(format("unexpected % here", stringifyTokenType(lookahead.type)))
     );
     e.underline(Error::Underline(panicuntil, '-')
         .note("parser panicked until here")
     );
-auto un (Error::Underline(last, '^'));
+auto un (Error::Underline(lookahead, '^'));
 for (std::string const &expectation : expectations)
   un.hint(expectation);
 e.underline(un);

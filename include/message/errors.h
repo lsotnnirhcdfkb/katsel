@@ -42,9 +42,9 @@ public:
     friend void E0009(Token const &tok);
     friend void E0010(Token const &tok);
     friend void E0011(Token const &tok);
-    friend void E0100(Token const &last, Token const &lookahead, std::vector<std::string> const &expectations);
-    friend void E0101(Token const &last, Token const &lookahead, std::string const &bestfix, std::vector<std::string> const &expectations);
-    friend void E0102(Token const &last, Token const &lookahead, Token const &panicuntil, std::vector<std::string> const &expectations);
+    friend void E0100(Token const &lookahead, std::vector<std::string> const &expectations);
+    friend void E0101(Token const &lookahead, std::string const &bestfix, std::vector<std::string> const &expectations);
+    friend void E0102(Token const &lookahead, Token const &panicuntil, std::vector<std::string> const &expectations);
     friend void E0200(Token const &name, IR::Value *val);
     friend void E0201(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &op);
     friend void E0203(IR::ASTValue const &operand, Token const &_operator);
