@@ -124,7 +124,7 @@ errors:
           ['error', '"invalid syntax"']
         ]]
       - ['lookahead', *under1, [
-          ['note', '"unexpected token here"']
+          ['note', 'format("unexpected % here", stringifyTokenType(lookahead.type))']
         ]]
     extra: |
       auto un (Error::Underline(last, '^'));
@@ -141,7 +141,7 @@ errors:
           ['error', '"invalid syntax"']
         ]]
       - ['lookahead', *under1, [
-          ['note', '"unexpected token here"'],
+          ['note', 'format("unexpected % here", stringifyTokenType(lookahead.type))'],
           ['note', 'bestfix']
         ]]
     extra: |
@@ -160,7 +160,7 @@ errors:
           ['error', '"invalid syntax"']
         ]]
       - ['lookahead', *under1, [
-          ['note', '"unexpected token here"']
+          ['note', 'format("unexpected % here", stringifyTokenType(lookahead.type))']
         ]]
       - ['panicuntil', *under2, [
           ['note', '"parser panicked until here"']

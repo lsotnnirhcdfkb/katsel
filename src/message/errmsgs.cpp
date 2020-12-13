@@ -140,7 +140,7 @@ void E0100(Token const &last, Token const &lookahead, std::vector<std::string> c
         .error("invalid syntax")
     );
     e.underline(Error::Underline(lookahead, '~')
-        .note("unexpected token here")
+        .note(format("unexpected % here", stringifyTokenType(lookahead.type)))
     );
 auto un (Error::Underline(last, '^'));
 for (std::string const &expectation : expectations)
@@ -159,7 +159,7 @@ void E0101(Token const &last, Token const &lookahead, std::string const &bestfix
         .error("invalid syntax")
     );
     e.underline(Error::Underline(lookahead, '~')
-        .note("unexpected token here")
+        .note(format("unexpected % here", stringifyTokenType(lookahead.type)))
         .note(bestfix)
     );
 auto un (Error::Underline(last, '^'));
@@ -179,7 +179,7 @@ void E0102(Token const &last, Token const &lookahead, Token const &panicuntil, s
         .error("invalid syntax")
     );
     e.underline(Error::Underline(lookahead, '~')
-        .note("unexpected token here")
+        .note(format("unexpected % here", stringifyTokenType(lookahead.type)))
     );
     e.underline(Error::Underline(panicuntil, '-')
         .note("parser panicked until here")

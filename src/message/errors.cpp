@@ -820,7 +820,7 @@ void Error::report() const
                                 return i1.second > i2.second; // sort in reverse
                             });
 
-                    for (auto i = lunderlines.begin(); i < lunderlines.end(); ++i)
+                    for (auto i = lunderlines.begin(); i < lunderlines.end(); ++i) // TODO: put all messages into a messageAndColumn vector in order to not have to deal with multiple underlines on the same column
                     {
                         size_t msgi = 0;
                         for (Error::Underline::Message const &message : i->first->messages)
