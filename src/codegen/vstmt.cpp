@@ -14,7 +14,6 @@ void CodeGenNS::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem *ast)
     }
 
     IR::Register *reg = cg.context.curFunc->addRegister(varty, ast);
-    cg.context.addLocal(varname, reg);
 
     if (ast->expr)
     {
@@ -30,6 +29,8 @@ void CodeGenNS::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem *ast)
         }
         cg.context.curBlock->add(std::make_unique<IR::Instrs::Store>(reg, val));
     }
+
+    cg.context.addLocal(varname, reg);
 }
 void CodeGenNS::StmtCodeGen::visitVarStmtItemList(ASTNS::VarStmtItemList *ast)
 {
