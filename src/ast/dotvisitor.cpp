@@ -464,10 +464,11 @@ void ASTNS::DotVisitor::visitBracedBlock(ASTNS::BracedBlock *a)
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::BracedBlock::Form::TAT:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">BracedBlock (TAT)</td></tr><tr>";
+        case ASTNS::BracedBlock::Form::TAAT:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"4\">BracedBlock (TAAT)</td></tr><tr>";
             ostream << "<td port=\"ocurb\">ocurb</td>";
             ostream << "<td port=\"stmts\">stmts</td>";
+            ostream << "<td port=\"implret\">implret</td>";
             ostream << "<td port=\"ccurb\">ccurb</td>";
             ostream << "</tr></table>>]\n";
             {
@@ -484,6 +485,18 @@ void ASTNS::DotVisitor::visitBracedBlock(ASTNS::BracedBlock *a)
                     {
                         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
                         connect(thisid, "stmts", nullptrnodeid);
+                    }
+            }
+            {
+                    if (a->implret)
+                    {
+                        a->implret->accept(this);
+                        connect(thisid, "implret", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "implret", nullptrnodeid);
                     }
             }
             {
@@ -910,16 +923,58 @@ void ASTNS::DotVisitor::visitFunctionDecl(ASTNS::FunctionDecl *a)
     }
     lastid = std::move(thisid);
 }
+void ASTNS::DotVisitor::visitImplRet(ASTNS::ImplRet *a)
+{
+    std::string thisid = curid();
+    switch (a->form)
+    {
+        case ASTNS::ImplRet::Form::TA:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">ImplRet (TA)</td></tr><tr>";
+            ostream << "<td port=\"leftarrow\">leftarrow</td>";
+            ostream << "<td port=\"expr\">expr</td>";
+            ostream << "</tr></table>>]\n";
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->leftarrow.stringify());
+                    connect(thisid, "leftarrow", tokennodeid);
+            }
+            {
+                    if (a->expr)
+                    {
+                        a->expr->accept(this);
+                        connect(thisid, "expr", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "expr", nullptrnodeid);
+                    }
+            }
+            break;
+    }
+    lastid = std::move(thisid);
+}
+void ASTNS::DotVisitor::visitImplRet_OPT(ASTNS::ImplRet_OPT *a)
+{
+    std::string thisid = curid();
+    switch (a->form)
+    {
+        case ASTNS::ImplRet_OPT::Form::EMPTY:
+            ostream << thisid << " [label=\"ImplRet_OPT (EMPTY)\"]";
+            break;
+    }
+    lastid = std::move(thisid);
+}
 void ASTNS::DotVisitor::visitIndentedBlock(ASTNS::IndentedBlock *a)
 {
     std::string thisid = curid();
     switch (a->form)
     {
-        case ASTNS::IndentedBlock::Form::TTAT:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"4\">IndentedBlock (TTAT)</td></tr><tr>";
+        case ASTNS::IndentedBlock::Form::TTAAT:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"5\">IndentedBlock (TTAAT)</td></tr><tr>";
             ostream << "<td port=\"newl\">newl</td>";
             ostream << "<td port=\"indent\">indent</td>";
             ostream << "<td port=\"stmts\">stmts</td>";
+            ostream << "<td port=\"implret\">implret</td>";
             ostream << "<td port=\"dedent\">dedent</td>";
             ostream << "</tr></table>>]\n";
             {
@@ -940,6 +995,18 @@ void ASTNS::DotVisitor::visitIndentedBlock(ASTNS::IndentedBlock *a)
                     {
                         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
                         connect(thisid, "stmts", nullptrnodeid);
+                    }
+            }
+            {
+                    if (a->implret)
+                    {
+                        a->implret->accept(this);
+                        connect(thisid, "implret", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "implret", nullptrnodeid);
                     }
             }
             {

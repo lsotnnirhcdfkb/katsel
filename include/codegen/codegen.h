@@ -177,6 +177,8 @@ void visitCallExpr(ASTNS::CallExpr *ast) override;
 void visitCastExpr(ASTNS::CastExpr *ast) override;
 void visitCompEQExpr(ASTNS::CompEQExpr *ast) override;
 void visitCompLGTExpr(ASTNS::CompLGTExpr *ast) override;
+void visitImplRet(ASTNS::ImplRet *ast) override;
+void visitImplRet_OPT(ASTNS::ImplRet_OPT *ast) override;
 void visitIndentedBlock(ASTNS::IndentedBlock *ast) override;
 void visitMultExpr(ASTNS::MultExpr *ast) override;
 void visitPrimaryExpr(ASTNS::PrimaryExpr *ast) override;

@@ -163,6 +163,7 @@ bool singleTok(errorstate const &e, std::vector<std::string> const &expectations
     TRYTOKTY(TokenType::CCURB)
     TRYTOKTY(TokenType::INDENT)
     TRYTOKTY(TokenType::DEDENT)
+    TRYTOKTY(TokenType::LEFTARROW)
     TRYTOKTY(TokenType::SEMICOLON)
     TRYTOKTY(TokenType::UINT8)
     TRYTOKTY(TokenType::UINT16)
@@ -289,31 +290,31 @@ bool panicMode(errorstate const &e, std::vector<std::string> const &expectations
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(AnotherVarStmtItem)
-                        case TokenType::COMMA: case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::CCURB: case TokenType::DEDENT:
+                        case TokenType::COMMA: case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::LEFTARROW: case TokenType::CCURB: case TokenType::DEDENT:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(VarStmtItemSegment)
-                        case TokenType::COMMA: case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::CCURB: case TokenType::DEDENT:
+                        case TokenType::COMMA: case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::LEFTARROW: case TokenType::CCURB: case TokenType::DEDENT:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(VarStmtItemList)
-                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::CCURB: case TokenType::DEDENT:
+                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::LEFTARROW: case TokenType::CCURB: case TokenType::DEDENT:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(AnotherStmt)
-                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::CCURB: case TokenType::DEDENT:
+                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::LEFTARROW: case TokenType::CCURB: case TokenType::DEDENT:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(Stmt)
-                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::CCURB: case TokenType::DEDENT:
+                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::LEFTARROW: case TokenType::CCURB: case TokenType::DEDENT:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(StmtSegment)
-                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::CCURB: case TokenType::DEDENT:
+                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::LEFTARROW: case TokenType::CCURB: case TokenType::DEDENT:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(StmtList)
-                        case TokenType::CCURB: case TokenType::DEDENT:
+                        case TokenType::LEFTARROW: case TokenType::CCURB: case TokenType::DEDENT:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(AnotherDecl)
@@ -328,6 +329,10 @@ bool panicMode(errorstate const &e, std::vector<std::string> const &expectations
                         case TokenType::FUN: case TokenType::EOF_:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
+                CHECKASI(ImplRet)
+                        case TokenType::CCURB: case TokenType::DEDENT:
+                            RECOVERANDDEFBREAK()
+                FINISHCHECKASI()
                 CHECKASI(FunctionDecl)
                         case TokenType::FUN: case TokenType::EOF_:
                             RECOVERANDDEFBREAK()
@@ -337,19 +342,19 @@ bool panicMode(errorstate const &e, std::vector<std::string> const &expectations
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(VarStmt)
-                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::CCURB: case TokenType::DEDENT:
+                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::LEFTARROW: case TokenType::CCURB: case TokenType::DEDENT:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(ExprStmt)
-                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::CCURB: case TokenType::DEDENT:
+                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::LEFTARROW: case TokenType::CCURB: case TokenType::DEDENT:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(RetExpr)
-                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::COMMA: case TokenType::COLON: case TokenType::CPARN: case TokenType::CCURB: case TokenType::DEDENT:
+                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::COMMA: case TokenType::COLON: case TokenType::CPARN: case TokenType::CCURB: case TokenType::DEDENT: case TokenType::LEFTARROW:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(BracedBlock)
-                        case TokenType::FUN: case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::COMMA: case TokenType::COLON: case TokenType::CPARN: case TokenType::EOF_: case TokenType::CCURB: case TokenType::DEDENT:
+                        case TokenType::FUN: case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::COMMA: case TokenType::COLON: case TokenType::CPARN: case TokenType::EOF_: case TokenType::CCURB: case TokenType::DEDENT: case TokenType::LEFTARROW:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(IndentedBlock)

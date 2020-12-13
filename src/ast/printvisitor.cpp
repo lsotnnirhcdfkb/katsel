@@ -376,7 +376,7 @@ void ASTNS::PrintVisitor::visitBracedBlock(ASTNS::BracedBlock *a)
     ++indent;
     switch (a->form)
     {
-        case ASTNS::BracedBlock::Form::TAT:
+        case ASTNS::BracedBlock::Form::TAAT:
             pai("ocurb = ");
             pai("[");
             pai(std::string(a->ocurb.start, a->ocurb.end));
@@ -385,6 +385,15 @@ void ASTNS::PrintVisitor::visitBracedBlock(ASTNS::BracedBlock *a)
             if (a->stmts)
             {
                 a->stmts->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            pai("implret = ");
+            if (a->implret)
+            {
+                a->implret->accept(this);
             }
             else
             {
@@ -728,13 +737,50 @@ void ASTNS::PrintVisitor::visitFunctionDecl(ASTNS::FunctionDecl *a)
     --indent;
     pai("}\n");
 }
+void ASTNS::PrintVisitor::visitImplRet(ASTNS::ImplRet *a)
+{
+    pai("ImplRet\n{\n");
+    ++indent;
+    switch (a->form)
+    {
+        case ASTNS::ImplRet::Form::TA:
+            pai("leftarrow = ");
+            pai("[");
+            pai(std::string(a->leftarrow.start, a->leftarrow.end));
+            pai("]\n");
+            pai("expr = ");
+            if (a->expr)
+            {
+                a->expr->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            break;
+    }
+    --indent;
+    pai("}\n");
+}
+void ASTNS::PrintVisitor::visitImplRet_OPT(ASTNS::ImplRet_OPT *a)
+{
+    pai("ImplRet_OPT\n{\n");
+    ++indent;
+    switch (a->form)
+    {
+        case ASTNS::ImplRet_OPT::Form::EMPTY:
+            break;
+    }
+    --indent;
+    pai("}\n");
+}
 void ASTNS::PrintVisitor::visitIndentedBlock(ASTNS::IndentedBlock *a)
 {
     pai("IndentedBlock\n{\n");
     ++indent;
     switch (a->form)
     {
-        case ASTNS::IndentedBlock::Form::TTAT:
+        case ASTNS::IndentedBlock::Form::TTAAT:
             pai("newl = ");
             pai("[");
             pai(std::string(a->newl.start, a->newl.end));
@@ -747,6 +793,15 @@ void ASTNS::PrintVisitor::visitIndentedBlock(ASTNS::IndentedBlock *a)
             if (a->stmts)
             {
                 a->stmts->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
+            pai("implret = ");
+            if (a->implret)
+            {
+                a->implret->accept(this);
             }
             else
             {

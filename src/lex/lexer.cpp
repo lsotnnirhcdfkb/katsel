@@ -270,14 +270,16 @@ Token Lexer::nextToken()
 
         // double and equal and single
         case '+': return makeToken(match('+') ? TokenType::DOUBLEPLUS  : (match('=') ? TokenType::PLUSEQUAL  : TokenType::PLUS));
-        case '-': return makeToken(match('-') ? TokenType::DOUBLEMINUS : (match('=') ? TokenType::MINUSEQUAL : TokenType::MINUS));
         case '&': return makeToken(match('&') ? TokenType::DOUBLEAMPER : (match('=') ? TokenType::AMPEREQUAL : TokenType::AMPER));
         case '|': return makeToken(match('|') ? TokenType::DOUBLEPIPE  : (match('=') ? TokenType::PIPEEQUAL  : TokenType::PIPE));
+
+        // arrows
+        case '-': return makeToken(match('-') ? TokenType::DOUBLEMINUS : (match('=') ? TokenType::MINUSEQUAL : (match('>') ? TokenType::RIGHTARROW : TokenType::MINUS)));
+        case '<': return makeToken(match('<') ? (match('=') ? TokenType::DOUBLELESSEQUAL : TokenType::DOUBLELESS) : (match('=') ? TokenType::LESSEQUAL : (match('-') ? TokenType::LEFTARROW : TokenType::LESS)));
 
         // double, doubleequal, singleequal, single
         //                  if matches double ? (is double so check if it has equal after it                          ) : (is not double so check if it has equal after it          )
         case '>': return makeToken(match('>') ? (match('=') ? TokenType::DOUBLEGREATEREQUAL : TokenType::DOUBLEGREATER) : (match('=') ? TokenType::GREATEREQUAL : TokenType::GREATER));
-        case '<': return makeToken(match('<') ? (match('=') ? TokenType::DOUBLELESSEQUAL    : TokenType::DOUBLELESS   ) : (match('=') ? TokenType::LESSEQUAL    : TokenType::LESS   ));
 
         case '\'':
         case '"':

@@ -45,6 +45,8 @@ class DeclList;
 class Expr;
 class ExprStmt;
 class FunctionDecl;
+class ImplRet;
+class ImplRet_OPT;
 class IndentedBlock;
 class MultExpr;
 class Param;
@@ -110,6 +112,8 @@ public:
     virtual void visitCastExpr(ASTNS::CastExpr *ast) = 0;
     virtual void visitCompEQExpr(ASTNS::CompEQExpr *ast) = 0;
     virtual void visitCompLGTExpr(ASTNS::CompLGTExpr *ast) = 0;
+    virtual void visitImplRet(ASTNS::ImplRet *ast) = 0;
+    virtual void visitImplRet_OPT(ASTNS::ImplRet_OPT *ast) = 0;
     virtual void visitIndentedBlock(ASTNS::IndentedBlock *ast) = 0;
     virtual void visitMultExpr(ASTNS::MultExpr *ast) = 0;
     virtual void visitPrimaryExpr(ASTNS::PrimaryExpr *ast) = 0;

@@ -6,8 +6,7 @@
 CodeGenNS::ExprCodeGen::ExprCodeGen(CodeGen &cg): cg(cg) {}
 
 IR::ASTValue CodeGenNS::ExprCodeGen::expr(ASTNS::ExprB *ast)
-{
-    ret = IR::ASTValue();
+{ ret = IR::ASTValue();
     ast->accept(this);
     return ret;
 }
@@ -384,18 +383,22 @@ void CodeGenNS::ExprCodeGen::visitIndentedBlock(ASTNS::IndentedBlock *ast)
     cg.context.incScope();
     if (ast->stmts)
         ast->stmts->accept(&cg.stmtCodeGen);
-    cg.context.decScope();
 
-    ret = IR::ASTValue(cg.context.getVoidValue(), ast);
+    ret = expr(ast->implret.get());
+    cg.context.decScope();
+    if (!ret)
+        ret = IR::ASTValue(cg.context.getVoidValue(), ast);
 }
 void CodeGenNS::ExprCodeGen::visitBracedBlock(ASTNS::BracedBlock *ast)
 {
     cg.context.incScope();
     if (ast->stmts)
         ast->stmts->accept(&cg.stmtCodeGen);
-    cg.context.decScope();
 
-    ret = IR::ASTValue(cg.context.getVoidValue(), ast);
+    ret = expr(ast->implret.get());
+    cg.context.decScope();
+    if (!ret)
+        ret = IR::ASTValue(cg.context.getVoidValue(), ast);
 }
 void CodeGenNS::ExprCodeGen::visitRetExpr(ASTNS::RetExpr *ast)
 {
@@ -421,4 +424,12 @@ void CodeGenNS::ExprCodeGen::visitRetExpr(ASTNS::RetExpr *ast)
     cg.context.curBlock = cg.context.blackHoleBlock.get();
 
     ret = v;
+}
+void CodeGenNS::ExprCodeGen::visitImplRet(ASTNS::ImplRet *ast)
+{
+    ret = expr(ast->expr.get());
+}
+void CodeGenNS::ExprCodeGen::visitImplRet_OPT(ASTNS::ImplRet_OPT *ast)
+{
+    ret = IR::ASTValue();
 }

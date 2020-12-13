@@ -92,6 +92,8 @@ void visitCompLGTExpr(ASTNS::CompLGTExpr *ast) override;
 void visitDeclList(ASTNS::DeclList *ast) override;
 void visitExprStmt(ASTNS::ExprStmt *ast) override;
 void visitFunctionDecl(ASTNS::FunctionDecl *ast) override;
+void visitImplRet(ASTNS::ImplRet *ast) override;
+void visitImplRet_OPT(ASTNS::ImplRet_OPT *ast) override;
 void visitIndentedBlock(ASTNS::IndentedBlock *ast) override;
 void visitMultExpr(ASTNS::MultExpr *ast) override;
 void visitParam(ASTNS::Param *ast) override;
@@ -288,7 +290,7 @@ void LocationVisitor::visitBracedBlock(ASTNS::BracedBlock *ast)
 {
     switch (ast->form)
     {
-        case ASTNS::BracedBlock::Form::TAT:
+        case ASTNS::BracedBlock::Form::TAAT:
             retl = ast->ocurb.start;
             retf = ast->ocurb.sourcefile;
             retr = ast->ccurb.end;
@@ -402,11 +404,31 @@ void LocationVisitor::visitFunctionDecl(ASTNS::FunctionDecl *ast)
             break;
     }
 }
+void LocationVisitor::visitImplRet(ASTNS::ImplRet *ast)
+{
+    switch (ast->form)
+    {
+        case ASTNS::ImplRet::Form::TA:
+            retl = ast->leftarrow.start;
+            retf = ast->leftarrow.sourcefile;
+            retr = getR(ast->expr.get());
+            break;
+    }
+}
+void LocationVisitor::visitImplRet_OPT(ASTNS::ImplRet_OPT *ast)
+{
+    switch (ast->form)
+    {
+        case ASTNS::ImplRet_OPT::Form::EMPTY:
+            reportAbortNoh("get location of empty ast");
+            break;
+    }
+}
 void LocationVisitor::visitIndentedBlock(ASTNS::IndentedBlock *ast)
 {
     switch (ast->form)
     {
-        case ASTNS::IndentedBlock::Form::TTAT:
+        case ASTNS::IndentedBlock::Form::TTAAT:
             retl = ast->newl.start;
             retf = ast->newl.sourcefile;
             retr = ast->dedent.end;

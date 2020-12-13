@@ -474,6 +474,7 @@ def makeGrammar():
     Block = nt('Block', 'code block', 'ExprB', panickable=True)
     BracedBlock = nt('BracedBlock', 'braced code block', 'ExprB', panickable=True)
     IndentedBlock = nt('IndentedBlock', 'indented code block', 'ExprB', panickable=True)
+    ImplRet = nt('ImplRet', 'implicit return', 'ExprB', panickable=True)
     Type = nt('Type', 'type specifier', 'TypeB')
     BuiltinType= nt('BuiltinType', 'builtin type specifier', 'TypeB')
     Arg = nt('Arg', 'argument', 'ArgB', panickable=True)
@@ -529,6 +530,7 @@ def makeGrammar():
     HEXINTLIT = Terminal('HEXINTLIT')
     IDENTIFIER = Terminal('IDENTIFIER')
     INDENT = Terminal('INDENT')
+    LEFTARROW = Terminal('LEFTARROW')
     LESS = Terminal('LESS')
     LESSEQUAL = Terminal('LESSEQUAL')
     MINUS = Terminal('MINUS')
@@ -568,6 +570,7 @@ def makeGrammar():
     ParamListOpt = makeOpt(ParamList)
     ArgListOpt = makeOpt(ArgList)
     StmtListOpt = makeOpt(StmtList)
+    ImplRetOpt = makeOpt(ImplRet)
 
     rule(CU, ((DeclList, 'dl'),))
     rule(CU, ())
@@ -592,10 +595,11 @@ def makeGrammar():
     rule(VarStmtItem, ((IDENTIFIER, 'name'),  (EQUAL, 'equal'),  (Expr, 'expr'), ))
     rule(VarStmtItem, ((IDENTIFIER, 'name'), ))
 
-    rule(BracedBlock, ((OCURB, 'ocurb'), (StmtListOpt, 'stmts'),  (CCURB, 'ccurb')))
-    rule(IndentedBlock, ((NEWLINE, 'newl'), (INDENT, 'indent'), (StmtListOpt, 'stmts'), (DEDENT, 'dedent'), ))
     rule(Block, ((BracedBlock, '_'),))
     rule(Block, ((IndentedBlock, '_'),))
+    rule(BracedBlock, ((OCURB, 'ocurb'), (StmtListOpt, 'stmts'), (ImplRetOpt, 'implret'), (CCURB, 'ccurb')))
+    rule(IndentedBlock, ((NEWLINE, 'newl'), (INDENT, 'indent'), (StmtListOpt, 'stmts'), (ImplRetOpt, 'implret'), (DEDENT, 'dedent')))
+    rule(ImplRet, ((LEFTARROW, 'leftarrow'), (Expr, 'expr')))
 
     rule(StmtEnding, ((NEWLINE, 'tok'),))
     rule(StmtEnding, ((SEMICOLON, 'tok'),))

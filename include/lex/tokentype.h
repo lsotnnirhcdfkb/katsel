@@ -27,6 +27,9 @@ enum class TokenType
     PIPE,
     CARET,
 
+    RIGHTARROW,
+    LEFTARROW,
+
     // double symbols
     DOUBLEPLUS,
     DOUBLEMINUS,
@@ -120,7 +123,6 @@ inline constexpr char const * stringifyTokenType(TokenType ty)
 #define STOKTY(type, str) case TokenType::type: return #str;
     switch (ty)
     {
-
         STOKTY(OPARN, '(')
         STOKTY(CPARN, ')')
         STOKTY(OSQUB, '[')
@@ -145,6 +147,8 @@ inline constexpr char const * stringifyTokenType(TokenType ty)
         STOKTY(AMPER, '&')
         STOKTY(PIPE, '|')
         STOKTY(CARET, '^')
+        STOKTY(LEFTARROW, '<-')
+        STOKTY(RIGHTARROW, '->')
         STOKTY(DOUBLEPLUS, '++')
         STOKTY(DOUBLEMINUS, '--')
         STOKTY(DOUBLEGREATER, '>>')
@@ -213,7 +217,6 @@ inline constexpr char const * stringifyTokenType(TokenType ty)
         STOKTY(EOF_, end of file)
         STOKTY(ERROR, error token)
         STOKTY(SOF, start of file)
-
     }
 #undef STOKTY
 }

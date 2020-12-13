@@ -50,6 +50,8 @@ namespace ASTNS
     class Expr;
     class ExprStmt;
     class FunctionDecl;
+    class ImplRet;
+    class ImplRet_OPT;
     class IndentedBlock;
     class MultExpr;
     class Param;
@@ -363,13 +365,14 @@ namespace ASTNS
     class BracedBlock : public ExprB
     {
     public:
-        BracedBlock(Token ocurb, std::unique_ptr<StmtB> stmts, Token ccurb);
+        BracedBlock(Token ocurb, std::unique_ptr<StmtB> stmts, std::unique_ptr<ExprB> implret, Token ccurb);
         enum class Form
         {
-            TAT,
+            TAAT,
         };
         Token ocurb;
         std::unique_ptr<StmtB> stmts;
+        std::unique_ptr<ExprB> implret;
         Token ccurb;
         Form form;
         bool empty() override;
@@ -530,17 +533,44 @@ namespace ASTNS
         bool empty() override;
         virtual void accept(ASTNS::DeclBVisitor *v) override;
     };
+    class ImplRet : public ExprB
+    {
+    public:
+        ImplRet(Token leftarrow, std::unique_ptr<ExprB> expr);
+        enum class Form
+        {
+            TA,
+        };
+        Token leftarrow;
+        std::unique_ptr<ExprB> expr;
+        Form form;
+        bool empty() override;
+        virtual void accept(ASTNS::ExprBVisitor *v) override;
+    };
+    class ImplRet_OPT : public ExprB
+    {
+    public:
+        ImplRet_OPT();
+        enum class Form
+        {
+            EMPTY,
+        };
+        Form form;
+        bool empty() override;
+        virtual void accept(ASTNS::ExprBVisitor *v) override;
+    };
     class IndentedBlock : public ExprB
     {
     public:
-        IndentedBlock(Token newl, Token indent, std::unique_ptr<StmtB> stmts, Token dedent);
+        IndentedBlock(Token newl, Token indent, std::unique_ptr<StmtB> stmts, std::unique_ptr<ExprB> implret, Token dedent);
         enum class Form
         {
-            TTAT,
+            TTAAT,
         };
         Token newl;
         Token indent;
         std::unique_ptr<StmtB> stmts;
+        std::unique_ptr<ExprB> implret;
         Token dedent;
         Form form;
         bool empty() override;

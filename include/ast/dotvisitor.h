@@ -46,6 +46,8 @@ void visitCompLGTExpr(ASTNS::CompLGTExpr *ast) override;
 void visitDeclList(ASTNS::DeclList *ast) override;
 void visitExprStmt(ASTNS::ExprStmt *ast) override;
 void visitFunctionDecl(ASTNS::FunctionDecl *ast) override;
+void visitImplRet(ASTNS::ImplRet *ast) override;
+void visitImplRet_OPT(ASTNS::ImplRet_OPT *ast) override;
 void visitIndentedBlock(ASTNS::IndentedBlock *ast) override;
 void visitMultExpr(ASTNS::MultExpr *ast) override;
 void visitParam(ASTNS::Param *ast) override;
