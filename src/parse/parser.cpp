@@ -39,7 +39,7 @@ Token Parser::consume()
         {
             lastboom = true;
         }
-        else if (lastboom)
+        else if (lastboom && cur.type == TokenType::NEWLINE)
         {
             lastboom = false;
         }
