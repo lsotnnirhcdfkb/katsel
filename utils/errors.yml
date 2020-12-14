@@ -131,7 +131,7 @@ errors:
     location: lookahead
     highlights:
       - ['lookahead', *under0, [
-          ['error', 'format("invalid syntax: unexpected %", stringifyTokenType(lookahead.type))'],
+          ['error', 'format("unexpected %", stringifyTokenType(lookahead.type))'],
         ]]
     extra: |
       auto un (Error::Underline(lookahead, '^'));
@@ -145,7 +145,7 @@ errors:
     location: lookahead
     highlights:
       - ['lookahead', *under0, [
-          ['error', 'format("invalid syntax: unexpected %", stringifyTokenType(lookahead.type))'],
+          ['error', 'format("unexpected %", stringifyTokenType(lookahead.type))'],
           ['note', 'bestfix']
         ]]
     extra: |
@@ -161,7 +161,7 @@ errors:
     location: lookahead
     highlights:
       - ['lookahead', *under0, [
-          ['error', 'format("invalid syntax: unexpected %", stringifyTokenType(lookahead.type))'],
+          ['error', 'format("unexpected %", stringifyTokenType(lookahead.type))'],
         ]]
       - ['panicuntil', *under2, [
           ['note', '"parser panicked until here"']
