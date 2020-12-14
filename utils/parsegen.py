@@ -435,14 +435,14 @@ def listRule(sym, base, delimit=None):
 
     if delimit is not None:
         symsegment = nt(sym.symbol + 'Segment', sym.name + ' list', base, panickable=True)
-        rule(symsegment, ((symsegment, symsegment.symbol.lower()), (delimit, str(delimit).lower()), (anothersym, anothersym.symbol.lower())), special='nodefaultreduce')
-        rule(symsegment, ((sym, sym.name.lower()),), special='nodefaultreduce')
+        rule(symsegment, ((symsegment, symsegment.symbol.lower()), (delimit, str(delimit).lower()), (anothersym, anothersym.symbol.lower())))
+        rule(symsegment, ((sym, sym.name.lower()),))
 
         rule(symlist, ((symsegment, symsegment.symbol.lower()),), special='nodefaultreduce')
         rule(symlist, ((symsegment, symsegment.symbol.lower()), (delimit, str(delimit).lower())), special='nodefaultreduce')
     else:
-        rule(symlist, ((symlist, symlist.symbol.lower()), (anothersym, anothersym.symbol.lower())), special='nodefaultreduce')
-        rule(symlist, ((sym, sym.name.lower()),), special='nodefaultreduce')
+        rule(symlist, ((symlist, symlist.symbol.lower()), (anothersym, anothersym.symbol.lower())))
+        rule(symlist, ((sym, sym.name.lower()),))
 
     return symlist
 
