@@ -2,7 +2,7 @@
 #pragma once
 
 #include <string>
-#include <stack>
+#include <vector>
 
 #include "utils/file.h"
 #include "lex/token.h"
@@ -45,7 +45,7 @@ private:
 
     int indent;
     bool dedenting;
-    std::stack<int> indentstack;
+    std::vector<int> indentstack;
 
     std::string::iterator srcstart;
     std::string::iterator srcend;

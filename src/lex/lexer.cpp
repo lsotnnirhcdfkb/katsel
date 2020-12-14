@@ -5,7 +5,7 @@
 // constructors {{{1
 Lexer::Lexer(File &sourcefile): start(sourcefile.source.begin()), end(start), startline(1), startcolumn(1), endline(1), endcolumn(1), indent(0), dedenting(false), srcstart(sourcefile.source.begin()), srcend(sourcefile.source.end()), sourcefile(sourcefile)
 {
-    indentstack.push(0);
+    indentstack.push_back(0);
 }
 
 // resetToTok {{{1
@@ -145,12 +145,20 @@ Token Lexer::nextToken()
                 case '\r': advance(); break;
                 case ' ':
                     if (findingindent)
+                    {
                         ++indent;
+                        if (std::binary_search(indentstack.begin(), indentstack.end(), indent))
+                            startToEnd();
+                    }
                     advance();
                     break;
                 case '\t':
                     if (findingindent)
+                    {
                         indent = (indent / 8 + 1) * 8; // go up to nearest multiple of 8
+                        if (std::binary_search(indentstack.begin(), indentstack.end(), indent))
+                            startToEnd();
+                    }
                     advance();
                     break;
 
@@ -220,7 +228,7 @@ Token Lexer::nextToken()
         }
     }
 
-    if (indent > indentstack.top())
+    if (indent > indentstack.back())
     {
         if (dedenting)
         {
@@ -228,13 +236,13 @@ Token Lexer::nextToken()
             return makeErrorToken(ERR_DEDENT_NOMATCH);
         }
 
-        indentstack.push(indent);
+        indentstack.push_back(indent);
         return makeToken(TokenType::INDENT);
     }
-    else if (indent < indentstack.top())
+    else if (indent < indentstack.back())
     {
         dedenting = true;
-        indentstack.pop();
+        indentstack.pop_back();
         return makeToken(TokenType::DEDENT);
     }
     else if (dedenting) // indent == indentstack.top()

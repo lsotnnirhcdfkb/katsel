@@ -148,8 +148,7 @@ void E0100(Token const &lookahead, std::vector<std::string> const &expectations)
 {
     Error e = Error(Error::MsgType::ERROR, lookahead, "E0100 (unrecoverable-invalid-syntax)");
     e.underline(Error::Underline(lookahead, '^')
-        .error("invalid syntax")
-        .note(format("unexpected % here", stringifyTokenType(lookahead.type)))
+        .error(format("invalid syntax: unexpected % here", stringifyTokenType(lookahead.type)))
     );
 auto un (Error::Underline(lookahead, '^'));
 for (std::string const &expectation : expectations)
@@ -165,8 +164,7 @@ void E0101(Token const &lookahead, std::string const &bestfix, std::vector<std::
 {
     Error e = Error(Error::MsgType::ERROR, lookahead, "E0101 (simple-invalid-syntax)");
     e.underline(Error::Underline(lookahead, '^')
-        .error("invalid syntax")
-        .note(format("unexpected % here", stringifyTokenType(lookahead.type)))
+        .error(format("invalid syntax: unexpected % here", stringifyTokenType(lookahead.type)))
         .note(bestfix)
     );
 auto un (Error::Underline(lookahead, '^'));
@@ -183,8 +181,7 @@ void E0102(Token const &lookahead, Token const &panicuntil, std::vector<std::str
 {
     Error e = Error(Error::MsgType::ERROR, lookahead, "E0102 (panicking-invalid-syntax)");
     e.underline(Error::Underline(lookahead, '^')
-        .error("invalid syntax")
-        .note(format("unexpected % here", stringifyTokenType(lookahead.type)))
+        .error(format("invalid syntax: unexpected % here", stringifyTokenType(lookahead.type)))
     );
     e.underline(Error::Underline(panicuntil, '-')
         .note("parser panicked until here")
