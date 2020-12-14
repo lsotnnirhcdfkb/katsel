@@ -441,7 +441,7 @@ def listRule(sym, base, delimit=None):
         rule(symlist, ((symsegment, symsegment.symbol.lower()),), special='nodefaultreduce')
         rule(symlist, ((symsegment, symsegment.symbol.lower()), (delimit, str(delimit).lower())), special='nodefaultreduce')
     else:
-        rule(symlist, ((symlist, symlist.symbol.lower()), (anothersym, anothersym.symbol.lower())))
+        rule(symlist, ((symlist, symlist.symbol.lower()), (anothersym, anothersym.symbol.lower())), special='nodefaultreduce')
         rule(symlist, ((sym, sym.name.lower()),))
 
     return symlist

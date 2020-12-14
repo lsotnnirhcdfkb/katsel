@@ -1307,7 +1307,8 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 6:
                switch (lookahead.type)
                {
-                    default:
+                    case TokenType::EOF_:
+                    case TokenType::FUN:
                         {
                             auto a1 (popA<ASTNS::AnotherDecl>(stack));
                             auto a0 (popA<ASTNS::DeclList>(stack));
@@ -1315,6 +1316,9 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(getGoto<ASTNS::DeclList>(stack.back().state), std::move(push));
                         }
                         break;
+                    default:
+                        if (istrial) return false;
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % to terminate %", format("either % or %", stringifyTokenType(TokenType::FUN), stringifyTokenType(TokenType::EOF_)), "declaration list")  });
                 }
                 break;
             case 7:
@@ -2859,7 +2863,29 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
             case 93:
                switch (lookahead.type)
                {
-                    default:
+                    case TokenType::BANG:
+                    case TokenType::BININTLIT:
+                    case TokenType::CCURB:
+                    case TokenType::CHARLIT:
+                    case TokenType::DECINTLIT:
+                    case TokenType::DEDENT:
+                    case TokenType::FALSELIT:
+                    case TokenType::FLOATLIT:
+                    case TokenType::FOR:
+                    case TokenType::HEXINTLIT:
+                    case TokenType::IDENTIFIER:
+                    case TokenType::IF:
+                    case TokenType::LEFTARROW:
+                    case TokenType::MINUS:
+                    case TokenType::NULLPTRLIT:
+                    case TokenType::OCTINTLIT:
+                    case TokenType::OCURB:
+                    case TokenType::OPARN:
+                    case TokenType::RETURN:
+                    case TokenType::STRINGLIT:
+                    case TokenType::TILDE:
+                    case TokenType::TRUELIT:
+                    case TokenType::VAR:
                         {
                             auto a1 (popA<ASTNS::AnotherStmt>(stack));
                             auto a0 (popA<ASTNS::StmtList>(stack));
@@ -2867,6 +2893,9 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             stack.emplace_back(getGoto<ASTNS::StmtList>(stack.back().state), std::move(push));
                         }
                         break;
+                    default:
+                        if (istrial) return false;
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % to terminate %", format("%, %, %, %, %, %, %, %, %, %, %, %, %, %, %, %, %, %, %, %, %, %, or %", stringifyTokenType(TokenType::VAR), stringifyTokenType(TokenType::RETURN), stringifyTokenType(TokenType::OCURB), stringifyTokenType(TokenType::IF), stringifyTokenType(TokenType::FOR), stringifyTokenType(TokenType::OPARN), stringifyTokenType(TokenType::TILDE), stringifyTokenType(TokenType::MINUS), stringifyTokenType(TokenType::BANG), stringifyTokenType(TokenType::TRUELIT), stringifyTokenType(TokenType::FALSELIT), stringifyTokenType(TokenType::FLOATLIT), stringifyTokenType(TokenType::NULLPTRLIT), stringifyTokenType(TokenType::DECINTLIT), stringifyTokenType(TokenType::OCTINTLIT), stringifyTokenType(TokenType::BININTLIT), stringifyTokenType(TokenType::HEXINTLIT), stringifyTokenType(TokenType::CHARLIT), stringifyTokenType(TokenType::STRINGLIT), stringifyTokenType(TokenType::IDENTIFIER), stringifyTokenType(TokenType::LEFTARROW), stringifyTokenType(TokenType::CCURB), stringifyTokenType(TokenType::DEDENT)), "statement list")  });
                 }
                 break;
             case 94:
