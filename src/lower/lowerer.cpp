@@ -148,10 +148,12 @@ llvm::Value* Lower::Lowerer::lower(IR::Value const *v)
         return llvm::ConstantInt::get(asConstInt->type()->toLLVMType(context), asConstInt->val);
     CHECKTY(TempRegister)
         return tempregisters.at(asTempRegister);
+    CHECKTY(Void)
+        reportAbortNoh("lowerValue called with v = Void");
 #undef CHECKTY
     else
     {
-        reportAbortNoh("lowerValue called with v of invlaid type");
+        reportAbortNoh("lowerValue called with v of invalid type");
     }
 }
 
