@@ -5,6 +5,7 @@
 namespace IR
 {
     struct ASTValue;
+    class Block;
 }
 
 #include "lex/token.h"
@@ -59,12 +60,12 @@ namespace IR
             prefixdoubleminus
         };
 
-        virtual IR::ASTValue binOp(CodeGenNS::Context &cgc, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) = 0;
-        virtual IR::ASTValue unaryOp(CodeGenNS::Context &cgc, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) = 0;
+        virtual IR::ASTValue binOp(IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) = 0;
+        virtual IR::ASTValue unaryOp(IR::Block *&curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) = 0;
 
-        virtual IR::ASTValue isTrue(CodeGenNS::Context &cgc, IR::ASTValue v) = 0;
+        virtual IR::ASTValue isTrue(IR::Block *&curBlock, IR::ASTValue v) = 0;
 
-        virtual IR::ASTValue castTo(CodeGenNS::Context &cgc, IR::ASTValue v, ASTNS::AST *ast) = 0;
+        virtual IR::ASTValue castTo(IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) = 0;
 
         ASTNS::TypeB *ast;
 
@@ -95,12 +96,12 @@ namespace IR
         BuiltinType(Builtins b);
         std::string stringify() const override;
 
-        IR::ASTValue binOp(CodeGenNS::Context &cgc, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
-        IR::ASTValue unaryOp(CodeGenNS::Context &cgc, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;
+        IR::ASTValue binOp(IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
+        IR::ASTValue unaryOp(IR::Block *&curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;
 
-        IR::ASTValue isTrue(CodeGenNS::Context &cgc, IR::ASTValue v) override;
+        IR::ASTValue isTrue(IR::Block *&curBlock, IR::ASTValue v) override;
 
-        IR::ASTValue castTo(CodeGenNS::Context &cgc, IR::ASTValue v, ASTNS::AST *ast) override;
+        IR::ASTValue castTo(IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) override;
 
         llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
 
@@ -118,12 +119,12 @@ namespace IR
         FunctionType(Type *ret, std::vector<Type*> paramtys);
         std::string stringify() const override;
 
-        IR::ASTValue binOp(CodeGenNS::Context &cgc, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
-        IR::ASTValue unaryOp(CodeGenNS::Context &cgc, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;
+        IR::ASTValue binOp(IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
+        IR::ASTValue unaryOp(IR::Block *&curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;
 
-        IR::ASTValue isTrue(CodeGenNS::Context &cgc, IR::ASTValue v) override;
+        IR::ASTValue isTrue(IR::Block *&curBlock, IR::ASTValue v) override;
 
-        IR::ASTValue castTo(CodeGenNS::Context &cgc, IR::ASTValue v, ASTNS::AST *ast) override;
+        IR::ASTValue castTo(IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) override;
 
         llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
     };
@@ -133,12 +134,12 @@ namespace IR
     public:
         std::string stringify() const override;
 
-        IR::ASTValue binOp(CodeGenNS::Context &cgc, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
-        IR::ASTValue unaryOp(CodeGenNS::Context &cgc, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;
+        IR::ASTValue binOp(IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
+        IR::ASTValue unaryOp(IR::Block *&curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;
 
-        IR::ASTValue isTrue(CodeGenNS::Context &cgc, IR::ASTValue v) override;
+        IR::ASTValue isTrue(IR::Block *&curBlock, IR::ASTValue v) override;
 
-        IR::ASTValue castTo(CodeGenNS::Context &cgc, IR::ASTValue v, ASTNS::AST *ast) override;
+        IR::ASTValue castTo(IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) override;
 
         llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
     };

@@ -65,7 +65,7 @@ std::string IR::BuiltinType::stringify() const
     outOSwitchNoh("BuiltinType::stringify");
 }
 // binOp {{{1
-IR::ASTValue IR::BuiltinType::binOp(CodeGenNS::Context &cgc, IR::Type::BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast)
+IR::ASTValue IR::BuiltinType::binOp(IR::Block *&curBlock, IR::Type::BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast)
 {
     /*
     if (l.type() != this)
@@ -231,7 +231,7 @@ IR::ASTValue IR::BuiltinType::binOp(CodeGenNS::Context &cgc, IR::Type::BinaryOpe
     */
 }
 // castTo {{{1
-IR::ASTValue IR::BuiltinType::castTo(CodeGenNS::Context &cgc, IR::ASTValue v, ASTNS::AST *ast)
+IR::ASTValue IR::BuiltinType::castTo(IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast)
 {
     /*
     BuiltinType *sty = dynamic_cast<BuiltinType*> (v.type());
@@ -319,7 +319,7 @@ IR::ASTValue IR::BuiltinType::castTo(CodeGenNS::Context &cgc, IR::ASTValue v, AS
     */
 }
 // unaryOp {{{1
-IR::ASTValue IR::BuiltinType::unaryOp(CodeGenNS::Context &cgc, IR::Type::UnaryOperator op, IR::ASTValue v, Token optok, ASTNS::AST *ast)
+IR::ASTValue IR::BuiltinType::unaryOp(IR::Block *&curBlock, IR::Type::UnaryOperator op, IR::ASTValue v, Token optok, ASTNS::AST *ast)
 {
     /*
     if (v.type() != this)
@@ -345,7 +345,7 @@ IR::ASTValue IR::BuiltinType::unaryOp(CodeGenNS::Context &cgc, IR::Type::UnaryOp
     */
 }
 // isTrue {{{1
-IR::ASTValue IR::BuiltinType::isTrue(CodeGenNS::Context &cgc, IR::ASTValue v)
+IR::ASTValue IR::BuiltinType::isTrue(IR::Block *&curBlock, IR::ASTValue v)
 {
     /*
     if (v.type() != this)
