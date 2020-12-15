@@ -60,7 +60,7 @@ void CodeGenNS::Context::addLocal(std::string const &name, IR::Register *reg)
 {
     for (auto last = locals.rbegin(); last != locals.rend(); ++last)
         if (last->name == name && last->scopenum == curScope)
-            reportAbortNoh("addLocal called twice with a name");
+            reportAbortNoh(format("duplicate local added: \"%\"", name));
 
     Local l {curScope, reg, name};
     locals.push_back(l);
