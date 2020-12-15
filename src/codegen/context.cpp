@@ -1,13 +1,9 @@
-#include "codegen/codegen.h"
-#include "message/reportAbort.h"
-#include "utils/format.h"
+#include "codegenlocal.h"
 
-#include <iostream>
-#include "message/errors.h"
+CodeGen::Context::Context(): voidValue(getVoidType()) {}
 
-CodeGenNS::Context::Context(File const &file): unit(file), blackHoleBlock(std::make_unique<IR::Block>("blackHole", 0)), voidValue(getVoidType()) {}
-
-IR::BuiltinType* CodeGenNS::Context::getBuiltinType(IR::BuiltinType::Builtins bty)
+// getting types {{{1
+IR::BuiltinType* CodeGen::Context::getBuiltinType(IR::BuiltinType::Builtins bty)
 {
     for (std::unique_ptr<IR::Type> &ty : types)
     {
@@ -24,7 +20,7 @@ IR::BuiltinType* CodeGenNS::Context::getBuiltinType(IR::BuiltinType::Builtins bt
     return tyr;
 }
 
-IR::FunctionType* CodeGenNS::Context::getFunctionType(IR::Type *ret, std::vector<IR::Type*> paramtys)
+IR::FunctionType* CodeGen::Context::getFunctionType(IR::Type *ret, std::vector<IR::Type*> paramtys)
 {
     for (std::unique_ptr<IR::Type> &ty : types)
     {
@@ -41,7 +37,7 @@ IR::FunctionType* CodeGenNS::Context::getFunctionType(IR::Type *ret, std::vector
     return tyr;
 }
 
-IR::VoidType* CodeGenNS::Context::getVoidType()
+IR::VoidType* CodeGen::Context::getVoidType()
 {
     for (std::unique_ptr<IR::Type> &ty : types)
     {
@@ -57,52 +53,8 @@ IR::VoidType* CodeGenNS::Context::getVoidType()
     return tyr;
 }
 
-void CodeGenNS::Context::addLocal(std::string const &name, IR::Register *reg)
-{
-    for (auto last = locals.rbegin(); last != locals.rend(); ++last)
-        if (last->name == name && last->scopenum == curScope)
-            reportAbortNoh(format("duplicate local added: \"%\"", name));
-
-    Local l {curScope, reg, name};
-    locals.push_back(l);
-}
-
-void CodeGenNS::Context::incScope()
-{
-    ++curScope;
-
-    if (curScope == 0) // default curScope value is 1
-        reportAbortNoh("Scope index overflowed to 0 (too many nested scopes)");
-}
-
-void CodeGenNS::Context::decScope()
-{
-    --curScope;
-    if (curScope == 0)
-        reportAbortNoh("Scope index reached 0 (compiler messed up)");
-
-    while (locals.size() && locals.back().scopenum > curScope) locals.pop_back();
-}
-
-CodeGenNS::Context::Local* CodeGenNS::Context::findLocal(std::string const &name)
-{
-    for (auto last = locals.rbegin(); last != locals.rend(); ++last)
-        if (last->name == name)
-            return &*last;
-
-    return nullptr;
-}
-
-IR::Value* CodeGenNS::Context::findValue(std::string const &name)
-{
-    Local *l = findLocal(name);
-    if (l)
-        return l->v;
-
-    return globalSymbolTable[name];
-}
-
-IR::Value* CodeGenNS::Context::findGlobal(std::string const &name)
+// other {{{1
+IR::Value* CodeGen::Context::getGlobal(std::string const &name)
 {
     auto v = globalSymbolTable.find(name);
     if (v == globalSymbolTable.end())
@@ -110,7 +62,7 @@ IR::Value* CodeGenNS::Context::findGlobal(std::string const &name)
     return v->second;
 }
 
-IR::ConstInt* CodeGenNS::Context::getConstInt(IR::BuiltinType *ty, int val)
+IR::ConstInt* CodeGen::Context::getConstInt(IR::BuiltinType *ty, int val)
 {
     std::unique_ptr<IR::ConstInt> ci = std::make_unique<IR::ConstInt>(ty, val);
     IR::ConstInt *ciraw = ci.get();
@@ -118,7 +70,7 @@ IR::ConstInt* CodeGenNS::Context::getConstInt(IR::BuiltinType *ty, int val)
 
     return ciraw;
 }
-IR::Void* CodeGenNS::Context::getVoidValue()
+IR::Void* CodeGen::Context::getVoidValue()
 {
     return &voidValue;
 }

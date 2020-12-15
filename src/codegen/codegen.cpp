@@ -1,83 +1,24 @@
-#include "codegen/codegen.h"
-#include "utils/assert.h"
+#include "codegenlocal.h"
+#include "ir/unit.h"
 
-#include <iostream>
+CodeGen::CodeGen(File const &file)
+    : unit(std::make_unique<IR::Unit>(file)),
+      context(std::make_unique<Context>()),
+      typeVisitor(std::make_unique<TypeVisitor>(*this)) {}
+CodeGen::~CodeGen() = default;
 
-CodeGenNS::CodeGen::CodeGen(File const &file) : context(file), declarator(*this), typeResolver(*this), paramVisitor(*this), argsVisitor(*this), declCodeGen(*this), stmtCodeGen(*this), exprCodeGen(*this), errored(false) {}
-
-void CodeGenNS::CodeGen::declarate(ASTNS::CUB *decls)
+void CodeGen::declarate(ASTNS::CUB *cub)
 {
-    decls->accept(&declarator);
+    ForwDecl f (*this);
+    cub->accept(&f);
 }
 
-void CodeGenNS::CodeGen::codegen(ASTNS::CUB *decls)
+void CodeGen::codegen(ASTNS::CUB *cub)
 {
-    decls->accept(&declCodeGen);
+
 }
 
-void CodeGenNS::CodeGen::printUnit(llvm::raw_ostream &ostream)
+void CodeGen::printUnit(llvm::raw_ostream &ostream)
 {
-    context.unit.print(ostream);
+    unit->print(ostream);
 }
-
-CodeGenNS::ParamVisitor::ParamVisitor::ParamVisitor(CodeGenNS::CodeGen &cg): cg(cg) {}
-
-std::vector<CodeGenNS::ParamVisitor::Param> CodeGenNS::ParamVisitor::params(ASTNS::PListB *ast)
-{
-    ret.clear();
-    ast->accept(this);
-
-    return ret;
-}
-
-void CodeGenNS::ParamVisitor::visitParam(ASTNS::Param *ast)
-{
-    IR::Type *ty (cg.typeResolver.type(ast->type.get()));
-    std::string name (ast->name.stringify());
-    Param p {ty, std::move(name), ast};
-    ret.push_back(p);
-}
-
-void CodeGenNS::ParamVisitor::visitParamList(ASTNS::ParamList *ast)
-{
-    ast->paramsegment->accept(this);
-}
-void CodeGenNS::ParamVisitor::visitParamSegment(ASTNS::ParamSegment *ast)
-{
-    ast->paramsegment->accept(this);
-    ast->anotherparam->accept(this);
-}
-void CodeGenNS::ParamVisitor::visitParamList_OPT(ASTNS::ParamList_OPT *ast) {}
-
-CodeGenNS::ArgsVisitor::ArgsVisitor::ArgsVisitor(CodeGenNS::CodeGen &cg): cg(cg) {}
-
-std::vector<IR::ASTValue> CodeGenNS::ArgsVisitor::args(ASTNS::ArgB *ast)
-{
-    ret.clear();
-    ast->accept(this);
-
-    return ret;
-}
-
-void CodeGenNS::ArgsVisitor::visitArgList(ASTNS::ArgList *ast)
-{
-    ast->argsegment->accept(this);
-}
-void CodeGenNS::ArgsVisitor::visitArgSegment(ASTNS::ArgSegment *ast)
-{
-    std::vector<IR::ASTValue> cret (args(ast->argsegment.get()));
-
-    std::vector<IR::ASTValue> a (args(ast->anotherarg.get()));
-    ASSERT(a.size() == 1);
-    cret.push_back(a[0]);
-
-    ret = std::move(cret);
-}
-
-void CodeGenNS::ArgsVisitor::visitArg(ASTNS::Arg *ast)
-{
-    IR::ASTValue v = cg.exprCodeGen.expr(ast->expr.get());
-    ret = {v};
-}
-
-void CodeGenNS::ArgsVisitor::visitArgList_OPT(ASTNS::ArgList_OPT *ast) {}

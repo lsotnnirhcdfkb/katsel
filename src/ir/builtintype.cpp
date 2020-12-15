@@ -2,7 +2,7 @@
 
 #include "ir/type.h"
 #include "ir/instruction.h"
-#include "message/errors.h"
+#include "message/internal.h"
 #include "message/errmsgs.h"
 
 #include "codegen/codegen.h"
@@ -67,6 +67,7 @@ std::string IR::BuiltinType::stringify() const
 // binOp {{{1
 IR::ASTValue IR::BuiltinType::binOp(CodeGenNS::Context &cgc, IR::Type::BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast)
 {
+    /*
     if (l.type() != this)
         calledWithOpTyNEthis("BuiltinType", "binOp", "left operand");
 
@@ -227,10 +228,12 @@ IR::ASTValue IR::BuiltinType::binOp(CodeGenNS::Context &cgc, IR::Type::BinaryOpe
     }
 
     return ASTValue(outReg, ast);
+    */
 }
 // castTo {{{1
 IR::ASTValue IR::BuiltinType::castTo(CodeGenNS::Context &cgc, IR::ASTValue v, ASTNS::AST *ast)
 {
+    /*
     BuiltinType *sty = dynamic_cast<BuiltinType*> (v.type());
     if (!sty)
     {
@@ -313,10 +316,12 @@ IR::ASTValue IR::BuiltinType::castTo(CodeGenNS::Context &cgc, IR::ASTValue v, AS
     // | DOUBLE | FToI   | FToI   | FToI   | FToI   | FToI   | FToI   | FToI   | FToI   | Trunc   | FToI   | FToI   | None   |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
     return ASTValue(outReg, ast);
+    */
 }
 // unaryOp {{{1
 IR::ASTValue IR::BuiltinType::unaryOp(CodeGenNS::Context &cgc, IR::Type::UnaryOperator op, IR::ASTValue v, Token optok, ASTNS::AST *ast)
 {
+    /*
     if (v.type() != this)
         calledWithOpTyNEthis("BuiltinType", "unaryOp", "operand");
 
@@ -337,10 +342,12 @@ IR::ASTValue IR::BuiltinType::unaryOp(CodeGenNS::Context &cgc, IR::Type::UnaryOp
     }
 
     return ASTValue(outReg, ast);
+    */
 }
 // isTrue {{{1
 IR::ASTValue IR::BuiltinType::isTrue(CodeGenNS::Context &cgc, IR::ASTValue v)
 {
+    /*
     if (v.type() != this)
         calledWithOpTyNEthis("BuiltinType", "isTrue", "value");
 
@@ -365,6 +372,7 @@ IR::ASTValue IR::BuiltinType::isTrue(CodeGenNS::Context &cgc, IR::ASTValue v)
             return v;
     }
     return ASTValue(outReg, v.ast);
+    */
 }
 // isSigned and isFloating {{{1
 #define TYPEIS(t) type == Builtins::t
