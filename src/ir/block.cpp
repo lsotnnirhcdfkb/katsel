@@ -34,10 +34,9 @@ void IR::Block::definition(llvm::raw_ostream &os)
         i->accept(&p);
         os << "\n";
     }
-    os << "    ----\n";
     if (br)
     {
-        os << "        ";
+        os << "    ---- ";
         br->accept(&p);
         os << "\n";
     }
