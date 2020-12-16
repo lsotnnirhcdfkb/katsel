@@ -48,5 +48,5 @@ void CodeGen::ForwDecl::visitFunctionDecl(ASTNS::FunctionDecl *fun)
     IR::FunctionType *ft = cg.context->getFunctionType(retty, ptys);
     IR::Function *f = cg.unit->addFunction(ft, fname, fun);
 
-    cg.context->globalSymbolTable[fname] = f;
+    cg.context->addGlobal(fname, f);
 }

@@ -11,8 +11,6 @@ struct File;
 
 class CodeGen : public ASTNS::CUBVisitor, public ASTNS::DeclBVisitor
 {
-    class Context;
-
     class ForwDecl;
 
     class TypeVisitor;
@@ -21,8 +19,9 @@ class CodeGen : public ASTNS::CUBVisitor, public ASTNS::DeclBVisitor
     class ArgVisitor;
 
     class FunctionCodeGen;
-
 public:
+    class Context;
+
     CodeGen(File const &file);
     ~CodeGen();
 

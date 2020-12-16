@@ -1,6 +1,7 @@
 #pragma once
 
 #include "codegen/codegen.h"
+#include "codegen/context.h"
 
 #include "ast/visitor.h"
 #include "ast/ast.h"
@@ -216,26 +217,4 @@ void visitArgSegment(ASTNS::ArgSegment *ast) override;
     // ARGSVISITOR METHODS END
 
     CodeGen::FunctionCodeGen &fcg;
-};
-// Context {{{1
-class CodeGen::Context
-{
-public:
-    Context();
-
-    std::map<std::string, IR::Value*> globalSymbolTable;
-
-    IR::BuiltinType* getBuiltinType(IR::BuiltinType::Builtins ty);
-    IR::FunctionType* getFunctionType(IR::Type *ret, std::vector<IR::Type*> paramtys);
-    IR::VoidType* getVoidType();
-
-    IR::Value* getGlobal(std::string const &name);
-
-    std::vector<std::unique_ptr<IR::ConstInt>> constants;
-    IR::ConstInt* getConstInt(IR::BuiltinType *ty, int val);
-    IR::Void* getVoidValue();
-
-private:
-    std::vector<std::unique_ptr<IR::Type>> types;
-    IR::Void voidValue;
 };

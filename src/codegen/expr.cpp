@@ -20,9 +20,9 @@ IR::ASTValue CodeGen::FunctionCodeGen::ExprCodeGen::expr(ASTNS::ExprB *ast)
         ret = IR::ASTValue();                \
         return;                              \
     }
-#define BINARYOPEND()                                                  \
-    ret = lhs.type()->binOp(fcg.curBlock, oper, lhs, rhs, ast->op, ast); \
-    if (!ret)                                                          \
+#define BINARYOPEND()                                                                               \
+    ret = lhs.type()->binOp(*cg.context, *fcg.fun, fcg.curBlock, oper, lhs, rhs, ast->op, ast); \
+    if (!ret)                                                                                       \
         fcg.errored = true;
 
 #define BINARYOPSWITCH() IR::Type::BinaryOperator oper; switch (ast->op.type) {
@@ -141,7 +141,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitUnaryExpr(ASTNS::UnaryExpr *ast
             invalidTok("unary operator", ast->op);
     }
 
-    ret = oper.type()->unaryOp(fcg.curBlock, opor, oper, ast->op, ast);
+    ret = oper.type()->unaryOp(*cg.context, *fcg.fun, fcg.curBlock, opor, oper, ast->op, ast);
     if (!ret)
         cg.errored = true;
 }
@@ -297,7 +297,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitIfExpr(ASTNS::IfExpr *ast)
         ret = IR::ASTValue();
         return;
     }
-    cond = cond.type()->isTrue(fcg.curBlock, cond);
+    cond = cond.type()->isTrue(*cg.context, *fcg.fun, fcg.curBlock, cond);
     if (!cond)
     {
         cg.errored = true;
@@ -435,7 +435,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitCastExpr(ASTNS::CastExpr *ast)
 {
     IR::ASTValue oper = expr(ast->operand.get());
 
-    ret = cg.typeVisitor->type(ast->type.get())->castTo(fcg.curBlock, oper, ast);
+    ret = cg.typeVisitor->type(ast->type.get())->castTo(*cg.context, *fcg.fun, fcg.curBlock, oper, ast);
 
     if (!ret)
         cg.errored = true;

@@ -1,4 +1,5 @@
 #include "codegenlocal.h"
+#include "utils/format.h"
 
 CodeGen::Context::Context(): voidValue(getVoidType()) {}
 
@@ -60,6 +61,13 @@ IR::Value* CodeGen::Context::getGlobal(std::string const &name)
     if (v == globalSymbolTable.end())
         return nullptr;
     return v->second;
+}
+void CodeGen::Context::addGlobal(std::string const &name, IR::Value *v)
+{
+    if (globalSymbolTable.find(name) != globalSymbolTable.end())
+        reportAbortNoh(format("add duplicate global under name %", name));
+
+    globalSymbolTable[name] = v;
 }
 
 IR::ConstInt* CodeGen::Context::getConstInt(IR::BuiltinType *ty, int val)

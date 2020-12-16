@@ -6,6 +6,7 @@
 #include "message/errmsgs.h"
 
 #include "codegen/codegen.h"
+#include "codegen/context.h"
 
 #include "llvm/IR/DerivedTypes.h"
 
@@ -65,9 +66,8 @@ std::string IR::BuiltinType::stringify() const
     outOSwitchNoh("BuiltinType::stringify");
 }
 // binOp {{{1
-IR::ASTValue IR::BuiltinType::binOp(IR::Block *&curBlock, IR::Type::BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast)
+IR::ASTValue IR::BuiltinType::binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::Type::BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast)
 {
-    /*
     if (l.type() != this)
         calledWithOpTyNEthis("BuiltinType", "binOp", "left operand");
 
@@ -105,14 +105,14 @@ IR::ASTValue IR::BuiltinType::binOp(IR::Block *&curBlock, IR::Type::BinaryOperat
             break;
     }
 
-    IR::TempRegister *outReg = cgc.curFunc->addTempRegister(retTy);
+    IR::TempRegister *outReg = fun.addTempRegister(retTy);
     switch (op)
     {
         case Type::BinaryOperator::doublepipe:
             {
-                IR::Block *ltrueb = cgc.curFunc->addBlock("binaryor_ltrueb");
-                IR::Block *checkbothb = cgc.curFunc->addBlock("binaryor_checkbothb");
-                IR::Block *afterb = cgc.curFunc->addBlock("binaryor_afterb");
+                IR::Block *ltrueb = fun.addBlock("binaryor_ltrueb");
+                IR::Block *checkbothb = fun.addBlock("binaryor_checkbothb");
+                IR::Block *afterb = fun.addBlock("binaryor_afterb");
 
                 // i || j
                 // becomes
@@ -121,25 +121,25 @@ IR::ASTValue IR::BuiltinType::binOp(IR::Block *&curBlock, IR::Type::BinaryOperat
                 //  else
                 //     j
 
-                cgc.curBlock->branch(std::make_unique<Instrs::CondBr>(l.type()->isTrue(cgc, l), ltrueb, checkbothb));
+                curBlock->branch(std::make_unique<Instrs::CondBr>(l.type()->isTrue(cgc, fun, curBlock, l), ltrueb, checkbothb));
 
-                cgc.curBlock = ltrueb;
-                cgc.curBlock->branch(std::make_unique<Instrs::GotoBr>(afterb));
+                curBlock = ltrueb;
+                curBlock->branch(std::make_unique<Instrs::GotoBr>(afterb));
 
-                cgc.curBlock = checkbothb;
-                IR::ASTValue rtrue = r.type()->isTrue(cgc, r);
-                cgc.curBlock->branch(std::make_unique<Instrs::GotoBr>(afterb));
+                curBlock = checkbothb;
+                IR::ASTValue rtrue = r.type()->isTrue(cgc, fun, curBlock, r);
+                curBlock->branch(std::make_unique<Instrs::GotoBr>(afterb));
 
-                cgc.curBlock = afterb;
-                cgc.curBlock->add(std::make_unique<Instrs::Phi>(outReg, std::vector {std::make_pair(ltrueb, ASTValue(cgc.getConstInt(cgc.getBuiltinType(Builtins::BOOL), 1), ast)), std::make_pair(checkbothb, rtrue)}));
+                curBlock = afterb;
+                curBlock->add(std::make_unique<Instrs::Phi>(outReg, std::vector {std::make_pair(ltrueb, ASTValue(cgc.getConstInt(cgc.getBuiltinType(Builtins::BOOL), 1), ast)), std::make_pair(checkbothb, rtrue)}));
             }
             break;
 
         case Type::BinaryOperator::doubleamper:
             {
-                IR::Block *lfalseb = cgc.curFunc->addBlock("binaryand_lfalseb");
-                IR::Block *checkbothb = cgc.curFunc->addBlock("binaryand_checkbothb");
-                IR::Block *afterb = cgc.curFunc->addBlock("binaryand_afterb");
+                IR::Block *lfalseb = fun.addBlock("binaryand_lfalseb");
+                IR::Block *checkbothb = fun.addBlock("binaryand_checkbothb");
+                IR::Block *afterb = fun.addBlock("binaryand_afterb");
 
                 // i && j
                 // becomes
@@ -148,92 +148,90 @@ IR::ASTValue IR::BuiltinType::binOp(IR::Block *&curBlock, IR::Type::BinaryOperat
                 //  else
                 //     false
 
-                cgc.curBlock->branch(std::make_unique<Instrs::CondBr>(l.type()->isTrue(cgc, l), checkbothb, lfalseb));
+                curBlock->branch(std::make_unique<Instrs::CondBr>(l.type()->isTrue(cgc, fun, curBlock, l), checkbothb, lfalseb));
 
-                cgc.curBlock = checkbothb;
-                IR::ASTValue rtrue = r.type()->isTrue(cgc, r);
-                cgc.curBlock->branch(std::make_unique<Instrs::GotoBr>(afterb));
+                curBlock = checkbothb;
+                IR::ASTValue rtrue = r.type()->isTrue(cgc, fun, curBlock, r);
+                curBlock->branch(std::make_unique<Instrs::GotoBr>(afterb));
 
-                cgc.curBlock = lfalseb;
-                cgc.curBlock->branch(std::make_unique<Instrs::GotoBr>(afterb));
+                curBlock = lfalseb;
+                curBlock->branch(std::make_unique<Instrs::GotoBr>(afterb));
 
-                cgc.curBlock = afterb;
-                cgc.curBlock->add(std::make_unique<Instrs::Phi>(outReg, std::vector {std::make_pair(checkbothb, rtrue), std::make_pair(lfalseb, ASTValue(cgc.getConstInt(cgc.getBuiltinType(Builtins::BOOL), 0), ast))}));
+                curBlock = afterb;
+                curBlock->add(std::make_unique<Instrs::Phi>(outReg, std::vector {std::make_pair(checkbothb, rtrue), std::make_pair(lfalseb, ASTValue(cgc.getConstInt(cgc.getBuiltinType(Builtins::BOOL), 0), ast))}));
             }
             break;
 
         case Type::BinaryOperator::bangequal:
-            cgc.curBlock->add(std::make_unique<Instrs::CmpNE>(outReg, l, r));
+            curBlock->add(std::make_unique<Instrs::CmpNE>(outReg, l, r));
             break;
 
         case Type::BinaryOperator::doubleequal:
-            cgc.curBlock->add(std::make_unique<Instrs::CmpEQ>(outReg, l, r));
+            curBlock->add(std::make_unique<Instrs::CmpEQ>(outReg, l, r));
             break;
 
         case Type::BinaryOperator::less:
-            cgc.curBlock->add(std::make_unique<Instrs::CmpLT>(outReg, l, r));
+            curBlock->add(std::make_unique<Instrs::CmpLT>(outReg, l, r));
             break;
 
         case Type::BinaryOperator::greater:
-            cgc.curBlock->add(std::make_unique<Instrs::CmpGT>(outReg, l, r));
+            curBlock->add(std::make_unique<Instrs::CmpGT>(outReg, l, r));
             break;
 
         case Type::BinaryOperator::lessequal:
-            cgc.curBlock->add(std::make_unique<Instrs::CmpLE>(outReg, l, r));
+            curBlock->add(std::make_unique<Instrs::CmpLE>(outReg, l, r));
             break;
 
         case Type::BinaryOperator::greaterequal:
-            cgc.curBlock->add(std::make_unique<Instrs::CmpGE>(outReg, l, r));
+            curBlock->add(std::make_unique<Instrs::CmpGE>(outReg, l, r));
             break;
 
         case Type::BinaryOperator::caret:
-            cgc.curBlock->add(std::make_unique<Instrs::BitXor>(outReg, l, r));
+            curBlock->add(std::make_unique<Instrs::BitXor>(outReg, l, r));
             break;
 
         case Type::BinaryOperator::pipe:
-            cgc.curBlock->add(std::make_unique<Instrs::BitOr>(outReg, l, r));
+            curBlock->add(std::make_unique<Instrs::BitOr>(outReg, l, r));
             break;
 
         case Type::BinaryOperator::amper:
-            cgc.curBlock->add(std::make_unique<Instrs::BitAnd>(outReg, l, r));
+            curBlock->add(std::make_unique<Instrs::BitAnd>(outReg, l, r));
             break;
 
         case Type::BinaryOperator::doubleless:
-            cgc.curBlock->add(std::make_unique<Instrs::ShiftR>(outReg, l, r));
+            curBlock->add(std::make_unique<Instrs::ShiftR>(outReg, l, r));
             break;
 
         case Type::BinaryOperator::doublegreater:
-            cgc.curBlock->add(std::make_unique<Instrs::ShiftL>(outReg, l, r));
+            curBlock->add(std::make_unique<Instrs::ShiftL>(outReg, l, r));
             break;
 
         case Type::BinaryOperator::plus:
-            cgc.curBlock->add(std::make_unique<Instrs::Add>(outReg, l, r));
+            curBlock->add(std::make_unique<Instrs::Add>(outReg, l, r));
             break;
 
         case Type::BinaryOperator::minus:
-            cgc.curBlock->add(std::make_unique<Instrs::Sub>(outReg, l, r));
+            curBlock->add(std::make_unique<Instrs::Sub>(outReg, l, r));
             break;
 
         case Type::BinaryOperator::star:
-            cgc.curBlock->add(std::make_unique<Instrs::Mult>(outReg, l, r));
+            curBlock->add(std::make_unique<Instrs::Mult>(outReg, l, r));
             break;
 
         case Type::BinaryOperator::slash:
-            cgc.curBlock->add(std::make_unique<Instrs::Div>(outReg, l, r));
+            curBlock->add(std::make_unique<Instrs::Div>(outReg, l, r));
             break;
 
         case Type::BinaryOperator::percent:
-            cgc.curBlock->add(std::make_unique<Instrs::Mod>(outReg, l, r));
+            curBlock->add(std::make_unique<Instrs::Mod>(outReg, l, r));
             break;
     }
 
     return ASTValue(outReg, ast);
-    */
 }
 // castTo {{{1
-IR::ASTValue IR::BuiltinType::castTo(IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast)
+IR::ASTValue IR::BuiltinType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast)
 {
-    /*
     BuiltinType *sty = dynamic_cast<BuiltinType*> (v.type());
     if (!sty)
     {
@@ -264,26 +262,26 @@ IR::ASTValue IR::BuiltinType::castTo(IR::Block *&curBlock, IR::ASTValue v, ASTNS
         {BuiltinType::Builtins::DOUBLE, 64}
     };
 
-    IR::TempRegister *outReg = cgc.curFunc->addTempRegister(this);
+    IR::TempRegister *outReg = fun.addTempRegister(this);
     if (styintegral == etyintegral)
     {
         // int -> int
         int stySize = tysize.at(sty->type);
         int etySize = tysize.at(this->type);
         if (stySize > etySize)
-            cgc.curBlock->add(std::make_unique<Instrs::Trunc>(outReg, v, this));
+            curBlock->add(std::make_unique<Instrs::Trunc>(outReg, v, this));
         else
-            cgc.curBlock->add(std::make_unique<Instrs::Ext>(outReg, v, this));
+            curBlock->add(std::make_unique<Instrs::Ext>(outReg, v, this));
     }
     else if (styintegral && !etyintegral)
     {
         // int -> fp
-        cgc.curBlock->add(std::make_unique<Instrs::IntToFloat>(outReg, v, this));
+        curBlock->add(std::make_unique<Instrs::IntToFloat>(outReg, v, this));
     }
     else if (!styintegral && etyintegral)
     {
         // fp -> int
-        cgc.curBlock->add(std::make_unique<Instrs::FloatToInt>(outReg, v, this));
+        curBlock->add(std::make_unique<Instrs::FloatToInt>(outReg, v, this));
     }
 
     // From row to column cast -- this is what the code above should do
@@ -316,42 +314,38 @@ IR::ASTValue IR::BuiltinType::castTo(IR::Block *&curBlock, IR::ASTValue v, ASTNS
     // | DOUBLE | FToI   | FToI   | FToI   | FToI   | FToI   | FToI   | FToI   | FToI   | Trunc   | FToI   | FToI   | None   |
     // +--------+--------+--------+--------+--------+--------+--------+--------+--------+---------+--------+--------+--------+
     return ASTValue(outReg, ast);
-    */
 }
 // unaryOp {{{1
-IR::ASTValue IR::BuiltinType::unaryOp(IR::Block *&curBlock, IR::Type::UnaryOperator op, IR::ASTValue v, Token optok, ASTNS::AST *ast)
+IR::ASTValue IR::BuiltinType::unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::Type::UnaryOperator op, IR::ASTValue v, Token optok, ASTNS::AST *ast)
 {
-    /*
     if (v.type() != this)
         calledWithOpTyNEthis("BuiltinType", "unaryOp", "operand");
 
-    IR::TempRegister *outReg = cgc.curFunc->addTempRegister(v.type());
+    IR::TempRegister *outReg = fun.addTempRegister(v.type());
     switch (op)
     {
         case Type::UnaryOperator::bang:
-            cgc.curBlock->add(std::make_unique<Instrs::CmpEQ>(outReg, v, ASTValue(cgc.getConstInt(this, 0), ast)));
+            curBlock->add(std::make_unique<Instrs::CmpEQ>(outReg, v, ASTValue(cgc.getConstInt(this, 0), ast)));
             break;
 
         case Type::UnaryOperator::tilde:
-            cgc.curBlock->add(std::make_unique<Instrs::BitXor>(outReg, v, ASTValue(cgc.getConstInt(this, -1), ast)));
+            curBlock->add(std::make_unique<Instrs::BitXor>(outReg, v, ASTValue(cgc.getConstInt(this, -1), ast)));
             break;
 
         case Type::UnaryOperator::minus:
-            cgc.curBlock->add(std::make_unique<Instrs::Sub>(outReg, ASTValue(cgc.getConstInt(this, 0), ast), v));
+            curBlock->add(std::make_unique<Instrs::Sub>(outReg, ASTValue(cgc.getConstInt(this, 0), ast), v));
             break;
     }
 
     return ASTValue(outReg, ast);
-    */
 }
 // isTrue {{{1
-IR::ASTValue IR::BuiltinType::isTrue(IR::Block *&curBlock, IR::ASTValue v)
+IR::ASTValue IR::BuiltinType::isTrue(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v)
 {
-    /*
     if (v.type() != this)
         calledWithOpTyNEthis("BuiltinType", "isTrue", "value");
 
-    IR::TempRegister *outReg = cgc.curFunc->addTempRegister(cgc.getBuiltinType(BuiltinType::Builtins::BOOL));
+    IR::TempRegister *outReg = fun.addTempRegister(cgc.getBuiltinType(BuiltinType::Builtins::BOOL));
     switch (type)
     {
         case BuiltinType::Builtins::UINT8:
@@ -365,14 +359,13 @@ IR::ASTValue IR::BuiltinType::isTrue(IR::Block *&curBlock, IR::ASTValue v)
         case BuiltinType::Builtins::CHAR:
         case BuiltinType::Builtins::FLOAT:
         case BuiltinType::Builtins::DOUBLE:
-            cgc.curBlock->add(std::make_unique<Instrs::CmpNE>(outReg, v, ASTValue(cgc.getConstInt(this, 0), v.ast)));
+            curBlock->add(std::make_unique<Instrs::CmpNE>(outReg, v, ASTValue(cgc.getConstInt(this, 0), v.ast)));
             break;
 
         case BuiltinType::Builtins::BOOL:
             return v;
     }
     return ASTValue(outReg, v.ast);
-    */
 }
 // isSigned and isFloating {{{1
 #define TYPEIS(t) type == Builtins::t
