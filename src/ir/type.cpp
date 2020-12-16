@@ -12,22 +12,22 @@ std::string IR::VoidType::stringify() const
     return "void";
 }
 
-IR::ASTValue IR::VoidType::binOp(CodeGenNS::Context &, IR::Type::BinaryOperator , IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *)
+IR::ASTValue IR::VoidType::binOp(CodeGen::Context &, IR::Function &, IR::Block *&, IR::Type::BinaryOperator , IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *)
 {
     ERR_LHS_UNSUPPORTED_OP(l, r, optok);
     return ASTValue();
 }
-IR::ASTValue IR::VoidType::unaryOp(CodeGenNS::Context &, IR::Type::UnaryOperator , IR::ASTValue operand, Token optok, ASTNS::AST *)
+IR::ASTValue IR::VoidType::unaryOp(CodeGen::Context &, IR::Function &, IR::Block *&, IR::Type::UnaryOperator , IR::ASTValue operand, Token optok, ASTNS::AST *)
 {
     ERR_UNARY_UNSUPPORTED_OP(operand, optok);
     return ASTValue();
 }
-IR::ASTValue IR::VoidType::castTo(CodeGenNS::Context &, IR::ASTValue v, ASTNS::AST *asts)
+IR::ASTValue IR::VoidType::castTo(CodeGen::Context &, IR::Function &, IR::Block *&, IR::ASTValue v, ASTNS::AST *asts)
 {
     ERR_INVALID_CAST(ast, v, this);
     return ASTValue();
 }
-IR::ASTValue IR::VoidType::isTrue(CodeGenNS::Context &, IR::ASTValue v)
+IR::ASTValue IR::VoidType::isTrue(CodeGen::Context &, IR::Function &, IR::Block *&, IR::ASTValue v)
 {
     ERR_NO_IS_TRUTHY(v);
     return ASTValue();
@@ -56,24 +56,24 @@ std::string IR::FunctionType::stringify() const
     return ss.str();
 }
 
-IR::ASTValue IR::FunctionType::binOp(CodeGenNS::Context &, IR::Type::BinaryOperator , IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *)
+IR::ASTValue IR::FunctionType::binOp(CodeGen::Context &, IR::Function &, IR::Block *&, IR::Type::BinaryOperator , IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *)
 {
     ERR_LHS_UNSUPPORTED_OP(l, r, optok);
     return ASTValue();
 }
-IR::ASTValue IR::FunctionType::unaryOp(CodeGenNS::Context &, IR::Type::UnaryOperator , IR::ASTValue operand, Token optok, ASTNS::AST *)
+IR::ASTValue IR::FunctionType::unaryOp(CodeGen::Context &, IR::Function &, IR::Block *&, IR::Type::UnaryOperator , IR::ASTValue operand, Token optok, ASTNS::AST *)
 {
     ERR_UNARY_UNSUPPORTED_OP(operand, optok);
     return ASTValue();
 }
 
-IR::ASTValue IR::FunctionType::castTo(CodeGenNS::Context &, IR::ASTValue v, ASTNS::AST *)
+IR::ASTValue IR::FunctionType::castTo(CodeGen::Context &, IR::Function &, IR::Block *&, IR::ASTValue v, ASTNS::AST *)
 {
     ERR_INVALID_CAST(ast, v, this);
     return ASTValue();
 }
 
-IR::ASTValue IR::FunctionType::isTrue(CodeGenNS::Context &, IR::ASTValue v)
+IR::ASTValue IR::FunctionType::isTrue(CodeGen::Context &, IR::Function &, IR::Block *&, IR::ASTValue v)
 {
     ERR_NO_IS_TRUTHY(v);
     return ASTValue();

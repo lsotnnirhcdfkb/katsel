@@ -1,11 +1,11 @@
-#include "codegen/codegen.h"
-#include "message/errors.h"
+#include "codegenlocal.h"
+#include "message/internal.h"
 #include "message/reportAbort.h"
 #include "message/errmsgs.h"
 
-CodeGenNS::ExprCodeGen::ExprCodeGen(CodeGen &cg): cg(cg) {}
+CodeGen::FunctionCodeGen::ExprCodeGen::ExprCodeGen(CodeGen &cg, FunctionCodeGen &fcg): cg(cg), fcg(fcg) {}
 
-IR::ASTValue CodeGenNS::ExprCodeGen::expr(ASTNS::ExprB *ast)
+IR::ASTValue CodeGen::FunctionCodeGen::ExprCodeGen::expr(ASTNS::ExprB *ast)
 {
     ret = IR::ASTValue();
     ast->accept(this);
@@ -20,10 +20,10 @@ IR::ASTValue CodeGenNS::ExprCodeGen::expr(ASTNS::ExprB *ast)
         ret = IR::ASTValue();                \
         return;                              \
     }
-#define BINARYOPEND()                                                  \
-    ret = lhs.type()->binOp(cg.context, oper, lhs, rhs, ast->op, ast); \
-    if (!ret)                                                          \
-        cg.errored = true;
+#define BINARYOPEND()                                                                               \
+    ret = lhs.type()->binOp(*cg.context, *fcg.fun, fcg.curBlock, oper, lhs, rhs, ast->op, ast); \
+    if (!ret)                                                                                       \
+        fcg.errored = true;
 
 #define BINARYOPSWITCH() IR::Type::BinaryOperator oper; switch (ast->op.type) {
 #define BINARYOPSWITCHEND(astty)              \
@@ -33,31 +33,31 @@ IR::ASTValue CodeGenNS::ExprCodeGen::expr(ASTNS::ExprB *ast)
 
 #define BINARYOPIS(operty) IR::Type::BinaryOperator oper = IR::Type::BinaryOperator::operty;
 
-void CodeGenNS::ExprCodeGen::visitBinAndExpr(ASTNS::BinAndExpr *ast)
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitBinAndExpr(ASTNS::BinAndExpr *ast)
 {
     BINARYOPSTART()
     BINARYOPIS(doubleamper)
     BINARYOPEND()
 }
-void CodeGenNS::ExprCodeGen::visitBinOrExpr(ASTNS::BinOrExpr *ast)
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitBinOrExpr(ASTNS::BinOrExpr *ast)
 {
     BINARYOPSTART()
     BINARYOPIS(doublepipe)
     BINARYOPEND()
 }
-void CodeGenNS::ExprCodeGen::visitBitAndExpr(ASTNS::BitAndExpr *ast)
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitBitAndExpr(ASTNS::BitAndExpr *ast)
 {
     BINARYOPSTART()
     BINARYOPIS(amper)
     BINARYOPEND()
 }
-void CodeGenNS::ExprCodeGen::visitBitOrExpr(ASTNS::BitOrExpr *ast)
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitBitOrExpr(ASTNS::BitOrExpr *ast)
 {
     BINARYOPSTART()
     BINARYOPIS(pipe)
     BINARYOPEND()
 }
-void CodeGenNS::ExprCodeGen::visitBitShiftExpr(ASTNS::BitShiftExpr *ast)
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitBitShiftExpr(ASTNS::BitShiftExpr *ast)
 {
     BINARYOPSTART()
     BINARYOPSWITCH()
@@ -66,13 +66,13 @@ void CodeGenNS::ExprCodeGen::visitBitShiftExpr(ASTNS::BitShiftExpr *ast)
     BINARYOPSWITCHEND(BitshiftExpr operator)
     BINARYOPEND()
 }
-void CodeGenNS::ExprCodeGen::visitBitXorExpr(ASTNS::BitXorExpr *ast)
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitBitXorExpr(ASTNS::BitXorExpr *ast)
 {
     BINARYOPSTART()
     BINARYOPIS(caret);
     BINARYOPEND()
 }
-void CodeGenNS::ExprCodeGen::visitCompEQExpr(ASTNS::CompEQExpr *ast)
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitCompEQExpr(ASTNS::CompEQExpr *ast)
 {
     BINARYOPSTART()
     BINARYOPSWITCH()
@@ -81,7 +81,7 @@ void CodeGenNS::ExprCodeGen::visitCompEQExpr(ASTNS::CompEQExpr *ast)
     BINARYOPSWITCHEND(CompeqExpr operator)
     BINARYOPEND()
 }
-void CodeGenNS::ExprCodeGen::visitCompLGTExpr(ASTNS::CompLGTExpr *ast)
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitCompLGTExpr(ASTNS::CompLGTExpr *ast)
 {
     BINARYOPSTART()
     BINARYOPSWITCH()
@@ -92,7 +92,7 @@ void CodeGenNS::ExprCodeGen::visitCompLGTExpr(ASTNS::CompLGTExpr *ast)
     BINARYOPSWITCHEND(ComplgtExpr operator)
     BINARYOPEND()
 }
-void CodeGenNS::ExprCodeGen::visitMultExpr(ASTNS::MultExpr *ast)
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitMultExpr(ASTNS::MultExpr *ast)
 {
     BINARYOPSTART()
     BINARYOPSWITCH()
@@ -102,7 +102,7 @@ void CodeGenNS::ExprCodeGen::visitMultExpr(ASTNS::MultExpr *ast)
     BINARYOPSWITCHEND(MultExpr operator)
     BINARYOPEND()
 }
-void CodeGenNS::ExprCodeGen::visitAdditionExpr(ASTNS::AdditionExpr *ast)
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitAdditionExpr(ASTNS::AdditionExpr *ast)
 {
     BINARYOPSTART()
     BINARYOPSWITCH()
@@ -118,7 +118,7 @@ void CodeGenNS::ExprCodeGen::visitAdditionExpr(ASTNS::AdditionExpr *ast)
 #undef BINARYOPCASE
 #undef BINARYOPIS
 
-void CodeGenNS::ExprCodeGen::visitUnaryExpr(ASTNS::UnaryExpr *ast)
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitUnaryExpr(ASTNS::UnaryExpr *ast)
 {
     IR::ASTValue oper = expr(ast->operand.get());
     if (!oper)
@@ -141,12 +141,12 @@ void CodeGenNS::ExprCodeGen::visitUnaryExpr(ASTNS::UnaryExpr *ast)
             invalidTok("unary operator", ast->op);
     }
 
-    ret = oper.type()->unaryOp(cg.context, opor, oper, ast->op, ast);
+    ret = oper.type()->unaryOp(*cg.context, *fcg.fun, fcg.curBlock, opor, oper, ast->op, ast);
     if (!ret)
         cg.errored = true;
 }
 
-void CodeGenNS::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
 {
     IR::ASTValue func = expr(ast->callee.get());
     if (!func)
@@ -167,7 +167,11 @@ void CodeGenNS::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
     IR::Type *retty = fty->ret;
     std::vector<IR::ASTValue> args;
     if (ast->args)
-        args = cg.argsVisitor.args(ast->args.get());
+    {
+        CodeGen::ArgVisitor av (fcg);
+        ast->args->accept(&av);
+        args = av.ret;
+    }
 
     if (args.size() != fty->paramtys.size())
     {
@@ -203,14 +207,14 @@ void CodeGenNS::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
         return;
     }
 
-    IR::TempRegister *outReg = cg.context.curFunc->addTempRegister(retty);
+    IR::TempRegister *outReg = fcg.fun->addTempRegister(retty);
 
-    cg.context.curBlock->add(std::make_unique<IR::Instrs::Call>(outReg, static_cast<IR::Function *>(func.val), args));
+    fcg.curBlock->add(std::make_unique<IR::Instrs::Call>(outReg, static_cast<IR::Function *>(func.val), args));
 
     ret = IR::ASTValue(outReg, ast);
 }
 
-void CodeGenNS::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast)
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast)
 {
     if (ast->form == ASTNS::PrimaryExpr::Form::TAT)
     {
@@ -222,11 +226,11 @@ void CodeGenNS::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast)
     switch (ast->value.type)
     {
         case TokenType::TRUELIT:
-            ret = IR::ASTValue(cg.context.getConstInt(cg.context.getBuiltinType(IR::BuiltinType::Builtins::BOOL), 1), ast);
+            ret = IR::ASTValue(cg.context->getConstInt(cg.context->getBuiltinType(IR::BuiltinType::Builtins::BOOL), 1), ast);
             return;
 
         case TokenType::FALSELIT:
-            ret = IR::ASTValue(cg.context.getConstInt(cg.context.getBuiltinType(IR::BuiltinType::Builtins::BOOL), 0), ast);
+            ret = IR::ASTValue(cg.context->getConstInt(cg.context->getBuiltinType(IR::BuiltinType::Builtins::BOOL), 0), ast);
             return;
 
         case TokenType::FLOATLIT:
@@ -236,7 +240,7 @@ void CodeGenNS::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast)
             reportAbortNoh("nullptr literals are not supported yet");
 
         case TokenType::DECINTLIT:
-            ret = IR::ASTValue(cg.context.getConstInt(cg.context.getBuiltinType(IR::BuiltinType::Builtins::UINT32), std::stoll(ast->value.stringify())), ast);
+            ret = IR::ASTValue(cg.context->getConstInt(cg.context->getBuiltinType(IR::BuiltinType::Builtins::UINT32), std::stoll(ast->value.stringify())), ast);
             return;
 
         case TokenType::OCTINTLIT:
@@ -250,11 +254,11 @@ void CodeGenNS::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast)
             goto makeIntLit;
 
 makeIntLit:
-            ret = IR::ASTValue(cg.context.getConstInt(cg.context.getBuiltinType(IR::BuiltinType::Builtins::UINT32), std::stoll(ast->value.stringify().erase(0, 2), nullptr, _intbase)), ast);
+            ret = IR::ASTValue(cg.context->getConstInt(cg.context->getBuiltinType(IR::BuiltinType::Builtins::UINT32), std::stoll(ast->value.stringify().erase(0, 2), nullptr, _intbase)), ast);
             return;
 
         case TokenType::CHARLIT:
-            ret = IR::ASTValue(cg.context.getConstInt(cg.context.getBuiltinType(IR::BuiltinType::Builtins::CHAR), *(ast->value.start + 1)), ast);
+            ret = IR::ASTValue(cg.context->getConstInt(cg.context->getBuiltinType(IR::BuiltinType::Builtins::CHAR), *(ast->value.start + 1)), ast);
             return;
 
         case TokenType::STRINGLIT:
@@ -262,7 +266,14 @@ makeIntLit:
 
         case TokenType::IDENTIFIER:
             {
-                IR::Value *v = cg.context.findValue(ast->value.stringify());
+                std::string name (ast->value.stringify());
+                FunctionCodeGen::Local *l = fcg.getLocal(name);
+                IR::Value *v;
+                if (!l)
+                    v = cg.context->getGlobal(name);
+                else
+                    v = l->v;
+
                 if (!v)
                 {
                     ERR_UNDECL_SYMB(ast->value);
@@ -278,7 +289,7 @@ makeIntLit:
             invalidTok("primary token", ast->value);
     }
 }
-void CodeGenNS::ExprCodeGen::visitIfExpr(ASTNS::IfExpr *ast)
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitIfExpr(ASTNS::IfExpr *ast)
 {
     IR::ASTValue cond = expr(ast->cond.get());
     if (!cond)
@@ -286,7 +297,7 @@ void CodeGenNS::ExprCodeGen::visitIfExpr(ASTNS::IfExpr *ast)
         ret = IR::ASTValue();
         return;
     }
-    cond = cond.type()->isTrue(cg.context, cond);
+    cond = cond.type()->isTrue(*cg.context, *fcg.fun, fcg.curBlock, cond);
     if (!cond)
     {
         cg.errored = true;
@@ -294,37 +305,37 @@ void CodeGenNS::ExprCodeGen::visitIfExpr(ASTNS::IfExpr *ast)
         return;
     }
 
-    IR::Block *trueb  = cg.context.curFunc->addBlock("if_true");
-    IR::Block *falseb = ast->falses ? cg.context.curFunc->addBlock("if_false") : nullptr;
-    IR::Block *afterb = cg.context.curFunc->addBlock("if_after");
+    IR::Block *trueb  = fcg.fun->addBlock("if_true");
+    IR::Block *falseb = ast->falses ? fcg.fun->addBlock("if_false") : nullptr;
+    IR::Block *afterb = fcg.fun->addBlock("if_after");
 
     if (falseb)
-        cg.context.curBlock->branch(std::make_unique<IR::Instrs::CondBr>(cond, trueb, falseb));
+        fcg.curBlock->branch(std::make_unique<IR::Instrs::CondBr>(cond, trueb, falseb));
     else
-        cg.context.curBlock->branch(std::make_unique<IR::Instrs::CondBr>(cond, trueb, afterb));
+        fcg.curBlock->branch(std::make_unique<IR::Instrs::CondBr>(cond, trueb, afterb));
 
-    cg.context.curBlock = trueb;
+    fcg.curBlock = trueb;
     IR::ASTValue truev = expr(ast->trues.get());
     if (!truev)
     {
         ret = IR::ASTValue();
         return;
     }
-    cg.context.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
-    trueb = cg.context.curBlock;
+    fcg.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
+    trueb = fcg.curBlock;
 
     IR::ASTValue falsev;
     if (falseb)
     {
-        cg.context.curBlock = falseb;
+        fcg.curBlock = falseb;
         falsev = expr(ast->falses.get());
         if (!falsev)
         {
             ret = IR::ASTValue();
             return;
         }
-        cg.context.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
-        falseb = cg.context.curBlock;
+        fcg.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
+        falseb = fcg.curBlock;
     }
 
     if (falseb)
@@ -348,11 +359,11 @@ void CodeGenNS::ExprCodeGen::visitIfExpr(ASTNS::IfExpr *ast)
         }
     }
 
-    cg.context.curBlock = afterb;
+    fcg.curBlock = afterb;
 
     if (falseb)
     {
-        IR::TempRegister *outreg = cg.context.curFunc->addTempRegister(truev.type());
+        IR::TempRegister *outreg = fcg.fun->addTempRegister(truev.type());
         afterb->add(std::make_unique<IR::Instrs::Phi>(outreg, std::vector {std::make_pair(trueb, truev), std::make_pair(falseb, falsev)}));
         ret = IR::ASTValue(outreg, ast);
     }
@@ -360,34 +371,34 @@ void CodeGenNS::ExprCodeGen::visitIfExpr(ASTNS::IfExpr *ast)
         ret = IR::ASTValue(truev.val, ast);
 
 }
-void CodeGenNS::ExprCodeGen::visitForExpr(ASTNS::ForExpr *ast)
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitForExpr(ASTNS::ForExpr *ast)
 {
-    cg.context.incScope();
+    fcg.incScope();
 
-    cg.stmtCodeGen.stmt(ast->start.get());
+    fcg.stmtCG.stmt(ast->start.get());
 
-    IR::Block *loopCheckCond = cg.context.curFunc->addBlock("loop_checkcond");
-    IR::Block *loopBody = cg.context.curFunc->addBlock("loop_body");
-    IR::Block *loopAfter = cg.context.curFunc->addBlock("loop_after");
+    IR::Block *loopCheckCond = fcg.fun->addBlock("loop_checkcond");
+    IR::Block *loopBody = fcg.fun->addBlock("loop_body");
+    IR::Block *loopAfter = fcg.fun->addBlock("loop_after");
 
-    cg.context.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(loopCheckCond));
-    cg.context.curBlock = loopCheckCond;
+    fcg.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(loopCheckCond));
+    fcg.curBlock = loopCheckCond;
     IR::ASTValue cond = expr(ast->cond.get());
     loopCheckCond->branch(std::make_unique<IR::Instrs::CondBr>(cond, loopBody, loopAfter));
 
-    cg.context.curBlock = loopBody;
+    fcg.curBlock = loopBody;
     expr(ast->body.get());
 
     expr(ast->increment.get());
     loopBody->branch(std::make_unique<IR::Instrs::GotoBr>(loopCheckCond));
-    cg.context.decScope();
+    fcg.decScope();
 
-    cg.context.curBlock = loopAfter;
+    fcg.curBlock = loopAfter;
 
-    ret = IR::ASTValue(cg.context.getVoidValue(), ast);
+    ret = IR::ASTValue(cg.context->getVoidValue(), ast);
 }
 
-void CodeGenNS::ExprCodeGen::visitAssignmentExpr(ASTNS::AssignmentExpr *ast)
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitAssignmentExpr(ASTNS::AssignmentExpr *ast)
 {
     IR::ASTValue lhs = expr(ast->target.get());
     IR::ASTValue rhs = expr(ast->value.get());
@@ -416,49 +427,49 @@ void CodeGenNS::ExprCodeGen::visitAssignmentExpr(ASTNS::AssignmentExpr *ast)
         return;
     }
 
-    cg.context.curBlock->add(std::make_unique<IR::Instrs::Store>(targetReg, rhs));
+    fcg.curBlock->add(std::make_unique<IR::Instrs::Store>(targetReg, rhs));
 
     ret = rhs;
 }
-void CodeGenNS::ExprCodeGen::visitCastExpr(ASTNS::CastExpr *ast)
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitCastExpr(ASTNS::CastExpr *ast)
 {
     IR::ASTValue oper = expr(ast->operand.get());
 
-    ret = cg.typeResolver.type(ast->type.get())->castTo(cg.context, oper, ast);
+    ret = cg.typeVisitor->type(ast->type.get())->castTo(*cg.context, *fcg.fun, fcg.curBlock, oper, ast);
 
     if (!ret)
         cg.errored = true;
 }
 
-void CodeGenNS::ExprCodeGen::visitIndentedBlock(ASTNS::IndentedBlock *ast)
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitIndentedBlock(ASTNS::IndentedBlock *ast)
 {
-    cg.context.incScope();
+    fcg.incScope();
     if (ast->stmts)
-        ast->stmts->accept(&cg.stmtCodeGen);
+        fcg.stmtCG.stmt(ast->stmts.get());
 
     ret = expr(ast->implret.get());
-    cg.context.decScope();
+    fcg.decScope();
     if (!ret)
-        ret = IR::ASTValue(cg.context.getVoidValue(), ast);
+        ret = IR::ASTValue(cg.context->getVoidValue(), ast);
 }
-void CodeGenNS::ExprCodeGen::visitBracedBlock(ASTNS::BracedBlock *ast)
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitBracedBlock(ASTNS::BracedBlock *ast)
 {
-    cg.context.incScope();
+    fcg.incScope();
     if (ast->stmts)
-        ast->stmts->accept(&cg.stmtCodeGen);
+        fcg.stmtCG.stmt(ast->stmts.get());
 
     ret = expr(ast->implret.get());
-    cg.context.decScope();
+    fcg.decScope();
     if (!ret)
-        ret = IR::ASTValue(cg.context.getVoidValue(), ast);
+        ret = IR::ASTValue(cg.context->getVoidValue(), ast);
 }
-void CodeGenNS::ExprCodeGen::visitImplRet(ASTNS::ImplRet *ast)
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitImplRet(ASTNS::ImplRet *ast)
 {
     ret = expr(ast->expr.get());
 }
-void CodeGenNS::ExprCodeGen::visitImplRet_OPT(ASTNS::ImplRet_OPT *ast)
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitImplRet_OPT(ASTNS::ImplRet_OPT *ast)
 {
     ret = IR::ASTValue();
 }
 
-void CodeGenNS::ExprCodeGen::visitExpr_OPT(ASTNS::Expr_OPT *ast) {}
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitExpr_OPT(ASTNS::Expr_OPT *ast) {}

@@ -1,53 +1,53 @@
-#include "codegen/codegen.h"
+#include "codegenlocal.h"
 #include "message/errors.h"
 #include "message/errmsgs.h"
 
-CodeGenNS::StmtCodeGen::StmtCodeGen(CodeGen &cg): cg(cg) {}
+CodeGen::FunctionCodeGen::StmtCodeGen::StmtCodeGen(CodeGen &cg, FunctionCodeGen &fcg): cg(cg), fcg(fcg) {}
 
-void CodeGenNS::StmtCodeGen::stmt(ASTNS::StmtB *ast)
+void CodeGen::FunctionCodeGen::StmtCodeGen::stmt(ASTNS::StmtB *ast)
 {
     ast->accept(this);
 }
-void CodeGenNS::StmtCodeGen::visitExprStmt(ASTNS::ExprStmt *ast)
+void CodeGen::FunctionCodeGen::StmtCodeGen::visitExprStmt(ASTNS::ExprStmt *ast)
 {
-    cg.exprCodeGen.expr(ast->expr.get());
+    fcg.exprCG.expr(ast->expr.get());
 }
-void CodeGenNS::StmtCodeGen::visitVarStmt(ASTNS::VarStmt *ast)
+void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmt(ASTNS::VarStmt *ast)
 {
-    IR::Type *ty = cg.typeResolver.type(ast->type.get());
+    IR::Type *ty = cg.typeVisitor->type(ast->type.get());
 
     IR::Type *oldvarty = varty;
     varty = ty;
     ast->assignments->accept(this);
     varty = oldvarty;
 }
-void CodeGenNS::StmtCodeGen::visitVarStmt_OPT(ASTNS::VarStmt_OPT *ast) {}
-void CodeGenNS::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
+void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmt_OPT(ASTNS::VarStmt_OPT *ast) {}
+void CodeGen::FunctionCodeGen::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
 {
     IR::ASTValue v;
     if (ast->expr)
     {
-        v = cg.exprCodeGen.expr(ast->expr.get());
+        v = fcg.exprCG.expr(ast->expr.get());
         if (!v)
             return;
     }
     else
-        v = IR::ASTValue(cg.context.getVoidValue(), ast);
+        v = IR::ASTValue(cg.context->getVoidValue(), ast);
 
-    if (cg.context.retReg->type() != v.type())
+    if (fcg.ret->type() != v.type())
     {
-        ERR_CONFLICT_RET_TY(v, cg.context.curFunc);
+        ERR_CONFLICT_RET_TY(v, fcg.fun);
         cg.errored = true;
         return;
     }
 
-    cg.context.curBlock->add(std::make_unique<IR::Instrs::Store>(cg.context.retReg, v));
-    cg.context.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(cg.context.exitBlock));
-    cg.context.curBlock = cg.context.blackHoleBlock.get();
+    fcg.curBlock->add(std::make_unique<IR::Instrs::Store>(fcg.ret, v));
+    fcg.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(fcg.exitBlock));
+    // fcg.curBlock = cg.context.blackHoleBlock.get();
 }
 
-void CodeGenNS::StmtCodeGen::visitStmtList_OPT(ASTNS::StmtList_OPT *ast) {}
-void CodeGenNS::StmtCodeGen::visitStmtList(ASTNS::StmtList *ast)
+void CodeGen::FunctionCodeGen::StmtCodeGen::visitStmtList_OPT(ASTNS::StmtList_OPT *ast) {}
+void CodeGen::FunctionCodeGen::StmtCodeGen::visitStmtList(ASTNS::StmtList *ast)
 {
     ast->stmtlist->accept(this);
     ast->anotherstmt->accept(this);

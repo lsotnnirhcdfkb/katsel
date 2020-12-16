@@ -132,7 +132,7 @@ int compileFile(OutFormats ofmt, char *filename)
         return true;
     }
 
-    auto codegen = std::make_unique<CodeGenNS::CodeGen>(*source);
+    auto codegen = std::make_unique<CodeGen>(*source);
     codegen->declarate(parsed.get());
     if (codegen->errored)
         return false;
@@ -171,13 +171,13 @@ int compileFile(OutFormats ofmt, char *filename)
         if (os.has_error())
             return false;
 
-        codegen->context.unit.cfgDot(os);
+        codegen->unit->cfgDot(os);
 
         os.close();
         return true;
     }
 
-    auto lowerer = std::make_unique<Lower::Lowerer>(codegen->context.unit);
+    auto lowerer = std::make_unique<Lower::Lowerer>(*codegen->unit);
     lowerer->lower();
     if (lowerer->errored)
         return false;

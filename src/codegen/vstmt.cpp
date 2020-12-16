@@ -1,23 +1,23 @@
-#include "codegen/codegen.h"
+#include "codegenlocal.h"
 #include "message/errors.h"
 #include "message/errmsgs.h"
 
-void CodeGenNS::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem *ast)
+void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem *ast)
 {
     std::string varname = ast->name.stringify();
-    CodeGenNS::Context::Local *var = cg.context.findLocal(varname);
-    if (var && var->scopenum == cg.context.curScope)
+    CodeGen::FunctionCodeGen::Local *var = fcg.getLocal(varname);
+    if (var && var->scopenum == fcg.curScope)
     {
         ERR_REDECL_VAR(ast->name, var->v);
         cg.errored = true;
         return;
     }
 
-    IR::Register *reg = cg.context.curFunc->addRegister(varty, ast);
+    IR::Register *reg = fcg.fun->addRegister(varty, ast);
 
     if (ast->expr)
     {
-        IR::ASTValue val = cg.exprCodeGen.expr(ast->expr.get());
+        IR::ASTValue val = fcg.exprCG.expr(ast->expr.get());
         if (!val)
             return;
 
@@ -27,16 +27,16 @@ void CodeGenNS::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem *ast)
             cg.errored = true;
             return;
         }
-        cg.context.curBlock->add(std::make_unique<IR::Instrs::Store>(reg, val));
+        fcg.curBlock->add(std::make_unique<IR::Instrs::Store>(reg, val));
     }
 
-    cg.context.addLocal(varname, reg);
+    fcg.addLocal(varname, reg);
 }
-void CodeGenNS::StmtCodeGen::visitVarStmtItemList(ASTNS::VarStmtItemList *ast)
+void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmtItemList(ASTNS::VarStmtItemList *ast)
 {
     ast->varstmtitemsegment->accept(this);
 }
-void CodeGenNS::StmtCodeGen::visitVarStmtItemSegment(ASTNS::VarStmtItemSegment *ast)
+void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmtItemSegment(ASTNS::VarStmtItemSegment *ast)
 {
     ast->varstmtitemsegment->accept(this);
     ast->anothervarstmtitem->accept(this);
