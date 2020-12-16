@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-import os, re, colorama, itertools
-
 # classes {{{1
 # symbols {{{2
 class NonTerminal:
@@ -391,8 +389,6 @@ def makeParseTable():
     table = fillParseTable(*isets)
     return table
 # rule shorthands {{{1
-colorama.init()
-
 def nt(sym, name, base, panickable=False):
     return NonTerminal(sym, panickable, name, base)
 
