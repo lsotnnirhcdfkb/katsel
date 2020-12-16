@@ -10,4 +10,4 @@ fun uint32 nonvoidret()
 
     var sint64 a
     return a // expect compile error (conflict-ret-ty)
-    <- a
+    <- a // expect compile error (conflict-ret-ty)

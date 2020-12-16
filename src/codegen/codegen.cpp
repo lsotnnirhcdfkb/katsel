@@ -4,7 +4,8 @@
 CodeGen::CodeGen(File const &file)
     : unit(std::make_unique<IR::Unit>(file)),
       context(std::make_unique<Context>()),
-      typeVisitor(std::make_unique<TypeVisitor>(*this)) {}
+      typeVisitor(std::make_unique<TypeVisitor>(*this)),
+      errored(false) {}
 CodeGen::~CodeGen() = default;
 
 void CodeGen::declarate(ASTNS::CUB *cub)

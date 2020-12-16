@@ -2,7 +2,7 @@
 #include "utils/format.h"
 #include "message/errmsgs.h"
 
-CodeGen::FunctionCodeGen::FunctionCodeGen(CodeGen &cg, ASTNS::FunctionDecl *ast): curScope(0), cg(cg), ast(ast), exprCG(cg, *this), stmtCG(cg, *this) {}
+CodeGen::FunctionCodeGen::FunctionCodeGen(CodeGen &cg, ASTNS::FunctionDecl *ast): curScope(0), cg(cg), ast(ast), exprCG(cg, *this), stmtCG(cg, *this), errored(false) {}
 
 bool CodeGen::FunctionCodeGen::codegen()
 {

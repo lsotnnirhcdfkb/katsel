@@ -1,9 +1,0 @@
-
-
-fun uint32 main()
-    var bool i = (bool) 1
-    printchar(i  ? 't' : 'f') // expect output t
-    printchar(!i ? 't' : 'f') // expect output f
-    <- 0
-
-fun void printchar(char i)

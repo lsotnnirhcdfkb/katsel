@@ -1545,4 +1545,4 @@ void ASTNS::PrintVisitor::pai(std::string &&s)
     pai(s);
 }
 
-ASTNS::PrintVisitor::PrintVisitor(llvm::raw_ostream &ostream): ostream(ostream) {}
+ASTNS::PrintVisitor::PrintVisitor(llvm::raw_ostream &ostream): ostream(ostream), indent(0) {}

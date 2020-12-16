@@ -34,3 +34,4 @@ fun uint32 main()
     b // expect compile error (undecl-symb)
     c // expect compile error (undecl-symb)
     d // expect compile error (undecl-symb)
+    <- 0

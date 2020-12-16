@@ -1,6 +1,7 @@
 
 
 fun void f()
+
 fun void test()
     (uint32) f() // expect compile error (invalid-cast)
     (uint32) f // expect compile error (invalid-cast)

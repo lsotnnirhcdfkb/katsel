@@ -3,6 +3,7 @@
 fun void test()
     var uint32 a
     var sint64 b = 2 // expect compile error (conflict-var-init-ty)
+    var sint64 b
 
     b = 2 // expect compile error (assign-conflict-tys)
     a = b // expect compile error (assign-conflict-tys)
