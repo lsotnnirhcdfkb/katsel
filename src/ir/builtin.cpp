@@ -96,9 +96,9 @@ IR::FloatType::FloatType(int size): size(size) {ASSERT(size == 32 || size == 64)
 llvm::Type* IR::FloatType::toLLVMType(llvm::LLVMContext &con) const
 {
     if (size == 32)
-        return llvm::Type::getDoubleTy(con);
-    else if (size == 64)
         return llvm::Type::getFloatTy(con);
+    else if (size == 64)
+        return llvm::Type::getDoubleTy(con);
     else
         reportAbortNoh(format("FloatType::toLLVMType: size = %", size));
 }
@@ -169,15 +169,26 @@ IR::ASTValue IR::FloatType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR:
         return v;
 
     IntType *sty (dynamic_cast<IntType*>(v.type()));
-    if (!sty)
+    if (sty)
+    {
+        IR::TempRegister *outReg = fun.addTempRegister(this);
+        curBlock->add(std::make_unique<IR::Instrs::IntToFloat>(outReg, v, this));
+        return ASTValue(outReg, ast);
+    }
+    else if (FloatType *styf = dynamic_cast<FloatType*>(v.type()))
+    {
+        IR::TempRegister *outReg = fun.addTempRegister(this);
+        if (styf->size > this->size)
+            curBlock->add(std::make_unique<IR::Instrs::FTrunc>(outReg, v, this));
+        else
+            curBlock->add(std::make_unique<IR::Instrs::FExt>(outReg, v, this));
+        return ASTValue(outReg, ast);
+    }
+    else
     {
         ERR_INVALID_CAST(ast, v, this);
         return IR::ASTValue();
     }
-
-    IR::TempRegister *outReg = fun.addTempRegister(this);
-    curBlock->add(std::make_unique<IR::Instrs::IntToFloat>(outReg, v, this));
-    return ASTValue(outReg, ast);
 }
 // Int {{{1
 IR::IntType::IntType(int size, bool isSigned): size(size), isSigned(isSigned) {ASSERT(size == 1 || size == 8 || size == 16 || size == 32 || size == 64)}

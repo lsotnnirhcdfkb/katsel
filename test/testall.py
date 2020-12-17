@@ -46,7 +46,7 @@ NTESTS = len(TESTS)
 NTESTWIDTH = len(str(NTESTS))
 LONGESTNAME = max(map(len, TESTS))
 
-PRINTDEFF = 'printdef.c'
+PRINTDEFF = 'printdef.cpp'
 
 with open(PRINTDEFF, 'w') as f:
     f.write(r'''
@@ -87,7 +87,7 @@ extern "C"
 #endif
 void printfloat(float i)
 {
-    printf("%f\n", i);
+    printf("%.2f\n", i);
 }
 
 #ifdef __cplusplus
@@ -95,7 +95,7 @@ extern "C"
 #endif
 void printdouble(double i)
 {
-    printf("%f\n", i);
+    printf("%.2f\n", i);
 }
 ''')
 
