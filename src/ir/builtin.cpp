@@ -92,7 +92,7 @@ static void shortCircuitAnd(CodeGen::Context &cgc, IR::Function &fun, IR::Block 
 }
 #define SUPPORT_OPERATOR_BASIC(op, instr) case Type::BinaryOperator::op: curBlock->add(std::make_unique<IR::Instrs::instr>(retReg, l, r)); break;
 // Float {{{1
-IR::FloatType::FloatType(int size): size(size) {}
+IR::FloatType::FloatType(int size): size(size) {ASSERT(size == 32 || size == 64)}
 llvm::Type* IR::FloatType::toLLVMType(llvm::LLVMContext &con) const
 {
     if (size == 32)
@@ -113,6 +113,8 @@ std::string IR::FloatType::stringify() const
 }
 IR::ASTValue IR::FloatType::binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast)
 {
+    ASSERT(l.type() == this)
+
     if (l.type() != r.type())
     {
         ERR_CONFLICT_TYS_BINARY_OP(l, r, optok);
@@ -145,6 +147,8 @@ IR::ASTValue IR::FloatType::binOp(CodeGen::Context &cgc, IR::Function &fun, IR::
 }
 IR::ASTValue IR::FloatType::unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::Type::UnaryOperator op, IR::ASTValue v, Token optok, ASTNS::AST *ast)
 {
+    ASSERT(v.type() == this)
+
     IR::TempRegister *outReg = fun.addTempRegister(v.type());
     switch (op)
     {
@@ -176,7 +180,7 @@ IR::ASTValue IR::FloatType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR:
     return ASTValue(outReg, ast);
 }
 // Int {{{1
-IR::IntType::IntType(int size, bool isSigned): size(size), isSigned(isSigned) {ASSERT(size == 8 || size == 16 || size == 32 || size == 64);}
+IR::IntType::IntType(int size, bool isSigned): size(size), isSigned(isSigned) {ASSERT(size == 1 || size == 8 || size == 16 || size == 32 || size == 64)}
 llvm::Type* IR::IntType::toLLVMType(llvm::LLVMContext &con) const
 {
     return llvm::IntegerType::get(con, size);
@@ -187,6 +191,8 @@ std::string IR::IntType::stringify() const
 }
 IR::ASTValue IR::IntType::binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast)
 {
+    ASSERT(l.type() == this)
+
     if (l.type() != r.type())
     {
         ERR_CONFLICT_TYS_BINARY_OP(l, r, optok);
@@ -224,6 +230,8 @@ IR::ASTValue IR::IntType::binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Bl
 }
 IR::ASTValue IR::IntType::unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::Type::UnaryOperator op, IR::ASTValue v, Token optok, ASTNS::AST *ast)
 {
+    ASSERT(v.type() == this)
+
     IR::TempRegister *outReg = fun.addTempRegister(v.type());
     switch (op)
     {
@@ -261,7 +269,7 @@ IR::ASTValue IR::IntType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR::B
             styInt = newt;
             styChar = nullptr;
             IR::TempRegister *castedReg = fun.addTempRegister(newt);
-            curBlock->add(std::make_unique<IR::Instrs::NoOpCast>(outReg, v, newt));
+            curBlock->add(std::make_unique<IR::Instrs::NoOpCast>(castedReg, v, newt));
             v = IR::ASTValue(castedReg, v.ast);
         }
         else if (styBool)
@@ -270,7 +278,7 @@ IR::ASTValue IR::IntType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR::B
             styInt = newt;
             styBool = nullptr;
             IR::TempRegister *castedReg = fun.addTempRegister(newt);
-            curBlock->add(std::make_unique<IR::Instrs::NoOpCast>(outReg, v, newt));
+            curBlock->add(std::make_unique<IR::Instrs::NoOpCast>(castedReg, v, newt));
             v = IR::ASTValue(castedReg, v.ast);
         }
 
@@ -287,6 +295,10 @@ IR::ASTValue IR::IntType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR::B
     {
         curBlock->add(std::make_unique<IR::Instrs::FloatToInt>(outReg, v, this));
     }
+    else
+    {
+        ERR_INVALID_CAST(ast, v, this);
+    }
 
     return ASTValue(outReg, ast);
 }
@@ -301,6 +313,8 @@ std::string IR::CharType::stringify() const
 }
 IR::ASTValue IR::CharType::binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast)
 {
+    ASSERT(l.type() == this)
+
     if (l.type() != r.type())
     {
         ERR_CONFLICT_TYS_BINARY_OP(l, r, optok);
@@ -328,6 +342,8 @@ IR::ASTValue IR::CharType::binOp(CodeGen::Context &cgc, IR::Function &fun, IR::B
 }
 IR::ASTValue IR::CharType::unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::Type::UnaryOperator op, IR::ASTValue v, Token optok, ASTNS::AST *ast)
 {
+    ASSERT(v.type() == this)
+
     ERR_UNARY_UNSUPPORTED_OP(v, optok);
     return ASTValue();
 }
@@ -366,6 +382,8 @@ std::string IR::BoolType::stringify() const
 }
 IR::ASTValue IR::BoolType::binOp(CodeGen::Context &cgc, Function &fun, Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast)
 {
+    ASSERT(l.type() == this)
+
     if (l.type() != r.type())
     {
         ERR_CONFLICT_TYS_BINARY_OP(l, r, optok);
@@ -394,6 +412,8 @@ IR::ASTValue IR::BoolType::binOp(CodeGen::Context &cgc, Function &fun, Block *&c
 }
 IR::ASTValue IR::BoolType::unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::Type::UnaryOperator op, IR::ASTValue v, Token optok, ASTNS::AST *ast)
 {
+    ASSERT(v.type() == this)
+
     IR::TempRegister *outReg = fun.addTempRegister(v.type());
     switch (op)
     {

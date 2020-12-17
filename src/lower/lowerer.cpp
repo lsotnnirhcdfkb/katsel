@@ -146,6 +146,12 @@ llvm::Value* Lower::Lowerer::lower(IR::Value const *v)
         return functions.at(asFunction);
     CHECKTY(ConstInt)
         return llvm::ConstantInt::get(asConstInt->type()->toLLVMType(context), asConstInt->val);
+    CHECKTY(ConstFloat)
+        return llvm::ConstantFP::get(asConstFloat->type()->toLLVMType(context), asConstInt->val);
+    CHECKTY(ConstBool)
+        return llvm::ConstantInt::get(asConstBool->type()->toLLVMType(context), asConstBool->val);
+    CHECKTY(ConstChar)
+        return llvm::ConstantInt::get(asConstChar->type()->toLLVMType(context), asConstChar->val);
     CHECKTY(TempRegister)
         return tempregisters.at(asTempRegister);
     CHECKTY(Void)

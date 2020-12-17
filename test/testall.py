@@ -23,6 +23,12 @@ def fail(testfile, msg):
         f.write(f'failed with {msg}\n')
         f.write(str(outputs))
 
+def markFailed(msg):
+    global failed, failmsg
+    if not failed:
+        failed = True
+        failmsg = msg
+
 def passTest(testfile):
     global npassed
     npassed += 1
@@ -159,17 +165,19 @@ for testi, testfile in enumerate(TESTS):
     runErrExpectations   = EXPECT_RUN_ERR_REGEX   .finditer(contents)
     printExpectations    = EXPECT_PRINT_REGEX     .finditer(contents)
 
-    compileMessages = [json.loads(e) for e in outputs['compile']['stderr'].split('\n') if len(e)]
-
     failed = False
     failmsg = ''
+
+    try:
+        compileMessages = [json.loads(e) for e in outputs['compile']['stderr'].split('\n') if len(e)]
+    except json.decoder.JSONDecodeError:
+        markFailed('got internal error')
 
     for expect in compErrExpectations:
         expectNr = contents[:expect.start(0)].count('\n') + 1
         matchede = [e for e in compileMessages if e['type'] == 'error' and e['location']['line'] == expectNr and os.path.abspath(e['location']['file']) == os.path.abspath(testfile) and e['message'].split(' ')[1] == f'({expect.group(1)})']
         if len(matchede) != 1:
-            failed = True
-            failmsg = f'expected {expect.group(1)} on testfile line {expectNr}, but got {len(matchede)} matched errors'
+            markFailed(f'expected {expect.group(1)} on testfile line {expectNr}, but got {len(matchede)} matched errors')
         else:
             compileMessages.remove(matchede[0])
 
@@ -177,14 +185,12 @@ for testi, testfile in enumerate(TESTS):
         expectNr = contents[:expect.start(0)].count('\n') + 1
         matchede = [e for e in compileMessages if e['type'] == 'warning' and e['location']['line'] == expectNr and os.path.abspath(e['location']['file']) == os.path.abspath(testfile) and e['message'].split(' ')[1] == f'({expect.group(1)})']
         if len(matchede) != 1:
-            failed = True
-            failmsg = f'expected {expect.group(1)} on testfile line {expectNr}, but got {len(matchede)} matched warnings'
+            markFailed(f'expected {expect.group(1)} on testfile line {expectNr}, but got {len(matchede)} matched warnings')
         else:
             compileMessages.remove(matchede[0])
 
     if len(compileMessages):
-        failed = True
-        failmsg = f'got {len(compileMessages)} extra compile messages'
+        markFailed(f'got {len(compileMessages)} extra compile messages')
 
     if ran:
         ol = outputs['running']['stdout'].split('\n')
@@ -193,21 +199,17 @@ for testi, testfile in enumerate(TESTS):
 
         for expect in printExpectations:
             if not len(ol):
-                failed = True
-                failmsg = 'have more print expects, but ran out of lines to check against'
+                markFailed('have more print expects, but ran out of lines to check against')
                 break
 
             if expect.group(1) != (l := ol.pop(0)):
-                failed = True
-                failmsg = f'printed wrong thing (expected {expect.group(1)} but got {l})'
+                markFailed(f'printed wrong thing (expected {expect.group(1)} but got {l})')
 
         if len(ol):
-            failed = True
-            failmsg = 'got extra print lines'
+            markFailed('got extra print lines')
     else:
         if len([0 for _ in printExpectations]):
-            failed = True
-            failmsg = 'expected printing but did not run'
+            markFailed('expected printing but did not run')
 
     if failed:
         fail(testfile, failmsg)
