@@ -226,11 +226,11 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr 
     switch (ast->value.type)
     {
         case TokenType::TRUELIT:
-            ret = IR::ASTValue(cg.context->getConstInt(cg.context->getBuiltinType(IR::BuiltinType::Builtins::BOOL), 1), ast);
+            ret = IR::ASTValue(cg.context->getConstBool(true), ast);
             return;
 
         case TokenType::FALSELIT:
-            ret = IR::ASTValue(cg.context->getConstInt(cg.context->getBuiltinType(IR::BuiltinType::Builtins::BOOL), 0), ast);
+            ret = IR::ASTValue(cg.context->getConstBool(false), ast);
             return;
 
         case TokenType::FLOATLIT:
@@ -240,7 +240,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr 
             reportAbortNoh("nullptr literals are not supported yet");
 
         case TokenType::DECINTLIT:
-            ret = IR::ASTValue(cg.context->getConstInt(cg.context->getBuiltinType(IR::BuiltinType::Builtins::UINT32), std::stoll(ast->value.stringify())), ast);
+            ret = IR::ASTValue(cg.context->getConstInt(cg.context->getIntType(32, false), std::stoll(ast->value.stringify())), ast);
             return;
 
         case TokenType::OCTINTLIT:
@@ -254,11 +254,11 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr 
             goto makeIntLit;
 
 makeIntLit:
-            ret = IR::ASTValue(cg.context->getConstInt(cg.context->getBuiltinType(IR::BuiltinType::Builtins::UINT32), std::stoll(ast->value.stringify().erase(0, 2), nullptr, _intbase)), ast);
+            ret = IR::ASTValue(cg.context->getConstInt(cg.context->getIntType(32, false), std::stoll(ast->value.stringify().erase(0, 2), nullptr, _intbase)), ast);
             return;
 
         case TokenType::CHARLIT:
-            ret = IR::ASTValue(cg.context->getConstInt(cg.context->getBuiltinType(IR::BuiltinType::Builtins::CHAR), *(ast->value.start + 1)), ast);
+            ret = IR::ASTValue(cg.context->getConstChar(*(ast->value.start + 1)), ast);
             return;
 
         case TokenType::STRINGLIT:
@@ -267,8 +267,9 @@ makeIntLit:
         case TokenType::IDENTIFIER:
             {
                 std::string name (ast->value.stringify());
-                FunctionCodeGen::Local *l = fcg.getLocal(name);
                 IR::Value *v;
+
+                FunctionCodeGen::Local *l = fcg.getLocal(name);
                 if (!l)
                     v = cg.context->getGlobal(name);
                 else
@@ -297,10 +298,9 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitIfExpr(ASTNS::IfExpr *ast)
         ret = IR::ASTValue();
         return;
     }
-    cond = cond.type()->isTrue(*cg.context, *fcg.fun, fcg.curBlock, cond);
-    if (!cond)
+    if (!dynamic_cast<IR::BoolType*>(cond.type()))
     {
-        cg.errored = true;
+        ERR_COND_NOT_BOOL(cond);
         ret = IR::ASTValue();
         return;
     }
@@ -395,7 +395,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitForExpr(ASTNS::ForExpr *ast)
 
     fcg.curBlock = loopAfter;
 
-    ret = IR::ASTValue(cg.context->getVoidValue(), ast);
+    ret = IR::ASTValue(cg.context->getVoid(), ast);
 }
 
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitAssignmentExpr(ASTNS::AssignmentExpr *ast)
@@ -450,7 +450,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitIndentedBlock(ASTNS::IndentedBl
     ret = expr(ast->implret.get());
     fcg.decScope();
     if (!ret)
-        ret = IR::ASTValue(cg.context->getVoidValue(), ast);
+        ret = IR::ASTValue(cg.context->getVoid(), ast);
 }
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitBracedBlock(ASTNS::BracedBlock *ast)
 {
@@ -461,7 +461,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitBracedBlock(ASTNS::BracedBlock 
     ret = expr(ast->implret.get());
     fcg.decScope();
     if (!ret)
-        ret = IR::ASTValue(cg.context->getVoidValue(), ast);
+        ret = IR::ASTValue(cg.context->getVoid(), ast);
 }
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitImplRet(ASTNS::ImplRet *ast)
 {

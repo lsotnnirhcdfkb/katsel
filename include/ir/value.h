@@ -9,7 +9,10 @@
 namespace IR
 {
     class Type;
-    class BuiltinType;
+    class FloatType;
+    class IntType;
+    class CharType;
+    class BoolType;
     class FunctionType;
     class VoidType;
 
@@ -59,6 +62,7 @@ namespace IR
         Type *ty;
     };
 
+    // Function {{{
     class Function : public Value, public DeclaredValue
     {
     public:
@@ -93,22 +97,50 @@ namespace IR
         size_t regi;
         size_t tempregi;
     };
-
+    // }}}
+    // Const values {{{
     class ConstInt : public Value
     {
     public:
-        ConstInt(BuiltinType *ty, uint64_t val);
-
+        ConstInt(IntType *ty, uint64_t val);
         std::string stringify() const override;
-
         Type* type() const override;
-
         uint64_t val;
-
     private:
-        BuiltinType *ty;
+        IntType *ty;
     };
-
+    class ConstFloat : public Value
+    {
+    public:
+        ConstFloat(FloatType *ty, double val);
+        std::string stringify() const override;
+        Type* type() const override;
+        double val;
+    private:
+        FloatType *ty;
+    };
+    class ConstBool : public Value
+    {
+    public:
+        ConstBool(BoolType *ty, bool val);
+        std::string stringify() const override;
+        Type* type() const override;
+        bool val;
+    private:
+        BoolType *ty;
+    };
+    class ConstChar : public Value
+    {
+    public:
+        ConstChar(CharType *ty, uint8_t val);
+        std::string stringify() const override;
+        Type* type() const override;
+        uint8_t val;
+    private:
+        CharType *ty;
+    };
+    // }}}
+    // Void {{{
     class Void : public Value
     {
     public:
@@ -118,6 +150,7 @@ namespace IR
     private:
         VoidType *ty;
     };
+    // }}}
 
     struct ASTValue
     {

@@ -33,29 +33,57 @@ void IR::Printer::visitAnd(IR::Instrs::And *i)
 {
     ostream << format("and % % -> %", i->lhs, i->rhs, i->target);
 }
-void IR::Printer::visitCmpNE(IR::Instrs::CmpNE *i)
+void IR::Printer::visitNot(IR::Instrs::Not *i)
 {
-    ostream << format("cmpne % % -> %", i->lhs, i->rhs, i->target);
+    ostream << format("not % -> %", i->op, i->target);
 }
-void IR::Printer::visitCmpEQ(IR::Instrs::CmpEQ *i)
+void IR::Printer::visitICmpNE(IR::Instrs::ICmpNE *i)
 {
-    ostream << format("cmpeq % % -> %", i->lhs, i->rhs, i->target);
+    ostream << format("icmpne % % -> %", i->lhs, i->rhs, i->target);
 }
-void IR::Printer::visitCmpLT(IR::Instrs::CmpLT *i)
+void IR::Printer::visitICmpEQ(IR::Instrs::ICmpEQ *i)
 {
-    ostream << format("cmplt % % -> %", i->lhs, i->rhs, i->target);
+    ostream << format("icmpeq % % -> %", i->lhs, i->rhs, i->target);
 }
-void IR::Printer::visitCmpGT(IR::Instrs::CmpGT *i)
+void IR::Printer::visitICmpLT(IR::Instrs::ICmpLT *i)
 {
-    ostream << format("cmpgt % % -> %", i->lhs, i->rhs, i->target);
+    ostream << format("icmplt % % -> %", i->lhs, i->rhs, i->target);
 }
-void IR::Printer::visitCmpLE(IR::Instrs::CmpLE *i)
+void IR::Printer::visitICmpGT(IR::Instrs::ICmpGT *i)
 {
-    ostream << format("cmple % % -> %", i->lhs, i->rhs, i->target);
+    ostream << format("icmpgt % % -> %", i->lhs, i->rhs, i->target);
 }
-void IR::Printer::visitCmpGE(IR::Instrs::CmpGE *i)
+void IR::Printer::visitICmpLE(IR::Instrs::ICmpLE *i)
 {
-    ostream << format("cmpge % % -> %", i->lhs, i->rhs, i->target);
+    ostream << format("icmple % % -> %", i->lhs, i->rhs, i->target);
+}
+void IR::Printer::visitICmpGE(IR::Instrs::ICmpGE *i)
+{
+    ostream << format("icmpge % % -> %", i->lhs, i->rhs, i->target);
+}
+void IR::Printer::visitFCmpNE(IR::Instrs::FCmpNE *i)
+{
+    ostream << format("fcmpne % % -> %", i->lhs, i->rhs, i->target);
+}
+void IR::Printer::visitFCmpEQ(IR::Instrs::FCmpEQ *i)
+{
+    ostream << format("fcmpeq % % -> %", i->lhs, i->rhs, i->target);
+}
+void IR::Printer::visitFCmpLT(IR::Instrs::FCmpLT *i)
+{
+    ostream << format("fcmplt % % -> %", i->lhs, i->rhs, i->target);
+}
+void IR::Printer::visitFCmpGT(IR::Instrs::FCmpGT *i)
+{
+    ostream << format("fcmpgt % % -> %", i->lhs, i->rhs, i->target);
+}
+void IR::Printer::visitFCmpLE(IR::Instrs::FCmpLE *i)
+{
+    ostream << format("fcmple % % -> %", i->lhs, i->rhs, i->target);
+}
+void IR::Printer::visitFCmpGE(IR::Instrs::FCmpGE *i)
+{
+    ostream << format("fcmpge % % -> %", i->lhs, i->rhs, i->target);
 }
 void IR::Printer::visitBitXor(IR::Instrs::BitXor *i)
 {
@@ -81,37 +109,73 @@ void IR::Printer::visitShiftL(IR::Instrs::ShiftL *i)
 {
     ostream << format("shiftl % % -> %", i->lhs, i->rhs, i->target);
 }
-void IR::Printer::visitAdd(IR::Instrs::Add *i)
+void IR::Printer::visitIAdd(IR::Instrs::IAdd *i)
 {
-    ostream << format("add % % -> %", i->lhs, i->rhs, i->target);
+    ostream << format("iadd % % -> %", i->lhs, i->rhs, i->target);
 }
-void IR::Printer::visitSub(IR::Instrs::Sub *i)
+void IR::Printer::visitISub(IR::Instrs::ISub *i)
 {
-    ostream << format("sub % % -> %", i->lhs, i->rhs, i->target);
+    ostream << format("isub % % -> %", i->lhs, i->rhs, i->target);
 }
-void IR::Printer::visitMult(IR::Instrs::Mult *i)
+void IR::Printer::visitIMult(IR::Instrs::IMult *i)
 {
-    ostream << format("mult % % -> %", i->lhs, i->rhs, i->target);
+    ostream << format("imult % % -> %", i->lhs, i->rhs, i->target);
 }
-void IR::Printer::visitDiv(IR::Instrs::Div *i)
+void IR::Printer::visitIDiv(IR::Instrs::IDiv *i)
 {
-    ostream << format("div % % -> %", i->lhs, i->rhs, i->target);
+    ostream << format("idiv % % -> %", i->lhs, i->rhs, i->target);
 }
-void IR::Printer::visitMod(IR::Instrs::Mod *i)
+void IR::Printer::visitIMod(IR::Instrs::IMod *i)
 {
-    ostream << format("mod % % -> %", i->lhs, i->rhs, i->target);
+    ostream << format("imod % % -> %", i->lhs, i->rhs, i->target);
 }
-void IR::Printer::visitNeg(IR::Instrs::Neg *i)
+void IR::Printer::visitINeg(IR::Instrs::INeg *i)
 {
-    ostream << format("neg % -> %", i->op, i->target);
+    ostream << format("ineg % -> %", i->op, i->target);
 }
-void IR::Printer::visitTrunc(IR::Instrs::Trunc *i)
+void IR::Printer::visitFAdd(IR::Instrs::FAdd *i)
 {
-    ostream << format("trunc % > % -> %", i->op, i->newt, i->target);
+    ostream << format("fadd % % -> %", i->lhs, i->rhs, i->target);
 }
-void IR::Printer::visitExt(IR::Instrs::Ext *i)
+void IR::Printer::visitFSub(IR::Instrs::FSub *i)
 {
-    ostream << format("ext % > % -> %", i->op, i->newt, i->target);
+    ostream << format("fsub % % -> %", i->lhs, i->rhs, i->target);
+}
+void IR::Printer::visitFMult(IR::Instrs::FMult *i)
+{
+    ostream << format("fmult % % -> %", i->lhs, i->rhs, i->target);
+}
+void IR::Printer::visitFDiv(IR::Instrs::FDiv *i)
+{
+    ostream << format("fdiv % % -> %", i->lhs, i->rhs, i->target);
+}
+void IR::Printer::visitFMod(IR::Instrs::FMod *i)
+{
+    ostream << format("fmod % % -> %", i->lhs, i->rhs, i->target);
+}
+void IR::Printer::visitFNeg(IR::Instrs::FNeg *i)
+{
+    ostream << format("fneg % -> %", i->op, i->target);
+}
+void IR::Printer::visitNoOpCast(IR::Instrs::NoOpCast *i)
+{
+    ostream << format("noopcast % > % -> %", i->op, i->newt, i->target);
+}
+void IR::Printer::visitFTrunc(IR::Instrs::FTrunc *i)
+{
+    ostream << format("ftrunc % > % -> %", i->op, i->newt, i->target);
+}
+void IR::Printer::visitFExt(IR::Instrs::FExt *i)
+{
+    ostream << format("fext % > % -> %", i->op, i->newt, i->target);
+}
+void IR::Printer::visitITrunc(IR::Instrs::ITrunc *i)
+{
+    ostream << format("itrunc % > % -> %", i->op, i->newt, i->target);
+}
+void IR::Printer::visitIExt(IR::Instrs::IExt *i)
+{
+    ostream << format("iext % > % -> %", i->op, i->newt, i->target);
 }
 void IR::Printer::visitIntToFloat(IR::Instrs::IntToFloat *i)
 {
@@ -130,7 +194,7 @@ void IR::Printer::visitCall(IR::Instrs::Call *i)
     ostream << format("call % ( ", i->f);
     for (IR::ASTValue const &v : i->args)
         ostream << v.stringify() << " ";
-    ostream << format(") -> %", i->reg);
+    ostream << format(") -> %", i->target);
 }
 void IR::Printer::visitGotoBr(IR::Instrs::GotoBr *i)
 {

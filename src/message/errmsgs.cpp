@@ -441,13 +441,18 @@ void E0218(Token const &name, IR::Register const *prev)
     e.report();
 }
 
-// E0219 - no-is-truthy
-// | Cannot determine value's truthiness
-void E0219(IR::ASTValue const &v)
+// E0219 - cond-not-bool
+// | Using a non-bool value as a condition
+void E0219(IR::ASTValue &v)
 {
-    Error e = Error(Error::MsgType::ERROR, v, "E0219 (no-is-truthy)");
+    Error e = Error(Error::MsgType::ERROR, v, "E0219 (cond-not-bool)");
     e.underline(Error::Underline(v, '^')
-        .error(format("determination of truthiness of value of invalid type %", v.type()))
+        .error(format("usage of % as condition", v.type()))
+    );
+    IR::DeclaredValue * asdeclared;
+    if (( asdeclared = dynamic_cast<IR::DeclaredValue*>( v.val)))
+    e.underline(Error::Underline(asdeclared->defAST(), '~')
+        .note("declared here")
     );
     e.report();
 }

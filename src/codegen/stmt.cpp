@@ -32,7 +32,7 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
             return;
     }
     else
-        v = IR::ASTValue(cg.context->getVoidValue(), ast);
+        v = IR::ASTValue(cg.context->getVoid(), ast);
 
     if (fcg.ret->type() != v.type())
     {

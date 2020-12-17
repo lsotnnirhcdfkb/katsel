@@ -43,6 +43,13 @@ jobs = [
     ('src/ir/instruction.cpp'              , 'INSTR CPP START'           , 'INSTR CPP END'           , instrgen.genDefs),
     ('src/ir/cfgdotter.cpp'                , 'CFGDOTTER START'           , 'CFGDOTTER END'           , instrgen.genCFGDotter),
 
+    ('include/ir/visitor.h'                , 'PURE INSTR VISIT START'    , 'PURE INSTR VISIT END'    , lambda: instrgen.genPureVirtualMethodDecls('Instruction')),
+    ('include/ir/visitor.h'                , 'PURE BRANCH VISIT START'   , 'PURE BRANCH VISIT END'   , lambda: instrgen.genPureVirtualMethodDecls('Br')),
+    ('include/ir/printer.h'                , 'PRINT VISIT INSTR START'   , 'PRINT VISIT INSTR END'   , lambda: instrgen.genMethodDecls('Instruction')),
+    ('include/ir/printer.h'                , 'PRINT VISIT BRANCH START'  , 'PRINT VISIT BRANCH END'  , lambda: instrgen.genMethodDecls('Br')),
+    ('include/lower/lowerer.h'             , 'LOWER VISIT INSTR START'   , 'LOWER VISIT INSTR END'   , lambda: instrgen.genMethodDecls('Instruction')),
+    ('include/lower/lowerer.h'             , 'LOWER VISIT BRANCH START'  , 'LOWER VISIT BRANCH END'  , lambda: instrgen.genMethodDecls('Br')),
+
     ('include/message/errmsgs.h'           , 'ERRH START'                , 'ERRH END'                , errgen.genH),
     ('src/message/errmsgs.cpp'             , 'ERRCPP START'              , 'ERRCPP END'              , errgen.genCpp),
 ]

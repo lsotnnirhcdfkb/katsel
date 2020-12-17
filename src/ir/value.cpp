@@ -33,24 +33,3 @@ IR::Type* IR::TempRegister::type() const
     return ty;
 }
 
-IR::ConstInt::ConstInt(BuiltinType *ty, uint64_t val): val(val), ty(ty) {}
-
-std::string IR::ConstInt::stringify() const
-{
-    return std::to_string(val);
-}
-
-IR::Type* IR::ConstInt::type() const
-{
-    return ty;
-}
-
-IR::Void::Void(VoidType *ty): ty(ty) {}
-std::string IR::Void::stringify() const
-{
-    return "void";
-}
-IR::Type* IR::Void::type() const
-{
-    return ty;
-}

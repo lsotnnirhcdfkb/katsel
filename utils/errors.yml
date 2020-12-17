@@ -391,14 +391,15 @@ errors:
         ]]
   -
     code: 219
-    name: no-is-truthy
-    desc: Cannot determine value's truthiness
-    inputs: 'IR::ASTValue const &v'
+    name: cond-not-bool
+    desc: Using a non-bool value as a condition
+    inputs: 'IR::ASTValue &v'
     location: v
     highlights:
       - ['v', *under0, [
-          ['error', 'format("determination of truthiness of value of invalid type %", v.type())']
+          ['error', 'format("usage of % as condition", v.type())']
         ]]
+      - ['asdeclared->defAST()', *under1, [['note', '"declared here"']], 'dyncast IR::DeclaredValue, asdeclared, v.val']
   -
     code: 220
     name: no-else-not-void

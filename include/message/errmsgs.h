@@ -132,9 +132,9 @@ void E0217(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &op);
 #define ERR_REDECL_PARAM E0218
 void E0218(Token const &name, IR::Register const *prev);
 
-// E0219 - no-is-truthy
-#define ERR_NO_IS_TRUTHY E0219
-void E0219(IR::ASTValue const &v);
+// E0219 - cond-not-bool
+#define ERR_COND_NOT_BOOL E0219
+void E0219(IR::ASTValue &v);
 
 // E0220 - no-else-not-void
 #define ERR_NO_ELSE_NOT_VOID E0220

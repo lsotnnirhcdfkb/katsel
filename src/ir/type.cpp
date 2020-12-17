@@ -27,11 +27,6 @@ IR::ASTValue IR::VoidType::castTo(CodeGen::Context &, IR::Function &, IR::Block 
     ERR_INVALID_CAST(ast, v, this);
     return ASTValue();
 }
-IR::ASTValue IR::VoidType::isTrue(CodeGen::Context &, IR::Function &, IR::Block *&, IR::ASTValue v)
-{
-    ERR_NO_IS_TRUTHY(v);
-    return ASTValue();
-}
 
 llvm::Type* IR::VoidType::toLLVMType(llvm::LLVMContext &con) const
 {
@@ -70,12 +65,6 @@ IR::ASTValue IR::FunctionType::unaryOp(CodeGen::Context &, IR::Function &, IR::B
 IR::ASTValue IR::FunctionType::castTo(CodeGen::Context &, IR::Function &, IR::Block *&, IR::ASTValue v, ASTNS::AST *)
 {
     ERR_INVALID_CAST(ast, v, this);
-    return ASTValue();
-}
-
-IR::ASTValue IR::FunctionType::isTrue(CodeGen::Context &, IR::Function &, IR::Block *&, IR::ASTValue v)
-{
-    ERR_NO_IS_TRUTHY(v);
     return ASTValue();
 }
 
