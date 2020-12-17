@@ -11,12 +11,13 @@ fun uint32 main()
     printunsigned(42 - 23) // expect output 19
     printunsigned(42 * 75) // expect output 3150
     printunsigned(42 / 4) // expect output 10
-    // printdouble(42.0 / 4.0) expect TODO output 10.5 TODO: make floating point literals
+    printfloat(42.0 / 4.0) // expect output 10.5
     printunsigned(42 % 5) // expect output 2
 
     printunsigned(-42 / 4) // expect output 1073741813
-    // printdouble(-42.0 / 4.0) expect TODO output -10.5 TODO: make floating point literals
+    printfloat(-42.0 / 4.0) // expect output -10.5
     printunsigned(-42 % 5) // expect output 4
     <- 0
 
 fun void printunsigned(uint32 d)
+fun void printfloat(float d)

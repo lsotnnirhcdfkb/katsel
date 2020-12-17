@@ -147,7 +147,7 @@ llvm::Value* Lower::Lowerer::lower(IR::Value const *v)
     CHECKTY(ConstInt)
         return llvm::ConstantInt::get(asConstInt->type()->toLLVMType(context), asConstInt->val);
     CHECKTY(ConstFloat)
-        return llvm::ConstantFP::get(asConstFloat->type()->toLLVMType(context), asConstInt->val);
+        return llvm::ConstantFP::get(asConstFloat->type()->toLLVMType(context), asConstFloat->val);
     CHECKTY(ConstBool)
         return llvm::ConstantInt::get(asConstBool->type()->toLLVMType(context), asConstBool->val);
     CHECKTY(ConstChar)

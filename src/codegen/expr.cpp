@@ -234,7 +234,8 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr 
             return;
 
         case TokenType::FLOATLIT:
-            reportAbortNoh("floating point literals are not supported yet");
+            ret = IR::ASTValue(cg.context->getConstFloat(cg.context->getFloatType(32), std::stod(ast->value.stringify())), ast);
+            return;
 
         case TokenType::NULLPTRLIT:
             reportAbortNoh("nullptr literals are not supported yet");
