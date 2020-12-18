@@ -134,7 +134,7 @@ int compileFile(OutFormats ofmt, char *filename)
 
     auto codegen = std::make_unique<CodeGen>(*source);
     codegen->declarate(parsed.get());
-    if (codegen->errored)
+    if (codegen->isErrored())
         return false;
 
     if (ofmt == OutFormats::DECLS)
@@ -150,7 +150,7 @@ int compileFile(OutFormats ofmt, char *filename)
     }
 
     codegen->codegen(parsed.get());
-    if (codegen->errored)
+    if (codegen->isErrored())
         return false;
 
     if (ofmt == OutFormats::CODEGEN)

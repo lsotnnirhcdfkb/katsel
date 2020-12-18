@@ -143,7 +143,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitUnaryExpr(ASTNS::UnaryExpr *ast
 
     ret = oper.type()->unaryOp(*cg.context, *fcg.fun, fcg.curBlock, opor, oper, ast->op, ast);
     if (!ret)
-        cg.errored = true;
+        fcg.errored = true;
 }
 
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
@@ -160,7 +160,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
     {
         ERR_CALL_NONCALLABLE(func, ast->oparn);
         ret = IR::ASTValue();
-        cg.errored = true;
+        fcg.errored = true;
         return;
     }
 
@@ -176,7 +176,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
     if (args.size() != fty->paramtys.size())
     {
         ERR_WRONG_NUM_ARGS(func, ast->oparn, ast->args.get(), args);
-        cg.errored = true;
+        fcg.errored = true;
         ret = IR::ASTValue();
         return;
     }
@@ -196,7 +196,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
         {
             ERR_INCORRECT_ARG(*i, *j);
             ret = IR::ASTValue();
-            cg.errored = true;
+            fcg.errored = true;
             return;
         }
     }
@@ -280,7 +280,7 @@ makeIntLit:
                 {
                     ERR_UNDECL_SYMB(ast->value);
                     ret = IR::ASTValue();
-                    cg.errored = true;
+                    fcg.errored = true;
                     return;
                 }
                 ret = IR::ASTValue(v, ast);
@@ -303,6 +303,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitIfExpr(ASTNS::IfExpr *ast)
     {
         ERR_COND_NOT_BOOL(cond);
         ret = IR::ASTValue();
+        fcg.errored = true;
         return;
     }
 
@@ -345,7 +346,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitIfExpr(ASTNS::IfExpr *ast)
         {
             ERR_CONFL_TYS_IFEXPR(truev, falsev, ast->iftok);
             ret = IR::ASTValue();
-            cg.errored = true;
+            fcg.errored = true;
             return;
         }
     }
@@ -355,7 +356,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitIfExpr(ASTNS::IfExpr *ast)
         {
             ERR_NO_ELSE_NOT_VOID(truev, ast->iftok);
             ret = IR::ASTValue();
-            cg.errored = true;
+            fcg.errored = true;
             return;
         }
     }
@@ -416,7 +417,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitAssignmentExpr(ASTNS::Assignmen
     {
         ERR_ASSIGN_INVALID_LHS(ast->equal, lhs);
         ret = IR::ASTValue();
-        cg.errored = true;
+        fcg.errored = true;
         return;
     }
 
@@ -424,7 +425,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitAssignmentExpr(ASTNS::Assignmen
     {
         ERR_ASSIGN_CONFLICT_TYS(lhs, rhs, ast->equal);
         ret = IR::ASTValue();
-        cg.errored = true;
+        fcg.errored = true;
         return;
     }
 
@@ -439,7 +440,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitCastExpr(ASTNS::CastExpr *ast)
     ret = cg.typeVisitor->type(ast->type.get())->castTo(*cg.context, *fcg.fun, fcg.curBlock, oper, ast);
 
     if (!ret)
-        cg.errored = true;
+        fcg.errored = true;
 }
 
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitIndentedBlock(ASTNS::IndentedBlock *ast)
@@ -450,8 +451,6 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitIndentedBlock(ASTNS::IndentedBl
 
     ret = expr(ast->implret.get());
     fcg.decScope();
-    if (!ret)
-        ret = IR::ASTValue(cg.context->getVoid(), ast);
 }
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitBracedBlock(ASTNS::BracedBlock *ast)
 {
@@ -461,8 +460,6 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitBracedBlock(ASTNS::BracedBlock 
 
     ret = expr(ast->implret.get());
     fcg.decScope();
-    if (!ret)
-        ret = IR::ASTValue(cg.context->getVoid(), ast);
 }
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitImplRet(ASTNS::ImplRet *ast)
 {
@@ -470,7 +467,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitImplRet(ASTNS::ImplRet *ast)
 }
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitImplRet_OPT(ASTNS::ImplRet_OPT *ast)
 {
-    ret = IR::ASTValue();
+    ret = IR::ASTValue(cg.context->getVoid(), ast);;
 }
 
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitExpr_OPT(ASTNS::Expr_OPT *ast) {}
