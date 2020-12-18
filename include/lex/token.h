@@ -31,3 +31,8 @@ inline std::ostream& operator<<(std::ostream &os, Token const &t)
     os << "'" << t.stringify() << "'";
     return os;
 }
+inline std::ostream& operator<<(std::ostream &os, TokenType const &t)
+{
+    os << stringifyTokenType(t);
+    return os;
+}

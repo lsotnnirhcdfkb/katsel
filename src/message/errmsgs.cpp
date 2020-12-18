@@ -148,7 +148,7 @@ void E0100(Token const &lookahead, std::vector<std::string> const &expectations)
 {
     Error e = Error(Error::MsgType::ERROR, lookahead, "E0100 (unrecoverable-invalid-syntax)");
     e.underline(Error::Underline(lookahead, '^')
-        .error(format("unexpected %", stringifyTokenType(lookahead.type)))
+        .error(format("unexpected %", lookahead.type))
     );
 auto un (Error::Underline(lookahead, '^'));
 for (std::string const &expectation : expectations)
@@ -164,7 +164,7 @@ void E0101(Token const &lookahead, std::string const &bestfix, std::vector<std::
 {
     Error e = Error(Error::MsgType::ERROR, lookahead, "E0101 (simple-invalid-syntax)");
     e.underline(Error::Underline(lookahead, '^')
-        .error(format("unexpected %", stringifyTokenType(lookahead.type)))
+        .error(format("unexpected %", lookahead.type))
         .note(bestfix)
     );
 auto un (Error::Underline(lookahead, '^'));
@@ -181,7 +181,7 @@ void E0102(Token const &lookahead, Token const &panicuntil, std::vector<std::str
 {
     Error e = Error(Error::MsgType::ERROR, lookahead, "E0102 (panicking-invalid-syntax)");
     e.underline(Error::Underline(lookahead, '^')
-        .error(format("unexpected %", stringifyTokenType(lookahead.type)))
+        .error(format("unexpected %", lookahead.type))
     );
     e.underline(Error::Underline(panicuntil, '-')
         .note("parser panicked until here")
@@ -315,10 +315,10 @@ void E0208(IR::ASTValue const &truev, IR::ASTValue const &falsev, Token const &i
         .error("conflicting types for if expression")
     );
     e.underline(Error::Underline(truev, '~')
-        .note(truev.type()->stringify())
+        .note(format("%", truev.type()))
     );
     e.underline(Error::Underline(falsev, '~')
-        .note(falsev.type()->stringify())
+        .note(format("%", falsev.type()))
     );
     e.report();
 }
@@ -345,10 +345,10 @@ void E0210(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &eq)
         .error("conflicting types for assignment")
     );
     e.underline(Error::Underline(lhs, '~')
-        .note(lhs.type()->stringify())
+        .note(format("%", lhs.type()))
     );
     e.underline(Error::Underline(rhs, '~')
-        .note(rhs.type()->stringify())
+        .note(format("%", rhs.type()))
     );
     e.report();
 }
@@ -391,10 +391,10 @@ void E0215(Token const &eq, Token const &name, IR::ASTValue const &init, IR::Reg
     );
     e.underline(Error::Underline(init, '^')
         .error("conflicting types for variable initialization")
-        .note(init.type()->stringify())
+        .note(format("%", init.type()))
     );
     e.underline(Error::Underline(name, '^')
-        .note(var->type()->stringify())
+        .note(format("%", var->type()))
     );
     e.report();
 }
@@ -416,10 +416,10 @@ void E0217(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &op)
 {
     Error e = Error(Error::MsgType::ERROR, op, "E0217 (conflict-tys-binary-op)");
     e.underline(Error::Underline(lhs, '~')
-        .note(lhs.type()->stringify())
+        .note(format("%", lhs.type()))
     );
     e.underline(Error::Underline(rhs, '~')
-        .note(rhs.type()->stringify())
+        .note(format("%", rhs.type()))
     );
     e.underline(Error::Underline(op, '^')
         .error("conflicting types to binary operator")
@@ -466,7 +466,7 @@ void E0220(IR::ASTValue const &truev, Token const &iftok)
         .error("if expression with non-void true expression and no else case")
     );
     e.underline(Error::Underline(truev, '~')
-        .note(truev.type()->stringify())
+        .note(format("%", truev.type()))
     );
     e.report();
 }

@@ -131,7 +131,7 @@ errors:
     location: lookahead
     highlights:
       - ['lookahead', *under0, [
-          ['error', 'format("unexpected %", stringifyTokenType(lookahead.type))'],
+          ['error', 'format("unexpected %", lookahead.type)'],
         ]]
     extra: |
       auto un (Error::Underline(lookahead, '^'));
@@ -145,7 +145,7 @@ errors:
     location: lookahead
     highlights:
       - ['lookahead', *under0, [
-          ['error', 'format("unexpected %", stringifyTokenType(lookahead.type))'],
+          ['error', 'format("unexpected %", lookahead.type)'],
           ['note', 'bestfix']
         ]]
     extra: |
@@ -161,7 +161,7 @@ errors:
     location: lookahead
     highlights:
       - ['lookahead', *under0, [
-          ['error', 'format("unexpected %", stringifyTokenType(lookahead.type))'],
+          ['error', 'format("unexpected %", lookahead.type)'],
         ]]
       - ['panicuntil', *under2, [
           ['note', '"parser panicked until here"']
@@ -276,10 +276,10 @@ errors:
           ['error', '"conflicting types for if expression"']
         ]]
       - ['truev', *under1, [
-          ['note', 'truev.type()->stringify()']
+          ['note', 'format("%", truev.type())']
         ]]
       - ['falsev', *under1, [
-          ['note', 'falsev.type()->stringify()']
+          ['note', 'format("%", falsev.type())']
         ]]
   -
     code: 209
@@ -303,10 +303,10 @@ errors:
           ['error', '"conflicting types for assignment"']
         ]]
       - ['lhs', *under1, [
-          ['note', 'lhs.type()->stringify()']
+          ['note', 'format("%", lhs.type())']
         ]]
       - ['rhs', *under1, [
-          ['note', 'rhs.type()->stringify()']
+          ['note', 'format("%", rhs.type())']
         ]]
   -
     code: 212
@@ -345,10 +345,10 @@ errors:
       - ['eq', *under1, []]
       - ['init', *under0, [
           ['error', '"conflicting types for variable initialization"'],
-          ['note', 'init.type()->stringify()']
+          ['note', 'format("%", init.type())']
         ]]
       - ['name', *under0, [
-          ['note', 'var->type()->stringify()']
+          ['note', 'format("%", var->type())']
         ]]
   -
     code: 216
@@ -368,10 +368,10 @@ errors:
     location: op
     highlights:
       - ['lhs', *under1, [
-          ['note', 'lhs.type()->stringify()']
+          ['note', 'format("%", lhs.type())']
         ]]
       - ['rhs', *under1, [
-          ['note', 'rhs.type()->stringify()']
+          ['note', 'format("%", rhs.type())']
         ]]
       - ['op', *under0, [
           ['error', '"conflicting types to binary operator"']
@@ -411,5 +411,5 @@ errors:
           ['error', '"if expression with non-void true expression and no else case"']
         ]]
       - ['truev', *under1, [
-          ['note', 'truev.type()->stringify()']
+          ['note', 'format("%", truev.type())']
         ]]
