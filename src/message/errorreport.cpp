@@ -67,7 +67,7 @@ inline static char const * resetIfNecessary()
     else
         return "";
 }
-/// report {{{1
+// report {{{1
 void Error::report() const
 {
     if (errformat == Format::HUMAN)
@@ -99,8 +99,18 @@ void Error::report() const
         for (Error::Underline const &u : underlines)
         {
             std::string::const_iterator begin = u.location.file->source.begin();
-            for (int i = getLineN(begin, u.location.start); i <= getLineN(begin, u.location.end - 1); ++i)
-                showlines.push_back(showline {u.location.file, i});
+            int startLineN = getLineN(begin, u.location.start), endLineN = getLineN(begin, u.location.end - 1);
+            // because end is inclusive
+            if ((endLineN + 1) - startLineN < 4)
+                for (int i = startLineN; i <= endLineN; ++i)
+                    showlines.push_back(showline {u.location.file, i});
+            else
+            {
+                showlines.push_back(showline {u.location.file, startLineN});
+                showlines.push_back(showline {u.location.file, startLineN + 1});
+                showlines.push_back(showline {u.location.file, endLineN});
+                showlines.push_back(showline {u.location.file, endLineN - 1});
+            }
         }
 
         std::sort(showlines.begin(), showlines.end(), [](showline const &a, showline const &b) {
