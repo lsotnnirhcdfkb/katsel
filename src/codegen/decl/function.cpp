@@ -74,7 +74,7 @@ bool CodeGen::FunctionCodeGen::codegen()
         }
     }
 
-    if (curScope != 0)
+    if (curScope != 0 && !errored)
         reportAbortNoh("At the end of FunctionCodeGen::codegen, curScope != 0");
 
     return !errored;

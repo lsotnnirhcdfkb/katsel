@@ -166,7 +166,7 @@ IR::ASTValue IR::FloatType::unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR
 IR::ASTValue IR::FloatType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast)
 {
     if (v.type() == this)
-        return v;
+        return IR::ASTValue(v.val, ast);
 
     IntType *sty (dynamic_cast<IntType*>(v.type()));
     if (sty)
@@ -264,7 +264,7 @@ IR::ASTValue IR::IntType::unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::
 IR::ASTValue IR::IntType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast)
 {
     if (v.type() == this)
-        return v;
+        return IR::ASTValue(v.val, ast);
 
     IntType *styInt (dynamic_cast<IntType*> (v.type()));
     FloatType *styFloat (dynamic_cast<FloatType*> (v.type()));
@@ -361,7 +361,7 @@ IR::ASTValue IR::CharType::unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR:
 IR::ASTValue IR::CharType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast)
 {
     if (v.type() == this)
-        return v;
+        return IR::ASTValue(v.val, ast);
 
     IntType *sty (dynamic_cast<IntType*>(v.type()));
     if (!sty)
@@ -442,7 +442,7 @@ IR::ASTValue IR::BoolType::unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR:
 IR::ASTValue IR::BoolType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast)
 {
     if (v.type() == this)
-        return v;
+        return IR::ASTValue(v.val, ast);
 
     IntType *sty (dynamic_cast<IntType*>(v.type()));
     if (!sty)

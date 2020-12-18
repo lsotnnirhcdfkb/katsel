@@ -54,6 +54,26 @@ GET_TYPE_DEF(BoolType)()
     CONSTRUCT_TYPE(BoolType)();
     PUSH_RETURN(BoolType)
 }
+GET_TYPE_DEF(GenericIntType)()
+{
+    LOOP_TYPES()
+    {
+        CHECK_TYPE_TYPE(GenericIntType)
+        if (casted) return casted;
+    }
+    CONSTRUCT_TYPE(GenericIntType)();
+    PUSH_RETURN(GenericIntType)
+}
+GET_TYPE_DEF(GenericFloatType)()
+{
+    LOOP_TYPES()
+    {
+        CHECK_TYPE_TYPE(GenericFloatType)
+        if (casted) return casted;
+    }
+    CONSTRUCT_TYPE(GenericFloatType)();
+    PUSH_RETURN(GenericFloatType)
+}
 GET_TYPE_DEF(FunctionType)(IR::Type *ret, std::vector<IR::Type*> paramtys)
 {
     LOOP_TYPES()
@@ -82,33 +102,37 @@ GET_TYPE_DEF(VoidType)()
 #undef CONSTRUCT_TYPE
 #undef PUSH_RETURN
 // getting values {{{1
+template <typename Ret, typename ... Args>
+static Ret* getConstVal(std::vector<std::unique_ptr<IR::Value>> &constants, Args ...args)
+{
+    std::unique_ptr<Ret> cv = std::make_unique<Ret>(args...);
+    Ret *cvraw = cv.get();
+    constants.push_back(std::move(cv));
+    return cvraw;
+}
 IR::ConstFloat* CodeGen::Context::getConstFloat(IR::FloatType *ty, double value)
 {
-    std::unique_ptr<IR::ConstFloat> ci = std::make_unique<IR::ConstFloat>(ty, value);
-    IR::ConstFloat *ciraw = ci.get();
-    constants.push_back(std::move(ci));
-    return ciraw;
+    return getConstVal<IR::ConstFloat>(constants, ty, value);
 }
 IR::ConstInt* CodeGen::Context::getConstInt(IR::IntType *ty, uint64_t value)
 {
-    std::unique_ptr<IR::ConstInt> ci = std::make_unique<IR::ConstInt>(ty, value);
-    IR::ConstInt *ciraw = ci.get();
-    constants.push_back(std::move(ci));
-    return ciraw;
+    return getConstVal<IR::ConstInt>(constants, ty, value);
+}
+IR::ConstFloat* CodeGen::Context::getConstFloat(IR::GenericFloatType *ty, double value)
+{
+    return getConstVal<IR::ConstFloat>(constants, ty, value);
+}
+IR::ConstInt* CodeGen::Context::getConstInt(IR::GenericIntType *ty, uint64_t value)
+{
+    return getConstVal<IR::ConstInt>(constants, ty, value);
 }
 IR::ConstChar* CodeGen::Context::getConstChar(uint8_t value)
 {
-    std::unique_ptr<IR::ConstChar> ci = std::make_unique<IR::ConstChar>(getCharType(), value);
-    IR::ConstChar *ciraw = ci.get();
-    constants.push_back(std::move(ci));
-    return ciraw;
+    return getConstVal<IR::ConstChar>(constants, getCharType(), value);
 }
 IR::ConstBool* CodeGen::Context::getConstBool(bool value)
 {
-    std::unique_ptr<IR::ConstBool> ci = std::make_unique<IR::ConstBool>(getBoolType(), value);
-    IR::ConstBool *ciraw = ci.get();
-    constants.push_back(std::move(ci));
-    return ciraw;
+    return getConstVal<IR::ConstBool>(constants, getBoolType(), value);
 }
 IR::Void* CodeGen::Context::getVoid()
 {

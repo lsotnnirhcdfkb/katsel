@@ -13,6 +13,8 @@ public:
 
     IR::FloatType* getFloatType(int size);
     IR::IntType* getIntType(int size, bool isSigned);
+    IR::GenericFloatType* getGenericFloatType();
+    IR::GenericIntType* getGenericIntType();
     IR::CharType* getCharType();
     IR::BoolType* getBoolType();
     IR::FunctionType* getFunctionType(IR::Type *ret, std::vector<IR::Type*> paramtys);
@@ -23,6 +25,8 @@ public:
 
     IR::ConstFloat* getConstFloat(IR::FloatType *ty, double value);
     IR::ConstInt* getConstInt(IR::IntType *ty, uint64_t value);
+    IR::ConstFloat* getConstFloat(IR::GenericFloatType *ty, double value);
+    IR::ConstInt* getConstInt(IR::GenericIntType *ty, uint64_t value);
     IR::ConstChar* getConstChar(uint8_t value);
     IR::ConstBool* getConstBool(bool value);
     IR::Void* getVoid();

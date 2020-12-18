@@ -11,6 +11,8 @@ namespace IR
     class Type;
     class FloatType;
     class IntType;
+    class GenericFloatType;
+    class GenericIntType;
     class CharType;
     class BoolType;
     class FunctionType;
@@ -103,21 +105,27 @@ namespace IR
     {
     public:
         ConstInt(IntType *ty, uint64_t val);
+        ConstInt(GenericIntType *ty, uint64_t val);
         std::string stringify() const override;
         Type* type() const override;
         uint64_t val;
     private:
-        IntType *ty;
+        IntType *concreteTy;
+        GenericIntType *genericTy;
+        bool isGeneric;
     };
     class ConstFloat : public Value
     {
     public:
         ConstFloat(FloatType *ty, double val);
+        ConstFloat(GenericFloatType *ty, double val);
         std::string stringify() const override;
         Type* type() const override;
         double val;
     private:
-        FloatType *ty;
+        FloatType *concreteTy;
+        GenericFloatType *genericTy;
+        bool isGeneric;
     };
     class ConstBool : public Value
     {

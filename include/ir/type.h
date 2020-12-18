@@ -160,6 +160,33 @@ namespace IR
 
         llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
     };
+    // Generic literal types {{{1
+    // Int {{{2
+    class GenericIntType : public Type
+    {
+    public:
+        std::string stringify() const override;
+
+        IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
+        IR::ASTValue unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;
+
+        IR::ASTValue castTo(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) override;
+
+        llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
+    };
+    // Float {{{2
+    class GenericFloatType : public Type
+    {
+    public:
+        std::string stringify() const override;
+
+        IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
+        IR::ASTValue unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;
+
+        IR::ASTValue castTo(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) override;
+
+        llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
+    };
     // }}}
 }
 

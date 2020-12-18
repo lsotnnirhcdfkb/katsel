@@ -1,7 +1,6 @@
 #include <sstream>
 
 #include "ir/type.h"
-#include "message/errors.h"
 #include "message/errmsgs.h"
 
 #include "llvm/IR/Type.h"
@@ -38,7 +37,7 @@ IR::FunctionType::FunctionType(Type *ret, std::vector<Type*> paramtys): ret(ret)
 std::string IR::FunctionType::stringify() const
 {
     std::stringstream ss;
-    ss << ret->stringify() << "(";
+    ss << "fun " << ret->stringify() << "(";
     bool first = true;
     for (Type *pty : paramtys)
     {

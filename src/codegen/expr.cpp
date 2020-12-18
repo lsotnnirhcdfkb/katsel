@@ -234,14 +234,14 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr 
             return;
 
         case TokenType::FLOATLIT:
-            ret = IR::ASTValue(cg.context->getConstFloat(cg.context->getFloatType(32), std::stod(ast->value.stringify())), ast);
+            ret = IR::ASTValue(cg.context->getConstFloat(cg.context->getGenericFloatType(), std::stod(ast->value.stringify())), ast);
             return;
 
         case TokenType::NULLPTRLIT:
             reportAbortNoh("nullptr literals are not supported yet");
 
         case TokenType::DECINTLIT:
-            ret = IR::ASTValue(cg.context->getConstInt(cg.context->getIntType(32, false), std::stoll(ast->value.stringify())), ast);
+            ret = IR::ASTValue(cg.context->getConstInt(cg.context->getGenericIntType(), std::stoll(ast->value.stringify())), ast);
             return;
 
         case TokenType::OCTINTLIT:
@@ -255,7 +255,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr 
             goto makeIntLit;
 
 makeIntLit:
-            ret = IR::ASTValue(cg.context->getConstInt(cg.context->getIntType(32, false), std::stoll(ast->value.stringify().erase(0, 2), nullptr, _intbase)), ast);
+            ret = IR::ASTValue(cg.context->getConstInt(cg.context->getGenericIntType(), std::stoll(ast->value.stringify().erase(0, 2), nullptr, _intbase)), ast);
             return;
 
         case TokenType::CHARLIT:
@@ -386,6 +386,11 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitForExpr(ASTNS::ForExpr *ast)
     fcg.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(loopCheckCond));
     fcg.curBlock = loopCheckCond;
     IR::ASTValue cond = expr(ast->cond.get());
+    if (!cond)
+    {
+        ret = IR::ASTValue();
+        return;
+    }
     loopCheckCond->branch(std::make_unique<IR::Instrs::CondBr>(cond, loopBody, loopAfter));
 
     fcg.curBlock = loopBody;
@@ -436,6 +441,11 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitAssignmentExpr(ASTNS::Assignmen
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitCastExpr(ASTNS::CastExpr *ast)
 {
     IR::ASTValue oper = expr(ast->operand.get());
+    if (!oper)
+    {
+        ret = IR::ASTValue();
+        return;
+    }
 
     ret = cg.typeVisitor->type(ast->type.get())->castTo(*cg.context, *fcg.fun, fcg.curBlock, oper, ast);
 
