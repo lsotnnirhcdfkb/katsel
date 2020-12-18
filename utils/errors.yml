@@ -181,11 +181,9 @@ errors:
       - ['name', *under0, [
           ['error', '"redeclaration of symbol"']
         ]]
-    extra: |
-      IR::Function *asf (dynamic_cast<IR::Function*>(val));
-      if (asf)
-        e.underline(Error::Underline(asf->defAST(), '^')
-          .note("previous declaration"));
+      - ['asdeclared->defAST()', *under1, [
+          ['note', '"previous declaration"']
+        ], 'dyncast IR::DeclaredValue, asdeclared, val']
   -
     code: 201
     name: lhs-unsupported-op

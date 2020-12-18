@@ -201,10 +201,11 @@ void E0200(Token const &name, IR::Value *val)
     e.underline(Error::Underline(name, '^')
         .error("redeclaration of symbol")
     );
-IR::Function *asf (dynamic_cast<IR::Function*>(val));
-if (asf)
-  e.underline(Error::Underline(asf->defAST(), '^')
-    .note("previous declaration"));
+    IR::DeclaredValue * asdeclared;
+    if (( asdeclared = dynamic_cast<IR::DeclaredValue*>( val)))
+    e.underline(Error::Underline(asdeclared->defAST(), '~')
+        .note("previous declaration")
+    );
     e.report();
 }
 
