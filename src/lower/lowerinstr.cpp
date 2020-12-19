@@ -189,19 +189,21 @@ void Lower::Lowerer::visitFloatToFloat(IR::Instrs::FloatToFloat *instr)
         tempregisters[instr->target] = builder.CreateFPExt(lower(instr->op), instr->newt->toLLVMType(context));
     else if (bty->size > instr->newt->size)
         tempregisters[instr->target] = builder.CreateFPTrunc(lower(instr->op), instr->newt->toLLVMType(context));
+    else
+        tempregisters[instr->target] = lower(instr->op); // no cast needed
 }
 void Lower::Lowerer::visitIntToInt(IR::Instrs::IntToInt *instr)
 {
     IR::IntType *bty = static_cast<IR::IntType*>(instr->op.type());
     if (bty->size < instr->newt->size)
-    {
         if (bty->isSigned)
             tempregisters[instr->target] = builder.CreateSExt(lower(instr->op), instr->newt->toLLVMType(context));
         else
             tempregisters[instr->target] = builder.CreateZExt(lower(instr->op), instr->newt->toLLVMType(context));
-    }
-    if (bty->size > instr->newt->size)
+    else if (bty->size > instr->newt->size)
         tempregisters[instr->target] = builder.CreateTrunc(lower(instr->op), instr->newt->toLLVMType(context));
+    else
+        tempregisters[instr->target] = lower(instr->op);
 }
 void Lower::Lowerer::visitIntToFloat(IR::Instrs::IntToFloat *instr)
 {
