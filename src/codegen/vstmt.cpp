@@ -21,6 +21,7 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem 
         if (!val)
             return;
 
+        val = varty->implCast(*cg.context, *fcg.fun, fcg.curBlock, val);
         if (val.type() != varty)
         {
             ERR_CONFLICT_VAR_INIT_TY(ast->equal, ast->name, val, reg);

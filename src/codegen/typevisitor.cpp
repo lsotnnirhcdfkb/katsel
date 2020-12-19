@@ -19,7 +19,7 @@ void CodeGen::TypeVisitor::visitBuiltinType(ASTNS::BuiltinType *ast)
 {
     switch (ast->type.type)
     {
-#define CASE(ty) case TokenType::ty: ret = 
+#define CASE(ty) case TokenType::ty: ret =
 #define GET(ty) cg.context->get##ty
         CASE(UINT8) GET(IntType)(8, false); return;
         CASE(UINT16) GET(IntType)(16, false); return;

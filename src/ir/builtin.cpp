@@ -12,6 +12,8 @@
 
 #include "llvm/IR/DerivedTypes.h"
 
+#define BIN_OP_ARGS CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::Type::BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast
+#define UNARY_OP_ARGS CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::Type::UnaryOperator op, IR::ASTValue v, Token optok, ASTNS::AST *ast
 // static functions {{{1
 static IR::Type* defaultBinOpRetTy(CodeGen::Context &cgc, IR::Type *ltype, IR::Type::BinaryOperator op)
 {
@@ -65,7 +67,7 @@ static void shortCircuitOr(CodeGen::Context &cgc, IR::Function &fun, IR::Block *
     curBlock = afterb;
     curBlock->add(std::make_unique<IR::Instrs::Phi>(retReg, std::vector {std::make_pair(ltrueb, IR::ASTValue(cgc.getConstBool(true), ast)), std::make_pair(checkbothb, r)}));
 }
-#define SUPPORT_SHORT_CIRCUIT_AND() case Type::BinaryOperator::doubleamper: shortCircuitAnd(cgc, fun, curBlock, op, l, r, retReg, ast); break;
+#define SUPPORT_SHORT_CIRCUIT_AND() case IR::Type::BinaryOperator::doubleamper: shortCircuitAnd(cgc, fun, curBlock, op, l, r, retReg, ast); break;
 static void shortCircuitAnd(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::Type::BinaryOperator op, IR::ASTValue l, IR::ASTValue r, IR::TempRegister *retReg, ASTNS::AST *ast)
 {
     IR::Block *lfalseb = fun.addBlock("binaryand_lfalseb");
@@ -90,8 +92,119 @@ static void shortCircuitAnd(CodeGen::Context &cgc, IR::Function &fun, IR::Block 
     curBlock = afterb;
     curBlock->add(std::make_unique<IR::Instrs::Phi>(retReg, std::vector {std::make_pair(checkbothb, r), std::make_pair(lfalseb, IR::ASTValue(cgc.getConstBool(false), ast))}));
 }
-#define SUPPORT_OPERATOR_BASIC(op, instr) case Type::BinaryOperator::op: curBlock->add(std::make_unique<IR::Instrs::instr>(retReg, l, r)); break;
-// Float {{{1
+#define SUPPORT_OPERATOR_BASIC(op, instr) case IR::Type::BinaryOperator::op: curBlock->add(std::make_unique<IR::Instrs::instr>(retReg, l, r)); break;
+// float/int operations for reuse between generic float/int and concrete float/int types {{{1
+static IR::ASTValue floatBinOp(BIN_OP_ARGS)
+{
+    l = r.type()->implCast(cgc, fun, curBlock, l);
+    r = l.type()->implCast(cgc, fun, curBlock, r);
+    if (l.type() != r.type())
+    {
+        ERR_CONFLICT_TYS_BINARY_OP(l, r, optok);
+        return IR::ASTValue();
+    }
+
+    IR::Type *retTy (defaultBinOpRetTy(cgc, l.type(), op));
+    IR::TempRegister *retReg (fun.addTempRegister(retTy));
+
+    switch (op)
+    {
+        SUPPORT_OPERATOR_BASIC(plus, FAdd)
+        SUPPORT_OPERATOR_BASIC(minus, FSub)
+        SUPPORT_OPERATOR_BASIC(star, FMult)
+        SUPPORT_OPERATOR_BASIC(slash, FDiv)
+        SUPPORT_OPERATOR_BASIC(percent, FMod)
+        SUPPORT_OPERATOR_BASIC(greater, FCmpGT)
+        SUPPORT_OPERATOR_BASIC(less, FCmpLT)
+        SUPPORT_OPERATOR_BASIC(greaterequal, FCmpGE)
+        SUPPORT_OPERATOR_BASIC(lessequal, FCmpLE)
+        SUPPORT_OPERATOR_BASIC(doubleequal, FCmpEQ)
+        SUPPORT_OPERATOR_BASIC(bangequal, FCmpNE)
+
+        default:
+            ERR_LHS_UNSUPPORTED_OP(l, r, optok);
+            return IR::ASTValue();
+    }
+
+    return IR::ASTValue(retReg, ast);
+}
+static IR::ASTValue floatUnaryOp(UNARY_OP_ARGS)
+{
+    IR::TempRegister *outReg = fun.addTempRegister(v.type());
+    switch (op)
+    {
+        case IR::Type::UnaryOperator::minus:
+            curBlock->add(std::make_unique<IR::Instrs::FNeg>(outReg, v));
+            break;
+
+        default:
+            ERR_UNARY_UNSUPPORTED_OP(v, optok);
+            return IR::ASTValue();
+    }
+
+    return IR::ASTValue(outReg, ast);
+}
+static IR::ASTValue intBinOp(BIN_OP_ARGS)
+{
+    l = r.type()->implCast(cgc, fun, curBlock, l);
+    r = l.type()->implCast(cgc, fun, curBlock, r);
+    if (l.type() != r.type())
+    {
+        ERR_CONFLICT_TYS_BINARY_OP(l, r, optok);
+        return IR::ASTValue();
+    }
+
+    IR::Type *retTy (defaultBinOpRetTy(cgc, l.type(), op));
+    IR::TempRegister *retReg (fun.addTempRegister(retTy));
+
+    switch (op)
+    {
+        SUPPORT_OPERATOR_BASIC(plus, IAdd)
+        SUPPORT_OPERATOR_BASIC(minus, ISub)
+        SUPPORT_OPERATOR_BASIC(star, IMult)
+        SUPPORT_OPERATOR_BASIC(slash, IDiv)
+        SUPPORT_OPERATOR_BASIC(percent, IMod)
+        SUPPORT_OPERATOR_BASIC(greater, ICmpGT)
+        SUPPORT_OPERATOR_BASIC(less, ICmpLT)
+        SUPPORT_OPERATOR_BASIC(greaterequal, ICmpGE)
+        SUPPORT_OPERATOR_BASIC(lessequal, ICmpLE)
+        SUPPORT_OPERATOR_BASIC(doubleequal, ICmpEQ)
+        SUPPORT_OPERATOR_BASIC(bangequal, ICmpNE)
+        SUPPORT_OPERATOR_BASIC(amper, BitAnd)
+        SUPPORT_OPERATOR_BASIC(pipe, BitOr)
+        SUPPORT_OPERATOR_BASIC(caret, BitXor)
+        SUPPORT_OPERATOR_BASIC(doublegreater, ShiftR)
+        SUPPORT_OPERATOR_BASIC(doubleless, ShiftL)
+
+        default:
+            ERR_LHS_UNSUPPORTED_OP(l, r, optok);
+            return IR::ASTValue();
+    }
+
+    return IR::ASTValue(retReg, ast);
+}
+static IR::ASTValue intUnaryOp(UNARY_OP_ARGS)
+{
+    IR::TempRegister *outReg = fun.addTempRegister(v.type());
+    switch (op)
+    {
+        case IR::Type::UnaryOperator::tilde:
+            curBlock->add(std::make_unique<IR::Instrs::BitNot>(outReg, v));
+            break;
+
+        case IR::Type::UnaryOperator::minus:
+            curBlock->add(std::make_unique<IR::Instrs::INeg>(outReg, v));
+            break;
+
+        default:
+            ERR_UNARY_UNSUPPORTED_OP(v, optok);
+            return IR::ASTValue();
+    }
+
+    return IR::ASTValue(outReg, ast);
+}
+// Float and Int {{{1
+// Float {{{2
 IR::FloatType::FloatType(int size): size(size) {ASSERT(size == 32 || size == 64)}
 llvm::Type* IR::FloatType::toLLVMType(llvm::LLVMContext &con) const
 {
@@ -111,57 +224,15 @@ std::string IR::FloatType::stringify() const
     else
         reportAbortNoh(format("FloatType::stringify: size = %", size));
 }
-IR::ASTValue IR::FloatType::binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast)
+IR::ASTValue IR::FloatType::binOp(BIN_OP_ARGS)
 {
-    ASSERT(l.type() == this)
-
-    if (l.type() != r.type())
-    {
-        ERR_CONFLICT_TYS_BINARY_OP(l, r, optok);
-        return ASTValue();
-    }
-
-    Type *retTy (defaultBinOpRetTy(cgc, l.type(), op));
-    TempRegister *retReg (fun.addTempRegister(retTy));
-
-    switch (op)
-    {
-        SUPPORT_OPERATOR_BASIC(plus, FAdd)
-        SUPPORT_OPERATOR_BASIC(minus, FSub)
-        SUPPORT_OPERATOR_BASIC(star, FMult)
-        SUPPORT_OPERATOR_BASIC(slash, FDiv)
-        SUPPORT_OPERATOR_BASIC(percent, FMod)
-        SUPPORT_OPERATOR_BASIC(greater, FCmpGT)
-        SUPPORT_OPERATOR_BASIC(less, FCmpLT)
-        SUPPORT_OPERATOR_BASIC(greaterequal, FCmpGE)
-        SUPPORT_OPERATOR_BASIC(lessequal, FCmpLE)
-        SUPPORT_OPERATOR_BASIC(doubleequal, FCmpEQ)
-        SUPPORT_OPERATOR_BASIC(bangequal, FCmpNE)
-
-        default:
-            ERR_LHS_UNSUPPORTED_OP(l, r, optok);
-            return ASTValue();
-    }
-
-    return ASTValue(retReg, ast);
+    ASSERT(l.type() == this);
+    return floatBinOp(cgc, fun, curBlock, op, l, r, optok, ast);
 }
 IR::ASTValue IR::FloatType::unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::Type::UnaryOperator op, IR::ASTValue v, Token optok, ASTNS::AST *ast)
 {
-    ASSERT(v.type() == this)
-
-    IR::TempRegister *outReg = fun.addTempRegister(v.type());
-    switch (op)
-    {
-        case Type::UnaryOperator::minus:
-            curBlock->add(std::make_unique<IR::Instrs::FNeg>(outReg, v));
-            break;
-
-        default:
-            ERR_UNARY_UNSUPPORTED_OP(v, optok);
-            return ASTValue();
-    }
-
-    return ASTValue(outReg, ast);
+    ASSERT(v.type() == this);
+    return floatUnaryOp(cgc, fun, curBlock, op, v, optok, ast);
 }
 IR::ASTValue IR::FloatType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast)
 {
@@ -190,7 +261,17 @@ IR::ASTValue IR::FloatType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR:
         return IR::ASTValue();
     }
 }
-// Int {{{1
+IR::ASTValue IR::FloatType::implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v)
+{
+    if (dynamic_cast<GenericFloatType*>(v.type()))
+    {
+        IR::TempRegister *concreteReg = fun.addTempRegister(this);
+        curBlock->add(std::make_unique<IR::Instrs::NoOpCast>(concreteReg, v, this));
+        return ASTValue(concreteReg, v.ast);
+    }
+    return v;
+}
+// Int {{{2
 IR::IntType::IntType(int size, bool isSigned): size(size), isSigned(isSigned) {ASSERT(size == 1 || size == 8 || size == 16 || size == 32 || size == 64)}
 llvm::Type* IR::IntType::toLLVMType(llvm::LLVMContext &con) const
 {
@@ -200,66 +281,15 @@ std::string IR::IntType::stringify() const
 {
     return format("%int%", isSigned ? 's' : 'u', size);
 }
-IR::ASTValue IR::IntType::binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast)
+IR::ASTValue IR::IntType::binOp(BIN_OP_ARGS)
 {
     ASSERT(l.type() == this)
-
-    if (l.type() != r.type())
-    {
-        ERR_CONFLICT_TYS_BINARY_OP(l, r, optok);
-        return IR::ASTValue();
-    }
-
-    Type *retTy (defaultBinOpRetTy(cgc, l.type(), op));
-    IR::TempRegister *retReg (fun.addTempRegister(retTy));
-
-    switch (op)
-    {
-        SUPPORT_OPERATOR_BASIC(plus, IAdd)
-        SUPPORT_OPERATOR_BASIC(minus, ISub)
-        SUPPORT_OPERATOR_BASIC(star, IMult)
-        SUPPORT_OPERATOR_BASIC(slash, IDiv)
-        SUPPORT_OPERATOR_BASIC(percent, IMod)
-        SUPPORT_OPERATOR_BASIC(greater, ICmpGT)
-        SUPPORT_OPERATOR_BASIC(less, ICmpLT)
-        SUPPORT_OPERATOR_BASIC(greaterequal, ICmpGE)
-        SUPPORT_OPERATOR_BASIC(lessequal, ICmpLE)
-        SUPPORT_OPERATOR_BASIC(doubleequal, ICmpEQ)
-        SUPPORT_OPERATOR_BASIC(bangequal, ICmpNE)
-        SUPPORT_OPERATOR_BASIC(amper, BitAnd)
-        SUPPORT_OPERATOR_BASIC(pipe, BitOr)
-        SUPPORT_OPERATOR_BASIC(caret, BitXor)
-        SUPPORT_OPERATOR_BASIC(doublegreater, ShiftR)
-        SUPPORT_OPERATOR_BASIC(doubleless, ShiftL)
-
-        default:
-            ERR_LHS_UNSUPPORTED_OP(l, r, optok);
-            return ASTValue();
-    }
-
-    return ASTValue(retReg, ast);
+    return intBinOp(cgc, fun, curBlock, op, l, r, optok, ast);
 }
 IR::ASTValue IR::IntType::unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::Type::UnaryOperator op, IR::ASTValue v, Token optok, ASTNS::AST *ast)
 {
     ASSERT(v.type() == this)
-
-    IR::TempRegister *outReg = fun.addTempRegister(v.type());
-    switch (op)
-    {
-        case Type::UnaryOperator::tilde:
-            curBlock->add(std::make_unique<IR::Instrs::BitNot>(outReg, v));
-            break;
-
-        case Type::UnaryOperator::minus:
-            curBlock->add(std::make_unique<IR::Instrs::INeg>(outReg, v));
-            break;
-
-        default:
-            ERR_UNARY_UNSUPPORTED_OP(v, optok);
-            return ASTValue();
-    }
-
-    return ASTValue(outReg, ast);
+    return intUnaryOp(cgc, fun, curBlock, op, v, optok, ast);
 }
 IR::ASTValue IR::IntType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast)
 {
@@ -313,6 +343,74 @@ IR::ASTValue IR::IntType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR::B
 
     return ASTValue(outReg, ast);
 }
+IR::ASTValue IR::IntType::implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v)
+{
+    if (dynamic_cast<GenericIntType*>(v.type()))
+    {
+        IR::TempRegister *concreteReg = fun.addTempRegister(this);
+        curBlock->add(std::make_unique<IR::Instrs::NoOpCast>(concreteReg, v, this));
+        return ASTValue(concreteReg, v.ast);
+    }
+    return v;
+}
+// Generic types {{{2
+// GenericInt {{{2
+std::string IR::GenericIntType::stringify() const
+{
+    return "<integer>";
+}
+IR::ASTValue IR::GenericIntType::binOp(BIN_OP_ARGS)
+{
+    ASSERT(l.type() == this);
+    return intBinOp(cgc, fun, curBlock, op, l, r, optok, ast);
+}
+IR::ASTValue IR::GenericIntType::unaryOp(UNARY_OP_ARGS)
+{
+    ASSERT(v.type() == this);
+    return intUnaryOp(cgc, fun, curBlock, op, v, optok, ast);
+}
+IR::ASTValue IR::GenericIntType::castTo(CodeGen::Context &, IR::Function &, IR::Block *&, IR::ASTValue v, ASTNS::AST *asts)
+{
+    ERR_INVALID_CAST(ast, v, this);
+    return ASTValue();
+}
+llvm::Type* IR::GenericIntType::toLLVMType(llvm::LLVMContext &con) const
+{
+    return llvm::Type::getInt32Ty(con);
+}
+IR::ASTValue IR::GenericIntType::implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v)
+{
+    return v;
+}
+// GenericFloat {{{2
+std::string IR::GenericFloatType::stringify() const
+{
+    return "<float>";
+}
+IR::ASTValue IR::GenericFloatType::binOp(BIN_OP_ARGS)
+{
+    ASSERT(l.type() == this);
+    return floatBinOp(cgc, fun, curBlock, op, l, r, optok, ast);
+}
+IR::ASTValue IR::GenericFloatType::unaryOp(UNARY_OP_ARGS)
+{
+    ASSERT(v.type() == this);
+    return floatUnaryOp(cgc, fun, curBlock, op, v, optok, ast);
+}
+IR::ASTValue IR::GenericFloatType::castTo(CodeGen::Context &, IR::Function &, IR::Block *&, IR::ASTValue v, ASTNS::AST *asts)
+{
+    ERR_INVALID_CAST(ast, v, this);
+    return ASTValue();
+}
+llvm::Type* IR::GenericFloatType::toLLVMType(llvm::LLVMContext &con) const
+{
+    return llvm::Type::getFloatTy(con);
+}
+
+IR::ASTValue IR::GenericFloatType::implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v)
+{
+    return v;
+}
 // Char {{{1
 llvm::Type* IR::CharType::toLLVMType(llvm::LLVMContext &con) const
 {
@@ -322,10 +420,12 @@ std::string IR::CharType::stringify() const
 {
     return "char";
 }
-IR::ASTValue IR::CharType::binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast)
+IR::ASTValue IR::CharType::binOp(BIN_OP_ARGS)
 {
     ASSERT(l.type() == this)
 
+    l = r.type()->implCast(cgc, fun, curBlock, l);
+    r = l.type()->implCast(cgc, fun, curBlock, r);
     if (l.type() != r.type())
     {
         ERR_CONFLICT_TYS_BINARY_OP(l, r, optok);
@@ -382,6 +482,10 @@ IR::ASTValue IR::CharType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR::
 
     return ASTValue(outReg, ast);
 }
+IR::ASTValue IR::CharType::implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v)
+{
+    return v;
+}
 // Bool {{{1
 llvm::Type* IR::BoolType::toLLVMType(llvm::LLVMContext &con) const
 {
@@ -395,6 +499,8 @@ IR::ASTValue IR::BoolType::binOp(CodeGen::Context &cgc, Function &fun, Block *&c
 {
     ASSERT(l.type() == this)
 
+    l = r.type()->implCast(cgc, fun, curBlock, l);
+    r = l.type()->implCast(cgc, fun, curBlock, r);
     if (l.type() != r.type())
     {
         ERR_CONFLICT_TYS_BINARY_OP(l, r, optok);
@@ -459,4 +565,8 @@ IR::ASTValue IR::BoolType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR::
     curBlock->add(std::make_unique<IR::Instrs::NoOpCast>(outReg, ASTValue(asIntReg, v.ast), this));
 
     return ASTValue(outReg, ast);
+}
+IR::ASTValue IR::BoolType::implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v)
+{
+    return v;
 }

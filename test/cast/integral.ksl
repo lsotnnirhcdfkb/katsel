@@ -1,10 +1,10 @@
 
 
 fun uint32 main()
-    var uint8 i8 = (uint8) 16
-    var uint16 i16 = (uint16) 16
-    var uint32 i32 = (uint32) 16
-    var uint64 i64 = (uint64) 16
+    var uint8 i8 = 16
+    var uint16 i16 = 16
+    var uint32 i32 = 16
+    var uint64 i64 = 16
 
     printunsigned((uint32) i8) // expect output 16
     printunsigned((uint32) i16) // expect output 16

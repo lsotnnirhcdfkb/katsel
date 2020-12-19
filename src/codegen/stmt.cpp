@@ -34,6 +34,7 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
     else
         v = IR::ASTValue(cg.context->getVoid(), ast);
 
+    v = fcg.ret->type()->implCast(*cg.context, *fcg.fun, fcg.curBlock, v);
     if (fcg.ret->type() != v.type())
     {
         ERR_CONFLICT_RET_TY(v, fcg.fun);
@@ -43,7 +44,7 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
 
     fcg.curBlock->add(std::make_unique<IR::Instrs::Store>(fcg.ret, v));
     fcg.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(fcg.exitBlock));
-    // fcg.curBlock = cg.context.blackHoleBlock.get();
+    // fcg.curBlock = cg.context.blackHoleBlock.get(); TODO: fix
 }
 
 void CodeGen::FunctionCodeGen::StmtCodeGen::visitStmtList_OPT(ASTNS::StmtList_OPT *ast) {}

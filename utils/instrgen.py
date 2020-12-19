@@ -25,6 +25,10 @@ def operandsEqual(*operands):
     return [f'{x} == {y}' for x, y in zip(operands, operands[1:])] # zip ends when one sequence ends
 def targetEqual(ty):
     return f'target->type() == {ty}'
+def typeIsIntegral(v):
+    return f'{typeMustBe(v, "IntType")} || {typeMustBe(v, "GenericIntType")}'
+def typeIsFloating(v):
+    return f'{typeMustBe(v, "FloatType")} || {typeMustBe(v, "GenericFloatType")}'
 # instructions {{{1
 instructions = [
     Instruction('Store'       , 'Instruction' , ['Register* target', 'ASTValue value'                                      ], [targetEqual('value.type()')]),
@@ -34,49 +38,49 @@ instructions = [
     Instruction('And'         , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType'), targetEqual('lhs.type()'), typeMustBe('lhs.type()', 'BoolType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
     Instruction('Not'         , 'Instruction' , ['TempRegister* target', 'ASTValue op'                                     ], [typeMustBe('target->type()', 'BoolType'), targetEqual('op.type()')]),
 
-    Instruction('ICmpNE'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType'), typeMustBe('lhs.type()', 'IntType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
-    Instruction('ICmpEQ'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType'), typeMustBe('lhs.type()', 'IntType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
-    Instruction('ICmpLT'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType'), typeMustBe('lhs.type()', 'IntType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
-    Instruction('ICmpGT'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType'), typeMustBe('lhs.type()', 'IntType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
-    Instruction('ICmpLE'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType'), typeMustBe('lhs.type()', 'IntType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
-    Instruction('ICmpGE'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType'), typeMustBe('lhs.type()', 'IntType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
-    Instruction('IAdd'        , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'IntType') , targetEqual('lhs.type()'), typeMustBe('lhs.type()', 'IntType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
-    Instruction('ISub'        , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'IntType') , targetEqual('lhs.type()'), typeMustBe('lhs.type()', 'IntType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
-    Instruction('IMult'       , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'IntType') , targetEqual('lhs.type()'), typeMustBe('lhs.type()', 'IntType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
-    Instruction('IDiv'        , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'IntType') , targetEqual('lhs.type()'), typeMustBe('lhs.type()', 'IntType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
-    Instruction('IMod'        , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'IntType') , targetEqual('lhs.type()'), typeMustBe('lhs.type()', 'IntType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
-    Instruction('INeg'        , 'Instruction' , ['TempRegister* target', 'ASTValue op'                                     ], [typeMustBe('target->type()', 'IntType') , targetEqual('op.type()'), typeMustBe('op.type()', 'IntType')]),
+    Instruction('ICmpNE'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType'), typeIsIntegral('lhs.type()'), *operandsEqual('lhs.type()', 'rhs.type()')]),
+    Instruction('ICmpEQ'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType'), typeIsIntegral('lhs.type()'), *operandsEqual('lhs.type()', 'rhs.type()')]),
+    Instruction('ICmpLT'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType'), typeIsIntegral('lhs.type()'), *operandsEqual('lhs.type()', 'rhs.type()')]),
+    Instruction('ICmpGT'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType'), typeIsIntegral('lhs.type()'), *operandsEqual('lhs.type()', 'rhs.type()')]),
+    Instruction('ICmpLE'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType'), typeIsIntegral('lhs.type()'), *operandsEqual('lhs.type()', 'rhs.type()')]),
+    Instruction('ICmpGE'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType'), typeIsIntegral('lhs.type()'), *operandsEqual('lhs.type()', 'rhs.type()')]),
+    Instruction('IAdd'        , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeIsIntegral('target->type()') , targetEqual('lhs.type()'), typeIsIntegral('lhs.type()'), *operandsEqual('lhs.type()', 'rhs.type()')]),
+    Instruction('ISub'        , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeIsIntegral('target->type()') , targetEqual('lhs.type()'), typeIsIntegral('lhs.type()'), *operandsEqual('lhs.type()', 'rhs.type()')]),
+    Instruction('IMult'       , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeIsIntegral('target->type()') , targetEqual('lhs.type()'), typeIsIntegral('lhs.type()'), *operandsEqual('lhs.type()', 'rhs.type()')]),
+    Instruction('IDiv'        , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeIsIntegral('target->type()') , targetEqual('lhs.type()'), typeIsIntegral('lhs.type()'), *operandsEqual('lhs.type()', 'rhs.type()')]),
+    Instruction('IMod'        , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeIsIntegral('target->type()') , targetEqual('lhs.type()'), typeIsIntegral('lhs.type()'), *operandsEqual('lhs.type()', 'rhs.type()')]),
+    Instruction('INeg'        , 'Instruction' , ['TempRegister* target', 'ASTValue op'                                     ], [typeIsIntegral('target->type()') , targetEqual('op.type()'), typeIsIntegral('op.type()')]),
 
-    Instruction('FCmpNE'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType') , typeMustBe('lhs.type()', 'FloatType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
-    Instruction('FCmpEQ'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType') , typeMustBe('lhs.type()', 'FloatType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
-    Instruction('FCmpLT'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType') , typeMustBe('lhs.type()', 'FloatType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
-    Instruction('FCmpGT'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType') , typeMustBe('lhs.type()', 'FloatType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
-    Instruction('FCmpLE'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType') , typeMustBe('lhs.type()', 'FloatType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
-    Instruction('FCmpGE'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType') , typeMustBe('lhs.type()', 'FloatType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
-    Instruction('FAdd'        , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'FloatType'), targetEqual('lhs.type()'), typeMustBe('lhs.type()', 'FloatType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
-    Instruction('FSub'        , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'FloatType'), targetEqual('lhs.type()'), typeMustBe('lhs.type()', 'FloatType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
-    Instruction('FMult'       , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'FloatType'), targetEqual('lhs.type()'), typeMustBe('lhs.type()', 'FloatType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
-    Instruction('FDiv'        , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'FloatType'), targetEqual('lhs.type()'), typeMustBe('lhs.type()', 'FloatType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
-    Instruction('FMod'        , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'FloatType'), targetEqual('lhs.type()'), typeMustBe('lhs.type()', 'FloatType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
-    Instruction('FNeg'        , 'Instruction' , ['TempRegister* target', 'ASTValue op'                                     ], [typeMustBe('target->type()', 'FloatType'), targetEqual('op.type()'), typeMustBe('op.type()', 'FloatType')]),
+    Instruction('FCmpNE'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType') , typeIsFloating('lhs.type()'), *operandsEqual('lhs.type()', 'rhs.type()')]),
+    Instruction('FCmpEQ'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType') , typeIsFloating('lhs.type()'), *operandsEqual('lhs.type()', 'rhs.type()')]),
+    Instruction('FCmpLT'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType') , typeIsFloating('lhs.type()'), *operandsEqual('lhs.type()', 'rhs.type()')]),
+    Instruction('FCmpGT'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType') , typeIsFloating('lhs.type()'), *operandsEqual('lhs.type()', 'rhs.type()')]),
+    Instruction('FCmpLE'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType') , typeIsFloating('lhs.type()'), *operandsEqual('lhs.type()', 'rhs.type()')]),
+    Instruction('FCmpGE'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType') , typeIsFloating('lhs.type()'), *operandsEqual('lhs.type()', 'rhs.type()')]),
+    Instruction('FAdd'        , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeIsFloating('target->type()'), targetEqual('lhs.type()'), typeIsFloating('lhs.type()'), *operandsEqual('lhs.type()', 'rhs.type()')]),
+    Instruction('FSub'        , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeIsFloating('target->type()'), targetEqual('lhs.type()'), typeIsFloating('lhs.type()'), *operandsEqual('lhs.type()', 'rhs.type()')]),
+    Instruction('FMult'       , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeIsFloating('target->type()'), targetEqual('lhs.type()'), typeIsFloating('lhs.type()'), *operandsEqual('lhs.type()', 'rhs.type()')]),
+    Instruction('FDiv'        , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeIsFloating('target->type()'), targetEqual('lhs.type()'), typeIsFloating('lhs.type()'), *operandsEqual('lhs.type()', 'rhs.type()')]),
+    Instruction('FMod'        , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeIsFloating('target->type()'), targetEqual('lhs.type()'), typeIsFloating('lhs.type()'), *operandsEqual('lhs.type()', 'rhs.type()')]),
+    Instruction('FNeg'        , 'Instruction' , ['TempRegister* target', 'ASTValue op'                                     ], [typeIsFloating('target->type()'), targetEqual('op.type()'), typeIsFloating('op.type()')]),
 
-    Instruction('BitXor'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'IntType') , typeMustBe('lhs.type()', 'IntType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
-    Instruction('BitOr'       , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'IntType') , typeMustBe('lhs.type()', 'IntType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
-    Instruction('BitAnd'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'IntType') , typeMustBe('lhs.type()', 'IntType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
-    Instruction('BitNot'      , 'Instruction' , ['TempRegister* target', 'ASTValue op'                                     ], [typeMustBe('target->type()', 'IntType') , typeMustBe('op.type()', 'IntType')]),
+    Instruction('BitXor'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeIsIntegral('target->type()') , typeIsIntegral('lhs.type()'), *operandsEqual('lhs.type()', 'rhs.type()')]),
+    Instruction('BitOr'       , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeIsIntegral('target->type()') , typeIsIntegral('lhs.type()'), *operandsEqual('lhs.type()', 'rhs.type()')]),
+    Instruction('BitAnd'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeIsIntegral('target->type()') , typeIsIntegral('lhs.type()'), *operandsEqual('lhs.type()', 'rhs.type()')]),
+    Instruction('BitNot'      , 'Instruction' , ['TempRegister* target', 'ASTValue op'                                     ], [typeIsIntegral('target->type()') , typeIsIntegral('op.type()')]),
 
-    Instruction('ShiftR'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'IntType'), targetEqual('lhs.type()')]),
-    Instruction('ShiftL'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'IntType'), targetEqual('lhs.type()')]),
+    Instruction('ShiftR'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeIsIntegral('target->type()'), targetEqual('lhs.type()')]),
+    Instruction('ShiftL'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeIsIntegral('target->type()'), targetEqual('lhs.type()')]),
 
     Instruction('NoOpCast'    , 'Instruction' , ['TempRegister* target', 'ASTValue op', 'Type* newt'                       ], []),
 
-    Instruction('ITrunc'      , 'Instruction' , ['TempRegister* target', 'ASTValue op', 'IntType* newt'                    ], [typeMustBe('op.type()', 'IntType'), targetEqual('newt')]),
-    Instruction('IExt'        , 'Instruction' , ['TempRegister* target', 'ASTValue op', 'IntType* newt'                    ], [typeMustBe('op.type()', 'IntType'), targetEqual('newt')]),
-    Instruction('FTrunc'      , 'Instruction' , ['TempRegister* target', 'ASTValue op', 'FloatType* newt'                  ], [typeMustBe('op.type()', 'FloatType'), targetEqual('newt')]),
-    Instruction('FExt'        , 'Instruction' , ['TempRegister* target', 'ASTValue op', 'FloatType* newt'                  ], [typeMustBe('op.type()', 'FloatType'), targetEqual('newt')]),
+    Instruction('ITrunc'      , 'Instruction' , ['TempRegister* target', 'ASTValue op', 'IntType* newt'                    ], [typeIsIntegral('op.type()'), targetEqual('newt')]),
+    Instruction('IExt'        , 'Instruction' , ['TempRegister* target', 'ASTValue op', 'IntType* newt'                    ], [typeIsIntegral('op.type()'), targetEqual('newt')]),
+    Instruction('FTrunc'      , 'Instruction' , ['TempRegister* target', 'ASTValue op', 'FloatType* newt'                  ], [typeIsFloating('op.type()'), targetEqual('newt')]),
+    Instruction('FExt'        , 'Instruction' , ['TempRegister* target', 'ASTValue op', 'FloatType* newt'                  ], [typeIsFloating('op.type()'), targetEqual('newt')]),
 
-    Instruction('IntToFloat'  , 'Instruction' , ['TempRegister* target', 'ASTValue op', 'FloatType* newt'                  ], [typeMustBe('op.type()', 'IntType'), targetEqual('newt')]),
-    Instruction('FloatToInt'  , 'Instruction' , ['TempRegister* target', 'ASTValue op', 'IntType* newt'                    ], [typeMustBe('op.type()', 'FloatType'), targetEqual('newt')]),
+    Instruction('IntToFloat'  , 'Instruction' , ['TempRegister* target', 'ASTValue op', 'FloatType* newt'                  ], [typeIsIntegral('op.type()'), targetEqual('newt')]),
+    Instruction('FloatToInt'  , 'Instruction' , ['TempRegister* target', 'ASTValue op', 'IntType* newt'                    ], [typeIsFloating('op.type()'), targetEqual('newt')]),
 
     Instruction('Return'      , 'Instruction' , ['Register* value'                                                         ], []),
     Instruction('Call'        , 'Instruction' , ['TempRegister* target', 'Function* f', 'std::vector<ASTValue> args'       ], [targetEqual('f->ty->ret'), 'args.size() == f->ty->paramtys.size()']),

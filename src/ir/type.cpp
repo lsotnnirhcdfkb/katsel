@@ -31,6 +31,10 @@ llvm::Type* IR::VoidType::toLLVMType(llvm::LLVMContext &con) const
 {
     return llvm::Type::getVoidTy(con);
 }
+IR::ASTValue IR::VoidType::implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v)
+{
+    return v;
+}
 
 IR::FunctionType::FunctionType(Type *ret, std::vector<Type*> paramtys): ret(ret), paramtys(paramtys) {}
 
@@ -74,6 +78,10 @@ llvm::Type* IR::FunctionType::toLLVMType(llvm::LLVMContext &con) const
         paramsasllvm.push_back(p->toLLVMType(con));
 
     return llvm::FunctionType::get(ret->toLLVMType(con), paramsasllvm, false);
+}
+IR::ASTValue IR::FunctionType::implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v)
+{
+    return v;
 }
 
 std::ostream& operator<<(std::ostream &os, IR::Type const *ty)

@@ -20,9 +20,9 @@ IR::ASTValue CodeGen::FunctionCodeGen::ExprCodeGen::expr(ASTNS::ExprB *ast)
         ret = IR::ASTValue();                \
         return;                              \
     }
-#define BINARYOPEND()                                                                               \
+#define BINARYOPEND()                                                                           \
     ret = lhs.type()->binOp(*cg.context, *fcg.fun, fcg.curBlock, oper, lhs, rhs, ast->op, ast); \
-    if (!ret)                                                                                       \
+    if (!ret)                                                                                   \
         fcg.errored = true;
 
 #define BINARYOPSWITCH() IR::Type::BinaryOperator oper; switch (ast->op.type) {
@@ -192,12 +192,13 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
             continue;
         }
 
-        if ((*i).type() != *j)
+        *i = (*j)->implCast(*cg.context, *fcg.fun, fcg.curBlock, *i);
+        if (i->type() != *j)
         {
             ERR_INCORRECT_ARG(*i, *j);
             ret = IR::ASTValue();
             fcg.errored = true;
-            return;
+            argserr = true;
         }
     }
 
@@ -342,6 +343,9 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitIfExpr(ASTNS::IfExpr *ast)
 
     if (falseb)
     {
+        // try both implicit casts -- they are mostly asymmetrical so it should be fine
+        truev = falsev.type()->implCast(*cg.context, *fcg.fun, fcg.curBlock, truev);
+        falsev = truev.type()->implCast(*cg.context, *fcg.fun, fcg.curBlock, falsev);
         if (truev.type() != falsev.type())
         {
             ERR_CONFL_TYS_IFEXPR(truev, falsev, ast->iftok);
@@ -426,6 +430,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitAssignmentExpr(ASTNS::Assignmen
         return;
     }
 
+    rhs = targetReg->type()->implCast(*cg.context, *fcg.fun, fcg.curBlock, rhs);
     if (targetReg->type() != rhs.type())
     {
         ERR_ASSIGN_CONFLICT_TYS(lhs, rhs, ast->equal);
