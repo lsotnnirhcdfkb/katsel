@@ -53,10 +53,8 @@ namespace IR
             bang,
             tilde,
             minus,
-            postfixdoubleplus,
-            postfixdoubleminus,
-            prefixdoubleplus,
-            prefixdoubleminus
+            doubleplus,
+            doubleminus
         };
 
         virtual IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) = 0;
