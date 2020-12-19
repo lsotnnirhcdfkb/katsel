@@ -173,8 +173,8 @@ Token Lexer::nextToken()
                     }
                     else
                     {
-                        advance();
                         startToEnd();
+                        advance();
                         return makeErrorToken(ERR_CHAR_AFTER_BACKSLASH);
                     }
                     break;
