@@ -319,7 +319,7 @@ IR::ASTValue IR::GenericIntType::unaryOp(UNARY_OP_ARGS)
     ASSERT(v.type() == this);
     return intUnaryOp(cgc, fun, curBlock, op, v, optok, ast);
 }
-IR::ASTValue IR::GenericIntType::castTo(CodeGen::Context &, IR::Function &, IR::Block *&, IR::ASTValue v, ASTNS::AST *asts)
+IR::ASTValue IR::GenericIntType::castTo(CodeGen::Context &, IR::Function &, IR::Block *&, IR::ASTValue v, ASTNS::AST *ast)
 {
     ERR_INVALID_CAST(ast, v, this);
     return ASTValue();
@@ -347,7 +347,7 @@ IR::ASTValue IR::GenericFloatType::unaryOp(UNARY_OP_ARGS)
     ASSERT(v.type() == this);
     return floatUnaryOp(cgc, fun, curBlock, op, v, optok, ast);
 }
-IR::ASTValue IR::GenericFloatType::castTo(CodeGen::Context &, IR::Function &, IR::Block *&, IR::ASTValue v, ASTNS::AST *asts)
+IR::ASTValue IR::GenericFloatType::castTo(CodeGen::Context &, IR::Function &, IR::Block *&, IR::ASTValue v, ASTNS::AST *ast)
 {
     ERR_INVALID_CAST(ast, v, this);
     return ASTValue();
