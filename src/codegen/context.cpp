@@ -1,5 +1,6 @@
 #include "codegenlocal.h"
 #include "utils/format.h"
+#include <iostream>
 
 CodeGen::Context::Context(): voidValue(getVoidType()) {}
 
@@ -7,7 +8,7 @@ CodeGen::Context::Context(): voidValue(getVoidType()) {}
 #define GET_TYPE_DEF(type) IR::type* CodeGen::Context::get##type
 #define LOOP_TYPES() for (std::unique_ptr<IR::Type> &ty : types)
 #define CHECK_TYPE_TYPE(type) IR::type *casted (dynamic_cast<IR::type*>(ty.get()));
-#define CHECK_FIELD(field) casted->field == field
+#define CHECK_FIELD(field) (casted->field == field)
 #define CONSTRUCT_TYPE(type) std::unique_ptr<IR::type> ty = std::make_unique<IR::type>
 #define PUSH_RETURN(type) \
     IR::type *tyr (ty.get());       \
