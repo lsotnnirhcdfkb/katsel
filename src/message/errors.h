@@ -67,7 +67,7 @@ private: // things needed for report() implementation
     struct MessageLocation
     {
         Underline::Message const &message;
-        int row, col;
+        int row, col, lcol;
     };
 
     void printHeading() const;

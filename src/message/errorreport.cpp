@@ -197,7 +197,8 @@ void Error::printLine(showline const &sl, std::string const &pad) const
         for (Underline const &u : underlines)
             if (i == u.location.end - 1 || (u.location.start == u.location.end && i == u.location.start))
             {
-                int col = getColN(u.location.file->source.begin(), u.location.end - 1) + 1;
+                int lcol = getColN(u.location.file->source.begin(), u.location.start);
+                int col = getColN(u.location.file->source.begin(), u.location.end);
                 for (Underline::Message const &message : u.messages)
                 {
                     int messagerow = 0;
@@ -205,7 +206,7 @@ void Error::printLine(showline const &sl, std::string const &pad) const
                     {
                         int messageEndCol = col + message.text.size() + message.type.size() + 5; // 3 for '-- ' and ': '
                         auto nextMessage = lineMessages.rbegin();
-                        while (nextMessage != lineMessages.rend() && nextMessage->col <= messageEndCol)
+                        while (nextMessage != lineMessages.rend() && nextMessage->lcol <= messageEndCol)
                         {
                             messagerow = std::max(messagerow, nextMessage->row + 1);
                             ++nextMessage;
@@ -213,7 +214,7 @@ void Error::printLine(showline const &sl, std::string const &pad) const
                     }
                     maxRow = std::max(maxRow, messagerow);
 
-                    lineMessages.push_back(Error::MessageLocation {message, messagerow, col});
+                    lineMessages.push_back(Error::MessageLocation {message, messagerow, col, lcol});
                 }
             }
 
