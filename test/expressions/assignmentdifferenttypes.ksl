@@ -3,7 +3,7 @@
 fun void test()
     var uint32 a
     var sint64 b = 2
-    var sint64 b
+    var sint64 c
 
     b = 2
     a = b // expect compile error (assign-conflict-tys)
