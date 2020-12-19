@@ -64,8 +64,6 @@ namespace IR
 
         virtual IR::ASTValue castTo(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) = 0;
 
-        ASTNS::TypeB *ast;
-
         virtual llvm::Type* toLLVMType(llvm::LLVMContext &con) const = 0;
     };
     // }}}
