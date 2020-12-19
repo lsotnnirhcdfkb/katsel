@@ -131,7 +131,7 @@ void Error::report() const
         }
 
         for (size_t i = 0; i + 1 < showlines.size(); ++i)
-            if (showlines[i].file == showlines[i + 1].file && showlines[i + 1].line - showlines[i].line > 1 && showlines[i + 1].line - showlines[i].line <= 3)
+            if (showlines[i].file == showlines[i + 1].file && showlines[i + 1].line - showlines[i].line > 1 && showlines[i + 1].line - showlines[i].line < 3)
                 for (int j = showlines[i].line + 1; j < showlines[i + 1].line; ++j)
                     showlines.insert(showlines.begin() + i + 1, showline {showlines[i].file, j});
 
