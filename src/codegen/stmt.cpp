@@ -1,5 +1,4 @@
 #include "codegenlocal.h"
-#include "message/errors.h"
 #include "message/errmsgs.h"
 
 CodeGen::FunctionCodeGen::StmtCodeGen::StmtCodeGen(CodeGen &cg, FunctionCodeGen &fcg): cg(cg), fcg(fcg) {}

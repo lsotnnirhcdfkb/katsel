@@ -1,4 +1,5 @@
-#include "message/errors.h"
+#include "errors.h"
+#include "message/error.h"
 #include "ast/visitor.h"
 #include "message/ansistuff.h"
 #include "utils/format.h"
@@ -6,7 +7,7 @@
 #include <cstdlib>
 #include <typeinfo>
 
-Error::Format Error::errformat = Error::Format::HUMAN;
+ErrorFormat errformat = ErrorFormat::HUMAN;
 // LocationVisitor {{{1
 class LocationVisitor :
     public ASTNS::DeclBVisitor,

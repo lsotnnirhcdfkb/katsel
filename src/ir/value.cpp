@@ -1,5 +1,5 @@
 #include "ir/value.h"
-#include "message/errors.h"
+#include "ir/type.h"
 #include "utils/format.h"
 
 IR::Register::Register(int index, IR::Type *type, ASTNS::AST *defAST): _defAST(defAST), index(index), ty(type) {}

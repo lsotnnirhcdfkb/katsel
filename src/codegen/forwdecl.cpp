@@ -1,5 +1,4 @@
 #include "codegenlocal.h"
-#include "message/errors.h"
 #include "message/errmsgs.h"
 #include "ir/unit.h"
 

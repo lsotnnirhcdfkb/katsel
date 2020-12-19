@@ -1,4 +1,5 @@
-#include "message/errors.h"
+#include "message/error.h"
+#include "errors.h"
 #include "message/ansistuff.h"
 #include "utils/format.h"
 #include <algorithm>
@@ -70,7 +71,7 @@ inline static char const * resetIfNecessary()
 // report {{{1
 void Error::report() const
 {
-    if (errformat == Format::HUMAN)
+    if (errformat == ErrorFormat::HUMAN)
     {
         std::string msgtypestr;
         switch (type)

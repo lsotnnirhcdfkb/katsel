@@ -12,6 +12,7 @@
 #include "utils/file.h"
 #include "lex/lexer.h"
 #include "message/ansistuff.h"
+#include "message/error.h"
 #include "ast/printvisitor.h"
 #include "ast/dotvisitor.h"
 #include "codegen/codegen.h"
@@ -247,14 +248,14 @@ int main(int argc, char *argv[])
 
             case 'e':
                 if (strcmp(optarg, "json") == 0)
-                    Error::errformat = Error::Format::JSON;
+                    errformat = ErrorFormat::JSON;
                 else if (strcmp(optarg, "human") == 0)
-                    Error::errformat = Error::Format::HUMAN;
+                    errformat = ErrorFormat::HUMAN;
                 else
                 {
                     std::cerr << "Invalid argument for option -e: '" << optarg << "'\n";
                     std::cerr << "Defaulting to -ehuman\n";
-                    Error::errformat = Error::Format::HUMAN;
+                    errformat = ErrorFormat::HUMAN;
                 }
                 break;
 

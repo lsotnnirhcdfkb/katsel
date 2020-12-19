@@ -1,6 +1,6 @@
 #include "ir/value.h"
+#include "ir/type.h"
 #include "ir/instruction.h"
-#include "message/errors.h"
 #include "utils/format.h"
 
 IR::Function::Function(IR::FunctionType *ty, std::string name, ASTNS::FunctionDecl *defAST): ty(ty), name(name), prototypeonly(false), _defAST(defAST), blocki(0), regi(0), tempregi(0) {}

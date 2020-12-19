@@ -4,7 +4,6 @@
 #include "lex/token.h"
 #include "ast/ast.h"
 #include "utils/file.h"
-#include "message/errors.h"
 
 #include <memory>
 #include <string>

@@ -1,5 +1,5 @@
 #include "lower/lowerer.h"
-#include "message/errors.h"
+#include "ir/type.h"
 #include "message/reportAbort.h"
 #include <memory>
 

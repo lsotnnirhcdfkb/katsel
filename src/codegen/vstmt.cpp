@@ -1,5 +1,4 @@
 #include "codegenlocal.h"
-#include "message/errors.h"
 #include "message/errmsgs.h"
 
 void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem *ast)

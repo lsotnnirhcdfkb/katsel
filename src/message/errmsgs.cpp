@@ -1,5 +1,5 @@
 #include "message/errmsgs.h"
-#include "message/errors.h"
+#include "errors.h"
 #include "utils/format.h"
 
 // ERRCPP START
