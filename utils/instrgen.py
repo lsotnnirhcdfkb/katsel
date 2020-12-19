@@ -36,6 +36,8 @@ instructions = [
 
     Instruction('Or'          , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType'), targetEqual('lhs.type()'), typeMustBe('lhs.type()', 'BoolType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
     Instruction('And'         , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType'), targetEqual('lhs.type()'), typeMustBe('lhs.type()', 'BoolType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
+    Instruction('ShortOr'     , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType'), targetEqual('lhs.type()'), typeMustBe('lhs.type()', 'BoolType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
+    Instruction('ShortAnd'    , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType'), targetEqual('lhs.type()'), typeMustBe('lhs.type()', 'BoolType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
     Instruction('Not'         , 'Instruction' , ['TempRegister* target', 'ASTValue op'                                     ], [typeMustBe('target->type()', 'BoolType'), targetEqual('op.type()')]),
 
     Instruction('ICmpNE'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType'), typeIsIntegral('lhs.type()'), *operandsEqual('lhs.type()', 'rhs.type()')]),
@@ -74,12 +76,9 @@ instructions = [
 
     Instruction('NoOpCast'    , 'Instruction' , ['TempRegister* target', 'ASTValue op', 'Type* newt'                       ], []),
 
-    Instruction('ITrunc'      , 'Instruction' , ['TempRegister* target', 'ASTValue op', 'IntType* newt'                    ], [typeIsIntegral('op.type()'), targetEqual('newt')]),
-    Instruction('IExt'        , 'Instruction' , ['TempRegister* target', 'ASTValue op', 'IntType* newt'                    ], [typeIsIntegral('op.type()'), targetEqual('newt')]),
-    Instruction('FTrunc'      , 'Instruction' , ['TempRegister* target', 'ASTValue op', 'FloatType* newt'                  ], [typeIsFloating('op.type()'), targetEqual('newt')]),
-    Instruction('FExt'        , 'Instruction' , ['TempRegister* target', 'ASTValue op', 'FloatType* newt'                  ], [typeIsFloating('op.type()'), targetEqual('newt')]),
-
+    Instruction('IntToInt'    , 'Instruction' , ['TempRegister* target', 'ASTValue op', 'IntType* newt'                    ], [typeIsIntegral('op.type()'), targetEqual('newt')]),
     Instruction('IntToFloat'  , 'Instruction' , ['TempRegister* target', 'ASTValue op', 'FloatType* newt'                  ], [typeIsIntegral('op.type()'), targetEqual('newt')]),
+    Instruction('FloatToFloat', 'Instruction' , ['TempRegister* target', 'ASTValue op', 'FloatType* newt'                  ], [typeIsFloating('op.type()'), targetEqual('newt')]),
     Instruction('FloatToInt'  , 'Instruction' , ['TempRegister* target', 'ASTValue op', 'IntType* newt'                    ], [typeIsFloating('op.type()'), targetEqual('newt')]),
 
     Instruction('Return'      , 'Instruction' , ['Register* value'                                                         ], []),

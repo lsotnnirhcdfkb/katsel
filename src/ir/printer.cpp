@@ -33,6 +33,14 @@ void IR::Printer::visitAnd(IR::Instrs::And *i)
 {
     ostream << format("and % % -> %", i->lhs, i->rhs, i->target);
 }
+void IR::Printer::visitShortOr(IR::Instrs::ShortOr *i)
+{
+    ostream << format("shortor % % -> %", i->lhs, i->rhs, i->target);
+}
+void IR::Printer::visitShortAnd(IR::Instrs::ShortAnd *i)
+{
+    ostream << format("shortand % % -> %", i->lhs, i->rhs, i->target);
+}
 void IR::Printer::visitNot(IR::Instrs::Not *i)
 {
     ostream << format("not % -> %", i->op, i->target);
@@ -161,29 +169,21 @@ void IR::Printer::visitNoOpCast(IR::Instrs::NoOpCast *i)
 {
     ostream << format("noopcast % > % -> %", i->op, i->newt, i->target);
 }
-void IR::Printer::visitFTrunc(IR::Instrs::FTrunc *i)
+void IR::Printer::visitFloatToFloat(IR::Instrs::FloatToFloat *i)
 {
-    ostream << format("ftrunc % > % -> %", i->op, i->newt, i->target);
+    ostream << format("ftof % > % -> %", i->op, i->newt, i->target);
 }
-void IR::Printer::visitFExt(IR::Instrs::FExt *i)
+void IR::Printer::visitIntToInt(IR::Instrs::IntToInt *i)
 {
-    ostream << format("fext % > % -> %", i->op, i->newt, i->target);
-}
-void IR::Printer::visitITrunc(IR::Instrs::ITrunc *i)
-{
-    ostream << format("itrunc % > % -> %", i->op, i->newt, i->target);
-}
-void IR::Printer::visitIExt(IR::Instrs::IExt *i)
-{
-    ostream << format("iext % > % -> %", i->op, i->newt, i->target);
+    ostream << format("itoi % > % -> %", i->op, i->newt, i->target);
 }
 void IR::Printer::visitIntToFloat(IR::Instrs::IntToFloat *i)
 {
-    ostream << format("inttofloat % > % -> %", i->op, i->newt, i->target);
+    ostream << format("itof % > % -> %", i->op, i->newt, i->target);
 }
 void IR::Printer::visitFloatToInt(IR::Instrs::FloatToInt *i)
 {
-    ostream << format("floattoint % > % -> %", i->op, i->newt, i->target);
+    ostream << format("ftoi % > % -> %", i->op, i->newt, i->target);
 }
 void IR::Printer::visitReturn(IR::Instrs::Return *i)
 {

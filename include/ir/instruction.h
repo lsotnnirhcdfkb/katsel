@@ -70,6 +70,24 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
+    class ShortOr : public Instruction
+    {
+    public:
+        ShortOr(TempRegister *target, ASTValue lhs, ASTValue rhs);
+        void accept(InstructionVisitor *v) override;
+        TempRegister *target;
+        ASTValue lhs;
+        ASTValue rhs;
+    };
+    class ShortAnd : public Instruction
+    {
+    public:
+        ShortAnd(TempRegister *target, ASTValue lhs, ASTValue rhs);
+        void accept(InstructionVisitor *v) override;
+        TempRegister *target;
+        ASTValue lhs;
+        ASTValue rhs;
+    };
     class Not : public Instruction
     {
     public:
@@ -354,46 +372,28 @@ namespace IR
         ASTValue op;
         Type *newt;
     };
-    class ITrunc : public Instruction
+    class IntToInt : public Instruction
     {
     public:
-        ITrunc(TempRegister *target, ASTValue op, IntType *newt);
+        IntToInt(TempRegister *target, ASTValue op, IntType *newt);
         void accept(InstructionVisitor *v) override;
         TempRegister *target;
         ASTValue op;
         IntType *newt;
-    };
-    class IExt : public Instruction
-    {
-    public:
-        IExt(TempRegister *target, ASTValue op, IntType *newt);
-        void accept(InstructionVisitor *v) override;
-        TempRegister *target;
-        ASTValue op;
-        IntType *newt;
-    };
-    class FTrunc : public Instruction
-    {
-    public:
-        FTrunc(TempRegister *target, ASTValue op, FloatType *newt);
-        void accept(InstructionVisitor *v) override;
-        TempRegister *target;
-        ASTValue op;
-        FloatType *newt;
-    };
-    class FExt : public Instruction
-    {
-    public:
-        FExt(TempRegister *target, ASTValue op, FloatType *newt);
-        void accept(InstructionVisitor *v) override;
-        TempRegister *target;
-        ASTValue op;
-        FloatType *newt;
     };
     class IntToFloat : public Instruction
     {
     public:
         IntToFloat(TempRegister *target, ASTValue op, FloatType *newt);
+        void accept(InstructionVisitor *v) override;
+        TempRegister *target;
+        ASTValue op;
+        FloatType *newt;
+    };
+    class FloatToFloat : public Instruction
+    {
+    public:
+        FloatToFloat(TempRegister *target, ASTValue op, FloatType *newt);
         void accept(InstructionVisitor *v) override;
         TempRegister *target;
         ASTValue op;

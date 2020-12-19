@@ -28,6 +28,74 @@ void Lower::Lowerer::visitAnd(IR::Instrs::And *instr)
 {
     tempregisters[instr->target] = builder.CreateAnd(lower(instr->lhs), lower(instr->rhs));
 }
+void Lower::Lowerer::visitShortOr(IR::Instrs::ShortOr *instr)
+{
+    // lhs || rhs
+    // becomes
+    // if (lhs)
+    //     true
+    // else
+    //     rhs
+
+    llvm::Function *f = builder.GetInsertBlock()->getParent();
+
+    llvm::BasicBlock *ltrueb = llvm::BasicBlock::Create(context, "binaryor_ltrueb", f);
+    llvm::BasicBlock *checkbothb = llvm::BasicBlock::Create(context, "binaryor_checkbothb");
+    llvm::BasicBlock *afterb = llvm::BasicBlock::Create(context, "binaryor_afterb");
+
+    llvm::Value *cond = lower(instr->lhs);
+    builder.CreateCondBr(cond, ltrueb, checkbothb);
+
+    builder.SetInsertPoint(ltrueb);
+    builder.CreateBr(afterb);
+
+    f->getBasicBlockList().push_back(checkbothb);
+    builder.SetInsertPoint(checkbothb);
+    builder.CreateBr(afterb);
+
+    f->getBasicBlockList().push_back(afterb);
+    builder.SetInsertPoint(afterb);
+
+    llvm::PHINode *phi = builder.CreatePHI(instr->target->type()->toLLVMType(context), 2);
+    phi->addIncoming(llvm::ConstantInt::getTrue(context), ltrueb);
+    phi->addIncoming(lower(instr->rhs), checkbothb);
+
+    tempregisters[instr->target] = phi;
+}
+void Lower::Lowerer::visitShortAnd(IR::Instrs::ShortAnd *instr)
+{
+    // lhs && rhs
+    // becomes
+    // if (lhs)
+    //     rhs
+    // else
+    //     false
+
+    llvm::Function *f = builder.GetInsertBlock()->getParent();
+
+    llvm::BasicBlock *checkbothb = llvm::BasicBlock::Create(context, "binaryor_checkbothb", f);
+    llvm::BasicBlock *lfalseb = llvm::BasicBlock::Create(context, "binaryor_ltrueb");
+    llvm::BasicBlock *afterb = llvm::BasicBlock::Create(context, "binaryor_afterb");
+
+    llvm::Value *cond = lower(instr->lhs);
+    builder.CreateCondBr(cond, checkbothb, lfalseb);
+
+    builder.SetInsertPoint(checkbothb);
+    builder.CreateBr(afterb);
+
+    f->getBasicBlockList().push_back(lfalseb);
+    builder.SetInsertPoint(lfalseb);
+    builder.CreateBr(afterb);
+
+    f->getBasicBlockList().push_back(afterb);
+    builder.SetInsertPoint(afterb);
+
+    llvm::PHINode *phi = builder.CreatePHI(instr->target->type()->toLLVMType(context), 2);
+    phi->addIncoming(lower(instr->rhs), checkbothb);
+    phi->addIncoming(llvm::ConstantInt::getFalse(context), lfalseb);
+
+    tempregisters[instr->target] = phi;
+}
 void Lower::Lowerer::visitNot(IR::Instrs::Not *instr)
 {
     tempregisters[instr->target] = builder.CreateICmpEQ(lower(instr->op), llvm::ConstantInt::get(llvm::Type::getInt1Ty(context), 0));
@@ -113,27 +181,28 @@ void Lower::Lowerer::visitNoOpCast(IR::Instrs::NoOpCast *instr)
 {
     tempregisters[instr->target] = builder.CreateBitCast(lower(instr->op), instr->newt->toLLVMType(context));
 }
-void Lower::Lowerer::visitFTrunc(IR::Instrs::FTrunc *instr)
+void Lower::Lowerer::visitFloatToFloat(IR::Instrs::FloatToFloat *instr)
 {
-    tempregisters[instr->target] = builder.CreateFPTrunc(lower(instr->op), instr->newt->toLLVMType(context));
+    IR::FloatType *bty = static_cast<IR::FloatType*>(instr->op.type());
+
+    if (bty->size < instr->newt->size)
+        tempregisters[instr->target] = builder.CreateFPExt(lower(instr->op), instr->newt->toLLVMType(context));
+    else if (bty->size > instr->newt->size)
+        tempregisters[instr->target] = builder.CreateFPTrunc(lower(instr->op), instr->newt->toLLVMType(context));
 }
-void Lower::Lowerer::visitITrunc(IR::Instrs::ITrunc *instr)
-{
-    tempregisters[instr->target] = builder.CreateTrunc(lower(instr->op), instr->newt->toLLVMType(context));
-}
-void Lower::Lowerer::visitFExt(IR::Instrs::FExt *instr)
-{
-    tempregisters[instr->target] = builder.CreateFPExt(lower(instr->op), instr->newt->toLLVMType(context));
-}
-void Lower::Lowerer::visitIExt(IR::Instrs::IExt *instr)
+void Lower::Lowerer::visitIntToInt(IR::Instrs::IntToInt *instr)
 {
     IR::IntType *bty = static_cast<IR::IntType*>(instr->op.type());
-    if (bty->isSigned)
-        tempregisters[instr->target] = builder.CreateSExt(lower(instr->op), instr->newt->toLLVMType(context));
-    else
-        tempregisters[instr->target] = builder.CreateZExt(lower(instr->op), instr->newt->toLLVMType(context));
+    if (bty->size < instr->newt->size)
+    {
+        if (bty->isSigned)
+            tempregisters[instr->target] = builder.CreateSExt(lower(instr->op), instr->newt->toLLVMType(context));
+        else
+            tempregisters[instr->target] = builder.CreateZExt(lower(instr->op), instr->newt->toLLVMType(context));
+    }
+    if (bty->size > instr->newt->size)
+        tempregisters[instr->target] = builder.CreateTrunc(lower(instr->op), instr->newt->toLLVMType(context));
 }
-
 void Lower::Lowerer::visitIntToFloat(IR::Instrs::IntToFloat *instr)
 {
     IR::IntType *bty = static_cast<IR::IntType*>(instr->op.type());
@@ -149,7 +218,7 @@ void Lower::Lowerer::visitFloatToInt(IR::Instrs::FloatToInt *instr)
     else
         tempregisters[instr->target] = builder.CreateFPToUI(lower(instr->op), instr->newt->toLLVMType(context));
 }
-// Branches {{{1
+// Branch instructions {{{1
 void Lower::Lowerer::visitReturn(IR::Instrs::Return *instr)
 {
     if (!dynamic_cast<IR::VoidType*>(instr->value->type()))

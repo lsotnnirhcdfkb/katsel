@@ -33,6 +33,22 @@ IR::Instrs::And::And(TempRegister *target, ASTValue lhs, ASTValue rhs): target(t
     ASSERT(lhs.type() == rhs.type())
 }
 void IR::Instrs::And::accept(InstructionVisitor *v) { v->visitAnd(this); }
+IR::Instrs::ShortOr::ShortOr(TempRegister *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
+{
+    ASSERT(dynamic_cast<BoolType*>(target->type()))
+    ASSERT(target->type() == lhs.type())
+    ASSERT(dynamic_cast<BoolType*>(lhs.type()))
+    ASSERT(lhs.type() == rhs.type())
+}
+void IR::Instrs::ShortOr::accept(InstructionVisitor *v) { v->visitShortOr(this); }
+IR::Instrs::ShortAnd::ShortAnd(TempRegister *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
+{
+    ASSERT(dynamic_cast<BoolType*>(target->type()))
+    ASSERT(target->type() == lhs.type())
+    ASSERT(dynamic_cast<BoolType*>(lhs.type()))
+    ASSERT(lhs.type() == rhs.type())
+}
+void IR::Instrs::ShortAnd::accept(InstructionVisitor *v) { v->visitShortAnd(this); }
 IR::Instrs::Not::Not(TempRegister *target, ASTValue op): target(target), op(op)
 {
     ASSERT(dynamic_cast<BoolType*>(target->type()))
@@ -260,36 +276,24 @@ IR::Instrs::NoOpCast::NoOpCast(TempRegister *target, ASTValue op, Type *newt): t
 {
 }
 void IR::Instrs::NoOpCast::accept(InstructionVisitor *v) { v->visitNoOpCast(this); }
-IR::Instrs::ITrunc::ITrunc(TempRegister *target, ASTValue op, IntType *newt): target(target), op(op), newt(newt)
+IR::Instrs::IntToInt::IntToInt(TempRegister *target, ASTValue op, IntType *newt): target(target), op(op), newt(newt)
 {
     ASSERT(dynamic_cast<IntType*>(op.type()) || dynamic_cast<GenericIntType*>(op.type()))
     ASSERT(target->type() == newt)
 }
-void IR::Instrs::ITrunc::accept(InstructionVisitor *v) { v->visitITrunc(this); }
-IR::Instrs::IExt::IExt(TempRegister *target, ASTValue op, IntType *newt): target(target), op(op), newt(newt)
-{
-    ASSERT(dynamic_cast<IntType*>(op.type()) || dynamic_cast<GenericIntType*>(op.type()))
-    ASSERT(target->type() == newt)
-}
-void IR::Instrs::IExt::accept(InstructionVisitor *v) { v->visitIExt(this); }
-IR::Instrs::FTrunc::FTrunc(TempRegister *target, ASTValue op, FloatType *newt): target(target), op(op), newt(newt)
-{
-    ASSERT(dynamic_cast<FloatType*>(op.type()) || dynamic_cast<GenericFloatType*>(op.type()))
-    ASSERT(target->type() == newt)
-}
-void IR::Instrs::FTrunc::accept(InstructionVisitor *v) { v->visitFTrunc(this); }
-IR::Instrs::FExt::FExt(TempRegister *target, ASTValue op, FloatType *newt): target(target), op(op), newt(newt)
-{
-    ASSERT(dynamic_cast<FloatType*>(op.type()) || dynamic_cast<GenericFloatType*>(op.type()))
-    ASSERT(target->type() == newt)
-}
-void IR::Instrs::FExt::accept(InstructionVisitor *v) { v->visitFExt(this); }
+void IR::Instrs::IntToInt::accept(InstructionVisitor *v) { v->visitIntToInt(this); }
 IR::Instrs::IntToFloat::IntToFloat(TempRegister *target, ASTValue op, FloatType *newt): target(target), op(op), newt(newt)
 {
     ASSERT(dynamic_cast<IntType*>(op.type()) || dynamic_cast<GenericIntType*>(op.type()))
     ASSERT(target->type() == newt)
 }
 void IR::Instrs::IntToFloat::accept(InstructionVisitor *v) { v->visitIntToFloat(this); }
+IR::Instrs::FloatToFloat::FloatToFloat(TempRegister *target, ASTValue op, FloatType *newt): target(target), op(op), newt(newt)
+{
+    ASSERT(dynamic_cast<FloatType*>(op.type()) || dynamic_cast<GenericFloatType*>(op.type()))
+    ASSERT(target->type() == newt)
+}
+void IR::Instrs::FloatToFloat::accept(InstructionVisitor *v) { v->visitFloatToFloat(this); }
 IR::Instrs::FloatToInt::FloatToInt(TempRegister *target, ASTValue op, IntType *newt): target(target), op(op), newt(newt)
 {
     ASSERT(dynamic_cast<FloatType*>(op.type()) || dynamic_cast<GenericFloatType*>(op.type()))

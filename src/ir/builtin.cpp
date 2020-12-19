@@ -42,56 +42,6 @@ static IR::Type* defaultBinOpRetTy(CodeGen::Context &cgc, IR::Type *ltype, IR::T
             return ltype;
     }
 }
-#define SUPPORT_SHORT_CIRCUIT_OR() case Type::BinaryOperator::doublepipe: shortCircuitOr(cgc, fun, curBlock, op, l, r, retReg, ast); break;
-static void shortCircuitOr(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::Type::BinaryOperator op, IR::ASTValue l, IR::ASTValue r, IR::TempRegister *retReg, ASTNS::AST *ast)
-{
-    IR::Block *ltrueb = fun.addBlock("binaryor_ltrueb");
-    IR::Block *checkbothb = fun.addBlock("binaryor_checkbothb");
-    IR::Block *afterb = fun.addBlock("binaryor_afterb");
-
-    // i || j
-    // becomes
-    // if (i)
-    //     true
-    //  else
-    //     j
-
-    curBlock->branch(std::make_unique<IR::Instrs::CondBr>(l, ltrueb, checkbothb));
-
-    curBlock = ltrueb;
-    curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
-
-    curBlock = checkbothb;
-    curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
-
-    curBlock = afterb;
-    curBlock->add(std::make_unique<IR::Instrs::Phi>(retReg, std::vector {std::make_pair(ltrueb, IR::ASTValue(cgc.getConstBool(true), ast)), std::make_pair(checkbothb, r)}));
-}
-#define SUPPORT_SHORT_CIRCUIT_AND() case IR::Type::BinaryOperator::doubleamper: shortCircuitAnd(cgc, fun, curBlock, op, l, r, retReg, ast); break;
-static void shortCircuitAnd(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::Type::BinaryOperator op, IR::ASTValue l, IR::ASTValue r, IR::TempRegister *retReg, ASTNS::AST *ast)
-{
-    IR::Block *lfalseb = fun.addBlock("binaryand_lfalseb");
-    IR::Block *checkbothb = fun.addBlock("binaryand_checkbothb");
-    IR::Block *afterb = fun.addBlock("binaryand_afterb");
-
-    // i && j
-    // becomes
-    // if (i)
-    //     j
-    //  else
-    //     false
-
-    curBlock->branch(std::make_unique<IR::Instrs::CondBr>(l, checkbothb, lfalseb));
-
-    curBlock = checkbothb;
-    curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
-
-    curBlock = lfalseb;
-    curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
-
-    curBlock = afterb;
-    curBlock->add(std::make_unique<IR::Instrs::Phi>(retReg, std::vector {std::make_pair(checkbothb, r), std::make_pair(lfalseb, IR::ASTValue(cgc.getConstBool(false), ast))}));
-}
 #define SUPPORT_OPERATOR_BASIC(op, instr) case IR::Type::BinaryOperator::op: curBlock->add(std::make_unique<IR::Instrs::instr>(retReg, l, r)); break;
 // float/int operations for reuse between generic float/int and concrete float/int types {{{1
 static IR::ASTValue floatBinOp(BIN_OP_ARGS)
@@ -249,10 +199,7 @@ IR::ASTValue IR::FloatType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR:
     else if (FloatType *styf = dynamic_cast<FloatType*>(v.type()))
     {
         IR::TempRegister *outReg = fun.addTempRegister(this);
-        if (styf->size > this->size)
-            curBlock->add(std::make_unique<IR::Instrs::FTrunc>(outReg, v, this));
-        else
-            curBlock->add(std::make_unique<IR::Instrs::FExt>(outReg, v, this));
+        curBlock->add(std::make_unique<IR::Instrs::FloatToFloat>(outReg, v, this));
         return ASTValue(outReg, ast);
     }
     else
@@ -266,7 +213,7 @@ IR::ASTValue IR::FloatType::implCast(CodeGen::Context &cgc, IR::Function &fun, I
     if (dynamic_cast<GenericFloatType*>(v.type()))
     {
         IR::TempRegister *concreteReg = fun.addTempRegister(this);
-        curBlock->add(std::make_unique<IR::Instrs::NoOpCast>(concreteReg, v, this));
+        curBlock->add(std::make_unique<IR::Instrs::FloatToFloat>(concreteReg, v, this));
         return ASTValue(concreteReg, v.ast);
     }
     return v;
@@ -323,14 +270,7 @@ IR::ASTValue IR::IntType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR::B
             v = IR::ASTValue(castedReg, v.ast);
         }
 
-        // int -> int
-        int stySize = styInt->size;
-        int etySize = this->size;
-
-        if (stySize > etySize)
-            curBlock->add(std::make_unique<IR::Instrs::ITrunc>(outReg, v, this));
-        else
-            curBlock->add(std::make_unique<IR::Instrs::IExt>(outReg, v, this));
+        curBlock->add(std::make_unique<IR::Instrs::IntToInt>(outReg, v, this));
     }
     else if (styFloat)
     {
@@ -348,7 +288,7 @@ IR::ASTValue IR::IntType::implCast(CodeGen::Context &cgc, IR::Function &fun, IR:
     if (dynamic_cast<GenericIntType*>(v.type()))
     {
         IR::TempRegister *concreteReg = fun.addTempRegister(this);
-        curBlock->add(std::make_unique<IR::Instrs::NoOpCast>(concreteReg, v, this));
+        curBlock->add(std::make_unique<IR::Instrs::IntToInt>(concreteReg, v, this));
         return ASTValue(concreteReg, v.ast);
     }
     return v;
@@ -472,10 +412,7 @@ IR::ASTValue IR::CharType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR::
 
     IR::IntType *charAsIntType (cgc.getIntType(8, false));
     IR::TempRegister *asIntReg = fun.addTempRegister(charAsIntType);
-    if (sty->size > 8)
-        curBlock->add(std::make_unique<IR::Instrs::ITrunc>(asIntReg, v, charAsIntType));
-    else
-        curBlock->add(std::make_unique<IR::Instrs::IExt>(asIntReg, v, charAsIntType));
+    curBlock->add(std::make_unique<IR::Instrs::IntToInt>(asIntReg, v, charAsIntType));
 
     IR::TempRegister *outReg = fun.addTempRegister(this);
     curBlock->add(std::make_unique<IR::Instrs::NoOpCast>(outReg, IR::ASTValue(asIntReg, v.ast), this));
@@ -515,8 +452,8 @@ IR::ASTValue IR::BoolType::binOp(CodeGen::Context &cgc, Function &fun, Block *&c
         SUPPORT_OPERATOR_BASIC(amper, BitAnd)
         SUPPORT_OPERATOR_BASIC(pipe, BitOr)
         SUPPORT_OPERATOR_BASIC(caret, BitXor)
-        SUPPORT_SHORT_CIRCUIT_OR()
-        SUPPORT_SHORT_CIRCUIT_AND()
+        SUPPORT_OPERATOR_BASIC(doublepipe, ShortOr)
+        SUPPORT_OPERATOR_BASIC(doubleamper, ShortAnd)
         SUPPORT_OPERATOR_BASIC(doubleequal, ICmpEQ)
         SUPPORT_OPERATOR_BASIC(bangequal, ICmpNE)
 
@@ -559,7 +496,7 @@ IR::ASTValue IR::BoolType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR::
 
     IR::IntType *boolAsIntType (cgc.getIntType(1, false));
     IR::TempRegister *asIntReg = fun.addTempRegister(boolAsIntType);
-    curBlock->add(std::make_unique<IR::Instrs::ITrunc>(asIntReg, v, boolAsIntType));
+    curBlock->add(std::make_unique<IR::Instrs::IntToInt>(asIntReg, v, boolAsIntType));
 
     IR::TempRegister *outReg = fun.addTempRegister(this);
     curBlock->add(std::make_unique<IR::Instrs::NoOpCast>(outReg, ASTValue(asIntReg, v.ast), this));
