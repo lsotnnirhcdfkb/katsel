@@ -677,15 +677,6 @@ Error& Error::underline(Underline const &underline)
     underlines.push_back(underline);
     return *this;
 }
-Error& Error::span(Location const &start, Location const &end)
-{
-    if (start.file != end.file)
-        std::abort();
-
-    spans.push_back(Span {*start.file, start.start, end.end});
-    return *this;
-}
-
 // Underline message methods {{{1
 Error::Underline::Underline(Location const &location, char ch): location(location), ch(ch) {}
 Error::Underline& Error::Underline::error(std::string const &message)

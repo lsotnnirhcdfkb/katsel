@@ -184,7 +184,7 @@ void E0102(Token const &lookahead, Token const &panicuntil, std::vector<std::str
         .error(format("unexpected %", lookahead.type))
     );
     e.underline(Error::Underline(panicuntil, '-')
-        .note("parser panicked until here")
+        .note(format("parser panicked until %", panicuntil.type))
     );
 auto un (Error::Underline(lookahead, '^'));
 for (std::string const &expectation : expectations)

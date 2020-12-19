@@ -164,7 +164,7 @@ errors:
           ['error', 'format("unexpected %", lookahead.type)'],
         ]]
       - ['panicuntil', *under2, [
-          ['note', '"parser panicked until here"']
+          ['note', 'format("parser panicked until %", panicuntil.type)']
         ]]
     extra: |
       auto un (Error::Underline(lookahead, '^'));

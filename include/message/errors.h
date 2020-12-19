@@ -73,12 +73,6 @@ public:
     } errformat;
 
 private:
-    struct Span
-    {
-        File const &file;
-        std::string::iterator start, end;
-    };
-
     class Underline
     {
     public:
@@ -114,13 +108,11 @@ private:
     Error(MsgType type, Location const &location, std::string message);
 
     Error& underline(Underline const &underline);
-    Error& span(Location const &start, Location const &end);
 
     MsgType type;
     Location location;
     std::string message;
 
     std::vector<Underline> underlines;
-    std::vector<Span> spans;
 };
 

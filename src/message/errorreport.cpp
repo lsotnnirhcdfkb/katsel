@@ -92,10 +92,6 @@ void Error::report() const
         };
         std::vector<showline> showlines;
 
-        for (Span const &span : spans)
-            for (int i = getLineN(span.file.source.begin(), span.start); i < getLineN(span.file.source.begin(), span.end); ++i)
-                showlines.push_back(showline {&span.file, i});
-
         for (Error::Underline const &u : underlines)
         {
             std::string::const_iterator begin = u.location.file->source.begin();
@@ -120,7 +116,6 @@ void Error::report() const
                 return a.file->filename < b.file->filename;
             });
 
-        int maxlinepad = 0;
         // i + 1 < instead of i < size - 1 because - 1 can overflow to the highest value and become true
         for (size_t i = 0; i + 1 < showlines.size(); )
         {
@@ -135,6 +130,7 @@ void Error::report() const
                 for (int j = showlines[i].line + 1; j < showlines[i + 1].line; ++j)
                     showlines.insert(showlines.begin() + i + 1, showline {showlines[i].file, j});
 
+        int maxlinepad = 0;
         for (showline const &s : showlines)
         {
             int linew = 1, linenr = s.line;
