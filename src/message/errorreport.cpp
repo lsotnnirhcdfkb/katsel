@@ -68,86 +68,210 @@ inline static char const * resetIfNecessary()
     else
         return "";
 }
+// helpers {{{1
+// printHeading {{{2
+void Error::printHeading() const
+{
+    std::string msgtypestr;
+    switch (type)
+    {
+        case Error::MsgType::ERROR:
+            msgtypestr = attr(A_BOLD A_FG_RED, "Error");
+            break;
+        case Error::MsgType::WARNING:
+            msgtypestr = attr(A_BOLD A_FG_MAGENTA, "Warning");
+            break;
+    }
+    std::string::const_iterator const fstart = location.file->source.cbegin();
+    std::cerr << format("% at %:%:%:% %\n", msgtypestr, attr(A_FG_CYAN, location.file->filename, true), getLineN(fstart, location.start), getColN(fstart, location.start), resetIfNecessary(), message);
+}
+// collectShowlines {{{2
+std::vector<Error::showline> Error::collectShowlines() const
+{
+    std::vector<showline> showlines;
+    for (Error::Underline const &u : underlines)
+    {
+        std::string::const_iterator begin = u.location.file->source.begin();
+        int startLineN = getLineN(begin, u.location.start), endLineN = getLineN(begin, u.location.end - 1);
+        // because end is inclusive
+        if ((endLineN + 1) - startLineN < 4)
+            for (int i = startLineN; i <= endLineN; ++i)
+                showlines.push_back(showline {u.location.file, i});
+        else
+        {
+            showlines.push_back(showline {u.location.file, startLineN});
+            showlines.push_back(showline {u.location.file, startLineN + 1});
+            showlines.push_back(showline {u.location.file, endLineN});
+            showlines.push_back(showline {u.location.file, endLineN - 1});
+        }
+    }
+
+    std::sort(showlines.begin(), showlines.end(), [](showline const &a, showline const &b) {
+            return a.line < b.line;
+        });
+    std::stable_sort(showlines.begin(), showlines.end(), [](showline const &a, showline const &b) {
+            return a.file->filename < b.file->filename;
+        });
+
+    // i + 1 < instead of i < size - 1 because - 1 can overflow to the highest value and become true
+    for (size_t i = 0; i + 1 < showlines.size(); )
+        if (showlines[i].file == showlines[i + 1].file && showlines[i].line == showlines[i + 1].line)
+            showlines.erase(showlines.begin() + i + 1);
+        else
+            ++i;
+
+    for (size_t i = 0; i + 1 < showlines.size(); ++i)
+        if (showlines[i].file == showlines[i + 1].file && showlines[i + 1].line - showlines[i].line > 1 && showlines[i + 1].line - showlines[i].line < 3)
+            for (int j = showlines[i].line + 1; j < showlines[i + 1].line; ++j)
+                showlines.insert(showlines.begin() + i + 1, showline {showlines[i].file, j});
+
+    return showlines;
+}
+// countLinePad {{{2
+int Error::countLinePad(std::vector<showline> const &showlines) const
+{
+    int maxlinepad = 0;
+    for (showline const &s : showlines)
+    {
+        int linew = 1, linenr = s.line;
+        while (linenr /= 10)
+            ++linew;
+        maxlinepad = std::max(linew, maxlinepad);
+    }
+    return maxlinepad;
+}
+// print predefined lines {{{2
+void Error::printFileLine(std::string const &pad, File const *file) const
+{
+    std::cerr << pad << "> " << attr(A_FG_CYAN, file->filename) << std::endl;
+}
+void Error::printElipsisLine(std::string const &pad) const
+{
+    std::cerr << std::string(pad.size(), '.') << " | ...\n";
+}
+// print an line with its underlines {{{2
+void Error::printLine(showline const &sl, std::string const &pad) const
+{
+    std::string::const_iterator lstart, lend;
+    getLine(lstart, lend, *sl.file, sl.line);
+
+    std::vector<Underline const *> lchars;
+    lchars.reserve(std::distance(lstart, lend));
+
+    struct MessageColumn
+    {
+        Underline::Message const *message;
+        int column;
+    };
+    std::vector<MessageColumn> linemessages;
+
+    auto itInLoc = [](std::string::const_iterator const &i, Location const &l)
+    {
+        if (l.start == l.end)
+            return i == l.start;
+        return i >= l.start && i < l.end;
+    };
+
+    bool needsecond = false;
+    for (std::string::const_iterator i = lstart; i <= lend; ++i)
+    {
+        for (auto under = underlines.rbegin(); under != underlines.rend(); ++under) // do in reverse so that the first underlines are first when the messages are printed in reverse
+            if (itInLoc(i, under->location))
+            {
+                if ((under->location.end - 1 == i) || (under->location.start == under->location.end && under->location.start == i))
+                {
+                    int underlinecoln = getColN(under->location.file->source.begin(), under->location.end - 1);
+                    for (auto message = under->messages.rbegin(); message != under->messages.rend(); ++message) // in reverse for the same reason as above
+                        linemessages.push_back(MessageColumn {&*message, underlinecoln});
+                }
+
+                needsecond = true;
+            }
+
+        Underline const *charu = nullptr;
+        for (Underline const &u : underlines)
+            if (itInLoc(i, u.location))
+            {
+                charu = &u;
+                break;
+            }
+
+        lchars.push_back(charu);
+
+        if (i == lend); // dont print newline
+        else if (charu && charu->messages.size())
+            std::cerr << attr(A_BOLD, attr(charu->messages[0].color, std::string(1, *i)));
+        else if (charu)
+            std::cerr << attr(A_BOLD, std::string(1, *i));
+        else
+            std::cerr << *i;
+    }
+
+    std::cerr << std::endl;
+
+    if (needsecond)
+    {
+        std::cerr << pad << "| ";
+        for (Underline const *&i : lchars)
+        {
+            if (i && i->messages.size()) // in a underline
+                std::cerr << attr(A_BOLD, attr(i->messages[0].color, std::string(1, i->ch)));
+            else if (i)
+                std::cerr << attr(A_BOLD, std::string(1, i->ch));
+            else
+                std::cerr << " ";
+        }
+        std::cerr << std::endl;
+    }
+
+    if (linemessages.size())
+    {
+        for (auto mescol = linemessages.rbegin(); mescol != linemessages.rend(); ++mescol)
+        {
+            std::cerr << pad << "| ";
+            for (auto j = linemessages.begin(); j <= mescol.base() - 1; ++j)
+            {
+                j - linemessages.begin();
+                int lastcolumn = j == linemessages.begin() ? 0 : (j - 1)->column;
+                int diff = j->column - lastcolumn;
+
+                if (!diff)
+                    continue;
+
+                int pamt = diff - 1;
+
+                std::cerr << std::string(pamt, ' ');
+                if (j->column < (mescol.base() - 1)->column)
+                    std::cerr << '|';
+            }
+
+            bool lastmessage = mescol == linemessages.rend() - 1 || mescol->column != (mescol + 1)->column;
+            if (lastmessage)
+                std::cerr << attr(mescol->message->color, "`", true);
+            else
+                std::cerr << attr(mescol->message->color, "|", true);
+
+            std::cerr << "-- " << mescol->message->type << resetIfNecessary() << ": " << mescol->message->text << std::endl;
+        }
+    }
+}
 // report {{{1
 void Error::report() const
 {
     if (errformat == ErrorFormat::HUMAN)
     {
-        std::string msgtypestr;
-        switch (type)
-        {
-            case Error::MsgType::ERROR:
-                msgtypestr = attr(A_BOLD A_FG_RED, "Error");
-                break;
-            case Error::MsgType::WARNING:
-                msgtypestr = attr(A_BOLD A_FG_MAGENTA, "Warning");
-                break;
-        }
-        std::string::const_iterator const fstart = location.file->source.cbegin();
-        std::cerr << format("% at %:%:%:% %\n", msgtypestr, attr(A_FG_CYAN, location.file->filename, true), getLineN(fstart, location.start), getColN(fstart, location.start), resetIfNecessary(), message);
-
-        struct showline
-        {
-            const File *file;
-            int line;
-        };
-        std::vector<showline> showlines;
-
-        for (Error::Underline const &u : underlines)
-        {
-            std::string::const_iterator begin = u.location.file->source.begin();
-            int startLineN = getLineN(begin, u.location.start), endLineN = getLineN(begin, u.location.end - 1);
-            // because end is inclusive
-            if ((endLineN + 1) - startLineN < 4)
-                for (int i = startLineN; i <= endLineN; ++i)
-                    showlines.push_back(showline {u.location.file, i});
-            else
-            {
-                showlines.push_back(showline {u.location.file, startLineN});
-                showlines.push_back(showline {u.location.file, startLineN + 1});
-                showlines.push_back(showline {u.location.file, endLineN});
-                showlines.push_back(showline {u.location.file, endLineN - 1});
-            }
-        }
-
-        std::sort(showlines.begin(), showlines.end(), [](showline const &a, showline const &b) {
-                return a.line < b.line;
-            });
-        std::stable_sort(showlines.begin(), showlines.end(), [](showline const &a, showline const &b) {
-                return a.file->filename < b.file->filename;
-            });
-
-        // i + 1 < instead of i < size - 1 because - 1 can overflow to the highest value and become true
-        for (size_t i = 0; i + 1 < showlines.size(); )
-        {
-            if (showlines[i].file == showlines[i + 1].file && showlines[i].line == showlines[i + 1].line)
-                showlines.erase(showlines.begin() + i + 1);
-            else
-                ++i;
-        }
-
-        for (size_t i = 0; i + 1 < showlines.size(); ++i)
-            if (showlines[i].file == showlines[i + 1].file && showlines[i + 1].line - showlines[i].line > 1 && showlines[i + 1].line - showlines[i].line < 3)
-                for (int j = showlines[i].line + 1; j < showlines[i + 1].line; ++j)
-                    showlines.insert(showlines.begin() + i + 1, showline {showlines[i].file, j});
-
-        int maxlinepad = 0;
-        for (showline const &s : showlines)
-        {
-            int linew = 1, linenr = s.line;
-            while (linenr /= 10)
-                ++linew;
-            maxlinepad = std::max(linew, maxlinepad);
-        }
-
+        printHeading();
+        auto showlines (collectShowlines());
+        int maxlinepad (countLinePad(showlines));
         std::string pad (maxlinepad + 1, ' ');
+
         File const *lastfile = nullptr;
         int lastnr = -1;
         for (showline const &sl : showlines)
         {
             if (sl.file != lastfile)
             {
-                std::cerr << pad << "> " << attr(A_FG_CYAN, sl.file->filename) << std::endl;
+                printFileLine(pad, sl.file);
                 lastnr = -1;
             }
 
@@ -156,116 +280,14 @@ void Error::report() const
                 origState.copyfmt(std::cerr);
 
                 if (sl.line != lastnr + 1 && lastnr != -1)
-                    std::cerr << std::setw(maxlinepad) << std::right << std::string(maxlinepad, '.') << " | ...\n";
+                    printElipsisLine(pad);
 
                 std::cerr << std::setw(maxlinepad) << std::right << sl.line;
                 std::cerr.copyfmt(origState);
+                std::cerr << " | ";
             }
 
-            std::cerr << " | ";
-
-            std::string::const_iterator lstart, lend;
-            getLine(lstart, lend, *sl.file, sl.line);
-
-            std::vector<Underline const *> lchars;
-            lchars.reserve(std::distance(lstart, lend));
-
-            struct MessageColumn
-            {
-                Underline::Message const *message;
-                int column;
-            };
-            std::vector<MessageColumn> linemessages;
-
-            auto itInLoc = [](std::string::const_iterator const &i, Location const &l)
-            {
-                if (l.start == l.end)
-                    return i == l.start;
-                return i >= l.start && i < l.end;
-            };
-
-            bool needsecond = false;
-            for (std::string::const_iterator i = lstart; i <= lend; ++i)
-            {
-                for (auto under = underlines.rbegin(); under != underlines.rend(); ++under) // do in reverse so that the first underlines are first when the messages are printed in reverse
-                    if (itInLoc(i, under->location))
-                    {
-                        if ((under->location.end - 1 == i) || (under->location.start == under->location.end && under->location.start == i))
-                        {
-                            int underlinecoln = getColN(under->location.file->source.begin(), under->location.end - 1);
-                            for (auto message = under->messages.rbegin(); message != under->messages.rend(); ++message) // in reverse for the same reason as above
-                                linemessages.push_back(MessageColumn {&*message, underlinecoln});
-                        }
-
-                        needsecond = true;
-                    }
-
-                Underline const *charu = nullptr;
-                for (Underline const &u : underlines)
-                    if (itInLoc(i, u.location))
-                    {
-                        charu = &u;
-                        break;
-                    }
-
-                lchars.push_back(charu);
-
-                if (i == lend); // dont print newline
-                else if (charu && charu->messages.size())
-                    std::cerr << attr(A_BOLD, attr(charu->messages[0].color, std::string(1, *i)));
-                else if (charu)
-                    std::cerr << attr(A_BOLD, std::string(1, *i));
-                else
-                    std::cerr << *i;
-            }
-
-            std::cerr << std::endl;
-
-            if (needsecond)
-            {
-                std::cerr << pad << "| ";
-                for (Underline const *&i : lchars)
-                {
-                    if (i && i->messages.size()) // in a underline
-                        std::cerr << attr(A_BOLD, attr(i->messages[0].color, std::string(1, i->ch)));
-                    else if (i)
-                        std::cerr << attr(A_BOLD, std::string(1, i->ch));
-                    else
-                        std::cerr << " ";
-                }
-                std::cerr << std::endl;
-            }
-
-            if (linemessages.size())
-            {
-                for (auto mescol = linemessages.rbegin(); mescol != linemessages.rend(); ++mescol)
-                {
-                    std::cerr << pad << "| ";
-                    for (auto j = linemessages.begin(); j <= mescol.base() - 1; ++j)
-                    {
-                        j - linemessages.begin();
-                        int lastcolumn = j == linemessages.begin() ? 0 : (j - 1)->column;
-                        int diff = j->column - lastcolumn;
-
-                        if (!diff)
-                            continue;
-
-                        int pamt = diff - 1;
-
-                        std::cerr << std::string(pamt, ' ');
-                        if (j->column < (mescol.base() - 1)->column)
-                            std::cerr << '|';
-                    }
-
-                    bool lastmessage = mescol == linemessages.rend() - 1 || mescol->column != (mescol + 1)->column;
-                    if (lastmessage)
-                        std::cerr << attr(mescol->message->color, "`", true);
-                    else
-                        std::cerr << attr(mescol->message->color, "|", true);
-
-                    std::cerr << "-- " << mescol->message->type << resetIfNecessary() << ": " << mescol->message->text << std::endl;
-                }
-            }
+            printLine(sl, pad);
 
             lastfile = sl.file;
             lastnr = sl.line;

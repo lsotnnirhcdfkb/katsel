@@ -57,5 +57,19 @@ public:
     std::string message;
 
     std::vector<Underline> underlines;
+
+private: // things needed for report() implementation
+    struct showline
+    {
+        const File *file;
+        int line;
+    };
+
+    void printHeading() const;
+    std::vector<showline> collectShowlines() const;
+    int countLinePad(std::vector<showline> const &showlines) const;
+    void printFileLine(std::string const &pad, File const *file) const;
+    void printElipsisLine(std::string const &pad) const;
+    void printLine(showline const &sl, std::string const &pad) const;
 };
 
