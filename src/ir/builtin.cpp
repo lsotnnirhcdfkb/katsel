@@ -189,6 +189,11 @@ IR::ASTValue IR::FloatType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR:
     if (v.type() == this)
         return IR::ASTValue(v.val, ast);
 
+    v = implCast(cgc, fun, curBlock, v); // try implicit cast to self
+
+    if (v.type() == this)
+        return IR::ASTValue(v.val, ast);
+
     IntType *sty (dynamic_cast<IntType*>(v.type()));
     if (sty)
     {
@@ -240,6 +245,11 @@ IR::ASTValue IR::IntType::unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::
 }
 IR::ASTValue IR::IntType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast)
 {
+    if (v.type() == this)
+        return IR::ASTValue(v.val, ast);
+
+    v = implCast(cgc, fun, curBlock, v); // try implicit cast to self
+
     if (v.type() == this)
         return IR::ASTValue(v.val, ast);
 
