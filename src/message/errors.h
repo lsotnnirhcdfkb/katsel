@@ -64,6 +64,11 @@ private: // things needed for report() implementation
         const File *file;
         int line;
     };
+    struct MessageLocation
+    {
+        Underline::Message const &message;
+        int row, col;
+    };
 
     void printHeading() const;
     std::vector<showline> collectShowlines() const;

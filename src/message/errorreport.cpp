@@ -147,7 +147,7 @@ void Error::printFileLine(std::string const &pad, File const *file) const
 }
 void Error::printElipsisLine(std::string const &pad) const
 {
-    std::cerr << std::string(pad.size(), '.') << " | ...\n";
+    std::cerr << std::string(pad.size() - 1, '.') << " | ...\n";
 }
 // print an line with its underlines {{{2
 void Error::printLine(showline const &sl, std::string const &pad) const
@@ -158,12 +158,7 @@ void Error::printLine(showline const &sl, std::string const &pad) const
     std::vector<Underline const *> lchars;
     lchars.reserve(std::distance(lstart, lend));
 
-    struct MessageColumn
-    {
-        Underline::Message const *message;
-        int column;
-    };
-    std::vector<MessageColumn> linemessages;
+    std::vector<MessageLocation> lineMessages;
 
     auto itInLoc = [](std::string::const_iterator const &i, Location const &l)
     {
@@ -172,27 +167,15 @@ void Error::printLine(showline const &sl, std::string const &pad) const
         return i >= l.start && i < l.end;
     };
 
-    bool needsecond = false;
+    bool lineHasUnder = false;
     for (std::string::const_iterator i = lstart; i <= lend; ++i)
     {
-        for (auto under = underlines.rbegin(); under != underlines.rend(); ++under) // do in reverse so that the first underlines are first when the messages are printed in reverse
-            if (itInLoc(i, under->location))
-            {
-                if ((under->location.end - 1 == i) || (under->location.start == under->location.end && under->location.start == i))
-                {
-                    int underlinecoln = getColN(under->location.file->source.begin(), under->location.end - 1);
-                    for (auto message = under->messages.rbegin(); message != under->messages.rend(); ++message) // in reverse for the same reason as above
-                        linemessages.push_back(MessageColumn {&*message, underlinecoln});
-                }
-
-                needsecond = true;
-            }
-
         Underline const *charu = nullptr;
         for (Underline const &u : underlines)
             if (itInLoc(i, u.location))
             {
                 charu = &u;
+                lineHasUnder = true;
                 break;
             }
 
@@ -209,49 +192,82 @@ void Error::printLine(showline const &sl, std::string const &pad) const
 
     std::cerr << std::endl;
 
-    if (needsecond)
+    int maxRow = 0;
+    for (std::string::const_iterator i = lend; i >= lstart; --i)
+        for (Underline const &u : underlines)
+            if (i == u.location.end - 1 || (u.location.start == u.location.end && i == u.location.start))
+            {
+                int col = getColN(u.location.file->source.begin(), u.location.end - 1) + 1;
+                for (Underline::Message const &message : u.messages)
+                {
+                    int messagerow = 0;
+                    if (lineMessages.size() > 0)
+                    {
+                        int messageEndCol = col + message.text.size() + message.type.size() + 5; // 3 for '-- ' and ': '
+                        auto nextMessage = lineMessages.rbegin();
+                        while (nextMessage != lineMessages.rend() && nextMessage->col <= messageEndCol)
+                        {
+                            messagerow = std::max(messagerow, nextMessage->row + 1);
+                            ++nextMessage;
+                        }
+                    }
+                    maxRow = std::max(maxRow, messagerow);
+
+                    lineMessages.push_back(Error::MessageLocation {message, messagerow, col});
+                }
+            }
+
+    if (lineHasUnder)
     {
         std::cerr << pad << "| ";
-        for (Underline const *&i : lchars)
+        for (unsigned int col = 0; col <= lchars.size(); ++col)
         {
-            if (i && i->messages.size()) // in a underline
-                std::cerr << attr(A_BOLD, attr(i->messages[0].color, std::string(1, i->ch)));
-            else if (i)
-                std::cerr << attr(A_BOLD, std::string(1, i->ch));
+            bool foundMessage = false;
+            for (MessageLocation const &message : lineMessages)
+            {
+                if (message.row == 0 && message.col == col + 1)
+                {
+                    std::cerr << attr(message.message.color, "-- ", true) << message.message.type << resetIfNecessary() << ": " << message.message.text;
+                    col = message.col + message.message.text.size() + message.message.type.size() + 5 - 1 - 1; // -1 because col is zero-based, and also -1 because of the ++col at the top of the for loop
+                    foundMessage = true;
+                    break;
+                }
+            }
+
+            if (foundMessage)
+                continue;
+            if (col == lchars.size())
+                continue;
+
+            Underline const *un = lchars[col];
+            if (un && un->messages.size()) // in a underline
+                std::cerr << attr(A_BOLD, attr(un->messages[0].color, std::string(1, un->ch)));
+            else if (un)
+                std::cerr << attr(A_BOLD, std::string(1, un->ch));
             else
                 std::cerr << " ";
         }
         std::cerr << std::endl;
     }
 
-    if (linemessages.size())
+
+    if (lineMessages.size())
     {
-        for (auto mescol = linemessages.rbegin(); mescol != linemessages.rend(); ++mescol)
+        for (int row = 1; row <= maxRow; ++row)
         {
             std::cerr << pad << "| ";
-            for (auto j = linemessages.begin(); j <= mescol.base() - 1; ++j)
+            int lastcol = 1;
+            for (auto message = lineMessages.rbegin(); message != lineMessages.rend(); ++message)
             {
-                j - linemessages.begin();
-                int lastcolumn = j == linemessages.begin() ? 0 : (j - 1)->column;
-                int diff = j->column - lastcolumn;
+                if (message->row == row)
+                {
+                    std::cerr << std::string(message->col - lastcol, ' ');
+                    std::cerr << attr(message->message.color, "-- ", true) << message->message.type << resetIfNecessary() << ": " << message->message.text;
 
-                if (!diff)
-                    continue;
-
-                int pamt = diff - 1;
-
-                std::cerr << std::string(pamt, ' ');
-                if (j->column < (mescol.base() - 1)->column)
-                    std::cerr << '|';
+                    lastcol = message->col + message->message.text.size() + message->message.type.size() + 5;
+                }
             }
-
-            bool lastmessage = mescol == linemessages.rend() - 1 || mescol->column != (mescol + 1)->column;
-            if (lastmessage)
-                std::cerr << attr(mescol->message->color, "`", true);
-            else
-                std::cerr << attr(mescol->message->color, "|", true);
-
-            std::cerr << "-- " << mescol->message->type << resetIfNecessary() << ": " << mescol->message->text << std::endl;
+            std::cerr << "\n";
         }
     }
 }
@@ -305,7 +321,7 @@ void Error::report() const
                 std::cerr << "warning";
                 break;
         }
-        
+
         auto formatLocation = [](File const &f, std::string::const_iterator const &loc, std::string::const_iterator const &fstart) -> std::string
         {
             return format("{\"file\": \"%\", \"line\": %, \"column\": %, \"index\": %}", f.filename, getLineN(fstart, loc), getColN(fstart, loc), std::distance(fstart, loc));
