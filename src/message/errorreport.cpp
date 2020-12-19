@@ -196,8 +196,8 @@ void Error::report() const
                         if ((under->location.end - 1 == i) || (under->location.start == under->location.end && under->location.start == i))
                         {
                             int underlinecoln = getColN(under->location.file->source.begin(), under->location.end - 1);
-                            for (Underline::Message const &message : under->messages)
-                                linemessages.push_back(MessageColumn {&message, underlinecoln});
+                            for (auto message = under->messages.rbegin(); message != under->messages.rend(); ++message) // in reverse for the same reason as above
+                                linemessages.push_back(MessageColumn {&*message, underlinecoln});
                         }
 
                         needsecond = true;
