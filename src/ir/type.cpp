@@ -41,7 +41,7 @@ IR::FunctionType::FunctionType(Type *ret, std::vector<Type*> paramtys): ret(ret)
 std::string IR::FunctionType::stringify() const
 {
     std::stringstream ss;
-    ss << "fun " << ret->stringify() << "(";
+    ss << ret->stringify() << "(";
     bool first = true;
     for (Type *pty : paramtys)
     {
