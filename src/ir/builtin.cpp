@@ -201,7 +201,7 @@ IR::ASTValue IR::FloatType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR:
         curBlock->add(std::make_unique<IR::Instrs::IntToFloat>(outReg, v, this));
         return ASTValue(outReg, ast);
     }
-    else if (FloatType *styf = dynamic_cast<FloatType*>(v.type()))
+    else if (dynamic_cast<FloatType*>(v.type()))
     {
         IR::TempRegister *outReg = fun.addTempRegister(this);
         curBlock->add(std::make_unique<IR::Instrs::FloatToFloat>(outReg, v, this));
