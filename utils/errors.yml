@@ -127,21 +127,21 @@ errors:
   - code: 100
     name: unrecoverable-invalid-syntax
     desc: The parser found an unrecoverable syntax error.
-    inputs: 'Token const &lookahead, std::vector<std::string> const &expectations'
+    inputs: 'Token const &lookahead, Token const &lasttok, std::vector<std::string> const &expectations'
     location: lookahead
     highlights:
       - ['lookahead', *under0, [
           ['error', 'format("unexpected %", lookahead.type)'],
         ]]
     extra: |
-      auto un (Error::Underline(lookahead, '^'));
+      auto un (Error::Underline(lasttok, '^'));
       for (std::string const &expectation : expectations)
         un.hint(expectation);
       e.underline(un);
   - code: 101
     name: simple-invalid-syntax
     desc: The parser found a syntax error and recovered by inserting, substituting, or removing a single token.
-    inputs: 'Token const &lookahead, std::string const &bestfix, std::vector<std::string> const &expectations'
+    inputs: 'Token const &lookahead, Token const &lasttok, std::string const &bestfix, std::vector<std::string> const &expectations'
     location: lookahead
     highlights:
       - ['lookahead', *under0, [
@@ -149,7 +149,7 @@ errors:
           ['note', 'bestfix']
         ]]
     extra: |
-      auto un (Error::Underline(lookahead, '^'));
+      auto un (Error::Underline(lasttok, '^'));
       for (std::string const &expectation : expectations)
         un.hint(expectation);
       e.underline(un);
@@ -157,7 +157,7 @@ errors:
     code: 102
     name: panicking-invalid-syntax
     desc: The parser found a syntax error and recovered via panic mode error recovery.
-    inputs: 'Token const &lookahead, Token const &panicuntil, std::vector<std::string> const &expectations'
+    inputs: 'Token const &lookahead, Token const &lasttok, Token const &panicuntil, std::vector<std::string> const &expectations'
     location: lookahead
     highlights:
       - ['lookahead', *under0, [
@@ -167,7 +167,7 @@ errors:
           ['note', 'format("parser panicked until %", panicuntil.type)']
         ]]
     extra: |
-      auto un (Error::Underline(lookahead, '^'));
+      auto un (Error::Underline(lasttok, '^'));
       for (std::string const &expectation : expectations)
         un.hint(expectation);
       e.underline(un);

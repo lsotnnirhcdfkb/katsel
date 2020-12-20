@@ -58,15 +58,15 @@ void E0011(Token const &tok);
 
 // E0100 - unrecoverable-invalid-syntax
 #define ERR_UNRECOVERABLE_INVALID_SYNTAX E0100
-void E0100(Token const &lookahead, std::vector<std::string> const &expectations);
+void E0100(Token const &lookahead, Token const &lasttok, std::vector<std::string> const &expectations);
 
 // E0101 - simple-invalid-syntax
 #define ERR_SIMPLE_INVALID_SYNTAX E0101
-void E0101(Token const &lookahead, std::string const &bestfix, std::vector<std::string> const &expectations);
+void E0101(Token const &lookahead, Token const &lasttok, std::string const &bestfix, std::vector<std::string> const &expectations);
 
 // E0102 - panicking-invalid-syntax
 #define ERR_PANICKING_INVALID_SYNTAX E0102
-void E0102(Token const &lookahead, Token const &panicuntil, std::vector<std::string> const &expectations);
+void E0102(Token const &lookahead, Token const &lasttok, Token const &panicuntil, std::vector<std::string> const &expectations);
 
 // E0200 - redecl-sym
 #define ERR_REDECL_SYM E0200

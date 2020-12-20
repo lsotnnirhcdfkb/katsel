@@ -198,7 +198,7 @@ void Error::printLine(showline const &sl, std::string const &pad) const
             if (i == u.location.end - 1 || (u.location.start == u.location.end && i == u.location.start))
             {
                 int lcol = getColN(u.location.file->source.begin(), u.location.start);
-                int col = getColN(u.location.file->source.begin(), u.location.end);
+                int col = getColN(u.location.file->source.begin(), u.location.end - 1) + 1; // end - 1 to get the character that this ends at, +1 to get the next column. end by itself could wrap around to the next line
                 for (Underline::Message const &message : u.messages)
                 {
                     int messagerow = 0;

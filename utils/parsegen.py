@@ -949,7 +949,7 @@ def genPanicMode():
                            '#undef CHECKASI\n'
                            '#undef FINISHCHECKASI\n'
                            '#undef RECOVERANDDEFBREAK\n'
-                           '    ERR_PANICKING_INVALID_SYNTAX(e.olh, e.lookahead, expectations);\n'
+                           '    ERR_PANICKING_INVALID_SYNTAX(e.olh, e.lasttok, e.lookahead, expectations);\n'
                            '    return true;\n'))
 
     return ''.join(output)
