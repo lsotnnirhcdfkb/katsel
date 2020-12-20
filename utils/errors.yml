@@ -17,7 +17,7 @@ errors:
   -
     code: 1
     name: unterm-charlit
-    desc: The lexer found an unterminated character literal. A common cause of this is character literals that are more than one character long.
+    desc: The lexer found an unterminated character literal.
     inputs: 'Token const &tok'
     location: tok
     highlights:
@@ -27,7 +27,7 @@ errors:
   -
     code: 2
     name: unterm-strlit
-    desc: The lexer found a newline in a string literal, thereby making it unterminated. Newlines that need to appear inside the string literal must be escaped by putting `\n`.
+    desc: The lexer found a newline in a string literal, thereby making it unterminated. # TODO:  Newlines that need to appear inside the string literal must be escaped by putting `\n`.
     inputs: 'Token const &tok'
     location: tok
     highlights:
@@ -57,7 +57,7 @@ errors:
   -
     code: 5
     name: invalid-char-floatlit
-    desc: Invalid character for floating point literal
+    desc: Invalid numeric character for floating point literal
     inputs: 'Token const &tok'
     location: tok
     highlights:
@@ -67,7 +67,7 @@ errors:
   -
     code: 6
     name: invalid-char-for-base
-    desc: Invalid character in integer literal for base
+    desc: Invalid numberic character in integer literal for base
     inputs: 'Token const &tok'
     location: tok
     highlights:
@@ -117,12 +117,12 @@ errors:
   -
     code: 11
     name: char-after-backslash
-    desc: Character after line continuation backslash
+    desc: Non-newline after line continuation backslash
     inputs: 'Token const &tok'
     location: tok
     highlights:
       - ['tok', *under0, [
-          ['error', '"character after line continuation backslash"']
+          ['error', '"non-newline after line continuation backslash"']
         ]]
   - code: 100
     name: unrecoverable-invalid-syntax
@@ -256,7 +256,7 @@ errors:
   -
     code: 207
     name: undecl-symb
-    desc: undeclared symbol
+    desc: Usage of undeclared symbol
     inputs: 'Token const &sym'
     location: sym
     highlights:
@@ -266,12 +266,12 @@ errors:
   -
     code: 208
     name: confl-tys-ifexpr
-    desc: Conflicting types for if expression
+    desc: Conflicting types for branches of if expression
     inputs: 'IR::ASTValue const &truev, IR::ASTValue const &falsev, Token const &iftok'
     location: iftok
     highlights:
       - ['iftok', *under0, [
-          ['error', '"conflicting types for if expression"']
+          ['error', '"conflicting types for branches of if expression"']
         ]]
       - ['truev', *under1, [
           ['note', 'format("%", truev.type())']

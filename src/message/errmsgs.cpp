@@ -18,9 +18,7 @@ void E0000(Token const &tok)
 }
 
 // E0001 - unterm-charlit
-// | The lexer found an unterminated character literal. A common
-// | cause of this is character literals that are more than one
-// | character long.
+// | The lexer found an unterminated character literal.
 void E0001(Token const &tok)
 {
     Error e = Error(Error::MsgType::ERROR, tok, "E0001 (unterm-charlit)");
@@ -32,8 +30,7 @@ void E0001(Token const &tok)
 
 // E0002 - unterm-strlit
 // | The lexer found a newline in a string literal, thereby
-// | making it unterminated. Newlines that need to appear inside
-// | the string literal must be escaped by putting `\n`.
+// | making it unterminated.
 void E0002(Token const &tok)
 {
     Error e = Error(Error::MsgType::ERROR, tok, "E0002 (unterm-strlit)");
@@ -66,7 +63,7 @@ void E0004(Token const &tok)
 }
 
 // E0005 - invalid-char-floatlit
-// | Invalid character for floating point literal
+// | Invalid numeric character for floating point literal
 void E0005(Token const &tok)
 {
     Error e = Error(Error::MsgType::ERROR, tok, "E0005 (invalid-char-floatlit)");
@@ -77,7 +74,7 @@ void E0005(Token const &tok)
 }
 
 // E0006 - invalid-char-for-base
-// | Invalid character in integer literal for base
+// | Invalid numberic character in integer literal for base
 void E0006(Token const &tok)
 {
     Error e = Error(Error::MsgType::ERROR, tok, "E0006 (invalid-char-for-base)");
@@ -132,12 +129,12 @@ void E0010(Token const &tok)
 }
 
 // E0011 - char-after-backslash
-// | Character after line continuation backslash
+// | Non-newline after line continuation backslash
 void E0011(Token const &tok)
 {
     Error e = Error(Error::MsgType::ERROR, tok, "E0011 (char-after-backslash)");
     e.underline(Error::Underline(tok, '^')
-        .error("character after line continuation backslash")
+        .error("non-newline after line continuation backslash")
     );
     e.report();
 }
@@ -297,7 +294,7 @@ void E0206(IR::ASTValue const &arg, IR::Type const *expected)
 }
 
 // E0207 - undecl-symb
-// | undeclared symbol
+// | Usage of undeclared symbol
 void E0207(Token const &sym)
 {
     Error e = Error(Error::MsgType::ERROR, sym, "E0207 (undecl-symb)");
@@ -308,12 +305,12 @@ void E0207(Token const &sym)
 }
 
 // E0208 - confl-tys-ifexpr
-// | Conflicting types for if expression
+// | Conflicting types for branches of if expression
 void E0208(IR::ASTValue const &truev, IR::ASTValue const &falsev, Token const &iftok)
 {
     Error e = Error(Error::MsgType::ERROR, iftok, "E0208 (confl-tys-ifexpr)");
     e.underline(Error::Underline(iftok, '^')
-        .error("conflicting types for if expression")
+        .error("conflicting types for branches of if expression")
     );
     e.underline(Error::Underline(truev, '~')
         .note(format("%", truev.type()))
