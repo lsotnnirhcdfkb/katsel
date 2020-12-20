@@ -408,13 +408,6 @@ namespace IR
         ASTValue op;
         IntType *newt;
     };
-    class Return : public Instruction
-    {
-    public:
-        Return(Register *value);
-        void accept(InstructionVisitor *v) override;
-        Register *value;
-    };
     class Call : public Instruction
     {
     public:
@@ -423,6 +416,13 @@ namespace IR
         TempRegister *target;
         Function *f;
         std::vector<ASTValue> args;
+    };
+    class Return : public Br
+    {
+    public:
+        Return(Register *value);
+        void accept(BrVisitor *v) override;
+        Register *value;
     };
     class GotoBr : public Br
     {

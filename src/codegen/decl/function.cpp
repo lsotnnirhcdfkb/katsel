@@ -60,7 +60,7 @@ bool CodeGen::FunctionCodeGen::codegen()
 
     if (!errored)
     {
-        exitBlock->add(std::make_unique<IR::Instrs::Return>(ret));
+        exitBlock->branch(std::make_unique<IR::Instrs::Return>(ret));
 
         retval = ret->type()->implCast(*cg.context, *fun, curBlock, retval);
         if (ret->type() != retval.type())

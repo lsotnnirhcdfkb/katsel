@@ -221,13 +221,6 @@ void Lower::Lowerer::visitFloatToInt(IR::Instrs::FloatToInt *instr)
         tempregisters[instr->target] = builder.CreateFPToUI(lower(instr->op), instr->newt->toLLVMType(context));
 }
 // Branch instructions {{{1
-void Lower::Lowerer::visitReturn(IR::Instrs::Return *instr)
-{
-    if (!dynamic_cast<IR::VoidType*>(instr->value->type()))
-        builder.CreateRet(lower(instr->value));
-    else
-        builder.CreateRetVoid();
-}
 void Lower::Lowerer::visitCall(IR::Instrs::Call *instr)
 {
     std::vector<llvm::Value*> args;

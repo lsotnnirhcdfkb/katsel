@@ -300,16 +300,16 @@ IR::Instrs::FloatToInt::FloatToInt(TempRegister *target, ASTValue op, IntType *n
     ASSERT(target->type() == newt)
 }
 void IR::Instrs::FloatToInt::accept(InstructionVisitor *v) { v->visitFloatToInt(this); }
-IR::Instrs::Return::Return(Register *value): value(value)
-{
-}
-void IR::Instrs::Return::accept(InstructionVisitor *v) { v->visitReturn(this); }
 IR::Instrs::Call::Call(TempRegister *target, Function *f, std::vector<ASTValue> args): target(target), f(f), args(args)
 {
     ASSERT(target->type() == f->ty->ret)
     ASSERT(args.size() == f->ty->paramtys.size())
 }
 void IR::Instrs::Call::accept(InstructionVisitor *v) { v->visitCall(this); }
+IR::Instrs::Return::Return(Register *value): value(value)
+{
+}
+void IR::Instrs::Return::accept(BrVisitor *v) { v->visitReturn(this); }
 IR::Instrs::GotoBr::GotoBr(Block *to): to(to)
 {
 }

@@ -47,6 +47,7 @@ jobs = [
     ('include/ir/printer.h'                , 'PRINT VISIT BRANCH START'  , 'PRINT VISIT BRANCH END'  , lambda: instrgen.genMethodDecls('Br')),
     ('include/lower/lowerer.h'             , 'LOWER VISIT INSTR START'   , 'LOWER VISIT INSTR END'   , lambda: instrgen.genMethodDecls('Instruction')),
     ('include/lower/lowerer.h'             , 'LOWER VISIT BRANCH START'  , 'LOWER VISIT BRANCH END'  , lambda: instrgen.genMethodDecls('Br')),
+    ('include/ir/cfgdotter.h'              , 'CFG DOT METHOD START'      , 'CFG DOT METHOD END'      , lambda: instrgen.genMethodDecls('Br')),
 
     ('include/message/errmsgs.h'           , 'ERRH START'                , 'ERRH END'                , errgen.genH),
     ('src/message/errmsgs.cpp'             , 'ERRCPP START'              , 'ERRCPP END'              , errgen.genCpp),

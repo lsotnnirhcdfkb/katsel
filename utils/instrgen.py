@@ -81,9 +81,9 @@ instructions = [
     Instruction('FloatToFloat', 'Instruction' , ['TempRegister* target', 'ASTValue op', 'FloatType* newt'                  ], [typeIsFloating('op.type()'), targetEqual('newt')]),
     Instruction('FloatToInt'  , 'Instruction' , ['TempRegister* target', 'ASTValue op', 'IntType* newt'                    ], [typeIsFloating('op.type()'), targetEqual('newt')]),
 
-    Instruction('Return'      , 'Instruction' , ['Register* value'                                                         ], []),
     Instruction('Call'        , 'Instruction' , ['TempRegister* target', 'Function* f', 'std::vector<ASTValue> args'       ], [targetEqual('f->ty->ret'), 'args.size() == f->ty->paramtys.size()']),
 
+    Instruction('Return'      , 'Br'          , ['Register* value'                                            ], []),
     Instruction('GotoBr'      , 'Br'          , ['Block* to'                                                  ], []),
     Instruction('CondBr'      , 'Br'          , ['ASTValue v', 'Block* trueB', 'Block* falseB'                ], [typeMustBe('v.type()', 'BoolType')]),
 ]
