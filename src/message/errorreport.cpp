@@ -228,7 +228,7 @@ void Error::printLine(showline const &sl, std::string const &pad) const
             {
                 if (message.row == 0 && message.col == col + 1)
                 {
-                    std::cerr << attr(message.message.color, "-- ", true) << message.message.type << resetIfNecessary() << ": " << message.message.text;
+                    std::cerr << attr(message.message.color, "-- ", true) << message.message.type << ": " << resetIfNecessary() << message.message.text;
                     col = message.col + message.message.text.size() + message.message.type.size() + 5 - 1 - 1; // -1 because col is zero-based, and also -1 because of the ++col at the top of the for loop
                     foundMessage = true;
                     break;
@@ -263,7 +263,7 @@ void Error::printLine(showline const &sl, std::string const &pad) const
                 if (message->row == row)
                 {
                     std::cerr << std::string(message->col - lastcol, ' ');
-                    std::cerr << attr(message->message.color, "-- ", true) << message->message.type << resetIfNecessary() << ": " << message->message.text;
+                    std::cerr << attr(message->message.color, "-- ", true) << message->message.type << ": " << resetIfNecessary() << message->message.text;
 
                     lastcol = message->col + message->message.text.size() + message->message.type.size() + 5;
                 }
