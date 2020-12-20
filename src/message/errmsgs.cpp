@@ -150,7 +150,7 @@ void E0100(Token const &lookahead, Token const &lasttok, std::vector<std::string
     e.underline(Error::Underline(lookahead, '^')
         .error(format("unexpected %", lookahead.type))
     );
-auto un (Error::Underline(lasttok, '^'));
+auto un (Error::Underline(lasttok, '~'));
 for (std::string const &expectation : expectations)
   un.hint(expectation);
 e.underline(un);
@@ -167,7 +167,7 @@ void E0101(Token const &lookahead, Token const &lasttok, std::string const &best
         .error(format("unexpected %", lookahead.type))
         .note(bestfix)
     );
-auto un (Error::Underline(lasttok, '^'));
+auto un (Error::Underline(lasttok, '~'));
 for (std::string const &expectation : expectations)
   un.hint(expectation);
 e.underline(un);
@@ -186,7 +186,7 @@ void E0102(Token const &lookahead, Token const &lasttok, Token const &panicuntil
     e.underline(Error::Underline(panicuntil, '-')
         .note(format("parser panicked until %", panicuntil.type))
     );
-auto un (Error::Underline(lasttok, '^'));
+auto un (Error::Underline(lasttok, '~'));
 for (std::string const &expectation : expectations)
   un.hint(expectation);
 e.underline(un);

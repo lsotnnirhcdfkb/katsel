@@ -134,7 +134,7 @@ errors:
           ['error', 'format("unexpected %", lookahead.type)'],
         ]]
     extra: |
-      auto un (Error::Underline(lasttok, '^'));
+      auto un (Error::Underline(lasttok, '~'));
       for (std::string const &expectation : expectations)
         un.hint(expectation);
       e.underline(un);
@@ -149,7 +149,7 @@ errors:
           ['note', 'bestfix']
         ]]
     extra: |
-      auto un (Error::Underline(lasttok, '^'));
+      auto un (Error::Underline(lasttok, '~'));
       for (std::string const &expectation : expectations)
         un.hint(expectation);
       e.underline(un);
@@ -167,7 +167,7 @@ errors:
           ['note', 'format("parser panicked until %", panicuntil.type)']
         ]]
     extra: |
-      auto un (Error::Underline(lasttok, '^'));
+      auto un (Error::Underline(lasttok, '~'));
       for (std::string const &expectation : expectations)
         un.hint(expectation);
       e.underline(un);
