@@ -466,7 +466,7 @@ def makeGrammar():
     ExprStmt = nt('ExprStmt', 'expression statement', 'StmtB', panickable=True)
     RetStmt = nt('RetStmt', 'return statement', 'StmtB', panickable=True)
     VarStmtItem = nt('VarStmtItem', 'variable statement initialization', 'VStmtIB')
-    StmtEnding = nt('StmtEnding', 'statement ending', 'StmtEndingB')
+    LineEnding = nt('LineEnding', 'line ending', 'LineEndingB')
     Block = nt('Block', 'code block', 'ExprB', panickable=True)
     BracedBlock = nt('BracedBlock', 'braced code block', 'ExprB', panickable=True)
     IndentedBlock = nt('IndentedBlock', 'indented code block', 'ExprB', panickable=True)
@@ -575,27 +575,27 @@ def makeGrammar():
     ImplRetOpt = makeOpt(ImplRet)
     ExprOpt = makeOpt(Expr)
     VarStmtOpt = makeOpt(VarStmt)
-    StmtEndingOpt = makeOpt(StmtEnding)
+    LineEndingOpt = makeOpt(LineEnding)
 
     rule(CU, ((DeclList, 'dl'),))
     rule(CU, ())
 
     rule(Decl, ((FunctionDecl, '_'),))
 
-    rule(FunctionDecl, ((FUN, 'fun'),  (Type, 'retty'),  (IDENTIFIER, 'name'),  (OPARN, 'oparn'),  (ParamListOpt, 'paramlist'),  (CPARN, 'cparn'),  (Block, 'body'), ), 'fun', 'cparn')
-    rule(FunctionDecl, ((FUN, 'fun'),  (Type, 'retty'),  (IDENTIFIER, 'name'),  (OPARN, 'oparn'),  (ParamListOpt, 'paramlist'),  (CPARN, 'cparn'),  (NEWLINE, 'newl'), ), 'fun', 'newl')
+    rule(FunctionDecl, ((FUN, 'fun'),  (Type, 'retty'),  (IDENTIFIER, 'name'),  (OPARN, 'oparn'),  (ParamListOpt, 'paramlist'),  (CPARN, 'cparn'),  (Block, 'body'), (LineEndingOpt, 'endl')), 'fun', 'cparn')
+    rule(FunctionDecl, ((FUN, 'fun'),  (Type, 'retty'),  (IDENTIFIER, 'name'),  (OPARN, 'oparn'),  (ParamListOpt, 'paramlist'),  (CPARN, 'cparn'),  (LineEnding, 'endl')), 'fun', 'endl')
 
     rule(Stmt, ((VarStmt, '_'),))
     rule(Stmt, ((ExprStmt, '_'),))
     rule(Stmt, ((RetStmt, '_'),))
 
-    rule(VarStmt, ((VAR, 'var'),  (Type, 'type'),  (VarStmtItemList, 'assignments'), (StmtEnding, 'ending')))
+    rule(VarStmt, ((VAR, 'var'),  (Type, 'type'),  (VarStmtItemList, 'assignments'), (LineEnding, 'ending')))
 
-    rule(ExprStmt, ((NotBlockedExpr, 'expr'), (StmtEnding, 'ending')))
-    rule(ExprStmt, ((BlockedExpr, 'expr'), (StmtEndingOpt, 'ending')))
+    rule(ExprStmt, ((NotBlockedExpr, 'expr'), (LineEnding, 'ending')))
+    rule(ExprStmt, ((BlockedExpr, 'expr'), (LineEndingOpt, 'ending')))
 
-    rule(RetStmt, ((RETURN, 'ret'), (Expr, 'expr'), (StmtEnding, 'ending')))
-    rule(RetStmt, ((RETURN, 'ret'), (StmtEnding, 'ending')))
+    rule(RetStmt, ((RETURN, 'ret'), (Expr, 'expr'), (LineEnding, 'ending')))
+    rule(RetStmt, ((RETURN, 'ret'), (LineEnding, 'ending')))
 
     rule(VarStmtItem, ((IDENTIFIER, 'name'),  (EQUAL, 'equal'),  (Expr, 'expr'), ))
     rule(VarStmtItem, ((IDENTIFIER, 'name'),))
@@ -606,11 +606,11 @@ def makeGrammar():
     rule(BracedBlock, ((OCURB, 'ocurb'), (NEWLINE, 'newlopt'), (StmtListOpt, 'stmts'), (ImplRetOpt, 'implret'), (CCURB, 'ccurb')))
     rule(BracedBlock, ((OCURB, 'ocurb'), (NEWLINE, 'newlopt'), (INDENT, 'indentopt'), (StmtListOpt, 'stmts'), (ImplRetOpt, 'implret'), (DEDENT, 'dedentopt'), (CCURB, 'ccurb')))
     rule(IndentedBlock, ((NEWLINE, 'newl'), (INDENT, 'indent'), (StmtListOpt, 'stmts'), (ImplRetOpt, 'implret'), (DEDENT, 'dedent')))
-    rule(ImplRet, ((LEFTARROW, 'leftarrow'), (Expr, 'expr'), (StmtEndingOpt, 'ending')))
+    rule(ImplRet, ((LEFTARROW, 'leftarrow'), (Expr, 'expr'), (LineEndingOpt, 'ending')))
 
-    rule(StmtEnding, ((NEWLINE, 'tok'),))
-    rule(StmtEnding, ((SEMICOLON, 'tok'),))
-    rule(StmtEnding, ((SEMICOLON, 'tok'), (NEWLINE, 'tok2')))
+    rule(LineEnding, ((NEWLINE, 'tok'),))
+    rule(LineEnding, ((SEMICOLON, 'tok'),))
+    rule(LineEnding, ((SEMICOLON, 'tok'), (NEWLINE, 'tok2')))
 
     rule(Type, ((BuiltinType, '_'),))
 

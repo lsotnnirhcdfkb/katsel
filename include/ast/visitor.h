@@ -10,9 +10,9 @@ class ArgB;
 class CUB;
 class DeclB;
 class ExprB;
+class LineEndingB;
 class PListB;
 class StmtB;
-class StmtEndingB;
 class TypeB;
 class VStmtIB;
 class AdditionExpr;
@@ -52,6 +52,8 @@ class IfExpr;
 class ImplRet;
 class ImplRet_OPT;
 class IndentedBlock;
+class LineEnding;
+class LineEnding_OPT;
 class MultExpr;
 class NotBlockedExpr;
 class Param;
@@ -61,8 +63,6 @@ class ParamSegment;
 class PrimaryExpr;
 class RetStmt;
 class Stmt;
-class StmtEnding;
-class StmtEnding_OPT;
 class StmtList;
 class StmtList_OPT;
 class Type;
@@ -127,6 +127,13 @@ public:
     virtual void visitPrimaryExpr(ASTNS::PrimaryExpr *ast) = 0;
     virtual void visitUnaryExpr(ASTNS::UnaryExpr *ast) = 0;
 };
+class LineEndingBVisitor
+{
+public:
+    virtual ~LineEndingBVisitor() {}
+    virtual void visitLineEnding(ASTNS::LineEnding *ast) = 0;
+    virtual void visitLineEnding_OPT(ASTNS::LineEnding_OPT *ast) = 0;
+};
 class PListBVisitor
 {
 public:
@@ -146,13 +153,6 @@ public:
     virtual void visitStmtList_OPT(ASTNS::StmtList_OPT *ast) = 0;
     virtual void visitVarStmt(ASTNS::VarStmt *ast) = 0;
     virtual void visitVarStmt_OPT(ASTNS::VarStmt_OPT *ast) = 0;
-};
-class StmtEndingBVisitor
-{
-public:
-    virtual ~StmtEndingBVisitor() {}
-    virtual void visitStmtEnding(ASTNS::StmtEnding *ast) = 0;
-    virtual void visitStmtEnding_OPT(ASTNS::StmtEnding_OPT *ast) = 0;
 };
 class TypeBVisitor
 {

@@ -805,7 +805,7 @@ void ASTNS::PrintVisitor::visitFunctionDecl(ASTNS::FunctionDecl *a)
     ++indent;
     switch (a->form)
     {
-        case ASTNS::FunctionDecl::Form::TATTATA:
+        case ASTNS::FunctionDecl::Form::TATTATAA:
             pai("fun = ");
             pai("[");
             pai(std::string(a->fun.start, a->fun.end));
@@ -849,8 +849,17 @@ void ASTNS::PrintVisitor::visitFunctionDecl(ASTNS::FunctionDecl *a)
             {
                 pai("nullptr\n");
             }
+            pai("endl = ");
+            if (a->endl)
+            {
+                a->endl->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
             break;
-        case ASTNS::FunctionDecl::Form::TATTATT:
+        case ASTNS::FunctionDecl::Form::TATTATA:
             pai("fun = ");
             pai("[");
             pai(std::string(a->fun.start, a->fun.end));
@@ -885,10 +894,15 @@ void ASTNS::PrintVisitor::visitFunctionDecl(ASTNS::FunctionDecl *a)
             pai("[");
             pai(std::string(a->cparn.start, a->cparn.end));
             pai("]\n");
-            pai("newl = ");
-            pai("[");
-            pai(std::string(a->newl.start, a->newl.end));
-            pai("]\n");
+            pai("endl = ");
+            if (a->endl)
+            {
+                a->endl->accept(this);
+            }
+            else
+            {
+                pai("nullptr\n");
+            }
             break;
     }
     --indent;
@@ -1048,6 +1062,44 @@ void ASTNS::PrintVisitor::visitIndentedBlock(ASTNS::IndentedBlock *a)
             pai("[");
             pai(std::string(a->dedent.start, a->dedent.end));
             pai("]\n");
+            break;
+    }
+    --indent;
+    pai("}\n");
+}
+void ASTNS::PrintVisitor::visitLineEnding(ASTNS::LineEnding *a)
+{
+    pai("LineEnding\n{\n");
+    ++indent;
+    switch (a->form)
+    {
+        case ASTNS::LineEnding::Form::T:
+            pai("tok = ");
+            pai("[");
+            pai(std::string(a->tok.start, a->tok.end));
+            pai("]\n");
+            break;
+        case ASTNS::LineEnding::Form::TT:
+            pai("tok = ");
+            pai("[");
+            pai(std::string(a->tok.start, a->tok.end));
+            pai("]\n");
+            pai("tok2 = ");
+            pai("[");
+            pai(std::string(a->tok2.start, a->tok2.end));
+            pai("]\n");
+            break;
+    }
+    --indent;
+    pai("}\n");
+}
+void ASTNS::PrintVisitor::visitLineEnding_OPT(ASTNS::LineEnding_OPT *a)
+{
+    pai("LineEnding_OPT\n{\n");
+    ++indent;
+    switch (a->form)
+    {
+        case ASTNS::LineEnding_OPT::Form::EMPTY:
             break;
     }
     --indent;
@@ -1262,44 +1314,6 @@ void ASTNS::PrintVisitor::visitRetStmt(ASTNS::RetStmt *a)
             {
                 pai("nullptr\n");
             }
-            break;
-    }
-    --indent;
-    pai("}\n");
-}
-void ASTNS::PrintVisitor::visitStmtEnding(ASTNS::StmtEnding *a)
-{
-    pai("StmtEnding\n{\n");
-    ++indent;
-    switch (a->form)
-    {
-        case ASTNS::StmtEnding::Form::T:
-            pai("tok = ");
-            pai("[");
-            pai(std::string(a->tok.start, a->tok.end));
-            pai("]\n");
-            break;
-        case ASTNS::StmtEnding::Form::TT:
-            pai("tok = ");
-            pai("[");
-            pai(std::string(a->tok.start, a->tok.end));
-            pai("]\n");
-            pai("tok2 = ");
-            pai("[");
-            pai(std::string(a->tok2.start, a->tok2.end));
-            pai("]\n");
-            break;
-    }
-    --indent;
-    pai("}\n");
-}
-void ASTNS::PrintVisitor::visitStmtEnding_OPT(ASTNS::StmtEnding_OPT *a)
-{
-    pai("StmtEnding_OPT\n{\n");
-    ++indent;
-    switch (a->form)
-    {
-        case ASTNS::StmtEnding_OPT::Form::EMPTY:
             break;
     }
     --indent;
