@@ -2,6 +2,7 @@
 #include "parsestack.h" // in a private header file
 #include <vector>
 #include "utils/format.h"
+#include "utils/assert.h"
 
 // get goto {{{
 // GETGOTO START
@@ -5137,13 +5138,12 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
     }
 
     stackitem topsi (std::move(stack.back()));
-    if (topsi.istok)
-        reportAbortNoh("topsi is tok when parser not errored");
+    ASSERT(!topsi.istok)
 
     std::unique_ptr<ASTNS::AST> astu (std::move(topsi.ast));
     ASTNS::CUB *cub = dynamic_cast<ASTNS::CUB*>(astu.get());
-    if (!cub)
-        reportAbortNoh("cub is not a CUB despite parser not errored");
+
+    ASSERT(cub)
 
     astu.release();
     out = std::unique_ptr<ASTNS::CUB>(cub);
