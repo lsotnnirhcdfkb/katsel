@@ -449,7 +449,7 @@ def makeOpt(toopt, newname=None):
     optsym = toopt.symbol + '_OPT'
     optnt = nt(optsym, newname, toopt.base)
     rule(optnt, ((toopt, toopt.symbol.lower()),))
-    rule(optnt, (), special='nodefaultreduce')
+    rule(optnt, ())
     return optnt
 
 grammar = []
