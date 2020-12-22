@@ -114,11 +114,19 @@ void Lower::Lowerer::lower(IR::Function const &f)
     for (std::unique_ptr<IR::Block> const &b : f.blocks)
         lower(*b);
 
+    for (std::unique_ptr<IR::Block> const &b : f.blocks)
+    {
+        builder.SetInsertPoint(blocks[b.get()]);
+        if (b->br)
+            b->br->accept(this);
+    }
+
+
     allocas.clear();
     blocks.clear();
 
     llvm::verifyFunction(*fasllvm);
-    fpm.run(*fasllvm);
+    // fpm.run(*fasllvm);
 }
 
 void Lower::Lowerer::lower(IR::Block const &b)
@@ -126,9 +134,6 @@ void Lower::Lowerer::lower(IR::Block const &b)
     builder.SetInsertPoint(blocks[&b]);
     for (std::unique_ptr<IR::Instrs::Instruction> const &i : b.instructions)
         i->accept(this);
-
-    if (b.br)
-        b.br->accept(this);
 }
 
 llvm::Value* Lower::Lowerer::lower(IR::Value const *v)

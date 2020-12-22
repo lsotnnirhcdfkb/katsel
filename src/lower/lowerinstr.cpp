@@ -14,9 +14,26 @@ void Lower::Lowerer::visitStore(IR::Instrs::Store *instr)
 }
 void Lower::Lowerer::visitPhi(IR::Instrs::Phi *instr)
 {
-    llvm::PHINode *phi = builder.CreatePHI(instr->target->type()->toLLVMType(context), instr->prevs.size());
+    llvm::PHINode *phi = llvm::PHINode::Create(instr->target->type()->toLLVMType(context), instr->prevs.size());
+
+    llvm::BasicBlock *currentBlock = builder.GetInsertBlock();
+
     for (auto &p : instr->prevs)
-        phi->addIncoming(lower(p.second), blocks[p.first]);
+    {
+        IR::Block *block = p.first;
+        IR::ASTValue &value = p.second;
+
+        builder.SetInsertPoint(blocks[block]);
+        llvm::Value *valuellvm = lower(value);
+
+        llvm::BasicBlock *blockllvm = blocks[block];
+
+        phi->addIncoming(valuellvm, blockllvm);
+    }
+
+    builder.SetInsertPoint(currentBlock);
+    builder.GetInsertBlock()->getInstList().push_back(phi);
+
     tempregisters[instr->target] = phi;
 }
 // Logical instructions {{{1
