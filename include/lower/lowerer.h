@@ -4,6 +4,7 @@
 #include "ir/value.h"
 #include "ir/unit.h"
 #include "ir/visitor.h"
+#include "mangle/mangler.h"
 
 #include "llvm/IR/Module.h"
 #include "llvm/IR/IRBuilder.h"
@@ -99,5 +100,7 @@ void visitCondBr(IR::Instrs::CondBr *i) override;
         std::map<IR::Register const *, llvm::AllocaInst*> allocas;
         std::map<IR::Block const *, llvm::BasicBlock*> blocks;
         std::map<IR::Function const *, llvm::Function*> functions;
+
+        Mangle::NameMangler mangler;
     };
 }

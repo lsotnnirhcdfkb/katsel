@@ -201,7 +201,7 @@ namespace IR
 
         llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
     };
-    // }}}
+    // }}}1
 }
 
 std::ostream& operator<<(std::ostream &os, IR::Type const *t);

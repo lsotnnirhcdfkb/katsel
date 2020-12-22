@@ -4,6 +4,7 @@ add_subdirectory(message)
 add_subdirectory(lex)
 add_subdirectory(ir)
 add_subdirectory(codegen)
+add_subdirectory(mangle)
 add_subdirectory(lower)
 add_subdirectory(ast)
 

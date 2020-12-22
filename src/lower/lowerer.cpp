@@ -75,7 +75,7 @@ void Lower::Lowerer::lower()
     for (std::unique_ptr<IR::Function> const &f : unit.functions)
     {
         auto *fty = static_cast<llvm::FunctionType*>(f->ty->toLLVMType(context));
-        auto *fllvm = llvm::Function::Create(fty, llvm::Function::ExternalLinkage, f->name, &mod);
+        auto *fllvm = llvm::Function::Create(fty, llvm::Function::ExternalLinkage, mangler.mangleName(*f), &mod);
         functions[f.get()] = fllvm;
     }
     for (std::unique_ptr<IR::Function> const &f : unit.functions)
