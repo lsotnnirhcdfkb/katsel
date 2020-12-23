@@ -240,8 +240,8 @@ int main(int argc, char *argv[])
 #undef EOFMT
                 else
                 {
-                    std::cerr << "Invalid argument for option -p: '" << optarg << "'\n";
-                    std::cerr << "Defaulting to -pobject\n";
+                    std::cerr << "Invalid argument for option -f: '" << optarg << "'\n";
+                    std::cerr << "Defaulting to -fobject\n";
                     ofmt = OutFormats::OBJECT;
                 }
                 break;
