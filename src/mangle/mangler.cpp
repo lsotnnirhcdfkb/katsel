@@ -6,113 +6,91 @@
 #include "ir/type.h"
 #include "message/reportAbort.h"
 
-struct Component
+static inline void mangleIdentifier(std::stringstream &ss, std::string i)
 {
-    virtual ~Component() = default;
-    virtual void stringify(std::stringstream &ss) = 0;
-};
+    ss << i.size() << i;
+}
 
-// TypeComponent {{{1
-struct TypeComponent : public Component
+static void mangleIntType(std::stringstream &ss, IR::IntType *ty)
 {
-    IR::Type *ty;
-    TypeComponent(IR::Type *ty): ty(ty) {}
-
-    void stringify(std::stringstream &ss) override
+    switch (ty->size)
     {
-        ss << "T";
-        // float    - f
-        // double   - d
-        // char     - c
-        // bool     - b
-        // function - ...
-        // void     - v
-        // uint8    - u
-        // uint16   - w
-        // uint32   - x
-        // uint64   - y
-        // sint8    - s
-        // sint16   - r
-        // sint32   - q
-        // sint64   - p
+        case 8:  ss << (ty->isSigned ? 's' : 'u'); break;
+        case 16: ss << (ty->isSigned ? 'r' : 'w'); break;
+        case 32: ss << (ty->isSigned ? 'q' : 'x'); break;
+        case 64: ss << (ty->isSigned ? 'p' : 'y'); break;
+    }
+}
+static void mangleFloatType(std::stringstream &ss, IR::FloatType *ty)
+{
+    ss << (ty->size == 32 ? 'f' : 'd');
+}
+static void mangleCharType(std::stringstream &ss, IR::CharType *ty)
+{
+    ss << 'c';
+}
+static void mangleBoolType(std::stringstream &ss, IR::BoolType *ty)
+{
+    ss << 'b';
+}
+static void mangleType(std::stringstream &ss, IR::Type *ty);
+static void mangleFunctionType(std::stringstream &ss, IR::FunctionType *ty)
+{
+    ss << 'F';
+    mangleType(ss, ty->ret);
+    for (IR::Type *pty : ty->paramtys)
+        mangleType(ss, pty);
+    ss << 'f';
+}
+static void mangleVoidType(std::stringstream &ss, IR::VoidType *ty)
+{
+    ss << 'v';
+}
+static void mangleGenericIntType(std::stringstream &ss, IR::GenericIntType *ty)
+{
+    ss << 'x';
+}
+static void mangleGenericFloatType(std::stringstream &ss, IR::GenericFloatType *ty)
+{
+    ss << 'f';
+}
 
-#define CHECKTY(t) if (IR::t *as##t = dynamic_cast<IR::t*>(ty))
-        CHECKTY(FloatType)
-        {
-            ss << (asFloatType->size == 32 ? 'f' : 'd');
-        }
-        CHECKTY(IntType)
-        {
-            switch (asIntType->size)
-            {
-                case 8:  ss << (asIntType->isSigned ? 's' : 'u'); break;
-                case 16: ss << (asIntType->isSigned ? 'r' : 'w'); break;
-                case 32: ss << (asIntType->isSigned ? 'q' : 'x'); break;
-                case 64: ss << (asIntType->isSigned ? 'p' : 'y'); break;
-            }
-        }
-        CHECKTY(CharType)
-            ss << 'c';
-        CHECKTY(BoolType)
-            ss << 'b';
-        CHECKTY(FunctionType)
-        {
-            ss << 'F';
-            TypeComponent(asFunctionType->ret).stringify(ss);
-            for (IR::Type *pty : asFunctionType->paramtys)
-                TypeComponent(pty).stringify(ss);
-            ss << 'f';
-        }
-        CHECKTY(VoidType)
-            ss << 'v';
-        CHECKTY(GenericIntType)
-            ss << 'x';
-        CHECKTY(GenericFloatType)
-            ss << 'f';
+static void mangleType(std::stringstream &ss, IR::Type *ty)
+{
+    ss << "T";
+#define CHECKTY(t) if (IR::t *as##t = dynamic_cast<IR::t*>(ty)) mangle##t(ss, as##t);
+    CHECKTY(FloatType)
+    CHECKTY(IntType)
+    CHECKTY(CharType)
+    CHECKTY(BoolType)
+    CHECKTY(FunctionType)
+    CHECKTY(VoidType)
+    CHECKTY(GenericIntType)
+    CHECKTY(GenericFloatType)
 #undef CHECKTY
-        ss << "t";
-    }
-};
+    ss << "t";
+}
 
-// FunctionComponent {{{1
-struct FunctionComponent : public Component
+static void mangleFunction(std::stringstream &ss, IR::Function &f)
 {
-    std::string name;
-    std::vector<std::unique_ptr<TypeComponent>> types;
+    ss << "F";
 
-    FunctionComponent(IR::Function const &f): name(f.name)
-    {
-        for (IR::Type *ty : f.ty->paramtys)
-            types.push_back(std::make_unique<TypeComponent>(ty));
-    }
+    mangleIdentifier(ss, f.name);
+    for (IR::Type *ty : f.ty->paramtys)
+        mangleType(ss, ty);
 
-    void stringify(std::stringstream &ss) override
-    {
-        ss << "F" << name.size() << name;
+    ss << "f";
+}
 
-        for (std::unique_ptr<TypeComponent> &ty : types)
-            ty->stringify(ss);
-
-        ss << "f";
-    }
-};
-// }}}1
-
-struct MangledPath
+static std::string manglePath(IR::Function &f)
 {
-    std::unique_ptr<Component> component;
-    std::string stringify()
-    {
-        std::stringstream ss;
-        ss << "_ksl_";
-        component->stringify(ss);
-        return ss.str();
-    }
-};
+    std::stringstream ss;
+    ss << "_ksl_";
+    mangleFunction(ss, f);
+    return ss.str();
+}
 
 std::string Mangle::NameMangler::mangleName(IR::Function &f)
 {
-    MangledPath p;
-    p.component = std::make_unique<FunctionComponent>(f);
-    return p.stringify();
+    return manglePath(f);
 }
