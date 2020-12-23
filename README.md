@@ -18,7 +18,7 @@ AND NOt only that, but I also got a lot of helpful information from looking at t
 - [x] Type casting
 - [ ] Turing completeness
 - [ ] Function overloading
-- [ ] Name mangling
+- [x] Name mangling
 - [ ] Arrays
 - [ ] More types
 - [ ] Control flow
