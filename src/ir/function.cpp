@@ -56,10 +56,10 @@ void IR::Function::definition(llvm::raw_ostream &os) const
 {
     if (prototypeonly)
     {
-        os << format("fun % %;\n", name, ty->stringify());
+        os << format("%: %;\n", name, ty->stringify());
         return;
     }
-    os << "fun " << name << " " << ty->stringify() << " {\n";
+    os << format("%: % {\n", name, ty->stringify());
     for (std::unique_ptr<Register> const &r : registers)
         r->definition(os);
 
