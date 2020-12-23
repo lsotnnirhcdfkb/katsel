@@ -3,13 +3,12 @@
 #include <memory>
 
 #include "ast/ast.h"
-#include "ast/visitor.h"
 
 namespace llvm { class raw_ostream; }
 namespace IR { class Unit; }
 struct File;
 
-class CodeGen : public ASTNS::CUBVisitor, public ASTNS::DeclBVisitor
+class CodeGen : public ASTNS::CUB::Visitor, public ASTNS::DeclB::Visitor
 {
     class ForwDecl;
 

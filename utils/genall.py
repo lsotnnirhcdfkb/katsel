@@ -12,9 +12,6 @@ jobs = [
     ('src/ast/ast.cpp'                     , 'ASTCPP START'              , 'ASTCPP END'              , astgen.genASTDefs),
     ('include/ast/ast.h'                   , 'ASTHEADER START'           , 'ASTHEADER END'           , astgen.genASTDecls),
 
-    ('include/ast/visitor.h'               , 'ASTFORWDECL BEGIN'         , 'ASTFORWDECL END'         , astgen.genASTForwDecls),
-    ('include/ast/visitor.h'               , 'VISITCLASSES START'        , 'VISITCLASSES END'        , astgen.genVisitorClasses),
-
     ('src/ast/printvisitor.cpp'            , 'PRINTVISITOR START'        , 'PRINTVISITOR END'        , astgen.genPrintVisitorMethods),
     ('src/ast/dotvisitor.cpp'              , 'DOTVISITOR START'          , 'DOTVISITOR END'          , astgen.genDotVisitorMethods),
 

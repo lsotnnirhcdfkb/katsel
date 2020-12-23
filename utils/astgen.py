@@ -124,15 +124,25 @@ def genASTDecls():
 
             if not ast.skiponly:
                 output.append( '        bool empty() override;\n')
-                output.append(f'        virtual void accept(ASTNS::{ast.base}Visitor *v) override;\n')
+                output.append(f'        virtual void accept(ASTNS::{ast.base}::Visitor *v) override;\n')
 
             output.append( '    };\n')
         elif type(ast) == ASTBaseClass:
             output.append(f'    class {ast.name} : public AST\n')
             output.append( '    {\n')
             output.append( '    public:\n')
+
+            output.append(f'        class Visitor\n')
+            output.append( '        {\n')
+            output.append( '        public:\n')
+            output.append( '            virtual ~Visitor() {}\n')
+            for _ast in asts:
+                if type(_ast) == ASTClass and _ast.base == ast.name and not _ast.skiponly:
+                    output.append(f'            virtual void visit{_ast.name}(ASTNS::{_ast.name} *ast) = 0;\n')
+            output.append( '        };\n')
+
             output.append(f'        virtual ~{ast.name}() {{}}\n')
-            output.append(f'        virtual void accept(ASTNS::{ast.name}Visitor *v) = 0;\n')
+            output.append( '        virtual void accept(Visitor *v) = 0;\n')
             output.append( '        virtual bool empty() = 0;\n')
             output.append( '    };\n')
         else:
@@ -163,7 +173,7 @@ def genASTDefs():
                 output.append(', '.join(initializerList))
                 output.append(' {}\n')
 
-            output.append(f'void ASTNS::{ast.name}::accept(ASTNS::{ast.base}Visitor *v) {{ v->visit{ast.name}(this); }}\n')
+            output.append(f'void ASTNS::{ast.name}::accept(ASTNS::{ast.base}::Visitor *v) {{ v->visit{ast.name}(this); }}\n')
             output.append(f'bool ASTNS::{ast.name}::empty() {{ {"return form == Form::EMPTY;" if len(list(filter(lambda form: not len(form[0]), ast.forms))) else "return false;"} }}\n')
 
     return ''.join(output)
@@ -173,23 +183,6 @@ def genASTForwDecls():
     output = []
     for ast in asts:
         output.append(f'class {ast.name};\n')
-    return ''.join(output)
-# Generate visitor classes {{{3
-def genVisitorClasses():
-    output = []
-    for ast in asts:
-        if type(ast) != ASTBaseClass:
-            continue
-
-        output.append(f'class {ast.name}Visitor\n')
-        output.append( '{\n')
-        output.append( 'public:\n')
-        output.append(f'    virtual ~{ast.name}Visitor() {{}}\n')
-        for _ast in asts:
-            if type(_ast) == ASTClass and _ast.base == ast.name and not _ast.skiponly:
-                output.append(f'    virtual void visit{_ast.name}(ASTNS::{_ast.name} *ast) = 0;\n')
-        output.append( '};\n')
-
     return ''.join(output)
 # Generate overrided functions for visitor classes {{{3
 def genVisitorMethods(*bases):

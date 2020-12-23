@@ -3,7 +3,6 @@
 #include <memory>
 #include <vector>
 #include "lex/token.h"
-#include "ast/visitor.h"
 
 namespace ASTNS
 {
@@ -85,64 +84,154 @@ namespace ASTNS
     class ArgB : public AST
     {
     public:
+        class Visitor
+        {
+        public:
+            virtual ~Visitor() {}
+            virtual void visitArg(ASTNS::Arg *ast) = 0;
+            virtual void visitArgList(ASTNS::ArgList *ast) = 0;
+            virtual void visitArgList_OPT(ASTNS::ArgList_OPT *ast) = 0;
+            virtual void visitArgSegment(ASTNS::ArgSegment *ast) = 0;
+        };
         virtual ~ArgB() {}
-        virtual void accept(ASTNS::ArgBVisitor *v) = 0;
+        virtual void accept(Visitor *v) = 0;
         virtual bool empty() = 0;
     };
     class CUB : public AST
     {
     public:
+        class Visitor
+        {
+        public:
+            virtual ~Visitor() {}
+            virtual void visitCU(ASTNS::CU *ast) = 0;
+        };
         virtual ~CUB() {}
-        virtual void accept(ASTNS::CUBVisitor *v) = 0;
+        virtual void accept(Visitor *v) = 0;
         virtual bool empty() = 0;
     };
     class DeclB : public AST
     {
     public:
+        class Visitor
+        {
+        public:
+            virtual ~Visitor() {}
+            virtual void visitDeclList(ASTNS::DeclList *ast) = 0;
+            virtual void visitFunctionDecl(ASTNS::FunctionDecl *ast) = 0;
+        };
         virtual ~DeclB() {}
-        virtual void accept(ASTNS::DeclBVisitor *v) = 0;
+        virtual void accept(Visitor *v) = 0;
         virtual bool empty() = 0;
     };
     class ExprB : public AST
     {
     public:
+        class Visitor
+        {
+        public:
+            virtual ~Visitor() {}
+            virtual void visitAdditionExpr(ASTNS::AdditionExpr *ast) = 0;
+            virtual void visitAssignmentExpr(ASTNS::AssignmentExpr *ast) = 0;
+            virtual void visitBinAndExpr(ASTNS::BinAndExpr *ast) = 0;
+            virtual void visitBinOrExpr(ASTNS::BinOrExpr *ast) = 0;
+            virtual void visitBitAndExpr(ASTNS::BitAndExpr *ast) = 0;
+            virtual void visitBitOrExpr(ASTNS::BitOrExpr *ast) = 0;
+            virtual void visitBitShiftExpr(ASTNS::BitShiftExpr *ast) = 0;
+            virtual void visitBitXorExpr(ASTNS::BitXorExpr *ast) = 0;
+            virtual void visitBracedBlock(ASTNS::BracedBlock *ast) = 0;
+            virtual void visitCallExpr(ASTNS::CallExpr *ast) = 0;
+            virtual void visitCastExpr(ASTNS::CastExpr *ast) = 0;
+            virtual void visitCompEQExpr(ASTNS::CompEQExpr *ast) = 0;
+            virtual void visitCompLGTExpr(ASTNS::CompLGTExpr *ast) = 0;
+            virtual void visitExpr_OPT(ASTNS::Expr_OPT *ast) = 0;
+            virtual void visitForExpr(ASTNS::ForExpr *ast) = 0;
+            virtual void visitIfExpr(ASTNS::IfExpr *ast) = 0;
+            virtual void visitImplRet(ASTNS::ImplRet *ast) = 0;
+            virtual void visitImplRet_OPT(ASTNS::ImplRet_OPT *ast) = 0;
+            virtual void visitIndentedBlock(ASTNS::IndentedBlock *ast) = 0;
+            virtual void visitMultExpr(ASTNS::MultExpr *ast) = 0;
+            virtual void visitPrimaryExpr(ASTNS::PrimaryExpr *ast) = 0;
+            virtual void visitUnaryExpr(ASTNS::UnaryExpr *ast) = 0;
+        };
         virtual ~ExprB() {}
-        virtual void accept(ASTNS::ExprBVisitor *v) = 0;
+        virtual void accept(Visitor *v) = 0;
         virtual bool empty() = 0;
     };
     class LineEndingB : public AST
     {
     public:
+        class Visitor
+        {
+        public:
+            virtual ~Visitor() {}
+            virtual void visitLineEnding(ASTNS::LineEnding *ast) = 0;
+            virtual void visitLineEnding_OPT(ASTNS::LineEnding_OPT *ast) = 0;
+        };
         virtual ~LineEndingB() {}
-        virtual void accept(ASTNS::LineEndingBVisitor *v) = 0;
+        virtual void accept(Visitor *v) = 0;
         virtual bool empty() = 0;
     };
     class PListB : public AST
     {
     public:
+        class Visitor
+        {
+        public:
+            virtual ~Visitor() {}
+            virtual void visitParam(ASTNS::Param *ast) = 0;
+            virtual void visitParamList(ASTNS::ParamList *ast) = 0;
+            virtual void visitParamList_OPT(ASTNS::ParamList_OPT *ast) = 0;
+            virtual void visitParamSegment(ASTNS::ParamSegment *ast) = 0;
+        };
         virtual ~PListB() {}
-        virtual void accept(ASTNS::PListBVisitor *v) = 0;
+        virtual void accept(Visitor *v) = 0;
         virtual bool empty() = 0;
     };
     class StmtB : public AST
     {
     public:
+        class Visitor
+        {
+        public:
+            virtual ~Visitor() {}
+            virtual void visitExprStmt(ASTNS::ExprStmt *ast) = 0;
+            virtual void visitRetStmt(ASTNS::RetStmt *ast) = 0;
+            virtual void visitStmtList(ASTNS::StmtList *ast) = 0;
+            virtual void visitStmtList_OPT(ASTNS::StmtList_OPT *ast) = 0;
+            virtual void visitVarStmt(ASTNS::VarStmt *ast) = 0;
+            virtual void visitVarStmt_OPT(ASTNS::VarStmt_OPT *ast) = 0;
+        };
         virtual ~StmtB() {}
-        virtual void accept(ASTNS::StmtBVisitor *v) = 0;
+        virtual void accept(Visitor *v) = 0;
         virtual bool empty() = 0;
     };
     class TypeB : public AST
     {
     public:
+        class Visitor
+        {
+        public:
+            virtual ~Visitor() {}
+            virtual void visitBuiltinType(ASTNS::BuiltinType *ast) = 0;
+        };
         virtual ~TypeB() {}
-        virtual void accept(ASTNS::TypeBVisitor *v) = 0;
+        virtual void accept(Visitor *v) = 0;
         virtual bool empty() = 0;
     };
     class VStmtIB : public AST
     {
     public:
+        class Visitor
+        {
+        public:
+            virtual ~Visitor() {}
+            virtual void visitVarStmtItem(ASTNS::VarStmtItem *ast) = 0;
+            virtual void visitVarStmtItemList(ASTNS::VarStmtItemList *ast) = 0;
+            virtual void visitVarStmtItemSegment(ASTNS::VarStmtItemSegment *ast) = 0;
+        };
         virtual ~VStmtIB() {}
-        virtual void accept(ASTNS::VStmtIBVisitor *v) = 0;
+        virtual void accept(Visitor *v) = 0;
         virtual bool empty() = 0;
     };
     class AdditionExpr : public ExprB
@@ -158,7 +247,7 @@ namespace ASTNS
         std::unique_ptr<ExprB> rhs;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::ExprBVisitor *v) override;
+        virtual void accept(ASTNS::ExprB::Visitor *v) override;
     };
     class AnotherArg : public ArgB
     {
@@ -211,7 +300,7 @@ namespace ASTNS
         std::unique_ptr<ExprB> expr;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::ArgBVisitor *v) override;
+        virtual void accept(ASTNS::ArgB::Visitor *v) override;
     };
     class ArgList : public ArgB
     {
@@ -225,7 +314,7 @@ namespace ASTNS
         Token comma;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::ArgBVisitor *v) override;
+        virtual void accept(ASTNS::ArgB::Visitor *v) override;
     };
     class ArgList_OPT : public ArgB
     {
@@ -237,7 +326,7 @@ namespace ASTNS
         };
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::ArgBVisitor *v) override;
+        virtual void accept(ASTNS::ArgB::Visitor *v) override;
     };
     class ArgSegment : public ArgB
     {
@@ -252,7 +341,7 @@ namespace ASTNS
         std::unique_ptr<ArgB> anotherarg;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::ArgBVisitor *v) override;
+        virtual void accept(ASTNS::ArgB::Visitor *v) override;
     };
     class AssignmentExpr : public ExprB
     {
@@ -267,7 +356,7 @@ namespace ASTNS
         std::unique_ptr<ExprB> value;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::ExprBVisitor *v) override;
+        virtual void accept(ASTNS::ExprB::Visitor *v) override;
     };
     class BinAndExpr : public ExprB
     {
@@ -282,7 +371,7 @@ namespace ASTNS
         std::unique_ptr<ExprB> rhs;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::ExprBVisitor *v) override;
+        virtual void accept(ASTNS::ExprB::Visitor *v) override;
     };
     class BinOrExpr : public ExprB
     {
@@ -297,7 +386,7 @@ namespace ASTNS
         std::unique_ptr<ExprB> rhs;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::ExprBVisitor *v) override;
+        virtual void accept(ASTNS::ExprB::Visitor *v) override;
     };
     class BitAndExpr : public ExprB
     {
@@ -312,7 +401,7 @@ namespace ASTNS
         std::unique_ptr<ExprB> rhs;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::ExprBVisitor *v) override;
+        virtual void accept(ASTNS::ExprB::Visitor *v) override;
     };
     class BitOrExpr : public ExprB
     {
@@ -327,7 +416,7 @@ namespace ASTNS
         std::unique_ptr<ExprB> rhs;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::ExprBVisitor *v) override;
+        virtual void accept(ASTNS::ExprB::Visitor *v) override;
     };
     class BitShiftExpr : public ExprB
     {
@@ -342,7 +431,7 @@ namespace ASTNS
         std::unique_ptr<ExprB> rhs;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::ExprBVisitor *v) override;
+        virtual void accept(ASTNS::ExprB::Visitor *v) override;
     };
     class BitXorExpr : public ExprB
     {
@@ -357,7 +446,7 @@ namespace ASTNS
         std::unique_ptr<ExprB> rhs;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::ExprBVisitor *v) override;
+        virtual void accept(ASTNS::ExprB::Visitor *v) override;
     };
     class Block : public ExprB
     {
@@ -396,7 +485,7 @@ namespace ASTNS
         Token dedentopt;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::ExprBVisitor *v) override;
+        virtual void accept(ASTNS::ExprB::Visitor *v) override;
     };
     class BuiltinType : public TypeB
     {
@@ -409,7 +498,7 @@ namespace ASTNS
         Token type;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::TypeBVisitor *v) override;
+        virtual void accept(ASTNS::TypeB::Visitor *v) override;
     };
     class CU : public CUB
     {
@@ -424,7 +513,7 @@ namespace ASTNS
         std::unique_ptr<DeclB> dl;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::CUBVisitor *v) override;
+        virtual void accept(ASTNS::CUB::Visitor *v) override;
     };
     class CallExpr : public ExprB
     {
@@ -440,7 +529,7 @@ namespace ASTNS
         Token cparn;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::ExprBVisitor *v) override;
+        virtual void accept(ASTNS::ExprB::Visitor *v) override;
     };
     class CastExpr : public ExprB
     {
@@ -456,7 +545,7 @@ namespace ASTNS
         std::unique_ptr<ExprB> operand;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::ExprBVisitor *v) override;
+        virtual void accept(ASTNS::ExprB::Visitor *v) override;
     };
     class CompEQExpr : public ExprB
     {
@@ -471,7 +560,7 @@ namespace ASTNS
         std::unique_ptr<ExprB> rhs;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::ExprBVisitor *v) override;
+        virtual void accept(ASTNS::ExprB::Visitor *v) override;
     };
     class CompLGTExpr : public ExprB
     {
@@ -486,7 +575,7 @@ namespace ASTNS
         std::unique_ptr<ExprB> rhs;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::ExprBVisitor *v) override;
+        virtual void accept(ASTNS::ExprB::Visitor *v) override;
     };
     class Decl : public DeclB
     {
@@ -508,7 +597,7 @@ namespace ASTNS
         std::unique_ptr<DeclB> anotherdecl;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::DeclBVisitor *v) override;
+        virtual void accept(ASTNS::DeclB::Visitor *v) override;
     };
     class Expr : public ExprB
     {
@@ -530,7 +619,7 @@ namespace ASTNS
         std::unique_ptr<LineEndingB> ending;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::StmtBVisitor *v) override;
+        virtual void accept(ASTNS::StmtB::Visitor *v) override;
     };
     class Expr_OPT : public ExprB
     {
@@ -542,7 +631,7 @@ namespace ASTNS
         };
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::ExprBVisitor *v) override;
+        virtual void accept(ASTNS::ExprB::Visitor *v) override;
     };
     class ForExpr : public ExprB
     {
@@ -562,7 +651,7 @@ namespace ASTNS
         std::unique_ptr<ExprB> body;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::ExprBVisitor *v) override;
+        virtual void accept(ASTNS::ExprB::Visitor *v) override;
     };
     class FunctionDecl : public DeclB
     {
@@ -584,7 +673,7 @@ namespace ASTNS
         std::unique_ptr<LineEndingB> endl;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::DeclBVisitor *v) override;
+        virtual void accept(ASTNS::DeclB::Visitor *v) override;
     };
     class IfExpr : public ExprB
     {
@@ -603,7 +692,7 @@ namespace ASTNS
         std::unique_ptr<ExprB> falses;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::ExprBVisitor *v) override;
+        virtual void accept(ASTNS::ExprB::Visitor *v) override;
     };
     class ImplRet : public ExprB
     {
@@ -618,7 +707,7 @@ namespace ASTNS
         std::unique_ptr<LineEndingB> ending;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::ExprBVisitor *v) override;
+        virtual void accept(ASTNS::ExprB::Visitor *v) override;
     };
     class ImplRet_OPT : public ExprB
     {
@@ -630,7 +719,7 @@ namespace ASTNS
         };
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::ExprBVisitor *v) override;
+        virtual void accept(ASTNS::ExprB::Visitor *v) override;
     };
     class IndentedBlock : public ExprB
     {
@@ -647,7 +736,7 @@ namespace ASTNS
         Token dedent;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::ExprBVisitor *v) override;
+        virtual void accept(ASTNS::ExprB::Visitor *v) override;
     };
     class LineEnding : public LineEndingB
     {
@@ -663,7 +752,7 @@ namespace ASTNS
         Token tok2;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::LineEndingBVisitor *v) override;
+        virtual void accept(ASTNS::LineEndingB::Visitor *v) override;
     };
     class LineEnding_OPT : public LineEndingB
     {
@@ -675,7 +764,7 @@ namespace ASTNS
         };
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::LineEndingBVisitor *v) override;
+        virtual void accept(ASTNS::LineEndingB::Visitor *v) override;
     };
     class MultExpr : public ExprB
     {
@@ -690,7 +779,7 @@ namespace ASTNS
         std::unique_ptr<ExprB> rhs;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::ExprBVisitor *v) override;
+        virtual void accept(ASTNS::ExprB::Visitor *v) override;
     };
     class NotBlockedExpr : public ExprB
     {
@@ -712,7 +801,7 @@ namespace ASTNS
         Token name;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::PListBVisitor *v) override;
+        virtual void accept(ASTNS::PListB::Visitor *v) override;
     };
     class ParamList : public PListB
     {
@@ -726,7 +815,7 @@ namespace ASTNS
         Token comma;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::PListBVisitor *v) override;
+        virtual void accept(ASTNS::PListB::Visitor *v) override;
     };
     class ParamList_OPT : public PListB
     {
@@ -738,7 +827,7 @@ namespace ASTNS
         };
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::PListBVisitor *v) override;
+        virtual void accept(ASTNS::PListB::Visitor *v) override;
     };
     class ParamSegment : public PListB
     {
@@ -753,7 +842,7 @@ namespace ASTNS
         std::unique_ptr<PListB> anotherparam;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::PListBVisitor *v) override;
+        virtual void accept(ASTNS::PListB::Visitor *v) override;
     };
     class PrimaryExpr : public ExprB
     {
@@ -771,7 +860,7 @@ namespace ASTNS
         Token cparn;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::ExprBVisitor *v) override;
+        virtual void accept(ASTNS::ExprB::Visitor *v) override;
     };
     class RetStmt : public StmtB
     {
@@ -788,7 +877,7 @@ namespace ASTNS
         std::unique_ptr<LineEndingB> ending;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::StmtBVisitor *v) override;
+        virtual void accept(ASTNS::StmtB::Visitor *v) override;
     };
     class Stmt : public StmtB
     {
@@ -810,7 +899,7 @@ namespace ASTNS
         std::unique_ptr<StmtB> anotherstmt;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::StmtBVisitor *v) override;
+        virtual void accept(ASTNS::StmtB::Visitor *v) override;
     };
     class StmtList_OPT : public StmtB
     {
@@ -822,7 +911,7 @@ namespace ASTNS
         };
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::StmtBVisitor *v) override;
+        virtual void accept(ASTNS::StmtB::Visitor *v) override;
     };
     class Type : public TypeB
     {
@@ -844,7 +933,7 @@ namespace ASTNS
         std::unique_ptr<ExprB> operand;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::ExprBVisitor *v) override;
+        virtual void accept(ASTNS::ExprB::Visitor *v) override;
     };
     class VarStmt : public StmtB
     {
@@ -860,7 +949,7 @@ namespace ASTNS
         std::unique_ptr<LineEndingB> ending;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::StmtBVisitor *v) override;
+        virtual void accept(ASTNS::StmtB::Visitor *v) override;
     };
     class VarStmtItem : public VStmtIB
     {
@@ -877,7 +966,7 @@ namespace ASTNS
         std::unique_ptr<ExprB> expr;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::VStmtIBVisitor *v) override;
+        virtual void accept(ASTNS::VStmtIB::Visitor *v) override;
     };
     class VarStmtItemList : public VStmtIB
     {
@@ -891,7 +980,7 @@ namespace ASTNS
         Token comma;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::VStmtIBVisitor *v) override;
+        virtual void accept(ASTNS::VStmtIB::Visitor *v) override;
     };
     class VarStmtItemSegment : public VStmtIB
     {
@@ -906,7 +995,7 @@ namespace ASTNS
         std::unique_ptr<VStmtIB> anothervarstmtitem;
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::VStmtIBVisitor *v) override;
+        virtual void accept(ASTNS::VStmtIB::Visitor *v) override;
     };
     class VarStmt_OPT : public StmtB
     {
@@ -918,7 +1007,7 @@ namespace ASTNS
         };
         Form form;
         bool empty() override;
-        virtual void accept(ASTNS::StmtBVisitor *v) override;
+        virtual void accept(ASTNS::StmtB::Visitor *v) override;
     };
 // This code was autogenerated - see the utils/ directory
 

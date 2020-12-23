@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ast/visitor.h"
 #include "ast/ast.h"
 
 #include "llvm/Support/raw_ostream.h"
@@ -8,15 +7,15 @@
 namespace ASTNS
 {
     class PrintVisitor :
-        public ASTNS::DeclBVisitor,
-        public ASTNS::ArgBVisitor,
-        public ASTNS::StmtBVisitor,
-        public ASTNS::ExprBVisitor,
-        public ASTNS::VStmtIBVisitor,
-        public ASTNS::PListBVisitor,
-        public ASTNS::TypeBVisitor,
-        public ASTNS::CUBVisitor,
-        public ASTNS::LineEndingBVisitor
+        public ASTNS::DeclB::Visitor,
+        public ASTNS::ArgB::Visitor,
+        public ASTNS::StmtB::Visitor,
+        public ASTNS::ExprB::Visitor,
+        public ASTNS::VStmtIB::Visitor,
+        public ASTNS::PListB::Visitor,
+        public ASTNS::TypeB::Visitor,
+        public ASTNS::CUB::Visitor,
+        public ASTNS::LineEndingB::Visitor
     {
     public:
         PrintVisitor(llvm::raw_ostream &ostream);

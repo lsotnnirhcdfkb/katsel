@@ -3,7 +3,6 @@
 #include "codegen/codegen.h"
 #include "codegen/context.h"
 
-#include "ast/visitor.h"
 #include "ast/ast.h"
 
 #include "ir/value.h"
@@ -11,7 +10,7 @@
 #include "ir/instruction.h"
 
 // TypeVisitor {{{1
-class CodeGen::TypeVisitor : public ASTNS::TypeBVisitor
+class CodeGen::TypeVisitor : public ASTNS::TypeB::Visitor
 {
 public:
     TypeVisitor(CodeGen &cg);
@@ -33,7 +32,7 @@ void visitBuiltinType(ASTNS::BuiltinType *ast) override;
 };
 
 // ForwDecl {{{1
-class CodeGen::ForwDecl : public ASTNS::DeclBVisitor, public ASTNS::CUBVisitor
+class CodeGen::ForwDecl : public ASTNS::DeclB::Visitor, public ASTNS::CUB::Visitor
 {
 public:
     ForwDecl(CodeGen &cg);
@@ -57,7 +56,7 @@ void visitFunctionDecl(ASTNS::FunctionDecl *ast) override;
 class CodeGen::FunctionCodeGen
 {
     // StmtCodeGen {{{
-    class StmtCodeGen : public ASTNS::StmtBVisitor, public ASTNS::VStmtIBVisitor
+    class StmtCodeGen : public ASTNS::StmtB::Visitor, public ASTNS::VStmtIB::Visitor
     {
     public:
         StmtCodeGen(CodeGen &cg, FunctionCodeGen &fcg);
@@ -89,7 +88,7 @@ void visitVarStmt_OPT(ASTNS::VarStmt_OPT *ast) override;
     };
     // }}}
     // ExprCodeGen {{{
-    class ExprCodeGen : public ASTNS::ExprBVisitor
+    class ExprCodeGen : public ASTNS::ExprB::Visitor
     {
     public:
         ExprCodeGen(CodeGen &cg, FunctionCodeGen &fcg);
@@ -168,7 +167,7 @@ public:
 
 // Param and Args {{{1
 // Param {{{2
-class CodeGen::ParamVisitor : public ASTNS::PListBVisitor
+class CodeGen::ParamVisitor : public ASTNS::PListB::Visitor
 {
 public:
     struct Param
@@ -198,7 +197,7 @@ void visitParamSegment(ASTNS::ParamSegment *ast) override;
 };
 
 // Arg {{{2
-class CodeGen::ArgVisitor : public ASTNS::ArgBVisitor
+class CodeGen::ArgVisitor : public ASTNS::ArgB::Visitor
 {
 public:
     ArgVisitor(CodeGen::FunctionCodeGen &fcg);
