@@ -250,13 +250,9 @@ def genPrintVisitorMethods():
                 output.append(    f'            pai("{field.name} = ");\n')
                 if field.type_.startswith('std::unique_ptr'):
                     output.append(f'            if (a->{field.name})\n')
-                    output.append( '            {\n')
                     output.append(f'                a->{field.name}->accept(this);\n')
-                    output.append( '            }\n')
                     output.append( '            else\n')
-                    output.append( '            {\n')
                     output.append( '                pai("nullptr\\n");\n')
-                    output.append( '            }\n')
                 else:
                     output.append( '            pai("[");\n')
                     output.append(f'            pai(std::string(a->{field.name}.start, a->{field.name}.end));\n')
