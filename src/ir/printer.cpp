@@ -33,14 +33,6 @@ void IR::Printer::visitAnd(IR::Instrs::And *i)
 {
     ostream << format("and % % -> %", i->lhs, i->rhs, i->target);
 }
-void IR::Printer::visitShortOr(IR::Instrs::ShortOr *i)
-{
-    ostream << format("shortor % % -> %", i->lhs, i->rhs, i->target);
-}
-void IR::Printer::visitShortAnd(IR::Instrs::ShortAnd *i)
-{
-    ostream << format("shortand % % -> %", i->lhs, i->rhs, i->target);
-}
 void IR::Printer::visitNot(IR::Instrs::Not *i)
 {
     ostream << format("not % -> %", i->op, i->target);

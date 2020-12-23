@@ -15,6 +15,7 @@
 #define BIN_OP_ARGS CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::Type::BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast
 #define UNARY_OP_ARGS CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::Type::UnaryOperator op, IR::ASTValue v, Token optok, ASTNS::AST *ast
 // static functions {{{1
+#define SUPPORT_OPERATOR_BASIC(op, instr) case IR::Type::BinaryOperator::op: curBlock->add(std::make_unique<IR::Instrs::instr>(retReg, l, r)); break;
 static IR::Type* defaultBinOpRetTy(CodeGen::Context &cgc, IR::Type *ltype, IR::Type::BinaryOperator op)
 {
     switch (op)
@@ -42,7 +43,57 @@ static IR::Type* defaultBinOpRetTy(CodeGen::Context &cgc, IR::Type *ltype, IR::T
             return ltype;
     }
 }
-#define SUPPORT_OPERATOR_BASIC(op, instr) case IR::Type::BinaryOperator::op: curBlock->add(std::make_unique<IR::Instrs::instr>(retReg, l, r)); break;
+// short circuit operations {{{2
+#define SUPPORT_SHORT_CIRCUIT_OR() case Type::BinaryOperator::doublepipe: shortCircuitOr(cgc, fun, curBlock, op, l, r, retReg, ast); break;
+static void shortCircuitOr(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::Type::BinaryOperator op, IR::ASTValue l, IR::ASTValue r, IR::TempRegister *retReg, ASTNS::AST *ast)
+{
+    IR::Block *ltrueb = fun.addBlock("binaryor_ltrueb");
+    IR::Block *checkbothb = fun.addBlock("binaryor_checkbothb");
+    IR::Block *afterb = fun.addBlock("binaryor_afterb");
+
+    // i || j
+    // becomes
+    // if (i)
+    //     true
+    //  else
+    //     j
+
+    curBlock->branch(std::make_unique<IR::Instrs::CondBr>(l, ltrueb, checkbothb));
+
+    curBlock = ltrueb;
+    curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
+
+    curBlock = checkbothb;
+    curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
+
+    curBlock = afterb;
+    curBlock->add(std::make_unique<IR::Instrs::Phi>(retReg, std::vector {std::make_pair(ltrueb, IR::ASTValue(cgc.getConstBool(true), ast)), std::make_pair(checkbothb, r)}));
+}
+#define SUPPORT_SHORT_CIRCUIT_AND() case IR::Type::BinaryOperator::doubleamper: shortCircuitAnd(cgc, fun, curBlock, op, l, r, retReg, ast); break;
+static void shortCircuitAnd(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::Type::BinaryOperator op, IR::ASTValue l, IR::ASTValue r, IR::TempRegister *retReg, ASTNS::AST *ast)
+{
+    IR::Block *lfalseb = fun.addBlock("binaryand_lfalseb");
+    IR::Block *checkbothb = fun.addBlock("binaryand_checkbothb");
+    IR::Block *afterb = fun.addBlock("binaryand_afterb");
+
+    // i && j
+    // becomes
+    // if (i)
+    //     j
+    //  else
+    //     false
+
+    curBlock->branch(std::make_unique<IR::Instrs::CondBr>(l, checkbothb, lfalseb));
+
+    curBlock = checkbothb;
+    curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
+
+    curBlock = lfalseb;
+    curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
+
+    curBlock = afterb;
+    curBlock->add(std::make_unique<IR::Instrs::Phi>(retReg, std::vector {std::make_pair(checkbothb, r), std::make_pair(lfalseb, IR::ASTValue(cgc.getConstBool(false), ast))}));
+}
 // float/int operations for reuse between generic float/int and concrete float/int types {{{1
 static IR::ASTValue floatBinOp(BIN_OP_ARGS)
 {
@@ -462,8 +513,8 @@ IR::ASTValue IR::BoolType::binOp(CodeGen::Context &cgc, Function &fun, Block *&c
         SUPPORT_OPERATOR_BASIC(amper, BitAnd)
         SUPPORT_OPERATOR_BASIC(pipe, BitOr)
         SUPPORT_OPERATOR_BASIC(caret, BitXor)
-        SUPPORT_OPERATOR_BASIC(doublepipe, ShortOr)
-        SUPPORT_OPERATOR_BASIC(doubleamper, ShortAnd)
+        SUPPORT_SHORT_CIRCUIT_OR()
+        SUPPORT_SHORT_CIRCUIT_AND()
         SUPPORT_OPERATOR_BASIC(doubleequal, ICmpEQ)
         SUPPORT_OPERATOR_BASIC(bangequal, ICmpNE)
 

@@ -32,22 +32,6 @@ IR::Instrs::And::And(TempRegister *target, ASTValue lhs, ASTValue rhs): target(t
     ASSERT(lhs.type() == rhs.type())
 }
 void IR::Instrs::And::accept(InstructionVisitor *v) { v->visitAnd(this); }
-IR::Instrs::ShortOr::ShortOr(TempRegister *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
-{
-    ASSERT(dynamic_cast<BoolType*>(target->type()))
-    ASSERT(target->type() == lhs.type())
-    ASSERT(dynamic_cast<BoolType*>(lhs.type()))
-    ASSERT(lhs.type() == rhs.type())
-}
-void IR::Instrs::ShortOr::accept(InstructionVisitor *v) { v->visitShortOr(this); }
-IR::Instrs::ShortAnd::ShortAnd(TempRegister *target, ASTValue lhs, ASTValue rhs): target(target), lhs(lhs), rhs(rhs)
-{
-    ASSERT(dynamic_cast<BoolType*>(target->type()))
-    ASSERT(target->type() == lhs.type())
-    ASSERT(dynamic_cast<BoolType*>(lhs.type()))
-    ASSERT(lhs.type() == rhs.type())
-}
-void IR::Instrs::ShortAnd::accept(InstructionVisitor *v) { v->visitShortAnd(this); }
 IR::Instrs::Not::Not(TempRegister *target, ASTValue op): target(target), op(op)
 {
     ASSERT(dynamic_cast<BoolType*>(target->type()))

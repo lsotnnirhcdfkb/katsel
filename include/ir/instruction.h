@@ -69,24 +69,6 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class ShortOr : public Instruction
-    {
-    public:
-        ShortOr(TempRegister *target, ASTValue lhs, ASTValue rhs);
-        void accept(InstructionVisitor *v) override;
-        TempRegister *target;
-        ASTValue lhs;
-        ASTValue rhs;
-    };
-    class ShortAnd : public Instruction
-    {
-    public:
-        ShortAnd(TempRegister *target, ASTValue lhs, ASTValue rhs);
-        void accept(InstructionVisitor *v) override;
-        TempRegister *target;
-        ASTValue lhs;
-        ASTValue rhs;
-    };
     class Not : public Instruction
     {
     public:

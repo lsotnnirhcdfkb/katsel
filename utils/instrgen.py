@@ -36,8 +36,6 @@ instructions = [
 
     Instruction('Or'          , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType'), targetEqual('lhs.type()'), typeMustBe('lhs.type()', 'BoolType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
     Instruction('And'         , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType'), targetEqual('lhs.type()'), typeMustBe('lhs.type()', 'BoolType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
-    Instruction('ShortOr'     , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType'), targetEqual('lhs.type()'), typeMustBe('lhs.type()', 'BoolType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
-    Instruction('ShortAnd'    , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType'), targetEqual('lhs.type()'), typeMustBe('lhs.type()', 'BoolType'), *operandsEqual('lhs.type()', 'rhs.type()')]),
     Instruction('Not'         , 'Instruction' , ['TempRegister* target', 'ASTValue op'                                     ], [typeMustBe('target->type()', 'BoolType'), targetEqual('op.type()')]),
 
     Instruction('ICmpNE'      , 'Instruction' , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [typeMustBe('target->type()', 'BoolType'), typeIsIntegral('lhs.type()'), *operandsEqual('lhs.type()', 'rhs.type()')]),

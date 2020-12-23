@@ -24,8 +24,6 @@ void visitStore(IR::Instrs::Store *i) override;
 void visitPhi(IR::Instrs::Phi *i) override;
 void visitOr(IR::Instrs::Or *i) override;
 void visitAnd(IR::Instrs::And *i) override;
-void visitShortOr(IR::Instrs::ShortOr *i) override;
-void visitShortAnd(IR::Instrs::ShortAnd *i) override;
 void visitNot(IR::Instrs::Not *i) override;
 void visitICmpNE(IR::Instrs::ICmpNE *i) override;
 void visitICmpEQ(IR::Instrs::ICmpEQ *i) override;
