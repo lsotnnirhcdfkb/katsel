@@ -56,7 +56,13 @@ struct TypeComponent : public Component
         CHECKTY(BoolType)
             ss << 'b';
         CHECKTY(FunctionType)
-            reportAbortNoh("unimplimented mangling of function types");
+        {
+            ss << 'F';
+            TypeComponent(asFunctionType->ret).stringify(ss);
+            for (IR::Type *pty : asFunctionType->paramtys)
+                TypeComponent(pty).stringify(ss);
+            ss << 'f';
+        }
         CHECKTY(VoidType)
             ss << 'v';
         CHECKTY(GenericIntType)
