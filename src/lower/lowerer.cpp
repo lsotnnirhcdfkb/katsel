@@ -122,7 +122,6 @@ void Lower::Lowerer::lower(IR::Function const &f)
             b->br->accept(this);
     }
 
-
     allocas.clear();
     blocks.clear();
 
