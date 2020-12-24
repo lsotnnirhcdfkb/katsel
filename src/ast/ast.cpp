@@ -74,9 +74,6 @@ ASTNS::BracedBlock::BracedBlock(Token ocurb, Token newlopt, std::unique_ptr<Stmt
 ASTNS::BracedBlock::BracedBlock(Token ocurb, Token newlopt, Token indentopt, std::unique_ptr<StmtB> stmts, std::unique_ptr<ExprB> implret, Token dedentopt, Token ccurb): ocurb(ocurb), newlopt(newlopt), indentopt(indentopt), stmts(std::move(stmts)), implret(std::move(implret)), dedentopt(dedentopt), ccurb(ccurb), form(ASTNS::BracedBlock::Form::TTTAATT) {}
 void ASTNS::BracedBlock::accept(ASTNS::ExprB::Visitor *v) { v->visitBracedBlock(this); }
 bool ASTNS::BracedBlock::empty() { return false; }
-ASTNS::BuiltinType::BuiltinType(Token type): type(type), form(ASTNS::BuiltinType::Form::T) {}
-void ASTNS::BuiltinType::accept(ASTNS::TypeB::Visitor *v) { v->visitBuiltinType(this); }
-bool ASTNS::BuiltinType::empty() { return false; }
 ASTNS::CU::CU(std::unique_ptr<DeclB> dl): dl(std::move(dl)), form(ASTNS::CU::Form::A) {}
 ASTNS::CU::CU(): form(ASTNS::CU::Form::EMPTY) {}
 void ASTNS::CU::accept(ASTNS::CUB::Visitor *v) { v->visitCU(this); }
@@ -169,6 +166,9 @@ ASTNS::PrimaryExpr::PrimaryExpr(Token value): value(value), form(ASTNS::PrimaryE
 ASTNS::PrimaryExpr::PrimaryExpr(Token oparn, std::unique_ptr<ExprB> expr, Token cparn): oparn(oparn), expr(std::move(expr)), cparn(cparn), form(ASTNS::PrimaryExpr::Form::TAT) {}
 void ASTNS::PrimaryExpr::accept(ASTNS::ExprB::Visitor *v) { v->visitPrimaryExpr(this); }
 bool ASTNS::PrimaryExpr::empty() { return false; }
+ASTNS::PrimitiveType::PrimitiveType(Token type): type(type), form(ASTNS::PrimitiveType::Form::T) {}
+void ASTNS::PrimitiveType::accept(ASTNS::TypeB::Visitor *v) { v->visitPrimitiveType(this); }
+bool ASTNS::PrimitiveType::empty() { return false; }
 ASTNS::RetStmt::RetStmt(Token ret, std::unique_ptr<ExprB> expr, std::unique_ptr<LineEndingB> ending): ret(ret), expr(std::move(expr)), ending(std::move(ending)), form(ASTNS::RetStmt::Form::TAA) {}
 ASTNS::RetStmt::RetStmt(Token ret, std::unique_ptr<LineEndingB> ending): ret(ret), ending(std::move(ending)), form(ASTNS::RetStmt::Form::TA) {}
 void ASTNS::RetStmt::accept(ASTNS::StmtB::Visitor *v) { v->visitRetStmt(this); }

@@ -968,23 +968,6 @@ void ASTNS::DotVisitor::visitBracedBlock(ASTNS::BracedBlock *a)
     }
     lastid = std::move(thisid);
 }
-void ASTNS::DotVisitor::visitBuiltinType(ASTNS::BuiltinType *a)
-{
-    std::string thisid = curid();
-    switch (a->form)
-    {
-        case ASTNS::BuiltinType::Form::T:
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">BuiltinType (T)</td></tr><tr>";
-            ostream << "<td port=\"type\">type</td>";
-            ostream << "</tr></table>>]\n";
-            {
-                    std::string tokennodeid = makeTextNode("Token", a->type.stringify());
-                    connect(thisid, "type", tokennodeid);
-            }
-            break;
-    }
-    lastid = std::move(thisid);
-}
 void ASTNS::DotVisitor::visitCU(ASTNS::CU *a)
 {
     std::string thisid = curid();
@@ -2233,6 +2216,23 @@ void ASTNS::DotVisitor::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
             {
                     std::string tokennodeid = makeTextNode("Token", a->cparn.stringify());
                     connect(thisid, "cparn", tokennodeid);
+            }
+            break;
+    }
+    lastid = std::move(thisid);
+}
+void ASTNS::DotVisitor::visitPrimitiveType(ASTNS::PrimitiveType *a)
+{
+    std::string thisid = curid();
+    switch (a->form)
+    {
+        case ASTNS::PrimitiveType::Form::T:
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">PrimitiveType (T)</td></tr><tr>";
+            ostream << "<td port=\"type\">type</td>";
+            ostream << "</tr></table>>]\n";
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->type.stringify());
+                    connect(thisid, "type", tokennodeid);
             }
             break;
     }

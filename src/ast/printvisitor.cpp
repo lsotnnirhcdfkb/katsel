@@ -577,21 +577,6 @@ void ASTNS::PrintVisitor::visitBracedBlock(ASTNS::BracedBlock *a)
     }
     --indent;
 }
-void ASTNS::PrintVisitor::visitBuiltinType(ASTNS::BuiltinType *a)
-{
-    switch (a->form)
-    {
-        case ASTNS::BuiltinType::Form::T:
-            pai("BuiltinType T\n");
-            ++indent;
-            pai("Token type = ");
-            pai("\"");
-            pai(std::string(a->type.start, a->type.end));
-            pai("\"\n");
-            break;
-    }
-    --indent;
-}
 void ASTNS::PrintVisitor::visitCU(ASTNS::CU *a)
 {
     switch (a->form)
@@ -1345,6 +1330,21 @@ void ASTNS::PrintVisitor::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
             pai("Token cparn = ");
             pai("\"");
             pai(std::string(a->cparn.start, a->cparn.end));
+            pai("\"\n");
+            break;
+    }
+    --indent;
+}
+void ASTNS::PrintVisitor::visitPrimitiveType(ASTNS::PrimitiveType *a)
+{
+    switch (a->form)
+    {
+        case ASTNS::PrimitiveType::Form::T:
+            pai("PrimitiveType T\n");
+            ++indent;
+            pai("Token type = ");
+            pai("\"");
+            pai(std::string(a->type.start, a->type.end));
             pai("\"\n");
             break;
     }

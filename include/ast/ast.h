@@ -38,7 +38,6 @@ namespace ASTNS
     class Block;
     class BlockedExpr;
     class BracedBlock;
-    class BuiltinType;
     class CU;
     class CallExpr;
     class CastExpr;
@@ -64,6 +63,7 @@ namespace ASTNS
     class ParamList_OPT;
     class ParamSegment;
     class PrimaryExpr;
+    class PrimitiveType;
     class RetStmt;
     class Stmt;
     class StmtList;
@@ -222,7 +222,7 @@ namespace ASTNS
         {
         public:
             virtual ~Visitor() {}
-            virtual void visitBuiltinType(ASTNS::BuiltinType *ast) = 0;
+            virtual void visitPrimitiveType(ASTNS::PrimitiveType *ast) = 0;
             virtual void visitType(ASTNS::Type *ast) = 0;
         };
         virtual ~TypeB() {}
@@ -564,19 +564,6 @@ namespace ASTNS
         Form form;
         bool empty() override;
         virtual void accept(ASTNS::ExprB::Visitor *v) override;
-    };
-    class BuiltinType : public TypeB
-    {
-    public:
-        BuiltinType(Token type);
-        enum class Form
-        {
-            T,
-        };
-        Token type;
-        Form form;
-        bool empty() override;
-        virtual void accept(ASTNS::TypeB::Visitor *v) override;
     };
     class CU : public CUB
     {
@@ -989,6 +976,19 @@ namespace ASTNS
         Form form;
         bool empty() override;
         virtual void accept(ASTNS::ExprB::Visitor *v) override;
+    };
+    class PrimitiveType : public TypeB
+    {
+    public:
+        PrimitiveType(Token type);
+        enum class Form
+        {
+            T,
+        };
+        Token type;
+        Form form;
+        bool empty() override;
+        virtual void accept(ASTNS::TypeB::Visitor *v) override;
     };
     class RetStmt : public StmtB
     {

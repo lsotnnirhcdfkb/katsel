@@ -42,7 +42,6 @@ void visitBitXorExpr(ASTNS::BitXorExpr *ast) override;
 void visitBlock(ASTNS::Block *ast) override;
 void visitBlockedExpr(ASTNS::BlockedExpr *ast) override;
 void visitBracedBlock(ASTNS::BracedBlock *ast) override;
-void visitBuiltinType(ASTNS::BuiltinType *ast) override;
 void visitCU(ASTNS::CU *ast) override;
 void visitCallExpr(ASTNS::CallExpr *ast) override;
 void visitCastExpr(ASTNS::CastExpr *ast) override;
@@ -68,6 +67,7 @@ void visitParamList(ASTNS::ParamList *ast) override;
 void visitParamList_OPT(ASTNS::ParamList_OPT *ast) override;
 void visitParamSegment(ASTNS::ParamSegment *ast) override;
 void visitPrimaryExpr(ASTNS::PrimaryExpr *ast) override;
+void visitPrimitiveType(ASTNS::PrimitiveType *ast) override;
 void visitRetStmt(ASTNS::RetStmt *ast) override;
 void visitStmt(ASTNS::Stmt *ast) override;
 void visitStmtList(ASTNS::StmtList *ast) override;
@@ -401,17 +401,6 @@ void LocationVisitor::visitBracedBlock(ASTNS::BracedBlock *ast)
             retl = ast->ocurb.start;
             retf = ast->ocurb.sourcefile;
             retr = ast->ccurb.end;
-            break;
-    }
-}
-void LocationVisitor::visitBuiltinType(ASTNS::BuiltinType *ast)
-{
-    switch (ast->form)
-    {
-        case ASTNS::BuiltinType::Form::T:
-            retl = ast->type.start;
-            retf = ast->type.sourcefile;
-            retr = ast->type.end;
             break;
     }
 }
@@ -762,6 +751,17 @@ void LocationVisitor::visitPrimaryExpr(ASTNS::PrimaryExpr *ast)
             retl = ast->oparn.start;
             retf = ast->oparn.sourcefile;
             retr = ast->cparn.end;
+            break;
+    }
+}
+void LocationVisitor::visitPrimitiveType(ASTNS::PrimitiveType *ast)
+{
+    switch (ast->form)
+    {
+        case ASTNS::PrimitiveType::Form::T:
+            retl = ast->type.start;
+            retf = ast->type.sourcefile;
+            retr = ast->type.end;
             break;
     }
 }

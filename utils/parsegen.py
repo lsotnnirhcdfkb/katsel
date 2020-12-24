@@ -206,22 +206,26 @@ class SimpleReduceAction:
         self.args = args
     def generate(self):
         return f'''
-        std::unique_ptr<ASTNS::{self.classname}> push (std::make_unique<ASTNS::{self.classname}({", ".join(f"a{i}" for i in self.args)}));
+        std::unique_ptr<ASTNS::{self.classname}> push (std::make_unique<ASTNS::{self.classname}>({", ".join(f"a{i}" for i in self.args)}));
         stack.emplace_back(gotoState, std::move(push));
         '''
 class SkipReduceAction:
+    def __init__(self, ind=0):
+        self.ind = ind
     def generate(self):
-        return 'stack.emplace_back(gotoState, a0);'
+        return f'stack.emplace_back(gotoState, a{self.ind});\n'
 class NullptrReduceAction:
     def generate(self):
-        return 'stack.emplace_back(gotoState, nullptr);'
-class PrintReduceAction:
-    def __init__(self):
-        pass
+        return 'stack.emplace_back(gotoState, nullptr);\n'
+class VectorPushReduceAction:
+    def __init__(self, vectorName, itemToPush, pushBackToStack):
+        self.vectorName = vectorName
+        self.itemToPush = itemToPush
+        self.pushBackToStack = pushBackToStack
     def generate(self):
-        return '''
-        std::cout << "reduce";
-        stack.emplace_back(gotoState, nullptr);
+        return f'''
+        {self.vectorName}.push_back({self.itemToPush});
+        stack.emplace_back(gotoState, {self.pushBackToStack});
         '''
 # helpers {{{1
 def makeUnique(already, new):
@@ -438,9 +442,6 @@ def rule(sym, expansion, reduceAction, histart='START', hiend='END', special='')
         else:
             raise Exception(f'invalid special {rest}')
 
-    if reduceAction is not None:
-        assert type(reduceAction) == PrintReduceAction, type(reduceAction)
-
     rule = Rule(sym, syms, reduceAction, vnames, histart, hiend, rsp)
     grammar.append(rule)
     return rule
@@ -494,7 +495,7 @@ def makeGrammar():
     IndentedBlock = nt('IndentedBlock', 'indented code block', 'ExprB', panickable=True)
     ImplRet = nt('ImplRet', 'implicit return', 'ExprB', panickable=True)
     Type = nt('Type', 'type specifier', 'TypeB')
-    BuiltinType = nt('BuiltinType', 'builtin type specifier', 'TypeB')
+    PrimitiveType = nt('PrimitiveType', 'primitive type specifier', 'TypeB')
     Arg = nt('Arg', 'argument', 'ArgB', panickable=True)
     Param = nt('Param', 'parameter', 'PListB', panickable=True)
     Expr = nt('Expr', 'expression', 'ExprB')
@@ -585,140 +586,142 @@ def makeGrammar():
     VAR = Terminal('VAR')
     VOID = Terminal('VOID')
 
-    ParamList = listRule(Param, 'PListB', PrintReduceAction(), PrintReduceAction(), COMMA)
-    ArgList = listRule(Arg, 'ArgB', PrintReduceAction(), PrintReduceAction(), COMMA)
-    VarStmtItemList = listRule(VarStmtItem, 'VStmtIB', PrintReduceAction(), PrintReduceAction(), COMMA)
-    StmtList = listRule(Stmt, 'StmtB', PrintReduceAction(), PrintReduceAction())
-    DeclList = listRule(Decl, 'DeclB', PrintReduceAction(), PrintReduceAction())
+    ParamList = listRule(Param, 'PListB', VectorPushReduceAction('a0->params', 'std::move(a2)', 'a0'), SkipReduceAction(), COMMA)
+    ArgList = listRule(Arg, 'ArgB', VectorPushReduceAction('a0->args', 'std::move(a2)', 'a0'), SkipReduceAction(), COMMA)
+    VarStmtItemList = listRule(VarStmtItem, 'VStmtIB', VectorPushReduceAction('a0->items', 'std::move(a2)', 'a0'), SkipReduceAction(), COMMA)
+    StmtList = listRule(Stmt, 'StmtB', VectorPushReduceAction('a0->stmts', 'std::move(a1)', 'a0'), SkipReduceAction())
+    DeclList = listRule(Decl, 'DeclB', VectorPushReduceAction('a0->decls', 'std::move(a1)', 'a0'), SkipReduceAction())
 
-    ParamListOpt = makeOpt(ParamList, PrintReduceAction(), PrintReduceAction())
-    ArgListOpt = makeOpt(ArgList, PrintReduceAction(), PrintReduceAction())
-    StmtListOpt = makeOpt(StmtList, PrintReduceAction(), PrintReduceAction())
-    ImplRetOpt = makeOpt(ImplRet, PrintReduceAction(), PrintReduceAction())
-    ExprOpt = makeOpt(Expr, PrintReduceAction(), PrintReduceAction())
-    VarStmtOpt = makeOpt(VarStmt, PrintReduceAction(), PrintReduceAction())
-    LineEndingOpt = makeOpt(LineEnding, PrintReduceAction(), PrintReduceAction())
+    ParamListOpt = makeOpt(ParamList, SkipReduceAction(), NullptrReduceAction())
+    ArgListOpt = makeOpt(ArgList, SkipReduceAction(), NullptrReduceAction())
+    StmtListOpt = makeOpt(StmtList, SkipReduceAction(), NullptrReduceAction())
+    ImplRetOpt = makeOpt(ImplRet, SkipReduceAction(), NullptrReduceAction())
+    ExprOpt = makeOpt(Expr, SkipReduceAction(), NullptrReduceAction())
+    VarStmtOpt = makeOpt(VarStmt, SkipReduceAction(), NullptrReduceAction())
+    LineEndingOpt = makeOpt(LineEnding, SkipReduceAction(), NullptrReduceAction())
 
-    rule(CU, ((DeclList, 'dl'),), PrintReduceAction())
-    rule(CU, (), PrintReduceAction())
+    rule(CU, ((DeclList, 'dl'),), SimpleReduceAction('CU', (0,)))
+    rule(CU, (), SimpleReduceAction('CU', ()))
 
-    rule(Decl, ((FunctionDecl, '_'),), PrintReduceAction())
+    rule(Decl, ((FunctionDecl, '_'),), SkipReduceAction())
 
-    rule(FunctionDecl, ((FUN, 'fun'),  (Type, 'retty'),  (IDENTIFIER, 'name'),  (OPARN, 'oparn'),  (ParamListOpt, 'paramlist'),  (CPARN, 'cparn'),  (Block, 'body'), (LineEndingOpt, 'endl')), PrintReduceAction(), 'fun', 'cparn')
-    rule(FunctionDecl, ((FUN, 'fun'),  (Type, 'retty'),  (IDENTIFIER, 'name'),  (OPARN, 'oparn'),  (ParamListOpt, 'paramlist'),  (CPARN, 'cparn'),  (LineEnding, 'endl')), PrintReduceAction(), 'fun', 'endl')
+    rule(FunctionDecl, ((FUN, 'fun'),  (Type, 'retty'),  (IDENTIFIER, 'name'),  (OPARN, 'oparn'),  (ParamListOpt, 'paramlist'),  (CPARN, 'cparn'),  (Block, 'body'), (LineEndingOpt, 'endl')), SimpleReduceAction('FunctionDecl', (1, 2, 4, 6)), 'fun', 'cparn')
+    rule(FunctionDecl, ((FUN, 'fun'),  (Type, 'retty'),  (IDENTIFIER, 'name'),  (OPARN, 'oparn'),  (ParamListOpt, 'paramlist'),  (CPARN, 'cparn'),  (LineEnding, 'endl')), SimpleReduceAction('FunctionDecl', (1, 2, 4)), 'fun', 'endl')
 
-    rule(Stmt, ((VarStmt, '_'),), PrintReduceAction())
-    rule(Stmt, ((ExprStmt, '_'),), PrintReduceAction())
-    rule(Stmt, ((RetStmt, '_'),), PrintReduceAction())
+    rule(Stmt, ((VarStmt, '_'),), SkipReduceAction())
+    rule(Stmt, ((ExprStmt, '_'),), SkipReduceAction())
+    rule(Stmt, ((RetStmt, '_'),), SkipReduceAction())
 
-    rule(VarStmt, ((VAR, 'var'),  (Type, 'type'),  (VarStmtItemList, 'assignments'), (LineEnding, 'ending')), PrintReduceAction())
+    rule(VarStmt, ((VAR, 'var'),  (Type, 'type'),  (VarStmtItemList, 'assignments'), (LineEnding, 'ending')), SimpleReduceAction('VarStmt', (1, 2)))
 
-    rule(ExprStmt, ((NotBlockedExpr, 'expr'), (LineEnding, 'ending')), PrintReduceAction())
-    rule(ExprStmt, ((BlockedExpr, 'expr'), (LineEndingOpt, 'ending')), PrintReduceAction())
+    rule(ExprStmt, ((NotBlockedExpr, 'expr'), (LineEnding, 'ending')), SimpleReduceAction('ExprStmt', (0,)))
+    rule(ExprStmt, ((BlockedExpr, 'expr'), (LineEndingOpt, 'ending')), SimpleReduceAction('ExprStmt', (0,)))
 
-    rule(RetStmt, ((RETURN, 'ret'), (Expr, 'expr'), (LineEnding, 'ending')), PrintReduceAction())
-    rule(RetStmt, ((RETURN, 'ret'), (LineEnding, 'ending')), PrintReduceAction())
+    rule(RetStmt, ((RETURN, 'ret'), (Expr, 'expr'), (LineEnding, 'ending')), SimpleReduceAction('RetStmt', (1,)))
+    rule(RetStmt, ((RETURN, 'ret'), (LineEnding, 'ending')), SimpleReduceAction('RetStmt', ()))
 
-    rule(VarStmtItem, ((IDENTIFIER, 'name'),  (EQUAL, 'equal'),  (Expr, 'expr'), ), PrintReduceAction())
-    rule(VarStmtItem, ((IDENTIFIER, 'name'),), PrintReduceAction())
+    rule(VarStmtItem, ((IDENTIFIER, 'name'),  (EQUAL, 'equal'),  (Expr, 'expr'), ), SimpleReduceAction('VarStmt', (0, 2)))
+    rule(VarStmtItem, ((IDENTIFIER, 'name'),), SimpleReduceAction('VarStmt', (0,)))
 
-    rule(Block, ((BracedBlock, '_'),), PrintReduceAction())
-    rule(Block, ((IndentedBlock, '_'),), PrintReduceAction())
-    rule(BracedBlock, ((OCURB, 'ocurb'), (StmtListOpt, 'stmts'), (ImplRetOpt, 'implret'), (CCURB, 'ccurb')), PrintReduceAction())
-    rule(BracedBlock, ((OCURB, 'ocurb'), (NEWLINE, 'newlopt'), (StmtListOpt, 'stmts'), (ImplRetOpt, 'implret'), (CCURB, 'ccurb')), PrintReduceAction())
-    rule(BracedBlock, ((OCURB, 'ocurb'), (NEWLINE, 'newlopt'), (INDENT, 'indentopt'), (StmtListOpt, 'stmts'), (ImplRetOpt, 'implret'), (DEDENT, 'dedentopt'), (CCURB, 'ccurb')), PrintReduceAction())
-    rule(IndentedBlock, ((NEWLINE, 'newl'), (INDENT, 'indent'), (StmtListOpt, 'stmts'), (ImplRetOpt, 'implret'), (DEDENT, 'dedent')), PrintReduceAction())
-    rule(ImplRet, ((LEFTARROW, 'leftarrow'), (Expr, 'expr'), (LineEndingOpt, 'ending')), PrintReduceAction())
+    rule(Block, ((BracedBlock, '_'),), SkipReduceAction())
+    rule(Block, ((IndentedBlock, '_'),), SkipReduceAction())
+    rule(BracedBlock, ((OCURB, 'ocurb'), (StmtListOpt, 'stmts'), (ImplRetOpt, 'implret'), (CCURB, 'ccurb')), SimpleReduceAction('Block', (1, 2)))
+    rule(BracedBlock, ((OCURB, 'ocurb'), (NEWLINE, 'newlopt'), (StmtListOpt, 'stmts'), (ImplRetOpt, 'implret'), (CCURB, 'ccurb')), SimpleReduceAction('Block', (2, 3)))
+    rule(BracedBlock, ((OCURB, 'ocurb'), (NEWLINE, 'newlopt'), (INDENT, 'indentopt'), (StmtListOpt, 'stmts'), (ImplRetOpt, 'implret'), (DEDENT, 'dedentopt'), (CCURB, 'ccurb')), SimpleReduceAction('Block', (3, 4)))
+    rule(IndentedBlock, ((NEWLINE, 'newl'), (INDENT, 'indent'), (StmtListOpt, 'stmts'), (ImplRetOpt, 'implret'), (DEDENT, 'dedent')), SimpleReduceAction('Block', (2, 3)))
+    rule(ImplRet, ((LEFTARROW, 'leftarrow'), (Expr, 'expr'), (LineEndingOpt, 'ending')), SimpleReduceAction('ImplRet', (1,)))
 
-    rule(LineEnding, ((NEWLINE, 'tok'),), PrintReduceAction())
-    rule(LineEnding, ((SEMICOLON, 'tok'),), PrintReduceAction())
-    rule(LineEnding, ((SEMICOLON, 'tok'), (NEWLINE, 'tok2')), PrintReduceAction())
+    rule(LineEnding, ((NEWLINE, 'tok'),), NullptrReduceAction())
+    rule(LineEnding, ((SEMICOLON, 'tok'),), NullptrReduceAction())
+    rule(LineEnding, ((SEMICOLON, 'tok'), (NEWLINE, 'tok2')), NullptrReduceAction())
 
-    rule(Type, ((BuiltinType, '_'),), PrintReduceAction())
+    rule(Type, ((PrimitiveType, '_'),), SkipReduceAction())
 
-    rule(BuiltinType, ((UINT8, 'type'),), PrintReduceAction())
-    rule(BuiltinType, ((UINT16, 'type'),), PrintReduceAction())
-    rule(BuiltinType, ((UINT32, 'type'),), PrintReduceAction())
-    rule(BuiltinType, ((UINT64, 'type'),), PrintReduceAction())
-    rule(BuiltinType, ((SINT8, 'type'),), PrintReduceAction())
-    rule(BuiltinType, ((SINT16, 'type'),), PrintReduceAction())
-    rule(BuiltinType, ((SINT32, 'type'),), PrintReduceAction())
-    rule(BuiltinType, ((SINT64, 'type'),), PrintReduceAction())
-    rule(BuiltinType, ((FLOAT, 'type'),), PrintReduceAction())
-    rule(BuiltinType, ((BOOL, 'type'),), PrintReduceAction())
-    rule(BuiltinType, ((DOUBLE, 'type'),), PrintReduceAction())
-    rule(BuiltinType, ((CHAR, 'type'),), PrintReduceAction())
-    rule(BuiltinType, ((VOID, 'type'),), PrintReduceAction())
+    rule(PrimitiveType, ((UINT8, 'type'),), SimpleReduceAction('PrimitiveType', (0,)))
+    rule(PrimitiveType, ((UINT16, 'type'),), SimpleReduceAction('PrimitiveType', (0,)))
+    rule(PrimitiveType, ((UINT32, 'type'),), SimpleReduceAction('PrimitiveType', (0,)))
+    rule(PrimitiveType, ((UINT64, 'type'),), SimpleReduceAction('PrimitiveType', (0,)))
+    rule(PrimitiveType, ((SINT8, 'type'),), SimpleReduceAction('PrimitiveType', (0,)))
+    rule(PrimitiveType, ((SINT16, 'type'),), SimpleReduceAction('PrimitiveType', (0,)))
+    rule(PrimitiveType, ((SINT32, 'type'),), SimpleReduceAction('PrimitiveType', (0,)))
+    rule(PrimitiveType, ((SINT64, 'type'),), SimpleReduceAction('PrimitiveType', (0,)))
+    rule(PrimitiveType, ((FLOAT, 'type'),), SimpleReduceAction('PrimitiveType', (0,)))
+    rule(PrimitiveType, ((BOOL, 'type'),), SimpleReduceAction('PrimitiveType', (0,)))
+    rule(PrimitiveType, ((DOUBLE, 'type'),), SimpleReduceAction('PrimitiveType', (0,)))
+    rule(PrimitiveType, ((CHAR, 'type'),), SimpleReduceAction('PrimitiveType', (0,)))
+    rule(PrimitiveType, ((VOID, 'type'),), SimpleReduceAction('PrimitiveType', (0,)))
 
-    rule(Arg, ((Expr, 'expr'),), PrintReduceAction())
+    rule(Arg, ((Expr, 'expr'),), SimpleReduceAction('Arg', (0,)))
 
-    rule(Param, ((Type, 'type'),  (IDENTIFIER, 'name')), PrintReduceAction())
+    rule(Param, ((Type, 'type'),  (IDENTIFIER, 'name')), SimpleReduceAction('Param', (0, 1)))
 
-    rule(Expr, ((BlockedExpr, '_'),), PrintReduceAction())
-    rule(Expr, ((NotBlockedExpr, '_'),), PrintReduceAction())
+    rule(Expr, ((BlockedExpr, '_'),), SkipReduceAction())
+    rule(Expr, ((NotBlockedExpr, '_'),), SkipReduceAction())
 
-    rule(NotBlockedExpr, ((AssignmentExpr, '_'),), PrintReduceAction())
+    rule(NotBlockedExpr, ((AssignmentExpr, '_'),), SkipReduceAction())
 
-    rule(BlockedExpr, ((IfExpr, '_'),), PrintReduceAction())
-    rule(BlockedExpr, ((ForExpr, '_'),), PrintReduceAction())
-    rule(BlockedExpr, ((BracedBlock, '_'),), PrintReduceAction())
+    rule(BlockedExpr, ((IfExpr, '_'),), SkipReduceAction())
+    rule(BlockedExpr, ((ForExpr, '_'),), SkipReduceAction())
+    rule(BlockedExpr, ((BracedBlock, '_'),), SkipReduceAction())
 
-    rule(IfExpr, ((IF, 'iftok'), (Expr, 'cond'), (Block, 'trues')), PrintReduceAction())
-    rule(IfExpr, ((IF, 'iftok'), (Expr, 'cond'), (Block, 'trues'), (ELSE, 'elsetok'), (Block, 'falses')), PrintReduceAction())
-    rule(IfExpr, ((IF, 'iftok'), (Expr, 'cond'), (Block, 'trues'), (ELSE, 'elsetok'), (IfExpr, 'falses')), PrintReduceAction())
+    rule(IfExpr, ((IF, 'iftok'), (Expr, 'cond'), (Block, 'trues')), SimpleReduceAction('IfExpr', (1, 2)))
+    rule(IfExpr, ((IF, 'iftok'), (Expr, 'cond'), (Block, 'trues'), (ELSE, 'elsetok'), (Block, 'falses')), SimpleReduceAction('IfExpr', (1, 2, 4)))
+    rule(IfExpr, ((IF, 'iftok'), (Expr, 'cond'), (Block, 'trues'), (ELSE, 'elsetok'), (IfExpr, 'falses')), SimpleReduceAction('IfExpr', (1, 2, 4)))
 
-    rule(ForExpr, ((FOR, 'fortok'), (VarStmtOpt, 'start'), (SEMICOLON, 'semi1'), (ExprOpt, 'cond'), (SEMICOLON, 'semi2'), (ExprOpt, 'increment'), (CPARN, 'cparn'), (Block, 'body')), PrintReduceAction())
+    rule(ForExpr, ((FOR, 'fortok'), (VarStmtOpt, 'start'), (SEMICOLON, 'semi1'), (ExprOpt, 'cond'), (SEMICOLON, 'semi2'), (ExprOpt, 'increment'), (CPARN, 'cparn'), (Block, 'body')), SimpleReduceAction('ForExpr', (1, 3, 5, 7)))
 
-    rule(AssignmentExpr, ((BinOrExpr, 'target'),  (EQUAL, 'equal'),  (AssignmentExpr, 'value'), ), PrintReduceAction())
-    rule(AssignmentExpr, ((BinOrExpr, '_'),), PrintReduceAction())
-    rule(BinOrExpr, ((BinOrExpr, 'lhs'),  (DOUBLEPIPE, 'op'),  (BinAndExpr, 'rhs'), ), PrintReduceAction())
-    rule(BinOrExpr, ((BinAndExpr, '_'),), PrintReduceAction())
-    rule(BinAndExpr, ((BinAndExpr, 'lhs'),  (DOUBLEAMPER, 'op'),  (CompEQExpr, 'rhs'), ), PrintReduceAction())
-    rule(BinAndExpr, ((CompEQExpr, '_'),), PrintReduceAction())
-    rule(CompEQExpr, ((CompEQExpr, 'lhs'),  (BANGEQUAL, 'op'),  (CompLGTExpr, 'rhs'), ), PrintReduceAction())
-    rule(CompEQExpr, ((CompEQExpr, 'lhs'),  (DOUBLEEQUAL, 'op'),  (CompLGTExpr, 'rhs'), ), PrintReduceAction())
-    rule(CompEQExpr, ((CompLGTExpr, '_'),), PrintReduceAction())
-    rule(CompLGTExpr, ((CompLGTExpr, 'lhs'),  (LESS, 'op'),  (BitXorExpr, 'rhs'), ), PrintReduceAction())
-    rule(CompLGTExpr, ((CompLGTExpr, 'lhs'),  (GREATER, 'op'),  (BitXorExpr, 'rhs'), ), PrintReduceAction())
-    rule(CompLGTExpr, ((CompLGTExpr, 'lhs'),  (LESSEQUAL, 'op'),  (BitXorExpr, 'rhs'), ), PrintReduceAction())
-    rule(CompLGTExpr, ((CompLGTExpr, 'lhs'),  (GREATEREQUAL, 'op'),  (BitXorExpr, 'rhs'), ), PrintReduceAction())
-    rule(CompLGTExpr, ((BitXorExpr, '_'),), PrintReduceAction())
-    rule(BitXorExpr, ((BitXorExpr, 'lhs'),  (CARET, 'op'),  (BitOrExpr, 'rhs'), ), PrintReduceAction())
-    rule(BitXorExpr, ((BitOrExpr, '_'),), PrintReduceAction())
-    rule(BitOrExpr, ((BitOrExpr, 'lhs'),  (PIPE, 'op'),  (BitAndExpr, 'rhs'), ), PrintReduceAction())
-    rule(BitOrExpr, ((BitAndExpr, '_'),), PrintReduceAction())
-    rule(BitAndExpr, ((BitAndExpr, 'lhs'),  (AMPER, 'op'),  (BitShiftExpr, 'rhs'), ), PrintReduceAction())
-    rule(BitAndExpr, ((BitShiftExpr, '_'),), PrintReduceAction())
-    rule(BitShiftExpr, ((BitShiftExpr, 'lhs'),  (DOUBLEGREATER, 'op'),  (AdditionExpr, 'rhs'), ), PrintReduceAction())
-    rule(BitShiftExpr, ((BitShiftExpr, 'lhs'),  (DOUBLELESS, 'op'),  (AdditionExpr, 'rhs'), ), PrintReduceAction())
-    rule(BitShiftExpr, ((AdditionExpr, '_'),), PrintReduceAction())
-    rule(AdditionExpr, ((AdditionExpr, 'lhs'),  (PLUS, 'op'),  (MultExpr, 'rhs'), ), PrintReduceAction())
-    rule(AdditionExpr, ((AdditionExpr, 'lhs'),  (MINUS, 'op'),  (MultExpr, 'rhs'), ), PrintReduceAction())
-    rule(AdditionExpr, ((MultExpr, '_'),), PrintReduceAction())
-    rule(MultExpr, ((MultExpr, 'lhs'),  (STAR, 'op'),  (UnaryExpr, 'rhs'), ), PrintReduceAction())
-    rule(MultExpr, ((MultExpr, 'lhs'),  (SLASH, 'op'),  (UnaryExpr, 'rhs'), ), PrintReduceAction())
-    rule(MultExpr, ((MultExpr, 'lhs'),  (PERCENT, 'op'),  (UnaryExpr, 'rhs'), ), PrintReduceAction())
-    rule(MultExpr, ((CastExpr, '_'),), PrintReduceAction())
-    rule(CastExpr, ((OPARN, 'oparn'),  (Type, 'type'),  (CPARN, 'cparn'),  (CastExpr, 'operand'), ), PrintReduceAction())
-    rule(CastExpr, ((UnaryExpr, '_'),), PrintReduceAction())
-    rule(UnaryExpr, ((TILDE, 'op'),  (UnaryExpr, 'operand'), ), PrintReduceAction())
-    rule(UnaryExpr, ((MINUS, 'op'),  (UnaryExpr, 'operand'), ), PrintReduceAction())
-    rule(UnaryExpr, ((BANG, 'op'),  (UnaryExpr, 'operand'), ), PrintReduceAction())
-    rule(UnaryExpr, ((CallExpr, '_'),), PrintReduceAction())
-    rule(CallExpr, ((CallExpr, 'callee'),  (OPARN, 'oparn'),  (ArgListOpt, 'args'),  (CPARN, 'cparn'), ), PrintReduceAction())
-    rule(CallExpr, ((PrimaryExpr, '_'),), PrintReduceAction())
-    rule(PrimaryExpr, ((TRUELIT, 'value'),), PrintReduceAction())
-    rule(PrimaryExpr, ((FALSELIT, 'value'),), PrintReduceAction())
-    rule(PrimaryExpr, ((FLOATLIT, 'value'),), PrintReduceAction())
-    rule(PrimaryExpr, ((NULLPTRLIT, 'value'),), PrintReduceAction())
-    rule(PrimaryExpr, ((DECINTLIT, 'value'),), PrintReduceAction())
-    rule(PrimaryExpr, ((OCTINTLIT, 'value'),), PrintReduceAction())
-    rule(PrimaryExpr, ((BININTLIT, 'value'),), PrintReduceAction())
-    rule(PrimaryExpr, ((HEXINTLIT, 'value'),), PrintReduceAction())
-    rule(PrimaryExpr, ((CHARLIT, 'value'),), PrintReduceAction())
-    rule(PrimaryExpr, ((STRINGLIT, 'value'),), PrintReduceAction())
-    rule(PrimaryExpr, ((IDENTIFIER, 'value'),), PrintReduceAction())
-    rule(PrimaryExpr, ((OPARN, 'oparn'),  (Expr, 'expr'),  (CPARN, 'cparn'), ), PrintReduceAction())
+    BinaryExprReduceAction = SimpleReduceAction('BinaryExpr', (0, 1, 2))
+
+    rule(AssignmentExpr, ((BinOrExpr, 'target'),  (EQUAL, 'equal'),  (AssignmentExpr, 'value'), ), SimpleReduceAction('AssignmentExpr', (0, 1, 2)))
+    rule(AssignmentExpr, ((BinOrExpr, '_'),), SkipReduceAction())
+    rule(BinOrExpr, ((BinOrExpr, 'lhs'),  (DOUBLEPIPE, 'op'),  (BinAndExpr, 'rhs'), ), SimpleReduceAction('ShortBinaryExpr', (0, 1, 2)))
+    rule(BinOrExpr, ((BinAndExpr, '_'),), SkipReduceAction())
+    rule(BinAndExpr, ((BinAndExpr, 'lhs'),  (DOUBLEAMPER, 'op'),  (CompEQExpr, 'rhs'), ), SimpleReduceAction('ShortBinaryExpr', (0, 1, 2)))
+    rule(BinAndExpr, ((CompEQExpr, '_'),), SkipReduceAction())
+    rule(CompEQExpr, ((CompEQExpr, 'lhs'),  (BANGEQUAL, 'op'),  (CompLGTExpr, 'rhs'), ), BinaryExprReduceAction)
+    rule(CompEQExpr, ((CompEQExpr, 'lhs'),  (DOUBLEEQUAL, 'op'),  (CompLGTExpr, 'rhs'), ), BinaryExprReduceAction)
+    rule(CompEQExpr, ((CompLGTExpr, '_'),), SkipReduceAction())
+    rule(CompLGTExpr, ((CompLGTExpr, 'lhs'),  (LESS, 'op'),  (BitXorExpr, 'rhs'), ), BinaryExprReduceAction)
+    rule(CompLGTExpr, ((CompLGTExpr, 'lhs'),  (GREATER, 'op'),  (BitXorExpr, 'rhs'), ), BinaryExprReduceAction)
+    rule(CompLGTExpr, ((CompLGTExpr, 'lhs'),  (LESSEQUAL, 'op'),  (BitXorExpr, 'rhs'), ), BinaryExprReduceAction)
+    rule(CompLGTExpr, ((CompLGTExpr, 'lhs'),  (GREATEREQUAL, 'op'),  (BitXorExpr, 'rhs'), ), BinaryExprReduceAction)
+    rule(CompLGTExpr, ((BitXorExpr, '_'),), SkipReduceAction())
+    rule(BitXorExpr, ((BitXorExpr, 'lhs'),  (CARET, 'op'),  (BitOrExpr, 'rhs'), ), BinaryExprReduceAction)
+    rule(BitXorExpr, ((BitOrExpr, '_'),), SkipReduceAction())
+    rule(BitOrExpr, ((BitOrExpr, 'lhs'),  (PIPE, 'op'),  (BitAndExpr, 'rhs'), ), BinaryExprReduceAction)
+    rule(BitOrExpr, ((BitAndExpr, '_'),), SkipReduceAction())
+    rule(BitAndExpr, ((BitAndExpr, 'lhs'),  (AMPER, 'op'),  (BitShiftExpr, 'rhs'), ), BinaryExprReduceAction)
+    rule(BitAndExpr, ((BitShiftExpr, '_'),), SkipReduceAction())
+    rule(BitShiftExpr, ((BitShiftExpr, 'lhs'),  (DOUBLEGREATER, 'op'),  (AdditionExpr, 'rhs'), ), BinaryExprReduceAction)
+    rule(BitShiftExpr, ((BitShiftExpr, 'lhs'),  (DOUBLELESS, 'op'),  (AdditionExpr, 'rhs'), ), BinaryExprReduceAction)
+    rule(BitShiftExpr, ((AdditionExpr, '_'),), SkipReduceAction())
+    rule(AdditionExpr, ((AdditionExpr, 'lhs'),  (PLUS, 'op'),  (MultExpr, 'rhs'), ), BinaryExprReduceAction)
+    rule(AdditionExpr, ((AdditionExpr, 'lhs'),  (MINUS, 'op'),  (MultExpr, 'rhs'), ), BinaryExprReduceAction)
+    rule(AdditionExpr, ((MultExpr, '_'),), SkipReduceAction())
+    rule(MultExpr, ((MultExpr, 'lhs'),  (STAR, 'op'),  (UnaryExpr, 'rhs'), ), BinaryExprReduceAction)
+    rule(MultExpr, ((MultExpr, 'lhs'),  (SLASH, 'op'),  (UnaryExpr, 'rhs'), ), BinaryExprReduceAction)
+    rule(MultExpr, ((MultExpr, 'lhs'),  (PERCENT, 'op'),  (UnaryExpr, 'rhs'), ), BinaryExprReduceAction)
+    rule(MultExpr, ((CastExpr, '_'),), SkipReduceAction())
+    rule(CastExpr, ((OPARN, 'oparn'),  (Type, 'type'),  (CPARN, 'cparn'),  (CastExpr, 'operand'), ), SimpleReduceAction('CastExpr', (1, 3)))
+    rule(CastExpr, ((UnaryExpr, '_'),), SkipReduceAction())
+    rule(UnaryExpr, ((TILDE, 'op'),  (UnaryExpr, 'operand'), ), SimpleReduceAction('UnaryExpr', (0, 1)))
+    rule(UnaryExpr, ((MINUS, 'op'),  (UnaryExpr, 'operand'), ), SimpleReduceAction('UnaryExpr', (0, 1)))
+    rule(UnaryExpr, ((BANG, 'op'),  (UnaryExpr, 'operand'), ), SimpleReduceAction('UnaryExpr', (0, 1)))
+    rule(UnaryExpr, ((CallExpr, '_'),), SkipReduceAction())
+    rule(CallExpr, ((CallExpr, 'callee'),  (OPARN, 'oparn'),  (ArgListOpt, 'args'),  (CPARN, 'cparn'), ), SimpleReduceAction('CallExpr', (0, 1, 2)))
+    rule(CallExpr, ((PrimaryExpr, '_'),), SkipReduceAction())
+    rule(PrimaryExpr, ((TRUELIT, 'value'),), SimpleReduceAction('PrimaryExpr', (0,)))
+    rule(PrimaryExpr, ((FALSELIT, 'value'),), SimpleReduceAction('PrimaryExpr', (0,)))
+    rule(PrimaryExpr, ((FLOATLIT, 'value'),), SimpleReduceAction('PrimaryExpr', (0,)))
+    rule(PrimaryExpr, ((NULLPTRLIT, 'value'),), SimpleReduceAction('PrimaryExpr', (0,)))
+    rule(PrimaryExpr, ((DECINTLIT, 'value'),), SimpleReduceAction('PrimaryExpr', (0,)))
+    rule(PrimaryExpr, ((OCTINTLIT, 'value'),), SimpleReduceAction('PrimaryExpr', (0,)))
+    rule(PrimaryExpr, ((BININTLIT, 'value'),), SimpleReduceAction('PrimaryExpr', (0,)))
+    rule(PrimaryExpr, ((HEXINTLIT, 'value'),), SimpleReduceAction('PrimaryExpr', (0,)))
+    rule(PrimaryExpr, ((CHARLIT, 'value'),), SimpleReduceAction('PrimaryExpr', (0,)))
+    rule(PrimaryExpr, ((STRINGLIT, 'value'),), SimpleReduceAction('PrimaryExpr', (0,)))
+    rule(PrimaryExpr, ((IDENTIFIER, 'value'),), SimpleReduceAction('PrimaryExpr', (0,)))
+    rule(PrimaryExpr, ((OPARN, 'oparn'),  (Expr, 'expr'),  (CPARN, 'cparn'), ), SkipReduceAction(1))
 
 makeGrammar()
 
@@ -984,7 +987,7 @@ def genSingleTok():
 
     for terminal in symbols:
         if type(terminal) == Terminal:
-            output.append(                       f'    TRYTOKTY({terminal.astt()})\n');
+            output.append(                       f'    TRYTOKTY({terminal.astt()})\n')
 
     output.append(                                '    if (tryDel(e.p, e.stack)) {fix f = fix {fix::fixtype::REMOVE, static_cast<TokenType>(-1)}; if (score(f) > score(bestfix)) bestfix = f;};\n')
     return ''.join(output)
