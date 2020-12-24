@@ -22,17 +22,20 @@ jobs = [
 
     ('include/ast/printvisitor.h'          , 'PRINTVISIT METHODS START'  , 'PRINTVISIT METHODS END'  , lambda: astgen.genVisitorMethods('all')),
     ('include/ast/dotvisitor.h'            , 'DOTVISIT METHODS START'    , 'DOTVISIT METHODS END'    , lambda: astgen.genVisitorMethods('all')),
+    ('include/ast/printvisitor.h'          , 'PRINTVISIT INHERIT START'  , 'PRINTVISIT INHERIT END'  , astgen.genVisitorInheritAll),
+    ('include/ast/dotvisitor.h'            , 'DOTVISIT INHERIT START'    , 'DOTVISIT INHERIT END'    , astgen.genVisitorInheritAll),
 
     ('src/message/errors.cpp'              , 'LOCVISITOR METHODS START'  , 'LOCVISITOR METHODS END'  , lambda: astgen.genVisitorMethods('all')),
     ('src/message/errors.cpp'              , 'LOCVISITOR IMPL START'     , 'LOCVISITOR IMPL END'     , astgen.genLocVisit),
+    ('src/message/errors.cpp'              , 'LOCVISITOR INHERIT START'  , 'LOCVISITOR INHERIT END'  , astgen.genVisitorInheritAll),
 
-    ('src/codegen/codegenlocal.h'          , 'FORWDECL METHODS START'    , 'FORWDECL METHODS END'    , lambda: astgen.genVisitorMethods('DeclB', 'CUB')),
-    ('src/codegen/codegenlocal.h'          , 'TYPEVISITOR METHODS START' , 'TYPEVISITOR METHODS END' , lambda: astgen.genVisitorMethods('TypeB')),
-    ('src/codegen/codegenlocal.h'          , 'STMTCG METHODS START'      , 'STMTCG METHODS END'      , lambda: astgen.genVisitorMethods('StmtB', 'VStmtIB')),
-    ('src/codegen/codegenlocal.h'          , 'EXPRCG METHODS START'      , 'EXPRCG METHODS END'      , lambda: astgen.genVisitorMethods('ExprB')),
-    ('src/codegen/codegenlocal.h'          , 'PARAMVISITOR METHODS START', 'PARAMVISITOR METHODS END', lambda: astgen.genVisitorMethods('PListB')),
+    ('src/codegen/codegenlocal.h'          , 'FORWDECL METHODS START'    , 'FORWDECL METHODS END'    , lambda: astgen.genVisitorMethods('Decl', 'CUB')),
+    ('src/codegen/codegenlocal.h'          , 'TYPEVISITOR METHODS START' , 'TYPEVISITOR METHODS END' , lambda: astgen.genVisitorMethods('Type')),
+    ('src/codegen/codegenlocal.h'          , 'STMTCG METHODS START'      , 'STMTCG METHODS END'      , lambda: astgen.genVisitorMethods('Stmt', 'VStmtIB')),
+    ('src/codegen/codegenlocal.h'          , 'EXPRCG METHODS START'      , 'EXPRCG METHODS END'      , lambda: astgen.genVisitorMethods('Expr')),
+    ('src/codegen/codegenlocal.h'          , 'PARAMVISITOR METHODS START', 'PARAMVISITOR METHODS END', lambda: astgen.genVisitorMethods('ParamB')),
     ('src/codegen/codegenlocal.h'          , 'ARGSVISITOR METHODS START' , 'ARGSVISITOR METHODS END' , lambda: astgen.genVisitorMethods('ArgB')),
-    ('include/codegen/codegen.h'           , 'CG METHODS START'          , 'CG METHODS END'          , lambda: astgen.genVisitorMethods('DeclB', 'CUB')),
+    ('include/codegen/codegen.h'           , 'CG METHODS START'          , 'CG METHODS END'          , lambda: astgen.genVisitorMethods('Decl', 'CUB')),
 
     ('include/ir/instruction.h'            , 'INSTR CLASSES START'       , 'INSTR CLASSES END'       , instrgen.genDecls),
     ('src/ir/instruction.cpp'              , 'INSTR CPP START'           , 'INSTR CPP END'           , instrgen.genDefs),
