@@ -240,27 +240,26 @@ def genPrintVisitorMethods():
 
         output.append(            f'void ASTNS::PrintVisitor::visit{ast.name}(ASTNS::{ast.name} *a)\n')
         output.append(             '{\n')
-        output.append(             '    pai("{}\\n{{\\n");\n'.format(ast.name))
-        output.append(             '    ++indent;\n')
         output.append(             '    switch (a->form)\n')
         output.append(             '    {\n')
         for form in ast.forms:
             output.append(        f'        case ASTNS::{ast.name}::Form::{stringifyForm(form)}:\n')
+            output.append(        f'            pai("{ast.name} {stringifyForm(form)}\\n");\n')
+            output.append(         '            ++indent;\n')
             for field in form[0]:
-                output.append(    f'            pai("{field.name} = ");\n')
+                output.append(    f'            pai("{field.type_} {field.name} = ");\n')
                 if field.type_.startswith('std::unique_ptr'):
                     output.append(f'            if (a->{field.name})\n')
                     output.append(f'                a->{field.name}->accept(this);\n')
                     output.append( '            else\n')
                     output.append( '                pai("nullptr\\n");\n')
                 else:
-                    output.append( '            pai("[");\n')
+                    output.append( '            pai("\\"");\n')
                     output.append(f'            pai(std::string(a->{field.name}.start, a->{field.name}.end));\n')
-                    output.append( '            pai("]\\n");\n')
+                    output.append( '            pai("\\"\\n");\n')
             output.append(         '            break;\n')
         output.append(             '    }\n')
         output.append(             '    --indent;\n')
-        output.append(             '    pai("}\\n");\n')
         output.append(             '}\n')
 
     return ''.join(output)
