@@ -188,7 +188,7 @@ errors:
     code: 201
     name: lhs-unsupported-op
     desc: Left hand side of binary expression does not support operator
-    inputs: 'IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &op'
+    inputs: 'IR::ASTValue const &lhs, Token const &op'
     location: op
     highlights:
       - ['lhs', *under0, [
@@ -198,8 +198,6 @@ errors:
       - ['op', *under0, [
           ['error', '"unsupported binary operator for left operand"']
         ]]
-      - ['rhs', *under1, []]
-
   -
     code: 203
     name: unary-unsupported-op

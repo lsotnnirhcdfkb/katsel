@@ -70,7 +70,7 @@ static IR::ASTValue floatBinOp(BIN_OP_ARGS)
         SUPPORT_OPERATOR_BASIC(bangequal, FCmpNE)
 
         default:
-            ERR_LHS_UNSUPPORTED_OP(l, r, optok);
+            ERR_LHS_UNSUPPORTED_OP(l, optok);
             return IR::ASTValue();
     }
 
@@ -125,7 +125,7 @@ static IR::ASTValue intBinOp(BIN_OP_ARGS)
         SUPPORT_OPERATOR_BASIC(doubleless, ShiftL)
 
         default:
-            ERR_LHS_UNSUPPORTED_OP(l, r, optok);
+            ERR_LHS_UNSUPPORTED_OP(l, optok);
             return IR::ASTValue();
     }
 
@@ -393,7 +393,7 @@ IR::ASTValue IR::CharType::binOp(BIN_OP_ARGS)
         SUPPORT_OPERATOR_BASIC(bangequal, ICmpNE)
 
         default:
-            ERR_LHS_UNSUPPORTED_OP(l, r, optok);
+            ERR_LHS_UNSUPPORTED_OP(l, optok);
             return ASTValue();
     }
 
@@ -464,7 +464,7 @@ IR::ASTValue IR::BoolType::binOp(CodeGen::Context &cgc, Function &fun, Block *&c
         SUPPORT_OPERATOR_BASIC(bangequal, ICmpNE)
 
         default:
-            ERR_LHS_UNSUPPORTED_OP(l, r, optok);
+            ERR_LHS_UNSUPPORTED_OP(l, optok);
             return ASTValue();
     }
 

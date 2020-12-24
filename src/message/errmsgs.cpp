@@ -208,7 +208,7 @@ void E0200(Token const &name, IR::Value *val)
 // E0201 - lhs-unsupported-op
 // | Left hand side of binary expression does not support
 // | operator
-void E0201(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &op)
+void E0201(IR::ASTValue const &lhs, Token const &op)
 {
     Error e = Error(Error::MsgType::ERROR, op, "E0201 (lhs-unsupported-op)");
     e.underline(Error::Underline(lhs, '^')
@@ -221,8 +221,6 @@ void E0201(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &op)
     );
     e.underline(Error::Underline(op, '^')
         .error("unsupported binary operator for left operand")
-    );
-    e.underline(Error::Underline(rhs, '~')
     );
     e.report();
 }

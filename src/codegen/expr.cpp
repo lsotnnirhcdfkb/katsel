@@ -113,8 +113,9 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitBinAndExpr(ASTNS::BinAndExpr *a
 
     if (!dynamic_cast<IR::BoolType*>(lhs.type()))
     {
+        ERR_LHS_UNSUPPORTED_OP(lhs, ast->op);
         ret = IR::ASTValue();
-        cg.errored = true;
+        fcg.errored = true;
         return;
     }
 
@@ -140,8 +141,9 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitBinAndExpr(ASTNS::BinAndExpr *a
     }
     if (!dynamic_cast<IR::BoolType*>(rhs.type()))
     {
+        ERR_CONFLICT_TYS_BINARY_OP(lhs, rhs, ast->op);
         ret = IR::ASTValue();
-        cg.errored = true;
+        fcg.errored = true;
         return;
     }
     fcg.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
@@ -164,8 +166,9 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitBinOrExpr(ASTNS::BinOrExpr *ast
 
     if (!dynamic_cast<IR::BoolType*>(lhs.type()))
     {
+        ERR_LHS_UNSUPPORTED_OP(lhs, ast->op);
         ret = IR::ASTValue();
-        cg.errored = true;
+        fcg.errored = true;
         return;
     }
 
@@ -194,8 +197,9 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitBinOrExpr(ASTNS::BinOrExpr *ast
     }
     if (!dynamic_cast<IR::BoolType*>(rhs.type()))
     {
+        ERR_CONFLICT_TYS_BINARY_OP(lhs, rhs, ast->op);
         ret = IR::ASTValue();
-        cg.errored = true;
+        fcg.errored = true;
         return;
     }
     fcg.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
@@ -270,8 +274,8 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
     if (args.size() != fty->paramtys.size())
     {
         ERR_WRONG_NUM_ARGS(func, ast->oparn, ast->args.get(), args);
-        fcg.errored = true;
         ret = IR::ASTValue();
+        fcg.errored = true;
         return;
     }
 

@@ -13,7 +13,7 @@ std::string IR::VoidType::stringify() const
 
 IR::ASTValue IR::VoidType::binOp(CodeGen::Context &, IR::Function &, IR::Block *&, IR::Type::BinaryOperator , IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *)
 {
-    ERR_LHS_UNSUPPORTED_OP(l, r, optok);
+    ERR_LHS_UNSUPPORTED_OP(l, optok);
     return ASTValue();
 }
 IR::ASTValue IR::VoidType::unaryOp(CodeGen::Context &, IR::Function &, IR::Block *&, IR::Type::UnaryOperator , IR::ASTValue operand, Token optok, ASTNS::AST *)
@@ -56,7 +56,7 @@ std::string IR::FunctionType::stringify() const
 
 IR::ASTValue IR::FunctionType::binOp(CodeGen::Context &, IR::Function &, IR::Block *&, IR::Type::BinaryOperator , IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *)
 {
-    ERR_LHS_UNSUPPORTED_OP(l, r, optok);
+    ERR_LHS_UNSUPPORTED_OP(l, optok);
     return ASTValue();
 }
 IR::ASTValue IR::FunctionType::unaryOp(CodeGen::Context &, IR::Function &, IR::Block *&, IR::Type::UnaryOperator , IR::ASTValue operand, Token optok, ASTNS::AST *)

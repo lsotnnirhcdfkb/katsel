@@ -73,7 +73,7 @@ void E0200(Token const &name, IR::Value *val);
 
 // E0201 - lhs-unsupported-op
 #define ERR_LHS_UNSUPPORTED_OP E0201
-void E0201(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &op);
+void E0201(IR::ASTValue const &lhs, Token const &op);
 
 // E0203 - unary-unsupported-op
 #define ERR_UNARY_UNSUPPORTED_OP E0203
