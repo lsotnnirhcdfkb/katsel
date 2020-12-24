@@ -40,12 +40,12 @@ class Terminal:
 # rule {{{2
 class Rule:
     __num = 0
-    def __init__(self, symbol, expansion, skip, vnames, exhistart, exhiend, special):
+    def __init__(self, symbol, expansion, reduceAction, vnames, exhistart, exhiend, special):
         self.symbol = symbol
         self.expansion = expansion
         self.num = Rule.__num
         Rule.__num += 1
-        self.skip = skip
+        self.reduceAction = reduceAction
         self.vnames = vnames
         self.exhistart, self.exhiend = exhistart, exhiend
         self.special = special
@@ -167,7 +167,7 @@ class State:
                 if item.lookahead not in self.terminates[item.rule.symbol]:
                     self.terminates[item.rule.symbol].append(item.lookahead)
 
-# actions {{{2
+# state table actions {{{2
 class ShiftAction:
     def __init__(self, newstate):
         self.newstate = newstate
@@ -199,6 +199,30 @@ class AcceptAction:
         return 'accept'
     def __eq__(self, other):
         return True
+# reduce actions {{{2
+class SimpleReduceAction:
+    def __init__(self, classname, args):
+        self.classname = classname
+        self.args = args
+    def generate(self):
+        return f'''
+        std::unique_ptr<ASTNS::{self.classname}> push (std::make_unique<ASTNS::{self.classname}({", ".join(f"a{i}" for i in self.args)}));
+        stack.emplace_back(gotoState, std::move(push));
+        '''
+class SkipReduceAction:
+    def generate(self):
+        return 'stack.emplace_back(gotoState, a0);'
+class NullptrReduceAction:
+    def generate(self):
+        return 'stack.emplace_back(gotoState, nullptr);'
+class PrintReduceAction:
+    def __init__(self):
+        pass
+    def generate(self):
+        return '''
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+        '''
 # helpers {{{1
 def makeUnique(already, new):
     return [x for x in new if x not in already]
@@ -392,18 +416,13 @@ def makeParseTable():
 def nt(sym, name, base, panickable=False):
     return NonTerminal(sym, panickable, name, base)
 
-def rule(sym, expansion, histart='START', hiend='END', special=''):
+def rule(sym, expansion, reduceAction, histart='START', hiend='END', special=''):
     vnames = []
     syms = []
 
     for exsym, vname in expansion:
         syms.append(exsym)
         vnames.append(vname)
-
-    if len(expansion) == 1 and type(syms[0]) == NonTerminal and sym.base == syms[0].base:
-        skip = True
-    else:
-        skip = False
 
     rsp = {}
     rsp['defaultreduce'] = True
@@ -419,37 +438,40 @@ def rule(sym, expansion, histart='START', hiend='END', special=''):
         else:
             raise Exception(f'invalid special {rest}')
 
-    rule = Rule(sym, syms, skip, vnames, histart, hiend, rsp)
+    if reduceAction is not None:
+        assert type(reduceAction) == PrintReduceAction, type(reduceAction)
+
+    rule = Rule(sym, syms, reduceAction, vnames, histart, hiend, rsp)
     grammar.append(rule)
     return rule
 
-def listRule(sym, base, delimit=None):
+def listRule(sym, base, singleAction, listAction, delimit=None):
     anothersym = nt('Another' + sym.symbol, 'another ' + sym.name, base, panickable=True) # useless rule to take advantage of "expected another x"
-    rule(anothersym, ((sym, sym.symbol.lower()),))
+    rule(anothersym, ((sym, sym.symbol.lower()),), singleAction)
 
     symlist = nt(sym.symbol + 'List', sym.name + ' list', base, panickable=True)
 
     if delimit is not None:
         symsegment = nt(sym.symbol + 'Segment', sym.name + ' list', base, panickable=True)
-        rule(symsegment, ((symsegment, symsegment.symbol.lower()), (delimit, str(delimit).lower()), (anothersym, anothersym.symbol.lower())))
-        rule(symsegment, ((sym, sym.name.lower()),))
+        rule(symsegment, ((symsegment, symsegment.symbol.lower()), (delimit, str(delimit).lower()), (anothersym, anothersym.symbol.lower())), listAction)
+        rule(symsegment, ((sym, sym.symbol.lower()),), singleAction)
 
-        rule(symlist, ((symsegment, symsegment.symbol.lower()),), special='nodefaultreduce')
-        rule(symlist, ((symsegment, symsegment.symbol.lower()), (delimit, str(delimit).lower())), special='nodefaultreduce')
+        rule(symlist, ((symsegment, symsegment.symbol.lower()),), singleAction, special='nodefaultreduce')
+        rule(symlist, ((symsegment, symsegment.symbol.lower()), (delimit, str(delimit).lower())), listAction, special='nodefaultreduce')
     else:
-        rule(symlist, ((symlist, symlist.symbol.lower()), (anothersym, anothersym.symbol.lower())), special='nodefaultreduce')
-        rule(symlist, ((sym, sym.name.lower()),))
+        rule(symlist, ((symlist, symlist.symbol.lower()), (anothersym, anothersym.symbol.lower())), listAction, special='nodefaultreduce')
+        rule(symlist, ((sym, sym.symbol.lower()),), singleAction)
 
     return symlist
 
-def makeOpt(toopt, newname=None):
+def makeOpt(toopt, withAction, noAction, newname=None):
     if newname is None:
         newname = 'optional ' + toopt.name
 
     optsym = toopt.symbol + '_OPT'
     optnt = nt(optsym, newname, toopt.base)
-    rule(optnt, ((toopt, toopt.symbol.lower()),))
-    rule(optnt, ())
+    rule(optnt, ((toopt, toopt.symbol.lower()),), withAction)
+    rule(optnt, (), noAction)
     return optnt
 
 grammar = []
@@ -497,7 +519,7 @@ def makeGrammar():
     PrimaryExpr = nt('PrimaryExpr', 'primary expression', 'ExprB')
 
     augmentSymbol = NonTerminal('augment', False, '', '')
-    augmentRule = rule(augmentSymbol, ((CU, '_'),))
+    augmentRule = rule(augmentSymbol, ((CU, '_'),), None)
 
     AMPER = Terminal('AMPER')
     BANG = Terminal('BANG')
@@ -563,142 +585,143 @@ def makeGrammar():
     VAR = Terminal('VAR')
     VOID = Terminal('VOID')
 
-    ParamList = listRule(Param, 'PListB', COMMA)
-    ArgList = listRule(Arg, 'ArgB', COMMA)
-    VarStmtItemList = listRule(VarStmtItem, 'VStmtIB', COMMA)
-    StmtList = listRule(Stmt, 'StmtB')
-    DeclList = listRule(Decl, 'DeclB')
+    ParamList = listRule(Param, 'PListB', PrintReduceAction(), PrintReduceAction(), COMMA)
+    ArgList = listRule(Arg, 'ArgB', PrintReduceAction(), PrintReduceAction(), COMMA)
+    VarStmtItemList = listRule(VarStmtItem, 'VStmtIB', PrintReduceAction(), PrintReduceAction(), COMMA)
+    StmtList = listRule(Stmt, 'StmtB', PrintReduceAction(), PrintReduceAction())
+    DeclList = listRule(Decl, 'DeclB', PrintReduceAction(), PrintReduceAction())
 
-    ParamListOpt = makeOpt(ParamList)
-    ArgListOpt = makeOpt(ArgList)
-    StmtListOpt = makeOpt(StmtList)
-    ImplRetOpt = makeOpt(ImplRet)
-    ExprOpt = makeOpt(Expr)
-    VarStmtOpt = makeOpt(VarStmt)
-    LineEndingOpt = makeOpt(LineEnding)
+    ParamListOpt = makeOpt(ParamList, PrintReduceAction(), PrintReduceAction())
+    ArgListOpt = makeOpt(ArgList, PrintReduceAction(), PrintReduceAction())
+    StmtListOpt = makeOpt(StmtList, PrintReduceAction(), PrintReduceAction())
+    ImplRetOpt = makeOpt(ImplRet, PrintReduceAction(), PrintReduceAction())
+    ExprOpt = makeOpt(Expr, PrintReduceAction(), PrintReduceAction())
+    VarStmtOpt = makeOpt(VarStmt, PrintReduceAction(), PrintReduceAction())
+    LineEndingOpt = makeOpt(LineEnding, PrintReduceAction(), PrintReduceAction())
 
-    rule(CU, ((DeclList, 'dl'),))
-    rule(CU, ())
+    rule(CU, ((DeclList, 'dl'),), PrintReduceAction())
+    rule(CU, (), PrintReduceAction())
 
-    rule(Decl, ((FunctionDecl, '_'),))
+    rule(Decl, ((FunctionDecl, '_'),), PrintReduceAction())
 
-    rule(FunctionDecl, ((FUN, 'fun'),  (Type, 'retty'),  (IDENTIFIER, 'name'),  (OPARN, 'oparn'),  (ParamListOpt, 'paramlist'),  (CPARN, 'cparn'),  (Block, 'body'), (LineEndingOpt, 'endl')), 'fun', 'cparn')
-    rule(FunctionDecl, ((FUN, 'fun'),  (Type, 'retty'),  (IDENTIFIER, 'name'),  (OPARN, 'oparn'),  (ParamListOpt, 'paramlist'),  (CPARN, 'cparn'),  (LineEnding, 'endl')), 'fun', 'endl')
+    rule(FunctionDecl, ((FUN, 'fun'),  (Type, 'retty'),  (IDENTIFIER, 'name'),  (OPARN, 'oparn'),  (ParamListOpt, 'paramlist'),  (CPARN, 'cparn'),  (Block, 'body'), (LineEndingOpt, 'endl')), PrintReduceAction(), 'fun', 'cparn')
+    rule(FunctionDecl, ((FUN, 'fun'),  (Type, 'retty'),  (IDENTIFIER, 'name'),  (OPARN, 'oparn'),  (ParamListOpt, 'paramlist'),  (CPARN, 'cparn'),  (LineEnding, 'endl')), PrintReduceAction(), 'fun', 'endl')
 
-    rule(Stmt, ((VarStmt, '_'),))
-    rule(Stmt, ((ExprStmt, '_'),))
-    rule(Stmt, ((RetStmt, '_'),))
+    rule(Stmt, ((VarStmt, '_'),), PrintReduceAction())
+    rule(Stmt, ((ExprStmt, '_'),), PrintReduceAction())
+    rule(Stmt, ((RetStmt, '_'),), PrintReduceAction())
 
-    rule(VarStmt, ((VAR, 'var'),  (Type, 'type'),  (VarStmtItemList, 'assignments'), (LineEnding, 'ending')))
+    rule(VarStmt, ((VAR, 'var'),  (Type, 'type'),  (VarStmtItemList, 'assignments'), (LineEnding, 'ending')), PrintReduceAction())
 
-    rule(ExprStmt, ((NotBlockedExpr, 'expr'), (LineEnding, 'ending')))
-    rule(ExprStmt, ((BlockedExpr, 'expr'), (LineEndingOpt, 'ending')))
+    rule(ExprStmt, ((NotBlockedExpr, 'expr'), (LineEnding, 'ending')), PrintReduceAction())
+    rule(ExprStmt, ((BlockedExpr, 'expr'), (LineEndingOpt, 'ending')), PrintReduceAction())
 
-    rule(RetStmt, ((RETURN, 'ret'), (Expr, 'expr'), (LineEnding, 'ending')))
-    rule(RetStmt, ((RETURN, 'ret'), (LineEnding, 'ending')))
+    rule(RetStmt, ((RETURN, 'ret'), (Expr, 'expr'), (LineEnding, 'ending')), PrintReduceAction())
+    rule(RetStmt, ((RETURN, 'ret'), (LineEnding, 'ending')), PrintReduceAction())
 
-    rule(VarStmtItem, ((IDENTIFIER, 'name'),  (EQUAL, 'equal'),  (Expr, 'expr'), ))
-    rule(VarStmtItem, ((IDENTIFIER, 'name'),))
+    rule(VarStmtItem, ((IDENTIFIER, 'name'),  (EQUAL, 'equal'),  (Expr, 'expr'), ), PrintReduceAction())
+    rule(VarStmtItem, ((IDENTIFIER, 'name'),), PrintReduceAction())
 
-    rule(Block, ((BracedBlock, '_'),))
-    rule(Block, ((IndentedBlock, '_'),))
-    rule(BracedBlock, ((OCURB, 'ocurb'), (StmtListOpt, 'stmts'), (ImplRetOpt, 'implret'), (CCURB, 'ccurb')))
-    rule(BracedBlock, ((OCURB, 'ocurb'), (NEWLINE, 'newlopt'), (StmtListOpt, 'stmts'), (ImplRetOpt, 'implret'), (CCURB, 'ccurb')))
-    rule(BracedBlock, ((OCURB, 'ocurb'), (NEWLINE, 'newlopt'), (INDENT, 'indentopt'), (StmtListOpt, 'stmts'), (ImplRetOpt, 'implret'), (DEDENT, 'dedentopt'), (CCURB, 'ccurb')))
-    rule(IndentedBlock, ((NEWLINE, 'newl'), (INDENT, 'indent'), (StmtListOpt, 'stmts'), (ImplRetOpt, 'implret'), (DEDENT, 'dedent')))
-    rule(ImplRet, ((LEFTARROW, 'leftarrow'), (Expr, 'expr'), (LineEndingOpt, 'ending')))
+    rule(Block, ((BracedBlock, '_'),), PrintReduceAction())
+    rule(Block, ((IndentedBlock, '_'),), PrintReduceAction())
+    rule(BracedBlock, ((OCURB, 'ocurb'), (StmtListOpt, 'stmts'), (ImplRetOpt, 'implret'), (CCURB, 'ccurb')), PrintReduceAction())
+    rule(BracedBlock, ((OCURB, 'ocurb'), (NEWLINE, 'newlopt'), (StmtListOpt, 'stmts'), (ImplRetOpt, 'implret'), (CCURB, 'ccurb')), PrintReduceAction())
+    rule(BracedBlock, ((OCURB, 'ocurb'), (NEWLINE, 'newlopt'), (INDENT, 'indentopt'), (StmtListOpt, 'stmts'), (ImplRetOpt, 'implret'), (DEDENT, 'dedentopt'), (CCURB, 'ccurb')), PrintReduceAction())
+    rule(IndentedBlock, ((NEWLINE, 'newl'), (INDENT, 'indent'), (StmtListOpt, 'stmts'), (ImplRetOpt, 'implret'), (DEDENT, 'dedent')), PrintReduceAction())
+    rule(ImplRet, ((LEFTARROW, 'leftarrow'), (Expr, 'expr'), (LineEndingOpt, 'ending')), PrintReduceAction())
 
-    rule(LineEnding, ((NEWLINE, 'tok'),))
-    rule(LineEnding, ((SEMICOLON, 'tok'),))
-    rule(LineEnding, ((SEMICOLON, 'tok'), (NEWLINE, 'tok2')))
+    rule(LineEnding, ((NEWLINE, 'tok'),), PrintReduceAction())
+    rule(LineEnding, ((SEMICOLON, 'tok'),), PrintReduceAction())
+    rule(LineEnding, ((SEMICOLON, 'tok'), (NEWLINE, 'tok2')), PrintReduceAction())
 
-    rule(Type, ((BuiltinType, '_'),))
+    rule(Type, ((BuiltinType, '_'),), PrintReduceAction())
 
-    rule(BuiltinType, ((UINT8, 'type'),))
-    rule(BuiltinType, ((UINT16, 'type'),))
-    rule(BuiltinType, ((UINT32, 'type'),))
-    rule(BuiltinType, ((UINT64, 'type'),))
-    rule(BuiltinType, ((SINT8, 'type'),))
-    rule(BuiltinType, ((SINT16, 'type'),))
-    rule(BuiltinType, ((SINT32, 'type'),))
-    rule(BuiltinType, ((SINT64, 'type'),))
-    rule(BuiltinType, ((FLOAT, 'type'),))
-    rule(BuiltinType, ((BOOL, 'type'),))
-    rule(BuiltinType, ((DOUBLE, 'type'),))
-    rule(BuiltinType, ((CHAR, 'type'),))
-    rule(BuiltinType, ((VOID, 'type'),))
+    rule(BuiltinType, ((UINT8, 'type'),), PrintReduceAction())
+    rule(BuiltinType, ((UINT16, 'type'),), PrintReduceAction())
+    rule(BuiltinType, ((UINT32, 'type'),), PrintReduceAction())
+    rule(BuiltinType, ((UINT64, 'type'),), PrintReduceAction())
+    rule(BuiltinType, ((SINT8, 'type'),), PrintReduceAction())
+    rule(BuiltinType, ((SINT16, 'type'),), PrintReduceAction())
+    rule(BuiltinType, ((SINT32, 'type'),), PrintReduceAction())
+    rule(BuiltinType, ((SINT64, 'type'),), PrintReduceAction())
+    rule(BuiltinType, ((FLOAT, 'type'),), PrintReduceAction())
+    rule(BuiltinType, ((BOOL, 'type'),), PrintReduceAction())
+    rule(BuiltinType, ((DOUBLE, 'type'),), PrintReduceAction())
+    rule(BuiltinType, ((CHAR, 'type'),), PrintReduceAction())
+    rule(BuiltinType, ((VOID, 'type'),), PrintReduceAction())
 
-    rule(Arg, ((Expr, 'expr'),))
+    rule(Arg, ((Expr, 'expr'),), PrintReduceAction())
 
-    rule(Param, ((Type, 'type'),  (IDENTIFIER, 'name')))
+    rule(Param, ((Type, 'type'),  (IDENTIFIER, 'name')), PrintReduceAction())
 
-    rule(Expr, ((BlockedExpr, '_'),))
-    rule(Expr, ((NotBlockedExpr, '_'),))
+    rule(Expr, ((BlockedExpr, '_'),), PrintReduceAction())
+    rule(Expr, ((NotBlockedExpr, '_'),), PrintReduceAction())
 
-    rule(NotBlockedExpr, ((AssignmentExpr, '_'),))
+    rule(NotBlockedExpr, ((AssignmentExpr, '_'),), PrintReduceAction())
 
-    rule(BlockedExpr, ((IfExpr, '_'),))
-    rule(BlockedExpr, ((ForExpr, '_'),))
-    rule(BlockedExpr, ((BracedBlock, '_'),))
+    rule(BlockedExpr, ((IfExpr, '_'),), PrintReduceAction())
+    rule(BlockedExpr, ((ForExpr, '_'),), PrintReduceAction())
+    rule(BlockedExpr, ((BracedBlock, '_'),), PrintReduceAction())
 
-    rule(IfExpr, ((IF, 'iftok'), (Expr, 'cond'), (Block, 'trues')))
-    rule(IfExpr, ((IF, 'iftok'), (Expr, 'cond'), (Block, 'trues'), (ELSE, 'elsetok'), (Block, 'falses')))
-    rule(IfExpr, ((IF, 'iftok'), (Expr, 'cond'), (Block, 'trues'), (ELSE, 'elsetok'), (IfExpr, 'falses')))
+    rule(IfExpr, ((IF, 'iftok'), (Expr, 'cond'), (Block, 'trues')), PrintReduceAction())
+    rule(IfExpr, ((IF, 'iftok'), (Expr, 'cond'), (Block, 'trues'), (ELSE, 'elsetok'), (Block, 'falses')), PrintReduceAction())
+    rule(IfExpr, ((IF, 'iftok'), (Expr, 'cond'), (Block, 'trues'), (ELSE, 'elsetok'), (IfExpr, 'falses')), PrintReduceAction())
 
-    rule(ForExpr, ((FOR, 'fortok'), (VarStmtOpt, 'start'), (SEMICOLON, 'semi1'), (ExprOpt, 'cond'), (SEMICOLON, 'semi2'), (ExprOpt, 'increment'), (CPARN, 'cparn'), (Block, 'body')))
+    rule(ForExpr, ((FOR, 'fortok'), (VarStmtOpt, 'start'), (SEMICOLON, 'semi1'), (ExprOpt, 'cond'), (SEMICOLON, 'semi2'), (ExprOpt, 'increment'), (CPARN, 'cparn'), (Block, 'body')), PrintReduceAction())
 
-    rule(AssignmentExpr, ((BinOrExpr, 'target'),  (EQUAL, 'equal'),  (AssignmentExpr, 'value'), ))
-    rule(AssignmentExpr, ((BinOrExpr, '_'),))
-    rule(BinOrExpr, ((BinOrExpr, 'lhs'),  (DOUBLEPIPE, 'op'),  (BinAndExpr, 'rhs'), ))
-    rule(BinOrExpr, ((BinAndExpr, '_'),))
-    rule(BinAndExpr, ((BinAndExpr, 'lhs'),  (DOUBLEAMPER, 'op'),  (CompEQExpr, 'rhs'), ))
-    rule(BinAndExpr, ((CompEQExpr, '_'),))
-    rule(CompEQExpr, ((CompEQExpr, 'lhs'),  (BANGEQUAL, 'op'),  (CompLGTExpr, 'rhs'), ))
-    rule(CompEQExpr, ((CompEQExpr, 'lhs'),  (DOUBLEEQUAL, 'op'),  (CompLGTExpr, 'rhs'), ))
-    rule(CompEQExpr, ((CompLGTExpr, '_'),))
-    rule(CompLGTExpr, ((CompLGTExpr, 'lhs'),  (LESS, 'op'),  (BitXorExpr, 'rhs'), ))
-    rule(CompLGTExpr, ((CompLGTExpr, 'lhs'),  (GREATER, 'op'),  (BitXorExpr, 'rhs'), ))
-    rule(CompLGTExpr, ((CompLGTExpr, 'lhs'),  (LESSEQUAL, 'op'),  (BitXorExpr, 'rhs'), ))
-    rule(CompLGTExpr, ((CompLGTExpr, 'lhs'),  (GREATEREQUAL, 'op'),  (BitXorExpr, 'rhs'), ))
-    rule(CompLGTExpr, ((BitXorExpr, '_'),))
-    rule(BitXorExpr, ((BitXorExpr, 'lhs'),  (CARET, 'op'),  (BitOrExpr, 'rhs'), ))
-    rule(BitXorExpr, ((BitOrExpr, '_'),))
-    rule(BitOrExpr, ((BitOrExpr, 'lhs'),  (PIPE, 'op'),  (BitAndExpr, 'rhs'), ))
-    rule(BitOrExpr, ((BitAndExpr, '_'),))
-    rule(BitAndExpr, ((BitAndExpr, 'lhs'),  (AMPER, 'op'),  (BitShiftExpr, 'rhs'), ))
-    rule(BitAndExpr, ((BitShiftExpr, '_'),))
-    rule(BitShiftExpr, ((BitShiftExpr, 'lhs'),  (DOUBLEGREATER, 'op'),  (AdditionExpr, 'rhs'), ))
-    rule(BitShiftExpr, ((BitShiftExpr, 'lhs'),  (DOUBLELESS, 'op'),  (AdditionExpr, 'rhs'), ))
-    rule(BitShiftExpr, ((AdditionExpr, '_'),))
-    rule(AdditionExpr, ((AdditionExpr, 'lhs'),  (PLUS, 'op'),  (MultExpr, 'rhs'), ))
-    rule(AdditionExpr, ((AdditionExpr, 'lhs'),  (MINUS, 'op'),  (MultExpr, 'rhs'), ))
-    rule(AdditionExpr, ((MultExpr, '_'),))
-    rule(MultExpr, ((MultExpr, 'lhs'),  (STAR, 'op'),  (UnaryExpr, 'rhs'), ))
-    rule(MultExpr, ((MultExpr, 'lhs'),  (SLASH, 'op'),  (UnaryExpr, 'rhs'), ))
-    rule(MultExpr, ((MultExpr, 'lhs'),  (PERCENT, 'op'),  (UnaryExpr, 'rhs'), ))
-    rule(MultExpr, ((CastExpr, '_'),))
-    rule(CastExpr, ((OPARN, 'oparn'),  (Type, 'type'),  (CPARN, 'cparn'),  (CastExpr, 'operand'), ))
-    rule(CastExpr, ((UnaryExpr, '_'),))
-    rule(UnaryExpr, ((TILDE, 'op'),  (UnaryExpr, 'operand'), ))
-    rule(UnaryExpr, ((MINUS, 'op'),  (UnaryExpr, 'operand'), ))
-    rule(UnaryExpr, ((BANG, 'op'),  (UnaryExpr, 'operand'), ))
-    rule(UnaryExpr, ((CallExpr, '_'),))
-    rule(CallExpr, ((CallExpr, 'callee'),  (OPARN, 'oparn'),  (ArgListOpt, 'args'),  (CPARN, 'cparn'), ))
-    rule(CallExpr, ((PrimaryExpr, '_'),))
-    rule(PrimaryExpr, ((TRUELIT, 'value'),))
-    rule(PrimaryExpr, ((FALSELIT, 'value'),))
-    rule(PrimaryExpr, ((FLOATLIT, 'value'),))
-    rule(PrimaryExpr, ((NULLPTRLIT, 'value'),))
-    rule(PrimaryExpr, ((DECINTLIT, 'value'),))
-    rule(PrimaryExpr, ((OCTINTLIT, 'value'),))
-    rule(PrimaryExpr, ((BININTLIT, 'value'),))
-    rule(PrimaryExpr, ((HEXINTLIT, 'value'),))
-    rule(PrimaryExpr, ((CHARLIT, 'value'),))
-    rule(PrimaryExpr, ((STRINGLIT, 'value'),))
-    rule(PrimaryExpr, ((IDENTIFIER, 'value'),))
-    rule(PrimaryExpr, ((OPARN, 'oparn'),  (Expr, 'expr'),  (CPARN, 'cparn'), ))
+    rule(AssignmentExpr, ((BinOrExpr, 'target'),  (EQUAL, 'equal'),  (AssignmentExpr, 'value'), ), PrintReduceAction())
+    rule(AssignmentExpr, ((BinOrExpr, '_'),), PrintReduceAction())
+    rule(BinOrExpr, ((BinOrExpr, 'lhs'),  (DOUBLEPIPE, 'op'),  (BinAndExpr, 'rhs'), ), PrintReduceAction())
+    rule(BinOrExpr, ((BinAndExpr, '_'),), PrintReduceAction())
+    rule(BinAndExpr, ((BinAndExpr, 'lhs'),  (DOUBLEAMPER, 'op'),  (CompEQExpr, 'rhs'), ), PrintReduceAction())
+    rule(BinAndExpr, ((CompEQExpr, '_'),), PrintReduceAction())
+    rule(CompEQExpr, ((CompEQExpr, 'lhs'),  (BANGEQUAL, 'op'),  (CompLGTExpr, 'rhs'), ), PrintReduceAction())
+    rule(CompEQExpr, ((CompEQExpr, 'lhs'),  (DOUBLEEQUAL, 'op'),  (CompLGTExpr, 'rhs'), ), PrintReduceAction())
+    rule(CompEQExpr, ((CompLGTExpr, '_'),), PrintReduceAction())
+    rule(CompLGTExpr, ((CompLGTExpr, 'lhs'),  (LESS, 'op'),  (BitXorExpr, 'rhs'), ), PrintReduceAction())
+    rule(CompLGTExpr, ((CompLGTExpr, 'lhs'),  (GREATER, 'op'),  (BitXorExpr, 'rhs'), ), PrintReduceAction())
+    rule(CompLGTExpr, ((CompLGTExpr, 'lhs'),  (LESSEQUAL, 'op'),  (BitXorExpr, 'rhs'), ), PrintReduceAction())
+    rule(CompLGTExpr, ((CompLGTExpr, 'lhs'),  (GREATEREQUAL, 'op'),  (BitXorExpr, 'rhs'), ), PrintReduceAction())
+    rule(CompLGTExpr, ((BitXorExpr, '_'),), PrintReduceAction())
+    rule(BitXorExpr, ((BitXorExpr, 'lhs'),  (CARET, 'op'),  (BitOrExpr, 'rhs'), ), PrintReduceAction())
+    rule(BitXorExpr, ((BitOrExpr, '_'),), PrintReduceAction())
+    rule(BitOrExpr, ((BitOrExpr, 'lhs'),  (PIPE, 'op'),  (BitAndExpr, 'rhs'), ), PrintReduceAction())
+    rule(BitOrExpr, ((BitAndExpr, '_'),), PrintReduceAction())
+    rule(BitAndExpr, ((BitAndExpr, 'lhs'),  (AMPER, 'op'),  (BitShiftExpr, 'rhs'), ), PrintReduceAction())
+    rule(BitAndExpr, ((BitShiftExpr, '_'),), PrintReduceAction())
+    rule(BitShiftExpr, ((BitShiftExpr, 'lhs'),  (DOUBLEGREATER, 'op'),  (AdditionExpr, 'rhs'), ), PrintReduceAction())
+    rule(BitShiftExpr, ((BitShiftExpr, 'lhs'),  (DOUBLELESS, 'op'),  (AdditionExpr, 'rhs'), ), PrintReduceAction())
+    rule(BitShiftExpr, ((AdditionExpr, '_'),), PrintReduceAction())
+    rule(AdditionExpr, ((AdditionExpr, 'lhs'),  (PLUS, 'op'),  (MultExpr, 'rhs'), ), PrintReduceAction())
+    rule(AdditionExpr, ((AdditionExpr, 'lhs'),  (MINUS, 'op'),  (MultExpr, 'rhs'), ), PrintReduceAction())
+    rule(AdditionExpr, ((MultExpr, '_'),), PrintReduceAction())
+    rule(MultExpr, ((MultExpr, 'lhs'),  (STAR, 'op'),  (UnaryExpr, 'rhs'), ), PrintReduceAction())
+    rule(MultExpr, ((MultExpr, 'lhs'),  (SLASH, 'op'),  (UnaryExpr, 'rhs'), ), PrintReduceAction())
+    rule(MultExpr, ((MultExpr, 'lhs'),  (PERCENT, 'op'),  (UnaryExpr, 'rhs'), ), PrintReduceAction())
+    rule(MultExpr, ((CastExpr, '_'),), PrintReduceAction())
+    rule(CastExpr, ((OPARN, 'oparn'),  (Type, 'type'),  (CPARN, 'cparn'),  (CastExpr, 'operand'), ), PrintReduceAction())
+    rule(CastExpr, ((UnaryExpr, '_'),), PrintReduceAction())
+    rule(UnaryExpr, ((TILDE, 'op'),  (UnaryExpr, 'operand'), ), PrintReduceAction())
+    rule(UnaryExpr, ((MINUS, 'op'),  (UnaryExpr, 'operand'), ), PrintReduceAction())
+    rule(UnaryExpr, ((BANG, 'op'),  (UnaryExpr, 'operand'), ), PrintReduceAction())
+    rule(UnaryExpr, ((CallExpr, '_'),), PrintReduceAction())
+    rule(CallExpr, ((CallExpr, 'callee'),  (OPARN, 'oparn'),  (ArgListOpt, 'args'),  (CPARN, 'cparn'), ), PrintReduceAction())
+    rule(CallExpr, ((PrimaryExpr, '_'),), PrintReduceAction())
+    rule(PrimaryExpr, ((TRUELIT, 'value'),), PrintReduceAction())
+    rule(PrimaryExpr, ((FALSELIT, 'value'),), PrintReduceAction())
+    rule(PrimaryExpr, ((FLOATLIT, 'value'),), PrintReduceAction())
+    rule(PrimaryExpr, ((NULLPTRLIT, 'value'),), PrintReduceAction())
+    rule(PrimaryExpr, ((DECINTLIT, 'value'),), PrintReduceAction())
+    rule(PrimaryExpr, ((OCTINTLIT, 'value'),), PrintReduceAction())
+    rule(PrimaryExpr, ((BININTLIT, 'value'),), PrintReduceAction())
+    rule(PrimaryExpr, ((HEXINTLIT, 'value'),), PrintReduceAction())
+    rule(PrimaryExpr, ((CHARLIT, 'value'),), PrintReduceAction())
+    rule(PrimaryExpr, ((STRINGLIT, 'value'),), PrintReduceAction())
+    rule(PrimaryExpr, ((IDENTIFIER, 'value'),), PrintReduceAction())
+    rule(PrimaryExpr, ((OPARN, 'oparn'),  (Expr, 'expr'),  (CPARN, 'cparn'), ), PrintReduceAction())
 
 makeGrammar()
+
 # convert grammar {{{1
 eofSym = Terminal('EOF_')
 
@@ -754,23 +777,23 @@ def formatList(l):
 def genLoop():
     output = []
 
-    output.append(                     '    bool done = false;\n')
-    output.append(                     '    bool errored = false;\n')
-    output.append(                     '    int steps = 0;\n')
-    output.append(                     '    Token lookahead (_lookahead); // for when you need to inject a new token\n')
-    output.append(                     '    Token lasttok = lookahead;\n')
+    output.append(                                '    bool done = false;\n')
+    output.append(                                '    bool errored = false;\n')
+    output.append(                                '    int steps = 0;\n')
+    output.append(                                '    Token lookahead (_lookahead); // for when you need to inject a new token\n')
+    output.append(                                '    Token lasttok = lookahead;\n')
 
-    output.append(                     '    while (!done)\n')
-    output.append(                     '    {\n')
-    output.append(                     '        if (istrial && steps > 5)\n')
-    output.append(                     '            return true;\n')
-    output.append(                     '        switch (stack.back().state)\n')
-    output.append(                     '        {\n')
+    output.append(                                '    while (!done)\n')
+    output.append(                                '    {\n')
+    output.append(                                '        if (istrial && steps > 5)\n')
+    output.append(                                '            return true;\n')
+    output.append(                                '        switch (stack.back().state)\n')
+    output.append(                                '        {\n')
 
     for staten, state in sorted(table.items(), key=lambda x:x[0]):
-        output.append(                f'            case {staten}:\n')
-        output.append(                 '               switch (lookahead.type)\n')
-        output.append(                 '               {\n')
+        output.append(                           f'            case {staten}:\n')
+        output.append(                            '               switch (lookahead.type)\n')
+        output.append(                            '               {\n')
 
         stateactions = []
         for term, ac in sorted(state.actions.items(), key=lambda x:str(x[0])):
@@ -789,12 +812,12 @@ def genLoop():
         for ac, nts in stateactions:
             if type(ac) == ShiftAction:
                 for term in nts:
-                    output.append(    f'                    case {term.astt()}:\n')
-                output.append(        f'                        shift(p, lasttok, lookahead, stack, steps, {ac.newstate}); break;\n')
+                    output.append(               f'                    case {term.astt()}:\n')
+                output.append(                   f'                        shift(p, lasttok, lookahead, stack, steps, {ac.newstate}); break;\n')
                 continue
 
             if reduceOnly:
-                output.append(        f'                    default:\n')
+                output.append(                   f'                    default:\n')
                 # do not check for lookahead, just reduce to have better performance
                 # if reduceOnly, then all the reduce actions of this state reduce the same rule
                 # and according to Wikipedia, just reducing regardless of the lookahead in
@@ -807,32 +830,31 @@ def genLoop():
                 # which used to be the erorr format if there was an invalid lookahead token for a state that didn't have any shift actions
             else:
                 for term in nts:
-                    output.append(    f'                    case {term.astt()}:\n')
+                    output.append(               f'                    case {term.astt()}:\n')
 
             if type(ac) == ReduceAction:
-                if not ac.rule.skip:
-                    output.append(         '                        {\n')
+                # if not ac.rule.skip:
+                output.append(                    '                        {\n')
 
-                    for i, sym in reversed(list(enumerate(ac.rule.expansion))):
-                        if type(sym) == Terminal:
-                            output.append(f'                            auto a{i} (popT(stack));\n')
-                        elif type(sym) == NonTerminal:
-                            output.append(f'                            auto a{i} (popA<ASTNS::{str(sym)}>(stack));\n')
+                for i, sym in reversed(list(enumerate(ac.rule.expansion))):
+                    if type(sym) == Terminal:
+                        output.append(           f'                            auto a{i} (popT(stack));\n')
+                    elif type(sym) == NonTerminal:
+                        output.append(           f'                            auto a{i} (popA<ASTNS::{str(sym)}>(stack));\n')
 
-                    output.append(        f'                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::{str(ac.rule.symbol)}>({", ".join([f"std::move(a{i})" for i in range(len(ac.rule.expansion))])}));\n')
-
-                    output.append(        f'                            stack.emplace_back(getGoto<ASTNS::{str(ac.rule.symbol)}>(stack.back().state), std::move(push));\n')
-                    output.append(         '                        }\n')
-                else:
-                    output.append(        f'                        reduceSkip<ASTNS::{str(ac.rule.symbol)}>(stack);\n')
+                output.append(                   f'                            size_t gotoState = getGoto<ASTNS::{str(ac.rule.symbol)}>(stack.back().state);\n')
+                output.append(ac.rule.reduceAction.generate())
+                output.append(                    '                        }\n')
+                # else:
+                    # output.append(             f'                        reduceSkip<ASTNS::{str(ac.rule.symbol)}>(stack);\n')
 
 
             elif type(ac) == AcceptAction:
-                output.append(         '                            done = true;\n')
+                output.append(                    '                            done = true;\n')
             else:
                 raise Exception('invalid action type')
 
-            output.append(             '                        break;\n')
+            output.append(                        '                        break;\n')
 
         if not reduceOnly:
             def stc(s):
@@ -841,20 +863,20 @@ def genLoop():
                 else:
                     return f'stringifyTokenType({s.astt()})'
 
-            output.append(             '                    default:\n')
-            output.append(             '                        if (istrial) return false;\n')
+            output.append(                        '                    default:\n')
+            output.append(                        '                        if (istrial) return false;\n')
 
             futuress = [f'format("expected % for %", {formatList([stc(p) for p in future])}, {stc(nt)})' for nt, future in state.futures.items()]
             terminatess = [f'format("expected % to terminate %", {formatList([stc(p) for p in future])}, {stc(nt)})' for nt, future in state.terminates.items()]
-            output.append(            f'                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {{  {", ".join(futuress + terminatess)}  }});\n')
-        output.append(                 '                }\n')
-        output.append(                 '                break;\n')
+            output.append(                       f'                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {{  {", ".join(futuress + terminatess)}  }});\n')
+        output.append(                            '                }\n')
+        output.append(                            '                break;\n')
 
-    output.append(                     '            default:\n')
-    output.append(                     '                reportAbortNoh(format("Parser reached invalid state: %", stack.back().state));\n')
+    output.append(                                '            default:\n')
+    output.append(                                '                reportAbortNoh(format("Parser reached invalid state: %", stack.back().state));\n')
 
-    output.append(                     '        }\n')
-    output.append(                     '    }\n')
+    output.append(                                '        }\n')
+    output.append(                                '    }\n')
 
     return ''.join(output)
 # generate goto code {{{2
@@ -868,10 +890,10 @@ def genGoto():
         if nonterm == augmentSymbol:
             continue
 
-        output.append(        f'template <> size_t getGoto<ASTNS::{str(nonterm)}>(size_t state)\n')
-        output.append(         '{\n')
-        output.append(         '    switch (state)\n')
-        output.append(         '    {\n')
+        output.append(                           f'template <> size_t getGoto<ASTNS::{str(nonterm)}>(size_t state)\n')
+        output.append(                            '{\n')
+        output.append(                            '    switch (state)\n')
+        output.append(                            '    {\n')
 
         returns = {}
         for staten, state in table.items():
@@ -883,44 +905,44 @@ def genGoto():
 
         for retval, states in returns.items():
             for state in states:
-                output.append(f'        case {state}:\n')
-            output.append(    f'            return {retval};\n')
+                output.append(                   f'        case {state}:\n')
+            output.append(                       f'            return {retval};\n')
 
-        output.append(         '        default:\n')
-        output.append(        f'            reportAbortNoh("retrieve goto of nonterminal {str(nonterm)} in invalid state");\n')
-        output.append(         '    }\n')
-        output.append(         '}\n')
+        output.append(                            '        default:\n')
+        output.append(                           f'            reportAbortNoh("retrieve goto of nonterminal {str(nonterm)} in invalid state");\n')
+        output.append(                            '    }\n')
+        output.append(                            '}\n')
 
     return ''.join(output)
 
 # generate panic mode error recovery code {{{2
 def genPanicMode():
     output = []
-    output.append(        ('#define CHECKASI(ty)\\\n'
-                           '    ASTNS::ty *ast##ty (dynamic_cast<ASTNS::ty*>(ast));\\\n'
-                           '    if (ast##ty)\\\n'
-                           '    {\\\n'
-                           '        switch (e.lookahead.type)\\\n'
-                           '        {\n'
-                           '#define FINISHCHECKASI()\\\n'
-                           '        }\\\n'
-                           '    }\n'
-                           '#define RECOVERANDDEFBREAK()\\\n'
-                           '        valid = true;\\\n'
-                           '        delto = i;\\\n'
-                           '        break;\\\n'
-                           '    default:\\\n'
-                           '        break;\n'
-                           '    bool valid = false;\n'
-                           '    e.lookahead = e.p.consume(); // prevent infinite panicking loops\n'
-                           '    std::vector<stackitem>::reverse_iterator delto;\n'
-                           '    while (!valid)\n'
-                           '    {\n'
-                           '        for (auto i = e.stack.rbegin(); i != e.stack.rend() && !valid; ++i)\n'
-                           '        {\n'
-                           '            if (!i->istok && !i->isinitial)\n'
-                           '            {\n'
-                           '                ASTNS::AST *ast = i->ast.get();\n'))
+    output.append(                               ('#define CHECKASI(ty)\\\n'
+                                                  '    ASTNS::ty *ast##ty (dynamic_cast<ASTNS::ty*>(ast));\\\n'
+                                                  '    if (ast##ty)\\\n'
+                                                  '    {\\\n'
+                                                  '        switch (e.lookahead.type)\\\n'
+                                                  '        {\n'
+                                                  '#define FINISHCHECKASI()\\\n'
+                                                  '        }\\\n'
+                                                  '    }\n'
+                                                  '#define RECOVERANDDEFBREAK()\\\n'
+                                                  '        valid = true;\\\n'
+                                                  '        delto = i;\\\n'
+                                                  '        break;\\\n'
+                                                  '    default:\\\n'
+                                                  '        break;\n'
+                                                  '    bool valid = false;\n'
+                                                  '    e.lookahead = e.p.consume(); // prevent infinite panicking loops\n'
+                                                  '    std::vector<stackitem>::reverse_iterator delto;\n'
+                                                  '    while (!valid)\n'
+                                                  '    {\n'
+                                                  '        for (auto i = e.stack.rbegin(); i != e.stack.rend() && !valid; ++i)\n'
+                                                  '        {\n'
+                                                  '            if (!i->istok && !i->isinitial)\n'
+                                                  '            {\n'
+                                                  '                ASTNS::AST *ast = i->ast.get();\n'))
 
     for nonterm in symbols:
         if type(nonterm) == Terminal:
@@ -930,41 +952,41 @@ def genPanicMode():
         if not nonterm.panickable:
             continue
 
-        output.append(    f'                CHECKASI({str(nonterm)})\n')
-        output.append(     '                       ')
+        output.append(                           f'                CHECKASI({str(nonterm)})\n')
+        output.append(                            '                       ')
         for follow in follows[nonterm]:
-            output.append(f' case {follow.astt()}:')
-        output.append(     '\n')
-        output.append(     '                            RECOVERANDDEFBREAK()\n')
-        output.append(     '                FINISHCHECKASI()\n')
+            output.append(                       f' case {follow.astt()}:')
+        output.append(                            '\n')
+        output.append(                            '                            RECOVERANDDEFBREAK()\n')
+        output.append(                            '                FINISHCHECKASI()\n')
 
-    output.append(        ('            }\n'
-                           '        }\n'
-                           '        if (!valid)\n'
-                           '            e.lookahead = e.p.consume();\n'
-                           '        if (e.lookahead.type == TokenType::EOF_)\n'
-                           '            return false;\n'
-                           '    }\n'
-                           '    e.stack.erase(delto.base(), e.stack.end());\n'
-                           '#undef CHECKASI\n'
-                           '#undef FINISHCHECKASI\n'
-                           '#undef RECOVERANDDEFBREAK\n'
-                           '    ERR_PANICKING_INVALID_SYNTAX(e.olh, e.lasttok, e.lookahead, expectations);\n'
-                           '    return true;\n'))
+    output.append(                               ('            }\n'
+                                                  '        }\n'
+                                                  '        if (!valid)\n'
+                                                  '            e.lookahead = e.p.consume();\n'
+                                                  '        if (e.lookahead.type == TokenType::EOF_)\n'
+                                                  '            return false;\n'
+                                                  '    }\n'
+                                                  '    e.stack.erase(delto.base(), e.stack.end());\n'
+                                                  '#undef CHECKASI\n'
+                                                  '#undef FINISHCHECKASI\n'
+                                                  '#undef RECOVERANDDEFBREAK\n'
+                                                  '    ERR_PANICKING_INVALID_SYNTAX(e.olh, e.lasttok, e.lookahead, expectations);\n'
+                                                  '    return true;\n'))
 
     return ''.join(output)
 # generate single token insertion/deletion/substitution error recovery code {{{2
 def genSingleTok():
     output = []
-    output.append(              '#define TRYINSERT(ty) if (tryInsert(ty, e.p, e.lookahead, e.stack)) {fix f = fix {fix::fixtype::INSERT, ty}; if (score(f) > score(bestfix)) bestfix = f;}\n')
-    output.append(              '#define TRYSUB(ty) if (trySub(ty, e.p, e.lookahead, e.stack)) {fix f = fix {fix::fixtype::SUBSTITUTE, ty}; if (score(f) > score(bestfix)) bestfix = f;}\n')
-    output.append(              '#define TRYTOKTY(ty) TRYINSERT(ty); TRYSUB(ty);\n')
+    output.append(                                '#define TRYINSERT(ty) if (tryInsert(ty, e.p, e.lookahead, e.stack)) {fix f = fix {fix::fixtype::INSERT, ty}; if (score(f) > score(bestfix)) bestfix = f;}\n')
+    output.append(                                '#define TRYSUB(ty) if (trySub(ty, e.p, e.lookahead, e.stack)) {fix f = fix {fix::fixtype::SUBSTITUTE, ty}; if (score(f) > score(bestfix)) bestfix = f;}\n')
+    output.append(                                '#define TRYTOKTY(ty) TRYINSERT(ty); TRYSUB(ty);\n')
 
     for terminal in symbols:
         if type(terminal) == Terminal:
-            output.append(     f'    TRYTOKTY({terminal.astt()})\n');
+            output.append(                       f'    TRYTOKTY({terminal.astt()})\n');
 
-    output.append(              '    if (tryDel(e.p, e.stack)) {fix f = fix {fix::fixtype::REMOVE, static_cast<TokenType>(-1)}; if (score(f) > score(bestfix)) bestfix = f;};\n')
+    output.append(                                '    if (tryDel(e.p, e.stack)) {fix f = fix {fix::fixtype::REMOVE, static_cast<TokenType>(-1)}; if (score(f) > score(bestfix)) bestfix = f;};\n')
     return ''.join(output)
 # entry {{{1
 if __name__ == '__main__':

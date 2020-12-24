@@ -47,14 +47,14 @@ for astname in sorted(_astnames):
     matchedrules = [rule for rule in parsegen.grammar if str(rule.symbol) == astname]
 
     base = matchedrules[0].symbol.base
-    skiponly = all([r.skip for r in matchedrules])
+    skiponly = False
     if skiponly:
         asts.append(ASTClass(astname, [], [], base, True))
         continue
 
     for rule in matchedrules:
-        if rule.skip:
-            continue
+        # if rule.skip:
+            # continue
 
         formhistart, formhiend = rule.exhistart, rule.exhiend
         form = []
@@ -100,57 +100,57 @@ def stringifyForm(form):
 def genASTDecls():
     output = []
     for ast in asts:
-        output.append(f'    class {ast.name};\n')
+        output.append(                           f'    class {ast.name};\n')
 
     for ast in asts:
         if type(ast) == ASTClass:
-            output.append(f'    class {ast.name} : public {ast.base}\n')
+            output.append(                       f'    class {ast.name} : public {ast.base}\n')
 
-            output.append( '    {\n')
-            output.append( '    public:\n')
+            output.append(                        '    {\n')
+            output.append(                        '    public:\n')
 
             for form in ast.forms:
-                output.append(f'        {ast.name}({", ".join(f"{field.type_} {field.name}" for field in form[0])});\n')
+                output.append(                   f'        {ast.name}({", ".join(f"{field.type_} {field.name}" for field in form[0])});\n')
 
-            output.append( '        enum class Form\n')
-            output.append( '        {\n')
+            output.append(                        '        enum class Form\n')
+            output.append(                        '        {\n')
             for form in ast.forms:
-                output.append(f'            {stringifyForm(form)},\n')
-            output.append( '        };\n')
+                output.append(                   f'            {stringifyForm(form)},\n')
+            output.append(                        '        };\n')
 
             for field in ast.fields:
-                output.append(f'        {field.type_} {field.name};\n')
-            output.append(f'        Form form;\n')
+                output.append(                   f'        {field.type_} {field.name};\n')
+            output.append(                       f'        Form form;\n')
 
             if not ast.skiponly:
-                output.append( '        bool empty() override;\n')
-                output.append(f'        virtual void accept(ASTNS::{ast.base}::Visitor *v) override;\n')
+                output.append(                    '        bool empty() override;\n')
+                output.append(                   f'        virtual void accept(ASTNS::{ast.base}::Visitor *v) override;\n')
 
-            output.append( '    };\n')
+            output.append(                        '    };\n')
         elif type(ast) == ASTBaseClass:
-            output.append(f'    class {ast.name} : public AST\n')
-            output.append( '    {\n')
-            output.append( '    public:\n')
+            output.append(                       f'    class {ast.name} : public AST\n')
+            output.append(                        '    {\n')
+            output.append(                        '    public:\n')
 
-            output.append(f'        class Visitor\n')
-            output.append( '        {\n')
-            output.append( '        public:\n')
-            output.append( '            virtual ~Visitor() {}\n')
+            output.append(                       f'        class Visitor\n')
+            output.append(                        '        {\n')
+            output.append(                        '        public:\n')
+            output.append(                        '            virtual ~Visitor() {}\n')
             for _ast in asts:
                 if type(_ast) == ASTClass and _ast.base == ast.name and not _ast.skiponly:
-                    output.append(f'            virtual void visit{_ast.name}(ASTNS::{_ast.name} *ast) = 0;\n')
-            output.append( '        };\n')
+                    output.append(               f'            virtual void visit{_ast.name}(ASTNS::{_ast.name} *ast) = 0;\n')
+            output.append(                        '        };\n')
 
-            output.append(f'        virtual ~{ast.name}() {{}}\n')
-            output.append( '        virtual void accept(Visitor *v) = 0;\n')
-            output.append( '        virtual bool empty() = 0;\n')
-            output.append( '    };\n')
+            output.append(                       f'        virtual ~{ast.name}() {{}}\n')
+            output.append(                        '        virtual void accept(Visitor *v) = 0;\n')
+            output.append(                        '        virtual bool empty() = 0;\n')
+            output.append(                        '    };\n')
         else:
-            output.append( '    class AST\n')
-            output.append( '    {\n')
-            output.append( '    public:\n')
-            output.append( '        virtual ~AST() {}\n')
-            output.append( '    };\n')
+            output.append(                        '    class AST\n')
+            output.append(                        '    {\n')
+            output.append(                        '    public:\n')
+            output.append(                        '        virtual ~AST() {}\n')
+            output.append(                        '    };\n')
 
     return ''.join(output)
 # Generate AST definitions {{{3
@@ -159,7 +159,7 @@ def genASTDefs():
     for ast in asts:
         if type(ast) == ASTClass and not ast.skiponly:
             for form in ast.forms:
-                output.append(f'ASTNS::{ast.name}::{ast.name}({", ".join(f"{field.type_} {field.name}" for field in form[0])}): ')
+                output.append(                   f'ASTNS::{ast.name}::{ast.name}({", ".join(f"{field.type_} {field.name}" for field in form[0])}): ')
 
                 initializerList = []
                 for field in form[0]:
@@ -170,11 +170,11 @@ def genASTDefs():
 
                 initializerList.append(f'form(ASTNS::{ast.name}::Form::{stringifyForm(form)})')
 
-                output.append(', '.join(initializerList))
-                output.append(' {}\n')
+                output.append(                    ', '.join(initializerList))
+                output.append(                    ' {}\n')
 
-            output.append(f'void ASTNS::{ast.name}::accept(ASTNS::{ast.base}::Visitor *v) {{ v->visit{ast.name}(this); }}\n')
-            output.append(f'bool ASTNS::{ast.name}::empty() {{ {"return form == Form::EMPTY;" if len(list(filter(lambda form: not len(form[0]), ast.forms))) else "return false;"} }}\n')
+            output.append(                       f'void ASTNS::{ast.name}::accept(ASTNS::{ast.base}::Visitor *v) {{ v->visit{ast.name}(this); }}\n')
+            output.append(                       f'bool ASTNS::{ast.name}::empty() {{ {"return form == Form::EMPTY;" if len(list(filter(lambda form: not len(form[0]), ast.forms))) else "return false;"} }}\n')
 
     return ''.join(output)
 # Generating Visitor stuff {{{2
@@ -182,7 +182,7 @@ def genASTDefs():
 def genASTForwDecls():
     output = []
     for ast in asts:
-        output.append(f'class {ast.name};\n')
+        output.append(                           f'class {ast.name};\n')
     return ''.join(output)
 # Generate overrided functions for visitor classes {{{3
 def genVisitorMethods(*bases):
@@ -192,7 +192,7 @@ def genVisitorMethods(*bases):
             continue
 
         if (ast.base in bases or bases == ('all',)) and not ast.skiponly:
-            output.append(f'void visit{ast.name}(ASTNS::{ast.name} *ast) override;\n')
+            output.append(                       f'void visit{ast.name}(ASTNS::{ast.name} *ast) override;\n')
 
     return ''.join(output)
 # Generate location visitor impls {{{3
@@ -202,32 +202,32 @@ def genLocVisit():
         if type(ast) != ASTClass or ast.skiponly:
             continue
 
-        output.append(        f'void LocationVisitor::visit{ast.name}(ASTNS::{ast.name} *ast)\n')
-        output.append(         '{\n')
-        output.append(         '    switch (ast->form)\n')
-        output.append(         '    {\n')
+        output.append(                           f'void LocationVisitor::visit{ast.name}(ASTNS::{ast.name} *ast)\n')
+        output.append(                            '{\n')
+        output.append(                            '    switch (ast->form)\n')
+        output.append(                            '    {\n')
         for form in ast.forms:
-            output.append(    f'        case ASTNS::{ast.name}::Form::{stringifyForm(form)}:\n')
+            output.append(                       f'        case ASTNS::{ast.name}::Form::{stringifyForm(form)}:\n')
 
             if form[1] is None:
-                output.append( '            reportAbortNoh("get location of empty ast");\n')
+                output.append(                    '            reportAbortNoh("get location of empty ast");\n')
             elif form[1].type_.startswith('std::unique_ptr'):
-                output.append(f'            retl = getL(ast->{form[1].name}.get());\n')
-                output.append(f'            retf = getF(ast->{form[1].name}.get());\n')
+                output.append(                   f'            retl = getL(ast->{form[1].name}.get());\n')
+                output.append(                   f'            retf = getF(ast->{form[1].name}.get());\n')
             else:
-                output.append(f'            retl = ast->{form[1].name}.start;\n')
-                output.append(f'            retf = ast->{form[1].name}.sourcefile;\n')
+                output.append(                   f'            retl = ast->{form[1].name}.start;\n')
+                output.append(                   f'            retf = ast->{form[1].name}.sourcefile;\n')
 
             if form[2] is None:
                 pass
             elif form[2].type_.startswith('std::unique_ptr'):
-                output.append(f'            retr = getR(ast->{form[2].name}.get());\n')
+                output.append(                   f'            retr = getR(ast->{form[2].name}.get());\n')
             else:
-                output.append(f'            retr = ast->{form[2].name}.end;\n')
+                output.append(                   f'            retr = ast->{form[2].name}.end;\n')
 
-            output.append(     '            break;\n')
-        output.append(         '    }\n')
-        output.append(         '}\n')
+            output.append(                        '            break;\n')
+        output.append(                            '    }\n')
+        output.append(                            '}\n')
 
     return ''.join(output)
 # Generating printing stuff {{{2
@@ -238,29 +238,29 @@ def genPrintVisitorMethods():
         if type(ast) != ASTClass or ast.skiponly:
             continue
 
-        output.append(            f'void ASTNS::PrintVisitor::visit{ast.name}(ASTNS::{ast.name} *a)\n')
-        output.append(             '{\n')
-        output.append(             '    switch (a->form)\n')
-        output.append(             '    {\n')
+        output.append(                           f'void ASTNS::PrintVisitor::visit{ast.name}(ASTNS::{ast.name} *a)\n')
+        output.append(                            '{\n')
+        output.append(                            '    switch (a->form)\n')
+        output.append(                            '    {\n')
         for form in ast.forms:
-            output.append(        f'        case ASTNS::{ast.name}::Form::{stringifyForm(form)}:\n')
-            output.append(        f'            pai("{ast.name} {stringifyForm(form)}\\n");\n')
-            output.append(         '            ++indent;\n')
+            output.append(                       f'        case ASTNS::{ast.name}::Form::{stringifyForm(form)}:\n')
+            output.append(                       f'            pai("{ast.name} {stringifyForm(form)}\\n");\n')
+            output.append(                        '            ++indent;\n')
             for field in form[0]:
-                output.append(    f'            pai("{field.type_} {field.name} = ");\n')
+                output.append(                   f'            pai("{field.type_} {field.name} = ");\n')
                 if field.type_.startswith('std::unique_ptr'):
-                    output.append(f'            if (a->{field.name})\n')
-                    output.append(f'                a->{field.name}->accept(this);\n')
-                    output.append( '            else\n')
-                    output.append( '                pai("nullptr\\n");\n')
+                    output.append(               f'            if (a->{field.name})\n')
+                    output.append(               f'                a->{field.name}->accept(this);\n')
+                    output.append(                '            else\n')
+                    output.append(                '                pai("nullptr\\n");\n')
                 else:
-                    output.append( '            pai("\\"");\n')
-                    output.append(f'            pai(std::string(a->{field.name}.start, a->{field.name}.end));\n')
-                    output.append( '            pai("\\"\\n");\n')
-            output.append(         '            break;\n')
-        output.append(             '    }\n')
-        output.append(             '    --indent;\n')
-        output.append(             '}\n')
+                    output.append(                '            pai("\\"");\n')
+                    output.append(               f'            pai(std::string(a->{field.name}.start, a->{field.name}.end));\n')
+                    output.append(                '            pai("\\"\\n");\n')
+            output.append(                        '            break;\n')
+        output.append(                            '    }\n')
+        output.append(                            '    --indent;\n')
+        output.append(                            '}\n')
 
     return ''.join(output)
 # Generate dot visitor {{{3
@@ -270,43 +270,43 @@ def genDotVisitorMethods():
         if type(ast) != ASTClass or ast.skiponly:
             continue
 
-        output.append(            f'void ASTNS::DotVisitor::visit{ast.name}(ASTNS::{ast.name} *a)\n')
-        output.append(             '{\n')
-        output.append(             '    std::string thisid = curid();\n')
-        output.append(             '    switch (a->form)\n')
-        output.append(             '    {\n')
+        output.append(                           f'void ASTNS::DotVisitor::visit{ast.name}(ASTNS::{ast.name} *a)\n')
+        output.append(                            '{\n')
+        output.append(                            '    std::string thisid = curid();\n')
+        output.append(                            '    switch (a->form)\n')
+        output.append(                            '    {\n')
         for form in ast.forms:
-            output.append(        f'        case ASTNS::{ast.name}::Form::{stringifyForm(form)}:\n')
+            output.append(                       f'        case ASTNS::{ast.name}::Form::{stringifyForm(form)}:\n')
             if len(form[0]):
-                output.append(        f'            ostream << thisid << " [label=<<table border=\\"0\\" cellborder=\\"1\\" cellspacing=\\"0\\"><tr><td port=\\"__heading\\" colspan=\\"{len(form[0])}\\">{ast.name} ({stringifyForm(form)})</td></tr><tr>";\n')
+                output.append(                   f'            ostream << thisid << " [label=<<table border=\\"0\\" cellborder=\\"1\\" cellspacing=\\"0\\"><tr><td port=\\"__heading\\" colspan=\\"{len(form[0])}\\">{ast.name} ({stringifyForm(form)})</td></tr><tr>";\n')
                 for field in form[0]:
-                    output.append(    f'            ostream << "<td port=\\"{field.name}\\">{field.name}</td>";\n')
+                    output.append(               f'            ostream << "<td port=\\"{field.name}\\">{field.name}</td>";\n')
 
-                output.append(        f'            ostream << "</tr></table>>]\\n";\n')
+                output.append(                   f'            ostream << "</tr></table>>]\\n";\n')
             else:
-                output.append(        f'            ostream << thisid << " [label=\\"{ast.name} ({stringifyForm(form)})\\"]";\n')
+                output.append(                   f'            ostream << thisid << " [label=\\"{ast.name} ({stringifyForm(form)})\\"]";\n')
 
             for field in form[0]:
-                output.append(     '            {\n')
+                output.append(                    '            {\n')
                 if field.type_.startswith('std::unique_ptr'):
-                    output.append(f'                    if (a->{field.name})\n')
-                    output.append( '                    {\n')
-                    output.append(f'                        a->{field.name}->accept(this);\n')
-                    output.append(f'                        connect(thisid, "{field.name}", lastid);\n')
-                    output.append( '                    }\n')
-                    output.append( '                    else\n')
-                    output.append( '                    {\n')
-                    output.append(f'                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");\n')
-                    output.append(f'                        connect(thisid, "{field.name}", nullptrnodeid);\n')
-                    output.append( '                    }\n')
+                    output.append(               f'                    if (a->{field.name})\n')
+                    output.append(                '                    {\n')
+                    output.append(               f'                        a->{field.name}->accept(this);\n')
+                    output.append(               f'                        connect(thisid, "{field.name}", lastid);\n')
+                    output.append(                '                    }\n')
+                    output.append(                '                    else\n')
+                    output.append(                '                    {\n')
+                    output.append(               f'                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");\n')
+                    output.append(               f'                        connect(thisid, "{field.name}", nullptrnodeid);\n')
+                    output.append(                '                    }\n')
                 else:
-                    output.append(f'                    std::string tokennodeid = makeTextNode("Token", a->{field.name}.stringify());\n')
-                    output.append(f'                    connect(thisid, "{field.name}", tokennodeid);\n')
-                output.append(     '            }\n')
-            output.append(         '            break;\n')
+                    output.append(               f'                    std::string tokennodeid = makeTextNode("Token", a->{field.name}.stringify());\n')
+                    output.append(               f'                    connect(thisid, "{field.name}", tokennodeid);\n')
+                output.append(                    '            }\n')
+            output.append(                        '            break;\n')
 
-        output.append(             '    }\n')
-        output.append(             '    lastid = std::move(thisid);\n')
-        output.append(             '}\n')
+        output.append(                            '    }\n')
+        output.append(                            '    lastid = std::move(thisid);\n')
+        output.append(                            '}\n')
 
     return ''.join(output)

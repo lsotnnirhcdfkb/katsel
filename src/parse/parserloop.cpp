@@ -1,6 +1,7 @@
 #include "parse/parser.h"
 #include "parsestack.h" // in a private header file
 #include <vector>
+#include <iostream>
 #include "utils/format.h"
 #include "utils/assert.h"
 
@@ -1224,9 +1225,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     default:
                         {
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::CU>());
-                            stack.emplace_back(getGoto<ASTNS::CU>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::CU>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::FUN:
                         shift(p, lasttok, lookahead, stack, steps, 5); break;
@@ -1249,9 +1252,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popA<ASTNS::DeclList>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::CU>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::CU>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::CU>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::FUN:
                         shift(p, lasttok, lookahead, stack, steps, 5); break;
@@ -1261,7 +1266,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::DeclList>(stack);
+                        {
+                            auto a0 (popA<ASTNS::Decl>(stack));
+                            size_t gotoState = getGoto<ASTNS::DeclList>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1269,7 +1280,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::Decl>(stack);
+                        {
+                            auto a0 (popA<ASTNS::FunctionDecl>(stack));
+                            size_t gotoState = getGoto<ASTNS::Decl>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1315,9 +1332,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         {
                             auto a1 (popA<ASTNS::AnotherDecl>(stack));
                             auto a0 (popA<ASTNS::DeclList>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::DeclList>(std::move(a0), std::move(a1)));
-                            stack.emplace_back(getGoto<ASTNS::DeclList>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::DeclList>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     default:
                         if (istrial) return false;
@@ -1328,7 +1347,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::AnotherDecl>(stack);
+                        {
+                            auto a0 (popA<ASTNS::Decl>(stack));
+                            size_t gotoState = getGoto<ASTNS::AnotherDecl>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1346,7 +1371,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::Type>(stack);
+                        {
+                            auto a0 (popA<ASTNS::BuiltinType>(stack));
+                            size_t gotoState = getGoto<ASTNS::Type>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1356,9 +1387,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BuiltinType>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::BuiltinType>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::BuiltinType>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1368,9 +1401,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BuiltinType>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::BuiltinType>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::BuiltinType>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1380,9 +1415,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BuiltinType>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::BuiltinType>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::BuiltinType>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1392,9 +1429,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BuiltinType>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::BuiltinType>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::BuiltinType>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1404,9 +1443,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BuiltinType>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::BuiltinType>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::BuiltinType>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1416,9 +1457,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BuiltinType>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::BuiltinType>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::BuiltinType>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1428,9 +1471,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BuiltinType>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::BuiltinType>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::BuiltinType>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1440,9 +1485,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BuiltinType>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::BuiltinType>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::BuiltinType>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1452,9 +1499,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BuiltinType>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::BuiltinType>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::BuiltinType>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1464,9 +1513,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BuiltinType>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::BuiltinType>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::BuiltinType>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1476,9 +1527,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BuiltinType>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::BuiltinType>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::BuiltinType>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1488,9 +1541,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BuiltinType>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::BuiltinType>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::BuiltinType>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1500,9 +1555,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BuiltinType>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::BuiltinType>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::BuiltinType>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1525,9 +1582,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 21); break;
                     default:
                         {
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::ParamList_OPT>());
-                            stack.emplace_back(getGoto<ASTNS::ParamList_OPT>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::ParamList_OPT>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::DOUBLE:
                         shift(p, lasttok, lookahead, stack, steps, 20); break;
@@ -1567,7 +1626,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::ParamList_OPT>(stack);
+                        {
+                            auto a0 (popA<ASTNS::ParamList>(stack));
+                            size_t gotoState = getGoto<ASTNS::ParamList_OPT>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1577,7 +1642,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::COMMA:
                         shift(p, lasttok, lookahead, stack, steps, 31); break;
                     case TokenType::CPARN:
-                        reduceSkip<ASTNS::ParamList>(stack);
+                        {
+                            auto a0 (popA<ASTNS::ParamSegment>(stack));
+                            size_t gotoState = getGoto<ASTNS::ParamList>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     default:
                         if (istrial) return false;
@@ -1588,7 +1659,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::ParamSegment>(stack);
+                        {
+                            auto a0 (popA<ASTNS::Param>(stack));
+                            size_t gotoState = getGoto<ASTNS::ParamSegment>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1627,9 +1704,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         {
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::ParamSegment>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::ParamList>(std::move(a0), std::move(a1)));
-                            stack.emplace_back(getGoto<ASTNS::ParamList>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::ParamList>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::DOUBLE:
                         shift(p, lasttok, lookahead, stack, steps, 20); break;
@@ -1665,9 +1744,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         {
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Type>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::Param>(std::move(a0), std::move(a1)));
-                            stack.emplace_back(getGoto<ASTNS::Param>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::Param>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1676,9 +1757,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     default:
                         {
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::LineEnding_OPT>());
-                            stack.emplace_back(getGoto<ASTNS::LineEnding_OPT>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::LineEnding_OPT>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::NEWLINE:
                         shift(p, lasttok, lookahead, stack, steps, 44); break;
@@ -1698,9 +1781,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popT(stack));
                             auto a1 (popA<ASTNS::Type>(stack));
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::FunctionDecl>(std::move(a0), std::move(a1), std::move(a2), std::move(a3), std::move(a4), std::move(a5), std::move(a6)));
-                            stack.emplace_back(getGoto<ASTNS::FunctionDecl>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::FunctionDecl>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1708,7 +1793,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::Block>(stack);
+                        {
+                            auto a0 (popA<ASTNS::BracedBlock>(stack));
+                            size_t gotoState = getGoto<ASTNS::Block>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1716,7 +1807,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::Block>(stack);
+                        {
+                            auto a0 (popA<ASTNS::IndentedBlock>(stack));
+                            size_t gotoState = getGoto<ASTNS::Block>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1726,9 +1823,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::LineEnding>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::LineEnding>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::LineEnding>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::INDENT:
                         shift(p, lasttok, lookahead, stack, steps, 45); break;
@@ -1740,9 +1839,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::LineEnding>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::LineEnding>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::LineEnding>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::NEWLINE:
                         shift(p, lasttok, lookahead, stack, steps, 46); break;
@@ -1757,9 +1858,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 88); break;
                     default:
                         {
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::StmtList_OPT>());
-                            stack.emplace_back(getGoto<ASTNS::StmtList_OPT>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::StmtList_OPT>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::CHARLIT:
                         shift(p, lasttok, lookahead, stack, steps, 90); break;
@@ -1809,9 +1912,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::AnotherParam>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::ParamSegment>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::ParamSegment>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::ParamSegment>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::ParamSegment>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1819,7 +1924,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::AnotherParam>(stack);
+                        {
+                            auto a0 (popA<ASTNS::Param>(stack));
+                            size_t gotoState = getGoto<ASTNS::AnotherParam>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1836,9 +1947,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popT(stack));
                             auto a1 (popA<ASTNS::Type>(stack));
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::FunctionDecl>(std::move(a0), std::move(a1), std::move(a2), std::move(a3), std::move(a4), std::move(a5), std::move(a6), std::move(a7)));
-                            stack.emplace_back(getGoto<ASTNS::FunctionDecl>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::FunctionDecl>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1846,7 +1959,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::LineEnding_OPT>(stack);
+                        {
+                            auto a0 (popA<ASTNS::LineEnding>(stack));
+                            size_t gotoState = getGoto<ASTNS::LineEnding_OPT>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1856,9 +1975,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::LineEnding>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::LineEnding>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::LineEnding>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1871,9 +1992,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 88); break;
                     default:
                         {
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::StmtList_OPT>());
-                            stack.emplace_back(getGoto<ASTNS::StmtList_OPT>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::StmtList_OPT>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::CHARLIT:
                         shift(p, lasttok, lookahead, stack, steps, 90); break;
@@ -1920,9 +2043,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         {
                             auto a1 (popT(stack));
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::LineEnding>(std::move(a0), std::move(a1)));
-                            stack.emplace_back(getGoto<ASTNS::LineEnding>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::LineEnding>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -1931,9 +2056,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     default:
                         {
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::ImplRet_OPT>());
-                            stack.emplace_back(getGoto<ASTNS::ImplRet_OPT>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::ImplRet_OPT>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::LEFTARROW:
                         shift(p, lasttok, lookahead, stack, steps, 96); break;
@@ -1948,9 +2075,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 88); break;
                     default:
                         {
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::StmtList_OPT>());
-                            stack.emplace_back(getGoto<ASTNS::StmtList_OPT>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::StmtList_OPT>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::CHARLIT:
                         shift(p, lasttok, lookahead, stack, steps, 90); break;
@@ -2000,7 +2129,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::BININTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 88); break;
                     default:
-                        reduceSkip<ASTNS::StmtList_OPT>(stack);
+                        {
+                            auto a0 (popA<ASTNS::StmtList>(stack));
+                            size_t gotoState = getGoto<ASTNS::StmtList_OPT>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::CHARLIT:
                         shift(p, lasttok, lookahead, stack, steps, 90); break;
@@ -2044,7 +2179,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::StmtList>(stack);
+                        {
+                            auto a0 (popA<ASTNS::Stmt>(stack));
+                            size_t gotoState = getGoto<ASTNS::StmtList>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2052,7 +2193,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::Stmt>(stack);
+                        {
+                            auto a0 (popA<ASTNS::VarStmt>(stack));
+                            size_t gotoState = getGoto<ASTNS::Stmt>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2060,7 +2207,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::Stmt>(stack);
+                        {
+                            auto a0 (popA<ASTNS::ExprStmt>(stack));
+                            size_t gotoState = getGoto<ASTNS::Stmt>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2068,7 +2221,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::Stmt>(stack);
+                        {
+                            auto a0 (popA<ASTNS::RetStmt>(stack));
+                            size_t gotoState = getGoto<ASTNS::Stmt>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2123,9 +2282,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     default:
                         {
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::LineEnding_OPT>());
-                            stack.emplace_back(getGoto<ASTNS::LineEnding_OPT>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::LineEnding_OPT>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::NEWLINE:
                         shift(p, lasttok, lookahead, stack, steps, 44); break;
@@ -2185,7 +2346,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::NotBlockedExpr>(stack);
+                        {
+                            auto a0 (popA<ASTNS::AssignmentExpr>(stack));
+                            size_t gotoState = getGoto<ASTNS::NotBlockedExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2193,7 +2360,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::BlockedExpr>(stack);
+                        {
+                            auto a0 (popA<ASTNS::IfExpr>(stack));
+                            size_t gotoState = getGoto<ASTNS::BlockedExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2201,7 +2374,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::BlockedExpr>(stack);
+                        {
+                            auto a0 (popA<ASTNS::ForExpr>(stack));
+                            size_t gotoState = getGoto<ASTNS::BlockedExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2209,7 +2388,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::BlockedExpr>(stack);
+                        {
+                            auto a0 (popA<ASTNS::BracedBlock>(stack));
+                            size_t gotoState = getGoto<ASTNS::BlockedExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2217,7 +2402,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::AssignmentExpr>(stack);
+                        {
+                            auto a0 (popA<ASTNS::BinOrExpr>(stack));
+                            size_t gotoState = getGoto<ASTNS::AssignmentExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::DOUBLEPIPE:
                         shift(p, lasttok, lookahead, stack, steps, 109); break;
@@ -2274,9 +2465,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     default:
                         {
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::VarStmt_OPT>());
-                            stack.emplace_back(getGoto<ASTNS::VarStmt_OPT>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::VarStmt_OPT>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::VAR:
                         shift(p, lasttok, lookahead, stack, steps, 54); break;
@@ -2286,7 +2479,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::BinOrExpr>(stack);
+                        {
+                            auto a0 (popA<ASTNS::BinAndExpr>(stack));
+                            size_t gotoState = getGoto<ASTNS::BinOrExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::DOUBLEAMPER:
                         shift(p, lasttok, lookahead, stack, steps, 113); break;
@@ -2298,7 +2497,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::BANGEQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 114); break;
                     default:
-                        reduceSkip<ASTNS::BinAndExpr>(stack);
+                        {
+                            auto a0 (popA<ASTNS::CompEQExpr>(stack));
+                            size_t gotoState = getGoto<ASTNS::BinAndExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::DOUBLEEQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 115); break;
@@ -2308,7 +2513,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::CompEQExpr>(stack);
+                        {
+                            auto a0 (popA<ASTNS::CompLGTExpr>(stack));
+                            size_t gotoState = getGoto<ASTNS::CompEQExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::GREATER:
                         shift(p, lasttok, lookahead, stack, steps, 117); break;
@@ -2324,7 +2535,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::CompLGTExpr>(stack);
+                        {
+                            auto a0 (popA<ASTNS::BitXorExpr>(stack));
+                            size_t gotoState = getGoto<ASTNS::CompLGTExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::CARET:
                         shift(p, lasttok, lookahead, stack, steps, 120); break;
@@ -2334,7 +2551,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::BitXorExpr>(stack);
+                        {
+                            auto a0 (popA<ASTNS::BitOrExpr>(stack));
+                            size_t gotoState = getGoto<ASTNS::BitXorExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::PIPE:
                         shift(p, lasttok, lookahead, stack, steps, 121); break;
@@ -2346,7 +2569,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::AMPER:
                         shift(p, lasttok, lookahead, stack, steps, 122); break;
                     default:
-                        reduceSkip<ASTNS::BitOrExpr>(stack);
+                        {
+                            auto a0 (popA<ASTNS::BitAndExpr>(stack));
+                            size_t gotoState = getGoto<ASTNS::BitOrExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2354,7 +2583,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::BitAndExpr>(stack);
+                        {
+                            auto a0 (popA<ASTNS::BitShiftExpr>(stack));
+                            size_t gotoState = getGoto<ASTNS::BitAndExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::DOUBLEGREATER:
                         shift(p, lasttok, lookahead, stack, steps, 123); break;
@@ -2366,7 +2601,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::BitShiftExpr>(stack);
+                        {
+                            auto a0 (popA<ASTNS::AdditionExpr>(stack));
+                            size_t gotoState = getGoto<ASTNS::BitShiftExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::MINUS:
                         shift(p, lasttok, lookahead, stack, steps, 126); break;
@@ -2378,7 +2619,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::AdditionExpr>(stack);
+                        {
+                            auto a0 (popA<ASTNS::MultExpr>(stack));
+                            size_t gotoState = getGoto<ASTNS::AdditionExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::PERCENT:
                         shift(p, lasttok, lookahead, stack, steps, 129); break;
@@ -2392,7 +2639,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::MultExpr>(stack);
+                        {
+                            auto a0 (popA<ASTNS::CastExpr>(stack));
+                            size_t gotoState = getGoto<ASTNS::MultExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2470,7 +2723,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::CastExpr>(stack);
+                        {
+                            auto a0 (popA<ASTNS::UnaryExpr>(stack));
+                            size_t gotoState = getGoto<ASTNS::CastExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2592,7 +2851,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::UnaryExpr>(stack);
+                        {
+                            auto a0 (popA<ASTNS::CallExpr>(stack));
+                            size_t gotoState = getGoto<ASTNS::UnaryExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::OPARN:
                         shift(p, lasttok, lookahead, stack, steps, 136); break;
@@ -2602,7 +2867,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::CallExpr>(stack);
+                        {
+                            auto a0 (popA<ASTNS::PrimaryExpr>(stack));
+                            size_t gotoState = getGoto<ASTNS::CallExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2612,9 +2883,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::PrimaryExpr>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::PrimaryExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::PrimaryExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2624,9 +2897,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::PrimaryExpr>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::PrimaryExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::PrimaryExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2636,9 +2911,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::PrimaryExpr>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::PrimaryExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::PrimaryExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2648,9 +2925,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::PrimaryExpr>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::PrimaryExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::PrimaryExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2660,9 +2939,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::PrimaryExpr>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::PrimaryExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::PrimaryExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2672,9 +2953,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::PrimaryExpr>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::PrimaryExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::PrimaryExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2684,9 +2967,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::PrimaryExpr>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::PrimaryExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::PrimaryExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2696,9 +2981,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::PrimaryExpr>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::PrimaryExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::PrimaryExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2708,9 +2995,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::PrimaryExpr>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::PrimaryExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::PrimaryExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2720,9 +3009,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::PrimaryExpr>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::PrimaryExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::PrimaryExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2732,9 +3023,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::PrimaryExpr>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::PrimaryExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::PrimaryExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2743,9 +3036,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     default:
                         {
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::ImplRet_OPT>());
-                            stack.emplace_back(getGoto<ASTNS::ImplRet_OPT>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::ImplRet_OPT>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::LEFTARROW:
                         shift(p, lasttok, lookahead, stack, steps, 96); break;
@@ -2765,7 +3060,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::ImplRet_OPT>(stack);
+                        {
+                            auto a0 (popA<ASTNS::ImplRet>(stack));
+                            size_t gotoState = getGoto<ASTNS::ImplRet_OPT>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2818,9 +3119,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     default:
                         {
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::ImplRet_OPT>());
-                            stack.emplace_back(getGoto<ASTNS::ImplRet_OPT>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::ImplRet_OPT>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::LEFTARROW:
                         shift(p, lasttok, lookahead, stack, steps, 96); break;
@@ -2835,9 +3138,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 88); break;
                     default:
                         {
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::StmtList_OPT>());
-                            stack.emplace_back(getGoto<ASTNS::StmtList_OPT>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::StmtList_OPT>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::CHARLIT:
                         shift(p, lasttok, lookahead, stack, steps, 90); break;
@@ -2906,9 +3211,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         {
                             auto a1 (popA<ASTNS::AnotherStmt>(stack));
                             auto a0 (popA<ASTNS::StmtList>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::StmtList>(std::move(a0), std::move(a1)));
-                            stack.emplace_back(getGoto<ASTNS::StmtList>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::StmtList>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     default:
                         if (istrial) return false;
@@ -2919,7 +3226,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::AnotherStmt>(stack);
+                        {
+                            auto a0 (popA<ASTNS::Stmt>(stack));
+                            size_t gotoState = getGoto<ASTNS::AnotherStmt>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2940,9 +3253,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         {
                             auto a1 (popA<ASTNS::LineEnding>(stack));
                             auto a0 (popA<ASTNS::NotBlockedExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::ExprStmt>(std::move(a0), std::move(a1)));
-                            stack.emplace_back(getGoto<ASTNS::ExprStmt>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::ExprStmt>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2953,9 +3268,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         {
                             auto a1 (popA<ASTNS::LineEnding_OPT>(stack));
                             auto a0 (popA<ASTNS::BlockedExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::ExprStmt>(std::move(a0), std::move(a1)));
-                            stack.emplace_back(getGoto<ASTNS::ExprStmt>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::ExprStmt>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2978,9 +3295,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         {
                             auto a1 (popA<ASTNS::LineEnding>(stack));
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::RetStmt>(std::move(a0), std::move(a1)));
-                            stack.emplace_back(getGoto<ASTNS::RetStmt>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::RetStmt>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2988,7 +3307,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::Expr>(stack);
+                        {
+                            auto a0 (popA<ASTNS::BlockedExpr>(stack));
+                            size_t gotoState = getGoto<ASTNS::Expr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -2996,7 +3321,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::Expr>(stack);
+                        {
+                            auto a0 (popA<ASTNS::NotBlockedExpr>(stack));
+                            size_t gotoState = getGoto<ASTNS::Expr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -3102,7 +3433,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::VarStmt_OPT>(stack);
+                        {
+                            auto a0 (popA<ASTNS::VarStmt>(stack));
+                            size_t gotoState = getGoto<ASTNS::VarStmt_OPT>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -3779,9 +4116,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         {
                             auto a1 (popA<ASTNS::UnaryExpr>(stack));
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::UnaryExpr>(std::move(a0), std::move(a1)));
-                            stack.emplace_back(getGoto<ASTNS::UnaryExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::UnaryExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -3836,9 +4175,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         {
                             auto a1 (popA<ASTNS::UnaryExpr>(stack));
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::UnaryExpr>(std::move(a0), std::move(a1)));
-                            stack.emplace_back(getGoto<ASTNS::UnaryExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::UnaryExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -3849,9 +4190,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         {
                             auto a1 (popA<ASTNS::UnaryExpr>(stack));
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::UnaryExpr>(std::move(a0), std::move(a1)));
-                            stack.emplace_back(getGoto<ASTNS::UnaryExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::UnaryExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -3866,9 +4209,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 90); break;
                     default:
                         {
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::ArgList_OPT>());
-                            stack.emplace_back(getGoto<ASTNS::ArgList_OPT>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::ArgList_OPT>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::DECINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 86); break;
@@ -3921,9 +4266,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::ImplRet_OPT>(stack));
                             auto a1 (popA<ASTNS::StmtList_OPT>(stack));
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BracedBlock>(std::move(a0), std::move(a1), std::move(a2), std::move(a3)));
-                            stack.emplace_back(getGoto<ASTNS::BracedBlock>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::BracedBlock>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -3932,9 +4279,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     default:
                         {
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::LineEnding_OPT>());
-                            stack.emplace_back(getGoto<ASTNS::LineEnding_OPT>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::LineEnding_OPT>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::NEWLINE:
                         shift(p, lasttok, lookahead, stack, steps, 44); break;
@@ -3957,9 +4306,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                {
                     default:
                         {
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::ImplRet_OPT>());
-                            stack.emplace_back(getGoto<ASTNS::ImplRet_OPT>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::ImplRet_OPT>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::LEFTARROW:
                         shift(p, lasttok, lookahead, stack, steps, 96); break;
@@ -3984,7 +4335,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 181); break;
                     case TokenType::NEWLINE:
                     case TokenType::SEMICOLON:
-                        reduceSkip<ASTNS::VarStmtItemList>(stack);
+                        {
+                            auto a0 (popA<ASTNS::VarStmtItemSegment>(stack));
+                            size_t gotoState = getGoto<ASTNS::VarStmtItemList>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     default:
                         if (istrial) return false;
@@ -3995,7 +4352,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::VarStmtItemSegment>(stack);
+                        {
+                            auto a0 (popA<ASTNS::VarStmtItem>(stack));
+                            size_t gotoState = getGoto<ASTNS::VarStmtItemSegment>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -4005,9 +4368,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::VarStmtItem>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::VarStmtItem>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::VarStmtItem>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::EQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 182); break;
@@ -4021,9 +4386,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::LineEnding>(stack));
                             auto a1 (popA<ASTNS::Expr>(stack));
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::RetStmt>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::RetStmt>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::RetStmt>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -4035,9 +4402,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::AssignmentExpr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::BinOrExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::AssignmentExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::AssignmentExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::AssignmentExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -4049,9 +4418,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::BinAndExpr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::BinOrExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BinOrExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::BinOrExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::BinOrExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::DOUBLEAMPER:
                         shift(p, lasttok, lookahead, stack, steps, 113); break;
@@ -4065,9 +4436,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::Block>(stack));
                             auto a1 (popA<ASTNS::Expr>(stack));
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::IfExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::IfExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::IfExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::ELSE:
                         shift(p, lasttok, lookahead, stack, steps, 183); break;
@@ -4094,9 +4467,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 90); break;
                     default:
                         {
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::Expr_OPT>());
-                            stack.emplace_back(getGoto<ASTNS::Expr_OPT>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::Expr_OPT>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::DECINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 86); break;
@@ -4140,9 +4515,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::CompEQExpr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::BinAndExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BinAndExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::BinAndExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::BinAndExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::DOUBLEEQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 115); break;
@@ -4156,9 +4533,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::CompLGTExpr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::CompEQExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::CompEQExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::CompEQExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::CompEQExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::GREATER:
                         shift(p, lasttok, lookahead, stack, steps, 117); break;
@@ -4178,9 +4557,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::CompLGTExpr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::CompEQExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::CompEQExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::CompEQExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::CompEQExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::GREATER:
                         shift(p, lasttok, lookahead, stack, steps, 117); break;
@@ -4200,9 +4581,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::BitXorExpr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::CompLGTExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::CompLGTExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::CompLGTExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::CompLGTExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::CARET:
                         shift(p, lasttok, lookahead, stack, steps, 120); break;
@@ -4216,9 +4599,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::BitXorExpr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::CompLGTExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::CompLGTExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::CompLGTExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::CompLGTExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::CARET:
                         shift(p, lasttok, lookahead, stack, steps, 120); break;
@@ -4232,9 +4617,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::BitXorExpr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::CompLGTExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::CompLGTExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::CompLGTExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::CompLGTExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::CARET:
                         shift(p, lasttok, lookahead, stack, steps, 120); break;
@@ -4248,9 +4635,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::BitXorExpr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::CompLGTExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::CompLGTExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::CompLGTExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::CompLGTExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::CARET:
                         shift(p, lasttok, lookahead, stack, steps, 120); break;
@@ -4264,9 +4653,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::BitOrExpr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::BitXorExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BitXorExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::BitXorExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::BitXorExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::PIPE:
                         shift(p, lasttok, lookahead, stack, steps, 121); break;
@@ -4282,9 +4673,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::BitAndExpr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::BitOrExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BitOrExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::BitOrExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::BitOrExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -4296,9 +4689,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::BitShiftExpr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::BitAndExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BitAndExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::BitAndExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::BitAndExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::DOUBLEGREATER:
                         shift(p, lasttok, lookahead, stack, steps, 123); break;
@@ -4314,9 +4709,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::AdditionExpr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::BitShiftExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BitShiftExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::BitShiftExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::BitShiftExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::MINUS:
                         shift(p, lasttok, lookahead, stack, steps, 126); break;
@@ -4332,9 +4729,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::AdditionExpr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::BitShiftExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BitShiftExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::BitShiftExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::BitShiftExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::MINUS:
                         shift(p, lasttok, lookahead, stack, steps, 126); break;
@@ -4350,9 +4749,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::MultExpr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::AdditionExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::AdditionExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::AdditionExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::AdditionExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::PERCENT:
                         shift(p, lasttok, lookahead, stack, steps, 129); break;
@@ -4370,9 +4771,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::MultExpr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::AdditionExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::AdditionExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::AdditionExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::AdditionExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::PERCENT:
                         shift(p, lasttok, lookahead, stack, steps, 129); break;
@@ -4390,9 +4793,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::UnaryExpr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::MultExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::MultExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::MultExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::MultExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -4404,9 +4809,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::UnaryExpr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::MultExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::MultExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::MultExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::MultExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -4418,9 +4825,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::UnaryExpr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::MultExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::MultExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::MultExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::MultExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -4470,9 +4879,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popT(stack));
                             auto a1 (popA<ASTNS::Expr>(stack));
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::PrimaryExpr>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::PrimaryExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::PrimaryExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -4490,7 +4901,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::ArgList_OPT>(stack);
+                        {
+                            auto a0 (popA<ASTNS::ArgList>(stack));
+                            size_t gotoState = getGoto<ASTNS::ArgList_OPT>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -4500,7 +4917,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     case TokenType::COMMA:
                         shift(p, lasttok, lookahead, stack, steps, 188); break;
                     case TokenType::CPARN:
-                        reduceSkip<ASTNS::ArgList>(stack);
+                        {
+                            auto a0 (popA<ASTNS::ArgSegment>(stack));
+                            size_t gotoState = getGoto<ASTNS::ArgList>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     default:
                         if (istrial) return false;
@@ -4511,7 +4934,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::ArgSegment>(stack);
+                        {
+                            auto a0 (popA<ASTNS::Arg>(stack));
+                            size_t gotoState = getGoto<ASTNS::ArgSegment>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -4521,9 +4950,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                     default:
                         {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::Arg>(std::move(a0)));
-                            stack.emplace_back(getGoto<ASTNS::Arg>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::Arg>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -4537,9 +4968,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::StmtList_OPT>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::IndentedBlock>(std::move(a0), std::move(a1), std::move(a2), std::move(a3), std::move(a4)));
-                            stack.emplace_back(getGoto<ASTNS::IndentedBlock>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::IndentedBlock>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -4551,9 +4984,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::LineEnding_OPT>(stack));
                             auto a1 (popA<ASTNS::Expr>(stack));
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::ImplRet>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::ImplRet>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::ImplRet>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -4567,9 +5002,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::StmtList_OPT>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BracedBlock>(std::move(a0), std::move(a1), std::move(a2), std::move(a3), std::move(a4)));
-                            stack.emplace_back(getGoto<ASTNS::BracedBlock>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::BracedBlock>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -4592,9 +5029,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::VarStmtItemList>(stack));
                             auto a1 (popA<ASTNS::Type>(stack));
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::VarStmt>(std::move(a0), std::move(a1), std::move(a2), std::move(a3)));
-                            stack.emplace_back(getGoto<ASTNS::VarStmt>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::VarStmt>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -4608,9 +5047,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         {
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::VarStmtItemSegment>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::VarStmtItemList>(std::move(a0), std::move(a1)));
-                            stack.emplace_back(getGoto<ASTNS::VarStmtItemList>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::VarStmtItemList>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     default:
                         if (istrial) return false;
@@ -4689,7 +5130,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::Expr_OPT>(stack);
+                        {
+                            auto a0 (popA<ASTNS::Expr>(stack));
+                            size_t gotoState = getGoto<ASTNS::Expr_OPT>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -4702,9 +5149,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popT(stack));
                             auto a1 (popA<ASTNS::Type>(stack));
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::CastExpr>(std::move(a0), std::move(a1), std::move(a2), std::move(a3)));
-                            stack.emplace_back(getGoto<ASTNS::CastExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::CastExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -4717,9 +5166,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::ArgList_OPT>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::CallExpr>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::CallExpr>(std::move(a0), std::move(a1), std::move(a2), std::move(a3)));
-                            stack.emplace_back(getGoto<ASTNS::CallExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::CallExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -4736,9 +5187,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         {
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::ArgSegment>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::ArgList>(std::move(a0), std::move(a1)));
-                            stack.emplace_back(getGoto<ASTNS::ArgList>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::ArgList>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::DECINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 86); break;
@@ -4793,9 +5246,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::AnotherVarStmtItem>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::VarStmtItemSegment>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::VarStmtItemSegment>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::VarStmtItemSegment>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::VarStmtItemSegment>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -4803,7 +5258,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::AnotherVarStmtItem>(stack);
+                        {
+                            auto a0 (popA<ASTNS::VarStmtItem>(stack));
+                            size_t gotoState = getGoto<ASTNS::AnotherVarStmtItem>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -4815,9 +5276,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::Expr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::VarStmtItem>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::VarStmtItem>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::VarStmtItem>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -4831,9 +5294,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::Block>(stack));
                             auto a1 (popA<ASTNS::Expr>(stack));
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::IfExpr>(std::move(a0), std::move(a1), std::move(a2), std::move(a3), std::move(a4)));
-                            stack.emplace_back(getGoto<ASTNS::IfExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::IfExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -4847,9 +5312,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::Block>(stack));
                             auto a1 (popA<ASTNS::Expr>(stack));
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::IfExpr>(std::move(a0), std::move(a1), std::move(a2), std::move(a3), std::move(a4)));
-                            stack.emplace_back(getGoto<ASTNS::IfExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::IfExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -4864,9 +5331,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         shift(p, lasttok, lookahead, stack, steps, 90); break;
                     default:
                         {
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::Expr_OPT>());
-                            stack.emplace_back(getGoto<ASTNS::Expr_OPT>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::Expr_OPT>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                     case TokenType::DECINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 86); break;
@@ -4908,9 +5377,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popA<ASTNS::AnotherArg>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::ArgSegment>(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::ArgSegment>(std::move(a0), std::move(a1), std::move(a2)));
-                            stack.emplace_back(getGoto<ASTNS::ArgSegment>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::ArgSegment>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -4918,7 +5389,13 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                switch (lookahead.type)
                {
                     default:
-                        reduceSkip<ASTNS::AnotherArg>(stack);
+                        {
+                            auto a0 (popA<ASTNS::Arg>(stack));
+                            size_t gotoState = getGoto<ASTNS::AnotherArg>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -4934,9 +5411,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popT(stack));
                             auto a1 (popT(stack));
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::BracedBlock>(std::move(a0), std::move(a1), std::move(a2), std::move(a3), std::move(a4), std::move(a5), std::move(a6)));
-                            stack.emplace_back(getGoto<ASTNS::BracedBlock>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::BracedBlock>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;
@@ -4975,9 +5454,11 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a2 (popT(stack));
                             auto a1 (popA<ASTNS::VarStmt_OPT>(stack));
                             auto a0 (popT(stack));
-                            std::unique_ptr<ASTNS::AST> push (std::make_unique<ASTNS::ForExpr>(std::move(a0), std::move(a1), std::move(a2), std::move(a3), std::move(a4), std::move(a5), std::move(a6), std::move(a7)));
-                            stack.emplace_back(getGoto<ASTNS::ForExpr>(stack.back().state), std::move(push));
-                        }
+                            size_t gotoState = getGoto<ASTNS::ForExpr>(stack.back().state);
+
+        std::cout << "reduce";
+        stack.emplace_back(gotoState, nullptr);
+                                }
                         break;
                 }
                 break;

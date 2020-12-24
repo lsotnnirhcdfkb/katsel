@@ -27,6 +27,95 @@ void ASTNS::PrintVisitor::visitAdditionExpr(ASTNS::AdditionExpr *a)
             else
                 pai("nullptr\n");
             break;
+        case ASTNS::AdditionExpr::Form::A:
+            pai("AdditionExpr A\n");
+            ++indent;
+            pai("std::unique_ptr<ExprB> _ = ");
+            if (a->_)
+                a->_->accept(this);
+            else
+                pai("nullptr\n");
+            break;
+    }
+    --indent;
+}
+void ASTNS::PrintVisitor::visitAnotherArg(ASTNS::AnotherArg *a)
+{
+    switch (a->form)
+    {
+        case ASTNS::AnotherArg::Form::A:
+            pai("AnotherArg A\n");
+            ++indent;
+            pai("std::unique_ptr<ArgB> arg = ");
+            if (a->arg)
+                a->arg->accept(this);
+            else
+                pai("nullptr\n");
+            break;
+    }
+    --indent;
+}
+void ASTNS::PrintVisitor::visitAnotherDecl(ASTNS::AnotherDecl *a)
+{
+    switch (a->form)
+    {
+        case ASTNS::AnotherDecl::Form::A:
+            pai("AnotherDecl A\n");
+            ++indent;
+            pai("std::unique_ptr<DeclB> decl = ");
+            if (a->decl)
+                a->decl->accept(this);
+            else
+                pai("nullptr\n");
+            break;
+    }
+    --indent;
+}
+void ASTNS::PrintVisitor::visitAnotherParam(ASTNS::AnotherParam *a)
+{
+    switch (a->form)
+    {
+        case ASTNS::AnotherParam::Form::A:
+            pai("AnotherParam A\n");
+            ++indent;
+            pai("std::unique_ptr<PListB> param = ");
+            if (a->param)
+                a->param->accept(this);
+            else
+                pai("nullptr\n");
+            break;
+    }
+    --indent;
+}
+void ASTNS::PrintVisitor::visitAnotherStmt(ASTNS::AnotherStmt *a)
+{
+    switch (a->form)
+    {
+        case ASTNS::AnotherStmt::Form::A:
+            pai("AnotherStmt A\n");
+            ++indent;
+            pai("std::unique_ptr<StmtB> stmt = ");
+            if (a->stmt)
+                a->stmt->accept(this);
+            else
+                pai("nullptr\n");
+            break;
+    }
+    --indent;
+}
+void ASTNS::PrintVisitor::visitAnotherVarStmtItem(ASTNS::AnotherVarStmtItem *a)
+{
+    switch (a->form)
+    {
+        case ASTNS::AnotherVarStmtItem::Form::A:
+            pai("AnotherVarStmtItem A\n");
+            ++indent;
+            pai("std::unique_ptr<VStmtIB> varstmtitem = ");
+            if (a->varstmtitem)
+                a->varstmtitem->accept(this);
+            else
+                pai("nullptr\n");
+            break;
     }
     --indent;
 }
@@ -50,6 +139,15 @@ void ASTNS::PrintVisitor::visitArgList(ASTNS::ArgList *a)
 {
     switch (a->form)
     {
+        case ASTNS::ArgList::Form::A:
+            pai("ArgList A\n");
+            ++indent;
+            pai("std::unique_ptr<ArgB> argsegment = ");
+            if (a->argsegment)
+                a->argsegment->accept(this);
+            else
+                pai("nullptr\n");
+            break;
         case ASTNS::ArgList::Form::AT:
             pai("ArgList AT\n");
             ++indent;
@@ -70,6 +168,15 @@ void ASTNS::PrintVisitor::visitArgList_OPT(ASTNS::ArgList_OPT *a)
 {
     switch (a->form)
     {
+        case ASTNS::ArgList_OPT::Form::A:
+            pai("ArgList_OPT A\n");
+            ++indent;
+            pai("std::unique_ptr<ArgB> arglist = ");
+            if (a->arglist)
+                a->arglist->accept(this);
+            else
+                pai("nullptr\n");
+            break;
         case ASTNS::ArgList_OPT::Form::EMPTY:
             pai("ArgList_OPT EMPTY\n");
             ++indent;
@@ -99,6 +206,15 @@ void ASTNS::PrintVisitor::visitArgSegment(ASTNS::ArgSegment *a)
             else
                 pai("nullptr\n");
             break;
+        case ASTNS::ArgSegment::Form::A:
+            pai("ArgSegment A\n");
+            ++indent;
+            pai("std::unique_ptr<ArgB> arg = ");
+            if (a->arg)
+                a->arg->accept(this);
+            else
+                pai("nullptr\n");
+            break;
     }
     --indent;
 }
@@ -121,6 +237,15 @@ void ASTNS::PrintVisitor::visitAssignmentExpr(ASTNS::AssignmentExpr *a)
             pai("std::unique_ptr<ExprB> value = ");
             if (a->value)
                 a->value->accept(this);
+            else
+                pai("nullptr\n");
+            break;
+        case ASTNS::AssignmentExpr::Form::A:
+            pai("AssignmentExpr A\n");
+            ++indent;
+            pai("std::unique_ptr<ExprB> _ = ");
+            if (a->_)
+                a->_->accept(this);
             else
                 pai("nullptr\n");
             break;
@@ -149,6 +274,15 @@ void ASTNS::PrintVisitor::visitBinAndExpr(ASTNS::BinAndExpr *a)
             else
                 pai("nullptr\n");
             break;
+        case ASTNS::BinAndExpr::Form::A:
+            pai("BinAndExpr A\n");
+            ++indent;
+            pai("std::unique_ptr<ExprB> _ = ");
+            if (a->_)
+                a->_->accept(this);
+            else
+                pai("nullptr\n");
+            break;
     }
     --indent;
 }
@@ -171,6 +305,15 @@ void ASTNS::PrintVisitor::visitBinOrExpr(ASTNS::BinOrExpr *a)
             pai("std::unique_ptr<ExprB> rhs = ");
             if (a->rhs)
                 a->rhs->accept(this);
+            else
+                pai("nullptr\n");
+            break;
+        case ASTNS::BinOrExpr::Form::A:
+            pai("BinOrExpr A\n");
+            ++indent;
+            pai("std::unique_ptr<ExprB> _ = ");
+            if (a->_)
+                a->_->accept(this);
             else
                 pai("nullptr\n");
             break;
@@ -199,6 +342,15 @@ void ASTNS::PrintVisitor::visitBitAndExpr(ASTNS::BitAndExpr *a)
             else
                 pai("nullptr\n");
             break;
+        case ASTNS::BitAndExpr::Form::A:
+            pai("BitAndExpr A\n");
+            ++indent;
+            pai("std::unique_ptr<ExprB> _ = ");
+            if (a->_)
+                a->_->accept(this);
+            else
+                pai("nullptr\n");
+            break;
     }
     --indent;
 }
@@ -221,6 +373,15 @@ void ASTNS::PrintVisitor::visitBitOrExpr(ASTNS::BitOrExpr *a)
             pai("std::unique_ptr<ExprB> rhs = ");
             if (a->rhs)
                 a->rhs->accept(this);
+            else
+                pai("nullptr\n");
+            break;
+        case ASTNS::BitOrExpr::Form::A:
+            pai("BitOrExpr A\n");
+            ++indent;
+            pai("std::unique_ptr<ExprB> _ = ");
+            if (a->_)
+                a->_->accept(this);
             else
                 pai("nullptr\n");
             break;
@@ -249,6 +410,15 @@ void ASTNS::PrintVisitor::visitBitShiftExpr(ASTNS::BitShiftExpr *a)
             else
                 pai("nullptr\n");
             break;
+        case ASTNS::BitShiftExpr::Form::A:
+            pai("BitShiftExpr A\n");
+            ++indent;
+            pai("std::unique_ptr<ExprB> _ = ");
+            if (a->_)
+                a->_->accept(this);
+            else
+                pai("nullptr\n");
+            break;
     }
     --indent;
 }
@@ -271,6 +441,47 @@ void ASTNS::PrintVisitor::visitBitXorExpr(ASTNS::BitXorExpr *a)
             pai("std::unique_ptr<ExprB> rhs = ");
             if (a->rhs)
                 a->rhs->accept(this);
+            else
+                pai("nullptr\n");
+            break;
+        case ASTNS::BitXorExpr::Form::A:
+            pai("BitXorExpr A\n");
+            ++indent;
+            pai("std::unique_ptr<ExprB> _ = ");
+            if (a->_)
+                a->_->accept(this);
+            else
+                pai("nullptr\n");
+            break;
+    }
+    --indent;
+}
+void ASTNS::PrintVisitor::visitBlock(ASTNS::Block *a)
+{
+    switch (a->form)
+    {
+        case ASTNS::Block::Form::A:
+            pai("Block A\n");
+            ++indent;
+            pai("std::unique_ptr<ExprB> _ = ");
+            if (a->_)
+                a->_->accept(this);
+            else
+                pai("nullptr\n");
+            break;
+    }
+    --indent;
+}
+void ASTNS::PrintVisitor::visitBlockedExpr(ASTNS::BlockedExpr *a)
+{
+    switch (a->form)
+    {
+        case ASTNS::BlockedExpr::Form::A:
+            pai("BlockedExpr A\n");
+            ++indent;
+            pai("std::unique_ptr<ExprB> _ = ");
+            if (a->_)
+                a->_->accept(this);
             else
                 pai("nullptr\n");
             break;
@@ -427,6 +638,15 @@ void ASTNS::PrintVisitor::visitCallExpr(ASTNS::CallExpr *a)
             pai(std::string(a->cparn.start, a->cparn.end));
             pai("\"\n");
             break;
+        case ASTNS::CallExpr::Form::A:
+            pai("CallExpr A\n");
+            ++indent;
+            pai("std::unique_ptr<ExprB> _ = ");
+            if (a->_)
+                a->_->accept(this);
+            else
+                pai("nullptr\n");
+            break;
     }
     --indent;
 }
@@ -456,6 +676,15 @@ void ASTNS::PrintVisitor::visitCastExpr(ASTNS::CastExpr *a)
             else
                 pai("nullptr\n");
             break;
+        case ASTNS::CastExpr::Form::A:
+            pai("CastExpr A\n");
+            ++indent;
+            pai("std::unique_ptr<ExprB> _ = ");
+            if (a->_)
+                a->_->accept(this);
+            else
+                pai("nullptr\n");
+            break;
     }
     --indent;
 }
@@ -478,6 +707,15 @@ void ASTNS::PrintVisitor::visitCompEQExpr(ASTNS::CompEQExpr *a)
             pai("std::unique_ptr<ExprB> rhs = ");
             if (a->rhs)
                 a->rhs->accept(this);
+            else
+                pai("nullptr\n");
+            break;
+        case ASTNS::CompEQExpr::Form::A:
+            pai("CompEQExpr A\n");
+            ++indent;
+            pai("std::unique_ptr<ExprB> _ = ");
+            if (a->_)
+                a->_->accept(this);
             else
                 pai("nullptr\n");
             break;
@@ -506,6 +744,31 @@ void ASTNS::PrintVisitor::visitCompLGTExpr(ASTNS::CompLGTExpr *a)
             else
                 pai("nullptr\n");
             break;
+        case ASTNS::CompLGTExpr::Form::A:
+            pai("CompLGTExpr A\n");
+            ++indent;
+            pai("std::unique_ptr<ExprB> _ = ");
+            if (a->_)
+                a->_->accept(this);
+            else
+                pai("nullptr\n");
+            break;
+    }
+    --indent;
+}
+void ASTNS::PrintVisitor::visitDecl(ASTNS::Decl *a)
+{
+    switch (a->form)
+    {
+        case ASTNS::Decl::Form::A:
+            pai("Decl A\n");
+            ++indent;
+            pai("std::unique_ptr<DeclB> _ = ");
+            if (a->_)
+                a->_->accept(this);
+            else
+                pai("nullptr\n");
+            break;
     }
     --indent;
 }
@@ -524,6 +787,31 @@ void ASTNS::PrintVisitor::visitDeclList(ASTNS::DeclList *a)
             pai("std::unique_ptr<DeclB> anotherdecl = ");
             if (a->anotherdecl)
                 a->anotherdecl->accept(this);
+            else
+                pai("nullptr\n");
+            break;
+        case ASTNS::DeclList::Form::A:
+            pai("DeclList A\n");
+            ++indent;
+            pai("std::unique_ptr<DeclB> decl = ");
+            if (a->decl)
+                a->decl->accept(this);
+            else
+                pai("nullptr\n");
+            break;
+    }
+    --indent;
+}
+void ASTNS::PrintVisitor::visitExpr(ASTNS::Expr *a)
+{
+    switch (a->form)
+    {
+        case ASTNS::Expr::Form::A:
+            pai("Expr A\n");
+            ++indent;
+            pai("std::unique_ptr<ExprB> _ = ");
+            if (a->_)
+                a->_->accept(this);
             else
                 pai("nullptr\n");
             break;
@@ -555,6 +843,15 @@ void ASTNS::PrintVisitor::visitExpr_OPT(ASTNS::Expr_OPT *a)
 {
     switch (a->form)
     {
+        case ASTNS::Expr_OPT::Form::A:
+            pai("Expr_OPT A\n");
+            ++indent;
+            pai("std::unique_ptr<ExprB> expr = ");
+            if (a->expr)
+                a->expr->accept(this);
+            else
+                pai("nullptr\n");
+            break;
         case ASTNS::Expr_OPT::Form::EMPTY:
             pai("Expr_OPT EMPTY\n");
             ++indent;
@@ -772,6 +1069,15 @@ void ASTNS::PrintVisitor::visitImplRet_OPT(ASTNS::ImplRet_OPT *a)
 {
     switch (a->form)
     {
+        case ASTNS::ImplRet_OPT::Form::A:
+            pai("ImplRet_OPT A\n");
+            ++indent;
+            pai("std::unique_ptr<ExprB> implret = ");
+            if (a->implret)
+                a->implret->accept(this);
+            else
+                pai("nullptr\n");
+            break;
         case ASTNS::ImplRet_OPT::Form::EMPTY:
             pai("ImplRet_OPT EMPTY\n");
             ++indent;
@@ -843,6 +1149,15 @@ void ASTNS::PrintVisitor::visitLineEnding_OPT(ASTNS::LineEnding_OPT *a)
 {
     switch (a->form)
     {
+        case ASTNS::LineEnding_OPT::Form::A:
+            pai("LineEnding_OPT A\n");
+            ++indent;
+            pai("std::unique_ptr<LineEndingB> lineending = ");
+            if (a->lineending)
+                a->lineending->accept(this);
+            else
+                pai("nullptr\n");
+            break;
         case ASTNS::LineEnding_OPT::Form::EMPTY:
             pai("LineEnding_OPT EMPTY\n");
             ++indent;
@@ -869,6 +1184,31 @@ void ASTNS::PrintVisitor::visitMultExpr(ASTNS::MultExpr *a)
             pai("std::unique_ptr<ExprB> rhs = ");
             if (a->rhs)
                 a->rhs->accept(this);
+            else
+                pai("nullptr\n");
+            break;
+        case ASTNS::MultExpr::Form::A:
+            pai("MultExpr A\n");
+            ++indent;
+            pai("std::unique_ptr<ExprB> _ = ");
+            if (a->_)
+                a->_->accept(this);
+            else
+                pai("nullptr\n");
+            break;
+    }
+    --indent;
+}
+void ASTNS::PrintVisitor::visitNotBlockedExpr(ASTNS::NotBlockedExpr *a)
+{
+    switch (a->form)
+    {
+        case ASTNS::NotBlockedExpr::Form::A:
+            pai("NotBlockedExpr A\n");
+            ++indent;
+            pai("std::unique_ptr<ExprB> _ = ");
+            if (a->_)
+                a->_->accept(this);
             else
                 pai("nullptr\n");
             break;
@@ -899,6 +1239,15 @@ void ASTNS::PrintVisitor::visitParamList(ASTNS::ParamList *a)
 {
     switch (a->form)
     {
+        case ASTNS::ParamList::Form::A:
+            pai("ParamList A\n");
+            ++indent;
+            pai("std::unique_ptr<PListB> paramsegment = ");
+            if (a->paramsegment)
+                a->paramsegment->accept(this);
+            else
+                pai("nullptr\n");
+            break;
         case ASTNS::ParamList::Form::AT:
             pai("ParamList AT\n");
             ++indent;
@@ -919,6 +1268,15 @@ void ASTNS::PrintVisitor::visitParamList_OPT(ASTNS::ParamList_OPT *a)
 {
     switch (a->form)
     {
+        case ASTNS::ParamList_OPT::Form::A:
+            pai("ParamList_OPT A\n");
+            ++indent;
+            pai("std::unique_ptr<PListB> paramlist = ");
+            if (a->paramlist)
+                a->paramlist->accept(this);
+            else
+                pai("nullptr\n");
+            break;
         case ASTNS::ParamList_OPT::Form::EMPTY:
             pai("ParamList_OPT EMPTY\n");
             ++indent;
@@ -945,6 +1303,15 @@ void ASTNS::PrintVisitor::visitParamSegment(ASTNS::ParamSegment *a)
             pai("std::unique_ptr<PListB> anotherparam = ");
             if (a->anotherparam)
                 a->anotherparam->accept(this);
+            else
+                pai("nullptr\n");
+            break;
+        case ASTNS::ParamSegment::Form::A:
+            pai("ParamSegment A\n");
+            ++indent;
+            pai("std::unique_ptr<PListB> param = ");
+            if (a->param)
+                a->param->accept(this);
             else
                 pai("nullptr\n");
             break;
@@ -1021,6 +1388,22 @@ void ASTNS::PrintVisitor::visitRetStmt(ASTNS::RetStmt *a)
     }
     --indent;
 }
+void ASTNS::PrintVisitor::visitStmt(ASTNS::Stmt *a)
+{
+    switch (a->form)
+    {
+        case ASTNS::Stmt::Form::A:
+            pai("Stmt A\n");
+            ++indent;
+            pai("std::unique_ptr<StmtB> _ = ");
+            if (a->_)
+                a->_->accept(this);
+            else
+                pai("nullptr\n");
+            break;
+    }
+    --indent;
+}
 void ASTNS::PrintVisitor::visitStmtList(ASTNS::StmtList *a)
 {
     switch (a->form)
@@ -1039,6 +1422,15 @@ void ASTNS::PrintVisitor::visitStmtList(ASTNS::StmtList *a)
             else
                 pai("nullptr\n");
             break;
+        case ASTNS::StmtList::Form::A:
+            pai("StmtList A\n");
+            ++indent;
+            pai("std::unique_ptr<StmtB> stmt = ");
+            if (a->stmt)
+                a->stmt->accept(this);
+            else
+                pai("nullptr\n");
+            break;
     }
     --indent;
 }
@@ -1046,9 +1438,34 @@ void ASTNS::PrintVisitor::visitStmtList_OPT(ASTNS::StmtList_OPT *a)
 {
     switch (a->form)
     {
+        case ASTNS::StmtList_OPT::Form::A:
+            pai("StmtList_OPT A\n");
+            ++indent;
+            pai("std::unique_ptr<StmtB> stmtlist = ");
+            if (a->stmtlist)
+                a->stmtlist->accept(this);
+            else
+                pai("nullptr\n");
+            break;
         case ASTNS::StmtList_OPT::Form::EMPTY:
             pai("StmtList_OPT EMPTY\n");
             ++indent;
+            break;
+    }
+    --indent;
+}
+void ASTNS::PrintVisitor::visitType(ASTNS::Type *a)
+{
+    switch (a->form)
+    {
+        case ASTNS::Type::Form::A:
+            pai("Type A\n");
+            ++indent;
+            pai("std::unique_ptr<TypeB> _ = ");
+            if (a->_)
+                a->_->accept(this);
+            else
+                pai("nullptr\n");
             break;
     }
     --indent;
@@ -1067,6 +1484,15 @@ void ASTNS::PrintVisitor::visitUnaryExpr(ASTNS::UnaryExpr *a)
             pai("std::unique_ptr<ExprB> operand = ");
             if (a->operand)
                 a->operand->accept(this);
+            else
+                pai("nullptr\n");
+            break;
+        case ASTNS::UnaryExpr::Form::A:
+            pai("UnaryExpr A\n");
+            ++indent;
+            pai("std::unique_ptr<ExprB> _ = ");
+            if (a->_)
+                a->_->accept(this);
             else
                 pai("nullptr\n");
             break;
@@ -1139,6 +1565,15 @@ void ASTNS::PrintVisitor::visitVarStmtItemList(ASTNS::VarStmtItemList *a)
 {
     switch (a->form)
     {
+        case ASTNS::VarStmtItemList::Form::A:
+            pai("VarStmtItemList A\n");
+            ++indent;
+            pai("std::unique_ptr<VStmtIB> varstmtitemsegment = ");
+            if (a->varstmtitemsegment)
+                a->varstmtitemsegment->accept(this);
+            else
+                pai("nullptr\n");
+            break;
         case ASTNS::VarStmtItemList::Form::AT:
             pai("VarStmtItemList AT\n");
             ++indent;
@@ -1177,6 +1612,15 @@ void ASTNS::PrintVisitor::visitVarStmtItemSegment(ASTNS::VarStmtItemSegment *a)
             else
                 pai("nullptr\n");
             break;
+        case ASTNS::VarStmtItemSegment::Form::A:
+            pai("VarStmtItemSegment A\n");
+            ++indent;
+            pai("std::unique_ptr<VStmtIB> varstmtitem = ");
+            if (a->varstmtitem)
+                a->varstmtitem->accept(this);
+            else
+                pai("nullptr\n");
+            break;
     }
     --indent;
 }
@@ -1184,6 +1628,15 @@ void ASTNS::PrintVisitor::visitVarStmt_OPT(ASTNS::VarStmt_OPT *a)
 {
     switch (a->form)
     {
+        case ASTNS::VarStmt_OPT::Form::A:
+            pai("VarStmt_OPT A\n");
+            ++indent;
+            pai("std::unique_ptr<StmtB> varstmt = ");
+            if (a->varstmt)
+                a->varstmt->accept(this);
+            else
+                pai("nullptr\n");
+            break;
         case ASTNS::VarStmt_OPT::Form::EMPTY:
             pai("VarStmt_OPT EMPTY\n");
             ++indent;
