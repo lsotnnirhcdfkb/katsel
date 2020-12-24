@@ -446,22 +446,22 @@ def rule(sym, expansion, reduceAction, histart='START', hiend='END', special='')
     grammar.append(rule)
     return rule
 
-def listRule(sym, base, singleAction, listAction, delimit=None):
+def listRule(sym, base, makeListAction, appendListAction, delimit=None):
     anothersym = nt('Another' + sym.symbol, 'another ' + sym.name, base, panickable=True) # useless rule to take advantage of "expected another x"
-    rule(anothersym, ((sym, sym.symbol.lower()),), singleAction)
+    rule(anothersym, ((sym, sym.symbol.lower()),), SkipReduceAction())
 
     symlist = nt(sym.symbol + 'List', sym.name + ' list', base, panickable=True)
 
     if delimit is not None:
         symsegment = nt(sym.symbol + 'Segment', sym.name + ' list', base, panickable=True)
-        rule(symsegment, ((symsegment, symsegment.symbol.lower()), (delimit, str(delimit).lower()), (anothersym, anothersym.symbol.lower())), listAction)
-        rule(symsegment, ((sym, sym.symbol.lower()),), singleAction)
+        rule(symsegment, ((symsegment, symsegment.symbol.lower()), (delimit, str(delimit).lower()), (anothersym, anothersym.symbol.lower())), appendListAction)
+        rule(symsegment, ((sym, sym.symbol.lower()),), makeListAction)
 
-        rule(symlist, ((symsegment, symsegment.symbol.lower()),), singleAction, special='nodefaultreduce')
-        rule(symlist, ((symsegment, symsegment.symbol.lower()), (delimit, str(delimit).lower())), listAction, special='nodefaultreduce')
+        rule(symlist, ((symsegment, symsegment.symbol.lower()),), SkipReduceAction(), special='nodefaultreduce')
+        rule(symlist, ((symsegment, symsegment.symbol.lower()), (delimit, str(delimit).lower())), SkipReduceAction(), special='nodefaultreduce')
     else:
-        rule(symlist, ((symlist, symlist.symbol.lower()), (anothersym, anothersym.symbol.lower())), listAction, special='nodefaultreduce')
-        rule(symlist, ((sym, sym.symbol.lower()),), singleAction)
+        rule(symlist, ((symlist, symlist.symbol.lower()), (anothersym, anothersym.symbol.lower())), appendListAction, special='nodefaultreduce')
+        rule(symlist, ((sym, sym.symbol.lower()),), makeListAction)
 
     return symlist
 
@@ -586,11 +586,11 @@ def makeGrammar():
     VAR = Terminal('VAR')
     VOID = Terminal('VOID')
 
-    ParamList = listRule(Param, 'PListB', VectorPushReduceAction('a0->params', 'std::move(a2)', 'a0'), SkipReduceAction(), COMMA)
-    ArgList = listRule(Arg, 'ArgB', VectorPushReduceAction('a0->args', 'std::move(a2)', 'a0'), SkipReduceAction(), COMMA)
-    VarStmtItemList = listRule(VarStmtItem, 'VStmtIB', VectorPushReduceAction('a0->items', 'std::move(a2)', 'a0'), SkipReduceAction(), COMMA)
-    StmtList = listRule(Stmt, 'StmtB', VectorPushReduceAction('a0->stmts', 'std::move(a1)', 'a0'), SkipReduceAction())
-    DeclList = listRule(Decl, 'DeclB', VectorPushReduceAction('a0->decls', 'std::move(a1)', 'a0'), SkipReduceAction())
+    ParamList = listRule(Param, 'PListB', SimpleReduceAction('ParamList', (0,)), VectorPushReduceAction('a0->params', 'std::move(a2)', 'a0'), COMMA)
+    ArgList = listRule(Arg, 'ArgB', SimpleReduceAction('ArgList', (0,)), VectorPushReduceAction('a0->args', 'std::move(a2)', 'a0'), COMMA)
+    VarStmtItemList = listRule(VarStmtItem, 'VStmtIB', SimpleReduceAction('VarStmtItemList', (0,)), VectorPushReduceAction('a0->items', 'std::move(a2)', 'a0'), COMMA)
+    StmtList = listRule(Stmt, 'StmtB', SimpleReduceAction('StmtList', (0,)), VectorPushReduceAction('a0->stmts', 'std::move(a1)', 'a0'))
+    DeclList = listRule(Decl, 'DeclB', SimpleReduceAction('DeclList', (0,)), VectorPushReduceAction('a0->decls', 'std::move(a1)', 'a0'))
 
     ParamListOpt = makeOpt(ParamList, SkipReduceAction(), NullptrReduceAction())
     ArgListOpt = makeOpt(ArgList, SkipReduceAction(), NullptrReduceAction())
@@ -836,7 +836,6 @@ def genLoop():
                     output.append(               f'                    case {term.astt()}:\n')
 
             if type(ac) == ReduceAction:
-                # if not ac.rule.skip:
                 output.append(                    '                        {\n')
 
                 for i, sym in reversed(list(enumerate(ac.rule.expansion))):
@@ -848,8 +847,6 @@ def genLoop():
                 output.append(                   f'                            size_t gotoState = getGoto<ASTNS::{str(ac.rule.symbol)}>(stack.back().state);\n')
                 output.append(ac.rule.reduceAction.generate())
                 output.append(                    '                        }\n')
-                # else:
-                    # output.append(             f'                        reduceSkip<ASTNS::{str(ac.rule.symbol)}>(stack);\n')
 
 
             elif type(ac) == AcceptAction:

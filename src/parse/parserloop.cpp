@@ -1280,8 +1280,8 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             auto a0 (popA<ASTNS::Decl>(stack));
                             size_t gotoState = getGoto<ASTNS::DeclList>(stack.back().state);
 
-        a0->decls.push_back(std::move(a1));
-        stack.emplace_back(gotoState, a0);
+        std::unique_ptr<ASTNS::DeclList> push (std::make_unique<ASTNS::DeclList>(a0));
+        stack.emplace_back(gotoState, std::move(push));
                                 }
                         break;
                 }
@@ -1341,8 +1341,10 @@ stack.emplace_back(gotoState, a0);
                             auto a1 (popA<ASTNS::AnotherDecl>(stack));
                             auto a0 (popA<ASTNS::DeclList>(stack));
                             size_t gotoState = getGoto<ASTNS::DeclList>(stack.back().state);
-stack.emplace_back(gotoState, a0);
-                        }
+
+        a0->decls.push_back(std::move(a1));
+        stack.emplace_back(gotoState, a0);
+                                }
                         break;
                     default:
                         if (istrial) return false;
@@ -1356,10 +1358,8 @@ stack.emplace_back(gotoState, a0);
                         {
                             auto a0 (popA<ASTNS::Decl>(stack));
                             size_t gotoState = getGoto<ASTNS::AnotherDecl>(stack.back().state);
-
-        a0->decls.push_back(std::move(a1));
-        stack.emplace_back(gotoState, a0);
-                                }
+stack.emplace_back(gotoState, a0);
+                        }
                         break;
                 }
                 break;
@@ -1645,10 +1645,8 @@ stack.emplace_back(gotoState, a0);
                         {
                             auto a0 (popA<ASTNS::ParamSegment>(stack));
                             size_t gotoState = getGoto<ASTNS::ParamList>(stack.back().state);
-
-        a0->params.push_back(std::move(a2));
-        stack.emplace_back(gotoState, a0);
-                                }
+stack.emplace_back(gotoState, a0);
+                        }
                         break;
                     default:
                         if (istrial) return false;
@@ -1663,8 +1661,8 @@ stack.emplace_back(gotoState, a0);
                             auto a0 (popA<ASTNS::Param>(stack));
                             size_t gotoState = getGoto<ASTNS::ParamSegment>(stack.back().state);
 
-        a0->params.push_back(std::move(a2));
-        stack.emplace_back(gotoState, a0);
+        std::unique_ptr<ASTNS::ParamList> push (std::make_unique<ASTNS::ParamList>(a0));
+        stack.emplace_back(gotoState, std::move(push));
                                 }
                         break;
                 }
@@ -1899,8 +1897,10 @@ stack.emplace_back(gotoState, nullptr);
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::ParamSegment>(stack));
                             size_t gotoState = getGoto<ASTNS::ParamSegment>(stack.back().state);
-stack.emplace_back(gotoState, a0);
-                        }
+
+        a0->params.push_back(std::move(a2));
+        stack.emplace_back(gotoState, a0);
+                                }
                         break;
                 }
                 break;
@@ -1911,10 +1911,8 @@ stack.emplace_back(gotoState, a0);
                         {
                             auto a0 (popA<ASTNS::Param>(stack));
                             size_t gotoState = getGoto<ASTNS::AnotherParam>(stack.back().state);
-
-        a0->params.push_back(std::move(a2));
-        stack.emplace_back(gotoState, a0);
-                                }
+stack.emplace_back(gotoState, a0);
+                        }
                         break;
                 }
                 break;
@@ -2153,8 +2151,8 @@ stack.emplace_back(gotoState, a0);
                             auto a0 (popA<ASTNS::Stmt>(stack));
                             size_t gotoState = getGoto<ASTNS::StmtList>(stack.back().state);
 
-        a0->stmts.push_back(std::move(a1));
-        stack.emplace_back(gotoState, a0);
+        std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(a0));
+        stack.emplace_back(gotoState, std::move(push));
                                 }
                         break;
                 }
@@ -3128,8 +3126,10 @@ stack.emplace_back(gotoState, nullptr);
                             auto a1 (popA<ASTNS::AnotherStmt>(stack));
                             auto a0 (popA<ASTNS::StmtList>(stack));
                             size_t gotoState = getGoto<ASTNS::StmtList>(stack.back().state);
-stack.emplace_back(gotoState, a0);
-                        }
+
+        a0->stmts.push_back(std::move(a1));
+        stack.emplace_back(gotoState, a0);
+                                }
                         break;
                     default:
                         if (istrial) return false;
@@ -3143,10 +3143,8 @@ stack.emplace_back(gotoState, a0);
                         {
                             auto a0 (popA<ASTNS::Stmt>(stack));
                             size_t gotoState = getGoto<ASTNS::AnotherStmt>(stack.back().state);
-
-        a0->stmts.push_back(std::move(a1));
-        stack.emplace_back(gotoState, a0);
-                                }
+stack.emplace_back(gotoState, a0);
+                        }
                         break;
                 }
                 break;
@@ -4240,10 +4238,8 @@ stack.emplace_back(gotoState, nullptr);
                         {
                             auto a0 (popA<ASTNS::VarStmtItemSegment>(stack));
                             size_t gotoState = getGoto<ASTNS::VarStmtItemList>(stack.back().state);
-
-        a0->items.push_back(std::move(a2));
-        stack.emplace_back(gotoState, a0);
-                                }
+stack.emplace_back(gotoState, a0);
+                        }
                         break;
                     default:
                         if (istrial) return false;
@@ -4258,8 +4254,8 @@ stack.emplace_back(gotoState, nullptr);
                             auto a0 (popA<ASTNS::VarStmtItem>(stack));
                             size_t gotoState = getGoto<ASTNS::VarStmtItemSegment>(stack.back().state);
 
-        a0->items.push_back(std::move(a2));
-        stack.emplace_back(gotoState, a0);
+        std::unique_ptr<ASTNS::VarStmtItemList> push (std::make_unique<ASTNS::VarStmtItemList>(a0));
+        stack.emplace_back(gotoState, std::move(push));
                                 }
                         break;
                 }
@@ -4816,10 +4812,8 @@ stack.emplace_back(gotoState, a0);
                         {
                             auto a0 (popA<ASTNS::ArgSegment>(stack));
                             size_t gotoState = getGoto<ASTNS::ArgList>(stack.back().state);
-
-        a0->args.push_back(std::move(a2));
-        stack.emplace_back(gotoState, a0);
-                                }
+stack.emplace_back(gotoState, a0);
+                        }
                         break;
                     default:
                         if (istrial) return false;
@@ -4834,8 +4828,8 @@ stack.emplace_back(gotoState, a0);
                             auto a0 (popA<ASTNS::Arg>(stack));
                             size_t gotoState = getGoto<ASTNS::ArgSegment>(stack.back().state);
 
-        a0->args.push_back(std::move(a2));
-        stack.emplace_back(gotoState, a0);
+        std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(a0));
+        stack.emplace_back(gotoState, std::move(push));
                                 }
                         break;
                 }
@@ -5137,8 +5131,10 @@ stack.emplace_back(gotoState, a0);
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::VarStmtItemSegment>(stack));
                             size_t gotoState = getGoto<ASTNS::VarStmtItemSegment>(stack.back().state);
-stack.emplace_back(gotoState, a0);
-                        }
+
+        a0->items.push_back(std::move(a2));
+        stack.emplace_back(gotoState, a0);
+                                }
                         break;
                 }
                 break;
@@ -5149,10 +5145,8 @@ stack.emplace_back(gotoState, a0);
                         {
                             auto a0 (popA<ASTNS::VarStmtItem>(stack));
                             size_t gotoState = getGoto<ASTNS::AnotherVarStmtItem>(stack.back().state);
-
-        a0->items.push_back(std::move(a2));
-        stack.emplace_back(gotoState, a0);
-                                }
+stack.emplace_back(gotoState, a0);
+                        }
                         break;
                 }
                 break;
@@ -5264,8 +5258,10 @@ stack.emplace_back(gotoState, nullptr);
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::ArgSegment>(stack));
                             size_t gotoState = getGoto<ASTNS::ArgSegment>(stack.back().state);
-stack.emplace_back(gotoState, a0);
-                        }
+
+        a0->args.push_back(std::move(a2));
+        stack.emplace_back(gotoState, a0);
+                                }
                         break;
                 }
                 break;
@@ -5276,10 +5272,8 @@ stack.emplace_back(gotoState, a0);
                         {
                             auto a0 (popA<ASTNS::Arg>(stack));
                             size_t gotoState = getGoto<ASTNS::AnotherArg>(stack.back().state);
-
-        a0->args.push_back(std::move(a2));
-        stack.emplace_back(gotoState, a0);
-                                }
+stack.emplace_back(gotoState, a0);
+                        }
                         break;
                 }
                 break;
