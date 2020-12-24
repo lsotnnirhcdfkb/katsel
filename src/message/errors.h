@@ -10,7 +10,6 @@
 #include <vector>
 #include <sstream>
 
-// Error class {{{1
 class Error
 {
 public:

@@ -251,6 +251,8 @@ int main(int argc, char *argv[])
                     errformat = ErrorFormat::JSON;
                 else if (strcmp(optarg, "human") == 0)
                     errformat = ErrorFormat::HUMAN;
+                else if (strcmp(optarg, "aligned") == 0)
+                    errformat = ErrorFormat::ALIGNED;
                 else
                 {
                     std::cerr << "Invalid argument for option -e: '" << optarg << "'\n";

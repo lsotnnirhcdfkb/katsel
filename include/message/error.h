@@ -23,5 +23,5 @@ struct Location
 
 extern enum class ErrorFormat
 {
-    HUMAN, JSON
+    HUMAN, JSON, ALIGNED
 } errformat;

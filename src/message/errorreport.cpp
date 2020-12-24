@@ -310,6 +310,48 @@ void Error::report() const
             lastnr = sl.line;
         }
     }
+    else if (errformat == ErrorFormat::ALIGNED)
+    {
+        printHeading();
+        auto showlines (collectShowlines());
+        int maxlinepad (countLinePad(showlines));
+        std::string pad (maxlinepad + 1, ' ');
+
+        for (Underline const &un : underlines)
+        {
+            auto fstart = un.location.file->source.begin();
+            int lineN = getLineN(fstart, un.location.start);
+            int colN = getColN(fstart, un.location.start);
+            std::cerr << format("%> %:%:% %\n", pad, attr(A_FG_CYAN, un.location.file->filename, true), lineN, colN, resetIfNecessary());
+            for (Underline::Message const &me : un.messages)
+                std::cerr << format("%| [%] %\n", pad, attr(me.color, me.type), me.text);
+
+            std::ios origState (nullptr);
+            origState.copyfmt(std::cerr);
+            std::cerr << std::setw(maxlinepad) << std::right << lineN;
+            std::cerr.copyfmt(origState);
+            std::cerr << " | ";
+
+            std::string::const_iterator lstart, lend;
+            getLine(lstart, lend, *un.location.file, lineN);
+
+            int unStartCol = getColN(fstart, un.location.start);
+            int unEndCol = getColN(fstart, un.location.end);
+
+            for (auto i = lstart; i != lend; ++i)
+                if (i >= un.location.start && i < un.location.end)
+                    std::cerr << attr(A_BOLD, attr(un.messages[0].color, std::string(1, *i)));
+                else
+                    std::cerr << *i;
+            std::cerr << std::endl;
+
+            std::cerr << pad << "| ";
+            if (unEndCol <= unStartCol)
+                unEndCol = unStartCol + 1;
+
+            std::cerr << std::string(unStartCol - 1, ' ') << attr(A_BOLD, attr(un.messages[0].color, std::string(unEndCol - unStartCol, '^'))) << std::endl;
+        }
+    }
     else
     {
         std::cerr << "{\"type\":\"";
