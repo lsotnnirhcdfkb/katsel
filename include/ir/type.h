@@ -43,8 +43,6 @@ namespace IR
             caret,
             doublegreater,
             doubleless,
-            doubleamper,
-            doublepipe,
             doubleequal,
             bangequal
         };

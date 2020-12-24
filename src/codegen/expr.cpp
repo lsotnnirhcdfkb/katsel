@@ -12,6 +12,7 @@ IR::ASTValue CodeGen::FunctionCodeGen::ExprCodeGen::expr(ASTNS::ExprB *ast)
     return ret;
 }
 
+// binary operations {{{1
 #define BINARYOPSTART()                      \
     IR::ASTValue lhs = expr(ast->lhs.get()); \
     IR::ASTValue rhs = expr(ast->rhs.get()); \
@@ -33,18 +34,6 @@ IR::ASTValue CodeGen::FunctionCodeGen::ExprCodeGen::expr(ASTNS::ExprB *ast)
 
 #define BINARYOPIS(operty) IR::Type::BinaryOperator oper = IR::Type::BinaryOperator::operty;
 
-void CodeGen::FunctionCodeGen::ExprCodeGen::visitBinAndExpr(ASTNS::BinAndExpr *ast)
-{
-    BINARYOPSTART()
-    BINARYOPIS(doubleamper)
-    BINARYOPEND()
-}
-void CodeGen::FunctionCodeGen::ExprCodeGen::visitBinOrExpr(ASTNS::BinOrExpr *ast)
-{
-    BINARYOPSTART()
-    BINARYOPIS(doublepipe)
-    BINARYOPEND()
-}
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitBitAndExpr(ASTNS::BitAndExpr *ast)
 {
     BINARYOPSTART()
@@ -111,6 +100,111 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitAdditionExpr(ASTNS::AdditionExp
     BINARYOPSWITCHEND(AdditionExpr operator)
     BINARYOPEND()
 }
+// }}}
+// short circuit operations {{{
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitBinAndExpr(ASTNS::BinAndExpr *ast)
+{
+    IR::ASTValue lhs = expr(ast->lhs.get());
+    if (!lhs)
+    {
+        ret = IR::ASTValue();
+        return;
+    }
+
+    if (!dynamic_cast<IR::BoolType*>(lhs.type()))
+    {
+        ret = IR::ASTValue();
+        cg.errored = true;
+        return;
+    }
+
+    IR::Block *lfalseb = fcg.fun->addBlock("binaryand_lfalseb");
+    IR::Block *checkbothb = fcg.fun->addBlock("binaryand_checkbothb");
+    IR::Block *afterb = fcg.fun->addBlock("binaryand_afterb");
+
+    // i && j
+    // becomes
+    // if (i)
+    //     j
+    //  else
+    //     false
+
+    fcg.curBlock->branch(std::make_unique<IR::Instrs::CondBr>(lhs, checkbothb, lfalseb));
+
+    fcg.curBlock = checkbothb;
+    IR::ASTValue rhs = expr(ast->rhs.get());
+    if (!rhs)
+    {
+        ret = IR::ASTValue();
+        return;
+    }
+    if (!dynamic_cast<IR::BoolType*>(rhs.type()))
+    {
+        ret = IR::ASTValue();
+        cg.errored = true;
+        return;
+    }
+    fcg.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
+
+    fcg.curBlock = lfalseb;
+    fcg.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
+
+    fcg.curBlock = afterb;
+    IR::TempRegister *retReg = fcg.fun->addTempRegister(cg.context->getBoolType());
+    fcg.curBlock->add(std::make_unique<IR::Instrs::Phi>(retReg, std::vector {std::make_pair(checkbothb, rhs), std::make_pair(lfalseb, IR::ASTValue(cg.context->getConstBool(false), ast))}));
+}
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitBinOrExpr(ASTNS::BinOrExpr *ast)
+{
+    IR::ASTValue lhs = expr(ast->lhs.get());
+    if (!lhs)
+    {
+        ret = IR::ASTValue();
+        return;
+    }
+
+    if (!dynamic_cast<IR::BoolType*>(lhs.type()))
+    {
+        ret = IR::ASTValue();
+        cg.errored = true;
+        return;
+    }
+
+    IR::Block *ltrueb = fcg.fun->addBlock("binaryor_ltrueb");
+    IR::Block *checkbothb = fcg.fun->addBlock("binaryor_checkbothb");
+    IR::Block *afterb = fcg.fun->addBlock("binaryor_afterb");
+
+    // i || j
+    // becomes
+    // if (i)
+    //     true
+    //  else
+    //     j
+
+    fcg.curBlock->branch(std::make_unique<IR::Instrs::CondBr>(lhs, ltrueb, checkbothb));
+
+    fcg.curBlock = ltrueb;
+    fcg.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
+
+    fcg.curBlock = checkbothb;
+    IR::ASTValue rhs = expr(ast->rhs.get());
+    if (!rhs)
+    {
+        ret = IR::ASTValue();
+        return;
+    }
+    if (!dynamic_cast<IR::BoolType*>(rhs.type()))
+    {
+        ret = IR::ASTValue();
+        cg.errored = true;
+        return;
+    }
+    fcg.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
+
+    fcg.curBlock = afterb;
+    IR::TempRegister *retReg = fcg.fun->addTempRegister(cg.context->getBoolType());
+    fcg.curBlock->add(std::make_unique<IR::Instrs::Phi>(retReg, std::vector {std::make_pair(ltrueb, IR::ASTValue(cg.context->getConstBool(true), ast)), std::make_pair(checkbothb, rhs)}));
+}
+// }}}
 #undef BINARYOPSTART
 #undef BINARYOPEND
 #undef BINARYOPSWITCH
