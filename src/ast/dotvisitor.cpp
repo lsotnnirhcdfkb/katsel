@@ -25,6 +25,18 @@ void ASTNS::DotVisitor::visitCU(ASTNS::CU *a)
             }
     lastid = std::move(thisid);
 }
+void ASTNS::DotVisitor::visitDeclList(ASTNS::DeclList *a)
+{
+    std::string thisid = curid();
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">DeclList</td></tr><tr>";
+            ostream << "<td port=\"decls\">decls</td>";
+            ostream << "</tr></table>>]\n";
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->decls.stringify());
+                    connect(thisid, "decls", tokennodeid);
+            }
+    lastid = std::move(thisid);
+}
 void ASTNS::DotVisitor::visitFunctionDecl(ASTNS::FunctionDecl *a)
 {
     std::string thisid = curid();
@@ -34,8 +46,16 @@ void ASTNS::DotVisitor::visitFunctionDecl(ASTNS::FunctionDecl *a)
             ostream << "<td port=\"params\">params</td>";
             ostream << "</tr></table>>]\n";
             {
-                    std::string tokennodeid = makeTextNode("Token", a->params.stringify());
-                    connect(thisid, "params", tokennodeid);
+                    if (a->params)
+                    {
+                        a->params->accept(this);
+                        connect(thisid, "params", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "params", nullptrnodeid);
+                    }
             }
     lastid = std::move(thisid);
 }
@@ -47,8 +67,16 @@ void ASTNS::DotVisitor::visitVarStmt(ASTNS::VarStmt *a)
             ostream << "<td port=\"assignments\">assignments</td>";
             ostream << "</tr></table>>]\n";
             {
-                    std::string tokennodeid = makeTextNode("Token", a->assignments.stringify());
-                    connect(thisid, "assignments", tokennodeid);
+                    if (a->assignments)
+                    {
+                        a->assignments->accept(this);
+                        connect(thisid, "assignments", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "assignments", nullptrnodeid);
+                    }
             }
     lastid = std::move(thisid);
 }
@@ -70,6 +98,18 @@ void ASTNS::DotVisitor::visitVarStmtItem(ASTNS::VarStmtItem *a)
                         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
                         connect(thisid, "expr", nullptrnodeid);
                     }
+            }
+    lastid = std::move(thisid);
+}
+void ASTNS::DotVisitor::visitVarStmtItemList(ASTNS::VarStmtItemList *a)
+{
+    std::string thisid = curid();
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">VarStmtItemList</td></tr><tr>";
+            ostream << "<td port=\"vis\">vis</td>";
+            ostream << "</tr></table>>]\n";
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->vis.stringify());
+                    connect(thisid, "vis", tokennodeid);
             }
     lastid = std::move(thisid);
 }
@@ -134,6 +174,38 @@ void ASTNS::DotVisitor::visitBlock(ASTNS::Block *a)
             }
     lastid = std::move(thisid);
 }
+void ASTNS::DotVisitor::visitStmtList(ASTNS::StmtList *a)
+{
+    std::string thisid = curid();
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">StmtList</td></tr><tr>";
+            ostream << "<td port=\"stmts\">stmts</td>";
+            ostream << "</tr></table>>]\n";
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->stmts.stringify());
+                    connect(thisid, "stmts", tokennodeid);
+            }
+    lastid = std::move(thisid);
+}
+void ASTNS::DotVisitor::visitImplRet(ASTNS::ImplRet *a)
+{
+    std::string thisid = curid();
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">ImplRet</td></tr><tr>";
+            ostream << "<td port=\"expr\">expr</td>";
+            ostream << "</tr></table>>]\n";
+            {
+                    if (a->expr)
+                    {
+                        a->expr->accept(this);
+                        connect(thisid, "expr", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "expr", nullptrnodeid);
+                    }
+            }
+    lastid = std::move(thisid);
+}
 void ASTNS::DotVisitor::visitPrimitiveType(ASTNS::PrimitiveType *a)
 {
     std::string thisid = curid();
@@ -166,6 +238,18 @@ void ASTNS::DotVisitor::visitArg(ASTNS::Arg *a)
             }
     lastid = std::move(thisid);
 }
+void ASTNS::DotVisitor::visitArgList(ASTNS::ArgList *a)
+{
+    std::string thisid = curid();
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">ArgList</td></tr><tr>";
+            ostream << "<td port=\"args\">args</td>";
+            ostream << "</tr></table>>]\n";
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->args.stringify());
+                    connect(thisid, "args", tokennodeid);
+            }
+    lastid = std::move(thisid);
+}
 void ASTNS::DotVisitor::visitParam(ASTNS::Param *a)
 {
     std::string thisid = curid();
@@ -176,6 +260,18 @@ void ASTNS::DotVisitor::visitParam(ASTNS::Param *a)
             {
                     std::string tokennodeid = makeTextNode("Token", a->name.stringify());
                     connect(thisid, "name", tokennodeid);
+            }
+    lastid = std::move(thisid);
+}
+void ASTNS::DotVisitor::visitParamList(ASTNS::ParamList *a)
+{
+    std::string thisid = curid();
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">ParamList</td></tr><tr>";
+            ostream << "<td port=\"params\">params</td>";
+            ostream << "</tr></table>>]\n";
+            {
+                    std::string tokennodeid = makeTextNode("Token", a->params.stringify());
+                    connect(thisid, "params", tokennodeid);
             }
     lastid = std::move(thisid);
 }
@@ -340,8 +436,16 @@ void ASTNS::DotVisitor::visitCallExpr(ASTNS::CallExpr *a)
             ostream << "<td port=\"args\">args</td>";
             ostream << "</tr></table>>]\n";
             {
-                    std::string tokennodeid = makeTextNode("Token", a->args.stringify());
-                    connect(thisid, "args", tokennodeid);
+                    if (a->args)
+                    {
+                        a->args->accept(this);
+                        connect(thisid, "args", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "args", nullptrnodeid);
+                    }
             }
     lastid = std::move(thisid);
 }

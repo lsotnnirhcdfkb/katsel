@@ -4,11 +4,12 @@
 # symbols {{{2
 class NonTerminal:
     nonterminals = []
-    def __init__(self, symbol, panickable, name, base):
+    def __init__(self, symbol, panickable, name, base, reducesTo):
         self.symbol = symbol
         self.name = name
         self.panickable = panickable
         self.base = base
+        self.reducesTo = reducesTo
         assert symbol not in NonTerminal.nonterminals, f'duplicate nonterminal {symbol}'
         NonTerminal.nonterminals.append(symbol)
 
@@ -205,28 +206,22 @@ class SimpleReduceAction:
         self.classname = classname
         self.args = args
     def generate(self):
-        return f'''
-        std::unique_ptr<ASTNS::{self.classname}> push (std::make_unique<ASTNS::{self.classname}>({", ".join(f"a{i}" for i in self.args)}));
-        stack.emplace_back(gotoState, std::move(push));
-        '''
+        return (f'std::unique_ptr<ASTNS::{self.classname}> push (std::make_unique<ASTNS::{self.classname}>({", ".join(f"a{i}" for i in self.args)}));\n', 'std::move(push);')
 class SkipReduceAction:
     def __init__(self, ind=0):
         self.ind = ind
     def generate(self):
-        return f'stack.emplace_back(gotoState, a{self.ind});\n'
+        return ('', f'std::move(a{self.ind})')
 class NullptrReduceAction:
     def generate(self):
-        return 'stack.emplace_back(gotoState, nullptr);\n'
+        return ('', 'nullptr')
 class VectorPushReduceAction:
     def __init__(self, vectorName, itemToPush, pushBackToStack):
         self.vectorName = vectorName
         self.itemToPush = itemToPush
         self.pushBackToStack = pushBackToStack
     def generate(self):
-        return f'''
-        {self.vectorName}.push_back({self.itemToPush});
-        stack.emplace_back(gotoState, {self.pushBackToStack});
-        '''
+        return (f'{self.vectorName}.push_back({self.itemToPush});\n', f'std::move({self.pushBackToStack})')
 # helpers {{{1
 def makeUnique(already, new):
     return [x for x in new if x not in already]
@@ -417,8 +412,8 @@ def makeParseTable():
     table = fillParseTable(*isets)
     return table
 # rule shorthands {{{1
-def nt(sym, name, base, panickable=False):
-    return NonTerminal(sym, panickable, name, base)
+def nt(sym, name, base, reducesTo, panickable=False):
+    return NonTerminal(sym, panickable, name, base, reducesTo)
 
 def rule(sym, expansion, reduceAction, histart='START', hiend='END', special=''):
     vnames = []
@@ -446,14 +441,14 @@ def rule(sym, expansion, reduceAction, histart='START', hiend='END', special='')
     grammar.append(rule)
     return rule
 
-def listRule(sym, base, makeListAction, appendListAction, delimit=None):
-    anothersym = nt('Another' + sym.symbol, 'another ' + sym.name, base, panickable=True) # useless rule to take advantage of "expected another x"
+def listRule(sym, base, makeListAction, appendListAction, listClass, delimit=None):
+    anothersym = nt('Another' + sym.symbol, 'another ' + sym.name, base, sym.reducesTo, panickable=True) # useless rule to take advantage of "expected another x"
     rule(anothersym, ((sym, sym.symbol.lower()),), SkipReduceAction())
 
-    symlist = nt(sym.symbol + 'List', sym.name + ' list', base, panickable=True)
+    symlist = nt(sym.symbol + 'List', sym.name + ' list', base, listClass, panickable=True)
 
     if delimit is not None:
-        symsegment = nt(sym.symbol + 'Segment', sym.name + ' list', base, panickable=True)
+        symsegment = nt(sym.symbol + 'Segment', sym.name + ' list', base, listClass, panickable=True)
         rule(symsegment, ((symsegment, symsegment.symbol.lower()), (delimit, str(delimit).lower()), (anothersym, anothersym.symbol.lower())), appendListAction)
         rule(symsegment, ((sym, sym.symbol.lower()),), makeListAction)
 
@@ -470,7 +465,7 @@ def makeOpt(toopt, withAction, noAction, newname=None):
         newname = 'optional ' + toopt.name
 
     optsym = toopt.symbol + '_OPT'
-    optnt = nt(optsym, newname, toopt.base)
+    optnt = nt(optsym, newname, toopt.base, toopt.reducesTo)
     rule(optnt, ((toopt, toopt.symbol.lower()),), withAction)
     rule(optnt, (), noAction)
     return optnt
@@ -481,45 +476,45 @@ grammar = []
 def makeGrammar():
     global augmentRule, augmentSymbol
 
-    CU = nt('CU', 'compilation unit', 'CUB')
-    Decl = nt('Decl', 'declaration', 'DeclB', panickable=True)
-    FunctionDecl = nt('FunctionDecl', 'function declaration', 'DeclB', panickable=True)
-    Stmt = nt('Stmt', 'statement', 'StmtB', panickable=True)
-    VarStmt = nt('VarStmt', 'variable statement', 'StmtB', panickable=True)
-    ExprStmt = nt('ExprStmt', 'expression statement', 'StmtB', panickable=True)
-    RetStmt = nt('RetStmt', 'return statement', 'StmtB', panickable=True)
-    VarStmtItem = nt('VarStmtItem', 'variable statement initialization', 'VStmtIB')
-    LineEnding = nt('LineEnding', 'line ending', 'LineEndingB')
-    Block = nt('Block', 'code block', 'ExprB', panickable=True)
-    BracedBlock = nt('BracedBlock', 'braced code block', 'ExprB', panickable=True)
-    IndentedBlock = nt('IndentedBlock', 'indented code block', 'ExprB', panickable=True)
-    ImplRet = nt('ImplRet', 'implicit return', 'ExprB', panickable=True)
-    Type = nt('Type', 'type specifier', 'TypeB')
-    PrimitiveType = nt('PrimitiveType', 'primitive type specifier', 'TypeB')
-    Arg = nt('Arg', 'argument', 'ArgB', panickable=True)
-    Param = nt('Param', 'parameter', 'PListB', panickable=True)
-    Expr = nt('Expr', 'expression', 'ExprB')
-    BlockedExpr = nt('BlockedExpr', 'braced expression', 'ExprB')
-    NotBlockedExpr = nt('NotBlockedExpr', 'non-braced expression', 'ExprB')
-    IfExpr = nt('IfExpr', 'if expression', 'ExprB', panickable=True)
-    ForExpr = nt('ForExpr', 'for expression', 'ExprB', panickable=True)
-    AssignmentExpr = nt('AssignmentExpr', 'assignment expression', 'ExprB')
-    BinOrExpr = nt('BinOrExpr', 'binary or expression', 'ExprB')
-    BinAndExpr = nt('BinAndExpr', 'binary and expression', 'ExprB')
-    CompEQExpr = nt('CompEQExpr', 'equality expression', 'ExprB')
-    CompLGTExpr = nt('CompLGTExpr', 'comparison expression', 'ExprB')
-    BitXorExpr = nt('BitXorExpr', 'bitwise xor expression', 'ExprB')
-    BitOrExpr = nt('BitOrExpr', 'bitwise or expression', 'ExprB')
-    BitAndExpr = nt('BitAndExpr', 'bitwise and expression', 'ExprB')
-    BitShiftExpr = nt('BitShiftExpr', 'bit shift expression', 'ExprB')
-    AdditionExpr = nt('AdditionExpr', 'addition expression', 'ExprB')
-    MultExpr = nt('MultExpr', 'multiplication expression', 'ExprB')
-    CastExpr = nt('CastExpr', 'type cast expression', 'ExprB')
-    UnaryExpr = nt('UnaryExpr', 'unary expression', 'ExprB')
-    CallExpr = nt('CallExpr', 'function call expression', 'ExprB')
-    PrimaryExpr = nt('PrimaryExpr', 'primary expression', 'ExprB')
+    CU = nt('CU', 'compilation unit', 'CUB', 'CU')
+    Decl = nt('Decl', 'declaration', 'DeclB', 'Decl', panickable=True)
+    FunctionDecl = nt('FunctionDecl', 'function declaration', 'DeclB', 'FunctionDecl', panickable=True)
+    Stmt = nt('Stmt', 'statement', 'StmtB', 'Stmt', panickable=True)
+    VarStmt = nt('VarStmt', 'variable statement', 'StmtB', 'VarStmt', panickable=True)
+    ExprStmt = nt('ExprStmt', 'expression statement', 'StmtB', 'ExprStmt', panickable=True)
+    RetStmt = nt('RetStmt', 'return statement', 'StmtB', 'RetStmt', panickable=True)
+    VarStmtItem = nt('VarStmtItem', 'variable statement initialization', 'VStmtIB', 'VarStmtItem')
+    LineEnding = nt('LineEnding', 'line ending', 'LineEndingB', 'AST')
+    Block = nt('Block', 'code block', 'Expr', 'Block', panickable=True)
+    BracedBlock = nt('BracedBlock', 'braced code block', 'Expr', 'Block', panickable=True)
+    IndentedBlock = nt('IndentedBlock', 'indented code block', 'Expr', 'Block', panickable=True)
+    ImplRet = nt('ImplRet', 'implicit return', 'Expr', 'ImplRet', panickable=True)
+    Type = nt('Type', 'type specifier', 'TypeB', 'Type')
+    PrimitiveType = nt('PrimitiveType', 'primitive type specifier', 'TypeB', 'PrimitiveType')
+    Arg = nt('Arg', 'argument', 'ArgB', 'Arg', panickable=True)
+    Param = nt('Param', 'parameter', 'PListB', 'Param', panickable=True)
+    Expr = nt('Expr', 'expression', 'Expr', 'Expr')
+    BlockedExpr = nt('BlockedExpr', 'braced expression', 'Expr', 'Expr')
+    NotBlockedExpr = nt('NotBlockedExpr', 'non-braced expression', 'Expr', 'Expr')
+    IfExpr = nt('IfExpr', 'if expression', 'Expr', 'IfExpr', panickable=True)
+    ForExpr = nt('ForExpr', 'for expression', 'Expr', 'ForExpr', panickable=True)
+    AssignmentExpr = nt('AssignmentExpr', 'assignment expression', 'AssignmentExpr', 'Expr')
+    BinOrExpr = nt('BinOrExpr', 'binary or expression', 'ShortCircuitExpr', 'Expr')
+    BinAndExpr = nt('BinAndExpr', 'binary and expression', 'ShortCircuitExpr', 'Expr')
+    CompEQExpr = nt('CompEQExpr', 'equality expression', 'BinaryExpr', 'Expr')
+    CompLGTExpr = nt('CompLGTExpr', 'comparison expression', 'BinaryExpr', 'Expr')
+    BitXorExpr = nt('BitXorExpr', 'bitwise xor expression', 'BinaryExpr', 'Expr')
+    BitOrExpr = nt('BitOrExpr', 'bitwise or expression', 'BinaryExpr', 'Expr')
+    BitAndExpr = nt('BitAndExpr', 'bitwise and expression', 'BinaryExpr', 'Expr')
+    BitShiftExpr = nt('BitShiftExpr', 'bit shift expression', 'BinaryExpr', 'Expr')
+    AdditionExpr = nt('AdditionExpr', 'addition expression', 'BinaryExpr', 'Expr')
+    MultExpr = nt('MultExpr', 'multiplication expression', 'BinaryExpr', 'Expr')
+    CastExpr = nt('CastExpr', 'type cast expression', 'CastExpr', 'Expr')
+    UnaryExpr = nt('UnaryExpr', 'unary expression', 'UnaryExpr', 'Expr')
+    CallExpr = nt('CallExpr', 'function call expression', 'CallExpr', 'Expr')
+    PrimaryExpr = nt('PrimaryExpr', 'primary expression', 'PrimaryExpr', 'Expr')
 
-    augmentSymbol = NonTerminal('augment', False, '', '')
+    augmentSymbol = nt('augment', 'augment symbol', '#error augment symbol put into code', '')
     augmentRule = rule(augmentSymbol, ((CU, '_'),), None)
 
     AMPER = Terminal('AMPER')
@@ -586,11 +581,11 @@ def makeGrammar():
     VAR = Terminal('VAR')
     VOID = Terminal('VOID')
 
-    ParamList = listRule(Param, 'PListB', SimpleReduceAction('ParamList', (0,)), VectorPushReduceAction('a0->params', 'std::move(a2)', 'a0'), COMMA)
-    ArgList = listRule(Arg, 'ArgB', SimpleReduceAction('ArgList', (0,)), VectorPushReduceAction('a0->args', 'std::move(a2)', 'a0'), COMMA)
-    VarStmtItemList = listRule(VarStmtItem, 'VStmtIB', SimpleReduceAction('VarStmtItemList', (0,)), VectorPushReduceAction('a0->items', 'std::move(a2)', 'a0'), COMMA)
-    StmtList = listRule(Stmt, 'StmtB', SimpleReduceAction('StmtList', (0,)), VectorPushReduceAction('a0->stmts', 'std::move(a1)', 'a0'))
-    DeclList = listRule(Decl, 'DeclB', SimpleReduceAction('DeclList', (0,)), VectorPushReduceAction('a0->decls', 'std::move(a1)', 'a0'))
+    ParamList = listRule(Param, 'PListB', SimpleReduceAction('ParamList', (0,)), VectorPushReduceAction('a0->params', 'std::move(a2)', 'a0'), 'ParamList', COMMA)
+    ArgList = listRule(Arg, 'ArgB', SimpleReduceAction('ArgList', (0,)), VectorPushReduceAction('a0->args', 'std::move(a2)', 'a0'), 'ArgList', COMMA)
+    VarStmtItemList = listRule(VarStmtItem, 'VStmtIB', SimpleReduceAction('VarStmtItemList', (0,)), VectorPushReduceAction('a0->items', 'std::move(a2)', 'a0'), 'VarStmtItemList', COMMA)
+    StmtList = listRule(Stmt, 'StmtB', SimpleReduceAction('StmtList', (0,)), VectorPushReduceAction('a0->stmts', 'std::move(a1)', 'a0'), 'StmtList')
+    DeclList = listRule(Decl, 'DeclB', SimpleReduceAction('DeclList', (0,)), VectorPushReduceAction('a0->decls', 'std::move(a1)', 'a0'), 'DeclList')
 
     ParamListOpt = makeOpt(ParamList, SkipReduceAction(), NullptrReduceAction())
     ArgListOpt = makeOpt(ArgList, SkipReduceAction(), NullptrReduceAction())
@@ -674,9 +669,9 @@ def makeGrammar():
 
     rule(AssignmentExpr, ((BinOrExpr, 'target'),  (EQUAL, 'equal'),  (AssignmentExpr, 'value'), ), SimpleReduceAction('AssignmentExpr', (0, 1, 2)))
     rule(AssignmentExpr, ((BinOrExpr, '_'),), SkipReduceAction())
-    rule(BinOrExpr, ((BinOrExpr, 'lhs'),  (DOUBLEPIPE, 'op'),  (BinAndExpr, 'rhs'), ), SimpleReduceAction('ShortBinaryExpr', (0, 1, 2)))
+    rule(BinOrExpr, ((BinOrExpr, 'lhs'),  (DOUBLEPIPE, 'op'),  (BinAndExpr, 'rhs'), ), SimpleReduceAction('ShortCircuitExpr', (0, 1, 2)))
     rule(BinOrExpr, ((BinAndExpr, '_'),), SkipReduceAction())
-    rule(BinAndExpr, ((BinAndExpr, 'lhs'),  (DOUBLEAMPER, 'op'),  (CompEQExpr, 'rhs'), ), SimpleReduceAction('ShortBinaryExpr', (0, 1, 2)))
+    rule(BinAndExpr, ((BinAndExpr, 'lhs'),  (DOUBLEAMPER, 'op'),  (CompEQExpr, 'rhs'), ), SimpleReduceAction('ShortCircuitExpr', (0, 1, 2)))
     rule(BinAndExpr, ((CompEQExpr, '_'),), SkipReduceAction())
     rule(CompEQExpr, ((CompEQExpr, 'lhs'),  (BANGEQUAL, 'op'),  (CompLGTExpr, 'rhs'), ), BinaryExprReduceAction)
     rule(CompEQExpr, ((CompEQExpr, 'lhs'),  (DOUBLEEQUAL, 'op'),  (CompLGTExpr, 'rhs'), ), BinaryExprReduceAction)
@@ -842,10 +837,13 @@ def genLoop():
                     if type(sym) == Terminal:
                         output.append(           f'                            auto a{i} (popT(stack));\n')
                     elif type(sym) == NonTerminal:
-                        output.append(           f'                            auto a{i} (popA<ASTNS::{str(sym)}>(stack));\n')
+                        output.append(           f'                            auto a{i} (popA<ASTNS::{ac.rule.symbol.reducesTo}>(stack));\n')
 
-                output.append(                   f'                            size_t gotoState = getGoto<ASTNS::{str(ac.rule.symbol)}>(stack.back().state);\n')
-                output.append(ac.rule.reduceAction.generate())
+                reduceCode, pushitem = ac.rule.reduceAction.generate()
+                output.append(reduceCode)
+                output.append(                    '\n')
+                output.append(                   f'                            std::unique_ptr<ASTNS::{ac.rule.symbol.reducesTo}> pushitem = {pushitem};\n')
+                output.append(                   f'                            stack.emplace_back(getGoto(NonTerminal::{ac.rule.symbol.symbol}, stack.back().state), std::move(pushitem));\n')
                 output.append(                    '                        }\n')
 
 
@@ -883,17 +881,17 @@ def genLoop():
 def genGoto():
     output = []
 
+    output.append(                               f'size_t getGoto(NonTerminal nterm, size_t state)\n')
+    output.append(                                '{\n')
+    output.append(                                '    switch (nterm)\n')
+    output.append(                                '    {\n')
     for nonterm in symbols:
         if type(nonterm) == Terminal:
             continue
 
-        if nonterm == augmentSymbol:
-            continue
-
-        output.append(                           f'template <> size_t getGoto<ASTNS::{str(nonterm)}>(size_t state)\n')
-        output.append(                            '{\n')
-        output.append(                            '    switch (state)\n')
-        output.append(                            '    {\n')
+        output.append(                           f'        case NonTerminal::{nonterm.symbol}:\n')
+        output.append(                            '            switch (state)\n')
+        output.append(                            '            {\n')
 
         returns = {}
         for staten, state in table.items():
@@ -904,17 +902,27 @@ def genGoto():
                     returns[state.goto[nonterm]] = [staten]
 
         for retval, states in returns.items():
+            output.append(                        '                ')
             for state in states:
-                output.append(                   f'        case {state}:\n')
-            output.append(                       f'            return {retval};\n')
+                output.append(                   f'case {state}: ')
+            output.append(                       f'\n                    return {retval};\n')
 
-        output.append(                            '        default:\n')
-        output.append(                           f'            reportAbortNoh("retrieve goto of nonterminal {str(nonterm)} in invalid state");\n')
-        output.append(                            '    }\n')
-        output.append(                            '}\n')
+        output.append(                            '                default: reportAbortNoh("get invalid goto");\n')
+
+        output.append(                            '            }\n')
+
+    output.append(                                '    }\n')
+    output.append(                                '}\n')
 
     return ''.join(output)
 
+# generate nonterminal enum {{{2
+def genNonTermEnum():
+    output = []
+    for symbol in symbols:
+        if isinstance(symbol, NonTerminal):
+            output.append(f'{symbol.symbol},\n')
+    return ''.join(output)
 # generate panic mode error recovery code {{{2
 def genPanicMode():
     output = []
