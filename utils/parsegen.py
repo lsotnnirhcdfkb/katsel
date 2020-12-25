@@ -853,7 +853,7 @@ def genLoop():
                 output.append(reduceCode)
                 output.append(                    '\n')
                 output.append(                   f'                            std::unique_ptr<ASTNS::{ac.rule.symbol.reducesTo}> pushitem = {pushitem};\n')
-                output.append(                   f'                            stack.emplace_back(getGoto(NonTerminal::{ac.rule.symbol.symbol}, stack.back().state), std::move(pushitem));\n')
+                output.append(                   f'                            stack.emplace_back(getGoto(NonTerminal::{ac.rule.symbol.symbol}, stack.back().state), std::move(pushitem), NonTerminal::{ac.rule.symbol.symbol});\n')
                 output.append(                    '                        }\n')
 
 
@@ -931,14 +931,13 @@ def genNonTermEnum():
     output = []
     for symbol in symbols:
         if isinstance(symbol, NonTerminal):
-            output.append(f'{symbol.symbol},\n')
+            output.append(f'    {symbol.symbol},\n')
     return ''.join(output)
 # generate panic mode error recovery code {{{2
 def genPanicMode():
     output = []
     output.append(                               ('#define CHECKASI(ty)\\\n'
-                                                  '    ASTNS::ty *ast##ty (dynamic_cast<ASTNS::ty*>(ast));\\\n'
-                                                  '    if (ast##ty)\\\n'
+                                                  '    if (nterm == NonTerminal::ty)\\\n'
                                                   '    {\\\n'
                                                   '        switch (e.lookahead.type)\\\n'
                                                   '        {\n'
@@ -958,9 +957,9 @@ def genPanicMode():
                                                   '    {\n'
                                                   '        for (auto i = e.stack.rbegin(); i != e.stack.rend() && !valid; ++i)\n'
                                                   '        {\n'
-                                                  '            if (!i->istok && !i->isinitial)\n'
+                                                  '            if (std::holds_alternative<astitem>(i->item))\n'
                                                   '            {\n'
-                                                  '                ASTNS::AST *ast = i->ast.get();\n'))
+                                                  '                NonTerminal nterm = std::get<astitem>(i->item).nt;\n'))
 
     for nonterm in symbols:
         if type(nonterm) == Terminal:

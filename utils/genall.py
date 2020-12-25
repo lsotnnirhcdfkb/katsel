@@ -15,9 +15,9 @@ jobs = [
     ('src/ast/printvisitor.cpp'            , 'PRINTVISITOR START'        , 'PRINTVISITOR END'        , astgen.genPrintVisitorMethods),
     ('src/ast/dotvisitor.cpp'              , 'DOTVISITOR START'          , 'DOTVISITOR END'          , astgen.genDotVisitorMethods),
 
+    ('src/parse/parsestack.h'              , 'NONTERM ENUM START'        , 'NONTERM ENUM END'        , parsegen.genNonTermEnum),
     ('src/parse/parserloop.cpp'            , 'PARSERLOOP START'          , 'PARSERLOOP END'          , parsegen.genLoop),
     ('src/parse/parserloop.cpp'            , 'GETGOTO START'             , 'GETGOTO END'             , parsegen.genGoto),
-    ('src/parse/parserloop.cpp'            , 'NONTERM ENUM START'        , 'NONTERM ENUM END'        , parsegen.genNonTermEnum),
     ('src/parse/error.cpp'                 , 'PANIC MODE START'          , 'PANIC MODE END'          , parsegen.genPanicMode),
     ('src/parse/error.cpp'                 , 'SINGLETOK START'           , 'SINGLETOK END'           , parsegen.genSingleTok),
 
