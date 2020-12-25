@@ -179,10 +179,7 @@ def genPrintVisitorMethods():
         output.append(           '    ++indent;\n')
         for field in ast.fields:
             output.append(      f'    pai("{field.type} {field.name} = ");\n')
-            if field.type.startswith('std::unique_ptr'):
-                output.append(      f'    a->{field.name}->accept(this);\n')
-            else:
-                output.append(      f'    printField(a->{field.name});\n')
+            output.append(      f'    printField(a->{field.name});\n')
         output.append(           '    --indent;\n')
         output.append(           '}\n')
 

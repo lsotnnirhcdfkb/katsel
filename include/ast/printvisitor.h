@@ -63,7 +63,10 @@ void visitPrimaryExpr(ASTNS::PrimaryExpr *ast) override;
         template <typename T>
         void printField(std::unique_ptr<T> &ast)
         {
-            ast->accept(this);
+            if (ast)
+                ast->accept(this);
+            else
+                pai("nullptr\n");
         }
         template <typename T>
         void printField(std::vector<std::unique_ptr<T>> &v)
