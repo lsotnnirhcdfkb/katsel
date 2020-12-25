@@ -4,11 +4,10 @@
 # symbols {{{2
 class NonTerminal:
     nonterminals = []
-    def __init__(self, symbol, panickable, name, base, reducesTo):
+    def __init__(self, symbol, panickable, name, reducesTo):
         self.symbol = symbol
         self.name = name
         self.panickable = panickable
-        self.base = base
         self.reducesTo = reducesTo
         assert symbol not in NonTerminal.nonterminals, f'duplicate nonterminal {symbol}'
         NonTerminal.nonterminals.append(symbol)
@@ -41,13 +40,12 @@ class Terminal:
 # rule {{{2
 class Rule:
     __num = 0
-    def __init__(self, symbol, expansion, reduceAction, vnames, exhistart, exhiend, special):
+    def __init__(self, symbol, expansion, reduceAction, exhistart, exhiend, special):
         self.symbol = symbol
         self.expansion = expansion
         self.num = Rule.__num
         Rule.__num += 1
         self.reduceAction = reduceAction
-        self.vnames = vnames
         self.exhistart, self.exhiend = exhistart, exhiend
         self.special = special
 
@@ -204,7 +202,6 @@ class AcceptAction:
 class SimpleReduceAction:
     def __init__(self, classname, args):
         self.classname = classname
-        assert isinstance(args, str)
         self.args = args
     def generate(self):
         return (f'std::unique_ptr<ASTNS::{self.classname}> push (std::make_unique<ASTNS::{self.classname}>(p.sourcefile, start, end, {self.args}));\n', 'std::move(push)')
@@ -422,17 +419,10 @@ def makeParseTable():
     table = fillParseTable(*isets)
     return table
 # rule shorthands {{{1
-def nt(sym, name, base, reducesTo, panickable=False):
-    return NonTerminal(sym, panickable, name, base, reducesTo)
+def nt(sym, name, reducesTo, panickable=False):
+    return NonTerminal(sym, panickable, name, reducesTo)
 
 def rule(sym, expansion, reduceAction, histart='START', hiend='END', special=''):
-    vnames = []
-    syms = []
-
-    for exsym, vname in expansion:
-        syms.append(exsym)
-        vnames.append(vname)
-
     rsp = {}
     rsp['defaultreduce'] = True
 
@@ -447,26 +437,26 @@ def rule(sym, expansion, reduceAction, histart='START', hiend='END', special='')
         else:
             raise Exception(f'invalid special {rest}')
 
-    rule = Rule(sym, syms, reduceAction, vnames, histart, hiend, rsp)
+    rule = Rule(sym, expansion, reduceAction, histart, hiend, rsp)
     grammar.append(rule)
     return rule
 
-def listRule(sym, base, makeListAction, appendListAction, listClass, delimit=None):
-    anothersym = nt('Another' + sym.symbol, 'another ' + sym.name, base, sym.reducesTo, panickable=True) # useless rule to take advantage of "expected another x"
-    rule(anothersym, ((sym, sym.symbol.lower()),), SkipReduceAction())
+def listRule(sym, makeListAction, appendListAction, listClass, delimit=None):
+    anothersym = nt('Another' + sym.symbol, 'another ' + sym.name, sym.reducesTo, panickable=True) # useless rule to take advantage of "expected another x"
+    rule(anothersym, (sym,), SkipReduceAction())
 
-    symlist = nt(sym.symbol + 'List', sym.name + ' list', base, listClass, panickable=True)
+    symlist = nt(sym.symbol + 'List', sym.name + ' list', listClass, panickable=True)
 
     if delimit is not None:
-        symsegment = nt(sym.symbol + 'Segment', sym.name + ' list', base, listClass, panickable=True)
-        rule(symsegment, ((symsegment, symsegment.symbol.lower()), (delimit, str(delimit).lower()), (anothersym, anothersym.symbol.lower())), appendListAction)
-        rule(symsegment, ((sym, sym.symbol.lower()),), makeListAction)
+        symsegment = nt(sym.symbol + 'Segment', sym.name + ' list', listClass, panickable=True)
+        rule(symsegment, (symsegment, delimit, anothersym), appendListAction)
+        rule(symsegment, (sym,), makeListAction)
 
-        rule(symlist, ((symsegment, symsegment.symbol.lower()),), SkipReduceAction(), special='nodefaultreduce')
-        rule(symlist, ((symsegment, symsegment.symbol.lower()), (delimit, str(delimit).lower())), SkipReduceAction(), special='nodefaultreduce')
+        rule(symlist, (symsegment,), SkipReduceAction(), special='nodefaultreduce')
+        rule(symlist, (symsegment, delimit), SkipReduceAction(), special='nodefaultreduce')
     else:
-        rule(symlist, ((symlist, symlist.symbol.lower()), (anothersym, anothersym.symbol.lower())), appendListAction, special='nodefaultreduce')
-        rule(symlist, ((sym, sym.symbol.lower()),), makeListAction)
+        rule(symlist, (symlist, anothersym), appendListAction, special='nodefaultreduce')
+        rule(symlist, (sym,), makeListAction)
 
     return symlist
 
@@ -475,8 +465,8 @@ def makeOpt(toopt, withAction, noAction, newname=None):
         newname = 'optional ' + toopt.name
 
     optsym = toopt.symbol + '_OPT'
-    optnt = nt(optsym, newname, toopt.base, toopt.reducesTo)
-    rule(optnt, ((toopt, toopt.symbol.lower()),), withAction)
+    optnt = nt(optsym, newname, toopt.reducesTo)
+    rule(optnt, (toopt,), withAction)
     rule(optnt, (), noAction)
     return optnt
 
@@ -486,46 +476,46 @@ grammar = []
 def makeGrammar():
     global augmentRule, augmentSymbol
 
-    CU = nt('CU', 'compilation unit', 'CUB', 'CU')
-    Decl = nt('Decl', 'declaration', 'DeclB', 'Decl', panickable=True)
-    FunctionDecl = nt('FunctionDecl', 'function declaration', 'DeclB', 'FunctionDecl', panickable=True)
-    Stmt = nt('Stmt', 'statement', 'StmtB', 'Stmt', panickable=True)
-    VarStmt = nt('VarStmt', 'variable statement', 'StmtB', 'VarStmt', panickable=True)
-    ExprStmt = nt('ExprStmt', 'expression statement', 'StmtB', 'ExprStmt', panickable=True)
-    RetStmt = nt('RetStmt', 'return statement', 'StmtB', 'RetStmt', panickable=True)
-    VarStmtItem = nt('VarStmtItem', 'variable statement initialization', 'VStmtIB', 'VarStmtItem')
-    LineEnding = nt('LineEnding', 'line ending', 'LineEndingB', 'AST')
-    Block = nt('Block', 'code block', 'Expr', 'Block', panickable=True)
-    BracedBlock = nt('BracedBlock', 'braced code block', 'Expr', 'Block', panickable=True)
-    IndentedBlock = nt('IndentedBlock', 'indented code block', 'Expr', 'Block', panickable=True)
-    ImplRet = nt('ImplRet', 'implicit return', 'Expr', 'ImplRet', panickable=True)
-    Type = nt('Type', 'type specifier', 'TypeB', 'Type')
-    PrimitiveType = nt('PrimitiveType', 'primitive type specifier', 'TypeB', 'PrimitiveType')
-    Arg = nt('Arg', 'argument', 'ArgB', 'Arg', panickable=True)
-    Param = nt('Param', 'parameter', 'PListB', 'Param', panickable=True)
-    Expr = nt('Expr', 'expression', 'Expr', 'Expr')
-    BlockedExpr = nt('BlockedExpr', 'braced expression', 'Expr', 'Expr')
-    NotBlockedExpr = nt('NotBlockedExpr', 'non-braced expression', 'Expr', 'Expr')
-    IfExpr = nt('IfExpr', 'if expression', 'Expr', 'IfExpr', panickable=True)
-    ForExpr = nt('ForExpr', 'for expression', 'Expr', 'ForExpr', panickable=True)
-    AssignmentExpr = nt('AssignmentExpr', 'assignment expression', 'AssignmentExpr', 'Expr')
-    BinOrExpr = nt('BinOrExpr', 'binary or expression', 'ShortCircuitExpr', 'Expr')
-    BinAndExpr = nt('BinAndExpr', 'binary and expression', 'ShortCircuitExpr', 'Expr')
-    CompEQExpr = nt('CompEQExpr', 'equality expression', 'BinaryExpr', 'Expr')
-    CompLGTExpr = nt('CompLGTExpr', 'comparison expression', 'BinaryExpr', 'Expr')
-    BitXorExpr = nt('BitXorExpr', 'bitwise xor expression', 'BinaryExpr', 'Expr')
-    BitOrExpr = nt('BitOrExpr', 'bitwise or expression', 'BinaryExpr', 'Expr')
-    BitAndExpr = nt('BitAndExpr', 'bitwise and expression', 'BinaryExpr', 'Expr')
-    BitShiftExpr = nt('BitShiftExpr', 'bit shift expression', 'BinaryExpr', 'Expr')
-    AdditionExpr = nt('AdditionExpr', 'addition expression', 'BinaryExpr', 'Expr')
-    MultExpr = nt('MultExpr', 'multiplication expression', 'BinaryExpr', 'Expr')
-    CastExpr = nt('CastExpr', 'type cast expression', 'CastExpr', 'Expr')
-    UnaryExpr = nt('UnaryExpr', 'unary expression', 'UnaryExpr', 'Expr')
-    CallExpr = nt('CallExpr', 'function call expression', 'CallExpr', 'Expr')
-    PrimaryExpr = nt('PrimaryExpr', 'primary expression', 'PrimaryExpr', 'Expr')
+    CU = nt('CU', 'compilation unit', 'CU')
+    Decl = nt('Decl', 'declaration', 'Decl', panickable=True)
+    FunctionDecl = nt('FunctionDecl', 'function declaration', 'FunctionDecl', panickable=True)
+    Stmt = nt('Stmt', 'statement', 'Stmt', panickable=True)
+    VarStmt = nt('VarStmt', 'variable statement', 'VarStmt', panickable=True)
+    ExprStmt = nt('ExprStmt', 'expression statement', 'ExprStmt', panickable=True)
+    RetStmt = nt('RetStmt', 'return statement', 'RetStmt', panickable=True)
+    VarStmtItem = nt('VarStmtItem', 'variable statement initialization', 'VarStmtItem')
+    LineEnding = nt('LineEnding', 'line ending', 'AST')
+    Block = nt('Block', 'code block', 'Block', panickable=True)
+    BracedBlock = nt('BracedBlock', 'braced code block', 'Block', panickable=True)
+    IndentedBlock = nt('IndentedBlock', 'indented code block', 'Block', panickable=True)
+    ImplRet = nt('ImplRet', 'implicit return', 'ImplRet', panickable=True)
+    Type = nt('Type', 'type specifier', 'Type')
+    PrimitiveType = nt('PrimitiveType', 'primitive type specifier', 'PrimitiveType')
+    Arg = nt('Arg', 'argument', 'Arg', panickable=True)
+    Param = nt('Param', 'parameter', 'Param', panickable=True)
+    Expr = nt('Expr', 'expression', 'Expr')
+    BlockedExpr = nt('BlockedExpr', 'braced expression', 'Expr')
+    NotBlockedExpr = nt('NotBlockedExpr', 'non-braced expression', 'Expr')
+    IfExpr = nt('IfExpr', 'if expression', 'IfExpr', panickable=True)
+    ForExpr = nt('ForExpr', 'for expression', 'ForExpr', panickable=True)
+    AssignmentExpr = nt('AssignmentExpr', 'assignment expression', 'Expr')
+    BinOrExpr = nt('BinOrExpr', 'binary or expression', 'Expr')
+    BinAndExpr = nt('BinAndExpr', 'binary and expression', 'Expr')
+    CompEQExpr = nt('CompEQExpr', 'equality expression', 'Expr')
+    CompLGTExpr = nt('CompLGTExpr', 'comparison expression', 'Expr')
+    BitXorExpr = nt('BitXorExpr', 'bitwise xor expression', 'Expr')
+    BitOrExpr = nt('BitOrExpr', 'bitwise or expression', 'Expr')
+    BitAndExpr = nt('BitAndExpr', 'bitwise and expression', 'Expr')
+    BitShiftExpr = nt('BitShiftExpr', 'bit shift expression', 'Expr')
+    AdditionExpr = nt('AdditionExpr', 'addition expression', 'Expr')
+    MultExpr = nt('MultExpr', 'multiplication expression', 'Expr')
+    CastExpr = nt('CastExpr', 'type cast expression', 'Expr')
+    UnaryExpr = nt('UnaryExpr', 'unary expression', 'Expr')
+    CallExpr = nt('CallExpr', 'function call expression', 'Expr')
+    PrimaryExpr = nt('PrimaryExpr', 'primary expression', 'Expr')
 
-    augmentSymbol = nt('augment', 'augment symbol', '#error augment symbol reduces to class', '')
-    augmentRule = rule(augmentSymbol, ((CU, '_'),), None)
+    augmentSymbol = nt('augment', 'augment symbol', '#error augment symbol reduces to class')
+    augmentRule = rule(augmentSymbol, (CU,), None)
 
     AMPER = Terminal('AMPER')
     BANG = Terminal('BANG')
@@ -591,11 +581,11 @@ def makeGrammar():
     VAR = Terminal('VAR')
     VOID = Terminal('VOID')
 
-    ParamList = listRule(Param, 'PListB', VectorPushOneAction('ParamList', 'std::move(a0)', 'Param', 'params'), VectorPushReduceAction('a0->params', 'std::move(a2)', 'a0'), 'ParamList', COMMA)
-    ArgList = listRule(Arg, 'ArgB', VectorPushOneAction('ArgList', 'std::move(a0)', 'Arg', 'args'), VectorPushReduceAction('a0->args', 'std::move(a2)', 'a0'), 'ArgList', COMMA)
-    VarStmtItemList = listRule(VarStmtItem, 'VStmtIB', VectorPushOneAction('VarStmtItemList', 'std::move(a0)', 'VarStmtItem', 'items'), VectorPushReduceAction('a0->items', 'std::move(a2)', 'a0'), 'VarStmtItemList', COMMA)
-    StmtList = listRule(Stmt, 'StmtB', VectorPushOneAction('StmtList', 'std::move(a0)', 'Stmt', 'stmts'), VectorPushReduceAction('a0->stmts', 'std::move(a1)', 'a0'), 'StmtList')
-    DeclList = listRule(Decl, 'DeclB', VectorPushOneAction('DeclList', 'std::move(a0)', 'Decl', 'decls'), VectorPushReduceAction('a0->decls', 'std::move(a1)', 'a0'), 'DeclList')
+    ParamList = listRule(Param, VectorPushOneAction('ParamList', 'std::move(a0)', 'Param', 'params'), VectorPushReduceAction('a0->params', 'std::move(a2)', 'a0'), 'ParamList', COMMA)
+    ArgList = listRule(Arg, VectorPushOneAction('ArgList', 'std::move(a0)', 'Arg', 'args'), VectorPushReduceAction('a0->args', 'std::move(a2)', 'a0'), 'ArgList', COMMA)
+    VarStmtItemList = listRule(VarStmtItem, VectorPushOneAction('VarStmtItemList', 'std::move(a0)', 'VarStmtItem', 'items'), VectorPushReduceAction('a0->items', 'std::move(a2)', 'a0'), 'VarStmtItemList', COMMA)
+    StmtList = listRule(Stmt, VectorPushOneAction('StmtList', 'std::move(a0)', 'Stmt', 'stmts'), VectorPushReduceAction('a0->stmts', 'std::move(a1)', 'a0'), 'StmtList')
+    DeclList = listRule(Decl, VectorPushOneAction('DeclList', 'std::move(a0)', 'Decl', 'decls'), VectorPushReduceAction('a0->decls', 'std::move(a1)', 'a0'), 'DeclList')
 
     ParamListOpt = makeOpt(ParamList, SkipReduceAction(), NullptrReduceAction())
     ArgListOpt = makeOpt(ArgList, SkipReduceAction(), NullptrReduceAction())
@@ -605,128 +595,128 @@ def makeGrammar():
     VarStmtOpt = makeOpt(VarStmt, SkipReduceAction(), NullptrReduceAction())
     LineEndingOpt = makeOpt(LineEnding, SkipReduceAction(), NullptrReduceAction())
 
-    rule(CU, ((DeclList, 'dl'),), SimpleReduceAction('CU', 'std::move(a0)'))
+    rule(CU, (DeclList,), SimpleReduceAction('CU', 'std::move(a0)'))
     rule(CU, (), NullptrReduceAction())
 
-    rule(Decl, ((FunctionDecl, '_'),), SkipReduceAction())
+    rule(Decl, (FunctionDecl,), SkipReduceAction())
 
-    rule(FunctionDecl, ((FUN, 'fun'),  (Type, 'retty'),  (IDENTIFIER, 'name'),  (OPARN, 'oparn'),  (ParamListOpt, 'paramlist'),  (CPARN, 'cparn'),  (Block, 'body'), (LineEndingOpt, 'endl')), SimpleReduceAction('FunctionDecl', 'std::move(a1), a2, std::move(a4), std::move(a6)'), 'fun', 'cparn')
-    rule(FunctionDecl, ((FUN, 'fun'),  (Type, 'retty'),  (IDENTIFIER, 'name'),  (OPARN, 'oparn'),  (ParamListOpt, 'paramlist'),  (CPARN, 'cparn'),  (LineEnding, 'endl')), SimpleReduceAction('FunctionDecl', 'std::move(a1), a2, std::move(a4), nullptr'), 'fun', 'endl')
+    rule(FunctionDecl, (FUN,  Type,  IDENTIFIER,  OPARN,  ParamListOpt,  CPARN,  Block, LineEndingOpt), SimpleReduceAction('FunctionDecl', 'std::move(a1), a2, std::move(a4), std::move(a6)'), 'fun', 'cparn')
+    rule(FunctionDecl, (FUN,  Type,  IDENTIFIER,  OPARN,  ParamListOpt,  CPARN,  LineEnding), SimpleReduceAction('FunctionDecl', 'std::move(a1), a2, std::move(a4), nullptr'), 'fun', 'endl')
 
-    rule(Stmt, ((VarStmt, '_'),), SkipReduceAction())
-    rule(Stmt, ((ExprStmt, '_'),), SkipReduceAction())
-    rule(Stmt, ((RetStmt, '_'),), SkipReduceAction())
+    rule(Stmt, (VarStmt,), SkipReduceAction())
+    rule(Stmt, (ExprStmt,), SkipReduceAction())
+    rule(Stmt, (RetStmt,), SkipReduceAction())
 
-    rule(VarStmt, ((VAR, 'var'),  (Type, 'type'),  (VarStmtItemList, 'assignments'), (LineEnding, 'ending')), SimpleReduceAction('VarStmt', 'std::move(a1), std::move(a2)'))
+    rule(VarStmt, (VAR,  Type,  VarStmtItemList, LineEnding), SimpleReduceAction('VarStmt', 'std::move(a1), std::move(a2)'))
 
-    rule(ExprStmt, ((NotBlockedExpr, 'expr'), (LineEnding, 'ending')), SimpleReduceAction('ExprStmt', 'std::move(a0)'))
-    rule(ExprStmt, ((BlockedExpr, 'expr'), (LineEndingOpt, 'ending')), SimpleReduceAction('ExprStmt', 'std::move(a0)'))
+    rule(ExprStmt, (NotBlockedExpr, LineEnding), SimpleReduceAction('ExprStmt', 'std::move(a0)'))
+    rule(ExprStmt, (BlockedExpr, LineEndingOpt), SimpleReduceAction('ExprStmt', 'std::move(a0)'))
 
-    rule(RetStmt, ((RETURN, 'ret'), (Expr, 'expr'), (LineEnding, 'ending')), SimpleReduceAction('RetStmt', 'std::move(a1)'))
-    rule(RetStmt, ((RETURN, 'ret'), (LineEnding, 'ending')), SimpleReduceAction('RetStmt', 'nullptr'))
+    rule(RetStmt, (RETURN, Expr, LineEnding), SimpleReduceAction('RetStmt', 'std::move(a1)'))
+    rule(RetStmt, (RETURN, LineEnding), SimpleReduceAction('RetStmt', 'nullptr'))
 
-    rule(VarStmtItem, ((IDENTIFIER, 'name'),  (EQUAL, 'equal'),  (Expr, 'expr'), ), SimpleReduceAction('VarStmtItem', 'a0, a1, std::move(a2)'))
-    rule(VarStmtItem, ((IDENTIFIER, 'name'),), SimpleReduceAction('VarStmtItem', 'a0, a0, nullptr'))
+    rule(VarStmtItem, (IDENTIFIER,  EQUAL,  Expr, ), SimpleReduceAction('VarStmtItem', 'a0, a1, std::move(a2)'))
+    rule(VarStmtItem, (IDENTIFIER,), SimpleReduceAction('VarStmtItem', 'a0, a0, nullptr'))
 
-    rule(Block, ((BracedBlock, '_'),), SkipReduceAction())
-    rule(Block, ((IndentedBlock, '_'),), SkipReduceAction())
-    rule(BracedBlock, ((OCURB, 'ocurb'), (StmtListOpt, 'stmts'), (ImplRetOpt, 'implret'), (CCURB, 'ccurb')), SimpleReduceAction('Block', 'std::move(a1), std::move(a2)'))
-    rule(BracedBlock, ((OCURB, 'ocurb'), (NEWLINE, 'newlopt'), (StmtListOpt, 'stmts'), (ImplRetOpt, 'implret'), (CCURB, 'ccurb')), SimpleReduceAction('Block', 'std::move(a2), std::move(a3)'))
-    rule(BracedBlock, ((OCURB, 'ocurb'), (NEWLINE, 'newlopt'), (INDENT, 'indentopt'), (StmtListOpt, 'stmts'), (ImplRetOpt, 'implret'), (DEDENT, 'dedentopt'), (CCURB, 'ccurb')), SimpleReduceAction('Block', 'std::move(a3), std::move(a4)'))
-    rule(IndentedBlock, ((NEWLINE, 'newl'), (INDENT, 'indent'), (StmtListOpt, 'stmts'), (ImplRetOpt, 'implret'), (DEDENT, 'dedent')), SimpleReduceAction('Block', 'std::move(a2), std::move(a3)'))
-    rule(ImplRet, ((LEFTARROW, 'leftarrow'), (Expr, 'expr'), (LineEndingOpt, 'ending')), SimpleReduceAction('ImplRet', 'std::move(a1)'))
+    rule(Block, (BracedBlock,), SkipReduceAction())
+    rule(Block, (IndentedBlock,), SkipReduceAction())
+    rule(BracedBlock, (OCURB, StmtListOpt, ImplRetOpt, CCURB), SimpleReduceAction('Block', 'std::move(a1), std::move(a2)'))
+    rule(BracedBlock, (OCURB, NEWLINE, StmtListOpt, ImplRetOpt, CCURB), SimpleReduceAction('Block', 'std::move(a2), std::move(a3)'))
+    rule(BracedBlock, (OCURB, NEWLINE, INDENT, StmtListOpt, ImplRetOpt, DEDENT, CCURB), SimpleReduceAction('Block', 'std::move(a3), std::move(a4)'))
+    rule(IndentedBlock, (NEWLINE, INDENT, StmtListOpt, ImplRetOpt, DEDENT), SimpleReduceAction('Block', 'std::move(a2), std::move(a3)'))
+    rule(ImplRet, (LEFTARROW, Expr, LineEndingOpt), SimpleReduceAction('ImplRet', 'std::move(a1)'))
 
-    rule(LineEnding, ((NEWLINE, 'tok'),), NullptrReduceAction())
-    rule(LineEnding, ((SEMICOLON, 'tok'),), NullptrReduceAction())
-    rule(LineEnding, ((SEMICOLON, 'tok'), (NEWLINE, 'tok2')), NullptrReduceAction())
+    rule(LineEnding, (NEWLINE,), NullptrReduceAction())
+    rule(LineEnding, (SEMICOLON,), NullptrReduceAction())
+    rule(LineEnding, (SEMICOLON, NEWLINE), NullptrReduceAction())
 
-    rule(Type, ((PrimitiveType, '_'),), SkipReduceAction())
+    rule(Type, (PrimitiveType,), SkipReduceAction())
 
-    rule(PrimitiveType, ((UINT8, 'type'),), SimpleReduceAction('PrimitiveType', 'a0'))
-    rule(PrimitiveType, ((UINT16, 'type'),), SimpleReduceAction('PrimitiveType', 'a0'))
-    rule(PrimitiveType, ((UINT32, 'type'),), SimpleReduceAction('PrimitiveType', 'a0'))
-    rule(PrimitiveType, ((UINT64, 'type'),), SimpleReduceAction('PrimitiveType', 'a0'))
-    rule(PrimitiveType, ((SINT8, 'type'),), SimpleReduceAction('PrimitiveType', 'a0'))
-    rule(PrimitiveType, ((SINT16, 'type'),), SimpleReduceAction('PrimitiveType', 'a0'))
-    rule(PrimitiveType, ((SINT32, 'type'),), SimpleReduceAction('PrimitiveType', 'a0'))
-    rule(PrimitiveType, ((SINT64, 'type'),), SimpleReduceAction('PrimitiveType', 'a0'))
-    rule(PrimitiveType, ((FLOAT, 'type'),), SimpleReduceAction('PrimitiveType', 'a0'))
-    rule(PrimitiveType, ((BOOL, 'type'),), SimpleReduceAction('PrimitiveType', 'a0'))
-    rule(PrimitiveType, ((DOUBLE, 'type'),), SimpleReduceAction('PrimitiveType', 'a0'))
-    rule(PrimitiveType, ((CHAR, 'type'),), SimpleReduceAction('PrimitiveType', 'a0'))
-    rule(PrimitiveType, ((VOID, 'type'),), SimpleReduceAction('PrimitiveType', 'a0'))
+    rule(PrimitiveType, (UINT8,), SimpleReduceAction('PrimitiveType', 'a0'))
+    rule(PrimitiveType, (UINT16,), SimpleReduceAction('PrimitiveType', 'a0'))
+    rule(PrimitiveType, (UINT32,), SimpleReduceAction('PrimitiveType', 'a0'))
+    rule(PrimitiveType, (UINT64,), SimpleReduceAction('PrimitiveType', 'a0'))
+    rule(PrimitiveType, (SINT8,), SimpleReduceAction('PrimitiveType', 'a0'))
+    rule(PrimitiveType, (SINT16,), SimpleReduceAction('PrimitiveType', 'a0'))
+    rule(PrimitiveType, (SINT32,), SimpleReduceAction('PrimitiveType', 'a0'))
+    rule(PrimitiveType, (SINT64,), SimpleReduceAction('PrimitiveType', 'a0'))
+    rule(PrimitiveType, (FLOAT,), SimpleReduceAction('PrimitiveType', 'a0'))
+    rule(PrimitiveType, (BOOL,), SimpleReduceAction('PrimitiveType', 'a0'))
+    rule(PrimitiveType, (DOUBLE,), SimpleReduceAction('PrimitiveType', 'a0'))
+    rule(PrimitiveType, (CHAR,), SimpleReduceAction('PrimitiveType', 'a0'))
+    rule(PrimitiveType, (VOID,), SimpleReduceAction('PrimitiveType', 'a0'))
 
-    rule(Arg, ((Expr, 'expr'),), SimpleReduceAction('Arg', 'std::move(a0)'))
+    rule(Arg, (Expr,), SimpleReduceAction('Arg', 'std::move(a0)'))
 
-    rule(Param, ((Type, 'type'),  (IDENTIFIER, 'name')), SimpleReduceAction('Param', 'std::move(a0), a1'))
+    rule(Param, (Type,  IDENTIFIER), SimpleReduceAction('Param', 'std::move(a0), a1'))
 
-    rule(Expr, ((BlockedExpr, '_'),), SkipReduceAction())
-    rule(Expr, ((NotBlockedExpr, '_'),), SkipReduceAction())
+    rule(Expr, (BlockedExpr,), SkipReduceAction())
+    rule(Expr, (NotBlockedExpr,), SkipReduceAction())
 
-    rule(NotBlockedExpr, ((AssignmentExpr, '_'),), SkipReduceAction())
+    rule(NotBlockedExpr, (AssignmentExpr,), SkipReduceAction())
 
-    rule(BlockedExpr, ((IfExpr, '_'),), SkipReduceAction())
-    rule(BlockedExpr, ((ForExpr, '_'),), SkipReduceAction())
-    rule(BlockedExpr, ((BracedBlock, '_'),), SkipReduceAction())
+    rule(BlockedExpr, (IfExpr,), SkipReduceAction())
+    rule(BlockedExpr, (ForExpr,), SkipReduceAction())
+    rule(BlockedExpr, (BracedBlock,), SkipReduceAction())
 
-    rule(IfExpr, ((IF, 'iftok'), (Expr, 'cond'), (Block, 'trues')), SimpleReduceAction('IfExpr', 'a0, std::move(a1), std::move(a2), nullptr'))
-    rule(IfExpr, ((IF, 'iftok'), (Expr, 'cond'), (Block, 'trues'), (ELSE, 'elsetok'), (Block, 'falses')), SimpleReduceAction('IfExpr', 'a0, std::move(a1), std::move(a2), std::move(a4)'))
-    rule(IfExpr, ((IF, 'iftok'), (Expr, 'cond'), (Block, 'trues'), (ELSE, 'elsetok'), (IfExpr, 'falses')), SimpleReduceAction('IfExpr', 'a0, std::move(a1), std::move(a2), std::move(a4)'))
+    rule(IfExpr, (IF, Expr, Block), SimpleReduceAction('IfExpr', 'a0, std::move(a1), std::move(a2), nullptr'))
+    rule(IfExpr, (IF, Expr, Block, ELSE, Block), SimpleReduceAction('IfExpr', 'a0, std::move(a1), std::move(a2), std::move(a4)'))
+    rule(IfExpr, (IF, Expr, Block, ELSE, IfExpr), SimpleReduceAction('IfExpr', 'a0, std::move(a1), std::move(a2), std::move(a4)'))
 
-    rule(ForExpr, ((FOR, 'fortok'), (VarStmtOpt, 'start'), (SEMICOLON, 'semi1'), (ExprOpt, 'cond'), (SEMICOLON, 'semi2'), (ExprOpt, 'increment'), (CPARN, 'cparn'), (Block, 'body')), SimpleReduceAction('ForExpr', 'std::move(a1), std::move(a3), std::move(a5), std::move(a7)'))
+    rule(ForExpr, (FOR, VarStmtOpt, SEMICOLON, ExprOpt, SEMICOLON, ExprOpt, CPARN, Block), SimpleReduceAction('ForExpr', 'std::move(a1), std::move(a3), std::move(a5), std::move(a7)'))
 
     BinaryExprReduceAction = SimpleReduceAction('BinaryExpr', 'std::move(a0), a1, std::move(a2)')
 
-    rule(AssignmentExpr, ((BinOrExpr, 'target'),  (EQUAL, 'equal'),  (AssignmentExpr, 'value'), ), SimpleReduceAction('AssignmentExpr', 'std::move(a0), a1, std::move(a2)'))
-    rule(AssignmentExpr, ((BinOrExpr, '_'),), SkipReduceAction())
-    rule(BinOrExpr, ((BinOrExpr, 'lhs'),  (DOUBLEPIPE, 'op'),  (BinAndExpr, 'rhs'), ), SimpleReduceAction('ShortCircuitExpr', 'std::move(a0), a1, std::move(a2)'))
-    rule(BinOrExpr, ((BinAndExpr, '_'),), SkipReduceAction())
-    rule(BinAndExpr, ((BinAndExpr, 'lhs'),  (DOUBLEAMPER, 'op'),  (CompEQExpr, 'rhs'), ), SimpleReduceAction('ShortCircuitExpr', 'std::move(a0), a1, std::move(a2)'))
-    rule(BinAndExpr, ((CompEQExpr, '_'),), SkipReduceAction())
-    rule(CompEQExpr, ((CompEQExpr, 'lhs'),  (BANGEQUAL, 'op'),  (CompLGTExpr, 'rhs'), ), BinaryExprReduceAction)
-    rule(CompEQExpr, ((CompEQExpr, 'lhs'),  (DOUBLEEQUAL, 'op'),  (CompLGTExpr, 'rhs'), ), BinaryExprReduceAction)
-    rule(CompEQExpr, ((CompLGTExpr, '_'),), SkipReduceAction())
-    rule(CompLGTExpr, ((CompLGTExpr, 'lhs'),  (LESS, 'op'),  (BitXorExpr, 'rhs'), ), BinaryExprReduceAction)
-    rule(CompLGTExpr, ((CompLGTExpr, 'lhs'),  (GREATER, 'op'),  (BitXorExpr, 'rhs'), ), BinaryExprReduceAction)
-    rule(CompLGTExpr, ((CompLGTExpr, 'lhs'),  (LESSEQUAL, 'op'),  (BitXorExpr, 'rhs'), ), BinaryExprReduceAction)
-    rule(CompLGTExpr, ((CompLGTExpr, 'lhs'),  (GREATEREQUAL, 'op'),  (BitXorExpr, 'rhs'), ), BinaryExprReduceAction)
-    rule(CompLGTExpr, ((BitXorExpr, '_'),), SkipReduceAction())
-    rule(BitXorExpr, ((BitXorExpr, 'lhs'),  (CARET, 'op'),  (BitOrExpr, 'rhs'), ), BinaryExprReduceAction)
-    rule(BitXorExpr, ((BitOrExpr, '_'),), SkipReduceAction())
-    rule(BitOrExpr, ((BitOrExpr, 'lhs'),  (PIPE, 'op'),  (BitAndExpr, 'rhs'), ), BinaryExprReduceAction)
-    rule(BitOrExpr, ((BitAndExpr, '_'),), SkipReduceAction())
-    rule(BitAndExpr, ((BitAndExpr, 'lhs'),  (AMPER, 'op'),  (BitShiftExpr, 'rhs'), ), BinaryExprReduceAction)
-    rule(BitAndExpr, ((BitShiftExpr, '_'),), SkipReduceAction())
-    rule(BitShiftExpr, ((BitShiftExpr, 'lhs'),  (DOUBLEGREATER, 'op'),  (AdditionExpr, 'rhs'), ), BinaryExprReduceAction)
-    rule(BitShiftExpr, ((BitShiftExpr, 'lhs'),  (DOUBLELESS, 'op'),  (AdditionExpr, 'rhs'), ), BinaryExprReduceAction)
-    rule(BitShiftExpr, ((AdditionExpr, '_'),), SkipReduceAction())
-    rule(AdditionExpr, ((AdditionExpr, 'lhs'),  (PLUS, 'op'),  (MultExpr, 'rhs'), ), BinaryExprReduceAction)
-    rule(AdditionExpr, ((AdditionExpr, 'lhs'),  (MINUS, 'op'),  (MultExpr, 'rhs'), ), BinaryExprReduceAction)
-    rule(AdditionExpr, ((MultExpr, '_'),), SkipReduceAction())
-    rule(MultExpr, ((MultExpr, 'lhs'),  (STAR, 'op'),  (UnaryExpr, 'rhs'), ), BinaryExprReduceAction)
-    rule(MultExpr, ((MultExpr, 'lhs'),  (SLASH, 'op'),  (UnaryExpr, 'rhs'), ), BinaryExprReduceAction)
-    rule(MultExpr, ((MultExpr, 'lhs'),  (PERCENT, 'op'),  (UnaryExpr, 'rhs'), ), BinaryExprReduceAction)
-    rule(MultExpr, ((CastExpr, '_'),), SkipReduceAction())
-    rule(CastExpr, ((OPARN, 'oparn'),  (Type, 'type'),  (CPARN, 'cparn'),  (CastExpr, 'operand'), ), SimpleReduceAction('CastExpr', 'std::move(a1), std::move(a3)'))
-    rule(CastExpr, ((UnaryExpr, '_'),), SkipReduceAction())
-    rule(UnaryExpr, ((TILDE, 'op'),  (UnaryExpr, 'operand'), ), SimpleReduceAction('UnaryExpr', 'a0, std::move(a1)'))
-    rule(UnaryExpr, ((MINUS, 'op'),  (UnaryExpr, 'operand'), ), SimpleReduceAction('UnaryExpr', 'a0, std::move(a1)'))
-    rule(UnaryExpr, ((BANG, 'op'),  (UnaryExpr, 'operand'), ), SimpleReduceAction('UnaryExpr', 'a0, std::move(a1)'))
-    rule(UnaryExpr, ((CallExpr, '_'),), SkipReduceAction())
-    rule(CallExpr, ((CallExpr, 'callee'),  (OPARN, 'oparn'),  (ArgListOpt, 'args'),  (CPARN, 'cparn'), ), SimpleReduceAction('CallExpr', 'std::move(a0), a1, std::move(a2)'))
-    rule(CallExpr, ((PrimaryExpr, '_'),), SkipReduceAction())
-    rule(PrimaryExpr, ((TRUELIT, 'value'),), SimpleReduceAction('PrimaryExpr', 'a0'))
-    rule(PrimaryExpr, ((FALSELIT, 'value'),), SimpleReduceAction('PrimaryExpr', 'a0'))
-    rule(PrimaryExpr, ((FLOATLIT, 'value'),), SimpleReduceAction('PrimaryExpr', 'a0'))
-    rule(PrimaryExpr, ((NULLPTRLIT, 'value'),), SimpleReduceAction('PrimaryExpr', 'a0'))
-    rule(PrimaryExpr, ((DECINTLIT, 'value'),), SimpleReduceAction('PrimaryExpr', 'a0'))
-    rule(PrimaryExpr, ((OCTINTLIT, 'value'),), SimpleReduceAction('PrimaryExpr', 'a0'))
-    rule(PrimaryExpr, ((BININTLIT, 'value'),), SimpleReduceAction('PrimaryExpr', 'a0'))
-    rule(PrimaryExpr, ((HEXINTLIT, 'value'),), SimpleReduceAction('PrimaryExpr', 'a0'))
-    rule(PrimaryExpr, ((CHARLIT, 'value'),), SimpleReduceAction('PrimaryExpr', 'a0'))
-    rule(PrimaryExpr, ((STRINGLIT, 'value'),), SimpleReduceAction('PrimaryExpr', 'a0'))
-    rule(PrimaryExpr, ((IDENTIFIER, 'value'),), SimpleReduceAction('PrimaryExpr', 'a0'))
-    rule(PrimaryExpr, ((OPARN, 'oparn'),  (Expr, 'expr'),  (CPARN, 'cparn'), ), SkipReduceAction(1))
+    rule(AssignmentExpr, (BinOrExpr,  EQUAL,  AssignmentExpr, ), SimpleReduceAction('AssignmentExpr', 'std::move(a0), a1, std::move(a2)'))
+    rule(AssignmentExpr, (BinOrExpr,), SkipReduceAction())
+    rule(BinOrExpr, (BinOrExpr,  DOUBLEPIPE,  BinAndExpr, ), SimpleReduceAction('ShortCircuitExpr', 'std::move(a0), a1, std::move(a2)'))
+    rule(BinOrExpr, (BinAndExpr,), SkipReduceAction())
+    rule(BinAndExpr, (BinAndExpr,  DOUBLEAMPER,  CompEQExpr, ), SimpleReduceAction('ShortCircuitExpr', 'std::move(a0), a1, std::move(a2)'))
+    rule(BinAndExpr, (CompEQExpr,), SkipReduceAction())
+    rule(CompEQExpr, (CompEQExpr,  BANGEQUAL,  CompLGTExpr, ), BinaryExprReduceAction)
+    rule(CompEQExpr, (CompEQExpr,  DOUBLEEQUAL,  CompLGTExpr, ), BinaryExprReduceAction)
+    rule(CompEQExpr, (CompLGTExpr,), SkipReduceAction())
+    rule(CompLGTExpr, (CompLGTExpr,  LESS,  BitXorExpr, ), BinaryExprReduceAction)
+    rule(CompLGTExpr, (CompLGTExpr,  GREATER,  BitXorExpr, ), BinaryExprReduceAction)
+    rule(CompLGTExpr, (CompLGTExpr,  LESSEQUAL,  BitXorExpr, ), BinaryExprReduceAction)
+    rule(CompLGTExpr, (CompLGTExpr,  GREATEREQUAL,  BitXorExpr, ), BinaryExprReduceAction)
+    rule(CompLGTExpr, (BitXorExpr,), SkipReduceAction())
+    rule(BitXorExpr, (BitXorExpr,  CARET,  BitOrExpr, ), BinaryExprReduceAction)
+    rule(BitXorExpr, (BitOrExpr,), SkipReduceAction())
+    rule(BitOrExpr, (BitOrExpr,  PIPE,  BitAndExpr, ), BinaryExprReduceAction)
+    rule(BitOrExpr, (BitAndExpr,), SkipReduceAction())
+    rule(BitAndExpr, (BitAndExpr,  AMPER,  BitShiftExpr, ), BinaryExprReduceAction)
+    rule(BitAndExpr, (BitShiftExpr,), SkipReduceAction())
+    rule(BitShiftExpr, (BitShiftExpr,  DOUBLEGREATER,  AdditionExpr, ), BinaryExprReduceAction)
+    rule(BitShiftExpr, (BitShiftExpr,  DOUBLELESS,  AdditionExpr, ), BinaryExprReduceAction)
+    rule(BitShiftExpr, (AdditionExpr,), SkipReduceAction())
+    rule(AdditionExpr, (AdditionExpr,  PLUS,  MultExpr, ), BinaryExprReduceAction)
+    rule(AdditionExpr, (AdditionExpr,  MINUS,  MultExpr, ), BinaryExprReduceAction)
+    rule(AdditionExpr, (MultExpr,), SkipReduceAction())
+    rule(MultExpr, (MultExpr,  STAR,  UnaryExpr, ), BinaryExprReduceAction)
+    rule(MultExpr, (MultExpr,  SLASH,  UnaryExpr, ), BinaryExprReduceAction)
+    rule(MultExpr, (MultExpr,  PERCENT,  UnaryExpr, ), BinaryExprReduceAction)
+    rule(MultExpr, (CastExpr,), SkipReduceAction())
+    rule(CastExpr, (OPARN,  Type,  CPARN,  CastExpr, ), SimpleReduceAction('CastExpr', 'std::move(a1), std::move(a3)'))
+    rule(CastExpr, (UnaryExpr,), SkipReduceAction())
+    rule(UnaryExpr, (TILDE,  UnaryExpr, ), SimpleReduceAction('UnaryExpr', 'a0, std::move(a1)'))
+    rule(UnaryExpr, (MINUS,  UnaryExpr, ), SimpleReduceAction('UnaryExpr', 'a0, std::move(a1)'))
+    rule(UnaryExpr, (BANG,  UnaryExpr, ), SimpleReduceAction('UnaryExpr', 'a0, std::move(a1)'))
+    rule(UnaryExpr, (CallExpr,), SkipReduceAction())
+    rule(CallExpr, (CallExpr,  OPARN,  ArgListOpt,  CPARN, ), SimpleReduceAction('CallExpr', 'std::move(a0), a1, std::move(a2)'))
+    rule(CallExpr, (PrimaryExpr,), SkipReduceAction())
+    rule(PrimaryExpr, (TRUELIT,), SimpleReduceAction('PrimaryExpr', 'a0'))
+    rule(PrimaryExpr, (FALSELIT,), SimpleReduceAction('PrimaryExpr', 'a0'))
+    rule(PrimaryExpr, (FLOATLIT,), SimpleReduceAction('PrimaryExpr', 'a0'))
+    rule(PrimaryExpr, (NULLPTRLIT,), SimpleReduceAction('PrimaryExpr', 'a0'))
+    rule(PrimaryExpr, (DECINTLIT,), SimpleReduceAction('PrimaryExpr', 'a0'))
+    rule(PrimaryExpr, (OCTINTLIT,), SimpleReduceAction('PrimaryExpr', 'a0'))
+    rule(PrimaryExpr, (BININTLIT,), SimpleReduceAction('PrimaryExpr', 'a0'))
+    rule(PrimaryExpr, (HEXINTLIT,), SimpleReduceAction('PrimaryExpr', 'a0'))
+    rule(PrimaryExpr, (CHARLIT,), SimpleReduceAction('PrimaryExpr', 'a0'))
+    rule(PrimaryExpr, (STRINGLIT,), SimpleReduceAction('PrimaryExpr', 'a0'))
+    rule(PrimaryExpr, (IDENTIFIER,), SimpleReduceAction('PrimaryExpr', 'a0'))
+    rule(PrimaryExpr, (OPARN,  Expr,  CPARN, ), SkipReduceAction(1))
 
 makeGrammar()
 
