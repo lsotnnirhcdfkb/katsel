@@ -556,7 +556,7 @@ static Token popT(std::vector<stackitem> &stack)
     return std::get<tokenitem>(si.item).tok;
 }
 
-    template <typename A>
+template <typename A>
 static std::unique_ptr<A> popA(std::vector<stackitem> &stack)
 {
     stackitem si = std::move(stack.back());
@@ -564,13 +564,14 @@ static std::unique_ptr<A> popA(std::vector<stackitem> &stack)
 
     astitem &i = std::get<astitem>(si.item);
     A *astraw = dynamic_cast<A*>(i.ast.get());
-    ASSERT(astraw)
-        i.ast.release(); // will only ever release if dynamic_cast works
+    if (i.ast)
+        ASSERT(astraw)
+    i.ast.release(); // will only ever release if dynamic_cast works
 
     return std::unique_ptr<A>(astraw);
 }
 
-    template <typename A>
+template <typename A>
 static void reduceSkip(std::vector<stackitem> &stack)
 {
     size_t newstate = getGoto<A>((stack.end() - 2)->state);
