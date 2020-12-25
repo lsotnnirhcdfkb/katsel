@@ -76,6 +76,7 @@ def genASTDecls():
 
             output.append('    {\n')
             output.append('    public:\n')
+            output.append('        Location _start, _end;\n')
 
             for field in ast.fields:
                 output.append(f'        {field.type} {field.name};\n')
@@ -84,7 +85,6 @@ def genASTDecls():
             output.append( '        virtual Location const & start() override;\n')
             output.append( '        virtual Location const & end() override;\n')
             output.append(f'        {ast.name}(File const &file, Location start, Location end, {", ".join(f"{field.type} {field.name}" for field in ast.fields)});\n')
-            output.append( '        Location _start, _end;\n')
 
             output.append('    };\n')
         elif type(ast) == ASTBaseClass:
@@ -103,12 +103,13 @@ def genASTDecls():
 
             output.append(f'        virtual ~{ast.name}() {{}}\n')
             output.append('        virtual void accept(Visitor *v) = 0;\n')
+            output.append(f'        {ast.name}(File const &file);\n')
             output.append('    };\n')
         else:
             output.append('    class AST\n')
             output.append('    {\n')
             output.append('    public:\n')
-            output.append('        inline AST(File const &file): file(file) {}\n')
+            output.append('        AST(File const &file);\n')
             output.append('        virtual ~AST() {}\n')
             output.append('        virtual Location const & start() = 0;\n')
             output.append('        virtual Location const & end() = 0;\n')
@@ -121,9 +122,9 @@ def genASTDefs():
     output = ['#include "ast/ast.h"\n']
     for ast in asts:
         if type(ast) == ASTClass:
-            output.append(f'ASTNS::{ast.name}::{ast.name}({", ".join(f"{field.type} {field.name}" for field in ast.fields)}):')
+            output.append(f'ASTNS::{ast.name}::{ast.name}(File const &file, Location start, Location end, {", ".join(f"{field.type} {field.name}" for field in ast.fields)}): ')
 
-            initializerList = []
+            initializerList = [f'{ast.base}(file), _start(start), _end(end)']
             for field in ast.fields:
                 initializerList.append(f'{field.name}(std::move({field.name}))')
 
@@ -131,6 +132,12 @@ def genASTDefs():
             output.append(' {}\n')
 
             output.append(f'void ASTNS::{ast.name}::accept(ASTNS::{ast.base}::Visitor *v) {{ v->visit{ast.name}(this); }}\n')
+            output.append(f'Location const & ASTNS::{ast.name}::start() {{ return _start; }}\n')
+            output.append(f'Location const & ASTNS::{ast.name}::end() {{ return _end; }}\n')
+        elif type(ast) == ASTBaseClass:
+            output.append(f'ASTNS::{ast.name}::{ast.name}(File const &file): AST(file) {{}}')
+        else:
+            output.append('ASTNS::AST::AST(File const &file): file(file) {}')
 
     return''.join(output)
 # Generating Visitor stuff {{{2
