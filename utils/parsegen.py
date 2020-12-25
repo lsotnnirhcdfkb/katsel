@@ -800,8 +800,8 @@ def genLoop():
 
     for staten, state in sorted(table.items(), key=lambda x:x[0]):
         output.append(                           f'            case {staten}:\n')
-        output.append(                            '               switch (lookahead.type)\n')
-        output.append(                            '               {\n')
+        output.append(                            '                switch (lookahead.type)\n')
+        output.append(                            '                {\n')
 
         stateactions = []
         for term, ac in sorted(state.actions.items(), key=lambda x:str(x[0])):

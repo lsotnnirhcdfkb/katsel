@@ -602,8 +602,8 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
         switch (stack.back().state)
         {
             case 0:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
 
@@ -616,8 +616,8 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                 }
                 break;
             case 1:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::EOF_:
                             done = true;
                         break;
@@ -627,8 +627,8 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                 }
                 break;
             case 2:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::DeclList>(stack));
@@ -645,8 +645,8 @@ std::unique_ptr<ASTNS::CU> push (std::make_unique<ASTNS::CU>(p.sourcefile, start
                 }
                 break;
             case 3:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::Decl>(stack));
@@ -663,8 +663,8 @@ std::unique_ptr<ASTNS::DeclList> push(std::make_unique<ASTNS::DeclList>(p.source
                 }
                 break;
             case 4:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::FunctionDecl>(stack));
@@ -678,8 +678,8 @@ std::unique_ptr<ASTNS::DeclList> push(std::make_unique<ASTNS::DeclList>(p.source
                 }
                 break;
             case 5:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BOOL:
                         shift(p, lasttok, lookahead, stack, steps, 19); break;
                     case TokenType::CHAR:
@@ -712,8 +712,8 @@ std::unique_ptr<ASTNS::DeclList> push(std::make_unique<ASTNS::DeclList>(p.source
                 }
                 break;
             case 6:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::EOF_:
                     case TokenType::FUN:
                         {
@@ -733,8 +733,8 @@ a0->decls.push_back(std::move(a1));
                 }
                 break;
             case 7:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::Decl>(stack));
@@ -748,8 +748,8 @@ a0->decls.push_back(std::move(a1));
                 }
                 break;
             case 8:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::IDENTIFIER:
                         shift(p, lasttok, lookahead, stack, steps, 23); break;
                     default:
@@ -758,8 +758,8 @@ a0->decls.push_back(std::move(a1));
                 }
                 break;
             case 9:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::PrimitiveType>(stack));
@@ -773,8 +773,8 @@ a0->decls.push_back(std::move(a1));
                 }
                 break;
             case 10:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popT(stack));
@@ -789,8 +789,8 @@ std::unique_ptr<ASTNS::PrimitiveType> push (std::make_unique<ASTNS::PrimitiveTyp
                 }
                 break;
             case 11:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popT(stack));
@@ -805,8 +805,8 @@ std::unique_ptr<ASTNS::PrimitiveType> push (std::make_unique<ASTNS::PrimitiveTyp
                 }
                 break;
             case 12:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popT(stack));
@@ -821,8 +821,8 @@ std::unique_ptr<ASTNS::PrimitiveType> push (std::make_unique<ASTNS::PrimitiveTyp
                 }
                 break;
             case 13:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popT(stack));
@@ -837,8 +837,8 @@ std::unique_ptr<ASTNS::PrimitiveType> push (std::make_unique<ASTNS::PrimitiveTyp
                 }
                 break;
             case 14:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popT(stack));
@@ -853,8 +853,8 @@ std::unique_ptr<ASTNS::PrimitiveType> push (std::make_unique<ASTNS::PrimitiveTyp
                 }
                 break;
             case 15:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popT(stack));
@@ -869,8 +869,8 @@ std::unique_ptr<ASTNS::PrimitiveType> push (std::make_unique<ASTNS::PrimitiveTyp
                 }
                 break;
             case 16:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popT(stack));
@@ -885,8 +885,8 @@ std::unique_ptr<ASTNS::PrimitiveType> push (std::make_unique<ASTNS::PrimitiveTyp
                 }
                 break;
             case 17:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popT(stack));
@@ -901,8 +901,8 @@ std::unique_ptr<ASTNS::PrimitiveType> push (std::make_unique<ASTNS::PrimitiveTyp
                 }
                 break;
             case 18:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popT(stack));
@@ -917,8 +917,8 @@ std::unique_ptr<ASTNS::PrimitiveType> push (std::make_unique<ASTNS::PrimitiveTyp
                 }
                 break;
             case 19:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popT(stack));
@@ -933,8 +933,8 @@ std::unique_ptr<ASTNS::PrimitiveType> push (std::make_unique<ASTNS::PrimitiveTyp
                 }
                 break;
             case 20:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popT(stack));
@@ -949,8 +949,8 @@ std::unique_ptr<ASTNS::PrimitiveType> push (std::make_unique<ASTNS::PrimitiveTyp
                 }
                 break;
             case 21:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popT(stack));
@@ -965,8 +965,8 @@ std::unique_ptr<ASTNS::PrimitiveType> push (std::make_unique<ASTNS::PrimitiveTyp
                 }
                 break;
             case 22:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popT(stack));
@@ -981,8 +981,8 @@ std::unique_ptr<ASTNS::PrimitiveType> push (std::make_unique<ASTNS::PrimitiveTyp
                 }
                 break;
             case 23:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::OPARN:
                         shift(p, lasttok, lookahead, stack, steps, 24); break;
                     default:
@@ -991,8 +991,8 @@ std::unique_ptr<ASTNS::PrimitiveType> push (std::make_unique<ASTNS::PrimitiveTyp
                 }
                 break;
             case 24:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BOOL:
                         shift(p, lasttok, lookahead, stack, steps, 19); break;
                     case TokenType::CHAR:
@@ -1029,8 +1029,8 @@ std::unique_ptr<ASTNS::PrimitiveType> push (std::make_unique<ASTNS::PrimitiveTyp
                 }
                 break;
             case 25:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::CPARN:
                         shift(p, lasttok, lookahead, stack, steps, 30); break;
                     default:
@@ -1039,8 +1039,8 @@ std::unique_ptr<ASTNS::PrimitiveType> push (std::make_unique<ASTNS::PrimitiveTyp
                 }
                 break;
             case 26:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::ParamList>(stack));
@@ -1054,8 +1054,8 @@ std::unique_ptr<ASTNS::PrimitiveType> push (std::make_unique<ASTNS::PrimitiveTyp
                 }
                 break;
             case 27:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::COMMA:
                         shift(p, lasttok, lookahead, stack, steps, 31); break;
                     case TokenType::CPARN:
@@ -1074,8 +1074,8 @@ std::unique_ptr<ASTNS::PrimitiveType> push (std::make_unique<ASTNS::PrimitiveTyp
                 }
                 break;
             case 28:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::Param>(stack));
@@ -1092,8 +1092,8 @@ std::unique_ptr<ASTNS::ParamList> push(std::make_unique<ASTNS::ParamList>(p.sour
                 }
                 break;
             case 29:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::IDENTIFIER:
                         shift(p, lasttok, lookahead, stack, steps, 32); break;
                     default:
@@ -1102,8 +1102,8 @@ std::unique_ptr<ASTNS::ParamList> push(std::make_unique<ASTNS::ParamList>(p.sour
                 }
                 break;
             case 30:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::NEWLINE:
                         shift(p, lasttok, lookahead, stack, steps, 37); break;
                     case TokenType::OCURB:
@@ -1116,8 +1116,8 @@ std::unique_ptr<ASTNS::ParamList> push(std::make_unique<ASTNS::ParamList>(p.sour
                 }
                 break;
             case 31:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BOOL:
                         shift(p, lasttok, lookahead, stack, steps, 19); break;
                     case TokenType::CHAR:
@@ -1161,8 +1161,8 @@ std::unique_ptr<ASTNS::ParamList> push(std::make_unique<ASTNS::ParamList>(p.sour
                 }
                 break;
             case 32:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a1 (popT(stack));
@@ -1178,8 +1178,8 @@ std::unique_ptr<ASTNS::Param> push (std::make_unique<ASTNS::Param>(p.sourcefile,
                 }
                 break;
             case 33:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
 
@@ -1194,8 +1194,8 @@ std::unique_ptr<ASTNS::Param> push (std::make_unique<ASTNS::Param>(p.sourcefile,
                 }
                 break;
             case 34:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a6 (popA<ASTNS::AST>(stack));
@@ -1216,8 +1216,8 @@ std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>
                 }
                 break;
             case 35:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::Block>(stack));
@@ -1231,8 +1231,8 @@ std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>
                 }
                 break;
             case 36:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::Block>(stack));
@@ -1246,8 +1246,8 @@ std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>
                 }
                 break;
             case 37:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popT(stack));
@@ -1263,8 +1263,8 @@ std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>
                 }
                 break;
             case 38:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popT(stack));
@@ -1280,8 +1280,8 @@ std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>
                 }
                 break;
             case 39:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -1334,8 +1334,8 @@ std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>
                 }
                 break;
             case 40:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a2 (popA<ASTNS::Param>(stack));
@@ -1352,8 +1352,8 @@ a0->params.push_back(std::move(a2));
                 }
                 break;
             case 41:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::Param>(stack));
@@ -1367,8 +1367,8 @@ a0->params.push_back(std::move(a2));
                 }
                 break;
             case 42:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a7 (popA<ASTNS::AST>(stack));
@@ -1390,8 +1390,8 @@ std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>
                 }
                 break;
             case 43:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::AST>(stack));
@@ -1405,8 +1405,8 @@ std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>
                 }
                 break;
             case 44:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popT(stack));
@@ -1420,8 +1420,8 @@ std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>
                 }
                 break;
             case 45:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -1472,8 +1472,8 @@ std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>
                 }
                 break;
             case 46:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a1 (popT(stack));
@@ -1488,8 +1488,8 @@ std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>
                 }
                 break;
             case 47:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
 
@@ -1502,8 +1502,8 @@ std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>
                 }
                 break;
             case 48:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -1556,8 +1556,8 @@ std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>
                 }
                 break;
             case 49:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -1611,8 +1611,8 @@ std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>
                 }
                 break;
             case 50:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::Stmt>(stack));
@@ -1629,8 +1629,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 51:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::VarStmt>(stack));
@@ -1644,8 +1644,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 52:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::ExprStmt>(stack));
@@ -1659,8 +1659,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 53:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::RetStmt>(stack));
@@ -1674,8 +1674,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 54:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BOOL:
                         shift(p, lasttok, lookahead, stack, steps, 19); break;
                     case TokenType::CHAR:
@@ -1708,8 +1708,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 55:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::NEWLINE:
                         shift(p, lasttok, lookahead, stack, steps, 44); break;
                     case TokenType::SEMICOLON:
@@ -1720,8 +1720,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 56:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
 
@@ -1736,8 +1736,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 57:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -1784,8 +1784,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 58:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -1799,8 +1799,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 59:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::IfExpr>(stack));
@@ -1814,8 +1814,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 60:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::ForExpr>(stack));
@@ -1829,8 +1829,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 61:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::Block>(stack));
@@ -1844,8 +1844,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 62:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -1863,8 +1863,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 63:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -1907,8 +1907,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 64:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
 
@@ -1921,8 +1921,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 65:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -1938,8 +1938,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 66:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANGEQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 114); break;
                     default:
@@ -1957,8 +1957,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 67:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -1980,8 +1980,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 68:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -1997,8 +1997,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 69:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -2014,8 +2014,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 70:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::AMPER:
                         shift(p, lasttok, lookahead, stack, steps, 122); break;
                     default:
@@ -2031,8 +2031,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 71:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -2050,8 +2050,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 72:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -2069,8 +2069,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 73:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -2090,8 +2090,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 74:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -2105,8 +2105,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 75:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -2175,8 +2175,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 76:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -2190,8 +2190,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 77:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -2228,8 +2228,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 78:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -2266,8 +2266,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 79:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -2304,8 +2304,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 80:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -2321,8 +2321,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 81:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -2336,8 +2336,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 }
                 break;
             case 82:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popT(stack));
@@ -2352,8 +2352,8 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 }
                 break;
             case 83:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popT(stack));
@@ -2368,8 +2368,8 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 }
                 break;
             case 84:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popT(stack));
@@ -2384,8 +2384,8 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 }
                 break;
             case 85:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popT(stack));
@@ -2400,8 +2400,8 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 }
                 break;
             case 86:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popT(stack));
@@ -2416,8 +2416,8 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 }
                 break;
             case 87:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popT(stack));
@@ -2432,8 +2432,8 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 }
                 break;
             case 88:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popT(stack));
@@ -2448,8 +2448,8 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 }
                 break;
             case 89:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popT(stack));
@@ -2464,8 +2464,8 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 }
                 break;
             case 90:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popT(stack));
@@ -2480,8 +2480,8 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 }
                 break;
             case 91:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popT(stack));
@@ -2496,8 +2496,8 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 }
                 break;
             case 92:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popT(stack));
@@ -2512,8 +2512,8 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 }
                 break;
             case 93:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
 
@@ -2526,8 +2526,8 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 }
                 break;
             case 94:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::CCURB:
                         shift(p, lasttok, lookahead, stack, steps, 138); break;
                     default:
@@ -2536,8 +2536,8 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 }
                 break;
             case 95:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::ImplRet>(stack));
@@ -2551,8 +2551,8 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 }
                 break;
             case 96:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -2595,8 +2595,8 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 }
                 break;
             case 97:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
 
@@ -2609,8 +2609,8 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 }
                 break;
             case 98:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -2661,8 +2661,8 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 }
                 break;
             case 99:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                     case TokenType::BININTLIT:
                     case TokenType::CCURB:
@@ -2703,8 +2703,8 @@ a0->stmts.push_back(std::move(a1));
                 }
                 break;
             case 100:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::Stmt>(stack));
@@ -2718,8 +2718,8 @@ a0->stmts.push_back(std::move(a1));
                 }
                 break;
             case 101:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::IDENTIFIER:
                         shift(p, lasttok, lookahead, stack, steps, 145); break;
                     default:
@@ -2728,8 +2728,8 @@ a0->stmts.push_back(std::move(a1));
                 }
                 break;
             case 102:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a1 (popA<ASTNS::AST>(stack));
@@ -2745,8 +2745,8 @@ std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourc
                 }
                 break;
             case 103:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a1 (popA<ASTNS::AST>(stack));
@@ -2762,8 +2762,8 @@ std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourc
                 }
                 break;
             case 104:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::NEWLINE:
                         shift(p, lasttok, lookahead, stack, steps, 44); break;
                     case TokenType::SEMICOLON:
@@ -2774,8 +2774,8 @@ std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourc
                 }
                 break;
             case 105:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a1 (popA<ASTNS::AST>(stack));
@@ -2791,8 +2791,8 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 }
                 break;
             case 106:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -2806,8 +2806,8 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 }
                 break;
             case 107:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -2821,8 +2821,8 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 }
                 break;
             case 108:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -2859,8 +2859,8 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 }
                 break;
             case 109:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -2897,8 +2897,8 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 }
                 break;
             case 110:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::NEWLINE:
                         shift(p, lasttok, lookahead, stack, steps, 150); break;
                     case TokenType::OCURB:
@@ -2909,8 +2909,8 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 }
                 break;
             case 111:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::SEMICOLON:
                         shift(p, lasttok, lookahead, stack, steps, 151); break;
                     default:
@@ -2919,8 +2919,8 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 }
                 break;
             case 112:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::VarStmt>(stack));
@@ -2934,8 +2934,8 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 }
                 break;
             case 113:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -2972,8 +2972,8 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 }
                 break;
             case 114:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -3010,8 +3010,8 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 }
                 break;
             case 115:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -3048,8 +3048,8 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 }
                 break;
             case 116:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -3086,8 +3086,8 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 }
                 break;
             case 117:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -3124,8 +3124,8 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 }
                 break;
             case 118:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -3162,8 +3162,8 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 }
                 break;
             case 119:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -3200,8 +3200,8 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 }
                 break;
             case 120:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -3238,8 +3238,8 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 }
                 break;
             case 121:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -3276,8 +3276,8 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 }
                 break;
             case 122:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -3314,8 +3314,8 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 }
                 break;
             case 123:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -3352,8 +3352,8 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 }
                 break;
             case 124:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -3390,8 +3390,8 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 }
                 break;
             case 125:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -3428,8 +3428,8 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 }
                 break;
             case 126:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -3466,8 +3466,8 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 }
                 break;
             case 127:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -3504,8 +3504,8 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 }
                 break;
             case 128:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -3542,8 +3542,8 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 }
                 break;
             case 129:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -3580,8 +3580,8 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 }
                 break;
             case 130:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::CPARN:
                         shift(p, lasttok, lookahead, stack, steps, 169); break;
                     default:
@@ -3590,8 +3590,8 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 }
                 break;
             case 131:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::CPARN:
                         shift(p, lasttok, lookahead, stack, steps, 170); break;
                     default:
@@ -3600,8 +3600,8 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 }
                 break;
             case 132:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a1 (popA<ASTNS::Expr>(stack));
@@ -3617,8 +3617,8 @@ std::unique_ptr<ASTNS::UnaryExpr> push (std::make_unique<ASTNS::UnaryExpr>(p.sou
                 }
                 break;
             case 133:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -3661,8 +3661,8 @@ std::unique_ptr<ASTNS::UnaryExpr> push (std::make_unique<ASTNS::UnaryExpr>(p.sou
                 }
                 break;
             case 134:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a1 (popA<ASTNS::Expr>(stack));
@@ -3678,8 +3678,8 @@ std::unique_ptr<ASTNS::UnaryExpr> push (std::make_unique<ASTNS::UnaryExpr>(p.sou
                 }
                 break;
             case 135:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a1 (popA<ASTNS::Expr>(stack));
@@ -3695,8 +3695,8 @@ std::unique_ptr<ASTNS::UnaryExpr> push (std::make_unique<ASTNS::UnaryExpr>(p.sou
                 }
                 break;
             case 136:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -3743,8 +3743,8 @@ std::unique_ptr<ASTNS::UnaryExpr> push (std::make_unique<ASTNS::UnaryExpr>(p.sou
                 }
                 break;
             case 137:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::DEDENT:
                         shift(p, lasttok, lookahead, stack, steps, 176); break;
                     default:
@@ -3753,8 +3753,8 @@ std::unique_ptr<ASTNS::UnaryExpr> push (std::make_unique<ASTNS::UnaryExpr>(p.sou
                 }
                 break;
             case 138:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a3 (popT(stack));
@@ -3772,8 +3772,8 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                 }
                 break;
             case 139:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
 
@@ -3788,8 +3788,8 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                 }
                 break;
             case 140:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::CCURB:
                         shift(p, lasttok, lookahead, stack, steps, 178); break;
                     default:
@@ -3798,8 +3798,8 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                 }
                 break;
             case 141:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
 
@@ -3812,8 +3812,8 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                 }
                 break;
             case 142:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::NEWLINE:
                         shift(p, lasttok, lookahead, stack, steps, 44); break;
                     case TokenType::SEMICOLON:
@@ -3824,8 +3824,8 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                 }
                 break;
             case 143:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::COMMA:
                         shift(p, lasttok, lookahead, stack, steps, 181); break;
                     case TokenType::NEWLINE:
@@ -3845,8 +3845,8 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                 }
                 break;
             case 144:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::VarStmtItem>(stack));
@@ -3863,8 +3863,8 @@ std::unique_ptr<ASTNS::VarStmtItemList> push(std::make_unique<ASTNS::VarStmtItem
                 }
                 break;
             case 145:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popT(stack));
@@ -3881,8 +3881,8 @@ std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p
                 }
                 break;
             case 146:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a2 (popA<ASTNS::AST>(stack));
@@ -3899,8 +3899,8 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 }
                 break;
             case 147:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a2 (popA<ASTNS::Expr>(stack));
@@ -3917,8 +3917,8 @@ std::unique_ptr<ASTNS::AssignmentExpr> push (std::make_unique<ASTNS::AssignmentE
                 }
                 break;
             case 148:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a2 (popA<ASTNS::Expr>(stack));
@@ -3937,8 +3937,8 @@ std::unique_ptr<ASTNS::ShortCircuitExpr> push (std::make_unique<ASTNS::ShortCirc
                 }
                 break;
             case 149:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a2 (popA<ASTNS::Block>(stack));
@@ -3957,8 +3957,8 @@ std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefil
                 }
                 break;
             case 150:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::INDENT:
                         shift(p, lasttok, lookahead, stack, steps, 45); break;
                     default:
@@ -3967,8 +3967,8 @@ std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefil
                 }
                 break;
             case 151:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -4015,8 +4015,8 @@ std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefil
                 }
                 break;
             case 152:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANGEQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 114); break;
                     default:
@@ -4037,8 +4037,8 @@ std::unique_ptr<ASTNS::ShortCircuitExpr> push (std::make_unique<ASTNS::ShortCirc
                 }
                 break;
             case 153:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a2 (popA<ASTNS::Expr>(stack));
@@ -4063,8 +4063,8 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                 }
                 break;
             case 154:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a2 (popA<ASTNS::Expr>(stack));
@@ -4089,8 +4089,8 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                 }
                 break;
             case 155:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a2 (popA<ASTNS::Expr>(stack));
@@ -4109,8 +4109,8 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                 }
                 break;
             case 156:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a2 (popA<ASTNS::Expr>(stack));
@@ -4129,8 +4129,8 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                 }
                 break;
             case 157:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a2 (popA<ASTNS::Expr>(stack));
@@ -4149,8 +4149,8 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                 }
                 break;
             case 158:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a2 (popA<ASTNS::Expr>(stack));
@@ -4169,8 +4169,8 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                 }
                 break;
             case 159:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a2 (popA<ASTNS::Expr>(stack));
@@ -4189,8 +4189,8 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                 }
                 break;
             case 160:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::AMPER:
                         shift(p, lasttok, lookahead, stack, steps, 122); break;
                     default:
@@ -4209,8 +4209,8 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                 }
                 break;
             case 161:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a2 (popA<ASTNS::Expr>(stack));
@@ -4231,8 +4231,8 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                 }
                 break;
             case 162:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a2 (popA<ASTNS::Expr>(stack));
@@ -4253,8 +4253,8 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                 }
                 break;
             case 163:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a2 (popA<ASTNS::Expr>(stack));
@@ -4275,8 +4275,8 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                 }
                 break;
             case 164:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a2 (popA<ASTNS::Expr>(stack));
@@ -4299,8 +4299,8 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                 }
                 break;
             case 165:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a2 (popA<ASTNS::Expr>(stack));
@@ -4323,8 +4323,8 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                 }
                 break;
             case 166:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a2 (popA<ASTNS::Expr>(stack));
@@ -4341,8 +4341,8 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                 }
                 break;
             case 167:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a2 (popA<ASTNS::Expr>(stack));
@@ -4359,8 +4359,8 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                 }
                 break;
             case 168:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a2 (popA<ASTNS::Expr>(stack));
@@ -4377,8 +4377,8 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                 }
                 break;
             case 169:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -4415,8 +4415,8 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                 }
                 break;
             case 170:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a2 (popT(stack));
@@ -4432,8 +4432,8 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                 }
                 break;
             case 171:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::CPARN:
                         shift(p, lasttok, lookahead, stack, steps, 187); break;
                     default:
@@ -4442,8 +4442,8 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                 }
                 break;
             case 172:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::ArgList>(stack));
@@ -4457,8 +4457,8 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                 }
                 break;
             case 173:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::COMMA:
                         shift(p, lasttok, lookahead, stack, steps, 188); break;
                     case TokenType::CPARN:
@@ -4477,8 +4477,8 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                 }
                 break;
             case 174:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::Arg>(stack));
@@ -4495,8 +4495,8 @@ std::unique_ptr<ASTNS::ArgList> push(std::make_unique<ASTNS::ArgList>(p.sourcefi
                 }
                 break;
             case 175:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -4511,8 +4511,8 @@ std::unique_ptr<ASTNS::Arg> push (std::make_unique<ASTNS::Arg>(p.sourcefile, sta
                 }
                 break;
             case 176:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a4 (popT(stack));
@@ -4531,8 +4531,8 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                 }
                 break;
             case 177:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a2 (popA<ASTNS::AST>(stack));
@@ -4549,8 +4549,8 @@ std::unique_ptr<ASTNS::ImplRet> push (std::make_unique<ASTNS::ImplRet>(p.sourcef
                 }
                 break;
             case 178:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a4 (popT(stack));
@@ -4569,8 +4569,8 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                 }
                 break;
             case 179:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::DEDENT:
                         shift(p, lasttok, lookahead, stack, steps, 189); break;
                     default:
@@ -4579,8 +4579,8 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                 }
                 break;
             case 180:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a3 (popA<ASTNS::AST>(stack));
@@ -4598,8 +4598,8 @@ std::unique_ptr<ASTNS::VarStmt> push (std::make_unique<ASTNS::VarStmt>(p.sourcef
                 }
                 break;
             case 181:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::IDENTIFIER:
                         shift(p, lasttok, lookahead, stack, steps, 145); break;
                     case TokenType::NEWLINE:
@@ -4620,8 +4620,8 @@ std::unique_ptr<ASTNS::VarStmt> push (std::make_unique<ASTNS::VarStmt>(p.sourcef
                 }
                 break;
             case 182:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -4664,8 +4664,8 @@ std::unique_ptr<ASTNS::VarStmt> push (std::make_unique<ASTNS::VarStmt>(p.sourcef
                 }
                 break;
             case 183:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::IF:
                         shift(p, lasttok, lookahead, stack, steps, 63); break;
                     case TokenType::NEWLINE:
@@ -4678,8 +4678,8 @@ std::unique_ptr<ASTNS::VarStmt> push (std::make_unique<ASTNS::VarStmt>(p.sourcef
                 }
                 break;
             case 184:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::SEMICOLON:
                         shift(p, lasttok, lookahead, stack, steps, 195); break;
                     default:
@@ -4688,8 +4688,8 @@ std::unique_ptr<ASTNS::VarStmt> push (std::make_unique<ASTNS::VarStmt>(p.sourcef
                 }
                 break;
             case 185:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -4703,8 +4703,8 @@ std::unique_ptr<ASTNS::VarStmt> push (std::make_unique<ASTNS::VarStmt>(p.sourcef
                 }
                 break;
             case 186:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a3 (popA<ASTNS::Expr>(stack));
@@ -4722,8 +4722,8 @@ std::unique_ptr<ASTNS::CastExpr> push (std::make_unique<ASTNS::CastExpr>(p.sourc
                 }
                 break;
             case 187:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a3 (popT(stack));
@@ -4741,8 +4741,8 @@ std::unique_ptr<ASTNS::CallExpr> push (std::make_unique<ASTNS::CallExpr>(p.sourc
                 }
                 break;
             case 188:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -4796,8 +4796,8 @@ std::unique_ptr<ASTNS::CallExpr> push (std::make_unique<ASTNS::CallExpr>(p.sourc
                 }
                 break;
             case 189:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::CCURB:
                         shift(p, lasttok, lookahead, stack, steps, 198); break;
                     default:
@@ -4806,8 +4806,8 @@ std::unique_ptr<ASTNS::CallExpr> push (std::make_unique<ASTNS::CallExpr>(p.sourc
                 }
                 break;
             case 190:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a2 (popA<ASTNS::VarStmtItem>(stack));
@@ -4824,8 +4824,8 @@ a0->items.push_back(std::move(a2));
                 }
                 break;
             case 191:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::VarStmtItem>(stack));
@@ -4839,8 +4839,8 @@ a0->items.push_back(std::move(a2));
                 }
                 break;
             case 192:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a2 (popA<ASTNS::Expr>(stack));
@@ -4857,8 +4857,8 @@ std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p
                 }
                 break;
             case 193:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a4 (popA<ASTNS::Block>(stack));
@@ -4877,8 +4877,8 @@ std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefil
                 }
                 break;
             case 194:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a4 (popA<ASTNS::IfExpr>(stack));
@@ -4897,8 +4897,8 @@ std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefil
                 }
                 break;
             case 195:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::BANG:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     case TokenType::BININTLIT:
@@ -4945,8 +4945,8 @@ std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefil
                 }
                 break;
             case 196:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a2 (popA<ASTNS::Arg>(stack));
@@ -4963,8 +4963,8 @@ a0->args.push_back(std::move(a2));
                 }
                 break;
             case 197:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a0 (popA<ASTNS::Arg>(stack));
@@ -4978,8 +4978,8 @@ a0->args.push_back(std::move(a2));
                 }
                 break;
             case 198:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a6 (popT(stack));
@@ -5000,8 +5000,8 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                 }
                 break;
             case 199:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::CPARN:
                         shift(p, lasttok, lookahead, stack, steps, 200); break;
                     default:
@@ -5010,8 +5010,8 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                 }
                 break;
             case 200:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     case TokenType::NEWLINE:
                         shift(p, lasttok, lookahead, stack, steps, 150); break;
                     case TokenType::OCURB:
@@ -5022,8 +5022,8 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                 }
                 break;
             case 201:
-               switch (lookahead.type)
-               {
+                switch (lookahead.type)
+                {
                     default:
                         {
                             auto a7 (popA<ASTNS::Block>(stack));
