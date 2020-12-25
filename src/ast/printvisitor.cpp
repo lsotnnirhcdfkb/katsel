@@ -44,6 +44,11 @@ void ASTNS::PrintVisitor::visitFunctionDecl(ASTNS::FunctionDecl *a)
         a->params->accept(this);
     else
         pai("nullptr\n");
+    pai("std::unique_ptr<Block> body = ");
+    if (a->body)
+        a->body->accept(this);
+    else
+        pai("nullptr\n");
     --indent;
 }
 void ASTNS::PrintVisitor::visitVarStmt(ASTNS::VarStmt *a)
@@ -81,9 +86,9 @@ void ASTNS::PrintVisitor::visitVarStmtItemList(ASTNS::VarStmtItemList *a)
 {
     pai("VarStmtItemList\n");
     ++indent;
-    pai("std::vector<std::unique_ptr<VarStmtItem>> vis = ");
+    pai("std::vector<std::unique_ptr<VarStmtItem>> items = ");
     pai("\"");
-    pai(std::string(a->vis.start, a->vis.end));
+    pai(std::string(a->items.start, a->items.end));
     pai("\"\n");
     --indent;
 }
@@ -105,22 +110,6 @@ void ASTNS::PrintVisitor::visitRetStmt(ASTNS::RetStmt *a)
     pai("std::unique_ptr<Expr> expr = ");
     if (a->expr)
         a->expr->accept(this);
-    else
-        pai("nullptr\n");
-    --indent;
-}
-void ASTNS::PrintVisitor::visitBlock(ASTNS::Block *a)
-{
-    pai("Block\n");
-    ++indent;
-    pai("std::unique_ptr<StmtList> stmts = ");
-    if (a->stmts)
-        a->stmts->accept(this);
-    else
-        pai("nullptr\n");
-    pai("std::unique_ptr<Expr> implRet = ");
-    if (a->implRet)
-        a->implRet->accept(this);
     else
         pai("nullptr\n");
     --indent;
@@ -200,6 +189,22 @@ void ASTNS::PrintVisitor::visitParamList(ASTNS::ParamList *a)
     pai("\"");
     pai(std::string(a->params.start, a->params.end));
     pai("\"\n");
+    --indent;
+}
+void ASTNS::PrintVisitor::visitBlock(ASTNS::Block *a)
+{
+    pai("Block\n");
+    ++indent;
+    pai("std::unique_ptr<StmtList> stmts = ");
+    if (a->stmts)
+        a->stmts->accept(this);
+    else
+        pai("nullptr\n");
+    pai("std::unique_ptr<ImplRet> implRet = ");
+    if (a->implRet)
+        a->implRet->accept(this);
+    else
+        pai("nullptr\n");
     --indent;
 }
 void ASTNS::PrintVisitor::visitIfExpr(ASTNS::IfExpr *a)

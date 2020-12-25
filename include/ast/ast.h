@@ -26,7 +26,6 @@ namespace ASTNS
     class VarStmtItemList;
     class ExprStmt;
     class RetStmt;
-    class Block;
     class StmtList;
     class ImplRet;
     class PrimitiveType;
@@ -34,6 +33,7 @@ namespace ASTNS
     class ArgList;
     class Param;
     class ParamList;
+    class Block;
     class IfExpr;
     class ForExpr;
     class AssignmentExpr;
@@ -80,9 +80,9 @@ namespace ASTNS
         {
         public:
             virtual ~Visitor() {}
+            virtual void visitVarStmt(ASTNS::VarStmt *ast) = 0;
             virtual void visitExprStmt(ASTNS::ExprStmt *ast) = 0;
             virtual void visitRetStmt(ASTNS::RetStmt *ast) = 0;
-            virtual void visitBlock(ASTNS::Block *ast) = 0;
             virtual void visitStmtList(ASTNS::StmtList *ast) = 0;
         };
         virtual ~Stmt() {}
@@ -95,6 +95,7 @@ namespace ASTNS
         {
         public:
             virtual ~Visitor() {}
+            virtual void visitBlock(ASTNS::Block *ast) = 0;
             virtual void visitIfExpr(ASTNS::IfExpr *ast) = 0;
             virtual void visitForExpr(ASTNS::ForExpr *ast) = 0;
             virtual void visitAssignmentExpr(ASTNS::AssignmentExpr *ast) = 0;
@@ -153,7 +154,6 @@ namespace ASTNS
         {
         public:
             virtual ~Visitor() {}
-            virtual void visitVarStmt(ASTNS::VarStmt *ast) = 0;
             virtual void visitVarStmtItem(ASTNS::VarStmtItem *ast) = 0;
             virtual void visitVarStmtItemList(ASTNS::VarStmtItemList *ast) = 0;
         };
@@ -192,15 +192,16 @@ namespace ASTNS
         std::unique_ptr<Type> retty;
         Token name;
         std::unique_ptr<ParamList> params;
+        std::unique_ptr<Block> body;
         virtual void accept(ASTNS::Decl::Visitor *v) override;
-        FunctionDecl(std::unique_ptr<Type> retty, Token name, std::unique_ptr<ParamList> params);
+        FunctionDecl(std::unique_ptr<Type> retty, Token name, std::unique_ptr<ParamList> params, std::unique_ptr<Block> body);
     };
-    class VarStmt : public VStmtIB
+    class VarStmt : public Stmt
     {
     public:
         std::unique_ptr<Type> type;
         std::unique_ptr<VarStmtItemList> assignments;
-        virtual void accept(ASTNS::VStmtIB::Visitor *v) override;
+        virtual void accept(ASTNS::Stmt::Visitor *v) override;
         VarStmt(std::unique_ptr<Type> type, std::unique_ptr<VarStmtItemList> assignments);
     };
     class VarStmtItem : public VStmtIB
@@ -214,9 +215,9 @@ namespace ASTNS
     class VarStmtItemList : public VStmtIB
     {
     public:
-        std::vector<std::unique_ptr<VarStmtItem>> vis;
+        std::vector<std::unique_ptr<VarStmtItem>> items;
         virtual void accept(ASTNS::VStmtIB::Visitor *v) override;
-        VarStmtItemList(std::vector<std::unique_ptr<VarStmtItem>> vis);
+        VarStmtItemList(std::vector<std::unique_ptr<VarStmtItem>> items);
     };
     class ExprStmt : public Stmt
     {
@@ -231,14 +232,6 @@ namespace ASTNS
         std::unique_ptr<Expr> expr;
         virtual void accept(ASTNS::Stmt::Visitor *v) override;
         RetStmt(std::unique_ptr<Expr> expr);
-    };
-    class Block : public Stmt
-    {
-    public:
-        std::unique_ptr<StmtList> stmts;
-        std::unique_ptr<Expr> implRet;
-        virtual void accept(ASTNS::Stmt::Visitor *v) override;
-        Block(std::unique_ptr<StmtList> stmts, std::unique_ptr<Expr> implRet);
     };
     class StmtList : public Stmt
     {
@@ -289,6 +282,14 @@ namespace ASTNS
         std::vector<std::unique_ptr<Param>> params;
         virtual void accept(ASTNS::ParamB::Visitor *v) override;
         ParamList(std::vector<std::unique_ptr<Param>> params);
+    };
+    class Block : public Expr
+    {
+    public:
+        std::unique_ptr<StmtList> stmts;
+        std::unique_ptr<ImplRet> implRet;
+        virtual void accept(ASTNS::Expr::Visitor *v) override;
+        Block(std::unique_ptr<StmtList> stmts, std::unique_ptr<ImplRet> implRet);
     };
     class IfExpr : public Expr
     {

@@ -40,21 +40,22 @@ void ASTNS::DotVisitor::visitDeclList(ASTNS::DeclList *a)
 void ASTNS::DotVisitor::visitFunctionDecl(ASTNS::FunctionDecl *a)
 {
     std::string thisid = curid();
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">FunctionDecl</td></tr><tr>";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"4\">FunctionDecl</td></tr><tr>";
             ostream << "<td port=\"retty\">retty</td>";
             ostream << "<td port=\"name\">name</td>";
             ostream << "<td port=\"params\">params</td>";
+            ostream << "<td port=\"body\">body</td>";
             ostream << "</tr></table>>]\n";
             {
-                    if (a->params)
+                    if (a->body)
                     {
-                        a->params->accept(this);
-                        connect(thisid, "params", lastid);
+                        a->body->accept(this);
+                        connect(thisid, "body", lastid);
                     }
                     else
                     {
                         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "params", nullptrnodeid);
+                        connect(thisid, "body", nullptrnodeid);
                     }
             }
     lastid = std::move(thisid);
@@ -105,11 +106,11 @@ void ASTNS::DotVisitor::visitVarStmtItemList(ASTNS::VarStmtItemList *a)
 {
     std::string thisid = curid();
             ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"1\">VarStmtItemList</td></tr><tr>";
-            ostream << "<td port=\"vis\">vis</td>";
+            ostream << "<td port=\"items\">items</td>";
             ostream << "</tr></table>>]\n";
             {
-                    std::string tokennodeid = makeTextNode("Token", a->vis.stringify());
-                    connect(thisid, "vis", tokennodeid);
+                    std::string tokennodeid = makeTextNode("Token", a->items.stringify());
+                    connect(thisid, "items", tokennodeid);
             }
     lastid = std::move(thisid);
 }
@@ -149,27 +150,6 @@ void ASTNS::DotVisitor::visitRetStmt(ASTNS::RetStmt *a)
                     {
                         std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
                         connect(thisid, "expr", nullptrnodeid);
-                    }
-            }
-    lastid = std::move(thisid);
-}
-void ASTNS::DotVisitor::visitBlock(ASTNS::Block *a)
-{
-    std::string thisid = curid();
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">Block</td></tr><tr>";
-            ostream << "<td port=\"stmts\">stmts</td>";
-            ostream << "<td port=\"implRet\">implRet</td>";
-            ostream << "</tr></table>>]\n";
-            {
-                    if (a->implRet)
-                    {
-                        a->implRet->accept(this);
-                        connect(thisid, "implRet", lastid);
-                    }
-                    else
-                    {
-                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
-                        connect(thisid, "implRet", nullptrnodeid);
                     }
             }
     lastid = std::move(thisid);
@@ -272,6 +252,27 @@ void ASTNS::DotVisitor::visitParamList(ASTNS::ParamList *a)
             {
                     std::string tokennodeid = makeTextNode("Token", a->params.stringify());
                     connect(thisid, "params", tokennodeid);
+            }
+    lastid = std::move(thisid);
+}
+void ASTNS::DotVisitor::visitBlock(ASTNS::Block *a)
+{
+    std::string thisid = curid();
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">Block</td></tr><tr>";
+            ostream << "<td port=\"stmts\">stmts</td>";
+            ostream << "<td port=\"implRet\">implRet</td>";
+            ostream << "</tr></table>>]\n";
+            {
+                    if (a->implRet)
+                    {
+                        a->implRet->accept(this);
+                        connect(thisid, "implRet", lastid);
+                    }
+                    else
+                    {
+                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");
+                        connect(thisid, "implRet", nullptrnodeid);
+                    }
             }
     lastid = std::move(thisid);
 }

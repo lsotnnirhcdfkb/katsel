@@ -5,20 +5,18 @@ ASTNS::CU::CU(std::unique_ptr<DeclList> decls):decls(std::move(decls)) {}
 void ASTNS::CU::accept(ASTNS::CUB::Visitor *v) { v->visitCU(this); }
 ASTNS::DeclList::DeclList(std::vector<std::unique_ptr<Decl>> decls):decls(std::move(decls)) {}
 void ASTNS::DeclList::accept(ASTNS::Decl::Visitor *v) { v->visitDeclList(this); }
-ASTNS::FunctionDecl::FunctionDecl(std::unique_ptr<Type> retty, Token name, std::unique_ptr<ParamList> params):retty(std::move(retty)), name(std::move(name)), params(std::move(params)) {}
+ASTNS::FunctionDecl::FunctionDecl(std::unique_ptr<Type> retty, Token name, std::unique_ptr<ParamList> params, std::unique_ptr<Block> body):retty(std::move(retty)), name(std::move(name)), params(std::move(params)), body(std::move(body)) {}
 void ASTNS::FunctionDecl::accept(ASTNS::Decl::Visitor *v) { v->visitFunctionDecl(this); }
 ASTNS::VarStmt::VarStmt(std::unique_ptr<Type> type, std::unique_ptr<VarStmtItemList> assignments):type(std::move(type)), assignments(std::move(assignments)) {}
-void ASTNS::VarStmt::accept(ASTNS::VStmtIB::Visitor *v) { v->visitVarStmt(this); }
+void ASTNS::VarStmt::accept(ASTNS::Stmt::Visitor *v) { v->visitVarStmt(this); }
 ASTNS::VarStmtItem::VarStmtItem(Token name, std::unique_ptr<Expr> expr):name(std::move(name)), expr(std::move(expr)) {}
 void ASTNS::VarStmtItem::accept(ASTNS::VStmtIB::Visitor *v) { v->visitVarStmtItem(this); }
-ASTNS::VarStmtItemList::VarStmtItemList(std::vector<std::unique_ptr<VarStmtItem>> vis):vis(std::move(vis)) {}
+ASTNS::VarStmtItemList::VarStmtItemList(std::vector<std::unique_ptr<VarStmtItem>> items):items(std::move(items)) {}
 void ASTNS::VarStmtItemList::accept(ASTNS::VStmtIB::Visitor *v) { v->visitVarStmtItemList(this); }
 ASTNS::ExprStmt::ExprStmt(std::unique_ptr<Expr> expr):expr(std::move(expr)) {}
 void ASTNS::ExprStmt::accept(ASTNS::Stmt::Visitor *v) { v->visitExprStmt(this); }
 ASTNS::RetStmt::RetStmt(std::unique_ptr<Expr> expr):expr(std::move(expr)) {}
 void ASTNS::RetStmt::accept(ASTNS::Stmt::Visitor *v) { v->visitRetStmt(this); }
-ASTNS::Block::Block(std::unique_ptr<StmtList> stmts, std::unique_ptr<Expr> implRet):stmts(std::move(stmts)), implRet(std::move(implRet)) {}
-void ASTNS::Block::accept(ASTNS::Stmt::Visitor *v) { v->visitBlock(this); }
 ASTNS::StmtList::StmtList(std::vector<std::unique_ptr<Stmt>> stmts):stmts(std::move(stmts)) {}
 void ASTNS::StmtList::accept(ASTNS::Stmt::Visitor *v) { v->visitStmtList(this); }
 ASTNS::ImplRet::ImplRet(std::unique_ptr<Expr> expr):expr(std::move(expr)) {}
@@ -33,6 +31,8 @@ ASTNS::Param::Param(std::unique_ptr<Type> ty, Token name):ty(std::move(ty)), nam
 void ASTNS::Param::accept(ASTNS::ParamB::Visitor *v) { v->visitParam(this); }
 ASTNS::ParamList::ParamList(std::vector<std::unique_ptr<Param>> params):params(std::move(params)) {}
 void ASTNS::ParamList::accept(ASTNS::ParamB::Visitor *v) { v->visitParamList(this); }
+ASTNS::Block::Block(std::unique_ptr<StmtList> stmts, std::unique_ptr<ImplRet> implRet):stmts(std::move(stmts)), implRet(std::move(implRet)) {}
+void ASTNS::Block::accept(ASTNS::Expr::Visitor *v) { v->visitBlock(this); }
 ASTNS::IfExpr::IfExpr(std::unique_ptr<Expr> cond, std::unique_ptr<Expr> trues, std::unique_ptr<Expr> falses):cond(std::move(cond)), trues(std::move(trues)), falses(std::move(falses)) {}
 void ASTNS::IfExpr::accept(ASTNS::Expr::Visitor *v) { v->visitIfExpr(this); }
 ASTNS::ForExpr::ForExpr(std::unique_ptr<VarStmt> start, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> increment, std::unique_ptr<Expr> body):start(std::move(start)), cond(std::move(cond)), increment(std::move(increment)), body(std::move(body)) {}

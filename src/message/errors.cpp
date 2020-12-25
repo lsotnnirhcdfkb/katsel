@@ -34,7 +34,6 @@ void visitVarStmtItem(ASTNS::VarStmtItem *ast) override;
 void visitVarStmtItemList(ASTNS::VarStmtItemList *ast) override;
 void visitExprStmt(ASTNS::ExprStmt *ast) override;
 void visitRetStmt(ASTNS::RetStmt *ast) override;
-void visitBlock(ASTNS::Block *ast) override;
 void visitStmtList(ASTNS::StmtList *ast) override;
 void visitImplRet(ASTNS::ImplRet *ast) override;
 void visitPrimitiveType(ASTNS::PrimitiveType *ast) override;
@@ -42,6 +41,7 @@ void visitArg(ASTNS::Arg *ast) override;
 void visitArgList(ASTNS::ArgList *ast) override;
 void visitParam(ASTNS::Param *ast) override;
 void visitParamList(ASTNS::ParamList *ast) override;
+void visitBlock(ASTNS::Block *ast) override;
 void visitIfExpr(ASTNS::IfExpr *ast) override;
 void visitForExpr(ASTNS::ForExpr *ast) override;
 void visitAssignmentExpr(ASTNS::AssignmentExpr *ast) override;
@@ -109,7 +109,7 @@ void LocationVisitor::visitFunctionDecl(ASTNS::FunctionDecl *ast)
 {
             retl = getL(ast->retty.get());
             retf = getF(ast->retty.get());
-            retr = getR(ast->params.get());
+            retr = getR(ast->body.get());
 }
 void LocationVisitor::visitVarStmt(ASTNS::VarStmt *ast)
 {
@@ -125,9 +125,9 @@ void LocationVisitor::visitVarStmtItem(ASTNS::VarStmtItem *ast)
 }
 void LocationVisitor::visitVarStmtItemList(ASTNS::VarStmtItemList *ast)
 {
-            retl = ast->vis.start;
-            retf = ast->vis.sourcefile;
-            retr = ast->vis.end;
+            retl = ast->items.start;
+            retf = ast->items.sourcefile;
+            retr = ast->items.end;
 }
 void LocationVisitor::visitExprStmt(ASTNS::ExprStmt *ast)
 {
@@ -140,12 +140,6 @@ void LocationVisitor::visitRetStmt(ASTNS::RetStmt *ast)
             retl = getL(ast->expr.get());
             retf = getF(ast->expr.get());
             retr = getR(ast->expr.get());
-}
-void LocationVisitor::visitBlock(ASTNS::Block *ast)
-{
-            retl = getL(ast->stmts.get());
-            retf = getF(ast->stmts.get());
-            retr = getR(ast->implRet.get());
 }
 void LocationVisitor::visitStmtList(ASTNS::StmtList *ast)
 {
@@ -188,6 +182,12 @@ void LocationVisitor::visitParamList(ASTNS::ParamList *ast)
             retl = ast->params.start;
             retf = ast->params.sourcefile;
             retr = ast->params.end;
+}
+void LocationVisitor::visitBlock(ASTNS::Block *ast)
+{
+            retl = getL(ast->stmts.get());
+            retf = getF(ast->stmts.get());
+            retr = getR(ast->implRet.get());
 }
 void LocationVisitor::visitIfExpr(ASTNS::IfExpr *ast)
 {
