@@ -18,6 +18,8 @@ namespace ASTNS
     class ArgB;
     class ParamB;
     class VStmtIB;
+    class PureLocationB;
+    class PureLocation;
     class CU;
     class DeclList;
     class FunctionDecl;
@@ -172,6 +174,29 @@ namespace ASTNS
         virtual ~VStmtIB() {}
         virtual void accept(Visitor *v) = 0;
         VStmtIB(File const &file);
+    };
+    class PureLocationB : public AST
+    {
+    public:
+        class Visitor
+        {
+        public:
+            virtual ~Visitor() {}
+            virtual void visitPureLocation(ASTNS::PureLocation *ast) = 0;
+        };
+        virtual ~PureLocationB() {}
+        virtual void accept(Visitor *v) = 0;
+        PureLocationB(File const &file);
+    };
+    class PureLocation : public PureLocationB
+    {
+    public:
+        Location _start, _end;
+        int dummy;
+        virtual void accept(ASTNS::PureLocationB::Visitor *v) override;
+        virtual Location const & start() override;
+        virtual Location const & end() override;
+        PureLocation(File const &file, Location start, Location end, int dummy);
     };
     class CU : public CUB
     {

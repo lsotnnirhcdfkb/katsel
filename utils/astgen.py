@@ -36,6 +36,16 @@ asts = [
     ASTBaseClass('ArgB'),
     ASTBaseClass('ParamB'),
     ASTBaseClass('VStmtIB'),
+
+    # a class to keep track of locations of syntactic elements that don't matter (like
+    # line endings where the location matters (so that other statements can use the line
+    # ending as an ending position) but does not reduce down to an actual AST,
+    # so its location cannot be kept track of otherwise)
+    # it should never appear in the final AST, because no fields should have a PureLocationB
+    # or a PureLocation as a field
+    ASTBaseClass('PureLocationB'),
+    ASTClass('PureLocation', 'int|dummy', 'PureLocationB'),
+
     ASTClass('CU', 'std::unique_ptr<DeclList>|decls', 'CUB'),
     ASTClass('DeclList', 'std::vector<std::unique_ptr<Decl>>|decls', 'Decl'),
     ASTClass('FunctionDecl', 'std::unique_ptr<Type>|retty, Token|name, std::unique_ptr<ParamList>|params, std::unique_ptr<Block>|body', 'Decl'),
@@ -135,9 +145,9 @@ def genASTDefs():
             output.append(f'Location const & ASTNS::{ast.name}::start() {{ return _start; }}\n')
             output.append(f'Location const & ASTNS::{ast.name}::end() {{ return _end; }}\n')
         elif type(ast) == ASTBaseClass:
-            output.append(f'ASTNS::{ast.name}::{ast.name}(File const &file): AST(file) {{}}')
+            output.append(f'ASTNS::{ast.name}::{ast.name}(File const &file): AST(file) {{}}\n')
         else:
-            output.append('ASTNS::AST::AST(File const &file): file(file) {}')
+            output.append('ASTNS::AST::AST(File const &file): file(file) {}\n')
 
     return''.join(output)
 # Generating Visitor stuff {{{2

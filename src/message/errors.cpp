@@ -12,7 +12,7 @@ Location::Location(Token const &t): start(t.start), end(t.end), file(t.sourcefil
 Location::Location(IR::ASTValue const &v): Location(v.ast) {}
 Location::Location(IR::ASTValue const *v): Location(v->ast) {}
 Location::Location(std::string::iterator start, std::string::iterator end, File const *file): start(start), end(end), file(file) {}
-
+Location::Location(): file(nullptr) {}
 Location::Location(ASTNS::AST *ast): Location(ast->start().start, ast->end().end, &ast->file) {}
 // Error methods {{{1
 Error::Error(MsgType type, Location const &location, std::string message): type(type), location(location), message(message) {}

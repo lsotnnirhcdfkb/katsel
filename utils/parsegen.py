@@ -210,6 +210,9 @@ class SkipReduceAction:
         self.ind = ind
     def generate(self):
         return ('', f'std::move(a{self.ind})')
+class LocationReduceAction(SimpleReduceAction):
+    def __init__(self):
+        super().__init__('PureLocation', '0')
 class NullptrReduceAction:
     def generate(self):
         return ('', 'nullptr')
@@ -484,7 +487,7 @@ def makeGrammar():
     ExprStmt = nt('ExprStmt', 'expression statement', 'ExprStmt', panickable=True)
     RetStmt = nt('RetStmt', 'return statement', 'RetStmt', panickable=True)
     VarStmtItem = nt('VarStmtItem', 'variable statement initialization', 'VarStmtItem')
-    LineEnding = nt('LineEnding', 'line ending', 'AST')
+    LineEnding = nt('LineEnding', 'line ending', 'PureLocation')
     Block = nt('Block', 'code block', 'Block', panickable=True)
     BracedBlock = nt('BracedBlock', 'braced code block', 'Block', panickable=True)
     IndentedBlock = nt('IndentedBlock', 'indented code block', 'Block', panickable=True)
@@ -626,9 +629,9 @@ def makeGrammar():
     rule(IndentedBlock, (NEWLINE, INDENT, StmtListOpt, ImplRetOpt, DEDENT), SimpleReduceAction('Block', 'std::move(a2), std::move(a3)'))
     rule(ImplRet, (LEFTARROW, Expr, LineEndingOpt), SimpleReduceAction('ImplRet', 'std::move(a1)'))
 
-    rule(LineEnding, (NEWLINE,), NullptrReduceAction())
-    rule(LineEnding, (SEMICOLON,), NullptrReduceAction())
-    rule(LineEnding, (SEMICOLON, NEWLINE), NullptrReduceAction())
+    rule(LineEnding, (NEWLINE,), LocationReduceAction())
+    rule(LineEnding, (SEMICOLON,), LocationReduceAction())
+    rule(LineEnding, (SEMICOLON, NEWLINE), LocationReduceAction())
 
     rule(Type, (PrimitiveType,), SkipReduceAction())
 
@@ -816,16 +819,13 @@ def genLoop():
 
             if reduceOnly:
                 output.append(                   f'                    default:\n')
-                # do not check for lookahead, just reduce to have better performance
+                # do not check for lookahead, just reduce to have better performance (kind of)
                 # if reduceOnly, then all the reduce actions of this state reduce the same rule
                 # and according to Wikipedia, just reducing regardless of the lookahead in
-                # these states will cause a few "harmless reductions," and errors will just be
+                # these states will cause a few "harmless reductions", and errors will just be
                 # reported after a few reduces
                 # this actually helps with error reporting because if you have "return 2",
                 # it will reduce 2 up the chain of expression precedence before reporting the error
-                # so the error message is "expected ';' after expression of return statement"
-                # wheras if it didnt reduce, you would get "invalid token to follow 2 of primary expression"
-                # which used to be the error format if there was an invalid lookahead token for a state that didn't have any shift actions
             else:
                 for term in nts:
                     output.append(               f'                    case {term.astt()}:\n')
@@ -833,22 +833,47 @@ def genLoop():
             if type(ac) == ReduceAction:
                 output.append(                    '                        {\n')
 
+                firstterminal = None
                 for i, sym in reversed(list(enumerate(ac.rule.expansion))):
                     if type(sym) == Terminal:
                         output.append(           f'                            auto a{i} (popT(stack));\n')
+                        firstterminal = i
                     elif type(sym) == NonTerminal:
                         output.append(           f'                            auto a{i} (popA<ASTNS::{sym.reducesTo}>(stack));\n')
 
                 if len(ac.rule.expansion):
-                    if type(ac.rule.expansion[0]) == Terminal:
-                        output.append(                '                            Location start ((a0));\n')
+                    if firstterminal is not None:
+                        output.append(                       f'                            Location start, end;\n')
                     else:
-                        output.append(                '                            Location start (a0->start());\n')
+                        if type(ac.rule.expansion[0]) == Terminal:
+                            output.append(                   f'                            Location start, end;\n')
+                        else:
+                            output.append(                   f'                            Location start ((a0.get())), end ((a0.get()));\n')
+                    for i in range(len(ac.rule.expansion)):
+                        if type(ac.rule.expansion[i]) == Terminal:
+                            if i == 0:
+                                output.append(               f'                            start = a{i};\n')
+                            else:
+                                output.append(               f'                            else start = a{i};\n')
+                            break
+                        else:
+                            if i == 0:
+                                output.append(               f'                            if (a{i}) start = a{i}->start();\n')
+                            else:
+                                output.append(               f'                            else if (a{i}) start = a{i}->start();\n')
 
-                    if type(ac.rule.expansion[-1]) == Terminal:
-                        output.append(               f'                            Location end ((a{len(ac.rule.expansion)-1}));\n')
-                    else:
-                        output.append(               f'                            Location end (a{len(ac.rule.expansion)-1}->end());\n')
+                    for i in range(len(ac.rule.expansion) - 1, -1, -1):
+                        if type(ac.rule.expansion[i]) == Terminal:
+                            if i == len(ac.rule.expansion) - 1:
+                                output.append(               f'                            end = a{i};\n')
+                            else:
+                                output.append(               f'                            else end = a{i};\n')
+                            break
+                        else:
+                            if i == len(ac.rule.expansion) - 1:
+                                output.append(               f'                            if (a{i}) end = a{i}->end();\n')
+                            else:
+                                output.append(               f'                            else if (a{i}) end = a{i}->end();\n')
 
                 reduceCode, pushitem = ac.rule.reduceAction.generate()
                 output.append(reduceCode)
