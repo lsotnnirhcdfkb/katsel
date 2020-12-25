@@ -5,9 +5,9 @@
 class ASTClass:
     def __init__(self, name, fields, base):
         self.name = name
-        def processField(field):
+        def process_field(field):
             return (item.strip().rstrip() for item in field.split('|'))
-        self.fields = [ASTField(*processField(field)) for field in fields.split(',')]
+        self.fields = [ASTField(*process_field(field)) for field in fields.split(',')]
         self.base = base
 # ASTBaseClass {{{2
 class ASTBaseClass:
@@ -75,13 +75,13 @@ asts = [
 # Generating methods {{{1
 # Generating AST stuff {{{2
 # Generate AST declarations {{{3
-def genASTDecls():
+def gen_ast_decls():
     output = []
     for ast in asts:
         output.append(f'    class {ast.name};\n')
 
     for ast in asts:
-        if type(ast) == ASTClass:
+        if isinstance(ast, ASTClass):
             output.append(f'    class {ast.name} : public {ast.base}\n')
 
             output.append('    {\n')
@@ -97,17 +97,17 @@ def genASTDecls():
             output.append(f'        {ast.name}(File const &file, Location start, Location end, {", ".join(f"{field.type} {field.name}" for field in ast.fields)});\n')
 
             output.append('    };\n')
-        elif type(ast) == ASTBaseClass:
+        elif isinstance(ast, ASTBaseClass):
             output.append(f'    class {ast.name} : public AST\n')
             output.append('    {\n')
             output.append('    public:\n')
 
-            output.append(f'        class Visitor\n')
+            output.append('        class Visitor\n')
             output.append('        {\n')
             output.append('        public:\n')
             output.append('            virtual ~Visitor() {}\n')
             for _ast in asts:
-                if type(_ast) == ASTClass and _ast.base == ast.name:
+                if isinstance(_ast, ASTClass) and _ast.base == ast.name:
                     output.append(f'            virtual void visit{_ast.name}(ASTNS::{_ast.name} *ast) = 0;\n')
             output.append('        };\n')
 
@@ -128,23 +128,23 @@ def genASTDecls():
 
     return''.join(output)
 # Generate AST definitions {{{3
-def genASTDefs():
+def gen_ast_defs():
     output = ['#include "ast/ast.h"\n']
     for ast in asts:
-        if type(ast) == ASTClass:
+        if isinstance(ast, ASTClass):
             output.append(f'ASTNS::{ast.name}::{ast.name}(File const &file, Location start, Location end, {", ".join(f"{field.type} {field.name}" for field in ast.fields)}): ')
 
-            initializerList = [f'{ast.base}(file), _start(start), _end(end)']
+            init_list = [f'{ast.base}(file), _start(start), _end(end)']
             for field in ast.fields:
-                initializerList.append(f'{field.name}(std::move({field.name}))')
+                init_list.append(f'{field.name}(std::move({field.name}))')
 
-            output.append(', '.join(initializerList))
+            output.append(', '.join(init_list))
             output.append(' {}\n')
 
             output.append(f'void ASTNS::{ast.name}::accept(ASTNS::{ast.base}::Visitor *v) {{ v->visit{ast.name}(this); }}\n')
             output.append(f'Location const & ASTNS::{ast.name}::start() {{ return _start; }}\n')
             output.append(f'Location const & ASTNS::{ast.name}::end() {{ return _end; }}\n')
-        elif type(ast) == ASTBaseClass:
+        elif isinstance(ast, ASTBaseClass):
             output.append(f'ASTNS::{ast.name}::{ast.name}(File const &file): AST(file) {{}}\n')
         else:
             output.append('ASTNS::AST::AST(File const &file): file(file) {}\n')
@@ -152,10 +152,10 @@ def genASTDefs():
     return''.join(output)
 # Generating Visitor stuff {{{2
 # Generate overrided functions for visitor classes {{{3
-def genVisitorMethods(*bases):
+def gen_visitor_methods(*bases):
     output = []
     for ast in asts:
-        if type(ast) != ASTClass:
+        if not isinstance(ast, ASTClass):
             continue
 
         if (ast.base in bases or bases == ('all',)):
@@ -163,14 +163,14 @@ def genVisitorMethods(*bases):
 
     return''.join(output)
 # Generate inheriting classes {{{3
-def genVisitorInheritAll():
+def gen_visitor_inherit_all():
     return ',\n'.join([f'public ASTNS::{cl.name}::Visitor' for cl in asts if isinstance(cl, ASTBaseClass)]) + '\n'
 # Generating printing stuff {{{2
 # Genearte print visitor {{{3
-def genPrintVisitorMethods():
+def gen_print_visitor_methods():
     output = []
     for ast in asts:
-        if type(ast) != ASTClass:
+        if not isinstance(ast, ASTClass):
             continue
 
         output.append(          f'void ASTNS::PrintVisitor::visit{ast.name}(ASTNS::{ast.name} *a)\n')

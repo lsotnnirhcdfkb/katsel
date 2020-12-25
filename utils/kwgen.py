@@ -26,15 +26,15 @@ class TrieNode:
         self.tokentype = tokentype
 
     ## Add a child node this node
-    def addNode(self, node):
+    def add_node(self, node):
         self.nodes.append(node)
 
     ## Check if this node has a child with a certain value
-    def hasNode(self, nodevalue):
+    def has_node(self, nodevalue):
         return nodevalue in [node.value for node in self.nodes]
 
     ## Get a child node with a certain value
-    def getNode(self, nodevalue):
+    def get_node(self, nodevalue):
         #   every i in the self.nodes where self.nodes[i].value == nodevalue
         i = [i for i in range(len(self.nodes)) if self.nodes[i].value == nodevalue][0]
         return self.nodes[i]
@@ -42,24 +42,26 @@ class TrieNode:
     ## Wrapper method to show this node in a human readable format
     def show(self, uni=True):
         if uni:
-            return self.__show([], False, ['\u2502', '\u2514', '\u2500'])
+            chars = ['\u2502', '\u2514', '\u2500']
         else:
-            return self.__show([], False, ['|', '+', '-'])
+            chars = ['|', '+', '-']
+
+        return self.__show([], False, chars)
 
     ## Recursive method to show this node
-    def __show(self, indent, isLast, chars):
-        if isLast:
+    def __show(self, indent, is_last, chars):
+        if is_last:
             indent = list(indent)
             indent[-1] = chars[1]
 
         output = []
 
         output.append(f'{"".join(indent)}{chars[2]}\'{self.value}\'')
-        if self.tokentype != None:
+        if self.tokentype is not None:
             output.append(f' - {self.tokentype}')
         output.append('\n')
 
-        if isLast:
+        if is_last:
             indent[-1] = ' '
 
         for i, node in enumerate(self.nodes):
@@ -72,22 +74,22 @@ class TrieNode:
         output = []
         output.append(f'/// {doc}\n')
         output.append('TokenType Lexer::getIdentifierType()\n{\n')
-        output.append(self.__generate(True, 1))
+        output.append(self.__generate(1))
         output.append('\n')
-        output.append(f'{self.__getIndent(1)}return TokenType::IDENTIFIER;\n')
+        output.append(f'{TrieNode.get_indent(1)}return TokenType::IDENTIFIER;\n')
         output.append('}\n')
         return ''.join(output)
 
     ## Recursive method to generate code to match this node
-    def __generate(self, root, indent):
+    def __generate(self, indent):
         output = []
 
-        indentStr = self.__getIndent(indent)
-        bodyIndentStr = self.__getIndent(indent + (1 if len(self.nodes) else 0))
-        breakIndentStr = self.__getIndent(indent + 2)
+        indent_str = self.get_indent(indent)
+        body_indent_str = self.get_indent(indent + (1 if len(self.nodes) > 0 else 0))
+        break_indent_str = self.get_indent(indent + 2)
 
-        if self.tokentype != None:
-            output.append(f'{bodyIndentStr}if (start + {self.length} == end) return TokenType::{self.tokentype};\n')
+        if self.tokentype is not None:
+            output.append(f'{body_indent_str}if (start + {self.length} == end) return TokenType::{self.tokentype};\n')
 
         if len(self.nodes) == 0:
             return ''.join(output)
@@ -95,24 +97,25 @@ class TrieNode:
         if self.canusestrcmp():
             reststr = []
             cur = self
-            while len(cur.nodes):
+            while len(cur.nodes) > 0:
                 cur = cur.nodes[0]
                 reststr.append(cur.value)
 
-            output.append(f'{indentStr}if (std::distance(start, end) == {self.length + len(reststr)} && std::string(start + {self.length}, end) == "{"".join(reststr)}") return TokenType::{cur.tokentype};\n')
+            output.append(f'{indent_str}if (std::distance(start, end) == {self.length + len(reststr)} && std::string(start + {self.length}, end) == "{"".join(reststr)}") return TokenType::{cur.tokentype};\n')
             return ''.join(output)
 
-        output.append(f'{indentStr}switch (*(start + {self.length}))\n{indentStr}{{\n')
+        output.append(f'{indent_str}switch (*(start + {self.length}))\n{indent_str}{{\n')
         for node in self.nodes:
-            output.append(f'{bodyIndentStr}case \'{node.value}\':\n')
-            output.append(node.__generate(False, indent + 2))
-            output.append(f'{breakIndentStr}break;\n')
-        output.append(f'{indentStr}' + '}\n')
+            output.append(f'{body_indent_str}case \'{node.value}\':\n')
+            output.append(node.__generate(indent + 2))
+            output.append(f'{break_indent_str}break;\n')
+        output.append(f'{indent_str}' + '}\n')
 
         return ''.join(output)
 
     ## Get the string to pad with for a certain indent level
-    def __getIndent(self, indent, tab=False):
+    @staticmethod
+    def get_indent(indent, tab=False):
         return ('\t' if tab else '    ') * indent
 
     def canusestrcmp(self):
@@ -120,8 +123,8 @@ class TrieNode:
             return True
         elif len(self.nodes) == 1:
             return self.nodes[0].canusestrcmp()
-
-        return False
+        else:
+            return False
 
 # }}}
 
@@ -179,14 +182,13 @@ trie = TrieNode(None, 0)
 for keyword, tokentype in keywords:
     lastnode = trie
     for letter in keyword:
-        if lastnode.hasNode(letter):
-            lastnode = lastnode.getNode(letter)
+        if lastnode.has_node(letter):
+            lastnode = lastnode.get_node(letter)
             continue
 
         newnode = TrieNode(letter, lastnode.length + 1)
-        lastnode.addNode(newnode)
+        lastnode.add_node(newnode)
         lastnode = newnode
 
     lastnode.tokentype = tokentype
 # }}}
-

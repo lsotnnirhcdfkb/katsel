@@ -4,11 +4,11 @@
 # symbols {{{2
 class NonTerminal:
     nonterminals = []
-    def __init__(self, symbol, panickable, name, reducesTo):
+    def __init__(self, symbol, panickable, name, reduces_to):
         self.symbol = symbol
         self.name = name
         self.panickable = panickable
-        self.reducesTo = reducesTo
+        self.reduces_to = reduces_to
         assert symbol not in NonTerminal.nonterminals, f'duplicate nonterminal {symbol}'
         NonTerminal.nonterminals.append(symbol)
 
@@ -40,12 +40,12 @@ class Terminal:
 # rule {{{2
 class Rule:
     __num = 0
-    def __init__(self, symbol, expansion, reduceAction, exhistart, exhiend, special):
+    def __init__(self, symbol, expansion, reduce_action, exhistart, exhiend, special):
         self.symbol = symbol
         self.expansion = expansion
         self.num = Rule.__num
         Rule.__num += 1
-        self.reduceAction = reduceAction
+        self.reduce_action = reduce_action
         self.exhistart, self.exhiend = exhistart, exhiend
         self.special = special
 
@@ -75,7 +75,7 @@ class Item: # an LR1 item
         Item.items[itemtuple] = i
         return i
 
-    def getAfterDot(self):
+    def get_after_dot(self):
         if self.index < len(self.rule.expansion):
             return self.rule.expansion[self.index]
         else:
@@ -124,9 +124,9 @@ class State:
         self.actions = {}
         self.goto = {}
 
-        self.makeDescription()
+        self.make_description()
 
-    def setAction(self, sym, action):
+    def set_action(self, sym, action):
         if sym in self.actions.keys():
             print(f'\033[1maction table conflict: {type(self.actions[sym])}/{type(action)}')
             print(f'    : in state {self.seti}')
@@ -141,7 +141,7 @@ class State:
         self.actions[sym] = action
         return True
 
-    def setGoto(self, sym, newstate):
+    def set_goto(self, sym, newstate):
         if sym in self.goto.keys():
             self.goto[sym] = None
             print('goto conflict')
@@ -150,16 +150,16 @@ class State:
         self.goto[sym] = newstate
         return True
 
-    def makeDescription(self):
+    def make_description(self):
         self.futures = {}
         self.terminates = {}
 
         for item in self.set_.kernel:
-            if item.getAfterDot() is not None:
+            if item.get_after_dot() is not None:
                 if item.rule.symbol not in self.futures:
                     self.futures[item.rule.symbol] = []
-                if item.getAfterDot() not in self.futures[item.rule.symbol]:
-                    self.futures[item.rule.symbol].append(item.getAfterDot())
+                if item.get_after_dot() not in self.futures[item.rule.symbol]:
+                    self.futures[item.rule.symbol].append(item.get_after_dot())
             else:
                 if item.rule.symbol not in self.terminates:
                     self.terminates[item.rule.symbol] = []
@@ -177,7 +177,7 @@ class ShiftAction:
     def explain(self):
         return f'shift and goto state {self.newstate}'
     def __eq__(self, other):
-        return type(self) == type(other) and self.newstate == other.newstate
+        return isinstance(self, type(other)) and self.newstate == other.newstate
 class ReduceAction:
     def __init__(self, rule):
         self.rule = rule
@@ -188,7 +188,7 @@ class ReduceAction:
     def explain(self):
         return f'reduce rule {self.rule}'
     def __eq__(self, other):
-        return type(self) == type(other) and self.rule == other.rule
+        return isinstance(self, type(other)) and self.rule == other.rule
 class AcceptAction:
     def __str__(self):
         return 'acc'
@@ -217,29 +217,27 @@ class NullptrReduceAction:
     def generate(self):
         return ('', 'nullptr')
 class VectorPushReduceAction:
-    def __init__(self, vectorName, itemToPush, pushBackToStack):
-        self.vectorName = vectorName
-        self.itemToPush = itemToPush
-        self.pushBackToStack = pushBackToStack
+    def __init__(self, vector_name, item_to_push, push_back_to_stack):
+        self.vector_name = vector_name
+        self.item_to_push = item_to_push
+        self.push_back_to_stack = push_back_to_stack
     def generate(self):
-        return (f'{self.vectorName}.push_back({self.itemToPush});\n', f'std::move({self.pushBackToStack})')
+        return (f'{self.vector_name}.push_back({self.item_to_push});\n', f'std::move({self.push_back_to_stack})')
 class VectorPushOneAction:
-    def __init__(self, newClass, item, itemtype, vectorname):
-        self.newClass = newClass
+    def __init__(self, new_class, item, itemtype, vectorname):
+        self.new_class = new_class
         self.item = item
         self.itemtype = itemtype
         self.vectorname = vectorname
     def generate(self):
-        return (f'''std::unique_ptr<ASTNS::{self.newClass}> push(std::make_unique<ASTNS::{self.newClass}>(p.sourcefile, start, end, std::vector<std::unique_ptr<ASTNS::{self.itemtype}>> {{}}));\n
+        return (f'''std::unique_ptr<ASTNS::{self.new_class}> push(std::make_unique<ASTNS::{self.new_class}>(p.sourcefile, start, end, std::vector<std::unique_ptr<ASTNS::{self.itemtype}>> {{}}));\n
         push->{self.vectorname}.push_back({self.item});\n''', 'std::move(push)')
 # helpers {{{1
-def makeUnique(already, new):
+def make_unique(already, new):
     return [x for x in new if x not in already]
 # first and follows functions {{{2
-def findFirsts():
-    global firsts
+def find_firsts():
     firsts = {}
-
     for rule in grammar:
         firsts[rule.symbol] = []
 
@@ -251,53 +249,53 @@ def findFirsts():
             if len(rule.expansion) == 0:
                 pass
             elif rule.expansion[0] != rule.symbol:
-                if type(rule.expansion[0]) == NonTerminal:
-                    extension = makeUnique(first, firsts[rule.expansion[0]])
-                    if len(extension):
+                if isinstance(rule.expansion[0], NonTerminal):
+                    extension = make_unique(first, firsts[rule.expansion[0]])
+                    if len(extension) > 0:
                         first.extend(extension)
                         changed = True
                 else:
                     if rule.expansion[0] not in first:
                         first.append(rule.expansion[0])
                         changed = True
+    return firsts
 
-def findFollows():
-    global follows, ntfollows
+def find_follows():
     follows = {}
-    ntfollows = {}
+    nt_follows = {}
 
     for rule in grammar:
-        for sym in filter(lambda x: type(x) == NonTerminal, [rule.symbol, *rule.expansion]):
+        for sym in filter(lambda x: isinstance(x, NonTerminal), [rule.symbol, *rule.expansion]):
             follows[sym] = []
-            ntfollows[sym] = []
+            nt_follows[sym] = []
 
-    follows[augmentSymbol] = [eofSym]
+    follows[AUGMENT_SYM] = [eof_sym]
 
     changed = True
     while changed:
         changed = False
         for rule in grammar:
             for i, sym in enumerate(rule.expansion):
-                if type(sym) == NonTerminal:
+                if isinstance(sym, NonTerminal):
                     follow = follows[sym]
-                    ntfollow = ntfollows[sym]
+                    ntfollow = nt_follows[sym]
 
-                    def addFirstsOf(i):
+                    def add_firsts_of(i):
                         nonlocal changed
                         if i >= len(rule.expansion):
-                            followextens = makeUnique(follow, follows[rule.symbol])
-                            ntextens = makeUnique(ntfollow, ntfollows[rule.symbol])
+                            followextens = make_unique(follow, follows[rule.symbol])
+                            ntextens = make_unique(ntfollow, nt_follows[rule.symbol])
 
-                            if len(followextens):
+                            if len(followextens) > 0:
                                 follow.extend(followextens)
                                 changed = True
-                            if len(ntextens):
+                            if len(ntextens) > 0:
                                 ntfollow.extend(ntextens)
                                 changed = True
                         else:
-                            if type(rule.expansion[i]) == NonTerminal:
-                                followextens = makeUnique(follow, [x for x in firsts[rule.expansion[i]] if x != eofSym])
-                                if len(followextens):
+                            if isinstance(rule.expansion[i], NonTerminal):
+                                followextens = make_unique(follow, [x for x in FIRSTS[rule.expansion[i]] if x != eof_sym])
+                                if len(followextens) > 0:
                                     follow.extend(followextens)
                                     changed = True
 
@@ -311,20 +309,21 @@ def findFollows():
 
                     addamt = 1
                     while addamt == 1 or any([len(r.expansion) == 0 for r in grammar if i + addamt - 1 < len(rule.expansion) and r.symbol == rule.expansion[i + addamt - 1]]):
-                        addFirstsOf(i + addamt)
+                        add_firsts_of(i + addamt)
                         addamt += 1
+    return (follows, nt_follows)
 
 # closure {{{2
-def getClosurelr0(lr0set):
+def get_closurelr0(lr0set):
     kernel = lr0set
     extras = []
     stack = list(lr0set)
-    while len(stack):
+    while len(stack) > 0:
         cur = stack.pop(0)
 
         if cur[1] < len(cur[0].expansion):
             after = cur[0].expansion[cur[1]]
-            if type(after) == NonTerminal:
+            if isinstance(after, NonTerminal):
                 for rule in grammar:
                     if rule.symbol == after:
                         newitem = (rule, 0)
@@ -339,29 +338,29 @@ def lr0tolr1(kernel, extras):
     lr1extras = []
 
     for kerneli in kernel:
-        for follow in follows[kerneli[0].symbol]:
+        for follow in FOLLOWS[kerneli[0].symbol]:
             lr1kernel.append(Item.get(kerneli[0], kerneli[1], follow))
 
     for extrai in extras:
-        for follow in follows[extrai[0].symbol]:
+        for follow in FOLLOWS[extrai[0].symbol]:
             lr1extras.append(Item.get(extrai[0], extrai[1], follow))
 
     return ItemSet.get(lr1kernel, lr1extras)
 # make parser table {{{1
 # find item sets {{{2
-def getItemSets():
-    initial = getClosurelr0([(augmentRule, 0)])
+def get_item_sets():
+    initial = get_closurelr0([(AUGMENT_RULE, 0)])
 
     isets = [initial]
     transitions = []
 
     stack = [initial]
-    while len(stack):
+    while len(stack) > 0:
         origset = stack.pop(0)
 
         afters = {}
         for item in origset.items():
-            after = item.getAfterDot()
+            after = item.get_after_dot()
             if after is not None:
                 if after not in afters:
                     afters[after] = []
@@ -371,7 +370,7 @@ def getItemSets():
                     afters[after].append(newitem)
 
         for after, afternewset in afters.items():
-            newsetlr1 = getClosurelr0(afternewset)
+            newsetlr1 = get_closurelr0(afternewset)
             toseti = newsetlr1.n
             if newsetlr1 not in isets:
                 isets.append(newsetlr1)
@@ -383,7 +382,7 @@ def getItemSets():
 
     return isets, transitions
 # fill parsing table {{{2
-def fillParseTable(isets, transitions):
+def fill_parse_table(isets, transitions):
     table = {}
     for iset in isets:
         state = State(iset)
@@ -393,44 +392,44 @@ def fillParseTable(isets, transitions):
 
     for fromseti, symbol, toseti in transitions:
         state = table[fromseti]
-        if type(symbol) == Terminal:
-            if not state.setAction(symbol, ShiftAction(toseti)):
+        if isinstance(symbol, Terminal):
+            if not state.set_action(symbol, ShiftAction(toseti)):
                 conflicts += 1
         else:
-            if not state.setGoto(symbol, toseti):
+            if not state.set_goto(symbol, toseti):
                 conflicts += 1
 
     for iset in isets:
         for item in iset.items():
-            if item.getAfterDot() is None:
+            if item.get_after_dot() is None:
                 state = table[iset.n]
-                if item.rule.symbol != augmentSymbol:
-                    if not state.setAction(item.lookahead, ReduceAction(item.rule)):
+                if item.rule.symbol != AUGMENT_SYM:
+                    if not state.set_action(item.lookahead, ReduceAction(item.rule)):
                         conflicts += 1
                 else:
-                    if not state.setAction(item.lookahead, AcceptAction()):
+                    if not state.set_action(item.lookahead, AcceptAction()):
                         conflicts += 1
 
     if conflicts:
         raise Exception('conflicts')
     return table
 # entry function {{{2
-def makeParseTable():
+def make_parse_table():
     print('-- finding item sets')
-    isets = getItemSets()
+    isets = get_item_sets()
     print('-- getting table')
-    table = fillParseTable(*isets)
+    table = fill_parse_table(*isets)
     return table
 # rule shorthands {{{1
-def nt(sym, name, reducesTo, panickable=False):
-    return NonTerminal(sym, panickable, name, reducesTo)
+def nt(sym, name, reduces_to, panickable=False):
+    return NonTerminal(sym, panickable, name, reduces_to)
 
-def rule(sym, expansion, reduceAction, histart='START', hiend='END', special=''):
+def rule(sym, expansion, reduce_action, histart='START', hiend='END', special=''):
     rsp = {}
     rsp['defaultreduce'] = True
 
     for sp in special.split(' '):
-        if not len(sp):
+        if len(sp) == 0:
             continue
 
         v = not sp.startswith('no')
@@ -440,44 +439,44 @@ def rule(sym, expansion, reduceAction, histart='START', hiend='END', special='')
         else:
             raise Exception(f'invalid special {rest}')
 
-    rule = Rule(sym, expansion, reduceAction, histart, hiend, rsp)
+    rule = Rule(sym, expansion, reduce_action, histart, hiend, rsp)
     grammar.append(rule)
     return rule
 
-def listRule(sym, makeListAction, appendListAction, listClass, delimit=None):
-    anothersym = nt('Another' + sym.symbol, 'another ' + sym.name, sym.reducesTo, panickable=True) # useless rule to take advantage of "expected another x"
+def list_rule(sym, make_list_action, append_list_action, list_class, delimit=None):
+    anothersym = nt('Another' + sym.symbol, 'another ' + sym.name, sym.reduces_to, panickable=True) # useless rule to take advantage of "expected another x"
     rule(anothersym, (sym,), SkipReduceAction())
 
-    symlist = nt(sym.symbol + 'List', sym.name + ' list', listClass, panickable=True)
+    symlist = nt(sym.symbol + 'List', sym.name + ' list', list_class, panickable=True)
 
     if delimit is not None:
-        symsegment = nt(sym.symbol + 'Segment', sym.name + ' list', listClass, panickable=True)
-        rule(symsegment, (symsegment, delimit, anothersym), appendListAction)
-        rule(symsegment, (sym,), makeListAction)
+        symsegment = nt(sym.symbol + 'Segment', sym.name + ' list', list_class, panickable=True)
+        rule(symsegment, (symsegment, delimit, anothersym), append_list_action)
+        rule(symsegment, (sym,), make_list_action)
 
         rule(symlist, (symsegment,), SkipReduceAction(), special='nodefaultreduce')
         rule(symlist, (symsegment, delimit), SkipReduceAction(), special='nodefaultreduce')
     else:
-        rule(symlist, (symlist, anothersym), appendListAction, special='nodefaultreduce')
-        rule(symlist, (sym,), makeListAction)
+        rule(symlist, (symlist, anothersym), append_list_action, special='nodefaultreduce')
+        rule(symlist, (sym,), make_list_action)
 
     return symlist
 
-def makeOpt(toopt, withAction, noAction, newname=None):
+def make_opt(toopt, with_action, no_action, newname=None):
     if newname is None:
         newname = 'optional ' + toopt.name
 
     optsym = toopt.symbol + '_OPT'
-    optnt = nt(optsym, newname, toopt.reducesTo)
-    rule(optnt, (toopt,), withAction)
-    rule(optnt, (), noAction)
+    optnt = nt(optsym, newname, toopt.reduces_to)
+    rule(optnt, (toopt,), with_action)
+    rule(optnt, (), no_action)
     return optnt
 
 grammar = []
 
 # rules {{{1
-def makeGrammar():
-    global augmentRule, augmentSymbol
+def make_grammar():
+    global AUGMENT_RULE, AUGMENT_SYM
 
     CU = nt('CU', 'compilation unit', 'CU')
     Decl = nt('Decl', 'declaration', 'Decl', panickable=True)
@@ -517,8 +516,8 @@ def makeGrammar():
     CallExpr = nt('CallExpr', 'function call expression', 'Expr')
     PrimaryExpr = nt('PrimaryExpr', 'primary expression', 'Expr')
 
-    augmentSymbol = nt('augment', 'augment symbol', '#error augment symbol reduces to class')
-    augmentRule = rule(augmentSymbol, (CU,), None)
+    AUGMENT_SYM = nt('augment', 'augment symbol', '#error augment symbol reduces to class')
+    AUGMENT_RULE = rule(AUGMENT_SYM, (CU,), None)
 
     AMPER = Terminal('AMPER')
     BANG = Terminal('BANG')
@@ -529,7 +528,6 @@ def makeGrammar():
     CCURB = Terminal('CCURB')
     CHAR = Terminal('CHAR')
     CHARLIT = Terminal('CHARLIT')
-    COLON = Terminal('COLON')
     COMMA = Terminal('COMMA')
     CPARN = Terminal('CPARN')
     DECINTLIT = Terminal('DECINTLIT')
@@ -565,7 +563,6 @@ def makeGrammar():
     PERCENT = Terminal('PERCENT')
     PIPE = Terminal('PIPE')
     PLUS = Terminal('PLUS')
-    QUESTION = Terminal('QUESTION')
     RETURN = Terminal('RETURN')
     SEMICOLON = Terminal('SEMICOLON')
     SINT16 = Terminal('SINT16')
@@ -584,19 +581,19 @@ def makeGrammar():
     VAR = Terminal('VAR')
     VOID = Terminal('VOID')
 
-    ParamList = listRule(Param, VectorPushOneAction('ParamList', 'std::move(a0)', 'Param', 'params'), VectorPushReduceAction('a0->params', 'std::move(a2)', 'a0'), 'ParamList', COMMA)
-    ArgList = listRule(Arg, VectorPushOneAction('ArgList', 'std::move(a0)', 'Arg', 'args'), VectorPushReduceAction('a0->args', 'std::move(a2)', 'a0'), 'ArgList', COMMA)
-    VarStmtItemList = listRule(VarStmtItem, VectorPushOneAction('VarStmtItemList', 'std::move(a0)', 'VarStmtItem', 'items'), VectorPushReduceAction('a0->items', 'std::move(a2)', 'a0'), 'VarStmtItemList', COMMA)
-    StmtList = listRule(Stmt, VectorPushOneAction('StmtList', 'std::move(a0)', 'Stmt', 'stmts'), VectorPushReduceAction('a0->stmts', 'std::move(a1)', 'a0'), 'StmtList')
-    DeclList = listRule(Decl, VectorPushOneAction('DeclList', 'std::move(a0)', 'Decl', 'decls'), VectorPushReduceAction('a0->decls', 'std::move(a1)', 'a0'), 'DeclList')
+    ParamList = list_rule(Param, VectorPushOneAction('ParamList', 'std::move(a0)', 'Param', 'params'), VectorPushReduceAction('a0->params', 'std::move(a2)', 'a0'), 'ParamList', COMMA)
+    ArgList = list_rule(Arg, VectorPushOneAction('ArgList', 'std::move(a0)', 'Arg', 'args'), VectorPushReduceAction('a0->args', 'std::move(a2)', 'a0'), 'ArgList', COMMA)
+    VarStmtItemList = list_rule(VarStmtItem, VectorPushOneAction('VarStmtItemList', 'std::move(a0)', 'VarStmtItem', 'items'), VectorPushReduceAction('a0->items', 'std::move(a2)', 'a0'), 'VarStmtItemList', COMMA)
+    StmtList = list_rule(Stmt, VectorPushOneAction('StmtList', 'std::move(a0)', 'Stmt', 'stmts'), VectorPushReduceAction('a0->stmts', 'std::move(a1)', 'a0'), 'StmtList')
+    DeclList = list_rule(Decl, VectorPushOneAction('DeclList', 'std::move(a0)', 'Decl', 'decls'), VectorPushReduceAction('a0->decls', 'std::move(a1)', 'a0'), 'DeclList')
 
-    ParamListOpt = makeOpt(ParamList, SkipReduceAction(), NullptrReduceAction())
-    ArgListOpt = makeOpt(ArgList, SkipReduceAction(), NullptrReduceAction())
-    StmtListOpt = makeOpt(StmtList, SkipReduceAction(), NullptrReduceAction())
-    ImplRetOpt = makeOpt(ImplRet, SkipReduceAction(), NullptrReduceAction())
-    ExprOpt = makeOpt(Expr, SkipReduceAction(), NullptrReduceAction())
-    VarStmtOpt = makeOpt(VarStmt, SkipReduceAction(), NullptrReduceAction())
-    LineEndingOpt = makeOpt(LineEnding, SkipReduceAction(), NullptrReduceAction())
+    ParamListOpt = make_opt(ParamList, SkipReduceAction(), NullptrReduceAction())
+    ArgListOpt = make_opt(ArgList, SkipReduceAction(), NullptrReduceAction())
+    StmtListOpt = make_opt(StmtList, SkipReduceAction(), NullptrReduceAction())
+    ImplRetOpt = make_opt(ImplRet, SkipReduceAction(), NullptrReduceAction())
+    ExprOpt = make_opt(Expr, SkipReduceAction(), NullptrReduceAction())
+    VarStmtOpt = make_opt(VarStmt, SkipReduceAction(), NullptrReduceAction())
+    LineEndingOpt = make_opt(LineEnding, SkipReduceAction(), NullptrReduceAction())
 
     rule(CU, (DeclList,), SimpleReduceAction('CU', 'std::move(a0)'))
     rule(CU, (), NullptrReduceAction())
@@ -668,7 +665,7 @@ def makeGrammar():
 
     rule(ForExpr, (FOR, VarStmtOpt, SEMICOLON, ExprOpt, SEMICOLON, ExprOpt, CPARN, Block), SimpleReduceAction('ForExpr', 'std::move(a1), std::move(a3), std::move(a5), std::move(a7)'))
 
-    BinaryExprReduceAction = SimpleReduceAction('BinaryExpr', 'std::move(a0), a1, std::move(a2)')
+    bin_expr_reduction = SimpleReduceAction('BinaryExpr', 'std::move(a0), a1, std::move(a2)')
 
     rule(AssignmentExpr, (BinOrExpr,  EQUAL,  AssignmentExpr, ), SimpleReduceAction('AssignmentExpr', 'std::move(a0), a1, std::move(a2)'))
     rule(AssignmentExpr, (BinOrExpr,), SkipReduceAction())
@@ -676,29 +673,29 @@ def makeGrammar():
     rule(BinOrExpr, (BinAndExpr,), SkipReduceAction())
     rule(BinAndExpr, (BinAndExpr,  DOUBLEAMPER,  CompEQExpr, ), SimpleReduceAction('ShortCircuitExpr', 'std::move(a0), a1, std::move(a2)'))
     rule(BinAndExpr, (CompEQExpr,), SkipReduceAction())
-    rule(CompEQExpr, (CompEQExpr,  BANGEQUAL,  CompLGTExpr, ), BinaryExprReduceAction)
-    rule(CompEQExpr, (CompEQExpr,  DOUBLEEQUAL,  CompLGTExpr, ), BinaryExprReduceAction)
+    rule(CompEQExpr, (CompEQExpr,  BANGEQUAL,  CompLGTExpr, ), bin_expr_reduction)
+    rule(CompEQExpr, (CompEQExpr,  DOUBLEEQUAL,  CompLGTExpr, ), bin_expr_reduction)
     rule(CompEQExpr, (CompLGTExpr,), SkipReduceAction())
-    rule(CompLGTExpr, (CompLGTExpr,  LESS,  BitXorExpr, ), BinaryExprReduceAction)
-    rule(CompLGTExpr, (CompLGTExpr,  GREATER,  BitXorExpr, ), BinaryExprReduceAction)
-    rule(CompLGTExpr, (CompLGTExpr,  LESSEQUAL,  BitXorExpr, ), BinaryExprReduceAction)
-    rule(CompLGTExpr, (CompLGTExpr,  GREATEREQUAL,  BitXorExpr, ), BinaryExprReduceAction)
+    rule(CompLGTExpr, (CompLGTExpr,  LESS,  BitXorExpr, ), bin_expr_reduction)
+    rule(CompLGTExpr, (CompLGTExpr,  GREATER,  BitXorExpr, ), bin_expr_reduction)
+    rule(CompLGTExpr, (CompLGTExpr,  LESSEQUAL,  BitXorExpr, ), bin_expr_reduction)
+    rule(CompLGTExpr, (CompLGTExpr,  GREATEREQUAL,  BitXorExpr, ), bin_expr_reduction)
     rule(CompLGTExpr, (BitXorExpr,), SkipReduceAction())
-    rule(BitXorExpr, (BitXorExpr,  CARET,  BitOrExpr, ), BinaryExprReduceAction)
+    rule(BitXorExpr, (BitXorExpr,  CARET,  BitOrExpr, ), bin_expr_reduction)
     rule(BitXorExpr, (BitOrExpr,), SkipReduceAction())
-    rule(BitOrExpr, (BitOrExpr,  PIPE,  BitAndExpr, ), BinaryExprReduceAction)
+    rule(BitOrExpr, (BitOrExpr,  PIPE,  BitAndExpr, ), bin_expr_reduction)
     rule(BitOrExpr, (BitAndExpr,), SkipReduceAction())
-    rule(BitAndExpr, (BitAndExpr,  AMPER,  BitShiftExpr, ), BinaryExprReduceAction)
+    rule(BitAndExpr, (BitAndExpr,  AMPER,  BitShiftExpr, ), bin_expr_reduction)
     rule(BitAndExpr, (BitShiftExpr,), SkipReduceAction())
-    rule(BitShiftExpr, (BitShiftExpr,  DOUBLEGREATER,  AdditionExpr, ), BinaryExprReduceAction)
-    rule(BitShiftExpr, (BitShiftExpr,  DOUBLELESS,  AdditionExpr, ), BinaryExprReduceAction)
+    rule(BitShiftExpr, (BitShiftExpr,  DOUBLEGREATER,  AdditionExpr, ), bin_expr_reduction)
+    rule(BitShiftExpr, (BitShiftExpr,  DOUBLELESS,  AdditionExpr, ), bin_expr_reduction)
     rule(BitShiftExpr, (AdditionExpr,), SkipReduceAction())
-    rule(AdditionExpr, (AdditionExpr,  PLUS,  MultExpr, ), BinaryExprReduceAction)
-    rule(AdditionExpr, (AdditionExpr,  MINUS,  MultExpr, ), BinaryExprReduceAction)
+    rule(AdditionExpr, (AdditionExpr,  PLUS,  MultExpr, ), bin_expr_reduction)
+    rule(AdditionExpr, (AdditionExpr,  MINUS,  MultExpr, ), bin_expr_reduction)
     rule(AdditionExpr, (MultExpr,), SkipReduceAction())
-    rule(MultExpr, (MultExpr,  STAR,  UnaryExpr, ), BinaryExprReduceAction)
-    rule(MultExpr, (MultExpr,  SLASH,  UnaryExpr, ), BinaryExprReduceAction)
-    rule(MultExpr, (MultExpr,  PERCENT,  UnaryExpr, ), BinaryExprReduceAction)
+    rule(MultExpr, (MultExpr,  STAR,  UnaryExpr, ), bin_expr_reduction)
+    rule(MultExpr, (MultExpr,  SLASH,  UnaryExpr, ), bin_expr_reduction)
+    rule(MultExpr, (MultExpr,  PERCENT,  UnaryExpr, ), bin_expr_reduction)
     rule(MultExpr, (CastExpr,), SkipReduceAction())
     rule(CastExpr, (OPARN,  Type,  CPARN,  CastExpr, ), SimpleReduceAction('CastExpr', 'std::move(a1), std::move(a3)'))
     rule(CastExpr, (UnaryExpr,), SkipReduceAction())
@@ -721,26 +718,26 @@ def makeGrammar():
     rule(PrimaryExpr, (IDENTIFIER,), SimpleReduceAction('PrimaryExpr', 'a0'))
     rule(PrimaryExpr, (OPARN,  Expr,  CPARN, ), SkipReduceAction(1))
 
-makeGrammar()
+make_grammar()
 
 # convert grammar {{{1
-eofSym = Terminal('EOF_')
+eof_sym = Terminal('EOF_')
 
-symbols = [eofSym]
+symbols = [eof_sym]
 for rule in grammar:
     for sym in [rule.symbol, *rule.expansion]:
         if sym not in symbols:
             symbols.append(sym)
 
 print('-- finding first and follows')
-findFirsts()
-findFollows()
+FIRSTS = find_firsts()
+FOLLOWS, NT_FOLLOWS = find_follows()
 
 # make the parse table {{{1
-table = makeParseTable()
+table = make_parse_table()
 # generating stuff {{{1
 # print parse table {{{2
-def printParseTable(pad=True):
+def print_parse_table(pad=True):
     cw = 4
     if pad:
         padf = lambda s: s.rjust(cw)
@@ -765,7 +762,7 @@ def printParseTable(pad=True):
         print()
 # generate parser loop code {{{2
 # helper {{{
-def formatList(l):
+def format_list(l):
     if len(l) == 1:
         return f'{l[0]}'
     elif len(l) == 2:
@@ -775,7 +772,7 @@ def formatList(l):
     else:
         return 'format("' + ", ".join('%' for _ in l[:-1]) + ', or %", ' +  ', '.join(l) + ')'
 # }}}
-def genLoop():
+def gen_loop():
     output = []
 
     output.append(                                '    bool done = false;\n')
@@ -808,19 +805,19 @@ def genLoop():
             if not found:
                 stateactions.append((ac, [term]))
 
-        statereduces = [ac for ac in stateactions if type(ac[0]) == ReduceAction]
-        reduceOnly = len(statereduces) == 1 and statereduces[0][0].rule.special['defaultreduce']
+        statereduces = [ac for ac in stateactions if isinstance(ac[0], ReduceAction)]
+        reduce_only = len(statereduces) == 1 and statereduces[0][0].rule.special['defaultreduce']
         for ac, nts in stateactions:
-            if type(ac) == ShiftAction:
+            if isinstance(ac, ShiftAction):
                 for term in nts:
                     output.append(               f'                    case {term.astt()}:\n')
                 output.append(                   f'                        shift(p, lasttok, lookahead, stack, steps, {ac.newstate}); break;\n')
                 continue
 
-            if reduceOnly:
-                output.append(                   f'                    default:\n')
+            if reduce_only:
+                output.append(                    '                    default:\n')
                 # do not check for lookahead, just reduce to have better performance (kind of)
-                # if reduceOnly, then all the reduce actions of this state reduce the same rule
+                # if reduce_only, then all the reduce actions of this state reduce the same rule
                 # and according to Wikipedia, just reducing regardless of the lookahead in
                 # these states will cause a few "harmless reductions", and errors will just be
                 # reported after a few reduces
@@ -830,27 +827,27 @@ def genLoop():
                 for term in nts:
                     output.append(               f'                    case {term.astt()}:\n')
 
-            if type(ac) == ReduceAction:
+            if isinstance(ac, ReduceAction):
                 output.append(                    '                        {\n')
 
                 firstterminal = None
                 for i, sym in reversed(list(enumerate(ac.rule.expansion))):
-                    if type(sym) == Terminal:
+                    if isinstance(sym, Terminal):
                         output.append(           f'                            auto a{i} (popT(stack));\n')
                         firstterminal = i
-                    elif type(sym) == NonTerminal:
-                        output.append(           f'                            auto a{i} (popA<ASTNS::{sym.reducesTo}>(stack));\n')
+                    elif isinstance(sym, NonTerminal):
+                        output.append(           f'                            auto a{i} (popA<ASTNS::{sym.reduces_to}>(stack));\n')
 
-                if len(ac.rule.expansion):
+                if len(ac.rule.expansion) > 0:
                     if firstterminal is not None:
-                        output.append(                       f'                            Location start, end;\n')
+                        output.append(                        '                            Location start, end;\n')
                     else:
-                        if type(ac.rule.expansion[0]) == Terminal:
-                            output.append(                   f'                            Location start, end;\n')
+                        if isinstance(ac.rule.expansion[0], Terminal):
+                            output.append(                    '                            Location start, end;\n')
                         else:
-                            output.append(                   f'                            Location start ((a0.get())), end ((a0.get()));\n')
+                            output.append(                    '                            Location start ((a0.get())), end ((a0.get()));\n')
                     for i in range(len(ac.rule.expansion)):
-                        if type(ac.rule.expansion[i]) == Terminal:
+                        if isinstance(ac.rule.expansion[i], Terminal):
                             if i == 0:
                                 output.append(               f'                            start = a{i};\n')
                             else:
@@ -863,7 +860,7 @@ def genLoop():
                                 output.append(               f'                            else if (a{i}) start = a{i}->start();\n')
 
                     for i in range(len(ac.rule.expansion) - 1, -1, -1):
-                        if type(ac.rule.expansion[i]) == Terminal:
+                        if isinstance(ac.rule.expansion[i], Terminal):
                             if i == len(ac.rule.expansion) - 1:
                                 output.append(               f'                            end = a{i};\n')
                             else:
@@ -875,24 +872,24 @@ def genLoop():
                             else:
                                 output.append(               f'                            else if (a{i}) end = a{i}->end();\n')
 
-                reduceCode, pushitem = ac.rule.reduceAction.generate()
-                output.append(reduceCode)
+                reduce_code, pushitem = ac.rule.reduce_action.generate()
+                output.append(reduce_code)
                 output.append(                    '\n')
-                output.append(                   f'                            std::unique_ptr<ASTNS::{ac.rule.symbol.reducesTo}> pushitem = {pushitem};\n')
+                output.append(                   f'                            std::unique_ptr<ASTNS::{ac.rule.symbol.reduces_to}> pushitem = {pushitem};\n')
                 output.append(                   f'                            stack.emplace_back(getGoto(NonTerminal::{ac.rule.symbol.symbol}, stack.back().state), std::move(pushitem), NonTerminal::{ac.rule.symbol.symbol});\n')
                 output.append(                    '                        }\n')
 
 
-            elif type(ac) == AcceptAction:
+            elif isinstance(ac, AcceptAction):
                 output.append(                    '                            done = true;\n')
             else:
                 raise Exception('invalid action type')
 
             output.append(                        '                        break;\n')
 
-        if not reduceOnly:
+        if not reduce_only:
             def stc(s):
-                if type(s) == NonTerminal:
+                if isinstance(s, NonTerminal):
                     return f'"{s.name}"'
                 else:
                     return f'stringifyTokenType({s.astt()})'
@@ -900,8 +897,8 @@ def genLoop():
             output.append(                        '                    default:\n')
             output.append(                        '                        if (istrial) return false;\n')
 
-            futuress = [f'format("expected % for %", {formatList([stc(p) for p in future])}, {stc(nt)})' for nt, future in state.futures.items()]
-            terminatess = [f'format("expected % to terminate %", {formatList([stc(p) for p in future])}, {stc(nt)})' for nt, future in state.terminates.items()]
+            futuress = [f'format("expected % for %", {format_list([stc(p) for p in future])}, {stc(nt)})' for nt, future in state.futures.items()]
+            terminatess = [f'format("expected % to terminate %", {format_list([stc(p) for p in future])}, {stc(nt)})' for nt, future in state.terminates.items()]
             output.append(                       f'                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {{  {", ".join(futuress + terminatess)}  }});\n')
         output.append(                            '                }\n')
         output.append(                            '                break;\n')
@@ -914,15 +911,15 @@ def genLoop():
 
     return ''.join(output)
 # generate goto code {{{2
-def genGoto():
+def gen_goto():
     output = []
 
-    output.append(                               f'size_t getGoto(NonTerminal nterm, size_t state)\n')
+    output.append(                                'size_t getGoto(NonTerminal nterm, size_t state)\n')
     output.append(                                '{\n')
     output.append(                                '    switch (nterm)\n')
     output.append(                                '    {\n')
     for nonterm in symbols:
-        if type(nonterm) == Terminal:
+        if isinstance(nonterm, Terminal):
             continue
 
         output.append(                           f'        case NonTerminal::{nonterm.symbol}:\n')
@@ -953,14 +950,14 @@ def genGoto():
     return ''.join(output)
 
 # generate nonterminal enum {{{2
-def genNonTermEnum():
+def gen_non_term_enum():
     output = []
     for symbol in symbols:
         if isinstance(symbol, NonTerminal):
             output.append(f'    {symbol.symbol},\n')
     return ''.join(output)
 # generate panic mode error recovery code {{{2
-def genPanicMode():
+def gen_panic_mode():
     output = []
     output.append(                               ('#define CHECKASI(ty)\\\n'
                                                   '    if (nterm == NonTerminal::ty)\\\n'
@@ -988,16 +985,16 @@ def genPanicMode():
                                                   '                NonTerminal nterm = std::get<astitem>(i->item).nt;\n'))
 
     for nonterm in symbols:
-        if type(nonterm) == Terminal:
+        if not isinstance(nonterm, NonTerminal):
             continue
-        if nonterm == augmentSymbol:
+        if nonterm == AUGMENT_SYM:
             continue
         if not nonterm.panickable:
             continue
 
         output.append(                           f'                CHECKASI({str(nonterm)})\n')
         output.append(                            '                       ')
-        for follow in follows[nonterm]:
+        for follow in FOLLOWS[nonterm]:
             output.append(                       f' case {follow.astt()}:')
         output.append(                            '\n')
         output.append(                            '                            RECOVERANDDEFBREAK()\n')
@@ -1019,18 +1016,18 @@ def genPanicMode():
 
     return ''.join(output)
 # generate single token insertion/deletion/substitution error recovery code {{{2
-def genSingleTok():
+def gen_single_tok():
     output = []
     output.append(                                '#define TRYINSERT(ty) if (tryInsert(ty, e.p, e.lookahead, e.stack)) {fix f = fix {fix::fixtype::INSERT, ty}; if (score(f) > score(bestfix)) bestfix = f;}\n')
     output.append(                                '#define TRYSUB(ty) if (trySub(ty, e.p, e.lookahead, e.stack)) {fix f = fix {fix::fixtype::SUBSTITUTE, ty}; if (score(f) > score(bestfix)) bestfix = f;}\n')
     output.append(                                '#define TRYTOKTY(ty) TRYINSERT(ty); TRYSUB(ty);\n')
 
     for terminal in symbols:
-        if type(terminal) == Terminal:
+        if isinstance(terminal, Terminal):
             output.append(                       f'    TRYTOKTY({terminal.astt()})\n')
 
     output.append(                                '    if (tryDel(e.p, e.stack)) {fix f = fix {fix::fixtype::REMOVE, static_cast<TokenType>(-1)}; if (score(f) > score(bestfix)) bestfix = f;};\n')
     return ''.join(output)
 # entry {{{1
 if __name__ == '__main__':
-    printParseTable(False)
+    print_parse_table(False)

@@ -1,4 +1,4 @@
-import os, sys, subprocess, glob, colorama, re, json, time
+import os, sys, subprocess, glob, json, time, re, colorama
 
 colorama.init()
 
@@ -12,7 +12,7 @@ else:
 def fail(testfile, msg):
     global nfailed
     nfailed += 1
-    print(f'\033[0;1;31mfailed\033[0m')
+    print( '\033[0;1;31mfailed\033[0m')
     print(f'\t- {msg}')
 
     tmplog = f'/tmp/log_{os.path.basename(testfile)}.txt'
@@ -23,18 +23,18 @@ def fail(testfile, msg):
         f.write(f'failed with {msg}\n')
         f.write(str(outputs))
 
-def markFailed(msg):
+def mark_failed(msg):
     global failed, failmsg
     if not failed:
         failed = True
         failmsg = msg
 
-def passTest(testfile):
+def pass_test(_):
     global npassed
     npassed += 1
-    print(f'\033[0;1;32mpassed\033[0m', end='')
+    print('\033[0;1;32mpassed\033[0m', end='')
 
-def setOutputs(outputs, category, process):
+def set_outputs(outputs, category, process):
     outputs[category]           = {}
     outputs[category]['stdout'] = process.stdout.decode('utf-8')
     outputs[category]['stderr'] = process.stderr.decode('utf-8')
@@ -128,27 +128,27 @@ for testi, testfile in enumerate(TESTS):
     linked = False
     ran = False
 
-    compileCommand = [EXECLOC, '-e', 'json', testfile]
-    linkCommand = [CPPCOMP, compiledfile, PRINTDEFF, '-o', linkedfile]
-    runCommand = [linkedfile]
+    compile_command = [EXECLOC, '-e', 'json', testfile]
+    link_command = [CPPCOMP, compiledfile, PRINTDEFF, '-o', linkedfile]
+    run_command = [linkedfile]
 
-    compilation = subprocess.run(compileCommand, capture_output=True)
+    compilation = subprocess.run(compile_command, capture_output=True)
     compiled = compilation.returncode == 0
-    setOutputs(outputs, 'compile', compilation)
+    set_outputs(outputs, 'compile', compilation)
     print('c' if compiled else '-', end='')
     sys.stdout.flush()
 
     if compiled:
-        linking = subprocess.run(linkCommand, capture_output=True)
+        linking = subprocess.run(link_command, capture_output=True)
         linked = linking.returncode == 0
-        setOutputs(outputs, 'linking', linking)
+        set_outputs(outputs, 'linking', linking)
     print('l' if linked else '-', end='')
     sys.stdout.flush()
 
     if linked:
-        running = subprocess.run(runCommand, capture_output=True)
+        running = subprocess.run(run_command, capture_output=True)
         ran = True
-        setOutputs(outputs, 'running', running)
+        set_outputs(outputs, 'running', running)
     print('r' if ran else '-', end='')
     sys.stdout.flush()
 
@@ -160,61 +160,61 @@ for testi, testfile in enumerate(TESTS):
     print(') ', end='')
     sys.stdout.flush()
 
-    compErrExpectations  = EXPECT_COMP_ERR_REGEX  .finditer(contents)
-    compWarnExpectations = EXPECT_COMP_WARN_REGEX .finditer(contents)
-    runErrExpectations   = EXPECT_RUN_ERR_REGEX   .finditer(contents)
-    printExpectations    = EXPECT_PRINT_REGEX     .finditer(contents)
+    comp_err_expectations  = EXPECT_COMP_ERR_REGEX  .finditer(contents)
+    comp_warn_expectations = EXPECT_COMP_WARN_REGEX .finditer(contents)
+    run_err_expectations   = EXPECT_RUN_ERR_REGEX   .finditer(contents)
+    print_expectations    = EXPECT_PRINT_REGEX     .finditer(contents)
 
     failed = False
     failmsg = ''
 
     try:
-        compileMessages = [json.loads(e) for e in outputs['compile']['stderr'].split('\n') if len(e)]
+        compile_messages = [json.loads(e) for e in outputs['compile']['stderr'].split('\n') if len(e)]
     except json.decoder.JSONDecodeError:
-        markFailed('got internal error')
+        mark_failed('got internal error')
 
-    for expect in compErrExpectations:
-        expectNr = contents[:expect.start(0)].count('\n') + 1
-        matchede = [e for e in compileMessages if e['type'] == 'error' and e['location']['line'] == expectNr and os.path.abspath(e['location']['file']) == os.path.abspath(testfile) and e['message'].split(' ')[1] == f'({expect.group(1)})']
+    for expect in comp_err_expectations:
+        expect_nr = contents[:expect.start(0)].count('\n') + 1
+        matchede = [e for e in compile_messages if e['type'] == 'error' and e['location']['line'] == expect_nr and os.path.abspath(e['location']['file']) == os.path.abspath(testfile) and e['message'].split(' ')[1] == f'({expect.group(1)})']
         if len(matchede) != 1:
-            markFailed(f'expected {expect.group(1)} on testfile line {expectNr}, but got {len(matchede)} matched errors')
+            mark_failed(f'expected {expect.group(1)} on testfile line {expect_nr}, but got {len(matchede)} matched errors')
         else:
-            compileMessages.remove(matchede[0])
+            compile_messages.remove(matchede[0])
 
-    for expect in compWarnExpectations:
-        expectNr = contents[:expect.start(0)].count('\n') + 1
-        matchede = [e for e in compileMessages if e['type'] == 'warning' and e['location']['line'] == expectNr and os.path.abspath(e['location']['file']) == os.path.abspath(testfile) and e['message'].split(' ')[1] == f'({expect.group(1)})']
+    for expect in comp_warn_expectations:
+        expect_nr = contents[:expect.start(0)].count('\n') + 1
+        matchede = [e for e in compile_messages if e['type'] == 'warning' and e['location']['line'] == expect_nr and os.path.abspath(e['location']['file']) == os.path.abspath(testfile) and e['message'].split(' ')[1] == f'({expect.group(1)})']
         if len(matchede) != 1:
-            markFailed(f'expected {expect.group(1)} on testfile line {expectNr}, but got {len(matchede)} matched warnings')
+            mark_failed(f'expected {expect.group(1)} on testfile line {expect_nr}, but got {len(matchede)} matched warnings')
         else:
-            compileMessages.remove(matchede[0])
+            compile_messages.remove(matchede[0])
 
-    if len(compileMessages):
-        markFailed(f'got {len(compileMessages)} extra compile messages')
+    if len(compile_messages):
+        mark_failed(f'got {len(compile_messages)} extra compile messages')
 
     if ran:
-        ol = outputs['running']['stdout'].split('\n')
-        if not len(ol[-1]):
-            del ol[-1]
+        output_lines = outputs['running']['stdout'].split('\n')
+        if len(output_lines[-1]) == 0:
+            del output_lines[-1]
 
-        for expect in printExpectations:
-            if not len(ol):
-                markFailed('have more print expects, but ran out of lines to check against')
+        for expect in print_expectations:
+            if len(output_lines) == 0:
+                mark_failed('have more print expects, but ran out of lines to check against')
                 break
 
-            if expect.group(1) != (l := ol.pop(0)):
-                markFailed(f'printed wrong thing (expected {expect.group(1)} but got {l})')
+            if expect.group(1) != (l := output_lines.pop(0)):
+                mark_failed(f'printed wrong thing (expected {expect.group(1)} but got {l})')
 
-        if len(ol):
-            markFailed('got extra print lines')
+        if len(output_lines) > 0:
+            mark_failed('got extra print lines')
     else:
-        if len([0 for _ in printExpectations]):
-            markFailed('expected printing but did not run')
+        if len([0 for _ in print_expectations]) > 0:
+            mark_failed('expected printing but did not run')
 
     if failed:
         fail(testfile, failmsg)
     else:
-        passTest(testfile)
+        pass_test(testfile)
         print(' in', round(time.perf_counter() - teststart, 3), 'seconds')
 
     sys.stdout.flush()
