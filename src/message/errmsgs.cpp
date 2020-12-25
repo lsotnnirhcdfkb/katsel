@@ -266,7 +266,7 @@ void E0204(IR::ASTValue const &func, Token const &oparn)
 void E0205(IR::ASTValue const &func, Token const &oparn, ASTNS::ArgB *argsast, std::vector<IR::ASTValue> const &args)
 {
     Error e = Error(Error::MsgType::ERROR, oparn, "E0205 (wrong-num-args)");
-    e.underline(Error::Underline(argsast && !argsast->empty() ? Location(argsast) : Location(oparn), '^')
+    e.underline(Error::Underline(argsast ? Location(argsast) : Location(oparn), '^')
         .error("wrong number of arguments to function call")
     );
     e.underline(Error::Underline(func, '~')

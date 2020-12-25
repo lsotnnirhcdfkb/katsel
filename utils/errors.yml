@@ -231,7 +231,7 @@ errors:
     inputs: 'IR::ASTValue const &func, Token const &oparn, ASTNS::ArgB *argsast, std::vector<IR::ASTValue> const &args'
     location: oparn
     highlights:
-      - ['argsast && !argsast->empty() ? Location(argsast) : Location(oparn)', *under0, [
+      - ['argsast ? Location(argsast) : Location(oparn)', *under0, [
           ['error', '"wrong number of arguments to function call"']
         ]]
       - ['func', *under1, []]
