@@ -620,7 +620,8 @@ static Token popT(std::vector<stackitem> &stack)
     stackitem si = std::move(stack.back());
 
     stack.pop_back();
-    return si.tok;
+    ASSERT(si.type == stackitem::type::TOKEN)
+    return si.as.token.tok;
 }
 
 template <typename A>
@@ -629,9 +630,10 @@ static std::unique_ptr<A> popA(std::vector<stackitem> &stack)
     stackitem si = std::move(stack.back());
     stack.pop_back();
 
-    A *astraw = dynamic_cast<A*>(si.ast.get());
+    ASSERT(si.type == stackitem::type::AST)
+    A *astraw = dynamic_cast<A*>(si.as.ast.ast.get());
     ASSERT(astraw)
-    si.ast.release(); // will only happen if dynamic_cast works
+    si.as.ast.ast.release(); // will only happen if dynamic_cast works
 
     return std::unique_ptr<A>(astraw);
 }
@@ -4872,9 +4874,9 @@ std::unique_ptr<ASTNS::ForExpr> push (std::make_unique<ASTNS::ForExpr>(std::move
     }
 
     stackitem topsi (std::move(stack.back()));
-    ASSERT(!topsi.istok)
+    ASSERT(topsi.type == stackitem::type::AST)
 
-    std::unique_ptr<ASTNS::AST> astu (std::move(topsi.ast));
+    std::unique_ptr<ASTNS::AST> astu (std::move(topsi.as.ast.ast));
     ASTNS::CUB *cub = dynamic_cast<ASTNS::CUB*>(astu.get());
 
     ASSERT(cub)
