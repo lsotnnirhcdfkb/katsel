@@ -302,7 +302,7 @@ void ASTNS::DotVisitor::visitForExpr(ASTNS::ForExpr *a)
 {
     std::string thisid = curid();
             ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"4\">ForExpr</td></tr><tr>";
-            ostream << "<td port=\"start\">start</td>";
+            ostream << "<td port=\"initial\">initial</td>";
             ostream << "<td port=\"cond\">cond</td>";
             ostream << "<td port=\"increment\">increment</td>";
             ostream << "<td port=\"body\">body</td>";

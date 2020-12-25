@@ -54,7 +54,7 @@ asts = [
     ASTClass('ParamList', 'std::vector<std::unique_ptr<Param>>|params', 'ParamB'),
     ASTClass('Block', 'std::unique_ptr<StmtList>|stmts, std::unique_ptr<ImplRet>|implRet', 'Expr'),
     ASTClass('IfExpr', 'std::unique_ptr<Expr>|cond, std::unique_ptr<Expr>|trues, std::unique_ptr<Expr>|falses', 'Expr'),
-    ASTClass('ForExpr', 'std::unique_ptr<VarStmt>|start, std::unique_ptr<Expr>|cond, std::unique_ptr<Expr>|increment, std::unique_ptr<Expr>|body', 'Expr'),
+    ASTClass('ForExpr', 'std::unique_ptr<VarStmt>|initial, std::unique_ptr<Expr>|cond, std::unique_ptr<Expr>|increment, std::unique_ptr<Expr>|body', 'Expr'),
     ASTClass('AssignmentExpr', 'std::unique_ptr<Expr>|target, std::unique_ptr<Expr>|expr', 'Expr'),
     ASTClass('ShortCircuitExpr', 'std::unique_ptr<Expr>|lhs, Token|op, std::unique_ptr<Expr>|rhs', 'Expr'),
     ASTClass('BinaryExpr', 'std::unique_ptr<Expr>|lhs, Token|op, std::unique_ptr<Expr>|rhs', 'Expr'),
@@ -82,7 +82,10 @@ def genASTDecls():
                 output.append(f'        {field.type} {field.name};\n')
 
             output.append(f'        virtual void accept(ASTNS::{ast.base}::Visitor *v) override;\n')
-            output.append(f'        {ast.name}({", ".join(f"{field.type} {field.name}" for field in ast.fields)});\n')
+            output.append( '        virtual Location const & start() override;\n')
+            output.append( '        virtual Location const & end() override;\n')
+            output.append(f'        {ast.name}(File const &file, Location start, Location end, {", ".join(f"{field.type} {field.name}" for field in ast.fields)});\n')
+            output.append( '        Location _start, _end;\n')
 
             output.append('    };\n')
         elif type(ast) == ASTBaseClass:
@@ -106,7 +109,11 @@ def genASTDecls():
             output.append('    class AST\n')
             output.append('    {\n')
             output.append('    public:\n')
+            output.append('        inline AST(File const &file): file(file) {}\n')
             output.append('        virtual ~AST() {}\n')
+            output.append('        virtual Location const & start() = 0;\n')
+            output.append('        virtual Location const & end() = 0;\n')
+            output.append('        File const &file;\n')
             output.append('    };\n')
 
     return''.join(output)
@@ -137,30 +144,6 @@ def genVisitorMethods(*bases):
 
         if (ast.base in bases or bases == ('all',)):
             output.append(f'void visit{ast.name}(ASTNS::{ast.name} *ast) override;\n')
-
-    return''.join(output)
-# Generate location visitor impls {{{3
-def genLocVisit():
-    output = []
-    for ast in asts:
-        if type(ast) != ASTClass:
-            continue
-
-        output.append(        f'void LocationVisitor::visit{ast.name}(ASTNS::{ast.name} *ast)\n')
-        output.append(       '{\n')
-        if ast.fields[0].type.startswith('std::unique_ptr'):
-            output.append(f'            retl = getL(ast->{ast.fields[0].name}.get());\n')
-            output.append(f'            retf = getF(ast->{ast.fields[0].name}.get());\n')
-        else:
-            output.append(f'            retl = ast->{ast.fields[0].name}.start;\n')
-            output.append(f'            retf = ast->{ast.fields[0].name}.sourcefile;\n')
-
-        if ast.fields[-1].type.startswith('std::unique_ptr'):
-            output.append(f'            retr = getR(ast->{ast.fields[-1].name}.get());\n')
-        else:
-            output.append(f'            retr = ast->{ast.fields[-1].name}.end;\n')
-
-        output.append(       '}\n')
 
     return''.join(output)
 # Generate inheriting classes {{{3

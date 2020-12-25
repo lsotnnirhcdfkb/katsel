@@ -207,7 +207,7 @@ class SimpleReduceAction:
         assert isinstance(args, str)
         self.args = args
     def generate(self):
-        return (f'std::unique_ptr<ASTNS::{self.classname}> push (std::make_unique<ASTNS::{self.classname}>({self.args}));\n', 'std::move(push)')
+        return (f'std::unique_ptr<ASTNS::{self.classname}> push (std::make_unique<ASTNS::{self.classname}>(p.sourcefile, start, end, {self.args}));\n', 'std::move(push)')
 class SkipReduceAction:
     def __init__(self, ind=0):
         self.ind = ind
@@ -230,7 +230,7 @@ class VectorPushOneAction:
         self.itemtype = itemtype
         self.vectorname = vectorname
     def generate(self):
-        return (f'''std::unique_ptr<ASTNS::{self.newClass}> push(std::make_unique<ASTNS::{self.newClass}>(std::vector<std::unique_ptr<ASTNS::{self.itemtype}>> {{}}));\n
+        return (f'''std::unique_ptr<ASTNS::{self.newClass}> push(std::make_unique<ASTNS::{self.newClass}>(p.sourcefile, start, end, std::vector<std::unique_ptr<ASTNS::{self.itemtype}>> {{}}));\n
         push->{self.vectorname}.push_back({self.item});\n''', 'std::move(push)')
 # helpers {{{1
 def makeUnique(already, new):
@@ -606,7 +606,7 @@ def makeGrammar():
     LineEndingOpt = makeOpt(LineEnding, SkipReduceAction(), NullptrReduceAction())
 
     rule(CU, ((DeclList, 'dl'),), SimpleReduceAction('CU', 'std::move(a0)'))
-    rule(CU, (), SimpleReduceAction('CU', 'nullptr'))
+    rule(CU, (), NullptrReduceAction())
 
     rule(Decl, ((FunctionDecl, '_'),), SkipReduceAction())
 
@@ -835,7 +835,7 @@ def genLoop():
                 # it will reduce 2 up the chain of expression precedence before reporting the error
                 # so the error message is "expected ';' after expression of return statement"
                 # wheras if it didnt reduce, you would get "invalid token to follow 2 of primary expression"
-                # which used to be the erorr format if there was an invalid lookahead token for a state that didn't have any shift actions
+                # which used to be the error format if there was an invalid lookahead token for a state that didn't have any shift actions
             else:
                 for term in nts:
                     output.append(               f'                    case {term.astt()}:\n')
@@ -848,6 +848,17 @@ def genLoop():
                         output.append(           f'                            auto a{i} (popT(stack));\n')
                     elif type(sym) == NonTerminal:
                         output.append(           f'                            auto a{i} (popA<ASTNS::{sym.reducesTo}>(stack));\n')
+
+                if len(ac.rule.expansion):
+                    if type(ac.rule.expansion[0]) == Terminal:
+                        output.append(                '                            Location start ((a0));\n')
+                    else:
+                        output.append(                '                            Location start (a0->start());\n')
+
+                    if type(ac.rule.expansion[-1]) == Terminal:
+                        output.append(               f'                            Location end ((a{len(ac.rule.expansion)-1}));\n')
+                    else:
+                        output.append(               f'                            Location end (a{len(ac.rule.expansion)-1}->end());\n')
 
                 reduceCode, pushitem = ac.rule.reduceAction.generate()
                 output.append(reduceCode)

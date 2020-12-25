@@ -35,7 +35,7 @@ ASTNS::Block::Block(std::unique_ptr<StmtList> stmts, std::unique_ptr<ImplRet> im
 void ASTNS::Block::accept(ASTNS::Expr::Visitor *v) { v->visitBlock(this); }
 ASTNS::IfExpr::IfExpr(std::unique_ptr<Expr> cond, std::unique_ptr<Expr> trues, std::unique_ptr<Expr> falses):cond(std::move(cond)), trues(std::move(trues)), falses(std::move(falses)) {}
 void ASTNS::IfExpr::accept(ASTNS::Expr::Visitor *v) { v->visitIfExpr(this); }
-ASTNS::ForExpr::ForExpr(std::unique_ptr<VarStmt> start, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> increment, std::unique_ptr<Expr> body):start(std::move(start)), cond(std::move(cond)), increment(std::move(increment)), body(std::move(body)) {}
+ASTNS::ForExpr::ForExpr(std::unique_ptr<VarStmt> initial, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> increment, std::unique_ptr<Expr> body):initial(std::move(initial)), cond(std::move(cond)), increment(std::move(increment)), body(std::move(body)) {}
 void ASTNS::ForExpr::accept(ASTNS::Expr::Visitor *v) { v->visitForExpr(this); }
 ASTNS::AssignmentExpr::AssignmentExpr(std::unique_ptr<Expr> target, std::unique_ptr<Expr> expr):target(std::move(target)), expr(std::move(expr)) {}
 void ASTNS::AssignmentExpr::accept(ASTNS::Expr::Visitor *v) { v->visitAssignmentExpr(this); }

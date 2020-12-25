@@ -26,10 +26,6 @@ jobs = [
     ('include/ast/printvisitor.h'          , 'PRINTVISIT INHERIT START'  , 'PRINTVISIT INHERIT END'  , astgen.genVisitorInheritAll),
     ('include/ast/dotvisitor.h'            , 'DOTVISIT INHERIT START'    , 'DOTVISIT INHERIT END'    , astgen.genVisitorInheritAll),
 
-    ('src/message/errors.cpp'              , 'LOCVISITOR METHODS START'  , 'LOCVISITOR METHODS END'  , lambda: astgen.genVisitorMethods('all')),
-    ('src/message/errors.cpp'              , 'LOCVISITOR IMPL START'     , 'LOCVISITOR IMPL END'     , astgen.genLocVisit),
-    ('src/message/errors.cpp'              , 'LOCVISITOR INHERIT START'  , 'LOCVISITOR INHERIT END'  , astgen.genVisitorInheritAll),
-
     ('src/codegen/codegenlocal.h'          , 'FORWDECL METHODS START'    , 'FORWDECL METHODS END'    , lambda: astgen.genVisitorMethods('Decl', 'CUB')),
     ('src/codegen/codegenlocal.h'          , 'TYPEVISITOR METHODS START' , 'TYPEVISITOR METHODS END' , lambda: astgen.genVisitorMethods('Type')),
     ('src/codegen/codegenlocal.h'          , 'STMTCG METHODS START'      , 'STMTCG METHODS END'      , lambda: astgen.genVisitorMethods('Stmt', 'VStmtIB')),

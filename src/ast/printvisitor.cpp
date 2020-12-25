@@ -232,9 +232,9 @@ void ASTNS::PrintVisitor::visitForExpr(ASTNS::ForExpr *a)
 {
     pai("ForExpr\n");
     ++indent;
-    pai("std::unique_ptr<VarStmt> start = ");
-    if (a->start)
-        a->start->accept(this);
+    pai("std::unique_ptr<VarStmt> initial = ");
+    if (a->initial)
+        a->initial->accept(this);
     else
         pai("nullptr\n");
     pai("std::unique_ptr<Expr> cond = ");
