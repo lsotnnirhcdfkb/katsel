@@ -3,7 +3,7 @@
 
 CodeGen::FunctionCodeGen::StmtCodeGen::StmtCodeGen(CodeGen &cg, FunctionCodeGen &fcg): cg(cg), fcg(fcg) {}
 
-void CodeGen::FunctionCodeGen::StmtCodeGen::stmt(ASTNS::StmtB *ast)
+void CodeGen::FunctionCodeGen::StmtCodeGen::stmt(ASTNS::Stmt *ast)
 {
     ast->accept(this);
 }
@@ -20,7 +20,6 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmt(ASTNS::VarStmt *ast)
     ast->assignments->accept(this);
     varty = oldvarty;
 }
-void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmt_OPT(ASTNS::VarStmt_OPT *ast) {}
 void CodeGen::FunctionCodeGen::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
 {
     IR::ASTValue v;
@@ -46,10 +45,9 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
     // fcg.curBlock = cg.context.blackHoleBlock.get(); TODO: fix
 }
 
-void CodeGen::FunctionCodeGen::StmtCodeGen::visitStmtList_OPT(ASTNS::StmtList_OPT *ast) {}
 void CodeGen::FunctionCodeGen::StmtCodeGen::visitStmtList(ASTNS::StmtList *ast)
 {
-    ast->stmtlist->accept(this);
-    ast->anotherstmt->accept(this);
+    for (std::unique_ptr<ASTNS::Stmt> &s : ast->stmts)
+        s->accept(this);
 }
 

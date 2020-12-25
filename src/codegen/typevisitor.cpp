@@ -3,7 +3,7 @@
 
 CodeGen::TypeVisitor::TypeVisitor(CodeGen &cg): cg(cg) {}
 
-IR::Type* CodeGen::TypeVisitor::type(ASTNS::TypeB *ast) {
+IR::Type* CodeGen::TypeVisitor::type(ASTNS::Type *ast) {
     IR::Type *oldret = ret;
     ret = nullptr;
 
@@ -15,9 +15,9 @@ IR::Type* CodeGen::TypeVisitor::type(ASTNS::TypeB *ast) {
     return newret;
 }
 
-void CodeGen::TypeVisitor::visitBuiltinType(ASTNS::BuiltinType *ast)
+void CodeGen::TypeVisitor::visitPrimitiveType(ASTNS::PrimitiveType *ast)
 {
-    switch (ast->type.type)
+    switch (ast->ty.type)
     {
 #define CASE(ty) case TokenType::ty: ret =
 #define GET(ty) cg.context->get##ty
@@ -39,6 +39,6 @@ void CodeGen::TypeVisitor::visitBuiltinType(ASTNS::BuiltinType *ast)
 #undef GET
 
         default:
-            invalidTok("builtin type", ast->type);
+            invalidTok("builtin type", ast->ty);
     }
 }

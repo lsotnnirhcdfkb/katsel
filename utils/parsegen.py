@@ -625,8 +625,8 @@ def makeGrammar():
     rule(RetStmt, ((RETURN, 'ret'), (Expr, 'expr'), (LineEnding, 'ending')), SimpleReduceAction('RetStmt', 'std::move(a1)'))
     rule(RetStmt, ((RETURN, 'ret'), (LineEnding, 'ending')), SimpleReduceAction('RetStmt', 'nullptr'))
 
-    rule(VarStmtItem, ((IDENTIFIER, 'name'),  (EQUAL, 'equal'),  (Expr, 'expr'), ), SimpleReduceAction('VarStmtItem', 'a0, std::move(a2)'))
-    rule(VarStmtItem, ((IDENTIFIER, 'name'),), SimpleReduceAction('VarStmtItem', 'a0, nullptr'))
+    rule(VarStmtItem, ((IDENTIFIER, 'name'),  (EQUAL, 'equal'),  (Expr, 'expr'), ), SimpleReduceAction('VarStmtItem', 'a0, a1, std::move(a2)'))
+    rule(VarStmtItem, ((IDENTIFIER, 'name'),), SimpleReduceAction('VarStmtItem', 'a0, a0, nullptr'))
 
     rule(Block, ((BracedBlock, '_'),), SkipReduceAction())
     rule(Block, ((IndentedBlock, '_'),), SkipReduceAction())
@@ -669,15 +669,15 @@ def makeGrammar():
     rule(BlockedExpr, ((ForExpr, '_'),), SkipReduceAction())
     rule(BlockedExpr, ((BracedBlock, '_'),), SkipReduceAction())
 
-    rule(IfExpr, ((IF, 'iftok'), (Expr, 'cond'), (Block, 'trues')), SimpleReduceAction('IfExpr', 'std::move(a1), std::move(a2), nullptr'))
-    rule(IfExpr, ((IF, 'iftok'), (Expr, 'cond'), (Block, 'trues'), (ELSE, 'elsetok'), (Block, 'falses')), SimpleReduceAction('IfExpr', 'std::move(a1), std::move(a2), std::move(a4)'))
-    rule(IfExpr, ((IF, 'iftok'), (Expr, 'cond'), (Block, 'trues'), (ELSE, 'elsetok'), (IfExpr, 'falses')), SimpleReduceAction('IfExpr', 'std::move(a1), std::move(a2), std::move(a4)'))
+    rule(IfExpr, ((IF, 'iftok'), (Expr, 'cond'), (Block, 'trues')), SimpleReduceAction('IfExpr', 'a0, std::move(a1), std::move(a2), nullptr'))
+    rule(IfExpr, ((IF, 'iftok'), (Expr, 'cond'), (Block, 'trues'), (ELSE, 'elsetok'), (Block, 'falses')), SimpleReduceAction('IfExpr', 'a0, std::move(a1), std::move(a2), std::move(a4)'))
+    rule(IfExpr, ((IF, 'iftok'), (Expr, 'cond'), (Block, 'trues'), (ELSE, 'elsetok'), (IfExpr, 'falses')), SimpleReduceAction('IfExpr', 'a0, std::move(a1), std::move(a2), std::move(a4)'))
 
     rule(ForExpr, ((FOR, 'fortok'), (VarStmtOpt, 'start'), (SEMICOLON, 'semi1'), (ExprOpt, 'cond'), (SEMICOLON, 'semi2'), (ExprOpt, 'increment'), (CPARN, 'cparn'), (Block, 'body')), SimpleReduceAction('ForExpr', 'std::move(a1), std::move(a3), std::move(a5), std::move(a7)'))
 
     BinaryExprReduceAction = SimpleReduceAction('BinaryExpr', 'std::move(a0), a1, std::move(a2)')
 
-    rule(AssignmentExpr, ((BinOrExpr, 'target'),  (EQUAL, 'equal'),  (AssignmentExpr, 'value'), ), SimpleReduceAction('AssignmentExpr', 'std::move(a0), std::move(a2)'))
+    rule(AssignmentExpr, ((BinOrExpr, 'target'),  (EQUAL, 'equal'),  (AssignmentExpr, 'value'), ), SimpleReduceAction('AssignmentExpr', 'std::move(a0), a1, std::move(a2)'))
     rule(AssignmentExpr, ((BinOrExpr, '_'),), SkipReduceAction())
     rule(BinOrExpr, ((BinOrExpr, 'lhs'),  (DOUBLEPIPE, 'op'),  (BinAndExpr, 'rhs'), ), SimpleReduceAction('ShortCircuitExpr', 'std::move(a0), a1, std::move(a2)'))
     rule(BinOrExpr, ((BinAndExpr, '_'),), SkipReduceAction())

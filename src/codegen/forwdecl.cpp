@@ -6,14 +6,13 @@ CodeGen::ForwDecl::ForwDecl(CodeGen &cg): cg(cg) {}
 
 void CodeGen::ForwDecl::visitCU(ASTNS::CU *ast)
 {
-    if (ast->dl)
-        ast->dl->accept(this);
+    ast->decls->accept(this);
 }
 
 void CodeGen::ForwDecl::visitDeclList(ASTNS::DeclList *ast)
 {
-    ast->decllist->accept(this);
-    ast->anotherdecl->accept(this);
+    for (std::unique_ptr<ASTNS::Decl> &decl : ast->decls)
+        decl->accept(this);
 }
 
 void CodeGen::ForwDecl::visitFunctionDecl(ASTNS::FunctionDecl *fun)
@@ -33,10 +32,10 @@ void CodeGen::ForwDecl::visitFunctionDecl(ASTNS::FunctionDecl *fun)
         return;
 
     std::vector<CodeGen::ParamVisitor::Param> params;
-    if (fun->paramlist)
+    if (fun->params)
     {
         CodeGen::ParamVisitor p (cg);
-        fun->paramlist->accept(&p);
+        fun->params->accept(&p);
         params = p.ret;
     }
 

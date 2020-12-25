@@ -75,6 +75,10 @@ void ASTNS::PrintVisitor::visitVarStmtItem(ASTNS::VarStmtItem *a)
     pai("\"");
     pai(std::string(a->name.start, a->name.end));
     pai("\"\n");
+    pai("Token equal = ");
+    pai("\"");
+    pai(std::string(a->equal.start, a->equal.end));
+    pai("\"\n");
     pai("std::unique_ptr<Expr> expr = ");
     if (a->expr)
         a->expr->accept(this);
@@ -170,9 +174,9 @@ void ASTNS::PrintVisitor::visitParam(ASTNS::Param *a)
 {
     pai("Param\n");
     ++indent;
-    pai("std::unique_ptr<Type> ty = ");
-    if (a->ty)
-        a->ty->accept(this);
+    pai("std::unique_ptr<Type> type = ");
+    if (a->type)
+        a->type->accept(this);
     else
         pai("nullptr\n");
     pai("Token name = ");
@@ -211,6 +215,10 @@ void ASTNS::PrintVisitor::visitIfExpr(ASTNS::IfExpr *a)
 {
     pai("IfExpr\n");
     ++indent;
+    pai("Token iftok = ");
+    pai("\"");
+    pai(std::string(a->iftok.start, a->iftok.end));
+    pai("\"\n");
     pai("std::unique_ptr<Expr> cond = ");
     if (a->cond)
         a->cond->accept(this);
@@ -263,6 +271,10 @@ void ASTNS::PrintVisitor::visitAssignmentExpr(ASTNS::AssignmentExpr *a)
         a->target->accept(this);
     else
         pai("nullptr\n");
+    pai("Token equal = ");
+    pai("\"");
+    pai(std::string(a->equal.start, a->equal.end));
+    pai("\"\n");
     pai("std::unique_ptr<Expr> expr = ");
     if (a->expr)
         a->expr->accept(this);
@@ -314,9 +326,9 @@ void ASTNS::PrintVisitor::visitCastExpr(ASTNS::CastExpr *a)
 {
     pai("CastExpr\n");
     ++indent;
-    pai("std::unique_ptr<Type> castto = ");
-    if (a->castto)
-        a->castto->accept(this);
+    pai("std::unique_ptr<Type> type = ");
+    if (a->type)
+        a->type->accept(this);
     else
         pai("nullptr\n");
     pai("std::unique_ptr<Expr> expr = ");

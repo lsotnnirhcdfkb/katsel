@@ -27,13 +27,12 @@ void CodeGen::printUnit(llvm::raw_ostream &ostream)
 // visiting {{{1
 void CodeGen::visitCU(ASTNS::CU *ast)
 {
-    if (ast->dl)
-        ast->dl->accept(this);
+    ast->decls->accept(this);
 }
 void CodeGen::visitDeclList(ASTNS::DeclList *ast)
 {
-    ast->decllist->accept(this);
-    ast->anotherdecl->accept(this);
+    for (std::unique_ptr<ASTNS::Decl> &decl : ast->decls)
+        decl->accept(this);
 }
 void CodeGen::visitFunctionDecl(ASTNS::FunctionDecl *ast)
 {

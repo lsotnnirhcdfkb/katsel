@@ -84,8 +84,9 @@ void ASTNS::DotVisitor::visitVarStmt(ASTNS::VarStmt *a)
 void ASTNS::DotVisitor::visitVarStmtItem(ASTNS::VarStmtItem *a)
 {
     std::string thisid = curid();
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">VarStmtItem</td></tr><tr>";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">VarStmtItem</td></tr><tr>";
             ostream << "<td port=\"name\">name</td>";
+            ostream << "<td port=\"equal\">equal</td>";
             ostream << "<td port=\"expr\">expr</td>";
             ostream << "</tr></table>>]\n";
             {
@@ -234,7 +235,7 @@ void ASTNS::DotVisitor::visitParam(ASTNS::Param *a)
 {
     std::string thisid = curid();
             ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">Param</td></tr><tr>";
-            ostream << "<td port=\"ty\">ty</td>";
+            ostream << "<td port=\"type\">type</td>";
             ostream << "<td port=\"name\">name</td>";
             ostream << "</tr></table>>]\n";
             {
@@ -279,7 +280,8 @@ void ASTNS::DotVisitor::visitBlock(ASTNS::Block *a)
 void ASTNS::DotVisitor::visitIfExpr(ASTNS::IfExpr *a)
 {
     std::string thisid = curid();
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">IfExpr</td></tr><tr>";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"4\">IfExpr</td></tr><tr>";
+            ostream << "<td port=\"iftok\">iftok</td>";
             ostream << "<td port=\"cond\">cond</td>";
             ostream << "<td port=\"trues\">trues</td>";
             ostream << "<td port=\"falses\">falses</td>";
@@ -324,8 +326,9 @@ void ASTNS::DotVisitor::visitForExpr(ASTNS::ForExpr *a)
 void ASTNS::DotVisitor::visitAssignmentExpr(ASTNS::AssignmentExpr *a)
 {
     std::string thisid = curid();
-            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">AssignmentExpr</td></tr><tr>";
+            ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"3\">AssignmentExpr</td></tr><tr>";
             ostream << "<td port=\"target\">target</td>";
+            ostream << "<td port=\"equal\">equal</td>";
             ostream << "<td port=\"expr\">expr</td>";
             ostream << "</tr></table>>]\n";
             {
@@ -390,7 +393,7 @@ void ASTNS::DotVisitor::visitCastExpr(ASTNS::CastExpr *a)
 {
     std::string thisid = curid();
             ostream << thisid << " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"><tr><td port=\"__heading\" colspan=\"2\">CastExpr</td></tr><tr>";
-            ostream << "<td port=\"castto\">castto</td>";
+            ostream << "<td port=\"type\">type</td>";
             ostream << "<td port=\"expr\">expr</td>";
             ostream << "</tr></table>>]\n";
             {

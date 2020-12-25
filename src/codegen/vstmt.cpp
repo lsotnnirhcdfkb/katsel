@@ -34,10 +34,6 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem 
 }
 void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmtItemList(ASTNS::VarStmtItemList *ast)
 {
-    ast->varstmtitemsegment->accept(this);
-}
-void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmtItemSegment(ASTNS::VarStmtItemSegment *ast)
-{
-    ast->varstmtitemsegment->accept(this);
-    ast->anothervarstmtitem->accept(this);
+    for (std::unique_ptr<ASTNS::VarStmtItem> &item : ast->items)
+        item->accept(this);
 }

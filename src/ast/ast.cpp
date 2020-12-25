@@ -9,7 +9,7 @@ ASTNS::FunctionDecl::FunctionDecl(std::unique_ptr<Type> retty, Token name, std::
 void ASTNS::FunctionDecl::accept(ASTNS::Decl::Visitor *v) { v->visitFunctionDecl(this); }
 ASTNS::VarStmt::VarStmt(std::unique_ptr<Type> type, std::unique_ptr<VarStmtItemList> assignments):type(std::move(type)), assignments(std::move(assignments)) {}
 void ASTNS::VarStmt::accept(ASTNS::Stmt::Visitor *v) { v->visitVarStmt(this); }
-ASTNS::VarStmtItem::VarStmtItem(Token name, std::unique_ptr<Expr> expr):name(std::move(name)), expr(std::move(expr)) {}
+ASTNS::VarStmtItem::VarStmtItem(Token name, Token equal, std::unique_ptr<Expr> expr):name(std::move(name)), equal(std::move(equal)), expr(std::move(expr)) {}
 void ASTNS::VarStmtItem::accept(ASTNS::VStmtIB::Visitor *v) { v->visitVarStmtItem(this); }
 ASTNS::VarStmtItemList::VarStmtItemList(std::vector<std::unique_ptr<VarStmtItem>> items):items(std::move(items)) {}
 void ASTNS::VarStmtItemList::accept(ASTNS::VStmtIB::Visitor *v) { v->visitVarStmtItemList(this); }
@@ -20,30 +20,30 @@ void ASTNS::RetStmt::accept(ASTNS::Stmt::Visitor *v) { v->visitRetStmt(this); }
 ASTNS::StmtList::StmtList(std::vector<std::unique_ptr<Stmt>> stmts):stmts(std::move(stmts)) {}
 void ASTNS::StmtList::accept(ASTNS::Stmt::Visitor *v) { v->visitStmtList(this); }
 ASTNS::ImplRet::ImplRet(std::unique_ptr<Expr> expr):expr(std::move(expr)) {}
-void ASTNS::ImplRet::accept(ASTNS::ImplRetB::Visitor *v) { v->visitImplRet(this); }
+void ASTNS::ImplRet::accept(ASTNS::Expr::Visitor *v) { v->visitImplRet(this); }
 ASTNS::PrimitiveType::PrimitiveType(Token ty):ty(std::move(ty)) {}
 void ASTNS::PrimitiveType::accept(ASTNS::Type::Visitor *v) { v->visitPrimitiveType(this); }
 ASTNS::Arg::Arg(std::unique_ptr<Expr> expr):expr(std::move(expr)) {}
 void ASTNS::Arg::accept(ASTNS::ArgB::Visitor *v) { v->visitArg(this); }
 ASTNS::ArgList::ArgList(std::vector<std::unique_ptr<Arg>> args):args(std::move(args)) {}
 void ASTNS::ArgList::accept(ASTNS::ArgB::Visitor *v) { v->visitArgList(this); }
-ASTNS::Param::Param(std::unique_ptr<Type> ty, Token name):ty(std::move(ty)), name(std::move(name)) {}
+ASTNS::Param::Param(std::unique_ptr<Type> type, Token name):type(std::move(type)), name(std::move(name)) {}
 void ASTNS::Param::accept(ASTNS::ParamB::Visitor *v) { v->visitParam(this); }
 ASTNS::ParamList::ParamList(std::vector<std::unique_ptr<Param>> params):params(std::move(params)) {}
 void ASTNS::ParamList::accept(ASTNS::ParamB::Visitor *v) { v->visitParamList(this); }
 ASTNS::Block::Block(std::unique_ptr<StmtList> stmts, std::unique_ptr<ImplRet> implRet):stmts(std::move(stmts)), implRet(std::move(implRet)) {}
 void ASTNS::Block::accept(ASTNS::Expr::Visitor *v) { v->visitBlock(this); }
-ASTNS::IfExpr::IfExpr(std::unique_ptr<Expr> cond, std::unique_ptr<Expr> trues, std::unique_ptr<Expr> falses):cond(std::move(cond)), trues(std::move(trues)), falses(std::move(falses)) {}
+ASTNS::IfExpr::IfExpr(Token iftok, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> trues, std::unique_ptr<Expr> falses):iftok(std::move(iftok)), cond(std::move(cond)), trues(std::move(trues)), falses(std::move(falses)) {}
 void ASTNS::IfExpr::accept(ASTNS::Expr::Visitor *v) { v->visitIfExpr(this); }
 ASTNS::ForExpr::ForExpr(std::unique_ptr<VarStmt> initial, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> increment, std::unique_ptr<Expr> body):initial(std::move(initial)), cond(std::move(cond)), increment(std::move(increment)), body(std::move(body)) {}
 void ASTNS::ForExpr::accept(ASTNS::Expr::Visitor *v) { v->visitForExpr(this); }
-ASTNS::AssignmentExpr::AssignmentExpr(std::unique_ptr<Expr> target, std::unique_ptr<Expr> expr):target(std::move(target)), expr(std::move(expr)) {}
+ASTNS::AssignmentExpr::AssignmentExpr(std::unique_ptr<Expr> target, Token equal, std::unique_ptr<Expr> expr):target(std::move(target)), equal(std::move(equal)), expr(std::move(expr)) {}
 void ASTNS::AssignmentExpr::accept(ASTNS::Expr::Visitor *v) { v->visitAssignmentExpr(this); }
 ASTNS::ShortCircuitExpr::ShortCircuitExpr(std::unique_ptr<Expr> lhs, Token op, std::unique_ptr<Expr> rhs):lhs(std::move(lhs)), op(std::move(op)), rhs(std::move(rhs)) {}
 void ASTNS::ShortCircuitExpr::accept(ASTNS::Expr::Visitor *v) { v->visitShortCircuitExpr(this); }
 ASTNS::BinaryExpr::BinaryExpr(std::unique_ptr<Expr> lhs, Token op, std::unique_ptr<Expr> rhs):lhs(std::move(lhs)), op(std::move(op)), rhs(std::move(rhs)) {}
 void ASTNS::BinaryExpr::accept(ASTNS::Expr::Visitor *v) { v->visitBinaryExpr(this); }
-ASTNS::CastExpr::CastExpr(std::unique_ptr<Type> castto, std::unique_ptr<Expr> expr):castto(std::move(castto)), expr(std::move(expr)) {}
+ASTNS::CastExpr::CastExpr(std::unique_ptr<Type> type, std::unique_ptr<Expr> expr):type(std::move(type)), expr(std::move(expr)) {}
 void ASTNS::CastExpr::accept(ASTNS::Expr::Visitor *v) { v->visitCastExpr(this); }
 ASTNS::UnaryExpr::UnaryExpr(Token op, std::unique_ptr<Expr> expr):op(std::move(op)), expr(std::move(expr)) {}
 void ASTNS::UnaryExpr::accept(ASTNS::Expr::Visitor *v) { v->visitUnaryExpr(this); }

@@ -3,7 +3,7 @@
 #include <string>
 
 struct Token;
-class Location;
+struct Location;
 
 void invalidTok [[ noreturn ]] (std::string const &name, Token const &primary);
 void calledWithOpTyNEthis [[ noreturn ]] (std::string const &classN, std::string const &fnn, std::string const &opname);

@@ -5,15 +5,15 @@
 
 CodeGen::FunctionCodeGen::ExprCodeGen::ExprCodeGen(CodeGen &cg, FunctionCodeGen &fcg): cg(cg), fcg(fcg) {}
 
-IR::ASTValue CodeGen::FunctionCodeGen::ExprCodeGen::expr(ASTNS::ExprB *ast)
+IR::ASTValue CodeGen::FunctionCodeGen::ExprCodeGen::expr(ASTNS::Expr *ast)
 {
     ret = IR::ASTValue();
     ast->accept(this);
     return ret;
 }
 
-// binary operations {{{1
-#define BINARYOPSTART()                      \
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitBinaryExpr(ASTNS::BinaryExpr *ast)
+{
     IR::ASTValue lhs = expr(ast->lhs.get()); \
     IR::ASTValue rhs = expr(ast->rhs.get()); \
     if (!lhs || !rhs)                        \
@@ -21,88 +21,32 @@ IR::ASTValue CodeGen::FunctionCodeGen::ExprCodeGen::expr(ASTNS::ExprB *ast)
         ret = IR::ASTValue();                \
         return;                              \
     }
-#define BINARYOPEND()                                                                           \
-    ret = lhs.type()->binOp(*cg.context, *fcg.fun, fcg.curBlock, oper, lhs, rhs, ast->op, ast); \
-    if (!ret)                                                                                   \
-        fcg.errored = true;
-
-#define BINARYOPSWITCH() IR::Type::BinaryOperator oper; switch (ast->op.type) {
-#define BINARYOPSWITCHEND(astty)              \
-        default: invalidTok(#astty, ast->op); \
+    IR::Type::BinaryOperator oper;
+    switch (ast->op.type)
+    {
+        case TokenType::BANGEQUAL: oper = IR::Type::BinaryOperator::bangequal; break;
+        case TokenType::DOUBLEEQUAL: oper = IR::Type::BinaryOperator::doubleequal; break;
+        case TokenType::LESS: oper = IR::Type::BinaryOperator::less; break;
+        case TokenType::GREATER: oper = IR::Type::BinaryOperator::greater; break;
+        case TokenType::LESSEQUAL: oper = IR::Type::BinaryOperator::lessequal; break;
+        case TokenType::GREATEREQUAL: oper = IR::Type::BinaryOperator::greaterequal; break;
+        case TokenType::CARET: oper = IR::Type::BinaryOperator::caret; break;
+        case TokenType::PIPE: oper = IR::Type::BinaryOperator::pipe; break;
+        case TokenType::AMPER: oper = IR::Type::BinaryOperator::amper; break;
+        case TokenType::DOUBLEGREATER: oper = IR::Type::BinaryOperator::doublegreater; break;
+        case TokenType::DOUBLELESS: oper = IR::Type::BinaryOperator::doubleless; break;
+        case TokenType::PLUS: oper = IR::Type::BinaryOperator::plus; break;
+        case TokenType::MINUS: oper = IR::Type::BinaryOperator::minus; break;
+        case TokenType::STAR: oper = IR::Type::BinaryOperator::star; break;
+        case TokenType::SLASH: oper = IR::Type::BinaryOperator::slash; break;
+        case TokenType::PERCENT: oper = IR::Type::BinaryOperator::percent; break;
+        default: invalidTok("binary operator", ast->op);
     }
-#define BINARYOPCASE(tokentype, optype) case TokenType::tokentype: oper = IR::Type::BinaryOperator::optype; break;
-
-#define BINARYOPIS(operty) IR::Type::BinaryOperator oper = IR::Type::BinaryOperator::operty;
-
-void CodeGen::FunctionCodeGen::ExprCodeGen::visitBitAndExpr(ASTNS::BitAndExpr *ast)
-{
-    BINARYOPSTART()
-    BINARYOPIS(amper)
-    BINARYOPEND()
+    ret = lhs.type()->binOp(*cg.context, *fcg.fun, fcg.curBlock, oper, lhs, rhs, ast->op, ast);
+    if (!ret)
+        fcg.errored = true;
 }
-void CodeGen::FunctionCodeGen::ExprCodeGen::visitBitOrExpr(ASTNS::BitOrExpr *ast)
-{
-    BINARYOPSTART()
-    BINARYOPIS(pipe)
-    BINARYOPEND()
-}
-void CodeGen::FunctionCodeGen::ExprCodeGen::visitBitShiftExpr(ASTNS::BitShiftExpr *ast)
-{
-    BINARYOPSTART()
-    BINARYOPSWITCH()
-    BINARYOPCASE(DOUBLEGREATER, doublegreater)
-    BINARYOPCASE(DOUBLELESS, doubleless)
-    BINARYOPSWITCHEND(BitshiftExpr operator)
-    BINARYOPEND()
-}
-void CodeGen::FunctionCodeGen::ExprCodeGen::visitBitXorExpr(ASTNS::BitXorExpr *ast)
-{
-    BINARYOPSTART()
-    BINARYOPIS(caret);
-    BINARYOPEND()
-}
-void CodeGen::FunctionCodeGen::ExprCodeGen::visitCompEQExpr(ASTNS::CompEQExpr *ast)
-{
-    BINARYOPSTART()
-    BINARYOPSWITCH()
-    BINARYOPCASE(BANGEQUAL, bangequal)
-    BINARYOPCASE(DOUBLEEQUAL, doubleequal)
-    BINARYOPSWITCHEND(CompeqExpr operator)
-    BINARYOPEND()
-}
-void CodeGen::FunctionCodeGen::ExprCodeGen::visitCompLGTExpr(ASTNS::CompLGTExpr *ast)
-{
-    BINARYOPSTART()
-    BINARYOPSWITCH()
-    BINARYOPCASE(LESS, less)
-    BINARYOPCASE(GREATER, greater)
-    BINARYOPCASE(LESSEQUAL, lessequal)
-    BINARYOPCASE(GREATEREQUAL, greaterequal)
-    BINARYOPSWITCHEND(ComplgtExpr operator)
-    BINARYOPEND()
-}
-void CodeGen::FunctionCodeGen::ExprCodeGen::visitMultExpr(ASTNS::MultExpr *ast)
-{
-    BINARYOPSTART()
-    BINARYOPSWITCH()
-    BINARYOPCASE(STAR, star)
-    BINARYOPCASE(SLASH, slash)
-    BINARYOPCASE(PERCENT, percent)
-    BINARYOPSWITCHEND(MultExpr operator)
-    BINARYOPEND()
-}
-void CodeGen::FunctionCodeGen::ExprCodeGen::visitAdditionExpr(ASTNS::AdditionExpr *ast)
-{
-    BINARYOPSTART()
-    BINARYOPSWITCH()
-    BINARYOPCASE(PLUS, plus)
-    BINARYOPCASE(MINUS, minus)
-    BINARYOPSWITCHEND(AdditionExpr operator)
-    BINARYOPEND()
-}
-// }}}
-// short circuit operations {{{
-void CodeGen::FunctionCodeGen::ExprCodeGen::visitBinAndExpr(ASTNS::BinAndExpr *ast)
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitShortCircuitExpr(ASTNS::ShortCircuitExpr *ast)
 {
     IR::ASTValue lhs = expr(ast->lhs.get());
     if (!lhs)
@@ -119,20 +63,27 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitBinAndExpr(ASTNS::BinAndExpr *a
         return;
     }
 
-    IR::Block *lfalseb = fcg.fun->addBlock("binaryand_lfalseb");
-    IR::Block *checkbothb = fcg.fun->addBlock("binaryand_checkbothb");
-    IR::Block *afterb = fcg.fun->addBlock("binaryand_afterb");
+    IR::Block *skip = fcg.fun->addBlock("shortcircuit_skip");
+    IR::Block *checkboth = fcg.fun->addBlock("shortcircuit_checkboth");
+    IR::Block *after = fcg.fun->addBlock("shortcircuit_after");
 
-    // i && j
-    // becomes
-    // if (i)
-    //     j
-    //  else
-    //     false
+    bool valueIfSkipped;
+    if (ast->op.type == TokenType::DOUBLEPIPE)
+    {
+        // jump to skip when true
+        fcg.curBlock->branch(std::make_unique<IR::Instrs::CondBr>(lhs, skip, checkboth));
+        valueIfSkipped = true;
+    }
+    else if (ast->op.type == TokenType::DOUBLEAMPER)
+    {
+        // jump to skip when false
+        fcg.curBlock->branch(std::make_unique<IR::Instrs::CondBr>(lhs, checkboth, skip));
+        valueIfSkipped = false;
+    }
+    else
+        invalidTok("short circuiting operator", ast->op);
 
-    fcg.curBlock->branch(std::make_unique<IR::Instrs::CondBr>(lhs, checkbothb, lfalseb));
-
-    fcg.curBlock = checkbothb;
+    fcg.curBlock = checkboth;
     IR::ASTValue rhs = expr(ast->rhs.get());
     if (!rhs)
     {
@@ -146,79 +97,19 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitBinAndExpr(ASTNS::BinAndExpr *a
         fcg.errored = true;
         return;
     }
-    fcg.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
+    fcg.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(after));
 
-    fcg.curBlock = lfalseb;
-    fcg.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
+    fcg.curBlock = skip;
+    fcg.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(after));
 
-    fcg.curBlock = afterb;
+    fcg.curBlock = after;
     IR::TempRegister *retReg = fcg.fun->addTempRegister(cg.context->getBoolType());
-    fcg.curBlock->add(std::make_unique<IR::Instrs::Phi>(retReg, std::vector {std::make_pair(checkbothb, rhs), std::make_pair(lfalseb, IR::ASTValue(cg.context->getConstBool(false), ast))}));
+    fcg.curBlock->add(std::make_unique<IR::Instrs::Phi>(retReg, std::vector {std::make_pair(checkboth, rhs), std::make_pair(skip, IR::ASTValue(cg.context->getConstBool(valueIfSkipped), ast))}));
 }
-void CodeGen::FunctionCodeGen::ExprCodeGen::visitBinOrExpr(ASTNS::BinOrExpr *ast)
-{
-    IR::ASTValue lhs = expr(ast->lhs.get());
-    if (!lhs)
-    {
-        ret = IR::ASTValue();
-        return;
-    }
-
-    if (!dynamic_cast<IR::BoolType*>(lhs.type()))
-    {
-        ERR_LHS_UNSUPPORTED_OP(lhs, ast->op);
-        ret = IR::ASTValue();
-        fcg.errored = true;
-        return;
-    }
-
-    IR::Block *ltrueb = fcg.fun->addBlock("binaryor_ltrueb");
-    IR::Block *checkbothb = fcg.fun->addBlock("binaryor_checkbothb");
-    IR::Block *afterb = fcg.fun->addBlock("binaryor_afterb");
-
-    // i || j
-    // becomes
-    // if (i)
-    //     true
-    //  else
-    //     j
-
-    fcg.curBlock->branch(std::make_unique<IR::Instrs::CondBr>(lhs, ltrueb, checkbothb));
-
-    fcg.curBlock = ltrueb;
-    fcg.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
-
-    fcg.curBlock = checkbothb;
-    IR::ASTValue rhs = expr(ast->rhs.get());
-    if (!rhs)
-    {
-        ret = IR::ASTValue();
-        return;
-    }
-    if (!dynamic_cast<IR::BoolType*>(rhs.type()))
-    {
-        ERR_CONFLICT_TYS_BINARY_OP(lhs, rhs, ast->op);
-        ret = IR::ASTValue();
-        fcg.errored = true;
-        return;
-    }
-    fcg.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
-
-    fcg.curBlock = afterb;
-    IR::TempRegister *retReg = fcg.fun->addTempRegister(cg.context->getBoolType());
-    fcg.curBlock->add(std::make_unique<IR::Instrs::Phi>(retReg, std::vector {std::make_pair(ltrueb, IR::ASTValue(cg.context->getConstBool(true), ast)), std::make_pair(checkbothb, rhs)}));
-}
-// }}}
-#undef BINARYOPSTART
-#undef BINARYOPEND
-#undef BINARYOPSWITCH
-#undef BINARYOPSWITCHEND
-#undef BINARYOPCASE
-#undef BINARYOPIS
 
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitUnaryExpr(ASTNS::UnaryExpr *ast)
 {
-    IR::ASTValue oper = expr(ast->operand.get());
+    IR::ASTValue oper = expr(ast->expr.get());
     if (!oper)
     {
         ret = IR::ASTValue();
@@ -315,12 +206,6 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
 
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast)
 {
-    if (ast->form == ASTNS::PrimaryExpr::Form::TAT)
-    {
-        ast->expr->accept(this);
-        return;
-    }
-
     int _intbase;
     switch (ast->value.type)
     {
@@ -479,7 +364,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitForExpr(ASTNS::ForExpr *ast)
 {
     fcg.incScope();
 
-    fcg.stmtCG.stmt(ast->start.get());
+    fcg.stmtCG.stmt(ast->initial.get());
 
     IR::Block *loopCheckCond = fcg.fun->addBlock("loop_checkcond");
     IR::Block *loopBody = fcg.fun->addBlock("loop_body");
@@ -510,7 +395,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitForExpr(ASTNS::ForExpr *ast)
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitAssignmentExpr(ASTNS::AssignmentExpr *ast)
 {
     IR::ASTValue lhs = expr(ast->target.get());
-    IR::ASTValue rhs = expr(ast->value.get());
+    IR::ASTValue rhs = expr(ast->expr.get());
 
     if (!lhs || !rhs)
     {
@@ -543,7 +428,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitAssignmentExpr(ASTNS::Assignmen
 }
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitCastExpr(ASTNS::CastExpr *ast)
 {
-    IR::ASTValue oper = expr(ast->operand.get());
+    IR::ASTValue oper = expr(ast->expr.get());
     if (!oper)
     {
         ret = IR::ASTValue();
@@ -556,31 +441,20 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitCastExpr(ASTNS::CastExpr *ast)
         fcg.errored = true;
 }
 
-void CodeGen::FunctionCodeGen::ExprCodeGen::visitIndentedBlock(ASTNS::IndentedBlock *ast)
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitBlock(ASTNS::Block *ast)
 {
     fcg.incScope();
     if (ast->stmts)
         fcg.stmtCG.stmt(ast->stmts.get());
 
-    ret = expr(ast->implret.get());
-    fcg.decScope();
-}
-void CodeGen::FunctionCodeGen::ExprCodeGen::visitBracedBlock(ASTNS::BracedBlock *ast)
-{
-    fcg.incScope();
-    if (ast->stmts)
-        fcg.stmtCG.stmt(ast->stmts.get());
-
-    ret = expr(ast->implret.get());
+    if (ast->implRet)
+        ret = expr(ast->implRet.get());
+    else
+        ret = IR::ASTValue(cg.context->getVoid(), ast);;
     fcg.decScope();
 }
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitImplRet(ASTNS::ImplRet *ast)
 {
     ret = expr(ast->expr.get());
 }
-void CodeGen::FunctionCodeGen::ExprCodeGen::visitImplRet_OPT(ASTNS::ImplRet_OPT *ast)
-{
-    ret = IR::ASTValue(cg.context->getVoid(), ast);;
-}
 
-void CodeGen::FunctionCodeGen::ExprCodeGen::visitExpr_OPT(ASTNS::Expr_OPT *ast) {}

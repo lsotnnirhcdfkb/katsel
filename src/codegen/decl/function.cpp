@@ -29,10 +29,10 @@ bool CodeGen::FunctionCodeGen::codegen()
     incScope();
     ret = f->addRegister(fty->ret, ast);
 
-    if (ast->paramlist)
+    if (ast->params)
     {
         ParamVisitor pv (cg);
-        ast->paramlist->accept(&pv);
+        ast->params->accept(&pv);
         std::vector<ParamVisitor::Param> params (pv.ret);
 
         for (auto const &param : params)
