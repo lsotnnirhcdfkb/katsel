@@ -56,8 +56,24 @@ void visitPrimaryExpr(ASTNS::PrimaryExpr *ast) override;
         int indent;
         bool pindent;
         // short for print at indent
-        void pai(std::string &s);
-        void pai(std::string &&s);
+        void pai(std::string const &s);
+
+        template <typename T>
+        void printField(std::unique_ptr<T> &ast)
+        {
+            ast->accept(this);
+        }
+        template <typename T>
+        void printField(std::vector<std::unique_ptr<T>> &v)
+        {
+            pai("[\n");
+            ++indent;
+            for (std::unique_ptr<T> &a : v)
+                a->accept(this);
+            --indent;
+            pai("]\n");
+        }
+        void printField(Token const &t);
 
         llvm::raw_ostream &ostream;
     };

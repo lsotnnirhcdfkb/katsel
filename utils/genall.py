@@ -13,7 +13,6 @@ jobs = [
     ('include/ast/ast.h'                   , 'ASTHEADER START'           , 'ASTHEADER END'           , astgen.genASTDecls),
 
     ('src/ast/printvisitor.cpp'            , 'PRINTVISITOR START'        , 'PRINTVISITOR END'        , astgen.genPrintVisitorMethods),
-    ('src/ast/dotvisitor.cpp'              , 'DOTVISITOR START'          , 'DOTVISITOR END'          , astgen.genDotVisitorMethods),
 
     ('src/parse/parsestack.h'              , 'NONTERM ENUM START'        , 'NONTERM ENUM END'        , parsegen.genNonTermEnum),
     ('src/parse/parserloop.cpp'            , 'PARSERLOOP START'          , 'PARSERLOOP END'          , parsegen.genLoop),
@@ -22,9 +21,7 @@ jobs = [
     ('src/parse/error.cpp'                 , 'SINGLETOK START'           , 'SINGLETOK END'           , parsegen.genSingleTok),
 
     ('include/ast/printvisitor.h'          , 'PRINTVISIT METHODS START'  , 'PRINTVISIT METHODS END'  , lambda: astgen.genVisitorMethods('all')),
-    ('include/ast/dotvisitor.h'            , 'DOTVISIT METHODS START'    , 'DOTVISIT METHODS END'    , lambda: astgen.genVisitorMethods('all')),
     ('include/ast/printvisitor.h'          , 'PRINTVISIT INHERIT START'  , 'PRINTVISIT INHERIT END'  , astgen.genVisitorInheritAll),
-    ('include/ast/dotvisitor.h'            , 'DOTVISIT INHERIT START'    , 'DOTVISIT INHERIT END'    , astgen.genVisitorInheritAll),
 
     ('src/codegen/codegenlocal.h'          , 'FORWDECL METHODS START'    , 'FORWDECL METHODS END'    , lambda: astgen.genVisitorMethods('Decl', 'CUB')),
     ('src/codegen/codegenlocal.h'          , 'TYPEVISITOR METHODS START' , 'TYPEVISITOR METHODS END' , lambda: astgen.genVisitorMethods('Type')),

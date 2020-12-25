@@ -14,7 +14,6 @@
 #include "message/ansistuff.h"
 #include "message/error.h"
 #include "ast/printvisitor.h"
-#include "ast/dotvisitor.h"
 #include "codegen/codegen.h"
 #include "lower/lowerer.h"
 
@@ -25,7 +24,6 @@ enum class OutFormats
 {
     LEX = 0,
     PARSE,
-    ASTDOT,
     DECLS,
     CODEGEN,
     CFGDOT,
@@ -115,19 +113,6 @@ int compileFile(OutFormats ofmt, char *filename)
 
         auto printv = std::make_unique<ASTNS::PrintVisitor>(os);
         parsed->accept(printv.get());
-
-        os.close();
-        return true;
-    }
-
-    if (ofmt == OutFormats::ASTDOT)
-    {
-        OPENFILE(filename, ".dot");
-        if (os.has_error())
-            return false;
-
-        auto dotter = std::make_unique<ASTNS::DotVisitor>(os);
-        dotter->dotVisit(parsed.get());
 
         os.close();
         return true;
@@ -230,7 +215,6 @@ int main(int argc, char *argv[])
 #define EOFMT(k, ku) else OFMT(k, ku)
                 OFMT(lex, LEX)
                 EOFMT(parse, PARSE)
-                EOFMT(astdot, ASTDOT)
                 EOFMT(decls, DECLS)
                 EOFMT(codegen, CODEGEN)
                 EOFMT(cfgdot, CFGDOT)

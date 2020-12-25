@@ -170,51 +170,10 @@ def genPrintVisitorMethods():
         for field in ast.fields:
             output.append(      f'    pai("{field.type} {field.name} = ");\n')
             if field.type.startswith('std::unique_ptr'):
-                output.append(  f'    if (a->{field.name})\n')
-                output.append(  f'        a->{field.name}->accept(this);\n')
-                output.append(   '    else\n')
-                output.append(   '        pai("nullptr\\n");\n')
+                output.append(      f'    a->{field.name}->accept(this);\n')
             else:
-                output.append(   '    pai("\\"");\n')
-                output.append(  f'    pai(std::string(a->{field.name}.start, a->{field.name}.end));\n')
-                output.append(   '    pai("\\"\\n");\n')
+                output.append(      f'    printField(a->{field.name});\n')
         output.append(           '    --indent;\n')
-        output.append(           '}\n')
-
-    return''.join(output)
-# Generate dot visitor {{{3
-def genDotVisitorMethods():
-    output = []
-    for ast in asts:
-        if type(ast) != ASTClass:
-            continue
-
-        output.append(            f'void ASTNS::DotVisitor::visit{ast.name}(ASTNS::{ast.name} *a)\n')
-        output.append(           '{\n')
-        output.append(           '    std::string thisid = curid();\n')
-        output.append(        f'            ostream << thisid << " [label=<<table border=\\"0\\" cellborder=\\"1\\" cellspacing=\\"0\\"><tr><td port=\\"__heading\\" colspan=\\"{len(ast.fields)}\\">{ast.name}</td></tr><tr>";\n')
-        for field in ast.fields:
-            output.append(    f'            ostream << "<td port=\\"{field.name}\\">{field.name}</td>";\n')
-
-        output.append(        f'            ostream << "</tr></table>>]\\n";\n')
-
-        output.append(         '            {\n')
-        if field.type.startswith('std::unique_ptr'):
-            output.append(    f'                    if (a->{field.name})\n')
-            output.append(     '                    {\n')
-            output.append(    f'                        a->{field.name}->accept(this);\n')
-            output.append(    f'                        connect(thisid, "{field.name}", lastid);\n')
-            output.append(     '                    }\n')
-            output.append(     '                    else\n')
-            output.append(     '                    {\n')
-            output.append(    f'                        std::string nullptrnodeid = makeTextNode("nullptr_t", "nullptr");\n')
-            output.append(    f'                        connect(thisid, "{field.name}", nullptrnodeid);\n')
-            output.append(     '                    }\n')
-        else:
-            output.append(f'                    std::string tokennodeid = makeTextNode("Token", a->{field.name}.stringify());\n')
-            output.append(f'                    connect(thisid, "{field.name}", tokennodeid);\n')
-        output.append(   '            }\n')
-        output.append(           '    lastid = std::move(thisid);\n')
         output.append(           '}\n')
 
     return''.join(output)

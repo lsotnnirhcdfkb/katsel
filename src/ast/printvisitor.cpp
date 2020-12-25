@@ -10,10 +10,7 @@ void ASTNS::PrintVisitor::visitCU(ASTNS::CU *a)
     pai("CU\n");
     ++indent;
     pai("std::unique_ptr<DeclList> decls = ");
-    if (a->decls)
-        a->decls->accept(this);
-    else
-        pai("nullptr\n");
+    a->decls->accept(this);
     --indent;
 }
 void ASTNS::PrintVisitor::visitDeclList(ASTNS::DeclList *a)
@@ -21,9 +18,7 @@ void ASTNS::PrintVisitor::visitDeclList(ASTNS::DeclList *a)
     pai("DeclList\n");
     ++indent;
     pai("std::vector<std::unique_ptr<Decl>> decls = ");
-    pai("\"");
-    pai(std::string(a->decls.start, a->decls.end));
-    pai("\"\n");
+    printField(a->decls);
     --indent;
 }
 void ASTNS::PrintVisitor::visitFunctionDecl(ASTNS::FunctionDecl *a)
@@ -31,24 +26,13 @@ void ASTNS::PrintVisitor::visitFunctionDecl(ASTNS::FunctionDecl *a)
     pai("FunctionDecl\n");
     ++indent;
     pai("std::unique_ptr<Type> retty = ");
-    if (a->retty)
-        a->retty->accept(this);
-    else
-        pai("nullptr\n");
+    a->retty->accept(this);
     pai("Token name = ");
-    pai("\"");
-    pai(std::string(a->name.start, a->name.end));
-    pai("\"\n");
+    printField(a->name);
     pai("std::unique_ptr<ParamList> params = ");
-    if (a->params)
-        a->params->accept(this);
-    else
-        pai("nullptr\n");
+    a->params->accept(this);
     pai("std::unique_ptr<Block> body = ");
-    if (a->body)
-        a->body->accept(this);
-    else
-        pai("nullptr\n");
+    a->body->accept(this);
     --indent;
 }
 void ASTNS::PrintVisitor::visitVarStmt(ASTNS::VarStmt *a)
@@ -56,15 +40,9 @@ void ASTNS::PrintVisitor::visitVarStmt(ASTNS::VarStmt *a)
     pai("VarStmt\n");
     ++indent;
     pai("std::unique_ptr<Type> type = ");
-    if (a->type)
-        a->type->accept(this);
-    else
-        pai("nullptr\n");
+    a->type->accept(this);
     pai("std::unique_ptr<VarStmtItemList> assignments = ");
-    if (a->assignments)
-        a->assignments->accept(this);
-    else
-        pai("nullptr\n");
+    a->assignments->accept(this);
     --indent;
 }
 void ASTNS::PrintVisitor::visitVarStmtItem(ASTNS::VarStmtItem *a)
@@ -72,18 +50,11 @@ void ASTNS::PrintVisitor::visitVarStmtItem(ASTNS::VarStmtItem *a)
     pai("VarStmtItem\n");
     ++indent;
     pai("Token name = ");
-    pai("\"");
-    pai(std::string(a->name.start, a->name.end));
-    pai("\"\n");
+    printField(a->name);
     pai("Token equal = ");
-    pai("\"");
-    pai(std::string(a->equal.start, a->equal.end));
-    pai("\"\n");
+    printField(a->equal);
     pai("std::unique_ptr<Expr> expr = ");
-    if (a->expr)
-        a->expr->accept(this);
-    else
-        pai("nullptr\n");
+    a->expr->accept(this);
     --indent;
 }
 void ASTNS::PrintVisitor::visitVarStmtItemList(ASTNS::VarStmtItemList *a)
@@ -91,9 +62,7 @@ void ASTNS::PrintVisitor::visitVarStmtItemList(ASTNS::VarStmtItemList *a)
     pai("VarStmtItemList\n");
     ++indent;
     pai("std::vector<std::unique_ptr<VarStmtItem>> items = ");
-    pai("\"");
-    pai(std::string(a->items.start, a->items.end));
-    pai("\"\n");
+    printField(a->items);
     --indent;
 }
 void ASTNS::PrintVisitor::visitExprStmt(ASTNS::ExprStmt *a)
@@ -101,10 +70,7 @@ void ASTNS::PrintVisitor::visitExprStmt(ASTNS::ExprStmt *a)
     pai("ExprStmt\n");
     ++indent;
     pai("std::unique_ptr<Expr> expr = ");
-    if (a->expr)
-        a->expr->accept(this);
-    else
-        pai("nullptr\n");
+    a->expr->accept(this);
     --indent;
 }
 void ASTNS::PrintVisitor::visitRetStmt(ASTNS::RetStmt *a)
@@ -112,10 +78,7 @@ void ASTNS::PrintVisitor::visitRetStmt(ASTNS::RetStmt *a)
     pai("RetStmt\n");
     ++indent;
     pai("std::unique_ptr<Expr> expr = ");
-    if (a->expr)
-        a->expr->accept(this);
-    else
-        pai("nullptr\n");
+    a->expr->accept(this);
     --indent;
 }
 void ASTNS::PrintVisitor::visitStmtList(ASTNS::StmtList *a)
@@ -123,9 +86,7 @@ void ASTNS::PrintVisitor::visitStmtList(ASTNS::StmtList *a)
     pai("StmtList\n");
     ++indent;
     pai("std::vector<std::unique_ptr<Stmt>> stmts = ");
-    pai("\"");
-    pai(std::string(a->stmts.start, a->stmts.end));
-    pai("\"\n");
+    printField(a->stmts);
     --indent;
 }
 void ASTNS::PrintVisitor::visitImplRet(ASTNS::ImplRet *a)
@@ -133,10 +94,7 @@ void ASTNS::PrintVisitor::visitImplRet(ASTNS::ImplRet *a)
     pai("ImplRet\n");
     ++indent;
     pai("std::unique_ptr<Expr> expr = ");
-    if (a->expr)
-        a->expr->accept(this);
-    else
-        pai("nullptr\n");
+    a->expr->accept(this);
     --indent;
 }
 void ASTNS::PrintVisitor::visitPrimitiveType(ASTNS::PrimitiveType *a)
@@ -144,9 +102,7 @@ void ASTNS::PrintVisitor::visitPrimitiveType(ASTNS::PrimitiveType *a)
     pai("PrimitiveType\n");
     ++indent;
     pai("Token ty = ");
-    pai("\"");
-    pai(std::string(a->ty.start, a->ty.end));
-    pai("\"\n");
+    printField(a->ty);
     --indent;
 }
 void ASTNS::PrintVisitor::visitArg(ASTNS::Arg *a)
@@ -154,10 +110,7 @@ void ASTNS::PrintVisitor::visitArg(ASTNS::Arg *a)
     pai("Arg\n");
     ++indent;
     pai("std::unique_ptr<Expr> expr = ");
-    if (a->expr)
-        a->expr->accept(this);
-    else
-        pai("nullptr\n");
+    a->expr->accept(this);
     --indent;
 }
 void ASTNS::PrintVisitor::visitArgList(ASTNS::ArgList *a)
@@ -165,9 +118,7 @@ void ASTNS::PrintVisitor::visitArgList(ASTNS::ArgList *a)
     pai("ArgList\n");
     ++indent;
     pai("std::vector<std::unique_ptr<Arg>> args = ");
-    pai("\"");
-    pai(std::string(a->args.start, a->args.end));
-    pai("\"\n");
+    printField(a->args);
     --indent;
 }
 void ASTNS::PrintVisitor::visitParam(ASTNS::Param *a)
@@ -175,14 +126,9 @@ void ASTNS::PrintVisitor::visitParam(ASTNS::Param *a)
     pai("Param\n");
     ++indent;
     pai("std::unique_ptr<Type> type = ");
-    if (a->type)
-        a->type->accept(this);
-    else
-        pai("nullptr\n");
+    a->type->accept(this);
     pai("Token name = ");
-    pai("\"");
-    pai(std::string(a->name.start, a->name.end));
-    pai("\"\n");
+    printField(a->name);
     --indent;
 }
 void ASTNS::PrintVisitor::visitParamList(ASTNS::ParamList *a)
@@ -190,9 +136,7 @@ void ASTNS::PrintVisitor::visitParamList(ASTNS::ParamList *a)
     pai("ParamList\n");
     ++indent;
     pai("std::vector<std::unique_ptr<Param>> params = ");
-    pai("\"");
-    pai(std::string(a->params.start, a->params.end));
-    pai("\"\n");
+    printField(a->params);
     --indent;
 }
 void ASTNS::PrintVisitor::visitBlock(ASTNS::Block *a)
@@ -200,15 +144,9 @@ void ASTNS::PrintVisitor::visitBlock(ASTNS::Block *a)
     pai("Block\n");
     ++indent;
     pai("std::unique_ptr<StmtList> stmts = ");
-    if (a->stmts)
-        a->stmts->accept(this);
-    else
-        pai("nullptr\n");
+    a->stmts->accept(this);
     pai("std::unique_ptr<ImplRet> implRet = ");
-    if (a->implRet)
-        a->implRet->accept(this);
-    else
-        pai("nullptr\n");
+    a->implRet->accept(this);
     --indent;
 }
 void ASTNS::PrintVisitor::visitIfExpr(ASTNS::IfExpr *a)
@@ -216,24 +154,13 @@ void ASTNS::PrintVisitor::visitIfExpr(ASTNS::IfExpr *a)
     pai("IfExpr\n");
     ++indent;
     pai("Token iftok = ");
-    pai("\"");
-    pai(std::string(a->iftok.start, a->iftok.end));
-    pai("\"\n");
+    printField(a->iftok);
     pai("std::unique_ptr<Expr> cond = ");
-    if (a->cond)
-        a->cond->accept(this);
-    else
-        pai("nullptr\n");
+    a->cond->accept(this);
     pai("std::unique_ptr<Expr> trues = ");
-    if (a->trues)
-        a->trues->accept(this);
-    else
-        pai("nullptr\n");
+    a->trues->accept(this);
     pai("std::unique_ptr<Expr> falses = ");
-    if (a->falses)
-        a->falses->accept(this);
-    else
-        pai("nullptr\n");
+    a->falses->accept(this);
     --indent;
 }
 void ASTNS::PrintVisitor::visitForExpr(ASTNS::ForExpr *a)
@@ -241,25 +168,13 @@ void ASTNS::PrintVisitor::visitForExpr(ASTNS::ForExpr *a)
     pai("ForExpr\n");
     ++indent;
     pai("std::unique_ptr<VarStmt> initial = ");
-    if (a->initial)
-        a->initial->accept(this);
-    else
-        pai("nullptr\n");
+    a->initial->accept(this);
     pai("std::unique_ptr<Expr> cond = ");
-    if (a->cond)
-        a->cond->accept(this);
-    else
-        pai("nullptr\n");
+    a->cond->accept(this);
     pai("std::unique_ptr<Expr> increment = ");
-    if (a->increment)
-        a->increment->accept(this);
-    else
-        pai("nullptr\n");
+    a->increment->accept(this);
     pai("std::unique_ptr<Expr> body = ");
-    if (a->body)
-        a->body->accept(this);
-    else
-        pai("nullptr\n");
+    a->body->accept(this);
     --indent;
 }
 void ASTNS::PrintVisitor::visitAssignmentExpr(ASTNS::AssignmentExpr *a)
@@ -267,19 +182,11 @@ void ASTNS::PrintVisitor::visitAssignmentExpr(ASTNS::AssignmentExpr *a)
     pai("AssignmentExpr\n");
     ++indent;
     pai("std::unique_ptr<Expr> target = ");
-    if (a->target)
-        a->target->accept(this);
-    else
-        pai("nullptr\n");
+    a->target->accept(this);
     pai("Token equal = ");
-    pai("\"");
-    pai(std::string(a->equal.start, a->equal.end));
-    pai("\"\n");
+    printField(a->equal);
     pai("std::unique_ptr<Expr> expr = ");
-    if (a->expr)
-        a->expr->accept(this);
-    else
-        pai("nullptr\n");
+    a->expr->accept(this);
     --indent;
 }
 void ASTNS::PrintVisitor::visitShortCircuitExpr(ASTNS::ShortCircuitExpr *a)
@@ -287,19 +194,11 @@ void ASTNS::PrintVisitor::visitShortCircuitExpr(ASTNS::ShortCircuitExpr *a)
     pai("ShortCircuitExpr\n");
     ++indent;
     pai("std::unique_ptr<Expr> lhs = ");
-    if (a->lhs)
-        a->lhs->accept(this);
-    else
-        pai("nullptr\n");
+    a->lhs->accept(this);
     pai("Token op = ");
-    pai("\"");
-    pai(std::string(a->op.start, a->op.end));
-    pai("\"\n");
+    printField(a->op);
     pai("std::unique_ptr<Expr> rhs = ");
-    if (a->rhs)
-        a->rhs->accept(this);
-    else
-        pai("nullptr\n");
+    a->rhs->accept(this);
     --indent;
 }
 void ASTNS::PrintVisitor::visitBinaryExpr(ASTNS::BinaryExpr *a)
@@ -307,19 +206,11 @@ void ASTNS::PrintVisitor::visitBinaryExpr(ASTNS::BinaryExpr *a)
     pai("BinaryExpr\n");
     ++indent;
     pai("std::unique_ptr<Expr> lhs = ");
-    if (a->lhs)
-        a->lhs->accept(this);
-    else
-        pai("nullptr\n");
+    a->lhs->accept(this);
     pai("Token op = ");
-    pai("\"");
-    pai(std::string(a->op.start, a->op.end));
-    pai("\"\n");
+    printField(a->op);
     pai("std::unique_ptr<Expr> rhs = ");
-    if (a->rhs)
-        a->rhs->accept(this);
-    else
-        pai("nullptr\n");
+    a->rhs->accept(this);
     --indent;
 }
 void ASTNS::PrintVisitor::visitCastExpr(ASTNS::CastExpr *a)
@@ -327,15 +218,9 @@ void ASTNS::PrintVisitor::visitCastExpr(ASTNS::CastExpr *a)
     pai("CastExpr\n");
     ++indent;
     pai("std::unique_ptr<Type> type = ");
-    if (a->type)
-        a->type->accept(this);
-    else
-        pai("nullptr\n");
+    a->type->accept(this);
     pai("std::unique_ptr<Expr> expr = ");
-    if (a->expr)
-        a->expr->accept(this);
-    else
-        pai("nullptr\n");
+    a->expr->accept(this);
     --indent;
 }
 void ASTNS::PrintVisitor::visitUnaryExpr(ASTNS::UnaryExpr *a)
@@ -343,14 +228,9 @@ void ASTNS::PrintVisitor::visitUnaryExpr(ASTNS::UnaryExpr *a)
     pai("UnaryExpr\n");
     ++indent;
     pai("Token op = ");
-    pai("\"");
-    pai(std::string(a->op.start, a->op.end));
-    pai("\"\n");
+    printField(a->op);
     pai("std::unique_ptr<Expr> expr = ");
-    if (a->expr)
-        a->expr->accept(this);
-    else
-        pai("nullptr\n");
+    a->expr->accept(this);
     --indent;
 }
 void ASTNS::PrintVisitor::visitCallExpr(ASTNS::CallExpr *a)
@@ -358,19 +238,11 @@ void ASTNS::PrintVisitor::visitCallExpr(ASTNS::CallExpr *a)
     pai("CallExpr\n");
     ++indent;
     pai("std::unique_ptr<Expr> callee = ");
-    if (a->callee)
-        a->callee->accept(this);
-    else
-        pai("nullptr\n");
+    a->callee->accept(this);
     pai("Token oparn = ");
-    pai("\"");
-    pai(std::string(a->oparn.start, a->oparn.end));
-    pai("\"\n");
+    printField(a->oparn);
     pai("std::unique_ptr<ArgList> args = ");
-    if (a->args)
-        a->args->accept(this);
-    else
-        pai("nullptr\n");
+    a->args->accept(this);
     --indent;
 }
 void ASTNS::PrintVisitor::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
@@ -378,15 +250,13 @@ void ASTNS::PrintVisitor::visitPrimaryExpr(ASTNS::PrimaryExpr *a)
     pai("PrimaryExpr\n");
     ++indent;
     pai("Token value = ");
-    pai("\"");
-    pai(std::string(a->value.start, a->value.end));
-    pai("\"\n");
+    printField(a->value);
     --indent;
 }
 // This code was autogenerated - see the utils/ directory
 // PRINTVISITOR END
 
-void ASTNS::PrintVisitor::pai(std::string &s)
+void ASTNS::PrintVisitor::pai(std::string const &s)
 {
     for (auto i = s.begin(); i != s.end(); ++i)
     {
@@ -401,9 +271,12 @@ void ASTNS::PrintVisitor::pai(std::string &s)
             pindent = true;
     }
 }
-void ASTNS::PrintVisitor::pai(std::string &&s)
-{
-    pai(s);
-}
 
 ASTNS::PrintVisitor::PrintVisitor(llvm::raw_ostream &ostream): indent(0), ostream(ostream) {}
+
+void ASTNS::PrintVisitor::printField(Token const &t)
+{
+    pai("\"");
+    pai(t.stringify());
+    pai("\"");
+}

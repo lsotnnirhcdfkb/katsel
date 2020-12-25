@@ -1,1 +1,1 @@
-target_sources(katselc PUBLIC ast.cpp printvisitor.cpp dotvisitor.cpp)
+target_sources(katselc PUBLIC ast.cpp printvisitor.cpp)
