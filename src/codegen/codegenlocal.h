@@ -79,7 +79,7 @@ void visitStmtList(ASTNS::StmtList *ast) override;
     };
     // }}}
     // ExprCodeGen {{{
-    class ExprCodeGen : public ASTNS::Expr::Visitor
+    class ExprCodeGen : public ASTNS::Expr::Visitor, public ASTNS::ImplRetB::Visitor
     {
     public:
         ExprCodeGen(CodeGen &cg, FunctionCodeGen &fcg);

@@ -3,7 +3,7 @@
 # Classes {{{1
 # ASTClass {{{2
 class ASTClass:
-    def __init__(self, name, fields, base):
+    def __init__(self, name, base, fields):
         self.name = name
         def process_field(field):
             return (item.strip().rstrip() for item in field.split('|'))
@@ -36,6 +36,7 @@ asts = [
     ASTBaseClass('ArgB'),
     ASTBaseClass('ParamB'),
     ASTBaseClass('VStmtIB'),
+    ASTBaseClass('ImplRetB'),
 
     # a class to keep track of locations of syntactic elements that don't matter (like
     # line endings where the location matters (so that other statements can use the line
@@ -44,33 +45,33 @@ asts = [
     # it should never appear in the final AST, because no fields should have a PureLocationB
     # or a PureLocation as a field
     ASTBaseClass('PureLocationB'),
-    ASTClass('PureLocation', 'int|dummy', 'PureLocationB'),
+    ASTClass('PureLocation',  'PureLocationB', 'int|dummy'),
 
-    ASTClass('CU', 'std::unique_ptr<DeclList>|decls', 'CUB'),
-    ASTClass('DeclList', 'std::vector<std::unique_ptr<Decl>>|decls', 'Decl'),
-    ASTClass('FunctionDecl', 'std::unique_ptr<Type>|retty, Token|name, std::unique_ptr<ParamList>|params, std::unique_ptr<Block>|body', 'Decl'),
-    ASTClass('VarStmt', 'std::unique_ptr<Type>|type, std::unique_ptr<VarStmtItemList>|assignments', 'Stmt'),
-    ASTClass('VarStmtItem', 'Token|name, Token|equal, std::unique_ptr<Expr>|expr', 'VStmtIB'),
-    ASTClass('VarStmtItemList', 'std::vector<std::unique_ptr<VarStmtItem>>|items', 'VStmtIB'),
-    ASTClass('ExprStmt', 'std::unique_ptr<Expr>|expr', 'Stmt'),
-    ASTClass('RetStmt', 'std::unique_ptr<Expr>|expr', 'Stmt'),
-    ASTClass('StmtList', 'std::vector<std::unique_ptr<Stmt>>|stmts', 'Stmt'),
-    ASTClass('ImplRet', 'std::unique_ptr<Expr>|expr', 'Expr'),
-    ASTClass('PrimitiveType', 'Token|ty', 'Type'),
-    ASTClass('Arg', 'std::unique_ptr<Expr>|expr', 'ArgB'),
-    ASTClass('ArgList', 'std::vector<std::unique_ptr<Arg>>|args', 'ArgB'),
-    ASTClass('Param', 'std::unique_ptr<Type>|type, Token|name', 'ParamB'),
-    ASTClass('ParamList', 'std::vector<std::unique_ptr<Param>>|params', 'ParamB'),
-    ASTClass('Block', 'std::unique_ptr<StmtList>|stmts, std::unique_ptr<ImplRet>|implRet', 'Expr'),
-    ASTClass('IfExpr', 'Token|iftok, std::unique_ptr<Expr>|cond, std::unique_ptr<Expr>|trues, std::unique_ptr<Expr>|falses', 'Expr'),
-    ASTClass('ForExpr', 'std::unique_ptr<VarStmt>|initial, std::unique_ptr<Expr>|cond, std::unique_ptr<Expr>|increment, std::unique_ptr<Expr>|body', 'Expr'),
-    ASTClass('AssignmentExpr', 'std::unique_ptr<Expr>|target, Token|equal, std::unique_ptr<Expr>|expr', 'Expr'),
-    ASTClass('ShortCircuitExpr', 'std::unique_ptr<Expr>|lhs, Token|op, std::unique_ptr<Expr>|rhs', 'Expr'),
-    ASTClass('BinaryExpr', 'std::unique_ptr<Expr>|lhs, Token|op, std::unique_ptr<Expr>|rhs', 'Expr'),
-    ASTClass('CastExpr', 'std::unique_ptr<Type>|type, std::unique_ptr<Expr>|expr', 'Expr'),
-    ASTClass('UnaryExpr', 'Token|op, std::unique_ptr<Expr>|expr', 'Expr'),
-    ASTClass('CallExpr', 'std::unique_ptr<Expr>|callee, Token|oparn, std::unique_ptr<ArgList>|args', 'Expr'),
-    ASTClass('PrimaryExpr', 'Token|value', 'Expr'),
+    ASTClass('CU',  'CUB', 'std::unique_ptr<DeclList>|decls'),
+    ASTClass('DeclList',  'Decl', 'std::vector<std::unique_ptr<Decl>>|decls'),
+    ASTClass('FunctionDecl', 'Decl', 'std::unique_ptr<Type>|retty, Token|name, std::unique_ptr<ParamList>|params, std::unique_ptr<Block>|body'),
+    ASTClass('VarStmt', 'Stmt', 'std::unique_ptr<Type>|type, std::unique_ptr<VarStmtItemList>|assignments'),
+    ASTClass('VarStmtItem', 'VStmtIB', 'Token|name, Token|equal, std::unique_ptr<Expr>|expr'),
+    ASTClass('VarStmtItemList', 'VStmtIB', 'std::vector<std::unique_ptr<VarStmtItem>>|items'),
+    ASTClass('ExprStmt', 'Stmt', 'std::unique_ptr<Expr>|expr'),
+    ASTClass('RetStmt', 'Stmt', 'std::unique_ptr<Expr>|expr'),
+    ASTClass('StmtList', 'Stmt', 'std::vector<std::unique_ptr<Stmt>>|stmts'),
+    ASTClass('ImplRet', 'ImplRetB', 'std::unique_ptr<Expr>|expr'),
+    ASTClass('PrimitiveType', 'Type', 'Token|ty'),
+    ASTClass('Arg', 'ArgB', 'std::unique_ptr<Expr>|expr'),
+    ASTClass('ArgList', 'ArgB', 'std::vector<std::unique_ptr<Arg>>|args'),
+    ASTClass('Param', 'ParamB', 'std::unique_ptr<Type>|type, Token|name'),
+    ASTClass('ParamList', 'ParamB', 'std::vector<std::unique_ptr<Param>>|params'),
+    ASTClass('Block', 'Expr', 'std::unique_ptr<StmtList>|stmts, std::unique_ptr<ImplRet>|implRet'),
+    ASTClass('IfExpr', 'Expr', 'Token|iftok, std::unique_ptr<Expr>|cond, std::unique_ptr<Expr>|trues, std::unique_ptr<Expr>|falses'),
+    ASTClass('ForExpr', 'Expr', 'std::unique_ptr<VarStmt>|initial, std::unique_ptr<Expr>|cond, std::unique_ptr<Expr>|increment, std::unique_ptr<Expr>|body'),
+    ASTClass('AssignmentExpr', 'Expr', 'std::unique_ptr<Expr>|target, Token|equal, std::unique_ptr<Expr>|expr'),
+    ASTClass('ShortCircuitExpr', 'Expr', 'std::unique_ptr<Expr>|lhs, Token|op, std::unique_ptr<Expr>|rhs'),
+    ASTClass('BinaryExpr', 'Expr', 'std::unique_ptr<Expr>|lhs, Token|op, std::unique_ptr<Expr>|rhs'),
+    ASTClass('CastExpr', 'Expr', 'std::unique_ptr<Type>|type, std::unique_ptr<Expr>|expr'),
+    ASTClass('UnaryExpr', 'Expr', 'Token|op, std::unique_ptr<Expr>|expr'),
+    ASTClass('CallExpr', 'Expr', 'std::unique_ptr<Expr>|callee, Token|oparn, std::unique_ptr<ArgList>|args'),
+    ASTClass('PrimaryExpr', 'Expr', 'Token|value'),
 ]
 # Generating methods {{{1
 # Generating AST stuff {{{2

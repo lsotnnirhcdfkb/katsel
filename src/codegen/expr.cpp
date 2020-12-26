@@ -448,7 +448,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitBlock(ASTNS::Block *ast)
         fcg.stmtCG.stmt(ast->stmts.get());
 
     if (ast->implRet)
-        ret = expr(ast->implRet.get());
+        ast->implRet->accept(this);
     else
         ret = IR::ASTValue(cg.context->getVoid(), ast);;
     fcg.decScope();

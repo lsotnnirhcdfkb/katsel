@@ -18,6 +18,7 @@ namespace ASTNS
     class ArgB;
     class ParamB;
     class VStmtIB;
+    class ImplRetB;
     class PureLocationB;
     class PureLocation;
     class CU;
@@ -104,7 +105,6 @@ namespace ASTNS
         {
         public:
             virtual ~Visitor() {}
-            virtual void visitImplRet(ASTNS::ImplRet *ast) = 0;
             virtual void visitBlock(ASTNS::Block *ast) = 0;
             virtual void visitIfExpr(ASTNS::IfExpr *ast) = 0;
             virtual void visitForExpr(ASTNS::ForExpr *ast) = 0;
@@ -174,6 +174,19 @@ namespace ASTNS
         virtual ~VStmtIB() {}
         virtual void accept(Visitor *v) = 0;
         VStmtIB(File const &file);
+    };
+    class ImplRetB : public AST
+    {
+    public:
+        class Visitor
+        {
+        public:
+            virtual ~Visitor() {}
+            virtual void visitImplRet(ASTNS::ImplRet *ast) = 0;
+        };
+        virtual ~ImplRetB() {}
+        virtual void accept(Visitor *v) = 0;
+        ImplRetB(File const &file);
     };
     class PureLocationB : public AST
     {
@@ -294,12 +307,12 @@ namespace ASTNS
         virtual Location const & end() override;
         StmtList(File const &file, Location start, Location end, std::vector<std::unique_ptr<Stmt>> stmts);
     };
-    class ImplRet : public Expr
+    class ImplRet : public ImplRetB
     {
     public:
         Location _start, _end;
         std::unique_ptr<Expr> expr;
-        virtual void accept(ASTNS::Expr::Visitor *v) override;
+        virtual void accept(ASTNS::ImplRetB::Visitor *v) override;
         virtual Location const & start() override;
         virtual Location const & end() override;
         ImplRet(File const &file, Location start, Location end, std::unique_ptr<Expr> expr);
