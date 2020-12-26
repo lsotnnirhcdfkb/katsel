@@ -454,10 +454,10 @@ def list_rule(sym, make_list_action, append_list_action, list_class, delimit=Non
         rule(symsegment, (symsegment, delimit, anothersym), append_list_action)
         rule(symsegment, (sym,), make_list_action)
 
-        rule(symlist, (symsegment,), SkipReduceAction(), special='nodefaultreduce')
-        rule(symlist, (symsegment, delimit), SkipReduceAction(), special='nodefaultreduce')
+        rule(symlist, (symsegment,), SkipReduceAction())
+        rule(symlist, (symsegment, delimit), SkipReduceAction())
     else:
-        rule(symlist, (symlist, anothersym), append_list_action, special='nodefaultreduce')
+        rule(symlist, (symlist, anothersym), append_list_action)
         rule(symlist, (sym,), make_list_action)
 
     return symlist
@@ -469,7 +469,7 @@ def make_opt(toopt, with_action, no_action, newname=None):
     optsym = toopt.symbol + '_OPT'
     optnt = nt(optsym, newname, toopt.reduces_to)
     rule(optnt, (toopt,), with_action)
-    rule(optnt, (), no_action)
+    rule(optnt, (), no_action, special='nodefaultreduce')
     return optnt
 
 grammar = []
@@ -490,7 +490,7 @@ def make_grammar():
     Block = nt('Block', 'code block', 'Block', panickable=True)
     BracedBlock = nt('BracedBlock', 'braced code block', 'Block', panickable=True)
     IndentedBlock = nt('IndentedBlock', 'indented code block', 'Block', panickable=True)
-    ImplRet = nt('ImplRet', 'implicit return', 'ImplRet', panickable=True)
+    ImplRet = nt('ImplRet', 'block return value', 'ImplRet', panickable=True)
     Type = nt('Type', 'type specifier', 'Type')
     PrimitiveType = nt('PrimitiveType', 'primitive type specifier', 'PrimitiveType')
     Arg = nt('Arg', 'argument', 'Arg', panickable=True)
