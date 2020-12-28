@@ -493,6 +493,7 @@ def make_grammar():
     ImplRet = nt('ImplRet', 'block return value', 'ImplRet', panickable=True)
     Type = nt('Type', 'type specifier', 'Type')
     PrimitiveType = nt('PrimitiveType', 'primitive type specifier', 'PrimitiveType')
+    PointerType = nt('PointerType', 'pointer type specifier', 'PointerType')
     Arg = nt('Arg', 'argument', 'Arg', panickable=True)
     Param = nt('Param', 'parameter', 'Param', panickable=True)
     Expr = nt('Expr', 'expression', 'Expr')
@@ -631,6 +632,9 @@ def make_grammar():
     rule(LineEnding, (SEMICOLON, NEWLINE), LocationReduceAction())
 
     rule(Type, (PrimitiveType,), SkipReduceAction())
+    rule(Type, (PointerType,), SkipReduceAction())
+
+    rule(PointerType, (STAR, Type), SimpleReduceAction('PointerType', 'std::move(a1)'))
 
     rule(PrimitiveType, (UINT8,), SimpleReduceAction('PrimitiveType', 'a0'))
     rule(PrimitiveType, (UINT16,), SimpleReduceAction('PrimitiveType', 'a0'))

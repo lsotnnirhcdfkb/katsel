@@ -113,6 +113,14 @@ void ASTNS::PrintVisitor::visitPrimitiveType(ASTNS::PrimitiveType *a)
     printField(a->ty);
     --indent;
 }
+void ASTNS::PrintVisitor::visitPointerType(ASTNS::PointerType *a)
+{
+    pai("PointerType\n");
+    ++indent;
+    pai("std::unique_ptr<Type> type = ");
+    printField(a->type);
+    --indent;
+}
 void ASTNS::PrintVisitor::visitArg(ASTNS::Arg *a)
 {
     pai("Arg\n");

@@ -19,6 +19,7 @@ public:
     IR::BoolType* getBoolType();
     IR::FunctionType* getFunctionType(IR::Type *ret, std::vector<IR::Type*> paramtys);
     IR::VoidType* getVoidType();
+    IR::PointerType* getPointerType(IR::Type *ty);
 
     IR::Value* getGlobal(std::string const &name);
     void addGlobal(std::string const &name, IR::Value *v);

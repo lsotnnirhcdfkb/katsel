@@ -38,6 +38,7 @@ void visitRetStmt(ASTNS::RetStmt *ast) override;
 void visitStmtList(ASTNS::StmtList *ast) override;
 void visitImplRet(ASTNS::ImplRet *ast) override;
 void visitPrimitiveType(ASTNS::PrimitiveType *ast) override;
+void visitPointerType(ASTNS::PointerType *ast) override;
 void visitArg(ASTNS::Arg *ast) override;
 void visitArgList(ASTNS::ArgList *ast) override;
 void visitParam(ASTNS::Param *ast) override;

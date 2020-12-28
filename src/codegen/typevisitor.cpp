@@ -42,3 +42,9 @@ void CodeGen::TypeVisitor::visitPrimitiveType(ASTNS::PrimitiveType *ast)
             invalidTok("builtin type", ast->ty);
     }
 }
+
+void CodeGen::TypeVisitor::visitPointerType(ASTNS::PointerType *ast)
+{
+    IR::Type *ty = type(ast->type.get());
+    ret = cg.context->getPointerType(ty);
+}

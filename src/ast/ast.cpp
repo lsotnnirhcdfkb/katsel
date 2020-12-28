@@ -60,6 +60,10 @@ ASTNS::PrimitiveType::PrimitiveType(File const &file, Location start, Location e
 void ASTNS::PrimitiveType::accept(ASTNS::Type::Visitor *v) { v->visitPrimitiveType(this); }
 Location const & ASTNS::PrimitiveType::start() { return _start; }
 Location const & ASTNS::PrimitiveType::end() { return _end; }
+ASTNS::PointerType::PointerType(File const &file, Location start, Location end, std::unique_ptr<Type> type): Type(file), _start(start), _end(end), type(std::move(type)) {}
+void ASTNS::PointerType::accept(ASTNS::Type::Visitor *v) { v->visitPointerType(this); }
+Location const & ASTNS::PointerType::start() { return _start; }
+Location const & ASTNS::PointerType::end() { return _end; }
 ASTNS::Arg::Arg(File const &file, Location start, Location end, std::unique_ptr<Expr> expr): ArgB(file), _start(start), _end(end), expr(std::move(expr)) {}
 void ASTNS::Arg::accept(ASTNS::ArgB::Visitor *v) { v->visitArg(this); }
 Location const & ASTNS::Arg::start() { return _start; }

@@ -58,6 +58,7 @@ asts = [
     ASTClass('StmtList', 'Stmt', 'std::vector<std::unique_ptr<Stmt>>|stmts'),
     ASTClass('ImplRet', 'ImplRetB', 'std::unique_ptr<Expr>|expr'),
     ASTClass('PrimitiveType', 'Type', 'Token|ty'),
+    ASTClass('PointerType', 'Type', 'std::unique_ptr<Type>|type'),
     ASTClass('Arg', 'ArgB', 'std::unique_ptr<Expr>|expr'),
     ASTClass('ArgList', 'ArgB', 'std::vector<std::unique_ptr<Arg>>|args'),
     ASTClass('Param', 'ParamB', 'std::unique_ptr<Type>|type, Token|name'),

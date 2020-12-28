@@ -6,21 +6,21 @@ CodeGen::Context::Context(): voidValue(getVoidType()) {}
 
 // getting types {{{1 TODO: make a template function to loop through things and either make operator== = default for all types or use a lambda to compare them
 #define GET_TYPE_DEF(type) IR::type* CodeGen::Context::get##type
-#define LOOP_TYPES() for (std::unique_ptr<IR::Type> &ty : types)
-#define CHECK_TYPE_TYPE(type) IR::type *casted (dynamic_cast<IR::type*>(ty.get()));
-#define CHECK_FIELD(field) (casted->field == field)
-#define CONSTRUCT_TYPE(type) std::unique_ptr<IR::type> ty = std::make_unique<IR::type>
+#define LOOP_TYPES() for (std::unique_ptr<IR::Type> &_loopType : types)
+#define CHECK_TYPE_TYPE(type) IR::type *_casted (dynamic_cast<IR::type*>(_loopType.get()));
+#define CHECK_FIELD(field) (_casted->field == field)
+#define CONSTRUCT_TYPE(type) std::unique_ptr<IR::type> _newType = std::make_unique<IR::type>
 #define PUSH_RETURN(type) \
-    IR::type *tyr (ty.get());       \
-    types.push_back(std::move(ty)); \
-    return tyr;
+    IR::type *_newTypeR (_newType.get()); \
+    types.push_back(std::move(_newType)); \
+    return _newTypeR;
 
 GET_TYPE_DEF(FloatType)(int size)
 {
     LOOP_TYPES()
     {
         CHECK_TYPE_TYPE(FloatType)
-        if (casted && CHECK_FIELD(size)) return casted;
+        if (_casted && CHECK_FIELD(size)) return _casted;
     }
     CONSTRUCT_TYPE(FloatType)(size);
     PUSH_RETURN(FloatType)
@@ -30,7 +30,7 @@ GET_TYPE_DEF(IntType)(int size, bool isSigned)
     LOOP_TYPES()
     {
         CHECK_TYPE_TYPE(IntType)
-        if (casted && CHECK_FIELD(size) && CHECK_FIELD(isSigned)) return casted;
+        if (_casted && CHECK_FIELD(size) && CHECK_FIELD(isSigned)) return _casted;
     }
     CONSTRUCT_TYPE(IntType)(size, isSigned);
     PUSH_RETURN(IntType)
@@ -40,7 +40,7 @@ GET_TYPE_DEF(CharType)()
     LOOP_TYPES()
     {
         CHECK_TYPE_TYPE(CharType)
-        if (casted) return casted;
+        if (_casted) return _casted;
     }
     CONSTRUCT_TYPE(CharType)();
     PUSH_RETURN(CharType)
@@ -50,7 +50,7 @@ GET_TYPE_DEF(BoolType)()
     LOOP_TYPES()
     {
         CHECK_TYPE_TYPE(BoolType)
-        if (casted) return casted;
+        if (_casted) return _casted;
     }
     CONSTRUCT_TYPE(BoolType)();
     PUSH_RETURN(BoolType)
@@ -60,7 +60,7 @@ GET_TYPE_DEF(GenericIntType)()
     LOOP_TYPES()
     {
         CHECK_TYPE_TYPE(GenericIntType)
-        if (casted) return casted;
+        if (_casted) return _casted;
     }
     CONSTRUCT_TYPE(GenericIntType)();
     PUSH_RETURN(GenericIntType)
@@ -70,7 +70,7 @@ GET_TYPE_DEF(GenericFloatType)()
     LOOP_TYPES()
     {
         CHECK_TYPE_TYPE(GenericFloatType)
-        if (casted) return casted;
+        if (_casted) return _casted;
     }
     CONSTRUCT_TYPE(GenericFloatType)();
     PUSH_RETURN(GenericFloatType)
@@ -80,21 +80,30 @@ GET_TYPE_DEF(FunctionType)(IR::Type *ret, std::vector<IR::Type*> paramtys)
     LOOP_TYPES()
     {
         CHECK_TYPE_TYPE(FunctionType)
-        if (casted && CHECK_FIELD(ret) && CHECK_FIELD(paramtys)) return casted;
+        if (_casted && CHECK_FIELD(ret) && CHECK_FIELD(paramtys)) return _casted;
     }
     CONSTRUCT_TYPE(FunctionType)(ret, paramtys);
     PUSH_RETURN(FunctionType)
 }
-
 GET_TYPE_DEF(VoidType)()
 {
     LOOP_TYPES()
     {
         CHECK_TYPE_TYPE(VoidType)
-        if (casted) return casted;
+        if (_casted) return _casted;
     }
     CONSTRUCT_TYPE(VoidType)();
     PUSH_RETURN(VoidType)
+}
+GET_TYPE_DEF(PointerType)(IR::Type *ty)
+{
+    LOOP_TYPES()
+    {
+        CHECK_TYPE_TYPE(PointerType)
+        if (_casted && CHECK_FIELD(ty)) return _casted;
+    }
+    CONSTRUCT_TYPE(PointerType)(ty);
+    PUSH_RETURN(PointerType)
 }
 #undef GET_TYPE_DEF
 #undef LOOP_TYPES

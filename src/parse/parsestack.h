@@ -51,6 +51,7 @@ enum class NonTerminal
     BracedBlock,
     IndentedBlock,
     PrimitiveType,
+    PointerType,
     AssignmentExpr,
     IfExpr,
     ForExpr,

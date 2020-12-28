@@ -32,6 +32,7 @@ namespace ASTNS
     class StmtList;
     class ImplRet;
     class PrimitiveType;
+    class PointerType;
     class Arg;
     class ArgList;
     class Param;
@@ -128,6 +129,7 @@ namespace ASTNS
         public:
             virtual ~Visitor() {}
             virtual void visitPrimitiveType(ASTNS::PrimitiveType *ast) = 0;
+            virtual void visitPointerType(ASTNS::PointerType *ast) = 0;
         };
         virtual ~Type() {}
         virtual void accept(Visitor *v) = 0;
@@ -326,6 +328,16 @@ namespace ASTNS
         virtual Location const & start() override;
         virtual Location const & end() override;
         PrimitiveType(File const &file, Location start, Location end, Token ty);
+    };
+    class PointerType : public Type
+    {
+    public:
+        Location _start, _end;
+        std::unique_ptr<Type> type;
+        virtual void accept(ASTNS::Type::Visitor *v) override;
+        virtual Location const & start() override;
+        virtual Location const & end() override;
+        PointerType(File const &file, Location start, Location end, std::unique_ptr<Type> type);
     };
     class Arg : public ArgB
     {
