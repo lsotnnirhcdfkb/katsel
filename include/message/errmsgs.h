@@ -75,6 +75,10 @@ void E0200(Token const &name, IR::Value *val);
 #define ERR_LHS_UNSUPPORTED_OP E0201
 void E0201(IR::ASTValue const &lhs, Token const &op);
 
+// E0202 - addrof-not-lvalue
+#define ERR_ADDROF_NOT_LVALUE E0202
+void E0202(IR::ASTValue const &val);
+
 // E0203 - unary-unsupported-op
 #define ERR_UNARY_UNSUPPORTED_OP E0203
 void E0203(IR::ASTValue const &operand, Token const &_operator);
@@ -110,6 +114,10 @@ void E0210(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &eq);
 // E0212 - conflict-ret-ty
 #define ERR_CONFLICT_RET_TY E0212
 void E0212(IR::ASTValue const &val, IR::Function *f);
+
+// E0213 - no-deref
+#define ERR_NO_DEREF E0213
+void E0213(IR::ASTValue const &val);
 
 // E0214 - redecl-var
 #define ERR_REDECL_VAR E0214

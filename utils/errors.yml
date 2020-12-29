@@ -199,6 +199,16 @@ errors:
           ['error', '"unsupported binary operator for left operand"']
         ]]
   -
+    code: 202
+    name: addrof-not-lvalue
+    desc: Taking an address of a non-lvalue is impossible
+    inputs: 'IR::ASTValue const &val'
+    location: val
+    highlights:
+      - ['val', *under0, [
+          ['error', '"taking address of non-lvalue"']
+        ]]
+  -
     code: 203
     name: unary-unsupported-op
     desc: Operand of unary expression does not support operator
@@ -317,6 +327,16 @@ errors:
         ]]
       - ['f->defAST()->retty.get()', *under1, [
           ['note', 'format("function returns %", f->ty->ret)']
+        ]]
+  -
+    code: 213
+    name: no-deref
+    desc: Cannot dereference non-pointer
+    inputs: 'IR::ASTValue const &val'
+    location: val
+    highlights:
+      - ['val', *under0, [
+          ['error', 'format("dereferencing of non-pointer type %", val.type())'],
         ]]
   -
     code: 214

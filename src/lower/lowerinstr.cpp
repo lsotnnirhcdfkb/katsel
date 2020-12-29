@@ -183,3 +183,12 @@ void Lower::Lowerer::visitCall(IR::Instrs::Call *instr)
     if (!dynamic_cast<IR::VoidType*>(instr->target->type()))
         tempregisters[instr->target] = res;
 }
+// Pointer instructions {{{1
+void Lower::Lowerer::visitAddrof(IR::Instrs::Addrof *instr)
+{
+    tempregisters[instr->target] = allocas[instr->op];
+}
+void Lower::Lowerer::visitDerefPtr(IR::Instrs::DerefPtr *instr)
+{
+    tempregisters[instr->target] = builder.CreateLoad(lower(instr->ptr));
+}

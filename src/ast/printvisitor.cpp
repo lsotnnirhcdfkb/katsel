@@ -249,6 +249,26 @@ void ASTNS::PrintVisitor::visitUnaryExpr(ASTNS::UnaryExpr *a)
     printField(a->expr);
     --indent;
 }
+void ASTNS::PrintVisitor::visitAddrofExpr(ASTNS::AddrofExpr *a)
+{
+    pai("AddrofExpr\n");
+    ++indent;
+    pai("Token op = ");
+    printField(a->op);
+    pai("std::unique_ptr<Expr> expr = ");
+    printField(a->expr);
+    --indent;
+}
+void ASTNS::PrintVisitor::visitDerefExpr(ASTNS::DerefExpr *a)
+{
+    pai("DerefExpr\n");
+    ++indent;
+    pai("Token op = ");
+    printField(a->op);
+    pai("std::unique_ptr<Expr> expr = ");
+    printField(a->expr);
+    --indent;
+}
 void ASTNS::PrintVisitor::visitCallExpr(ASTNS::CallExpr *a)
 {
     pai("CallExpr\n");

@@ -45,6 +45,8 @@ namespace ASTNS
     class BinaryExpr;
     class CastExpr;
     class UnaryExpr;
+    class AddrofExpr;
+    class DerefExpr;
     class CallExpr;
     class PrimaryExpr;
     class AST
@@ -114,6 +116,8 @@ namespace ASTNS
             virtual void visitBinaryExpr(ASTNS::BinaryExpr *ast) = 0;
             virtual void visitCastExpr(ASTNS::CastExpr *ast) = 0;
             virtual void visitUnaryExpr(ASTNS::UnaryExpr *ast) = 0;
+            virtual void visitAddrofExpr(ASTNS::AddrofExpr *ast) = 0;
+            virtual void visitDerefExpr(ASTNS::DerefExpr *ast) = 0;
             virtual void visitCallExpr(ASTNS::CallExpr *ast) = 0;
             virtual void visitPrimaryExpr(ASTNS::PrimaryExpr *ast) = 0;
         };
@@ -474,6 +478,28 @@ namespace ASTNS
         virtual Location const & start() override;
         virtual Location const & end() override;
         UnaryExpr(File const &file, Location start, Location end, Token op, std::unique_ptr<Expr> expr);
+    };
+    class AddrofExpr : public Expr
+    {
+    public:
+        Location _start, _end;
+        Token op;
+        std::unique_ptr<Expr> expr;
+        virtual void accept(ASTNS::Expr::Visitor *v) override;
+        virtual Location const & start() override;
+        virtual Location const & end() override;
+        AddrofExpr(File const &file, Location start, Location end, Token op, std::unique_ptr<Expr> expr);
+    };
+    class DerefExpr : public Expr
+    {
+    public:
+        Location _start, _end;
+        Token op;
+        std::unique_ptr<Expr> expr;
+        virtual void accept(ASTNS::Expr::Visitor *v) override;
+        virtual Location const & start() override;
+        virtual Location const & end() override;
+        DerefExpr(File const &file, Location start, Location end, Token op, std::unique_ptr<Expr> expr);
     };
     class CallExpr : public Expr
     {

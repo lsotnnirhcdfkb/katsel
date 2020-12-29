@@ -112,6 +112,14 @@ ASTNS::UnaryExpr::UnaryExpr(File const &file, Location start, Location end, Toke
 void ASTNS::UnaryExpr::accept(ASTNS::Expr::Visitor *v) { v->visitUnaryExpr(this); }
 Location const & ASTNS::UnaryExpr::start() { return _start; }
 Location const & ASTNS::UnaryExpr::end() { return _end; }
+ASTNS::AddrofExpr::AddrofExpr(File const &file, Location start, Location end, Token op, std::unique_ptr<Expr> expr): Expr(file), _start(start), _end(end), op(std::move(op)), expr(std::move(expr)) {}
+void ASTNS::AddrofExpr::accept(ASTNS::Expr::Visitor *v) { v->visitAddrofExpr(this); }
+Location const & ASTNS::AddrofExpr::start() { return _start; }
+Location const & ASTNS::AddrofExpr::end() { return _end; }
+ASTNS::DerefExpr::DerefExpr(File const &file, Location start, Location end, Token op, std::unique_ptr<Expr> expr): Expr(file), _start(start), _end(end), op(std::move(op)), expr(std::move(expr)) {}
+void ASTNS::DerefExpr::accept(ASTNS::Expr::Visitor *v) { v->visitDerefExpr(this); }
+Location const & ASTNS::DerefExpr::start() { return _start; }
+Location const & ASTNS::DerefExpr::end() { return _end; }
 ASTNS::CallExpr::CallExpr(File const &file, Location start, Location end, std::unique_ptr<Expr> callee, Token oparn, std::unique_ptr<ArgList> args): Expr(file), _start(start), _end(end), callee(std::move(callee)), oparn(std::move(oparn)), args(std::move(args)) {}
 void ASTNS::CallExpr::accept(ASTNS::Expr::Visitor *v) { v->visitCallExpr(this); }
 Location const & ASTNS::CallExpr::start() { return _start; }

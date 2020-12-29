@@ -289,6 +289,18 @@ IR::Instrs::Call::Call(TempRegister *target, Function *f, std::vector<ASTValue> 
     ASSERT(args.size() == f->ty->paramtys.size())
 }
 void IR::Instrs::Call::accept(InstructionVisitor *v) { v->visitCall(this); }
+IR::Instrs::Addrof::Addrof(TempRegister *target, Register *op): target(target), op(op)
+{
+    ASSERT(dynamic_cast<PointerType*>(target->type()))
+    ASSERT(static_cast<PointerType*>(target->type())->ty == op->type())
+}
+void IR::Instrs::Addrof::accept(InstructionVisitor *v) { v->visitAddrof(this); }
+IR::Instrs::DerefPtr::DerefPtr(TempRegister *target, ASTValue ptr): target(target), ptr(ptr)
+{
+    ASSERT(dynamic_cast<PointerType*>(ptr.type()))
+    ASSERT(static_cast<PointerType*>(ptr.type())->ty == target->type())
+}
+void IR::Instrs::DerefPtr::accept(InstructionVisitor *v) { v->visitDerefPtr(this); }
 IR::Instrs::Return::Return(Register *value): value(value)
 {
 }

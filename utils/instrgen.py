@@ -87,6 +87,9 @@ instructions = [
 
     Instruction('Call'        , ['TempRegister* target', 'Function* f', 'std::vector<ASTValue> args'       ], [target_equal('f->ty->ret'), 'args.size() == f->ty->paramtys.size()']),
 
+    Instruction('Addrof'      , ['TempRegister* target', 'Register* op'                                    ], [type_must_be('target->type()', 'PointerType'), 'static_cast<PointerType*>(target->type())->ty == op->type()']),
+    Instruction('DerefPtr'    , ['TempRegister* target', 'ASTValue ptr'                                    ], [type_must_be('ptr.type()', 'PointerType'), 'static_cast<PointerType*>(ptr.type())->ty == target->type()']),
+
     Br('Return'      , ['Register* value'                                            ], []),
     Br('GotoBr'      , ['Block* to'                                                  ], []),
     Br('CondBr'      , ['ASTValue v', 'Block* trueB', 'Block* falseB'                ], [type_must_be('v.type()', 'BoolType')]),

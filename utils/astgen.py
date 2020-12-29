@@ -71,6 +71,8 @@ asts = [
     ASTClass('BinaryExpr', 'Expr', 'std::unique_ptr<Expr>|lhs, Token|op, std::unique_ptr<Expr>|rhs'),
     ASTClass('CastExpr', 'Expr', 'std::unique_ptr<Type>|type, std::unique_ptr<Expr>|expr'),
     ASTClass('UnaryExpr', 'Expr', 'Token|op, std::unique_ptr<Expr>|expr'),
+    ASTClass('AddrofExpr', 'Expr', 'Token|op, std::unique_ptr<Expr>|expr'),
+    ASTClass('DerefExpr', 'Expr', 'Token|op, std::unique_ptr<Expr>|expr'),
     ASTClass('CallExpr', 'Expr', 'std::unique_ptr<Expr>|callee, Token|oparn, std::unique_ptr<ArgList>|args'),
     ASTClass('PrimaryExpr', 'Expr', 'Token|value'),
 ]

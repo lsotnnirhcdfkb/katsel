@@ -54,20 +54,30 @@ static void mangleGenericFloatType(std::stringstream &ss, IR::GenericFloatType *
 {
     ss << 'f';
 }
+static void manglePointerType(std::stringstream &ss, IR::PointerType *ty)
+{
+    ss << 'P';
+    mangleType(ss, ty->ty);
+    ss << 'p';
+}
 
 static void mangleType(std::stringstream &ss, IR::Type *ty)
 {
     ss << "T";
 #define CHECKTY(t) if (IR::t *as##t = dynamic_cast<IR::t*>(ty)) mangle##t(ss, as##t);
-    CHECKTY(FloatType)
-    CHECKTY(IntType)
-    CHECKTY(CharType)
-    CHECKTY(BoolType)
-    CHECKTY(FunctionType)
-    CHECKTY(VoidType)
-    CHECKTY(GenericIntType)
-    CHECKTY(GenericFloatType)
+#define ECHECKTY(t) else CHECKTY(t)
+     CHECKTY(FloatType)
+    ECHECKTY(IntType)
+    ECHECKTY(CharType)
+    ECHECKTY(BoolType)
+    ECHECKTY(FunctionType)
+    ECHECKTY(VoidType)
+    ECHECKTY(GenericIntType)
+    ECHECKTY(GenericFloatType)
+    ECHECKTY(PointerType)
+    else reportAbortNoh("mangle invalid type");
 #undef CHECKTY
+#undef ECHECKTY
     ss << "t";
 }
 

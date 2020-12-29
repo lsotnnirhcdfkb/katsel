@@ -105,6 +105,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitShortCircuitExpr(ASTNS::ShortCi
     fcg.curBlock = after;
     IR::TempRegister *retReg = fcg.fun->addTempRegister(cg.context->getBoolType());
     fcg.curBlock->add(std::make_unique<IR::Instrs::Phi>(retReg, std::vector {std::make_pair(checkboth, rhs), std::make_pair(skip, IR::ASTValue(cg.context->getConstBool(valueIfSkipped), ast))}));
+    ret = IR::ASTValue(retReg, ast);
 }
 
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitUnaryExpr(ASTNS::UnaryExpr *ast)
@@ -133,6 +134,51 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitUnaryExpr(ASTNS::UnaryExpr *ast
     ret = oper.type()->unaryOp(*cg.context, *fcg.fun, fcg.curBlock, opor, oper, ast->op, ast);
     if (!ret)
         fcg.errored = true;
+}
+
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitDerefExpr(ASTNS::DerefExpr *ast)
+{
+    IR::ASTValue oper = expr(ast->expr.get());
+    if (!oper)
+    {
+        ret = IR::ASTValue();
+        return;
+    }
+
+    IR::PointerType *asptrty (dynamic_cast<IR::PointerType*>(oper.type()));
+    if (!asptrty)
+    {
+        ERR_NO_DEREF(oper);
+        ret = IR::ASTValue();
+        fcg.errored = true;
+        return;
+    }
+
+    IR::TempRegister *out = fcg.fun->addTempRegister(asptrty->ty);
+    fcg.curBlock->add(std::make_unique<IR::Instrs::DerefPtr>(out, oper));
+    ret = IR::ASTValue(out, ast);
+}
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitAddrofExpr(ASTNS::AddrofExpr *ast)
+{
+    IR::ASTValue oper = expr(ast->expr.get());
+    if (!oper)
+    {
+        ret = IR::ASTValue();
+        return;
+    }
+
+    IR::Register *asreg = dynamic_cast<IR::Register*>(oper.val);
+    if (!asreg)
+    {
+        ERR_ADDROF_NOT_LVALUE(oper);
+        ret = IR::ASTValue();
+        fcg.errored = true;
+        return;
+    }
+
+    IR::TempRegister *out = fcg.fun->addTempRegister(cg.context->getPointerType(oper.type()));
+    fcg.curBlock->add(std::make_unique<IR::Instrs::Addrof>(out, asreg));
+    ret = IR::ASTValue(out, ast);
 }
 
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)

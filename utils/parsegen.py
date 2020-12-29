@@ -706,6 +706,8 @@ def make_grammar():
     rule(UnaryExpr, (TILDE, UnaryExpr, ), SimpleReduceAction('UnaryExpr', 'a0, std::move(a1)'))
     rule(UnaryExpr, (MINUS, UnaryExpr, ), SimpleReduceAction('UnaryExpr', 'a0, std::move(a1)'))
     rule(UnaryExpr, (BANG, UnaryExpr, ), SimpleReduceAction('UnaryExpr', 'a0, std::move(a1)'))
+    rule(UnaryExpr, (AMPER, UnaryExpr, ), SimpleReduceAction('AddrofExpr', 'a0, std::move(a1)'))
+    rule(UnaryExpr, (STAR, UnaryExpr, ), SimpleReduceAction('DerefExpr', 'a0, std::move(a1)'))
     rule(UnaryExpr, (CallExpr,), SkipReduceAction())
     rule(CallExpr, (CallExpr, OPARN, ArgListOpt, CPARN, ), SimpleReduceAction('CallExpr', 'std::move(a0), a1, std::move(a2)'))
     rule(CallExpr, (PrimaryExpr,), SkipReduceAction())

@@ -177,6 +177,14 @@ void IR::Printer::visitFloatToInt(IR::Instrs::FloatToInt *i)
 {
     ostream << format("ftoi % > % -> %", i->op, i->newt, i->target);
 }
+void IR::Printer::visitAddrof(IR::Instrs::Addrof *i)
+{
+    ostream << format("addrof % -> %", i->op, i->target);
+}
+void IR::Printer::visitDerefPtr(IR::Instrs::DerefPtr *i)
+{
+    ostream << format("derefptr % -> %", i->ptr, i->target);
+}
 void IR::Printer::visitReturn(IR::Instrs::Return *i)
 {
     ostream << format("return %", i->value ? i->value->stringify() : "void");

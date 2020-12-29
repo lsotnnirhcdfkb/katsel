@@ -398,6 +398,22 @@ namespace IR
         Function *f;
         std::vector<ASTValue> args;
     };
+    class Addrof : public Instruction
+    {
+    public:
+        Addrof(TempRegister *target, Register *op);
+        void accept(InstructionVisitor *v) override;
+        TempRegister *target;
+        Register *op;
+    };
+    class DerefPtr : public Instruction
+    {
+    public:
+        DerefPtr(TempRegister *target, ASTValue ptr);
+        void accept(InstructionVisitor *v) override;
+        TempRegister *target;
+        ASTValue ptr;
+    };
     class Return : public Br
     {
     public:

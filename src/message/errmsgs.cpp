@@ -225,6 +225,17 @@ void E0201(IR::ASTValue const &lhs, Token const &op)
     e.report();
 }
 
+// E0202 - addrof-not-lvalue
+// | Taking an address of a non-lvalue is impossible
+void E0202(IR::ASTValue const &val)
+{
+    Error e = Error(Error::MsgType::ERROR, val, "E0202 (addrof-not-lvalue)");
+    e.underline(Error::Underline(val, '^')
+        .error("taking address of non-lvalue")
+    );
+    e.report();
+}
+
 // E0203 - unary-unsupported-op
 // | Operand of unary expression does not support operator
 void E0203(IR::ASTValue const &operand, Token const &_operator)
@@ -359,6 +370,17 @@ void E0212(IR::ASTValue const &val, IR::Function *f)
     );
     e.underline(Error::Underline(f->defAST()->retty.get(), '~')
         .note(format("function returns %", f->ty->ret))
+    );
+    e.report();
+}
+
+// E0213 - no-deref
+// | Cannot dereference non-pointer
+void E0213(IR::ASTValue const &val)
+{
+    Error e = Error(Error::MsgType::ERROR, val, "E0213 (no-deref)");
+    e.underline(Error::Underline(val, '^')
+        .error(format("dereferencing of non-pointer type %", val.type()))
     );
     e.report();
 }
