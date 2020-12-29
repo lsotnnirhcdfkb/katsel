@@ -128,13 +128,22 @@ class State:
 
     def set_action(self, sym, action):
         if sym in self.actions.keys():
-            print(f'\033[1maction table conflict: {type(self.actions[sym])}/{type(action)}')
-            print(f'    : in state {self.seti}')
-            print(f'    : with set {self.set_}')
-            print(f'    : keys {self.actions.keys()}')
-            print(f'    : adding {action} for {sym}')
-            print(f'    : already have {self.actions[sym]} for {sym}')
-            print(f'    : summary: {type(self.actions[sym])}/{type(action)} conflict: found {sym}, {self.actions[sym].explain()} or {action.explain()}?\033[0m')
+            conflict_type = 'sr' if isinstance(self.actions[sym], ShiftAction) or isinstance(action, ShiftAction) else 'rr'
+            having_parsed = self.set_.kernel[0].rule.expansion[:self.set_.kernel[0].index]
+            while_parsing = set(item.rule.symbol for item in self.set_.kernel)
+            possible_nexts = set(item.get_after_dot() for item in self.set_.kernel)
+
+            print(f'{conflict_type} conflict')
+            print(f'   | in state {self.seti}')
+            print(f'   | while parsing {while_parsing}')
+            print(f'   | having parsed {" ".join(map(str, having_parsed))}')
+            print(f'   | found {sym}')
+            print(f'   | possible nexts are {" ".join(map(str, possible_nexts))}')
+            print( '   |')
+            print(f'   | already have {self.actions[sym].explain()}')
+            print(f'   | addding {action.explain()}')
+            print()
+
             self.actions[sym] = None
             return False
 
@@ -166,6 +175,7 @@ class State:
                 if item.lookahead not in self.terminates[item.rule.symbol]:
                     self.terminates[item.rule.symbol].append(item.lookahead)
 
+
 # state table actions {{{2
 class ShiftAction:
     def __init__(self, newstate):
@@ -175,7 +185,11 @@ class ShiftAction:
     def __repr__(self):
         return str(self)
     def explain(self):
-        return f'shift and goto state {self.newstate}'
+        for set_ in ItemSet.sets:
+            if set_.n == self.newstate:
+                new_state_nts = set(item.rule.symbol for item in set_.kernel)
+                break
+        return f'shift and goto state {self.newstate} in order to start parsing {new_state_nts}'
     def __eq__(self, other):
         return isinstance(self, type(other)) and self.newstate == other.newstate
 class ReduceAction:
@@ -186,7 +200,7 @@ class ReduceAction:
     def __repr__(self):
         return str(self)
     def explain(self):
-        return f'reduce rule {self.rule}'
+        return f'reduce rule "{self.rule}"'
     def __eq__(self, other):
         return isinstance(self, type(other)) and self.rule == other.rule
 class AcceptAction:
@@ -418,8 +432,10 @@ def fill_parse_table(isets, transitions):
                     if not state.set_action(item.lookahead, AcceptAction()):
                         conflicts += 1
 
-    if conflicts:
-        raise Exception('conflicts')
+    if conflicts > 0:
+        print('note: unabriged grammar is')
+        print('\n'.join(map(str, grammar)))
+        raise Exception(f'{conflicts} conflicts')
     return table
 # entry function {{{2
 def make_parse_table():
@@ -525,7 +541,7 @@ def make_grammar():
     CallExpr = nt('CallExpr', 'function call expression', 'Expr')
     PrimaryExpr = nt('PrimaryExpr', 'primary expression', 'Expr')
 
-    AUGMENT_SYM = nt('augment', 'augment symbol', '#error augment symbol reduces to class')
+    AUGMENT_SYM = nt('augment', 'augment', '#error augment symbol reduces to class')
     AUGMENT_RULE = rule(AUGMENT_SYM, (CU,), None)
 
     AMPER = Terminal('AMPER')
@@ -624,7 +640,7 @@ def make_grammar():
     rule(RetStmt, (RETURN, Expr, LineEnding), SimpleReduceAction('RetStmt', 'std::move(a1)'))
     rule(RetStmt, (RETURN, LineEnding), SimpleReduceAction('RetStmt', 'nullptr'))
 
-    rule(VarStmtItem, (IDENTIFIER, EQUAL, Expr, ), SimpleReduceAction('VarStmtItem', 'a0, a1, std::move(a2)'))
+    rule(VarStmtItem, (IDENTIFIER, EQUAL, Expr,), SimpleReduceAction('VarStmtItem', 'a0, a1, std::move(a2)'))
     rule(VarStmtItem, (IDENTIFIER,), SimpleReduceAction('VarStmtItem', 'a0, a0, nullptr'))
 
     rule(Block, (BracedBlock,), SkipReduceAction())

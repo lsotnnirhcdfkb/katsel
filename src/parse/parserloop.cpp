@@ -637,7 +637,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % to terminate %", stringifyTokenType(TokenType::EOF_), "augment symbol")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % to terminate %", stringifyTokenType(TokenType::EOF_), "augment")  });
                 }
                 break;
             case 2:
