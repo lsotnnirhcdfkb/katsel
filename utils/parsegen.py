@@ -232,6 +232,14 @@ class VectorPushOneAction:
     def generate(self):
         return (f'''std::unique_ptr<ASTNS::{self.new_class}> push(std::make_unique<ASTNS::{self.new_class}>(p.sourcefile, start, end, std::vector<std::unique_ptr<ASTNS::{self.itemtype}>> {{}}));\n
         push->{self.vectorname}.push_back({self.item});\n''', 'std::move(push)')
+class WarnAction:
+    def __init__(self, warning, other_action):
+        self.warning = warning
+        self.other_action = other_action
+    def generate(self):
+        code, ret = self.other_action.generate()
+        code = self.warning + code
+        return (code, ret)
 # helpers {{{1
 def make_unique(already, new):
     return [x for x in new if x not in already]
@@ -629,7 +637,7 @@ def make_grammar():
 
     rule(LineEnding, (NEWLINE,), LocationReduceAction())
     rule(LineEnding, (SEMICOLON,), LocationReduceAction())
-    rule(LineEnding, (SEMICOLON, NEWLINE), LocationReduceAction())
+    rule(LineEnding, (SEMICOLON, NEWLINE), WarnAction('WARN_EXTRA_SEMI(a0);', LocationReduceAction()))
 
     rule(Type, (PrimitiveType,), SkipReduceAction())
     rule(Type, (PointerType,), SkipReduceAction())
@@ -880,7 +888,6 @@ def gen_loop():
 
                 reduce_code, pushitem = ac.rule.reduce_action.generate()
                 output.append(reduce_code)
-                output.append(                    '\n')
                 output.append(                   f'                            std::unique_ptr<ASTNS::{ac.rule.symbol.reduces_to}> pushitem = {pushitem};\n')
                 output.append(                   f'                            stack.emplace_back(getGoto(NonTerminal::{ac.rule.symbol.symbol}, stack.back().state), std::move(pushitem), NonTerminal::{ac.rule.symbol.symbol});\n')
                 output.append(                    '                        }\n')

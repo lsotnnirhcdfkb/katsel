@@ -431,3 +431,15 @@ errors:
       - ['truev', *under1, [
           ['note', 'format("%", truev.type())']
         ]]
+
+warnings:
+  -
+    code: 0
+    name: extra-semi
+    desc: Extra semicolon
+    inputs: 'Token const &semi'
+    location: semi
+    highlights:
+      - ['semi', *under0, [
+          ['warning', '"unnecessary semicolon"']
+        ]]
