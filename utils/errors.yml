@@ -202,12 +202,13 @@ errors:
     code: 202
     name: addrof-not-lvalue
     desc: Taking an address of a non-lvalue is impossible
-    inputs: 'IR::ASTValue const &val'
+    inputs: 'Token const &op, IR::ASTValue const &val'
     location: val
     highlights:
-      - ['val', *under0, [
+      - ['op', *under0, [
           ['error', '"taking address of non-lvalue"']
         ]]
+      - ['val', *under1, []]
   -
     code: 203
     name: unary-unsupported-op
@@ -332,12 +333,13 @@ errors:
     code: 213
     name: no-deref
     desc: Cannot dereference non-pointer
-    inputs: 'IR::ASTValue const &val'
+    inputs: 'Token const &op, IR::ASTValue const &val'
     location: val
     highlights:
-      - ['val', *under0, [
+      - ['op', *under0, [
           ['error', 'format("dereferencing of non-pointer type %", val.type())'],
         ]]
+      - ['val', *under1, []]
   -
     code: 214
     name: redecl-var

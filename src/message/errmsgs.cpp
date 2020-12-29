@@ -227,11 +227,13 @@ void E0201(IR::ASTValue const &lhs, Token const &op)
 
 // E0202 - addrof-not-lvalue
 // | Taking an address of a non-lvalue is impossible
-void E0202(IR::ASTValue const &val)
+void E0202(Token const &op, IR::ASTValue const &val)
 {
     Error e = Error(Error::MsgType::ERROR, val, "E0202 (addrof-not-lvalue)");
-    e.underline(Error::Underline(val, '^')
+    e.underline(Error::Underline(op, '^')
         .error("taking address of non-lvalue")
+    );
+    e.underline(Error::Underline(val, '~')
     );
     e.report();
 }
@@ -376,11 +378,13 @@ void E0212(IR::ASTValue const &val, IR::Function *f)
 
 // E0213 - no-deref
 // | Cannot dereference non-pointer
-void E0213(IR::ASTValue const &val)
+void E0213(Token const &op, IR::ASTValue const &val)
 {
     Error e = Error(Error::MsgType::ERROR, val, "E0213 (no-deref)");
-    e.underline(Error::Underline(val, '^')
+    e.underline(Error::Underline(op, '^')
         .error(format("dereferencing of non-pointer type %", val.type()))
+    );
+    e.underline(Error::Underline(val, '~')
     );
     e.report();
 }

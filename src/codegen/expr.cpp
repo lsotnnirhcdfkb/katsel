@@ -148,7 +148,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitDerefExpr(ASTNS::DerefExpr *ast
     IR::PointerType *asptrty (dynamic_cast<IR::PointerType*>(oper.type()));
     if (!asptrty)
     {
-        ERR_NO_DEREF(oper);
+        ERR_NO_DEREF(ast->op, oper);
         ret = IR::ASTValue();
         fcg.errored = true;
         return;
@@ -170,7 +170,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitAddrofExpr(ASTNS::AddrofExpr *a
     IR::Register *asreg = dynamic_cast<IR::Register*>(oper.val);
     if (!asreg)
     {
-        ERR_ADDROF_NOT_LVALUE(oper);
+        ERR_ADDROF_NOT_LVALUE(ast->op, oper);
         ret = IR::ASTValue();
         fcg.errored = true;
         return;
