@@ -6,6 +6,8 @@
 #include <iostream>
 #include <iomanip>
 
+#define FILEPATH_COLOR A_BOLD A_FG_CYAN
+
 // getLine {{{1
 static void getLine(std::string::const_iterator &lstarto, std::string::const_iterator &lendo, File const &f, int linenr)
 {
@@ -83,7 +85,7 @@ void Error::printHeading() const
             break;
     }
     std::string::const_iterator const fstart = location.file->source.cbegin();
-    std::cerr << format("% at %:%:%:% %\n", msgtypestr, attr(A_FG_CYAN, location.file->filename, true), getLineN(fstart, location.start), getColN(fstart, location.start), resetIfNecessary(), message);
+    std::cerr << format("% at %:%:%:% %\n", msgtypestr, attr(FILEPATH_COLOR, location.file->filename, true), getLineN(fstart, location.start), getColN(fstart, location.start), resetIfNecessary(), message);
 }
 // collectShowlines {{{2
 std::vector<Error::showline> Error::collectShowlines() const
@@ -143,7 +145,7 @@ int Error::countLinePad(std::vector<showline> const &showlines) const
 // print predefined lines {{{2
 void Error::printFileLine(std::string const &pad, File const *file) const
 {
-    std::cerr << pad << "> " << attr(A_FG_CYAN, file->filename) << std::endl;
+    std::cerr << pad << "> " << attr(FILEPATH_COLOR, file->filename) << std::endl;
 }
 void Error::printElipsisLine(std::string const &pad) const
 {
@@ -322,7 +324,7 @@ void Error::report() const
             auto fstart = un.location.file->source.begin();
             int lineN = getLineN(fstart, un.location.start);
             int colN = getColN(fstart, un.location.start);
-            std::cerr << format("%> %:%:% %\n", pad, attr(A_FG_CYAN, un.location.file->filename, true), lineN, colN, resetIfNecessary());
+            std::cerr << format("%> %:%:% %\n", pad, attr(FILEPATH_COLOR, un.location.file->filename, true), lineN, colN, resetIfNecessary());
             for (Underline::Message const &me : un.messages)
                 std::cerr << format("%| [%] %\n", pad, attr(me.color, me.type), me.text);
 
