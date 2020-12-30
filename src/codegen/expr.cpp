@@ -163,8 +163,8 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitAddrofExpr(ASTNS::AddrofExpr *a
         return;
     }
 
-    IR::Instrs::Register *asreg = dynamic_cast<IR::Instrs::Register*>(oper.val);
-    if (!asreg)
+    IR::Instrs::DerefPtr *asDeref = dynamic_cast<IR::Instrs::DerefPtr*>(oper.val);
+    if (!asDeref)
     {
         ERR_ADDROF_NOT_LVALUE(ast->op, oper);
         ret = IR::ASTValue();
@@ -172,7 +172,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitAddrofExpr(ASTNS::AddrofExpr *a
         return;
     }
 
-    ret = IR::ASTValue(fcg.curBlock->add(std::make_unique<IR::Instrs::Addrof>(asreg)), ast);
+    ret = IR::ASTValue(asDeref->ptr.val, ast);
 }
 
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
@@ -446,7 +446,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitAssignmentExpr(ASTNS::Assignmen
         return;
     }
 
-    IR::Type *expectType = dynamic_cast<IR::PointerType*>(targetDeref->type())->ty;
+    IR::Type *expectType = targetDeref->type();
     rhs = expectType->implCast(*cg.context, *fcg.fun, fcg.curBlock, rhs);
     if (expectType != rhs.type())
     {

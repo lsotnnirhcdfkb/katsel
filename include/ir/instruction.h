@@ -76,7 +76,6 @@ namespace IR
     class FloatToFloat;
     class FloatToInt;
     class Call;
-    class Addrof;
     class DerefPtr;
     class Return;
     class GotoBr;
@@ -498,15 +497,6 @@ namespace IR
         IR::Type* type() const override;
         Function *f;
         std::vector<ASTValue> args;
-    };
-    class Addrof : public Instruction
-    {
-    public:
-        Addrof(Register *op);
-        void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
-        IR::Type* type() const override;
-        Register *op;
     };
     class DerefPtr : public Instruction
     {

@@ -89,7 +89,6 @@ instructions = [
 
     Instruction('Call'        , 'f->ty->ret'                                    , ['Function* f', 'std::vector<ASTValue> args'    ], ['args.size() == f->ty->paramtys.size()']),
 
-    Instruction('Addrof'      , 'op->type()->context.getPointerType(op->type())', ['Register* op'                                 ], []),
     Instruction('DerefPtr'    , 'static_cast<PointerType*>(ptr.type())->ty'     , ['ASTValue ptr'                                 ], [type_must_be('ptr.type()', 'PointerType')]),
 
     Br('Return'      , ['Register* value'                                            ], []),

@@ -28,7 +28,6 @@ bool CodeGen::FunctionCodeGen::codegen()
 
     incScope();
     ret = static_cast<IR::Instrs::Register*>(entryBlock->add(std::make_unique<IR::Instrs::Register>(ast->retty.get(), fty->ret)));
-
     if (ast->params)
     {
         ParamVisitor pv (cg);
@@ -63,7 +62,7 @@ bool CodeGen::FunctionCodeGen::codegen()
         exitBlock->branch(std::make_unique<IR::Instrs::Return>(ret));
 
         retval = ret->type()->implCast(*cg.context, *fun, curBlock, retval);
-        if (ret->type() != retval.type())
+        if (fun->ty->ret != retval.type())
         {
             ERR_CONFLICT_RET_TY(retval, f);
             errored = true;

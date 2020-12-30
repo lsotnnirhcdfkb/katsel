@@ -372,13 +372,6 @@ void IR::Instrs::Call::accept(InstructionVisitor *v) { v->visitCall(this); }
 IR::Type* IR::Instrs::Call::type() const { return f->ty->ret; }
 std::string IR::Instrs::Call::stringify() const { return format("%%%", this); }
 
-IR::Instrs::Addrof::Addrof(Register *op): op(op)
-{
-}
-void IR::Instrs::Addrof::accept(InstructionVisitor *v) { v->visitAddrof(this); }
-IR::Type* IR::Instrs::Addrof::type() const { return op->type()->context.getPointerType(op->type()); }
-std::string IR::Instrs::Addrof::stringify() const { return format("%%%", this); }
-
 IR::Instrs::DerefPtr::DerefPtr(ASTValue ptr): ptr(ptr)
 {
     ASSERT(dynamic_cast<PointerType*>(ptr.type()))

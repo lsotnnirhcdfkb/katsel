@@ -186,16 +186,12 @@ void Lower::Lowerer::visitCall(IR::Instrs::Call *instr)
     if (!dynamic_cast<IR::VoidType*>(instr->type()))
         values[instr] = res;
 }
-// Pointer instructions {{{1
-void Lower::Lowerer::visitAddrof(IR::Instrs::Addrof *instr)
-{
-    values[instr] = values.at(instr->op);
-}
+// DerefPtr instruction {{{1
 void Lower::Lowerer::visitDerefPtr(IR::Instrs::DerefPtr *instr)
 {
     values[instr] = builder.CreateLoad(lower(instr->ptr));
 }
-// Register instructions {{{1
+// Register instruction {{{1
 void Lower::Lowerer::visitRegister(IR::Instrs::Register *instr)
 {
     values[instr] = builder.CreateAlloca(instr->ty->toLLVMType(context));
