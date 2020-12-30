@@ -61,7 +61,7 @@ bool CodeGen::FunctionCodeGen::codegen()
     {
         exitBlock->branch(std::make_unique<IR::Instrs::Return>(ret));
 
-        retval = ret->type()->implCast(*cg.context, *fun, curBlock, retval);
+        retval = fun->ty->ret->implCast(*cg.context, *fun, curBlock, retval);
         if (fun->ty->ret != retval.type())
         {
             ERR_CONFLICT_RET_TY(retval, f);
