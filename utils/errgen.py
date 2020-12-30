@@ -42,7 +42,7 @@ def gen_cpp():
         output.append(        desc_wrapped)
         output.append(        f'void {code}({inputs})\n')
         output.append(         '{\n')
-        output.append(        f'    Error e = Error(Error::MsgType::{msgtype}, {location}, "{code} - {name}");\n')
+        output.append(        f'    Error e = Error(Error::MsgType::{msgtype}, {location}, "{code} ({name})");\n')
 
         for hi in highlights:
             if len(hi) == 4:

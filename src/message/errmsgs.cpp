@@ -10,7 +10,7 @@
 // | a token.
 void E0000(Token const &tok)
 {
-    Error e = Error(Error::MsgType::ERROR, tok, "E0000 - unexpected-char");
+    Error e = Error(Error::MsgType::ERROR, tok, "E0000 (unexpected-char)");
     e.underline(Error::Underline(tok, '^')
         .error("unexpected character")
     );
@@ -21,7 +21,7 @@ void E0000(Token const &tok)
 // | The lexer found an unterminated character literal.
 void E0001(Token const &tok)
 {
-    Error e = Error(Error::MsgType::ERROR, tok, "E0001 - unterm-charlit");
+    Error e = Error(Error::MsgType::ERROR, tok, "E0001 (unterm-charlit)");
     e.underline(Error::Underline(tok, '^')
         .error("unterminated character literal")
     );
@@ -33,7 +33,7 @@ void E0001(Token const &tok)
 // | making it unterminated.
 void E0002(Token const &tok)
 {
-    Error e = Error(Error::MsgType::ERROR, tok, "E0002 - unterm-strlit");
+    Error e = Error(Error::MsgType::ERROR, tok, "E0002 (unterm-strlit)");
     e.underline(Error::Underline(tok, '^')
         .error("unterminated string literal")
     );
@@ -44,7 +44,7 @@ void E0002(Token const &tok)
 // | The lexer found an integer literal that has an invalid base.
 void E0003(Token const &tok)
 {
-    Error e = Error(Error::MsgType::ERROR, tok, "E0003 - invalid-intlit-base");
+    Error e = Error(Error::MsgType::ERROR, tok, "E0003 (invalid-intlit-base)");
     e.underline(Error::Underline(tok, '^')
         .error("invalid integer literal base")
     );
@@ -55,7 +55,7 @@ void E0003(Token const &tok)
 // | The lexer found a non-decimal floating point literal.
 void E0004(Token const &tok)
 {
-    Error e = Error(Error::MsgType::ERROR, tok, "E0004 - nondecimal-floatlit");
+    Error e = Error(Error::MsgType::ERROR, tok, "E0004 (nondecimal-floatlit)");
     e.underline(Error::Underline(tok, '^')
         .error("invalid integer literal base")
     );
@@ -66,7 +66,7 @@ void E0004(Token const &tok)
 // | Invalid numeric character for floating point literal
 void E0005(Token const &tok)
 {
-    Error e = Error(Error::MsgType::ERROR, tok, "E0005 - invalid-char-floatlit");
+    Error e = Error(Error::MsgType::ERROR, tok, "E0005 (invalid-char-floatlit)");
     e.underline(Error::Underline(tok, '^')
         .error("invalid character in floating point literal")
     );
@@ -77,7 +77,7 @@ void E0005(Token const &tok)
 // | Invalid numberic character in integer literal for base
 void E0006(Token const &tok)
 {
-    Error e = Error(Error::MsgType::ERROR, tok, "E0006 - invalid-char-for-base");
+    Error e = Error(Error::MsgType::ERROR, tok, "E0006 (invalid-char-for-base)");
     e.underline(Error::Underline(tok, '^')
         .error("invalid character in integer literal for base")
     );
@@ -88,7 +88,7 @@ void E0006(Token const &tok)
 // | Integer literal with no digits
 void E0007(Token const &tok)
 {
-    Error e = Error(Error::MsgType::ERROR, tok, "E0007 - intlit-no-digits");
+    Error e = Error(Error::MsgType::ERROR, tok, "E0007 (intlit-no-digits)");
     e.underline(Error::Underline(tok, '^')
         .error("integer literal with no digits")
     );
@@ -99,7 +99,7 @@ void E0007(Token const &tok)
 // | Character literal with more than one character
 void E0008(Token const &tok)
 {
-    Error e = Error(Error::MsgType::ERROR, tok, "E0008 - multichar-charlit");
+    Error e = Error(Error::MsgType::ERROR, tok, "E0008 (multichar-charlit)");
     e.underline(Error::Underline(tok, '^')
         .error("character literal with more than one character")
     );
@@ -110,7 +110,7 @@ void E0008(Token const &tok)
 // | Unterminated multiline comment
 void E0009(Token const &tok)
 {
-    Error e = Error(Error::MsgType::ERROR, tok, "E0009 - unterm-multiline-comment");
+    Error e = Error(Error::MsgType::ERROR, tok, "E0009 (unterm-multiline-comment)");
     e.underline(Error::Underline(tok, '^')
         .error("unterminated multiline comment")
     );
@@ -121,7 +121,7 @@ void E0009(Token const &tok)
 // | Dedent level does not match any other indentation level
 void E0010(Token const &tok)
 {
-    Error e = Error(Error::MsgType::ERROR, tok, "E0010 - dedent-nomatch");
+    Error e = Error(Error::MsgType::ERROR, tok, "E0010 (dedent-nomatch)");
     e.underline(Error::Underline(tok, '^')
         .error("dedent to unknown level")
     );
@@ -132,7 +132,7 @@ void E0010(Token const &tok)
 // | Non-newline after line continuation backslash
 void E0011(Token const &tok)
 {
-    Error e = Error(Error::MsgType::ERROR, tok, "E0011 - char-after-backslash");
+    Error e = Error(Error::MsgType::ERROR, tok, "E0011 (char-after-backslash)");
     e.underline(Error::Underline(tok, '^')
         .error("non-newline after line continuation backslash")
     );
@@ -143,7 +143,7 @@ void E0011(Token const &tok)
 // | The parser found an unrecoverable syntax error.
 void E0100(Token const &lookahead, Token const &lasttok, std::vector<std::string> const &expectations)
 {
-    Error e = Error(Error::MsgType::ERROR, lookahead, "E0100 - unrecoverable-invalid-syntax");
+    Error e = Error(Error::MsgType::ERROR, lookahead, "E0100 (unrecoverable-invalid-syntax)");
     e.underline(Error::Underline(lookahead, '^')
         .error(format("unexpected %", lookahead.type))
     );
@@ -159,7 +159,7 @@ e.underline(un);
 // | substituting, or removing a single token.
 void E0101(Token const &lookahead, Token const &lasttok, std::string const &bestfix, std::vector<std::string> const &expectations)
 {
-    Error e = Error(Error::MsgType::ERROR, lookahead, "E0101 - simple-invalid-syntax");
+    Error e = Error(Error::MsgType::ERROR, lookahead, "E0101 (simple-invalid-syntax)");
     e.underline(Error::Underline(lookahead, '^')
         .error(format("unexpected %", lookahead.type))
         .note(bestfix)
@@ -176,7 +176,7 @@ e.underline(un);
 // | error recovery.
 void E0102(Token const &lookahead, Token const &lasttok, Token const &panicuntil, std::vector<std::string> const &expectations)
 {
-    Error e = Error(Error::MsgType::ERROR, lookahead, "E0102 - panicking-invalid-syntax");
+    Error e = Error(Error::MsgType::ERROR, lookahead, "E0102 (panicking-invalid-syntax)");
     e.underline(Error::Underline(lookahead, '^')
         .error(format("unexpected %", lookahead.type))
     );
@@ -194,7 +194,7 @@ e.underline(un);
 // | Symbol was redeclared
 void E0200(Token const &name, IR::Value *val)
 {
-    Error e = Error(Error::MsgType::ERROR, name, "E0200 - redecl-sym");
+    Error e = Error(Error::MsgType::ERROR, name, "E0200 (redecl-sym)");
     e.underline(Error::Underline(name, '^')
         .error("redeclaration of symbol")
     );
@@ -211,7 +211,7 @@ void E0200(Token const &name, IR::Value *val)
 // | operator
 void E0201(IR::ASTValue const &lhs, Token const &op)
 {
-    Error e = Error(Error::MsgType::ERROR, op, "E0201 - lhs-unsupported-op");
+    Error e = Error(Error::MsgType::ERROR, op, "E0201 (lhs-unsupported-op)");
     e.underline(Error::Underline(lhs, '^')
         .note(format("lhs is of type %", lhs.type()))
     );
@@ -230,7 +230,7 @@ void E0201(IR::ASTValue const &lhs, Token const &op)
 // | Taking an address of a non-lvalue is impossible
 void E0202(Token const &op, IR::ASTValue const &val)
 {
-    Error e = Error(Error::MsgType::ERROR, val, "E0202 - addrof-not-lvalue");
+    Error e = Error(Error::MsgType::ERROR, val, "E0202 (addrof-not-lvalue)");
     e.underline(Error::Underline(op, '^')
         .error("taking address of non-lvalue")
     );
@@ -243,7 +243,7 @@ void E0202(Token const &op, IR::ASTValue const &val)
 // | Operand of unary expression does not support operator
 void E0203(IR::ASTValue const &operand, Token const &_operator)
 {
-    Error e = Error(Error::MsgType::ERROR, _operator, "E0203 - unary-unsupported-op");
+    Error e = Error(Error::MsgType::ERROR, _operator, "E0203 (unary-unsupported-op)");
     e.underline(Error::Underline(operand, '^')
         .note(format("operand is of type %", operand.type()))
     );
@@ -262,7 +262,7 @@ void E0203(IR::ASTValue const &operand, Token const &_operator)
 // | Non-callable value called
 void E0204(IR::ASTValue const &func, Token const &oparn)
 {
-    Error e = Error(Error::MsgType::ERROR, oparn, "E0204 - call-noncallable");
+    Error e = Error(Error::MsgType::ERROR, oparn, "E0204 (call-noncallable)");
     e.underline(Error::Underline(func, '^')
         .error("calling of non-callable value")
         .note(format("value of type %", func.type()))
@@ -279,7 +279,7 @@ void E0204(IR::ASTValue const &func, Token const &oparn)
 // | Wrong number of arguments to function call
 void E0205(IR::ASTValue const &func, Token const &oparn, ASTNS::ArgB *argsast, std::vector<IR::ASTValue> const &args)
 {
-    Error e = Error(Error::MsgType::ERROR, oparn, "E0205 - wrong-num-args");
+    Error e = Error(Error::MsgType::ERROR, oparn, "E0205 (wrong-num-args)");
     e.underline(Error::Underline(argsast ? Location(argsast) : Location(oparn), '^')
         .error("wrong number of arguments to function call")
     );
@@ -295,7 +295,7 @@ void E0205(IR::ASTValue const &func, Token const &oparn, ASTNS::ArgB *argsast, s
 // | Incorrect argument to function call
 void E0206(IR::ASTValue const &arg, IR::Type const *expected)
 {
-    Error e = Error(Error::MsgType::ERROR, arg, "E0206 - incorrect-arg");
+    Error e = Error(Error::MsgType::ERROR, arg, "E0206 (incorrect-arg)");
     e.underline(Error::Underline(arg, '^')
         .error("invalid argument to function call")
         .note(format("argument is of type %", arg.type()))
@@ -308,7 +308,7 @@ void E0206(IR::ASTValue const &arg, IR::Type const *expected)
 // | Usage of undeclared symbol
 void E0207(Token const &sym)
 {
-    Error e = Error(Error::MsgType::ERROR, sym, "E0207 - undecl-symb");
+    Error e = Error(Error::MsgType::ERROR, sym, "E0207 (undecl-symb)");
     e.underline(Error::Underline(sym, '^')
         .error("undeclared symbol")
     );
@@ -319,7 +319,7 @@ void E0207(Token const &sym)
 // | Conflicting types for branches of if expression
 void E0208(IR::ASTValue const &truev, IR::ASTValue const &falsev, Token const &iftok)
 {
-    Error e = Error(Error::MsgType::ERROR, iftok, "E0208 - confl-tys-ifexpr");
+    Error e = Error(Error::MsgType::ERROR, iftok, "E0208 (confl-tys-ifexpr)");
     e.underline(Error::Underline(iftok, '^')
         .error("conflicting types for branches of if expression")
     );
@@ -336,7 +336,7 @@ void E0208(IR::ASTValue const &truev, IR::ASTValue const &falsev, Token const &i
 // | Invalid assignment target
 void E0209(Token const &eq, IR::ASTValue const &lhs)
 {
-    Error e = Error(Error::MsgType::ERROR, eq, "E0209 - assign-invalid-lhs");
+    Error e = Error(Error::MsgType::ERROR, eq, "E0209 (assign-invalid-lhs)");
     e.underline(Error::Underline(eq, '^')
         .error("non-lvalue assignment")
     );
@@ -349,7 +349,7 @@ void E0209(Token const &eq, IR::ASTValue const &lhs)
 // | Assignment target and value do not have same type
 void E0210(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &eq)
 {
-    Error e = Error(Error::MsgType::ERROR, eq, "E0210 - assign-conflict-tys");
+    Error e = Error(Error::MsgType::ERROR, eq, "E0210 (assign-conflict-tys)");
     e.underline(Error::Underline(eq, '^')
         .error("conflicting types for assignment")
     );
@@ -366,7 +366,7 @@ void E0210(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &eq)
 // | Conflicting return types
 void E0212(IR::ASTValue const &val, IR::Function *f)
 {
-    Error e = Error(Error::MsgType::ERROR, val, "E0212 - conflict-ret-ty");
+    Error e = Error(Error::MsgType::ERROR, val, "E0212 (conflict-ret-ty)");
     e.underline(Error::Underline(val, '^')
         .error("conflicting return type")
         .note(format("returning %", val.type()))
@@ -381,7 +381,7 @@ void E0212(IR::ASTValue const &val, IR::Function *f)
 // | Cannot dereference non-pointer
 void E0213(Token const &op, IR::ASTValue const &val)
 {
-    Error e = Error(Error::MsgType::ERROR, val, "E0213 - no-deref");
+    Error e = Error(Error::MsgType::ERROR, val, "E0213 (no-deref)");
     e.underline(Error::Underline(op, '^')
         .error(format("dereferencing of non-pointer type %", val.type()))
     );
@@ -394,7 +394,7 @@ void E0213(Token const &op, IR::ASTValue const &val)
 // | Redeclaration of variable
 void E0214(Token const &name, IR::Instrs::Register const *prev)
 {
-    Error e = Error(Error::MsgType::ERROR, name, "E0214 - redecl-var");
+    Error e = Error(Error::MsgType::ERROR, name, "E0214 (redecl-var)");
     e.underline(Error::Underline(name, '^')
         .error("redeclaration of variable")
     );
@@ -408,7 +408,7 @@ void E0214(Token const &name, IR::Instrs::Register const *prev)
 // | Conflicting type for variable initialization
 void E0215(Token const &eq, Token const &name, IR::ASTValue const &init, IR::Instrs::Register const *var)
 {
-    Error e = Error(Error::MsgType::ERROR, eq, "E0215 - conflict-var-init-ty");
+    Error e = Error(Error::MsgType::ERROR, eq, "E0215 (conflict-var-init-ty)");
     e.underline(Error::Underline(eq, '~')
     );
     e.underline(Error::Underline(init, '^')
@@ -425,7 +425,7 @@ void E0215(Token const &eq, Token const &name, IR::ASTValue const &init, IR::Ins
 // | Invalid cast
 void E0216(ASTNS::AST *ast, IR::ASTValue v, IR::Type const *newty)
 {
-    Error e = Error(Error::MsgType::ERROR, ast, "E0216 - invalid-cast");
+    Error e = Error(Error::MsgType::ERROR, ast, "E0216 (invalid-cast)");
     e.underline(Error::Underline(ast, '^')
         .error(format("invalid cast from % to %", v.type(), newty))
     );
@@ -436,7 +436,7 @@ void E0216(ASTNS::AST *ast, IR::ASTValue v, IR::Type const *newty)
 // | Conflicting types to binary operator
 void E0217(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &op)
 {
-    Error e = Error(Error::MsgType::ERROR, op, "E0217 - conflict-tys-binary-op");
+    Error e = Error(Error::MsgType::ERROR, op, "E0217 (conflict-tys-binary-op)");
     e.underline(Error::Underline(lhs, '~')
         .note(format("%", lhs.type()))
     );
@@ -453,7 +453,7 @@ void E0217(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &op)
 // | Redeclaraion of parameter in function declaration
 void E0218(Token const &name, IR::Instrs::Register const *prev)
 {
-    Error e = Error(Error::MsgType::ERROR, name, "E0218 - redecl-param");
+    Error e = Error(Error::MsgType::ERROR, name, "E0218 (redecl-param)");
     e.underline(Error::Underline(name, '^')
         .error("redeclaration of parameter")
     );
@@ -467,7 +467,7 @@ void E0218(Token const &name, IR::Instrs::Register const *prev)
 // | Using a non-bool value as a condition
 void E0219(IR::ASTValue &v)
 {
-    Error e = Error(Error::MsgType::ERROR, v, "E0219 - cond-not-bool");
+    Error e = Error(Error::MsgType::ERROR, v, "E0219 (cond-not-bool)");
     e.underline(Error::Underline(v, '^')
         .error(format("usage of % as condition", v.type()))
     );
@@ -483,7 +483,7 @@ void E0219(IR::ASTValue &v)
 // | If expression with non-void true expression and no else case
 void E0220(IR::ASTValue const &truev, Token const &iftok)
 {
-    Error e = Error(Error::MsgType::ERROR, iftok, "E0220 - no-else-not-void");
+    Error e = Error(Error::MsgType::ERROR, iftok, "E0220 (no-else-not-void)");
     e.underline(Error::Underline(iftok, '^')
         .error("if expression with non-void true expression and no else case")
     );
@@ -497,7 +497,7 @@ void E0220(IR::ASTValue const &truev, Token const &iftok)
 // | Extra semicolon
 void W0000(Token const &semi)
 {
-    Error e = Error(Error::MsgType::WARNING, semi, "W0000 - Wextra-semi");
+    Error e = Error(Error::MsgType::WARNING, semi, "W0000 (Wextra-semi)");
     e.underline(Error::Underline(semi, '^')
         .warning("unnecessary semicolon")
     );
