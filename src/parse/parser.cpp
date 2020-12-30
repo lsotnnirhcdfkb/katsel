@@ -29,14 +29,11 @@ Token Parser::consume() {
         if (cur.type == TokenType::ERROR) {
             errored = true;
             cur.errf(cur);
-        }
-        else if (cur.type == TokenType::BOOM) {
+        } else if (cur.type == TokenType::BOOM) {
             lastboom = true;
-        }
-        else if (lastboom && cur.type == TokenType::NEWLINE) {
+        } else if (lastboom && cur.type == TokenType::NEWLINE) {
             lastboom = false;
-        }
-        else {
+        } else {
             return cur;
         }
     }

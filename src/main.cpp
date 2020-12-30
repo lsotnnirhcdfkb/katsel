@@ -50,8 +50,7 @@ std::unique_ptr<File> readFile(char *filename) {
         filein.close();
 
         return std::make_unique<File>(File {std::string(filename), contents});
-    }
-    else {
+    } else {
         std::perror("Could not open file");
         return nullptr;
     }

@@ -23,8 +23,7 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast) {
         v = fcg.exprCG.expr(ast->expr.get());
         if (!v)
             return;
-    }
-    else
+    } else
         v = IR::ASTValue(cg.context->getVoid(), ast);
 
     v = fcg.ret->type()->implCast(*cg.context, *fcg.fun, fcg.curBlock, v);

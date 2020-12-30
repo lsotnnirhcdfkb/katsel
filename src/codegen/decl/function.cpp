@@ -39,8 +39,7 @@ bool CodeGen::FunctionCodeGen::codegen() {
             if (foundparam) {
                 ERR_REDECL_PARAM(param.ast->name, foundparam->v);
                 cg.errored = true;
-            }
-            else
+            } else
                 addLocal(pname, reg);
         }
     }
@@ -60,8 +59,7 @@ bool CodeGen::FunctionCodeGen::codegen() {
         if (fun->ty->ret != retval.type()) {
             ERR_CONFLICT_RET_TY(retval, f);
             errored = true;
-        }
-        else {
+        } else {
             curBlock->add(std::make_unique<IR::Instrs::Store>(IR::ASTValue(ret, ast->retty.get()), retval));
             curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(exitBlock));
         }

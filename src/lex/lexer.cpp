@@ -57,8 +57,7 @@ Token Lexer::lexDigit(char current) {
     if (current != '0' || isDigit(peek(), IntBase::dec) || !isAlpha(peek())) {
         base = IntBase::dec;
         ++ndigits;
-    }
-    else
+    } else
         switch (advance()) {
             case 'o': base = IntBase::oct; break;
             case 'x': base = IntBase::hex; break;
@@ -84,8 +83,7 @@ Token Lexer::lexDigit(char current) {
         if (base != IntBase::dec) return makeErrorToken(ERR_NONDECIMAL_FLOATLIT);
         if (!intvalid) return makeErrorToken(ERR_INVALID_CHAR_FLOATLIT);
         return makeToken(TokenType::FLOATLIT);
-    }
-    else
+    } else
         if (base == IntBase::inv)
             return makeErrorToken(ERR_INVALID_INTLIT_BASE);
         else if (ndigits == 0)
@@ -151,8 +149,7 @@ Token Lexer::nextToken() {
                         ++endline;
                         endcolumn = 1;
                         startToEnd();
-                    }
-                    else {
+                    } else {
                         startToEnd();
                         advance();
                         return makeErrorToken(ERR_CHAR_AFTER_BACKSLASH);
@@ -178,8 +175,7 @@ Token Lexer::nextToken() {
 
                         advance(); // advance twice to consume the * and /
                         advance();
-                    }
-                    else
+                    } else
                         atWh = false;
                     break;
 
@@ -191,8 +187,7 @@ Token Lexer::nextToken() {
                         endcolumn = 1;
                         indent = 0;
                         startToEnd();
-                    }
-                    else
+                    } else
                         atWh = false;
                     break;
 
@@ -214,13 +209,11 @@ Token Lexer::nextToken() {
 
         indentstack.push_back(indent);
         return makeToken(TokenType::INDENT);
-    }
-    else if (indent < indentstack.back()) {
+    } else if (indent < indentstack.back()) {
         dedenting = true;
         indentstack.pop_back();
         return makeToken(TokenType::DEDENT);
-    }
-    else if (dedenting) // indent == indentstack.top()
+    } else if (dedenting) // indent == indentstack.top()
         dedenting = false;
 
     startToEnd();

@@ -137,11 +137,9 @@ IR::ASTValue IR::FloatType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR:
     IntType *sty (dynamic_cast<IntType*>(v.type()));
     if (sty) {
         return IR::ASTValue(curBlock->add(std::make_unique<IR::Instrs::IntToFloat>(v, this)), ast);
-    }
-    else if (dynamic_cast<FloatType*>(v.type())) {
+    } else if (dynamic_cast<FloatType*>(v.type())) {
         return IR::ASTValue(curBlock->add(std::make_unique<IR::Instrs::FloatToFloat>(v, this)), ast);
-    }
-    else {
+    } else {
         ERR_INVALID_CAST(ast, v, this);
         return IR::ASTValue();
     }
@@ -190,8 +188,7 @@ IR::ASTValue IR::IntType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR::B
             styChar = nullptr;
 
             v = IR::ASTValue(curBlock->add(std::make_unique<IR::Instrs::NoOpCast>(v, newt)), v.ast);
-        }
-        else if (styBool) {
+        } else if (styBool) {
             IR::IntType *newt (cgc.getIntType(1, false));
             styInt = newt;
             styBool = nullptr;
@@ -200,11 +197,9 @@ IR::ASTValue IR::IntType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR::B
         }
 
         return IR::ASTValue(curBlock->add(std::make_unique<IR::Instrs::IntToInt>(v, this)), ast);
-    }
-    else if (styFloat) {
+    } else if (styFloat) {
         return IR::ASTValue(curBlock->add(std::make_unique<IR::Instrs::FloatToInt>(v, this)), ast);
-    }
-    else {
+    } else {
         ERR_INVALID_CAST(ast, v, this);
         return IR::ASTValue();
     }

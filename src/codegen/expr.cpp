@@ -65,13 +65,11 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitShortCircuitExpr(ASTNS::ShortCi
         // jump to skip when true
         fcg.curBlock->branch(std::make_unique<IR::Instrs::CondBr>(lhs, skip, checkboth));
         valueIfSkipped = true;
-    }
-    else if (ast->op.type == TokenType::DOUBLEAMPER) {
+    } else if (ast->op.type == TokenType::DOUBLEAMPER) {
         // jump to skip when false
         fcg.curBlock->branch(std::make_unique<IR::Instrs::CondBr>(lhs, checkboth, skip));
         valueIfSkipped = false;
-    }
-    else
+    } else
         invalidTok("short circuiting operator", ast->op);
 
     fcg.curBlock = checkboth;
@@ -330,8 +328,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitIfExpr(ASTNS::IfExpr *ast) {
             fcg.errored = true;
             return;
         }
-    }
-    else {
+    } else {
         if (!dynamic_cast<IR::VoidType*>(truev.type())) {
             ERR_NO_ELSE_NOT_VOID(truev, ast->iftok);
             ret = IR::ASTValue();
@@ -344,8 +341,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitIfExpr(ASTNS::IfExpr *ast) {
 
     if (falseb) {
         ret = IR::ASTValue(afterb->add(std::make_unique<IR::Instrs::Phi>(std::vector {std::make_pair(trueb, truev), std::make_pair(falseb, falsev)})), ast);
-    }
-    else
+    } else
         ret = IR::ASTValue(truev.val, ast);
 
 }

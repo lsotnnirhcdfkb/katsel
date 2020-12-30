@@ -52,8 +52,7 @@ inline static std::string attr(std::string const &ansicode, std::string const &m
             return ansicode + message;
         else
             return ansicode + message + A_RESET;
-    }
-    else
+    } else
         return message;
 }
 inline static char const * resetIfNecessary() {
@@ -272,8 +271,7 @@ void Error::report() const {
             lastfile = sl.file;
             lastnr = sl.line;
         }
-    }
-    else if (errformat == ErrorFormat::ALIGNED) {
+    } else if (errformat == ErrorFormat::ALIGNED) {
         printHeading();
         auto showlines (collectShowlines());
         int maxlinepad (countLinePad(showlines));
@@ -312,8 +310,7 @@ void Error::report() const {
 
             std::cerr << std::string(unStartCol - 1, ' ') << attr(A_BOLD, attr(un.messages[0].color, std::string(unEndCol - unStartCol, '^'))) << std::endl;
         }
-    }
-    else {
+    } else {
         std::cerr << "{\"type\":\"";
         switch (type) {
             case Error::MsgType::ERROR:

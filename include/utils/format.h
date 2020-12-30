@@ -10,8 +10,7 @@ static inline void _format(std::stringstream &ss, std::string const &fstr, std::
             if (*(i + 1) == '%') {
                 ss << '%';
                 ++i;
-            }
-            else
+            } else
                 reportAbortNoh("_format called with % in format string but no more format arguments");
         else
             ss << *i;
@@ -24,8 +23,7 @@ static inline void _format(std::stringstream &ss, std::string const &fstr, std::
             if (*(i + 1) == '%') {
                 ss << '%';
                 ++i;
-            }
-            else {
+            } else {
                 ss << first;
                 _format(ss, fstr, i + 1, f...);
                 break;
