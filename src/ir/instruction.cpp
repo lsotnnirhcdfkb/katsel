@@ -39,7 +39,7 @@ IR::Instrs::Or::Or(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs)
     ASSERT(lhs.type() == rhs.type())
 }
 void IR::Instrs::Or::accept(InstructionVisitor *v) { v->visitOr(this); }
-IR::Type* IR::Instrs::Or::type() const { return lhs.type(); }
+IR::Type* IR::Instrs::Or::type() const { return lhs.type()->context.getBoolType(); }
 std::string IR::Instrs::Or::stringify() const { return format("%%%", this); }
 
 IR::Instrs::And::And(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs)
@@ -48,14 +48,14 @@ IR::Instrs::And::And(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs)
     ASSERT(lhs.type() == rhs.type())
 }
 void IR::Instrs::And::accept(InstructionVisitor *v) { v->visitAnd(this); }
-IR::Type* IR::Instrs::And::type() const { return lhs.type(); }
+IR::Type* IR::Instrs::And::type() const { return lhs.type()->context.getBoolType(); }
 std::string IR::Instrs::And::stringify() const { return format("%%%", this); }
 
 IR::Instrs::Not::Not(ASTValue op): op(op)
 {
 }
 void IR::Instrs::Not::accept(InstructionVisitor *v) { v->visitNot(this); }
-IR::Type* IR::Instrs::Not::type() const { return op.type(); }
+IR::Type* IR::Instrs::Not::type() const { return op.type()->context.getBoolType(); }
 std::string IR::Instrs::Not::stringify() const { return format("%%%", this); }
 
 IR::Instrs::ICmpNE::ICmpNE(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs)
@@ -64,7 +64,7 @@ IR::Instrs::ICmpNE::ICmpNE(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs)
     ASSERT(lhs.type() == rhs.type())
 }
 void IR::Instrs::ICmpNE::accept(InstructionVisitor *v) { v->visitICmpNE(this); }
-IR::Type* IR::Instrs::ICmpNE::type() const { return lhs.type(); }
+IR::Type* IR::Instrs::ICmpNE::type() const { return lhs.type()->context.getBoolType(); }
 std::string IR::Instrs::ICmpNE::stringify() const { return format("%%%", this); }
 
 IR::Instrs::ICmpEQ::ICmpEQ(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs)
@@ -73,7 +73,7 @@ IR::Instrs::ICmpEQ::ICmpEQ(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs)
     ASSERT(lhs.type() == rhs.type())
 }
 void IR::Instrs::ICmpEQ::accept(InstructionVisitor *v) { v->visitICmpEQ(this); }
-IR::Type* IR::Instrs::ICmpEQ::type() const { return lhs.type(); }
+IR::Type* IR::Instrs::ICmpEQ::type() const { return lhs.type()->context.getBoolType(); }
 std::string IR::Instrs::ICmpEQ::stringify() const { return format("%%%", this); }
 
 IR::Instrs::ICmpLT::ICmpLT(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs)
@@ -82,7 +82,7 @@ IR::Instrs::ICmpLT::ICmpLT(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs)
     ASSERT(lhs.type() == rhs.type())
 }
 void IR::Instrs::ICmpLT::accept(InstructionVisitor *v) { v->visitICmpLT(this); }
-IR::Type* IR::Instrs::ICmpLT::type() const { return lhs.type(); }
+IR::Type* IR::Instrs::ICmpLT::type() const { return lhs.type()->context.getBoolType(); }
 std::string IR::Instrs::ICmpLT::stringify() const { return format("%%%", this); }
 
 IR::Instrs::ICmpGT::ICmpGT(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs)
@@ -91,7 +91,7 @@ IR::Instrs::ICmpGT::ICmpGT(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs)
     ASSERT(lhs.type() == rhs.type())
 }
 void IR::Instrs::ICmpGT::accept(InstructionVisitor *v) { v->visitICmpGT(this); }
-IR::Type* IR::Instrs::ICmpGT::type() const { return lhs.type(); }
+IR::Type* IR::Instrs::ICmpGT::type() const { return lhs.type()->context.getBoolType(); }
 std::string IR::Instrs::ICmpGT::stringify() const { return format("%%%", this); }
 
 IR::Instrs::ICmpLE::ICmpLE(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs)
@@ -100,7 +100,7 @@ IR::Instrs::ICmpLE::ICmpLE(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs)
     ASSERT(lhs.type() == rhs.type())
 }
 void IR::Instrs::ICmpLE::accept(InstructionVisitor *v) { v->visitICmpLE(this); }
-IR::Type* IR::Instrs::ICmpLE::type() const { return lhs.type(); }
+IR::Type* IR::Instrs::ICmpLE::type() const { return lhs.type()->context.getBoolType(); }
 std::string IR::Instrs::ICmpLE::stringify() const { return format("%%%", this); }
 
 IR::Instrs::ICmpGE::ICmpGE(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs)
@@ -109,7 +109,7 @@ IR::Instrs::ICmpGE::ICmpGE(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs)
     ASSERT(lhs.type() == rhs.type())
 }
 void IR::Instrs::ICmpGE::accept(InstructionVisitor *v) { v->visitICmpGE(this); }
-IR::Type* IR::Instrs::ICmpGE::type() const { return lhs.type(); }
+IR::Type* IR::Instrs::ICmpGE::type() const { return lhs.type()->context.getBoolType(); }
 std::string IR::Instrs::ICmpGE::stringify() const { return format("%%%", this); }
 
 IR::Instrs::IAdd::IAdd(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs)
@@ -171,7 +171,7 @@ IR::Instrs::FCmpNE::FCmpNE(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs)
     ASSERT(lhs.type() == rhs.type())
 }
 void IR::Instrs::FCmpNE::accept(InstructionVisitor *v) { v->visitFCmpNE(this); }
-IR::Type* IR::Instrs::FCmpNE::type() const { return lhs.type(); }
+IR::Type* IR::Instrs::FCmpNE::type() const { return lhs.type()->context.getBoolType(); }
 std::string IR::Instrs::FCmpNE::stringify() const { return format("%%%", this); }
 
 IR::Instrs::FCmpEQ::FCmpEQ(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs)
@@ -180,7 +180,7 @@ IR::Instrs::FCmpEQ::FCmpEQ(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs)
     ASSERT(lhs.type() == rhs.type())
 }
 void IR::Instrs::FCmpEQ::accept(InstructionVisitor *v) { v->visitFCmpEQ(this); }
-IR::Type* IR::Instrs::FCmpEQ::type() const { return lhs.type(); }
+IR::Type* IR::Instrs::FCmpEQ::type() const { return lhs.type()->context.getBoolType(); }
 std::string IR::Instrs::FCmpEQ::stringify() const { return format("%%%", this); }
 
 IR::Instrs::FCmpLT::FCmpLT(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs)
@@ -189,7 +189,7 @@ IR::Instrs::FCmpLT::FCmpLT(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs)
     ASSERT(lhs.type() == rhs.type())
 }
 void IR::Instrs::FCmpLT::accept(InstructionVisitor *v) { v->visitFCmpLT(this); }
-IR::Type* IR::Instrs::FCmpLT::type() const { return lhs.type(); }
+IR::Type* IR::Instrs::FCmpLT::type() const { return lhs.type()->context.getBoolType(); }
 std::string IR::Instrs::FCmpLT::stringify() const { return format("%%%", this); }
 
 IR::Instrs::FCmpGT::FCmpGT(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs)
@@ -198,7 +198,7 @@ IR::Instrs::FCmpGT::FCmpGT(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs)
     ASSERT(lhs.type() == rhs.type())
 }
 void IR::Instrs::FCmpGT::accept(InstructionVisitor *v) { v->visitFCmpGT(this); }
-IR::Type* IR::Instrs::FCmpGT::type() const { return lhs.type(); }
+IR::Type* IR::Instrs::FCmpGT::type() const { return lhs.type()->context.getBoolType(); }
 std::string IR::Instrs::FCmpGT::stringify() const { return format("%%%", this); }
 
 IR::Instrs::FCmpLE::FCmpLE(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs)
@@ -207,7 +207,7 @@ IR::Instrs::FCmpLE::FCmpLE(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs)
     ASSERT(lhs.type() == rhs.type())
 }
 void IR::Instrs::FCmpLE::accept(InstructionVisitor *v) { v->visitFCmpLE(this); }
-IR::Type* IR::Instrs::FCmpLE::type() const { return lhs.type(); }
+IR::Type* IR::Instrs::FCmpLE::type() const { return lhs.type()->context.getBoolType(); }
 std::string IR::Instrs::FCmpLE::stringify() const { return format("%%%", this); }
 
 IR::Instrs::FCmpGE::FCmpGE(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs)
@@ -216,7 +216,7 @@ IR::Instrs::FCmpGE::FCmpGE(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs)
     ASSERT(lhs.type() == rhs.type())
 }
 void IR::Instrs::FCmpGE::accept(InstructionVisitor *v) { v->visitFCmpGE(this); }
-IR::Type* IR::Instrs::FCmpGE::type() const { return lhs.type(); }
+IR::Type* IR::Instrs::FCmpGE::type() const { return lhs.type()->context.getBoolType(); }
 std::string IR::Instrs::FCmpGE::stringify() const { return format("%%%", this); }
 
 IR::Instrs::FAdd::FAdd(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs)
