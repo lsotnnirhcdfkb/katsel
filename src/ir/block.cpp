@@ -5,9 +5,11 @@
 
 IR::Block::Block(std::string name, size_t num): name(name), num(num) {}
 
-void IR::Block::add(std::unique_ptr<IR::Instrs::Instruction> instr)
+IR::Instrs::Instruction* IR::Block::add(std::unique_ptr<IR::Instrs::Instruction> instr)
 {
+    IR::Instrs::Instruction *raw = instr.get();
     instructions.push_back(std::move(instr));
+    return raw;
 }
 
 void IR::Block::branch(std::unique_ptr<IR::Instrs::Br> br)

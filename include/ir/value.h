@@ -33,37 +33,6 @@ namespace IR
         virtual ASTNS::AST* defAST() const = 0;
     };
 
-    class Register : public Value, public DeclaredValue
-    {
-    public:
-        Register(int index, Type *type, ASTNS::AST *defAST);
-
-        std::string stringify() const override;
-        void definition(llvm::raw_ostream &os) const;
-        ASTNS::AST* defAST() const override;
-
-        Type* type() const override;
-
-    private:
-        ASTNS::AST* _defAST;
-        int index;
-        Type *ty;
-    };
-
-    class TempRegister : public Value
-    {
-    public:
-        TempRegister(int index, Type *type);
-
-        std::string stringify() const override;
-
-        Type* type() const override;
-
-    private:
-        int index;
-        Type *ty;
-    };
-
     // Function {{{
     class Function : public Value, public DeclaredValue
     {
@@ -80,12 +49,8 @@ namespace IR
         Type* type() const override;
 
         std::vector<std::unique_ptr<Block>> blocks;
-        std::vector<std::unique_ptr<Register>> registers;
-        std::vector<std::unique_ptr<TempRegister>> tempregisters;
 
         Block* addBlock(std::string name);
-        Register* addRegister(Type *ty, ASTNS::AST *defAST);
-        TempRegister* addTempRegister(Type *ty);
 
         FunctionType *ty;
         std::string name;
@@ -96,8 +61,6 @@ namespace IR
         ASTNS::FunctionDecl *_defAST;
 
         size_t blocki;
-        size_t regi;
-        size_t tempregi;
     };
     // }}}
     // Const values {{{

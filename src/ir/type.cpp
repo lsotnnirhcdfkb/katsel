@@ -1,11 +1,14 @@
 #include <sstream>
 
 #include "ir/type.h"
+#include "ir/value.h"
 #include "message/errmsgs.h"
 
 #include "llvm/IR/Type.h"
 #include "llvm/IR/DerivedTypes.h"
 #include "utils/format.h"
+
+IR::VoidType::VoidType(CodeGen::Context &context): Type(context) {}
 
 std::string IR::VoidType::stringify() const
 {
@@ -37,7 +40,7 @@ IR::ASTValue IR::VoidType::implCast(CodeGen::Context &cgc, IR::Function &fun, IR
     return v;
 }
 
-IR::FunctionType::FunctionType(Type *ret, std::vector<Type*> paramtys): ret(ret), paramtys(paramtys) {}
+IR::FunctionType::FunctionType(CodeGen::Context &context, Type *ret, std::vector<Type*> paramtys): Type(context), ret(ret), paramtys(paramtys) {}
 
 std::string IR::FunctionType::stringify() const
 {
@@ -85,7 +88,7 @@ IR::ASTValue IR::FunctionType::implCast(CodeGen::Context &cgc, IR::Function &fun
     return v;
 }
 
-IR::PointerType::PointerType(Type *ty): ty(ty) {}
+IR::PointerType::PointerType(CodeGen::Context &context, Type *ty): Type(context), ty(ty) {}
 
 std::string IR::PointerType::stringify() const
 {

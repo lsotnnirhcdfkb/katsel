@@ -103,14 +103,6 @@ void Lower::Lowerer::lower(IR::Function const &f)
         reportAbortNoh("entryBlock == nullptr");
 
     builder.SetInsertPoint(entryBlock);
-    for (std::unique_ptr<IR::Register> const &r : f.registers)
-        if (!dynamic_cast<IR::VoidType*>(r->type()))
-            allocas[r.get()] = builder.CreateAlloca(r->type()->toLLVMType(context), 0, "");
-
-    auto argiter = f.registers.begin() + 1;
-
-    for (auto &arg : fasllvm->args())
-        builder.CreateStore(&arg, allocas[argiter++->get()]);
 
     for (std::unique_ptr<IR::Block> const &b : f.blocks)
         lower(*b);
@@ -122,8 +114,8 @@ void Lower::Lowerer::lower(IR::Function const &f)
             b->br->accept(this);
     }
 
-    allocas.clear();
     blocks.clear();
+    values.clear();
 
     llvm::verifyFunction(*fasllvm);
     // fpm.run(*fasllvm);
@@ -141,31 +133,25 @@ llvm::Value* Lower::Lowerer::lower(IR::Value const *v)
     if (!v)
         reportAbortNoh("lowerValue nullptr");
 
-#define CHECKTY(ty) \
-    IR::ty const *as##ty; \
-    if ((as##ty = dynamic_cast<IR::ty const *>(v)))
+#define CHECKTY(ty, vname) if (IR::ty const *vname = dynamic_cast<IR::ty const *>(v))
 
-    CHECKTY(Register)
-        return builder.CreateLoad(allocas.at(asRegister));
-    CHECKTY(Function)
-        return functions.at(asFunction);
-    CHECKTY(ConstInt)
+    CHECKTY(Instrs::Instruction, asInstr)
+        return values.at(asInstr);
+    else CHECKTY(Function, asFunc)
+        return functions.at(asFunc);
+    else CHECKTY(ConstInt, asConstInt)
         return llvm::ConstantInt::get(asConstInt->type()->toLLVMType(context), asConstInt->val);
-    CHECKTY(ConstFloat)
+    else CHECKTY(ConstFloat, asConstFloat)
         return llvm::ConstantFP::get(asConstFloat->type()->toLLVMType(context), asConstFloat->val);
-    CHECKTY(ConstBool)
+    else CHECKTY(ConstBool, asConstBool)
         return llvm::ConstantInt::get(asConstBool->type()->toLLVMType(context), asConstBool->val);
-    CHECKTY(ConstChar)
+    else CHECKTY(ConstChar, asConstChar)
         return llvm::ConstantInt::get(asConstChar->type()->toLLVMType(context), asConstChar->val);
-    CHECKTY(TempRegister)
-        return tempregisters.at(asTempRegister);
-    CHECKTY(Void)
+    else CHECKTY(Void, asVoid)
         reportAbortNoh("lowerValue called with v = Void");
-#undef CHECKTY
     else
-    {
         reportAbortNoh("lowerValue called with v of invalid type");
-    }
+#undef CHECKTY
 }
 
 llvm::Value* Lower::Lowerer::lower(IR::ASTValue const &v)

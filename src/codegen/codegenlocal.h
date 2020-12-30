@@ -119,14 +119,14 @@ public:
     struct Local
     {
         size_t scopenum;
-        IR::Register *v;
+        IR::Instrs::Register *v;
         std::string name;
     };
 
     std::vector<Local> locals;
     size_t curScope;
 
-    void addLocal(std::string const &name, IR::Register *val);
+    void addLocal(std::string const &name, IR::Instrs::Register *val);
     Local* getLocal(std::string const &name);
 
     void incScope();
@@ -139,7 +139,7 @@ public:
     StmtCodeGen stmtCG;
 
     IR::Function *fun;
-    IR::Register *ret;
+    IR::Instrs::Register *ret;
     IR::Block *curBlock;
     IR::Block *exitBlock;
 

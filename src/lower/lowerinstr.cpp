@@ -2,6 +2,7 @@
 #include "ir/visitor.h"
 #include "ir/type.h"
 #include "lower/lowerer.h"
+#include "utils/assert.h"
 
 // Store and Phi instructions {{{1
 void Lower::Lowerer::visitStore(IR::Instrs::Store *instr)
@@ -9,12 +10,14 @@ void Lower::Lowerer::visitStore(IR::Instrs::Store *instr)
     if (dynamic_cast<IR::VoidType*>(instr->target->type()))
         return;
 
-    llvm::AllocaInst *target = allocas.at(instr->target);
+    llvm::Value *t = values.at(instr->target);
+    ASSERT(llvm::isa<llvm::AllocaInst>(t))
+    llvm::AllocaInst *target = static_cast<llvm::AllocaInst*>(t);
     builder.CreateStore(lower(instr->value), target);
 }
 void Lower::Lowerer::visitPhi(IR::Instrs::Phi *instr)
 {
-    llvm::PHINode *phi = llvm::PHINode::Create(instr->target->type()->toLLVMType(context), instr->prevs.size());
+    llvm::PHINode *phi = llvm::PHINode::Create(instr->type()->toLLVMType(context), instr->prevs.size());
 
     llvm::BasicBlock *currentBlock = builder.GetInsertBlock();
 
@@ -34,35 +37,35 @@ void Lower::Lowerer::visitPhi(IR::Instrs::Phi *instr)
     builder.SetInsertPoint(currentBlock);
     builder.GetInsertBlock()->getInstList().push_back(phi);
 
-    tempregisters[instr->target] = phi;
+    values[instr] = phi;
 }
 // Logical instructions {{{1
 void Lower::Lowerer::visitOr(IR::Instrs::Or *instr)
 {
-    tempregisters[instr->target] = builder.CreateOr(lower(instr->lhs), lower(instr->rhs));
+    values[instr] = builder.CreateOr(lower(instr->lhs), lower(instr->rhs));
 }
 void Lower::Lowerer::visitAnd(IR::Instrs::And *instr)
 {
-    tempregisters[instr->target] = builder.CreateAnd(lower(instr->lhs), lower(instr->rhs));
+    values[instr] = builder.CreateAnd(lower(instr->lhs), lower(instr->rhs));
 }
 void Lower::Lowerer::visitNot(IR::Instrs::Not *instr)
 {
-    tempregisters[instr->target] = builder.CreateICmpEQ(lower(instr->op), llvm::ConstantInt::get(llvm::Type::getInt1Ty(context), 0));
+    values[instr] = builder.CreateICmpEQ(lower(instr->op), llvm::ConstantInt::get(llvm::Type::getInt1Ty(context), 0));
 }
 // Binary arithmetic instructions {{{1
 #define DEF_FLOAT_BIN_INSTR(name, llvmInstr) \
     void Lower::Lowerer::visit##name(IR::Instrs::name *instr)                                           \
     {                                                                                                   \
-        tempregisters[instr->target] = builder.Create##llvmInstr(lower(instr->lhs), lower(instr->rhs)); \
+        values[instr] = builder.Create##llvmInstr(lower(instr->lhs), lower(instr->rhs)); \
     }
 #define DEF_INT_BIN_INSTR(name, ifSignedInstr, ifUnsignedInstr) \
     void Lower::Lowerer::visit##name(IR::Instrs::name *instr)                                                     \
     {                                                                                                             \
         IR::IntType *intty (static_cast<IR::IntType*>(instr->lhs.type()));                                            \
         if (intty->isSigned)                                                                                      \
-            tempregisters[instr->target] = builder.Create##ifSignedInstr(lower(instr->lhs), lower(instr->rhs));   \
+            values[instr] = builder.Create##ifSignedInstr(lower(instr->lhs), lower(instr->rhs));   \
         else                                                                                                      \
-            tempregisters[instr->target] = builder.Create##ifUnsignedInstr(lower(instr->lhs), lower(instr->rhs)); \
+            values[instr] = builder.Create##ifUnsignedInstr(lower(instr->lhs), lower(instr->rhs)); \
     }
 
 DEF_FLOAT_BIN_INSTR(FCmpNE, FCmpONE)
@@ -93,81 +96,81 @@ DEF_INT_BIN_INSTR(IMod  , SRem   , URem   )
 // Unary arithmetic instructions {{{1
 void Lower::Lowerer::visitFNeg(IR::Instrs::FNeg *instr)
 {
-    tempregisters[instr->target] = builder.CreateFNeg(lower(instr->op));
+    values[instr] = builder.CreateFNeg(lower(instr->op));
 }
 void Lower::Lowerer::visitINeg(IR::Instrs::INeg *instr)
 {
-    tempregisters[instr->target] = builder.CreateSub(llvm::ConstantInt::get(instr->op.type()->toLLVMType(context), 0), lower(instr->op));
+    values[instr] = builder.CreateSub(llvm::ConstantInt::get(instr->op.type()->toLLVMType(context), 0), lower(instr->op));
 }
 // Bitwise instructions {{{1
 void Lower::Lowerer::visitBitXor(IR::Instrs::BitXor *instr)
 {
-    tempregisters[instr->target] = builder.CreateXor(lower(instr->lhs), lower(instr->rhs));
+    values[instr] = builder.CreateXor(lower(instr->lhs), lower(instr->rhs));
 }
 void Lower::Lowerer::visitBitOr(IR::Instrs::BitOr *instr)
 {
-    tempregisters[instr->target] = builder.CreateOr(lower(instr->lhs), lower(instr->rhs));
+    values[instr] = builder.CreateOr(lower(instr->lhs), lower(instr->rhs));
 }
 void Lower::Lowerer::visitBitAnd(IR::Instrs::BitAnd *instr)
 {
-    tempregisters[instr->target] = builder.CreateAnd(lower(instr->lhs), lower(instr->rhs));
+    values[instr] = builder.CreateAnd(lower(instr->lhs), lower(instr->rhs));
 }
 void Lower::Lowerer::visitBitNot(IR::Instrs::BitNot *instr)
 {
-    tempregisters[instr->target] = builder.CreateXor(llvm::ConstantInt::get(instr->op.type()->toLLVMType(context), -1), lower(instr->op));
+    values[instr] = builder.CreateXor(llvm::ConstantInt::get(instr->op.type()->toLLVMType(context), -1), lower(instr->op));
 }
 // Shift instructions {{{1
 void Lower::Lowerer::visitShiftR(IR::Instrs::ShiftR *instr)
 {
-    tempregisters[instr->target] = builder.CreateLShr(lower(instr->lhs), lower(instr->rhs));
+    values[instr] = builder.CreateLShr(lower(instr->lhs), lower(instr->rhs));
 }
 void Lower::Lowerer::visitShiftL(IR::Instrs::ShiftL *instr)
 {
-    tempregisters[instr->target] = builder.CreateShl(lower(instr->lhs), lower(instr->rhs));
+    values[instr] = builder.CreateShl(lower(instr->lhs), lower(instr->rhs));
 }
 // Type conversion instructions {{{1
 void Lower::Lowerer::visitNoOpCast(IR::Instrs::NoOpCast *instr)
 {
-    tempregisters[instr->target] = builder.CreateBitCast(lower(instr->op), instr->newt->toLLVMType(context));
+    values[instr] = builder.CreateBitCast(lower(instr->op), instr->newt->toLLVMType(context));
 }
 void Lower::Lowerer::visitFloatToFloat(IR::Instrs::FloatToFloat *instr)
 {
     IR::FloatType *bty = static_cast<IR::FloatType*>(instr->op.type());
 
     if (bty->size < instr->newt->size)
-        tempregisters[instr->target] = builder.CreateFPExt(lower(instr->op), instr->newt->toLLVMType(context));
+        values[instr] = builder.CreateFPExt(lower(instr->op), instr->newt->toLLVMType(context));
     else if (bty->size > instr->newt->size)
-        tempregisters[instr->target] = builder.CreateFPTrunc(lower(instr->op), instr->newt->toLLVMType(context));
+        values[instr] = builder.CreateFPTrunc(lower(instr->op), instr->newt->toLLVMType(context));
     else
-        tempregisters[instr->target] = lower(instr->op); // no cast needed
+        values[instr] = lower(instr->op); // no cast needed
 }
 void Lower::Lowerer::visitIntToInt(IR::Instrs::IntToInt *instr)
 {
     IR::IntType *bty = static_cast<IR::IntType*>(instr->op.type());
     if (bty->size < instr->newt->size)
         if (bty->isSigned)
-            tempregisters[instr->target] = builder.CreateSExt(lower(instr->op), instr->newt->toLLVMType(context));
+            values[instr] = builder.CreateSExt(lower(instr->op), instr->newt->toLLVMType(context));
         else
-            tempregisters[instr->target] = builder.CreateZExt(lower(instr->op), instr->newt->toLLVMType(context));
+            values[instr] = builder.CreateZExt(lower(instr->op), instr->newt->toLLVMType(context));
     else if (bty->size > instr->newt->size)
-        tempregisters[instr->target] = builder.CreateTrunc(lower(instr->op), instr->newt->toLLVMType(context));
+        values[instr] = builder.CreateTrunc(lower(instr->op), instr->newt->toLLVMType(context));
     else
-        tempregisters[instr->target] = lower(instr->op);
+        values[instr] = lower(instr->op);
 }
 void Lower::Lowerer::visitIntToFloat(IR::Instrs::IntToFloat *instr)
 {
     IR::IntType *bty = static_cast<IR::IntType*>(instr->op.type());
     if (bty->isSigned)
-        tempregisters[instr->target] = builder.CreateSIToFP(lower(instr->op), instr->newt->toLLVMType(context));
+        values[instr] = builder.CreateSIToFP(lower(instr->op), instr->newt->toLLVMType(context));
     else
-        tempregisters[instr->target] = builder.CreateUIToFP(lower(instr->op), instr->newt->toLLVMType(context));
+        values[instr] = builder.CreateUIToFP(lower(instr->op), instr->newt->toLLVMType(context));
 }
 void Lower::Lowerer::visitFloatToInt(IR::Instrs::FloatToInt *instr)
 {
     if (instr->newt->isSigned)
-        tempregisters[instr->target] = builder.CreateFPToSI(lower(instr->op), instr->newt->toLLVMType(context));
+        values[instr] = builder.CreateFPToSI(lower(instr->op), instr->newt->toLLVMType(context));
     else
-        tempregisters[instr->target] = builder.CreateFPToUI(lower(instr->op), instr->newt->toLLVMType(context));
+        values[instr] = builder.CreateFPToUI(lower(instr->op), instr->newt->toLLVMType(context));
 }
 // Branch instructions {{{1
 void Lower::Lowerer::visitCall(IR::Instrs::Call *instr)
@@ -180,15 +183,20 @@ void Lower::Lowerer::visitCall(IR::Instrs::Call *instr)
     llvm::Function *callee = static_cast<llvm::Function*>(lower(instr->f));
     llvm::Value *res = builder.CreateCall(callee, args);
 
-    if (!dynamic_cast<IR::VoidType*>(instr->target->type()))
-        tempregisters[instr->target] = res;
+    if (!dynamic_cast<IR::VoidType*>(instr->type()))
+        values[instr] = res;
 }
 // Pointer instructions {{{1
 void Lower::Lowerer::visitAddrof(IR::Instrs::Addrof *instr)
 {
-    tempregisters[instr->target] = allocas[instr->op];
+    values[instr] = values.at(instr->op);
 }
 void Lower::Lowerer::visitDerefPtr(IR::Instrs::DerefPtr *instr)
 {
-    tempregisters[instr->target] = builder.CreateLoad(lower(instr->ptr));
+    values[instr] = builder.CreateLoad(lower(instr->ptr));
+}
+// Register instructions {{{1
+void Lower::Lowerer::visitRegister(IR::Instrs::Register *instr)
+{
+    values[instr] = builder.CreateAlloca(instr->ty->toLLVMType(context));
 }

@@ -27,7 +27,7 @@ bool CodeGen::FunctionCodeGen::codegen()
     exitBlock = f->addBlock("exit");
 
     incScope();
-    ret = f->addRegister(fty->ret, ast);
+    ret = static_cast<IR::Instrs::Register*>(entryBlock->add(std::make_unique<IR::Instrs::Register>(ast->retty.get(), fty->ret)));
 
     if (ast->params)
     {
@@ -38,7 +38,7 @@ bool CodeGen::FunctionCodeGen::codegen()
         for (auto const &param : params)
         {
             std::string pname = param.name;
-            IR::Register *reg = f->addRegister(param.ty, param.ast);
+            IR::Instrs::Register *reg = static_cast<IR::Instrs::Register*>(entryBlock->add(std::make_unique<IR::Instrs::Register>(param.ast, param.ty)));
 
             Local *foundparam = getLocal(pname);
             if (foundparam)
@@ -81,7 +81,7 @@ bool CodeGen::FunctionCodeGen::codegen()
     return !errored;
 }
 
-void CodeGen::FunctionCodeGen::addLocal(std::string const &name, IR::Register *val)
+void CodeGen::FunctionCodeGen::addLocal(std::string const &name, IR::Instrs::Register *val)
 {
     for (auto last = locals.rbegin(); last != locals.rend(); ++last)
         if (last->name == name && last->scopenum == curScope)

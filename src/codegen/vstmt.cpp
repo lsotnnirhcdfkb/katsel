@@ -12,7 +12,7 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem 
         return;
     }
 
-    IR::Register *reg = fcg.fun->addRegister(varty, ast);
+    IR::Instrs::Register *reg = static_cast<IR::Instrs::Register*>(fcg.curBlock->add(std::make_unique<IR::Instrs::Register>(ast, varty)));
 
     if (ast->expr)
     {

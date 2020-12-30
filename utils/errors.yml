@@ -344,7 +344,7 @@ errors:
     code: 214
     name: redecl-var
     desc: Redeclaration of variable
-    inputs: 'Token const &name, IR::Register const *prev'
+    inputs: 'Token const &name, IR::Instrs::Register const *prev'
     location: name
     highlights:
       - ['name', *under0, [
@@ -357,7 +357,7 @@ errors:
     code: 215
     name: conflict-var-init-ty
     desc: Conflicting type for variable initialization
-    inputs: 'Token const &eq, Token const &name, IR::ASTValue const &init, IR::Register const *var'
+    inputs: 'Token const &eq, Token const &name, IR::ASTValue const &init, IR::Instrs::Register const *var'
     location: eq
     highlights:
       - ['eq', *under1, []]
@@ -398,7 +398,7 @@ errors:
     code: 218
     name: redecl-param
     desc: Redeclaraion of parameter in function declaration
-    inputs: 'Token const &name, IR::Register const *prev'
+    inputs: 'Token const &name, IR::Instrs::Register const *prev'
     location: name
     highlights:
       - ['name', *under0, [

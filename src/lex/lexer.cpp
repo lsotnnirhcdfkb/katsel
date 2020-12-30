@@ -2,6 +2,8 @@
 #include "utils/assert.h"
 #include "message/errmsgs.h"
 
+#include <algorithm>
+
 // constructors {{{1
 Lexer::Lexer(File &sourcefile): start(sourcefile.source.begin()), end(start), startline(1), startcolumn(1), endline(1), endcolumn(1), indent(0), dedenting(false), srcstart(sourcefile.source.begin()), srcend(sourcefile.source.end()), sourcefile(sourcefile)
 {

@@ -1,7 +1,10 @@
 #pragma once
 
-#include "lex/token.h"
-#include "ir/value.h"
+struct Token;
+namespace IR { namespace Instrs { class Register; } class Value; class Function; class Type; struct ASTValue; }
+
+#include <vector>
+#include <string>
 #include "ast/ast.h"
 
 // ERRH START
@@ -121,11 +124,11 @@ void E0213(Token const &op, IR::ASTValue const &val);
 
 // E0214 - redecl-var
 #define ERR_REDECL_VAR E0214
-void E0214(Token const &name, IR::Register const *prev);
+void E0214(Token const &name, IR::Instrs::Register const *prev);
 
 // E0215 - conflict-var-init-ty
 #define ERR_CONFLICT_VAR_INIT_TY E0215
-void E0215(Token const &eq, Token const &name, IR::ASTValue const &init, IR::Register const *var);
+void E0215(Token const &eq, Token const &name, IR::ASTValue const &init, IR::Instrs::Register const *var);
 
 // E0216 - invalid-cast
 #define ERR_INVALID_CAST E0216
@@ -137,7 +140,7 @@ void E0217(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &op);
 
 // E0218 - redecl-param
 #define ERR_REDECL_PARAM E0218
-void E0218(Token const &name, IR::Register const *prev);
+void E0218(Token const &name, IR::Instrs::Register const *prev);
 
 // E0219 - cond-not-bool
 #define ERR_COND_NOT_BOOL E0219

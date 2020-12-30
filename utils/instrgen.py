@@ -1,14 +1,16 @@
 # Instruction class {{{1
 class Instruction:
-    def __init__(self, name, fields, assertions=None):
+    def __init__(self, name, type_, fields, assertions=None, declared=False):
         self.name = name
+        self.type = type_
         self.fields = list(map(Field, fields))
         self.assertions = assertions if assertions is not None else []
+        self.declared = declared
     def base(self):
         return 'Instruction'
 class Br(Instruction):
     def __init__(self, name, fields, assertions=None):
-        super().__init__(name, fields, assertions)
+        super().__init__(name, False, fields, assertions)
     def base(self):
         return 'Br'
 
@@ -29,66 +31,66 @@ def type_must_be(var_type, must_be):
     return f'dynamic_cast<{must_be}*>({var_type})'
 def operands_equal(*operands):
     return [f'{x} == {y}' for x, y in zip(operands, operands[1:])] # zip ends when one sequence ends
-def target_equal(ty):
-    return f'target->type() == {ty}'
 def type_is_integral(v):
     return f'{type_must_be(v, "IntType")} || {type_must_be(v, "GenericIntType")}'
 def type_is_floating(v):
     return f'{type_must_be(v, "FloatType")} || {type_must_be(v, "GenericFloatType")}'
 # instructions {{{1
 instructions = [
-    Instruction('Store'       , ['Register* target', 'ASTValue value'                                      ], [target_equal('value.type()')]),
-    Instruction('Phi'         , ['TempRegister* target', 'std::vector<std::pair<Block*,ASTValue>> prevs'   ], []),
+    Instruction('Store'       , 'target->type()->context.getVoidType()'         , ['Register* target', 'ASTValue value'           ], ['static_cast<PointerType*>(target->type())->ty == value.type()']),
+    Instruction('Phi'         , 'prevs[0].second.type()'                        , ['std::vector<std::pair<Block*,ASTValue>> prevs'], ['prevs.size() > 0']),
 
-    Instruction('Or'          , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_must_be('target->type()', 'BoolType'), target_equal('lhs.type()'), type_must_be('lhs.type()', 'BoolType'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('And'         , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_must_be('target->type()', 'BoolType'), target_equal('lhs.type()'), type_must_be('lhs.type()', 'BoolType'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('Not'         , ['TempRegister* target', 'ASTValue op'                                     ], [type_must_be('target->type()', 'BoolType'), target_equal('op.type()')]),
+    Instruction('Register'    , 'ty->context.getPointerType(ty)'                , ['Type* ty',                                    ], [], declared=True),
 
-    Instruction('ICmpNE'      , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_must_be('target->type()', 'BoolType'), type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('ICmpEQ'      , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_must_be('target->type()', 'BoolType'), type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('ICmpLT'      , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_must_be('target->type()', 'BoolType'), type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('ICmpGT'      , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_must_be('target->type()', 'BoolType'), type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('ICmpLE'      , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_must_be('target->type()', 'BoolType'), type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('ICmpGE'      , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_must_be('target->type()', 'BoolType'), type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('IAdd'        , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_is_integral('target->type()') , target_equal('lhs.type()'), type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('ISub'        , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_is_integral('target->type()') , target_equal('lhs.type()'), type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('IMult'       , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_is_integral('target->type()') , target_equal('lhs.type()'), type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('IDiv'        , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_is_integral('target->type()') , target_equal('lhs.type()'), type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('IMod'        , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_is_integral('target->type()') , target_equal('lhs.type()'), type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('INeg'        , ['TempRegister* target', 'ASTValue op'                                     ], [type_is_integral('target->type()') , target_equal('op.type()'), type_is_integral('op.type()')]),
+    Instruction('Or'          , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_must_be('lhs.type()', 'BoolType'), *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('And'         , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_must_be('lhs.type()', 'BoolType'), *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('Not'         , 'op.type()'                                     , ['ASTValue op'                                  ], []),
 
-    Instruction('FCmpNE'      , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_must_be('target->type()', 'BoolType') , type_is_floating('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('FCmpEQ'      , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_must_be('target->type()', 'BoolType') , type_is_floating('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('FCmpLT'      , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_must_be('target->type()', 'BoolType') , type_is_floating('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('FCmpGT'      , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_must_be('target->type()', 'BoolType') , type_is_floating('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('FCmpLE'      , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_must_be('target->type()', 'BoolType') , type_is_floating('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('FCmpGE'      , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_must_be('target->type()', 'BoolType') , type_is_floating('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('FAdd'        , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_is_floating('target->type()'), target_equal('lhs.type()'), type_is_floating('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('FSub'        , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_is_floating('target->type()'), target_equal('lhs.type()'), type_is_floating('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('FMult'       , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_is_floating('target->type()'), target_equal('lhs.type()'), type_is_floating('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('FDiv'        , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_is_floating('target->type()'), target_equal('lhs.type()'), type_is_floating('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('FMod'        , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_is_floating('target->type()'), target_equal('lhs.type()'), type_is_floating('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('FNeg'        , ['TempRegister* target', 'ASTValue op'                                     ], [type_is_floating('target->type()'), target_equal('op.type()'), type_is_floating('op.type()')]),
+    Instruction('ICmpNE'      , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('ICmpEQ'      , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('ICmpLT'      , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('ICmpGT'      , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('ICmpLE'      , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('ICmpGE'      , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('IAdd'        , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('ISub'        , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('IMult'       , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('IDiv'        , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('IMod'        , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('INeg'        , 'op.type()'                                     , ['ASTValue op'                                  ], [type_is_integral('op.type()')]),
 
-    Instruction('BitXor'      , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_is_integral('target->type()') , type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('BitOr'       , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_is_integral('target->type()') , type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('BitAnd'      , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_is_integral('target->type()') , type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('BitNot'      , ['TempRegister* target', 'ASTValue op'                                     ], [type_is_integral('target->type()') , type_is_integral('op.type()')]),
+    Instruction('FCmpNE'      , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_floating('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('FCmpEQ'      , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_floating('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('FCmpLT'      , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_floating('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('FCmpGT'      , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_floating('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('FCmpLE'      , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_floating('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('FCmpGE'      , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_floating('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('FAdd'        , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_floating('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('FSub'        , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_floating('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('FMult'       , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_floating('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('FDiv'        , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_floating('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('FMod'        , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_floating('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('FNeg'        , 'op.type()'                                     , ['ASTValue op'                                  ], [type_is_floating('op.type()')]),
 
-    Instruction('ShiftR'      , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_is_integral('target->type()'), target_equal('lhs.type()')]),
-    Instruction('ShiftL'      , ['TempRegister* target', 'ASTValue lhs', 'ASTValue rhs'                    ], [type_is_integral('target->type()'), target_equal('lhs.type()')]),
+    Instruction('BitXor'      , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('BitOr'       , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('BitAnd'      , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('BitNot'      , 'op.type()'                                     , ['ASTValue op'                                  ], [type_is_integral('op.type()')]),
 
-    Instruction('NoOpCast'    , ['TempRegister* target', 'ASTValue op', 'Type* newt'                       ], []),
+    Instruction('ShiftR'      , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_integral('lhs.type()'), type_is_integral('lhs.type()')]),
+    Instruction('ShiftL'      , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_integral('lhs.type()'), type_is_integral('lhs.type()')]),
 
-    Instruction('IntToInt'    , ['TempRegister* target', 'ASTValue op', 'IntType* newt'                    ], [type_is_integral('op.type()'), target_equal('newt')]),
-    Instruction('IntToFloat'  , ['TempRegister* target', 'ASTValue op', 'FloatType* newt'                  ], [type_is_integral('op.type()'), target_equal('newt')]),
-    Instruction('FloatToFloat', ['TempRegister* target', 'ASTValue op', 'FloatType* newt'                  ], [type_is_floating('op.type()'), target_equal('newt')]),
-    Instruction('FloatToInt'  , ['TempRegister* target', 'ASTValue op', 'IntType* newt'                    ], [type_is_floating('op.type()'), target_equal('newt')]),
+    Instruction('NoOpCast'    , 'newt'                                          , ['ASTValue op', 'Type* newt'                    ], []),
 
-    Instruction('Call'        , ['TempRegister* target', 'Function* f', 'std::vector<ASTValue> args'       ], [target_equal('f->ty->ret'), 'args.size() == f->ty->paramtys.size()']),
+    Instruction('IntToInt'    , 'newt'                                          , ['ASTValue op', 'IntType* newt'                 ], [type_is_integral('op.type()')]),
+    Instruction('IntToFloat'  , 'newt'                                          , ['ASTValue op', 'FloatType* newt'               ], [type_is_integral('op.type()')]),
+    Instruction('FloatToFloat', 'newt'                                          , ['ASTValue op', 'FloatType* newt'               ], [type_is_floating('op.type()')]),
+    Instruction('FloatToInt'  , 'newt'                                          , ['ASTValue op', 'IntType* newt'                 ], [type_is_floating('op.type()')]),
 
-    Instruction('Addrof'      , ['TempRegister* target', 'Register* op'                                    ], [type_must_be('target->type()', 'PointerType'), 'static_cast<PointerType*>(target->type())->ty == op->type()']),
-    Instruction('DerefPtr'    , ['TempRegister* target', 'ASTValue ptr'                                    ], [type_must_be('ptr.type()', 'PointerType'), 'static_cast<PointerType*>(ptr.type())->ty == target->type()']),
+    Instruction('Call'        , 'f->ty->ret'                                    , ['Function* f', 'std::vector<ASTValue> args'    ], ['args.size() == f->ty->paramtys.size()']),
+
+    Instruction('Addrof'      , 'op->type()->context.getPointerType(op->type())', ['Register* op'                                 ], []),
+    Instruction('DerefPtr'    , 'static_cast<PointerType*>(ptr.type())->ty'     , ['ASTValue ptr'                                 ], [type_must_be('ptr.type()', 'PointerType')]),
 
     Br('Return'      , ['Register* value'                                            ], []),
     Br('GotoBr'      , ['Block* to'                                                  ], []),
@@ -96,36 +98,70 @@ instructions = [
 ]
 
 # generating stuff {{{1
-def as_constructor(fields):
-    return ', '.join(map(lambda x: x.format(), fields))
+def as_constructor(instruction, fields):
+    fields = [field.format() for field in fields]
+    if instruction.declared:
+        fields.insert(0, 'ASTNS::AST *_defAST')
+
+    return ', '.join(fields)
 def as_fields(fields):
-    return ''.join(map(lambda x: '        ' + x.format() + ';\n', fields))
-def as_init_list(fields):
-    return ', '.join(map(lambda f: f'{f.name}({f.name})', fields))
+    return ''.join('        ' + field.format() + ';\n' for field in fields)
+def as_init_list(instruction, fields):
+    fields = [f'{f.name}({f.name})' for f in fields]
+    if instruction.declared:
+        fields.insert(0, '_defAST(_defAST)')
+
+    return ', '.join(fields)
 
 def gen_decls():
     output = []
 
     for instruction in instructions:
-        output.append((f'    class {instruction.name} : public {instruction.base()}\n'
-                        '    {\n'
-                        '    public:\n'
-                       f'        {instruction.name}({as_constructor(instruction.fields)});\n'
-                       f'        void accept({instruction.base()}Visitor *v) override;\n'
-                       f'{as_fields(instruction.fields)}'
-                        '    };\n'))
+        output.append( f'    class {instruction.name};\n')
+
+    for instruction in instructions:
+        if instruction.declared:
+            output.append( f'    class {instruction.name} : public {instruction.base()}, public DeclaredValue\n')
+        else:
+            output.append( f'    class {instruction.name} : public {instruction.base()}\n')
+
+        output.append(    ( '    {\n'
+                            '    public:\n'
+                           f'        {instruction.name}({as_constructor(instruction, instruction.fields)});\n'
+                           f'        void accept({instruction.base()}Visitor *v) override;\n'))
+        if instruction.base() == 'Instruction':
+            output.append((f'        std::string stringify() const override;\n'
+                           f'        IR::Type* type() const override;\n'))
+
+        if instruction.declared:
+            output.append(  '        ASTNS::AST* defAST() const override;\n')
+            output.append(  '    private:\n')
+            output.append(  '        ASTNS::AST* _defAST;\n')
+            output.append(  '    public:\n')
+
+        output.append(    (f'{as_fields(instruction.fields)}'
+                            '    };\n'))
 
     return ''.join(output)
 def gen_defs():
     output = []
 
     for instruction in instructions:
-        output.append(    f'IR::Instrs::{instruction.name}::{instruction.name}({as_constructor(instruction.fields)}): {as_init_list(instruction.fields)}\n')
-        output.append(     '{\n')
+        output.append(        f'IR::Instrs::{instruction.name}::{instruction.name}({as_constructor(instruction, instruction.fields)}): {as_init_list(instruction, instruction.fields)}\n')
+        output.append(         '{\n')
         for assertion in instruction.assertions:
-            output.append(f'    ASSERT({assertion})\n')
-        output.append(     '}\n')
-        output.append(    f'void IR::Instrs::{instruction.name}::accept({instruction.base()}Visitor *v) {{ v->visit{instruction.name}(this); }}\n')
+            output.append(    f'    ASSERT({assertion})\n')
+        output.append(         '}\n')
+        output.append(        f'void IR::Instrs::{instruction.name}::accept({instruction.base()}Visitor *v) {{ v->visit{instruction.name}(this); }}\n')
+
+        if instruction.base() == 'Instruction':
+            output.append(    f'IR::Type* IR::Instrs::{instruction.name}::type() const {{ return {instruction.type}; }}\n')
+            output.append(    f'std::string IR::Instrs::{instruction.name}::stringify() const {{ return format("%%%", this); }}\n')
+
+            if instruction.declared:
+                output.append(f'ASTNS::AST* IR::Instrs::{instruction.name}::defAST() const {{ return _defAST; }}\n')
+
+        output.append(         '\n')
 
     return ''.join(output)
 def gen_cfg_dotter():

@@ -103,9 +103,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitShortCircuitExpr(ASTNS::ShortCi
     fcg.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(after));
 
     fcg.curBlock = after;
-    IR::TempRegister *retReg = fcg.fun->addTempRegister(cg.context->getBoolType());
-    fcg.curBlock->add(std::make_unique<IR::Instrs::Phi>(retReg, std::vector {std::make_pair(checkboth, rhs), std::make_pair(skip, IR::ASTValue(cg.context->getConstBool(valueIfSkipped), ast))}));
-    ret = IR::ASTValue(retReg, ast);
+    ret = IR::ASTValue(fcg.curBlock->add(std::make_unique<IR::Instrs::Phi>(std::vector {std::make_pair(checkboth, rhs), std::make_pair(skip, IR::ASTValue(cg.context->getConstBool(valueIfSkipped), ast))})), ast);
 }
 
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitUnaryExpr(ASTNS::UnaryExpr *ast)
@@ -154,9 +152,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitDerefExpr(ASTNS::DerefExpr *ast
         return;
     }
 
-    IR::TempRegister *out = fcg.fun->addTempRegister(asptrty->ty);
-    fcg.curBlock->add(std::make_unique<IR::Instrs::DerefPtr>(out, oper));
-    ret = IR::ASTValue(out, ast);
+    ret = IR::ASTValue(fcg.curBlock->add(std::make_unique<IR::Instrs::DerefPtr>(oper)), ast);
 }
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitAddrofExpr(ASTNS::AddrofExpr *ast)
 {
@@ -167,7 +163,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitAddrofExpr(ASTNS::AddrofExpr *a
         return;
     }
 
-    IR::Register *asreg = dynamic_cast<IR::Register*>(oper.val);
+    IR::Instrs::Register *asreg = dynamic_cast<IR::Instrs::Register*>(oper.val);
     if (!asreg)
     {
         ERR_ADDROF_NOT_LVALUE(ast->op, oper);
@@ -176,9 +172,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitAddrofExpr(ASTNS::AddrofExpr *a
         return;
     }
 
-    IR::TempRegister *out = fcg.fun->addTempRegister(cg.context->getPointerType(oper.type()));
-    fcg.curBlock->add(std::make_unique<IR::Instrs::Addrof>(out, asreg));
-    ret = IR::ASTValue(out, ast);
+    ret = IR::ASTValue(fcg.curBlock->add(std::make_unique<IR::Instrs::Addrof>(asreg)), ast);
 }
 
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
@@ -243,11 +237,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
         return;
     }
 
-    IR::TempRegister *outReg = fcg.fun->addTempRegister(retty);
-
-    fcg.curBlock->add(std::make_unique<IR::Instrs::Call>(outReg, static_cast<IR::Function *>(func.val), args));
-
-    ret = IR::ASTValue(outReg, ast);
+    ret = IR::ASTValue(fcg.curBlock->add(std::make_unique<IR::Instrs::Call>(static_cast<IR::Function *>(func.val), args)), ast);
 }
 
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast)
@@ -398,9 +388,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitIfExpr(ASTNS::IfExpr *ast)
 
     if (falseb)
     {
-        IR::TempRegister *outreg = fcg.fun->addTempRegister(truev.type());
-        afterb->add(std::make_unique<IR::Instrs::Phi>(outreg, std::vector {std::make_pair(trueb, truev), std::make_pair(falseb, falsev)}));
-        ret = IR::ASTValue(outreg, ast);
+        ret = IR::ASTValue(afterb->add(std::make_unique<IR::Instrs::Phi>(std::vector {std::make_pair(trueb, truev), std::make_pair(falseb, falsev)})), ast);
     }
     else
         ret = IR::ASTValue(truev.val, ast);
@@ -449,7 +437,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitAssignmentExpr(ASTNS::Assignmen
         return;
     }
 
-    IR::Register *targetReg = dynamic_cast<IR::Register*>(lhs.val);
+    IR::Instrs::Register *targetReg = dynamic_cast<IR::Instrs::Register*>(lhs.val);
 
     if (!targetReg)
     {

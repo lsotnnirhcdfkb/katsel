@@ -23,6 +23,7 @@ namespace IR
     class Type
     {
     public:
+        inline Type(CodeGen::Context &context): context(context) {}
         virtual ~Type() {}
         virtual std::string stringify() const = 0;
 
@@ -62,13 +63,15 @@ namespace IR
         virtual IR::ASTValue castTo(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) = 0;
 
         virtual llvm::Type* toLLVMType(llvm::LLVMContext &con) const = 0;
+
+        CodeGen::Context &context;
     };
     // }}}
     // Float {{{1
     class FloatType : public Type
     {
     public:
-        FloatType(int size);
+        FloatType(CodeGen::Context &context, int size);
 
         std::string stringify() const override;
 
@@ -79,7 +82,7 @@ namespace IR
 
         IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override;
 
-        llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
+        llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
 
         int size;
     };
@@ -87,7 +90,7 @@ namespace IR
     class IntType : public Type
     {
     public:
-        IntType(int size, bool isSigned);
+        IntType(CodeGen::Context &context, int size, bool isSigned);
 
         std::string stringify() const override;
 
@@ -98,7 +101,7 @@ namespace IR
 
         IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override;
 
-        llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
+        llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
 
         int size;
         bool isSigned;
@@ -107,6 +110,8 @@ namespace IR
     class CharType : public Type
     {
     public:
+        CharType(CodeGen::Context &context);
+
         std::string stringify() const override;
 
         IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
@@ -116,12 +121,14 @@ namespace IR
 
         IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override;
 
-        llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
+        llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
     };
     // Bool {{{1
     class BoolType : public Type
     {
     public:
+        BoolType(CodeGen::Context &context);
+
         std::string stringify() const override;
 
         IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
@@ -131,7 +138,7 @@ namespace IR
 
         IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override;
 
-        llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
+        llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
     };
     // Function {{{1
     class FunctionType : public Type
@@ -140,7 +147,7 @@ namespace IR
         Type *ret;
         std::vector<Type*> paramtys;
 
-        FunctionType(Type *ret, std::vector<Type*> paramtys);
+        FunctionType(CodeGen::Context &context, Type *ret, std::vector<Type*> paramtys);
         std::string stringify() const override;
 
         IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
@@ -150,12 +157,14 @@ namespace IR
 
         IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override;
 
-        llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
+        llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
     };
     // Void {{{1
     class VoidType : public Type
     {
     public:
+        VoidType(CodeGen::Context &context);
+
         std::string stringify() const override;
 
         IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
@@ -165,13 +174,13 @@ namespace IR
 
         IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override;
 
-        llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
+        llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
     };
     // Pointer {{{1
     class PointerType : public Type
     {
     public:
-        PointerType(Type *ty);
+        PointerType(CodeGen::Context &context, Type *ty);
 
         std::string stringify() const override;
 
@@ -182,7 +191,7 @@ namespace IR
 
         IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override;
 
-        llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
+        llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
 
         Type *ty;
     };
@@ -191,6 +200,8 @@ namespace IR
     class GenericIntType : public Type
     {
     public:
+        GenericIntType(CodeGen::Context &context);
+
         std::string stringify() const override;
 
         IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
@@ -200,12 +211,14 @@ namespace IR
 
         IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override;
 
-        llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
+        llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
     };
     // Float {{{2
     class GenericFloatType : public Type
     {
     public:
+        GenericFloatType(CodeGen::Context &context);
+
         std::string stringify() const override;
 
         IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
@@ -215,7 +228,7 @@ namespace IR
 
         IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override;
 
-        llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
+        llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
     };
     // }}}1
 }

@@ -22,7 +22,7 @@ GET_TYPE_DEF(FloatType)(int size)
         CHECK_TYPE_TYPE(FloatType)
         if (_casted && CHECK_FIELD(size)) return _casted;
     }
-    CONSTRUCT_TYPE(FloatType)(size);
+    CONSTRUCT_TYPE(FloatType)(*this, size);
     PUSH_RETURN(FloatType)
 }
 GET_TYPE_DEF(IntType)(int size, bool isSigned)
@@ -32,7 +32,7 @@ GET_TYPE_DEF(IntType)(int size, bool isSigned)
         CHECK_TYPE_TYPE(IntType)
         if (_casted && CHECK_FIELD(size) && CHECK_FIELD(isSigned)) return _casted;
     }
-    CONSTRUCT_TYPE(IntType)(size, isSigned);
+    CONSTRUCT_TYPE(IntType)(*this, size, isSigned);
     PUSH_RETURN(IntType)
 }
 GET_TYPE_DEF(CharType)()
@@ -42,7 +42,7 @@ GET_TYPE_DEF(CharType)()
         CHECK_TYPE_TYPE(CharType)
         if (_casted) return _casted;
     }
-    CONSTRUCT_TYPE(CharType)();
+    CONSTRUCT_TYPE(CharType)(*this);
     PUSH_RETURN(CharType)
 }
 GET_TYPE_DEF(BoolType)()
@@ -52,7 +52,7 @@ GET_TYPE_DEF(BoolType)()
         CHECK_TYPE_TYPE(BoolType)
         if (_casted) return _casted;
     }
-    CONSTRUCT_TYPE(BoolType)();
+    CONSTRUCT_TYPE(BoolType)(*this);
     PUSH_RETURN(BoolType)
 }
 GET_TYPE_DEF(GenericIntType)()
@@ -62,7 +62,7 @@ GET_TYPE_DEF(GenericIntType)()
         CHECK_TYPE_TYPE(GenericIntType)
         if (_casted) return _casted;
     }
-    CONSTRUCT_TYPE(GenericIntType)();
+    CONSTRUCT_TYPE(GenericIntType)(*this);
     PUSH_RETURN(GenericIntType)
 }
 GET_TYPE_DEF(GenericFloatType)()
@@ -72,7 +72,7 @@ GET_TYPE_DEF(GenericFloatType)()
         CHECK_TYPE_TYPE(GenericFloatType)
         if (_casted) return _casted;
     }
-    CONSTRUCT_TYPE(GenericFloatType)();
+    CONSTRUCT_TYPE(GenericFloatType)(*this);
     PUSH_RETURN(GenericFloatType)
 }
 GET_TYPE_DEF(FunctionType)(IR::Type *ret, std::vector<IR::Type*> paramtys)
@@ -82,7 +82,7 @@ GET_TYPE_DEF(FunctionType)(IR::Type *ret, std::vector<IR::Type*> paramtys)
         CHECK_TYPE_TYPE(FunctionType)
         if (_casted && CHECK_FIELD(ret) && CHECK_FIELD(paramtys)) return _casted;
     }
-    CONSTRUCT_TYPE(FunctionType)(ret, paramtys);
+    CONSTRUCT_TYPE(FunctionType)(*this, ret, paramtys);
     PUSH_RETURN(FunctionType)
 }
 GET_TYPE_DEF(VoidType)()
@@ -92,7 +92,7 @@ GET_TYPE_DEF(VoidType)()
         CHECK_TYPE_TYPE(VoidType)
         if (_casted) return _casted;
     }
-    CONSTRUCT_TYPE(VoidType)();
+    CONSTRUCT_TYPE(VoidType)(*this);
     PUSH_RETURN(VoidType)
 }
 GET_TYPE_DEF(PointerType)(IR::Type *ty)
@@ -102,7 +102,7 @@ GET_TYPE_DEF(PointerType)(IR::Type *ty)
         CHECK_TYPE_TYPE(PointerType)
         if (_casted && CHECK_FIELD(ty)) return _casted;
     }
-    CONSTRUCT_TYPE(PointerType)(ty);
+    CONSTRUCT_TYPE(PointerType)(*this, ty);
     PUSH_RETURN(PointerType)
 }
 #undef GET_TYPE_DEF
