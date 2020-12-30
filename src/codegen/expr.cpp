@@ -294,7 +294,7 @@ makeIntLit:
                 if (!l)
                     v = cg.context->getGlobal(name);
                 else
-                    v = l->v;
+                    v = fcg.curBlock->add(std::make_unique<IR::Instrs::DerefPtr>(IR::ASTValue(l->v, ast)));
 
                 if (!v)
                 {
