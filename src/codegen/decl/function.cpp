@@ -59,7 +59,8 @@ bool CodeGen::FunctionCodeGen::codegen()
 
     if (!errored)
     {
-        exitBlock->branch(std::make_unique<IR::Instrs::Return>(ret));
+        IR::Instrs::Instruction *derefRetReg = exitBlock->add(std::make_unique<IR::Instrs::DerefPtr>(IR::ASTValue(ret, ast->retty.get())));
+        exitBlock->branch(std::make_unique<IR::Instrs::Return>(IR::ASTValue(derefRetReg, ast->retty.get())));
 
         retval = fun->ty->ret->implCast(*cg.context, *fun, curBlock, retval);
         if (fun->ty->ret != retval.type())

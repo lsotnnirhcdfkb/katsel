@@ -13,7 +13,7 @@ void Lower::Lowerer::visitCondBr(IR::Instrs::CondBr *instr)
 }
 void Lower::Lowerer::visitReturn(IR::Instrs::Return *instr)
 {
-    if (!dynamic_cast<IR::VoidType*>(instr->value->type()))
+    if (!dynamic_cast<IR::VoidType*>(instr->value.type()))
         builder.CreateRet(lower(instr->value));
     else
         builder.CreateRetVoid();

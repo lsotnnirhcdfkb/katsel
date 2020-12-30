@@ -380,7 +380,7 @@ void IR::Instrs::DerefPtr::accept(InstructionVisitor *v) { v->visitDerefPtr(this
 IR::Type* IR::Instrs::DerefPtr::type() const { return static_cast<PointerType*>(ptr.type())->ty; }
 std::string IR::Instrs::DerefPtr::stringify() const { return format("%%%", this); }
 
-IR::Instrs::Return::Return(Register *value): value(value)
+IR::Instrs::Return::Return(ASTValue value): value(value)
 {
 }
 void IR::Instrs::Return::accept(BrVisitor *v) { v->visitReturn(this); }

@@ -510,9 +510,9 @@ namespace IR
     class Return : public Br
     {
     public:
-        Return(Register *value);
+        Return(ASTValue value);
         void accept(BrVisitor *v) override;
-        Register *value;
+        ASTValue value;
     };
     class GotoBr : public Br
     {

@@ -91,7 +91,7 @@ instructions = [
 
     Instruction('DerefPtr'    , 'static_cast<PointerType*>(ptr.type())->ty'     , ['ASTValue ptr'                                 ], [type_must_be('ptr.type()', 'PointerType')]),
 
-    Br('Return'      , ['Register* value'                                            ], []),
+    Br('Return'      , ['ASTValue value'                                             ], []),
     Br('GotoBr'      , ['Block* to'                                                  ], []),
     Br('CondBr'      , ['ASTValue v', 'Block* trueB', 'Block* falseB'                ], [type_must_be('v.type()', 'BoolType')]),
 ]

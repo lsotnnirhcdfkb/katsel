@@ -187,7 +187,7 @@ void IR::Printer::visitDerefPtr(IR::Instrs::DerefPtr *i)
 }
 void IR::Printer::visitReturn(IR::Instrs::Return *i)
 {
-    ostream << format("return %", i->value ? i->value->stringify() : "void");
+    ostream << format("return %", i->value ? i->value.stringify() : "void");
 }
 void IR::Printer::visitCall(IR::Instrs::Call *i)
 {
