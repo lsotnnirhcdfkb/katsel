@@ -192,4 +192,10 @@ void Lower::Lowerer::visitDerefPtr(IR::Instrs::DerefPtr *instr)
 void Lower::Lowerer::visitRegister(IR::Instrs::Register *instr)
 {
     values[instr] = builder.CreateAlloca(instr->ty->toLLVMType(context));
+
+    auto functionArgs = curFunction->args();
+    if (allocaIndex > 0 && allocaIndex <= std::distance(functionArgs.begin(), functionArgs.end()))
+        builder.CreateStore(curFunction->arg_begin() + (allocaIndex - 1), values[instr]);
+
+    ++allocaIndex;
 }

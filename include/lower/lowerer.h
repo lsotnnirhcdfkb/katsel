@@ -98,5 +98,8 @@ void visitCondBr(IR::Instrs::CondBr *i) override;
         std::map<IR::Function const *, llvm::Function*> functions;
 
         Mangle::NameMangler mangler;
+
+        int allocaIndex;
+        llvm::Function *curFunction;
     };
 }

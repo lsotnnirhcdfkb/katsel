@@ -1,6 +1,6 @@
 #include "lower/lowerer.h"
 #include "ir/type.h"
-#include "message/reportAbort.h"
+#include "utils/assert.h"
 #include <memory>
 
 #include "llvm/IR/DerivedTypes.h"
@@ -99,8 +99,10 @@ void Lower::Lowerer::lower(IR::Function const &f)
             entryBlock = blocks[b.get()];
     }
 
-    if (!entryBlock)
-        reportAbortNoh("entryBlock == nullptr");
+    allocaIndex = 0;
+    curFunction = fasllvm;
+
+    ASSERT(entryBlock)
 
     builder.SetInsertPoint(entryBlock);
 
