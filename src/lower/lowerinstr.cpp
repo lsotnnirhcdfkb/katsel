@@ -10,10 +10,7 @@ void Lower::Lowerer::visitStore(IR::Instrs::Store *instr)
     if (dynamic_cast<IR::VoidType*>(static_cast<IR::PointerType*>(instr->target.type())->ty))
         return;
 
-    llvm::Value *t = lower(instr->target);
-    ASSERT(llvm::isa<llvm::AllocaInst>(t))
-    llvm::AllocaInst *target = static_cast<llvm::AllocaInst*>(t);
-    builder.CreateStore(lower(instr->value), target);
+    builder.CreateStore(lower(instr->value), lower(instr->target));
 }
 void Lower::Lowerer::visitPhi(IR::Instrs::Phi *instr)
 {
