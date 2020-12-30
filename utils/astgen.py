@@ -179,12 +179,13 @@ def gen_print_visitor_methods():
 
         output.append(          f'void ASTNS::PrintVisitor::visit{ast.name}(ASTNS::{ast.name} *a)\n')
         output.append(           '{\n')
-        output.append(          f'    pai("{ast.name}\\n");\n')
+        output.append(          f'    pai("{ast.name} {{\\n");\n')
         output.append(           '    ++indent;\n')
         for field in ast.fields:
             output.append(      f'    pai("{field.type} {field.name} = ");\n')
             output.append(      f'    printField(a->{field.name});\n')
         output.append(           '    --indent;\n')
+        output.append(           '    pai("}\\n");\n')
         output.append(           '}\n')
 
     return''.join(output)
