@@ -14,12 +14,12 @@ IR::ASTValue CodeGen::FunctionCodeGen::ExprCodeGen::expr(ASTNS::Expr *ast)
 
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitBinaryExpr(ASTNS::BinaryExpr *ast)
 {
-    IR::ASTValue lhs = expr(ast->lhs.get()); \
-    IR::ASTValue rhs = expr(ast->rhs.get()); \
-    if (!lhs || !rhs)                        \
-    {                                        \
-        ret = IR::ASTValue();                \
-        return;                              \
+    IR::ASTValue lhs = expr(ast->lhs.get());
+    IR::ASTValue rhs = expr(ast->rhs.get());
+    if (!lhs || !rhs)
+    {
+        ret = IR::ASTValue();
+        return;
     }
     IR::Type::BinaryOperator oper;
     switch (ast->op.type)

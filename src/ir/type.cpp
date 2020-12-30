@@ -33,7 +33,7 @@ IR::ASTValue IR::VoidType::castTo(CodeGen::Context &, IR::Function &, IR::Block 
 
 llvm::Type* IR::VoidType::toLLVMType(llvm::LLVMContext &con) const
 {
-    return llvm::Type::getVoidTy(con);
+    return llvm::StructType::get(con);
 }
 IR::ASTValue IR::VoidType::implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v)
 {
