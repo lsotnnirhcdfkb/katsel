@@ -16,8 +16,7 @@
 #include "llvm/Target/TargetMachine.h"
 #include "llvm/Target/TargetOptions.h"
 
-Lower::Lowerer::Lowerer(IR::Unit const &unit): errored(false), unit(unit), builder(context), mod(unit.file.filename, context), fpm(&mod)
-{
+Lower::Lowerer::Lowerer(IR::Unit const &unit): errored(false), unit(unit), builder(context), mod(unit.file.filename, context), fpm(&mod) {
     fpm.add(llvm::createPromoteMemoryToRegisterPass());
     fpm.add(llvm::createInstructionCombiningPass());
     fpm.add(llvm::createReassociatePass());
@@ -27,13 +26,11 @@ Lower::Lowerer::Lowerer(IR::Unit const &unit): errored(false), unit(unit), build
     fpm.doInitialization();
 }
 
-void Lower::Lowerer::printMod(llvm::raw_ostream &ostream)
-{
+void Lower::Lowerer::printMod(llvm::raw_ostream &ostream) {
     mod.print(ostream, nullptr);
 }
 
-bool Lower::Lowerer::objectify(llvm::raw_fd_ostream &ostream)
-{
+bool Lower::Lowerer::objectify(llvm::raw_fd_ostream &ostream) {
     llvm::InitializeAllTargetInfos();
     llvm::InitializeAllTargets();
     llvm::InitializeAllTargetMCs();
@@ -45,8 +42,7 @@ bool Lower::Lowerer::objectify(llvm::raw_fd_ostream &ostream)
     std::string err;
     auto target = llvm::TargetRegistry::lookupTarget(targetTriple, err);
 
-    if (!target)
-    {
+    if (!target) {
         llvm::errs() << err << "\n";
         return false;
     }
@@ -60,8 +56,7 @@ bool Lower::Lowerer::objectify(llvm::raw_fd_ostream &ostream)
 
     llvm::legacy::PassManager pm;
     auto fty = llvm::CodeGenFileType::CGFT_ObjectFile;
-    if (targetMachine->addPassesToEmitFile(pm, ostream, nullptr, fty))
-    {
+    if (targetMachine->addPassesToEmitFile(pm, ostream, nullptr, fty)) {
         llvm::errs() << "Target machine cannot emit object file\n";
         return false;
     }
@@ -70,10 +65,8 @@ bool Lower::Lowerer::objectify(llvm::raw_fd_ostream &ostream)
     return true;
 }
 
-void Lower::Lowerer::lower()
-{
-    for (std::unique_ptr<IR::Function> const &f : unit.functions)
-    {
+void Lower::Lowerer::lower() {
+    for (std::unique_ptr<IR::Function> const &f : unit.functions) {
         auto *fty = static_cast<llvm::FunctionType*>(f->ty->toLLVMType(context));
         std::string fname = f->name == "main" ? f->name : mangler.mangleName(*f);
         auto *fllvm = llvm::Function::Create(fty, llvm::Function::ExternalLinkage, fname, &mod);
@@ -84,16 +77,14 @@ void Lower::Lowerer::lower()
 }
 
 
-void Lower::Lowerer::lower(IR::Function const &f)
-{
+void Lower::Lowerer::lower(IR::Function const &f) {
     if (f.prototypeonly)
         return;
 
     llvm::BasicBlock *entryBlock;
 
     llvm::Function *fasllvm = functions.at(&f);
-    for (std::unique_ptr<IR::Block> const &b : f.blocks)
-    {
+    for (std::unique_ptr<IR::Block> const &b : f.blocks) {
         blocks[b.get()] = llvm::BasicBlock::Create(context, b->name, fasllvm);
         if (b->num == 0)
             entryBlock = blocks[b.get()];
@@ -109,8 +100,7 @@ void Lower::Lowerer::lower(IR::Function const &f)
     for (std::unique_ptr<IR::Block> const &b : f.blocks)
         lower(*b);
 
-    for (std::unique_ptr<IR::Block> const &b : f.blocks)
-    {
+    for (std::unique_ptr<IR::Block> const &b : f.blocks) {
         builder.SetInsertPoint(blocks[b.get()]);
         if (b->br)
             b->br->accept(this);
@@ -123,15 +113,13 @@ void Lower::Lowerer::lower(IR::Function const &f)
     // fpm.run(*fasllvm);
 }
 
-void Lower::Lowerer::lower(IR::Block const &b)
-{
+void Lower::Lowerer::lower(IR::Block const &b) {
     builder.SetInsertPoint(blocks[&b]);
     for (std::unique_ptr<IR::Instrs::Instruction> const &i : b.instructions)
         i->accept(this);
 }
 
-llvm::Value* Lower::Lowerer::lower(IR::Value const *v)
-{
+llvm::Value* Lower::Lowerer::lower(IR::Value const *v) {
     if (!v)
         reportAbortNoh("lowerValue nullptr");
 
@@ -156,7 +144,6 @@ llvm::Value* Lower::Lowerer::lower(IR::Value const *v)
 #undef CHECKTY
 }
 
-llvm::Value* Lower::Lowerer::lower(IR::ASTValue const &v)
-{
+llvm::Value* Lower::Lowerer::lower(IR::ASTValue const &v) {
     return lower(v.val);
 }

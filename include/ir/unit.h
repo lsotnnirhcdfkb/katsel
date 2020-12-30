@@ -7,10 +7,8 @@
 #include <vector>
 #include "llvm/Support/raw_ostream.h"
 
-namespace IR
-{
-    class Unit
-    {
+namespace IR {
+    class Unit {
     public:
         Unit(File const &file);
 

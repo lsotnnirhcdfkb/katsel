@@ -10,8 +10,7 @@
 
 #include <map>
 
-class Parser
-{
+class Parser {
 public:
     Parser(Lexer &l, File &sourcefile);
 

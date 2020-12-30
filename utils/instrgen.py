@@ -120,12 +120,11 @@ def gen_decls():
 
     for instruction in instructions:
         if instruction.declared:
-            output.append( f'    class {instruction.name} : public {instruction.base()}, public DeclaredValue\n')
+            output.append( f'    class {instruction.name} : public {instruction.base()}, public DeclaredValue {{\n')
         else:
-            output.append( f'    class {instruction.name} : public {instruction.base()}\n')
+            output.append( f'    class {instruction.name} : public {instruction.base()} {{\n')
 
-        output.append(    ( '    {\n'
-                            '    public:\n'
+        output.append(    ( '    public:\n'
                            f'        {instruction.name}({as_constructor(instruction, instruction.fields)});\n'
                            f'        void accept({instruction.base()}Visitor *v) override;\n'))
         if instruction.base() == 'Instruction':
@@ -146,8 +145,7 @@ def gen_defs():
     output = []
 
     for instruction in instructions:
-        output.append(        f'IR::Instrs::{instruction.name}::{instruction.name}({as_constructor(instruction, instruction.fields)}): {as_init_list(instruction, instruction.fields)}\n')
-        output.append(         '{\n')
+        output.append(        f'IR::Instrs::{instruction.name}::{instruction.name}({as_constructor(instruction, instruction.fields)}): {as_init_list(instruction, instruction.fields)} {{\n')
         for assertion in instruction.assertions:
             output.append(    f'    ASSERT({assertion})\n')
         output.append(         '}\n')
@@ -167,8 +165,7 @@ def gen_cfg_dotter():
     output = []
     for instr in instructions:
         if isinstance(instr, Br):
-            output.append(f'void IR::CFGDotter::visit{instr.name}(IR::Instrs::{instr.name} *i)\n')
-            output.append( '{\n')
+            output.append(f'void IR::CFGDotter::visit{instr.name}(IR::Instrs::{instr.name} *i) {{\n')
             for field in instr.fields:
                 if field.type_ == 'Block*':
                     output.append(f'    ostream << "        branch" << i << " -> " << "block" << i->{field.name} << " [label=\\"{field.name}\\"]\\n";\n')

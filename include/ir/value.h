@@ -6,8 +6,7 @@
 #include <vector>
 #include "ast/ast.h"
 
-namespace IR
-{
+namespace IR {
     class Type;
     class FloatType;
     class IntType;
@@ -18,8 +17,7 @@ namespace IR
     class FunctionType;
     class VoidType;
 
-    class Value
-    {
+    class Value {
     public:
         virtual ~Value() {};
         virtual std::string stringify() const = 0;
@@ -27,15 +25,13 @@ namespace IR
         virtual Type* type() const = 0;
     };
 
-    class DeclaredValue
-    {
+    class DeclaredValue {
     public:
         virtual ASTNS::AST* defAST() const = 0;
     };
 
     // Function {{{
-    class Function : public Value, public DeclaredValue
-    {
+    class Function : public Value, public DeclaredValue {
     public:
         Function(FunctionType *ty, std::string name, ASTNS::FunctionDecl *defAST);
 
@@ -64,8 +60,7 @@ namespace IR
     };
     // }}}
     // Const values {{{
-    class ConstInt : public Value
-    {
+    class ConstInt : public Value {
     public:
         ConstInt(IntType *ty, uint64_t val);
         ConstInt(GenericIntType *ty, uint64_t val);
@@ -77,8 +72,7 @@ namespace IR
         GenericIntType *genericTy;
         bool isGeneric;
     };
-    class ConstFloat : public Value
-    {
+    class ConstFloat : public Value {
     public:
         ConstFloat(FloatType *ty, double val);
         ConstFloat(GenericFloatType *ty, double val);
@@ -90,8 +84,7 @@ namespace IR
         GenericFloatType *genericTy;
         bool isGeneric;
     };
-    class ConstBool : public Value
-    {
+    class ConstBool : public Value {
     public:
         ConstBool(BoolType *ty, bool val);
         std::string stringify() const override;
@@ -100,8 +93,7 @@ namespace IR
     private:
         BoolType *ty;
     };
-    class ConstChar : public Value
-    {
+    class ConstChar : public Value {
     public:
         ConstChar(CharType *ty, uint8_t val);
         std::string stringify() const override;
@@ -112,8 +104,7 @@ namespace IR
     };
     // }}}
     // Void {{{
-    class Void : public Value
-    {
+    class Void : public Value {
     public:
         Void(VoidType *ty);
         std::string stringify() const override;
@@ -123,8 +114,7 @@ namespace IR
     };
     // }}}
 
-    struct ASTValue
-    {
+    struct ASTValue {
         // Because multiple ASTs can evaluate to the same value (same pointer)
         // (see primary expressions (multiple PrimaryASTs can evaluate to the same register),
         // also especially since ConstInts are uniqued together),
@@ -136,30 +126,25 @@ namespace IR
         inline ASTValue(Value *val, ASTNS::AST *ast): val(val), ast(ast) {}
         inline ASTValue(): val(nullptr), ast(nullptr) {}
 
-        explicit inline operator bool() const
-        {
+        explicit inline operator bool() const {
             return val;
         }
 
-        inline Type* type() const
-        {
+        inline Type* type() const {
             return val->type();
         }
-        inline std::string stringify() const
-        {
+        inline std::string stringify() const {
             return val->stringify();
         }
     };
 }
 
-inline std::ostream& operator<<(std::ostream& os, IR::Value *v)
-{
+inline std::ostream& operator<<(std::ostream& os, IR::Value *v) {
     os << v->stringify();
     return os;
 }
 
-inline std::ostream& operator<<(std::ostream &os, IR::ASTValue const &v)
-{
+inline std::ostream& operator<<(std::ostream &os, IR::ASTValue const &v) {
     os << v.stringify();
     return os;
 }

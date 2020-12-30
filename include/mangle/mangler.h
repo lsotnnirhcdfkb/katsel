@@ -3,10 +3,8 @@
 #include <string>
 #include "ir/value.h"
 
-namespace Mangle
-{
-    class NameMangler
-    {
+namespace Mangle {
+    class NameMangler {
     public:
         std::string mangleName(IR::Function &f);
     };

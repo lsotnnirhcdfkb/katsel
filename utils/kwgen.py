@@ -73,7 +73,7 @@ class TrieNode:
     def generate(self, doc=''):
         output = []
         output.append(f'/// {doc}\n')
-        output.append('TokenType Lexer::getIdentifierType()\n{\n')
+        output.append('TokenType Lexer::getIdentifierType() {\n')
         output.append(self.__generate(1))
         output.append('\n')
         output.append(f'{TrieNode.get_indent(1)}return TokenType::IDENTIFIER;\n')
@@ -104,12 +104,12 @@ class TrieNode:
             output.append(f'{indent_str}if (std::distance(start, end) == {self.length + len(reststr)} && std::string(start + {self.length}, end) == "{"".join(reststr)}") return TokenType::{cur.tokentype};\n')
             return ''.join(output)
 
-        output.append(f'{indent_str}switch (*(start + {self.length}))\n{indent_str}{{\n')
+        output.append(f'{indent_str}switch (*(start + {self.length})) {{\n')
         for node in self.nodes:
             output.append(f'{body_indent_str}case \'{node.value}\':\n')
             output.append(node.__generate(indent + 2))
             output.append(f'{break_indent_str}break;\n')
-        output.append(f'{indent_str}' + '}\n')
+        output.append(f'{indent_str}}}\n')
 
         return ''.join(output)
 

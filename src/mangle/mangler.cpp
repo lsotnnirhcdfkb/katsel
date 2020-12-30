@@ -6,63 +6,51 @@
 #include "ir/type.h"
 #include "message/reportAbort.h"
 
-static inline void mangleIdentifier(std::stringstream &ss, std::string i)
-{
+static inline void mangleIdentifier(std::stringstream &ss, std::string i) {
     ss << i.size() << i;
 }
 
-static void mangleIntType(std::stringstream &ss, IR::IntType *ty)
-{
-    switch (ty->size)
-    {
+static void mangleIntType(std::stringstream &ss, IR::IntType *ty) {
+    switch (ty->size) {
         case 8:  ss << (ty->isSigned ? 's' : 'u'); break;
         case 16: ss << (ty->isSigned ? 'r' : 'w'); break;
         case 32: ss << (ty->isSigned ? 'q' : 'x'); break;
         case 64: ss << (ty->isSigned ? 'p' : 'y'); break;
     }
 }
-static void mangleFloatType(std::stringstream &ss, IR::FloatType *ty)
-{
+static void mangleFloatType(std::stringstream &ss, IR::FloatType *ty) {
     ss << (ty->size == 32 ? 'f' : 'd');
 }
-static void mangleCharType(std::stringstream &ss, IR::CharType *ty)
-{
+static void mangleCharType(std::stringstream &ss, IR::CharType *ty) {
     ss << 'c';
 }
-static void mangleBoolType(std::stringstream &ss, IR::BoolType *ty)
-{
+static void mangleBoolType(std::stringstream &ss, IR::BoolType *ty) {
     ss << 'b';
 }
 static void mangleType(std::stringstream &ss, IR::Type *ty);
-static void mangleFunctionType(std::stringstream &ss, IR::FunctionType *ty)
-{
+static void mangleFunctionType(std::stringstream &ss, IR::FunctionType *ty) {
     ss << 'F';
     mangleType(ss, ty->ret);
     for (IR::Type *pty : ty->paramtys)
         mangleType(ss, pty);
     ss << 'f';
 }
-static void mangleVoidType(std::stringstream &ss, IR::VoidType *ty)
-{
+static void mangleVoidType(std::stringstream &ss, IR::VoidType *ty) {
     ss << 'v';
 }
-static void mangleGenericIntType(std::stringstream &ss, IR::GenericIntType *ty)
-{
+static void mangleGenericIntType(std::stringstream &ss, IR::GenericIntType *ty) {
     ss << 'x';
 }
-static void mangleGenericFloatType(std::stringstream &ss, IR::GenericFloatType *ty)
-{
+static void mangleGenericFloatType(std::stringstream &ss, IR::GenericFloatType *ty) {
     ss << 'f';
 }
-static void manglePointerType(std::stringstream &ss, IR::PointerType *ty)
-{
+static void manglePointerType(std::stringstream &ss, IR::PointerType *ty) {
     ss << 'P';
     mangleType(ss, ty->ty);
     ss << 'p';
 }
 
-static void mangleType(std::stringstream &ss, IR::Type *ty)
-{
+static void mangleType(std::stringstream &ss, IR::Type *ty) {
     ss << "T";
 #define CHECKTY(t) if (IR::t *as##t = dynamic_cast<IR::t*>(ty)) mangle##t(ss, as##t);
 #define ECHECKTY(t) else CHECKTY(t)
@@ -81,8 +69,7 @@ static void mangleType(std::stringstream &ss, IR::Type *ty)
     ss << "t";
 }
 
-static void mangleFunction(std::stringstream &ss, IR::Function &f)
-{
+static void mangleFunction(std::stringstream &ss, IR::Function &f) {
     ss << "F";
 
     mangleIdentifier(ss, f.name);
@@ -92,15 +79,13 @@ static void mangleFunction(std::stringstream &ss, IR::Function &f)
     ss << "f";
 }
 
-static std::string manglePath(IR::Function &f)
-{
+static std::string manglePath(IR::Function &f) {
     std::stringstream ss;
     ss << "_ksl_";
     mangleFunction(ss, f);
     return ss.str();
 }
 
-std::string Mangle::NameMangler::mangleName(IR::Function &f)
-{
+std::string Mangle::NameMangler::mangleName(IR::Function &f) {
     return manglePath(f);
 }

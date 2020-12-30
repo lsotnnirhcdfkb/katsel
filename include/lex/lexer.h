@@ -8,8 +8,7 @@
 #include "lex/token.h"
 #include "lex/tokentype.h"
 
-class Lexer
-{
+class Lexer {
 public:
     Lexer(File &sourcefile);
 

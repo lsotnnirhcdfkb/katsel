@@ -61,40 +61,35 @@ with open(PRINTDEFF, 'w') as f:
 #ifdef __cplusplus
 extern "C"
 #endif
-void printunsigned(uint32_t i)
-{
+void printunsigned(uint32_t i) {
     printf("%u\n", i);
 }
 
 #ifdef __cplusplus
 extern "C"
 #endif
-void printsigned(int32_t i)
-{
+void printsigned(int32_t i) {
     printf("%d\n", i);
 }
 
 #ifdef __cplusplus
 extern "C"
 #endif
-void printchar(uint32_t i)
-{
+void printchar(uint32_t i) {
     printf("%c\n", i);
 }
 
 #ifdef __cplusplus
 extern "C"
 #endif
-void printfloat(float i)
-{
+void printfloat(float i) {
     printf("%.2f\n", i);
 }
 
 #ifdef __cplusplus
 extern "C"
 #endif
-void printdouble(double i)
-{
+void printdouble(double i) {
     printf("%.2f\n", i);
 }
 ''')

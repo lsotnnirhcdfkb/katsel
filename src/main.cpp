@@ -20,8 +20,7 @@
 #include "llvm/Support/raw_ostream.h"
 
 // output formats {{{1
-enum class OutFormats
-{
+enum class OutFormats {
     LEX = 0,
     PARSE,
     DECLS,
@@ -32,13 +31,11 @@ enum class OutFormats
 };
 
 // read a file {{{1
-std::unique_ptr<File> readFile(char *filename)
-{
+std::unique_ptr<File> readFile(char *filename) {
     std::ifstream filein;
     filein.open(filename);
 
-    if (filein.is_open())
-    {
+    if (filein.is_open()) {
         std::string contents;
 
         // stole this code from https://stackoverflow.com/questions/22984956/tellg-function-give-wrong-size-of-file/22986486#22986486
@@ -54,8 +51,7 @@ std::unique_ptr<File> readFile(char *filename)
 
         return std::make_unique<File>(File {std::string(filename), contents});
     }
-    else
-    {
+    else {
         std::perror("Could not open file");
         return nullptr;
     }
@@ -73,21 +69,18 @@ std::unique_ptr<File> readFile(char *filename)
         llvm::errs() << "Could not open output file \"" << passtr << "\": " << ec.message() << "\n";
 
 // compile a file {{{1
-int compileFile(OutFormats ofmt, char *filename)
-{
+int compileFile(OutFormats ofmt, char *filename) {
     auto source (readFile(filename));
     if (!source)
         return false;
 
     auto lexer = std::make_unique<Lexer>(*source);
-    if (ofmt == OutFormats::LEX)
-    {
+    if (ofmt == OutFormats::LEX) {
         OPENFILE(filename, ".lexed.txt");
         if (os.has_error())
             return false;
 
-        while (true)
-        {
+        while (true) {
             Token t (lexer->nextToken());
             if (t.type == TokenType::EOF_)
                 break;
@@ -105,8 +98,7 @@ int compileFile(OutFormats ofmt, char *filename)
     if (!parsed)
         return false;
 
-    if (ofmt == OutFormats::PARSE)
-    {
+    if (ofmt == OutFormats::PARSE) {
         OPENFILE(filename, ".parsed.txt");
         if (os.has_error())
             return false;
@@ -123,8 +115,7 @@ int compileFile(OutFormats ofmt, char *filename)
     if (codegen->isErrored())
         return false;
 
-    if (ofmt == OutFormats::DECLS)
-    {
+    if (ofmt == OutFormats::DECLS) {
         OPENFILE(filename, ".kslir");
         if (os.has_error())
             return false;
@@ -139,8 +130,7 @@ int compileFile(OutFormats ofmt, char *filename)
     if (codegen->isErrored())
         return false;
 
-    if (ofmt == OutFormats::CODEGEN)
-    {
+    if (ofmt == OutFormats::CODEGEN) {
         OPENFILE(filename, ".kslir");
         if (os.has_error())
             return false;
@@ -151,8 +141,7 @@ int compileFile(OutFormats ofmt, char *filename)
         return true;
     }
 
-    if (ofmt == OutFormats::CFGDOT)
-    {
+    if (ofmt == OutFormats::CFGDOT) {
         OPENFILE(filename, ".dot");
         if (os.has_error())
             return false;
@@ -168,8 +157,7 @@ int compileFile(OutFormats ofmt, char *filename)
     if (lowerer->errored)
         return false;
 
-    if (ofmt == OutFormats::LOWER)
-    {
+    if (ofmt == OutFormats::LOWER) {
         OPENFILE(filename, ".ll");
         if (os.has_error())
             return false;
@@ -180,14 +168,12 @@ int compileFile(OutFormats ofmt, char *filename)
         return true;
     }
 
-    if (ofmt == OutFormats::OBJECT)
-    {
+    if (ofmt == OutFormats::OBJECT) {
         OPENFILE(filename, ".o");
         if (os.has_error())
             return false;
 
-        if (!lowerer->objectify(os))
-        {
+        if (!lowerer->objectify(os)) {
             os.close();
             return false;
         }
@@ -200,14 +186,11 @@ int compileFile(OutFormats ofmt, char *filename)
 }
 
 // main {{{1
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     int opt;
     OutFormats ofmt = OutFormats::OBJECT;
-    while ((opt = getopt(argc, argv, "f:e:")) != -1)
-    {
-        switch (opt)
-        {
+    while ((opt = getopt(argc, argv, "f:e:")) != -1) {
+        switch (opt) {
             case 'f':
 #define OFMT(k, ku) \
     if (strcmp(optarg, #k) == 0) \
@@ -222,8 +205,7 @@ int main(int argc, char *argv[])
                 EOFMT(object, OBJECT)
 #undef OFMT
 #undef EOFMT
-                else
-                {
+                else {
                     std::cerr << "Invalid argument for option -f: '" << optarg << "'\n";
                     std::cerr << "Defaulting to -fobject\n";
                     ofmt = OutFormats::OBJECT;
@@ -237,8 +219,7 @@ int main(int argc, char *argv[])
                     errformat = ErrorFormat::HUMAN;
                 else if (strcmp(optarg, "aligned") == 0)
                     errformat = ErrorFormat::ALIGNED;
-                else
-                {
+                else {
                     std::cerr << "Invalid argument for option -e: '" << optarg << "'\n";
                     std::cerr << "Defaulting to -ehuman\n";
                     errformat = ErrorFormat::HUMAN;
@@ -250,8 +231,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (optind >= argc)
-    {
+    if (optind >= argc) {
         std::cerr << "No input files\n";
         return 1;
     }
@@ -259,8 +239,7 @@ int main(int argc, char *argv[])
     enableTerminalCodes();
 
     bool success = true;
-    for (; optind < argc; ++optind)
-    {
+    for (; optind < argc; ++optind) {
         if (!compileFile(ofmt, argv[optind]))
             success = false;
     }

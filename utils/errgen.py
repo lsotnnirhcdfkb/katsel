@@ -40,8 +40,7 @@ def gen_cpp():
         output.append(        f'// {code} - {name}\n')
         desc_wrapped = "".join("// | " + line + "\n" for line in textwrap.wrap(description, 60))
         output.append(        desc_wrapped)
-        output.append(        f'void {code}({inputs})\n')
-        output.append(         '{\n')
+        output.append(        f'void {code}({inputs}) {{\n')
         output.append(        f'    Error e = Error(Error::MsgType::{msgtype}, {location}, "{code} ({name})");\n')
 
         for hi in highlights:

@@ -10,8 +10,7 @@
 #include "ir/instruction.h"
 
 // TypeVisitor {{{1
-class CodeGen::TypeVisitor : public ASTNS::Type::Visitor
-{
+class CodeGen::TypeVisitor : public ASTNS::Type::Visitor {
 public:
     TypeVisitor(CodeGen &cg);
 
@@ -31,8 +30,7 @@ void visitPointerType(ASTNS::PointerType *ast) override;
 };
 
 // ForwDecl {{{1
-class CodeGen::ForwDecl : public ASTNS::Decl::Visitor, public ASTNS::CUB::Visitor
-{
+class CodeGen::ForwDecl : public ASTNS::Decl::Visitor, public ASTNS::CUB::Visitor {
 public:
     ForwDecl(CodeGen &cg);
 
@@ -50,11 +48,9 @@ void visitFunctionDecl(ASTNS::FunctionDecl *ast) override;
 
 // Decls {{{1
 // Function {{{2
-class CodeGen::FunctionCodeGen
-{
+class CodeGen::FunctionCodeGen {
     // StmtCodeGen {{{
-    class StmtCodeGen : public ASTNS::Stmt::Visitor, public ASTNS::VStmtIB::Visitor
-    {
+    class StmtCodeGen : public ASTNS::Stmt::Visitor, public ASTNS::VStmtIB::Visitor {
     public:
         StmtCodeGen(CodeGen &cg, FunctionCodeGen &fcg);
 
@@ -80,8 +76,7 @@ void visitStmtList(ASTNS::StmtList *ast) override;
     };
     // }}}
     // ExprCodeGen {{{
-    class ExprCodeGen : public ASTNS::Expr::Visitor, public ASTNS::ImplRetB::Visitor
-    {
+    class ExprCodeGen : public ASTNS::Expr::Visitor, public ASTNS::ImplRetB::Visitor {
     public:
         ExprCodeGen(CodeGen &cg, FunctionCodeGen &fcg);
 
@@ -116,8 +111,7 @@ public:
 
     bool codegen();
 
-    struct Local
-    {
+    struct Local {
         size_t scopenum;
         IR::Instrs::Register *v;
         std::string name;
@@ -148,11 +142,9 @@ public:
 
 // Param and Args {{{1
 // Param {{{2
-class CodeGen::ParamVisitor : public ASTNS::ParamB::Visitor
-{
+class CodeGen::ParamVisitor : public ASTNS::ParamB::Visitor {
 public:
-    struct Param
-    {
+    struct Param {
         IR::Type *ty;
         std::string name;
         ASTNS::Param *ast;
@@ -174,8 +166,7 @@ void visitParamList(ASTNS::ParamList *ast) override;
 };
 
 // Arg {{{2
-class CodeGen::ArgVisitor : public ASTNS::ArgB::Visitor
-{
+class CodeGen::ArgVisitor : public ASTNS::ArgB::Visitor {
 public:
     ArgVisitor(CodeGen::FunctionCodeGen &fcg);
     std::vector<IR::ASTValue> ret;

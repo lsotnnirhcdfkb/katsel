@@ -4,12 +4,10 @@
 #include <sstream>
 
 void reportAbortNoh [[ noreturn ]] (std::string const &message);
-static inline void _format(std::stringstream &ss, std::string const &fstr, std::string::const_iterator start)
-{
+static inline void _format(std::stringstream &ss, std::string const &fstr, std::string::const_iterator start) {
     for (auto i = start; i != fstr.cend(); ++i)
         if (*i == '%')
-            if (*(i + 1) == '%')
-            {
+            if (*(i + 1) == '%') {
                 ss << '%';
                 ++i;
             }
@@ -20,17 +18,14 @@ static inline void _format(std::stringstream &ss, std::string const &fstr, std::
 }
 
 template <typename First, typename ... Formats>
-static inline void _format(std::stringstream &ss, std::string const &fstr, std::string::const_iterator start, First const &first, Formats const &... f)
-{
+static inline void _format(std::stringstream &ss, std::string const &fstr, std::string::const_iterator start, First const &first, Formats const &... f) {
     for (auto i = start; i != fstr.cend(); ++i)
         if (*i == '%')
-            if (*(i + 1) == '%')
-            {
+            if (*(i + 1) == '%') {
                 ss << '%';
                 ++i;
             }
-            else
-            {
+            else {
                 ss << first;
                 _format(ss, fstr, i + 1, f...);
                 break;
@@ -40,8 +35,7 @@ static inline void _format(std::stringstream &ss, std::string const &fstr, std::
 }
 
 template <typename ... Formats>
-std::string format(std::string const &fstr, Formats const &... f)
-{
+std::string format(std::string const &fstr, Formats const &... f) {
     std::stringstream ss;
     _format(ss, fstr, fstr.cbegin(), f...);
     return ss.str();

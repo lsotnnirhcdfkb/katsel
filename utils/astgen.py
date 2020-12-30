@@ -86,9 +86,8 @@ def gen_ast_decls():
 
     for ast in asts:
         if isinstance(ast, ASTClass):
-            output.append(f'    class {ast.name} : public {ast.base}\n')
+            output.append(f'    class {ast.name} : public {ast.base} {{\n')
 
-            output.append('    {\n')
             output.append('    public:\n')
             output.append('        Location _start, _end;\n')
 
@@ -102,12 +101,10 @@ def gen_ast_decls():
 
             output.append('    };\n')
         elif isinstance(ast, ASTBaseClass):
-            output.append(f'    class {ast.name} : public AST\n')
-            output.append('    {\n')
+            output.append(f'    class {ast.name} : public AST {{\n')
             output.append('    public:\n')
 
-            output.append('        class Visitor\n')
-            output.append('        {\n')
+            output.append('        class Visitor {\n')
             output.append('        public:\n')
             output.append('            virtual ~Visitor() {}\n')
             for _ast in asts:
@@ -120,8 +117,7 @@ def gen_ast_decls():
             output.append(f'        {ast.name}(File const &file);\n')
             output.append('    };\n')
         else:
-            output.append('    class AST\n')
-            output.append('    {\n')
+            output.append('    class AST {\n')
             output.append('    public:\n')
             output.append('        AST(File const &file);\n')
             output.append('        virtual ~AST() {}\n')
@@ -177,8 +173,7 @@ def gen_print_visitor_methods():
         if not isinstance(ast, ASTClass):
             continue
 
-        output.append(          f'void ASTNS::PrintVisitor::visit{ast.name}(ASTNS::{ast.name} *a)\n')
-        output.append(           '{\n')
+        output.append(          f'void ASTNS::PrintVisitor::visit{ast.name}(ASTNS::{ast.name} *a) {{\n')
         output.append(          f'    pai("{ast.name} {{\\n");\n')
         output.append(           '    ++indent;\n')
         for field in ast.fields:

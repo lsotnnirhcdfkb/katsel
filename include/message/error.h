@@ -1,6 +1,5 @@
 #pragma once
 
-extern enum class ErrorFormat
-{
+extern enum class ErrorFormat {
     HUMAN, JSON, ALIGNED
 } errformat;

@@ -6,8 +6,7 @@
 #include "ir/type.h"
 #include "ir/value.h"
 
-class CodeGen::Context
-{
+class CodeGen::Context {
 public:
     Context();
 

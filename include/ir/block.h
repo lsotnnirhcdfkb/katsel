@@ -6,16 +6,13 @@
 #include "llvm/Support/raw_ostream.h"
 
 
-namespace IR
-{
-    namespace Instrs
-    {
+namespace IR {
+    namespace Instrs {
         class Instruction;
         class Br;
     }
 
-    class Block
-    {
+    class Block {
     public:
         Block(std::string name, size_t num);
         Instrs::Instruction* add(std::unique_ptr<Instrs::Instruction> instr);

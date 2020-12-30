@@ -2,8 +2,7 @@
 
 #include <string>
 
-enum class TokenType
-{
+enum class TokenType {
     // single symbols
     OPARN, CPARN,
     OSQUB, CSQUB,
@@ -120,11 +119,9 @@ enum class TokenType
     SOF // start of file to make sure parser does not report error on invalid token with garbage values/zeroes
 };
 
-inline constexpr char const * stringifyTokenType(TokenType ty)
-{
+inline constexpr char const * stringifyTokenType(TokenType ty) {
 #define STOKTY(type, str) case TokenType::type: return #str;
-    switch (ty)
-    {
+    switch (ty) {
         STOKTY(OPARN, '(')
         STOKTY(CPARN, ')')
         STOKTY(OSQUB, '[')

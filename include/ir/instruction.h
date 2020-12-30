@@ -5,8 +5,7 @@
 
 #include "ir/value.h"
 
-namespace IR
-{
+namespace IR {
     class Function;
     class Value;
     class Type;
@@ -16,17 +15,14 @@ namespace IR
     class InstructionVisitor;
     class BrVisitor;
 
-    namespace Instrs
-    {
-        class Instruction : public Value
-        {
+    namespace Instrs {
+        class Instruction : public Value {
         public:
             virtual ~Instruction() {};
             virtual void accept(InstructionVisitor *v) = 0;
         };
 
-        class Br
-        {
+        class Br {
         public:
             virtual ~Br() {};
             virtual void accept(BrVisitor *v) = 0;
@@ -80,8 +76,7 @@ namespace IR
     class Return;
     class GotoBr;
     class CondBr;
-    class Store : public Instruction
-    {
+    class Store : public Instruction {
     public:
         Store(ASTValue target, ASTValue value);
         void accept(InstructionVisitor *v) override;
@@ -90,8 +85,7 @@ namespace IR
         ASTValue target;
         ASTValue value;
     };
-    class Phi : public Instruction
-    {
+    class Phi : public Instruction {
     public:
         Phi(std::vector<std::pair<Block*,ASTValue>> prevs);
         void accept(InstructionVisitor *v) override;
@@ -99,8 +93,7 @@ namespace IR
         IR::Type* type() const override;
         std::vector<std::pair<Block*,ASTValue>> prevs;
     };
-    class Register : public Instruction, public DeclaredValue
-    {
+    class Register : public Instruction, public DeclaredValue {
     public:
         Register(ASTNS::AST *_defAST, Type *ty);
         void accept(InstructionVisitor *v) override;
@@ -112,8 +105,7 @@ namespace IR
     public:
         Type *ty;
     };
-    class Or : public Instruction
-    {
+    class Or : public Instruction {
     public:
         Or(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -122,8 +114,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class And : public Instruction
-    {
+    class And : public Instruction {
     public:
         And(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -132,8 +123,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class Not : public Instruction
-    {
+    class Not : public Instruction {
     public:
         Not(ASTValue op);
         void accept(InstructionVisitor *v) override;
@@ -141,8 +131,7 @@ namespace IR
         IR::Type* type() const override;
         ASTValue op;
     };
-    class ICmpNE : public Instruction
-    {
+    class ICmpNE : public Instruction {
     public:
         ICmpNE(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -151,8 +140,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class ICmpEQ : public Instruction
-    {
+    class ICmpEQ : public Instruction {
     public:
         ICmpEQ(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -161,8 +149,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class ICmpLT : public Instruction
-    {
+    class ICmpLT : public Instruction {
     public:
         ICmpLT(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -171,8 +158,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class ICmpGT : public Instruction
-    {
+    class ICmpGT : public Instruction {
     public:
         ICmpGT(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -181,8 +167,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class ICmpLE : public Instruction
-    {
+    class ICmpLE : public Instruction {
     public:
         ICmpLE(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -191,8 +176,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class ICmpGE : public Instruction
-    {
+    class ICmpGE : public Instruction {
     public:
         ICmpGE(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -201,8 +185,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class IAdd : public Instruction
-    {
+    class IAdd : public Instruction {
     public:
         IAdd(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -211,8 +194,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class ISub : public Instruction
-    {
+    class ISub : public Instruction {
     public:
         ISub(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -221,8 +203,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class IMult : public Instruction
-    {
+    class IMult : public Instruction {
     public:
         IMult(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -231,8 +212,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class IDiv : public Instruction
-    {
+    class IDiv : public Instruction {
     public:
         IDiv(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -241,8 +221,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class IMod : public Instruction
-    {
+    class IMod : public Instruction {
     public:
         IMod(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -251,8 +230,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class INeg : public Instruction
-    {
+    class INeg : public Instruction {
     public:
         INeg(ASTValue op);
         void accept(InstructionVisitor *v) override;
@@ -260,8 +238,7 @@ namespace IR
         IR::Type* type() const override;
         ASTValue op;
     };
-    class FCmpNE : public Instruction
-    {
+    class FCmpNE : public Instruction {
     public:
         FCmpNE(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -270,8 +247,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class FCmpEQ : public Instruction
-    {
+    class FCmpEQ : public Instruction {
     public:
         FCmpEQ(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -280,8 +256,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class FCmpLT : public Instruction
-    {
+    class FCmpLT : public Instruction {
     public:
         FCmpLT(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -290,8 +265,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class FCmpGT : public Instruction
-    {
+    class FCmpGT : public Instruction {
     public:
         FCmpGT(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -300,8 +274,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class FCmpLE : public Instruction
-    {
+    class FCmpLE : public Instruction {
     public:
         FCmpLE(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -310,8 +283,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class FCmpGE : public Instruction
-    {
+    class FCmpGE : public Instruction {
     public:
         FCmpGE(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -320,8 +292,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class FAdd : public Instruction
-    {
+    class FAdd : public Instruction {
     public:
         FAdd(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -330,8 +301,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class FSub : public Instruction
-    {
+    class FSub : public Instruction {
     public:
         FSub(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -340,8 +310,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class FMult : public Instruction
-    {
+    class FMult : public Instruction {
     public:
         FMult(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -350,8 +319,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class FDiv : public Instruction
-    {
+    class FDiv : public Instruction {
     public:
         FDiv(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -360,8 +328,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class FMod : public Instruction
-    {
+    class FMod : public Instruction {
     public:
         FMod(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -370,8 +337,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class FNeg : public Instruction
-    {
+    class FNeg : public Instruction {
     public:
         FNeg(ASTValue op);
         void accept(InstructionVisitor *v) override;
@@ -379,8 +345,7 @@ namespace IR
         IR::Type* type() const override;
         ASTValue op;
     };
-    class BitXor : public Instruction
-    {
+    class BitXor : public Instruction {
     public:
         BitXor(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -389,8 +354,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class BitOr : public Instruction
-    {
+    class BitOr : public Instruction {
     public:
         BitOr(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -399,8 +363,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class BitAnd : public Instruction
-    {
+    class BitAnd : public Instruction {
     public:
         BitAnd(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -409,8 +372,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class BitNot : public Instruction
-    {
+    class BitNot : public Instruction {
     public:
         BitNot(ASTValue op);
         void accept(InstructionVisitor *v) override;
@@ -418,8 +380,7 @@ namespace IR
         IR::Type* type() const override;
         ASTValue op;
     };
-    class ShiftR : public Instruction
-    {
+    class ShiftR : public Instruction {
     public:
         ShiftR(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -428,8 +389,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class ShiftL : public Instruction
-    {
+    class ShiftL : public Instruction {
     public:
         ShiftL(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
@@ -438,8 +398,7 @@ namespace IR
         ASTValue lhs;
         ASTValue rhs;
     };
-    class NoOpCast : public Instruction
-    {
+    class NoOpCast : public Instruction {
     public:
         NoOpCast(ASTValue op, Type *newt);
         void accept(InstructionVisitor *v) override;
@@ -448,8 +407,7 @@ namespace IR
         ASTValue op;
         Type *newt;
     };
-    class IntToInt : public Instruction
-    {
+    class IntToInt : public Instruction {
     public:
         IntToInt(ASTValue op, IntType *newt);
         void accept(InstructionVisitor *v) override;
@@ -458,8 +416,7 @@ namespace IR
         ASTValue op;
         IntType *newt;
     };
-    class IntToFloat : public Instruction
-    {
+    class IntToFloat : public Instruction {
     public:
         IntToFloat(ASTValue op, FloatType *newt);
         void accept(InstructionVisitor *v) override;
@@ -468,8 +425,7 @@ namespace IR
         ASTValue op;
         FloatType *newt;
     };
-    class FloatToFloat : public Instruction
-    {
+    class FloatToFloat : public Instruction {
     public:
         FloatToFloat(ASTValue op, FloatType *newt);
         void accept(InstructionVisitor *v) override;
@@ -478,8 +434,7 @@ namespace IR
         ASTValue op;
         FloatType *newt;
     };
-    class FloatToInt : public Instruction
-    {
+    class FloatToInt : public Instruction {
     public:
         FloatToInt(ASTValue op, IntType *newt);
         void accept(InstructionVisitor *v) override;
@@ -488,8 +443,7 @@ namespace IR
         ASTValue op;
         IntType *newt;
     };
-    class Call : public Instruction
-    {
+    class Call : public Instruction {
     public:
         Call(Function *f, std::vector<ASTValue> args);
         void accept(InstructionVisitor *v) override;
@@ -498,8 +452,7 @@ namespace IR
         Function *f;
         std::vector<ASTValue> args;
     };
-    class DerefPtr : public Instruction
-    {
+    class DerefPtr : public Instruction {
     public:
         DerefPtr(ASTValue ptr);
         void accept(InstructionVisitor *v) override;
@@ -507,22 +460,19 @@ namespace IR
         IR::Type* type() const override;
         ASTValue ptr;
     };
-    class Return : public Br
-    {
+    class Return : public Br {
     public:
         Return(ASTValue value);
         void accept(BrVisitor *v) override;
         ASTValue value;
     };
-    class GotoBr : public Br
-    {
+    class GotoBr : public Br {
     public:
         GotoBr(Block *to);
         void accept(BrVisitor *v) override;
         Block *to;
     };
-    class CondBr : public Br
-    {
+    class CondBr : public Br {
     public:
         CondBr(ASTValue v, Block *trueB, Block *falseB);
         void accept(BrVisitor *v) override;

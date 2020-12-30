@@ -2,10 +2,8 @@
 
 #include "ir/instruction.h"
 
-namespace IR
-{
-    class InstructionVisitor
-    {
+namespace IR {
+    class InstructionVisitor {
     public:
         virtual ~InstructionVisitor() {}
 
@@ -58,8 +56,7 @@ virtual void visitDerefPtr(IR::Instrs::DerefPtr *i) = 0;
         // PURE INSTR VISIT END
     };
 
-    class BrVisitor
-    {
+    class BrVisitor {
     public:
         virtual ~BrVisitor() {}
 

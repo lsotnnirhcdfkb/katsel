@@ -10,14 +10,11 @@
 #include <vector>
 #include <sstream>
 
-class Error
-{
+class Error {
 public:
-    class Underline
-    {
+    class Underline {
     public:
-        struct Message
-        {
+        struct Message {
             std::string type;
             std::string text;
             char const * const color;
@@ -39,8 +36,7 @@ public:
         Underline& addmsg(std::string const &type, char const * const color, std::string const &mesage);
     };
 
-    enum class MsgType
-    {
+    enum class MsgType {
         ERROR,
         WARNING,
     };
@@ -58,13 +54,11 @@ public:
     std::vector<Underline> underlines;
 
 private: // things needed for report() implementation
-    struct showline
-    {
+    struct showline {
         const File *file;
         int line;
     };
-    struct MessageLocation
-    {
+    struct MessageLocation {
         Underline::Message const &message;
         int row, col, lcol;
     };

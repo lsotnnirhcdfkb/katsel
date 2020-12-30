@@ -7,8 +7,7 @@
 
 Parser::Parser(Lexer &l, File &sourcefile): lexer(l), sourcefile(sourcefile), errored(false) {}
 
-std::unique_ptr<ASTNS::CUB> Parser::parse()
-{
+std::unique_ptr<ASTNS::CUB> Parser::parse() {
     std::unique_ptr<ASTNS::CUB> ret (nullptr);
 
     std::vector<stackitem> stack;
@@ -22,28 +21,22 @@ std::unique_ptr<ASTNS::CUB> Parser::parse()
     return ret;
 }
 
-Token Parser::consume()
-{
+Token Parser::consume() {
     Token cur;
     bool lastboom = false;
-    while (true)
-    {
+    while (true) {
         cur = lexer.nextToken();
-        if (cur.type == TokenType::ERROR)
-        {
+        if (cur.type == TokenType::ERROR) {
             errored = true;
             cur.errf(cur);
         }
-        else if (cur.type == TokenType::BOOM)
-        {
+        else if (cur.type == TokenType::BOOM) {
             lastboom = true;
         }
-        else if (lastboom && cur.type == TokenType::NEWLINE)
-        {
+        else if (lastboom && cur.type == TokenType::NEWLINE) {
             lastboom = false;
         }
-        else
-        {
+        else {
             return cur;
         }
     }

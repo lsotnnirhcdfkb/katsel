@@ -4,8 +4,7 @@
 
 CodeGen::FunctionCodeGen::FunctionCodeGen(CodeGen &cg, ASTNS::FunctionDecl *ast): curScope(0), cg(cg), ast(ast), exprCG(cg, *this), stmtCG(cg, *this), errored(false) {}
 
-bool CodeGen::FunctionCodeGen::codegen()
-{
+bool CodeGen::FunctionCodeGen::codegen() {
     std::string name = ast->name.stringify();
     IR::Value *function = cg.context->getGlobal(name);
     IR::FunctionType *fty;
@@ -17,8 +16,7 @@ bool CodeGen::FunctionCodeGen::codegen()
     if (f->blocks.size() > 0)
         return false;
 
-    if (!ast->body)
-    {
+    if (!ast->body) {
         f->prototypeonly = true;
         return true;
     }
@@ -28,20 +26,17 @@ bool CodeGen::FunctionCodeGen::codegen()
 
     incScope();
     ret = static_cast<IR::Instrs::Register*>(entryBlock->add(std::make_unique<IR::Instrs::Register>(ast->retty.get(), fty->ret)));
-    if (ast->params)
-    {
+    if (ast->params) {
         ParamVisitor pv (cg);
         ast->params->accept(&pv);
         std::vector<ParamVisitor::Param> params (pv.ret);
 
-        for (auto const &param : params)
-        {
+        for (auto const &param : params) {
             std::string pname = param.name;
             IR::Instrs::Register *reg = static_cast<IR::Instrs::Register*>(entryBlock->add(std::make_unique<IR::Instrs::Register>(param.ast, param.ty)));
 
             Local *foundparam = getLocal(pname);
-            if (foundparam)
-            {
+            if (foundparam) {
                 ERR_REDECL_PARAM(param.ast->name, foundparam->v);
                 cg.errored = true;
             }
@@ -57,19 +52,16 @@ bool CodeGen::FunctionCodeGen::codegen()
 
     decScope();
 
-    if (!errored)
-    {
+    if (!errored) {
         IR::Instrs::Instruction *derefRetReg = exitBlock->add(std::make_unique<IR::Instrs::DerefPtr>(IR::ASTValue(ret, ast->retty.get())));
         exitBlock->branch(std::make_unique<IR::Instrs::Return>(IR::ASTValue(derefRetReg, ast->retty.get())));
 
         retval = fun->ty->ret->implCast(*cg.context, *fun, curBlock, retval);
-        if (fun->ty->ret != retval.type())
-        {
+        if (fun->ty->ret != retval.type()) {
             ERR_CONFLICT_RET_TY(retval, f);
             errored = true;
         }
-        else
-        {
+        else {
             curBlock->add(std::make_unique<IR::Instrs::Store>(IR::ASTValue(ret, ast->retty.get()), retval));
             curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(exitBlock));
         }
@@ -81,8 +73,7 @@ bool CodeGen::FunctionCodeGen::codegen()
     return !errored;
 }
 
-void CodeGen::FunctionCodeGen::addLocal(std::string const &name, IR::Instrs::Register *val)
-{
+void CodeGen::FunctionCodeGen::addLocal(std::string const &name, IR::Instrs::Register *val) {
     for (auto last = locals.rbegin(); last != locals.rend(); ++last)
         if (last->name == name && last->scopenum == curScope)
             reportAbortNoh(format("duplicate local added: \"%\"", name));
@@ -91,8 +82,7 @@ void CodeGen::FunctionCodeGen::addLocal(std::string const &name, IR::Instrs::Reg
     locals.push_back(l);
 }
 
-CodeGen::FunctionCodeGen::Local* CodeGen::FunctionCodeGen::getLocal(std::string const &name)
-{
+CodeGen::FunctionCodeGen::Local* CodeGen::FunctionCodeGen::getLocal(std::string const &name) {
     for (auto last = locals.rbegin(); last != locals.rend(); ++last)
         if (last->name == name)
             return &*last;
@@ -100,12 +90,10 @@ CodeGen::FunctionCodeGen::Local* CodeGen::FunctionCodeGen::getLocal(std::string 
     return nullptr;
 }
 
-void CodeGen::FunctionCodeGen::incScope()
-{
+void CodeGen::FunctionCodeGen::incScope() {
     ++curScope;
 }
-void CodeGen::FunctionCodeGen::decScope()
-{
+void CodeGen::FunctionCodeGen::decScope() {
     --curScope;
     while (locals.size() && locals.back().scopenum > curScope) locals.pop_back();
 }

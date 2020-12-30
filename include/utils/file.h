@@ -2,8 +2,7 @@
 
 #include <string>
 
-struct File
-{
+struct File {
     std::string filename;
     std::string source;
 };

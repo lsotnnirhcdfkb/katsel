@@ -4,10 +4,8 @@
 #include "ir/instruction.h"
 #include "llvm/Support/raw_ostream.h"
 
-namespace IR
-{
-    class Printer : public IR::InstructionVisitor, public IR::BrVisitor
-    {
+namespace IR {
+    class Printer : public IR::InstructionVisitor, public IR::BrVisitor {
     public:
         Printer(llvm::raw_ostream &ostream);
 

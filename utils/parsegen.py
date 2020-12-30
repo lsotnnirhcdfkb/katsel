@@ -811,17 +811,14 @@ def gen_loop():
     output.append(                                '    Token lookahead (_lookahead); // for when you need to inject a new token\n')
     output.append(                                '    Token lasttok = lookahead;\n')
 
-    output.append(                                '    while (!done)\n')
-    output.append(                                '    {\n')
+    output.append(                                '    while (!done) {\n')
     output.append(                                '        if (istrial && steps > 5)\n')
     output.append(                                '            return true;\n')
-    output.append(                                '        switch (stack.back().state)\n')
-    output.append(                                '        {\n')
+    output.append(                                '        switch (stack.back().state) {\n')
 
     for staten, state in sorted(table.items(), key=lambda x:x[0]):
         output.append(                           f'            case {staten}:\n')
-        output.append(                            '                switch (lookahead.type)\n')
-        output.append(                            '                {\n')
+        output.append(                            '                switch (lookahead.type) {\n')
 
         stateactions = []
         for term, ac in sorted(state.actions.items(), key=lambda x:str(x[0])):
@@ -845,7 +842,7 @@ def gen_loop():
                 continue
 
             if reduce_only:
-                output.append(                    '                    default:\n')
+                output.append(                    '                    default: ')
                 # do not check for lookahead, just reduce to have better performance (kind of)
                 # if reduce_only, then all the reduce actions of this state reduce the same rule
                 # and according to Wikipedia, just reducing regardless of the lookahead in
@@ -855,10 +852,10 @@ def gen_loop():
                 # it will reduce 2 up the chain of expression precedence before reporting the error
             else:
                 for term in nts:
-                    output.append(               f'                    case {term.astt()}:\n')
+                    output.append(               f'                    case {term.astt()}: ')
 
             if isinstance(ac, ReduceAction):
-                output.append(                    '                        {\n')
+                output.append(                    '{\n')
 
                 firstterminal = None
                 for i, sym in reversed(list(enumerate(ac.rule.expansion))):
@@ -943,17 +940,14 @@ def gen_loop():
 def gen_goto():
     output = []
 
-    output.append(                                'size_t getGoto(NonTerminal nterm, size_t state)\n')
-    output.append(                                '{\n')
-    output.append(                                '    switch (nterm)\n')
-    output.append(                                '    {\n')
+    output.append(                                'size_t getGoto(NonTerminal nterm, size_t state) {\n')
+    output.append(                                '    switch (nterm) {\n')
     for nonterm in symbols:
         if isinstance(nonterm, Terminal):
             continue
 
         output.append(                           f'        case NonTerminal::{nonterm.symbol}:\n')
-        output.append(                            '            switch (state)\n')
-        output.append(                            '            {\n')
+        output.append(                            '            switch (state) {\n')
 
         returns = {}
         for staten, state in table.items():
@@ -989,10 +983,8 @@ def gen_non_term_enum():
 def gen_panic_mode():
     output = []
     output.append(                               ('#define CHECKASI(ty)\\\n'
-                                                  '    if (nterm == NonTerminal::ty)\\\n'
-                                                  '    {\\\n'
-                                                  '        switch (e.lookahead.type)\\\n'
-                                                  '        {\n'
+                                                  '    if (nterm == NonTerminal::ty) {\\\n'
+                                                  '        switch (e.lookahead.type) {\n'
                                                   '#define FINISHCHECKASI()\\\n'
                                                   '        }\\\n'
                                                   '    }\n'
@@ -1005,12 +997,9 @@ def gen_panic_mode():
                                                   '    bool valid = false;\n'
                                                   '    e.lookahead = e.p.consume(); // prevent infinite panicking loops\n'
                                                   '    std::vector<stackitem>::reverse_iterator delto;\n'
-                                                  '    while (!valid)\n'
-                                                  '    {\n'
-                                                  '        for (auto i = e.stack.rbegin(); i != e.stack.rend() && !valid; ++i)\n'
-                                                  '        {\n'
-                                                  '            if (std::holds_alternative<astitem>(i->item))\n'
-                                                  '            {\n'
+                                                  '    while (!valid) {\n'
+                                                  '        for (auto i = e.stack.rbegin(); i != e.stack.rend() && !valid; ++i) {\n'
+                                                  '            if (std::holds_alternative<astitem>(i->item)) {\n'
                                                   '                NonTerminal nterm = std::get<astitem>(i->item).nt;\n'))
 
     for nonterm in symbols:

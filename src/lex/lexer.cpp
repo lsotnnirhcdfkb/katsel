@@ -5,14 +5,12 @@
 #include <algorithm>
 
 // constructors {{{1
-Lexer::Lexer(File &sourcefile): start(sourcefile.source.begin()), end(start), startline(1), startcolumn(1), endline(1), endcolumn(1), indent(0), dedenting(false), srcstart(sourcefile.source.begin()), srcend(sourcefile.source.end()), sourcefile(sourcefile)
-{
+Lexer::Lexer(File &sourcefile): start(sourcefile.source.begin()), end(start), startline(1), startcolumn(1), endline(1), endcolumn(1), indent(0), dedenting(false), srcstart(sourcefile.source.begin()), srcend(sourcefile.source.end()), sourcefile(sourcefile) {
     indentstack.push_back(0);
 }
 
 // resetToTok {{{1
-void Lexer::resetToTok(Token const &t)
-{
+void Lexer::resetToTok(Token const &t) {
     start = end = t.start;
     startline = endline = t.line;
     startcolumn = endcolumn = t.column;
@@ -20,14 +18,11 @@ void Lexer::resetToTok(Token const &t)
     ASSERT(t.sourcefile == &sourcefile)
 }
 // lex digit and lex identifier {{{1
-static bool isAlpha(char c)
-{
+static bool isAlpha(char c) {
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_';
 }
-Token Lexer::lexDigit(char current)
-{
-    enum class IntBase
-    {
+Token Lexer::lexDigit(char current) {
+    enum class IntBase {
         dec,
         oct,
         hex,
@@ -35,40 +30,36 @@ Token Lexer::lexDigit(char current)
         inv
     };
 
-    auto isDigit = [](char const &c, IntBase const &base)
-        {
-            switch (base)
-            {
-                case IntBase::dec:
-                    return c >= '0' && c <= '9';
+    auto isDigit = [](char const &c, IntBase const &base) {
+        switch (base) {
+            case IntBase::dec:
+                return c >= '0' && c <= '9';
 
-                case IntBase::oct:
-                    return c >= '0' && c < '8';
+            case IntBase::oct:
+                return c >= '0' && c < '8';
 
-                case IntBase::bin:
-                    return c == '0' || c == '1';
+            case IntBase::bin:
+                return c == '0' || c == '1';
 
-                case IntBase::hex:
-                    return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
+            case IntBase::hex:
+                return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
 
-                default:
-                    return false;
-            }
-        };
+            default:
+                return false;
+        }
+    };
 
     IntBase base;
     bool intvalid = true;
     bool isfloat = false;
     int ndigits = 0;
 
-    if (current != '0' || isDigit(peek(), IntBase::dec) || !isAlpha(peek()))
-    {
+    if (current != '0' || isDigit(peek(), IntBase::dec) || !isAlpha(peek())) {
         base = IntBase::dec;
         ++ndigits;
     }
     else
-        switch (advance())
-        {
+        switch (advance()) {
             case 'o': base = IntBase::oct; break;
             case 'x': base = IntBase::hex; break;
             case 'b': base = IntBase::bin; break;
@@ -77,22 +68,19 @@ Token Lexer::lexDigit(char current)
         }
 
     char next;
-    while (!atEnd() && (isDigit(next = peek(), IntBase::hex) || next == '.'))
-    {
+    while (!atEnd() && (isDigit(next = peek(), IntBase::hex) || next == '.')) {
         advance();
 
         if (next == '.')
             isfloat = true;
-        else
-        {
+        else {
             if (base != IntBase::inv && !isDigit(next, base))
                 intvalid = false;
             ++ndigits;
         }
     }
 
-    if (isfloat)
-    {
+    if (isfloat) {
         if (base != IntBase::dec) return makeErrorToken(ERR_NONDECIMAL_FLOATLIT);
         if (!intvalid) return makeErrorToken(ERR_INVALID_CHAR_FLOATLIT);
         return makeToken(TokenType::FLOATLIT);
@@ -104,10 +92,8 @@ Token Lexer::lexDigit(char current)
             return makeErrorToken(ERR_INTLIT_NO_DIGITS);
         else if (!intvalid)
             return makeErrorToken(ERR_INVALID_CHAR_FOR_BASE);
-        else
-        {
-            switch (base)
-            {
+        else {
+            switch (base) {
                 case IntBase::dec:
                     return makeToken(TokenType::DECINTLIT);
                 case IntBase::hex:
@@ -121,33 +107,28 @@ Token Lexer::lexDigit(char current)
             }
         }
 }
-Token Lexer::lexIdentifier()
-{
+Token Lexer::lexIdentifier() {
     while (isAlpha(peek()) || (peek() >= '0' && peek() <= '9')) advance();
 
     TokenType idenType = getIdentifierType();
     return makeToken(idenType);
 }
 // nextToken {{{1
-Token Lexer::nextToken()
-{
+Token Lexer::nextToken() {
     {
         bool atWh = true;
         bool findingindent = end == srcstart || consumed() == '\n';
-        if (findingindent)
-        {
+        if (findingindent) {
             startToEnd();
             indent = 0;
         }
 
-        while (atWh)
-        {
-            switch (peek())
-            {
-                case '\r': advance(); break;
+        while (atWh) {
+            switch (peek()) {
+                case '\r':
+                    advance(); break;
                 case ' ':
-                    if (findingindent)
-                    {
+                    if (findingindent) {
                         ++indent;
                         if (std::binary_search(indentstack.begin(), indentstack.end(), indent))
                             startToEnd();
@@ -155,8 +136,7 @@ Token Lexer::nextToken()
                     advance();
                     break;
                 case '\t':
-                    if (findingindent)
-                    {
+                    if (findingindent) {
                         indent = (indent / 8 + 1) * 8; // go up to nearest multiple of 8
                         if (std::binary_search(indentstack.begin(), indentstack.end(), indent))
                             startToEnd();
@@ -165,16 +145,14 @@ Token Lexer::nextToken()
                     break;
 
                 case '\\':
-                    if (peekpeek() == '\n')
-                    {
+                    if (peekpeek() == '\n') {
                         advance();
                         advance();
                         ++endline;
                         endcolumn = 1;
                         startToEnd();
                     }
-                    else
-                    {
+                    else {
                         startToEnd();
                         advance();
                         return makeErrorToken(ERR_CHAR_AFTER_BACKSLASH);
@@ -184,14 +162,11 @@ Token Lexer::nextToken()
                 case '/':
                     if (peekpeek() == '/')
                         while (peek() != '\n' && !atEnd()) advance();
-                    else if (peekpeek() == '*')
-                    {
+                    else if (peekpeek() == '*') {
                         advance(); // consume '/'
                         advance(); // consume '*'
-                        while (!(peek() == '*' && peekpeek() == '/') && !atEnd())
-                        {
-                            if (peek() == '\n')
-                            {
+                        while (!(peek() == '*' && peekpeek() == '/') && !atEnd()) {
+                            if (peek() == '\n') {
                                 ++endline;
                                 endcolumn = 1;
                             }
@@ -209,8 +184,8 @@ Token Lexer::nextToken()
                     break;
 
                 case '\n':
-                    if (findingindent) // the only way you can get to a \n while finding an indent is if the entire line is blank, because you would have started at the beginning of a line
-                    {
+                    if (findingindent) {
+                        // the only way you can get to a \n while finding an indent is if the entire line is blank, because you would have started at the beginning of a line
                         advance();
                         ++endline;
                         endcolumn = 1;
@@ -231,10 +206,8 @@ Token Lexer::nextToken()
         }
     }
 
-    if (indent > indentstack.back())
-    {
-        if (dedenting)
-        {
+    if (indent > indentstack.back()) {
+        if (dedenting) {
             dedenting = false;
             return makeErrorToken(ERR_DEDENT_NOMATCH);
         }
@@ -242,8 +215,7 @@ Token Lexer::nextToken()
         indentstack.push_back(indent);
         return makeToken(TokenType::INDENT);
     }
-    else if (indent < indentstack.back())
-    {
+    else if (indent < indentstack.back()) {
         dedenting = true;
         indentstack.pop_back();
         return makeToken(TokenType::DEDENT);
@@ -258,8 +230,7 @@ Token Lexer::nextToken()
 
     char current = advance();
 
-    switch (current)
-    {
+    switch (current) {
         case '\n':
             ++endline;
             endcolumn = 1;
@@ -277,45 +248,44 @@ Token Lexer::nextToken()
         case '?': return makeToken(TokenType::QUESTION);
         case '~': return makeToken(TokenType::TILDE);
 
-        // double and single
+                  // double and single
         case '=': return makeToken(match('=') ? TokenType::DOUBLEEQUAL : TokenType::EQUAL);
         case ':': return makeToken(match(':') ? TokenType::DOUBLECOLON : TokenType::COLON);
 
-        // equal and single
+                  // equal and single
         case '*': return makeToken(match('=') ? TokenType::STAREQUAL    : TokenType::STAR);
         case '/': return makeToken(match('=') ? TokenType::SLASHEQUAL   : TokenType::SLASH);
         case '!': return makeToken(match('=') ? TokenType::BANGEQUAL    : TokenType::BANG);
         case '%': return makeToken(match('=') ? TokenType::PERCENTEQUAL : TokenType::PERCENT);
         case '^': return makeToken(match('=') ? TokenType::CARETEQUAL   : TokenType::CARET);
 
-        // double and equal and single
+                  // double and equal and single
         case '+': return makeToken(match('+') ? TokenType::DOUBLEPLUS  : (match('=') ? TokenType::PLUSEQUAL  : TokenType::PLUS));
         case '&': return makeToken(match('&') ? TokenType::DOUBLEAMPER : (match('=') ? TokenType::AMPEREQUAL : TokenType::AMPER));
         case '|': return makeToken(match('|') ? TokenType::DOUBLEPIPE  : (match('=') ? TokenType::PIPEEQUAL  : TokenType::PIPE));
 
-        // arrows
+                  // arrows
         case '-': return makeToken(match('-') ? TokenType::DOUBLEMINUS : (match('=') ? TokenType::MINUSEQUAL : (match('>') ? TokenType::RIGHTARROW : TokenType::MINUS)));
         case '<': return makeToken(match('<') ? (match('=') ? TokenType::DOUBLELESSEQUAL : TokenType::DOUBLELESS) : (match('=') ? TokenType::LESSEQUAL : (match('-') ? TokenType::LEFTARROW : TokenType::LESS)));
 
-        // double, doubleequal, singleequal, single
-        //                  if matches double ? (is double so check if it has equal after it                          ) : (is not double so check if it has equal after it          )
+                  // double, doubleequal, singleequal, single
+                  //                  if matches double ? (is double so check if it has equal after it                          ) : (is not double so check if it has equal after it          )
         case '>': return makeToken(match('>') ? (match('=') ? TokenType::DOUBLEGREATEREQUAL : TokenType::DOUBLEGREATER) : (match('=') ? TokenType::GREATEREQUAL : TokenType::GREATER));
 
         case '\'':
         case '"':
             char startingQuote = consumed();
             while (peek() != startingQuote && !atEnd() && peek() != '\n')
-            {
                 advance();
-            }
 
-            if (startingQuote == '"' && peek() != '"') return makeErrorToken(ERR_UNTERM_STRLIT);
-            else if (startingQuote == '\'' && peek() != '\'') return makeErrorToken(ERR_UNTERM_CHARLIT);
+            if (startingQuote == '"' && peek() != '"')
+                return makeErrorToken(ERR_UNTERM_STRLIT);
+            else if (startingQuote == '\'' && peek() != '\'')
+                return makeErrorToken(ERR_UNTERM_CHARLIT);
 
             advance(); // consume closing quote
 
-            if (startingQuote == '\'')
-            {
+            if (startingQuote == '\'') {
                 if (std::distance(start, end) != 3) return makeErrorToken(ERR_MULTICHAR_CHARLIT);
                 else return makeToken(TokenType::CHARLIT);
             }
@@ -334,13 +304,10 @@ Token Lexer::nextToken()
 // KWGEN START
 // The following code was autogenerated - see the utils/ directory
 /// Check if an idenetifier token is a keyword type and return that type, or just return TokenType::IDENTIFIER
-TokenType Lexer::getIdentifierType()
-{
-    switch (*(start + 0))
-    {
+TokenType Lexer::getIdentifierType() {
+    switch (*(start + 0)) {
         case 'v':
-            switch (*(start + 1))
-            {
+            switch (*(start + 1)) {
                 case 'o':
                     if (std::distance(start, end) == 4 && std::string(start + 2, end) == "id") return TokenType::VOID;
                     break;
@@ -350,8 +317,7 @@ TokenType Lexer::getIdentifierType()
             }
             break;
         case 'f':
-            switch (*(start + 1))
-            {
+            switch (*(start + 1)) {
                 case 'l':
                     if (std::distance(start, end) == 5 && std::string(start + 2, end) == "oat") return TokenType::FLOAT;
                     break;
@@ -367,14 +333,11 @@ TokenType Lexer::getIdentifierType()
             }
             break;
         case 'b':
-            switch (*(start + 1))
-            {
+            switch (*(start + 1)) {
                 case 'o':
-                    switch (*(start + 2))
-                    {
+                    switch (*(start + 2)) {
                         case 'o':
-                            switch (*(start + 3))
-                            {
+                            switch (*(start + 3)) {
                                 case 'l':
                                     if (start + 4 == end) return TokenType::BOOL;
                                     break;
@@ -386,18 +349,14 @@ TokenType Lexer::getIdentifierType()
                     }
                     break;
                 case 'r':
-                    switch (*(start + 2))
-                    {
+                    switch (*(start + 2)) {
                         case 'e':
-                            switch (*(start + 3))
-                            {
+                            switch (*(start + 3)) {
                                 case 'a':
-                                    switch (*(start + 4))
-                                    {
+                                    switch (*(start + 4)) {
                                         case 'k':
                                                 if (start + 5 == end) return TokenType::BREAK;
-                                            switch (*(start + 5))
-                                            {
+                                            switch (*(start + 5)) {
                                                 case 'a':
                                                     if (std::distance(start, end) == 8 && std::string(start + 6, end) == "ll") return TokenType::BREAKALL;
                                                     break;
@@ -415,8 +374,7 @@ TokenType Lexer::getIdentifierType()
             }
             break;
         case 'd':
-            switch (*(start + 1))
-            {
+            switch (*(start + 1)) {
                 case 'o':
                     if (std::distance(start, end) == 6 && std::string(start + 2, end) == "uble") return TokenType::DOUBLE;
                     break;
@@ -426,8 +384,7 @@ TokenType Lexer::getIdentifierType()
             }
             break;
         case 'c':
-            switch (*(start + 1))
-            {
+            switch (*(start + 1)) {
                 case 'h':
                     if (std::distance(start, end) == 4 && std::string(start + 2, end) == "ar") return TokenType::CHAR;
                     break;
@@ -440,17 +397,13 @@ TokenType Lexer::getIdentifierType()
             }
             break;
         case 'u':
-            switch (*(start + 1))
-            {
+            switch (*(start + 1)) {
                 case 'i':
-                    switch (*(start + 2))
-                    {
+                    switch (*(start + 2)) {
                         case 'n':
-                            switch (*(start + 3))
-                            {
+                            switch (*(start + 3)) {
                                 case 't':
-                                    switch (*(start + 4))
-                                    {
+                                    switch (*(start + 4)) {
                                         case '8':
                                             if (start + 5 == end) return TokenType::UINT8;
                                             break;
@@ -472,17 +425,13 @@ TokenType Lexer::getIdentifierType()
             }
             break;
         case 's':
-            switch (*(start + 1))
-            {
+            switch (*(start + 1)) {
                 case 'i':
-                    switch (*(start + 2))
-                    {
+                    switch (*(start + 2)) {
                         case 'n':
-                            switch (*(start + 3))
-                            {
+                            switch (*(start + 3)) {
                                 case 't':
-                                    switch (*(start + 4))
-                                    {
+                                    switch (*(start + 4)) {
                                         case '8':
                                             if (start + 5 == end) return TokenType::SINT8;
                                             break;
@@ -504,8 +453,7 @@ TokenType Lexer::getIdentifierType()
             }
             break;
         case 'n':
-            switch (*(start + 1))
-            {
+            switch (*(start + 1)) {
                 case 'a':
                     if (std::distance(start, end) == 9 && std::string(start + 2, end) == "mespace") return TokenType::NAMESPACE;
                     break;
@@ -515,8 +463,7 @@ TokenType Lexer::getIdentifierType()
             }
             break;
         case 'e':
-            switch (*(start + 1))
-            {
+            switch (*(start + 1)) {
                 case 'n':
                     if (std::distance(start, end) == 4 && std::string(start + 2, end) == "um") return TokenType::ENUM;
                     break;
@@ -550,54 +497,44 @@ TokenType Lexer::getIdentifierType()
 // This code was autogenerated - see the utils/ directory
 // KWGEN END
 // helpers {{{1
-void Lexer::startToEnd()
-{
+void Lexer::startToEnd() {
     start = end;
     startline = endline;
     startcolumn = endcolumn;
 }
-bool Lexer::atEnd()
-{
+bool Lexer::atEnd() {
     return end >= srcend;
 }
-bool Lexer::match(char c)
-{
+bool Lexer::match(char c) {
     if (atEnd())
         return false;
 
-    if (peek() == c)
-    {
+    if (peek() == c) {
         advance();
         return true;
     }
 
     return false;
 }
-char Lexer::advance()
-{
+char Lexer::advance() {
     ++endcolumn;
     return *(end++);
 }
-char Lexer::peek()
-{
+char Lexer::peek() {
     return *end;
 }
-char Lexer::peekpeek()
-{
+char Lexer::peekpeek() {
     return *(end + 1);
 }
-char Lexer::consumed()
-{
+char Lexer::consumed() {
     return *(end - 1);
 }
 
 // making tokens {{{1
-Token Lexer::makeToken(TokenType type)
-{
+Token Lexer::makeToken(TokenType type) {
     return Token {type, start, end, nullptr, startline, startcolumn - 1, &sourcefile};
 }
-Token Lexer::makeErrorToken(void (*errf)(Token const &))
-{
+Token Lexer::makeErrorToken(void (*errf)(Token const &)) {
     Token token = makeToken(TokenType::ERROR);
     token.errf = errf;
     return token;

@@ -11,10 +11,8 @@
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/LegacyPassManager.h"
 
-namespace Lower
-{
-    class Lowerer : public IR::InstructionVisitor, public IR::BrVisitor
-    {
+namespace Lower {
+    class Lowerer : public IR::InstructionVisitor, public IR::BrVisitor {
     public:
         Lowerer(IR::Unit const &unit);
 

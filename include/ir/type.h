@@ -2,8 +2,7 @@
 
 #include <vector>
 #include <map>
-namespace IR
-{
+namespace IR {
     struct ASTValue;
     class Block;
     class Function;
@@ -17,18 +16,15 @@ namespace IR
 
 #include "codegen/codegen.h"
 
-namespace IR
-{
+namespace IR {
     // Base class {{{1
-    class Type
-    {
+    class Type {
     public:
         inline Type(CodeGen::Context &context): context(context) {}
         virtual ~Type() {}
         virtual std::string stringify() const = 0;
 
-        enum class BinaryOperator
-        {
+        enum class BinaryOperator {
             plus,
             minus,
             star,
@@ -46,8 +42,7 @@ namespace IR
             doubleequal,
             bangequal
         };
-        enum class UnaryOperator
-        {
+        enum class UnaryOperator {
             bang,
             tilde,
             minus,
@@ -68,8 +63,7 @@ namespace IR
     };
     // }}}
     // Float {{{1
-    class FloatType : public Type
-    {
+    class FloatType : public Type {
     public:
         FloatType(CodeGen::Context &context, int size);
 
@@ -87,8 +81,7 @@ namespace IR
         int size;
     };
     // Int {{{1
-    class IntType : public Type
-    {
+    class IntType : public Type {
     public:
         IntType(CodeGen::Context &context, int size, bool isSigned);
 
@@ -107,8 +100,7 @@ namespace IR
         bool isSigned;
     };
     // Char {{{1
-    class CharType : public Type
-    {
+    class CharType : public Type {
     public:
         CharType(CodeGen::Context &context);
 
@@ -124,8 +116,7 @@ namespace IR
         llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
     };
     // Bool {{{1
-    class BoolType : public Type
-    {
+    class BoolType : public Type {
     public:
         BoolType(CodeGen::Context &context);
 
@@ -141,8 +132,7 @@ namespace IR
         llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
     };
     // Function {{{1
-    class FunctionType : public Type
-    {
+    class FunctionType : public Type {
     public:
         Type *ret;
         std::vector<Type*> paramtys;
@@ -160,8 +150,7 @@ namespace IR
         llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
     };
     // Void {{{1
-    class VoidType : public Type
-    {
+    class VoidType : public Type {
     public:
         VoidType(CodeGen::Context &context);
 
@@ -177,8 +166,7 @@ namespace IR
         llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
     };
     // Pointer {{{1
-    class PointerType : public Type
-    {
+    class PointerType : public Type {
     public:
         PointerType(CodeGen::Context &context, Type *ty);
 
@@ -197,8 +185,7 @@ namespace IR
     };
     // Generic literal types {{{1
     // Int {{{2
-    class GenericIntType : public Type
-    {
+    class GenericIntType : public Type {
     public:
         GenericIntType(CodeGen::Context &context);
 
@@ -214,8 +201,7 @@ namespace IR
         llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
     };
     // Float {{{2
-    class GenericFloatType : public Type
-    {
+    class GenericFloatType : public Type {
     public:
         GenericFloatType(CodeGen::Context &context);
 

@@ -15,10 +15,8 @@ IR::Type* CodeGen::TypeVisitor::type(ASTNS::Type *ast) {
     return newret;
 }
 
-void CodeGen::TypeVisitor::visitPrimitiveType(ASTNS::PrimitiveType *ast)
-{
-    switch (ast->ty.type)
-    {
+void CodeGen::TypeVisitor::visitPrimitiveType(ASTNS::PrimitiveType *ast) {
+    switch (ast->ty.type) {
 #define CASE(ty) case TokenType::ty: ret =
 #define GET(ty) cg.context->get##ty
         CASE(UINT8) GET(IntType)(8, false); return;
@@ -43,8 +41,7 @@ void CodeGen::TypeVisitor::visitPrimitiveType(ASTNS::PrimitiveType *ast)
     }
 }
 
-void CodeGen::TypeVisitor::visitPointerType(ASTNS::PointerType *ast)
-{
+void CodeGen::TypeVisitor::visitPointerType(ASTNS::PointerType *ast) {
     IR::Type *ty = type(ast->type.get());
     ret = cg.context->getPointerType(ty);
 }

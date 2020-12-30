@@ -5,8 +5,7 @@
 #include <string>
 #include <ostream>
 
-struct Token
-{
+struct Token {
     TokenType type;
     std::string::iterator start;
     std::string::iterator end;
@@ -18,21 +17,18 @@ struct Token
 
     File *sourcefile;
 
-    inline std::string stringify() const
-    {
+    inline std::string stringify() const {
         return std::string(start, end);
     }
 
     friend std::ostream& operator<<(std::ostream &, Token const &);
 };
 
-inline std::ostream& operator<<(std::ostream &os, Token const &t)
-{
+inline std::ostream& operator<<(std::ostream &os, Token const &t) {
     os << "'" << t.stringify() << "'";
     return os;
 }
-inline std::ostream& operator<<(std::ostream &os, TokenType const &t)
-{
+inline std::ostream& operator<<(std::ostream &os, TokenType const &t) {
     os << stringifyTokenType(t);
     return os;
 }

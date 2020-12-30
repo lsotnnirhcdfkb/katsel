@@ -20,28 +20,24 @@ static bool ansiCodes = false;
 static HANDLE hOut;
 static DWORD originalOutMode;
 
-void enableTerminalCodes()
-{
+void enableTerminalCodes() {
     // get handle to stdout
     hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-    if (hOut == INVALID_HANDLE_VALUE) // if the handle is invalid
-    {
+    if (hOut == INVALID_HANDLE_VALUE) // if the handle is invalid {
         ansiCodes = false;
         return;
     }
 
     originalOutMode = 0;
 
-    if (!GetConsoleMode(hOut, &originalOutMode)) // if cant get the original output mode
-    {
+    if (!GetConsoleMode(hOut, &originalOutMode)) // if cant get the original output mode {
         ansiCodes = false;
         return;
     }
 
     DWORD requestedOutMode = originalOutMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 
-    if (!SetConsoleMode(hOut, requestedOutMode)) // if cant set output mode
-    {
+    if (!SetConsoleMode(hOut, requestedOutMode)) // if cant set output mode {
         ansiCodes = false;
         return;
     }
@@ -49,10 +45,8 @@ void enableTerminalCodes()
     ansiCodes = true; // yay could get handle, get and set output mode
 }
 
-void resetTerminal()
-{
-    if (!SetConsoleMode(hOut, originalOutMode))
-    {
+void resetTerminal() {
+    if (!SetConsoleMode(hOut, originalOutMode)) {
         // can't set the terminal back to normal, so it has to deal with that now i guess
         return;
     }
@@ -60,18 +54,15 @@ void resetTerminal()
     ansiCodes = false;
 }
 #else
-void enableTerminalCodes()
-{
+void enableTerminalCodes() {
     ansiCodes = true;
 }
 
-void resetTerminal()
-{
+void resetTerminal() {
     ansiCodes = true;
 }
 #endif
 
-bool ansiCodesEnabled()
-{
+bool ansiCodesEnabled() {
     return ansiCodes;
 }

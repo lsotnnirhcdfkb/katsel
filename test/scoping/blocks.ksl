@@ -1,15 +1,9 @@
 
 
 fun uint32 main()
-    var uint32 a
-
-    {
-        var uint32 b
-
-        {
-            var uint32 c
-
-            {
+    var uint32 a {
+        var uint32 b {
+            var uint32 c {
                 var uint32 d
 
                 a

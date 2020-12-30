@@ -4,10 +4,8 @@
 #include "ir/visitor.h"
 #include "llvm/Support/raw_ostream.h"
 
-namespace IR
-{
-    class CFGDotter : public BrVisitor
-    {
+namespace IR {
+    class CFGDotter : public BrVisitor {
     public:
         CFGDotter(llvm::raw_ostream &ostream);
 

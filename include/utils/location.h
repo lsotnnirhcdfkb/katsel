@@ -7,8 +7,7 @@ struct ASTen;
 namespace IR { struct ASTValue; }
 namespace ASTNS { class AST; }
 
-struct Location
-{
+struct Location {
     std::string::iterator start;
     std::string::iterator end;
     File const *file;
