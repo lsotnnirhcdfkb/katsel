@@ -40,7 +40,7 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast)
         return;
     }
 
-    fcg.curBlock->add(std::make_unique<IR::Instrs::Store>(fcg.ret, v));
+    fcg.curBlock->add(std::make_unique<IR::Instrs::Store>(IR::ASTValue(fcg.ret, ast), v));
     fcg.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(fcg.exitBlock));
     // fcg.curBlock = cg.context.blackHoleBlock.get(); TODO: fix
 }

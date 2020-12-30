@@ -7,10 +7,10 @@
 // Store and Phi instructions {{{1
 void Lower::Lowerer::visitStore(IR::Instrs::Store *instr)
 {
-    if (dynamic_cast<IR::VoidType*>(instr->target->type()))
+    if (dynamic_cast<IR::VoidType*>(static_cast<IR::PointerType*>(instr->target.type())->ty))
         return;
 
-    llvm::Value *t = values.at(instr->target);
+    llvm::Value *t = lower(instr->target);
     ASSERT(llvm::isa<llvm::AllocaInst>(t))
     llvm::AllocaInst *target = static_cast<llvm::AllocaInst*>(t);
     builder.CreateStore(lower(instr->value), target);

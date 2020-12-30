@@ -70,7 +70,7 @@ bool CodeGen::FunctionCodeGen::codegen()
         }
         else
         {
-            curBlock->add(std::make_unique<IR::Instrs::Store>(ret, retval));
+            curBlock->add(std::make_unique<IR::Instrs::Store>(IR::ASTValue(ret, ast->retty.get()), retval));
             curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(exitBlock));
         }
     }

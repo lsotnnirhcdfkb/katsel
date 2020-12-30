@@ -37,7 +37,7 @@ def type_is_floating(v):
     return f'{type_must_be(v, "FloatType")} || {type_must_be(v, "GenericFloatType")}'
 # instructions {{{1
 instructions = [
-    Instruction('Store'       , 'target->type()->context.getVoidType()'         , ['Register* target', 'ASTValue value'           ], ['static_cast<PointerType*>(target->type())->ty == value.type()']),
+    Instruction('Store'       , 'target.type()->context.getVoidType()'          , ['ASTValue target', 'ASTValue value'            ], [type_must_be('target.type()', 'PointerType'), 'static_cast<PointerType*>(target.type())->ty == value.type()']),
     Instruction('Phi'         , 'prevs[0].second.type()'                        , ['std::vector<std::pair<Block*,ASTValue>> prevs'], ['prevs.size() > 0']),
 
     Instruction('Register'    , 'ty->context.getPointerType(ty)'                , ['Type* ty',                                    ], [], declared=True),

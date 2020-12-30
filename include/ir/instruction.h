@@ -84,11 +84,11 @@ namespace IR
     class Store : public Instruction
     {
     public:
-        Store(Register *target, ASTValue value);
+        Store(ASTValue target, ASTValue value);
         void accept(InstructionVisitor *v) override;
         std::string stringify() const override;
         IR::Type* type() const override;
-        Register *target;
+        ASTValue target;
         ASTValue value;
     };
     class Phi : public Instruction

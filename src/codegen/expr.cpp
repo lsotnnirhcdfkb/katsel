@@ -193,7 +193,6 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast)
         return;
     }
 
-    IR::Type *retty = fty->ret;
     std::vector<IR::ASTValue> args;
     if (ast->args)
     {
@@ -437,9 +436,9 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitAssignmentExpr(ASTNS::Assignmen
         return;
     }
 
-    IR::Instrs::Register *targetReg = dynamic_cast<IR::Instrs::Register*>(lhs.val);
+    IR::Instrs::DerefPtr *targetDeref = dynamic_cast<IR::Instrs::DerefPtr*>(lhs.val);
 
-    if (!targetReg)
+    if (!targetDeref)
     {
         ERR_ASSIGN_INVALID_LHS(ast->equal, lhs);
         ret = IR::ASTValue();
@@ -447,8 +446,9 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitAssignmentExpr(ASTNS::Assignmen
         return;
     }
 
-    rhs = targetReg->type()->implCast(*cg.context, *fcg.fun, fcg.curBlock, rhs);
-    if (targetReg->type() != rhs.type())
+    IR::Type *expectType = dynamic_cast<IR::PointerType*>(targetDeref->type())->ty;
+    rhs = expectType->implCast(*cg.context, *fcg.fun, fcg.curBlock, rhs);
+    if (expectType != rhs.type())
     {
         ERR_ASSIGN_CONFLICT_TYS(lhs, rhs, ast->equal);
         ret = IR::ASTValue();
@@ -456,7 +456,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitAssignmentExpr(ASTNS::Assignmen
         return;
     }
 
-    fcg.curBlock->add(std::make_unique<IR::Instrs::Store>(targetReg, rhs));
+    fcg.curBlock->add(std::make_unique<IR::Instrs::Store>(targetDeref->ptr, rhs));
 
     ret = rhs;
 }

@@ -27,7 +27,7 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem 
             cg.errored = true;
             return;
         }
-        fcg.curBlock->add(std::make_unique<IR::Instrs::Store>(reg, val));
+        fcg.curBlock->add(std::make_unique<IR::Instrs::Store>(IR::ASTValue(reg, ast), val));
     }
 
     fcg.addLocal(varname, reg);
