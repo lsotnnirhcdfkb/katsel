@@ -2,8 +2,6 @@
 #include "utils/assert.h"
 #include "message/errmsgs.h"
 
-#include <algorithm>
-
 // constructors {{{1
 Lexer::Lexer(File &sourcefile): start(sourcefile.source.begin()), end(start), startline(1), startcolumn(1), endline(1), endcolumn(1), indent(0), dedenting(false), srcstart(sourcefile.source.begin()), srcend(sourcefile.source.end()), sourcefile(sourcefile) {
     indentstack.push_back(0);
@@ -128,16 +126,12 @@ Token Lexer::nextToken() {
                 case ' ':
                     if (findingindent) {
                         ++indent;
-                        if (std::binary_search(indentstack.begin(), indentstack.end(), indent))
-                            startToEnd();
                     }
                     advance();
                     break;
                 case '\t':
                     if (findingindent) {
                         indent = (indent / 8 + 1) * 8; // go up to nearest multiple of 8
-                        if (std::binary_search(indentstack.begin(), indentstack.end(), indent))
-                            startToEnd();
                     }
                     advance();
                     break;
@@ -148,9 +142,7 @@ Token Lexer::nextToken() {
                         advance();
                         ++endline;
                         endcolumn = 1;
-                        startToEnd();
                     } else {
-                        startToEnd();
                         advance();
                         return makeErrorToken(ERR_CHAR_AFTER_BACKSLASH);
                     }
@@ -186,7 +178,6 @@ Token Lexer::nextToken() {
                         ++endline;
                         endcolumn = 1;
                         indent = 0;
-                        startToEnd();
                     } else
                         atWh = false;
                     break;
@@ -207,6 +198,7 @@ Token Lexer::nextToken() {
             return makeErrorToken(ERR_DEDENT_NOMATCH);
         }
 
+        startToEnd();
         indentstack.push_back(indent);
         return makeToken(TokenType::INDENT);
     } else if (indent < indentstack.back()) {
@@ -525,7 +517,10 @@ char Lexer::consumed() {
 
 // making tokens {{{1
 Token Lexer::makeToken(TokenType type) {
-    return Token {type, start, end, nullptr, startline, startcolumn - 1, &sourcefile};
+    if (type == TokenType::DEDENT)
+        return Token {type, start, start, nullptr, startline, startcolumn - 1, &sourcefile};
+    else
+        return Token {type, start, end, nullptr, startline, startcolumn - 1, &sourcefile};
 }
 Token Lexer::makeErrorToken(void (*errf)(Token const &)) {
     Token token = makeToken(TokenType::ERROR);
