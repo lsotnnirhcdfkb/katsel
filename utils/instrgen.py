@@ -46,12 +46,12 @@ instructions = [
     Instruction('And'         , 'lhs.type()->context.getBoolType()'             , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_must_be('lhs.type()', 'BoolType'), *operands_equal('lhs.type()', 'rhs.type()')]),
     Instruction('Not'         , 'op.type()->context.getBoolType()'              , ['ASTValue op'                                  ], []),
 
-    Instruction('ICmpNE'      , 'lhs.type()->context.getBoolType()'             , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('ICmpEQ'      , 'lhs.type()->context.getBoolType()'             , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('ICmpLT'      , 'lhs.type()->context.getBoolType()'             , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('ICmpGT'      , 'lhs.type()->context.getBoolType()'             , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('ICmpLE'      , 'lhs.type()->context.getBoolType()'             , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
-    Instruction('ICmpGE'      , 'lhs.type()->context.getBoolType()'             , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('ICmpNE'      , 'lhs.type()->context.getBoolType()'             , ['ASTValue lhs', 'ASTValue rhs'                 ], [f'{type_is_integral("lhs.type()")} || {type_must_be("lhs.type()", "PointerType")}', *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('ICmpEQ'      , 'lhs.type()->context.getBoolType()'             , ['ASTValue lhs', 'ASTValue rhs'                 ], [f'{type_is_integral("lhs.type()")} || {type_must_be("lhs.type()", "PointerType")}', *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('ICmpLT'      , 'lhs.type()->context.getBoolType()'             , ['ASTValue lhs', 'ASTValue rhs'                 ], [f'{type_is_integral("lhs.type()")} || {type_must_be("lhs.type()", "PointerType")}', *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('ICmpGT'      , 'lhs.type()->context.getBoolType()'             , ['ASTValue lhs', 'ASTValue rhs'                 ], [f'{type_is_integral("lhs.type()")} || {type_must_be("lhs.type()", "PointerType")}', *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('ICmpLE'      , 'lhs.type()->context.getBoolType()'             , ['ASTValue lhs', 'ASTValue rhs'                 ], [f'{type_is_integral("lhs.type()")} || {type_must_be("lhs.type()", "PointerType")}', *operands_equal('lhs.type()', 'rhs.type()')]),
+    Instruction('ICmpGE'      , 'lhs.type()->context.getBoolType()'             , ['ASTValue lhs', 'ASTValue rhs'                 ], [f'{type_is_integral("lhs.type()")} || {type_must_be("lhs.type()", "PointerType")}', *operands_equal('lhs.type()', 'rhs.type()')]),
     Instruction('IAdd'        , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
     Instruction('ISub'        , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
     Instruction('IMult'       , 'lhs.type()'                                    , ['ASTValue lhs', 'ASTValue rhs'                 ], [type_is_integral('lhs.type()'), *operands_equal('lhs.type()', 'rhs.type()')]),
@@ -90,6 +90,7 @@ instructions = [
     Instruction('Call'        , 'f->ty->ret'                                    , ['Function* f', 'std::vector<ASTValue> args'    ], ['args.size() == f->ty->paramtys.size()']),
 
     Instruction('DerefPtr'    , 'static_cast<PointerType*>(ptr.type())->ty'     , ['ASTValue ptr'                                 ], [type_must_be('ptr.type()', 'PointerType')]),
+    Instruction('PtrArith'    , 'ptr.type()'                                    , ['ASTValue ptr', 'ASTValue offset'              ], [type_must_be('ptr.type()', 'PointerType'), type_is_integral('offset.type()')]),
 
     Br('Return'      , ['ASTValue value'                                             ], []),
     Br('GotoBr'      , ['Block* to'                                                  ], []),

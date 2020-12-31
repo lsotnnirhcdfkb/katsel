@@ -1,8 +1,5 @@
-#include <sstream>
-
 #include "ir/type.h"
 #include "ir/instruction.h"
-#include "message/internal.h"
 #include "message/errmsgs.h"
 #include "utils/format.h"
 #include "utils/assert.h"
@@ -16,7 +13,7 @@
 #define UNARY_OP_ARGS CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::Type::UnaryOperator op, IR::ASTValue v, Token optok, ASTNS::AST *ast
 // static functions {{{1
 #define SUPPORT_OPERATOR_BASIC(op, instr) case IR::Type::BinaryOperator::op: return IR::ASTValue(curBlock->add(std::make_unique<IR::Instrs::instr>(l, r)), ast);
-// float/int operations for reuse between generic float/int and concrete float/int types {{{1
+// float/int operations for reuse between generic float/int and concrete float/int types {{{2
 static IR::ASTValue floatBinOp(BIN_OP_ARGS) {
     l = r.type()->implCast(cgc, fun, curBlock, l);
     r = l.type()->implCast(cgc, fun, curBlock, r);

@@ -431,6 +431,20 @@ errors:
       - ['truev', *under1, [
           ['note', 'format("%", truev.type())']
         ]]
+  -
+    code: 221
+    name: ptr-arith-rhs-not-num
+    desc: Cannot do pointer arithmetic with non-integer as right-hand-side of expression
+    inputs: 'IR::ASTValue const &lhs, Token const &optok, IR::ASTValue const &rhs'
+    location: optok
+    highlights:
+      - ['lhs', *under1, []]
+      - ['rhs', *under1, [
+          ['note', 'format("%", rhs.type())']
+        ]]
+      - ['optok', *under0, [
+          ['error', '"pointer arithmetic requires an integral right-hand operand"']
+        ]]
 
 warnings:
   -

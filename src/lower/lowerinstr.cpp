@@ -161,9 +161,12 @@ void Lower::Lowerer::visitCall(IR::Instrs::Call *instr) {
     if (!dynamic_cast<IR::VoidType*>(instr->type()))
         values[instr] = res;
 }
-// DerefPtr instruction {{{1
+// Pointer instruction {{{1
 void Lower::Lowerer::visitDerefPtr(IR::Instrs::DerefPtr *instr) {
     values[instr] = builder.CreateLoad(lower(instr->ptr));
+}
+void Lower::Lowerer::visitPtrArith(IR::Instrs::PtrArith *instr) {
+    values[instr] = builder.CreateInBoundsGEP(lower(instr->ptr), { lower(instr->offset) });
 }
 // Register instruction {{{1
 void Lower::Lowerer::visitRegister(IR::Instrs::Register *instr) {

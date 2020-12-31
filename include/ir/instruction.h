@@ -73,6 +73,7 @@ namespace IR {
     class FloatToInt;
     class Call;
     class DerefPtr;
+    class PtrArith;
     class Return;
     class GotoBr;
     class CondBr;
@@ -459,6 +460,15 @@ namespace IR {
         std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue ptr;
+    };
+    class PtrArith : public Instruction {
+    public:
+        PtrArith(ASTValue ptr, ASTValue offset);
+        void accept(InstructionVisitor *v) override;
+        std::string stringify() const override;
+        IR::Type* type() const override;
+        ASTValue ptr;
+        ASTValue offset;
     };
     class Return : public Br {
     public:

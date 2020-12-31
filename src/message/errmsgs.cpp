@@ -458,6 +458,22 @@ void E0220(IR::ASTValue const &truev, Token const &iftok) {
     e.report();
 }
 
+// E0221 - ptr-arith-rhs-not-num
+// | Cannot do pointer arithmetic with non-integer as right-hand-
+// | side of expression
+void E0221(IR::ASTValue const &lhs, Token const &optok, IR::ASTValue const &rhs) {
+    Error e = Error(Error::MsgType::ERROR, optok, "E0221 (ptr-arith-rhs-not-num)");
+    e.underline(Error::Underline(lhs, '~')
+    );
+    e.underline(Error::Underline(rhs, '~')
+        .note(format("%", rhs.type()))
+    );
+    e.underline(Error::Underline(optok, '^')
+        .error("pointer arithmetic requires an integral right-hand operand")
+    );
+    e.report();
+}
+
 // W0000 - Wextra-semi
 // | Extra semicolon
 void W0000(Token const &semi) {

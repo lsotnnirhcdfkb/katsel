@@ -75,31 +75,6 @@ IR::ASTValue IR::FunctionType::implCast(CodeGen::Context &cgc, IR::Function &fun
     return v;
 }
 
-IR::PointerType::PointerType(CodeGen::Context &context, Type *ty): Type(context), ty(ty) {}
-
-std::string IR::PointerType::stringify() const {
-    return format("*%", ty->stringify());
-}
-
-IR::ASTValue IR::PointerType::binOp(CodeGen::Context &, IR::Function &, IR::Block *&, IR::Type::BinaryOperator , IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *) {
-    ERR_LHS_UNSUPPORTED_OP(l, optok);
-    return ASTValue();
-}
-IR::ASTValue IR::PointerType::unaryOp(CodeGen::Context &, IR::Function &, IR::Block *&, IR::Type::UnaryOperator , IR::ASTValue operand, Token optok, ASTNS::AST *) {
-    ERR_UNARY_UNSUPPORTED_OP(operand, optok);
-    return ASTValue();
-}
-IR::ASTValue IR::PointerType::castTo(CodeGen::Context &, IR::Function &, IR::Block *&, IR::ASTValue v, ASTNS::AST *ast) {
-    ERR_INVALID_CAST(ast, v, this);
-    return ASTValue();
-}
-llvm::Type* IR::PointerType::toLLVMType(llvm::LLVMContext &con) const {
-    return llvm::PointerType::getUnqual(ty->toLLVMType(con));
-}
-IR::ASTValue IR::PointerType::implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) {
-    return v;
-}
-
 std::ostream& operator<<(std::ostream &os, IR::Type const *ty) {
     os << "'" << ty->stringify() << "'";
     return os;

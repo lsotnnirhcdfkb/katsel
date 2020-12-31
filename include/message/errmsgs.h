@@ -150,6 +150,10 @@ void E0219(IR::ASTValue &v);
 #define ERR_NO_ELSE_NOT_VOID E0220
 void E0220(IR::ASTValue const &truev, Token const &iftok);
 
+// E0221 - ptr-arith-rhs-not-num
+#define ERR_PTR_ARITH_RHS_NOT_NUM E0221
+void E0221(IR::ASTValue const &lhs, Token const &optok, IR::ASTValue const &rhs);
+
 // W0000 - Wextra-semi
 #define WARN_EXTRA_SEMI W0000
 void W0000(Token const &semi);

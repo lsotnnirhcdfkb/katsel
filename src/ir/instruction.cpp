@@ -53,7 +53,7 @@ IR::Type* IR::Instrs::Not::type() const { return op.type()->context.getBoolType(
 std::string IR::Instrs::Not::stringify() const { return format("%%%", this); }
 
 IR::Instrs::ICmpNE::ICmpNE(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs) {
-    ASSERT(dynamic_cast<IntType*>(lhs.type()) || dynamic_cast<GenericIntType*>(lhs.type()))
+    ASSERT(dynamic_cast<IntType*>(lhs.type()) || dynamic_cast<GenericIntType*>(lhs.type()) || dynamic_cast<PointerType*>(lhs.type()))
     ASSERT(lhs.type() == rhs.type())
 }
 void IR::Instrs::ICmpNE::accept(InstructionVisitor *v) { v->visitICmpNE(this); }
@@ -61,7 +61,7 @@ IR::Type* IR::Instrs::ICmpNE::type() const { return lhs.type()->context.getBoolT
 std::string IR::Instrs::ICmpNE::stringify() const { return format("%%%", this); }
 
 IR::Instrs::ICmpEQ::ICmpEQ(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs) {
-    ASSERT(dynamic_cast<IntType*>(lhs.type()) || dynamic_cast<GenericIntType*>(lhs.type()))
+    ASSERT(dynamic_cast<IntType*>(lhs.type()) || dynamic_cast<GenericIntType*>(lhs.type()) || dynamic_cast<PointerType*>(lhs.type()))
     ASSERT(lhs.type() == rhs.type())
 }
 void IR::Instrs::ICmpEQ::accept(InstructionVisitor *v) { v->visitICmpEQ(this); }
@@ -69,7 +69,7 @@ IR::Type* IR::Instrs::ICmpEQ::type() const { return lhs.type()->context.getBoolT
 std::string IR::Instrs::ICmpEQ::stringify() const { return format("%%%", this); }
 
 IR::Instrs::ICmpLT::ICmpLT(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs) {
-    ASSERT(dynamic_cast<IntType*>(lhs.type()) || dynamic_cast<GenericIntType*>(lhs.type()))
+    ASSERT(dynamic_cast<IntType*>(lhs.type()) || dynamic_cast<GenericIntType*>(lhs.type()) || dynamic_cast<PointerType*>(lhs.type()))
     ASSERT(lhs.type() == rhs.type())
 }
 void IR::Instrs::ICmpLT::accept(InstructionVisitor *v) { v->visitICmpLT(this); }
@@ -77,7 +77,7 @@ IR::Type* IR::Instrs::ICmpLT::type() const { return lhs.type()->context.getBoolT
 std::string IR::Instrs::ICmpLT::stringify() const { return format("%%%", this); }
 
 IR::Instrs::ICmpGT::ICmpGT(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs) {
-    ASSERT(dynamic_cast<IntType*>(lhs.type()) || dynamic_cast<GenericIntType*>(lhs.type()))
+    ASSERT(dynamic_cast<IntType*>(lhs.type()) || dynamic_cast<GenericIntType*>(lhs.type()) || dynamic_cast<PointerType*>(lhs.type()))
     ASSERT(lhs.type() == rhs.type())
 }
 void IR::Instrs::ICmpGT::accept(InstructionVisitor *v) { v->visitICmpGT(this); }
@@ -85,7 +85,7 @@ IR::Type* IR::Instrs::ICmpGT::type() const { return lhs.type()->context.getBoolT
 std::string IR::Instrs::ICmpGT::stringify() const { return format("%%%", this); }
 
 IR::Instrs::ICmpLE::ICmpLE(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs) {
-    ASSERT(dynamic_cast<IntType*>(lhs.type()) || dynamic_cast<GenericIntType*>(lhs.type()))
+    ASSERT(dynamic_cast<IntType*>(lhs.type()) || dynamic_cast<GenericIntType*>(lhs.type()) || dynamic_cast<PointerType*>(lhs.type()))
     ASSERT(lhs.type() == rhs.type())
 }
 void IR::Instrs::ICmpLE::accept(InstructionVisitor *v) { v->visitICmpLE(this); }
@@ -93,7 +93,7 @@ IR::Type* IR::Instrs::ICmpLE::type() const { return lhs.type()->context.getBoolT
 std::string IR::Instrs::ICmpLE::stringify() const { return format("%%%", this); }
 
 IR::Instrs::ICmpGE::ICmpGE(ASTValue lhs, ASTValue rhs): lhs(lhs), rhs(rhs) {
-    ASSERT(dynamic_cast<IntType*>(lhs.type()) || dynamic_cast<GenericIntType*>(lhs.type()))
+    ASSERT(dynamic_cast<IntType*>(lhs.type()) || dynamic_cast<GenericIntType*>(lhs.type()) || dynamic_cast<PointerType*>(lhs.type()))
     ASSERT(lhs.type() == rhs.type())
 }
 void IR::Instrs::ICmpGE::accept(InstructionVisitor *v) { v->visitICmpGE(this); }
@@ -336,6 +336,14 @@ IR::Instrs::DerefPtr::DerefPtr(ASTValue ptr): ptr(ptr) {
 void IR::Instrs::DerefPtr::accept(InstructionVisitor *v) { v->visitDerefPtr(this); }
 IR::Type* IR::Instrs::DerefPtr::type() const { return static_cast<PointerType*>(ptr.type())->ty; }
 std::string IR::Instrs::DerefPtr::stringify() const { return format("%%%", this); }
+
+IR::Instrs::PtrArith::PtrArith(ASTValue ptr, ASTValue offset): ptr(ptr), offset(offset) {
+    ASSERT(dynamic_cast<PointerType*>(ptr.type()))
+    ASSERT(dynamic_cast<IntType*>(offset.type()) || dynamic_cast<GenericIntType*>(offset.type()))
+}
+void IR::Instrs::PtrArith::accept(InstructionVisitor *v) { v->visitPtrArith(this); }
+IR::Type* IR::Instrs::PtrArith::type() const { return ptr.type(); }
+std::string IR::Instrs::PtrArith::stringify() const { return format("%%%", this); }
 
 IR::Instrs::Return::Return(ASTValue value): value(value) {
 }
