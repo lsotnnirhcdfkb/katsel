@@ -362,13 +362,13 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitForExpr(ASTNS::ForExpr *ast) {
         ret = IR::ASTValue();
         return;
     }
-    loopCheckCond->branch(std::make_unique<IR::Instrs::CondBr>(cond, loopBody, loopAfter));
+    fcg.curBlock->branch(std::make_unique<IR::Instrs::CondBr>(cond, loopBody, loopAfter));
 
     fcg.curBlock = loopBody;
     expr(ast->body.get());
 
     expr(ast->increment.get());
-    loopBody->branch(std::make_unique<IR::Instrs::GotoBr>(loopCheckCond));
+    fcg.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(loopCheckCond));
     fcg.decScope();
 
     fcg.curBlock = loopAfter;
