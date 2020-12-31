@@ -348,7 +348,8 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitIfExpr(ASTNS::IfExpr *ast) {
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitForExpr(ASTNS::ForExpr *ast) {
     fcg.incScope();
 
-    fcg.stmtCG.stmt(ast->initial.get());
+    if (ast->initial)
+        fcg.stmtCG.stmt(ast->initial.get());
 
     IR::Block *loopCheckCond = fcg.fun->addBlock("loop_checkcond");
     IR::Block *loopBody = fcg.fun->addBlock("loop_body");
