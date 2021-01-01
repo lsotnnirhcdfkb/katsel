@@ -199,6 +199,8 @@ size_t getGoto(NonTerminal nterm, size_t state) {
                     return 149;
                 case 104: 
                     return 152;
+                case 141: 
+                    return 181;
                 case 148: case 200: 
                     return 186;
                 case 163: case 205: 
@@ -295,7 +297,7 @@ size_t getGoto(NonTerminal nterm, size_t state) {
             switch (state) {
                 case 45: case 50: case 53: case 54: case 106: 
                     return 60;
-                case 62: case 68: case 100: case 104: case 148: case 163: case 194: case 200: case 205: 
+                case 62: case 68: case 100: case 104: case 141: case 148: case 163: case 194: case 200: case 205: 
                     return 118;
                 default: reportAbortNoh("get invalid goto");
             }
@@ -303,7 +305,7 @@ size_t getGoto(NonTerminal nterm, size_t state) {
             switch (state) {
                 case 45: case 50: case 53: case 54: case 106: 
                     return 61;
-                case 62: case 68: case 100: case 104: case 148: case 163: case 194: case 200: case 205: 
+                case 62: case 68: case 100: case 104: case 141: case 148: case 163: case 194: case 200: case 205: 
                     return 117;
                 default: reportAbortNoh("get invalid goto");
             }
@@ -311,7 +313,7 @@ size_t getGoto(NonTerminal nterm, size_t state) {
             switch (state) {
                 case 19: case 121: case 195: case 210: 
                     return 41;
-                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 148: case 163: case 194: case 200: case 205: 
+                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 141: case 148: case 163: case 194: case 200: case 205: 
                     return 66;
                 default: reportAbortNoh("get invalid goto");
             }
@@ -345,7 +347,7 @@ size_t getGoto(NonTerminal nterm, size_t state) {
             }
         case NonTerminal::AssignmentExpr:
             switch (state) {
-                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 148: case 163: case 194: case 200: case 205: 
+                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 141: case 148: case 163: case 194: case 200: case 205: 
                     return 63;
                 case 119: 
                     return 159;
@@ -353,7 +355,7 @@ size_t getGoto(NonTerminal nterm, size_t state) {
             }
         case NonTerminal::IfExpr:
             switch (state) {
-                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 148: case 163: case 194: case 200: case 205: 
+                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 141: case 148: case 163: case 194: case 200: case 205: 
                     return 64;
                 case 195: 
                     return 204;
@@ -361,19 +363,19 @@ size_t getGoto(NonTerminal nterm, size_t state) {
             }
         case NonTerminal::ForExpr:
             switch (state) {
-                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 148: case 163: case 194: case 200: case 205: 
+                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 141: case 148: case 163: case 194: case 200: case 205: 
                     return 65;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::BinOrExpr:
             switch (state) {
-                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 119: case 148: case 163: case 194: case 200: case 205: 
+                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 119: case 141: case 148: case 163: case 194: case 200: case 205: 
                     return 67;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::BinAndExpr:
             switch (state) {
-                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 119: case 148: case 163: case 194: case 200: case 205: 
+                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 119: case 141: case 148: case 163: case 194: case 200: case 205: 
                     return 70;
                 case 120: 
                     return 160;
@@ -381,7 +383,7 @@ size_t getGoto(NonTerminal nterm, size_t state) {
             }
         case NonTerminal::CompEQExpr:
             switch (state) {
-                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 119: case 120: case 148: case 163: case 194: case 200: case 205: 
+                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 119: case 120: case 141: case 148: case 163: case 194: case 200: case 205: 
                     return 71;
                 case 124: 
                     return 164;
@@ -389,7 +391,7 @@ size_t getGoto(NonTerminal nterm, size_t state) {
             }
         case NonTerminal::CompLGTExpr:
             switch (state) {
-                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 119: case 120: case 124: case 148: case 163: case 194: case 200: case 205: 
+                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 119: case 120: case 124: case 141: case 148: case 163: case 194: case 200: case 205: 
                     return 72;
                 case 125: 
                     return 165;
@@ -399,7 +401,7 @@ size_t getGoto(NonTerminal nterm, size_t state) {
             }
         case NonTerminal::BitXorExpr:
             switch (state) {
-                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 119: case 120: case 124: case 125: case 126: case 148: case 163: case 194: case 200: case 205: 
+                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 119: case 120: case 124: case 125: case 126: case 141: case 148: case 163: case 194: case 200: case 205: 
                     return 73;
                 case 127: 
                     return 167;
@@ -413,7 +415,7 @@ size_t getGoto(NonTerminal nterm, size_t state) {
             }
         case NonTerminal::BitOrExpr:
             switch (state) {
-                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 119: case 120: case 124: case 125: case 126: case 127: case 128: case 129: case 130: case 148: case 163: case 194: case 200: case 205: 
+                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 119: case 120: case 124: case 125: case 126: case 127: case 128: case 129: case 130: case 141: case 148: case 163: case 194: case 200: case 205: 
                     return 74;
                 case 131: 
                     return 171;
@@ -421,7 +423,7 @@ size_t getGoto(NonTerminal nterm, size_t state) {
             }
         case NonTerminal::BitAndExpr:
             switch (state) {
-                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 119: case 120: case 124: case 125: case 126: case 127: case 128: case 129: case 130: case 131: case 148: case 163: case 194: case 200: case 205: 
+                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 119: case 120: case 124: case 125: case 126: case 127: case 128: case 129: case 130: case 131: case 141: case 148: case 163: case 194: case 200: case 205: 
                     return 75;
                 case 132: 
                     return 172;
@@ -429,7 +431,7 @@ size_t getGoto(NonTerminal nterm, size_t state) {
             }
         case NonTerminal::BitShiftExpr:
             switch (state) {
-                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 119: case 120: case 124: case 125: case 126: case 127: case 128: case 129: case 130: case 131: case 132: case 148: case 163: case 194: case 200: case 205: 
+                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 119: case 120: case 124: case 125: case 126: case 127: case 128: case 129: case 130: case 131: case 132: case 141: case 148: case 163: case 194: case 200: case 205: 
                     return 76;
                 case 133: 
                     return 173;
@@ -437,7 +439,7 @@ size_t getGoto(NonTerminal nterm, size_t state) {
             }
         case NonTerminal::AdditionExpr:
             switch (state) {
-                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 119: case 120: case 124: case 125: case 126: case 127: case 128: case 129: case 130: case 131: case 132: case 133: case 148: case 163: case 194: case 200: case 205: 
+                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 119: case 120: case 124: case 125: case 126: case 127: case 128: case 129: case 130: case 131: case 132: case 133: case 141: case 148: case 163: case 194: case 200: case 205: 
                     return 77;
                 case 134: 
                     return 174;
@@ -447,7 +449,7 @@ size_t getGoto(NonTerminal nterm, size_t state) {
             }
         case NonTerminal::MultExpr:
             switch (state) {
-                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 119: case 120: case 124: case 125: case 126: case 127: case 128: case 129: case 130: case 131: case 132: case 133: case 134: case 135: case 148: case 163: case 194: case 200: case 205: 
+                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 119: case 120: case 124: case 125: case 126: case 127: case 128: case 129: case 130: case 131: case 132: case 133: case 134: case 135: case 141: case 148: case 163: case 194: case 200: case 205: 
                     return 78;
                 case 136: 
                     return 176;
@@ -479,10 +481,8 @@ size_t getGoto(NonTerminal nterm, size_t state) {
             }
         case NonTerminal::CastExpr:
             switch (state) {
-                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 119: case 120: case 124: case 125: case 126: case 127: case 128: case 129: case 130: case 131: case 132: case 133: case 134: case 135: case 136: case 137: case 148: case 163: case 194: case 200: case 205: 
+                case 45: case 50: case 53: case 54: case 62: case 68: case 100: case 104: case 106: case 119: case 120: case 124: case 125: case 126: case 127: case 128: case 129: case 130: case 131: case 132: case 133: case 134: case 135: case 136: case 137: case 141: case 148: case 163: case 194: case 200: case 205: 
                     return 79;
-                case 141: 
-                    return 181;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::CallExpr:
@@ -4271,16 +4271,22 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 33); break;
                     case TokenType::FLOATLIT:
                         shift(p, lasttok, lookahead, stack, steps, 91); break;
+                    case TokenType::FOR:
+                        shift(p, lasttok, lookahead, stack, steps, 69); break;
                     case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 96); break;
                     case TokenType::IDENTIFIER:
                         shift(p, lasttok, lookahead, stack, steps, 99); break;
+                    case TokenType::IF:
+                        shift(p, lasttok, lookahead, stack, steps, 68); break;
                     case TokenType::MINUS:
                         shift(p, lasttok, lookahead, stack, steps, 83); break;
                     case TokenType::NULLPTRLIT:
                         shift(p, lasttok, lookahead, stack, steps, 92); break;
                     case TokenType::OCTINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 94); break;
+                    case TokenType::OCURB:
+                        shift(p, lasttok, lookahead, stack, steps, 45); break;
                     case TokenType::OPARN:
                         shift(p, lasttok, lookahead, stack, steps, 100); break;
                     case TokenType::SINT16:
@@ -4311,7 +4317,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 37); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "type cast expression", "type cast expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "expression", "type cast expression")  });
                 }
                 break;
             case 142:

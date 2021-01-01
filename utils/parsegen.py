@@ -729,7 +729,7 @@ def make_grammar():
     rule(MultExpr, (MultExpr, SLASH, UnaryExpr, ), bin_expr_reduction)
     rule(MultExpr, (MultExpr, PERCENT, UnaryExpr, ), bin_expr_reduction)
     rule(MultExpr, (CastExpr,), SkipReduceAction())
-    rule(CastExpr, (Type, OPARN, CastExpr, CPARN), SimpleReduceAction('CastExpr', 'std::move(a0), std::move(a2)'))
+    rule(CastExpr, (Type, OPARN, Expr, CPARN), SimpleReduceAction('CastExpr', 'std::move(a0), std::move(a2)'))
     rule(CastExpr, (UnaryExpr,), SkipReduceAction())
     rule(UnaryExpr, (TILDE, UnaryExpr, ), SimpleReduceAction('UnaryExpr', 'a0, std::move(a1)'))
     rule(UnaryExpr, (MINUS, UnaryExpr, ), SimpleReduceAction('UnaryExpr', 'a0, std::move(a1)'))
