@@ -87,25 +87,22 @@ enum class TokenType {
     BOOL,
     DOUBLE,
     CHAR,
+    VOID,
 
-    // keywords
+    // more keywords
     VAR,
     FUN,
     LET,
-    VOID,
-    NAMESPACE,
     CLASS,
-    ENUM,
+    DATA,
+    IMPL,
     RETURN,
     WHILE,
     FOR,
     IF,
     ELSE,
-    PATTERN,
-    DEFAULT,
+    MATCH,
     BREAK,
-    BREAKALL,
-    BREAKTO,
     CONTINUE,
     ASSERT,
 
@@ -197,19 +194,16 @@ inline constexpr char const * stringifyTokenType(TokenType ty) {
         STOKTY(LET, 'let')
         STOKTY(FUN, 'fun')
         STOKTY(VOID, 'void')
-        STOKTY(NAMESPACE, 'namespace')
         STOKTY(CLASS, 'class')
-        STOKTY(ENUM, 'enum')
+        STOKTY(DATA, 'data')
+        STOKTY(IMPL, 'impl')
         STOKTY(RETURN, 'return')
         STOKTY(WHILE, 'while')
         STOKTY(FOR, 'for')
         STOKTY(IF, 'if')
         STOKTY(ELSE, 'else')
-        STOKTY(PATTERN, 'pattern')
-        STOKTY(DEFAULT, 'default')
+        STOKTY(MATCH, 'match')
         STOKTY(BREAK, 'break')
-        STOKTY(BREAKALL, 'breakall')
-        STOKTY(BREAKTO, 'breakto')
         STOKTY(CONTINUE, 'continue')
         STOKTY(ASSERT, 'assert')
         STOKTY(BOOM, boom)
