@@ -40,13 +40,12 @@ class Terminal:
 # rule {{{2
 class Rule:
     __num = 0
-    def __init__(self, symbol, expansion, reduce_action, exhistart, exhiend, special):
+    def __init__(self, symbol, expansion, reduce_action, special):
         self.symbol = symbol
         self.expansion = expansion
         self.num = Rule.__num
         Rule.__num += 1
         self.reduce_action = reduce_action
-        self.exhistart, self.exhiend = exhistart, exhiend
         self.special = special
 
     def __repr__(self):
@@ -448,7 +447,7 @@ def make_parse_table():
 def nt(sym, name, reduces_to, panickable=False):
     return NonTerminal(sym, panickable, name, reduces_to)
 
-def rule(sym, expansion, reduce_action, histart='START', hiend='END', special=''):
+def rule(sym, expansion, reduce_action, special=''):
     rsp = {}
     rsp['defaultreduce'] = True
 
@@ -463,7 +462,7 @@ def rule(sym, expansion, reduce_action, histart='START', hiend='END', special=''
         else:
             raise Exception(f'invalid special {rest}')
 
-    rule = Rule(sym, expansion, reduce_action, histart, hiend, rsp)
+    rule = Rule(sym, expansion, reduce_action, rsp)
     grammar.append(rule)
     return rule
 
@@ -486,12 +485,12 @@ def list_rule(sym, make_list_action, append_list_action, list_class, delimit=Non
 
     return symlist
 
-def make_opt(toopt, with_action, no_action, newname=None):
-    if newname is None:
-        newname = 'optional ' + toopt.name
+def make_opt(toopt, with_action, no_action, new_name=None):
+    if new_name is None:
+        new_name = 'optional ' + toopt.name
 
     optsym = toopt.symbol + '_OPT'
-    optnt = nt(optsym, newname, toopt.reduces_to)
+    optnt = nt(optsym, new_name, toopt.reduces_to)
     rule(optnt, (toopt,), with_action)
     rule(optnt, (), no_action, special='nodefaultreduce')
     return optnt
@@ -515,6 +514,7 @@ def make_grammar():
     BracedBlock = nt('BracedBlock', 'braced code block', 'Block', panickable=True)
     IndentedBlock = nt('IndentedBlock', 'indented code block', 'Block', panickable=True)
     ImplRet = nt('ImplRet', 'block return value', 'ImplRet', panickable=True)
+    TypeAnnotation = nt('TypeAnnotation', 'required type annotation', 'Type')
     Type = nt('Type', 'type specifier', 'Type')
     PrimitiveType = nt('PrimitiveType', 'primitive type specifier', 'PrimitiveType')
     PointerType = nt('PointerType', 'pointer type specifier', 'PointerType')
@@ -553,6 +553,7 @@ def make_grammar():
     CCURB = Terminal('CCURB')
     CHAR = Terminal('CHAR')
     CHARLIT = Terminal('CHARLIT')
+    COLON = Terminal('COLON')
     COMMA = Terminal('COMMA')
     CPARN = Terminal('CPARN')
     DECINTLIT = Terminal('DECINTLIT')
@@ -619,20 +620,21 @@ def make_grammar():
     ExprOpt = make_opt(Expr, SkipReduceAction(), NullptrReduceAction())
     VarStmtOpt = make_opt(VarStmt, SkipReduceAction(), NullptrReduceAction())
     LineEndingOpt = make_opt(LineEnding, SkipReduceAction(), NullptrReduceAction())
+    TypeAnnotationOpt = make_opt(TypeAnnotation, SkipReduceAction(), NullptrReduceAction(), new_name='optional type annotation')
 
     rule(CU, (DeclList,), SimpleReduceAction('CU', 'std::move(a0)'))
     rule(CU, (), NullptrReduceAction())
 
     rule(Decl, (FunctionDecl,), SkipReduceAction())
 
-    rule(FunctionDecl, (FUN, Type, IDENTIFIER, OPARN, ParamListOpt, CPARN, Block, LineEndingOpt), SimpleReduceAction('FunctionDecl', 'std::move(a1), a2, std::move(a4), std::move(a6)'), 'fun', 'cparn')
-    rule(FunctionDecl, (FUN, Type, IDENTIFIER, OPARN, ParamListOpt, CPARN, LineEnding), SimpleReduceAction('FunctionDecl', 'std::move(a1), a2, std::move(a4), nullptr'), 'fun', 'endl')
+    rule(FunctionDecl, (FUN, IDENTIFIER, OPARN, ParamListOpt, CPARN, TypeAnnotation, Block, LineEndingOpt), SimpleReduceAction('FunctionDecl', 'std::move(a5), a1, std::move(a3), std::move(a6)'))
+    rule(FunctionDecl, (FUN, IDENTIFIER, OPARN, ParamListOpt, CPARN, TypeAnnotation, LineEnding), SimpleReduceAction('FunctionDecl', 'std::move(a5), a1, std::move(a3), nullptr'))
 
     rule(Stmt, (VarStmt,), SkipReduceAction())
     rule(Stmt, (ExprStmt,), SkipReduceAction())
     rule(Stmt, (RetStmt,), SkipReduceAction())
 
-    rule(VarStmt, (VAR, Type, VarStmtItemList, LineEnding), SimpleReduceAction('VarStmt', 'std::move(a1), std::move(a2)'))
+    rule(VarStmt, (VAR, VarStmtItemList, LineEnding), SimpleReduceAction('VarStmt', 'std::move(a1)'))
 
     rule(ExprStmt, (NotBlockedExpr, LineEnding), SimpleReduceAction('ExprStmt', 'std::move(a0)'))
     rule(ExprStmt, (BlockedExpr, LineEndingOpt), SimpleReduceAction('ExprStmt', 'std::move(a0)'))
@@ -640,8 +642,8 @@ def make_grammar():
     rule(RetStmt, (RETURN, Expr, LineEnding), SimpleReduceAction('RetStmt', 'std::move(a1)'))
     rule(RetStmt, (RETURN, LineEnding), SimpleReduceAction('RetStmt', 'nullptr'))
 
-    rule(VarStmtItem, (IDENTIFIER, EQUAL, Expr,), SimpleReduceAction('VarStmtItem', 'a0, a1, std::move(a2)'))
-    rule(VarStmtItem, (IDENTIFIER,), SimpleReduceAction('VarStmtItem', 'a0, a0, nullptr'))
+    rule(VarStmtItem, (IDENTIFIER, TypeAnnotation, EQUAL, Expr), SimpleReduceAction('VarStmtItem', 'std::move(a1), a0, a2, std::move(a3)'))
+    rule(VarStmtItem, (IDENTIFIER, TypeAnnotation), SimpleReduceAction('VarStmtItem', 'std::move(a1), a0, a0, nullptr'))
 
     rule(Block, (BracedBlock,), SkipReduceAction())
     rule(Block, (IndentedBlock,), SkipReduceAction())
@@ -674,9 +676,11 @@ def make_grammar():
     rule(PrimitiveType, (CHAR,), SimpleReduceAction('PrimitiveType', 'a0'))
     rule(PrimitiveType, (VOID,), SimpleReduceAction('PrimitiveType', 'a0'))
 
+    rule(TypeAnnotation, (COLON, Type), SkipReduceAction(1));
+
     rule(Arg, (Expr,), SimpleReduceAction('Arg', 'std::move(a0)'))
 
-    rule(Param, (Type, IDENTIFIER), SimpleReduceAction('Param', 'std::move(a0), a1'))
+    rule(Param, (IDENTIFIER, TypeAnnotation), SimpleReduceAction('Param', 'std::move(a1), a0'))
 
     rule(Expr, (BlockedExpr,), SkipReduceAction())
     rule(Expr, (NotBlockedExpr,), SkipReduceAction())

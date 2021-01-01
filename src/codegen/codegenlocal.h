@@ -70,9 +70,6 @@ void visitStmtList(ASTNS::StmtList *ast) override;
 
         CodeGen &cg;
         FunctionCodeGen &fcg;
-
-    private:
-        IR::Type *varty;
     };
     // }}}
     // ExprCodeGen {{{

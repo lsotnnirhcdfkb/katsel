@@ -377,16 +377,18 @@ void E0214(Token const &name, IR::Instrs::Register const *prev) {
 
 // E0215 - conflict-var-init-ty
 // | Conflicting type for variable initialization
-void E0215(Token const &eq, Token const &name, IR::ASTValue const &init, IR::Instrs::Register const *var) {
+void E0215(Token const &eq, Token const &name, ASTNS::Type *typeAST, IR::ASTValue const &init, IR::Type const *expectedType) {
     Error e = Error(Error::MsgType::ERROR, eq, "E0215 (conflict-var-init-ty)");
     e.underline(Error::Underline(eq, '~')
+    );
+    e.underline(Error::Underline(name, '~')
     );
     e.underline(Error::Underline(init, '^')
         .error("conflicting types for variable initialization")
         .note(format("%", init.type()))
     );
-    e.underline(Error::Underline(name, '^')
-        .note(format("%", var->type()))
+    e.underline(Error::Underline(typeAST, '~')
+        .note(format("%", expectedType))
     );
     e.report();
 }

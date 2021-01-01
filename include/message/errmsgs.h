@@ -128,7 +128,7 @@ void E0214(Token const &name, IR::Instrs::Register const *prev);
 
 // E0215 - conflict-var-init-ty
 #define ERR_CONFLICT_VAR_INIT_TY E0215
-void E0215(Token const &eq, Token const &name, IR::ASTValue const &init, IR::Instrs::Register const *var);
+void E0215(Token const &eq, Token const &name, ASTNS::Type *typeAST, IR::ASTValue const &init, IR::Type const *expectedType);
 
 // E0216 - invalid-cast
 #define ERR_INVALID_CAST E0216

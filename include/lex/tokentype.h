@@ -91,6 +91,7 @@ enum class TokenType {
     // keywords
     VAR,
     FUN,
+    LET,
     VOID,
     NAMESPACE,
     CLASS,
@@ -193,6 +194,7 @@ inline constexpr char const * stringifyTokenType(TokenType ty) {
         STOKTY(DOUBLE, 'double')
         STOKTY(CHAR, 'char')
         STOKTY(VAR, 'var')
+        STOKTY(LET, 'let')
         STOKTY(FUN, 'fun')
         STOKTY(VOID, 'void')
         STOKTY(NAMESPACE, 'namespace')

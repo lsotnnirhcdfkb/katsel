@@ -46,8 +46,6 @@ void ASTNS::PrintVisitor::visitFunctionDecl(ASTNS::FunctionDecl *a) {
 void ASTNS::PrintVisitor::visitVarStmt(ASTNS::VarStmt *a) {
     pai("VarStmt {\n");
     ++indent;
-    pai("std::unique_ptr<Type> type = ");
-    printField(a->type);
     pai("std::unique_ptr<VarStmtItemList> assignments = ");
     printField(a->assignments);
     --indent;
@@ -56,6 +54,8 @@ void ASTNS::PrintVisitor::visitVarStmt(ASTNS::VarStmt *a) {
 void ASTNS::PrintVisitor::visitVarStmtItem(ASTNS::VarStmtItem *a) {
     pai("VarStmtItem {\n");
     ++indent;
+    pai("std::unique_ptr<Type> type = ");
+    printField(a->type);
     pai("Token name = ");
     printField(a->name);
     pai("Token equal = ");

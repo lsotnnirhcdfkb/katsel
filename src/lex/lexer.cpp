@@ -457,6 +457,9 @@ TokenType Lexer::getIdentifierType() {
                     break;
             }
             break;
+        case 'l':
+            if (std::distance(start, end) == 3 && std::string(start + 1, end) == "et") return TokenType::LET;
+            break;
         case 'r':
             if (std::distance(start, end) == 6 && std::string(start + 1, end) == "eturn") return TokenType::RETURN;
             break;

@@ -10,12 +10,7 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::visitExprStmt(ASTNS::ExprStmt *ast) 
     fcg.exprCG.expr(ast->expr.get());
 }
 void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmt(ASTNS::VarStmt *ast) {
-    IR::Type *ty = cg.typeVisitor->type(ast->type.get());
-
-    IR::Type *oldvarty = varty;
-    varty = ty;
     ast->assignments->accept(this);
-    varty = oldvarty;
 }
 void CodeGen::FunctionCodeGen::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast) {
     IR::ASTValue v;

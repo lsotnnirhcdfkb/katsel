@@ -150,6 +150,7 @@ keywords = [
     ('enum', 'ENUM'),
     ('fun', 'FUN'),
     ('var', 'VAR'),
+    ('let', 'LET'),
 
     ('return', 'RETURN'),
 

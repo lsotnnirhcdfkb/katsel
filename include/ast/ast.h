@@ -227,23 +227,23 @@ namespace ASTNS {
     class VarStmt : public Stmt {
     public:
         Location _start, _end;
-        std::unique_ptr<Type> type;
         std::unique_ptr<VarStmtItemList> assignments;
         virtual void accept(ASTNS::Stmt::Visitor *v) override;
         virtual Location const & start() override;
         virtual Location const & end() override;
-        VarStmt(File const &file, Location start, Location end, std::unique_ptr<Type> type, std::unique_ptr<VarStmtItemList> assignments);
+        VarStmt(File const &file, Location start, Location end, std::unique_ptr<VarStmtItemList> assignments);
     };
     class VarStmtItem : public VStmtIB {
     public:
         Location _start, _end;
+        std::unique_ptr<Type> type;
         Token name;
         Token equal;
         std::unique_ptr<Expr> expr;
         virtual void accept(ASTNS::VStmtIB::Visitor *v) override;
         virtual Location const & start() override;
         virtual Location const & end() override;
-        VarStmtItem(File const &file, Location start, Location end, Token name, Token equal, std::unique_ptr<Expr> expr);
+        VarStmtItem(File const &file, Location start, Location end, std::unique_ptr<Type> type, Token name, Token equal, std::unique_ptr<Expr> expr);
     };
     class VarStmtItemList : public VStmtIB {
     public:

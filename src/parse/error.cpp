@@ -162,6 +162,7 @@ bool singleTok(errorstate const &e, std::vector<std::string> const &expectations
     TRYTOKTY(TokenType::DOUBLE)
     TRYTOKTY(TokenType::CHAR)
     TRYTOKTY(TokenType::VOID)
+    TRYTOKTY(TokenType::COLON)
     TRYTOKTY(TokenType::IF)
     TRYTOKTY(TokenType::ELSE)
     TRYTOKTY(TokenType::FOR)

@@ -10,16 +10,17 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem 
         return;
     }
 
-    IR::Instrs::Register *reg = static_cast<IR::Instrs::Register*>(fcg.curBlock->add(std::make_unique<IR::Instrs::Register>(ast, varty)));
+    IR::Type *varType = cg.typeVisitor->type(ast->type.get());
+    IR::Instrs::Register *reg = static_cast<IR::Instrs::Register*>(fcg.curBlock->add(std::make_unique<IR::Instrs::Register>(ast, varType)));
 
     if (ast->expr) {
         IR::ASTValue val = fcg.exprCG.expr(ast->expr.get());
         if (!val)
             return;
 
-        val = varty->implCast(*cg.context, *fcg.fun, fcg.curBlock, val);
-        if (val.type() != varty) {
-            ERR_CONFLICT_VAR_INIT_TY(ast->equal, ast->name, val, reg);
+        val = varType->implCast(*cg.context, *fcg.fun, fcg.curBlock, val);
+        if (val.type() != varType) {
+            ERR_CONFLICT_VAR_INIT_TY(ast->equal, ast->name, ast->type.get(), val, varType);
             cg.errored = true;
             return;
         }
