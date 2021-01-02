@@ -20,14 +20,12 @@ IR::Type* CodeGen::TypeVisitor::type(ASTNS::Type *ast) {
 void CodeGen::TypeVisitor::visitPrimitiveType(ASTNS::PrimitiveType *ast) {
     IR::DeclSymbol *decl = cg.unit->mod.getDeclSymbol(ast->ty.stringify());
 
-    if (!decl)
-    {
+    if (!decl) {
         ERR_UNDECL_TYPE(ast->ty);
         cg.errored = true;
         return;
     }
-    if (!(ret = dynamic_cast<IR::Type*>(decl)))
-    {
+    if (!(ret = dynamic_cast<IR::Type*>(decl))) {
         ERR_NOT_A_TYPE(ast->ty, decl->declAST());
         cg.errored = true;
         return;

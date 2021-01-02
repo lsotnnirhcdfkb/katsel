@@ -22,14 +22,12 @@ IR::ASTValue IR::PointerType::binOp(CodeGen::Context &cgc, IR::Function &fun, IR
     ASSERT(l.type() == this);
 
     r = cgc.getIntType(64, true)->implCast(cgc, fun, curBlock, r);
-    if (!dynamic_cast<IntType*>(r.type()))
-    {
+    if (!dynamic_cast<IntType*>(r.type())) {
         ERR_PTR_ARITH_RHS_NOT_NUM(l, optok, r);
         return IR::ASTValue();
     }
 
-    switch (op)
-    {
+    switch (op) {
         case IR::Type::BinaryOperator::plus:
             return IR::ASTValue(curBlock->add(std::make_unique<IR::Instrs::PtrArith>(l, r)), ast);
         case IR::Type::BinaryOperator::minus: {
