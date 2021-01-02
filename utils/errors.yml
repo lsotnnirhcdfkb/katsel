@@ -446,6 +446,16 @@ errors:
       - ['optok', *under0, [
           ['error', '"pointer arithmetic requires an integral right-hand operand"']
         ]]
+  -
+    code: 222
+    name: undecl-type
+    desc: Usage of undeclared type
+    inputs: 'Token const &sym'
+    location: sym
+    highlights:
+      - ['sym', *under0, [
+          ['error', '"undeclared type"']
+        ]]
 
 warnings:
   -

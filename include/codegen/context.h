@@ -23,6 +23,9 @@ public:
     IR::Value* getGlobal(std::string const &name);
     void addGlobal(std::string const &name, IR::Value *v);
 
+    IR::Type* getType(std::string const &name);
+    void addType(std::string const &name, IR::Type *v);
+
     IR::ConstFloat* getConstFloat(IR::FloatType *ty, double value);
     IR::ConstInt* getConstInt(IR::IntType *ty, uint64_t value);
     IR::ConstFloat* getConstFloat(IR::GenericFloatType *ty, double value);
@@ -38,4 +41,5 @@ private:
     std::vector<std::unique_ptr<IR::Value>> constants;
     IR::Void voidValue;
     std::map<std::string, IR::Value*> globalSymbolTable;
+    std::map<std::string, IR::Type*> typeSymbolTable;
 };

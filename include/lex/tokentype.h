@@ -72,23 +72,6 @@ enum class TokenType {
     FALSELIT,
     NULLPTRLIT,
 
-    // integer types
-    UINT8,
-    UINT16,
-    UINT32,
-    UINT64,
-    SINT8,
-    SINT16,
-    SINT32,
-    SINT64,
-
-    // other types
-    FLOAT,
-    BOOL,
-    DOUBLE,
-    CHAR,
-    VOID,
-
     // more keywords
     VAR,
     FUN,
@@ -178,22 +161,9 @@ inline constexpr char const * stringifyTokenType(TokenType ty) {
         STOKTY(TRUELIT, 'true')
         STOKTY(FALSELIT, 'false')
         STOKTY(NULLPTRLIT, 'nullptr')
-        STOKTY(UINT8, 'uint8')
-        STOKTY(UINT16, 'uint16')
-        STOKTY(UINT32, 'uint32')
-        STOKTY(UINT64, 'uint64')
-        STOKTY(SINT8, 'sint8')
-        STOKTY(SINT16, 'sint16')
-        STOKTY(SINT32, 'sint32')
-        STOKTY(SINT64, 'sint64')
-        STOKTY(FLOAT, 'float')
-        STOKTY(BOOL, 'bool')
-        STOKTY(DOUBLE, 'double')
-        STOKTY(CHAR, 'char')
         STOKTY(VAR, 'var')
         STOKTY(LET, 'let')
         STOKTY(FUN, 'fun')
-        STOKTY(VOID, 'void')
         STOKTY(CLASS, 'class')
         STOKTY(DATA, 'data')
         STOKTY(IMPL, 'impl')

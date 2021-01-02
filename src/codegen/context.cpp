@@ -136,4 +136,16 @@ void CodeGen::Context::addGlobal(std::string const &name, IR::Value *v) {
 
     globalSymbolTable[name] = v;
 }
+IR::Type* CodeGen::Context::getType(std::string const &name) {
+    auto t = typeSymbolTable.find(name);
+    if (t == typeSymbolTable.end())
+        return nullptr;
+    return t->second;
+}
+void CodeGen::Context::addType(std::string const &name, IR::Type *t) {
+    if (typeSymbolTable.find(name) != typeSymbolTable.end())
+        reportAbortNoh(format("add duplicate type under name %", name));
+
+    typeSymbolTable[name] = t;
+}
 

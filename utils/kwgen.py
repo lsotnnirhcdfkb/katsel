@@ -135,20 +135,6 @@ class TrieNode:
 # keywords {{{1
 ## Keywords to generate matching code for
 keywords = [
-    ('void', 'VOID'),
-    ('float', 'FLOAT'),
-    ('bool', 'BOOL'),
-    ('double', 'DOUBLE'),
-    ('char', 'CHAR'),
-    ('uint8', 'UINT8'),
-    ('uint16', 'UINT16'),
-    ('uint32', 'UINT32'),
-    ('uint64', 'UINT64'),
-    ('sint8', 'SINT8'),
-    ('sint16', 'SINT16'),
-    ('sint32', 'SINT32'),
-    ('sint64', 'SINT64'),
-
     ('class', 'CLASS'),
     ('data', 'DATA'),
     ('impl', 'IMPL'),

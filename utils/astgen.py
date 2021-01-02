@@ -49,7 +49,7 @@ asts = [
 
     AST('CU'               , 'CUB', 'std::unique_ptr<DeclList>|decls'),
     AST('DeclList'         , 'Decl', 'std::vector<std::unique_ptr<Decl>>|decls'),
-    AST('ImplDecl'         , 'Decl', 'std::unique_ptr<Type>|implfor'),
+    # AST('ImplDecl'         , 'Decl', 'std::unique_ptr<Type>|implfor'),
     AST('ImplicitDecl'     , 'Decl', 'int|dummy'),
     AST('FunctionDecl'     , 'Decl', 'std::unique_ptr<Type>|retty, Token|name, std::unique_ptr<ParamList>|params, std::unique_ptr<Block>|body'),
     AST('VarStmt'          , 'Stmt', 'std::unique_ptr<VarStmtItemList>|assignments'),

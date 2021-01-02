@@ -476,6 +476,16 @@ void E0221(IR::ASTValue const &lhs, Token const &optok, IR::ASTValue const &rhs)
     e.report();
 }
 
+// E0222 - undecl-type
+// | Usage of undeclared type
+void E0222(Token const &sym) {
+    Error e = Error(Error::MsgType::ERROR, sym, "E0222 (undecl-type)");
+    e.underline(Error::Underline(sym, '^')
+        .error("undeclared type")
+    );
+    e.report();
+}
+
 // W0000 - Wextra-semi
 // | Extra semicolon
 void W0000(Token const &semi) {
