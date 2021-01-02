@@ -629,13 +629,12 @@ def make_grammar():
     rule(CU, (DeclList,), SimpleReduceAction('CU', 'std::move(a0)'))
     rule(CU, (), NullptrReduceAction())
 
-    skip_to(Decl, FunctionDecl, ImplDecl)
+    skip_to(Decl, FunctionDecl)
 
     rule(FunctionDecl, (FUN, IDENTIFIER, OPARN, ParamListOpt, CPARN, TypeAnnotation, Block, LineEndingOpt), SimpleReduceAction('FunctionDecl', 'std::move(a5), a1, std::move(a3), std::move(a6)'))
     rule(FunctionDecl, (FUN, IDENTIFIER, OPARN, ParamListOpt, CPARN, TypeAnnotation, LineEnding), SimpleReduceAction('FunctionDecl', 'std::move(a5), a1, std::move(a3), nullptr'))
 
     # rule(ImplDecl, (IMPL, Type, LineEnding), SimpleReduceAction('ImplDecl', 'std::move(a1)'))
-    rule(ImplDecl, (IMPL, Type, LineEnding), NullptrReduceAction())
 
     skip_to(Stmt, VarStmt, ExprStmt, RetStmt)
 
