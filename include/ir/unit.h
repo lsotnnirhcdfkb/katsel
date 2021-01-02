@@ -1,13 +1,17 @@
 #pragma once
 
-#include "utils/file.h"
-#include "ir/value.h"
+#include "ir/module.h"
 
 #include <string>
 #include <vector>
 #include "llvm/Support/raw_ostream.h"
 
+struct File;
+
 namespace IR {
+    class Function;
+    class FunctionType;
+
     class Unit {
     public:
         Unit(File const &file);
@@ -15,9 +19,9 @@ namespace IR {
         void print(llvm::raw_ostream &ostream) const;
         void cfgDot(llvm::raw_ostream &ostream) const;
 
-        IR::Function* addFunction(FunctionType *type, std::string name, ASTNS::FunctionDecl *ast);
-
         File const &file;
-        std::vector<std::unique_ptr<IR::Function>> functions;
+        Module mod;
+
+        std::vector<std::unique_ptr<Function>> functions;
     };
 }

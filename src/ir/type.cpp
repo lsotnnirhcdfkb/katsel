@@ -8,7 +8,10 @@
 #include "llvm/IR/DerivedTypes.h"
 #include "utils/format.h"
 
-IR::VoidType::VoidType(CodeGen::Context &context): Type(context) {}
+IR::VoidType::VoidType(CodeGen::Context &context, ASTNS::AST *declAST): Type(context), _declAST(declAST) {}
+ASTNS::AST* IR::VoidType::declAST() const {
+    return _declAST;
+}
 
 std::string IR::VoidType::stringify() const {
     return "void";
@@ -34,7 +37,10 @@ IR::ASTValue IR::VoidType::implCast(CodeGen::Context &cgc, IR::Function &fun, IR
     return v;
 }
 
-IR::FunctionType::FunctionType(CodeGen::Context &context, Type *ret, std::vector<Type*> paramtys): Type(context), ret(ret), paramtys(paramtys) {}
+IR::FunctionType::FunctionType(CodeGen::Context &context, ASTNS::AST *declAST, Type *ret, std::vector<Type*> paramtys): Type(context), ret(ret), paramtys(paramtys), _declAST(declAST) {}
+ASTNS::AST* IR::FunctionType::declAST() const {
+    return _declAST;
+}
 
 std::string IR::FunctionType::stringify() const {
     std::stringstream ss;

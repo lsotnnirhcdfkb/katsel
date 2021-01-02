@@ -2,11 +2,14 @@
 
 #include <vector>
 #include <map>
+
 namespace IR {
     struct ASTValue;
     class Block;
     class Function;
 }
+
+#include "ir/module.h"
 
 #include "lex/token.h"
 #include "lex/tokentype.h"
@@ -18,7 +21,7 @@ namespace IR {
 
 namespace IR {
     // Base class {{{1
-    class Type {
+    class Type : public DeclSymbol {
     public:
         inline Type(CodeGen::Context &context): context(context) {}
         virtual ~Type() {}
@@ -65,7 +68,7 @@ namespace IR {
     // Float {{{1
     class FloatType : public Type {
     public:
-        FloatType(CodeGen::Context &context, int size);
+        FloatType(CodeGen::Context &context, ASTNS::AST *declAST, int size);
 
         std::string stringify() const override;
 
@@ -78,12 +81,16 @@ namespace IR {
 
         llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
 
+        ASTNS::AST *declAST() const override;
+
         int size;
+    private:
+        ASTNS::AST *_declAST;
     };
     // Int {{{1
     class IntType : public Type {
     public:
-        IntType(CodeGen::Context &context, int size, bool isSigned);
+        IntType(CodeGen::Context &context, ASTNS::AST *declAST, int size, bool isSigned);
 
         std::string stringify() const override;
 
@@ -96,13 +103,17 @@ namespace IR {
 
         llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
 
+        ASTNS::AST *declAST() const override;
+
         int size;
         bool isSigned;
+    private:
+        ASTNS::AST *_declAST;
     };
     // Char {{{1
     class CharType : public Type {
     public:
-        CharType(CodeGen::Context &context);
+        CharType(CodeGen::Context &context, ASTNS::AST *declAST);
 
         std::string stringify() const override;
 
@@ -114,11 +125,15 @@ namespace IR {
         IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override;
 
         llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
+
+        ASTNS::AST *declAST() const override;
+    private:
+        ASTNS::AST *_declAST;
     };
     // Bool {{{1
     class BoolType : public Type {
     public:
-        BoolType(CodeGen::Context &context);
+        BoolType(CodeGen::Context &context, ASTNS::AST *declAST);
 
         std::string stringify() const override;
 
@@ -130,6 +145,10 @@ namespace IR {
         IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override;
 
         llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
+
+        ASTNS::AST *declAST() const override;
+    private:
+        ASTNS::AST *_declAST;
     };
     // Function {{{1
     class FunctionType : public Type {
@@ -137,7 +156,7 @@ namespace IR {
         Type *ret;
         std::vector<Type*> paramtys;
 
-        FunctionType(CodeGen::Context &context, Type *ret, std::vector<Type*> paramtys);
+        FunctionType(CodeGen::Context &context, ASTNS::AST *declAST, Type *ret, std::vector<Type*> paramtys);
         std::string stringify() const override;
 
         IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
@@ -148,11 +167,15 @@ namespace IR {
         IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override;
 
         llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
+
+        ASTNS::AST *declAST() const override;
+    private:
+        ASTNS::AST *_declAST;
     };
     // Void {{{1
     class VoidType : public Type {
     public:
-        VoidType(CodeGen::Context &context);
+        VoidType(CodeGen::Context &context, ASTNS::AST *declAST);
 
         std::string stringify() const override;
 
@@ -164,11 +187,15 @@ namespace IR {
         IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override;
 
         llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
+
+        ASTNS::AST *declAST() const override;
+    private:
+        ASTNS::AST *_declAST;
     };
     // Pointer {{{1
     class PointerType : public Type {
     public:
-        PointerType(CodeGen::Context &context, Type *ty);
+        PointerType(CodeGen::Context &context, ASTNS::AST *declAST, Type *ty);
 
         std::string stringify() const override;
 
@@ -182,12 +209,16 @@ namespace IR {
         llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
 
         Type *ty;
+
+        ASTNS::AST *declAST() const override;
+    private:
+        ASTNS::AST *_declAST;
     };
     // Generic literal types {{{1
     // Int {{{2
     class GenericIntType : public Type {
     public:
-        GenericIntType(CodeGen::Context &context);
+        GenericIntType(CodeGen::Context &context, ASTNS::AST *declAST);
 
         std::string stringify() const override;
 
@@ -199,11 +230,15 @@ namespace IR {
         IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override;
 
         llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
+
+        ASTNS::AST *declAST() const override;
+    private:
+        ASTNS::AST *_declAST;
     };
     // Float {{{2
     class GenericFloatType : public Type {
     public:
-        GenericFloatType(CodeGen::Context &context);
+        GenericFloatType(CodeGen::Context &context, ASTNS::AST *declAST);
 
         std::string stringify() const override;
 
@@ -215,6 +250,10 @@ namespace IR {
         IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override;
 
         llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
+
+        ASTNS::AST *declAST() const override;
+    private:
+        ASTNS::AST *_declAST;
     };
     // }}}1
 }

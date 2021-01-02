@@ -9,7 +9,10 @@
 
 #include "llvm/IR/DerivedTypes.h"
 
-IR::PointerType::PointerType(CodeGen::Context &context, Type *ty): Type(context), ty(ty) {}
+IR::PointerType::PointerType(CodeGen::Context &context, ASTNS::AST *declAST, Type *ty): Type(context), ty(ty), _declAST(declAST) {}
+ASTNS::AST* IR::PointerType::declAST() const {
+    return _declAST;
+}
 
 std::string IR::PointerType::stringify() const {
     return format("*%", ty->stringify());

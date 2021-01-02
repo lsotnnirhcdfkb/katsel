@@ -96,7 +96,10 @@ static IR::ASTValue intUnaryOp(UNARY_OP_ARGS) {
 }
 // Float and Int {{{1
 // Float {{{2
-IR::FloatType::FloatType(CodeGen::Context &context, int size): Type(context), size(size) {ASSERT(size == 32 || size == 64)}
+IR::FloatType::FloatType(CodeGen::Context &context, ASTNS::AST *declAST, int size): Type(context), size(size), _declAST(declAST) {ASSERT(size == 32 || size == 64)}
+ASTNS::AST* IR::FloatType::declAST() const {
+    return _declAST;
+}
 
 llvm::Type* IR::FloatType::toLLVMType(llvm::LLVMContext &con) const {
     if (size == 32)
@@ -148,7 +151,10 @@ IR::ASTValue IR::FloatType::implCast(CodeGen::Context &cgc, IR::Function &fun, I
     return v;
 }
 // Int {{{2
-IR::IntType::IntType(CodeGen::Context &context, int size, bool isSigned): Type(context), size(size), isSigned(isSigned) {ASSERT(size == 1 || size == 8 || size == 16 || size == 32 || size == 64)}
+IR::IntType::IntType(CodeGen::Context &context, ASTNS::AST *declAST, int size, bool isSigned): Type(context), size(size), isSigned(isSigned), _declAST(declAST) {ASSERT(size == 1 || size == 8 || size == 16 || size == 32 || size == 64)}
+ASTNS::AST* IR::IntType::declAST() const {
+    return _declAST;
+}
 
 llvm::Type* IR::IntType::toLLVMType(llvm::LLVMContext &con) const {
     return llvm::IntegerType::get(con, size);
@@ -209,7 +215,10 @@ IR::ASTValue IR::IntType::implCast(CodeGen::Context &cgc, IR::Function &fun, IR:
 }
 // Generic types {{{2
 // GenericInt {{{2
-IR::GenericIntType::GenericIntType(CodeGen::Context &context): Type(context) {}
+IR::GenericIntType::GenericIntType(CodeGen::Context &context, ASTNS::AST *declAST): Type(context), _declAST(declAST) {}
+ASTNS::AST* IR::GenericIntType::declAST() const {
+    return _declAST;
+}
 
 std::string IR::GenericIntType::stringify() const {
     return "<integer>";
@@ -233,7 +242,10 @@ IR::ASTValue IR::GenericIntType::implCast(CodeGen::Context &cgc, IR::Function &f
     return v;
 }
 // GenericFloat {{{2
-IR::GenericFloatType::GenericFloatType(CodeGen::Context &context): Type(context) {}
+IR::GenericFloatType::GenericFloatType(CodeGen::Context &context, ASTNS::AST *declAST): Type(context), _declAST(declAST) {}
+ASTNS::AST* IR::GenericFloatType::declAST() const {
+    return _declAST;
+}
 
 std::string IR::GenericFloatType::stringify() const {
     return "<float>";
@@ -258,7 +270,10 @@ IR::ASTValue IR::GenericFloatType::implCast(CodeGen::Context &cgc, IR::Function 
     return v;
 }
 // Char {{{1
-IR::CharType::CharType(CodeGen::Context &context): Type(context) {}
+IR::CharType::CharType(CodeGen::Context &context, ASTNS::AST *declAST): Type(context), _declAST(declAST) {}
+ASTNS::AST* IR::CharType::declAST() const {
+    return _declAST;
+}
 
 llvm::Type* IR::CharType::toLLVMType(llvm::LLVMContext &con) const {
     return llvm::Type::getInt8Ty(con);
@@ -314,7 +329,10 @@ IR::ASTValue IR::CharType::implCast(CodeGen::Context &cgc, IR::Function &fun, IR
     return v;
 }
 // Bool {{{1
-IR::BoolType::BoolType(CodeGen::Context &context): Type(context) {}
+IR::BoolType::BoolType(CodeGen::Context &context, ASTNS::AST *declAST): Type(context), _declAST(declAST) {}
+ASTNS::AST* IR::BoolType::declAST() const {
+    return _declAST;
+}
 
 llvm::Type* IR::BoolType::toLLVMType(llvm::LLVMContext &con) const {
     return llvm::Type::getInt1Ty(con);

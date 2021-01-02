@@ -158,6 +158,10 @@ void E0221(IR::ASTValue const &lhs, Token const &optok, IR::ASTValue const &rhs)
 #define ERR_UNDECL_TYPE E0222
 void E0222(Token const &sym);
 
+// E0222 - not-a-type
+#define ERR_NOT_A_TYPE E0222
+void E0222(Location const &notty, ASTNS::AST *declAST);
+
 // W0000 - Wextra-semi
 #define WARN_EXTRA_SEMI W0000
 void W0000(Token const &semi);

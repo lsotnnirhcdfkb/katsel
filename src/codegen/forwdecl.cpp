@@ -5,19 +5,19 @@
 CodeGen::ForwDecl::ForwDecl(CodeGen &cg): cg(cg) {}
 
 void CodeGen::ForwDecl::visitCU(ASTNS::CU *ast) {
-    cg.context->addType("void", cg.context->getVoidType());
-    cg.context->addType("float", cg.context->getFloatType(32));
-    cg.context->addType("double", cg.context->getFloatType(64));
-    cg.context->addType("bool", cg.context->getBoolType());
-    cg.context->addType("char", cg.context->getCharType());
-    cg.context->addType("uint8", cg.context->getIntType(8, false));
-    cg.context->addType("uint16", cg.context->getIntType(16, false));
-    cg.context->addType("uint32", cg.context->getIntType(32, false));
-    cg.context->addType("uint64", cg.context->getIntType(64, false));
-    cg.context->addType("sint8", cg.context->getIntType(8, true));
-    cg.context->addType("sint16", cg.context->getIntType(16, true));
-    cg.context->addType("sint32", cg.context->getIntType(32, true));
-    cg.context->addType("sint64", cg.context->getIntType(64, true));
+    cg.unit->mod.addDeclSymbol("void", cg.context->getVoidType());
+    cg.unit->mod.addDeclSymbol("float", cg.context->getFloatType(32));
+    cg.unit->mod.addDeclSymbol("double", cg.context->getFloatType(64));
+    cg.unit->mod.addDeclSymbol("bool", cg.context->getBoolType());
+    cg.unit->mod.addDeclSymbol("char", cg.context->getCharType());
+    cg.unit->mod.addDeclSymbol("uint8", cg.context->getIntType(8, false));
+    cg.unit->mod.addDeclSymbol("uint16", cg.context->getIntType(16, false));
+    cg.unit->mod.addDeclSymbol("uint32", cg.context->getIntType(32, false));
+    cg.unit->mod.addDeclSymbol("uint64", cg.context->getIntType(64, false));
+    cg.unit->mod.addDeclSymbol("sint8", cg.context->getIntType(8, true));
+    cg.unit->mod.addDeclSymbol("sint16", cg.context->getIntType(16, true));
+    cg.unit->mod.addDeclSymbol("sint32", cg.context->getIntType(32, true));
+    cg.unit->mod.addDeclSymbol("sint64", cg.context->getIntType(64, true));
 
     ast->decls->accept(this);
 }
@@ -29,7 +29,7 @@ void CodeGen::ForwDecl::visitDeclList(ASTNS::DeclList *ast) {
 
 void CodeGen::ForwDecl::visitFunctionDecl(ASTNS::FunctionDecl *fun) {
     std::string fname (fun->name.stringify());
-    IR::Value *declbefore = cg.context->getGlobal(fname);
+    IR::Value *declbefore = cg.unit->mod.getValue(fname);
 
     if (declbefore) {
         ERR_REDECL_SYM(fun->name, declbefore);
@@ -53,9 +53,11 @@ void CodeGen::ForwDecl::visitFunctionDecl(ASTNS::FunctionDecl *fun) {
         ptys.push_back(p.ty);
 
     IR::FunctionType *ft = cg.context->getFunctionType(retty, ptys);
-    IR::Function *f = cg.unit->addFunction(ft, fname, fun);
 
-    cg.context->addGlobal(fname, f);
+    std::unique_ptr<IR::Function> f = std::make_unique<IR::Function>(ft, fname, fun);
+    IR::Function *fraw = f.get();
+    cg.unit->functions.push_back(std::move(f));
+    cg.unit->mod.addValue(fname, fraw);
 }
 
 void CodeGen::ForwDecl::visitImplicitDecl(ASTNS::ImplicitDecl *) {}

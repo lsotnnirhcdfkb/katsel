@@ -66,14 +66,15 @@ bool Lower::Lowerer::objectify(llvm::raw_fd_ostream &ostream) {
 }
 
 void Lower::Lowerer::lower() {
-    for (std::unique_ptr<IR::Function> const &f : unit.functions) {
-        auto *fty = static_cast<llvm::FunctionType*>(f->ty->toLLVMType(context));
-        std::string fname = f->name == "main" ? f->name : mangler.mangleName(*f);
-        auto *fllvm = llvm::Function::Create(fty, llvm::Function::ExternalLinkage, fname, &mod);
-        functions[f.get()] = fllvm;
-    }
-    for (std::unique_ptr<IR::Function> const &f : unit.functions)
-        lower(*f);
+    // TODO
+    // for (std::unique_ptr<IR::Function> const &f : unit.functions) {
+        // auto *fty = static_cast<llvm::FunctionType*>(f->ty->toLLVMType(context));
+        // std::string fname = f->name == "main" ? f->name : mangler.mangleName(*f);
+        // auto *fllvm = llvm::Function::Create(fty, llvm::Function::ExternalLinkage, fname, &mod);
+        // functions[f.get()] = fllvm;
+    // }
+    // for (std::unique_ptr<IR::Function> const &f : unit.functions)
+        // lower(*f);
 }
 
 

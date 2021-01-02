@@ -1,6 +1,7 @@
 #include "codegenlocal.h"
 #include "message/internal.h"
 #include "message/errmsgs.h"
+#include "ir/unit.h"
 
 CodeGen::TypeVisitor::TypeVisitor(CodeGen &cg): cg(cg) {}
 
@@ -17,10 +18,20 @@ IR::Type* CodeGen::TypeVisitor::type(ASTNS::Type *ast) {
 }
 
 void CodeGen::TypeVisitor::visitPrimitiveType(ASTNS::PrimitiveType *ast) {
-    ret = cg.context->getType(ast->ty.stringify());
+    IR::DeclSymbol *decl = cg.unit->mod.getDeclSymbol(ast->ty.stringify());
 
-    if (!ret)
+    if (!decl)
+    {
         ERR_UNDECL_TYPE(ast->ty);
+        cg.errored = true;
+        return;
+    }
+    if (!(ret = dynamic_cast<IR::Type*>(decl)))
+    {
+        ERR_NOT_A_TYPE(ast->ty, decl->declAST());
+        cg.errored = true;
+        return;
+    }
 }
 
 void CodeGen::TypeVisitor::visitPointerType(ASTNS::PointerType *ast) {

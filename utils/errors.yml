@@ -456,6 +456,19 @@ errors:
       - ['sym', *under0, [
           ['error', '"undeclared type"']
         ]]
+  -
+    code: 222
+    name: not-a-type
+    desc: Expected a type but did not get a type
+    inputs: 'Location const &notty, ASTNS::AST *declAST'
+    location: notty
+    highlights:
+      - ['notty', *under0, [
+          ['error', '"not a type"']
+        ]]
+      - ['declAST', *under1, [
+          ['note', '"declared here"']
+        ]]
 
 warnings:
   -

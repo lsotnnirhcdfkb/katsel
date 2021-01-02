@@ -486,6 +486,19 @@ void E0222(Token const &sym) {
     e.report();
 }
 
+// E0222 - not-a-type
+// | Expected a type but did not get a type
+void E0222(Location const &notty, ASTNS::AST *declAST) {
+    Error e = Error(Error::MsgType::ERROR, notty, "E0222 (not-a-type)");
+    e.underline(Error::Underline(notty, '^')
+        .error("not a type")
+    );
+    e.underline(Error::Underline(declAST, '~')
+        .note("declared here")
+    );
+    e.report();
+}
+
 // W0000 - Wextra-semi
 // | Extra semicolon
 void W0000(Token const &semi) {

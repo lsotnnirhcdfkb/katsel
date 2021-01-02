@@ -2,6 +2,7 @@
 #include "message/internal.h"
 #include "message/reportAbort.h"
 #include "message/errmsgs.h"
+#include "ir/unit.h"
 
 CodeGen::FunctionCodeGen::ExprCodeGen::ExprCodeGen(CodeGen &cg, FunctionCodeGen &fcg): cg(cg), fcg(fcg) {}
 
@@ -257,7 +258,7 @@ makeIntLit:
 
                 FunctionCodeGen::Local *l = fcg.getLocal(name);
                 if (!l)
-                    v = cg.context->getGlobal(name);
+                    v = cg.unit->mod.getValue(name);
                 else
                     v = fcg.curBlock->add(std::make_unique<IR::Instrs::DerefPtr>(IR::ASTValue(l->v, ast)));
 

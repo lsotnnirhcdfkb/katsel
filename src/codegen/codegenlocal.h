@@ -8,6 +8,7 @@
 #include "ir/value.h"
 #include "ir/type.h"
 #include "ir/instruction.h"
+#include "ir/module.h"
 
 // TypeVisitor {{{1
 class CodeGen::TypeVisitor : public ASTNS::Type::Visitor {
