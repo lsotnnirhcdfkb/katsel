@@ -5,19 +5,20 @@
 CodeGen::ForwDecl::ForwDecl(CodeGen &cg): cg(cg) {}
 
 void CodeGen::ForwDecl::visitCU(ASTNS::CU *ast) {
-    // ('void', 'VOID'),
-    // ('float', 'FLOAT'),
-    // ('bool', 'BOOL'),
-    // ('double', 'DOUBLE'),
-    // ('char', 'CHAR'),
-    // ('uint8', 'UINT8'),
-    // ('uint16', 'UINT16'),
-    // ('uint32', 'UINT32'),
-    // ('uint64', 'UINT64'),
-    // ('sint8', 'SINT8'),
-    // ('sint16', 'SINT16'),
-    // ('sint32', 'SINT32'),
-    // ('sint64', 'SINT64'),
+    cg.context->addType("void", cg.context->getVoidType());
+    cg.context->addType("float", cg.context->getFloatType(32));
+    cg.context->addType("double", cg.context->getFloatType(64));
+    cg.context->addType("bool", cg.context->getBoolType());
+    cg.context->addType("char", cg.context->getCharType());
+    cg.context->addType("uint8", cg.context->getIntType(8, false));
+    cg.context->addType("uint16", cg.context->getIntType(16, false));
+    cg.context->addType("uint32", cg.context->getIntType(32, false));
+    cg.context->addType("uint64", cg.context->getIntType(64, false));
+    cg.context->addType("sint8", cg.context->getIntType(8, true));
+    cg.context->addType("sint16", cg.context->getIntType(16, true));
+    cg.context->addType("sint32", cg.context->getIntType(32, true));
+    cg.context->addType("sint64", cg.context->getIntType(64, true));
+
     ast->decls->accept(this);
 }
 

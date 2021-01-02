@@ -6,7 +6,11 @@ CodeGen::FunctionCodeGen::FunctionCodeGen(CodeGen &cg, ASTNS::FunctionDecl *ast)
 
 bool CodeGen::FunctionCodeGen::codegen() {
     std::string name = ast->name.stringify();
+
     IR::Value *function = cg.context->getGlobal(name);
+    if (!function)
+        return false;
+
     IR::FunctionType *fty;
     if (!(fty = dynamic_cast<IR::FunctionType*>(function->type())))
         return false; // this does n ot happen in valid code, but this can happen if the user (erroenously) declares a variable and a function in the global namepsace with the same name, and the variable comes first so it gets chosen over the function
