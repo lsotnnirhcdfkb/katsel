@@ -37,6 +37,14 @@ void ASTNS::PrintVisitor::visitImplDecl(ASTNS::ImplDecl *a) {
     --indent;
     pai("}\n");
 }
+void ASTNS::PrintVisitor::visitImplicitDecl(ASTNS::ImplicitDecl *a) {
+    pai("ImplicitDecl {\n");
+    ++indent;
+    pai("int dummy = ");
+    printField(a->dummy);
+    --indent;
+    pai("}\n");
+}
 void ASTNS::PrintVisitor::visitFunctionDecl(ASTNS::FunctionDecl *a) {
     pai("FunctionDecl {\n");
     ++indent;

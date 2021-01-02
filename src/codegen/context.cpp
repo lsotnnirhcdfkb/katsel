@@ -1,8 +1,9 @@
 #include "codegenlocal.h"
+#include "ir/unit.h"
 #include "utils/format.h"
 #include <iostream>
 
-CodeGen::Context::Context(): voidValue(getVoidType()) {}
+CodeGen::Context::Context(File const &file): implicitDeclAST(std::make_unique<ASTNS::ImplicitDecl>(file, Location(), Location(), 0)), voidValue(getVoidType()) {}
 
 // getting types {{{1 TODO: make a template function to loop through things and either make operator== = default for all types or use a lambda to compare them
 #define GET_TYPE_DEF(type) IR::type* CodeGen::Context::get##type

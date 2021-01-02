@@ -43,3 +43,5 @@ void CodeGen::ForwDecl::visitFunctionDecl(ASTNS::FunctionDecl *fun) {
 
     cg.context->addGlobal(fname, f);
 }
+
+void CodeGen::ForwDecl::visitImplicitDecl(ASTNS::ImplicitDecl *) {}

@@ -2,10 +2,10 @@
 #include "ir/unit.h"
 
 CodeGen::CodeGen(File const &file)
-    : unit(std::make_unique<IR::Unit>(file)),
-      context(std::make_unique<Context>()),
-      typeVisitor(std::make_unique<TypeVisitor>(*this)),
-      errored(false) {}
+: unit(std::make_unique<IR::Unit>(file)),
+  context(std::make_unique<Context>(file)),
+  typeVisitor(std::make_unique<TypeVisitor>(*this)),
+  errored(false) {}
 CodeGen::~CodeGen() = default;
 
 void CodeGen::declarate(ASTNS::CUB *cub) {
@@ -34,3 +34,5 @@ void CodeGen::visitFunctionDecl(ASTNS::FunctionDecl *ast) {
     if (!f.codegen())
         errored = true;
 }
+
+void CodeGen::visitImplicitDecl(ASTNS::ImplicitDecl *) {}

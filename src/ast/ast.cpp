@@ -28,6 +28,10 @@ ASTNS::ImplDecl::ImplDecl(File const &file, Location start, Location end, std::u
 void ASTNS::ImplDecl::accept(ASTNS::Decl::Visitor *v) { v->visitImplDecl(this); }
 Location const & ASTNS::ImplDecl::start() { return _start; }
 Location const & ASTNS::ImplDecl::end() { return _end; }
+ASTNS::ImplicitDecl::ImplicitDecl(File const &file, Location start, Location end, int dummy): Decl(file), _start(start), _end(end), dummy(std::move(dummy)) {}
+void ASTNS::ImplicitDecl::accept(ASTNS::Decl::Visitor *v) { v->visitImplicitDecl(this); }
+Location const & ASTNS::ImplicitDecl::start() { return _start; }
+Location const & ASTNS::ImplicitDecl::end() { return _end; }
 ASTNS::FunctionDecl::FunctionDecl(File const &file, Location start, Location end, std::unique_ptr<Type> retty, Token name, std::unique_ptr<ParamList> params, std::unique_ptr<Block> body): Decl(file), _start(start), _end(end), retty(std::move(retty)), name(std::move(name)), params(std::move(params)), body(std::move(body)) {}
 void ASTNS::FunctionDecl::accept(ASTNS::Decl::Visitor *v) { v->visitFunctionDecl(this); }
 Location const & ASTNS::FunctionDecl::start() { return _start; }
