@@ -22,6 +22,7 @@ namespace ASTNS {
     class PureLocation;
     class CU;
     class DeclList;
+    class ImplDecl;
     class FunctionDecl;
     class VarStmt;
     class VarStmtItem;
@@ -73,6 +74,7 @@ namespace ASTNS {
         public:
             virtual ~Visitor() {}
             virtual void visitDeclList(ASTNS::DeclList *ast) = 0;
+            virtual void visitImplDecl(ASTNS::ImplDecl *ast) = 0;
             virtual void visitFunctionDecl(ASTNS::FunctionDecl *ast) = 0;
         };
         virtual ~Decl() {}
@@ -211,6 +213,15 @@ namespace ASTNS {
         virtual Location const & start() override;
         virtual Location const & end() override;
         DeclList(File const &file, Location start, Location end, std::vector<std::unique_ptr<Decl>> decls);
+    };
+    class ImplDecl : public Decl {
+    public:
+        Location _start, _end;
+        std::unique_ptr<Type> implfor;
+        virtual void accept(ASTNS::Decl::Visitor *v) override;
+        virtual Location const & start() override;
+        virtual Location const & end() override;
+        ImplDecl(File const &file, Location start, Location end, std::unique_ptr<Type> implfor);
     };
     class FunctionDecl : public Decl {
     public:

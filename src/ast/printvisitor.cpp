@@ -29,6 +29,14 @@ void ASTNS::PrintVisitor::visitDeclList(ASTNS::DeclList *a) {
     --indent;
     pai("}\n");
 }
+void ASTNS::PrintVisitor::visitImplDecl(ASTNS::ImplDecl *a) {
+    pai("ImplDecl {\n");
+    ++indent;
+    pai("std::unique_ptr<Type> implfor = ");
+    printField(a->implfor);
+    --indent;
+    pai("}\n");
+}
 void ASTNS::PrintVisitor::visitFunctionDecl(ASTNS::FunctionDecl *a) {
     pai("FunctionDecl {\n");
     ++indent;

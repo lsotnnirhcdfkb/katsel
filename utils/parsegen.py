@@ -495,15 +495,94 @@ def make_opt(toopt, with_action, no_action, new_name=None):
     rule(optnt, (), no_action, special='nodefaultreduce')
     return optnt
 
+def braced_rule(braced_nt, inside_block, reduce_off_1, reduce_off_2, reduce_off_3):
+    rule(braced_nt, (OCURB, *inside_block, CCURB), reduce_off_1)
+    rule(braced_nt, (OCURB, NEWLINE, *inside_block, CCURB), reduce_off_2)
+    rule(braced_nt, (OCURB, NEWLINE, INDENT, *inside_block, DEDENT, CCURB), reduce_off_3)
+
+def indented_rule(indented_nt, inside_block, reduce_action):
+    rule(indented_nt, (NEWLINE, INDENT, *inside_block, DEDENT), reduce_action)
+
+def skip_to(skip_from, *skip_to):
+    for to in skip_to:
+        rule(skip_from, (to,), SkipReduceAction())
+
 grammar = []
 
 # rules {{{1
+
+AMPER = Terminal('AMPER')
+BANG = Terminal('BANG')
+BANGEQUAL = Terminal('BANGEQUAL')
+BININTLIT = Terminal('BININTLIT')
+BOOL = Terminal('BOOL')
+CARET = Terminal('CARET')
+CCURB = Terminal('CCURB')
+CHAR = Terminal('CHAR')
+CHARLIT = Terminal('CHARLIT')
+COLON = Terminal('COLON')
+COMMA = Terminal('COMMA')
+CPARN = Terminal('CPARN')
+DECINTLIT = Terminal('DECINTLIT')
+DEDENT = Terminal('DEDENT')
+DOUBLE = Terminal('DOUBLE')
+DOUBLEAMPER = Terminal('DOUBLEAMPER')
+DOUBLEEQUAL = Terminal('DOUBLEEQUAL')
+DOUBLEGREATER = Terminal('DOUBLEGREATER')
+DOUBLELESS = Terminal('DOUBLELESS')
+DOUBLEPIPE = Terminal('DOUBLEPIPE')
+EQUAL = Terminal('EQUAL')
+ELSE = Terminal('ELSE')
+FALSELIT = Terminal('FALSELIT')
+FLOAT = Terminal('FLOAT')
+FLOATLIT = Terminal('FLOATLIT')
+FOR = Terminal('FOR')
+FUN = Terminal('FUN')
+GREATER = Terminal('GREATER')
+GREATEREQUAL = Terminal('GREATEREQUAL')
+HEXINTLIT = Terminal('HEXINTLIT')
+IDENTIFIER = Terminal('IDENTIFIER')
+IF = Terminal('IF')
+INDENT = Terminal('INDENT')
+IMPL = Terminal('IMPL')
+LEFTARROW = Terminal('LEFTARROW')
+LESS = Terminal('LESS')
+LESSEQUAL = Terminal('LESSEQUAL')
+MINUS = Terminal('MINUS')
+NEWLINE = Terminal('NEWLINE')
+NULLPTRLIT = Terminal('NULLPTRLIT')
+OCTINTLIT = Terminal('OCTINTLIT')
+OCURB = Terminal('OCURB')
+OPARN = Terminal('OPARN')
+PERCENT = Terminal('PERCENT')
+PIPE = Terminal('PIPE')
+PLUS = Terminal('PLUS')
+RETURN = Terminal('RETURN')
+SEMICOLON = Terminal('SEMICOLON')
+SINT16 = Terminal('SINT16')
+SINT32 = Terminal('SINT32')
+SINT64 = Terminal('SINT64')
+SINT8 = Terminal('SINT8')
+SLASH = Terminal('SLASH')
+STAR = Terminal('STAR')
+STRINGLIT = Terminal('STRINGLIT')
+TILDE = Terminal('TILDE')
+TRUELIT = Terminal('TRUELIT')
+UINT16 = Terminal('UINT16')
+UINT32 = Terminal('UINT32')
+UINT64 = Terminal('UINT64')
+UINT8 = Terminal('UINT8')
+VAR = Terminal('VAR')
+VOID = Terminal('VOID')
+
 def make_grammar():
     global AUGMENT_RULE, AUGMENT_SYM
 
     CU = nt('CU', 'compilation unit', 'CU')
     Decl = nt('Decl', 'declaration', 'Decl', panickable=True)
     FunctionDecl = nt('FunctionDecl', 'function declaration', 'FunctionDecl', panickable=True)
+    ImplDecl = nt('ImplDecl', 'implementation', 'ImplDecl', panickable=True)
+    ImplBody = nt('ImplBody', '\'impl\' body', 'ImplBody', panickable=True)
     Stmt = nt('Stmt', 'statement', 'Stmt', panickable=True)
     VarStmt = nt('VarStmt', 'variable statement', 'VarStmt', panickable=True)
     ExprStmt = nt('ExprStmt', 'expression statement', 'ExprStmt', panickable=True)
@@ -544,69 +623,6 @@ def make_grammar():
     AUGMENT_SYM = nt('augment', 'augment', '#error augment symbol reduces to class')
     AUGMENT_RULE = rule(AUGMENT_SYM, (CU,), None)
 
-    AMPER = Terminal('AMPER')
-    BANG = Terminal('BANG')
-    BANGEQUAL = Terminal('BANGEQUAL')
-    BININTLIT = Terminal('BININTLIT')
-    BOOL = Terminal('BOOL')
-    CARET = Terminal('CARET')
-    CCURB = Terminal('CCURB')
-    CHAR = Terminal('CHAR')
-    CHARLIT = Terminal('CHARLIT')
-    COLON = Terminal('COLON')
-    COMMA = Terminal('COMMA')
-    CPARN = Terminal('CPARN')
-    DECINTLIT = Terminal('DECINTLIT')
-    DEDENT = Terminal('DEDENT')
-    DOUBLE = Terminal('DOUBLE')
-    DOUBLEAMPER = Terminal('DOUBLEAMPER')
-    DOUBLEEQUAL = Terminal('DOUBLEEQUAL')
-    DOUBLEGREATER = Terminal('DOUBLEGREATER')
-    DOUBLELESS = Terminal('DOUBLELESS')
-    DOUBLEPIPE = Terminal('DOUBLEPIPE')
-    EQUAL = Terminal('EQUAL')
-    ELSE = Terminal('ELSE')
-    FALSELIT = Terminal('FALSELIT')
-    FLOAT = Terminal('FLOAT')
-    FLOATLIT = Terminal('FLOATLIT')
-    FOR = Terminal('FOR')
-    FUN = Terminal('FUN')
-    GREATER = Terminal('GREATER')
-    GREATEREQUAL = Terminal('GREATEREQUAL')
-    HEXINTLIT = Terminal('HEXINTLIT')
-    IDENTIFIER = Terminal('IDENTIFIER')
-    IF = Terminal('IF')
-    INDENT = Terminal('INDENT')
-    LEFTARROW = Terminal('LEFTARROW')
-    LESS = Terminal('LESS')
-    LESSEQUAL = Terminal('LESSEQUAL')
-    MINUS = Terminal('MINUS')
-    NEWLINE = Terminal('NEWLINE')
-    NULLPTRLIT = Terminal('NULLPTRLIT')
-    OCTINTLIT = Terminal('OCTINTLIT')
-    OCURB = Terminal('OCURB')
-    OPARN = Terminal('OPARN')
-    PERCENT = Terminal('PERCENT')
-    PIPE = Terminal('PIPE')
-    PLUS = Terminal('PLUS')
-    RETURN = Terminal('RETURN')
-    SEMICOLON = Terminal('SEMICOLON')
-    SINT16 = Terminal('SINT16')
-    SINT32 = Terminal('SINT32')
-    SINT64 = Terminal('SINT64')
-    SINT8 = Terminal('SINT8')
-    SLASH = Terminal('SLASH')
-    STAR = Terminal('STAR')
-    STRINGLIT = Terminal('STRINGLIT')
-    TILDE = Terminal('TILDE')
-    TRUELIT = Terminal('TRUELIT')
-    UINT16 = Terminal('UINT16')
-    UINT32 = Terminal('UINT32')
-    UINT64 = Terminal('UINT64')
-    UINT8 = Terminal('UINT8')
-    VAR = Terminal('VAR')
-    VOID = Terminal('VOID')
-
     ParamList = list_rule(Param, VectorPushOneAction('ParamList', 'std::move(a0)', 'Param', 'params'), VectorPushReduceAction('a0->params', 'std::move(a2)', 'a0'), 'ParamList', COMMA)
     ArgList = list_rule(Arg, VectorPushOneAction('ArgList', 'std::move(a0)', 'Arg', 'args'), VectorPushReduceAction('a0->args', 'std::move(a2)', 'a0'), 'ArgList', COMMA)
     VarStmtItemList = list_rule(VarStmtItem, VectorPushOneAction('VarStmtItemList', 'std::move(a0)', 'VarStmtItem', 'items'), VectorPushReduceAction('a0->items', 'std::move(a2)', 'a0'), 'VarStmtItemList', COMMA)
@@ -625,14 +641,14 @@ def make_grammar():
     rule(CU, (DeclList,), SimpleReduceAction('CU', 'std::move(a0)'))
     rule(CU, (), NullptrReduceAction())
 
-    rule(Decl, (FunctionDecl,), SkipReduceAction())
+    skip_to(Decl, FunctionDecl, ImplDecl)
 
     rule(FunctionDecl, (FUN, IDENTIFIER, OPARN, ParamListOpt, CPARN, TypeAnnotation, Block, LineEndingOpt), SimpleReduceAction('FunctionDecl', 'std::move(a5), a1, std::move(a3), std::move(a6)'))
     rule(FunctionDecl, (FUN, IDENTIFIER, OPARN, ParamListOpt, CPARN, TypeAnnotation, LineEnding), SimpleReduceAction('FunctionDecl', 'std::move(a5), a1, std::move(a3), nullptr'))
 
-    rule(Stmt, (VarStmt,), SkipReduceAction())
-    rule(Stmt, (ExprStmt,), SkipReduceAction())
-    rule(Stmt, (RetStmt,), SkipReduceAction())
+    rule(ImplDecl, (IMPL, Type, LineEnding), SimpleReduceAction('ImplDecl', 'std::move(a1)'))
+
+    skip_to(Stmt, VarStmt, ExprStmt, RetStmt)
 
     rule(VarStmt, (VAR, VarStmtItemList, LineEnding), SimpleReduceAction('VarStmt', 'std::move(a1)'))
 
@@ -645,20 +661,20 @@ def make_grammar():
     rule(VarStmtItem, (IDENTIFIER, TypeAnnotation, EQUAL, Expr), SimpleReduceAction('VarStmtItem', 'std::move(a1), a0, a2, std::move(a3)'))
     rule(VarStmtItem, (IDENTIFIER, TypeAnnotation), SimpleReduceAction('VarStmtItem', 'std::move(a1), a0, a0, nullptr'))
 
-    rule(Block, (BracedBlock,), SkipReduceAction())
-    rule(Block, (IndentedBlock,), SkipReduceAction())
-    rule(BracedBlock, (OCURB, StmtListOpt, ImplRetOpt, CCURB), SimpleReduceAction('Block', 'std::move(a1), std::move(a2)'))
-    rule(BracedBlock, (OCURB, NEWLINE, StmtListOpt, ImplRetOpt, CCURB), SimpleReduceAction('Block', 'std::move(a2), std::move(a3)'))
-    rule(BracedBlock, (OCURB, NEWLINE, INDENT, StmtListOpt, ImplRetOpt, DEDENT, CCURB), SimpleReduceAction('Block', 'std::move(a3), std::move(a4)'))
-    rule(IndentedBlock, (NEWLINE, INDENT, StmtListOpt, ImplRetOpt, DEDENT), SimpleReduceAction('Block', 'std::move(a2), std::move(a3)'))
+    skip_to(Block, BracedBlock, IndentedBlock)
+    braced_rule(BracedBlock, (StmtListOpt, ImplRetOpt),
+        SimpleReduceAction('Block', 'std::move(a1), std::move(a2)'), # offset 1
+        SimpleReduceAction('Block', 'std::move(a2), std::move(a3)'), # offset 2
+        SimpleReduceAction('Block', 'std::move(a3), std::move(a4)')) # offset 3
+    indented_rule(IndentedBlock, (StmtListOpt, ImplRetOpt), SimpleReduceAction('Block', 'std::move(a2), std::move(a3)'))
+
     rule(ImplRet, (LEFTARROW, Expr, LineEndingOpt), SimpleReduceAction('ImplRet', 'std::move(a1)'))
 
     rule(LineEnding, (NEWLINE,), LocationReduceAction())
     rule(LineEnding, (SEMICOLON,), LocationReduceAction())
     rule(LineEnding, (SEMICOLON, NEWLINE), WarnAction('WARN_EXTRA_SEMI(a0);', LocationReduceAction()))
 
-    rule(Type, (PrimitiveType,), SkipReduceAction())
-    rule(Type, (PointerType,), SkipReduceAction())
+    skip_to(Type, PrimitiveType, PointerType)
 
     rule(PointerType, (STAR, Type), SimpleReduceAction('PointerType', 'std::move(a1)'))
 
@@ -682,14 +698,9 @@ def make_grammar():
 
     rule(Param, (IDENTIFIER, TypeAnnotation), SimpleReduceAction('Param', 'std::move(a1), a0'))
 
-    rule(Expr, (BlockedExpr,), SkipReduceAction())
-    rule(Expr, (NotBlockedExpr,), SkipReduceAction())
-
-    rule(NotBlockedExpr, (AssignmentExpr,), SkipReduceAction())
-
-    rule(BlockedExpr, (IfExpr,), SkipReduceAction())
-    rule(BlockedExpr, (ForExpr,), SkipReduceAction())
-    rule(BlockedExpr, (BracedBlock,), SkipReduceAction())
+    skip_to(Expr, BlockedExpr, NotBlockedExpr)
+    skip_to(NotBlockedExpr, AssignmentExpr)
+    skip_to(BlockedExpr, IfExpr, ForExpr, BracedBlock)
 
     rule(IfExpr, (IF, Expr, Block), SimpleReduceAction('IfExpr', 'a0, std::move(a1), std::move(a2), nullptr'))
     rule(IfExpr, (IF, Expr, Block, ELSE, Block), SimpleReduceAction('IfExpr', 'a0, std::move(a1), std::move(a2), std::move(a4)'))
@@ -856,7 +867,7 @@ def gen_loop():
                 # it will reduce 2 up the chain of expression precedence before reporting the error
             else:
                 for term in nts:
-                    output.append(               f'                    case {term.astt()}: ')
+                    output.append(               f'                    case {term.astt()}:\n')
 
             if isinstance(ac, ReduceAction):
                 output.append(                    '{\n')
