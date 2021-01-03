@@ -10,6 +10,20 @@ CodeGen::CodeGen(File const &file)
 CodeGen::~CodeGen() = default;
 
 void CodeGen::declarate(ASTNS::CUB *cub) {
+    unit->mod.addDeclSymbol("void", context->getVoidType());
+    unit->mod.addDeclSymbol("float", context->getFloatType(32));
+    unit->mod.addDeclSymbol("double", context->getFloatType(64));
+    unit->mod.addDeclSymbol("bool", context->getBoolType());
+    unit->mod.addDeclSymbol("char", context->getCharType());
+    unit->mod.addDeclSymbol("uint8", context->getIntType(8, false));
+    unit->mod.addDeclSymbol("uint16", context->getIntType(16, false));
+    unit->mod.addDeclSymbol("uint32", context->getIntType(32, false));
+    unit->mod.addDeclSymbol("uint64", context->getIntType(64, false));
+    unit->mod.addDeclSymbol("sint8", context->getIntType(8, true));
+    unit->mod.addDeclSymbol("sint16", context->getIntType(16, true));
+    unit->mod.addDeclSymbol("sint32", context->getIntType(32, true));
+    unit->mod.addDeclSymbol("sint64", context->getIntType(64, true));
+
     ForwDecl f (*this);
     cub->accept(&f);
 }

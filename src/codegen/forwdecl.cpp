@@ -5,20 +5,6 @@
 CodeGen::ForwDecl::ForwDecl(CodeGen &cg): cg(cg) {}
 
 void CodeGen::ForwDecl::visitCU(ASTNS::CU *ast) {
-    cg.unit->mod.addDeclSymbol("void", cg.context->getVoidType());
-    cg.unit->mod.addDeclSymbol("float", cg.context->getFloatType(32));
-    cg.unit->mod.addDeclSymbol("double", cg.context->getFloatType(64));
-    cg.unit->mod.addDeclSymbol("bool", cg.context->getBoolType());
-    cg.unit->mod.addDeclSymbol("char", cg.context->getCharType());
-    cg.unit->mod.addDeclSymbol("uint8", cg.context->getIntType(8, false));
-    cg.unit->mod.addDeclSymbol("uint16", cg.context->getIntType(16, false));
-    cg.unit->mod.addDeclSymbol("uint32", cg.context->getIntType(32, false));
-    cg.unit->mod.addDeclSymbol("uint64", cg.context->getIntType(64, false));
-    cg.unit->mod.addDeclSymbol("sint8", cg.context->getIntType(8, true));
-    cg.unit->mod.addDeclSymbol("sint16", cg.context->getIntType(16, true));
-    cg.unit->mod.addDeclSymbol("sint32", cg.context->getIntType(32, true));
-    cg.unit->mod.addDeclSymbol("sint64", cg.context->getIntType(64, true));
-
     ast->decls->accept(this);
 }
 
