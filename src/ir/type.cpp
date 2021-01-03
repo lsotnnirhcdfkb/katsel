@@ -13,7 +13,7 @@ ASTNS::AST* IR::VoidType::declAST() const {
     return _declAST;
 }
 
-std::string IR::VoidType::stringify() const {
+std::string IR::VoidType::name() const {
     return "void";
 }
 
@@ -42,14 +42,14 @@ ASTNS::AST* IR::FunctionType::declAST() const {
     return _declAST;
 }
 
-std::string IR::FunctionType::stringify() const {
+std::string IR::FunctionType::name() const {
     std::stringstream ss;
-    ss << "fun " << ret->stringify() << "(";
+    ss << "fun " << ret->name() << "(";
     bool first = true;
     for (Type *pty : paramtys) {
         if (!first)
             ss << ", ";
-        ss << pty->stringify();
+        ss << pty->name();
         first = false;
     }
     ss << ")";
@@ -82,6 +82,6 @@ IR::ASTValue IR::FunctionType::implCast(CodeGen::Context &cgc, IR::Function &fun
 }
 
 std::ostream& operator<<(std::ostream &os, IR::Type const *ty) {
-    os << "'" << ty->stringify() << "'";
+    os << "'" << ty->name() << "'";
     return os;
 }

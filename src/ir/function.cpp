@@ -34,10 +34,10 @@ IR::Block* IR::Function::addBlock(std::string name) {
 }
 void IR::Function::definition(llvm::raw_ostream &os) const {
     if (prototypeonly) {
-        os << format("%: % (proto);\n", name, ty->stringify());
+        os << format("%: % (proto);\n", name, ty->name());
         return;
     }
-    os << format("%: % {\n", name, ty->stringify());
+    os << format("%: % {\n", name, ty->name());
     for (std::unique_ptr<Block> const &b : blocks)
         b->definition(os);
     os << "}\n";

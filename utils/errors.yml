@@ -466,8 +466,7 @@ errors:
     inputs: 'IR::DeclSymbol const *prev, Token const &current'
     location: 'current'
     highlights:
-      - ['current', *under0, [['error', 'format("no item called %", current)']]]
-      # TODO: declSym::name() - ['current', *under0, [['error', 'format("no item called % in %", current, prev.name())']]]
+      - ['current', *under0, [['error', 'format("no item called % in %", current, prev)']]]
 
 warnings:
   -

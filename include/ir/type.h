@@ -19,13 +19,14 @@ namespace IR {
 
 #include "codegen/codegen.h"
 
+#include "message/reportAbort.h"
+
 namespace IR {
     // Base class {{{1
     class Type : public DeclSymbol {
     public:
         inline Type(CodeGen::Context &context): context(context) {}
         virtual ~Type() {}
-        virtual std::string stringify() const = 0;
 
         enum class BinaryOperator {
             plus,
@@ -79,7 +80,7 @@ namespace IR {
     public:
         FloatType(CodeGen::Context &context, ASTNS::AST *declAST, int size);
 
-        std::string stringify() const override;
+        std::string name() const override;
 
         IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
         IR::ASTValue unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;
@@ -103,7 +104,7 @@ namespace IR {
     public:
         IntType(CodeGen::Context &context, ASTNS::AST *declAST, int size, bool isSigned);
 
-        std::string stringify() const override;
+        std::string name() const override;
 
         IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
         IR::ASTValue unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;
@@ -128,7 +129,7 @@ namespace IR {
     public:
         CharType(CodeGen::Context &context, ASTNS::AST *declAST);
 
-        std::string stringify() const override;
+        std::string name() const override;
 
         IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
         IR::ASTValue unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;
@@ -150,7 +151,7 @@ namespace IR {
     public:
         BoolType(CodeGen::Context &context, ASTNS::AST *declAST);
 
-        std::string stringify() const override;
+        std::string name() const override;
 
         IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
         IR::ASTValue unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;
@@ -174,7 +175,7 @@ namespace IR {
         std::vector<Type*> paramtys;
 
         FunctionType(CodeGen::Context &context, ASTNS::AST *declAST, Type *ret, std::vector<Type*> paramtys);
-        std::string stringify() const override;
+        std::string name() const override;
 
         IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
         IR::ASTValue unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;
@@ -196,7 +197,7 @@ namespace IR {
     public:
         VoidType(CodeGen::Context &context, ASTNS::AST *declAST);
 
-        std::string stringify() const override;
+        std::string name() const override;
 
         IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
         IR::ASTValue unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;
@@ -218,7 +219,7 @@ namespace IR {
     public:
         PointerType(CodeGen::Context &context, ASTNS::AST *declAST, Type *ty);
 
-        std::string stringify() const override;
+        std::string name() const override;
 
         IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
         IR::ASTValue unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;
@@ -243,7 +244,7 @@ namespace IR {
     public:
         GenericIntType(CodeGen::Context &context, ASTNS::AST *declAST);
 
-        std::string stringify() const override;
+        std::string name() const override;
 
         IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
         IR::ASTValue unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;
@@ -265,7 +266,7 @@ namespace IR {
     public:
         GenericFloatType(CodeGen::Context &context, ASTNS::AST *declAST);
 
-        std::string stringify() const override;
+        std::string name() const override;
 
         IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
         IR::ASTValue unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;

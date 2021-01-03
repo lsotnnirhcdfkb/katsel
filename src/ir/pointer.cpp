@@ -14,8 +14,8 @@ ASTNS::AST* IR::PointerType::declAST() const {
     return _declAST;
 }
 
-std::string IR::PointerType::stringify() const {
-    return format("*%", ty->stringify());
+std::string IR::PointerType::name() const {
+    return format("*%", ty->name());
 }
 
 IR::ASTValue IR::PointerType::binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::Type::BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) {

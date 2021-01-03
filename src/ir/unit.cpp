@@ -2,7 +2,7 @@
 #include "ir/value.h"
 #include "ir/instruction.h"
 
-IR::Unit::Unit(File const &file): implicitDeclAST(std::make_unique<ASTNS::ImplicitDecl>(file, Location(), Location(), 0)), file(file), mod(file, implicitDeclAST.get()) {}
+IR::Unit::Unit(File const &file): implicitDeclAST(std::make_unique<ASTNS::ImplicitDecl>(file, Location(), Location(), 0)), file(file), mod("current compilation unit", implicitDeclAST.get()) {}
 
 void IR::Unit::print(llvm::raw_ostream &ostream) const {
     ostream << "> Unit \"" << file.filename << "\"\n";
@@ -18,11 +18,3 @@ void IR::Unit::cfgDot(llvm::raw_ostream &ostream) const {
     ostream << "}\n";
 }
 
-/*
-IR::Function* IR::Unit::addFunction(FunctionType *type, std::string name, ASTNS::FunctionDecl *ast) {
-    std::unique_ptr<IR::Function> f (std::make_unique<IR::Function>(type, name, ast));
-    IR::Function *fraw = f.get();
-    functions.push_back(std::move(f));
-    return fraw;
-}
-*/

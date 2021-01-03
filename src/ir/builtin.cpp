@@ -109,13 +109,13 @@ llvm::Type* IR::FloatType::toLLVMType(llvm::LLVMContext &con) const {
     else
         reportAbortNoh(format("FloatType::toLLVMType: size = %", size));
 }
-std::string IR::FloatType::stringify() const {
+std::string IR::FloatType::name() const {
     if (size == 32)
         return "float";
     else if (size == 64)
         return "double";
     else
-        reportAbortNoh(format("FloatType::stringify: size = %", size));
+        reportAbortNoh(format("FloatType::name: size = %", size));
 }
 IR::ASTValue IR::FloatType::binOp(BIN_OP_ARGS) {
     ASSERT(l.type() == this);
@@ -159,7 +159,7 @@ ASTNS::AST* IR::IntType::declAST() const {
 llvm::Type* IR::IntType::toLLVMType(llvm::LLVMContext &con) const {
     return llvm::IntegerType::get(con, size);
 }
-std::string IR::IntType::stringify() const {
+std::string IR::IntType::name() const {
     return format("%int%", isSigned ? 's' : 'u', size);
 }
 IR::ASTValue IR::IntType::binOp(BIN_OP_ARGS) {
@@ -220,7 +220,7 @@ ASTNS::AST* IR::GenericIntType::declAST() const {
     return _declAST;
 }
 
-std::string IR::GenericIntType::stringify() const {
+std::string IR::GenericIntType::name() const {
     return "<integer>";
 }
 IR::ASTValue IR::GenericIntType::binOp(BIN_OP_ARGS) {
@@ -247,7 +247,7 @@ ASTNS::AST* IR::GenericFloatType::declAST() const {
     return _declAST;
 }
 
-std::string IR::GenericFloatType::stringify() const {
+std::string IR::GenericFloatType::name() const {
     return "<float>";
 }
 IR::ASTValue IR::GenericFloatType::binOp(BIN_OP_ARGS) {
@@ -278,7 +278,7 @@ ASTNS::AST* IR::CharType::declAST() const {
 llvm::Type* IR::CharType::toLLVMType(llvm::LLVMContext &con) const {
     return llvm::Type::getInt8Ty(con);
 }
-std::string IR::CharType::stringify() const {
+std::string IR::CharType::name() const {
     return "char";
 }
 IR::ASTValue IR::CharType::binOp(BIN_OP_ARGS) {
@@ -337,7 +337,7 @@ ASTNS::AST* IR::BoolType::declAST() const {
 llvm::Type* IR::BoolType::toLLVMType(llvm::LLVMContext &con) const {
     return llvm::Type::getInt1Ty(con);
 }
-std::string IR::BoolType::stringify() const {
+std::string IR::BoolType::name() const {
     return "bool";
 }
 IR::ASTValue IR::BoolType::binOp(CodeGen::Context &cgc, Function &fun, Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) {
