@@ -1,15 +1,16 @@
 #include "codegenlocal.h"
 #include "ir/unit.h"
 
-CodeGen::CodeGen(File const &file)
+CodeGen::CodeGen(File const &file, ASTNS::CUB *cub)
 : unit(std::make_unique<IR::Unit>(file)),
   context(std::make_unique<Context>(file, *this)),
   typeVisitor(std::make_unique<TypeVisitor>(*this)),
   pathVisitor(std::make_unique<PathVisitor>(*this)),
-  errored(false) {}
+  errored(false),
+  cub(cub) {}
 CodeGen::~CodeGen() = default;
 
-void CodeGen::declarate(ASTNS::CUB *cub) {
+void CodeGen::forwdecl() {
     unit->mod.addDeclSymbol("void", context->getVoidType());
     unit->mod.addDeclSymbol("float", context->getFloatType(32));
     unit->mod.addDeclSymbol("double", context->getFloatType(64));
@@ -28,7 +29,12 @@ void CodeGen::declarate(ASTNS::CUB *cub) {
     cub->accept(&f);
 }
 
-void CodeGen::codegen(ASTNS::CUB *cub) {
+void CodeGen::declarate() {
+    Declarator d (*this);
+    cub->accept(&d);
+}
+
+void CodeGen::codegen() {
     cub->accept(this);
 }
 

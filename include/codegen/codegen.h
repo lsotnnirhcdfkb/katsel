@@ -10,6 +10,7 @@ struct File;
 
 class CodeGen : public ASTNS::CUB::Visitor, public ASTNS::Decl::Visitor {
     class ForwDecl;
+    class Declarator;
 
     class TypeVisitor;
 
@@ -23,11 +24,12 @@ class CodeGen : public ASTNS::CUB::Visitor, public ASTNS::Decl::Visitor {
 public:
     class Context;
 
-    CodeGen(File const &file);
+    CodeGen(File const &file, ASTNS::CUB *cub);
     ~CodeGen();
 
-    void declarate(ASTNS::CUB *cub);
-    void codegen(ASTNS::CUB *cub);
+    void forwdecl();
+    void declarate();
+    void codegen();
 
     void printUnit(llvm::raw_ostream &ostream);
 
@@ -52,4 +54,6 @@ void visitFunctionDecl(ASTNS::FunctionDecl *ast) override;
     // CG METHODS END
 
     bool errored;
+
+    ASTNS::CUB *cub;
 };

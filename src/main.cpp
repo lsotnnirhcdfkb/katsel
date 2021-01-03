@@ -23,7 +23,6 @@
 enum class OutFormats {
     LEX = 0,
     PARSE,
-    DECLS,
     CODEGEN,
     CFGDOT,
     LOWER,
@@ -109,23 +108,16 @@ int compileFile(OutFormats ofmt, char *filename) {
         return true;
     }
 
-    auto codegen = std::make_unique<CodeGen>(*source);
-    codegen->declarate(parsed.get());
+    auto codegen = std::make_unique<CodeGen>(*source, parsed.get());
+    codegen->forwdecl();
     if (codegen->isErrored())
         return false;
 
-    if (ofmt == OutFormats::DECLS) {
-        OPENFILE(filename, ".kslir");
-        if (os.has_error())
-            return false;
+    codegen->declarate();
+    if (codegen->isErrored())
+        return false;
 
-        codegen->printUnit(os);
-
-        os.close();
-        return true;
-    }
-
-    codegen->codegen(parsed.get());
+    codegen->codegen();
     if (codegen->isErrored())
         return false;
 
@@ -197,7 +189,6 @@ int main(int argc, char *argv[]) {
 #define EOFMT(k, ku) else OFMT(k, ku)
                 OFMT(lex, LEX)
                 EOFMT(parse, PARSE)
-                EOFMT(decls, DECLS)
                 EOFMT(codegen, CODEGEN)
                 EOFMT(cfgdot, CFGDOT)
                 EOFMT(lower, LOWER)
