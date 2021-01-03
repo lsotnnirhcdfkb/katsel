@@ -41,5 +41,5 @@ AND NOt only that, but I also got a lot of helpful information from looking at t
 - [ ] More
 
 # To do things
-You need Python, PyYAML, colorama (for testing script color coding), and LLVM
+You need Python, colorama (for testing script color coding), and LLVM
 and I think thats it
