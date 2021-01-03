@@ -1,1 +1,1 @@
-target_sources(katselc PUBLIC function.cpp)
+target_sources(katselc PUBLIC function.cpp impl.cpp)

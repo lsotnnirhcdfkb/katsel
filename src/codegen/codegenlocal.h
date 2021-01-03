@@ -144,6 +144,12 @@ public:
     ImplCodeGen(CodeGen &cg, ASTNS::ImplDecl *ast);
 
     bool codegen();
+
+private:
+    CodeGen &cg;
+    ASTNS::ImplDecl *ast;
+
+    bool errored;
 };
 // Param and Args {{{1
 // Param {{{2

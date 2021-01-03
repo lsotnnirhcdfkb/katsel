@@ -14,6 +14,6 @@ void CodeGen::ForwDecl::visitDeclList(ASTNS::DeclList *ast) {
 }
 
 void CodeGen::ForwDecl::visitFunctionDecl(ASTNS::FunctionDecl *fun) {}
-void CodeGen::ForwDecl::visitImplDecl(ASTNS::ImplDecl *fun) {}
+void CodeGen::ForwDecl::visitImplDecl(ASTNS::ImplDecl *impl) {}
 
 void CodeGen::ForwDecl::visitImplicitDecl(ASTNS::ImplicitDecl *) {}

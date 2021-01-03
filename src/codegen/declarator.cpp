@@ -46,7 +46,15 @@ void CodeGen::Declarator::visitFunctionDecl(ASTNS::FunctionDecl *fun) {
     cg.unit->mod.addValue(fname, fraw);
 }
 
-void CodeGen::Declarator::visitImplDecl(ASTNS::ImplDecl *fun) {
+void CodeGen::Declarator::visitImplDecl(ASTNS::ImplDecl *impl) {
+    IR::Type *implFor = cg.typeVisitor->type(impl->implFor.get());
+    if (!implFor) {
+        cg.errored = true;
+        ERR_UNDECL_SYMB(impl->implFor.get());
+        return;
+    }
+
+    // TODO
 }
 
 void CodeGen::Declarator::visitImplicitDecl(ASTNS::ImplicitDecl *) {}
