@@ -4,6 +4,9 @@ CodeGen::ParamVisitor::ParamVisitor::ParamVisitor(CodeGen &cg): cg(cg) {}
 
 void CodeGen::ParamVisitor::visitParam(ASTNS::Param *ast) {
     IR::Type *ty (cg.typeVisitor->type(ast->type.get()));
+    if (!ty)
+        return;
+
     std::string name (ast->name.stringify());
 
     Param p {ty, std::move(name), ast};
