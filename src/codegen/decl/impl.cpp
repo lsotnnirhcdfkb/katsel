@@ -6,4 +6,6 @@ CodeGen::ImplCodeGen::ImplCodeGen(CodeGen &cg, ASTNS::ImplDecl *ast): cg(cg), as
 
 bool CodeGen::ImplCodeGen::codegen() {
     // TODO
+
+    return true;
 }
