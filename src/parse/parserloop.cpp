@@ -1470,7 +1470,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         shift(p, lasttok, lookahead, stack, steps, 103); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "variable statement initialization list", "variable statement")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "variable binding list", "variable declaration")  });
                 }
                 break;
             case 50:
@@ -1706,7 +1706,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         shift(p, lasttok, lookahead, stack, steps, 49); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional variable statement", "for expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional variable declaration", "for expression")  });
                 }
                 break;
             case 60:
@@ -2552,7 +2552,7 @@ a0->stmts.push_back(std::move(a1));
                         shift(p, lasttok, lookahead, stack, steps, 33); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "line ending", "variable statement")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "line ending", "variable declaration")  });
                 }
                 break;
             case 101:
@@ -2592,7 +2592,7 @@ std::unique_ptr<ASTNS::VarStmtItemList> push(std::make_unique<ASTNS::VarStmtItem
                         shift(p, lasttok, lookahead, stack, steps, 18); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "required type annotation", "variable statement initialization")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "required type annotation", "variable binding")  });
                 }
                 break;
             case 104:
@@ -4533,7 +4533,7 @@ a0->items.push_back(std::move(a2));
                         shift(p, lasttok, lookahead, stack, steps, 78); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "expression", "variable statement initialization")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "expression", "variable binding")  });
                 }
                 break;
             case 185:
