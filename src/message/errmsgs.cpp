@@ -137,7 +137,7 @@ void E0100(Token const &lookahead, Token const &lasttok, std::vector<std::string
     );
 auto un (Error::Underline(lasttok, '~'));
 for (std::string const &expectation : expectations)
-  un.hint(expectation);
+    un.hint(expectation);
 e.underline(un);
     e.report();
 }
@@ -153,7 +153,7 @@ void E0101(Token const &lookahead, Token const &lasttok, std::string const &best
     );
 auto un (Error::Underline(lasttok, '~'));
 for (std::string const &expectation : expectations)
-  un.hint(expectation);
+    un.hint(expectation);
 e.underline(un);
     e.report();
 }
@@ -171,7 +171,7 @@ void E0102(Token const &lookahead, Token const &lasttok, Token const &panicuntil
     );
 auto un (Error::Underline(lasttok, '~'));
 for (std::string const &expectation : expectations)
-  un.hint(expectation);
+    un.hint(expectation);
 e.underline(un);
     e.report();
 }
@@ -183,11 +183,12 @@ void E0200(Token const &name, IR::Value *val) {
     e.underline(Error::Underline(name, '^')
         .error("redeclaration of symbol")
     );
-    IR::DeclaredValue * asdeclared;
-    if (( asdeclared = dynamic_cast<IR::DeclaredValue*>( val)))
-    e.underline(Error::Underline(asdeclared->defAST(), '~')
-        .note("previous declaration")
-    );
+    if (IR::DeclaredValue *asDeclared = dynamic_cast<IR::DeclaredValue*>(val)) {
+        if (!dynamic_cast<ASTNS::ImplicitDecl*>(asDeclared->defAST())) {
+            e.underline(Error::Underline(asDeclared->defAST(), '~')
+                .note("previous declaration"));
+       }
+    }
     e.report();
 }
 
@@ -198,11 +199,6 @@ void E0201(IR::ASTValue const &lhs, Token const &op) {
     Error e = Error(Error::MsgType::ERROR, op, "E0201 (lhs-unsupported-op)");
     e.underline(Error::Underline(lhs, '^')
         .note(format("lhs is of type %", lhs.type()))
-    );
-    IR::DeclaredValue * asdeclared;
-    if (( asdeclared = dynamic_cast<IR::DeclaredValue*>( lhs.val)))
-    e.underline(Error::Underline(asdeclared->defAST(), '~')
-        .note("lhs declared here")
     );
     e.underline(Error::Underline(op, '^')
         .error("unsupported binary operator for left operand")
@@ -229,11 +225,6 @@ void E0203(IR::ASTValue const &operand, Token const &_operator) {
     e.underline(Error::Underline(operand, '^')
         .note(format("operand is of type %", operand.type()))
     );
-    IR::DeclaredValue * asdeclared;
-    if (( asdeclared = dynamic_cast<IR::DeclaredValue*>( operand.val)))
-    e.underline(Error::Underline(asdeclared->defAST(), '~')
-        .note("operand declared here")
-    );
     e.underline(Error::Underline(_operator, '^')
         .error("unsupported unary operator")
     );
@@ -247,11 +238,6 @@ void E0204(IR::ASTValue const &func, Token const &oparn) {
     e.underline(Error::Underline(func, '^')
         .error("calling of non-callable value")
         .note(format("value of type %", func.type()))
-    );
-    IR::DeclaredValue * asdeclared;
-    if (( asdeclared = dynamic_cast<IR::DeclaredValue*>( func.val)))
-    e.underline(Error::Underline(asdeclared->defAST(), '~')
-        .note("callee declared here")
     );
     e.report();
 }
@@ -439,11 +425,6 @@ void E0219(IR::ASTValue &v) {
     Error e = Error(Error::MsgType::ERROR, v, "E0219 (cond-not-bool)");
     e.underline(Error::Underline(v, '^')
         .error(format("usage of % as condition", v.type()))
-    );
-    IR::DeclaredValue * asdeclared;
-    if (( asdeclared = dynamic_cast<IR::DeclaredValue*>( v.val)))
-    e.underline(Error::Underline(asdeclared->defAST(), '~')
-        .note("declared here")
     );
     e.report();
 }
