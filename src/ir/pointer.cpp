@@ -60,7 +60,7 @@ IR::ASTValue IR::PointerType::unaryOp(CodeGen::Context &cgc, IR::Function &fun, 
     ERR_UNARY_UNSUPPORTED_OP(operand, optok);
     return ASTValue();
 }
-IR::ASTValue IR::PointerType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) {
+IR::ASTValue IR::PointerType::castFrom(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) {
     if (dynamic_cast<IR::PointerType*>(v.type())) {
         return ASTValue(curBlock->add(std::make_unique<IR::Instrs::NoOpCast>(v, this)), ast);
     }

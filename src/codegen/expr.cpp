@@ -402,7 +402,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitCastExpr(ASTNS::CastExpr *ast) 
         return;
     }
 
-    ret = castToTy->castTo(*cg.context, *fcg.fun, fcg.curBlock, oper, ast);
+    ret = castToTy->castFrom(*cg.context, *fcg.fun, fcg.curBlock, oper, ast);
 
     if (!ret)
         fcg.errored = true;

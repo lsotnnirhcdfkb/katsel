@@ -24,7 +24,7 @@ IR::ASTValue IR::VoidType::unaryOp(CodeGen::Context &, IR::Function &, IR::Block
     ERR_UNARY_UNSUPPORTED_OP(operand, optok);
     return ASTValue();
 }
-IR::ASTValue IR::VoidType::castTo(CodeGen::Context &, IR::Function &, IR::Block *&, IR::ASTValue v, ASTNS::AST *ast) {
+IR::ASTValue IR::VoidType::castFrom(CodeGen::Context &, IR::Function &, IR::Block *&, IR::ASTValue v, ASTNS::AST *ast) {
     ERR_INVALID_CAST(ast, v, this);
     return ASTValue();
 }
@@ -63,7 +63,7 @@ IR::ASTValue IR::FunctionType::unaryOp(CodeGen::Context &, IR::Function &, IR::B
     return ASTValue();
 }
 
-IR::ASTValue IR::FunctionType::castTo(CodeGen::Context &, IR::Function &, IR::Block *&, IR::ASTValue v, ASTNS::AST *ast) {
+IR::ASTValue IR::FunctionType::castFrom(CodeGen::Context &, IR::Function &, IR::Block *&, IR::ASTValue v, ASTNS::AST *ast) {
     ERR_INVALID_CAST(ast, v, this);
     return ASTValue();
 }
