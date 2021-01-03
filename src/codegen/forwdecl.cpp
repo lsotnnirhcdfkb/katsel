@@ -46,4 +46,6 @@ void CodeGen::ForwDecl::visitFunctionDecl(ASTNS::FunctionDecl *fun) {
     cg.unit->mod.addValue(fname, fraw);
 }
 
+void CodeGen::ForwDecl::visitImplDecl(ASTNS::ImplDecl *fun) {}
+
 void CodeGen::ForwDecl::visitImplicitDecl(ASTNS::ImplicitDecl *) {}

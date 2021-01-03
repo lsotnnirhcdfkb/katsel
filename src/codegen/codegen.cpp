@@ -44,10 +44,14 @@ void CodeGen::visitDeclList(ASTNS::DeclList *ast) {
     for (std::unique_ptr<ASTNS::Decl> &decl : ast->decls)
         decl->accept(this);
 }
-void CodeGen::visitFunctionDecl(ASTNS::FunctionDecl *ast) {
-    FunctionCodeGen f (*this, ast);
-    if (!f.codegen())
-        errored = true;
-}
+
+#define DECL_CG(cl) \
+    void CodeGen::visit##cl##Decl(ASTNS::cl##Decl *ast) { \
+        cl##CodeGen cg (*this, ast);                      \
+        if (!cg.codegen())                                \
+            errored = true;                               \
+    }
+DECL_CG(Function)
+DECL_CG(Impl)
 
 void CodeGen::visitImplicitDecl(ASTNS::ImplicitDecl *) {}

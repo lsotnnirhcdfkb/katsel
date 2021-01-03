@@ -25,6 +25,10 @@ ASTNS::DeclList::DeclList(File const &file, Location start, Location end, std::v
 void ASTNS::DeclList::accept(ASTNS::Decl::Visitor *v) { v->visitDeclList(this); }
 Location const & ASTNS::DeclList::start() { return _start; }
 Location const & ASTNS::DeclList::end() { return _end; }
+ASTNS::ImplDecl::ImplDecl(File const &file, Location start, Location end, std::unique_ptr<Type> implFor): Decl(file), _start(start), _end(end), implFor(std::move(implFor)) {}
+void ASTNS::ImplDecl::accept(ASTNS::Decl::Visitor *v) { v->visitImplDecl(this); }
+Location const & ASTNS::ImplDecl::start() { return _start; }
+Location const & ASTNS::ImplDecl::end() { return _end; }
 ASTNS::ImplicitDecl::ImplicitDecl(File const &file, Location start, Location end, int dummy): Decl(file), _start(start), _end(end), dummy(std::move(dummy)) {}
 void ASTNS::ImplicitDecl::accept(ASTNS::Decl::Visitor *v) { v->visitImplicitDecl(this); }
 Location const & ASTNS::ImplicitDecl::start() { return _start; }

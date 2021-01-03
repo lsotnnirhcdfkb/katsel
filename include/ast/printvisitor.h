@@ -29,6 +29,7 @@ public ASTNS::PureLocationB::Visitor
 void visitPureLocation(ASTNS::PureLocation *ast) override;
 void visitCU(ASTNS::CU *ast) override;
 void visitDeclList(ASTNS::DeclList *ast) override;
+void visitImplDecl(ASTNS::ImplDecl *ast) override;
 void visitImplicitDecl(ASTNS::ImplicitDecl *ast) override;
 void visitFunctionDecl(ASTNS::FunctionDecl *ast) override;
 void visitVarStmt(ASTNS::VarStmt *ast) override;

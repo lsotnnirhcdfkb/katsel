@@ -575,7 +575,7 @@ def make_grammar():
     Decl = nt('Decl', 'declaration', 'Decl', panickable=True)
     FunctionDecl = nt('FunctionDecl', 'function declaration', 'FunctionDecl', panickable=True)
     ImplDecl = nt('ImplDecl', 'implementation', 'Decl', panickable=True)
-    ImplBody = nt('ImplBody', '\'impl\' body', 'ImplBody', panickable=True)
+    ImplBody = nt('ImplBody', 'impl body', 'ImplBody', panickable=True)
     Stmt = nt('Stmt', 'statement', 'Stmt', panickable=True)
     VarStmt = nt('VarStmt', 'variable declaration', 'VarStmt', panickable=True)
     ExprStmt = nt('ExprStmt', 'expression statement', 'ExprStmt', panickable=True)
@@ -636,12 +636,12 @@ def make_grammar():
     rule(CU, (DeclList,), SimpleReduceAction('CU', 'std::move(a0)'))
     rule(CU, (), NullptrReduceAction())
 
-    skip_to(Decl, FunctionDecl)
+    skip_to(Decl, FunctionDecl, ImplDecl)
 
     rule(FunctionDecl, (FUN, IDENTIFIER, OPARN, ParamListOpt, CPARN, TypeAnnotation, Block, LineEndingOpt), SimpleReduceAction('FunctionDecl', 'std::move(a5), a1, std::move(a3), std::move(a6)'))
     rule(FunctionDecl, (FUN, IDENTIFIER, OPARN, ParamListOpt, CPARN, TypeAnnotation, LineEnding), SimpleReduceAction('FunctionDecl', 'std::move(a5), a1, std::move(a3), nullptr'))
 
-    # rule(ImplDecl, (IMPL, Type, LineEnding), SimpleReduceAction('ImplDecl', 'std::move(a1)'))
+    rule(ImplDecl, (IMPL, Type, LineEnding), SimpleReduceAction('ImplDecl', 'std::move(a1)'))
 
     skip_to(Stmt, VarStmt, ExprStmt, RetStmt)
 
