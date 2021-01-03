@@ -2,7 +2,7 @@
 #include "message/errmsgs.h"
 #include "ir/unit.h"
 
-CodeGen::Declarator::Declarator(CodeGen &cg): cg(cg) {}
+CodeGen::Declarator::Declarator(CodeGen &cg): cg(cg), currentSymbol(&cg.unit->mod) {}
 
 void CodeGen::Declarator::visitCU(ASTNS::CU *ast) {
     ast->decls->accept(this);
@@ -15,7 +15,7 @@ void CodeGen::Declarator::visitDeclList(ASTNS::DeclList *ast) {
 
 void CodeGen::Declarator::visitFunctionDecl(ASTNS::FunctionDecl *fun) {
     std::string fname (fun->name.stringify());
-    IR::Value *declbefore = cg.unit->mod.getValue(fname);
+    IR::Value *declbefore = currentSymbol->getValue(fname);
 
     if (declbefore) {
         ERR_REDECL_SYM(fun->name, declbefore);
@@ -43,7 +43,7 @@ void CodeGen::Declarator::visitFunctionDecl(ASTNS::FunctionDecl *fun) {
     std::unique_ptr<IR::Function> f = std::make_unique<IR::Function>(ft, fname, fun);
     IR::Function *fraw = f.get();
     cg.unit->functions.push_back(std::move(f));
-    cg.unit->mod.addValue(fname, fraw);
+    currentSymbol->addValue(fname, fraw);
 }
 
 void CodeGen::Declarator::visitImplDecl(ASTNS::ImplDecl *impl) {
@@ -54,7 +54,20 @@ void CodeGen::Declarator::visitImplDecl(ASTNS::ImplDecl *impl) {
         return;
     }
 
-    // TODO
+    IR::DeclSymbol *oldSymbol = currentSymbol;
+    currentSymbol = implFor;
+    impl->body->accept(this);
+    currentSymbol = oldSymbol;
+}
+
+void CodeGen::Declarator::visitImplBody(ASTNS::ImplBody *body) {
+    for (std::unique_ptr<ASTNS::ImplItem> &item : body->items) {
+        item->accept(this);
+    }
+}
+
+void CodeGen::Declarator::visitFunctionImplItem(ASTNS::FunctionImplItem *item) {
+    item->fun->accept(this);
 }
 
 void CodeGen::Declarator::visitImplicitDecl(ASTNS::ImplicitDecl *) {}

@@ -16,7 +16,9 @@ bool CodeGen::FunctionCodeGen::codegen() {
     if (!(fty = dynamic_cast<IR::FunctionType*>(function->type())))
         return false; // this does n ot happen in valid code, but this can happen if the user (erroenously) declares a variable and a function in the global namepsace with the same name, and the variable comes first so it gets chosen over the function
 
-    IR::Function *f = static_cast<IR::Function*>(function);
+    IR::Function *f;
+    if (!(f = dynamic_cast<IR::Function*>(function)))
+        return false;
 
     if (f->blocks.size() > 0)
         return false;

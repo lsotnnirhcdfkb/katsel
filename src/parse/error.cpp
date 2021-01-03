@@ -139,14 +139,14 @@ bool singleTok(errorstate const &e, std::vector<std::string> const &expectations
     TRYTOKTY(TokenType::OPARN)
     TRYTOKTY(TokenType::CPARN)
     TRYTOKTY(TokenType::IMPL)
-    TRYTOKTY(TokenType::VAR)
-    TRYTOKTY(TokenType::RETURN)
-    TRYTOKTY(TokenType::EQUAL)
     TRYTOKTY(TokenType::OCURB)
     TRYTOKTY(TokenType::CCURB)
     TRYTOKTY(TokenType::NEWLINE)
     TRYTOKTY(TokenType::INDENT)
     TRYTOKTY(TokenType::DEDENT)
+    TRYTOKTY(TokenType::VAR)
+    TRYTOKTY(TokenType::RETURN)
+    TRYTOKTY(TokenType::EQUAL)
     TRYTOKTY(TokenType::LEFTARROW)
     TRYTOKTY(TokenType::SEMICOLON)
     TRYTOKTY(TokenType::STAR)
@@ -290,6 +290,18 @@ bool panicMode(errorstate const &e, std::vector<std::string> const &expectations
                         case TokenType::FUN: case TokenType::IMPL: case TokenType::EOF_:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
+                CHECKASI(AnotherImplItem)
+                        case TokenType::FUN: case TokenType::CCURB: case TokenType::DEDENT:
+                            RECOVERANDDEFBREAK()
+                FINISHCHECKASI()
+                CHECKASI(ImplItem)
+                        case TokenType::FUN: case TokenType::CCURB: case TokenType::DEDENT:
+                            RECOVERANDDEFBREAK()
+                FINISHCHECKASI()
+                CHECKASI(ImplItemList)
+                        case TokenType::FUN: case TokenType::CCURB: case TokenType::DEDENT:
+                            RECOVERANDDEFBREAK()
+                FINISHCHECKASI()
                 CHECKASI(ImplRet)
                         case TokenType::CCURB: case TokenType::DEDENT:
                             RECOVERANDDEFBREAK()
@@ -299,7 +311,7 @@ bool panicMode(errorstate const &e, std::vector<std::string> const &expectations
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(FunctionDecl)
-                        case TokenType::FUN: case TokenType::IMPL: case TokenType::EOF_:
+                        case TokenType::FUN: case TokenType::IMPL: case TokenType::EOF_: case TokenType::CCURB: case TokenType::DEDENT:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(ImplDecl)
@@ -308,6 +320,10 @@ bool panicMode(errorstate const &e, std::vector<std::string> const &expectations
                 FINISHCHECKASI()
                 CHECKASI(Block)
                         case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::FUN: case TokenType::IMPL: case TokenType::VAR: case TokenType::RETURN: case TokenType::OCURB: case TokenType::IF: case TokenType::FOR: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::AMPER: case TokenType::STAR: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::OPARN: case TokenType::IDENTIFIER: case TokenType::COMMA: case TokenType::ELSE: case TokenType::EOF_: case TokenType::CPARN: case TokenType::CCURB: case TokenType::DEDENT: case TokenType::LEFTARROW:
+                            RECOVERANDDEFBREAK()
+                FINISHCHECKASI()
+                CHECKASI(ImplBody)
+                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::FUN: case TokenType::IMPL: case TokenType::EOF_:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(ExprStmt)

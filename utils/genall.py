@@ -24,7 +24,7 @@ jobs = [
     ('include/ast/printvisitor.h'          , 'PRINTVISIT INHERIT START'  , 'PRINTVISIT INHERIT END'  , astgen.gen_visitor_inherit_all),
 
     ('src/codegen/codegenlocal.h'          , 'FORWDECL METHODS START'    , 'FORWDECL METHODS END'    , lambda: astgen.gen_visitor_methods('Decl', 'CUB')),
-    ('src/codegen/codegenlocal.h'          , 'DECLARATOR METHODS START'  , 'DECLARATOR METHODS END'  , lambda: astgen.gen_visitor_methods('Decl', 'CUB')),
+    ('src/codegen/codegenlocal.h'          , 'DECLARATOR METHODS START'  , 'DECLARATOR METHODS END'  , lambda: astgen.gen_visitor_methods('Decl', 'CUB', 'ImplItem')),
     ('src/codegen/codegenlocal.h'          , 'TYPEVISITOR METHODS START' , 'TYPEVISITOR METHODS END' , lambda: astgen.gen_visitor_methods('Type')),
     ('src/codegen/codegenlocal.h'          , 'STMTCG METHODS START'      , 'STMTCG METHODS END'      , lambda: astgen.gen_visitor_methods('Stmt', 'VStmtIB')),
     ('src/codegen/codegenlocal.h'          , 'EXPRCG METHODS START'      , 'EXPRCG METHODS END'      , lambda: astgen.gen_visitor_methods('Expr', 'ImplRetB')),

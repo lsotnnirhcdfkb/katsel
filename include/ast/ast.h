@@ -11,6 +11,7 @@ namespace ASTNS {
     class AST;
     class CUB;
     class Decl;
+    class ImplItem;
     class Stmt;
     class Expr;
     class Type;
@@ -21,11 +22,13 @@ namespace ASTNS {
     class PathB;
     class PureLocationB;
     class PureLocation;
+    class ImplicitDecl;
     class CU;
     class DeclList;
     class ImplDecl;
-    class ImplicitDecl;
     class FunctionDecl;
+    class ImplBody;
+    class FunctionImplItem;
     class VarStmt;
     class VarStmtItem;
     class VarStmtItemList;
@@ -77,14 +80,26 @@ namespace ASTNS {
         class Visitor {
         public:
             virtual ~Visitor() {}
+            virtual void visitImplicitDecl(ASTNS::ImplicitDecl *ast) = 0;
             virtual void visitDeclList(ASTNS::DeclList *ast) = 0;
             virtual void visitImplDecl(ASTNS::ImplDecl *ast) = 0;
-            virtual void visitImplicitDecl(ASTNS::ImplicitDecl *ast) = 0;
             virtual void visitFunctionDecl(ASTNS::FunctionDecl *ast) = 0;
         };
         virtual ~Decl() {}
         virtual void accept(Visitor *v) = 0;
         Decl(File const &file);
+    };
+    class ImplItem : public AST {
+    public:
+        class Visitor {
+        public:
+            virtual ~Visitor() {}
+            virtual void visitImplBody(ASTNS::ImplBody *ast) = 0;
+            virtual void visitFunctionImplItem(ASTNS::FunctionImplItem *ast) = 0;
+        };
+        virtual ~ImplItem() {}
+        virtual void accept(Visitor *v) = 0;
+        ImplItem(File const &file);
     };
     class Stmt : public AST {
     public:
@@ -213,6 +228,15 @@ namespace ASTNS {
         virtual Location const & end() override;
         PureLocation(File const &file, Location start, Location end, int dummy);
     };
+    class ImplicitDecl : public Decl {
+    public:
+        Location _start, _end;
+        int dummy;
+        virtual void accept(ASTNS::Decl::Visitor *v) override;
+        virtual Location const & start() override;
+        virtual Location const & end() override;
+        ImplicitDecl(File const &file, Location start, Location end, int dummy);
+    };
     class CU : public CUB {
     public:
         Location _start, _end;
@@ -235,19 +259,11 @@ namespace ASTNS {
     public:
         Location _start, _end;
         std::unique_ptr<Type> implFor;
+        std::unique_ptr<ImplBody> body;
         virtual void accept(ASTNS::Decl::Visitor *v) override;
         virtual Location const & start() override;
         virtual Location const & end() override;
-        ImplDecl(File const &file, Location start, Location end, std::unique_ptr<Type> implFor);
-    };
-    class ImplicitDecl : public Decl {
-    public:
-        Location _start, _end;
-        int dummy;
-        virtual void accept(ASTNS::Decl::Visitor *v) override;
-        virtual Location const & start() override;
-        virtual Location const & end() override;
-        ImplicitDecl(File const &file, Location start, Location end, int dummy);
+        ImplDecl(File const &file, Location start, Location end, std::unique_ptr<Type> implFor, std::unique_ptr<ImplBody> body);
     };
     class FunctionDecl : public Decl {
     public:
@@ -260,6 +276,24 @@ namespace ASTNS {
         virtual Location const & start() override;
         virtual Location const & end() override;
         FunctionDecl(File const &file, Location start, Location end, std::unique_ptr<Type> retty, Token name, std::unique_ptr<ParamList> params, std::unique_ptr<Block> body);
+    };
+    class ImplBody : public ImplItem {
+    public:
+        Location _start, _end;
+        std::vector<std::unique_ptr<ImplItem>> items;
+        virtual void accept(ASTNS::ImplItem::Visitor *v) override;
+        virtual Location const & start() override;
+        virtual Location const & end() override;
+        ImplBody(File const &file, Location start, Location end, std::vector<std::unique_ptr<ImplItem>> items);
+    };
+    class FunctionImplItem : public ImplItem {
+    public:
+        Location _start, _end;
+        std::unique_ptr<FunctionDecl> fun;
+        virtual void accept(ASTNS::ImplItem::Visitor *v) override;
+        virtual Location const & start() override;
+        virtual Location const & end() override;
+        FunctionImplItem(File const &file, Location start, Location end, std::unique_ptr<FunctionDecl> fun);
     };
     class VarStmt : public Stmt {
     public:

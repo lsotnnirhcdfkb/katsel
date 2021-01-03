@@ -13,6 +13,14 @@ void ASTNS::PrintVisitor::visitPureLocation(ASTNS::PureLocation *a) {
     --indent;
     pai("}\n");
 }
+void ASTNS::PrintVisitor::visitImplicitDecl(ASTNS::ImplicitDecl *a) {
+    pai("ImplicitDecl {\n");
+    ++indent;
+    pai("int dummy = ");
+    printField(a->dummy);
+    --indent;
+    pai("}\n");
+}
 void ASTNS::PrintVisitor::visitCU(ASTNS::CU *a) {
     pai("CU {\n");
     ++indent;
@@ -34,14 +42,8 @@ void ASTNS::PrintVisitor::visitImplDecl(ASTNS::ImplDecl *a) {
     ++indent;
     pai("std::unique_ptr<Type> implFor = ");
     printField(a->implFor);
-    --indent;
-    pai("}\n");
-}
-void ASTNS::PrintVisitor::visitImplicitDecl(ASTNS::ImplicitDecl *a) {
-    pai("ImplicitDecl {\n");
-    ++indent;
-    pai("int dummy = ");
-    printField(a->dummy);
+    pai("std::unique_ptr<ImplBody> body = ");
+    printField(a->body);
     --indent;
     pai("}\n");
 }
@@ -56,6 +58,22 @@ void ASTNS::PrintVisitor::visitFunctionDecl(ASTNS::FunctionDecl *a) {
     printField(a->params);
     pai("std::unique_ptr<Block> body = ");
     printField(a->body);
+    --indent;
+    pai("}\n");
+}
+void ASTNS::PrintVisitor::visitImplBody(ASTNS::ImplBody *a) {
+    pai("ImplBody {\n");
+    ++indent;
+    pai("std::vector<std::unique_ptr<ImplItem>> items = ");
+    printField(a->items);
+    --indent;
+    pai("}\n");
+}
+void ASTNS::PrintVisitor::visitFunctionImplItem(ASTNS::FunctionImplItem *a) {
+    pai("FunctionImplItem {\n");
+    ++indent;
+    pai("std::unique_ptr<FunctionDecl> fun = ");
+    printField(a->fun);
     --indent;
     pai("}\n");
 }
