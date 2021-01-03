@@ -8,6 +8,43 @@
 
 struct File;
 
+#define DERIVE_DECLSYMBOL_DECL() \
+    public:                                                                      \
+        IR::Value *getValue(std::string const &name) const override;             \
+        IR::DeclSymbol *getDeclSymbol(std::string const &name) const override;   \
+        void addValue(std::string const &name, IR::Value *v) override;           \
+        void addDeclSymbol(std::string const &name, IR::DeclSymbol *s) override; \
+                                                                                 \
+    private:                                                                     \
+        std::map<std::string, IR::Value*> values;                                \
+        std::map<std::string, IR::DeclSymbol*> decls;
+
+#define DERIVE_DECLSYMBOL_DEF(cl) \
+    IR::Value* cl::getValue(std::string const &name) const {                  \
+        auto v = values.find(name);                                           \
+        if (v == values.end())                                                \
+            return nullptr;                                                   \
+        return v->second;                                                     \
+    }                                                                         \
+    void cl::addValue(std::string const &name, IR::Value *v) {                \
+        if (values.find(name) != values.end())                                \
+            reportAbortNoh(format("add duplicate value under name %", name)); \
+                                                                              \
+        values[name] = v;                                                     \
+    }                                                                         \
+    IR::DeclSymbol* cl::getDeclSymbol(std::string const &name) const {        \
+        auto v = decls.find(name);                                            \
+        if (v == decls.end())                                                 \
+            return nullptr;                                                   \
+        return v->second;                                                     \
+    }                                                                         \
+    void cl::addDeclSymbol(std::string const &name, IR::DeclSymbol *v) {      \
+        if (decls.find(name) != decls.end())                                  \
+            reportAbortNoh(format("add duplicate decl under name %", name));  \
+                                                                              \
+        decls[name] = v;                                                      \
+    }
+
 namespace IR {
     class DeclSymbol {
     public:

@@ -18,6 +18,8 @@ std::string IR::PointerType::name() const {
     return format("*%", ty->name());
 }
 
+DERIVE_DECLSYMBOL_DEF(IR::PointerType)
+
 IR::ASTValue IR::PointerType::binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::Type::BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) {
     ASSERT(l.type() == this);
 

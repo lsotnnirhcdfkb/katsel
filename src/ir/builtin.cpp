@@ -392,3 +392,10 @@ IR::ASTValue IR::BoolType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR::
 IR::ASTValue IR::BoolType::implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) {
     return v;
 }
+// Deriving {{{1
+DERIVE_DECLSYMBOL_DEF(IR::FloatType)
+DERIVE_DECLSYMBOL_DEF(IR::IntType)
+DERIVE_DECLSYMBOL_DEF(IR::GenericIntType)
+DERIVE_DECLSYMBOL_DEF(IR::GenericFloatType)
+DERIVE_DECLSYMBOL_DEF(IR::CharType)
+DERIVE_DECLSYMBOL_DEF(IR::BoolType)

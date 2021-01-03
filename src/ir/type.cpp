@@ -12,7 +12,6 @@ IR::VoidType::VoidType(CodeGen::Context &context, ASTNS::AST *declAST): Type(con
 ASTNS::AST* IR::VoidType::declAST() const {
     return _declAST;
 }
-
 std::string IR::VoidType::name() const {
     return "void";
 }
@@ -41,7 +40,6 @@ IR::FunctionType::FunctionType(CodeGen::Context &context, ASTNS::AST *declAST, T
 ASTNS::AST* IR::FunctionType::declAST() const {
     return _declAST;
 }
-
 std::string IR::FunctionType::name() const {
     std::stringstream ss;
     ss << "fun " << ret->name() << "(";
@@ -85,3 +83,6 @@ std::ostream& operator<<(std::ostream &os, IR::Type const *ty) {
     os << "'" << ty->name() << "'";
     return os;
 }
+
+DERIVE_DECLSYMBOL_DEF(IR::VoidType)
+DERIVE_DECLSYMBOL_DEF(IR::FunctionType)
