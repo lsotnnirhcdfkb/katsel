@@ -1,7 +1,7 @@
 #pragma once
 
 struct Token;
-namespace IR { namespace Instrs { class Register; } class Value; class Function; class Type; struct ASTValue; }
+namespace IR { namespace Instrs { class Register; } class Value; class Function; class Type; struct ASTValue; class DeclSymbol; }
 
 #include <vector>
 #include <string>
@@ -100,7 +100,7 @@ void E0206(IR::ASTValue const &arg, IR::Type const *expected);
 
 // E0207 - undecl-symb
 #define ERR_UNDECL_SYMB E0207
-void E0207(Token const &sym);
+void E0207(Location const &path);
 
 // E0208 - confl-tys-ifexpr
 #define ERR_CONFL_TYS_IFEXPR E0208
@@ -154,13 +154,13 @@ void E0220(IR::ASTValue const &truev, Token const &iftok);
 #define ERR_PTR_ARITH_RHS_NOT_NUM E0221
 void E0221(IR::ASTValue const &lhs, Token const &optok, IR::ASTValue const &rhs);
 
-// E0222 - undecl-type
-#define ERR_UNDECL_TYPE E0222
-void E0222(Token const &sym);
-
 // E0222 - not-a-type
 #define ERR_NOT_A_TYPE E0222
 void E0222(Location const &notty, ASTNS::AST *declAST);
+
+// E0223 - no-item-in
+#define ERR_NO_ITEM_IN E0223
+void E0223(IR::DeclSymbol const *prev, Token const &current);
 
 // W0000 - Wextra-semi
 #define WARN_EXTRA_SEMI W0000

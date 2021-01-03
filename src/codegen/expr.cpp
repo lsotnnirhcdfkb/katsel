@@ -252,26 +252,6 @@ makeIntLit:
         case TokenType::STRINGLIT:
             reportAbortNoh("string literals are not supported yet");
 
-        case TokenType::IDENTIFIER: {
-                std::string name (ast->value.stringify());
-                IR::Value *v;
-
-                FunctionCodeGen::Local *l = fcg.getLocal(name);
-                if (!l)
-                    v = cg.unit->mod.getValue(name);
-                else
-                    v = fcg.curBlock->add(std::make_unique<IR::Instrs::DerefPtr>(IR::ASTValue(l->v, ast)));
-
-                if (!v) {
-                    ERR_UNDECL_SYMB(ast->value);
-                    ret = IR::ASTValue();
-                    fcg.errored = true;
-                    return;
-                }
-                ret = IR::ASTValue(v, ast);
-            }
-            return;
-
         default:
             invalidTok("primary token", ast->value);
     }
@@ -370,6 +350,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitForExpr(ASTNS::ForExpr *ast) {
 
     expr(ast->increment.get());
     fcg.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(loopCheckCond));
+
     fcg.decScope();
 
     fcg.curBlock = loopAfter;
@@ -430,9 +411,15 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitBlock(ASTNS::Block *ast) {
         ast->implRet->accept(this);
     else
         ret = IR::ASTValue(cg.context->getVoid(), ast);;
+
     fcg.decScope();
 }
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitImplRet(ASTNS::ImplRet *ast) {
     ret = expr(ast->expr.get());
 }
 
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitPathExpr(ASTNS::PathExpr *ast) {
+    ret = cg.pathVisitor->resolveValue(ast->path.get(), fcg);
+    if (!ret)
+        fcg.errored = true;
+}

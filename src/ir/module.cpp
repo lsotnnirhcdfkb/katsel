@@ -1,8 +1,12 @@
 #include "ir/module.h"
 
-IR::Module::Module(File const &file): file(file) {}
+IR::Module::Module(File const &file, ASTNS::AST *declAST): file(file), _declAST(declAST) {}
 
-IR::Value* IR::Module::getValue(std::string const &name) {
+ASTNS::AST* IR::Module::declAST() const {
+    return _declAST;
+}
+
+IR::Value* IR::Module::getValue(std::string const &name) const {
     auto v = values.find(name);
     if (v == values.end())
         return nullptr;
@@ -14,7 +18,7 @@ void IR::Module::addValue(std::string const &name, IR::Value *v) {
 
     values[name] = v;
 }
-IR::DeclSymbol* IR::Module::getDeclSymbol(std::string const &name) {
+IR::DeclSymbol* IR::Module::getDeclSymbol(std::string const &name) const {
     auto v = decls.find(name);
     if (v == decls.end())
         return nullptr;

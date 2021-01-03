@@ -284,9 +284,9 @@ void E0206(IR::ASTValue const &arg, IR::Type const *expected) {
 
 // E0207 - undecl-symb
 // | Usage of undeclared symbol
-void E0207(Token const &sym) {
-    Error e = Error(Error::MsgType::ERROR, sym, "E0207 (undecl-symb)");
-    e.underline(Error::Underline(sym, '^')
+void E0207(Location const &path) {
+    Error e = Error(Error::MsgType::ERROR, path, "E0207 (undecl-symb)");
+    e.underline(Error::Underline(path, '^')
         .error("undeclared symbol")
     );
     e.report();
@@ -476,18 +476,8 @@ void E0221(IR::ASTValue const &lhs, Token const &optok, IR::ASTValue const &rhs)
     e.report();
 }
 
-// E0222 - undecl-type
-// | Usage of undeclared type
-void E0222(Token const &sym) {
-    Error e = Error(Error::MsgType::ERROR, sym, "E0222 (undecl-type)");
-    e.underline(Error::Underline(sym, '^')
-        .error("undeclared type")
-    );
-    e.report();
-}
-
 // E0222 - not-a-type
-// | Expected a type but did not get a type
+// | Expected a type but path resolved to something else
 void E0222(Location const &notty, ASTNS::AST *declAST) {
     Error e = Error(Error::MsgType::ERROR, notty, "E0222 (not-a-type)");
     e.underline(Error::Underline(notty, '^')
@@ -495,6 +485,16 @@ void E0222(Location const &notty, ASTNS::AST *declAST) {
     );
     e.underline(Error::Underline(declAST, '~')
         .note("declared here")
+    );
+    e.report();
+}
+
+// E0223 - no-item-in
+// | No item of a certain name within another name
+void E0223(IR::DeclSymbol const *prev, Token const &current) {
+    Error e = Error(Error::MsgType::ERROR, current, "E0223 (no-item-in)");
+    e.underline(Error::Underline(current, '^')
+        .error(format("no item called %", current))
     );
     e.report();
 }

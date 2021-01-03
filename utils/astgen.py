@@ -37,6 +37,7 @@ asts = [
     ASTBase('ParamB'),
     ASTBase('VStmtIB'),
     ASTBase('ImplRetB'),
+    ASTBase('PathB'),
 
     # a class to keep track of locations of syntactic elements that don't matter (like
     # line endings where the location matters (so that other statements can use the line
@@ -59,7 +60,7 @@ asts = [
     AST('RetStmt'          , 'Stmt', 'std::unique_ptr<Expr>|expr'),
     AST('StmtList'         , 'Stmt', 'std::vector<std::unique_ptr<Stmt>>|stmts'),
     AST('ImplRet'          , 'ImplRetB', 'std::unique_ptr<Expr>|expr'),
-    AST('PrimitiveType'    , 'Type', 'Token|ty'),
+    AST('PathType'         , 'Type', 'std::unique_ptr<Path>|path'),
     AST('PointerType'      , 'Type', 'std::unique_ptr<Type>|type'),
     AST('Arg'              , 'ArgB', 'std::unique_ptr<Expr>|expr'),
     AST('ArgList'          , 'ArgB', 'std::vector<std::unique_ptr<Arg>>|args'),
@@ -77,6 +78,8 @@ asts = [
     AST('DerefExpr'        , 'Expr', 'Token|op, std::unique_ptr<Expr>|expr'),
     AST('CallExpr'         , 'Expr', 'std::unique_ptr<Expr>|callee, Token|oparn, std::unique_ptr<ArgList>|args'),
     AST('PrimaryExpr'      , 'Expr', 'Token|value'),
+    AST('PathExpr'         , 'Expr', 'std::unique_ptr<Path>|path'),
+    AST('Path'             , 'PathB', 'std::vector<Token>|segments'),
 ]
 # Generating methods {{{1
 # Generating AST stuff {{{2

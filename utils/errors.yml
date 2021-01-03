@@ -266,10 +266,10 @@ errors:
     code: 207
     name: undecl-symb
     desc: Usage of undeclared symbol
-    inputs: 'Token const &sym'
-    location: sym
+    inputs: 'Location const &path'
+    location: path
     highlights:
-      - ['sym', *under0, [
+      - ['path', *under0, [
           ['error', '"undeclared symbol"']
         ]]
   -
@@ -448,18 +448,8 @@ errors:
         ]]
   -
     code: 222
-    name: undecl-type
-    desc: Usage of undeclared type
-    inputs: 'Token const &sym'
-    location: sym
-    highlights:
-      - ['sym', *under0, [
-          ['error', '"undeclared type"']
-        ]]
-  -
-    code: 222
     name: not-a-type
-    desc: Expected a type but did not get a type
+    desc: Expected a type but path resolved to something else
     inputs: 'Location const &notty, ASTNS::AST *declAST'
     location: notty
     highlights:
@@ -469,6 +459,15 @@ errors:
       - ['declAST', *under1, [
           ['note', '"declared here"']
         ]]
+  -
+    code: 223
+    name: no-item-in
+    desc: No item of a certain name within another name
+    inputs: 'IR::DeclSymbol const *prev, Token const &current'
+    location: 'current'
+    highlights:
+      - ['current', *under0, [['error', 'format("no item called %", current)']]]
+      # TODO: declSym::name() - ['current', *under0, [['error', 'format("no item called % in %", current, prev.name())']]]
 
 warnings:
   -

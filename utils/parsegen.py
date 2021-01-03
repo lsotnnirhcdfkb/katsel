@@ -237,14 +237,14 @@ class VectorPushReduceAction:
     def generate(self):
         return (f'{self.vector_name}.push_back({self.item_to_push});\n', f'std::move({self.push_back_to_stack})')
 class VectorPushOneAction:
-    def __init__(self, new_class, item, itemtype, vectorname):
+    def __init__(self, new_class, item, itemtype, vector_name):
         self.new_class = new_class
         self.item = item
         self.itemtype = itemtype
-        self.vectorname = vectorname
+        self.vector_name = vector_name
     def generate(self):
-        return (f'''std::unique_ptr<ASTNS::{self.new_class}> push(std::make_unique<ASTNS::{self.new_class}>(p.sourcefile, start, end, std::vector<std::unique_ptr<ASTNS::{self.itemtype}>> {{}}));\n
-        push->{self.vectorname}.push_back({self.item});\n''', 'std::move(push)')
+        return (f'''std::unique_ptr<{self.new_class}> push(std::make_unique<{self.new_class}>(p.sourcefile, start, end, std::vector<{self.itemtype}> {{}}));\n
+        push->{self.vector_name}.push_back({self.item});\n''', 'std::move(push)')
 class WarnAction:
     def __init__(self, warning, other_action):
         self.warning = warning
@@ -507,6 +507,10 @@ def skip_to(skip_from, *skip_to):
     for to in skip_to:
         rule(skip_from, (to,), SkipReduceAction())
 
+def token_rule(nt, reduce_action, *tokens):
+    for tok in tokens:
+        rule(nt, (tok,), reduce_action)
+
 grammar = []
 
 # rules {{{1
@@ -524,6 +528,7 @@ CPARN = Terminal('CPARN')
 DECINTLIT = Terminal('DECINTLIT')
 DEDENT = Terminal('DEDENT')
 DOUBLEAMPER = Terminal('DOUBLEAMPER')
+DOUBLECOLON = Terminal('DOUBLECOLON')
 DOUBLEEQUAL = Terminal('DOUBLEEQUAL')
 DOUBLEGREATER = Terminal('DOUBLEGREATER')
 DOUBLELESS = Terminal('DOUBLELESS')
@@ -583,8 +588,8 @@ def make_grammar():
     ImplRet = nt('ImplRet', 'block return value', 'ImplRet', panickable=True)
     TypeAnnotation = nt('TypeAnnotation', 'required type annotation', 'Type')
     Type = nt('Type', 'type specifier', 'Type')
-    PrimitiveType = nt('PrimitiveType', 'primitive type specifier', 'PrimitiveType')
     PointerType = nt('PointerType', 'pointer type specifier', 'PointerType')
+    PathType = nt('PathType', 'path type specifier', 'PathType')
     Arg = nt('Arg', 'argument', 'Arg', panickable=True)
     Param = nt('Param', 'parameter', 'Param', panickable=True)
     Expr = nt('Expr', 'expression', 'Expr')
@@ -607,15 +612,17 @@ def make_grammar():
     UnaryExpr = nt('UnaryExpr', 'unary expression', 'Expr')
     CallExpr = nt('CallExpr', 'function call expression', 'Expr')
     PrimaryExpr = nt('PrimaryExpr', 'primary expression', 'Expr')
+    PathExpr = nt('PathExpr', 'path expression', 'Expr')
+    Path = nt('Path', 'symbol path', 'Path')
 
     AUGMENT_SYM = nt('augment', 'augment', '#error augment symbol reduces to class')
     AUGMENT_RULE = rule(AUGMENT_SYM, (CU,), None)
 
-    ParamList = list_rule(Param, VectorPushOneAction('ParamList', 'std::move(a0)', 'Param', 'params'), VectorPushReduceAction('a0->params', 'std::move(a2)', 'a0'), 'ParamList', COMMA)
-    ArgList = list_rule(Arg, VectorPushOneAction('ArgList', 'std::move(a0)', 'Arg', 'args'), VectorPushReduceAction('a0->args', 'std::move(a2)', 'a0'), 'ArgList', COMMA)
-    VarStmtItemList = list_rule(VarStmtItem, VectorPushOneAction('VarStmtItemList', 'std::move(a0)', 'VarStmtItem', 'items'), VectorPushReduceAction('a0->items', 'std::move(a2)', 'a0'), 'VarStmtItemList', COMMA)
-    StmtList = list_rule(Stmt, VectorPushOneAction('StmtList', 'std::move(a0)', 'Stmt', 'stmts'), VectorPushReduceAction('a0->stmts', 'std::move(a1)', 'a0'), 'StmtList')
-    DeclList = list_rule(Decl, VectorPushOneAction('DeclList', 'std::move(a0)', 'Decl', 'decls'), VectorPushReduceAction('a0->decls', 'std::move(a1)', 'a0'), 'DeclList')
+    ParamList = list_rule(Param, VectorPushOneAction('ASTNS::ParamList', 'std::move(a0)', 'std::unique_ptr<ASTNS::Param>', 'params'), VectorPushReduceAction('a0->params', 'std::move(a2)', 'a0'), 'ParamList', COMMA)
+    ArgList = list_rule(Arg, VectorPushOneAction('ASTNS::ArgList', 'std::move(a0)', 'std::unique_ptr<ASTNS::Arg>', 'args'), VectorPushReduceAction('a0->args', 'std::move(a2)', 'a0'), 'ArgList', COMMA)
+    VarStmtItemList = list_rule(VarStmtItem, VectorPushOneAction('ASTNS::VarStmtItemList', 'std::move(a0)', 'std::unique_ptr<ASTNS::VarStmtItem>', 'items'), VectorPushReduceAction('a0->items', 'std::move(a2)', 'a0'), 'VarStmtItemList', COMMA)
+    StmtList = list_rule(Stmt, VectorPushOneAction('ASTNS::StmtList', 'std::move(a0)', 'std::unique_ptr<ASTNS::Stmt>', 'stmts'), VectorPushReduceAction('a0->stmts', 'std::move(a1)', 'a0'), 'StmtList')
+    DeclList = list_rule(Decl, VectorPushOneAction('ASTNS::DeclList', 'std::move(a0)', 'std::unique_ptr<ASTNS::Decl>', 'decls'), VectorPushReduceAction('a0->decls', 'std::move(a1)', 'a0'), 'DeclList')
 
     ParamListOpt = make_opt(ParamList, SkipReduceAction(), NullptrReduceAction())
     ArgListOpt = make_opt(ArgList, SkipReduceAction(), NullptrReduceAction())
@@ -662,11 +669,11 @@ def make_grammar():
     rule(LineEnding, (SEMICOLON,), LocationReduceAction())
     rule(LineEnding, (SEMICOLON, NEWLINE), WarnAction('WARN_EXTRA_SEMI(a0);', LocationReduceAction()))
 
-    skip_to(Type, PrimitiveType, PointerType)
+    skip_to(Type, PathType, PointerType)
 
     rule(PointerType, (STAR, Type), SimpleReduceAction('PointerType', 'std::move(a1)'))
 
-    rule(PrimitiveType, (IDENTIFIER,), SimpleReduceAction('PrimitiveType', 'a0'))
+    rule(PathType, (Path,), SimpleReduceAction('PathType', 'std::move(a0)'))
 
     rule(TypeAnnotation, (COLON, Type), SkipReduceAction(1));
 
@@ -726,18 +733,14 @@ def make_grammar():
     rule(UnaryExpr, (CallExpr,), SkipReduceAction())
     rule(CallExpr, (CallExpr, OPARN, ArgListOpt, CPARN, ), SimpleReduceAction('CallExpr', 'std::move(a0), a1, std::move(a2)'))
     rule(CallExpr, (PrimaryExpr,), SkipReduceAction())
-    rule(PrimaryExpr, (TRUELIT,), SimpleReduceAction('PrimaryExpr', 'a0'))
-    rule(PrimaryExpr, (FALSELIT,), SimpleReduceAction('PrimaryExpr', 'a0'))
-    rule(PrimaryExpr, (FLOATLIT,), SimpleReduceAction('PrimaryExpr', 'a0'))
-    rule(PrimaryExpr, (NULLPTRLIT,), SimpleReduceAction('PrimaryExpr', 'a0'))
-    rule(PrimaryExpr, (DECINTLIT,), SimpleReduceAction('PrimaryExpr', 'a0'))
-    rule(PrimaryExpr, (OCTINTLIT,), SimpleReduceAction('PrimaryExpr', 'a0'))
-    rule(PrimaryExpr, (BININTLIT,), SimpleReduceAction('PrimaryExpr', 'a0'))
-    rule(PrimaryExpr, (HEXINTLIT,), SimpleReduceAction('PrimaryExpr', 'a0'))
-    rule(PrimaryExpr, (CHARLIT,), SimpleReduceAction('PrimaryExpr', 'a0'))
-    rule(PrimaryExpr, (STRINGLIT,), SimpleReduceAction('PrimaryExpr', 'a0'))
-    rule(PrimaryExpr, (IDENTIFIER,), SimpleReduceAction('PrimaryExpr', 'a0'))
+
+    token_rule(PrimaryExpr, SimpleReduceAction('PrimaryExpr', 'a0'), TRUELIT, FALSELIT, FLOATLIT, NULLPTRLIT, DECINTLIT, OCTINTLIT, BININTLIT, HEXINTLIT, CHARLIT, STRINGLIT)
     rule(PrimaryExpr, (OPARN, Expr, CPARN), SkipReduceAction(1))
+    rule(PrimaryExpr, (PathExpr,), SkipReduceAction())
+    rule(PathExpr, (Path,), SimpleReduceAction('PathExpr', 'std::move(a0)'))
+
+    rule(Path, (Path, DOUBLECOLON, IDENTIFIER), VectorPushReduceAction('a0->segments', 'a2', 'a0'))
+    rule(Path, (IDENTIFIER,), VectorPushOneAction('ASTNS::Path', 'a0', 'Token', 'segments'))
 
 make_grammar()
 

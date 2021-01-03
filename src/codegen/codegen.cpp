@@ -3,8 +3,9 @@
 
 CodeGen::CodeGen(File const &file)
 : unit(std::make_unique<IR::Unit>(file)),
-  context(std::make_unique<Context>(file)),
+  context(std::make_unique<Context>(file, *this)),
   typeVisitor(std::make_unique<TypeVisitor>(*this)),
+  pathVisitor(std::make_unique<PathVisitor>(*this)),
   errored(false) {}
 CodeGen::~CodeGen() = default;
 

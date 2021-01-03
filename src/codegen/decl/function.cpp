@@ -30,7 +30,7 @@ bool CodeGen::FunctionCodeGen::codegen() {
     exitBlock = f->addBlock("exit");
 
     incScope();
-    ret = static_cast<IR::Instrs::Register*>(entryBlock->add(std::make_unique<IR::Instrs::Register>(cg.context->implicitDeclAST.get(), fty->ret)));
+    ret = static_cast<IR::Instrs::Register*>(entryBlock->add(std::make_unique<IR::Instrs::Register>(cg.unit->implicitDeclAST.get(), fty->ret)));
     if (ast->params) {
         ParamVisitor pv (cg);
         ast->params->accept(&pv);

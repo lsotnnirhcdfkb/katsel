@@ -49,74 +49,74 @@ size_t getGoto(NonTerminal nterm, size_t state) {
             }
         case NonTerminal::AnotherArg:
             switch (state) {
-                case 185: 
-                    return 191;
+                case 189: 
+                    return 195;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::Arg:
             switch (state) {
-                case 134: 
-                    return 171;
-                case 185: 
-                    return 192;
+                case 138: 
+                    return 175;
+                case 189: 
+                    return 196;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::ArgSegment:
             switch (state) {
-                case 134: 
-                    return 170;
+                case 138: 
+                    return 174;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::ArgList:
             switch (state) {
-                case 134: 
-                    return 169;
+                case 138: 
+                    return 173;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::AnotherVarStmtItem:
             switch (state) {
-                case 142: 
-                    return 178;
+                case 146: 
+                    return 182;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::VarStmtItem:
             switch (state) {
-                case 47: 
-                    return 98;
-                case 142: 
-                    return 179;
+                case 49: 
+                    return 102;
+                case 146: 
+                    return 183;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::VarStmtItemSegment:
             switch (state) {
-                case 47: 
-                    return 97;
+                case 49: 
+                    return 101;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::VarStmtItemList:
             switch (state) {
-                case 47: 
-                    return 96;
+                case 49: 
+                    return 100;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::AnotherStmt:
             switch (state) {
-                case 42: 
-                    return 94;
+                case 44: 
+                    return 98;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::Stmt:
             switch (state) {
-                case 33: case 38: case 41: case 93: 
-                    return 43;
-                case 42: 
-                    return 95;
+                case 34: case 40: case 43: case 97: 
+                    return 45;
+                case 44: 
+                    return 99;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::StmtList:
             switch (state) {
-                case 33: case 38: case 41: case 93: 
-                    return 42;
+                case 34: case 40: case 43: case 97: 
+                    return 44;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::AnotherDecl:
@@ -147,104 +147,104 @@ size_t getGoto(NonTerminal nterm, size_t state) {
             }
         case NonTerminal::ArgList_OPT:
             switch (state) {
-                case 134: 
-                    return 168;
+                case 138: 
+                    return 172;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::StmtList_OPT:
             switch (state) {
-                case 33: 
-                    return 40;
-                case 38: 
-                    return 88;
-                case 41: 
+                case 34: 
+                    return 42;
+                case 40: 
                     return 92;
-                case 93: 
-                    return 140;
+                case 43: 
+                    return 96;
+                case 97: 
+                    return 144;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::ImplRet_OPT:
             switch (state) {
-                case 40: 
-                    return 89;
-                case 88: 
-                    return 136;
+                case 42: 
+                    return 93;
                 case 92: 
-                    return 139;
-                case 140: 
-                    return 177;
+                    return 140;
+                case 96: 
+                    return 143;
+                case 144: 
+                    return 181;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::ImplRet:
             switch (state) {
-                case 40: case 88: case 92: case 140: 
-                    return 90;
+                case 42: case 92: case 96: case 144: 
+                    return 94;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::Expr_OPT:
             switch (state) {
-                case 149: 
-                    return 182;
-                case 190: 
-                    return 194;
+                case 153: 
+                    return 186;
+                case 194: 
+                    return 198;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::Expr:
             switch (state) {
-                case 50: 
-                    return 102;
-                case 56: 
-                    return 108;
-                case 87: 
-                    return 135;
-                case 91: 
-                    return 138;
-                case 134: case 185: 
-                    return 172;
-                case 149: case 190: 
-                    return 183;
-                case 180: 
+                case 52: 
+                    return 106;
+                case 58: 
+                    return 112;
+                case 88: 
+                    return 139;
+                case 95: 
+                    return 142;
+                case 138: case 189: 
+                    return 176;
+                case 153: case 194: 
                     return 187;
+                case 184: 
+                    return 191;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::VarStmt_OPT:
             switch (state) {
-                case 57: 
-                    return 109;
+                case 59: 
+                    return 113;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::VarStmt:
             switch (state) {
-                case 33: case 38: case 41: case 42: case 93: 
-                    return 44;
-                case 57: 
-                    return 110;
+                case 34: case 40: case 43: case 44: case 97: 
+                    return 46;
+                case 59: 
+                    return 114;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::LineEnding_OPT:
             switch (state) {
-                case 27: 
-                    return 35;
-                case 49: 
-                    return 101;
-                case 138: 
-                    return 175;
+                case 28: 
+                    return 37;
+                case 51: 
+                    return 105;
+                case 142: 
+                    return 179;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::LineEnding:
             switch (state) {
                 case 19: 
-                    return 28;
-                case 27: case 49: case 138: 
-                    return 36;
-                case 48: 
-                    return 100;
+                    return 29;
+                case 28: case 51: case 142: 
+                    return 38;
                 case 50: 
-                    return 103;
-                case 96: 
-                    return 141;
-                case 102: 
-                    return 144;
+                    return 104;
+                case 52: 
+                    return 107;
+                case 100: 
+                    return 145;
+                case 106: 
+                    return 148;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::TypeAnnotation_OPT:
@@ -257,8 +257,8 @@ size_t getGoto(NonTerminal nterm, size_t state) {
                     return 17;
                 case 15: 
                     return 19;
-                case 99: 
-                    return 143;
+                case 103: 
+                    return 147;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::FunctionDecl:
@@ -270,55 +270,55 @@ size_t getGoto(NonTerminal nterm, size_t state) {
         case NonTerminal::Block:
             switch (state) {
                 case 19: 
-                    return 27;
-                case 108: 
-                    return 147;
-                case 181: 
-                    return 188;
-                case 195: 
-                    return 196;
+                    return 28;
+                case 112: 
+                    return 151;
+                case 185: 
+                    return 192;
+                case 199: 
+                    return 200;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::ExprStmt:
             switch (state) {
-                case 33: case 38: case 41: case 42: case 93: 
-                    return 45;
+                case 34: case 40: case 43: case 44: case 97: 
+                    return 47;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::RetStmt:
             switch (state) {
-                case 33: case 38: case 41: case 42: case 93: 
-                    return 46;
+                case 34: case 40: case 43: case 44: case 97: 
+                    return 48;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::NotBlockedExpr:
             switch (state) {
-                case 33: case 38: case 41: case 42: case 93: 
-                    return 48;
-                case 50: case 56: case 87: case 91: case 134: case 149: case 180: case 185: case 190: 
-                    return 105;
+                case 34: case 40: case 43: case 44: case 97: 
+                    return 50;
+                case 52: case 58: case 88: case 95: case 138: case 153: case 184: case 189: case 194: 
+                    return 109;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::BlockedExpr:
             switch (state) {
-                case 33: case 38: case 41: case 42: case 93: 
-                    return 49;
-                case 50: case 56: case 87: case 91: case 134: case 149: case 180: case 185: case 190: 
-                    return 104;
+                case 34: case 40: case 43: case 44: case 97: 
+                    return 51;
+                case 52: case 58: case 88: case 95: case 138: case 153: case 184: case 189: case 194: 
+                    return 108;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::BracedBlock:
             switch (state) {
-                case 19: case 108: case 181: case 195: 
-                    return 29;
-                case 33: case 38: case 41: case 42: case 50: case 56: case 87: case 91: case 93: case 134: case 149: case 180: case 185: case 190: 
-                    return 54;
+                case 19: case 112: case 185: case 199: 
+                    return 30;
+                case 34: case 40: case 43: case 44: case 52: case 58: case 88: case 95: case 97: case 138: case 153: case 184: case 189: case 194: 
+                    return 56;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::IndentedBlock:
             switch (state) {
-                case 19: case 108: case 181: case 195: 
-                    return 30;
+                case 19: case 112: case 185: case 199: 
+                    return 31;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::Type:
@@ -326,173 +326,187 @@ size_t getGoto(NonTerminal nterm, size_t state) {
                 case 18: 
                     return 22;
                 case 26: 
-                    return 34;
-                case 128: 
-                    return 167;
+                    return 36;
+                case 132: 
+                    return 171;
                 default: reportAbortNoh("get invalid goto");
             }
-        case NonTerminal::PrimitiveType:
+        case NonTerminal::PathType:
             switch (state) {
-                case 18: case 26: case 128: 
+                case 18: case 26: case 132: 
                     return 23;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::PointerType:
             switch (state) {
-                case 18: case 26: case 128: 
+                case 18: case 26: case 132: 
                     return 24;
+                default: reportAbortNoh("get invalid goto");
+            }
+        case NonTerminal::Path:
+            switch (state) {
+                case 18: case 26: case 132: 
+                    return 25;
+                case 34: case 40: case 43: case 44: case 52: case 58: case 71: case 72: case 73: case 74: case 75: case 88: case 95: case 97: case 110: case 111: case 115: case 116: case 117: case 118: case 119: case 120: case 121: case 122: case 123: case 124: case 125: case 126: case 127: case 128: case 129: case 130: case 131: case 138: case 153: case 184: case 189: case 194: 
+                    return 90;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::AssignmentExpr:
             switch (state) {
-                case 33: case 38: case 41: case 42: case 50: case 56: case 87: case 91: case 93: case 134: case 149: case 180: case 185: case 190: 
-                    return 51;
-                case 106: 
-                    return 145;
+                case 34: case 40: case 43: case 44: case 52: case 58: case 88: case 95: case 97: case 138: case 153: case 184: case 189: case 194: 
+                    return 53;
+                case 110: 
+                    return 149;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::IfExpr:
             switch (state) {
-                case 33: case 38: case 41: case 42: case 50: case 56: case 87: case 91: case 93: case 134: case 149: case 180: case 185: case 190: 
-                    return 52;
-                case 181: 
-                    return 189;
+                case 34: case 40: case 43: case 44: case 52: case 58: case 88: case 95: case 97: case 138: case 153: case 184: case 189: case 194: 
+                    return 54;
+                case 185: 
+                    return 193;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::ForExpr:
             switch (state) {
-                case 33: case 38: case 41: case 42: case 50: case 56: case 87: case 91: case 93: case 134: case 149: case 180: case 185: case 190: 
-                    return 53;
+                case 34: case 40: case 43: case 44: case 52: case 58: case 88: case 95: case 97: case 138: case 153: case 184: case 189: case 194: 
+                    return 55;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::BinOrExpr:
             switch (state) {
-                case 33: case 38: case 41: case 42: case 50: case 56: case 87: case 91: case 93: case 106: case 134: case 149: case 180: case 185: case 190: 
-                    return 55;
+                case 34: case 40: case 43: case 44: case 52: case 58: case 88: case 95: case 97: case 110: case 138: case 153: case 184: case 189: case 194: 
+                    return 57;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::BinAndExpr:
             switch (state) {
-                case 33: case 38: case 41: case 42: case 50: case 56: case 87: case 91: case 93: case 106: case 134: case 149: case 180: case 185: case 190: 
-                    return 58;
-                case 107: 
-                    return 146;
-                default: reportAbortNoh("get invalid goto");
-            }
-        case NonTerminal::CompEQExpr:
-            switch (state) {
-                case 33: case 38: case 41: case 42: case 50: case 56: case 87: case 91: case 93: case 106: case 107: case 134: case 149: case 180: case 185: case 190: 
-                    return 59;
+                case 34: case 40: case 43: case 44: case 52: case 58: case 88: case 95: case 97: case 110: case 138: case 153: case 184: case 189: case 194: 
+                    return 60;
                 case 111: 
                     return 150;
                 default: reportAbortNoh("get invalid goto");
             }
-        case NonTerminal::CompLGTExpr:
+        case NonTerminal::CompEQExpr:
             switch (state) {
-                case 33: case 38: case 41: case 42: case 50: case 56: case 87: case 91: case 93: case 106: case 107: case 111: case 134: case 149: case 180: case 185: case 190: 
-                    return 60;
-                case 112: 
-                    return 151;
-                case 113: 
-                    return 152;
-                default: reportAbortNoh("get invalid goto");
-            }
-        case NonTerminal::BitXorExpr:
-            switch (state) {
-                case 33: case 38: case 41: case 42: case 50: case 56: case 87: case 91: case 93: case 106: case 107: case 111: case 112: case 113: case 134: case 149: case 180: case 185: case 190: 
+                case 34: case 40: case 43: case 44: case 52: case 58: case 88: case 95: case 97: case 110: case 111: case 138: case 153: case 184: case 189: case 194: 
                     return 61;
-                case 114: 
-                    return 153;
                 case 115: 
                     return 154;
+                default: reportAbortNoh("get invalid goto");
+            }
+        case NonTerminal::CompLGTExpr:
+            switch (state) {
+                case 34: case 40: case 43: case 44: case 52: case 58: case 88: case 95: case 97: case 110: case 111: case 115: case 138: case 153: case 184: case 189: case 194: 
+                    return 62;
                 case 116: 
                     return 155;
                 case 117: 
                     return 156;
                 default: reportAbortNoh("get invalid goto");
             }
-        case NonTerminal::BitOrExpr:
+        case NonTerminal::BitXorExpr:
             switch (state) {
-                case 33: case 38: case 41: case 42: case 50: case 56: case 87: case 91: case 93: case 106: case 107: case 111: case 112: case 113: case 114: case 115: case 116: case 117: case 134: case 149: case 180: case 185: case 190: 
-                    return 62;
+                case 34: case 40: case 43: case 44: case 52: case 58: case 88: case 95: case 97: case 110: case 111: case 115: case 116: case 117: case 138: case 153: case 184: case 189: case 194: 
+                    return 63;
                 case 118: 
                     return 157;
-                default: reportAbortNoh("get invalid goto");
-            }
-        case NonTerminal::BitAndExpr:
-            switch (state) {
-                case 33: case 38: case 41: case 42: case 50: case 56: case 87: case 91: case 93: case 106: case 107: case 111: case 112: case 113: case 114: case 115: case 116: case 117: case 118: case 134: case 149: case 180: case 185: case 190: 
-                    return 63;
                 case 119: 
                     return 158;
-                default: reportAbortNoh("get invalid goto");
-            }
-        case NonTerminal::BitShiftExpr:
-            switch (state) {
-                case 33: case 38: case 41: case 42: case 50: case 56: case 87: case 91: case 93: case 106: case 107: case 111: case 112: case 113: case 114: case 115: case 116: case 117: case 118: case 119: case 134: case 149: case 180: case 185: case 190: 
-                    return 64;
                 case 120: 
                     return 159;
-                default: reportAbortNoh("get invalid goto");
-            }
-        case NonTerminal::AdditionExpr:
-            switch (state) {
-                case 33: case 38: case 41: case 42: case 50: case 56: case 87: case 91: case 93: case 106: case 107: case 111: case 112: case 113: case 114: case 115: case 116: case 117: case 118: case 119: case 120: case 134: case 149: case 180: case 185: case 190: 
-                    return 65;
                 case 121: 
                     return 160;
+                default: reportAbortNoh("get invalid goto");
+            }
+        case NonTerminal::BitOrExpr:
+            switch (state) {
+                case 34: case 40: case 43: case 44: case 52: case 58: case 88: case 95: case 97: case 110: case 111: case 115: case 116: case 117: case 118: case 119: case 120: case 121: case 138: case 153: case 184: case 189: case 194: 
+                    return 64;
                 case 122: 
                     return 161;
                 default: reportAbortNoh("get invalid goto");
             }
-        case NonTerminal::MultExpr:
+        case NonTerminal::BitAndExpr:
             switch (state) {
-                case 33: case 38: case 41: case 42: case 50: case 56: case 87: case 91: case 93: case 106: case 107: case 111: case 112: case 113: case 114: case 115: case 116: case 117: case 118: case 119: case 120: case 121: case 122: case 134: case 149: case 180: case 185: case 190: 
-                    return 66;
+                case 34: case 40: case 43: case 44: case 52: case 58: case 88: case 95: case 97: case 110: case 111: case 115: case 116: case 117: case 118: case 119: case 120: case 121: case 122: case 138: case 153: case 184: case 189: case 194: 
+                    return 65;
                 case 123: 
                     return 162;
+                default: reportAbortNoh("get invalid goto");
+            }
+        case NonTerminal::BitShiftExpr:
+            switch (state) {
+                case 34: case 40: case 43: case 44: case 52: case 58: case 88: case 95: case 97: case 110: case 111: case 115: case 116: case 117: case 118: case 119: case 120: case 121: case 122: case 123: case 138: case 153: case 184: case 189: case 194: 
+                    return 66;
                 case 124: 
                     return 163;
                 default: reportAbortNoh("get invalid goto");
             }
-        case NonTerminal::UnaryExpr:
+        case NonTerminal::AdditionExpr:
             switch (state) {
-                case 33: case 38: case 41: case 42: case 50: case 56: case 87: case 91: case 93: case 106: case 107: case 111: case 112: case 113: case 114: case 115: case 116: case 117: case 118: case 119: case 120: case 121: case 122: case 123: case 124: case 134: case 149: case 180: case 185: case 190: 
-                    return 68;
-                case 69: 
-                    return 129;
-                case 70: 
-                    return 130;
-                case 71: 
-                    return 131;
-                case 72: 
-                    return 132;
-                case 73: 
-                    return 133;
+                case 34: case 40: case 43: case 44: case 52: case 58: case 88: case 95: case 97: case 110: case 111: case 115: case 116: case 117: case 118: case 119: case 120: case 121: case 122: case 123: case 124: case 138: case 153: case 184: case 189: case 194: 
+                    return 67;
                 case 125: 
                     return 164;
                 case 126: 
                     return 165;
+                default: reportAbortNoh("get invalid goto");
+            }
+        case NonTerminal::MultExpr:
+            switch (state) {
+                case 34: case 40: case 43: case 44: case 52: case 58: case 88: case 95: case 97: case 110: case 111: case 115: case 116: case 117: case 118: case 119: case 120: case 121: case 122: case 123: case 124: case 125: case 126: case 138: case 153: case 184: case 189: case 194: 
+                    return 68;
                 case 127: 
                     return 166;
+                case 128: 
+                    return 167;
+                default: reportAbortNoh("get invalid goto");
+            }
+        case NonTerminal::UnaryExpr:
+            switch (state) {
+                case 34: case 40: case 43: case 44: case 52: case 58: case 88: case 95: case 97: case 110: case 111: case 115: case 116: case 117: case 118: case 119: case 120: case 121: case 122: case 123: case 124: case 125: case 126: case 127: case 128: case 138: case 153: case 184: case 189: case 194: 
+                    return 70;
+                case 71: 
+                    return 133;
+                case 72: 
+                    return 134;
+                case 73: 
+                    return 135;
+                case 74: 
+                    return 136;
+                case 75: 
+                    return 137;
+                case 129: 
+                    return 168;
+                case 130: 
+                    return 169;
+                case 131: 
+                    return 170;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::CastExpr:
             switch (state) {
-                case 33: case 38: case 41: case 42: case 50: case 56: case 87: case 91: case 93: case 106: case 107: case 111: case 112: case 113: case 114: case 115: case 116: case 117: case 118: case 119: case 120: case 121: case 122: case 123: case 124: case 134: case 149: case 180: case 185: case 190: 
-                    return 67;
+                case 34: case 40: case 43: case 44: case 52: case 58: case 88: case 95: case 97: case 110: case 111: case 115: case 116: case 117: case 118: case 119: case 120: case 121: case 122: case 123: case 124: case 125: case 126: case 127: case 128: case 138: case 153: case 184: case 189: case 194: 
+                    return 69;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::CallExpr:
             switch (state) {
-                case 33: case 38: case 41: case 42: case 50: case 56: case 69: case 70: case 71: case 72: case 73: case 87: case 91: case 93: case 106: case 107: case 111: case 112: case 113: case 114: case 115: case 116: case 117: case 118: case 119: case 120: case 121: case 122: case 123: case 124: case 125: case 126: case 127: case 134: case 149: case 180: case 185: case 190: 
-                    return 74;
+                case 34: case 40: case 43: case 44: case 52: case 58: case 71: case 72: case 73: case 74: case 75: case 88: case 95: case 97: case 110: case 111: case 115: case 116: case 117: case 118: case 119: case 120: case 121: case 122: case 123: case 124: case 125: case 126: case 127: case 128: case 129: case 130: case 131: case 138: case 153: case 184: case 189: case 194: 
+                    return 76;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::PrimaryExpr:
             switch (state) {
-                case 33: case 38: case 41: case 42: case 50: case 56: case 69: case 70: case 71: case 72: case 73: case 87: case 91: case 93: case 106: case 107: case 111: case 112: case 113: case 114: case 115: case 116: case 117: case 118: case 119: case 120: case 121: case 122: case 123: case 124: case 125: case 126: case 127: case 134: case 149: case 180: case 185: case 190: 
-                    return 75;
+                case 34: case 40: case 43: case 44: case 52: case 58: case 71: case 72: case 73: case 74: case 75: case 88: case 95: case 97: case 110: case 111: case 115: case 116: case 117: case 118: case 119: case 120: case 121: case 122: case 123: case 124: case 125: case 126: case 127: case 128: case 129: case 130: case 131: case 138: case 153: case 184: case 189: case 194: 
+                    return 77;
+                default: reportAbortNoh("get invalid goto");
+            }
+        case NonTerminal::PathExpr:
+            switch (state) {
+                case 34: case 40: case 43: case 44: case 52: case 58: case 71: case 72: case 73: case 74: case 75: case 88: case 95: case 97: case 110: case 111: case 115: case 116: case 117: case 118: case 119: case 120: case 121: case 122: case 123: case 124: case 125: case 126: case 127: case 128: case 129: case 130: case 131: case 138: case 153: case 184: case 189: case 194: 
+                    return 89;
                 default: reportAbortNoh("get invalid goto");
             }
     }
@@ -791,7 +805,7 @@ std::unique_ptr<ASTNS::Param> push (std::make_unique<ASTNS::Param>(p.sourcefile,
             case 18:
                 switch (lookahead.type) {
                     case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 25); break;
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
                     case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 26); break;
                     default:
@@ -802,11 +816,11 @@ std::unique_ptr<ASTNS::Param> push (std::make_unique<ASTNS::Param>(p.sourcefile,
             case 19:
                 switch (lookahead.type) {
                     case TokenType::NEWLINE:
-                        shift(p, lasttok, lookahead, stack, steps, 31); break;
-                    case TokenType::OCURB:
-                        shift(p, lasttok, lookahead, stack, steps, 33); break;
-                    case TokenType::SEMICOLON:
                         shift(p, lasttok, lookahead, stack, steps, 32); break;
+                    case TokenType::OCURB:
+                        shift(p, lasttok, lookahead, stack, steps, 34); break;
+                    case TokenType::SEMICOLON:
+                        shift(p, lasttok, lookahead, stack, steps, 33); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", format("either % or %", "code block", "line ending"), "function declaration")  });
@@ -861,7 +875,7 @@ a0->params.push_back(std::move(a2));
             case 23:
                 switch (lookahead.type) {
                     default: {
-                            auto a0 (popA<ASTNS::PrimitiveType>(stack));
+                            auto a0 (popA<ASTNS::PathType>(stack));
                             Location start ((a0.get())), end ((a0.get()));
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
@@ -887,21 +901,23 @@ a0->params.push_back(std::move(a2));
             case 25:
                 switch (lookahead.type) {
                     default: {
-                            auto a0 (popT(stack));
-                            Location start, end;
-                            start = a0;
-                            end = a0;
-std::unique_ptr<ASTNS::PrimitiveType> push (std::make_unique<ASTNS::PrimitiveType>(p.sourcefile, start, end, a0));
-                            std::unique_ptr<ASTNS::PrimitiveType> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::PrimitiveType, stack.back().state), std::move(pushitem), NonTerminal::PrimitiveType);
+                            auto a0 (popA<ASTNS::Path>(stack));
+                            Location start ((a0.get())), end ((a0.get()));
+                            if (a0) start = a0->start();
+                            if (a0) end = a0->end();
+std::unique_ptr<ASTNS::PathType> push (std::make_unique<ASTNS::PathType>(p.sourcefile, start, end, std::move(a0)));
+                            std::unique_ptr<ASTNS::PathType> pushitem = std::move(push);
+                            stack.emplace_back(getGoto(NonTerminal::PathType, stack.back().state), std::move(pushitem), NonTerminal::PathType);
                         }
                         break;
+                    case TokenType::DOUBLECOLON:
+                        shift(p, lasttok, lookahead, stack, steps, 35); break;
                 }
                 break;
             case 26:
                 switch (lookahead.type) {
                     case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 25); break;
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
                     case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 26); break;
                     default:
@@ -910,6 +926,22 @@ std::unique_ptr<ASTNS::PrimitiveType> push (std::make_unique<ASTNS::PrimitiveTyp
                 }
                 break;
             case 27:
+                switch (lookahead.type) {
+                    default: {
+                            auto a0 (popT(stack));
+                            Location start, end;
+                            start = a0;
+                            end = a0;
+std::unique_ptr<ASTNS::Path> push(std::make_unique<ASTNS::Path>(p.sourcefile, start, end, std::vector<Token> {}));
+
+        push->segments.push_back(a0);
+                            std::unique_ptr<ASTNS::Path> pushitem = std::move(push);
+                            stack.emplace_back(getGoto(NonTerminal::Path, stack.back().state), std::move(pushitem), NonTerminal::Path);
+                        }
+                        break;
+                }
+                break;
+            case 28:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
                     case TokenType::BANG:
@@ -944,15 +976,15 @@ std::unique_ptr<ASTNS::PrimitiveType> push (std::make_unique<ASTNS::PrimitiveTyp
                         }
                         break;
                     case TokenType::NEWLINE:
-                        shift(p, lasttok, lookahead, stack, steps, 37); break;
+                        shift(p, lasttok, lookahead, stack, steps, 39); break;
                     case TokenType::SEMICOLON:
-                        shift(p, lasttok, lookahead, stack, steps, 32); break;
+                        shift(p, lasttok, lookahead, stack, steps, 33); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional line ending", "function declaration")  });
                 }
                 break;
-            case 28:
+            case 29:
                 switch (lookahead.type) {
                     default: {
                             auto a6 (popA<ASTNS::PureLocation>(stack));
@@ -974,19 +1006,6 @@ std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>
                         break;
                 }
                 break;
-            case 29:
-                switch (lookahead.type) {
-                    default: {
-                            auto a0 (popA<ASTNS::Block>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
-                            if (a0) start = a0->start();
-                            if (a0) end = a0->end();
-                            std::unique_ptr<ASTNS::Block> pushitem = std::move(a0);
-                            stack.emplace_back(getGoto(NonTerminal::Block, stack.back().state), std::move(pushitem), NonTerminal::Block);
-                        }
-                        break;
-                }
-                break;
             case 30:
                 switch (lookahead.type) {
                     default: {
@@ -1003,17 +1022,14 @@ std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>
             case 31:
                 switch (lookahead.type) {
                     default: {
-                            auto a0 (popT(stack));
-                            Location start, end;
-                            start = a0;
-                            end = a0;
-std::unique_ptr<ASTNS::PureLocation> push (std::make_unique<ASTNS::PureLocation>(p.sourcefile, start, end, 0));
-                            std::unique_ptr<ASTNS::PureLocation> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::LineEnding, stack.back().state), std::move(pushitem), NonTerminal::LineEnding);
+                            auto a0 (popA<ASTNS::Block>(stack));
+                            Location start ((a0.get())), end ((a0.get()));
+                            if (a0) start = a0->start();
+                            if (a0) end = a0->end();
+                            std::unique_ptr<ASTNS::Block> pushitem = std::move(a0);
+                            stack.emplace_back(getGoto(NonTerminal::Block, stack.back().state), std::move(pushitem), NonTerminal::Block);
                         }
                         break;
-                    case TokenType::INDENT:
-                        shift(p, lasttok, lookahead, stack, steps, 38); break;
                 }
                 break;
             case 32:
@@ -1028,18 +1044,34 @@ std::unique_ptr<ASTNS::PureLocation> push (std::make_unique<ASTNS::PureLocation>
                             stack.emplace_back(getGoto(NonTerminal::LineEnding, stack.back().state), std::move(pushitem), NonTerminal::LineEnding);
                         }
                         break;
-                    case TokenType::NEWLINE:
-                        shift(p, lasttok, lookahead, stack, steps, 39); break;
+                    case TokenType::INDENT:
+                        shift(p, lasttok, lookahead, stack, steps, 40); break;
                 }
                 break;
             case 33:
                 switch (lookahead.type) {
+                    default: {
+                            auto a0 (popT(stack));
+                            Location start, end;
+                            start = a0;
+                            end = a0;
+std::unique_ptr<ASTNS::PureLocation> push (std::make_unique<ASTNS::PureLocation>(p.sourcefile, start, end, 0));
+                            std::unique_ptr<ASTNS::PureLocation> pushitem = std::move(push);
+                            stack.emplace_back(getGoto(NonTerminal::LineEnding, stack.back().state), std::move(pushitem), NonTerminal::LineEnding);
+                        }
+                        break;
+                    case TokenType::NEWLINE:
+                        shift(p, lasttok, lookahead, stack, steps, 41); break;
+                }
+                break;
+            case 34:
+                switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
+                        shift(p, lasttok, lookahead, stack, steps, 73); break;
                     case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
                     case TokenType::CCURB:
                     case TokenType::DEDENT:
                     case TokenType::LEFTARROW:
@@ -1049,51 +1081,60 @@ std::unique_ptr<ASTNS::PureLocation> push (std::make_unique<ASTNS::PureLocation>
                         }
                         break;
                     case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::FOR:
-                        shift(p, lasttok, lookahead, stack, steps, 57); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
                         shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::IF:
-                        shift(p, lasttok, lookahead, stack, steps, 56); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NEWLINE:
-                        shift(p, lasttok, lookahead, stack, steps, 41); break;
-                    case TokenType::NULLPTRLIT:
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OCURB:
-                        shift(p, lasttok, lookahead, stack, steps, 33); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::RETURN:
-                        shift(p, lasttok, lookahead, stack, steps, 50); break;
-                    case TokenType::STAR:
-                        shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::FOR:
+                        shift(p, lasttok, lookahead, stack, steps, 59); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::IF:
+                        shift(p, lasttok, lookahead, stack, steps, 58); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NEWLINE:
+                        shift(p, lasttok, lookahead, stack, steps, 43); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OCURB:
+                        shift(p, lasttok, lookahead, stack, steps, 34); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::RETURN:
+                        shift(p, lasttok, lookahead, stack, steps, 52); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     case TokenType::VAR:
-                        shift(p, lasttok, lookahead, stack, steps, 47); break;
+                        shift(p, lasttok, lookahead, stack, steps, 49); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", format("either % or %", "optional statement list", stringifyTokenType(TokenType::NEWLINE)), "braced code block")  });
                 }
                 break;
-            case 34:
+            case 35:
+                switch (lookahead.type) {
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 91); break;
+                    default:
+                        if (istrial) return false;
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::IDENTIFIER), "symbol path")  });
+                }
+                break;
+            case 36:
                 switch (lookahead.type) {
                     default: {
                             auto a1 (popA<ASTNS::Type>(stack));
@@ -1109,7 +1150,7 @@ std::unique_ptr<ASTNS::PointerType> push (std::make_unique<ASTNS::PointerType>(p
                         break;
                 }
                 break;
-            case 35:
+            case 37:
                 switch (lookahead.type) {
                     default: {
                             auto a7 (popA<ASTNS::PureLocation>(stack));
@@ -1133,7 +1174,7 @@ std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>
                         break;
                 }
                 break;
-            case 36:
+            case 38:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::PureLocation>(stack));
@@ -1146,7 +1187,7 @@ std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>
                         break;
                 }
                 break;
-            case 37:
+            case 39:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popT(stack));
@@ -1160,14 +1201,14 @@ std::unique_ptr<ASTNS::PureLocation> push (std::make_unique<ASTNS::PureLocation>
                         break;
                 }
                 break;
-            case 38:
+            case 40:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
+                        shift(p, lasttok, lookahead, stack, steps, 73); break;
                     case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
                     case TokenType::CCURB:
                     case TokenType::DEDENT:
                     case TokenType::LEFTARROW:
@@ -1177,49 +1218,49 @@ std::unique_ptr<ASTNS::PureLocation> push (std::make_unique<ASTNS::PureLocation>
                         }
                         break;
                     case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::FOR:
-                        shift(p, lasttok, lookahead, stack, steps, 57); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
                         shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::IF:
-                        shift(p, lasttok, lookahead, stack, steps, 56); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OCURB:
-                        shift(p, lasttok, lookahead, stack, steps, 33); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::RETURN:
-                        shift(p, lasttok, lookahead, stack, steps, 50); break;
-                    case TokenType::STAR:
-                        shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::FOR:
+                        shift(p, lasttok, lookahead, stack, steps, 59); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::IF:
+                        shift(p, lasttok, lookahead, stack, steps, 58); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OCURB:
+                        shift(p, lasttok, lookahead, stack, steps, 34); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::RETURN:
+                        shift(p, lasttok, lookahead, stack, steps, 52); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     case TokenType::VAR:
-                        shift(p, lasttok, lookahead, stack, steps, 47); break;
+                        shift(p, lasttok, lookahead, stack, steps, 49); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional statement list", "indented code block")  });
                 }
                 break;
-            case 39:
+            case 41:
                 switch (lookahead.type) {
                     default: {
                             auto a1 (popT(stack));
@@ -1234,7 +1275,7 @@ WARN_EXTRA_SEMI(a0);std::unique_ptr<ASTNS::PureLocation> push (std::make_unique<
                         break;
                 }
                 break;
-            case 40:
+            case 42:
                 switch (lookahead.type) {
                     case TokenType::CCURB:
                     case TokenType::DEDENT:
@@ -1244,20 +1285,20 @@ WARN_EXTRA_SEMI(a0);std::unique_ptr<ASTNS::PureLocation> push (std::make_unique<
                         }
                         break;
                     case TokenType::LEFTARROW:
-                        shift(p, lasttok, lookahead, stack, steps, 91); break;
+                        shift(p, lasttok, lookahead, stack, steps, 95); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional block return value", "braced code block")  });
                 }
                 break;
-            case 41:
+            case 43:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
+                        shift(p, lasttok, lookahead, stack, steps, 73); break;
                     case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
                     case TokenType::CCURB:
                     case TokenType::DEDENT:
                     case TokenType::LEFTARROW:
@@ -1267,58 +1308,58 @@ WARN_EXTRA_SEMI(a0);std::unique_ptr<ASTNS::PureLocation> push (std::make_unique<
                         }
                         break;
                     case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::FOR:
-                        shift(p, lasttok, lookahead, stack, steps, 57); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
                         shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::IF:
-                        shift(p, lasttok, lookahead, stack, steps, 56); break;
-                    case TokenType::INDENT:
-                        shift(p, lasttok, lookahead, stack, steps, 93); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OCURB:
-                        shift(p, lasttok, lookahead, stack, steps, 33); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::RETURN:
-                        shift(p, lasttok, lookahead, stack, steps, 50); break;
-                    case TokenType::STAR:
-                        shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::FOR:
+                        shift(p, lasttok, lookahead, stack, steps, 59); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::IF:
+                        shift(p, lasttok, lookahead, stack, steps, 58); break;
+                    case TokenType::INDENT:
+                        shift(p, lasttok, lookahead, stack, steps, 97); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OCURB:
+                        shift(p, lasttok, lookahead, stack, steps, 34); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::RETURN:
+                        shift(p, lasttok, lookahead, stack, steps, 52); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     case TokenType::VAR:
-                        shift(p, lasttok, lookahead, stack, steps, 47); break;
+                        shift(p, lasttok, lookahead, stack, steps, 49); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", format("either % or %", "optional statement list", stringifyTokenType(TokenType::INDENT)), "braced code block")  });
                 }
                 break;
-            case 42:
+            case 44:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
+                        shift(p, lasttok, lookahead, stack, steps, 73); break;
                     case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
                     default: {
                             auto a0 (popA<ASTNS::StmtList>(stack));
                             Location start ((a0.get())), end ((a0.get()));
@@ -1329,46 +1370,46 @@ WARN_EXTRA_SEMI(a0);std::unique_ptr<ASTNS::PureLocation> push (std::make_unique<
                         }
                         break;
                     case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::FOR:
-                        shift(p, lasttok, lookahead, stack, steps, 57); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
                         shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::IF:
-                        shift(p, lasttok, lookahead, stack, steps, 56); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OCURB:
-                        shift(p, lasttok, lookahead, stack, steps, 33); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::RETURN:
-                        shift(p, lasttok, lookahead, stack, steps, 50); break;
-                    case TokenType::STAR:
-                        shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::FOR:
+                        shift(p, lasttok, lookahead, stack, steps, 59); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::IF:
+                        shift(p, lasttok, lookahead, stack, steps, 58); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OCURB:
+                        shift(p, lasttok, lookahead, stack, steps, 34); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::RETURN:
+                        shift(p, lasttok, lookahead, stack, steps, 52); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     case TokenType::VAR:
-                        shift(p, lasttok, lookahead, stack, steps, 47); break;
+                        shift(p, lasttok, lookahead, stack, steps, 49); break;
                 }
                 break;
-            case 43:
+            case 45:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Stmt>(stack));
@@ -1384,7 +1425,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         break;
                 }
                 break;
-            case 44:
+            case 46:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::VarStmt>(stack));
@@ -1397,7 +1438,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         break;
                 }
                 break;
-            case 45:
+            case 47:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::ExprStmt>(stack));
@@ -1410,7 +1451,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         break;
                 }
                 break;
-            case 46:
+            case 48:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::RetStmt>(stack));
@@ -1423,27 +1464,27 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         break;
                 }
                 break;
-            case 47:
+            case 49:
                 switch (lookahead.type) {
                     case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 99); break;
+                        shift(p, lasttok, lookahead, stack, steps, 103); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "variable statement initialization list", "variable statement")  });
                 }
                 break;
-            case 48:
+            case 50:
                 switch (lookahead.type) {
                     case TokenType::NEWLINE:
-                        shift(p, lasttok, lookahead, stack, steps, 37); break;
+                        shift(p, lasttok, lookahead, stack, steps, 39); break;
                     case TokenType::SEMICOLON:
-                        shift(p, lasttok, lookahead, stack, steps, 32); break;
+                        shift(p, lasttok, lookahead, stack, steps, 33); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "line ending", "expression statement")  });
                 }
                 break;
-            case 49:
+            case 51:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
                     case TokenType::BANG:
@@ -1478,66 +1519,66 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         }
                         break;
                     case TokenType::NEWLINE:
-                        shift(p, lasttok, lookahead, stack, steps, 37); break;
+                        shift(p, lasttok, lookahead, stack, steps, 39); break;
                     case TokenType::SEMICOLON:
-                        shift(p, lasttok, lookahead, stack, steps, 32); break;
+                        shift(p, lasttok, lookahead, stack, steps, 33); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional line ending", "expression statement")  });
                 }
                 break;
-            case 50:
+            case 52:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::FOR:
-                        shift(p, lasttok, lookahead, stack, steps, 57); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::IF:
-                        shift(p, lasttok, lookahead, stack, steps, 56); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NEWLINE:
-                        shift(p, lasttok, lookahead, stack, steps, 37); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OCURB:
-                        shift(p, lasttok, lookahead, stack, steps, 33); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::SEMICOLON:
-                        shift(p, lasttok, lookahead, stack, steps, 32); break;
-                    case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::FOR:
+                        shift(p, lasttok, lookahead, stack, steps, 59); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::IF:
+                        shift(p, lasttok, lookahead, stack, steps, 58); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NEWLINE:
+                        shift(p, lasttok, lookahead, stack, steps, 39); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OCURB:
+                        shift(p, lasttok, lookahead, stack, steps, 34); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::SEMICOLON:
+                        shift(p, lasttok, lookahead, stack, steps, 33); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", format("either % or %", "expression", "line ending"), "return statement")  });
                 }
                 break;
-            case 51:
+            case 53:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -1550,7 +1591,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         break;
                 }
                 break;
-            case 52:
+            case 54:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::IfExpr>(stack));
@@ -1563,7 +1604,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         break;
                 }
                 break;
-            case 53:
+            case 55:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::ForExpr>(stack));
@@ -1576,7 +1617,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         break;
                 }
                 break;
-            case 54:
+            case 56:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Block>(stack));
@@ -1589,7 +1630,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         break;
                 }
                 break;
-            case 55:
+            case 57:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -1601,59 +1642,59 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         }
                         break;
                     case TokenType::DOUBLEPIPE:
-                        shift(p, lasttok, lookahead, stack, steps, 107); break;
+                        shift(p, lasttok, lookahead, stack, steps, 111); break;
                     case TokenType::EQUAL:
-                        shift(p, lasttok, lookahead, stack, steps, 106); break;
+                        shift(p, lasttok, lookahead, stack, steps, 110); break;
                 }
                 break;
-            case 56:
+            case 58:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::FOR:
-                        shift(p, lasttok, lookahead, stack, steps, 57); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::IF:
-                        shift(p, lasttok, lookahead, stack, steps, 56); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OCURB:
-                        shift(p, lasttok, lookahead, stack, steps, 33); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::FOR:
+                        shift(p, lasttok, lookahead, stack, steps, 59); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::IF:
+                        shift(p, lasttok, lookahead, stack, steps, 58); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OCURB:
+                        shift(p, lasttok, lookahead, stack, steps, 34); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "expression", "if expression")  });
                 }
                 break;
-            case 57:
+            case 59:
                 switch (lookahead.type) {
                     case TokenType::SEMICOLON:
 {
@@ -1662,13 +1703,13 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         }
                         break;
                     case TokenType::VAR:
-                        shift(p, lasttok, lookahead, stack, steps, 47); break;
+                        shift(p, lasttok, lookahead, stack, steps, 49); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional variable statement", "for expression")  });
                 }
                 break;
-            case 58:
+            case 60:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -1680,13 +1721,13 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         }
                         break;
                     case TokenType::DOUBLEAMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 111); break;
+                        shift(p, lasttok, lookahead, stack, steps, 115); break;
                 }
                 break;
-            case 59:
+            case 61:
                 switch (lookahead.type) {
                     case TokenType::BANGEQUAL:
-                        shift(p, lasttok, lookahead, stack, steps, 112); break;
+                        shift(p, lasttok, lookahead, stack, steps, 116); break;
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
                             Location start ((a0.get())), end ((a0.get()));
@@ -1697,10 +1738,10 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         }
                         break;
                     case TokenType::DOUBLEEQUAL:
-                        shift(p, lasttok, lookahead, stack, steps, 113); break;
+                        shift(p, lasttok, lookahead, stack, steps, 117); break;
                 }
                 break;
-            case 60:
+            case 62:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -1712,16 +1753,16 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         }
                         break;
                     case TokenType::GREATER:
-                        shift(p, lasttok, lookahead, stack, steps, 115); break;
+                        shift(p, lasttok, lookahead, stack, steps, 119); break;
                     case TokenType::GREATEREQUAL:
-                        shift(p, lasttok, lookahead, stack, steps, 117); break;
+                        shift(p, lasttok, lookahead, stack, steps, 121); break;
                     case TokenType::LESS:
-                        shift(p, lasttok, lookahead, stack, steps, 114); break;
+                        shift(p, lasttok, lookahead, stack, steps, 118); break;
                     case TokenType::LESSEQUAL:
-                        shift(p, lasttok, lookahead, stack, steps, 116); break;
+                        shift(p, lasttok, lookahead, stack, steps, 120); break;
                 }
                 break;
-            case 61:
+            case 63:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -1733,10 +1774,10 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         }
                         break;
                     case TokenType::CARET:
-                        shift(p, lasttok, lookahead, stack, steps, 118); break;
+                        shift(p, lasttok, lookahead, stack, steps, 122); break;
                 }
                 break;
-            case 62:
+            case 64:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -1748,13 +1789,13 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         }
                         break;
                     case TokenType::PIPE:
-                        shift(p, lasttok, lookahead, stack, steps, 119); break;
+                        shift(p, lasttok, lookahead, stack, steps, 123); break;
                 }
                 break;
-            case 63:
+            case 65:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 120); break;
+                        shift(p, lasttok, lookahead, stack, steps, 124); break;
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
                             Location start ((a0.get())), end ((a0.get()));
@@ -1766,7 +1807,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         break;
                 }
                 break;
-            case 64:
+            case 66:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -1778,12 +1819,12 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         }
                         break;
                     case TokenType::DOUBLEGREATER:
-                        shift(p, lasttok, lookahead, stack, steps, 121); break;
+                        shift(p, lasttok, lookahead, stack, steps, 125); break;
                     case TokenType::DOUBLELESS:
-                        shift(p, lasttok, lookahead, stack, steps, 122); break;
+                        shift(p, lasttok, lookahead, stack, steps, 126); break;
                 }
                 break;
-            case 65:
+            case 67:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -1795,12 +1836,12 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         }
                         break;
                     case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 124); break;
+                        shift(p, lasttok, lookahead, stack, steps, 128); break;
                     case TokenType::PLUS:
-                        shift(p, lasttok, lookahead, stack, steps, 123); break;
+                        shift(p, lasttok, lookahead, stack, steps, 127); break;
                 }
                 break;
-            case 66:
+            case 68:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -1812,14 +1853,14 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         }
                         break;
                     case TokenType::PERCENT:
-                        shift(p, lasttok, lookahead, stack, steps, 127); break;
+                        shift(p, lasttok, lookahead, stack, steps, 131); break;
                     case TokenType::SLASH:
-                        shift(p, lasttok, lookahead, stack, steps, 126); break;
+                        shift(p, lasttok, lookahead, stack, steps, 130); break;
                     case TokenType::STAR:
-                        shift(p, lasttok, lookahead, stack, steps, 125); break;
+                        shift(p, lasttok, lookahead, stack, steps, 129); break;
                 }
                 break;
-            case 67:
+            case 69:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -1831,10 +1872,10 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         }
                         break;
                     case TokenType::RIGHTARROW:
-                        shift(p, lasttok, lookahead, stack, steps, 128); break;
+                        shift(p, lasttok, lookahead, stack, steps, 132); break;
                 }
                 break;
-            case 68:
+            case 70:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -1847,124 +1888,42 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         break;
                 }
                 break;
-            case 69:
-                switch (lookahead.type) {
-                    case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
-                    case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
-                        shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 85); break;
-                    case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
-                    case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
-                    default:
-                        if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "unary expression", "unary expression")  });
-                }
-                break;
-            case 70:
-                switch (lookahead.type) {
-                    case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
-                    case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
-                        shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 85); break;
-                    case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
-                    case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
-                    default:
-                        if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "unary expression", "unary expression")  });
-                }
-                break;
             case 71:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "unary expression", "unary expression")  });
@@ -1973,39 +1932,39 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
             case 72:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "unary expression", "unary expression")  });
@@ -2014,45 +1973,127 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
             case 73:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "unary expression", "unary expression")  });
                 }
                 break;
             case 74:
+                switch (lookahead.type) {
+                    case TokenType::AMPER:
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
+                    case TokenType::BANG:
+                        shift(p, lasttok, lookahead, stack, steps, 73); break;
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::HEXINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
+                    case TokenType::TILDE:
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
+                    case TokenType::TRUELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
+                    default:
+                        if (istrial) return false;
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "unary expression", "unary expression")  });
+                }
+                break;
+            case 75:
+                switch (lookahead.type) {
+                    case TokenType::AMPER:
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
+                    case TokenType::BANG:
+                        shift(p, lasttok, lookahead, stack, steps, 73); break;
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::HEXINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
+                    case TokenType::TILDE:
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
+                    case TokenType::TRUELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
+                    default:
+                        if (istrial) return false;
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "unary expression", "unary expression")  });
+                }
+                break;
+            case 76:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -2064,10 +2105,10 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         }
                         break;
                     case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 134); break;
+                        shift(p, lasttok, lookahead, stack, steps, 138); break;
                 }
                 break;
-            case 75:
+            case 77:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -2076,34 +2117,6 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
                             stack.emplace_back(getGoto(NonTerminal::CallExpr, stack.back().state), std::move(pushitem), NonTerminal::CallExpr);
-                        }
-                        break;
-                }
-                break;
-            case 76:
-                switch (lookahead.type) {
-                    default: {
-                            auto a0 (popT(stack));
-                            Location start, end;
-                            start = a0;
-                            end = a0;
-std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p.sourcefile, start, end, a0));
-                            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::PrimaryExpr, stack.back().state), std::move(pushitem), NonTerminal::PrimaryExpr);
-                        }
-                        break;
-                }
-                break;
-            case 77:
-                switch (lookahead.type) {
-                    default: {
-                            auto a0 (popT(stack));
-                            Location start, end;
-                            start = a0;
-                            end = a0;
-std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p.sourcefile, start, end, a0));
-                            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::PrimaryExpr, stack.back().state), std::move(pushitem), NonTerminal::PrimaryExpr);
                         }
                         break;
                 }
@@ -2236,134 +2249,109 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 break;
             case 87:
                 switch (lookahead.type) {
+                    default: {
+                            auto a0 (popT(stack));
+                            Location start, end;
+                            start = a0;
+                            end = a0;
+std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p.sourcefile, start, end, a0));
+                            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+                            stack.emplace_back(getGoto(NonTerminal::PrimaryExpr, stack.back().state), std::move(pushitem), NonTerminal::PrimaryExpr);
+                        }
+                        break;
+                }
+                break;
+            case 88:
+                switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::FOR:
-                        shift(p, lasttok, lookahead, stack, steps, 57); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::IF:
-                        shift(p, lasttok, lookahead, stack, steps, 56); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OCURB:
-                        shift(p, lasttok, lookahead, stack, steps, 33); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::FOR:
+                        shift(p, lasttok, lookahead, stack, steps, 59); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::IF:
+                        shift(p, lasttok, lookahead, stack, steps, 58); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OCURB:
+                        shift(p, lasttok, lookahead, stack, steps, 34); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "expression", "primary expression")  });
                 }
                 break;
-            case 88:
-                switch (lookahead.type) {
-                    case TokenType::CCURB:
-                    case TokenType::DEDENT:
-{
-                            std::unique_ptr<ASTNS::ImplRet> pushitem = nullptr;
-                            stack.emplace_back(getGoto(NonTerminal::ImplRet_OPT, stack.back().state), std::move(pushitem), NonTerminal::ImplRet_OPT);
-                        }
-                        break;
-                    case TokenType::LEFTARROW:
-                        shift(p, lasttok, lookahead, stack, steps, 91); break;
-                    default:
-                        if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional block return value", "indented code block")  });
-                }
-                break;
             case 89:
                 switch (lookahead.type) {
-                    case TokenType::CCURB:
-                        shift(p, lasttok, lookahead, stack, steps, 137); break;
-                    default:
-                        if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::CCURB), "braced code block")  });
+                    default: {
+                            auto a0 (popA<ASTNS::Expr>(stack));
+                            Location start ((a0.get())), end ((a0.get()));
+                            if (a0) start = a0->start();
+                            if (a0) end = a0->end();
+                            std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
+                            stack.emplace_back(getGoto(NonTerminal::PrimaryExpr, stack.back().state), std::move(pushitem), NonTerminal::PrimaryExpr);
+                        }
+                        break;
                 }
                 break;
             case 90:
                 switch (lookahead.type) {
                     default: {
-                            auto a0 (popA<ASTNS::ImplRet>(stack));
+                            auto a0 (popA<ASTNS::Path>(stack));
                             Location start ((a0.get())), end ((a0.get()));
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
-                            std::unique_ptr<ASTNS::ImplRet> pushitem = std::move(a0);
-                            stack.emplace_back(getGoto(NonTerminal::ImplRet_OPT, stack.back().state), std::move(pushitem), NonTerminal::ImplRet_OPT);
+std::unique_ptr<ASTNS::PathExpr> push (std::make_unique<ASTNS::PathExpr>(p.sourcefile, start, end, std::move(a0)));
+                            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+                            stack.emplace_back(getGoto(NonTerminal::PathExpr, stack.back().state), std::move(pushitem), NonTerminal::PathExpr);
                         }
                         break;
+                    case TokenType::DOUBLECOLON:
+                        shift(p, lasttok, lookahead, stack, steps, 35); break;
                 }
                 break;
             case 91:
                 switch (lookahead.type) {
-                    case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
-                    case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::FOR:
-                        shift(p, lasttok, lookahead, stack, steps, 57); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::IF:
-                        shift(p, lasttok, lookahead, stack, steps, 56); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OCURB:
-                        shift(p, lasttok, lookahead, stack, steps, 33); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
-                        shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 85); break;
-                    case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
-                    case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
-                    default:
-                        if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "expression", "block return value")  });
+                    default: {
+                            auto a2 (popT(stack));
+                            auto a1 (popT(stack));
+                            auto a0 (popA<ASTNS::Path>(stack));
+                            Location start, end;
+                            if (a0) start = a0->start();
+                            else start = a1;
+                            end = a2;
+a0->segments.push_back(a2);
+                            std::unique_ptr<ASTNS::Path> pushitem = std::move(a0);
+                            stack.emplace_back(getGoto(NonTerminal::Path, stack.back().state), std::move(pushitem), NonTerminal::Path);
+                        }
+                        break;
                 }
                 break;
             case 92:
@@ -2376,20 +2364,105 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                         }
                         break;
                     case TokenType::LEFTARROW:
-                        shift(p, lasttok, lookahead, stack, steps, 91); break;
+                        shift(p, lasttok, lookahead, stack, steps, 95); break;
+                    default:
+                        if (istrial) return false;
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional block return value", "indented code block")  });
+                }
+                break;
+            case 93:
+                switch (lookahead.type) {
+                    case TokenType::CCURB:
+                        shift(p, lasttok, lookahead, stack, steps, 141); break;
+                    default:
+                        if (istrial) return false;
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::CCURB), "braced code block")  });
+                }
+                break;
+            case 94:
+                switch (lookahead.type) {
+                    default: {
+                            auto a0 (popA<ASTNS::ImplRet>(stack));
+                            Location start ((a0.get())), end ((a0.get()));
+                            if (a0) start = a0->start();
+                            if (a0) end = a0->end();
+                            std::unique_ptr<ASTNS::ImplRet> pushitem = std::move(a0);
+                            stack.emplace_back(getGoto(NonTerminal::ImplRet_OPT, stack.back().state), std::move(pushitem), NonTerminal::ImplRet_OPT);
+                        }
+                        break;
+                }
+                break;
+            case 95:
+                switch (lookahead.type) {
+                    case TokenType::AMPER:
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
+                    case TokenType::BANG:
+                        shift(p, lasttok, lookahead, stack, steps, 73); break;
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::FOR:
+                        shift(p, lasttok, lookahead, stack, steps, 59); break;
+                    case TokenType::HEXINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::IF:
+                        shift(p, lasttok, lookahead, stack, steps, 58); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OCURB:
+                        shift(p, lasttok, lookahead, stack, steps, 34); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
+                    case TokenType::TILDE:
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
+                    case TokenType::TRUELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
+                    default:
+                        if (istrial) return false;
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "expression", "block return value")  });
+                }
+                break;
+            case 96:
+                switch (lookahead.type) {
+                    case TokenType::CCURB:
+                    case TokenType::DEDENT:
+{
+                            std::unique_ptr<ASTNS::ImplRet> pushitem = nullptr;
+                            stack.emplace_back(getGoto(NonTerminal::ImplRet_OPT, stack.back().state), std::move(pushitem), NonTerminal::ImplRet_OPT);
+                        }
+                        break;
+                    case TokenType::LEFTARROW:
+                        shift(p, lasttok, lookahead, stack, steps, 95); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional block return value", "braced code block")  });
                 }
                 break;
-            case 93:
+            case 97:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
+                        shift(p, lasttok, lookahead, stack, steps, 73); break;
                     case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
                     case TokenType::CCURB:
                     case TokenType::DEDENT:
                     case TokenType::LEFTARROW:
@@ -2399,49 +2472,49 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                         }
                         break;
                     case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::FOR:
-                        shift(p, lasttok, lookahead, stack, steps, 57); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
                         shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::IF:
-                        shift(p, lasttok, lookahead, stack, steps, 56); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OCURB:
-                        shift(p, lasttok, lookahead, stack, steps, 33); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::RETURN:
-                        shift(p, lasttok, lookahead, stack, steps, 50); break;
-                    case TokenType::STAR:
-                        shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::FOR:
+                        shift(p, lasttok, lookahead, stack, steps, 59); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::IF:
+                        shift(p, lasttok, lookahead, stack, steps, 58); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OCURB:
+                        shift(p, lasttok, lookahead, stack, steps, 34); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::RETURN:
+                        shift(p, lasttok, lookahead, stack, steps, 52); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     case TokenType::VAR:
-                        shift(p, lasttok, lookahead, stack, steps, 47); break;
+                        shift(p, lasttok, lookahead, stack, steps, 49); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional statement list", "braced code block")  });
                 }
                 break;
-            case 94:
+            case 98:
                 switch (lookahead.type) {
                     default: {
                             auto a1 (popA<ASTNS::Stmt>(stack));
@@ -2458,7 +2531,7 @@ a0->stmts.push_back(std::move(a1));
                         break;
                 }
                 break;
-            case 95:
+            case 99:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Stmt>(stack));
@@ -2471,21 +2544,21 @@ a0->stmts.push_back(std::move(a1));
                         break;
                 }
                 break;
-            case 96:
+            case 100:
                 switch (lookahead.type) {
                     case TokenType::NEWLINE:
-                        shift(p, lasttok, lookahead, stack, steps, 37); break;
+                        shift(p, lasttok, lookahead, stack, steps, 39); break;
                     case TokenType::SEMICOLON:
-                        shift(p, lasttok, lookahead, stack, steps, 32); break;
+                        shift(p, lasttok, lookahead, stack, steps, 33); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "line ending", "variable statement")  });
                 }
                 break;
-            case 97:
+            case 101:
                 switch (lookahead.type) {
                     case TokenType::COMMA:
-                        shift(p, lasttok, lookahead, stack, steps, 142); break;
+                        shift(p, lasttok, lookahead, stack, steps, 146); break;
                     default: {
                             auto a0 (popA<ASTNS::VarStmtItemList>(stack));
                             Location start ((a0.get())), end ((a0.get()));
@@ -2497,7 +2570,7 @@ a0->stmts.push_back(std::move(a1));
                         break;
                 }
                 break;
-            case 98:
+            case 102:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::VarStmtItem>(stack));
@@ -2513,7 +2586,7 @@ std::unique_ptr<ASTNS::VarStmtItemList> push(std::make_unique<ASTNS::VarStmtItem
                         break;
                 }
                 break;
-            case 99:
+            case 103:
                 switch (lookahead.type) {
                     case TokenType::COLON:
                         shift(p, lasttok, lookahead, stack, steps, 18); break;
@@ -2522,7 +2595,7 @@ std::unique_ptr<ASTNS::VarStmtItemList> push(std::make_unique<ASTNS::VarStmtItem
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "required type annotation", "variable statement initialization")  });
                 }
                 break;
-            case 100:
+            case 104:
                 switch (lookahead.type) {
                     default: {
                             auto a1 (popA<ASTNS::PureLocation>(stack));
@@ -2539,7 +2612,7 @@ std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourc
                         break;
                 }
                 break;
-            case 101:
+            case 105:
                 switch (lookahead.type) {
                     default: {
                             auto a1 (popA<ASTNS::PureLocation>(stack));
@@ -2556,18 +2629,18 @@ std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourc
                         break;
                 }
                 break;
-            case 102:
+            case 106:
                 switch (lookahead.type) {
                     case TokenType::NEWLINE:
-                        shift(p, lasttok, lookahead, stack, steps, 37); break;
+                        shift(p, lasttok, lookahead, stack, steps, 39); break;
                     case TokenType::SEMICOLON:
-                        shift(p, lasttok, lookahead, stack, steps, 32); break;
+                        shift(p, lasttok, lookahead, stack, steps, 33); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "line ending", "return statement")  });
                 }
                 break;
-            case 103:
+            case 107:
                 switch (lookahead.type) {
                     default: {
                             auto a1 (popA<ASTNS::PureLocation>(stack));
@@ -2583,7 +2656,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         break;
                 }
                 break;
-            case 104:
+            case 108:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -2596,7 +2669,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         break;
                 }
                 break;
-            case 105:
+            case 109:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -2609,109 +2682,109 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         break;
                 }
                 break;
-            case 106:
+            case 110:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "assignment expression", "assignment expression")  });
                 }
                 break;
-            case 107:
+            case 111:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "binary and expression", "binary or expression")  });
                 }
                 break;
-            case 108:
+            case 112:
                 switch (lookahead.type) {
                     case TokenType::NEWLINE:
-                        shift(p, lasttok, lookahead, stack, steps, 148); break;
+                        shift(p, lasttok, lookahead, stack, steps, 152); break;
                     case TokenType::OCURB:
-                        shift(p, lasttok, lookahead, stack, steps, 33); break;
+                        shift(p, lasttok, lookahead, stack, steps, 34); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "code block", "if expression")  });
                 }
                 break;
-            case 109:
+            case 113:
                 switch (lookahead.type) {
                     case TokenType::SEMICOLON:
-                        shift(p, lasttok, lookahead, stack, steps, 149); break;
+                        shift(p, lasttok, lookahead, stack, steps, 153); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::SEMICOLON), "for expression")  });
                 }
                 break;
-            case 110:
+            case 114:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::VarStmt>(stack));
@@ -2724,707 +2797,707 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         break;
                 }
                 break;
-            case 111:
+            case 115:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "equality expression", "binary and expression")  });
                 }
                 break;
-            case 112:
-                switch (lookahead.type) {
-                    case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
-                    case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
-                        shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 85); break;
-                    case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
-                    case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
-                    default:
-                        if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "comparison expression", "equality expression")  });
-                }
-                break;
-            case 113:
-                switch (lookahead.type) {
-                    case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
-                    case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
-                        shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 85); break;
-                    case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
-                    case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
-                    default:
-                        if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "comparison expression", "equality expression")  });
-                }
-                break;
-            case 114:
-                switch (lookahead.type) {
-                    case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
-                    case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
-                        shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 85); break;
-                    case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
-                    case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
-                    default:
-                        if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "bitwise xor expression", "comparison expression")  });
-                }
-                break;
-            case 115:
-                switch (lookahead.type) {
-                    case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
-                    case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
-                        shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 85); break;
-                    case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
-                    case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
-                    default:
-                        if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "bitwise xor expression", "comparison expression")  });
-                }
-                break;
             case 116:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "bitwise xor expression", "comparison expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "comparison expression", "equality expression")  });
                 }
                 break;
             case 117:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "bitwise xor expression", "comparison expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "comparison expression", "equality expression")  });
                 }
                 break;
             case 118:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "bitwise or expression", "bitwise xor expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "bitwise xor expression", "comparison expression")  });
                 }
                 break;
             case 119:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "bitwise and expression", "bitwise or expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "bitwise xor expression", "comparison expression")  });
                 }
                 break;
             case 120:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "bit shift expression", "bitwise and expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "bitwise xor expression", "comparison expression")  });
                 }
                 break;
             case 121:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "addition expression", "bit shift expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "bitwise xor expression", "comparison expression")  });
                 }
                 break;
             case 122:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "addition expression", "bit shift expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "bitwise or expression", "bitwise xor expression")  });
                 }
                 break;
             case 123:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "multiplication expression", "addition expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "bitwise and expression", "bitwise or expression")  });
                 }
                 break;
             case 124:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "multiplication expression", "addition expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "bit shift expression", "bitwise and expression")  });
                 }
                 break;
             case 125:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "unary expression", "multiplication expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "addition expression", "bit shift expression")  });
                 }
                 break;
             case 126:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "unary expression", "multiplication expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "addition expression", "bit shift expression")  });
                 }
                 break;
             case 127:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
+                    default:
+                        if (istrial) return false;
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "multiplication expression", "addition expression")  });
+                }
+                break;
+            case 128:
+                switch (lookahead.type) {
+                    case TokenType::AMPER:
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
+                    case TokenType::BANG:
+                        shift(p, lasttok, lookahead, stack, steps, 73); break;
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::HEXINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
+                    case TokenType::TILDE:
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
+                    case TokenType::TRUELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
+                    default:
+                        if (istrial) return false;
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "multiplication expression", "addition expression")  });
+                }
+                break;
+            case 129:
+                switch (lookahead.type) {
+                    case TokenType::AMPER:
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
+                    case TokenType::BANG:
+                        shift(p, lasttok, lookahead, stack, steps, 73); break;
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::HEXINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
+                    case TokenType::TILDE:
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
+                    case TokenType::TRUELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "unary expression", "multiplication expression")  });
                 }
                 break;
-            case 128:
+            case 130:
+                switch (lookahead.type) {
+                    case TokenType::AMPER:
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
+                    case TokenType::BANG:
+                        shift(p, lasttok, lookahead, stack, steps, 73); break;
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::HEXINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
+                    case TokenType::TILDE:
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
+                    case TokenType::TRUELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
+                    default:
+                        if (istrial) return false;
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "unary expression", "multiplication expression")  });
+                }
+                break;
+            case 131:
+                switch (lookahead.type) {
+                    case TokenType::AMPER:
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
+                    case TokenType::BANG:
+                        shift(p, lasttok, lookahead, stack, steps, 73); break;
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::HEXINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
+                    case TokenType::TILDE:
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
+                    case TokenType::TRUELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
+                    default:
+                        if (istrial) return false;
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "unary expression", "multiplication expression")  });
+                }
+                break;
+            case 132:
                 switch (lookahead.type) {
                     case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 25); break;
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
                     case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 26); break;
                     default:
@@ -3432,7 +3505,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "type specifier", "type cast expression")  });
                 }
                 break;
-            case 129:
+            case 133:
                 switch (lookahead.type) {
                     default: {
                             auto a1 (popA<ASTNS::Expr>(stack));
@@ -3448,7 +3521,7 @@ std::unique_ptr<ASTNS::UnaryExpr> push (std::make_unique<ASTNS::UnaryExpr>(p.sou
                         break;
                 }
                 break;
-            case 130:
+            case 134:
                 switch (lookahead.type) {
                     default: {
                             auto a1 (popA<ASTNS::Expr>(stack));
@@ -3464,7 +3537,7 @@ std::unique_ptr<ASTNS::UnaryExpr> push (std::make_unique<ASTNS::UnaryExpr>(p.sou
                         break;
                 }
                 break;
-            case 131:
+            case 135:
                 switch (lookahead.type) {
                     default: {
                             auto a1 (popA<ASTNS::Expr>(stack));
@@ -3480,7 +3553,7 @@ std::unique_ptr<ASTNS::UnaryExpr> push (std::make_unique<ASTNS::UnaryExpr>(p.sou
                         break;
                 }
                 break;
-            case 132:
+            case 136:
                 switch (lookahead.type) {
                     default: {
                             auto a1 (popA<ASTNS::Expr>(stack));
@@ -3496,7 +3569,7 @@ std::unique_ptr<ASTNS::AddrofExpr> push (std::make_unique<ASTNS::AddrofExpr>(p.s
                         break;
                 }
                 break;
-            case 133:
+            case 137:
                 switch (lookahead.type) {
                     default: {
                             auto a1 (popA<ASTNS::Expr>(stack));
@@ -3512,16 +3585,16 @@ std::unique_ptr<ASTNS::DerefExpr> push (std::make_unique<ASTNS::DerefExpr>(p.sou
                         break;
                 }
                 break;
-            case 134:
+            case 138:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
+                        shift(p, lasttok, lookahead, stack, steps, 73); break;
                     case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
                         shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
                     case TokenType::CPARN:
 {
                             std::unique_ptr<ASTNS::ArgList> pushitem = nullptr;
@@ -3529,61 +3602,61 @@ std::unique_ptr<ASTNS::DerefExpr> push (std::make_unique<ASTNS::DerefExpr>(p.sou
                         }
                         break;
                     case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
                     case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::FOR:
-                        shift(p, lasttok, lookahead, stack, steps, 57); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::IF:
-                        shift(p, lasttok, lookahead, stack, steps, 56); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OCURB:
-                        shift(p, lasttok, lookahead, stack, steps, 33); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
-                        shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::FOR:
+                        shift(p, lasttok, lookahead, stack, steps, 59); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::IF:
+                        shift(p, lasttok, lookahead, stack, steps, 58); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OCURB:
+                        shift(p, lasttok, lookahead, stack, steps, 34); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional argument list", "function call expression")  });
                 }
                 break;
-            case 135:
+            case 139:
                 switch (lookahead.type) {
                     case TokenType::CPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 173); break;
+                        shift(p, lasttok, lookahead, stack, steps, 177); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::CPARN), "primary expression")  });
                 }
                 break;
-            case 136:
+            case 140:
                 switch (lookahead.type) {
                     case TokenType::DEDENT:
-                        shift(p, lasttok, lookahead, stack, steps, 174); break;
+                        shift(p, lasttok, lookahead, stack, steps, 178); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::DEDENT), "indented code block")  });
                 }
                 break;
-            case 137:
+            case 141:
                 switch (lookahead.type) {
                     default: {
                             auto a3 (popT(stack));
@@ -3600,7 +3673,7 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                         break;
                 }
                 break;
-            case 138:
+            case 142:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
                     case TokenType::BANG:
@@ -3635,24 +3708,24 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                         }
                         break;
                     case TokenType::NEWLINE:
-                        shift(p, lasttok, lookahead, stack, steps, 37); break;
+                        shift(p, lasttok, lookahead, stack, steps, 39); break;
                     case TokenType::SEMICOLON:
-                        shift(p, lasttok, lookahead, stack, steps, 32); break;
+                        shift(p, lasttok, lookahead, stack, steps, 33); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional line ending", "block return value")  });
                 }
                 break;
-            case 139:
+            case 143:
                 switch (lookahead.type) {
                     case TokenType::CCURB:
-                        shift(p, lasttok, lookahead, stack, steps, 176); break;
+                        shift(p, lasttok, lookahead, stack, steps, 180); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::CCURB), "braced code block")  });
                 }
                 break;
-            case 140:
+            case 144:
                 switch (lookahead.type) {
                     case TokenType::CCURB:
                     case TokenType::DEDENT:
@@ -3662,13 +3735,13 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                         }
                         break;
                     case TokenType::LEFTARROW:
-                        shift(p, lasttok, lookahead, stack, steps, 91); break;
+                        shift(p, lasttok, lookahead, stack, steps, 95); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional block return value", "braced code block")  });
                 }
                 break;
-            case 141:
+            case 145:
                 switch (lookahead.type) {
                     default: {
                             auto a2 (popA<ASTNS::PureLocation>(stack));
@@ -3686,10 +3759,10 @@ std::unique_ptr<ASTNS::VarStmt> push (std::make_unique<ASTNS::VarStmt>(p.sourcef
                         break;
                 }
                 break;
-            case 142:
+            case 146:
                 switch (lookahead.type) {
                     case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 99); break;
+                        shift(p, lasttok, lookahead, stack, steps, 103); break;
                     default: {
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::VarStmtItemList>(stack));
@@ -3703,7 +3776,7 @@ std::unique_ptr<ASTNS::VarStmt> push (std::make_unique<ASTNS::VarStmt>(p.sourcef
                         break;
                 }
                 break;
-            case 143:
+            case 147:
                 switch (lookahead.type) {
                     default: {
                             auto a1 (popA<ASTNS::Type>(stack));
@@ -3718,10 +3791,10 @@ std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p
                         }
                         break;
                     case TokenType::EQUAL:
-                        shift(p, lasttok, lookahead, stack, steps, 180); break;
+                        shift(p, lasttok, lookahead, stack, steps, 184); break;
                 }
                 break;
-            case 144:
+            case 148:
                 switch (lookahead.type) {
                     default: {
                             auto a2 (popA<ASTNS::PureLocation>(stack));
@@ -3739,7 +3812,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         break;
                 }
                 break;
-            case 145:
+            case 149:
                 switch (lookahead.type) {
                     default: {
                             auto a2 (popA<ASTNS::Expr>(stack));
@@ -3757,7 +3830,7 @@ std::unique_ptr<ASTNS::AssignmentExpr> push (std::make_unique<ASTNS::AssignmentE
                         break;
                 }
                 break;
-            case 146:
+            case 150:
                 switch (lookahead.type) {
                     default: {
                             auto a2 (popA<ASTNS::Expr>(stack));
@@ -3774,10 +3847,10 @@ std::unique_ptr<ASTNS::ShortCircuitExpr> push (std::make_unique<ASTNS::ShortCirc
                         }
                         break;
                     case TokenType::DOUBLEAMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 111); break;
+                        shift(p, lasttok, lookahead, stack, steps, 115); break;
                 }
                 break;
-            case 147:
+            case 151:
                 switch (lookahead.type) {
                     default: {
                             auto a2 (popA<ASTNS::Block>(stack));
@@ -3794,28 +3867,28 @@ std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefil
                         }
                         break;
                     case TokenType::ELSE:
-                        shift(p, lasttok, lookahead, stack, steps, 181); break;
+                        shift(p, lasttok, lookahead, stack, steps, 185); break;
                 }
                 break;
-            case 148:
+            case 152:
                 switch (lookahead.type) {
                     case TokenType::INDENT:
-                        shift(p, lasttok, lookahead, stack, steps, 38); break;
+                        shift(p, lasttok, lookahead, stack, steps, 40); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::INDENT), "indented code block")  });
                 }
                 break;
-            case 149:
+            case 153:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
+                        shift(p, lasttok, lookahead, stack, steps, 73); break;
                     case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
                         shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
                     case TokenType::CPARN:
                     case TokenType::SEMICOLON:
 {
@@ -3824,46 +3897,46 @@ std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefil
                         }
                         break;
                     case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
                     case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::FOR:
-                        shift(p, lasttok, lookahead, stack, steps, 57); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::IF:
-                        shift(p, lasttok, lookahead, stack, steps, 56); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OCURB:
-                        shift(p, lasttok, lookahead, stack, steps, 33); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
-                        shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::FOR:
+                        shift(p, lasttok, lookahead, stack, steps, 59); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::IF:
+                        shift(p, lasttok, lookahead, stack, steps, 58); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OCURB:
+                        shift(p, lasttok, lookahead, stack, steps, 34); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional expression", "for expression")  });
                 }
                 break;
-            case 150:
+            case 154:
                 switch (lookahead.type) {
                     case TokenType::BANGEQUAL:
-                        shift(p, lasttok, lookahead, stack, steps, 112); break;
+                        shift(p, lasttok, lookahead, stack, steps, 116); break;
                     default: {
                             auto a2 (popA<ASTNS::Expr>(stack));
                             auto a1 (popT(stack));
@@ -3879,99 +3952,7 @@ std::unique_ptr<ASTNS::ShortCircuitExpr> push (std::make_unique<ASTNS::ShortCirc
                         }
                         break;
                     case TokenType::DOUBLEEQUAL:
-                        shift(p, lasttok, lookahead, stack, steps, 113); break;
-                }
-                break;
-            case 151:
-                switch (lookahead.type) {
-                    default: {
-                            auto a2 (popA<ASTNS::Expr>(stack));
-                            auto a1 (popT(stack));
-                            auto a0 (popA<ASTNS::Expr>(stack));
-                            Location start, end;
-                            if (a0) start = a0->start();
-                            else start = a1;
-                            if (a2) end = a2->end();
-                            else end = a1;
-std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2)));
-                            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::CompEQExpr, stack.back().state), std::move(pushitem), NonTerminal::CompEQExpr);
-                        }
-                        break;
-                    case TokenType::GREATER:
-                        shift(p, lasttok, lookahead, stack, steps, 115); break;
-                    case TokenType::GREATEREQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 117); break;
-                    case TokenType::LESS:
-                        shift(p, lasttok, lookahead, stack, steps, 114); break;
-                    case TokenType::LESSEQUAL:
-                        shift(p, lasttok, lookahead, stack, steps, 116); break;
-                }
-                break;
-            case 152:
-                switch (lookahead.type) {
-                    default: {
-                            auto a2 (popA<ASTNS::Expr>(stack));
-                            auto a1 (popT(stack));
-                            auto a0 (popA<ASTNS::Expr>(stack));
-                            Location start, end;
-                            if (a0) start = a0->start();
-                            else start = a1;
-                            if (a2) end = a2->end();
-                            else end = a1;
-std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2)));
-                            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::CompEQExpr, stack.back().state), std::move(pushitem), NonTerminal::CompEQExpr);
-                        }
-                        break;
-                    case TokenType::GREATER:
-                        shift(p, lasttok, lookahead, stack, steps, 115); break;
-                    case TokenType::GREATEREQUAL:
-                        shift(p, lasttok, lookahead, stack, steps, 117); break;
-                    case TokenType::LESS:
-                        shift(p, lasttok, lookahead, stack, steps, 114); break;
-                    case TokenType::LESSEQUAL:
-                        shift(p, lasttok, lookahead, stack, steps, 116); break;
-                }
-                break;
-            case 153:
-                switch (lookahead.type) {
-                    default: {
-                            auto a2 (popA<ASTNS::Expr>(stack));
-                            auto a1 (popT(stack));
-                            auto a0 (popA<ASTNS::Expr>(stack));
-                            Location start, end;
-                            if (a0) start = a0->start();
-                            else start = a1;
-                            if (a2) end = a2->end();
-                            else end = a1;
-std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2)));
-                            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::CompLGTExpr, stack.back().state), std::move(pushitem), NonTerminal::CompLGTExpr);
-                        }
-                        break;
-                    case TokenType::CARET:
-                        shift(p, lasttok, lookahead, stack, steps, 118); break;
-                }
-                break;
-            case 154:
-                switch (lookahead.type) {
-                    default: {
-                            auto a2 (popA<ASTNS::Expr>(stack));
-                            auto a1 (popT(stack));
-                            auto a0 (popA<ASTNS::Expr>(stack));
-                            Location start, end;
-                            if (a0) start = a0->start();
-                            else start = a1;
-                            if (a2) end = a2->end();
-                            else end = a1;
-std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2)));
-                            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::CompLGTExpr, stack.back().state), std::move(pushitem), NonTerminal::CompLGTExpr);
-                        }
-                        break;
-                    case TokenType::CARET:
-                        shift(p, lasttok, lookahead, stack, steps, 118); break;
                 }
                 break;
             case 155:
@@ -3987,11 +3968,17 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             else end = a1;
 std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::CompLGTExpr, stack.back().state), std::move(pushitem), NonTerminal::CompLGTExpr);
+                            stack.emplace_back(getGoto(NonTerminal::CompEQExpr, stack.back().state), std::move(pushitem), NonTerminal::CompEQExpr);
                         }
                         break;
-                    case TokenType::CARET:
+                    case TokenType::GREATER:
+                        shift(p, lasttok, lookahead, stack, steps, 119); break;
+                    case TokenType::GREATEREQUAL:
+                        shift(p, lasttok, lookahead, stack, steps, 121); break;
+                    case TokenType::LESS:
                         shift(p, lasttok, lookahead, stack, steps, 118); break;
+                    case TokenType::LESSEQUAL:
+                        shift(p, lasttok, lookahead, stack, steps, 120); break;
                 }
                 break;
             case 156:
@@ -4007,11 +3994,17 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             else end = a1;
 std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::CompLGTExpr, stack.back().state), std::move(pushitem), NonTerminal::CompLGTExpr);
+                            stack.emplace_back(getGoto(NonTerminal::CompEQExpr, stack.back().state), std::move(pushitem), NonTerminal::CompEQExpr);
                         }
                         break;
-                    case TokenType::CARET:
+                    case TokenType::GREATER:
+                        shift(p, lasttok, lookahead, stack, steps, 119); break;
+                    case TokenType::GREATEREQUAL:
+                        shift(p, lasttok, lookahead, stack, steps, 121); break;
+                    case TokenType::LESS:
                         shift(p, lasttok, lookahead, stack, steps, 118); break;
+                    case TokenType::LESSEQUAL:
+                        shift(p, lasttok, lookahead, stack, steps, 120); break;
                 }
                 break;
             case 157:
@@ -4027,17 +4020,15 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             else end = a1;
 std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::BitXorExpr, stack.back().state), std::move(pushitem), NonTerminal::BitXorExpr);
+                            stack.emplace_back(getGoto(NonTerminal::CompLGTExpr, stack.back().state), std::move(pushitem), NonTerminal::CompLGTExpr);
                         }
                         break;
-                    case TokenType::PIPE:
-                        shift(p, lasttok, lookahead, stack, steps, 119); break;
+                    case TokenType::CARET:
+                        shift(p, lasttok, lookahead, stack, steps, 122); break;
                 }
                 break;
             case 158:
                 switch (lookahead.type) {
-                    case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 120); break;
                     default: {
                             auto a2 (popA<ASTNS::Expr>(stack));
                             auto a1 (popT(stack));
@@ -4049,9 +4040,11 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             else end = a1;
 std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::BitOrExpr, stack.back().state), std::move(pushitem), NonTerminal::BitOrExpr);
+                            stack.emplace_back(getGoto(NonTerminal::CompLGTExpr, stack.back().state), std::move(pushitem), NonTerminal::CompLGTExpr);
                         }
                         break;
+                    case TokenType::CARET:
+                        shift(p, lasttok, lookahead, stack, steps, 122); break;
                 }
                 break;
             case 159:
@@ -4067,12 +4060,10 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             else end = a1;
 std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::BitAndExpr, stack.back().state), std::move(pushitem), NonTerminal::BitAndExpr);
+                            stack.emplace_back(getGoto(NonTerminal::CompLGTExpr, stack.back().state), std::move(pushitem), NonTerminal::CompLGTExpr);
                         }
                         break;
-                    case TokenType::DOUBLEGREATER:
-                        shift(p, lasttok, lookahead, stack, steps, 121); break;
-                    case TokenType::DOUBLELESS:
+                    case TokenType::CARET:
                         shift(p, lasttok, lookahead, stack, steps, 122); break;
                 }
                 break;
@@ -4089,13 +4080,11 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             else end = a1;
 std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::BitShiftExpr, stack.back().state), std::move(pushitem), NonTerminal::BitShiftExpr);
+                            stack.emplace_back(getGoto(NonTerminal::CompLGTExpr, stack.back().state), std::move(pushitem), NonTerminal::CompLGTExpr);
                         }
                         break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 124); break;
-                    case TokenType::PLUS:
-                        shift(p, lasttok, lookahead, stack, steps, 123); break;
+                    case TokenType::CARET:
+                        shift(p, lasttok, lookahead, stack, steps, 122); break;
                 }
                 break;
             case 161:
@@ -4111,17 +4100,17 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             else end = a1;
 std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::BitShiftExpr, stack.back().state), std::move(pushitem), NonTerminal::BitShiftExpr);
+                            stack.emplace_back(getGoto(NonTerminal::BitXorExpr, stack.back().state), std::move(pushitem), NonTerminal::BitXorExpr);
                         }
                         break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 124); break;
-                    case TokenType::PLUS:
+                    case TokenType::PIPE:
                         shift(p, lasttok, lookahead, stack, steps, 123); break;
                 }
                 break;
             case 162:
                 switch (lookahead.type) {
+                    case TokenType::AMPER:
+                        shift(p, lasttok, lookahead, stack, steps, 124); break;
                     default: {
                             auto a2 (popA<ASTNS::Expr>(stack));
                             auto a1 (popT(stack));
@@ -4133,15 +4122,9 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             else end = a1;
 std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::AdditionExpr, stack.back().state), std::move(pushitem), NonTerminal::AdditionExpr);
+                            stack.emplace_back(getGoto(NonTerminal::BitOrExpr, stack.back().state), std::move(pushitem), NonTerminal::BitOrExpr);
                         }
                         break;
-                    case TokenType::PERCENT:
-                        shift(p, lasttok, lookahead, stack, steps, 127); break;
-                    case TokenType::SLASH:
-                        shift(p, lasttok, lookahead, stack, steps, 126); break;
-                    case TokenType::STAR:
-                        shift(p, lasttok, lookahead, stack, steps, 125); break;
                 }
                 break;
             case 163:
@@ -4157,15 +4140,13 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             else end = a1;
 std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::AdditionExpr, stack.back().state), std::move(pushitem), NonTerminal::AdditionExpr);
+                            stack.emplace_back(getGoto(NonTerminal::BitAndExpr, stack.back().state), std::move(pushitem), NonTerminal::BitAndExpr);
                         }
                         break;
-                    case TokenType::PERCENT:
-                        shift(p, lasttok, lookahead, stack, steps, 127); break;
-                    case TokenType::SLASH:
-                        shift(p, lasttok, lookahead, stack, steps, 126); break;
-                    case TokenType::STAR:
+                    case TokenType::DOUBLEGREATER:
                         shift(p, lasttok, lookahead, stack, steps, 125); break;
+                    case TokenType::DOUBLELESS:
+                        shift(p, lasttok, lookahead, stack, steps, 126); break;
                 }
                 break;
             case 164:
@@ -4181,9 +4162,13 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             else end = a1;
 std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::MultExpr, stack.back().state), std::move(pushitem), NonTerminal::MultExpr);
+                            stack.emplace_back(getGoto(NonTerminal::BitShiftExpr, stack.back().state), std::move(pushitem), NonTerminal::BitShiftExpr);
                         }
                         break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 128); break;
+                    case TokenType::PLUS:
+                        shift(p, lasttok, lookahead, stack, steps, 127); break;
                 }
                 break;
             case 165:
@@ -4199,12 +4184,64 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             else end = a1;
 std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::MultExpr, stack.back().state), std::move(pushitem), NonTerminal::MultExpr);
+                            stack.emplace_back(getGoto(NonTerminal::BitShiftExpr, stack.back().state), std::move(pushitem), NonTerminal::BitShiftExpr);
                         }
                         break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 128); break;
+                    case TokenType::PLUS:
+                        shift(p, lasttok, lookahead, stack, steps, 127); break;
                 }
                 break;
             case 166:
+                switch (lookahead.type) {
+                    default: {
+                            auto a2 (popA<ASTNS::Expr>(stack));
+                            auto a1 (popT(stack));
+                            auto a0 (popA<ASTNS::Expr>(stack));
+                            Location start, end;
+                            if (a0) start = a0->start();
+                            else start = a1;
+                            if (a2) end = a2->end();
+                            else end = a1;
+std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2)));
+                            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+                            stack.emplace_back(getGoto(NonTerminal::AdditionExpr, stack.back().state), std::move(pushitem), NonTerminal::AdditionExpr);
+                        }
+                        break;
+                    case TokenType::PERCENT:
+                        shift(p, lasttok, lookahead, stack, steps, 131); break;
+                    case TokenType::SLASH:
+                        shift(p, lasttok, lookahead, stack, steps, 130); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 129); break;
+                }
+                break;
+            case 167:
+                switch (lookahead.type) {
+                    default: {
+                            auto a2 (popA<ASTNS::Expr>(stack));
+                            auto a1 (popT(stack));
+                            auto a0 (popA<ASTNS::Expr>(stack));
+                            Location start, end;
+                            if (a0) start = a0->start();
+                            else start = a1;
+                            if (a2) end = a2->end();
+                            else end = a1;
+std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2)));
+                            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+                            stack.emplace_back(getGoto(NonTerminal::AdditionExpr, stack.back().state), std::move(pushitem), NonTerminal::AdditionExpr);
+                        }
+                        break;
+                    case TokenType::PERCENT:
+                        shift(p, lasttok, lookahead, stack, steps, 131); break;
+                    case TokenType::SLASH:
+                        shift(p, lasttok, lookahead, stack, steps, 130); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 129); break;
+                }
+                break;
+            case 168:
                 switch (lookahead.type) {
                     default: {
                             auto a2 (popA<ASTNS::Expr>(stack));
@@ -4222,7 +4259,43 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                         break;
                 }
                 break;
-            case 167:
+            case 169:
+                switch (lookahead.type) {
+                    default: {
+                            auto a2 (popA<ASTNS::Expr>(stack));
+                            auto a1 (popT(stack));
+                            auto a0 (popA<ASTNS::Expr>(stack));
+                            Location start, end;
+                            if (a0) start = a0->start();
+                            else start = a1;
+                            if (a2) end = a2->end();
+                            else end = a1;
+std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2)));
+                            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+                            stack.emplace_back(getGoto(NonTerminal::MultExpr, stack.back().state), std::move(pushitem), NonTerminal::MultExpr);
+                        }
+                        break;
+                }
+                break;
+            case 170:
+                switch (lookahead.type) {
+                    default: {
+                            auto a2 (popA<ASTNS::Expr>(stack));
+                            auto a1 (popT(stack));
+                            auto a0 (popA<ASTNS::Expr>(stack));
+                            Location start, end;
+                            if (a0) start = a0->start();
+                            else start = a1;
+                            if (a2) end = a2->end();
+                            else end = a1;
+std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2)));
+                            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+                            stack.emplace_back(getGoto(NonTerminal::MultExpr, stack.back().state), std::move(pushitem), NonTerminal::MultExpr);
+                        }
+                        break;
+                }
+                break;
+            case 171:
                 switch (lookahead.type) {
                     default: {
                             auto a2 (popA<ASTNS::Type>(stack));
@@ -4240,16 +4313,16 @@ std::unique_ptr<ASTNS::CastExpr> push (std::make_unique<ASTNS::CastExpr>(p.sourc
                         break;
                 }
                 break;
-            case 168:
+            case 172:
                 switch (lookahead.type) {
                     case TokenType::CPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 184); break;
+                        shift(p, lasttok, lookahead, stack, steps, 188); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::CPARN), "function call expression")  });
                 }
                 break;
-            case 169:
+            case 173:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::ArgList>(stack));
@@ -4262,10 +4335,10 @@ std::unique_ptr<ASTNS::CastExpr> push (std::make_unique<ASTNS::CastExpr>(p.sourc
                         break;
                 }
                 break;
-            case 170:
+            case 174:
                 switch (lookahead.type) {
                     case TokenType::COMMA:
-                        shift(p, lasttok, lookahead, stack, steps, 185); break;
+                        shift(p, lasttok, lookahead, stack, steps, 189); break;
                     default: {
                             auto a0 (popA<ASTNS::ArgList>(stack));
                             Location start ((a0.get())), end ((a0.get()));
@@ -4277,7 +4350,7 @@ std::unique_ptr<ASTNS::CastExpr> push (std::make_unique<ASTNS::CastExpr>(p.sourc
                         break;
                 }
                 break;
-            case 171:
+            case 175:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Arg>(stack));
@@ -4293,7 +4366,7 @@ std::unique_ptr<ASTNS::ArgList> push(std::make_unique<ASTNS::ArgList>(p.sourcefi
                         break;
                 }
                 break;
-            case 172:
+            case 176:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -4307,7 +4380,7 @@ std::unique_ptr<ASTNS::Arg> push (std::make_unique<ASTNS::Arg>(p.sourcefile, sta
                         break;
                 }
                 break;
-            case 173:
+            case 177:
                 switch (lookahead.type) {
                     default: {
                             auto a2 (popT(stack));
@@ -4322,7 +4395,7 @@ std::unique_ptr<ASTNS::Arg> push (std::make_unique<ASTNS::Arg>(p.sourcefile, sta
                         break;
                 }
                 break;
-            case 174:
+            case 178:
                 switch (lookahead.type) {
                     default: {
                             auto a4 (popT(stack));
@@ -4340,7 +4413,7 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                         break;
                 }
                 break;
-            case 175:
+            case 179:
                 switch (lookahead.type) {
                     default: {
                             auto a2 (popA<ASTNS::PureLocation>(stack));
@@ -4358,7 +4431,7 @@ std::unique_ptr<ASTNS::ImplRet> push (std::make_unique<ASTNS::ImplRet>(p.sourcef
                         break;
                 }
                 break;
-            case 176:
+            case 180:
                 switch (lookahead.type) {
                     default: {
                             auto a4 (popT(stack));
@@ -4376,16 +4449,16 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                         break;
                 }
                 break;
-            case 177:
+            case 181:
                 switch (lookahead.type) {
                     case TokenType::DEDENT:
-                        shift(p, lasttok, lookahead, stack, steps, 186); break;
+                        shift(p, lasttok, lookahead, stack, steps, 190); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::DEDENT), "braced code block")  });
                 }
                 break;
-            case 178:
+            case 182:
                 switch (lookahead.type) {
                     default: {
                             auto a2 (popA<ASTNS::VarStmtItem>(stack));
@@ -4403,7 +4476,7 @@ a0->items.push_back(std::move(a2));
                         break;
                 }
                 break;
-            case 179:
+            case 183:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::VarStmtItem>(stack));
@@ -4416,76 +4489,76 @@ a0->items.push_back(std::move(a2));
                         break;
                 }
                 break;
-            case 180:
+            case 184:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
-                    case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 84); break;
-                    case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
-                    case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::FOR:
-                        shift(p, lasttok, lookahead, stack, steps, 57); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::IF:
-                        shift(p, lasttok, lookahead, stack, steps, 56); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OCURB:
-                        shift(p, lasttok, lookahead, stack, steps, 33); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
                         shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 79); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::FOR:
+                        shift(p, lasttok, lookahead, stack, steps, 59); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::IF:
+                        shift(p, lasttok, lookahead, stack, steps, 58); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OCURB:
+                        shift(p, lasttok, lookahead, stack, steps, 34); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "expression", "variable statement initialization")  });
                 }
                 break;
-            case 181:
+            case 185:
                 switch (lookahead.type) {
                     case TokenType::IF:
-                        shift(p, lasttok, lookahead, stack, steps, 56); break;
+                        shift(p, lasttok, lookahead, stack, steps, 58); break;
                     case TokenType::NEWLINE:
-                        shift(p, lasttok, lookahead, stack, steps, 148); break;
+                        shift(p, lasttok, lookahead, stack, steps, 152); break;
                     case TokenType::OCURB:
-                        shift(p, lasttok, lookahead, stack, steps, 33); break;
+                        shift(p, lasttok, lookahead, stack, steps, 34); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", format("either % or %", "code block", "if expression"), "if expression")  });
                 }
                 break;
-            case 182:
+            case 186:
                 switch (lookahead.type) {
                     case TokenType::SEMICOLON:
-                        shift(p, lasttok, lookahead, stack, steps, 190); break;
+                        shift(p, lasttok, lookahead, stack, steps, 194); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::SEMICOLON), "for expression")  });
                 }
                 break;
-            case 183:
+            case 187:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -4498,7 +4571,7 @@ a0->items.push_back(std::move(a2));
                         break;
                 }
                 break;
-            case 184:
+            case 188:
                 switch (lookahead.type) {
                     default: {
                             auto a3 (popT(stack));
@@ -4516,16 +4589,16 @@ std::unique_ptr<ASTNS::CallExpr> push (std::make_unique<ASTNS::CallExpr>(p.sourc
                         break;
                 }
                 break;
-            case 185:
+            case 189:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
+                        shift(p, lasttok, lookahead, stack, steps, 73); break;
                     case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
                         shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
                     default: {
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::ArgList>(stack));
@@ -4538,49 +4611,49 @@ std::unique_ptr<ASTNS::CallExpr> push (std::make_unique<ASTNS::CallExpr>(p.sourc
                         }
                         break;
                     case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
                     case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::FOR:
-                        shift(p, lasttok, lookahead, stack, steps, 57); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::IF:
-                        shift(p, lasttok, lookahead, stack, steps, 56); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OCURB:
-                        shift(p, lasttok, lookahead, stack, steps, 33); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
-                        shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::FOR:
+                        shift(p, lasttok, lookahead, stack, steps, 59); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::IF:
+                        shift(p, lasttok, lookahead, stack, steps, 58); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OCURB:
+                        shift(p, lasttok, lookahead, stack, steps, 34); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                 }
                 break;
-            case 186:
+            case 190:
                 switch (lookahead.type) {
                     case TokenType::CCURB:
-                        shift(p, lasttok, lookahead, stack, steps, 193); break;
+                        shift(p, lasttok, lookahead, stack, steps, 197); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::CCURB), "braced code block")  });
                 }
                 break;
-            case 187:
+            case 191:
                 switch (lookahead.type) {
                     default: {
                             auto a3 (popA<ASTNS::Expr>(stack));
@@ -4598,7 +4671,7 @@ std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p
                         break;
                 }
                 break;
-            case 188:
+            case 192:
                 switch (lookahead.type) {
                     default: {
                             auto a4 (popA<ASTNS::Block>(stack));
@@ -4617,7 +4690,7 @@ std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefil
                         break;
                 }
                 break;
-            case 189:
+            case 193:
                 switch (lookahead.type) {
                     default: {
                             auto a4 (popA<ASTNS::IfExpr>(stack));
@@ -4636,16 +4709,16 @@ std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefil
                         break;
                 }
                 break;
-            case 190:
+            case 194:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
-                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                        shift(p, lasttok, lookahead, stack, steps, 74); break;
                     case TokenType::BANG:
-                        shift(p, lasttok, lookahead, stack, steps, 71); break;
+                        shift(p, lasttok, lookahead, stack, steps, 73); break;
                     case TokenType::BININTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 82); break;
-                    case TokenType::CHARLIT:
                         shift(p, lasttok, lookahead, stack, steps, 84); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 86); break;
                     case TokenType::CPARN:
                     case TokenType::SEMICOLON:
 {
@@ -4654,43 +4727,43 @@ std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefil
                         }
                         break;
                     case TokenType::DECINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                        shift(p, lasttok, lookahead, stack, steps, 82); break;
                     case TokenType::FALSELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 77); break;
-                    case TokenType::FLOATLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 78); break;
-                    case TokenType::FOR:
-                        shift(p, lasttok, lookahead, stack, steps, 57); break;
-                    case TokenType::HEXINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 83); break;
-                    case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 86); break;
-                    case TokenType::IF:
-                        shift(p, lasttok, lookahead, stack, steps, 56); break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 70); break;
-                    case TokenType::NULLPTRLIT:
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
-                    case TokenType::OCTINTLIT:
-                        shift(p, lasttok, lookahead, stack, steps, 81); break;
-                    case TokenType::OCURB:
-                        shift(p, lasttok, lookahead, stack, steps, 33); break;
-                    case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 87); break;
-                    case TokenType::STAR:
-                        shift(p, lasttok, lookahead, stack, steps, 73); break;
-                    case TokenType::STRINGLIT:
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 80); break;
+                    case TokenType::FOR:
+                        shift(p, lasttok, lookahead, stack, steps, 59); break;
+                    case TokenType::HEXINTLIT:
                         shift(p, lasttok, lookahead, stack, steps, 85); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 27); break;
+                    case TokenType::IF:
+                        shift(p, lasttok, lookahead, stack, steps, 58); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 72); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 81); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 83); break;
+                    case TokenType::OCURB:
+                        shift(p, lasttok, lookahead, stack, steps, 34); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 88); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 75); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::TILDE:
-                        shift(p, lasttok, lookahead, stack, steps, 69); break;
+                        shift(p, lasttok, lookahead, stack, steps, 71); break;
                     case TokenType::TRUELIT:
-                        shift(p, lasttok, lookahead, stack, steps, 76); break;
+                        shift(p, lasttok, lookahead, stack, steps, 78); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional expression", "for expression")  });
                 }
                 break;
-            case 191:
+            case 195:
                 switch (lookahead.type) {
                     default: {
                             auto a2 (popA<ASTNS::Arg>(stack));
@@ -4708,7 +4781,7 @@ a0->args.push_back(std::move(a2));
                         break;
                 }
                 break;
-            case 192:
+            case 196:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Arg>(stack));
@@ -4721,7 +4794,7 @@ a0->args.push_back(std::move(a2));
                         break;
                 }
                 break;
-            case 193:
+            case 197:
                 switch (lookahead.type) {
                     default: {
                             auto a6 (popT(stack));
@@ -4741,27 +4814,27 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                         break;
                 }
                 break;
-            case 194:
+            case 198:
                 switch (lookahead.type) {
                     case TokenType::CPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 195); break;
+                        shift(p, lasttok, lookahead, stack, steps, 199); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::CPARN), "for expression")  });
                 }
                 break;
-            case 195:
+            case 199:
                 switch (lookahead.type) {
                     case TokenType::NEWLINE:
-                        shift(p, lasttok, lookahead, stack, steps, 148); break;
+                        shift(p, lasttok, lookahead, stack, steps, 152); break;
                     case TokenType::OCURB:
-                        shift(p, lasttok, lookahead, stack, steps, 33); break;
+                        shift(p, lasttok, lookahead, stack, steps, 34); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "code block", "for expression")  });
                 }
                 break;
-            case 196:
+            case 200:
                 switch (lookahead.type) {
                     default: {
                             auto a7 (popA<ASTNS::Block>(stack));

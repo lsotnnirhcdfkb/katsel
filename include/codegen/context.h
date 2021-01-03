@@ -8,7 +8,7 @@
 
 class CodeGen::Context {
 public:
-    Context(File const &file);
+    Context(File const &file, CodeGen &cg);
 
     IR::FloatType* getFloatType(int size);
     IR::IntType* getIntType(int size, bool isSigned);
@@ -28,9 +28,9 @@ public:
     IR::ConstBool* getConstBool(bool value);
     IR::Void* getVoid();
 
-    std::unique_ptr<ASTNS::ImplicitDecl> implicitDeclAST;
-
 private:
+    CodeGen &cg;
+
     std::vector<std::unique_ptr<IR::Type>> types;
     std::vector<std::unique_ptr<IR::Value>> constants;
     IR::Void voidValue;

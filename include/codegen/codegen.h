@@ -17,6 +17,8 @@ class CodeGen : public ASTNS::CUB::Visitor, public ASTNS::Decl::Visitor {
     class ArgVisitor;
 
     class FunctionCodeGen;
+
+    class PathVisitor;
 public:
     class Context;
 
@@ -33,6 +35,7 @@ public:
     std::unique_ptr<Context> context;
 
     std::unique_ptr<TypeVisitor> typeVisitor;
+    std::unique_ptr<PathVisitor> pathVisitor;
 
     inline bool isErrored() { return errored; }
 

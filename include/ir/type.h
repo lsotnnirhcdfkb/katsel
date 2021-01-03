@@ -65,6 +65,15 @@ namespace IR {
         CodeGen::Context &context;
     };
     // }}}
+// only a temporary solution to work around linker errors
+// later, these types will be able to have declsymbols in them as well
+// these types cannot have values in them, or maybe they will
+#define EMPTY_DECLSYMBOL() \
+    inline void addValue(std::string const &name, Value *t) override { reportAbortNoh("cannot add value"); } \
+    inline void addDeclSymbol(std::string const &name, DeclSymbol *t) override { reportAbortNoh("cannot add DeclSymbol"); } \
+    inline DeclSymbol* getDeclSymbol(std::string const &name) const override { return nullptr; } \
+    inline Value* getValue(std::string const &name) const override { return nullptr; }
+
     // Float {{{1
     class FloatType : public Type {
     public:
@@ -84,6 +93,8 @@ namespace IR {
         ASTNS::AST *declAST() const override;
 
         int size;
+
+        EMPTY_DECLSYMBOL()
     private:
         ASTNS::AST *_declAST;
     };
@@ -107,6 +118,8 @@ namespace IR {
 
         int size;
         bool isSigned;
+
+        EMPTY_DECLSYMBOL()
     private:
         ASTNS::AST *_declAST;
     };
@@ -127,6 +140,8 @@ namespace IR {
         llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
 
         ASTNS::AST *declAST() const override;
+
+        EMPTY_DECLSYMBOL()
     private:
         ASTNS::AST *_declAST;
     };
@@ -147,6 +162,8 @@ namespace IR {
         llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
 
         ASTNS::AST *declAST() const override;
+
+        EMPTY_DECLSYMBOL()
     private:
         ASTNS::AST *_declAST;
     };
@@ -169,6 +186,8 @@ namespace IR {
         llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
 
         ASTNS::AST *declAST() const override;
+
+        EMPTY_DECLSYMBOL()
     private:
         ASTNS::AST *_declAST;
     };
@@ -189,6 +208,8 @@ namespace IR {
         llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
 
         ASTNS::AST *declAST() const override;
+
+        EMPTY_DECLSYMBOL()
     private:
         ASTNS::AST *_declAST;
     };
@@ -211,6 +232,8 @@ namespace IR {
         Type *ty;
 
         ASTNS::AST *declAST() const override;
+
+        EMPTY_DECLSYMBOL()
     private:
         ASTNS::AST *_declAST;
     };
@@ -232,6 +255,8 @@ namespace IR {
         llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
 
         ASTNS::AST *declAST() const override;
+
+        EMPTY_DECLSYMBOL()
     private:
         ASTNS::AST *_declAST;
     };
@@ -252,10 +277,13 @@ namespace IR {
         llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
 
         ASTNS::AST *declAST() const override;
+
+        EMPTY_DECLSYMBOL()
     private:
         ASTNS::AST *_declAST;
     };
     // }}}1
+#undef EMPTY_DECLSYMBOL
 }
 
 std::ostream& operator<<(std::ostream &os, IR::Type const *t);
