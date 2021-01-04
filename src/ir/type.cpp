@@ -84,5 +84,5 @@ std::ostream& operator<<(std::ostream &os, IR::Type const *ty) {
     return os;
 }
 
-DERIVE_DECLSYMBOL_DEF(IR::VoidType)
-DERIVE_DECLSYMBOL_DEF(IR::FunctionType)
+DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::VoidType)
+DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::FunctionType)

@@ -10,4 +10,4 @@ std::string IR::Module::name() const {
     return _name;
 }
 
-DERIVE_DECLSYMBOL_DEF(IR::Module)
+DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::Module)

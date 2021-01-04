@@ -8,7 +8,7 @@
 
 struct File;
 
-#define DERIVE_DECLSYMBOL_DECL() \
+#define DERIVE_DECLSYMBOL_ITEMS_DECL() \
     public:                                                                      \
         IR::Value *getValue(std::string const &name) const override;             \
         IR::DeclSymbol *getDeclSymbol(std::string const &name) const override;   \
@@ -19,7 +19,7 @@ struct File;
         std::map<std::string, IR::Value*> values;                                \
         std::map<std::string, IR::DeclSymbol*> decls;
 
-#define DERIVE_DECLSYMBOL_DEF(cl) \
+#define DERIVE_DECLSYMBOL_ITEMS_IMPL(cl) \
     IR::Value* cl::getValue(std::string const &name) const {                  \
         auto v = values.find(name);                                           \
         if (v == values.end())                                                \

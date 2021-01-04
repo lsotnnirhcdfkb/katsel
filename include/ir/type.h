@@ -21,6 +21,14 @@ namespace IR {
 
 #include "message/reportAbort.h"
 
+#define DERIVE_TYPE_DECL() \
+    public:                                                                                                                                                                           \
+        IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override; \
+        IR::ASTValue unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;          \
+        IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override;                                                               \
+        IR::ASTValue castFrom(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) override;                                              \
+        llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
+
 namespace IR {
     // Base class {{{1
     class Type : public DeclSymbol {
@@ -73,20 +81,13 @@ namespace IR {
 
         std::string name() const override;
 
-        IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
-        IR::ASTValue unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;
-
-        IR::ASTValue castFrom(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) override;
-
-        IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override;
-
-        llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
-
         ASTNS::AST *declAST() const override;
 
         int size;
 
-        DERIVE_DECLSYMBOL_DECL()
+        DERIVE_DECLSYMBOL_ITEMS_DECL()
+
+        DERIVE_TYPE_DECL()
 
     private:
         ASTNS::AST *_declAST;
@@ -98,21 +99,14 @@ namespace IR {
 
         std::string name() const override;
 
-        IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
-        IR::ASTValue unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;
-
-        IR::ASTValue castFrom(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) override;
-
-        IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override;
-
-        llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
+        DERIVE_TYPE_DECL()
 
         ASTNS::AST *declAST() const override;
 
         int size;
         bool isSigned;
 
-        DERIVE_DECLSYMBOL_DECL()
+        DERIVE_DECLSYMBOL_ITEMS_DECL()
 
     private:
         ASTNS::AST *_declAST;
@@ -124,18 +118,11 @@ namespace IR {
 
         std::string name() const override;
 
-        IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
-        IR::ASTValue unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;
-
-        IR::ASTValue castFrom(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) override;
-
-        IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override;
-
-        llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
+        DERIVE_TYPE_DECL()
 
         ASTNS::AST *declAST() const override;
 
-        DERIVE_DECLSYMBOL_DECL()
+        DERIVE_DECLSYMBOL_ITEMS_DECL()
 
     private:
         ASTNS::AST *_declAST;
@@ -147,18 +134,11 @@ namespace IR {
 
         std::string name() const override;
 
-        IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
-        IR::ASTValue unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;
-
-        IR::ASTValue castFrom(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) override;
-
-        IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override;
-
-        llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
+        DERIVE_TYPE_DECL()
 
         ASTNS::AST *declAST() const override;
 
-        DERIVE_DECLSYMBOL_DECL()
+        DERIVE_DECLSYMBOL_ITEMS_DECL()
 
     private:
         ASTNS::AST *_declAST;
@@ -172,18 +152,11 @@ namespace IR {
         FunctionType(CodeGen::Context &context, ASTNS::AST *declAST, Type *ret, std::vector<Type*> paramtys);
         std::string name() const override;
 
-        IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
-        IR::ASTValue unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;
-
-        IR::ASTValue castFrom(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) override;
-
-        IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override;
-
-        llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
+        DERIVE_TYPE_DECL()
 
         ASTNS::AST *declAST() const override;
 
-        DERIVE_DECLSYMBOL_DECL()
+        DERIVE_DECLSYMBOL_ITEMS_DECL()
 
     private:
         ASTNS::AST *_declAST;
@@ -195,18 +168,11 @@ namespace IR {
 
         std::string name() const override;
 
-        IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
-        IR::ASTValue unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;
-
-        IR::ASTValue castFrom(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) override;
-
-        IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override;
-
-        llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
+        DERIVE_TYPE_DECL()
 
         ASTNS::AST *declAST() const override;
 
-        DERIVE_DECLSYMBOL_DECL()
+        DERIVE_DECLSYMBOL_ITEMS_DECL()
 
     private:
         ASTNS::AST *_declAST;
@@ -218,20 +184,13 @@ namespace IR {
 
         std::string name() const override;
 
-        IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
-        IR::ASTValue unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;
-
-        IR::ASTValue castFrom(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) override;
-
-        IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override;
-
-        llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
+        DERIVE_TYPE_DECL()
 
         Type *ty;
 
         ASTNS::AST *declAST() const override;
 
-        DERIVE_DECLSYMBOL_DECL()
+        DERIVE_DECLSYMBOL_ITEMS_DECL()
 
     private:
         ASTNS::AST *_declAST;
@@ -244,18 +203,11 @@ namespace IR {
 
         std::string name() const override;
 
-        IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
-        IR::ASTValue unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;
-
-        IR::ASTValue castFrom(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) override;
-
-        IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override;
-
-        llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
+        DERIVE_TYPE_DECL()
 
         ASTNS::AST *declAST() const override;
 
-        DERIVE_DECLSYMBOL_DECL()
+        DERIVE_DECLSYMBOL_ITEMS_DECL()
 
     private:
         ASTNS::AST *_declAST;
@@ -267,18 +219,11 @@ namespace IR {
 
         std::string name() const override;
 
-        IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override;
-        IR::ASTValue unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;
-
-        IR::ASTValue castFrom(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) override;
-
-        IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override;
-
-        llvm::Type* toLLVMType(llvm::LLVMContext &context) const override;
+        DERIVE_TYPE_DECL()
 
         ASTNS::AST *declAST() const override;
 
-        DERIVE_DECLSYMBOL_DECL()
+        DERIVE_DECLSYMBOL_ITEMS_DECL()
 
     private:
         ASTNS::AST *_declAST;
