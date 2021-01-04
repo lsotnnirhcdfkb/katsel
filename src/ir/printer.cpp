@@ -2,9 +2,11 @@
 #include "ir/value.h"
 #include "ir/type.h"
 #include "utils/format.h"
+#include "ir/instruction.h"
 
-IR::Printer::Printer(llvm::raw_ostream &ostream): ostream(ostream) {}
+IR::Printer::Printer(IR::Unit &unit, llvm::raw_ostream &ostream): ostream(ostream), unit(unit) {}
 
+/*
 void IR::Printer::visitStore(IR::Instrs::Store *i) {
     // ostream << format("store % --> %", i->value, i->target);
 }
@@ -164,3 +166,4 @@ void IR::Printer::visitCondBr(IR::Instrs::CondBr *i) {
     // ostream << " : ==> ";
     // i->falseB->stringify(ostream);
 }
+*/

@@ -2,7 +2,6 @@
 
 #include "ir/module.h"
 
-#include <string>
 #include <vector>
 #include "llvm/Support/raw_ostream.h"
 

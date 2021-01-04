@@ -27,21 +27,3 @@ IR::Block* IR::Function::addBlock(std::string name) {
 
     return blockraw;
 }
-void IR::Function::definition(llvm::raw_ostream &os) const {
-    if (prototypeonly) {
-        os << format("%: % (proto);\n", name, ty->name());
-        return;
-    }
-    os << format("%: % {\n", name, ty->name());
-    for (std::unique_ptr<Block> const &b : blocks)
-        b->definition(os);
-    os << "}\n";
-}
-void IR::Function::cfgDot(llvm::raw_ostream &os) const {
-    // TODO: fix
-    os << "    subgraph cluster_fun_" << name << " {\n";
-    // os << "        graph [label=\"" << stringify() << "\"]\n";
-    for (std::unique_ptr<Block> const &b : blocks)
-        b->cfgDot(os);
-    os << "    }\n";
-}

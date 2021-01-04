@@ -40,8 +40,6 @@ jobs = [
 
     ('include/ir/visitor.h'                , 'PURE INSTR VISIT START'    , 'PURE INSTR VISIT END'    , lambda: instrgen.gen_pure_method_decls('Instruction')),
     ('include/ir/visitor.h'                , 'PURE BRANCH VISIT START'   , 'PURE BRANCH VISIT END'   , lambda: instrgen.gen_pure_method_decls('Br')),
-    ('include/ir/printer.h'                , 'PRINT VISIT INSTR START'   , 'PRINT VISIT INSTR END'   , lambda: instrgen.gen_method_decls('Instruction')),
-    ('include/ir/printer.h'                , 'PRINT VISIT BRANCH START'  , 'PRINT VISIT BRANCH END'  , lambda: instrgen.gen_method_decls('Br')),
     ('include/lower/lowerer.h'             , 'LOWER VISIT INSTR START'   , 'LOWER VISIT INSTR END'   , lambda: instrgen.gen_method_decls('Instruction')),
     ('include/lower/lowerer.h'             , 'LOWER VISIT BRANCH START'  , 'LOWER VISIT BRANCH END'  , lambda: instrgen.gen_method_decls('Br')),
     ('include/ir/cfgdotter.h'              , 'CFG DOT METHOD START'      , 'CFG DOT METHOD END'      , lambda: instrgen.gen_method_decls('Br')),

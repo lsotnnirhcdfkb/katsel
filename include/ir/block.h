@@ -18,10 +18,6 @@ namespace IR {
         Instrs::Instruction* add(std::unique_ptr<Instrs::Instruction> instr);
         void branch(std::unique_ptr<Instrs::Br> br);
 
-        void stringify(llvm::raw_ostream &os);
-        void definition(llvm::raw_ostream &os);
-        void cfgDot(llvm::raw_ostream &os);
-
         std::string name;
         size_t num;
 

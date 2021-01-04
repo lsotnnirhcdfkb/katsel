@@ -1,8 +1,6 @@
 #pragma once
 
-#include "llvm/Support/raw_ostream.h"
 #include <vector>
-
 #include "ir/value.h"
 
 namespace IR {
