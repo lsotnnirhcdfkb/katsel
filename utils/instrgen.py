@@ -160,17 +160,6 @@ def gen_defs():
         output.append(         '\n')
 
     return ''.join(output)
-def gen_cfg_dotter():
-    output = []
-    for instr in instructions:
-        if isinstance(instr, Br):
-            output.append(f'void IR::CFGDotter::visit{instr.name}(IR::Instrs::{instr.name} *i) {{\n')
-            for field in instr.fields:
-                if field.type_ == 'Block*':
-                    output.append(f'    ostream << "        branch" << i << " -> " << "block" << i->{field.name} << " [label=\\"{field.name}\\"]\\n";\n')
-            output.append( '}\n')
-
-    return ''.join(output)
 
 def gen_method_decls(base):
     output = []

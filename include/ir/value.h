@@ -50,7 +50,6 @@ namespace IR {
 
         void definition(llvm::raw_ostream &os) const;
         ASTNS::FunctionDecl* defAST() const override;
-        void cfgDot(llvm::raw_ostream &os) const;
 
         Type* type() const override;
 
