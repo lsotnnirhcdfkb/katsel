@@ -22,14 +22,29 @@ namespace IR {
 #include "message/reportAbort.h"
 
 #define DERIVE_TYPE_DECL() \
-    public:                                                                                                                                                                           \
+    public: \
         IR::ASTValue binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) override; \
-        IR::ASTValue unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override;          \
-        IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override;                                                               \
-        IR::ASTValue castFrom(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) override;                                              \
-        llvm::Type* toLLVMType(llvm::LLVMContext &con) const override;
+        IR::ASTValue unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) override; \
+        IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override; \
+        IR::ASTValue castFrom(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) override; \
+        llvm::Type* toLLVMType(llvm::LLVMContext &con) const override; \
+        void accept(IR::TypeVisitor *v) override;
+
+// i learned about this from http://journal.stuffwithstuff.com/2012/01/24/higher-order-macros-in-c/
+#define IR_TYPES(mac) \
+    mac(FloatType) \
+    mac(IntType) \
+    mac(CharType) \
+    mac(BoolType) \
+    mac(FunctionType) \
+    mac(VoidType) \
+    mac(PointerType) \
+    mac(GenericIntType) \
+    mac(GenericFloatType)
 
 namespace IR {
+    class TypeVisitor;
+
     // Base class {{{1
     class Type : public DeclSymbol {
     public:
@@ -70,6 +85,8 @@ namespace IR {
         virtual IR::ASTValue castFrom(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) = 0;
 
         virtual llvm::Type* toLLVMType(llvm::LLVMContext &con) const = 0;
+
+        virtual void accept(TypeVisitor *v) = 0;
 
         CodeGen::Context &context;
     };
@@ -229,6 +246,14 @@ namespace IR {
         ASTNS::AST *_declAST;
     };
     // }}}1
+
+    class TypeVisitor {
+    public:
+        virtual ~TypeVisitor() {}
+#define VISITTY(cl) virtual void visit##cl(cl *ty) = 0;
+        IR_TYPES(VISITTY)
+#undef VISITTY
+    };
 }
 
 std::ostream& operator<<(std::ostream &os, IR::Type const *t);
