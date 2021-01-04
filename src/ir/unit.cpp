@@ -6,15 +6,8 @@ IR::Unit::Unit(File const &file): implicitDeclAST(std::make_unique<ASTNS::Implic
 
 void IR::Unit::print(llvm::raw_ostream &ostream) const {
     ostream << "> Unit \"" << file.filename << "\"\n";
-    // for (std::unique_ptr<IR::Function> const &f : functions)
-        // f->definition(ostream);
+    IR::Printer p (*this, ostream);
+    p->print();
 }
 
-void IR::Unit::cfgDot(llvm::raw_ostream &ostream) const {
-    ostream << "strict digraph \"CFG for unit " << file.filename << "\" {\n";
-    ostream << "    graph [label=\"CFG for unit " << file.filename << "\"]\n";
-    // for (std::unique_ptr<IR::Function> const &f : functions)
-        // f->cfgDot(ostream);
-    ostream << "}\n";
-}
 

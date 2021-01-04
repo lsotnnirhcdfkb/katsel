@@ -16,7 +16,6 @@ namespace IR {
         Unit(File const &file);
 
         void print(llvm::raw_ostream &ostream) const;
-        void cfgDot(llvm::raw_ostream &ostream) const;
 
         std::unique_ptr<ASTNS::ImplicitDecl> implicitDeclAST;
 
