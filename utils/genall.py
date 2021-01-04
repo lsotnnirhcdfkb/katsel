@@ -36,13 +36,11 @@ jobs = [
 
     ('include/ir/instruction.h'            , 'INSTR CLASSES START'       , 'INSTR CLASSES END'       , instrgen.gen_decls),
     ('src/ir/instruction.cpp'              , 'INSTR CPP START'           , 'INSTR CPP END'           , instrgen.gen_defs),
-    ('src/ir/cfgdotter.cpp'                , 'CFGDOTTER START'           , 'CFGDOTTER END'           , instrgen.gen_cfg_dotter),
 
     ('include/ir/visitor.h'                , 'PURE INSTR VISIT START'    , 'PURE INSTR VISIT END'    , lambda: instrgen.gen_pure_method_decls('Instruction')),
     ('include/ir/visitor.h'                , 'PURE BRANCH VISIT START'   , 'PURE BRANCH VISIT END'   , lambda: instrgen.gen_pure_method_decls('Br')),
     ('include/lower/lowerer.h'             , 'LOWER VISIT INSTR START'   , 'LOWER VISIT INSTR END'   , lambda: instrgen.gen_method_decls('Instruction')),
     ('include/lower/lowerer.h'             , 'LOWER VISIT BRANCH START'  , 'LOWER VISIT BRANCH END'  , lambda: instrgen.gen_method_decls('Br')),
-    ('include/ir/cfgdotter.h'              , 'CFG DOT METHOD START'      , 'CFG DOT METHOD END'      , lambda: instrgen.gen_method_decls('Br')),
 
     ('include/message/errmsgs.h'           , 'ERRH START'                , 'ERRH END'                , errgen.gen_h),
     ('src/message/errmsgs.cpp'             , 'ERRCPP START'              , 'ERRCPP END'              , errgen.gen_cpp),

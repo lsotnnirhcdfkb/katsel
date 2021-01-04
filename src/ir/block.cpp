@@ -1,6 +1,5 @@
 #include "ir/block.h"
-#include "ir/printer.h"
-#include "ir/cfgdotter.h"
+#include "ir/instruction.h"
 #include "message/reportAbort.h"
 
 IR::Block::Block(std::string name, size_t num): name(name), num(num) {}

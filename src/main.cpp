@@ -24,7 +24,6 @@ enum class OutFormats {
     LEX = 0,
     PARSE,
     CODEGEN,
-    CFGDOT,
     LOWER,
     OBJECT,
 };
@@ -132,17 +131,6 @@ int compileFile(OutFormats ofmt, char *filename) {
         return true;
     }
 
-    if (ofmt == OutFormats::CFGDOT) {
-        OPENFILE(filename, ".dot");
-        if (os.has_error())
-            return false;
-
-        codegen->unit->cfgDot(os);
-
-        os.close();
-        return true;
-    }
-
     auto lowerer = std::make_unique<Lower::Lowerer>(*codegen->unit);
     lowerer->lower();
     if (lowerer->errored)
@@ -190,7 +178,6 @@ int main(int argc, char *argv[]) {
                 OFMT(lex, LEX)
                 EOFMT(parse, PARSE)
                 EOFMT(codegen, CODEGEN)
-                EOFMT(cfgdot, CFGDOT)
                 EOFMT(lower, LOWER)
                 EOFMT(object, OBJECT)
 #undef OFMT
