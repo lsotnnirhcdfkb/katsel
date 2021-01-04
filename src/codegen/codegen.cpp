@@ -38,10 +38,6 @@ void CodeGen::codegen() {
     cub->accept(this);
 }
 
-void CodeGen::printUnit(llvm::raw_ostream &ostream) {
-    unit->print(ostream);
-}
-
 // visiting {{{1
 void CodeGen::visitCU(ASTNS::CU *ast) {
     ast->decls->accept(this);

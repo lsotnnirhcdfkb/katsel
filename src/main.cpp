@@ -126,7 +126,7 @@ int compileFile(OutFormats ofmt, char *filename) {
         if (os.has_error())
             return false;
 
-        codegen->printUnit(os);
+        codegen->unit->print(os);
         
         os.close();
         return true;

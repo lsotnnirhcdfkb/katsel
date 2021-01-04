@@ -31,8 +31,6 @@ public:
     void declarate();
     void codegen();
 
-    void printUnit(llvm::raw_ostream &ostream);
-
     std::unique_ptr<IR::Unit> unit;
 
     std::unique_ptr<Context> context;
