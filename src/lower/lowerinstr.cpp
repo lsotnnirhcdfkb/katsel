@@ -152,7 +152,7 @@ void Lower::Lowerer::visitFloatToInt(IR::Instrs::FloatToInt *instr) {
 void Lower::Lowerer::visitCall(IR::Instrs::Call *instr) {
     std::vector<llvm::Value*> args;
     args.reserve(instr->args.size());
-    for (IR::ASTValue const &v : instr->args)
+    for (IR::ASTValue &v : instr->args)
         args.push_back(lower(v));
 
     llvm::Function *callee = static_cast<llvm::Function*>(lower(instr->f));
