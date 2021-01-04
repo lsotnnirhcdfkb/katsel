@@ -11,18 +11,24 @@ namespace {
         ss << i.size() << i;
     }
 
-    class _Mangler : public IR::TypeVisitor {
+    class _Mangler : public IR::TypeVisitor, IR::DeclSymbolVisitor {
     public:
         _Mangler(std::stringstream &ss): ss(ss) {}
 
         void mangle(IR::Type *ty) {
-            ss << "T";
+            ss << 'T';
             ty->type_accept(this);
-            ss << "t";
+            ss << 't';
+        }
+        void mangle(IR::DeclSymbol *ds) {
+            ss << 'D';
+            ds->declsym_accept(this);
+            ss << 'd';
         }
 
     private:
         std::stringstream &ss;
+
         void type_visitIntType(IR::IntType *ty) override {
             switch (ty->size) {
                 case 8:  ss << (ty->isSigned ? 's' : 'u'); break;
@@ -60,6 +66,17 @@ namespace {
             ss << 'P';
             mangle(ty->ty);
             ss << 'p';
+        }
+
+        void declsym_visitType(IR::Type *ty) override {
+            ss << 'T';
+            mangle(ty);
+            ss << 't';
+        }
+        void declsym_visitModule(IR::Module *m) override {
+            ss << 'M';
+            identifier(m->name());
+            ss << 'm';
         }
 
         void identifier(std::string const &i) {
