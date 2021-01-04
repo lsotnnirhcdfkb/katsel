@@ -20,6 +20,7 @@ namespace IR {
         public:
             virtual ~Instruction() {};
             virtual void accept(InstructionVisitor *v) = 0;
+            void value_accept(ValueVisitor *v) override;
         };
 
         class Br {

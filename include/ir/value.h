@@ -17,6 +17,15 @@ namespace IR {
     class FunctionType;
     class VoidType;
 
+#define IR_VALUE_LIST(macro) \
+    macro(ConstBool, ConstBool) \
+    macro(ConstChar, ConstChar) \
+    macro(ConstInt, ConstInt) \
+    macro(ConstFloat, ConstFloat) \
+    macro(Function, Function) \
+    macro(Instrs::Instruction, Instruction) \
+    macro(Void, Void)
+
     class ValueVisitor;
     class Value {
     public:
@@ -24,6 +33,8 @@ namespace IR {
         virtual std::string stringify() const = 0;
 
         virtual Type* type() const = 0;
+
+        virtual void value_accept(ValueVisitor *v) = 0;
     };
 
     class DeclaredValue {
@@ -54,6 +65,8 @@ namespace IR {
 
         bool prototypeonly;
 
+        void value_accept(ValueVisitor *v) override;
+
     private:
         ASTNS::FunctionDecl *_defAST;
 
@@ -68,6 +81,7 @@ namespace IR {
         std::string stringify() const override;
         Type* type() const override;
         uint64_t val;
+        void value_accept(ValueVisitor *v) override;
     private:
         IntType *concreteTy;
         GenericIntType *genericTy;
@@ -80,6 +94,7 @@ namespace IR {
         std::string stringify() const override;
         Type* type() const override;
         double val;
+        void value_accept(ValueVisitor *v) override;
     private:
         FloatType *concreteTy;
         GenericFloatType *genericTy;
@@ -91,6 +106,7 @@ namespace IR {
         std::string stringify() const override;
         Type* type() const override;
         bool val;
+        void value_accept(ValueVisitor *v) override;
     private:
         BoolType *ty;
     };
@@ -100,6 +116,7 @@ namespace IR {
         std::string stringify() const override;
         Type* type() const override;
         uint8_t val;
+        void value_accept(ValueVisitor *v) override;
     private:
         CharType *ty;
     };
@@ -110,6 +127,7 @@ namespace IR {
         Void(VoidType *ty);
         std::string stringify() const override;
         Type* type() const override;
+        void value_accept(ValueVisitor *v) override;
     private:
         VoidType *ty;
     };
@@ -137,6 +155,14 @@ namespace IR {
         inline std::string stringify() const {
             return val->stringify();
         }
+    };
+
+    class ValueVisitor {
+    public:
+#define VISITMETHOD(cl, n) \
+        virtual void visit##n(cl *i) = 0;
+        IR_VALUE_LIST(VISITMETHOD)
+#undef VISITMETHOD
     };
 }
 

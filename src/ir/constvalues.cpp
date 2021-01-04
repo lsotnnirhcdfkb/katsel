@@ -1,6 +1,7 @@
 #include "ir/value.h"
 #include "ir/type.h"
 #include "utils/format.h"
+#include "ir/instruction.h"
 
 IR::ConstInt::ConstInt(IntType *ty, uint64_t val): val(val), concreteTy(ty), isGeneric(false) {}
 IR::ConstInt::ConstInt(GenericIntType *ty, uint64_t val): val(val), genericTy(ty), isGeneric(true) {}
@@ -39,3 +40,9 @@ std::string IR::Void::stringify() const {
 IR::Type* IR::Void::type() const {
     return ty;
 }
+
+// again, do all the accept methods here, even though it doesn't really fit in with the file structure
+#define ACCEPT(cl, name) \
+void IR::cl::value_accept(IR::ValueVisitor *v) { v->visit##name(this); }
+IR_VALUE_LIST(ACCEPT)
+#undef ACCEPT
