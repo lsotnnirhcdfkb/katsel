@@ -3,33 +3,20 @@
 #include "message/errmsgs.h"
 #include "ir/unit.h"
 
-CodeGen::FunctionCodeGen::FunctionCodeGen(CodeGen &cg, ASTNS::FunctionDecl *ast): curScope(0), cg(cg), ast(ast), exprCG(cg, *this), stmtCG(cg, *this), errored(false) {}
+CodeGen::FunctionCodeGen::FunctionCodeGen(CodeGen &cg, ASTNS::FunctionDecl *ast, IR::Function *fun): curScope(0), cg(cg), ast(ast), exprCG(cg, *this), stmtCG(cg, *this), fun(fun), errored(false) {}
 
 bool CodeGen::FunctionCodeGen::codegen() {
     std::string name = ast->name.stringify();
 
-    IR::Value *function = cg.unit->mod.getValue(name);
-    if (!function)
-        return false;
-
-    IR::FunctionType *fty;
-    if (!(fty = dynamic_cast<IR::FunctionType*>(function->type())))
-        return false; // this does n ot happen in valid code, but this can happen if the user (erroenously) declares a variable and a function in the global namepsace with the same name, and the variable comes first so it gets chosen over the function
-
-    IR::Function *f;
-    if (!(f = dynamic_cast<IR::Function*>(function)))
-        return false;
-
-    if (f->blocks.size() > 0)
-        return false;
+    IR::FunctionType *fty = fun->ty;
 
     if (!ast->body) {
-        f->prototypeonly = true;
+        fun->prototypeonly = true;
         return true;
     }
 
-    IR::Block *entryBlock = f->addBlock("entry");
-    exitBlock = f->addBlock("exit");
+    IR::Block *entryBlock = fun->addBlock("entry");
+    exitBlock = fun->addBlock("exit");
 
     incScope();
     ret = static_cast<IR::Instrs::Register*>(entryBlock->add(std::make_unique<IR::Instrs::Register>(cg.unit->implicitDeclAST.get(), fty->ret)));
@@ -45,13 +32,12 @@ bool CodeGen::FunctionCodeGen::codegen() {
             Local *foundparam = getLocal(pname);
             if (foundparam) {
                 ERR_REDECL_PARAM(param.ast->name, foundparam->v);
-                cg.errored = true;
+                errored = true;
             } else
                 addLocal(pname, reg);
         }
     }
 
-    fun = f;
     curBlock = entryBlock;
 
     IR::ASTValue retval = exprCG.expr(ast->body.get());
@@ -64,7 +50,7 @@ bool CodeGen::FunctionCodeGen::codegen() {
 
         retval = fun->ty->ret->implCast(*cg.context, *fun, curBlock, retval);
         if (fun->ty->ret != retval.type()) {
-            ERR_CONFLICT_RET_TY(retval, f);
+            ERR_CONFLICT_RET_TY(retval, fun);
             errored = true;
         } else {
             curBlock->add(std::make_unique<IR::Instrs::Store>(IR::ASTValue(ret, ast->retty.get()), retval));

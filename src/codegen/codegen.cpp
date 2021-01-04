@@ -51,13 +51,23 @@ void CodeGen::visitDeclList(ASTNS::DeclList *ast) {
         decl->accept(this);
 }
 
-#define DECL_CG(cl) \
-    void CodeGen::visit##cl##Decl(ASTNS::cl##Decl *ast) { \
-        cl##CodeGen cg (*this, ast);                      \
-        if (!cg.codegen())                                \
-            errored = true;                               \
+void CodeGen::visitFunctionDecl(ASTNS::FunctionDecl *ast) {
+    IR::Value *val = unit->mod.getValue(ast->name.stringify());
+    IR::Function *fun;
+    if (!val || !(fun = dynamic_cast<IR::Function*>(val))) {
+        errored = true;
+        return;
     }
-DECL_CG(Function)
-DECL_CG(Impl)
+
+    FunctionCodeGen fcg (*this, ast, fun);
+    if (!fcg.codegen())
+        errored = true;
+}
+
+void CodeGen::visitImplDecl(ASTNS::ImplDecl *ast) {
+    ImplCodeGen icg (*this, ast);
+    if (!icg.codegen())
+        errored = true;
+}
 
 void CodeGen::visitImplicitDecl(ASTNS::ImplicitDecl *) {}
