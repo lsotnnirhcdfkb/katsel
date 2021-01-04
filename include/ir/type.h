@@ -28,7 +28,7 @@ namespace IR {
         IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override; \
         IR::ASTValue castFrom(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) override; \
         llvm::Type* toLLVMType(llvm::LLVMContext &con) const override; \
-        void accept(IR::TypeVisitor *v) override;
+        void type_accept(IR::TypeVisitor *v) override;
 
 // i learned about this from http://journal.stuffwithstuff.com/2012/01/24/higher-order-macros-in-c/
 #define IR_TYPES(mac) \
@@ -86,9 +86,9 @@ namespace IR {
 
         virtual llvm::Type* toLLVMType(llvm::LLVMContext &con) const = 0;
 
-        virtual void accept(TypeVisitor *v) = 0;
+        virtual void type_accept(TypeVisitor *v) = 0;
 
-        void dsaccept(DeclSymbolVisitor *v) override;
+        void declsym_accept(DeclSymbolVisitor *v) override;
 
         CodeGen::Context &context;
     };
@@ -250,7 +250,7 @@ namespace IR {
     class TypeVisitor {
     public:
         virtual ~TypeVisitor() {}
-#define VISITTY(cl) virtual void visit##cl(cl *ty) = 0;
+#define VISITTY(cl) virtual void type_visit##cl(cl *ty) = 0;
         IR_TYPES(VISITTY)
 #undef VISITTY
     };

@@ -17,13 +17,13 @@ namespace {
 
         void mangle(IR::Type *ty) {
             ss << "T";
-            ty->accept(this);
+            ty->type_accept(this);
             ss << "t";
         }
 
     private:
         std::stringstream &ss;
-        void visitIntType(IR::IntType *ty) override {
+        void type_visitIntType(IR::IntType *ty) override {
             switch (ty->size) {
                 case 8:  ss << (ty->isSigned ? 's' : 'u'); break;
                 case 16: ss << (ty->isSigned ? 'r' : 'w'); break;
@@ -31,32 +31,32 @@ namespace {
                 case 64: ss << (ty->isSigned ? 'p' : 'y'); break;
             }
         }
-        void visitFloatType(IR::FloatType *ty) override {
+        void type_visitFloatType(IR::FloatType *ty) override {
             ss << (ty->size == 32 ? 'f' : 'd');
         }
-        void visitCharType(IR::CharType *ty) override {
+        void type_visitCharType(IR::CharType *ty) override {
             ss << 'c';
         }
-        void visitBoolType(IR::BoolType *ty) override {
+        void type_visitBoolType(IR::BoolType *ty) override {
             ss << 'b';
         }
-        void visitFunctionType(IR::FunctionType *ty) override {
+        void type_visitFunctionType(IR::FunctionType *ty) override {
             ss << 'F';
             mangle(ty->ret);
             for (IR::Type *pty : ty->paramtys)
                 mangle(pty);
             ss << 'f';
         }
-        void visitVoidType(IR::VoidType *ty) override {
+        void type_visitVoidType(IR::VoidType *ty) override {
             ss << 'v';
         }
-        void visitGenericIntType(IR::GenericIntType *ty) override {
+        void type_visitGenericIntType(IR::GenericIntType *ty) override {
             ss << 'x';
         }
-        void visitGenericFloatType(IR::GenericFloatType *ty) override {
+        void type_visitGenericFloatType(IR::GenericFloatType *ty) override {
             ss << 'f';
         }
-        void visitPointerType(IR::PointerType *ty) override {
+        void type_visitPointerType(IR::PointerType *ty) override {
             ss << 'P';
             mangle(ty->ty);
             ss << 'p';

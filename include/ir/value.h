@@ -17,6 +17,7 @@ namespace IR {
     class FunctionType;
     class VoidType;
 
+    class ValueVisitor;
     class Value {
     public:
         virtual ~Value() {};

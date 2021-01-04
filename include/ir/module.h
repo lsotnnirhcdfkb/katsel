@@ -61,7 +61,7 @@ namespace IR {
         virtual DeclSymbol* getDeclSymbol(std::string const &name) const = 0;
         virtual Value* getValue(std::string const &name) const = 0;
 
-        virtual void dsaccept(DeclSymbolVisitor *v) = 0;
+        virtual void declsym_accept(DeclSymbolVisitor *v) = 0;
     };
 
     class Module : public DeclSymbol {
@@ -71,7 +71,7 @@ namespace IR {
         ASTNS::AST* declAST() const override;
         std::string name() const override;
 
-        virtual void dsaccept(DeclSymbolVisitor *v) override;
+        virtual void declsym_accept(DeclSymbolVisitor *v) override;
 
         DERIVE_DECLSYMBOL_ITEMS_DECL()
 
@@ -85,7 +85,7 @@ namespace IR {
     public:
         virtual ~DeclSymbolVisitor() {}
 #define VISITMETHOD(cl) \
-        virtual void dsvisit##cl(cl *ds) = 0;
+        virtual void declsym_visit##cl(cl *ds) = 0;
         DECLSYM_CLASS_LIST(VISITMETHOD)
 #undef VISITMETHOD
     };
