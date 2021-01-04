@@ -46,9 +46,14 @@ struct File;
     }
 
 namespace IR {
+#define DECLSYM_CLASS_LIST(macro) \
+        macro(Type) \
+        macro(Module)
+    class DeclSymbolVisitor;
     class DeclSymbol {
     public:
         virtual ASTNS::AST* declAST() const = 0;
+        virtual std::string name() const = 0;
 
         virtual void addValue(std::string const &name, Value *t) = 0;
         virtual void addDeclSymbol(std::string const &name, DeclSymbol *t) = 0;
@@ -56,30 +61,33 @@ namespace IR {
         virtual DeclSymbol* getDeclSymbol(std::string const &name) const = 0;
         virtual Value* getValue(std::string const &name) const = 0;
 
-        virtual std::string name() const = 0;
+        virtual void dsaccept(DeclSymbolVisitor *v) = 0;
     };
 
     class Module : public DeclSymbol {
     public:
         Module(std::string const &name, ASTNS::AST *declAST);
 
-        void addValue(std::string const &name, Value *t) override;
-        void addDeclSymbol(std::string const &name, DeclSymbol *t) override;
-
-        DeclSymbol* getDeclSymbol(std::string const &name) const override;
-        Value* getValue(std::string const &name) const override;
-
         ASTNS::AST* declAST() const override;
-
         std::string name() const override;
 
-    private:
-        std::map<std::string, DeclSymbol*> decls;
-        std::map<std::string, Value*> values;
+        virtual void dsaccept(DeclSymbolVisitor *v) override;
 
+        DERIVE_DECLSYMBOL_ITEMS_DECL()
+
+    private:
         ASTNS::AST *_declAST;
 
         std::string _name;
+    };
+
+    class DeclSymbolVisitor {
+    public:
+        virtual ~DeclSymbolVisitor() {}
+#define VISITMETHOD(cl) \
+        virtual void dsvisit##cl(cl *ds) = 0;
+        DECLSYM_CLASS_LIST(VISITMETHOD)
+#undef VISITMETHOD
     };
 }
 

@@ -88,6 +88,8 @@ namespace IR {
 
         virtual void accept(TypeVisitor *v) = 0;
 
+        void dsaccept(DeclSymbolVisitor *v) override;
+
         CodeGen::Context &context;
     };
     // }}}
@@ -97,7 +99,6 @@ namespace IR {
         FloatType(CodeGen::Context &context, ASTNS::AST *declAST, int size);
 
         std::string name() const override;
-
         ASTNS::AST *declAST() const override;
 
         int size;
@@ -115,10 +116,9 @@ namespace IR {
         IntType(CodeGen::Context &context, ASTNS::AST *declAST, int size, bool isSigned);
 
         std::string name() const override;
+        ASTNS::AST *declAST() const override;
 
         DERIVE_TYPE_DECL()
-
-        ASTNS::AST *declAST() const override;
 
         int size;
         bool isSigned;
