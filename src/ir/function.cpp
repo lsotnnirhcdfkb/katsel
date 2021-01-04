@@ -12,11 +12,6 @@ void IR::Function::add(std::unique_ptr<IR::Block> block) {
         reportAbortNoh("push block on prototypeonly");
 }
 
-std::string IR::Function::stringify() const {
-    std::stringstream ss;
-    ss << "fun " << name;
-    return ss.str();
-}
 ASTNS::FunctionDecl* IR::Function::defAST() const {
     return _defAST;
 }
@@ -43,8 +38,9 @@ void IR::Function::definition(llvm::raw_ostream &os) const {
     os << "}\n";
 }
 void IR::Function::cfgDot(llvm::raw_ostream &os) const {
+    // TODO: fix
     os << "    subgraph cluster_fun_" << name << " {\n";
-    os << "        graph [label=\"" << stringify() << "\"]\n";
+    // os << "        graph [label=\"" << stringify() << "\"]\n";
     for (std::unique_ptr<Block> const &b : blocks)
         b->cfgDot(os);
     os << "    }\n";

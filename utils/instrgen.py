@@ -129,8 +129,7 @@ def gen_decls():
                            f'        {instruction.name}({as_constructor(instruction, instruction.fields)});\n'
                            f'        void accept({instruction.base()}Visitor *v) override;\n'))
         if instruction.base() == 'Instruction':
-            output.append((f'        std::string stringify() const override;\n'
-                           f'        IR::Type* type() const override;\n'))
+            output.append( f'        IR::Type* type() const override;\n')
 
         if instruction.declared:
             output.append(  '        ASTNS::AST* defAST() const override;\n')
@@ -154,7 +153,6 @@ def gen_defs():
 
         if instruction.base() == 'Instruction':
             output.append(    f'IR::Type* IR::Instrs::{instruction.name}::type() const {{ return {instruction.type}; }}\n')
-            output.append(    f'std::string IR::Instrs::{instruction.name}::stringify() const {{ return format("%%%", this); }}\n')
 
             if instruction.declared:
                 output.append(f'ASTNS::AST* IR::Instrs::{instruction.name}::defAST() const {{ return _defAST; }}\n')

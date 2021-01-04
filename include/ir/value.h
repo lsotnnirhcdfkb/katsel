@@ -30,7 +30,6 @@ namespace IR {
     class Value {
     public:
         virtual ~Value() {};
-        virtual std::string stringify() const = 0;
 
         virtual Type* type() const = 0;
 
@@ -49,7 +48,6 @@ namespace IR {
 
         void add(std::unique_ptr<Block> block);
 
-        std::string stringify() const override;
         void definition(llvm::raw_ostream &os) const;
         ASTNS::FunctionDecl* defAST() const override;
         void cfgDot(llvm::raw_ostream &os) const;
@@ -78,7 +76,6 @@ namespace IR {
     public:
         ConstInt(IntType *ty, uint64_t val);
         ConstInt(GenericIntType *ty, uint64_t val);
-        std::string stringify() const override;
         Type* type() const override;
         uint64_t val;
         void value_accept(ValueVisitor *v) override;
@@ -91,7 +88,6 @@ namespace IR {
     public:
         ConstFloat(FloatType *ty, double val);
         ConstFloat(GenericFloatType *ty, double val);
-        std::string stringify() const override;
         Type* type() const override;
         double val;
         void value_accept(ValueVisitor *v) override;
@@ -103,7 +99,6 @@ namespace IR {
     class ConstBool : public Value {
     public:
         ConstBool(BoolType *ty, bool val);
-        std::string stringify() const override;
         Type* type() const override;
         bool val;
         void value_accept(ValueVisitor *v) override;
@@ -113,7 +108,6 @@ namespace IR {
     class ConstChar : public Value {
     public:
         ConstChar(CharType *ty, uint8_t val);
-        std::string stringify() const override;
         Type* type() const override;
         uint8_t val;
         void value_accept(ValueVisitor *v) override;
@@ -125,7 +119,6 @@ namespace IR {
     class Void : public Value {
     public:
         Void(VoidType *ty);
-        std::string stringify() const override;
         Type* type() const override;
         void value_accept(ValueVisitor *v) override;
     private:
@@ -152,9 +145,6 @@ namespace IR {
         inline Type* type() const {
             return val->type();
         }
-        inline std::string stringify() const {
-            return val->stringify();
-        }
     };
 
     class ValueVisitor {
@@ -164,14 +154,4 @@ namespace IR {
         IR_VALUE_LIST(VISITMETHOD)
 #undef VISITMETHOD
     };
-}
-
-inline std::ostream& operator<<(std::ostream& os, IR::Value *v) {
-    os << v->stringify();
-    return os;
-}
-
-inline std::ostream& operator<<(std::ostream &os, IR::ASTValue const &v) {
-    os << v.stringify();
-    return os;
 }
