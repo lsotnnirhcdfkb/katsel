@@ -160,6 +160,8 @@ void visitFunctionImplItem(ASTNS::FunctionImplItem *ast) override;
     CodeGen &cg;
     ASTNS::ImplDecl *ast;
 
+    IR::Type *implFor;
+
     bool errored;
 };
 // Param and Args {{{1

@@ -5,6 +5,7 @@
 CodeGen::ImplCodeGen::ImplCodeGen(CodeGen &cg, ASTNS::ImplDecl *ast): cg(cg), ast(ast), errored(false) {}
 
 bool CodeGen::ImplCodeGen::codegen() {
+    implFor = cg.typeVisitor->type(ast->implFor.get());
     ast->body->accept(this);
     return !errored;
 }
@@ -15,7 +16,6 @@ void CodeGen::ImplCodeGen::visitImplBody(ASTNS::ImplBody *ast) {
 }
 
 void CodeGen::ImplCodeGen::visitFunctionImplItem(ASTNS::FunctionImplItem *ast) {
-    IR::Type *implFor = cg.typeVisitor->type(this->ast->implFor.get());
     if (!implFor) {
         errored = true;
         return;
