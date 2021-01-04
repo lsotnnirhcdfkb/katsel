@@ -1,10 +1,40 @@
 #include "ir/printer.h"
 #include "ir/value.h"
 #include "ir/type.h"
+#include "ir/unit.h"
 #include "utils/format.h"
 #include "ir/instruction.h"
 
-IR::Printer::Printer(IR::Unit &unit, llvm::raw_ostream &ostream): ostream(ostream), unit(unit) {}
+IR::Printer::Printer(IR::Unit const &unit, llvm::raw_ostream &ostream): unit(unit), ostream(ostream) {}
+
+namespace {
+    class _Printer {
+    public:
+        _Printer(IR::Unit const &unit, llvm::raw_ostream &ostream): unit(unit), ostream(ostream) {}
+
+        void print() {
+            walk(&unit.mod);
+        }
+
+    private:
+        void walk(IR::Module const *mod) {
+            for (auto val : mod->getValues()) {
+
+            }
+            for (auto val : mod->getDeclSymbols()) {
+
+            }
+        }
+
+        IR::Unit const &unit;
+        llvm::raw_ostream &ostream;
+    };
+};
+
+void IR::Printer::print() {
+    _Printer p (unit, ostream);
+    p.print();
+}
 
 /*
 void IR::Printer::visitStore(IR::Instrs::Store *i) {

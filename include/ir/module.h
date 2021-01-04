@@ -14,7 +14,8 @@ struct File;
         IR::DeclSymbol *getDeclSymbol(std::string const &name) const override;   \
         void addValue(std::string const &name, IR::Value *v) override;           \
         void addDeclSymbol(std::string const &name, IR::DeclSymbol *s) override; \
-                                                                                 \
+        std::map<std::string, IR::Value*> getValues() const;                     \
+        std::map<std::string, DeclSymbol*> getDeclSymbols() const;               \
     private:                                                                     \
         std::map<std::string, IR::Value*> values;                                \
         std::map<std::string, IR::DeclSymbol*> decls;
@@ -43,6 +44,12 @@ struct File;
             reportAbortNoh(format("add duplicate decl under name %", name));  \
                                                                               \
         decls[name] = v;                                                      \
+    }                                                                         \
+    std::map<std::string, IR::Value*> cl::getValues() const {                 \
+        return values;                                                        \
+    }                                                                         \
+    std::map<std::string, IR::DeclSymbol*> cl::getDeclSymbols() const {       \
+        return decls;                                                         \
     }
 
 namespace IR {
@@ -60,6 +67,9 @@ namespace IR {
 
         virtual DeclSymbol* getDeclSymbol(std::string const &name) const = 0;
         virtual Value* getValue(std::string const &name) const = 0;
+
+        std::map<std::string, Value*> getValues() const;
+        std::map<std::string, DeclSymbol*> getDeclSymbols() const;
 
         virtual void declsym_accept(DeclSymbolVisitor *v) = 0;
     };
