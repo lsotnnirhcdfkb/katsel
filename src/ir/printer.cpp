@@ -81,18 +81,21 @@ namespace {
         void value_visitFunction(IR::Function *fun) override {
             pr.ostream << format("fun %: %", fun->name, fun->type());
             if (fun->prototypeonly) {
-                pr.ostream << " (prototype)\n";
+                pr.ostream << " (prototype);\n";
                 return;
             } else {
-                pr.ostream << "\n";
+                pr.ostream << " {\n";
             }
 
             for (std::unique_ptr<IR::Block> &block : fun->blocks)
                 printBlock(*block);
+            pr.ostream << "}\n";
         }
 
         void printBlock(IR::Block &b) {
             stringifyBlock(b);
+
+            pr.ostream << ": {\n";
 
             for (std::unique_ptr<IR::Instrs::Instruction> const &instr : b.instructions) {
                 instr->accept(this);
@@ -103,6 +106,7 @@ namespace {
                 b.br->accept(this);
                 pr.ostream << "\n";
             }
+            pr.ostream << "}\n";
         }
         // }}}
         // all the instructions {{{
@@ -114,7 +118,7 @@ namespace {
             pr.ostream << " -> " << i;
         }
         void stringifyBlock(IR::Block const &b) {
-            pr.ostream << format("%(%):\n", b.name, b.num);
+            pr.ostream << format("%(%)", b.name, b.num);
         }
         void binaryInstruction(IR::Instrs::Instruction *i, std::string const &name, IR::ASTValue const &lhs, IR::ASTValue const &rhs) {
             instrName(name);
@@ -224,6 +228,7 @@ namespace {
         void visitCall(IR::Instrs::Call *i) override {
             instrName("call");
             i->f->value_accept(pr.vrp.get());
+            pr.ostream << " ( ";
             for (IR::ASTValue const &v : i->args) {
                 v.val->value_accept(pr.vrp.get());
                 pr.ostream << " ";
@@ -263,12 +268,14 @@ namespace {
         // declsym {{{
         void declsym_visitType(IR::Type *ty) override {
             // TODO: inherit from type visitor
-            pr.ostream << "type " << ty->name() << "\n";
+            pr.ostream << "type " << ty->name() << " {\n";
             walk(ty);
+            pr.ostream << "}\n";
         }
         void declsym_visitModule(IR::Module *mod) override {
-            pr.ostream << "mod " << mod->name() << "\n";
+            pr.ostream << "mod " << mod->name() << " {\n";
             walk(mod);
+            pr.ostream << "}\n";
         }
         // }}}
         // walk {{{
