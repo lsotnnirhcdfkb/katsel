@@ -5,31 +5,112 @@
 #include "utils/format.h"
 #include "ir/instruction.h"
 
-IR::Printer::Printer(IR::Unit const &unit, llvm::raw_ostream &ostream): unit(unit), ostream(ostream) {}
+IR::Printer::Printer(IR::Unit &unit, llvm::raw_ostream &ostream): unit(unit), ostream(ostream) {}
 
 namespace {
+    class VDPrinter;
+    class VRPrinter;
+    class DSDPrinter;
     class _Printer {
     public:
-        _Printer(IR::Unit const &unit, llvm::raw_ostream &ostream): unit(unit), ostream(ostream) {}
+        _Printer(IR::Unit &unit, llvm::raw_ostream &ostream);
 
-        void print() {
-            walk(&unit.mod);
-        }
+        void print();
 
-    private:
-        void walk(IR::Module const *mod) {
-            for (auto val : mod->getValues()) {
-
-            }
-            for (auto val : mod->getDeclSymbols()) {
-
-            }
-        }
-
-        IR::Unit const &unit;
+        IR::Unit &unit;
         llvm::raw_ostream &ostream;
+
+        std::unique_ptr<VDPrinter> vdp;
+        std::unique_ptr<VRPrinter> vrp;
+        std::unique_ptr<DSDPrinter> dsdp;
     };
-};
+
+    // Value Decl Printer
+    class VDPrinter final : public IR::ValueVisitor {
+    public:
+        VDPrinter(_Printer &pr): pr(pr) {}
+        _Printer &pr;
+        void value_visitConstBool(IR::ConstBool *)   { reportAbortNoh("print declaratino of ConstBool"); }
+        void value_visitConstChar(IR::ConstChar *)   { reportAbortNoh("print declaration of ConstChar"); }
+        void value_visitConstInt(IR::ConstInt *)     { reportAbortNoh("print declaration of ConstInt"); }
+        void value_visitConstFloat(IR::ConstFloat *) { reportAbortNoh("print declaration of ConstFloat"); }
+        void value_visitVoid(IR::Void *)             { reportAbortNoh("print declaration of Void"); }
+        void value_visitFunction(IR::Function *v) {
+            // TODO:
+        }
+        void value_visitInstruction(IR::Instrs::Instruction *v) {
+            // TODO: instruction visitor
+        }
+    };
+    // Value Ref Printer
+    class VRPrinter final : public IR::ValueVisitor {
+    public:
+        VRPrinter(_Printer &pr): pr(pr) {}
+        _Printer &pr;
+        void value_visitConstBool(IR::ConstBool *v) {
+            pr.ostream << (v->val ? "true" : "false");
+        }
+        void value_visitConstChar(IR::ConstChar *v) {
+            pr.ostream << "'" << v->val << "'";
+        }
+        void value_visitConstInt(IR::ConstInt *v) {
+            pr.ostream << v->val;
+        }
+        void value_visitConstFloat(IR::ConstFloat *v) {
+            pr.ostream << v->val;
+        }
+        void value_visitFunction(IR::Function *v) {
+            pr.ostream << v->name;
+        }
+        void value_visitInstruction(IR::Instrs::Instruction *v) {
+            pr.ostream << v; // TODO: assign instruction an id
+        }
+        void value_visitVoid(IR::Void *v) {
+            pr.ostream << "'void'";
+        }
+    };
+    // Decl Symbol Decl Printer
+    class DSDPrinter final : public IR::DeclSymbolVisitor {
+    public:
+        DSDPrinter(_Printer &pr): pr(pr) {}
+        _Printer &pr;
+        void declsym_visitType(IR::Type *ty) {
+            // TODO: inherit from type visitor
+            pr.ostream << "type " << ty->name() << "\n";
+            walk(ty);
+        }
+        void declsym_visitModule(IR::Module *mod) {
+            pr.ostream << "mod " << mod->name() << "\n";
+            walk(mod);
+        }
+
+        void walk(IR::DeclSymbol *ds) {
+            for (auto _ds : ds->getDeclSymbols()) {
+                std::string name = _ds.first;
+                IR::DeclSymbol *pds = _ds.second;
+
+                pds->declsym_accept(pr.dsdp.get());
+            }
+            for (auto v : ds->getValues()) {
+                std::string name = v.first;
+                IR::Value *val = v.second;
+
+                val->value_accept(pr.vdp.get());
+            }
+        }
+    };
+
+    _Printer::_Printer(IR::Unit &unit, llvm::raw_ostream &ostream):
+            unit(unit),
+            ostream(ostream),
+            vdp(std::make_unique<VDPrinter>(*this)),
+            vrp(std::make_unique<VRPrinter>(*this)),
+            dsdp(std::make_unique<DSDPrinter>(*this)) {}
+
+    void _Printer::print() {
+        unit.mod.declsym_accept(dsdp.get());
+    }
+}
 
 void IR::Printer::print() {
     _Printer p (unit, ostream);
@@ -37,76 +118,76 @@ void IR::Printer::print() {
 }
 
 /*
-void IR::Printer::visitStore(IR::Instrs::Store *i) {
-    // ostream << format("store % --> %", i->value, i->target);
+   void IR::Printer::visitStore(IR::Instrs::Store *i) {
+// ostream << format("store % --> %", i->value, i->target);
 }
 void IR::Printer::visitPhi(IR::Instrs::Phi *i) {
-    // ostream << format("phi [");
-    // bool first = true;
-    // for (auto &p : i->prevs) {
-        // if (!first)
-            // ostream << ", ";
-// 
-        // p.first->stringify(ostream);
-        // ostream << format(": %", p.second);
-// 
-        // first = false;
-    // }
-    // ostream << format("] -> %", i);
+// ostream << format("phi [");
+// bool first = true;
+// for (auto &p : i->prevs) {
+// if (!first)
+// ostream << ", ";
+//
+// p.first->stringify(ostream);
+// ostream << format(": %", p.second);
+//
+// first = false;
+// }
+// ostream << format("] -> %", i);
 }
 void IR::Printer::visitRegister(IR::Instrs::Register *i) {
-    // ostream << format("register % -> %", i->ty, i);
+// ostream << format("register % -> %", i->ty, i);
 }
 void IR::Printer::visitOr(IR::Instrs::Or *i) {
-    // ostream << format("or % % -> %", i->lhs, i->rhs, i);
+// ostream << format("or % % -> %", i->lhs, i->rhs, i);
 }
 void IR::Printer::visitAnd(IR::Instrs::And *i) {
-    // ostream << format("and % % -> %", i->lhs, i->rhs, i);
+// ostream << format("and % % -> %", i->lhs, i->rhs, i);
 }
 void IR::Printer::visitNot(IR::Instrs::Not *i) {
-    // ostream << format("not % -> %", i->op, i);
+// ostream << format("not % -> %", i->op, i);
 }
 void IR::Printer::visitICmpNE(IR::Instrs::ICmpNE *i) {
-    // ostream << format("icmpne % % -> %", i->lhs, i->rhs, i);
+// ostream << format("icmpne % % -> %", i->lhs, i->rhs, i);
 }
 void IR::Printer::visitICmpEQ(IR::Instrs::ICmpEQ *i) {
-    // ostream << format("icmpeq % % -> %", i->lhs, i->rhs, i);
+// ostream << format("icmpeq % % -> %", i->lhs, i->rhs, i);
 }
 void IR::Printer::visitICmpLT(IR::Instrs::ICmpLT *i) {
-    // ostream << format("icmplt % % -> %", i->lhs, i->rhs, i);
+// ostream << format("icmplt % % -> %", i->lhs, i->rhs, i);
 }
 void IR::Printer::visitICmpGT(IR::Instrs::ICmpGT *i) {
-    // ostream << format("icmpgt % % -> %", i->lhs, i->rhs, i);
+// ostream << format("icmpgt % % -> %", i->lhs, i->rhs, i);
 }
 void IR::Printer::visitICmpLE(IR::Instrs::ICmpLE *i) {
-    // ostream << format("icmple % % -> %", i->lhs, i->rhs, i);
+// ostream << format("icmple % % -> %", i->lhs, i->rhs, i);
 }
 void IR::Printer::visitICmpGE(IR::Instrs::ICmpGE *i) {
-    // ostream << format("icmpge % % -> %", i->lhs, i->rhs, i);
+// ostream << format("icmpge % % -> %", i->lhs, i->rhs, i);
 }
 void IR::Printer::visitFCmpNE(IR::Instrs::FCmpNE *i) {
-    // ostream << format("fcmpne % % -> %", i->lhs, i->rhs, i);
+// ostream << format("fcmpne % % -> %", i->lhs, i->rhs, i);
 }
 void IR::Printer::visitFCmpEQ(IR::Instrs::FCmpEQ *i) {
-    // ostream << format("fcmpeq % % -> %", i->lhs, i->rhs, i);
+// ostream << format("fcmpeq % % -> %", i->lhs, i->rhs, i);
 }
 void IR::Printer::visitFCmpLT(IR::Instrs::FCmpLT *i) {
-    // ostream << format("fcmplt % % -> %", i->lhs, i->rhs, i);
+// ostream << format("fcmplt % % -> %", i->lhs, i->rhs, i);
 }
 void IR::Printer::visitFCmpGT(IR::Instrs::FCmpGT *i) {
-    // ostream << format("fcmpgt % % -> %", i->lhs, i->rhs, i);
+// ostream << format("fcmpgt % % -> %", i->lhs, i->rhs, i);
 }
 void IR::Printer::visitFCmpLE(IR::Instrs::FCmpLE *i) {
-    // ostream << format("fcmple % % -> %", i->lhs, i->rhs, i);
+// ostream << format("fcmple % % -> %", i->lhs, i->rhs, i);
 }
 void IR::Printer::visitFCmpGE(IR::Instrs::FCmpGE *i) {
-    // ostream << format("fcmpge % % -> %", i->lhs, i->rhs, i);
+// ostream << format("fcmpge % % -> %", i->lhs, i->rhs, i);
 }
 void IR::Printer::visitBitXor(IR::Instrs::BitXor *i) {
-    // ostream << format("bitxor % % -> %", i->lhs, i->rhs, i);
+// ostream << format("bitxor % % -> %", i->lhs, i->rhs, i);
 }
 void IR::Printer::visitBitOr(IR::Instrs::BitOr *i) {
-    // ostream << format("bitor % % -> %", i->lhs, i->rhs, i);
+// ostream << format("bitor % % -> %", i->lhs, i->rhs, i);
 }
 void IR::Printer::visitBitAnd(IR::Instrs::BitAnd *i) {
     // ostream << format("bitand % % -> %", i->lhs, i->rhs, i);
@@ -183,7 +264,7 @@ void IR::Printer::visitReturn(IR::Instrs::Return *i) {
 void IR::Printer::visitCall(IR::Instrs::Call *i) {
     // ostream << format("call % ( ", i->f);
     // for (IR::ASTValue const &v : i->args)
-        // ostream << v.stringify() << " ";
+    // ostream << v.stringify() << " ";
     // ostream << format(") -> %", i);
 }
 void IR::Printer::visitGotoBr(IR::Instrs::GotoBr *i) {

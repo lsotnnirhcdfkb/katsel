@@ -7,11 +7,11 @@ namespace IR {
 
     class Printer {
     public:
-        Printer(IR::Unit const &unit, llvm::raw_ostream &ostream);
+        Printer(IR::Unit &unit, llvm::raw_ostream &ostream);
         void print();
 
     private:
-        IR::Unit const &unit;
+        IR::Unit &unit;
         llvm::raw_ostream &ostream;
     };
 }

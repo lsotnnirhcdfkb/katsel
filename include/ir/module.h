@@ -14,8 +14,8 @@ struct File;
         IR::DeclSymbol *getDeclSymbol(std::string const &name) const override;   \
         void addValue(std::string const &name, IR::Value *v) override;           \
         void addDeclSymbol(std::string const &name, IR::DeclSymbol *s) override; \
-        std::map<std::string, IR::Value*> getValues() const;                     \
-        std::map<std::string, DeclSymbol*> getDeclSymbols() const;               \
+        std::map<std::string, IR::Value*> getValues() const override;            \
+        std::map<std::string, DeclSymbol*> getDeclSymbols() const override;      \
     private:                                                                     \
         std::map<std::string, IR::Value*> values;                                \
         std::map<std::string, IR::DeclSymbol*> decls;
@@ -68,8 +68,8 @@ namespace IR {
         virtual DeclSymbol* getDeclSymbol(std::string const &name) const = 0;
         virtual Value* getValue(std::string const &name) const = 0;
 
-        std::map<std::string, Value*> getValues() const;
-        std::map<std::string, DeclSymbol*> getDeclSymbols() const;
+        virtual std::map<std::string, Value*> getValues() const = 0;
+        virtual std::map<std::string, DeclSymbol*> getDeclSymbols() const = 0;
 
         virtual void declsym_accept(DeclSymbolVisitor *v) = 0;
     };

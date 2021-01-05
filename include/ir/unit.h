@@ -15,7 +15,7 @@ namespace IR {
     public:
         Unit(File const &file);
 
-        void print(llvm::raw_ostream &ostream) const;
+        void print(llvm::raw_ostream &ostream);
 
         std::unique_ptr<ASTNS::ImplicitDecl> implicitDeclAST;
 

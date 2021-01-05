@@ -6,8 +6,6 @@
 CodeGen::FunctionCodeGen::FunctionCodeGen(CodeGen &cg, ASTNS::FunctionDecl *ast, IR::Function *fun): curScope(0), cg(cg), ast(ast), exprCG(cg, *this), stmtCG(cg, *this), fun(fun), errored(false) {}
 
 bool CodeGen::FunctionCodeGen::codegen() {
-    std::string name = ast->name.stringify();
-
     IR::FunctionType *fty = fun->ty;
 
     if (!ast->body) {
