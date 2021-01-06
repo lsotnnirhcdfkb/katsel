@@ -376,6 +376,13 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitAssignmentExpr(ASTNS::Assignmen
         return;
     }
 
+    if (!static_cast<IR::PointerType*>(targetDeref->ptr.type())->mut) {
+        ERR_ASSIGN_NOT_MUT(lhs, targetDeref);
+        ret = IR::ASTValue();
+        fcg.errored = true;
+        return;
+    }
+
     IR::Type *expectType = targetDeref->type();
     rhs = expectType->implCast(*cg.context, *fcg.fun, fcg.curBlock, rhs);
     if (expectType != rhs.type()) {
@@ -385,7 +392,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitAssignmentExpr(ASTNS::Assignmen
         return;
     }
 
-    fcg.curBlock->add(std::make_unique<IR::Instrs::Store>(targetDeref->ptr, rhs));
+    fcg.curBlock->add(std::make_unique<IR::Instrs::Store>(targetDeref->ptr, rhs, false));
 
     ret = rhs;
 }

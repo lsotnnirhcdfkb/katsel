@@ -18,7 +18,7 @@ public:
     IR::BoolType* getBoolType();
     IR::FunctionType* getFunctionType(IR::Type *ret, std::vector<IR::Type*> paramtys);
     IR::VoidType* getVoidType();
-    IR::PointerType* getPointerType(IR::Type *ty);
+    IR::PointerType* getPointerType(bool mut, IR::Type *ty);
 
     IR::ConstFloat* getConstFloat(IR::FloatType *ty, double value);
     IR::ConstInt* getConstInt(IR::IntType *ty, uint64_t value);

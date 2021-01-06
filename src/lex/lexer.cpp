@@ -330,6 +330,16 @@ TokenType Lexer::getIdentifierType() {
         case 'v':
             if (std::distance(start, end) == 3 && *(start + 1) == 'a' && *(start + 2) == 'r') return TokenType::VAR;
             break;
+        case 'm':
+            switch (*(start + 1)) {
+                case 'u':
+                    if (std::distance(start, end) == 3 && *(start + 2) == 't') return TokenType::MUT;
+                    break;
+                case 'a':
+                    if (std::distance(start, end) == 5 && *(start + 2) == 't' && *(start + 3) == 'c' && *(start + 4) == 'h') return TokenType::MATCH;
+                    break;
+            }
+            break;
         case 'l':
             if (std::distance(start, end) == 3 && *(start + 1) == 'e' && *(start + 2) == 't') return TokenType::LET;
             break;
@@ -341,9 +351,6 @@ TokenType Lexer::getIdentifierType() {
             break;
         case 'e':
             if (std::distance(start, end) == 4 && *(start + 1) == 'l' && *(start + 2) == 's' && *(start + 3) == 'e') return TokenType::ELSE;
-            break;
-        case 'm':
-            if (std::distance(start, end) == 5 && *(start + 1) == 'a' && *(start + 2) == 't' && *(start + 3) == 'c' && *(start + 4) == 'h') return TokenType::MATCH;
             break;
         case 'b':
             switch (*(start + 1)) {

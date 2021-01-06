@@ -78,11 +78,12 @@ namespace IR {
     class CondBr;
     class Store : public Instruction {
     public:
-        Store(ASTValue target, ASTValue value);
+        Store(ASTValue target, ASTValue value, bool init);
         void accept(InstructionVisitor *v) override;
         IR::Type* type() const override;
         ASTValue target;
         ASTValue value;
+        bool init;
     };
     class Phi : public Instruction {
     public:
@@ -93,7 +94,7 @@ namespace IR {
     };
     class Register : public Instruction, public DeclaredValue {
     public:
-        Register(ASTNS::AST *_defAST, Type *ty);
+        Register(ASTNS::AST *_defAST, Type *ty, bool mut);
         void accept(InstructionVisitor *v) override;
         IR::Type* type() const override;
         ASTNS::AST* defAST() const override;
@@ -101,6 +102,7 @@ namespace IR {
         ASTNS::AST* _defAST;
     public:
         Type *ty;
+        bool mut;
     };
     class Or : public Instruction {
     public:

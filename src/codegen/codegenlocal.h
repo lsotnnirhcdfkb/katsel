@@ -172,6 +172,7 @@ public:
         IR::Type *ty;
         std::string name;
         ASTNS::Param *ast;
+        bool mut;
     };
 
     ParamVisitor(CodeGen &cg);

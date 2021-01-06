@@ -9,7 +9,7 @@ void CodeGen::ParamVisitor::visitParam(ASTNS::Param *ast) {
 
     std::string name (ast->name.stringify());
 
-    Param p {ty, std::move(name), ast};
+    Param p {ty, std::move(name), ast, ast->mut};
     ret.push_back(p);
 }
 

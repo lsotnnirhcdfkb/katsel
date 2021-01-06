@@ -140,6 +140,7 @@ keywords = [
     ('impl', 'IMPL'),
     ('fun', 'FUN'),
     ('var', 'VAR'),
+    ('mut', 'MUT'),
     ('let', 'LET'),
 
     ('return', 'RETURN'),

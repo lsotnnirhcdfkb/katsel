@@ -1,7 +1,7 @@
 #pragma once
 
 struct Token;
-namespace IR { namespace Instrs { class Register; } class Value; class Function; class Type; struct ASTValue; class DeclSymbol; }
+namespace IR { namespace Instrs { class Register; class DerefPtr; } class Value; class Function; class Type; struct ASTValue; class DeclSymbol; }
 
 #include <vector>
 #include <string>
@@ -161,6 +161,10 @@ void E0222(Location const &notty, ASTNS::AST *declAST);
 // E0223 - no-item-in
 #define ERR_NO_ITEM_IN E0223
 void E0223(IR::DeclSymbol const *prev, Token const &current);
+
+// E0224 - assign-not-mut
+#define ERR_ASSIGN_NOT_MUT E0224
+void E0224(IR::ASTValue const &v, IR::Instrs::DerefPtr *targetDeref);
 
 // W0000 - Wextra-semi
 #define WARN_EXTRA_SEMI W0000

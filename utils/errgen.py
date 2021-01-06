@@ -333,6 +333,14 @@ errors = [
         highlights=[
             SimpleHighlight('current', UNDER0, [('error', '"no item called % in %"', 'current', 'prev')]),
         ]),
+    Msg(224, 'assign-not-mut',
+        desc='Cannot assign to non-mutable variable',
+        inputs='IR::ASTValue const &v, IR::Instrs::DerefPtr *targetDeref', location='v',
+        highlights=[
+            SimpleHighlight('v', UNDER0, [('error', '"cannot assign to non-mutable variable"')]),
+            ValueDeclHighlight('targetDeref->ptr.val', 'variable', None, UNDER0, 'note', '"variable declared non-mutable here"'),
+        ]
+        ),
 ]
 warnings = [
     Msg(0, 'extra-semi',

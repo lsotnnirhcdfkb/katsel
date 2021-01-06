@@ -481,6 +481,22 @@ void E0223(IR::DeclSymbol const *prev, Token const &current) {
     e.report();
 }
 
+// E0224 - assign-not-mut
+// | Cannot assign to non-mutable variable
+void E0224(IR::ASTValue const &v, IR::Instrs::DerefPtr *targetDeref) {
+    Error e = Error(Error::MsgType::ERROR, v, "E0224 (assign-not-mut)");
+    e.underline(Error::Underline(v, '^')
+        .error("cannot assign to non-mutable variable")
+    );
+    if (IR::DeclaredValue *asDeclared = dynamic_cast<IR::DeclaredValue*>(targetDeref->ptr.val)) {
+        if (!dynamic_cast<ASTNS::ImplicitDecl*>(asDeclared->defAST())) {
+            e.underline(Error::Underline(asDeclared->defAST(), '^')
+                .note("variable declared non-mutable here"));
+       }
+    }
+    e.report();
+}
+
 // W0000 - Wextra-semi
 // | Extra semicolon
 void W0000(Token const &semi) {

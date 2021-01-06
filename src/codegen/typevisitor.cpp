@@ -39,6 +39,6 @@ void CodeGen::TypeVisitor::visitPointerType(ASTNS::PointerType *ast) {
         ret = nullptr;
         return;
     } else {
-        ret = cg.context->getPointerType(ty);
+        ret = cg.context->getPointerType(ast->mut, ty);
     }
 }

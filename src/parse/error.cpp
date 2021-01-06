@@ -147,6 +147,7 @@ bool singleTok(errorstate const &e, std::vector<std::string> const &expectations
     TRYTOKTY(TokenType::VAR)
     TRYTOKTY(TokenType::RETURN)
     TRYTOKTY(TokenType::EQUAL)
+    TRYTOKTY(TokenType::MUT)
     TRYTOKTY(TokenType::LEFTARROW)
     TRYTOKTY(TokenType::SEMICOLON)
     TRYTOKTY(TokenType::STAR)

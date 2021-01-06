@@ -197,13 +197,14 @@ namespace IR {
     // Pointer {{{1
     class PointerType : public Type {
     public:
-        PointerType(CodeGen::Context &context, ASTNS::AST *declAST, Type *ty);
+        PointerType(CodeGen::Context &context, ASTNS::AST *declAST, bool mut, Type *ty);
 
         std::string name() const override;
 
         DERIVE_TYPE_DECL()
 
         Type *ty;
+        bool mut;
 
         ASTNS::AST *declAST() const override;
 

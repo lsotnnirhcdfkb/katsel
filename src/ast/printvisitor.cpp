@@ -90,6 +90,8 @@ void ASTNS::PrintVisitor::visitVarStmtItem(ASTNS::VarStmtItem *a) {
     ++indent;
     pai("std::unique_ptr<Type> type = ");
     printField(a->type);
+    pai("bool mut = ");
+    printField(a->mut);
     pai("Token name = ");
     printField(a->name);
     pai("Token equal = ");
@@ -150,6 +152,8 @@ void ASTNS::PrintVisitor::visitPathType(ASTNS::PathType *a) {
 void ASTNS::PrintVisitor::visitPointerType(ASTNS::PointerType *a) {
     pai("PointerType {\n");
     ++indent;
+    pai("bool mut = ");
+    printField(a->mut);
     pai("std::unique_ptr<Type> type = ");
     printField(a->type);
     --indent;
@@ -178,6 +182,8 @@ void ASTNS::PrintVisitor::visitParam(ASTNS::Param *a) {
     printField(a->type);
     pai("Token name = ");
     printField(a->name);
+    pai("bool mut = ");
+    printField(a->mut);
     --indent;
     pai("}\n");
 }

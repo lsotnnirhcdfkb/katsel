@@ -17,7 +17,7 @@ bool CodeGen::FunctionCodeGen::codegen() {
     exitBlock = fun->addBlock("exit");
 
     incScope();
-    ret = static_cast<IR::Instrs::Register*>(entryBlock->add(std::make_unique<IR::Instrs::Register>(cg.unit->implicitDeclAST.get(), fty->ret)));
+    ret = static_cast<IR::Instrs::Register*>(entryBlock->add(std::make_unique<IR::Instrs::Register>(cg.unit->implicitDeclAST.get(), fty->ret, true)));
     if (ast->params) {
         ParamVisitor pv (cg);
         ast->params->accept(&pv);
@@ -25,7 +25,7 @@ bool CodeGen::FunctionCodeGen::codegen() {
 
         for (auto const &param : params) {
             std::string pname = param.name;
-            IR::Instrs::Register *reg = static_cast<IR::Instrs::Register*>(entryBlock->add(std::make_unique<IR::Instrs::Register>(param.ast, param.ty)));
+            IR::Instrs::Register *reg = static_cast<IR::Instrs::Register*>(entryBlock->add(std::make_unique<IR::Instrs::Register>(param.ast, param.ty, param.mut)));
 
             Local *foundparam = getLocal(pname);
             if (foundparam) {
@@ -51,7 +51,7 @@ bool CodeGen::FunctionCodeGen::codegen() {
             ERR_CONFLICT_RET_TY(retval, fun);
             errored = true;
         } else {
-            curBlock->add(std::make_unique<IR::Instrs::Store>(IR::ASTValue(ret, ast->retty.get()), retval));
+            curBlock->add(std::make_unique<IR::Instrs::Store>(IR::ASTValue(ret, ast->retty.get()), retval, false));
             curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(exitBlock));
         }
     }

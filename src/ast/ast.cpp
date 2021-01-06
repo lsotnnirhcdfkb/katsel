@@ -50,7 +50,7 @@ ASTNS::VarStmt::VarStmt(File const &file, Location start, Location end, std::uni
 void ASTNS::VarStmt::accept(ASTNS::Stmt::Visitor *v) { v->visitVarStmt(this); }
 Location const & ASTNS::VarStmt::start() { return _start; }
 Location const & ASTNS::VarStmt::end() { return _end; }
-ASTNS::VarStmtItem::VarStmtItem(File const &file, Location start, Location end, std::unique_ptr<Type> type, Token name, Token equal, std::unique_ptr<Expr> expr): VStmtIB(file), _start(start), _end(end), type(std::move(type)), name(std::move(name)), equal(std::move(equal)), expr(std::move(expr)) {}
+ASTNS::VarStmtItem::VarStmtItem(File const &file, Location start, Location end, std::unique_ptr<Type> type, bool mut, Token name, Token equal, std::unique_ptr<Expr> expr): VStmtIB(file), _start(start), _end(end), type(std::move(type)), mut(std::move(mut)), name(std::move(name)), equal(std::move(equal)), expr(std::move(expr)) {}
 void ASTNS::VarStmtItem::accept(ASTNS::VStmtIB::Visitor *v) { v->visitVarStmtItem(this); }
 Location const & ASTNS::VarStmtItem::start() { return _start; }
 Location const & ASTNS::VarStmtItem::end() { return _end; }
@@ -78,7 +78,7 @@ ASTNS::PathType::PathType(File const &file, Location start, Location end, std::u
 void ASTNS::PathType::accept(ASTNS::Type::Visitor *v) { v->visitPathType(this); }
 Location const & ASTNS::PathType::start() { return _start; }
 Location const & ASTNS::PathType::end() { return _end; }
-ASTNS::PointerType::PointerType(File const &file, Location start, Location end, std::unique_ptr<Type> type): Type(file), _start(start), _end(end), type(std::move(type)) {}
+ASTNS::PointerType::PointerType(File const &file, Location start, Location end, bool mut, std::unique_ptr<Type> type): Type(file), _start(start), _end(end), mut(std::move(mut)), type(std::move(type)) {}
 void ASTNS::PointerType::accept(ASTNS::Type::Visitor *v) { v->visitPointerType(this); }
 Location const & ASTNS::PointerType::start() { return _start; }
 Location const & ASTNS::PointerType::end() { return _end; }
@@ -90,7 +90,7 @@ ASTNS::ArgList::ArgList(File const &file, Location start, Location end, std::vec
 void ASTNS::ArgList::accept(ASTNS::ArgB::Visitor *v) { v->visitArgList(this); }
 Location const & ASTNS::ArgList::start() { return _start; }
 Location const & ASTNS::ArgList::end() { return _end; }
-ASTNS::Param::Param(File const &file, Location start, Location end, std::unique_ptr<Type> type, Token name): ParamB(file), _start(start), _end(end), type(std::move(type)), name(std::move(name)) {}
+ASTNS::Param::Param(File const &file, Location start, Location end, std::unique_ptr<Type> type, Token name, bool mut): ParamB(file), _start(start), _end(end), type(std::move(type)), name(std::move(name)), mut(std::move(mut)) {}
 void ASTNS::Param::accept(ASTNS::ParamB::Visitor *v) { v->visitParam(this); }
 Location const & ASTNS::Param::start() { return _start; }
 Location const & ASTNS::Param::end() { return _end; }

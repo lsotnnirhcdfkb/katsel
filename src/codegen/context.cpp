@@ -80,12 +80,12 @@ GET_TYPE_DEF(VoidType)() {
     CONSTRUCT_TYPE(VoidType)(*this, cg.unit->implicitDeclAST.get());
     PUSH_RETURN(VoidType)
 }
-GET_TYPE_DEF(PointerType)(IR::Type *ty) {
+GET_TYPE_DEF(PointerType)(bool mut, IR::Type *ty) {
     LOOP_TYPES() {
         CHECK_TYPE_TYPE(PointerType)
-        if (_casted && CHECK_FIELD(ty)) return _casted;
+        if (_casted && CHECK_FIELD(mut) && CHECK_FIELD(ty)) return _casted;
     }
-    CONSTRUCT_TYPE(PointerType)(*this, cg.unit->implicitDeclAST.get(), ty);
+    CONSTRUCT_TYPE(PointerType)(*this, cg.unit->implicitDeclAST.get(), mut, ty);
     PUSH_RETURN(PointerType)
 }
 #undef GET_TYPE_DEF

@@ -9,7 +9,7 @@
 
 #include "llvm/IR/DerivedTypes.h"
 
-IR::PointerType::PointerType(CodeGen::Context &context, ASTNS::AST *declAST, Type *ty): Type(context), ty(ty), _declAST(declAST) {}
+IR::PointerType::PointerType(CodeGen::Context &context, ASTNS::AST *declAST, bool mut, Type *ty): Type(context), ty(ty), mut(mut), _declAST(declAST) {}
 ASTNS::AST* IR::PointerType::declAST() const {
     return _declAST;
 }

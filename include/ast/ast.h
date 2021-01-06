@@ -308,13 +308,14 @@ namespace ASTNS {
     public:
         Location _start, _end;
         std::unique_ptr<Type> type;
+        bool mut;
         Token name;
         Token equal;
         std::unique_ptr<Expr> expr;
         virtual void accept(ASTNS::VStmtIB::Visitor *v) override;
         virtual Location const & start() override;
         virtual Location const & end() override;
-        VarStmtItem(File const &file, Location start, Location end, std::unique_ptr<Type> type, Token name, Token equal, std::unique_ptr<Expr> expr);
+        VarStmtItem(File const &file, Location start, Location end, std::unique_ptr<Type> type, bool mut, Token name, Token equal, std::unique_ptr<Expr> expr);
     };
     class VarStmtItemList : public VStmtIB {
     public:
@@ -373,11 +374,12 @@ namespace ASTNS {
     class PointerType : public Type {
     public:
         Location _start, _end;
+        bool mut;
         std::unique_ptr<Type> type;
         virtual void accept(ASTNS::Type::Visitor *v) override;
         virtual Location const & start() override;
         virtual Location const & end() override;
-        PointerType(File const &file, Location start, Location end, std::unique_ptr<Type> type);
+        PointerType(File const &file, Location start, Location end, bool mut, std::unique_ptr<Type> type);
     };
     class Arg : public ArgB {
     public:
@@ -402,10 +404,11 @@ namespace ASTNS {
         Location _start, _end;
         std::unique_ptr<Type> type;
         Token name;
+        bool mut;
         virtual void accept(ASTNS::ParamB::Visitor *v) override;
         virtual Location const & start() override;
         virtual Location const & end() override;
-        Param(File const &file, Location start, Location end, std::unique_ptr<Type> type, Token name);
+        Param(File const &file, Location start, Location end, std::unique_ptr<Type> type, Token name, bool mut);
     };
     class ParamList : public ParamB {
     public:

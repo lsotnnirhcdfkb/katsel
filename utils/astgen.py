@@ -60,7 +60,7 @@ asts = [
     AST('FunctionImplItem' , 'ImplItem', 'std::unique_ptr<FunctionDecl>|fun'),
 
     AST('VarStmt'          , 'Stmt', 'std::unique_ptr<VarStmtItemList>|assignments'),
-    AST('VarStmtItem'      , 'VStmtIB', 'std::unique_ptr<Type>|type, Token|name, Token|equal, std::unique_ptr<Expr>|expr'),
+    AST('VarStmtItem'      , 'VStmtIB', 'std::unique_ptr<Type>|type, bool|mut, Token|name, Token|equal, std::unique_ptr<Expr>|expr'),
     AST('VarStmtItemList'  , 'VStmtIB', 'std::vector<std::unique_ptr<VarStmtItem>>|items'),
     AST('ExprStmt'         , 'Stmt', 'std::unique_ptr<Expr>|expr'),
     AST('RetStmt'          , 'Stmt', 'std::unique_ptr<Expr>|expr'),
@@ -69,12 +69,12 @@ asts = [
     AST('ImplRet'          , 'ImplRetB', 'std::unique_ptr<Expr>|expr'),
 
     AST('PathType'         , 'Type', 'std::unique_ptr<Path>|path'),
-    AST('PointerType'      , 'Type', 'std::unique_ptr<Type>|type'),
+    AST('PointerType'      , 'Type', 'bool|mut, std::unique_ptr<Type>|type'),
 
     AST('Arg'              , 'ArgB', 'std::unique_ptr<Expr>|expr'),
     AST('ArgList'          , 'ArgB', 'std::vector<std::unique_ptr<Arg>>|args'),
 
-    AST('Param'            , 'ParamB', 'std::unique_ptr<Type>|type, Token|name'),
+    AST('Param'            , 'ParamB', 'std::unique_ptr<Type>|type, Token|name, bool|mut'),
     AST('ParamList'        , 'ParamB', 'std::vector<std::unique_ptr<Param>>|params'),
 
     AST('Block'            , 'Expr', 'std::unique_ptr<StmtList>|stmts, std::unique_ptr<ImplRet>|implRet'),

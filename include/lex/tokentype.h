@@ -76,6 +76,7 @@ enum class TokenType {
     VAR,
     FUN,
     LET,
+    MUT,
     CLASS,
     DATA,
     IMPL,
@@ -163,6 +164,7 @@ inline constexpr char const * stringifyTokenType(TokenType ty) {
         STOKTY(NULLPTRLIT, 'nullptr')
         STOKTY(VAR, 'var')
         STOKTY(LET, 'let')
+        STOKTY(MUT, 'mut')
         STOKTY(FUN, 'fun')
         STOKTY(CLASS, 'class')
         STOKTY(DATA, 'data')

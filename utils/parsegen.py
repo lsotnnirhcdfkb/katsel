@@ -550,6 +550,7 @@ LEFTARROW = Terminal('LEFTARROW')
 LESS = Terminal('LESS')
 LESSEQUAL = Terminal('LESSEQUAL')
 MINUS = Terminal('MINUS')
+MUT = Terminal('MUT')
 NEWLINE = Terminal('NEWLINE')
 NULLPTRLIT = Terminal('NULLPTRLIT')
 OCTINTLIT = Terminal('OCTINTLIT')
@@ -664,8 +665,10 @@ def make_grammar():
     rule(RetStmt, (RETURN, Expr, LineEnding), SimpleReduceAction('RetStmt', 'std::move(a1)'))
     rule(RetStmt, (RETURN, LineEnding), SimpleReduceAction('RetStmt', 'nullptr'))
 
-    rule(VarStmtItem, (IDENTIFIER, TypeAnnotation, EQUAL, Expr), SimpleReduceAction('VarStmtItem', 'std::move(a1), a0, a2, std::move(a3)'))
-    rule(VarStmtItem, (IDENTIFIER, TypeAnnotation), SimpleReduceAction('VarStmtItem', 'std::move(a1), a0, a0, nullptr'))
+    rule(VarStmtItem, (IDENTIFIER, TypeAnnotation, EQUAL, Expr), SimpleReduceAction('VarStmtItem', 'std::move(a1), false, a0, a2, std::move(a3)'))
+    rule(VarStmtItem, (IDENTIFIER, TypeAnnotation), SimpleReduceAction('VarStmtItem', 'std::move(a1), false, a0, a0, nullptr'))
+    rule(VarStmtItem, (MUT, IDENTIFIER, TypeAnnotation, EQUAL, Expr), SimpleReduceAction('VarStmtItem', 'std::move(a2), true, a1, a3, std::move(a4)'))
+    rule(VarStmtItem, (MUT, IDENTIFIER, TypeAnnotation), SimpleReduceAction('VarStmtItem', 'std::move(a2), true, a1, a1, nullptr'))
 
     skip_to(Block, BracedBlock, IndentedBlock)
     braced_rule(BracedBlock, (StmtListOpt, ImplRetOpt),
@@ -682,7 +685,8 @@ def make_grammar():
 
     skip_to(Type, PathType, PointerType)
 
-    rule(PointerType, (STAR, Type), SimpleReduceAction('PointerType', 'std::move(a1)'))
+    rule(PointerType, (STAR, Type), SimpleReduceAction('PointerType', 'false, std::move(a1)'))
+    rule(PointerType, (STAR, MUT, Type), SimpleReduceAction('PointerType', 'true, std::move(a2)'))
 
     rule(PathType, (Path,), SimpleReduceAction('PathType', 'std::move(a0)'))
 
@@ -690,7 +694,8 @@ def make_grammar():
 
     rule(Arg, (Expr,), SimpleReduceAction('Arg', 'std::move(a0)'))
 
-    rule(Param, (IDENTIFIER, TypeAnnotation), SimpleReduceAction('Param', 'std::move(a1), a0'))
+    rule(Param, (IDENTIFIER, TypeAnnotation), SimpleReduceAction('Param', 'std::move(a1), a0, false'))
+    rule(Param, (MUT, IDENTIFIER, TypeAnnotation), SimpleReduceAction('Param', 'std::move(a2), a1, true'))
 
     skip_to(Expr, BlockedExpr, NotBlockedExpr)
     skip_to(NotBlockedExpr, AssignmentExpr)

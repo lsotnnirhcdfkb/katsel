@@ -16,7 +16,7 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem 
         return;
     }
 
-    IR::Instrs::Register *reg = static_cast<IR::Instrs::Register*>(fcg.curBlock->add(std::make_unique<IR::Instrs::Register>(ast, varType)));
+    IR::Instrs::Register *reg = static_cast<IR::Instrs::Register*>(fcg.curBlock->add(std::make_unique<IR::Instrs::Register>(ast, varType, ast->mut)));
 
     if (ast->expr) {
         IR::ASTValue val = fcg.exprCG.expr(ast->expr.get());
@@ -29,7 +29,7 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem 
             fcg.errored = true;
             return;
         }
-        fcg.curBlock->add(std::make_unique<IR::Instrs::Store>(IR::ASTValue(reg, ast), val));
+        fcg.curBlock->add(std::make_unique<IR::Instrs::Store>(IR::ASTValue(reg, ast), val, true));
     }
 
     fcg.addLocal(varname, reg);
