@@ -36,6 +36,7 @@ bool CodeGen::FunctionCodeGen::codegen() {
         }
     }
 
+    this->entryBlock = entryBlock;
     curBlock = entryBlock;
 
     IR::ASTValue retval = exprCG.expr(ast->body.get());
