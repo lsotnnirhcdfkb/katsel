@@ -139,7 +139,7 @@ namespace {
             toTemp(i);
         }
         void brArrow() {
-            pr.ostream << "==> ";
+            pr.ostream << " ==> ";
         }
         // }}}
 
