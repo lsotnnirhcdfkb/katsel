@@ -15,7 +15,10 @@ ASTNS::AST* IR::PointerType::declAST() const {
 }
 
 std::string IR::PointerType::name() const {
-    return format("*%", ty->name());
+    if (mut)
+        return format("*mut %", ty->name());
+    else
+        return format("*%", ty->name());
 }
 
 DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::PointerType)
