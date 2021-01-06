@@ -482,16 +482,34 @@ void E0223(IR::DeclSymbol const *prev, Token const &current) {
 }
 
 // E0224 - assign-not-mut
-// | Cannot assign to non-mutable variable
-void E0224(IR::ASTValue const &v, IR::Instrs::DerefPtr *targetDeref) {
+// | Cannot assign to non-mutable lvalue
+void E0224(IR::ASTValue const &v, Token const &eq, IR::Instrs::DerefPtr *targetDeref) {
     Error e = Error(Error::MsgType::ERROR, v, "E0224 (assign-not-mut)");
-    e.underline(Error::Underline(v, '^')
-        .error("cannot assign to non-mutable variable")
+    e.underline(Error::Underline(eq, '^')
+        .error("cannot assign to immutable lvalue")
+    );
+    e.underline(Error::Underline(v, '~')
     );
     if (IR::DeclaredValue *asDeclared = dynamic_cast<IR::DeclaredValue*>(targetDeref->ptr.val)) {
         if (!dynamic_cast<ASTNS::ImplicitDecl*>(asDeclared->defAST())) {
-            e.underline(Error::Underline(asDeclared->defAST(), '^')
-                .note("variable declared non-mutable here"));
+            e.underline(Error::Underline(asDeclared->defAST(), '~')
+                .note("variable declared immutable here"));
+       }
+    }
+    e.report();
+}
+
+// E0225 - mut-addrof-nonmut-op
+// | Cannot take a mutable pointer to non-mutable lvalue
+void E0225(Token const &op, IR::Instrs::DerefPtr *asDeref) {
+    Error e = Error(Error::MsgType::ERROR, op, "E0225 (mut-addrof-nonmut-op)");
+    e.underline(Error::Underline(op, '^')
+        .error("cannot take mutable pointer to non-mutable lvalue")
+    );
+    if (IR::DeclaredValue *asDeclared = dynamic_cast<IR::DeclaredValue*>(asDeref->ptr.val)) {
+        if (!dynamic_cast<ASTNS::ImplicitDecl*>(asDeclared->defAST())) {
+            e.underline(Error::Underline(asDeclared->defAST(), '~')
+                .note("value declared immutable here"));
        }
     }
     e.report();

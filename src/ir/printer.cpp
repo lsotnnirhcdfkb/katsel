@@ -168,7 +168,9 @@ namespace {
         }
         void visitRegister(IR::Instrs::Register *i) override {
             instrName("register");
-            pr.ostream << i->ty->name();
+            pr.ostream << i->ty->name() << " ";
+            if (i->mut)
+                pr.ostream << "mut";
             toTemp(i);
         }
 
@@ -219,6 +221,13 @@ namespace {
         // pointer instructions {{{
         void visitDerefPtr(IR::Instrs::DerefPtr *i) override {
             unaryInstruction(i, "derefptr", i->ptr);
+        }
+        void visitAddrof(IR::Instrs::Addrof *i) override {
+            instrName("addrof");
+            pr.ostream << i->deref << " ";
+            if (i->mut)
+                pr.ostream << "mut";
+            toTemp(i);
         }
         void visitPtrArith(IR::Instrs::PtrArith *i) override {
             binaryInstruction(i, "ptrarith", i->ptr, i->offset);

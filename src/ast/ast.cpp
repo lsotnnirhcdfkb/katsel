@@ -130,7 +130,7 @@ ASTNS::UnaryExpr::UnaryExpr(File const &file, Location start, Location end, Toke
 void ASTNS::UnaryExpr::accept(ASTNS::Expr::Visitor *v) { v->visitUnaryExpr(this); }
 Location const & ASTNS::UnaryExpr::start() { return _start; }
 Location const & ASTNS::UnaryExpr::end() { return _end; }
-ASTNS::AddrofExpr::AddrofExpr(File const &file, Location start, Location end, Token op, std::unique_ptr<Expr> expr): Expr(file), _start(start), _end(end), op(std::move(op)), expr(std::move(expr)) {}
+ASTNS::AddrofExpr::AddrofExpr(File const &file, Location start, Location end, Token op, std::unique_ptr<Expr> expr, bool mut): Expr(file), _start(start), _end(end), op(std::move(op)), expr(std::move(expr)), mut(std::move(mut)) {}
 void ASTNS::AddrofExpr::accept(ASTNS::Expr::Visitor *v) { v->visitAddrofExpr(this); }
 Location const & ASTNS::AddrofExpr::start() { return _start; }
 Location const & ASTNS::AddrofExpr::end() { return _end; }

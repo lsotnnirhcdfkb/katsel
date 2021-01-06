@@ -334,13 +334,20 @@ errors = [
             SimpleHighlight('current', UNDER0, [('error', '"no item called % in %"', 'current', 'prev')]),
         ]),
     Msg(224, 'assign-not-mut',
-        desc='Cannot assign to non-mutable variable',
-        inputs='IR::ASTValue const &v, IR::Instrs::DerefPtr *targetDeref', location='v',
+        desc='Cannot assign to non-mutable lvalue',
+        inputs='IR::ASTValue const &v, Token const &eq, IR::Instrs::DerefPtr *targetDeref', location='v',
         highlights=[
-            SimpleHighlight('v', UNDER0, [('error', '"cannot assign to non-mutable variable"')]),
-            ValueDeclHighlight('targetDeref->ptr.val', 'variable', None, UNDER0, 'note', '"variable declared non-mutable here"'),
-        ]
-        ),
+            SimpleHighlight('eq', UNDER0, [('error', '"cannot assign to immutable lvalue"')]),
+            SimpleHighlight('v', UNDER1, []),
+            ValueDeclHighlight('targetDeref->ptr.val', 'lvalue', None, UNDER1, 'note', '"variable declared immutable here"'),
+        ]),
+    Msg(225, 'mut-addrof-nonmut-op',
+        desc='Cannot take a mutable pointer to non-mutable lvalue',
+        inputs='Token const &op, IR::Instrs::DerefPtr *asDeref', location='op',
+        highlights=[
+            SimpleHighlight('op', UNDER0, [('error', '"cannot take mutable pointer to non-mutable lvalue"')]),
+            ValueDeclHighlight('asDeref->ptr.val', 'value', None, UNDER1, 'note', '"value declared immutable here"'),
+        ]),
 ]
 warnings = [
     Msg(0, 'extra-semi',

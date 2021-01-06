@@ -151,7 +151,14 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitAddrofExpr(ASTNS::AddrofExpr *a
         return;
     }
 
-    ret = IR::ASTValue(asDeref->ptr.val, ast);
+    if (static_cast<IR::PointerType*>(asDeref->ptr.type())->mut == false && ast->mut) {
+        ERR_MUT_ADDROF_NONMUT_OP(ast->op, asDeref);
+        ret = IR::ASTValue();
+        fcg.errored = true;
+        return;
+    }
+
+    ret = IR::ASTValue(fcg.curBlock->add(std::make_unique<IR::Instrs::Addrof>(asDeref, ast->mut)), ast);
 }
 
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast) {
@@ -377,7 +384,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitAssignmentExpr(ASTNS::Assignmen
     }
 
     if (!static_cast<IR::PointerType*>(targetDeref->ptr.type())->mut) {
-        ERR_ASSIGN_NOT_MUT(lhs, targetDeref);
+        ERR_ASSIGN_NOT_MUT(lhs, ast->equal, targetDeref);
         ret = IR::ASTValue();
         fcg.errored = true;
         return;

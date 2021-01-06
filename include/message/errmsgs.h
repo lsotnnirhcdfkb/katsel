@@ -164,7 +164,11 @@ void E0223(IR::DeclSymbol const *prev, Token const &current);
 
 // E0224 - assign-not-mut
 #define ERR_ASSIGN_NOT_MUT E0224
-void E0224(IR::ASTValue const &v, IR::Instrs::DerefPtr *targetDeref);
+void E0224(IR::ASTValue const &v, Token const &eq, IR::Instrs::DerefPtr *targetDeref);
+
+// E0225 - mut-addrof-nonmut-op
+#define ERR_MUT_ADDROF_NONMUT_OP E0225
+void E0225(Token const &op, IR::Instrs::DerefPtr *asDeref);
 
 // W0000 - Wextra-semi
 #define WARN_EXTRA_SEMI W0000

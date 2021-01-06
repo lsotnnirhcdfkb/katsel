@@ -283,6 +283,12 @@ IR::Instrs::Call::Call(Function *f, std::vector<ASTValue> args): f(f), args(args
 void IR::Instrs::Call::accept(InstructionVisitor *v) { v->visitCall(this); }
 IR::Type* IR::Instrs::Call::type() const { return f->ty->ret; }
 
+IR::Instrs::Addrof::Addrof(DerefPtr *deref, bool mut): deref(deref), mut(mut) {
+    ASSERT(static_cast<int>(mut) <= static_cast<int>(static_cast<PointerType*>(deref->ptr.type())->mut))
+}
+void IR::Instrs::Addrof::accept(InstructionVisitor *v) { v->visitAddrof(this); }
+IR::Type* IR::Instrs::Addrof::type() const { return deref->type()->context.getPointerType(mut, deref->type()); }
+
 IR::Instrs::DerefPtr::DerefPtr(ASTValue ptr): ptr(ptr) {
     ASSERT(dynamic_cast<PointerType*>(ptr.type()))
 }

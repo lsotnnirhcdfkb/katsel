@@ -511,10 +511,11 @@ namespace ASTNS {
         Location _start, _end;
         Token op;
         std::unique_ptr<Expr> expr;
+        bool mut;
         virtual void accept(ASTNS::Expr::Visitor *v) override;
         virtual Location const & start() override;
         virtual Location const & end() override;
-        AddrofExpr(File const &file, Location start, Location end, Token op, std::unique_ptr<Expr> expr);
+        AddrofExpr(File const &file, Location start, Location end, Token op, std::unique_ptr<Expr> expr, bool mut);
     };
     class DerefExpr : public Expr {
     public:

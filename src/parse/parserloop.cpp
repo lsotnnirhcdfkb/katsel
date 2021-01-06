@@ -49,42 +49,42 @@ size_t getGoto(NonTerminal nterm, size_t state) {
             }
         case NonTerminal::AnotherArg:
             switch (state) {
-                case 221: 
-                    return 228;
+                case 223: 
+                    return 230;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::Arg:
             switch (state) {
-                case 168: 
-                    return 206;
-                case 221: 
-                    return 229;
+                case 169: 
+                    return 208;
+                case 223: 
+                    return 231;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::ArgSegment:
             switch (state) {
-                case 168: 
-                    return 205;
+                case 169: 
+                    return 207;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::ArgList:
             switch (state) {
-                case 168: 
-                    return 204;
+                case 169: 
+                    return 206;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::AnotherVarStmtItem:
             switch (state) {
-                case 176: 
-                    return 213;
+                case 177: 
+                    return 215;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::VarStmtItem:
             switch (state) {
                 case 78: 
                     return 131;
-                case 176: 
-                    return 214;
+                case 177: 
+                    return 216;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::VarStmtItemSegment:
@@ -167,8 +167,8 @@ size_t getGoto(NonTerminal nterm, size_t state) {
             }
         case NonTerminal::ArgList_OPT:
             switch (state) {
-                case 168: 
-                    return 203;
+                case 169: 
+                    return 205;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::StmtList_OPT:
@@ -180,7 +180,7 @@ size_t getGoto(NonTerminal nterm, size_t state) {
                 case 72: 
                     return 125;
                 case 126: 
-                    return 174;
+                    return 175;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::ImplRet_OPT:
@@ -188,25 +188,25 @@ size_t getGoto(NonTerminal nterm, size_t state) {
                 case 71: 
                     return 122;
                 case 121: 
-                    return 170;
+                    return 171;
                 case 125: 
-                    return 173;
-                case 174: 
-                    return 212;
+                    return 174;
+                case 175: 
+                    return 214;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::ImplRet:
             switch (state) {
-                case 71: case 121: case 125: case 174: 
+                case 71: case 121: case 125: case 175: 
                     return 123;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::Expr_OPT:
             switch (state) {
-                case 184: 
-                    return 218;
-                case 227: 
-                    return 232;
+                case 185: 
+                    return 220;
+                case 229: 
+                    return 234;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::Expr:
@@ -216,17 +216,17 @@ size_t getGoto(NonTerminal nterm, size_t state) {
                 case 87: 
                     return 142;
                 case 117: 
-                    return 169;
+                    return 170;
                 case 124: 
-                    return 172;
-                case 168: case 221: 
-                    return 207;
-                case 184: case 227: 
-                    return 219;
-                case 215: 
-                    return 223;
-                case 224: 
-                    return 231;
+                    return 173;
+                case 169: case 223: 
+                    return 209;
+                case 185: case 229: 
+                    return 221;
+                case 217: 
+                    return 225;
+                case 226: 
+                    return 233;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::VarStmt_OPT:
@@ -251,13 +251,13 @@ size_t getGoto(NonTerminal nterm, size_t state) {
                     return 69;
                 case 80: 
                     return 135;
-                case 172: 
-                    return 210;
+                case 173: 
+                    return 212;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::LineEnding:
             switch (state) {
-                case 18: case 62: case 80: case 172: 
+                case 18: case 62: case 80: case 173: 
                     return 31;
                 case 54: 
                     return 63;
@@ -266,9 +266,9 @@ size_t getGoto(NonTerminal nterm, size_t state) {
                 case 81: 
                     return 137;
                 case 129: 
-                    return 175;
+                    return 176;
                 case 136: 
-                    return 179;
+                    return 180;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::TypeAnnotation_OPT:
@@ -284,9 +284,9 @@ size_t getGoto(NonTerminal nterm, size_t state) {
                 case 46: 
                     return 58;
                 case 132: 
-                    return 177;
-                case 178: 
-                    return 216;
+                    return 178;
+                case 179: 
+                    return 218;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::ImplItemList_OPT:
@@ -320,11 +320,11 @@ size_t getGoto(NonTerminal nterm, size_t state) {
                 case 54: 
                     return 62;
                 case 142: 
-                    return 182;
-                case 217: 
-                    return 225;
-                case 233: 
-                    return 234;
+                    return 183;
+                case 219: 
+                    return 227;
+                case 235: 
+                    return 236;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::Type:
@@ -338,7 +338,7 @@ size_t getGoto(NonTerminal nterm, size_t state) {
                 case 45: 
                     return 57;
                 case 162: 
-                    return 202;
+                    return 203;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::ImplBody:
@@ -363,7 +363,7 @@ size_t getGoto(NonTerminal nterm, size_t state) {
             switch (state) {
                 case 67: case 70: case 72: case 73: case 126: 
                     return 79;
-                case 81: case 87: case 117: case 124: case 168: case 184: case 215: case 221: case 224: case 227: 
+                case 81: case 87: case 117: case 124: case 169: case 185: case 217: case 223: case 226: case 229: 
                     return 139;
                 default: reportAbortNoh("get invalid goto");
             }
@@ -371,21 +371,21 @@ size_t getGoto(NonTerminal nterm, size_t state) {
             switch (state) {
                 case 67: case 70: case 72: case 73: case 126: 
                     return 80;
-                case 81: case 87: case 117: case 124: case 168: case 184: case 215: case 221: case 224: case 227: 
+                case 81: case 87: case 117: case 124: case 169: case 185: case 217: case 223: case 226: case 229: 
                     return 138;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::BracedBlock:
             switch (state) {
-                case 54: case 142: case 217: case 233: 
+                case 54: case 142: case 219: case 235: 
                     return 64;
-                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 168: case 184: case 215: case 221: case 224: case 227: 
+                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 169: case 185: case 217: case 223: case 226: case 229: 
                     return 85;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::IndentedBlock:
             switch (state) {
-                case 54: case 142: case 217: case 233: 
+                case 54: case 142: case 219: case 235: 
                     return 65;
                 default: reportAbortNoh("get invalid goto");
             }
@@ -405,125 +405,125 @@ size_t getGoto(NonTerminal nterm, size_t state) {
             switch (state) {
                 case 7: case 15: case 23: case 45: case 162: 
                     return 14;
-                case 67: case 70: case 72: case 73: case 81: case 87: case 100: case 101: case 102: case 103: case 104: case 117: case 124: case 126: case 140: case 141: case 145: case 146: case 147: case 148: case 149: case 150: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 160: case 161: case 168: case 184: case 215: case 221: case 224: case 227: 
+                case 67: case 70: case 72: case 73: case 81: case 87: case 100: case 101: case 102: case 103: case 104: case 117: case 124: case 126: case 140: case 141: case 145: case 146: case 147: case 148: case 149: case 150: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 160: case 161: case 167: case 169: case 185: case 217: case 223: case 226: case 229: 
                     return 119;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::AssignmentExpr:
             switch (state) {
-                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 168: case 184: case 215: case 221: case 224: case 227: 
+                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 169: case 185: case 217: case 223: case 226: case 229: 
                     return 82;
                 case 140: 
-                    return 180;
+                    return 181;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::IfExpr:
             switch (state) {
-                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 168: case 184: case 215: case 221: case 224: case 227: 
+                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 169: case 185: case 217: case 223: case 226: case 229: 
                     return 83;
-                case 217: 
-                    return 226;
+                case 219: 
+                    return 228;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::ForExpr:
             switch (state) {
-                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 168: case 184: case 215: case 221: case 224: case 227: 
+                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 169: case 185: case 217: case 223: case 226: case 229: 
                     return 84;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::BinOrExpr:
             switch (state) {
-                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 140: case 168: case 184: case 215: case 221: case 224: case 227: 
+                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 140: case 169: case 185: case 217: case 223: case 226: case 229: 
                     return 86;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::BinAndExpr:
             switch (state) {
-                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 140: case 168: case 184: case 215: case 221: case 224: case 227: 
+                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 140: case 169: case 185: case 217: case 223: case 226: case 229: 
                     return 89;
                 case 141: 
-                    return 181;
+                    return 182;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::CompEQExpr:
             switch (state) {
-                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 140: case 141: case 168: case 184: case 215: case 221: case 224: case 227: 
+                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 140: case 141: case 169: case 185: case 217: case 223: case 226: case 229: 
                     return 90;
                 case 145: 
-                    return 185;
+                    return 186;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::CompLGTExpr:
             switch (state) {
-                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 140: case 141: case 145: case 168: case 184: case 215: case 221: case 224: case 227: 
+                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 140: case 141: case 145: case 169: case 185: case 217: case 223: case 226: case 229: 
                     return 91;
                 case 146: 
-                    return 186;
-                case 147: 
                     return 187;
+                case 147: 
+                    return 188;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::BitXorExpr:
             switch (state) {
-                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 140: case 141: case 145: case 146: case 147: case 168: case 184: case 215: case 221: case 224: case 227: 
+                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 140: case 141: case 145: case 146: case 147: case 169: case 185: case 217: case 223: case 226: case 229: 
                     return 92;
                 case 148: 
-                    return 188;
-                case 149: 
                     return 189;
-                case 150: 
+                case 149: 
                     return 190;
-                case 151: 
+                case 150: 
                     return 191;
+                case 151: 
+                    return 192;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::BitOrExpr:
             switch (state) {
-                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 140: case 141: case 145: case 146: case 147: case 148: case 149: case 150: case 151: case 168: case 184: case 215: case 221: case 224: case 227: 
+                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 140: case 141: case 145: case 146: case 147: case 148: case 149: case 150: case 151: case 169: case 185: case 217: case 223: case 226: case 229: 
                     return 93;
                 case 152: 
-                    return 192;
+                    return 193;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::BitAndExpr:
             switch (state) {
-                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 140: case 141: case 145: case 146: case 147: case 148: case 149: case 150: case 151: case 152: case 168: case 184: case 215: case 221: case 224: case 227: 
+                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 140: case 141: case 145: case 146: case 147: case 148: case 149: case 150: case 151: case 152: case 169: case 185: case 217: case 223: case 226: case 229: 
                     return 94;
                 case 153: 
-                    return 193;
+                    return 194;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::BitShiftExpr:
             switch (state) {
-                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 140: case 141: case 145: case 146: case 147: case 148: case 149: case 150: case 151: case 152: case 153: case 168: case 184: case 215: case 221: case 224: case 227: 
+                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 140: case 141: case 145: case 146: case 147: case 148: case 149: case 150: case 151: case 152: case 153: case 169: case 185: case 217: case 223: case 226: case 229: 
                     return 95;
                 case 154: 
-                    return 194;
+                    return 195;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::AdditionExpr:
             switch (state) {
-                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 140: case 141: case 145: case 146: case 147: case 148: case 149: case 150: case 151: case 152: case 153: case 154: case 168: case 184: case 215: case 221: case 224: case 227: 
+                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 140: case 141: case 145: case 146: case 147: case 148: case 149: case 150: case 151: case 152: case 153: case 154: case 169: case 185: case 217: case 223: case 226: case 229: 
                     return 96;
                 case 155: 
-                    return 195;
-                case 156: 
                     return 196;
+                case 156: 
+                    return 197;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::MultExpr:
             switch (state) {
-                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 140: case 141: case 145: case 146: case 147: case 148: case 149: case 150: case 151: case 152: case 153: case 154: case 155: case 156: case 168: case 184: case 215: case 221: case 224: case 227: 
+                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 140: case 141: case 145: case 146: case 147: case 148: case 149: case 150: case 151: case 152: case 153: case 154: case 155: case 156: case 169: case 185: case 217: case 223: case 226: case 229: 
                     return 97;
                 case 157: 
-                    return 197;
-                case 158: 
                     return 198;
+                case 158: 
+                    return 199;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::UnaryExpr:
             switch (state) {
-                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 140: case 141: case 145: case 146: case 147: case 148: case 149: case 150: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 168: case 184: case 215: case 221: case 224: case 227: 
+                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 140: case 141: case 145: case 146: case 147: case 148: case 149: case 150: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 169: case 185: case 217: case 223: case 226: case 229: 
                     return 99;
                 case 100: 
                     return 163;
@@ -534,36 +534,38 @@ size_t getGoto(NonTerminal nterm, size_t state) {
                 case 103: 
                     return 166;
                 case 104: 
-                    return 167;
+                    return 168;
                 case 159: 
-                    return 199;
-                case 160: 
                     return 200;
-                case 161: 
+                case 160: 
                     return 201;
+                case 161: 
+                    return 202;
+                case 167: 
+                    return 204;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::CastExpr:
             switch (state) {
-                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 140: case 141: case 145: case 146: case 147: case 148: case 149: case 150: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 168: case 184: case 215: case 221: case 224: case 227: 
+                case 67: case 70: case 72: case 73: case 81: case 87: case 117: case 124: case 126: case 140: case 141: case 145: case 146: case 147: case 148: case 149: case 150: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 169: case 185: case 217: case 223: case 226: case 229: 
                     return 98;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::CallExpr:
             switch (state) {
-                case 67: case 70: case 72: case 73: case 81: case 87: case 100: case 101: case 102: case 103: case 104: case 117: case 124: case 126: case 140: case 141: case 145: case 146: case 147: case 148: case 149: case 150: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 160: case 161: case 168: case 184: case 215: case 221: case 224: case 227: 
+                case 67: case 70: case 72: case 73: case 81: case 87: case 100: case 101: case 102: case 103: case 104: case 117: case 124: case 126: case 140: case 141: case 145: case 146: case 147: case 148: case 149: case 150: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 160: case 161: case 167: case 169: case 185: case 217: case 223: case 226: case 229: 
                     return 105;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::PrimaryExpr:
             switch (state) {
-                case 67: case 70: case 72: case 73: case 81: case 87: case 100: case 101: case 102: case 103: case 104: case 117: case 124: case 126: case 140: case 141: case 145: case 146: case 147: case 148: case 149: case 150: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 160: case 161: case 168: case 184: case 215: case 221: case 224: case 227: 
+                case 67: case 70: case 72: case 73: case 81: case 87: case 100: case 101: case 102: case 103: case 104: case 117: case 124: case 126: case 140: case 141: case 145: case 146: case 147: case 148: case 149: case 150: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 160: case 161: case 167: case 169: case 185: case 217: case 223: case 226: case 229: 
                     return 106;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::PathExpr:
             switch (state) {
-                case 67: case 70: case 72: case 73: case 81: case 87: case 100: case 101: case 102: case 103: case 104: case 117: case 124: case 126: case 140: case 141: case 145: case 146: case 147: case 148: case 149: case 150: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 160: case 161: case 168: case 184: case 215: case 221: case 224: case 227: 
+                case 67: case 70: case 72: case 73: case 81: case 87: case 100: case 101: case 102: case 103: case 104: case 117: case 124: case 126: case 140: case 141: case 145: case 146: case 147: case 148: case 149: case 150: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 160: case 161: case 167: case 169: case 185: case 217: case 223: case 226: case 229: 
                     return 118;
                 default: reportAbortNoh("get invalid goto");
             }
@@ -2528,6 +2530,8 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         shift(p, lasttok, lookahead, stack, steps, 16); break;
                     case TokenType::MINUS:
                         shift(p, lasttok, lookahead, stack, steps, 101); break;
+                    case TokenType::MUT:
+                        shift(p, lasttok, lookahead, stack, steps, 167); break;
                     case TokenType::NULLPTRLIT:
                         shift(p, lasttok, lookahead, stack, steps, 110); break;
                     case TokenType::OCTINTLIT:
@@ -2544,7 +2548,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         shift(p, lasttok, lookahead, stack, steps, 107); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "unary expression", "unary expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", format("either % or %", "unary expression", stringifyTokenType(TokenType::MUT)), "unary expression")  });
                 }
                 break;
             case 104:
@@ -2600,7 +2604,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         }
                         break;
                     case TokenType::OPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 168); break;
+                        shift(p, lasttok, lookahead, stack, steps, 169); break;
                 }
                 break;
             case 106:
@@ -2869,7 +2873,7 @@ std::unique_ptr<ASTNS::PathExpr> push (std::make_unique<ASTNS::PathExpr>(p.sourc
             case 122:
                 switch (lookahead.type) {
                     case TokenType::CCURB:
-                        shift(p, lasttok, lookahead, stack, steps, 171); break;
+                        shift(p, lasttok, lookahead, stack, steps, 172); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::CCURB), "braced code block")  });
@@ -3054,7 +3058,7 @@ a0->stmts.push_back(std::move(a1));
             case 130:
                 switch (lookahead.type) {
                     case TokenType::COMMA:
-                        shift(p, lasttok, lookahead, stack, steps, 176); break;
+                        shift(p, lasttok, lookahead, stack, steps, 177); break;
                     default: {
                             auto a0 (popA<ASTNS::VarStmtItemList>(stack));
                             Location start ((a0.get())), end ((a0.get()));
@@ -3094,7 +3098,7 @@ std::unique_ptr<ASTNS::VarStmtItemList> push(std::make_unique<ASTNS::VarStmtItem
             case 133:
                 switch (lookahead.type) {
                     case TokenType::IDENTIFIER:
-                        shift(p, lasttok, lookahead, stack, steps, 178); break;
+                        shift(p, lasttok, lookahead, stack, steps, 179); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::IDENTIFIER), "variable binding")  });
@@ -3272,7 +3276,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
             case 142:
                 switch (lookahead.type) {
                     case TokenType::NEWLINE:
-                        shift(p, lasttok, lookahead, stack, steps, 183); break;
+                        shift(p, lasttok, lookahead, stack, steps, 184); break;
                     case TokenType::OCURB:
                         shift(p, lasttok, lookahead, stack, steps, 67); break;
                     default:
@@ -3283,7 +3287,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
             case 143:
                 switch (lookahead.type) {
                     case TokenType::SEMICOLON:
-                        shift(p, lasttok, lookahead, stack, steps, 184); break;
+                        shift(p, lasttok, lookahead, stack, steps, 185); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::SEMICOLON), "for expression")  });
@@ -4067,7 +4071,7 @@ std::unique_ptr<ASTNS::UnaryExpr> push (std::make_unique<ASTNS::UnaryExpr>(p.sou
                             start = a0;
                             if (a1) end = a1->end();
                             else end = a0;
-std::unique_ptr<ASTNS::AddrofExpr> push (std::make_unique<ASTNS::AddrofExpr>(p.sourcefile, start, end, a0, std::move(a1)));
+std::unique_ptr<ASTNS::AddrofExpr> push (std::make_unique<ASTNS::AddrofExpr>(p.sourcefile, start, end, a0, std::move(a1), false));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(getGoto(NonTerminal::UnaryExpr, stack.back().state), std::move(pushitem), NonTerminal::UnaryExpr);
                         }
@@ -4075,6 +4079,47 @@ std::unique_ptr<ASTNS::AddrofExpr> push (std::make_unique<ASTNS::AddrofExpr>(p.s
                 }
                 break;
             case 167:
+                switch (lookahead.type) {
+                    case TokenType::AMPER:
+                        shift(p, lasttok, lookahead, stack, steps, 103); break;
+                    case TokenType::BANG:
+                        shift(p, lasttok, lookahead, stack, steps, 102); break;
+                    case TokenType::BININTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 113); break;
+                    case TokenType::CHARLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 115); break;
+                    case TokenType::DECINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 111); break;
+                    case TokenType::FALSELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 108); break;
+                    case TokenType::FLOATLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 109); break;
+                    case TokenType::HEXINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 114); break;
+                    case TokenType::IDENTIFIER:
+                        shift(p, lasttok, lookahead, stack, steps, 16); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 101); break;
+                    case TokenType::NULLPTRLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 110); break;
+                    case TokenType::OCTINTLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 112); break;
+                    case TokenType::OPARN:
+                        shift(p, lasttok, lookahead, stack, steps, 117); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 104); break;
+                    case TokenType::STRINGLIT:
+                        shift(p, lasttok, lookahead, stack, steps, 116); break;
+                    case TokenType::TILDE:
+                        shift(p, lasttok, lookahead, stack, steps, 100); break;
+                    case TokenType::TRUELIT:
+                        shift(p, lasttok, lookahead, stack, steps, 107); break;
+                    default:
+                        if (istrial) return false;
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "unary expression", "unary expression")  });
+                }
+                break;
+            case 168:
                 switch (lookahead.type) {
                     default: {
                             auto a1 (popA<ASTNS::Expr>(stack));
@@ -4090,7 +4135,7 @@ std::unique_ptr<ASTNS::DerefExpr> push (std::make_unique<ASTNS::DerefExpr>(p.sou
                         break;
                 }
                 break;
-            case 168:
+            case 169:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
                         shift(p, lasttok, lookahead, stack, steps, 103); break;
@@ -4143,25 +4188,25 @@ std::unique_ptr<ASTNS::DerefExpr> push (std::make_unique<ASTNS::DerefExpr>(p.sou
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional argument list", "function call expression")  });
                 }
                 break;
-            case 169:
+            case 170:
                 switch (lookahead.type) {
                     case TokenType::CPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 208); break;
+                        shift(p, lasttok, lookahead, stack, steps, 210); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::CPARN), "primary expression")  });
                 }
                 break;
-            case 170:
+            case 171:
                 switch (lookahead.type) {
                     case TokenType::DEDENT:
-                        shift(p, lasttok, lookahead, stack, steps, 209); break;
+                        shift(p, lasttok, lookahead, stack, steps, 211); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::DEDENT), "indented code block")  });
                 }
                 break;
-            case 171:
+            case 172:
                 switch (lookahead.type) {
                     default: {
                             auto a3 (popT(stack));
@@ -4178,7 +4223,7 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                         break;
                 }
                 break;
-            case 172:
+            case 173:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
                     case TokenType::BANG:
@@ -4222,16 +4267,16 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional line ending", "block return value")  });
                 }
                 break;
-            case 173:
+            case 174:
                 switch (lookahead.type) {
                     case TokenType::CCURB:
-                        shift(p, lasttok, lookahead, stack, steps, 211); break;
+                        shift(p, lasttok, lookahead, stack, steps, 213); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::CCURB), "braced code block")  });
                 }
                 break;
-            case 174:
+            case 175:
                 switch (lookahead.type) {
                     case TokenType::CCURB:
                     case TokenType::DEDENT:
@@ -4247,7 +4292,7 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional block return value", "braced code block")  });
                 }
                 break;
-            case 175:
+            case 176:
                 switch (lookahead.type) {
                     default: {
                             auto a2 (popA<ASTNS::PureLocation>(stack));
@@ -4265,7 +4310,7 @@ std::unique_ptr<ASTNS::VarStmt> push (std::make_unique<ASTNS::VarStmt>(p.sourcef
                         break;
                 }
                 break;
-            case 176:
+            case 177:
                 switch (lookahead.type) {
                     case TokenType::IDENTIFIER:
                         shift(p, lasttok, lookahead, stack, steps, 132); break;
@@ -4284,7 +4329,7 @@ std::unique_ptr<ASTNS::VarStmt> push (std::make_unique<ASTNS::VarStmt>(p.sourcef
                         break;
                 }
                 break;
-            case 177:
+            case 178:
                 switch (lookahead.type) {
                     default: {
                             auto a1 (popA<ASTNS::Type>(stack));
@@ -4299,10 +4344,10 @@ std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p
                         }
                         break;
                     case TokenType::EQUAL:
-                        shift(p, lasttok, lookahead, stack, steps, 215); break;
+                        shift(p, lasttok, lookahead, stack, steps, 217); break;
                 }
                 break;
-            case 178:
+            case 179:
                 switch (lookahead.type) {
                     case TokenType::COLON:
                         shift(p, lasttok, lookahead, stack, steps, 45); break;
@@ -4311,7 +4356,7 @@ std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "required type annotation", "variable binding")  });
                 }
                 break;
-            case 179:
+            case 180:
                 switch (lookahead.type) {
                     default: {
                             auto a2 (popA<ASTNS::PureLocation>(stack));
@@ -4329,7 +4374,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         break;
                 }
                 break;
-            case 180:
+            case 181:
                 switch (lookahead.type) {
                     default: {
                             auto a2 (popA<ASTNS::Expr>(stack));
@@ -4347,7 +4392,7 @@ std::unique_ptr<ASTNS::AssignmentExpr> push (std::make_unique<ASTNS::AssignmentE
                         break;
                 }
                 break;
-            case 181:
+            case 182:
                 switch (lookahead.type) {
                     default: {
                             auto a2 (popA<ASTNS::Expr>(stack));
@@ -4367,7 +4412,7 @@ std::unique_ptr<ASTNS::ShortCircuitExpr> push (std::make_unique<ASTNS::ShortCirc
                         shift(p, lasttok, lookahead, stack, steps, 145); break;
                 }
                 break;
-            case 182:
+            case 183:
                 switch (lookahead.type) {
                     default: {
                             auto a2 (popA<ASTNS::Block>(stack));
@@ -4384,10 +4429,10 @@ std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefil
                         }
                         break;
                     case TokenType::ELSE:
-                        shift(p, lasttok, lookahead, stack, steps, 217); break;
+                        shift(p, lasttok, lookahead, stack, steps, 219); break;
                 }
                 break;
-            case 183:
+            case 184:
                 switch (lookahead.type) {
                     case TokenType::INDENT:
                         shift(p, lasttok, lookahead, stack, steps, 70); break;
@@ -4396,7 +4441,7 @@ std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefil
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::INDENT), "indented code block")  });
                 }
                 break;
-            case 184:
+            case 185:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
                         shift(p, lasttok, lookahead, stack, steps, 103); break;
@@ -4450,7 +4495,7 @@ std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefil
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional expression", "for expression")  });
                 }
                 break;
-            case 185:
+            case 186:
                 switch (lookahead.type) {
                     case TokenType::BANGEQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 146); break;
@@ -4470,32 +4515,6 @@ std::unique_ptr<ASTNS::ShortCircuitExpr> push (std::make_unique<ASTNS::ShortCirc
                         break;
                     case TokenType::DOUBLEEQUAL:
                         shift(p, lasttok, lookahead, stack, steps, 147); break;
-                }
-                break;
-            case 186:
-                switch (lookahead.type) {
-                    default: {
-                            auto a2 (popA<ASTNS::Expr>(stack));
-                            auto a1 (popT(stack));
-                            auto a0 (popA<ASTNS::Expr>(stack));
-                            Location start, end;
-                            if (a0) start = a0->start();
-                            else start = a1;
-                            if (a2) end = a2->end();
-                            else end = a1;
-std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2)));
-                            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::CompEQExpr, stack.back().state), std::move(pushitem), NonTerminal::CompEQExpr);
-                        }
-                        break;
-                    case TokenType::GREATER:
-                        shift(p, lasttok, lookahead, stack, steps, 149); break;
-                    case TokenType::GREATEREQUAL:
-                        shift(p, lasttok, lookahead, stack, steps, 151); break;
-                    case TokenType::LESS:
-                        shift(p, lasttok, lookahead, stack, steps, 148); break;
-                    case TokenType::LESSEQUAL:
-                        shift(p, lasttok, lookahead, stack, steps, 150); break;
                 }
                 break;
             case 187:
@@ -4537,11 +4556,17 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             else end = a1;
 std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::CompLGTExpr, stack.back().state), std::move(pushitem), NonTerminal::CompLGTExpr);
+                            stack.emplace_back(getGoto(NonTerminal::CompEQExpr, stack.back().state), std::move(pushitem), NonTerminal::CompEQExpr);
                         }
                         break;
-                    case TokenType::CARET:
-                        shift(p, lasttok, lookahead, stack, steps, 152); break;
+                    case TokenType::GREATER:
+                        shift(p, lasttok, lookahead, stack, steps, 149); break;
+                    case TokenType::GREATEREQUAL:
+                        shift(p, lasttok, lookahead, stack, steps, 151); break;
+                    case TokenType::LESS:
+                        shift(p, lasttok, lookahead, stack, steps, 148); break;
+                    case TokenType::LESSEQUAL:
+                        shift(p, lasttok, lookahead, stack, steps, 150); break;
                 }
                 break;
             case 189:
@@ -4617,6 +4642,26 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             else end = a1;
 std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+                            stack.emplace_back(getGoto(NonTerminal::CompLGTExpr, stack.back().state), std::move(pushitem), NonTerminal::CompLGTExpr);
+                        }
+                        break;
+                    case TokenType::CARET:
+                        shift(p, lasttok, lookahead, stack, steps, 152); break;
+                }
+                break;
+            case 193:
+                switch (lookahead.type) {
+                    default: {
+                            auto a2 (popA<ASTNS::Expr>(stack));
+                            auto a1 (popT(stack));
+                            auto a0 (popA<ASTNS::Expr>(stack));
+                            Location start, end;
+                            if (a0) start = a0->start();
+                            else start = a1;
+                            if (a2) end = a2->end();
+                            else end = a1;
+std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2)));
+                            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(getGoto(NonTerminal::BitXorExpr, stack.back().state), std::move(pushitem), NonTerminal::BitXorExpr);
                         }
                         break;
@@ -4624,7 +4669,7 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                         shift(p, lasttok, lookahead, stack, steps, 153); break;
                 }
                 break;
-            case 193:
+            case 194:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
                         shift(p, lasttok, lookahead, stack, steps, 154); break;
@@ -4644,7 +4689,7 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                         break;
                 }
                 break;
-            case 194:
+            case 195:
                 switch (lookahead.type) {
                     default: {
                             auto a2 (popA<ASTNS::Expr>(stack));
@@ -4664,28 +4709,6 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                         shift(p, lasttok, lookahead, stack, steps, 155); break;
                     case TokenType::DOUBLELESS:
                         shift(p, lasttok, lookahead, stack, steps, 156); break;
-                }
-                break;
-            case 195:
-                switch (lookahead.type) {
-                    default: {
-                            auto a2 (popA<ASTNS::Expr>(stack));
-                            auto a1 (popT(stack));
-                            auto a0 (popA<ASTNS::Expr>(stack));
-                            Location start, end;
-                            if (a0) start = a0->start();
-                            else start = a1;
-                            if (a2) end = a2->end();
-                            else end = a1;
-std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2)));
-                            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::BitShiftExpr, stack.back().state), std::move(pushitem), NonTerminal::BitShiftExpr);
-                        }
-                        break;
-                    case TokenType::MINUS:
-                        shift(p, lasttok, lookahead, stack, steps, 158); break;
-                    case TokenType::PLUS:
-                        shift(p, lasttok, lookahead, stack, steps, 157); break;
                 }
                 break;
             case 196:
@@ -4723,15 +4746,13 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             else end = a1;
 std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::AdditionExpr, stack.back().state), std::move(pushitem), NonTerminal::AdditionExpr);
+                            stack.emplace_back(getGoto(NonTerminal::BitShiftExpr, stack.back().state), std::move(pushitem), NonTerminal::BitShiftExpr);
                         }
                         break;
-                    case TokenType::PERCENT:
-                        shift(p, lasttok, lookahead, stack, steps, 161); break;
-                    case TokenType::SLASH:
-                        shift(p, lasttok, lookahead, stack, steps, 160); break;
-                    case TokenType::STAR:
-                        shift(p, lasttok, lookahead, stack, steps, 159); break;
+                    case TokenType::MINUS:
+                        shift(p, lasttok, lookahead, stack, steps, 158); break;
+                    case TokenType::PLUS:
+                        shift(p, lasttok, lookahead, stack, steps, 157); break;
                 }
                 break;
             case 198:
@@ -4771,9 +4792,15 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             else end = a1;
 std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::MultExpr, stack.back().state), std::move(pushitem), NonTerminal::MultExpr);
+                            stack.emplace_back(getGoto(NonTerminal::AdditionExpr, stack.back().state), std::move(pushitem), NonTerminal::AdditionExpr);
                         }
                         break;
+                    case TokenType::PERCENT:
+                        shift(p, lasttok, lookahead, stack, steps, 161); break;
+                    case TokenType::SLASH:
+                        shift(p, lasttok, lookahead, stack, steps, 160); break;
+                    case TokenType::STAR:
+                        shift(p, lasttok, lookahead, stack, steps, 159); break;
                 }
                 break;
             case 200:
@@ -4815,6 +4842,24 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
             case 202:
                 switch (lookahead.type) {
                     default: {
+                            auto a2 (popA<ASTNS::Expr>(stack));
+                            auto a1 (popT(stack));
+                            auto a0 (popA<ASTNS::Expr>(stack));
+                            Location start, end;
+                            if (a0) start = a0->start();
+                            else start = a1;
+                            if (a2) end = a2->end();
+                            else end = a1;
+std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2)));
+                            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+                            stack.emplace_back(getGoto(NonTerminal::MultExpr, stack.back().state), std::move(pushitem), NonTerminal::MultExpr);
+                        }
+                        break;
+                }
+                break;
+            case 203:
+                switch (lookahead.type) {
+                    default: {
                             auto a2 (popA<ASTNS::Type>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -4830,16 +4875,33 @@ std::unique_ptr<ASTNS::CastExpr> push (std::make_unique<ASTNS::CastExpr>(p.sourc
                         break;
                 }
                 break;
-            case 203:
+            case 204:
+                switch (lookahead.type) {
+                    default: {
+                            auto a2 (popA<ASTNS::Expr>(stack));
+                            auto a1 (popT(stack));
+                            auto a0 (popT(stack));
+                            Location start, end;
+                            start = a0;
+                            if (a2) end = a2->end();
+                            else end = a1;
+std::unique_ptr<ASTNS::AddrofExpr> push (std::make_unique<ASTNS::AddrofExpr>(p.sourcefile, start, end, a0, std::move(a2), true));
+                            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+                            stack.emplace_back(getGoto(NonTerminal::UnaryExpr, stack.back().state), std::move(pushitem), NonTerminal::UnaryExpr);
+                        }
+                        break;
+                }
+                break;
+            case 205:
                 switch (lookahead.type) {
                     case TokenType::CPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 220); break;
+                        shift(p, lasttok, lookahead, stack, steps, 222); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::CPARN), "function call expression")  });
                 }
                 break;
-            case 204:
+            case 206:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::ArgList>(stack));
@@ -4852,10 +4914,10 @@ std::unique_ptr<ASTNS::CastExpr> push (std::make_unique<ASTNS::CastExpr>(p.sourc
                         break;
                 }
                 break;
-            case 205:
+            case 207:
                 switch (lookahead.type) {
                     case TokenType::COMMA:
-                        shift(p, lasttok, lookahead, stack, steps, 221); break;
+                        shift(p, lasttok, lookahead, stack, steps, 223); break;
                     default: {
                             auto a0 (popA<ASTNS::ArgList>(stack));
                             Location start ((a0.get())), end ((a0.get()));
@@ -4867,7 +4929,7 @@ std::unique_ptr<ASTNS::CastExpr> push (std::make_unique<ASTNS::CastExpr>(p.sourc
                         break;
                 }
                 break;
-            case 206:
+            case 208:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Arg>(stack));
@@ -4883,7 +4945,7 @@ std::unique_ptr<ASTNS::ArgList> push(std::make_unique<ASTNS::ArgList>(p.sourcefi
                         break;
                 }
                 break;
-            case 207:
+            case 209:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -4897,7 +4959,7 @@ std::unique_ptr<ASTNS::Arg> push (std::make_unique<ASTNS::Arg>(p.sourcefile, sta
                         break;
                 }
                 break;
-            case 208:
+            case 210:
                 switch (lookahead.type) {
                     default: {
                             auto a2 (popT(stack));
@@ -4908,42 +4970,6 @@ std::unique_ptr<ASTNS::Arg> push (std::make_unique<ASTNS::Arg>(p.sourcefile, sta
                             end = a2;
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a1);
                             stack.emplace_back(getGoto(NonTerminal::PrimaryExpr, stack.back().state), std::move(pushitem), NonTerminal::PrimaryExpr);
-                        }
-                        break;
-                }
-                break;
-            case 209:
-                switch (lookahead.type) {
-                    default: {
-                            auto a4 (popT(stack));
-                            auto a3 (popA<ASTNS::ImplRet>(stack));
-                            auto a2 (popA<ASTNS::StmtList>(stack));
-                            auto a1 (popT(stack));
-                            auto a0 (popT(stack));
-                            Location start, end;
-                            start = a0;
-                            end = a4;
-std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, start, end, std::move(a2), std::move(a3)));
-                            std::unique_ptr<ASTNS::Block> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::IndentedBlock, stack.back().state), std::move(pushitem), NonTerminal::IndentedBlock);
-                        }
-                        break;
-                }
-                break;
-            case 210:
-                switch (lookahead.type) {
-                    default: {
-                            auto a2 (popA<ASTNS::PureLocation>(stack));
-                            auto a1 (popA<ASTNS::Expr>(stack));
-                            auto a0 (popT(stack));
-                            Location start, end;
-                            start = a0;
-                            if (a2) end = a2->end();
-                            else if (a1) end = a1->end();
-                            else end = a0;
-std::unique_ptr<ASTNS::ImplRet> push (std::make_unique<ASTNS::ImplRet>(p.sourcefile, start, end, std::move(a1)));
-                            std::unique_ptr<ASTNS::ImplRet> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::ImplRet, stack.back().state), std::move(pushitem), NonTerminal::ImplRet);
                         }
                         break;
                 }
@@ -4961,21 +4987,57 @@ std::unique_ptr<ASTNS::ImplRet> push (std::make_unique<ASTNS::ImplRet>(p.sourcef
                             end = a4;
 std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, start, end, std::move(a2), std::move(a3)));
                             std::unique_ptr<ASTNS::Block> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::BracedBlock, stack.back().state), std::move(pushitem), NonTerminal::BracedBlock);
+                            stack.emplace_back(getGoto(NonTerminal::IndentedBlock, stack.back().state), std::move(pushitem), NonTerminal::IndentedBlock);
                         }
                         break;
                 }
                 break;
             case 212:
                 switch (lookahead.type) {
+                    default: {
+                            auto a2 (popA<ASTNS::PureLocation>(stack));
+                            auto a1 (popA<ASTNS::Expr>(stack));
+                            auto a0 (popT(stack));
+                            Location start, end;
+                            start = a0;
+                            if (a2) end = a2->end();
+                            else if (a1) end = a1->end();
+                            else end = a0;
+std::unique_ptr<ASTNS::ImplRet> push (std::make_unique<ASTNS::ImplRet>(p.sourcefile, start, end, std::move(a1)));
+                            std::unique_ptr<ASTNS::ImplRet> pushitem = std::move(push);
+                            stack.emplace_back(getGoto(NonTerminal::ImplRet, stack.back().state), std::move(pushitem), NonTerminal::ImplRet);
+                        }
+                        break;
+                }
+                break;
+            case 213:
+                switch (lookahead.type) {
+                    default: {
+                            auto a4 (popT(stack));
+                            auto a3 (popA<ASTNS::ImplRet>(stack));
+                            auto a2 (popA<ASTNS::StmtList>(stack));
+                            auto a1 (popT(stack));
+                            auto a0 (popT(stack));
+                            Location start, end;
+                            start = a0;
+                            end = a4;
+std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, start, end, std::move(a2), std::move(a3)));
+                            std::unique_ptr<ASTNS::Block> pushitem = std::move(push);
+                            stack.emplace_back(getGoto(NonTerminal::BracedBlock, stack.back().state), std::move(pushitem), NonTerminal::BracedBlock);
+                        }
+                        break;
+                }
+                break;
+            case 214:
+                switch (lookahead.type) {
                     case TokenType::DEDENT:
-                        shift(p, lasttok, lookahead, stack, steps, 222); break;
+                        shift(p, lasttok, lookahead, stack, steps, 224); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::DEDENT), "braced code block")  });
                 }
                 break;
-            case 213:
+            case 215:
                 switch (lookahead.type) {
                     default: {
                             auto a2 (popA<ASTNS::VarStmtItem>(stack));
@@ -4993,7 +5055,7 @@ a0->items.push_back(std::move(a2));
                         break;
                 }
                 break;
-            case 214:
+            case 216:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::VarStmtItem>(stack));
@@ -5006,7 +5068,7 @@ a0->items.push_back(std::move(a2));
                         break;
                 }
                 break;
-            case 215:
+            case 217:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
                         shift(p, lasttok, lookahead, stack, steps, 103); break;
@@ -5053,7 +5115,7 @@ a0->items.push_back(std::move(a2));
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "expression", "variable binding")  });
                 }
                 break;
-            case 216:
+            case 218:
                 switch (lookahead.type) {
                     default: {
                             auto a2 (popA<ASTNS::Type>(stack));
@@ -5069,15 +5131,15 @@ std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p
                         }
                         break;
                     case TokenType::EQUAL:
-                        shift(p, lasttok, lookahead, stack, steps, 224); break;
+                        shift(p, lasttok, lookahead, stack, steps, 226); break;
                 }
                 break;
-            case 217:
+            case 219:
                 switch (lookahead.type) {
                     case TokenType::IF:
                         shift(p, lasttok, lookahead, stack, steps, 87); break;
                     case TokenType::NEWLINE:
-                        shift(p, lasttok, lookahead, stack, steps, 183); break;
+                        shift(p, lasttok, lookahead, stack, steps, 184); break;
                     case TokenType::OCURB:
                         shift(p, lasttok, lookahead, stack, steps, 67); break;
                     default:
@@ -5085,16 +5147,16 @@ std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", format("either % or %", "code block", "if expression"), "if expression")  });
                 }
                 break;
-            case 218:
+            case 220:
                 switch (lookahead.type) {
                     case TokenType::SEMICOLON:
-                        shift(p, lasttok, lookahead, stack, steps, 227); break;
+                        shift(p, lasttok, lookahead, stack, steps, 229); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::SEMICOLON), "for expression")  });
                 }
                 break;
-            case 219:
+            case 221:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
@@ -5107,7 +5169,7 @@ std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p
                         break;
                 }
                 break;
-            case 220:
+            case 222:
                 switch (lookahead.type) {
                     default: {
                             auto a3 (popT(stack));
@@ -5125,7 +5187,7 @@ std::unique_ptr<ASTNS::CallExpr> push (std::make_unique<ASTNS::CallExpr>(p.sourc
                         break;
                 }
                 break;
-            case 221:
+            case 223:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
                         shift(p, lasttok, lookahead, stack, steps, 103); break;
@@ -5180,16 +5242,16 @@ std::unique_ptr<ASTNS::CallExpr> push (std::make_unique<ASTNS::CallExpr>(p.sourc
                         shift(p, lasttok, lookahead, stack, steps, 107); break;
                 }
                 break;
-            case 222:
+            case 224:
                 switch (lookahead.type) {
                     case TokenType::CCURB:
-                        shift(p, lasttok, lookahead, stack, steps, 230); break;
+                        shift(p, lasttok, lookahead, stack, steps, 232); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::CCURB), "braced code block")  });
                 }
                 break;
-            case 223:
+            case 225:
                 switch (lookahead.type) {
                     default: {
                             auto a3 (popA<ASTNS::Expr>(stack));
@@ -5207,7 +5269,7 @@ std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p
                         break;
                 }
                 break;
-            case 224:
+            case 226:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
                         shift(p, lasttok, lookahead, stack, steps, 103); break;
@@ -5254,7 +5316,7 @@ std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "expression", "variable binding")  });
                 }
                 break;
-            case 225:
+            case 227:
                 switch (lookahead.type) {
                     default: {
                             auto a4 (popA<ASTNS::Block>(stack));
@@ -5273,7 +5335,7 @@ std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefil
                         break;
                 }
                 break;
-            case 226:
+            case 228:
                 switch (lookahead.type) {
                     default: {
                             auto a4 (popA<ASTNS::IfExpr>(stack));
@@ -5292,7 +5354,7 @@ std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefil
                         break;
                 }
                 break;
-            case 227:
+            case 229:
                 switch (lookahead.type) {
                     case TokenType::AMPER:
                         shift(p, lasttok, lookahead, stack, steps, 103); break;
@@ -5346,7 +5408,7 @@ std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefil
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional expression", "for expression")  });
                 }
                 break;
-            case 228:
+            case 230:
                 switch (lookahead.type) {
                     default: {
                             auto a2 (popA<ASTNS::Arg>(stack));
@@ -5364,7 +5426,7 @@ a0->args.push_back(std::move(a2));
                         break;
                 }
                 break;
-            case 229:
+            case 231:
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Arg>(stack));
@@ -5377,7 +5439,7 @@ a0->args.push_back(std::move(a2));
                         break;
                 }
                 break;
-            case 230:
+            case 232:
                 switch (lookahead.type) {
                     default: {
                             auto a6 (popT(stack));
@@ -5397,7 +5459,7 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                         break;
                 }
                 break;
-            case 231:
+            case 233:
                 switch (lookahead.type) {
                     default: {
                             auto a4 (popA<ASTNS::Expr>(stack));
@@ -5416,19 +5478,19 @@ std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p
                         break;
                 }
                 break;
-            case 232:
+            case 234:
                 switch (lookahead.type) {
                     case TokenType::CPARN:
-                        shift(p, lasttok, lookahead, stack, steps, 233); break;
+                        shift(p, lasttok, lookahead, stack, steps, 235); break;
                     default:
                         if (istrial) return false;
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::CPARN), "for expression")  });
                 }
                 break;
-            case 233:
+            case 235:
                 switch (lookahead.type) {
                     case TokenType::NEWLINE:
-                        shift(p, lasttok, lookahead, stack, steps, 183); break;
+                        shift(p, lasttok, lookahead, stack, steps, 184); break;
                     case TokenType::OCURB:
                         shift(p, lasttok, lookahead, stack, steps, 67); break;
                     default:
@@ -5436,7 +5498,7 @@ std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p
                         error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "code block", "for expression")  });
                 }
                 break;
-            case 234:
+            case 236:
                 switch (lookahead.type) {
                     default: {
                             auto a7 (popA<ASTNS::Block>(stack));

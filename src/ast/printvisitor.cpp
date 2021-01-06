@@ -296,6 +296,8 @@ void ASTNS::PrintVisitor::visitAddrofExpr(ASTNS::AddrofExpr *a) {
     printField(a->op);
     pai("std::unique_ptr<Expr> expr = ");
     printField(a->expr);
+    pai("bool mut = ");
+    printField(a->mut);
     --indent;
     pai("}\n");
 }
