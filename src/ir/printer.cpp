@@ -139,7 +139,7 @@ namespace {
             toTemp(i);
         }
         void brArrow() {
-            pr.ostream << " ==> ";
+            pr.ostream << "==> ";
         }
         // }}}
 
@@ -253,8 +253,8 @@ namespace {
         void visitCondBr(IR::Instrs::CondBr *i) override {
             instrName("condbr");
             i->v.val->value_accept(pr.vrp.get());
-            brArrow(); stringifyBlock(*i->trueB);
-            brArrow(); stringifyBlock(*i->falseB);
+            pr.ostream << " "; brArrow(); stringifyBlock(*i->trueB);
+            pr.ostream << " "; brArrow(); stringifyBlock(*i->falseB);
         }
         // }}}
         // }}}
