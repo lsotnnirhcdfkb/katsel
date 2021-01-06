@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 
+namespace llvm { class raw_ostream; }
 namespace IR {
     namespace Instrs {
         class Instruction;
