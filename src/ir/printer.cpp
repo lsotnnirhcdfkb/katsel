@@ -75,6 +75,7 @@ namespace {
         // visit Instruction {{{
         void value_visitInstruction(IR::Instrs::Instruction *v) override {
             v->accept(this);
+            pr.ostream << ";\n";
         }
         // }}}
         // Function {{{
@@ -98,13 +99,12 @@ namespace {
             pr.ostream << ": {\n";
 
             for (std::unique_ptr<IR::Instrs::Instruction> const &instr : b.instructions) {
-                instr->accept(this);
-                pr.ostream << "\n";
+                instr->value_accept(this);
             }
             if (b.br) {
-                pr.ostream << "----";
+                pr.ostream << "=>: ";
                 b.br->accept(this);
-                pr.ostream << "\n";
+                pr.ostream << ";\n";
             }
             pr.ostream << "}\n";
         }
