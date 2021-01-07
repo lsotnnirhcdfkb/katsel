@@ -557,6 +557,7 @@ OCTINTLIT = Terminal('OCTINTLIT')
 OCURB = Terminal('OCURB')
 OPARN = Terminal('OPARN')
 PERCENT = Terminal('PERCENT')
+PERIOD = Terminal('PERIOD')
 PIPE = Terminal('PIPE')
 PLUS = Terminal('PLUS')
 RETURN = Terminal('RETURN')
@@ -587,7 +588,6 @@ def make_grammar():
     Block = nt('Block', 'code block', 'Block', panickable=True)
     BracedBlock = nt('BracedBlock', 'braced code block', 'Block', panickable=True)
     IndentedBlock = nt('IndentedBlock', 'indented code block', 'Block', panickable=True)
-    ImplRet = nt('ImplRet', 'block return value', 'ImplRet', panickable=True)
     TypeAnnotation = nt('TypeAnnotation', 'required type annotation', 'Type')
     Type = nt('Type', 'type specifier', 'Type')
     PointerType = nt('PointerType', 'pointer type specifier', 'PointerType')
@@ -630,7 +630,6 @@ def make_grammar():
     ParamListOpt = make_opt(ParamList, SkipReduceAction(), NullptrReduceAction())
     ArgListOpt = make_opt(ArgList, SkipReduceAction(), NullptrReduceAction())
     StmtListOpt = make_opt(StmtList, SkipReduceAction(), NullptrReduceAction())
-    ImplRetOpt = make_opt(ImplRet, SkipReduceAction(), NullptrReduceAction())
     ExprOpt = make_opt(Expr, SkipReduceAction(), NullptrReduceAction())
     VarStmtOpt = make_opt(VarStmt, SkipReduceAction(), NullptrReduceAction())
     LineEndingOpt = make_opt(LineEnding, SkipReduceAction(), NullptrReduceAction())
@@ -659,8 +658,9 @@ def make_grammar():
 
     rule(VarStmt, (VAR, VarStmtItemList, LineEnding), SimpleReduceAction('VarStmt', 'std::move(a1)'))
 
-    rule(ExprStmt, (NotBlockedExpr, LineEnding), SimpleReduceAction('ExprStmt', 'std::move(a0)'))
-    rule(ExprStmt, (BlockedExpr, LineEndingOpt), SimpleReduceAction('ExprStmt', 'std::move(a0)'))
+    rule(ExprStmt, (NotBlockedExpr, LineEnding), SimpleReduceAction('ExprStmt', 'std::move(a0), false'))
+    rule(ExprStmt, (BlockedExpr, LineEndingOpt), SimpleReduceAction('ExprStmt', 'std::move(a0), false'))
+    rule(ExprStmt, (Expr, PERIOD, LineEnding), SimpleReduceAction('ExprStmt', 'std::move(a0), true'))
 
     rule(RetStmt, (RETURN, Expr, LineEnding), SimpleReduceAction('RetStmt', 'std::move(a1)'))
     rule(RetStmt, (RETURN, LineEnding), SimpleReduceAction('RetStmt', 'nullptr'))
@@ -671,13 +671,11 @@ def make_grammar():
     rule(VarStmtItem, (MUT, IDENTIFIER, TypeAnnotation), SimpleReduceAction('VarStmtItem', 'std::move(a2), true, a1, a1, nullptr'))
 
     skip_to(Block, BracedBlock, IndentedBlock)
-    braced_rule(BracedBlock, (StmtListOpt, ImplRetOpt),
-        SimpleReduceAction('Block', 'std::move(a1), std::move(a2)'), # offset 1
-        SimpleReduceAction('Block', 'std::move(a2), std::move(a3)'), # offset 2
-        SimpleReduceAction('Block', 'std::move(a3), std::move(a4)')) # offset 3
-    indented_rule(IndentedBlock, (StmtListOpt, ImplRetOpt), SimpleReduceAction('Block', 'std::move(a2), std::move(a3)'))
-
-    rule(ImplRet, (LEFTARROW, Expr, LineEndingOpt), SimpleReduceAction('ImplRet', 'std::move(a1)'))
+    braced_rule(BracedBlock, (StmtListOpt,),
+        SimpleReduceAction('Block', 'std::move(a1)'), # offset 1
+        SimpleReduceAction('Block', 'std::move(a2)'), # offset 2
+        SimpleReduceAction('Block', 'std::move(a3)')) # offset 3
+    indented_rule(IndentedBlock, (StmtListOpt,), SimpleReduceAction('Block', 'std::move(a2)'))
 
     rule(LineEnding, (NEWLINE,), LocationReduceAction())
     rule(LineEnding, (SEMICOLON,), LocationReduceAction())

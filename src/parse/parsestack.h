@@ -35,8 +35,6 @@ enum class NonTerminal {
     ParamList_OPT,
     ArgList_OPT,
     StmtList_OPT,
-    ImplRet_OPT,
-    ImplRet,
     Expr_OPT,
     Expr,
     VarStmt_OPT,

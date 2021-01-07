@@ -11,7 +11,6 @@ ASTNS::Type::Type(File const &file): AST(file) {}
 ASTNS::ArgB::ArgB(File const &file): AST(file) {}
 ASTNS::ParamB::ParamB(File const &file): AST(file) {}
 ASTNS::VStmtIB::VStmtIB(File const &file): AST(file) {}
-ASTNS::ImplRetB::ImplRetB(File const &file): AST(file) {}
 ASTNS::PathB::PathB(File const &file): AST(file) {}
 ASTNS::PureLocationB::PureLocationB(File const &file): AST(file) {}
 ASTNS::PureLocation::PureLocation(File const &file, Location start, Location end, int dummy): PureLocationB(file), _start(start), _end(end), dummy(std::move(dummy)) {}
@@ -58,7 +57,7 @@ ASTNS::VarStmtItemList::VarStmtItemList(File const &file, Location start, Locati
 void ASTNS::VarStmtItemList::accept(ASTNS::VStmtIB::Visitor *v) { v->visitVarStmtItemList(this); }
 Location const & ASTNS::VarStmtItemList::start() { return _start; }
 Location const & ASTNS::VarStmtItemList::end() { return _end; }
-ASTNS::ExprStmt::ExprStmt(File const &file, Location start, Location end, std::unique_ptr<Expr> expr): Stmt(file), _start(start), _end(end), expr(std::move(expr)) {}
+ASTNS::ExprStmt::ExprStmt(File const &file, Location start, Location end, std::unique_ptr<Expr> expr, bool suppress): Stmt(file), _start(start), _end(end), expr(std::move(expr)), suppress(std::move(suppress)) {}
 void ASTNS::ExprStmt::accept(ASTNS::Stmt::Visitor *v) { v->visitExprStmt(this); }
 Location const & ASTNS::ExprStmt::start() { return _start; }
 Location const & ASTNS::ExprStmt::end() { return _end; }
@@ -70,10 +69,6 @@ ASTNS::StmtList::StmtList(File const &file, Location start, Location end, std::v
 void ASTNS::StmtList::accept(ASTNS::Stmt::Visitor *v) { v->visitStmtList(this); }
 Location const & ASTNS::StmtList::start() { return _start; }
 Location const & ASTNS::StmtList::end() { return _end; }
-ASTNS::ImplRet::ImplRet(File const &file, Location start, Location end, std::unique_ptr<Expr> expr): ImplRetB(file), _start(start), _end(end), expr(std::move(expr)) {}
-void ASTNS::ImplRet::accept(ASTNS::ImplRetB::Visitor *v) { v->visitImplRet(this); }
-Location const & ASTNS::ImplRet::start() { return _start; }
-Location const & ASTNS::ImplRet::end() { return _end; }
 ASTNS::PathType::PathType(File const &file, Location start, Location end, std::unique_ptr<Path> path): Type(file), _start(start), _end(end), path(std::move(path)) {}
 void ASTNS::PathType::accept(ASTNS::Type::Visitor *v) { v->visitPathType(this); }
 Location const & ASTNS::PathType::start() { return _start; }
@@ -98,7 +93,7 @@ ASTNS::ParamList::ParamList(File const &file, Location start, Location end, std:
 void ASTNS::ParamList::accept(ASTNS::ParamB::Visitor *v) { v->visitParamList(this); }
 Location const & ASTNS::ParamList::start() { return _start; }
 Location const & ASTNS::ParamList::end() { return _end; }
-ASTNS::Block::Block(File const &file, Location start, Location end, std::unique_ptr<StmtList> stmts, std::unique_ptr<ImplRet> implRet): Expr(file), _start(start), _end(end), stmts(std::move(stmts)), implRet(std::move(implRet)) {}
+ASTNS::Block::Block(File const &file, Location start, Location end, std::unique_ptr<StmtList> stmts): Expr(file), _start(start), _end(end), stmts(std::move(stmts)) {}
 void ASTNS::Block::accept(ASTNS::Expr::Visitor *v) { v->visitBlock(this); }
 Location const & ASTNS::Block::start() { return _start; }
 Location const & ASTNS::Block::end() { return _end; }

@@ -37,7 +37,6 @@ asts = [
     ASTBase('ArgB'),
     ASTBase('ParamB'),
     ASTBase('VStmtIB'),
-    ASTBase('ImplRetB'),
     ASTBase('PathB'),
 
     # a class to keep track of locations of syntactic elements that don't matter (like
@@ -62,11 +61,9 @@ asts = [
     AST('VarStmt'          , 'Stmt', 'std::unique_ptr<VarStmtItemList>|assignments'),
     AST('VarStmtItem'      , 'VStmtIB', 'std::unique_ptr<Type>|type, bool|mut, Token|name, Token|equal, std::unique_ptr<Expr>|expr'),
     AST('VarStmtItemList'  , 'VStmtIB', 'std::vector<std::unique_ptr<VarStmtItem>>|items'),
-    AST('ExprStmt'         , 'Stmt', 'std::unique_ptr<Expr>|expr'),
+    AST('ExprStmt'         , 'Stmt', 'std::unique_ptr<Expr>|expr, bool|suppress'),
     AST('RetStmt'          , 'Stmt', 'std::unique_ptr<Expr>|expr'),
     AST('StmtList'         , 'Stmt', 'std::vector<std::unique_ptr<Stmt>>|stmts'),
-
-    AST('ImplRet'          , 'ImplRetB', 'std::unique_ptr<Expr>|expr'),
 
     AST('PathType'         , 'Type', 'std::unique_ptr<Path>|path'),
     AST('PointerType'      , 'Type', 'bool|mut, std::unique_ptr<Type>|type'),
@@ -77,7 +74,7 @@ asts = [
     AST('Param'            , 'ParamB', 'std::unique_ptr<Type>|type, Token|name, bool|mut'),
     AST('ParamList'        , 'ParamB', 'std::vector<std::unique_ptr<Param>>|params'),
 
-    AST('Block'            , 'Expr', 'std::unique_ptr<StmtList>|stmts, std::unique_ptr<ImplRet>|implRet'),
+    AST('Block'            , 'Expr', 'std::unique_ptr<StmtList>|stmts'),
     AST('IfExpr'           , 'Expr', 'Token|iftok, std::unique_ptr<Expr>|cond, std::unique_ptr<Expr>|trues, std::unique_ptr<Expr>|falses'),
     AST('ForExpr'          , 'Expr', 'std::unique_ptr<VarStmt>|initial, std::unique_ptr<Expr>|cond, std::unique_ptr<Expr>|increment, std::unique_ptr<Expr>|body'),
 

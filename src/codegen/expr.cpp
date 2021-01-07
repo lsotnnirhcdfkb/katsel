@@ -434,9 +434,6 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitBlock(ASTNS::Block *ast) {
 
     fcg.decScope();
 }
-void CodeGen::FunctionCodeGen::ExprCodeGen::visitImplRet(ASTNS::ImplRet *ast) {
-    ret = expr(ast->expr.get());
-}
 
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitPathExpr(ASTNS::PathExpr *ast) {
     ret = cg.pathVisitor->resolveValue(ast->path.get(), fcg);

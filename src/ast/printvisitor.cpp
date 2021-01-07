@@ -114,6 +114,8 @@ void ASTNS::PrintVisitor::visitExprStmt(ASTNS::ExprStmt *a) {
     ++indent;
     pai("std::unique_ptr<Expr> expr = ");
     printField(a->expr);
+    pai("bool suppress = ");
+    printField(a->suppress);
     --indent;
     pai("}\n");
 }
@@ -130,14 +132,6 @@ void ASTNS::PrintVisitor::visitStmtList(ASTNS::StmtList *a) {
     ++indent;
     pai("std::vector<std::unique_ptr<Stmt>> stmts = ");
     printField(a->stmts);
-    --indent;
-    pai("}\n");
-}
-void ASTNS::PrintVisitor::visitImplRet(ASTNS::ImplRet *a) {
-    pai("ImplRet {\n");
-    ++indent;
-    pai("std::unique_ptr<Expr> expr = ");
-    printField(a->expr);
     --indent;
     pai("}\n");
 }
@@ -200,8 +194,6 @@ void ASTNS::PrintVisitor::visitBlock(ASTNS::Block *a) {
     ++indent;
     pai("std::unique_ptr<StmtList> stmts = ");
     printField(a->stmts);
-    pai("std::unique_ptr<ImplRet> implRet = ");
-    printField(a->implRet);
     --indent;
     pai("}\n");
 }

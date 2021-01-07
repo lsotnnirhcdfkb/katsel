@@ -18,7 +18,6 @@ namespace ASTNS {
     class ArgB;
     class ParamB;
     class VStmtIB;
-    class ImplRetB;
     class PathB;
     class PureLocationB;
     class PureLocation;
@@ -35,7 +34,6 @@ namespace ASTNS {
     class ExprStmt;
     class RetStmt;
     class StmtList;
-    class ImplRet;
     class PathType;
     class PointerType;
     class Arg;
@@ -186,17 +184,6 @@ namespace ASTNS {
         virtual void accept(Visitor *v) = 0;
         VStmtIB(File const &file);
     };
-    class ImplRetB : public AST {
-    public:
-        class Visitor {
-        public:
-            virtual ~Visitor() {}
-            virtual void visitImplRet(ASTNS::ImplRet *ast) = 0;
-        };
-        virtual ~ImplRetB() {}
-        virtual void accept(Visitor *v) = 0;
-        ImplRetB(File const &file);
-    };
     class PathB : public AST {
     public:
         class Visitor {
@@ -330,10 +317,11 @@ namespace ASTNS {
     public:
         Location _start, _end;
         std::unique_ptr<Expr> expr;
+        bool suppress;
         virtual void accept(ASTNS::Stmt::Visitor *v) override;
         virtual Location const & start() override;
         virtual Location const & end() override;
-        ExprStmt(File const &file, Location start, Location end, std::unique_ptr<Expr> expr);
+        ExprStmt(File const &file, Location start, Location end, std::unique_ptr<Expr> expr, bool suppress);
     };
     class RetStmt : public Stmt {
     public:
@@ -352,15 +340,6 @@ namespace ASTNS {
         virtual Location const & start() override;
         virtual Location const & end() override;
         StmtList(File const &file, Location start, Location end, std::vector<std::unique_ptr<Stmt>> stmts);
-    };
-    class ImplRet : public ImplRetB {
-    public:
-        Location _start, _end;
-        std::unique_ptr<Expr> expr;
-        virtual void accept(ASTNS::ImplRetB::Visitor *v) override;
-        virtual Location const & start() override;
-        virtual Location const & end() override;
-        ImplRet(File const &file, Location start, Location end, std::unique_ptr<Expr> expr);
     };
     class PathType : public Type {
     public:
@@ -423,11 +402,10 @@ namespace ASTNS {
     public:
         Location _start, _end;
         std::unique_ptr<StmtList> stmts;
-        std::unique_ptr<ImplRet> implRet;
         virtual void accept(ASTNS::Expr::Visitor *v) override;
         virtual Location const & start() override;
         virtual Location const & end() override;
-        Block(File const &file, Location start, Location end, std::unique_ptr<StmtList> stmts, std::unique_ptr<ImplRet> implRet);
+        Block(File const &file, Location start, Location end, std::unique_ptr<StmtList> stmts);
     };
     class IfExpr : public Expr {
     public:

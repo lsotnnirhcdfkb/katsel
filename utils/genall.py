@@ -27,7 +27,7 @@ jobs = [
     ('src/codegen/codegenlocal.h'          , 'DECLARATOR METHODS START'  , 'DECLARATOR METHODS END'  , lambda: astgen.gen_visitor_methods('Decl', 'CUB', 'ImplItem')),
     ('src/codegen/codegenlocal.h'          , 'TYPEVISITOR METHODS START' , 'TYPEVISITOR METHODS END' , lambda: astgen.gen_visitor_methods('Type')),
     ('src/codegen/codegenlocal.h'          , 'STMTCG METHODS START'      , 'STMTCG METHODS END'      , lambda: astgen.gen_visitor_methods('Stmt', 'VStmtIB')),
-    ('src/codegen/codegenlocal.h'          , 'EXPRCG METHODS START'      , 'EXPRCG METHODS END'      , lambda: astgen.gen_visitor_methods('Expr', 'ImplRetB')),
+    ('src/codegen/codegenlocal.h'          , 'EXPRCG METHODS START'      , 'EXPRCG METHODS END'      , lambda: astgen.gen_visitor_methods('Expr')),
     ('src/codegen/codegenlocal.h'          , 'PARAMVISITOR METHODS START', 'PARAMVISITOR METHODS END', lambda: astgen.gen_visitor_methods('ParamB')),
     ('src/codegen/codegenlocal.h'          , 'ARGSVISITOR METHODS START' , 'ARGSVISITOR METHODS END' , lambda: astgen.gen_visitor_methods('ArgB')),
     ('src/codegen/codegenlocal.h'          , 'PATH VISITOR START'        , 'PATH VISITOR END'        , lambda: astgen.gen_visitor_methods('PathB')),
