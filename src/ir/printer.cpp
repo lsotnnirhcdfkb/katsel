@@ -52,7 +52,7 @@ namespace {
             pr.ostream << v->name;
         }
         void value_visitInstruction(IR::Instrs::Instruction *v) override {
-            pr.ostream << v; // TODO: assign instruction an id
+            pr.ostream << "%" << v->id;
         }
         void value_visitVoid(IR::Void *v) override {
             pr.ostream << "'void'";
@@ -115,7 +115,7 @@ namespace {
             pr.ostream << s << " ";
         }
         void toTemp(IR::Instrs::Instruction *i) {
-            pr.ostream << " -> " << i;
+            pr.ostream << " -> %" << i->id;
         }
         void stringifyBlock(IR::Block const &b) {
             pr.ostream << format("%(%)", b.name, b.num);
@@ -146,7 +146,12 @@ namespace {
         void visitStore(IR::Instrs::Store *i) override {
             instrName("store");
             i->value.val->value_accept(pr.vrp.get());
-            pr.ostream << " --> ";
+
+            if (i->init)
+                pr.ostream << " -=> ";
+            else
+                pr.ostream << " --> ";
+
             i->target.val->value_accept(pr.vrp.get());
         }
         void visitPhi(IR::Instrs::Phi *i) override {

@@ -10,10 +10,11 @@ namespace IR {
         class Instruction;
         class Br;
     }
+    class Function;
 
     class Block {
     public:
-        Block(std::string name, size_t num);
+        Block(IR::Function *fun, std::string name, size_t num);
         Instrs::Instruction* add(std::unique_ptr<Instrs::Instruction> instr);
         void branch(std::unique_ptr<Instrs::Br> br);
 
@@ -22,5 +23,7 @@ namespace IR {
 
         std::vector<std::unique_ptr<Instrs::Instruction>> instructions;
         std::unique_ptr<Instrs::Br> br;
+
+        IR::Function *fun;
     };
 }

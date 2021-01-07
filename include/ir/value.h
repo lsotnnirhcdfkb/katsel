@@ -64,6 +64,8 @@ namespace IR {
 
         void value_accept(ValueVisitor *v) override;
 
+        int curindex;
+
     private:
         ASTNS::FunctionDecl *_defAST;
 
