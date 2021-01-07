@@ -230,10 +230,10 @@ void Error::printLine(showline const &sl, std::string const &pad) const {
             int lastcol = 1;
             for (auto message = lineMessages.rbegin(); message != lineMessages.rend(); ++message) {
                 if (message->row == row) {
-                    std::cerr << std::string(message->col - lastcol, ' ');
-                    std::cerr << attr(message->message.color, "-- ", true) << message->message.type << ": " << resetIfNecessary() << message->message.text;
+                    std::cerr << std::string(message->col - lastcol - 1, ' ');
+                    std::cerr << attr(message->message.color, "`-- ", true) << message->message.type << ": " << resetIfNecessary() << message->message.text;
 
-                    lastcol = message->col + message->message.text.size() + message->message.type.size() + 5;
+                    lastcol = message->col + message->message.text.size() + message->message.type.size() + 6;
                 }
             }
             std::cerr << "\n";
