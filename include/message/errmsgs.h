@@ -186,7 +186,9 @@ void E0400(IR::ASTValue const &func, Token const &oparn, std::vector<IR::ASTValu
 #define ERR_NO_SUPPRESS E0500
 void E0500(Location const &dot);
 
-// === warnings ===
+// ===> warnings <===
+
+// === code style ===
 
 // W0000 - Wextra-semi
 #define WARN_EXTRA_SEMI W0000

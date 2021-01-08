@@ -383,29 +383,30 @@ errors = {
     ],
     # }}}
 }
-warnings = [
-    Msg('extra-semi',
-        desc='Extra semicolon',
-        inputs='Token const &semi', location='semi',
-        highlights=[
-            SimpleHighlight('semi', UNDER0, [('warning', '"unnecessary semicolon"')]),
-        ]),
-]
-# filling in numbers
-num = 0
-for category, errs in errors.items():
-    for err in errs:
-        err.code = num
-        err.category = category
+warnings = {
+    'code style': [
+        Msg('extra-semi',
+            desc='Extra semicolon',
+            inputs='Token const &semi', location='semi',
+            highlights=[
+                SimpleHighlight('semi', UNDER0, [('warning', '"unnecessary semicolon"')]),
+            ]),
+    ]
+}
+# filling in error numbers {{{1
+def fill_numbers(msgs):
+    num = 0
+    for category, category_msgs in msgs.items():
+        for msg in category_msgs:
+            msg.code = num
+            msg.category = category
+            num += 1
+        num //= RANGEMULT
         num += 1
-    num //= RANGEMULT
-    num += 1
-    num *= RANGEMULT
+        num *= RANGEMULT
 
-num = 0
-for warning in warnings:
-    warning.code = num
-    num += 1
+fill_numbers(errors)
+fill_numbers(warnings)
 # generating {{{1
 def gen_h():
     output = []
@@ -421,13 +422,15 @@ def gen_h():
             output.append(f'void E{code}({error.inputs});\n')
             output.append( '\n')
 
-    output.append('// === warnings ===\n\n')
-    for warning in warnings:
-        code = str(warning.code).zfill(PADAMT)
-        output.append(f'// W{code} - W{warning.name}\n')
-        output.append(f'#define WARN_{warning.name.upper().replace("-", "_")} W{code}\n')
-        output.append(f'void W{code}({warning.inputs});\n')
-        output.append( '\n')
+    output.append('// ===> warnings <===\n\n')
+    for cat, warns in warnings.items():
+        output.append(f'// === {cat} ===\n\n')
+        for warning in warns:
+            code = str(warning.code).zfill(PADAMT)
+            output.append(f'// W{code} - W{warning.name}\n')
+            output.append(f'#define WARN_{warning.name.upper().replace("-", "_")} W{code}\n')
+            output.append(f'void W{code}({warning.inputs});\n')
+            output.append( '\n')
 
     return ''.join(output)
 
@@ -461,7 +464,7 @@ def gen_cpp():
         extra = error.extra
         gen_message(code, name, msgtype, location, description, inputs, highlights, extra)
 
-    for warning in warnings:
+    for warning in itertools.chain.from_iterable(warnings.values()):
         code = 'W' + str(warning.code).zfill(PADAMT)
         name = 'W' + warning.name
         msgtype = 'WARNING'
