@@ -96,7 +96,10 @@ static IR::ASTValue intUnaryOp(UNARY_OP_ARGS) {
 }
 // Float and Int {{{1
 // Float {{{2
-IR::FloatType::FloatType(CodeGen::Context &context, int size): Type(context), size(size) {ASSERT(size == 32 || size == 64)}
+IR::FloatType::FloatType(CodeGen::Context &context, ASTNS::AST *declAST, int size): Type(context), size(size), _declAST(declAST) {ASSERT(size == 32 || size == 64)}
+ASTNS::AST* IR::FloatType::declAST() const {
+    return _declAST;
+}
 
 llvm::Type* IR::FloatType::toLLVMType(llvm::LLVMContext &con) const {
     if (size == 32)
@@ -106,13 +109,13 @@ llvm::Type* IR::FloatType::toLLVMType(llvm::LLVMContext &con) const {
     else
         reportAbortNoh(format("FloatType::toLLVMType: size = %", size));
 }
-std::string IR::FloatType::stringify() const {
+std::string IR::FloatType::name() const {
     if (size == 32)
         return "float";
     else if (size == 64)
         return "double";
     else
-        reportAbortNoh(format("FloatType::stringify: size = %", size));
+        reportAbortNoh(format("FloatType::name: size = %", size));
 }
 IR::ASTValue IR::FloatType::binOp(BIN_OP_ARGS) {
     ASSERT(l.type() == this);
@@ -122,7 +125,7 @@ IR::ASTValue IR::FloatType::unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR
     ASSERT(v.type() == this);
     return floatUnaryOp(cgc, fun, curBlock, op, v, optok, ast);
 }
-IR::ASTValue IR::FloatType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) {
+IR::ASTValue IR::FloatType::castFrom(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) {
     if (v.type() == this)
         return IR::ASTValue(v.val, ast);
 
@@ -148,12 +151,15 @@ IR::ASTValue IR::FloatType::implCast(CodeGen::Context &cgc, IR::Function &fun, I
     return v;
 }
 // Int {{{2
-IR::IntType::IntType(CodeGen::Context &context, int size, bool isSigned): Type(context), size(size), isSigned(isSigned) {ASSERT(size == 1 || size == 8 || size == 16 || size == 32 || size == 64)}
+IR::IntType::IntType(CodeGen::Context &context, ASTNS::AST *declAST, int size, bool isSigned): Type(context), size(size), isSigned(isSigned), _declAST(declAST) {ASSERT(size == 1 || size == 8 || size == 16 || size == 32 || size == 64)}
+ASTNS::AST* IR::IntType::declAST() const {
+    return _declAST;
+}
 
 llvm::Type* IR::IntType::toLLVMType(llvm::LLVMContext &con) const {
     return llvm::IntegerType::get(con, size);
 }
-std::string IR::IntType::stringify() const {
+std::string IR::IntType::name() const {
     return format("%int%", isSigned ? 's' : 'u', size);
 }
 IR::ASTValue IR::IntType::binOp(BIN_OP_ARGS) {
@@ -164,7 +170,7 @@ IR::ASTValue IR::IntType::unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::
     ASSERT(v.type() == this)
     return intUnaryOp(cgc, fun, curBlock, op, v, optok, ast);
 }
-IR::ASTValue IR::IntType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) {
+IR::ASTValue IR::IntType::castFrom(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) {
     if (v.type() == this)
         return IR::ASTValue(v.val, ast);
 
@@ -209,9 +215,12 @@ IR::ASTValue IR::IntType::implCast(CodeGen::Context &cgc, IR::Function &fun, IR:
 }
 // Generic types {{{2
 // GenericInt {{{2
-IR::GenericIntType::GenericIntType(CodeGen::Context &context): Type(context) {}
+IR::GenericIntType::GenericIntType(CodeGen::Context &context, ASTNS::AST *declAST): Type(context), _declAST(declAST) {}
+ASTNS::AST* IR::GenericIntType::declAST() const {
+    return _declAST;
+}
 
-std::string IR::GenericIntType::stringify() const {
+std::string IR::GenericIntType::name() const {
     return "<integer>";
 }
 IR::ASTValue IR::GenericIntType::binOp(BIN_OP_ARGS) {
@@ -222,7 +231,7 @@ IR::ASTValue IR::GenericIntType::unaryOp(UNARY_OP_ARGS) {
     ASSERT(v.type() == this);
     return intUnaryOp(cgc, fun, curBlock, op, v, optok, ast);
 }
-IR::ASTValue IR::GenericIntType::castTo(CodeGen::Context &, IR::Function &, IR::Block *&, IR::ASTValue v, ASTNS::AST *ast) {
+IR::ASTValue IR::GenericIntType::castFrom(CodeGen::Context &, IR::Function &, IR::Block *&, IR::ASTValue v, ASTNS::AST *ast) {
     ERR_INVALID_CAST(ast, v, this);
     return ASTValue();
 }
@@ -233,9 +242,12 @@ IR::ASTValue IR::GenericIntType::implCast(CodeGen::Context &cgc, IR::Function &f
     return v;
 }
 // GenericFloat {{{2
-IR::GenericFloatType::GenericFloatType(CodeGen::Context &context): Type(context) {}
+IR::GenericFloatType::GenericFloatType(CodeGen::Context &context, ASTNS::AST *declAST): Type(context), _declAST(declAST) {}
+ASTNS::AST* IR::GenericFloatType::declAST() const {
+    return _declAST;
+}
 
-std::string IR::GenericFloatType::stringify() const {
+std::string IR::GenericFloatType::name() const {
     return "<float>";
 }
 IR::ASTValue IR::GenericFloatType::binOp(BIN_OP_ARGS) {
@@ -246,7 +258,7 @@ IR::ASTValue IR::GenericFloatType::unaryOp(UNARY_OP_ARGS) {
     ASSERT(v.type() == this);
     return floatUnaryOp(cgc, fun, curBlock, op, v, optok, ast);
 }
-IR::ASTValue IR::GenericFloatType::castTo(CodeGen::Context &, IR::Function &, IR::Block *&, IR::ASTValue v, ASTNS::AST *ast) {
+IR::ASTValue IR::GenericFloatType::castFrom(CodeGen::Context &, IR::Function &, IR::Block *&, IR::ASTValue v, ASTNS::AST *ast) {
     ERR_INVALID_CAST(ast, v, this);
     return ASTValue();
 }
@@ -258,12 +270,15 @@ IR::ASTValue IR::GenericFloatType::implCast(CodeGen::Context &cgc, IR::Function 
     return v;
 }
 // Char {{{1
-IR::CharType::CharType(CodeGen::Context &context): Type(context) {}
+IR::CharType::CharType(CodeGen::Context &context, ASTNS::AST *declAST): Type(context), _declAST(declAST) {}
+ASTNS::AST* IR::CharType::declAST() const {
+    return _declAST;
+}
 
 llvm::Type* IR::CharType::toLLVMType(llvm::LLVMContext &con) const {
     return llvm::Type::getInt8Ty(con);
 }
-std::string IR::CharType::stringify() const {
+std::string IR::CharType::name() const {
     return "char";
 }
 IR::ASTValue IR::CharType::binOp(BIN_OP_ARGS) {
@@ -295,7 +310,7 @@ IR::ASTValue IR::CharType::unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR:
     ERR_UNARY_UNSUPPORTED_OP(v, optok);
     return ASTValue();
 }
-IR::ASTValue IR::CharType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) {
+IR::ASTValue IR::CharType::castFrom(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) {
     if (v.type() == this)
         return IR::ASTValue(v.val, ast);
 
@@ -314,12 +329,15 @@ IR::ASTValue IR::CharType::implCast(CodeGen::Context &cgc, IR::Function &fun, IR
     return v;
 }
 // Bool {{{1
-IR::BoolType::BoolType(CodeGen::Context &context): Type(context) {}
+IR::BoolType::BoolType(CodeGen::Context &context, ASTNS::AST *declAST): Type(context), _declAST(declAST) {}
+ASTNS::AST* IR::BoolType::declAST() const {
+    return _declAST;
+}
 
 llvm::Type* IR::BoolType::toLLVMType(llvm::LLVMContext &con) const {
     return llvm::Type::getInt1Ty(con);
 }
-std::string IR::BoolType::stringify() const {
+std::string IR::BoolType::name() const {
     return "bool";
 }
 IR::ASTValue IR::BoolType::binOp(CodeGen::Context &cgc, Function &fun, Block *&curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) {
@@ -356,7 +374,7 @@ IR::ASTValue IR::BoolType::unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR:
             return ASTValue();
     }
 }
-IR::ASTValue IR::BoolType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) {
+IR::ASTValue IR::BoolType::castFrom(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) {
     if (v.type() == this)
         return IR::ASTValue(v.val, ast);
 
@@ -374,3 +392,10 @@ IR::ASTValue IR::BoolType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR::
 IR::ASTValue IR::BoolType::implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) {
     return v;
 }
+// Deriving {{{1
+DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::FloatType)
+DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::IntType)
+DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::GenericIntType)
+DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::GenericFloatType)
+DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::CharType)
+DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::BoolType)

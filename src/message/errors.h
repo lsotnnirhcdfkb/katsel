@@ -6,42 +6,44 @@
 #include "ir/type.h"
 #include "ir/value.h"
 #include "ast/ast.h"
+#include "utils/location.h"
 
 #include <vector>
 #include <sstream>
 
+struct Message {
+    std::string type;
+    std::string text;
+    char const * const color;
+};
+
+class Underline {
+public:
+    Location location;
+    std::vector<Message> messages;
+    char ch;
+
+    Underline& error(std::string const &message);
+    Underline& warning(std::string const &message);
+    Underline& note(std::string const &message);
+    Underline& help(std::string const &message);
+    Underline& hint(std::string const &message);
+    Underline& message(std::string const &type, std::string const &message);
+
+    Underline(Location const &location, char ch);
+
+private:
+    Underline& addmsg(std::string const &type, char const * const color, std::string const &mesage);
+};
+
+enum class MsgType {
+    ERROR,
+    WARNING,
+};
+
 class Error {
 public:
-    class Underline {
-    public:
-        struct Message {
-            std::string type;
-            std::string text;
-            char const * const color;
-        };
-        Location location;
-        std::vector<Message> messages;
-        char ch;
-
-        Underline& error(std::string const &message);
-        Underline& warning(std::string const &message);
-        Underline& note(std::string const &message);
-        Underline& help(std::string const &message);
-        Underline& hint(std::string const &message);
-        Underline& message(std::string const &type, std::string const &message);
-
-        Underline(Location const &location, char ch);
-
-    private:
-        Underline& addmsg(std::string const &type, char const * const color, std::string const &mesage);
-    };
-
-    enum class MsgType {
-        ERROR,
-        WARNING,
-    };
-
-    Error(MsgType type, Location const &location, std::string message);
+    Error(MsgType type, Location const &location, std::string const &category, std::string const &code, std::string const &name);
 
     Error& underline(Underline const &underline);
 
@@ -49,25 +51,11 @@ public:
 
     MsgType type;
     Location location;
-    std::string message;
+
+    std::string const category;
+    std::string const code;
+    std::string const name;
 
     std::vector<Underline> underlines;
-
-private: // things needed for report() implementation
-    struct showline {
-        const File *file;
-        int line;
-    };
-    struct MessageLocation {
-        Underline::Message const &message;
-        int row, col, lcol;
-    };
-
-    void printHeading() const;
-    std::vector<showline> collectShowlines() const;
-    int countLinePad(std::vector<showline> const &showlines) const;
-    void printFileLine(std::string const &pad, File const *file) const;
-    void printElipsisLine(std::string const &pad) const;
-    void printLine(showline const &sl, std::string const &pad) const;
 };
 

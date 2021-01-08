@@ -152,7 +152,7 @@ void Lower::Lowerer::visitFloatToInt(IR::Instrs::FloatToInt *instr) {
 void Lower::Lowerer::visitCall(IR::Instrs::Call *instr) {
     std::vector<llvm::Value*> args;
     args.reserve(instr->args.size());
-    for (IR::ASTValue const &v : instr->args)
+    for (IR::ASTValue &v : instr->args)
         args.push_back(lower(v));
 
     llvm::Function *callee = static_cast<llvm::Function*>(lower(instr->f));
@@ -164,6 +164,11 @@ void Lower::Lowerer::visitCall(IR::Instrs::Call *instr) {
 // Pointer instruction {{{1
 void Lower::Lowerer::visitDerefPtr(IR::Instrs::DerefPtr *instr) {
     values[instr] = builder.CreateLoad(lower(instr->ptr));
+}
+void Lower::Lowerer::visitAddrof(IR::Instrs::Addrof *instr) {
+    IR::Instrs::Instruction *addrof = dynamic_cast<IR::Instrs::Instruction*>(instr->deref->ptr.val);
+    ASSERT(addrof);
+    values[instr] = values[addrof];
 }
 void Lower::Lowerer::visitPtrArith(IR::Instrs::PtrArith *instr) {
     values[instr] = builder.CreateInBoundsGEP(lower(instr->ptr), { lower(instr->offset) });

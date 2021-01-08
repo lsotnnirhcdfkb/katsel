@@ -66,14 +66,15 @@ bool Lower::Lowerer::objectify(llvm::raw_fd_ostream &ostream) {
 }
 
 void Lower::Lowerer::lower() {
-    for (std::unique_ptr<IR::Function> const &f : unit.functions) {
-        auto *fty = static_cast<llvm::FunctionType*>(f->ty->toLLVMType(context));
-        std::string fname = f->name == "main" ? f->name : mangler.mangleName(*f);
-        auto *fllvm = llvm::Function::Create(fty, llvm::Function::ExternalLinkage, fname, &mod);
-        functions[f.get()] = fllvm;
-    }
-    for (std::unique_ptr<IR::Function> const &f : unit.functions)
-        lower(*f);
+    // TODO
+    // for (std::unique_ptr<IR::Function> const &f : unit.functions) {
+        // auto *fty = static_cast<llvm::FunctionType*>(f->ty->toLLVMType(context));
+        // std::string fname = f->name == "main" ? f->name : mangler.mangleName(*f);
+        // auto *fllvm = llvm::Function::Create(fty, llvm::Function::ExternalLinkage, fname, &mod);
+        // functions[f.get()] = fllvm;
+    // }
+    // for (std::unique_ptr<IR::Function> const &f : unit.functions)
+        // lower(*f);
 }
 
 
@@ -119,31 +120,34 @@ void Lower::Lowerer::lower(IR::Block const &b) {
         i->accept(this);
 }
 
-llvm::Value* Lower::Lowerer::lower(IR::Value const *v) {
-    if (!v)
-        reportAbortNoh("lowerValue nullptr");
-
-#define CHECKTY(ty, vname) if (IR::ty const *vname = dynamic_cast<IR::ty const *>(v))
-
-    CHECKTY(Instrs::Instruction, asInstr)
-        return values.at(asInstr);
-    else CHECKTY(Function, asFunc)
-        return functions.at(asFunc);
-    else CHECKTY(ConstInt, asConstInt)
-        return llvm::ConstantInt::get(asConstInt->type()->toLLVMType(context), asConstInt->val);
-    else CHECKTY(ConstFloat, asConstFloat)
-        return llvm::ConstantFP::get(asConstFloat->type()->toLLVMType(context), asConstFloat->val);
-    else CHECKTY(ConstBool, asConstBool)
-        return llvm::ConstantInt::get(asConstBool->type()->toLLVMType(context), asConstBool->val);
-    else CHECKTY(ConstChar, asConstChar)
-        return llvm::ConstantInt::get(asConstChar->type()->toLLVMType(context), asConstChar->val);
-    else CHECKTY(Void, asVoid)
-        reportAbortNoh("lowerValue called with v = Void");
-    else
-        reportAbortNoh("lowerValue called with v of invalid type");
-#undef CHECKTY
+llvm::Value* Lower::Lowerer::lower(IR::Value *v) {
+    lvret = nullptr;
+    v->value_accept(this);
+    return lvret;
 }
 
-llvm::Value* Lower::Lowerer::lower(IR::ASTValue const &v) {
+llvm::Value* Lower::Lowerer::lower(IR::ASTValue &v) {
     return lower(v.val);
+}
+
+void Lower::Lowerer::value_visitConstBool(IR::ConstBool *v) {
+    lvret = llvm::ConstantInt::get(v->type()->toLLVMType(context), v->val);
+}
+void Lower::Lowerer::value_visitConstFloat(IR::ConstFloat *v) {
+    lvret = llvm::ConstantFP::get(v->type()->toLLVMType(context), v->val);
+}
+void Lower::Lowerer::value_visitConstInt(IR::ConstInt *v) {
+    lvret = llvm::ConstantInt::get(v->type()->toLLVMType(context), v->val);
+}
+void Lower::Lowerer::value_visitConstChar(IR::ConstChar *v) {
+    lvret = llvm::ConstantInt::get(v->type()->toLLVMType(context), v->val);
+}
+void Lower::Lowerer::value_visitFunction(IR::Function *v) {
+    lvret = functions.at(v);
+}
+void Lower::Lowerer::value_visitVoid(IR::Void *v) {
+    reportAbortNoh("lowerValue called with v = Void");
+}
+void Lower::Lowerer::value_visitInstruction(IR::Instrs::Instruction *v) {
+    lvret = values.at(v);
 }

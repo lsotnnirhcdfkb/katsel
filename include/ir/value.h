@@ -17,12 +17,23 @@ namespace IR {
     class FunctionType;
     class VoidType;
 
+#define IR_VALUE_LIST(macro) \
+    macro(ConstBool, ConstBool) \
+    macro(ConstChar, ConstChar) \
+    macro(ConstInt, ConstInt) \
+    macro(ConstFloat, ConstFloat) \
+    macro(Function, Function) \
+    macro(Instrs::Instruction, Instruction) \
+    macro(Void, Void)
+
+    class ValueVisitor;
     class Value {
     public:
         virtual ~Value() {};
-        virtual std::string stringify() const = 0;
 
         virtual Type* type() const = 0;
+
+        virtual void value_accept(ValueVisitor *v) = 0;
     };
 
     class DeclaredValue {
@@ -37,10 +48,8 @@ namespace IR {
 
         void add(std::unique_ptr<Block> block);
 
-        std::string stringify() const override;
         void definition(llvm::raw_ostream &os) const;
         ASTNS::FunctionDecl* defAST() const override;
-        void cfgDot(llvm::raw_ostream &os) const;
 
         Type* type() const override;
 
@@ -53,6 +62,10 @@ namespace IR {
 
         bool prototypeonly;
 
+        void value_accept(ValueVisitor *v) override;
+
+        int curindex;
+
     private:
         ASTNS::FunctionDecl *_defAST;
 
@@ -64,9 +77,9 @@ namespace IR {
     public:
         ConstInt(IntType *ty, uint64_t val);
         ConstInt(GenericIntType *ty, uint64_t val);
-        std::string stringify() const override;
         Type* type() const override;
         uint64_t val;
+        void value_accept(ValueVisitor *v) override;
     private:
         IntType *concreteTy;
         GenericIntType *genericTy;
@@ -76,9 +89,9 @@ namespace IR {
     public:
         ConstFloat(FloatType *ty, double val);
         ConstFloat(GenericFloatType *ty, double val);
-        std::string stringify() const override;
         Type* type() const override;
         double val;
+        void value_accept(ValueVisitor *v) override;
     private:
         FloatType *concreteTy;
         GenericFloatType *genericTy;
@@ -87,18 +100,18 @@ namespace IR {
     class ConstBool : public Value {
     public:
         ConstBool(BoolType *ty, bool val);
-        std::string stringify() const override;
         Type* type() const override;
         bool val;
+        void value_accept(ValueVisitor *v) override;
     private:
         BoolType *ty;
     };
     class ConstChar : public Value {
     public:
         ConstChar(CharType *ty, uint8_t val);
-        std::string stringify() const override;
         Type* type() const override;
         uint8_t val;
+        void value_accept(ValueVisitor *v) override;
     private:
         CharType *ty;
     };
@@ -107,8 +120,8 @@ namespace IR {
     class Void : public Value {
     public:
         Void(VoidType *ty);
-        std::string stringify() const override;
         Type* type() const override;
+        void value_accept(ValueVisitor *v) override;
     private:
         VoidType *ty;
     };
@@ -133,18 +146,13 @@ namespace IR {
         inline Type* type() const {
             return val->type();
         }
-        inline std::string stringify() const {
-            return val->stringify();
-        }
     };
-}
 
-inline std::ostream& operator<<(std::ostream& os, IR::Value *v) {
-    os << v->stringify();
-    return os;
-}
-
-inline std::ostream& operator<<(std::ostream &os, IR::ASTValue const &v) {
-    os << v.stringify();
-    return os;
+    class ValueVisitor {
+    public:
+#define VISITMETHOD(cl, n) \
+        virtual void value_visit##n(cl *i) = 0;
+        IR_VALUE_LIST(VISITMETHOD)
+#undef VISITMETHOD
+    };
 }

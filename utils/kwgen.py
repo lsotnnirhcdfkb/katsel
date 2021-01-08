@@ -2,7 +2,7 @@
 ## @file kwgen.py
 #  Generate keyword matching code to go in Lexer::getIdentifierType()
 
-# {{{ trienode class
+# TrieNode class {{{1
 ## A node in a Trie
 class TrieNode:
 
@@ -95,13 +95,19 @@ class TrieNode:
             return ''.join(output)
 
         if self.canusestrcmp():
-            reststr = []
+            letters = []
             cur = self
             while len(cur.nodes) > 0:
                 cur = cur.nodes[0]
-                reststr.append(cur.value)
+                letters.append((cur.length - 1, cur.value))
 
-            output.append(f'{indent_str}if (std::distance(start, end) == {self.length + len(reststr)} && std::string(start + {self.length}, end) == "{"".join(reststr)}") return TokenType::{cur.tokentype};\n')
+            output.append(f'{indent_str}if (std::distance(start, end) == {self.length + len(letters)}')
+            for ind, val in letters:
+                output.append(f' && *(start + {ind}) == \'{val}\'')
+
+            output.append(f') return TokenType::{cur.tokentype};\n')
+
+
             return ''.join(output)
 
         output.append(f'{indent_str}switch (*(start + {self.length})) {{\n')
@@ -109,7 +115,7 @@ class TrieNode:
             output.append(f'{body_indent_str}case \'{node.value}\':\n')
             output.append(node.__generate(indent + 2))
             output.append(f'{break_indent_str}break;\n')
-        output.append(f'{indent_str}}}\n')
+        output.append(indent_str + '}\n')
 
         return ''.join(output)
 
@@ -126,30 +132,15 @@ class TrieNode:
         else:
             return False
 
-# }}}
-
-# {{{ keywords
+# keywords {{{1
 ## Keywords to generate matching code for
 keywords = [
-    ('void', 'VOID'),
-    ('float', 'FLOAT'),
-    ('bool', 'BOOL'),
-    ('double', 'DOUBLE'),
-    ('char', 'CHAR'),
-    ('uint8', 'UINT8'),
-    ('uint16', 'UINT16'),
-    ('uint32', 'UINT32'),
-    ('uint64', 'UINT64'),
-    ('sint8', 'SINT8'),
-    ('sint16', 'SINT16'),
-    ('sint32', 'SINT32'),
-    ('sint64', 'SINT64'),
-
-    ('namespace', 'NAMESPACE'),
     ('class', 'CLASS'),
-    ('enum', 'ENUM'),
+    ('data', 'DATA'),
+    ('impl', 'IMPL'),
     ('fun', 'FUN'),
     ('var', 'VAR'),
+    ('mut', 'MUT'),
     ('let', 'LET'),
 
     ('return', 'RETURN'),
@@ -158,12 +149,9 @@ keywords = [
     ('for', 'FOR'),
     ('if', 'IF'),
     ('else', 'ELSE'),
-    ('pattern', 'PATTERN'),
-    ('default', 'DEFAULT'),
+    ('match', 'MATCH'),
 
     ('break', 'BREAK'),
-    ('breakall', 'BREAKALL'),
-    ('breakto', 'BREAKTO'),
     ('continue', 'CONTINUE'),
 
     ('true', 'TRUELIT'),
@@ -179,7 +167,7 @@ keywords = [
 ## The trie that represents all the different keywords
 trie = TrieNode(None, 0)
 
-# {{{ generating
+# generating {{{1
 for keyword, tokentype in keywords:
     lastnode = trie
     for letter in keyword:
@@ -192,4 +180,3 @@ for keyword, tokentype in keywords:
         lastnode = newnode
 
     lastnode.tokentype = tokentype
-# }}}

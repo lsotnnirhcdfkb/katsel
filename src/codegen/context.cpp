@@ -1,8 +1,9 @@
 #include "codegenlocal.h"
+#include "ir/unit.h"
 #include "utils/format.h"
 #include <iostream>
 
-CodeGen::Context::Context(): voidValue(getVoidType()) {}
+CodeGen::Context::Context(File const &file, CodeGen &cg): cg(cg), voidValue(getVoidType()) {}
 
 // getting types {{{1 TODO: make a template function to loop through things and either make operator== = default for all types or use a lambda to compare them
 #define GET_TYPE_DEF(type) IR::type* CodeGen::Context::get##type
@@ -20,7 +21,7 @@ GET_TYPE_DEF(FloatType)(int size) {
         CHECK_TYPE_TYPE(FloatType)
         if (_casted && CHECK_FIELD(size)) return _casted;
     }
-    CONSTRUCT_TYPE(FloatType)(*this, size);
+    CONSTRUCT_TYPE(FloatType)(*this, cg.unit->implicitDeclAST.get(), size);
     PUSH_RETURN(FloatType)
 }
 GET_TYPE_DEF(IntType)(int size, bool isSigned) {
@@ -28,7 +29,7 @@ GET_TYPE_DEF(IntType)(int size, bool isSigned) {
         CHECK_TYPE_TYPE(IntType)
         if (_casted && CHECK_FIELD(size) && CHECK_FIELD(isSigned)) return _casted;
     }
-    CONSTRUCT_TYPE(IntType)(*this, size, isSigned);
+    CONSTRUCT_TYPE(IntType)(*this, cg.unit->implicitDeclAST.get(), size, isSigned);
     PUSH_RETURN(IntType)
 }
 GET_TYPE_DEF(CharType)() {
@@ -36,7 +37,7 @@ GET_TYPE_DEF(CharType)() {
         CHECK_TYPE_TYPE(CharType)
         if (_casted) return _casted;
     }
-    CONSTRUCT_TYPE(CharType)(*this);
+    CONSTRUCT_TYPE(CharType)(*this, cg.unit->implicitDeclAST.get());
     PUSH_RETURN(CharType)
 }
 GET_TYPE_DEF(BoolType)() {
@@ -44,7 +45,7 @@ GET_TYPE_DEF(BoolType)() {
         CHECK_TYPE_TYPE(BoolType)
         if (_casted) return _casted;
     }
-    CONSTRUCT_TYPE(BoolType)(*this);
+    CONSTRUCT_TYPE(BoolType)(*this, cg.unit->implicitDeclAST.get());
     PUSH_RETURN(BoolType)
 }
 GET_TYPE_DEF(GenericIntType)() {
@@ -52,7 +53,7 @@ GET_TYPE_DEF(GenericIntType)() {
         CHECK_TYPE_TYPE(GenericIntType)
         if (_casted) return _casted;
     }
-    CONSTRUCT_TYPE(GenericIntType)(*this);
+    CONSTRUCT_TYPE(GenericIntType)(*this, cg.unit->implicitDeclAST.get());
     PUSH_RETURN(GenericIntType)
 }
 GET_TYPE_DEF(GenericFloatType)() {
@@ -60,7 +61,7 @@ GET_TYPE_DEF(GenericFloatType)() {
         CHECK_TYPE_TYPE(GenericFloatType)
         if (_casted) return _casted;
     }
-    CONSTRUCT_TYPE(GenericFloatType)(*this);
+    CONSTRUCT_TYPE(GenericFloatType)(*this, cg.unit->implicitDeclAST.get());
     PUSH_RETURN(GenericFloatType)
 }
 GET_TYPE_DEF(FunctionType)(IR::Type *ret, std::vector<IR::Type*> paramtys) {
@@ -68,7 +69,7 @@ GET_TYPE_DEF(FunctionType)(IR::Type *ret, std::vector<IR::Type*> paramtys) {
         CHECK_TYPE_TYPE(FunctionType)
         if (_casted && CHECK_FIELD(ret) && CHECK_FIELD(paramtys)) return _casted;
     }
-    CONSTRUCT_TYPE(FunctionType)(*this, ret, paramtys);
+    CONSTRUCT_TYPE(FunctionType)(*this, cg.unit->implicitDeclAST.get(), ret, paramtys);
     PUSH_RETURN(FunctionType)
 }
 GET_TYPE_DEF(VoidType)() {
@@ -76,15 +77,15 @@ GET_TYPE_DEF(VoidType)() {
         CHECK_TYPE_TYPE(VoidType)
         if (_casted) return _casted;
     }
-    CONSTRUCT_TYPE(VoidType)(*this);
+    CONSTRUCT_TYPE(VoidType)(*this, cg.unit->implicitDeclAST.get());
     PUSH_RETURN(VoidType)
 }
-GET_TYPE_DEF(PointerType)(IR::Type *ty) {
+GET_TYPE_DEF(PointerType)(bool mut, IR::Type *ty) {
     LOOP_TYPES() {
         CHECK_TYPE_TYPE(PointerType)
-        if (_casted && CHECK_FIELD(ty)) return _casted;
+        if (_casted && CHECK_FIELD(mut) && CHECK_FIELD(ty)) return _casted;
     }
-    CONSTRUCT_TYPE(PointerType)(*this, ty);
+    CONSTRUCT_TYPE(PointerType)(*this, cg.unit->implicitDeclAST.get(), mut, ty);
     PUSH_RETURN(PointerType)
 }
 #undef GET_TYPE_DEF
@@ -122,17 +123,3 @@ IR::ConstBool* CodeGen::Context::getConstBool(bool value) {
 IR::Void* CodeGen::Context::getVoid() {
     return &voidValue;
 }
-// other {{{1
-IR::Value* CodeGen::Context::getGlobal(std::string const &name) {
-    auto v = globalSymbolTable.find(name);
-    if (v == globalSymbolTable.end())
-        return nullptr;
-    return v->second;
-}
-void CodeGen::Context::addGlobal(std::string const &name, IR::Value *v) {
-    if (globalSymbolTable.find(name) != globalSymbolTable.end())
-        reportAbortNoh(format("add duplicate global under name %", name));
-
-    globalSymbolTable[name] = v;
-}
-

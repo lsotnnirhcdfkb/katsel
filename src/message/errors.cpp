@@ -15,32 +15,34 @@ Location::Location(std::string::iterator start, std::string::iterator end, File 
 Location::Location(): file(nullptr) {}
 Location::Location(ASTNS::AST *ast): Location(ast->start().start, ast->end().end, &ast->file) {}
 // Error methods {{{1
-Error::Error(MsgType type, Location const &location, std::string message): type(type), location(location), message(message) {}
+Error::Error(MsgType type, Location const &location, std::string const &category, std::string const &code, std::string const &name):
+    type(type), location(location),
+    category(category), code(code), name(name) {}
 Error& Error::underline(Underline const &underline) {
     underlines.push_back(underline);
     return *this;
 }
 // Underline message methods {{{1
-Error::Underline::Underline(Location const &location, char ch): location(location), ch(ch) {}
-Error::Underline& Error::Underline::error(std::string const &message) {
+Underline::Underline(Location const &location, char ch): location(location), ch(ch) {}
+Underline& Underline::error(std::string const &message) {
     return addmsg("error", A_FG_RED, message);
 }
-Error::Underline& Error::Underline::warning(std::string const &message) {
+Underline& Underline::warning(std::string const &message) {
     return addmsg("warning", A_FG_MAGENTA, message);
 }
-Error::Underline& Error::Underline::note(std::string const &message) {
+Underline& Underline::note(std::string const &message) {
     return addmsg("note", A_FG_GREEN, message);
 }
-Error::Underline& Error::Underline::help(std::string const &message) {
+Underline& Underline::help(std::string const &message) {
     return addmsg("help", A_FG_CYAN, message);
 }
-Error::Underline& Error::Underline::hint(std::string const &message) {
+Underline& Underline::hint(std::string const &message) {
     return addmsg("hint", A_FG_YELLOW, message);
 }
-Error::Underline& Error::Underline::message(std::string const &type, std::string const &message) {
+Underline& Underline::message(std::string const &type, std::string const &message) {
     return addmsg(type, A_FG_WHITE A_BOLD, message);
 }
-Error::Underline& Error::Underline::addmsg(std::string const &type, char const * const color, std::string const &message) {
+Underline& Underline::addmsg(std::string const &type, char const * const color, std::string const &message) {
     messages.push_back(Message {type, message, color});
     return *this;
 }

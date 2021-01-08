@@ -72,40 +72,21 @@ enum class TokenType {
     FALSELIT,
     NULLPTRLIT,
 
-    // integer types
-    UINT8,
-    UINT16,
-    UINT32,
-    UINT64,
-    SINT8,
-    SINT16,
-    SINT32,
-    SINT64,
-
-    // other types
-    FLOAT,
-    BOOL,
-    DOUBLE,
-    CHAR,
-
-    // keywords
+    // more keywords
     VAR,
     FUN,
     LET,
-    VOID,
-    NAMESPACE,
+    MUT,
     CLASS,
-    ENUM,
+    DATA,
+    IMPL,
     RETURN,
     WHILE,
     FOR,
     IF,
     ELSE,
-    PATTERN,
-    DEFAULT,
+    MATCH,
     BREAK,
-    BREAKALL,
-    BREAKTO,
     CONTINUE,
     ASSERT,
 
@@ -181,35 +162,20 @@ inline constexpr char const * stringifyTokenType(TokenType ty) {
         STOKTY(TRUELIT, 'true')
         STOKTY(FALSELIT, 'false')
         STOKTY(NULLPTRLIT, 'nullptr')
-        STOKTY(UINT8, 'uint8')
-        STOKTY(UINT16, 'uint16')
-        STOKTY(UINT32, 'uint32')
-        STOKTY(UINT64, 'uint64')
-        STOKTY(SINT8, 'sint8')
-        STOKTY(SINT16, 'sint16')
-        STOKTY(SINT32, 'sint32')
-        STOKTY(SINT64, 'sint64')
-        STOKTY(FLOAT, 'float')
-        STOKTY(BOOL, 'bool')
-        STOKTY(DOUBLE, 'double')
-        STOKTY(CHAR, 'char')
         STOKTY(VAR, 'var')
         STOKTY(LET, 'let')
+        STOKTY(MUT, 'mut')
         STOKTY(FUN, 'fun')
-        STOKTY(VOID, 'void')
-        STOKTY(NAMESPACE, 'namespace')
         STOKTY(CLASS, 'class')
-        STOKTY(ENUM, 'enum')
+        STOKTY(DATA, 'data')
+        STOKTY(IMPL, 'impl')
         STOKTY(RETURN, 'return')
         STOKTY(WHILE, 'while')
         STOKTY(FOR, 'for')
         STOKTY(IF, 'if')
         STOKTY(ELSE, 'else')
-        STOKTY(PATTERN, 'pattern')
-        STOKTY(DEFAULT, 'default')
+        STOKTY(MATCH, 'match')
         STOKTY(BREAK, 'break')
-        STOKTY(BREAKALL, 'breakall')
-        STOKTY(BREAKTO, 'breakto')
         STOKTY(CONTINUE, 'continue')
         STOKTY(ASSERT, 'assert')
         STOKTY(BOOM, boom)

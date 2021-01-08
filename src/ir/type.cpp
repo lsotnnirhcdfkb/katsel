@@ -8,9 +8,11 @@
 #include "llvm/IR/DerivedTypes.h"
 #include "utils/format.h"
 
-IR::VoidType::VoidType(CodeGen::Context &context): Type(context) {}
-
-std::string IR::VoidType::stringify() const {
+IR::VoidType::VoidType(CodeGen::Context &context, ASTNS::AST *declAST): Type(context), _declAST(declAST) {}
+ASTNS::AST* IR::VoidType::declAST() const {
+    return _declAST;
+}
+std::string IR::VoidType::name() const {
     return "void";
 }
 
@@ -22,7 +24,7 @@ IR::ASTValue IR::VoidType::unaryOp(CodeGen::Context &, IR::Function &, IR::Block
     ERR_UNARY_UNSUPPORTED_OP(operand, optok);
     return ASTValue();
 }
-IR::ASTValue IR::VoidType::castTo(CodeGen::Context &, IR::Function &, IR::Block *&, IR::ASTValue v, ASTNS::AST *ast) {
+IR::ASTValue IR::VoidType::castFrom(CodeGen::Context &, IR::Function &, IR::Block *&, IR::ASTValue v, ASTNS::AST *ast) {
     ERR_INVALID_CAST(ast, v, this);
     return ASTValue();
 }
@@ -34,16 +36,18 @@ IR::ASTValue IR::VoidType::implCast(CodeGen::Context &cgc, IR::Function &fun, IR
     return v;
 }
 
-IR::FunctionType::FunctionType(CodeGen::Context &context, Type *ret, std::vector<Type*> paramtys): Type(context), ret(ret), paramtys(paramtys) {}
-
-std::string IR::FunctionType::stringify() const {
+IR::FunctionType::FunctionType(CodeGen::Context &context, ASTNS::AST *declAST, Type *ret, std::vector<Type*> paramtys): Type(context), ret(ret), paramtys(paramtys), _declAST(declAST) {}
+ASTNS::AST* IR::FunctionType::declAST() const {
+    return _declAST;
+}
+std::string IR::FunctionType::name() const {
     std::stringstream ss;
-    ss << "fun " << ret->stringify() << "(";
+    ss << "fun " << ret->name() << "(";
     bool first = true;
     for (Type *pty : paramtys) {
         if (!first)
             ss << ", ";
-        ss << pty->stringify();
+        ss << pty->name();
         first = false;
     }
     ss << ")";
@@ -59,7 +63,7 @@ IR::ASTValue IR::FunctionType::unaryOp(CodeGen::Context &, IR::Function &, IR::B
     return ASTValue();
 }
 
-IR::ASTValue IR::FunctionType::castTo(CodeGen::Context &, IR::Function &, IR::Block *&, IR::ASTValue v, ASTNS::AST *ast) {
+IR::ASTValue IR::FunctionType::castFrom(CodeGen::Context &, IR::Function &, IR::Block *&, IR::ASTValue v, ASTNS::AST *ast) {
     ERR_INVALID_CAST(ast, v, this);
     return ASTValue();
 }
@@ -76,6 +80,13 @@ IR::ASTValue IR::FunctionType::implCast(CodeGen::Context &cgc, IR::Function &fun
 }
 
 std::ostream& operator<<(std::ostream &os, IR::Type const *ty) {
-    os << "'" << ty->stringify() << "'";
+    os << "'" << ty->name() << "'";
     return os;
 }
+
+DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::VoidType)
+DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::FunctionType)
+
+#define ACCEPT(cl) void IR::cl::type_accept(IR::TypeVisitor *v) { v->type_visit##cl(this); }
+IR_TYPES(ACCEPT)
+#undef ACCEPT

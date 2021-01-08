@@ -9,24 +9,30 @@
 
 #include "llvm/IR/DerivedTypes.h"
 
-IR::PointerType::PointerType(CodeGen::Context &context, Type *ty): Type(context), ty(ty) {}
-
-std::string IR::PointerType::stringify() const {
-    return format("*%", ty->stringify());
+IR::PointerType::PointerType(CodeGen::Context &context, ASTNS::AST *declAST, bool mut, Type *ty): Type(context), ty(ty), mut(mut), _declAST(declAST) {}
+ASTNS::AST* IR::PointerType::declAST() const {
+    return _declAST;
 }
+
+std::string IR::PointerType::name() const {
+    if (mut)
+        return format("*mut %", ty->name());
+    else
+        return format("*%", ty->name());
+}
+
+DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::PointerType)
 
 IR::ASTValue IR::PointerType::binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::Type::BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) {
     ASSERT(l.type() == this);
 
     r = cgc.getIntType(64, true)->implCast(cgc, fun, curBlock, r);
-    if (!dynamic_cast<IntType*>(r.type()))
-    {
+    if (!dynamic_cast<IntType*>(r.type())) {
         ERR_PTR_ARITH_RHS_NOT_NUM(l, optok, r);
         return IR::ASTValue();
     }
 
-    switch (op)
-    {
+    switch (op) {
         case IR::Type::BinaryOperator::plus:
             return IR::ASTValue(curBlock->add(std::make_unique<IR::Instrs::PtrArith>(l, r)), ast);
         case IR::Type::BinaryOperator::minus: {
@@ -57,7 +63,7 @@ IR::ASTValue IR::PointerType::unaryOp(CodeGen::Context &cgc, IR::Function &fun, 
     ERR_UNARY_UNSUPPORTED_OP(operand, optok);
     return ASTValue();
 }
-IR::ASTValue IR::PointerType::castTo(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) {
+IR::ASTValue IR::PointerType::castFrom(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) {
     if (dynamic_cast<IR::PointerType*>(v.type())) {
         return ASTValue(curBlock->add(std::make_unique<IR::Instrs::NoOpCast>(v, this)), ast);
     }

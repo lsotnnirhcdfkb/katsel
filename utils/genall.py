@@ -24,24 +24,23 @@ jobs = [
     ('include/ast/printvisitor.h'          , 'PRINTVISIT INHERIT START'  , 'PRINTVISIT INHERIT END'  , astgen.gen_visitor_inherit_all),
 
     ('src/codegen/codegenlocal.h'          , 'FORWDECL METHODS START'    , 'FORWDECL METHODS END'    , lambda: astgen.gen_visitor_methods('Decl', 'CUB')),
+    ('src/codegen/codegenlocal.h'          , 'DECLARATOR METHODS START'  , 'DECLARATOR METHODS END'  , lambda: astgen.gen_visitor_methods('Decl', 'CUB', 'ImplItem')),
     ('src/codegen/codegenlocal.h'          , 'TYPEVISITOR METHODS START' , 'TYPEVISITOR METHODS END' , lambda: astgen.gen_visitor_methods('Type')),
     ('src/codegen/codegenlocal.h'          , 'STMTCG METHODS START'      , 'STMTCG METHODS END'      , lambda: astgen.gen_visitor_methods('Stmt', 'VStmtIB')),
-    ('src/codegen/codegenlocal.h'          , 'EXPRCG METHODS START'      , 'EXPRCG METHODS END'      , lambda: astgen.gen_visitor_methods('Expr', 'ImplRetB')),
+    ('src/codegen/codegenlocal.h'          , 'EXPRCG METHODS START'      , 'EXPRCG METHODS END'      , lambda: astgen.gen_visitor_methods('Expr')),
     ('src/codegen/codegenlocal.h'          , 'PARAMVISITOR METHODS START', 'PARAMVISITOR METHODS END', lambda: astgen.gen_visitor_methods('ParamB')),
     ('src/codegen/codegenlocal.h'          , 'ARGSVISITOR METHODS START' , 'ARGSVISITOR METHODS END' , lambda: astgen.gen_visitor_methods('ArgB')),
+    ('src/codegen/codegenlocal.h'          , 'PATH VISITOR START'        , 'PATH VISITOR END'        , lambda: astgen.gen_visitor_methods('PathB')),
+    ('src/codegen/codegenlocal.h'          , 'IMPLCG METHODS START'      , 'IMPLCG METHODS END'      , lambda: astgen.gen_visitor_methods('ImplItem')),
     ('include/codegen/codegen.h'           , 'CG METHODS START'          , 'CG METHODS END'          , lambda: astgen.gen_visitor_methods('Decl', 'CUB')),
 
     ('include/ir/instruction.h'            , 'INSTR CLASSES START'       , 'INSTR CLASSES END'       , instrgen.gen_decls),
     ('src/ir/instruction.cpp'              , 'INSTR CPP START'           , 'INSTR CPP END'           , instrgen.gen_defs),
-    ('src/ir/cfgdotter.cpp'                , 'CFGDOTTER START'           , 'CFGDOTTER END'           , instrgen.gen_cfg_dotter),
 
     ('include/ir/visitor.h'                , 'PURE INSTR VISIT START'    , 'PURE INSTR VISIT END'    , lambda: instrgen.gen_pure_method_decls('Instruction')),
     ('include/ir/visitor.h'                , 'PURE BRANCH VISIT START'   , 'PURE BRANCH VISIT END'   , lambda: instrgen.gen_pure_method_decls('Br')),
-    ('include/ir/printer.h'                , 'PRINT VISIT INSTR START'   , 'PRINT VISIT INSTR END'   , lambda: instrgen.gen_method_decls('Instruction')),
-    ('include/ir/printer.h'                , 'PRINT VISIT BRANCH START'  , 'PRINT VISIT BRANCH END'  , lambda: instrgen.gen_method_decls('Br')),
     ('include/lower/lowerer.h'             , 'LOWER VISIT INSTR START'   , 'LOWER VISIT INSTR END'   , lambda: instrgen.gen_method_decls('Instruction')),
     ('include/lower/lowerer.h'             , 'LOWER VISIT BRANCH START'  , 'LOWER VISIT BRANCH END'  , lambda: instrgen.gen_method_decls('Br')),
-    ('include/ir/cfgdotter.h'              , 'CFG DOT METHOD START'      , 'CFG DOT METHOD END'      , lambda: instrgen.gen_method_decls('Br')),
 
     ('include/message/errmsgs.h'           , 'ERRH START'                , 'ERRH END'                , errgen.gen_h),
     ('src/message/errmsgs.cpp'             , 'ERRCPP START'              , 'ERRCPP END'              , errgen.gen_cpp),

@@ -1,8 +1,6 @@
 #pragma once
 
-#include "llvm/Support/raw_ostream.h"
 #include <vector>
-
 #include "ir/value.h"
 
 namespace IR {
@@ -20,6 +18,9 @@ namespace IR {
         public:
             virtual ~Instruction() {};
             virtual void accept(InstructionVisitor *v) = 0;
+            void value_accept(ValueVisitor *v) override;
+
+            int id;
         };
 
         class Br {
@@ -72,6 +73,7 @@ namespace IR {
     class FloatToFloat;
     class FloatToInt;
     class Call;
+    class Addrof;
     class DerefPtr;
     class PtrArith;
     class Return;
@@ -79,38 +81,36 @@ namespace IR {
     class CondBr;
     class Store : public Instruction {
     public:
-        Store(ASTValue target, ASTValue value);
+        Store(ASTValue target, ASTValue value, bool init);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue target;
         ASTValue value;
+        bool init;
     };
     class Phi : public Instruction {
     public:
         Phi(std::vector<std::pair<Block*,ASTValue>> prevs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         std::vector<std::pair<Block*,ASTValue>> prevs;
     };
     class Register : public Instruction, public DeclaredValue {
     public:
-        Register(ASTNS::AST *_defAST, Type *ty);
+        Register(ASTNS::AST *_defAST, Type *ty, bool mut);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTNS::AST* defAST() const override;
     private:
         ASTNS::AST* _defAST;
     public:
         Type *ty;
+        bool mut;
     };
     class Or : public Instruction {
     public:
         Or(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -119,7 +119,6 @@ namespace IR {
     public:
         And(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -128,7 +127,6 @@ namespace IR {
     public:
         Not(ASTValue op);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue op;
     };
@@ -136,7 +134,6 @@ namespace IR {
     public:
         ICmpNE(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -145,7 +142,6 @@ namespace IR {
     public:
         ICmpEQ(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -154,7 +150,6 @@ namespace IR {
     public:
         ICmpLT(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -163,7 +158,6 @@ namespace IR {
     public:
         ICmpGT(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -172,7 +166,6 @@ namespace IR {
     public:
         ICmpLE(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -181,7 +174,6 @@ namespace IR {
     public:
         ICmpGE(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -190,7 +182,6 @@ namespace IR {
     public:
         IAdd(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -199,7 +190,6 @@ namespace IR {
     public:
         ISub(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -208,7 +198,6 @@ namespace IR {
     public:
         IMult(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -217,7 +206,6 @@ namespace IR {
     public:
         IDiv(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -226,7 +214,6 @@ namespace IR {
     public:
         IMod(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -235,7 +222,6 @@ namespace IR {
     public:
         INeg(ASTValue op);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue op;
     };
@@ -243,7 +229,6 @@ namespace IR {
     public:
         FCmpNE(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -252,7 +237,6 @@ namespace IR {
     public:
         FCmpEQ(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -261,7 +245,6 @@ namespace IR {
     public:
         FCmpLT(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -270,7 +253,6 @@ namespace IR {
     public:
         FCmpGT(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -279,7 +261,6 @@ namespace IR {
     public:
         FCmpLE(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -288,7 +269,6 @@ namespace IR {
     public:
         FCmpGE(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -297,7 +277,6 @@ namespace IR {
     public:
         FAdd(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -306,7 +285,6 @@ namespace IR {
     public:
         FSub(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -315,7 +293,6 @@ namespace IR {
     public:
         FMult(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -324,7 +301,6 @@ namespace IR {
     public:
         FDiv(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -333,7 +309,6 @@ namespace IR {
     public:
         FMod(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -342,7 +317,6 @@ namespace IR {
     public:
         FNeg(ASTValue op);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue op;
     };
@@ -350,7 +324,6 @@ namespace IR {
     public:
         BitXor(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -359,7 +332,6 @@ namespace IR {
     public:
         BitOr(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -368,7 +340,6 @@ namespace IR {
     public:
         BitAnd(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -377,7 +348,6 @@ namespace IR {
     public:
         BitNot(ASTValue op);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue op;
     };
@@ -385,7 +355,6 @@ namespace IR {
     public:
         ShiftR(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -394,7 +363,6 @@ namespace IR {
     public:
         ShiftL(ASTValue lhs, ASTValue rhs);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -403,7 +371,6 @@ namespace IR {
     public:
         NoOpCast(ASTValue op, Type *newt);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue op;
         Type *newt;
@@ -412,7 +379,6 @@ namespace IR {
     public:
         IntToInt(ASTValue op, IntType *newt);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue op;
         IntType *newt;
@@ -421,7 +387,6 @@ namespace IR {
     public:
         IntToFloat(ASTValue op, FloatType *newt);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue op;
         FloatType *newt;
@@ -430,7 +395,6 @@ namespace IR {
     public:
         FloatToFloat(ASTValue op, FloatType *newt);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue op;
         FloatType *newt;
@@ -439,7 +403,6 @@ namespace IR {
     public:
         FloatToInt(ASTValue op, IntType *newt);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue op;
         IntType *newt;
@@ -448,16 +411,22 @@ namespace IR {
     public:
         Call(Function *f, std::vector<ASTValue> args);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         Function *f;
         std::vector<ASTValue> args;
+    };
+    class Addrof : public Instruction {
+    public:
+        Addrof(DerefPtr *deref, bool mut);
+        void accept(InstructionVisitor *v) override;
+        IR::Type* type() const override;
+        DerefPtr *deref;
+        bool mut;
     };
     class DerefPtr : public Instruction {
     public:
         DerefPtr(ASTValue ptr);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue ptr;
     };
@@ -465,7 +434,6 @@ namespace IR {
     public:
         PtrArith(ASTValue ptr, ASTValue offset);
         void accept(InstructionVisitor *v) override;
-        std::string stringify() const override;
         IR::Type* type() const override;
         ASTValue ptr;
         ASTValue offset;

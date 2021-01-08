@@ -1,5 +1,6 @@
 #include "codegenlocal.h"
-#include "message/internal.h"
+#include "message/errmsgs.h"
+#include "ir/unit.h"
 
 CodeGen::TypeVisitor::TypeVisitor(CodeGen &cg): cg(cg) {}
 
@@ -15,33 +16,29 @@ IR::Type* CodeGen::TypeVisitor::type(ASTNS::Type *ast) {
     return newret;
 }
 
-void CodeGen::TypeVisitor::visitPrimitiveType(ASTNS::PrimitiveType *ast) {
-    switch (ast->ty.type) {
-#define CASE(ty) case TokenType::ty: ret =
-#define GET(ty) cg.context->get##ty
-        CASE(UINT8) GET(IntType)(8, false); return;
-        CASE(UINT16) GET(IntType)(16, false); return;
-        CASE(UINT32) GET(IntType)(32, false); return;
-        CASE(UINT64) GET(IntType)(64, false); return;
-        CASE(SINT8) GET(IntType)(8, true); return;
-        CASE(SINT16) GET(IntType)(16, true); return;
-        CASE(SINT32) GET(IntType)(32, true); return;
-        CASE(SINT64) GET(IntType)(64, true); return;
+void CodeGen::TypeVisitor::visitPathType(ASTNS::PathType *ast) {
+    IR::DeclSymbol *decl = cg.pathVisitor->resolveDeclSymbol(ast->path.get());
 
-        CASE(FLOAT) GET(FloatType)(32); return;
-        CASE(DOUBLE) GET(FloatType)(64); return;
-        CASE(BOOL) GET(BoolType)(); return;
-        CASE(CHAR) GET(CharType)(); return;
-        CASE(VOID) GET(VoidType)(); return;
-#undef CASE
-#undef GET
+    if (!decl) {
+        ret = nullptr;
+        cg.errored = true;
+        return;
+    }
 
-        default:
-            invalidTok("builtin type", ast->ty);
+    if (!(ret = dynamic_cast<IR::Type*>(decl))) {
+        ERR_NOT_A_TYPE(ast->path.get(), decl->declAST());
+        cg.errored = true;
+        return;
     }
 }
 
 void CodeGen::TypeVisitor::visitPointerType(ASTNS::PointerType *ast) {
     IR::Type *ty = type(ast->type.get());
-    ret = cg.context->getPointerType(ty);
+    if (!ty) {
+        cg.errored = true;
+        ret = nullptr;
+        return;
+    } else {
+        ret = cg.context->getPointerType(ast->mut, ty);
+    }
 }
