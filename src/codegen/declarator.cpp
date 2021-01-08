@@ -49,14 +49,10 @@ void CodeGen::Declarator::visitImplDecl(ASTNS::ImplDecl *impl) {
 
     IR::DeclSymbol *oldSymbol = currentSymbol;
     currentSymbol = implFor;
-    impl->body->accept(this);
-    currentSymbol = oldSymbol;
-}
-
-void CodeGen::Declarator::visitImplBody(ASTNS::ImplBody *body) {
-    for (std::unique_ptr<ASTNS::ImplItem> &item : body->items) {
+    for (std::unique_ptr<ASTNS::ImplItem> &item : impl->items) {
         item->accept(this);
     }
+    currentSymbol = oldSymbol;
 }
 
 void CodeGen::Declarator::visitFunctionImplItem(ASTNS::FunctionImplItem *item) {

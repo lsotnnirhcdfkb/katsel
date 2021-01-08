@@ -38,7 +38,6 @@ void visitImplicitDecl(ASTNS::ImplicitDecl *ast) override;
 void visitCU(ASTNS::CU *ast) override;
 void visitImplDecl(ASTNS::ImplDecl *ast) override;
 void visitFunctionDecl(ASTNS::FunctionDecl *ast) override;
-void visitImplBody(ASTNS::ImplBody *ast) override;
 void visitFunctionImplItem(ASTNS::FunctionImplItem *ast) override;
 void visitVarStmt(ASTNS::VarStmt *ast) override;
 void visitVarStmtItem(ASTNS::VarStmtItem *ast) override;

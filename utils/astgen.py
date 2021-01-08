@@ -61,10 +61,9 @@ asts = [
     AST('ImplicitDecl'     , 'Decl', 'int|dummy'),
 
     AST('CU'               , 'CUB', 'std::vector<std::unique_ptr<Decl>>|decls'),
-    AST('ImplDecl'         , 'Decl', 'std::unique_ptr<Type>|implFor, std::unique_ptr<ImplBody>|body'),
+    AST('ImplDecl'         , 'Decl', 'std::unique_ptr<Type>|implFor, std::vector<std::unique_ptr<ImplItem>>|items'),
     AST('FunctionDecl'     , 'Decl', 'std::unique_ptr<Type>|retty, Token|name, std::vector<std::unique_ptr<Param>>|params, std::unique_ptr<Block>|body'),
 
-    AST('ImplBody'         , 'ImplItem', 'std::vector<std::unique_ptr<ImplItem>>|items'),
     AST('FunctionImplItem' , 'ImplItem', 'std::unique_ptr<FunctionDecl>|fun'),
 
     AST('VarStmt'          , 'Stmt', 'std::vector<std::unique_ptr<VarStmtItem>>|items'),

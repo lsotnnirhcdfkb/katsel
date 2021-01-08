@@ -583,7 +583,7 @@ def make_grammar():
     Decl = nt('Decl', 'declaration', 'Decl', panickable=True)
     FunctionDecl = nt('FunctionDecl', 'function declaration', 'FunctionDecl', panickable=True)
     ImplDecl = nt('ImplDecl', 'implementation', 'Decl', panickable=True)
-    ImplBody = nt('ImplBody', 'implementation body', 'ImplBody', panickable=True)
+    ImplBody = nt('ImplBody', 'implementation body', 'ImplItemList', panickable=True)
     ImplItem = nt('ImplItem', 'implementation item', 'ImplItem', panickable=True)
     Stmt = nt('Stmt', 'statement', 'Stmt', panickable=True)
     VarStmt = nt('VarStmt', 'variable declaration', 'VarStmt', panickable=True)
@@ -631,12 +631,12 @@ def make_grammar():
     VarStmtItemList = list_rule(VarStmtItem, VectorPushOneAction('ASTNS::VarStmtItemList', 'std::move(a0)', 'std::unique_ptr<ASTNS::VarStmtItem>', 'items'), VectorPushReduceAction('a0->items', 'std::move(a2)', 'a0'), 'VarStmtItemList', COMMA)
     StmtList = list_rule(Stmt, VectorPushOneAction('ASTNS::StmtList', 'std::move(a0)', 'std::unique_ptr<ASTNS::Stmt>', 'stmts'), VectorPushReduceAction('a0->stmts', 'std::move(a1)', 'a0'), 'StmtList')
     DeclList = list_rule(Decl, VectorPushOneAction('ASTNS::DeclList', 'std::move(a0)', 'std::unique_ptr<ASTNS::Decl>', 'decls'), VectorPushReduceAction('a0->decls', 'std::move(a1)', 'a0'), 'DeclList')
-    ImplItemList = list_rule(ImplItem, VectorPushOneAction('ASTNS::ImplBody', 'std::move(a0)', 'std::unique_ptr<ASTNS::ImplItem>', 'items'), VectorPushReduceAction('a0->items', 'std::move(a1)', 'a0'), 'ImplBody')
+    ImplItemList = list_rule(ImplItem, VectorPushOneAction('ASTNS::ImplItemList', 'std::move(a0)', 'std::unique_ptr<ASTNS::ImplItem>', 'items'), VectorPushReduceAction('a0->items', 'std::move(a1)', 'a0'), 'ImplItemList')
 
     ParamListOpt = make_opt(ParamList, SkipReduceAction(), EmptyVectorAction('ParamList', 'std::unique_ptr<ASTNS::Param>'))
     ArgListOpt = make_opt(ArgList, SkipReduceAction(), EmptyVectorAction('ArgList', 'std::unique_ptr<ASTNS::Arg>'))
     StmtListOpt = make_opt(StmtList, SkipReduceAction(), EmptyVectorAction('StmtList', 'std::unique_ptr<ASTNS::Stmt>'))
-    ImplItemListOpt = make_opt(ImplItemList, SkipReduceAction(), NullptrReduceAction())
+    ImplItemListOpt = make_opt(ImplItemList, SkipReduceAction(), EmptyVectorAction('ImplItemList', 'std::unique_ptr<ASTNS::ImplItem>'))
     ExprOpt = make_opt(Expr, SkipReduceAction(), NullptrReduceAction())
     VarStmtOpt = make_opt(VarStmt, SkipReduceAction(), NullptrReduceAction())
     LineEndingOpt = make_opt(LineEnding, SkipReduceAction(), NullptrReduceAction())
@@ -650,7 +650,7 @@ def make_grammar():
     rule(FunctionDecl, (FUN, IDENTIFIER, OPARN, ParamListOpt, CPARN, TypeAnnotation, Block, LineEndingOpt), SimpleReduceAction('FunctionDecl', 'std::move(a5), a1, std::move(a3->params), std::move(a6)'))
     rule(FunctionDecl, (FUN, IDENTIFIER, OPARN, ParamListOpt, CPARN, TypeAnnotation, LineEnding), SimpleReduceAction('FunctionDecl', 'std::move(a5), a1, std::move(a3->params), nullptr'))
 
-    rule(ImplDecl, (IMPL, Type, ImplBody, LineEndingOpt), SimpleReduceAction('ImplDecl', 'std::move(a1), std::move(a2)'))
+    rule(ImplDecl, (IMPL, Type, ImplBody, LineEndingOpt), SimpleReduceAction('ImplDecl', 'std::move(a1), std::move(a2->items)'))
 
     braced_rule(ImplBody, (ImplItemListOpt,),
         SkipReduceAction(1),

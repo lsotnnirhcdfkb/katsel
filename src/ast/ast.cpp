@@ -50,7 +50,7 @@ ASTNS::CU::CU(File const &file, Location start, Location end, std::vector<std::u
 void ASTNS::CU::accept(ASTNS::CUB::Visitor *v) { v->visitCU(this); }
 Location const & ASTNS::CU::start() { return _start; }
 Location const & ASTNS::CU::end() { return _end; }
-ASTNS::ImplDecl::ImplDecl(File const &file, Location start, Location end, std::unique_ptr<Type> implFor, std::unique_ptr<ImplBody> body): Decl(file), _start(start), _end(end), implFor(std::move(implFor)), body(std::move(body)) {}
+ASTNS::ImplDecl::ImplDecl(File const &file, Location start, Location end, std::unique_ptr<Type> implFor, std::vector<std::unique_ptr<ImplItem>> items): Decl(file), _start(start), _end(end), implFor(std::move(implFor)), items(std::move(items)) {}
 void ASTNS::ImplDecl::accept(ASTNS::Decl::Visitor *v) { v->visitImplDecl(this); }
 Location const & ASTNS::ImplDecl::start() { return _start; }
 Location const & ASTNS::ImplDecl::end() { return _end; }
@@ -58,10 +58,6 @@ ASTNS::FunctionDecl::FunctionDecl(File const &file, Location start, Location end
 void ASTNS::FunctionDecl::accept(ASTNS::Decl::Visitor *v) { v->visitFunctionDecl(this); }
 Location const & ASTNS::FunctionDecl::start() { return _start; }
 Location const & ASTNS::FunctionDecl::end() { return _end; }
-ASTNS::ImplBody::ImplBody(File const &file, Location start, Location end, std::vector<std::unique_ptr<ImplItem>> items): ImplItem(file), _start(start), _end(end), items(std::move(items)) {}
-void ASTNS::ImplBody::accept(ASTNS::ImplItem::Visitor *v) { v->visitImplBody(this); }
-Location const & ASTNS::ImplBody::start() { return _start; }
-Location const & ASTNS::ImplBody::end() { return _end; }
 ASTNS::FunctionImplItem::FunctionImplItem(File const &file, Location start, Location end, std::unique_ptr<FunctionDecl> fun): ImplItem(file), _start(start), _end(end), fun(std::move(fun)) {}
 void ASTNS::FunctionImplItem::accept(ASTNS::ImplItem::Visitor *v) { v->visitFunctionImplItem(this); }
 Location const & ASTNS::FunctionImplItem::start() { return _start; }

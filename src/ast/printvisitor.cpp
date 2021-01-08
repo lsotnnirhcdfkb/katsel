@@ -125,8 +125,8 @@ void ASTNS::PrintVisitor::visitImplDecl(ASTNS::ImplDecl *a) {
     ++indent;
     pai("std::unique_ptr<Type> implFor = ");
     printField(*this, a->implFor);
-    pai("std::unique_ptr<ImplBody> body = ");
-    printField(*this, a->body);
+    pai("std::vector<std::unique_ptr<ImplItem>> items = ");
+    printField(*this, a->items);
     --indent;
     pai("}\n");
 }
@@ -141,14 +141,6 @@ void ASTNS::PrintVisitor::visitFunctionDecl(ASTNS::FunctionDecl *a) {
     printField(*this, a->params);
     pai("std::unique_ptr<Block> body = ");
     printField(*this, a->body);
-    --indent;
-    pai("}\n");
-}
-void ASTNS::PrintVisitor::visitImplBody(ASTNS::ImplBody *a) {
-    pai("ImplBody {\n");
-    ++indent;
-    pai("std::vector<std::unique_ptr<ImplItem>> items = ");
-    printField(*this, a->items);
     --indent;
     pai("}\n");
 }

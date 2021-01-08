@@ -32,7 +32,6 @@ namespace ASTNS {
     class CU;
     class ImplDecl;
     class FunctionDecl;
-    class ImplBody;
     class FunctionImplItem;
     class VarStmt;
     class VarStmtItem;
@@ -93,7 +92,6 @@ namespace ASTNS {
         class Visitor {
         public:
             virtual ~Visitor() {}
-            virtual void visitImplBody(ASTNS::ImplBody *ast) = 0;
             virtual void visitFunctionImplItem(ASTNS::FunctionImplItem *ast) = 0;
         };
         virtual ~ImplItem() {}
@@ -304,11 +302,11 @@ namespace ASTNS {
     public:
         Location _start, _end;
         std::unique_ptr<Type> implFor;
-        std::unique_ptr<ImplBody> body;
+        std::vector<std::unique_ptr<ImplItem>> items;
         virtual void accept(ASTNS::Decl::Visitor *v) override;
         virtual Location const & start() override;
         virtual Location const & end() override;
-        ImplDecl(File const &file, Location start, Location end, std::unique_ptr<Type> implFor, std::unique_ptr<ImplBody> body);
+        ImplDecl(File const &file, Location start, Location end, std::unique_ptr<Type> implFor, std::vector<std::unique_ptr<ImplItem>> items);
     };
     class FunctionDecl : public Decl {
     public:
@@ -321,15 +319,6 @@ namespace ASTNS {
         virtual Location const & start() override;
         virtual Location const & end() override;
         FunctionDecl(File const &file, Location start, Location end, std::unique_ptr<Type> retty, Token name, std::vector<std::unique_ptr<Param>> params, std::unique_ptr<Block> body);
-    };
-    class ImplBody : public ImplItem {
-    public:
-        Location _start, _end;
-        std::vector<std::unique_ptr<ImplItem>> items;
-        virtual void accept(ASTNS::ImplItem::Visitor *v) override;
-        virtual Location const & start() override;
-        virtual Location const & end() override;
-        ImplBody(File const &file, Location start, Location end, std::vector<std::unique_ptr<ImplItem>> items);
     };
     class FunctionImplItem : public ImplItem {
     public:
