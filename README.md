@@ -1,9 +1,6 @@
 # Katsel
-This is very heavily based off the extremely helpful book "Crafting Interpreters" by Bob Nystrom. Except for the LLVM part, of course.
-And not only that, but this is also very heavily based off of the [Kaleidescope Langauge front-end tutorial in the LLVM Documentation Tutorial page thing](https://llvm.org/docs/tutorial/MyFirstLanguageFrontend/index.html).
-AND NOt only that, but I also got a lot of helpful information from looking at the source code and documentation of Clang, and seeing how the people developing Clang solve the problems and challenges that I also happen to have.
 
-# Features
+## Features
 
 - [x] Possibly dysfunctional lexing
 - [x] Rewritten parser
@@ -40,6 +37,13 @@ AND NOt only that, but I also got a lot of helpful information from looking at t
 - [ ] Cool stuff (?)
 - [ ] More
 
-# To do things
+## To do things
 You need Python, colorama (for testing script color coding), and LLVM
-and I think thats it
+
+## Inspiration/Resources/Info
+- [Crafting Interpreters by Bob Nystrom](https://craftinginterpreters.com/)
+- [Bob Nystrom's blog](journal.stuffwithstuff.com/)
+- [Kaleidescope Langauge front-end tutorial in the LLVM Documentation Tutorial page thing](https://llvm.org/docs/tutorial/MyFirstLanguageFrontend/index.html)
+- [Clang](clang.llvm.org/) and [LLVM](llvm.org/)
+- [Rust](rust-lang.org/) and [Rust blog](blog.rust-lang.org/)
+- lots of other places that i forgot to put here
