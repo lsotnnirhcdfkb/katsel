@@ -42,8 +42,8 @@ You need Python, colorama (for testing script color coding), and LLVM
 
 ## Inspiration/Resources/Info
 - [Crafting Interpreters by Bob Nystrom](https://craftinginterpreters.com/)
-- [Bob Nystrom's blog](journal.stuffwithstuff.com/)
+- [Bob Nystrom's blog](https://journal.stuffwithstuff.com/)
 - [Kaleidescope Langauge front-end tutorial in the LLVM Documentation Tutorial page thing](https://llvm.org/docs/tutorial/MyFirstLanguageFrontend/index.html)
-- [Clang](clang.llvm.org/) and [LLVM](llvm.org/)
-- [Rust](rust-lang.org/) and [Rust blog](blog.rust-lang.org/)
+- [Clang](https://clang.llvm.org/) and [LLVM](https://llvm.org/)
+- [Rust](https://rust-lang.org/) and [Rust blog](https://blog.rust-lang.org/)
 - lots of other places that i forgot to put here
