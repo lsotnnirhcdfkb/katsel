@@ -24,6 +24,34 @@ namespace {
         IR::Unit &unit;
         llvm::raw_ostream &ostream;
 
+        template <typename T>
+        _Printer& operator()(T const &t) {
+            std::stringstream ss;
+            ss << t;
+            std::string s (ss.str());
+            for (std::string::const_iterator i = s.cbegin(); i != s.cend(); ++i) {
+                if (*i == '}')
+                    --indent;
+
+                if (lastnl) {
+                    for (int i = 0; i < indent; ++i)
+                        ostream << "    ";
+                    lastnl = false;
+                }
+
+                ostream << *i;
+
+                if (*i == '\n')
+                    lastnl = true;
+                else if (*i == '{')
+                    ++indent;
+            }
+            return *this;
+        }
+
+        int indent;
+        bool lastnl;
+
         std::unique_ptr<VDPrinter> vdp;
         std::unique_ptr<VRPrinter> vrp;
         std::unique_ptr<DSDPrinter> dsdp;
@@ -37,25 +65,25 @@ namespace {
         _Printer &pr;
 
         void value_visitConstBool(IR::ConstBool *v) override {
-            pr.ostream << (v->val ? "true" : "false");
+            pr(v->val ? "true" : "false");
         }
         void value_visitConstChar(IR::ConstChar *v) override {
-            pr.ostream << "'" << v->val << "'";
+            pr("'")(v->val)("'");
         }
         void value_visitConstInt(IR::ConstInt *v) override {
-            pr.ostream << v->val;
+            pr(v->val);
         }
         void value_visitConstFloat(IR::ConstFloat *v) override {
-            pr.ostream << v->val;
+            pr(v->val);
         }
         void value_visitFunction(IR::Function *v) override {
-            pr.ostream << v->name;
+            pr(v->name);
         }
         void value_visitInstruction(IR::Instrs::Instruction *v) override {
-            pr.ostream << "%" << v->id;
+            pr("%")(v->id);
         }
         void value_visitVoid(IR::Void *v) override {
-            pr.ostream << "'void'";
+            pr("'void'");
         }
     };
     // }}}
@@ -75,55 +103,55 @@ namespace {
         // visit Instruction {{{
         void value_visitInstruction(IR::Instrs::Instruction *v) override {
             v->accept(this);
-            pr.ostream << ";\n";
+            pr(";\n");
         }
         // }}}
         // Function {{{
         void value_visitFunction(IR::Function *fun) override {
-            pr.ostream << format("fun %: %", fun->name, fun->type());
+            pr(format("fun %: %", fun->name, fun->type()));
             if (fun->prototypeonly) {
-                pr.ostream << " (prototype);\n";
+                pr(" (prototype);\n");
                 return;
             } else {
-                pr.ostream << " {\n";
+                pr(" {\n");
             }
 
             for (std::unique_ptr<IR::Block> &block : fun->blocks)
                 printBlock(*block);
-            pr.ostream << "}\n";
+            pr("}\n");
         }
 
         void printBlock(IR::Block &b) {
             stringifyBlock(b);
 
-            pr.ostream << ": {\n";
+            pr(": {\n");
 
             for (std::unique_ptr<IR::Instrs::Instruction> const &instr : b.instructions) {
                 instr->value_accept(this);
             }
             if (b.br) {
-                pr.ostream << "=>: ";
+                pr("=>: ");
                 b.br->accept(this);
-                pr.ostream << ";\n";
+                pr(";\n");
             }
-            pr.ostream << "}\n";
+            pr("}\n");
         }
         // }}}
         // all the instructions {{{
         // helpers {{{
         void instrName(std::string const &s) {
-            pr.ostream << s << " ";
+            pr(s)(" ");
         }
         void toTemp(IR::Instrs::Instruction *i) {
-            pr.ostream << " -> %" << i->id;
+            pr(" -> %")(i->id);
         }
         void stringifyBlock(IR::Block const &b) {
-            pr.ostream << format("%(%)", b.name, b.num);
+            pr(format("%(%)", b.name, b.num));
         }
         void binaryInstruction(IR::Instrs::Instruction *i, std::string const &name, IR::ASTValue const &lhs, IR::ASTValue const &rhs) {
             instrName(name);
             lhs.val->value_accept(pr.vrp.get());
-            pr.ostream << " ";
+            pr(" ");
             rhs.val->value_accept(pr.vrp.get());
             toTemp(i);
         }
@@ -135,11 +163,11 @@ namespace {
         void castInstruction(IR::Instrs::Instruction *i, std::string const &name, IR::ASTValue const &op, IR::Type const *to) {
             instrName(name);
             op.val->value_accept(pr.vrp.get());
-            pr.ostream << " > " << to->name();
+            pr(" > ")(to->name());
             toTemp(i);
         }
         void brArrow() {
-            pr.ostream << "==> ";
+            pr("==> ");
         }
         // }}}
 
@@ -148,34 +176,34 @@ namespace {
             i->value.val->value_accept(pr.vrp.get());
 
             if (i->init)
-                pr.ostream << " -=> ";
+                pr(" -=> ");
             else
-                pr.ostream << " --> ";
+                pr(" --> ");
 
             i->target.val->value_accept(pr.vrp.get());
         }
         void visitPhi(IR::Instrs::Phi *i) override {
             instrName("phi");
-            pr.ostream << "[";
+            pr("[");
             bool first = true;
             for (auto &p : i->prevs) {
                 if (!first)
-                    pr.ostream << ", ";
+                    pr(", ");
 
                 stringifyBlock(*p.first);
-                pr.ostream << ": ";
+                pr(": ");
                 p.second.val->value_accept(pr.vrp.get());
 
                 first = false;
             }
-            pr.ostream << "]";
+            pr("]");
             toTemp(i);
         }
         void visitRegister(IR::Instrs::Register *i) override {
             instrName("register");
-            pr.ostream << i->ty->name();
+            pr(i->ty->name());
             if (i->mut)
-                pr.ostream << " mut";
+                pr(" mut");
             toTemp(i);
         }
 
@@ -229,9 +257,9 @@ namespace {
         }
         void visitAddrof(IR::Instrs::Addrof *i) override {
             instrName("addrof");
-            pr.ostream << i->deref << " ";
+            pr(i->deref)(" ");
             if (i->mut)
-                pr.ostream << "mut";
+                pr("mut");
             toTemp(i);
         }
         void visitPtrArith(IR::Instrs::PtrArith *i) override {
@@ -242,12 +270,12 @@ namespace {
         void visitCall(IR::Instrs::Call *i) override {
             instrName("call");
             i->f->value_accept(pr.vrp.get());
-            pr.ostream << " ( ";
+            pr(" ( ");
             for (IR::ASTValue const &v : i->args) {
                 v.val->value_accept(pr.vrp.get());
-                pr.ostream << " ";
+                pr(" ");
             }
-            pr.ostream << ")";
+            pr(")");
             toTemp(i);
         }
 
@@ -257,7 +285,7 @@ namespace {
             if (i->value) {
                 i->value.val->value_accept(pr.vrp.get());
             } else {
-                pr.ostream << "void";
+                pr("void");
             }
         }
         void visitGotoBr(IR::Instrs::GotoBr *i) override {
@@ -267,8 +295,8 @@ namespace {
         void visitCondBr(IR::Instrs::CondBr *i) override {
             instrName("condbr");
             i->v.val->value_accept(pr.vrp.get());
-            pr.ostream << " "; brArrow(); stringifyBlock(*i->trueB);
-            pr.ostream << " "; brArrow(); stringifyBlock(*i->falseB);
+            pr(" "); brArrow(); stringifyBlock(*i->trueB);
+            pr(" "); brArrow(); stringifyBlock(*i->falseB);
         }
         // }}}
         // }}}
@@ -282,14 +310,14 @@ namespace {
         // declsym {{{
         void declsym_visitType(IR::Type *ty) override {
             // TODO: inherit from type visitor
-            pr.ostream << "type " << ty->name() << " {\n";
+            pr("type ")(ty->name())(" {\n");
             walk(ty);
-            pr.ostream << "}\n";
+            pr("}\n");
         }
         void declsym_visitModule(IR::Module *mod) override {
-            pr.ostream << "mod " << mod->name() << " {\n";
+            pr("mod ")(mod->name())(" {\n");
             walk(mod);
-            pr.ostream << "}\n";
+            pr("}\n");
         }
         // }}}
         // walk {{{
@@ -315,6 +343,8 @@ namespace {
     _Printer::_Printer(IR::Unit &unit, llvm::raw_ostream &ostream):
             unit(unit),
             ostream(ostream),
+            indent(0),
+            lastnl(false),
             vdp(std::make_unique<VDPrinter>(*this)),
             vrp(std::make_unique<VRPrinter>(*this)),
             dsdp(std::make_unique<DSDPrinter>(*this)) {}
