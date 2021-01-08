@@ -21,7 +21,7 @@ class SimpleHighlight:
         self.under = under
         self.messages = messages
     def generate(self):
-        output = [f'    e.underline(Error::Underline({self.location}, \'{self.under}\')\n']
+        output = [f'    e.underline(Underline({self.location}, \'{self.under}\')\n']
         for message in self.messages:
             if len(message) == 2:
                 output.append(f'        .{message[0]}({message[1]})\n')
@@ -47,11 +47,11 @@ class ValueDeclHighlight:
 
         output = (f'    if (IR::DeclaredValue *asDeclared = dynamic_cast<IR::DeclaredValue*>({self.val})) {{\n'
                    '        if (!dynamic_cast<ASTNS::ImplicitDecl*>(asDeclared->defAST())) {\n'
-                  f'            e.underline(Error::Underline(asDeclared->defAST(), \'{self.under}\')\n'
+                  f'            e.underline(Underline(asDeclared->defAST(), \'{self.under}\')\n'
                   f'                .{self.type}({message}));\n')
         if self.fallbackloc is not None:
             output += ('        } else {\n'
-                      f'            e.underline(Error::Underline({self.fallbackloc}, \'{self.under}\')\n'
+                      f'            e.underline(Underline({self.fallbackloc}, \'{self.under}\')\n'
                       f'                .{self.type}({fallbackmessage}));\n'
                        '        }\n')
         else:
@@ -149,7 +149,7 @@ errors = {
                 SimpleHighlight('lookahead', UNDER0, [('error', '"unexpected %"', 'lookahead.type')]),
             ],
             extra=(
-                "auto un (Error::Underline(lasttok, '~'));\n"
+                "auto un (Underline(lasttok, '~'));\n"
                 'for (std::string const &expectation : expectations)\n'
                 '    un.hint(expectation);\n'
                 'e.underline(un);\n')),
@@ -160,7 +160,7 @@ errors = {
                 SimpleHighlight('lookahead', UNDER0, [('error', '"unexpected %"', 'lookahead.type'), ('note', 'bestfix')]),
             ],
             extra=(
-                "auto un (Error::Underline(lasttok, '~'));\n"
+                "auto un (Underline(lasttok, '~'));\n"
                 'for (std::string const &expectation : expectations)\n'
                 '    un.hint(expectation);\n'
                 'e.underline(un);\n')),
@@ -172,7 +172,7 @@ errors = {
                 SimpleHighlight('panicuntil', UNDER2, [('note', '"parser panicked until %"', 'panicuntil.type')]),
             ],
             extra=(
-                "auto un (Error::Underline(lasttok, '~'));\n"
+                "auto un (Underline(lasttok, '~'));\n"
                 'for (std::string const &expectation : expectations)\n'
                 '    un.hint(expectation);\n'
                 'e.underline(un);\n')),
@@ -435,12 +435,12 @@ def gen_h():
     return ''.join(output)
 
 def gen_cpp():
-    def gen_message(code, name, msgtype, location, description, inputs, highlights, extra):
+    def gen_message(code, name, category, msgtype, location, description, inputs, highlights, extra):
         output.append(        f'// {code} - {name}\n')
         desc_wrapped = ''.join('// | ' + line + '\n' for line in textwrap.wrap(description, 60))
         output.append(        desc_wrapped)
         output.append(        f'void {code}({inputs}) {{\n')
-        output.append(        f'    Error e = Error(Error::MsgType::{msgtype}, {location}, "{code} ({name})");\n')
+        output.append(        f'    Error e = Error(MsgType::{msgtype}, {location}, "{category}", "{code}", "{name}");\n')
 
         for hi in highlights:
             output.append(hi.generate())
@@ -456,23 +456,25 @@ def gen_cpp():
     for error in itertools.chain.from_iterable(errors.values()):
         code = 'E' + str(error.code).zfill(PADAMT)
         name = error.name
+        category = error.category
         msgtype = 'ERROR'
         location = error.location
         description = error.desc
         inputs = error.inputs
         highlights = error.highlights
         extra = error.extra
-        gen_message(code, name, msgtype, location, description, inputs, highlights, extra)
+        gen_message(code, name, category, msgtype, location, description, inputs, highlights, extra)
 
     for warning in itertools.chain.from_iterable(warnings.values()):
         code = 'W' + str(warning.code).zfill(PADAMT)
         name = 'W' + warning.name
+        category = warning.category
         msgtype = 'WARNING'
         location = warning.location
         description = warning.desc
         inputs = warning.inputs
         highlights = warning.highlights
         extra = warning.extra
-        gen_message(code, name, msgtype, location, description, inputs, highlights, extra)
+        gen_message(code, name, category, msgtype, location, description, inputs, highlights, extra)
 
     return ''.join(output)
