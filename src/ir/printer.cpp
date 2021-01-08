@@ -65,25 +65,46 @@ namespace {
         _Printer &pr;
 
         void value_visitConstBool(IR::ConstBool *v) override {
+            openParen();
             pr(v->val ? "true" : "false");
+            tyAnnotation(v);
         }
         void value_visitConstChar(IR::ConstChar *v) override {
+            openParen();
             pr("'")(v->val)("'");
+            tyAnnotation(v);
         }
         void value_visitConstInt(IR::ConstInt *v) override {
+            openParen();
             pr(v->val);
+            tyAnnotation(v);
         }
         void value_visitConstFloat(IR::ConstFloat *v) override {
+            openParen();
             pr(v->val);
+            tyAnnotation(v);
         }
         void value_visitFunction(IR::Function *v) override {
+            openParen();
             pr(v->name);
+            tyAnnotation(v);
         }
         void value_visitInstruction(IR::Instrs::Instruction *v) override {
+            openParen();
             pr("%")(v->id);
+            tyAnnotation(v);
         }
         void value_visitVoid(IR::Void *v) override {
+            openParen();
             pr("'void'");
+            tyAnnotation(v);
+        }
+
+        void openParen() {
+            pr("(");
+        }
+        void tyAnnotation(IR::Value *v) {
+            pr(" :: ")(v->type()->name())(")");
         }
     };
     // }}}
@@ -102,6 +123,7 @@ namespace {
         // }}}
         // visit Instruction {{{
         void value_visitInstruction(IR::Instrs::Instruction *v) override {
+            pr("(%")(v->id)(" :: ")(v->type()->name())(") = ");
             v->accept(this);
             pr(";\n");
         }
@@ -140,10 +162,7 @@ namespace {
         // all the instructions {{{
         // helpers {{{
         void instrName(std::string const &s) {
-            pr(s)(" ");
-        }
-        void toTemp(IR::Instrs::Instruction *i) {
-            pr(" -> %")(i->id);
+            pr(s)("(");
         }
         void stringifyBlock(IR::Block const &b) {
             pr(format("%(%)", b.name, b.num));
@@ -151,23 +170,20 @@ namespace {
         void binaryInstruction(IR::Instrs::Instruction *i, std::string const &name, IR::ASTValue const &lhs, IR::ASTValue const &rhs) {
             instrName(name);
             lhs.val->value_accept(pr.vrp.get());
-            pr(" ");
+            pr(",");
             rhs.val->value_accept(pr.vrp.get());
-            toTemp(i);
+            pr(")");
         }
         void unaryInstruction(IR::Instrs::Instruction *i, std::string const &name, IR::ASTValue const &op) {
             instrName(name);
             op.val->value_accept(pr.vrp.get());
-            toTemp(i);
+            pr(")");
         }
         void castInstruction(IR::Instrs::Instruction *i, std::string const &name, IR::ASTValue const &op, IR::Type const *to) {
             instrName(name);
             op.val->value_accept(pr.vrp.get());
-            pr(" > ")(to->name());
-            toTemp(i);
-        }
-        void brArrow() {
-            pr("==> ");
+            pr(", ")(to->name());
+            pr(")");
         }
         // }}}
 
@@ -175,16 +191,17 @@ namespace {
             instrName("store");
             i->value.val->value_accept(pr.vrp.get());
 
+            pr(", ");
             if (i->init)
-                pr(" -=> ");
+                pr("init");
             else
-                pr(" --> ");
+                pr("noinit");
+            pr(", ");
 
             i->target.val->value_accept(pr.vrp.get());
         }
         void visitPhi(IR::Instrs::Phi *i) override {
             instrName("phi");
-            pr("[");
             bool first = true;
             for (auto &p : i->prevs) {
                 if (!first)
@@ -196,15 +213,14 @@ namespace {
 
                 first = false;
             }
-            pr("]");
-            toTemp(i);
+            pr(")");
         }
         void visitRegister(IR::Instrs::Register *i) override {
             instrName("register");
             pr(i->ty->name());
-            if (i->mut)
-                pr(" mut");
-            toTemp(i);
+            if (i->mut) pr(", mut");
+            else        pr(", const");
+            pr(")");
         }
 
         // binary instructions {{{
@@ -257,10 +273,10 @@ namespace {
         }
         void visitAddrof(IR::Instrs::Addrof *i) override {
             instrName("addrof");
-            pr(i->deref)(" ");
-            if (i->mut)
-                pr("mut");
-            toTemp(i);
+            pr(i->deref)(", ");
+            if (i->mut) pr("mut");
+            else        pr("const");
+            pr(")");
         }
         void visitPtrArith(IR::Instrs::PtrArith *i) override {
             binaryInstruction(i, "ptrarith", i->ptr, i->offset);
@@ -270,13 +286,11 @@ namespace {
         void visitCall(IR::Instrs::Call *i) override {
             instrName("call");
             i->f->value_accept(pr.vrp.get());
-            pr(" ( ");
             for (IR::ASTValue const &v : i->args) {
+                pr(", ");
                 v.val->value_accept(pr.vrp.get());
-                pr(" ");
             }
             pr(")");
-            toTemp(i);
         }
 
         // branches {{{
@@ -287,16 +301,19 @@ namespace {
             } else {
                 pr("void");
             }
+            pr(")");
         }
         void visitGotoBr(IR::Instrs::GotoBr *i) override {
-            instrName("gotobr"); brArrow();
+            instrName("gotobr");
             stringifyBlock(*i->to);
+            pr(")");
         }
         void visitCondBr(IR::Instrs::CondBr *i) override {
             instrName("condbr");
             i->v.val->value_accept(pr.vrp.get());
-            pr(" "); brArrow(); stringifyBlock(*i->trueB);
-            pr(" "); brArrow(); stringifyBlock(*i->falseB);
+            pr(", true="); stringifyBlock(*i->trueB);
+            pr(", false="); stringifyBlock(*i->falseB);
+            pr(")");
         }
         // }}}
         // }}}

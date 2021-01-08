@@ -42,7 +42,7 @@ ASTNS::AST* IR::FunctionType::declAST() const {
 }
 std::string IR::FunctionType::name() const {
     std::stringstream ss;
-    ss << "fun " << ret->name() << "(";
+    ss << "fun(";
     bool first = true;
     for (Type *pty : paramtys) {
         if (!first)
@@ -50,7 +50,7 @@ std::string IR::FunctionType::name() const {
         ss << pty->name();
         first = false;
     }
-    ss << ")";
+    ss << "): " << ret->name();
     return ss.str();
 }
 
