@@ -173,9 +173,9 @@ namespace {
         }
         void visitRegister(IR::Instrs::Register *i) override {
             instrName("register");
-            pr.ostream << i->ty->name() << " ";
+            pr.ostream << i->ty->name();
             if (i->mut)
-                pr.ostream << "mut";
+                pr.ostream << " mut";
             toTemp(i);
         }
 
