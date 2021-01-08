@@ -423,13 +423,14 @@ namespace ASTNS {
     public:
         Location _start, _end;
         Token iftok;
+        Token elsetok;
         std::unique_ptr<Expr> cond;
         std::unique_ptr<Expr> trues;
         std::unique_ptr<Expr> falses;
         virtual void accept(ASTNS::Expr::Visitor *v) override;
         virtual Location const & start() override;
         virtual Location const & end() override;
-        IfExpr(File const &file, Location start, Location end, Token iftok, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> trues, std::unique_ptr<Expr> falses);
+        IfExpr(File const &file, Location start, Location end, Token iftok, Token elsetok, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> trues, std::unique_ptr<Expr> falses);
     };
     class ForExpr : public Expr {
     public:

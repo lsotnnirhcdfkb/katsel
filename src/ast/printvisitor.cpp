@@ -247,6 +247,8 @@ void ASTNS::PrintVisitor::visitIfExpr(ASTNS::IfExpr *a) {
     ++indent;
     pai("Token iftok = ");
     printField(*this, a->iftok);
+    pai("Token elsetok = ");
+    printField(*this, a->elsetok);
     pai("std::unique_ptr<Expr> cond = ");
     printField(*this, a->cond);
     pai("std::unique_ptr<Expr> trues = ");

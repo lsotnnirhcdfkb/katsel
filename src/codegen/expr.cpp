@@ -308,7 +308,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitIfExpr(ASTNS::IfExpr *ast) {
         truev = falsev.type()->implCast(*cg.context, *fcg.fun, fcg.curBlock, truev);
         falsev = truev.type()->implCast(*cg.context, *fcg.fun, fcg.curBlock, falsev);
         if (truev.type() != falsev.type()) {
-            ERR_CONFL_TYS_IFEXPR(truev, falsev, ast->iftok);
+            ERR_CONFL_TYS_IFEXPR(truev, falsev, ast->iftok, ast->elsetok);
             ret = IR::ASTValue();
             fcg.errored = true;
             return;

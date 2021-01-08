@@ -98,7 +98,7 @@ ASTNS::Block::Block(File const &file, Location start, Location end, std::vector<
 void ASTNS::Block::accept(ASTNS::Expr::Visitor *v) { v->visitBlock(this); }
 Location const & ASTNS::Block::start() { return _start; }
 Location const & ASTNS::Block::end() { return _end; }
-ASTNS::IfExpr::IfExpr(File const &file, Location start, Location end, Token iftok, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> trues, std::unique_ptr<Expr> falses): Expr(file), _start(start), _end(end), iftok(std::move(iftok)), cond(std::move(cond)), trues(std::move(trues)), falses(std::move(falses)) {}
+ASTNS::IfExpr::IfExpr(File const &file, Location start, Location end, Token iftok, Token elsetok, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> trues, std::unique_ptr<Expr> falses): Expr(file), _start(start), _end(end), iftok(std::move(iftok)), elsetok(std::move(elsetok)), cond(std::move(cond)), trues(std::move(trues)), falses(std::move(falses)) {}
 void ASTNS::IfExpr::accept(ASTNS::Expr::Visitor *v) { v->visitIfExpr(this); }
 Location const & ASTNS::IfExpr::start() { return _start; }
 Location const & ASTNS::IfExpr::end() { return _end; }

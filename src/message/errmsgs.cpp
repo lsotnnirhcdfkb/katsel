@@ -281,10 +281,12 @@ void E0207(Location const &path) {
 
 // E0208 - confl-tys-ifexpr
 // | Conflicting types for branches of if expression
-void E0208(IR::ASTValue const &truev, IR::ASTValue const &falsev, Token const &iftok) {
+void E0208(IR::ASTValue const &truev, IR::ASTValue const &falsev, Token const &iftok, Token const &elsetok) {
     Error e = Error(Error::MsgType::ERROR, iftok, "E0208 (confl-tys-ifexpr)");
     e.underline(Error::Underline(iftok, '^')
         .error("conflicting types for branches of if expression")
+    );
+    e.underline(Error::Underline(elsetok, '-')
     );
     e.underline(Error::Underline(truev, '~')
         .note(format("%", truev.type()))

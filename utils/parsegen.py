@@ -706,9 +706,9 @@ def make_grammar():
     skip_to(NotBlockedExpr, AssignmentExpr)
     skip_to(BlockedExpr, IfExpr, ForExpr, BracedBlock)
 
-    rule(IfExpr, (IF, Expr, Block), SimpleReduceAction('IfExpr', 'a0, std::move(a1), std::move(a2), nullptr'))
-    rule(IfExpr, (IF, Expr, Block, ELSE, Block), SimpleReduceAction('IfExpr', 'a0, std::move(a1), std::move(a2), std::move(a4)'))
-    rule(IfExpr, (IF, Expr, Block, ELSE, IfExpr), SimpleReduceAction('IfExpr', 'a0, std::move(a1), std::move(a2), std::move(a4)'))
+    rule(IfExpr, (IF, Expr, Block), SimpleReduceAction('IfExpr', 'a0, a0, std::move(a1), std::move(a2), nullptr'))
+    rule(IfExpr, (IF, Expr, Block, ELSE, Block), SimpleReduceAction('IfExpr', 'a0, a3, std::move(a1), std::move(a2), std::move(a4)'))
+    rule(IfExpr, (IF, Expr, Block, ELSE, IfExpr), SimpleReduceAction('IfExpr', 'a0, a3, std::move(a1), std::move(a2), std::move(a4)'))
 
     rule(ForExpr, (FOR, VarStmtOpt, SEMICOLON, ExprOpt, SEMICOLON, ExprOpt, CPARN, Block), SimpleReduceAction('ForExpr', 'std::move(a1), std::move(a3), std::move(a5), std::move(a7)'))
 

@@ -104,7 +104,7 @@ void E0207(Location const &path);
 
 // E0208 - confl-tys-ifexpr
 #define ERR_CONFL_TYS_IFEXPR E0208
-void E0208(IR::ASTValue const &truev, IR::ASTValue const &falsev, Token const &iftok);
+void E0208(IR::ASTValue const &truev, IR::ASTValue const &falsev, Token const &iftok, Token const &elsetok);
 
 // E0209 - assign-invalid-lhs
 #define ERR_ASSIGN_INVALID_LHS E0209

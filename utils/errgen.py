@@ -227,9 +227,10 @@ errors = [
         ]),
     Msg(208, 'confl-tys-ifexpr',
         desc='Conflicting types for branches of if expression',
-        inputs='IR::ASTValue const &truev, IR::ASTValue const &falsev, Token const &iftok', location='iftok',
+        inputs='IR::ASTValue const &truev, IR::ASTValue const &falsev, Token const &iftok, Token const &elsetok', location='iftok',
         highlights=[
             SimpleHighlight('iftok', UNDER0, [('error', '"conflicting types for branches of if expression"')]),
+            SimpleHighlight('elsetok', UNDER2, []),
             SimpleHighlight('truev', UNDER1, [('note', '"%"', 'truev.type()')]),
             SimpleHighlight('falsev', UNDER1, [('note', '"%"', 'falsev.type()')]),
         ]),

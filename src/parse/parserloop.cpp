@@ -4344,7 +4344,7 @@ std::unique_ptr<ASTNS::ShortCircuitExpr> push (std::make_unique<ASTNS::ShortCirc
                             if (a2) end = a2->end();
                             else if (a1) end = a1->end();
                             else end = a0;
-std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefile, start, end, a0, std::move(a1), std::move(a2), nullptr));
+std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefile, start, end, a0, a0, std::move(a1), std::move(a2), nullptr));
                             std::unique_ptr<ASTNS::IfExpr> pushitem = std::move(push);
                             stack.emplace_back(getGoto(NonTerminal::IfExpr, stack.back().state), std::move(pushitem), NonTerminal::IfExpr);
                         }
@@ -5205,7 +5205,7 @@ std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p
                             start = a0;
                             if (a4) end = a4->end();
                             else end = a3;
-std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefile, start, end, a0, std::move(a1), std::move(a2), std::move(a4)));
+std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefile, start, end, a0, a3, std::move(a1), std::move(a2), std::move(a4)));
                             std::unique_ptr<ASTNS::IfExpr> pushitem = std::move(push);
                             stack.emplace_back(getGoto(NonTerminal::IfExpr, stack.back().state), std::move(pushitem), NonTerminal::IfExpr);
                         }
@@ -5224,7 +5224,7 @@ std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefil
                             start = a0;
                             if (a4) end = a4->end();
                             else end = a3;
-std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefile, start, end, a0, std::move(a1), std::move(a2), std::move(a4)));
+std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefile, start, end, a0, a3, std::move(a1), std::move(a2), std::move(a4)));
                             std::unique_ptr<ASTNS::IfExpr> pushitem = std::move(push);
                             stack.emplace_back(getGoto(NonTerminal::IfExpr, stack.back().state), std::move(pushitem), NonTerminal::IfExpr);
                         }
