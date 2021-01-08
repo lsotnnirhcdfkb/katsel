@@ -18,22 +18,19 @@ bool CodeGen::FunctionCodeGen::codegen() {
 
     incScope();
     ret = static_cast<IR::Instrs::Register*>(entryBlock->add(std::make_unique<IR::Instrs::Register>(cg.unit->implicitDeclAST.get(), fty->ret, true)));
-    if (ast->params) {
-        ParamVisitor pv (cg);
-        ast->params->accept(&pv);
-        std::vector<ParamVisitor::Param> params (pv.ret);
+    ParamVisitor pv (cg, ast->params);
+    std::vector<ParamVisitor::Param> params (pv.ret);
 
-        for (auto const &param : params) {
-            std::string pname = param.name;
-            IR::Instrs::Register *reg = static_cast<IR::Instrs::Register*>(entryBlock->add(std::make_unique<IR::Instrs::Register>(param.ast, param.ty, param.mut)));
+    for (auto const &param : params) {
+        std::string pname = param.name;
+        IR::Instrs::Register *reg = static_cast<IR::Instrs::Register*>(entryBlock->add(std::make_unique<IR::Instrs::Register>(param.ast, param.ty, param.mut)));
 
-            Local *foundparam = getLocal(pname);
-            if (foundparam) {
-                ERR_REDECL_PARAM(param.ast->name, foundparam->v);
-                errored = true;
-            } else
-                addLocal(pname, reg);
-        }
+        Local *foundparam = getLocal(pname);
+        if (foundparam) {
+            ERR_REDECL_PARAM(param.ast->name, foundparam->v);
+            errored = true;
+        } else
+            addLocal(pname, reg);
     }
 
     this->entryBlock = entryBlock;

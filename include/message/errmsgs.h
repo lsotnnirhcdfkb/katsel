@@ -92,7 +92,7 @@ void E0204(IR::ASTValue const &func, Token const &oparn);
 
 // E0205 - wrong-num-args
 #define ERR_WRONG_NUM_ARGS E0205
-void E0205(IR::ASTValue const &func, Token const &oparn, ASTNS::ArgB *argsast, std::vector<IR::ASTValue> const &args);
+void E0205(IR::ASTValue const &func, Token const &oparn, std::vector<IR::ASTValue> const &args);
 
 // E0206 - incorrect-arg
 #define ERR_INCORRECT_ARG E0206
@@ -169,6 +169,10 @@ void E0224(IR::ASTValue const &v, Token const &eq, IR::Instrs::DerefPtr *targetD
 // E0225 - mut-addrof-nonmut-op
 #define ERR_MUT_ADDROF_NONMUT_OP E0225
 void E0225(Token const &op, IR::Instrs::DerefPtr *asDeref);
+
+// E0226 - no-suppress
+#define ERR_NO_SUPPRESS E0226
+void E0226(Location const &dot);
 
 // W0000 - Wextra-semi
 #define WARN_EXTRA_SEMI W0000

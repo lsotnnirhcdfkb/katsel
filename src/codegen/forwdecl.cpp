@@ -5,10 +5,6 @@
 CodeGen::ForwDecl::ForwDecl(CodeGen &cg): cg(cg) {}
 
 void CodeGen::ForwDecl::visitCU(ASTNS::CU *ast) {
-    ast->decls->accept(this);
-}
-
-void CodeGen::ForwDecl::visitDeclList(ASTNS::DeclList *ast) {
     for (std::unique_ptr<ASTNS::Decl> &decl : ast->decls)
         decl->accept(this);
 }

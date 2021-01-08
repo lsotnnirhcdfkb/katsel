@@ -34,7 +34,3 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem 
 
     fcg.addLocal(varname, reg);
 }
-void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmtItemList(ASTNS::VarStmtItemList *ast) {
-    for (std::unique_ptr<ASTNS::VarStmtItem> &item : ast->items)
-        item->accept(this);
-}

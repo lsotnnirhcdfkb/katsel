@@ -19,27 +19,28 @@ namespace ASTNS {
     class ParamB;
     class VStmtIB;
     class PathB;
+    class ListB;
+    class DeclList;
+    class StmtList;
+    class ParamList;
+    class ArgList;
+    class VarStmtItemList;
     class PureLocationB;
     class PureLocation;
     class ImplicitDecl;
     class CU;
-    class DeclList;
     class ImplDecl;
     class FunctionDecl;
     class ImplBody;
     class FunctionImplItem;
     class VarStmt;
     class VarStmtItem;
-    class VarStmtItemList;
     class ExprStmt;
     class RetStmt;
-    class StmtList;
     class PathType;
     class PointerType;
     class Arg;
-    class ArgList;
     class Param;
-    class ParamList;
     class Block;
     class IfExpr;
     class ForExpr;
@@ -79,7 +80,6 @@ namespace ASTNS {
         public:
             virtual ~Visitor() {}
             virtual void visitImplicitDecl(ASTNS::ImplicitDecl *ast) = 0;
-            virtual void visitDeclList(ASTNS::DeclList *ast) = 0;
             virtual void visitImplDecl(ASTNS::ImplDecl *ast) = 0;
             virtual void visitFunctionDecl(ASTNS::FunctionDecl *ast) = 0;
         };
@@ -107,7 +107,6 @@ namespace ASTNS {
             virtual void visitVarStmt(ASTNS::VarStmt *ast) = 0;
             virtual void visitExprStmt(ASTNS::ExprStmt *ast) = 0;
             virtual void visitRetStmt(ASTNS::RetStmt *ast) = 0;
-            virtual void visitStmtList(ASTNS::StmtList *ast) = 0;
         };
         virtual ~Stmt() {}
         virtual void accept(Visitor *v) = 0;
@@ -154,7 +153,6 @@ namespace ASTNS {
         public:
             virtual ~Visitor() {}
             virtual void visitArg(ASTNS::Arg *ast) = 0;
-            virtual void visitArgList(ASTNS::ArgList *ast) = 0;
         };
         virtual ~ArgB() {}
         virtual void accept(Visitor *v) = 0;
@@ -166,7 +164,6 @@ namespace ASTNS {
         public:
             virtual ~Visitor() {}
             virtual void visitParam(ASTNS::Param *ast) = 0;
-            virtual void visitParamList(ASTNS::ParamList *ast) = 0;
         };
         virtual ~ParamB() {}
         virtual void accept(Visitor *v) = 0;
@@ -178,7 +175,6 @@ namespace ASTNS {
         public:
             virtual ~Visitor() {}
             virtual void visitVarStmtItem(ASTNS::VarStmtItem *ast) = 0;
-            virtual void visitVarStmtItemList(ASTNS::VarStmtItemList *ast) = 0;
         };
         virtual ~VStmtIB() {}
         virtual void accept(Visitor *v) = 0;
@@ -194,6 +190,66 @@ namespace ASTNS {
         virtual ~PathB() {}
         virtual void accept(Visitor *v) = 0;
         PathB(File const &file);
+    };
+    class ListB : public AST {
+    public:
+        class Visitor {
+        public:
+            virtual ~Visitor() {}
+            virtual void visitDeclList(ASTNS::DeclList *ast) = 0;
+            virtual void visitStmtList(ASTNS::StmtList *ast) = 0;
+            virtual void visitParamList(ASTNS::ParamList *ast) = 0;
+            virtual void visitArgList(ASTNS::ArgList *ast) = 0;
+            virtual void visitVarStmtItemList(ASTNS::VarStmtItemList *ast) = 0;
+        };
+        virtual ~ListB() {}
+        virtual void accept(Visitor *v) = 0;
+        ListB(File const &file);
+    };
+    class DeclList : public ListB {
+    public:
+        Location _start, _end;
+        std::vector<std::unique_ptr<Decl>> decls;
+        virtual void accept(ASTNS::ListB::Visitor *v) override;
+        virtual Location const & start() override;
+        virtual Location const & end() override;
+        DeclList(File const &file, Location start, Location end, std::vector<std::unique_ptr<Decl>> decls);
+    };
+    class StmtList : public ListB {
+    public:
+        Location _start, _end;
+        std::vector<std::unique_ptr<Stmt>> stmts;
+        virtual void accept(ASTNS::ListB::Visitor *v) override;
+        virtual Location const & start() override;
+        virtual Location const & end() override;
+        StmtList(File const &file, Location start, Location end, std::vector<std::unique_ptr<Stmt>> stmts);
+    };
+    class ParamList : public ListB {
+    public:
+        Location _start, _end;
+        std::vector<std::unique_ptr<Param>> params;
+        virtual void accept(ASTNS::ListB::Visitor *v) override;
+        virtual Location const & start() override;
+        virtual Location const & end() override;
+        ParamList(File const &file, Location start, Location end, std::vector<std::unique_ptr<Param>> params);
+    };
+    class ArgList : public ListB {
+    public:
+        Location _start, _end;
+        std::vector<std::unique_ptr<Arg>> args;
+        virtual void accept(ASTNS::ListB::Visitor *v) override;
+        virtual Location const & start() override;
+        virtual Location const & end() override;
+        ArgList(File const &file, Location start, Location end, std::vector<std::unique_ptr<Arg>> args);
+    };
+    class VarStmtItemList : public ListB {
+    public:
+        Location _start, _end;
+        std::vector<std::unique_ptr<VarStmtItem>> items;
+        virtual void accept(ASTNS::ListB::Visitor *v) override;
+        virtual Location const & start() override;
+        virtual Location const & end() override;
+        VarStmtItemList(File const &file, Location start, Location end, std::vector<std::unique_ptr<VarStmtItem>> items);
     };
     class PureLocationB : public AST {
     public:
@@ -227,20 +283,11 @@ namespace ASTNS {
     class CU : public CUB {
     public:
         Location _start, _end;
-        std::unique_ptr<DeclList> decls;
+        std::vector<std::unique_ptr<Decl>> decls;
         virtual void accept(ASTNS::CUB::Visitor *v) override;
         virtual Location const & start() override;
         virtual Location const & end() override;
-        CU(File const &file, Location start, Location end, std::unique_ptr<DeclList> decls);
-    };
-    class DeclList : public Decl {
-    public:
-        Location _start, _end;
-        std::vector<std::unique_ptr<Decl>> decls;
-        virtual void accept(ASTNS::Decl::Visitor *v) override;
-        virtual Location const & start() override;
-        virtual Location const & end() override;
-        DeclList(File const &file, Location start, Location end, std::vector<std::unique_ptr<Decl>> decls);
+        CU(File const &file, Location start, Location end, std::vector<std::unique_ptr<Decl>> decls);
     };
     class ImplDecl : public Decl {
     public:
@@ -257,12 +304,12 @@ namespace ASTNS {
         Location _start, _end;
         std::unique_ptr<Type> retty;
         Token name;
-        std::unique_ptr<ParamList> params;
+        std::vector<std::unique_ptr<Param>> params;
         std::unique_ptr<Block> body;
         virtual void accept(ASTNS::Decl::Visitor *v) override;
         virtual Location const & start() override;
         virtual Location const & end() override;
-        FunctionDecl(File const &file, Location start, Location end, std::unique_ptr<Type> retty, Token name, std::unique_ptr<ParamList> params, std::unique_ptr<Block> body);
+        FunctionDecl(File const &file, Location start, Location end, std::unique_ptr<Type> retty, Token name, std::vector<std::unique_ptr<Param>> params, std::unique_ptr<Block> body);
     };
     class ImplBody : public ImplItem {
     public:
@@ -285,11 +332,11 @@ namespace ASTNS {
     class VarStmt : public Stmt {
     public:
         Location _start, _end;
-        std::unique_ptr<VarStmtItemList> assignments;
+        std::vector<std::unique_ptr<VarStmtItem>> items;
         virtual void accept(ASTNS::Stmt::Visitor *v) override;
         virtual Location const & start() override;
         virtual Location const & end() override;
-        VarStmt(File const &file, Location start, Location end, std::unique_ptr<VarStmtItemList> assignments);
+        VarStmt(File const &file, Location start, Location end, std::vector<std::unique_ptr<VarStmtItem>> items);
     };
     class VarStmtItem : public VStmtIB {
     public:
@@ -304,24 +351,16 @@ namespace ASTNS {
         virtual Location const & end() override;
         VarStmtItem(File const &file, Location start, Location end, std::unique_ptr<Type> type, bool mut, Token name, Token equal, std::unique_ptr<Expr> expr);
     };
-    class VarStmtItemList : public VStmtIB {
-    public:
-        Location _start, _end;
-        std::vector<std::unique_ptr<VarStmtItem>> items;
-        virtual void accept(ASTNS::VStmtIB::Visitor *v) override;
-        virtual Location const & start() override;
-        virtual Location const & end() override;
-        VarStmtItemList(File const &file, Location start, Location end, std::vector<std::unique_ptr<VarStmtItem>> items);
-    };
     class ExprStmt : public Stmt {
     public:
         Location _start, _end;
         std::unique_ptr<Expr> expr;
         bool suppress;
+        Location dot;
         virtual void accept(ASTNS::Stmt::Visitor *v) override;
         virtual Location const & start() override;
         virtual Location const & end() override;
-        ExprStmt(File const &file, Location start, Location end, std::unique_ptr<Expr> expr, bool suppress);
+        ExprStmt(File const &file, Location start, Location end, std::unique_ptr<Expr> expr, bool suppress, Location dot);
     };
     class RetStmt : public Stmt {
     public:
@@ -331,15 +370,6 @@ namespace ASTNS {
         virtual Location const & start() override;
         virtual Location const & end() override;
         RetStmt(File const &file, Location start, Location end, std::unique_ptr<Expr> expr);
-    };
-    class StmtList : public Stmt {
-    public:
-        Location _start, _end;
-        std::vector<std::unique_ptr<Stmt>> stmts;
-        virtual void accept(ASTNS::Stmt::Visitor *v) override;
-        virtual Location const & start() override;
-        virtual Location const & end() override;
-        StmtList(File const &file, Location start, Location end, std::vector<std::unique_ptr<Stmt>> stmts);
     };
     class PathType : public Type {
     public:
@@ -369,15 +399,6 @@ namespace ASTNS {
         virtual Location const & end() override;
         Arg(File const &file, Location start, Location end, std::unique_ptr<Expr> expr);
     };
-    class ArgList : public ArgB {
-    public:
-        Location _start, _end;
-        std::vector<std::unique_ptr<Arg>> args;
-        virtual void accept(ASTNS::ArgB::Visitor *v) override;
-        virtual Location const & start() override;
-        virtual Location const & end() override;
-        ArgList(File const &file, Location start, Location end, std::vector<std::unique_ptr<Arg>> args);
-    };
     class Param : public ParamB {
     public:
         Location _start, _end;
@@ -389,23 +410,14 @@ namespace ASTNS {
         virtual Location const & end() override;
         Param(File const &file, Location start, Location end, std::unique_ptr<Type> type, Token name, bool mut);
     };
-    class ParamList : public ParamB {
-    public:
-        Location _start, _end;
-        std::vector<std::unique_ptr<Param>> params;
-        virtual void accept(ASTNS::ParamB::Visitor *v) override;
-        virtual Location const & start() override;
-        virtual Location const & end() override;
-        ParamList(File const &file, Location start, Location end, std::vector<std::unique_ptr<Param>> params);
-    };
     class Block : public Expr {
     public:
         Location _start, _end;
-        std::unique_ptr<StmtList> stmts;
+        std::vector<std::unique_ptr<Stmt>> stmts;
         virtual void accept(ASTNS::Expr::Visitor *v) override;
         virtual Location const & start() override;
         virtual Location const & end() override;
-        Block(File const &file, Location start, Location end, std::unique_ptr<StmtList> stmts);
+        Block(File const &file, Location start, Location end, std::vector<std::unique_ptr<Stmt>> stmts);
     };
     class IfExpr : public Expr {
     public:
@@ -510,11 +522,11 @@ namespace ASTNS {
         Location _start, _end;
         std::unique_ptr<Expr> callee;
         Token oparn;
-        std::unique_ptr<ArgList> args;
+        std::vector<std::unique_ptr<Arg>> args;
         virtual void accept(ASTNS::Expr::Visitor *v) override;
         virtual Location const & start() override;
         virtual Location const & end() override;
-        CallExpr(File const &file, Location start, Location end, std::unique_ptr<Expr> callee, Token oparn, std::unique_ptr<ArgList> args);
+        CallExpr(File const &file, Location start, Location end, std::unique_ptr<Expr> callee, Token oparn, std::vector<std::unique_ptr<Arg>> args);
     };
     class PrimaryExpr : public Expr {
     public:

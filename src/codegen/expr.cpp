@@ -177,14 +177,11 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast) 
     }
 
     std::vector<IR::ASTValue> args;
-    if (ast->args) {
-        CodeGen::ArgVisitor av (fcg);
-        ast->args->accept(&av);
-        args = av.ret;
-    }
+    CodeGen::ArgVisitor av (fcg, ast->args);
+    args = av.ret;
 
     if (args.size() != fty->paramtys.size()) {
-        ERR_WRONG_NUM_ARGS(func, ast->oparn, ast->args.get(), args);
+        ERR_WRONG_NUM_ARGS(func, ast->oparn, args);
         ret = IR::ASTValue();
         fcg.errored = true;
         return;
@@ -424,13 +421,32 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitCastExpr(ASTNS::CastExpr *ast) 
 
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitBlock(ASTNS::Block *ast) {
     fcg.incScope();
-    if (ast->stmts)
-        fcg.stmtCG.stmt(ast->stmts.get());
 
-    if (ast->implRet)
-        ast->implRet->accept(this);
-    else
-        ret = IR::ASTValue(cg.context->getVoid(), ast);;
+    IR::ASTValue blockRet;
+
+    for (auto stmt = ast->stmts.begin(); stmt != ast->stmts.end(); ++stmt) {
+        if (ASTNS::ExprStmt *exprstmt = dynamic_cast<ASTNS::ExprStmt*>(stmt->get())) {
+            bool last = stmt + 1 == ast->stmts.end();
+
+            if (last && !exprstmt->suppress) {
+                // if the stmt is the last stmt of the block, and is not suppressed
+                blockRet = expr(exprstmt->expr.get());
+            } else {
+                // if the stmt does not count as a return value
+                // (ie it is not the last stmt, or it is the last stmt and is suppressed)
+                expr(exprstmt->expr.get());
+
+                if (!last && exprstmt->suppress) {
+                    ERR_NO_SUPPRESS(exprstmt->dot);
+                    fcg.errored = true;
+                }
+            }
+        } else {
+            fcg.stmtCG.stmt(stmt->get());
+        }
+    }
+
+    ret = blockRet ? blockRet : IR::ASTValue(cg.context->getVoid(), ast);
 
     fcg.decScope();
 }

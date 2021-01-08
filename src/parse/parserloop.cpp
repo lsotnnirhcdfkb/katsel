@@ -231,13 +231,11 @@ size_t getGoto(NonTerminal nterm, size_t state) {
                     return 69;
                 case 80: 
                     return 134;
-                case 135: 
-                    return 179;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::LineEnding:
             switch (state) {
-                case 18: case 62: case 80: case 135: 
+                case 18: case 62: case 80: 
                     return 31;
                 case 54: 
                     return 63;
@@ -249,6 +247,8 @@ size_t getGoto(NonTerminal nterm, size_t state) {
                     return 174;
                 case 133: 
                     return 178;
+                case 135: 
+                    return 179;
                 case 136: 
                     return 180;
                 default: reportAbortNoh("get invalid goto");
@@ -641,7 +641,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                             Location start ((a0.get())), end ((a0.get()));
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
-std::unique_ptr<ASTNS::CU> push (std::make_unique<ASTNS::CU>(p.sourcefile, start, end, std::move(a0)));
+std::unique_ptr<ASTNS::CU> push (std::make_unique<ASTNS::CU>(p.sourcefile, start, end, std::move(a0->decls)));
                             std::unique_ptr<ASTNS::CU> pushitem = std::move(push);
                             stack.emplace_back(getGoto(NonTerminal::CU, stack.back().state), std::move(pushitem), NonTerminal::CU);
                         }
@@ -1547,7 +1547,7 @@ std::unique_ptr<ASTNS::Param> push (std::make_unique<ASTNS::Param>(p.sourcefile,
                             if (a6) end = a6->end();
                             else if (a5) end = a5->end();
                             else end = a4;
-std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>(p.sourcefile, start, end, std::move(a5), a1, std::move(a3), nullptr));
+std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>(p.sourcefile, start, end, std::move(a5), a1, std::move(a3->params), nullptr));
                             std::unique_ptr<ASTNS::FunctionDecl> pushitem = std::move(push);
                             stack.emplace_back(getGoto(NonTerminal::FunctionDecl, stack.back().state), std::move(pushitem), NonTerminal::FunctionDecl);
                         }
@@ -1682,7 +1682,7 @@ std::unique_ptr<ASTNS::PureLocation> push (std::make_unique<ASTNS::PureLocation>
                             else if (a6) end = a6->end();
                             else if (a5) end = a5->end();
                             else end = a4;
-std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>(p.sourcefile, start, end, std::move(a5), a1, std::move(a3), std::move(a6)));
+std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>(p.sourcefile, start, end, std::move(a5), a1, std::move(a3->params), std::move(a6)));
                             std::unique_ptr<ASTNS::FunctionDecl> pushitem = std::move(push);
                             stack.emplace_back(getGoto(NonTerminal::FunctionDecl, stack.back().state), std::move(pushitem), NonTerminal::FunctionDecl);
                         }
@@ -2845,7 +2845,7 @@ std::unique_ptr<ASTNS::PathExpr> push (std::make_unique<ASTNS::PathExpr>(p.sourc
                             Location start, end;
                             start = a0;
                             end = a2;
-std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, start, end, std::move(a1)));
+std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, start, end, std::move(a1->stmts)));
                             std::unique_ptr<ASTNS::Block> pushitem = std::move(push);
                             stack.emplace_back(getGoto(NonTerminal::BracedBlock, stack.back().state), std::move(pushitem), NonTerminal::BracedBlock);
                         }
@@ -3019,7 +3019,7 @@ std::unique_ptr<ASTNS::VarStmtItemList> push(std::make_unique<ASTNS::VarStmtItem
                             else if (a1) start = a1->start();
                             if (a1) end = a1->end();
                             else if (a0) end = a0->end();
-std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourcefile, start, end, std::move(a0), false));
+std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourcefile, start, end, std::move(a0), false, Location()));
                             std::unique_ptr<ASTNS::ExprStmt> pushitem = std::move(push);
                             stack.emplace_back(getGoto(NonTerminal::ExprStmt, stack.back().state), std::move(pushitem), NonTerminal::ExprStmt);
                         }
@@ -3047,7 +3047,7 @@ std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourc
                             else if (a1) start = a1->start();
                             if (a1) end = a1->end();
                             else if (a0) end = a0->end();
-std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourcefile, start, end, std::move(a0), false));
+std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourcefile, start, end, std::move(a0), false, Location()));
                             std::unique_ptr<ASTNS::ExprStmt> pushitem = std::move(push);
                             stack.emplace_back(getGoto(NonTerminal::ExprStmt, stack.back().state), std::move(pushitem), NonTerminal::ExprStmt);
                         }
@@ -3056,45 +3056,13 @@ std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourc
                 break;
             case 135:
                 switch (lookahead.type) {
-                    case TokenType::AMPER:
-                    case TokenType::BANG:
-                    case TokenType::BININTLIT:
-                    case TokenType::CCURB:
-                    case TokenType::CHARLIT:
-                    case TokenType::DECINTLIT:
-                    case TokenType::DEDENT:
-                    case TokenType::EOF_:
-                    case TokenType::FALSELIT:
-                    case TokenType::FLOATLIT:
-                    case TokenType::FOR:
-                    case TokenType::FUN:
-                    case TokenType::HEXINTLIT:
-                    case TokenType::IDENTIFIER:
-                    case TokenType::IF:
-                    case TokenType::IMPL:
-                    case TokenType::MINUS:
-                    case TokenType::NULLPTRLIT:
-                    case TokenType::OCTINTLIT:
-                    case TokenType::OCURB:
-                    case TokenType::OPARN:
-                    case TokenType::RETURN:
-                    case TokenType::STAR:
-                    case TokenType::STRINGLIT:
-                    case TokenType::TILDE:
-                    case TokenType::TRUELIT:
-                    case TokenType::VAR:
-{
-                            std::unique_ptr<ASTNS::PureLocation> pushitem = nullptr;
-                            stack.emplace_back(getGoto(NonTerminal::LineEnding_OPT, stack.back().state), std::move(pushitem), NonTerminal::LineEnding_OPT);
-                        }
-                        break;
                     case TokenType::NEWLINE:
                         shift(p, lasttok, lookahead, stack, steps, 32); break;
                     case TokenType::SEMICOLON:
                         shift(p, lasttok, lookahead, stack, steps, 33); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional line ending", "expression statement")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "line ending", "expression statement")  });
                 }
                 break;
             case 136:
@@ -4166,7 +4134,7 @@ std::unique_ptr<ASTNS::DerefExpr> push (std::make_unique<ASTNS::DerefExpr>(p.sou
                             Location start, end;
                             start = a0;
                             end = a3;
-std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, start, end, std::move(a2)));
+std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, start, end, std::move(a2->stmts)));
                             std::unique_ptr<ASTNS::Block> pushitem = std::move(push);
                             stack.emplace_back(getGoto(NonTerminal::IndentedBlock, stack.back().state), std::move(pushitem), NonTerminal::IndentedBlock);
                         }
@@ -4183,7 +4151,7 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                             Location start, end;
                             start = a0;
                             end = a3;
-std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, start, end, std::move(a2)));
+std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, start, end, std::move(a2->stmts)));
                             std::unique_ptr<ASTNS::Block> pushitem = std::move(push);
                             stack.emplace_back(getGoto(NonTerminal::BracedBlock, stack.back().state), std::move(pushitem), NonTerminal::BracedBlock);
                         }
@@ -4210,7 +4178,7 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                             if (a2) end = a2->end();
                             else if (a1) end = a1->end();
                             else end = a0;
-std::unique_ptr<ASTNS::VarStmt> push (std::make_unique<ASTNS::VarStmt>(p.sourcefile, start, end, std::move(a1)));
+std::unique_ptr<ASTNS::VarStmt> push (std::make_unique<ASTNS::VarStmt>(p.sourcefile, start, end, std::move(a1->items)));
                             std::unique_ptr<ASTNS::VarStmt> pushitem = std::move(push);
                             stack.emplace_back(getGoto(NonTerminal::VarStmt, stack.back().state), std::move(pushitem), NonTerminal::VarStmt);
                         }
@@ -4274,7 +4242,7 @@ std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p
                             else start = a1;
                             if (a2) end = a2->end();
                             else end = a1;
-std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourcefile, start, end, std::move(a0), true));
+std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourcefile, start, end, std::move(a0), true, a1));
                             std::unique_ptr<ASTNS::ExprStmt> pushitem = std::move(push);
                             stack.emplace_back(getGoto(NonTerminal::ExprStmt, stack.back().state), std::move(pushitem), NonTerminal::ExprStmt);
                         }
@@ -4292,7 +4260,7 @@ std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourc
                             else start = a1;
                             if (a2) end = a2->end();
                             else end = a1;
-std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourcefile, start, end, std::move(a0), true));
+std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourcefile, start, end, std::move(a0), true, a1));
                             std::unique_ptr<ASTNS::ExprStmt> pushitem = std::move(push);
                             stack.emplace_back(getGoto(NonTerminal::ExprStmt, stack.back().state), std::move(pushitem), NonTerminal::ExprStmt);
                         }
@@ -5069,7 +5037,7 @@ std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p
                             if (a0) start = a0->start();
                             else start = a1;
                             end = a3;
-std::unique_ptr<ASTNS::CallExpr> push (std::make_unique<ASTNS::CallExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2)));
+std::unique_ptr<ASTNS::CallExpr> push (std::make_unique<ASTNS::CallExpr>(p.sourcefile, start, end, std::move(a0), a1, std::move(a2->args)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(getGoto(NonTerminal::CallExpr, stack.back().state), std::move(pushitem), NonTerminal::CallExpr);
                         }
@@ -5143,7 +5111,7 @@ std::unique_ptr<ASTNS::CallExpr> push (std::make_unique<ASTNS::CallExpr>(p.sourc
                             Location start, end;
                             start = a0;
                             end = a5;
-std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, start, end, std::move(a3)));
+std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, start, end, std::move(a3->stmts)));
                             std::unique_ptr<ASTNS::Block> pushitem = std::move(push);
                             stack.emplace_back(getGoto(NonTerminal::BracedBlock, stack.back().state), std::move(pushitem), NonTerminal::BracedBlock);
                         }

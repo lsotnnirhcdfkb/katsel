@@ -10,7 +10,8 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::visitExprStmt(ASTNS::ExprStmt *ast) 
     fcg.exprCG.expr(ast->expr.get());
 }
 void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmt(ASTNS::VarStmt *ast) {
-    ast->assignments->accept(this);
+    for (std::unique_ptr<ASTNS::VarStmtItem> &item : ast->items)
+        item->accept(this);
 }
 void CodeGen::FunctionCodeGen::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast) {
     IR::ASTValue v;
@@ -32,9 +33,3 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::visitRetStmt(ASTNS::RetStmt *ast) {
     fcg.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(fcg.exitBlock));
     // fcg.curBlock = cg.context.blackHoleBlock.get(); TODO: fix
 }
-
-void CodeGen::FunctionCodeGen::StmtCodeGen::visitStmtList(ASTNS::StmtList *ast) {
-    for (std::unique_ptr<ASTNS::Stmt> &s : ast->stmts)
-        s->accept(this);
-}
-

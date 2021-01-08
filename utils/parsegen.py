@@ -636,13 +636,13 @@ def make_grammar():
     TypeAnnotationOpt = make_opt(TypeAnnotation, SkipReduceAction(), NullptrReduceAction(), new_name='optional type annotation')
     ImplItemListOpt = make_opt(ImplItemList, SkipReduceAction(), NullptrReduceAction())
 
-    rule(CU, (DeclList,), SimpleReduceAction('CU', 'std::move(a0)'))
+    rule(CU, (DeclList,), SimpleReduceAction('CU', 'std::move(a0->decls)'))
     rule(CU, (), NullptrReduceAction())
 
     skip_to(Decl, FunctionDecl, ImplDecl)
 
-    rule(FunctionDecl, (FUN, IDENTIFIER, OPARN, ParamListOpt, CPARN, TypeAnnotation, Block, LineEndingOpt), SimpleReduceAction('FunctionDecl', 'std::move(a5), a1, std::move(a3), std::move(a6)'))
-    rule(FunctionDecl, (FUN, IDENTIFIER, OPARN, ParamListOpt, CPARN, TypeAnnotation, LineEnding), SimpleReduceAction('FunctionDecl', 'std::move(a5), a1, std::move(a3), nullptr'))
+    rule(FunctionDecl, (FUN, IDENTIFIER, OPARN, ParamListOpt, CPARN, TypeAnnotation, Block, LineEndingOpt), SimpleReduceAction('FunctionDecl', 'std::move(a5), a1, std::move(a3->params), std::move(a6)'))
+    rule(FunctionDecl, (FUN, IDENTIFIER, OPARN, ParamListOpt, CPARN, TypeAnnotation, LineEnding), SimpleReduceAction('FunctionDecl', 'std::move(a5), a1, std::move(a3->params), nullptr'))
 
     rule(ImplDecl, (IMPL, Type, ImplBody, LineEndingOpt), SimpleReduceAction('ImplDecl', 'std::move(a1), std::move(a2)'))
 
@@ -656,12 +656,12 @@ def make_grammar():
 
     skip_to(Stmt, VarStmt, ExprStmt, RetStmt)
 
-    rule(VarStmt, (VAR, VarStmtItemList, LineEnding), SimpleReduceAction('VarStmt', 'std::move(a1)'))
+    rule(VarStmt, (VAR, VarStmtItemList, LineEnding), SimpleReduceAction('VarStmt', 'std::move(a1->items)'))
 
-    rule(ExprStmt, (NotBlockedExpr, LineEnding), SimpleReduceAction('ExprStmt', 'std::move(a0), false'))
-    rule(ExprStmt, (BlockedExpr, LineEndingOpt), SimpleReduceAction('ExprStmt', 'std::move(a0), false'))
-    rule(ExprStmt, (NotBlockedExpr, PERIOD, LineEnding), SimpleReduceAction('ExprStmt', 'std::move(a0), true'))
-    rule(ExprStmt, (BlockedExpr, PERIOD, LineEnding), SimpleReduceAction('ExprStmt', 'std::move(a0), true'))
+    rule(ExprStmt, (NotBlockedExpr, LineEnding), SimpleReduceAction('ExprStmt', 'std::move(a0), false, Location()'))
+    rule(ExprStmt, (BlockedExpr, LineEndingOpt), SimpleReduceAction('ExprStmt', 'std::move(a0), false, Location()'))
+    rule(ExprStmt, (NotBlockedExpr, PERIOD, LineEnding), SimpleReduceAction('ExprStmt', 'std::move(a0), true, a1'))
+    rule(ExprStmt, (BlockedExpr, PERIOD, LineEnding), SimpleReduceAction('ExprStmt', 'std::move(a0), true, a1'))
 
     rule(RetStmt, (RETURN, Expr, LineEnding), SimpleReduceAction('RetStmt', 'std::move(a1)'))
     rule(RetStmt, (RETURN, LineEnding), SimpleReduceAction('RetStmt', 'nullptr'))
@@ -673,10 +673,10 @@ def make_grammar():
 
     skip_to(Block, BracedBlock, IndentedBlock)
     braced_rule(BracedBlock, (StmtListOpt,),
-        SimpleReduceAction('Block', 'std::move(a1)'), # offset 1
-        SimpleReduceAction('Block', 'std::move(a2)'), # offset 2
-        SimpleReduceAction('Block', 'std::move(a3)')) # offset 3
-    indented_rule(IndentedBlock, (StmtListOpt,), SimpleReduceAction('Block', 'std::move(a2)'))
+        SimpleReduceAction('Block', 'std::move(a1->stmts)'), # offset 1
+        SimpleReduceAction('Block', 'std::move(a2->stmts)'), # offset 2
+        SimpleReduceAction('Block', 'std::move(a3->stmts)')) # offset 3
+    indented_rule(IndentedBlock, (StmtListOpt,), SimpleReduceAction('Block', 'std::move(a2->stmts)'))
 
     rule(LineEnding, (NEWLINE,), LocationReduceAction())
     rule(LineEnding, (SEMICOLON,), LocationReduceAction())
@@ -747,7 +747,7 @@ def make_grammar():
     rule(UnaryExpr, (AMPER, MUT, UnaryExpr, ), SimpleReduceAction('AddrofExpr', 'a0, std::move(a2), true'))
     rule(UnaryExpr, (STAR, UnaryExpr, ), SimpleReduceAction('DerefExpr', 'a0, std::move(a1)'))
     rule(UnaryExpr, (CallExpr,), SkipReduceAction())
-    rule(CallExpr, (CallExpr, OPARN, ArgListOpt, CPARN, ), SimpleReduceAction('CallExpr', 'std::move(a0), a1, std::move(a2)'))
+    rule(CallExpr, (CallExpr, OPARN, ArgListOpt, CPARN, ), SimpleReduceAction('CallExpr', 'std::move(a0), a1, std::move(a2->args)'))
     rule(CallExpr, (PrimaryExpr,), SkipReduceAction())
 
     token_rule(PrimaryExpr, SimpleReduceAction('PrimaryExpr', 'a0'), TRUELIT, FALSELIT, FLOATLIT, NULLPTRLIT, DECINTLIT, OCTINTLIT, BININTLIT, HEXINTLIT, CHARLIT, STRINGLIT)

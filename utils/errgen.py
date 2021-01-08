@@ -207,9 +207,9 @@ errors = [
         ]),
     Msg(205, 'wrong-num-args',
         desc='Wrong number of arguments to function call',
-        inputs='IR::ASTValue const &func, Token const &oparn, ASTNS::ArgB *argsast, std::vector<IR::ASTValue> const &args', location='oparn',
+        inputs='IR::ASTValue const &func, Token const &oparn, std::vector<IR::ASTValue> const &args', location='oparn',
         highlights=[
-            SimpleHighlight('argsast ? Location(argsast) : Location(oparn)', UNDER0, [('error', '"wrong number of arguments to function call"')]),
+            SimpleHighlight('oparn', UNDER0, [('error', '"wrong number of arguments to function call"')]),
             SimpleHighlight('func', UNDER1, []),
             SimpleHighlight('static_cast<IR::Function*>(func.val)->defAST()', UNDER1, [('note', '"function expects % arguments, but got % arguments"', 'static_cast<IR::FunctionType*>(func.type())->paramtys.size()', 'args.size()')]),
         ]),
@@ -347,6 +347,12 @@ errors = [
         highlights=[
             SimpleHighlight('op', UNDER0, [('error', '"cannot take mutable pointer to non-mutable lvalue"')]),
             ValueDeclHighlight('asDeref->ptr.val', 'value', None, UNDER1, 'note', '"value declared immutable here"'),
+        ]),
+    Msg(226, 'no-suppress',
+        desc='Cannot suppress an expression that is not the implicit return value of a block',
+        inputs='Location const &dot', location='dot',
+        highlights=[
+            SimpleHighlight('dot', UNDER0, [('error', '"implicit return suppression not allowed here"')]),
         ]),
 ]
 warnings = [

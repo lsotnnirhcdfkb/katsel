@@ -1,13 +1,13 @@
 #include "codegenlocal.h"
 #include "ir/unit.h"
 
-CodeGen::CodeGen(File const &file, ASTNS::CUB *cub)
-: unit(std::make_unique<IR::Unit>(file)),
-  context(std::make_unique<Context>(file, *this)),
-  typeVisitor(std::make_unique<TypeVisitor>(*this)),
-  pathVisitor(std::make_unique<PathVisitor>(*this)),
-  errored(false),
-  cub(cub) {}
+CodeGen::CodeGen(File const &file, ASTNS::CUB *cub):
+    unit(std::make_unique<IR::Unit>(file)),
+    context(std::make_unique<Context>(file, *this)),
+    typeVisitor(std::make_unique<TypeVisitor>(*this)),
+    pathVisitor(std::make_unique<PathVisitor>(*this)),
+    errored(false),
+    cub(cub) {}
 CodeGen::~CodeGen() = default;
 
 void CodeGen::forwdecl() {
@@ -40,9 +40,6 @@ void CodeGen::codegen() {
 
 // visiting {{{1
 void CodeGen::visitCU(ASTNS::CU *ast) {
-    ast->decls->accept(this);
-}
-void CodeGen::visitDeclList(ASTNS::DeclList *ast) {
     for (std::unique_ptr<ASTNS::Decl> &decl : ast->decls)
         decl->accept(this);
 }

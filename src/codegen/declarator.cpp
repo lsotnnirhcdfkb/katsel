@@ -5,10 +5,6 @@
 CodeGen::Declarator::Declarator(CodeGen &cg): cg(cg), currentSymbol(&cg.unit->mod) {}
 
 void CodeGen::Declarator::visitCU(ASTNS::CU *ast) {
-    ast->decls->accept(this);
-}
-
-void CodeGen::Declarator::visitDeclList(ASTNS::DeclList *ast) {
     for (std::unique_ptr<ASTNS::Decl> &decl : ast->decls)
         decl->accept(this);
 }
@@ -28,11 +24,8 @@ void CodeGen::Declarator::visitFunctionDecl(ASTNS::FunctionDecl *fun) {
         return;
 
     std::vector<CodeGen::ParamVisitor::Param> params;
-    if (fun->params) {
-        CodeGen::ParamVisitor p (cg);
-        fun->params->accept(&p);
-        params = p.ret;
-    }
+    CodeGen::ParamVisitor p (cg, fun->params);
+    params = p.ret;
 
     std::vector<IR::Type*> ptys;
     for (auto const &p : params)

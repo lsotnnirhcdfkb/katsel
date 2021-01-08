@@ -244,9 +244,9 @@ void E0204(IR::ASTValue const &func, Token const &oparn) {
 
 // E0205 - wrong-num-args
 // | Wrong number of arguments to function call
-void E0205(IR::ASTValue const &func, Token const &oparn, ASTNS::ArgB *argsast, std::vector<IR::ASTValue> const &args) {
+void E0205(IR::ASTValue const &func, Token const &oparn, std::vector<IR::ASTValue> const &args) {
     Error e = Error(Error::MsgType::ERROR, oparn, "E0205 (wrong-num-args)");
-    e.underline(Error::Underline(argsast ? Location(argsast) : Location(oparn), '^')
+    e.underline(Error::Underline(oparn, '^')
         .error("wrong number of arguments to function call")
     );
     e.underline(Error::Underline(func, '~')
@@ -512,6 +512,17 @@ void E0225(Token const &op, IR::Instrs::DerefPtr *asDeref) {
                 .note("value declared immutable here"));
        }
     }
+    e.report();
+}
+
+// E0226 - no-suppress
+// | Cannot suppress an expression that is not the implicit
+// | return value of a block
+void E0226(Location const &dot) {
+    Error e = Error(Error::MsgType::ERROR, dot, "E0226 (no-suppress)");
+    e.underline(Error::Underline(dot, '^')
+        .error("implicit return suppression not allowed here")
+    );
     e.report();
 }
 

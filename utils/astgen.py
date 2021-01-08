@@ -26,6 +26,8 @@ class ASTField:
     def __eq__(self, other):
         return self.type == other.type and self.name == other.name
 # Classes to generate {{{1
+def list_ast(name, type_, field_name):
+    return AST(name, 'ListB', f'std::vector<std::unique_ptr<{type_}>>|{field_name}')
 asts = [
     ASTSuperBase(),
     ASTBase('CUB'),
@@ -39,6 +41,13 @@ asts = [
     ASTBase('VStmtIB'),
     ASTBase('PathB'),
 
+    ASTBase('ListB'),
+    list_ast('DeclList', 'Decl', 'decls'),
+    list_ast('StmtList', 'Stmt', 'stmts'),
+    list_ast('ParamList', 'Param', 'params'),
+    list_ast('ArgList', 'Arg', 'args'),
+    list_ast('VarStmtItemList', 'VarStmtItem', 'items'),
+
     # a class to keep track of locations of syntactic elements that don't matter (like
     # line endings where the location matters (so that other statements can use the line
     # ending as an ending position) but does not reduce down to an actual AST,
@@ -50,31 +59,27 @@ asts = [
 
     AST('ImplicitDecl'     , 'Decl', 'int|dummy'),
 
-    AST('CU'               , 'CUB', 'std::unique_ptr<DeclList>|decls'),
-    AST('DeclList'         , 'Decl', 'std::vector<std::unique_ptr<Decl>>|decls'),
+    AST('CU'               , 'CUB', 'std::vector<std::unique_ptr<Decl>>|decls'),
     AST('ImplDecl'         , 'Decl', 'std::unique_ptr<Type>|implFor, std::unique_ptr<ImplBody>|body'),
-    AST('FunctionDecl'     , 'Decl', 'std::unique_ptr<Type>|retty, Token|name, std::unique_ptr<ParamList>|params, std::unique_ptr<Block>|body'),
+    AST('FunctionDecl'     , 'Decl', 'std::unique_ptr<Type>|retty, Token|name, std::vector<std::unique_ptr<Param>>|params, std::unique_ptr<Block>|body'),
 
     AST('ImplBody'         , 'ImplItem', 'std::vector<std::unique_ptr<ImplItem>>|items'),
     AST('FunctionImplItem' , 'ImplItem', 'std::unique_ptr<FunctionDecl>|fun'),
 
-    AST('VarStmt'          , 'Stmt', 'std::unique_ptr<VarStmtItemList>|assignments'),
+    AST('VarStmt'          , 'Stmt', 'std::vector<std::unique_ptr<VarStmtItem>>|items'),
     AST('VarStmtItem'      , 'VStmtIB', 'std::unique_ptr<Type>|type, bool|mut, Token|name, Token|equal, std::unique_ptr<Expr>|expr'),
-    AST('VarStmtItemList'  , 'VStmtIB', 'std::vector<std::unique_ptr<VarStmtItem>>|items'),
-    AST('ExprStmt'         , 'Stmt', 'std::unique_ptr<Expr>|expr, bool|suppress'),
+
+    AST('ExprStmt'         , 'Stmt', 'std::unique_ptr<Expr>|expr, bool|suppress, Location|dot'),
     AST('RetStmt'          , 'Stmt', 'std::unique_ptr<Expr>|expr'),
-    AST('StmtList'         , 'Stmt', 'std::vector<std::unique_ptr<Stmt>>|stmts'),
 
     AST('PathType'         , 'Type', 'std::unique_ptr<Path>|path'),
     AST('PointerType'      , 'Type', 'bool|mut, std::unique_ptr<Type>|type'),
 
     AST('Arg'              , 'ArgB', 'std::unique_ptr<Expr>|expr'),
-    AST('ArgList'          , 'ArgB', 'std::vector<std::unique_ptr<Arg>>|args'),
 
     AST('Param'            , 'ParamB', 'std::unique_ptr<Type>|type, Token|name, bool|mut'),
-    AST('ParamList'        , 'ParamB', 'std::vector<std::unique_ptr<Param>>|params'),
 
-    AST('Block'            , 'Expr', 'std::unique_ptr<StmtList>|stmts'),
+    AST('Block'            , 'Expr', 'std::vector<std::unique_ptr<Stmt>>|stmts'),
     AST('IfExpr'           , 'Expr', 'Token|iftok, std::unique_ptr<Expr>|cond, std::unique_ptr<Expr>|trues, std::unique_ptr<Expr>|falses'),
     AST('ForExpr'          , 'Expr', 'std::unique_ptr<VarStmt>|initial, std::unique_ptr<Expr>|cond, std::unique_ptr<Expr>|increment, std::unique_ptr<Expr>|body'),
 
@@ -85,7 +90,7 @@ asts = [
     AST('UnaryExpr'        , 'Expr', 'Token|op, std::unique_ptr<Expr>|expr'),
     AST('AddrofExpr'       , 'Expr', 'Token|op, std::unique_ptr<Expr>|expr, bool|mut'),
     AST('DerefExpr'        , 'Expr', 'Token|op, std::unique_ptr<Expr>|expr'),
-    AST('CallExpr'         , 'Expr', 'std::unique_ptr<Expr>|callee, Token|oparn, std::unique_ptr<ArgList>|args'),
+    AST('CallExpr'         , 'Expr', 'std::unique_ptr<Expr>|callee, Token|oparn, std::vector<std::unique_ptr<Arg>>|args'),
     AST('PrimaryExpr'      , 'Expr', 'Token|value'),
     AST('PathExpr'         , 'Expr', 'std::unique_ptr<Path>|path'),
 
@@ -193,7 +198,7 @@ def gen_print_visitor_methods():
         output.append(           '    ++indent;\n')
         for field in ast.fields:
             output.append(      f'    pai("{field.type} {field.name} = ");\n')
-            output.append(      f'    printField(a->{field.name});\n')
+            output.append(      f'    printField(*this, a->{field.name});\n')
         output.append(           '    --indent;\n')
         output.append(           '    pai("}\\n");\n')
         output.append(           '}\n')
