@@ -128,10 +128,10 @@ void E0011(Token const &tok) {
     e.report();
 }
 
-// E0100 - unrecoverable-invalid-syntax
+// E0012 - unrecoverable-invalid-syntax
 // | The parser found an unrecoverable syntax error.
-void E0100(Token const &lookahead, Token const &lasttok, std::vector<std::string> const &expectations) {
-    Error e = Error(Error::MsgType::ERROR, lookahead, "E0100 (unrecoverable-invalid-syntax)");
+void E0012(Token const &lookahead, Token const &lasttok, std::vector<std::string> const &expectations) {
+    Error e = Error(Error::MsgType::ERROR, lookahead, "E0012 (unrecoverable-invalid-syntax)");
     e.underline(Error::Underline(lookahead, '^')
         .error(format("unexpected %", lookahead.type))
     );
@@ -142,11 +142,11 @@ e.underline(un);
     e.report();
 }
 
-// E0101 - simple-invalid-syntax
+// E0013 - simple-invalid-syntax
 // | The parser found a syntax error and recovered by inserting,
 // | substituting, or removing a single token.
-void E0101(Token const &lookahead, Token const &lasttok, std::string const &bestfix, std::vector<std::string> const &expectations) {
-    Error e = Error(Error::MsgType::ERROR, lookahead, "E0101 (simple-invalid-syntax)");
+void E0013(Token const &lookahead, Token const &lasttok, std::string const &bestfix, std::vector<std::string> const &expectations) {
+    Error e = Error(Error::MsgType::ERROR, lookahead, "E0013 (simple-invalid-syntax)");
     e.underline(Error::Underline(lookahead, '^')
         .error(format("unexpected %", lookahead.type))
         .note(bestfix)
@@ -158,11 +158,11 @@ e.underline(un);
     e.report();
 }
 
-// E0102 - panicking-invalid-syntax
+// E0014 - panicking-invalid-syntax
 // | The parser found a syntax error and recovered via panic mode
 // | error recovery.
-void E0102(Token const &lookahead, Token const &lasttok, Token const &panicuntil, std::vector<std::string> const &expectations) {
-    Error e = Error(Error::MsgType::ERROR, lookahead, "E0102 (panicking-invalid-syntax)");
+void E0014(Token const &lookahead, Token const &lasttok, Token const &panicuntil, std::vector<std::string> const &expectations) {
+    Error e = Error(Error::MsgType::ERROR, lookahead, "E0014 (panicking-invalid-syntax)");
     e.underline(Error::Underline(lookahead, '^')
         .error(format("unexpected %", lookahead.type))
     );
@@ -173,6 +173,199 @@ auto un (Error::Underline(lasttok, '~'));
 for (std::string const &expectation : expectations)
     un.hint(expectation);
 e.underline(un);
+    e.report();
+}
+
+// E0100 - lhs-unsupported-op
+// | Left hand side of binary expression does not support
+// | operator
+void E0100(IR::ASTValue const &lhs, Token const &op) {
+    Error e = Error(Error::MsgType::ERROR, op, "E0100 (lhs-unsupported-op)");
+    e.underline(Error::Underline(lhs, '^')
+        .note(format("lhs is of type %", lhs.type()))
+    );
+    e.underline(Error::Underline(op, '^')
+        .error("unsupported binary operator for left operand")
+    );
+    e.report();
+}
+
+// E0101 - unary-unsupported-op
+// | Operand of unary expression does not support operator
+void E0101(IR::ASTValue const &operand, Token const &_operator) {
+    Error e = Error(Error::MsgType::ERROR, _operator, "E0101 (unary-unsupported-op)");
+    e.underline(Error::Underline(operand, '^')
+        .note(format("operand is of type %", operand.type()))
+    );
+    e.underline(Error::Underline(_operator, '^')
+        .error("unsupported unary operator")
+    );
+    e.report();
+}
+
+// E0102 - call-noncallable
+// | Non-callable value called
+void E0102(IR::ASTValue const &func, Token const &oparn) {
+    Error e = Error(Error::MsgType::ERROR, oparn, "E0102 (call-noncallable)");
+    e.underline(Error::Underline(func, '^')
+        .error("calling of non-callable value")
+        .note(format("value of type %", func.type()))
+    );
+    e.report();
+}
+
+// E0103 - incorrect-arg
+// | Incorrect argument to function call
+void E0103(IR::ASTValue const &arg, IR::Type const *expected) {
+    Error e = Error(Error::MsgType::ERROR, arg, "E0103 (incorrect-arg)");
+    e.underline(Error::Underline(arg, '^')
+        .error("invalid argument to function call")
+        .note(format("argument is of type %", arg.type()))
+        .note(format("function expects %", expected))
+    );
+    e.report();
+}
+
+// E0104 - confl-tys-ifexpr
+// | Conflicting types for branches of if expression
+void E0104(IR::ASTValue const &truev, IR::ASTValue const &falsev, Token const &iftok, Token const &elsetok) {
+    Error e = Error(Error::MsgType::ERROR, iftok, "E0104 (confl-tys-ifexpr)");
+    e.underline(Error::Underline(iftok, '^')
+        .error("conflicting types for branches of if expression")
+    );
+    e.underline(Error::Underline(elsetok, '-')
+    );
+    e.underline(Error::Underline(truev, '~')
+        .note(format("%", truev.type()))
+    );
+    e.underline(Error::Underline(falsev, '~')
+        .note(format("%", falsev.type()))
+    );
+    e.report();
+}
+
+// E0105 - assign-conflict-tys
+// | Assignment target and value do not have same type
+void E0105(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &eq) {
+    Error e = Error(Error::MsgType::ERROR, eq, "E0105 (assign-conflict-tys)");
+    e.underline(Error::Underline(eq, '^')
+        .error("conflicting types for assignment")
+    );
+    e.underline(Error::Underline(lhs, '~')
+        .note(format("%", lhs.type()))
+    );
+    e.underline(Error::Underline(rhs, '~')
+        .note(format("%", rhs.type()))
+    );
+    e.report();
+}
+
+// E0106 - conflict-ret-ty
+// | Conflicting return types
+void E0106(IR::ASTValue const &val, IR::Function *f) {
+    Error e = Error(Error::MsgType::ERROR, val, "E0106 (conflict-ret-ty)");
+    e.underline(Error::Underline(val, '^')
+        .error("conflicting return type")
+        .note(format("returning %", val.type()))
+    );
+    e.underline(Error::Underline(f->defAST()->retty.get(), '~')
+        .note(format("function returns %", f->ty->ret))
+    );
+    e.report();
+}
+
+// E0107 - no-deref
+// | Cannot dereference non-pointer
+void E0107(Token const &op, IR::ASTValue const &val) {
+    Error e = Error(Error::MsgType::ERROR, val, "E0107 (no-deref)");
+    e.underline(Error::Underline(op, '^')
+        .error(format("dereferencing of non-pointer type %", val.type()))
+    );
+    e.underline(Error::Underline(val, '~')
+    );
+    e.report();
+}
+
+// E0108 - conflict-var-init-ty
+// | Conflicting type for variable initialization
+void E0108(Token const &eq, Token const &name, ASTNS::Type *typeAST, IR::ASTValue const &init, IR::Type const *expectedType) {
+    Error e = Error(Error::MsgType::ERROR, eq, "E0108 (conflict-var-init-ty)");
+    e.underline(Error::Underline(eq, '~')
+    );
+    e.underline(Error::Underline(name, '~')
+    );
+    e.underline(Error::Underline(init, '^')
+        .error("conflicting types for variable initialization")
+        .note(format("%", init.type()))
+    );
+    e.underline(Error::Underline(typeAST, '~')
+        .note(format("%", expectedType))
+    );
+    e.report();
+}
+
+// E0109 - invalid-cast
+// | Invalid cast
+void E0109(ASTNS::AST *ast, IR::ASTValue v, IR::Type const *newty) {
+    Error e = Error(Error::MsgType::ERROR, ast, "E0109 (invalid-cast)");
+    e.underline(Error::Underline(ast, '^')
+        .error(format("invalid cast from % to %", v.type(), newty))
+    );
+    e.report();
+}
+
+// E0110 - conflict-tys-binary-op
+// | Conflicting types to binary operator
+void E0110(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &op) {
+    Error e = Error(Error::MsgType::ERROR, op, "E0110 (conflict-tys-binary-op)");
+    e.underline(Error::Underline(lhs, '~')
+        .note(format("%", lhs.type()))
+    );
+    e.underline(Error::Underline(rhs, '~')
+        .note(format("%", rhs.type()))
+    );
+    e.underline(Error::Underline(op, '^')
+        .error("conflicting types to binary operator")
+    );
+    e.report();
+}
+
+// E0111 - cond-not-bool
+// | Using a non-bool value as a condition
+void E0111(IR::ASTValue &v) {
+    Error e = Error(Error::MsgType::ERROR, v, "E0111 (cond-not-bool)");
+    e.underline(Error::Underline(v, '^')
+        .error(format("usage of % as condition", v.type()))
+    );
+    e.report();
+}
+
+// E0112 - ptr-arith-rhs-not-num
+// | Cannot do pointer arithmetic with non-integer as right-hand-
+// | side of expression
+void E0112(IR::ASTValue const &lhs, Token const &optok, IR::ASTValue const &rhs) {
+    Error e = Error(Error::MsgType::ERROR, optok, "E0112 (ptr-arith-rhs-not-num)");
+    e.underline(Error::Underline(lhs, '~')
+    );
+    e.underline(Error::Underline(rhs, '~')
+        .note(format("%", rhs.type()))
+    );
+    e.underline(Error::Underline(optok, '^')
+        .error("pointer arithmetic requires an integral right-hand operand")
+    );
+    e.report();
+}
+
+// E0113 - no-else-not-void
+// | If expression with non-void true expression and no else case
+void E0113(IR::ASTValue const &truev, Token const &iftok) {
+    Error e = Error(Error::MsgType::ERROR, iftok, "E0113 (no-else-not-void)");
+    e.underline(Error::Underline(iftok, '^')
+        .error("if expression with non-void true expression and no else case")
+    );
+    e.underline(Error::Underline(truev, '~')
+        .note(format("%", truev.type()))
+    );
     e.report();
 }
 
@@ -192,226 +385,20 @@ void E0200(Token const &name, IR::Value *val) {
     e.report();
 }
 
-// E0201 - lhs-unsupported-op
-// | Left hand side of binary expression does not support
-// | operator
-void E0201(IR::ASTValue const &lhs, Token const &op) {
-    Error e = Error(Error::MsgType::ERROR, op, "E0201 (lhs-unsupported-op)");
-    e.underline(Error::Underline(lhs, '^')
-        .note(format("lhs is of type %", lhs.type()))
-    );
-    e.underline(Error::Underline(op, '^')
-        .error("unsupported binary operator for left operand")
-    );
-    e.report();
-}
-
-// E0202 - addrof-not-lvalue
-// | Taking an address of a non-lvalue is impossible
-void E0202(Token const &op, IR::ASTValue const &val) {
-    Error e = Error(Error::MsgType::ERROR, val, "E0202 (addrof-not-lvalue)");
-    e.underline(Error::Underline(op, '^')
-        .error("taking address of non-lvalue")
-    );
-    e.underline(Error::Underline(val, '~')
-    );
-    e.report();
-}
-
-// E0203 - unary-unsupported-op
-// | Operand of unary expression does not support operator
-void E0203(IR::ASTValue const &operand, Token const &_operator) {
-    Error e = Error(Error::MsgType::ERROR, _operator, "E0203 (unary-unsupported-op)");
-    e.underline(Error::Underline(operand, '^')
-        .note(format("operand is of type %", operand.type()))
-    );
-    e.underline(Error::Underline(_operator, '^')
-        .error("unsupported unary operator")
-    );
-    e.report();
-}
-
-// E0204 - call-noncallable
-// | Non-callable value called
-void E0204(IR::ASTValue const &func, Token const &oparn) {
-    Error e = Error(Error::MsgType::ERROR, oparn, "E0204 (call-noncallable)");
-    e.underline(Error::Underline(func, '^')
-        .error("calling of non-callable value")
-        .note(format("value of type %", func.type()))
-    );
-    e.report();
-}
-
-// E0205 - wrong-num-args
-// | Wrong number of arguments to function call
-void E0205(IR::ASTValue const &func, Token const &oparn, std::vector<IR::ASTValue> const &args) {
-    Error e = Error(Error::MsgType::ERROR, oparn, "E0205 (wrong-num-args)");
-    e.underline(Error::Underline(oparn, '^')
-        .error("wrong number of arguments to function call")
-    );
-    e.underline(Error::Underline(func, '~')
-    );
-    e.underline(Error::Underline(static_cast<IR::Function*>(func.val)->defAST(), '~')
-        .note(format("function expects % arguments, but got % arguments", static_cast<IR::FunctionType*>(func.type())->paramtys.size(), args.size()))
-    );
-    e.report();
-}
-
-// E0206 - incorrect-arg
-// | Incorrect argument to function call
-void E0206(IR::ASTValue const &arg, IR::Type const *expected) {
-    Error e = Error(Error::MsgType::ERROR, arg, "E0206 (incorrect-arg)");
-    e.underline(Error::Underline(arg, '^')
-        .error("invalid argument to function call")
-        .note(format("argument is of type %", arg.type()))
-        .note(format("function expects %", expected))
-    );
-    e.report();
-}
-
-// E0207 - undecl-symb
+// E0201 - undecl-symb
 // | Usage of undeclared symbol
-void E0207(Location const &path) {
-    Error e = Error(Error::MsgType::ERROR, path, "E0207 (undecl-symb)");
+void E0201(Location const &path) {
+    Error e = Error(Error::MsgType::ERROR, path, "E0201 (undecl-symb)");
     e.underline(Error::Underline(path, '^')
         .error("undeclared symbol")
     );
     e.report();
 }
 
-// E0208 - confl-tys-ifexpr
-// | Conflicting types for branches of if expression
-void E0208(IR::ASTValue const &truev, IR::ASTValue const &falsev, Token const &iftok, Token const &elsetok) {
-    Error e = Error(Error::MsgType::ERROR, iftok, "E0208 (confl-tys-ifexpr)");
-    e.underline(Error::Underline(iftok, '^')
-        .error("conflicting types for branches of if expression")
-    );
-    e.underline(Error::Underline(elsetok, '-')
-    );
-    e.underline(Error::Underline(truev, '~')
-        .note(format("%", truev.type()))
-    );
-    e.underline(Error::Underline(falsev, '~')
-        .note(format("%", falsev.type()))
-    );
-    e.report();
-}
-
-// E0209 - assign-invalid-lhs
-// | Invalid assignment target
-void E0209(Token const &eq, IR::ASTValue const &lhs) {
-    Error e = Error(Error::MsgType::ERROR, eq, "E0209 (assign-invalid-lhs)");
-    e.underline(Error::Underline(eq, '^')
-        .error("non-lvalue assignment")
-    );
-    e.underline(Error::Underline(lhs, '~')
-    );
-    e.report();
-}
-
-// E0210 - assign-conflict-tys
-// | Assignment target and value do not have same type
-void E0210(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &eq) {
-    Error e = Error(Error::MsgType::ERROR, eq, "E0210 (assign-conflict-tys)");
-    e.underline(Error::Underline(eq, '^')
-        .error("conflicting types for assignment")
-    );
-    e.underline(Error::Underline(lhs, '~')
-        .note(format("%", lhs.type()))
-    );
-    e.underline(Error::Underline(rhs, '~')
-        .note(format("%", rhs.type()))
-    );
-    e.report();
-}
-
-// E0212 - conflict-ret-ty
-// | Conflicting return types
-void E0212(IR::ASTValue const &val, IR::Function *f) {
-    Error e = Error(Error::MsgType::ERROR, val, "E0212 (conflict-ret-ty)");
-    e.underline(Error::Underline(val, '^')
-        .error("conflicting return type")
-        .note(format("returning %", val.type()))
-    );
-    e.underline(Error::Underline(f->defAST()->retty.get(), '~')
-        .note(format("function returns %", f->ty->ret))
-    );
-    e.report();
-}
-
-// E0213 - no-deref
-// | Cannot dereference non-pointer
-void E0213(Token const &op, IR::ASTValue const &val) {
-    Error e = Error(Error::MsgType::ERROR, val, "E0213 (no-deref)");
-    e.underline(Error::Underline(op, '^')
-        .error(format("dereferencing of non-pointer type %", val.type()))
-    );
-    e.underline(Error::Underline(val, '~')
-    );
-    e.report();
-}
-
-// E0214 - redecl-var
-// | Redeclaration of variable
-void E0214(Token const &name, IR::Instrs::Register const *prev) {
-    Error e = Error(Error::MsgType::ERROR, name, "E0214 (redecl-var)");
-    e.underline(Error::Underline(name, '^')
-        .error("redeclaration of variable")
-    );
-    e.underline(Error::Underline(prev->defAST(), '~')
-        .note("previous declaration")
-    );
-    e.report();
-}
-
-// E0215 - conflict-var-init-ty
-// | Conflicting type for variable initialization
-void E0215(Token const &eq, Token const &name, ASTNS::Type *typeAST, IR::ASTValue const &init, IR::Type const *expectedType) {
-    Error e = Error(Error::MsgType::ERROR, eq, "E0215 (conflict-var-init-ty)");
-    e.underline(Error::Underline(eq, '~')
-    );
-    e.underline(Error::Underline(name, '~')
-    );
-    e.underline(Error::Underline(init, '^')
-        .error("conflicting types for variable initialization")
-        .note(format("%", init.type()))
-    );
-    e.underline(Error::Underline(typeAST, '~')
-        .note(format("%", expectedType))
-    );
-    e.report();
-}
-
-// E0216 - invalid-cast
-// | Invalid cast
-void E0216(ASTNS::AST *ast, IR::ASTValue v, IR::Type const *newty) {
-    Error e = Error(Error::MsgType::ERROR, ast, "E0216 (invalid-cast)");
-    e.underline(Error::Underline(ast, '^')
-        .error(format("invalid cast from % to %", v.type(), newty))
-    );
-    e.report();
-}
-
-// E0217 - conflict-tys-binary-op
-// | Conflicting types to binary operator
-void E0217(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &op) {
-    Error e = Error(Error::MsgType::ERROR, op, "E0217 (conflict-tys-binary-op)");
-    e.underline(Error::Underline(lhs, '~')
-        .note(format("%", lhs.type()))
-    );
-    e.underline(Error::Underline(rhs, '~')
-        .note(format("%", rhs.type()))
-    );
-    e.underline(Error::Underline(op, '^')
-        .error("conflicting types to binary operator")
-    );
-    e.report();
-}
-
-// E0218 - redecl-param
+// E0202 - redecl-param
 // | Redeclaraion of parameter in function declaration
-void E0218(Token const &name, IR::Instrs::Register const *prev) {
-    Error e = Error(Error::MsgType::ERROR, name, "E0218 (redecl-param)");
+void E0202(Token const &name, IR::Instrs::Register const *prev) {
+    Error e = Error(Error::MsgType::ERROR, name, "E0202 (redecl-param)");
     e.underline(Error::Underline(name, '^')
         .error("redeclaration of parameter")
     );
@@ -421,49 +408,23 @@ void E0218(Token const &name, IR::Instrs::Register const *prev) {
     e.report();
 }
 
-// E0219 - cond-not-bool
-// | Using a non-bool value as a condition
-void E0219(IR::ASTValue &v) {
-    Error e = Error(Error::MsgType::ERROR, v, "E0219 (cond-not-bool)");
-    e.underline(Error::Underline(v, '^')
-        .error(format("usage of % as condition", v.type()))
+// E0203 - redecl-var
+// | Redeclaration of variable
+void E0203(Token const &name, IR::Instrs::Register const *prev) {
+    Error e = Error(Error::MsgType::ERROR, name, "E0203 (redecl-var)");
+    e.underline(Error::Underline(name, '^')
+        .error("redeclaration of variable")
+    );
+    e.underline(Error::Underline(prev->defAST(), '~')
+        .note("previous declaration")
     );
     e.report();
 }
 
-// E0220 - no-else-not-void
-// | If expression with non-void true expression and no else case
-void E0220(IR::ASTValue const &truev, Token const &iftok) {
-    Error e = Error(Error::MsgType::ERROR, iftok, "E0220 (no-else-not-void)");
-    e.underline(Error::Underline(iftok, '^')
-        .error("if expression with non-void true expression and no else case")
-    );
-    e.underline(Error::Underline(truev, '~')
-        .note(format("%", truev.type()))
-    );
-    e.report();
-}
-
-// E0221 - ptr-arith-rhs-not-num
-// | Cannot do pointer arithmetic with non-integer as right-hand-
-// | side of expression
-void E0221(IR::ASTValue const &lhs, Token const &optok, IR::ASTValue const &rhs) {
-    Error e = Error(Error::MsgType::ERROR, optok, "E0221 (ptr-arith-rhs-not-num)");
-    e.underline(Error::Underline(lhs, '~')
-    );
-    e.underline(Error::Underline(rhs, '~')
-        .note(format("%", rhs.type()))
-    );
-    e.underline(Error::Underline(optok, '^')
-        .error("pointer arithmetic requires an integral right-hand operand")
-    );
-    e.report();
-}
-
-// E0222 - not-a-type
+// E0204 - not-a-type
 // | Expected a type but path resolved to something else
-void E0222(Location const &notty, ASTNS::AST *declAST) {
-    Error e = Error(Error::MsgType::ERROR, notty, "E0222 (not-a-type)");
+void E0204(Location const &notty, ASTNS::AST *declAST) {
+    Error e = Error(Error::MsgType::ERROR, notty, "E0204 (not-a-type)");
     e.underline(Error::Underline(notty, '^')
         .error("not a type")
     );
@@ -473,20 +434,44 @@ void E0222(Location const &notty, ASTNS::AST *declAST) {
     e.report();
 }
 
-// E0223 - no-item-in
+// E0205 - no-item-in
 // | No item of a certain name within another name
-void E0223(IR::DeclSymbol const *prev, Token const &current) {
-    Error e = Error(Error::MsgType::ERROR, current, "E0223 (no-item-in)");
+void E0205(IR::DeclSymbol const *prev, Token const &current) {
+    Error e = Error(Error::MsgType::ERROR, current, "E0205 (no-item-in)");
     e.underline(Error::Underline(current, '^')
         .error(format("no item called % in %", current, prev))
     );
     e.report();
 }
 
-// E0224 - assign-not-mut
+// E0300 - addrof-not-lvalue
+// | Taking an address of a non-lvalue is impossible
+void E0300(Token const &op, IR::ASTValue const &val) {
+    Error e = Error(Error::MsgType::ERROR, val, "E0300 (addrof-not-lvalue)");
+    e.underline(Error::Underline(op, '^')
+        .error("taking address of non-lvalue")
+    );
+    e.underline(Error::Underline(val, '~')
+    );
+    e.report();
+}
+
+// E0301 - assign-invalid-lhs
+// | Invalid assignment target
+void E0301(Token const &eq, IR::ASTValue const &lhs) {
+    Error e = Error(Error::MsgType::ERROR, eq, "E0301 (assign-invalid-lhs)");
+    e.underline(Error::Underline(eq, '^')
+        .error("non-lvalue assignment")
+    );
+    e.underline(Error::Underline(lhs, '~')
+    );
+    e.report();
+}
+
+// E0302 - assign-not-mut
 // | Cannot assign to non-mutable lvalue
-void E0224(IR::ASTValue const &v, Token const &eq, IR::Instrs::DerefPtr *targetDeref) {
-    Error e = Error(Error::MsgType::ERROR, v, "E0224 (assign-not-mut)");
+void E0302(IR::ASTValue const &v, Token const &eq, IR::Instrs::DerefPtr *targetDeref) {
+    Error e = Error(Error::MsgType::ERROR, v, "E0302 (assign-not-mut)");
     e.underline(Error::Underline(eq, '^')
         .error("cannot assign to immutable lvalue")
     );
@@ -501,10 +486,10 @@ void E0224(IR::ASTValue const &v, Token const &eq, IR::Instrs::DerefPtr *targetD
     e.report();
 }
 
-// E0225 - mut-addrof-nonmut-op
+// E0303 - mut-addrof-nonmut-op
 // | Cannot take a mutable pointer to non-mutable lvalue
-void E0225(Token const &op, IR::Instrs::DerefPtr *asDeref) {
-    Error e = Error(Error::MsgType::ERROR, op, "E0225 (mut-addrof-nonmut-op)");
+void E0303(Token const &op, IR::Instrs::DerefPtr *asDeref) {
+    Error e = Error(Error::MsgType::ERROR, op, "E0303 (mut-addrof-nonmut-op)");
     e.underline(Error::Underline(op, '^')
         .error("cannot take mutable pointer to non-mutable lvalue")
     );
@@ -517,11 +502,26 @@ void E0225(Token const &op, IR::Instrs::DerefPtr *asDeref) {
     e.report();
 }
 
-// E0226 - no-suppress
+// E0400 - wrong-num-args
+// | Wrong number of arguments to function call
+void E0400(IR::ASTValue const &func, Token const &oparn, std::vector<IR::ASTValue> const &args) {
+    Error e = Error(Error::MsgType::ERROR, oparn, "E0400 (wrong-num-args)");
+    e.underline(Error::Underline(oparn, '^')
+        .error("wrong number of arguments to function call")
+    );
+    e.underline(Error::Underline(func, '~')
+    );
+    e.underline(Error::Underline(static_cast<IR::Function*>(func.val)->defAST(), '~')
+        .note(format("function expects % arguments, but got % arguments", static_cast<IR::FunctionType*>(func.type())->paramtys.size(), args.size()))
+    );
+    e.report();
+}
+
+// E0500 - no-suppress
 // | Cannot suppress an expression that is not the implicit
 // | return value of a block
-void E0226(Location const &dot) {
-    Error e = Error(Error::MsgType::ERROR, dot, "E0226 (no-suppress)");
+void E0500(Location const &dot) {
+    Error e = Error(Error::MsgType::ERROR, dot, "E0500 (no-suppress)");
     e.underline(Error::Underline(dot, '^')
         .error("implicit return suppression not allowed here")
     );
