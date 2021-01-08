@@ -32,6 +32,7 @@ void visitStmtList(ASTNS::StmtList *ast) override;
 void visitParamList(ASTNS::ParamList *ast) override;
 void visitArgList(ASTNS::ArgList *ast) override;
 void visitVarStmtItemList(ASTNS::VarStmtItemList *ast) override;
+void visitImplItemList(ASTNS::ImplItemList *ast) override;
 void visitPureLocation(ASTNS::PureLocation *ast) override;
 void visitImplicitDecl(ASTNS::ImplicitDecl *ast) override;
 void visitCU(ASTNS::CU *ast) override;

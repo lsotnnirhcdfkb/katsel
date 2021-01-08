@@ -47,6 +47,7 @@ asts = [
     list_ast('ParamList', 'Param', 'params'),
     list_ast('ArgList', 'Arg', 'args'),
     list_ast('VarStmtItemList', 'VarStmtItem', 'items'),
+    list_ast('ImplItemList', 'ImplItem', 'items'),
 
     # a class to keep track of locations of syntactic elements that don't matter (like
     # line endings where the location matters (so that other statements can use the line

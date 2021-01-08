@@ -183,6 +183,18 @@ size_t getGoto(NonTerminal nterm, size_t state) {
                     return 173;
                 default: reportAbortNoh("get invalid goto");
             }
+        case NonTerminal::ImplItemList_OPT:
+            switch (state) {
+                case 19: 
+                    return 34;
+                case 35: 
+                    return 49;
+                case 39: 
+                    return 53;
+                case 50: 
+                    return 60;
+                default: reportAbortNoh("get invalid goto");
+            }
         case NonTerminal::Expr_OPT:
             switch (state) {
                 case 185: 
@@ -269,18 +281,6 @@ size_t getGoto(NonTerminal nterm, size_t state) {
                     return 176;
                 case 177: 
                     return 215;
-                default: reportAbortNoh("get invalid goto");
-            }
-        case NonTerminal::ImplItemList_OPT:
-            switch (state) {
-                case 19: 
-                    return 34;
-                case 35: 
-                    return 49;
-                case 39: 
-                    return 53;
-                case 50: 
-                    return 60;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::FunctionDecl:
@@ -839,7 +839,8 @@ std::unique_ptr<ASTNS::Path> push(std::make_unique<ASTNS::Path>(p.sourcefile, st
                 switch (lookahead.type) {
                     case TokenType::CPARN:
 {
-                            std::unique_ptr<ASTNS::ParamList> pushitem = nullptr;
+std::unique_ptr<ASTNS::ParamList> push (std::make_unique<ASTNS::ParamList>(p.sourcefile, Location(), Location(), std::vector<std::unique_ptr<ASTNS::Param>> {}));
+                            std::unique_ptr<ASTNS::ParamList> pushitem = std::move(push);
                             stack.emplace_back(getGoto(NonTerminal::ParamList_OPT, stack.back().state), std::move(pushitem), NonTerminal::ParamList_OPT);
                         }
                         break;
@@ -1607,7 +1608,8 @@ std::unique_ptr<ASTNS::PureLocation> push (std::make_unique<ASTNS::PureLocation>
                     case TokenType::CCURB:
                     case TokenType::DEDENT:
 {
-                            std::unique_ptr<ASTNS::StmtList> pushitem = nullptr;
+std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourcefile, Location(), Location(), std::vector<std::unique_ptr<ASTNS::Stmt>> {}));
+                            std::unique_ptr<ASTNS::StmtList> pushitem = std::move(push);
                             stack.emplace_back(getGoto(NonTerminal::StmtList_OPT, stack.back().state), std::move(pushitem), NonTerminal::StmtList_OPT);
                         }
                         break;
@@ -1700,7 +1702,8 @@ std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>
                     case TokenType::CCURB:
                     case TokenType::DEDENT:
 {
-                            std::unique_ptr<ASTNS::StmtList> pushitem = nullptr;
+std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourcefile, Location(), Location(), std::vector<std::unique_ptr<ASTNS::Stmt>> {}));
+                            std::unique_ptr<ASTNS::StmtList> pushitem = std::move(push);
                             stack.emplace_back(getGoto(NonTerminal::StmtList_OPT, stack.back().state), std::move(pushitem), NonTerminal::StmtList_OPT);
                         }
                         break;
@@ -1767,7 +1770,8 @@ std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>
                     case TokenType::CCURB:
                     case TokenType::DEDENT:
 {
-                            std::unique_ptr<ASTNS::StmtList> pushitem = nullptr;
+std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourcefile, Location(), Location(), std::vector<std::unique_ptr<ASTNS::Stmt>> {}));
+                            std::unique_ptr<ASTNS::StmtList> pushitem = std::move(push);
                             stack.emplace_back(getGoto(NonTerminal::StmtList_OPT, stack.back().state), std::move(pushitem), NonTerminal::StmtList_OPT);
                         }
                         break;
@@ -2872,7 +2876,8 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                     case TokenType::CCURB:
                     case TokenType::DEDENT:
 {
-                            std::unique_ptr<ASTNS::StmtList> pushitem = nullptr;
+std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourcefile, Location(), Location(), std::vector<std::unique_ptr<ASTNS::Stmt>> {}));
+                            std::unique_ptr<ASTNS::StmtList> pushitem = std::move(push);
                             stack.emplace_back(getGoto(NonTerminal::StmtList_OPT, stack.back().state), std::move(pushitem), NonTerminal::StmtList_OPT);
                         }
                         break;
@@ -4074,7 +4079,8 @@ std::unique_ptr<ASTNS::DerefExpr> push (std::make_unique<ASTNS::DerefExpr>(p.sou
                         shift(p, lasttok, lookahead, stack, steps, 115); break;
                     case TokenType::CPARN:
 {
-                            std::unique_ptr<ASTNS::ArgList> pushitem = nullptr;
+std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcefile, Location(), Location(), std::vector<std::unique_ptr<ASTNS::Arg>> {}));
+                            std::unique_ptr<ASTNS::ArgList> pushitem = std::move(push);
                             stack.emplace_back(getGoto(NonTerminal::ArgList_OPT, stack.back().state), std::move(pushitem), NonTerminal::ArgList_OPT);
                         }
                         break;

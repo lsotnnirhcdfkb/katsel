@@ -88,6 +88,14 @@ void ASTNS::PrintVisitor::visitVarStmtItemList(ASTNS::VarStmtItemList *a) {
     --indent;
     pai("}\n");
 }
+void ASTNS::PrintVisitor::visitImplItemList(ASTNS::ImplItemList *a) {
+    pai("ImplItemList {\n");
+    ++indent;
+    pai("std::vector<std::unique_ptr<ImplItem>> items = ");
+    printField(*this, a->items);
+    --indent;
+    pai("}\n");
+}
 void ASTNS::PrintVisitor::visitPureLocation(ASTNS::PureLocation *a) {
     pai("PureLocation {\n");
     ++indent;

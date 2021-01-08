@@ -25,6 +25,7 @@ namespace ASTNS {
     class ParamList;
     class ArgList;
     class VarStmtItemList;
+    class ImplItemList;
     class PureLocationB;
     class PureLocation;
     class ImplicitDecl;
@@ -201,6 +202,7 @@ namespace ASTNS {
             virtual void visitParamList(ASTNS::ParamList *ast) = 0;
             virtual void visitArgList(ASTNS::ArgList *ast) = 0;
             virtual void visitVarStmtItemList(ASTNS::VarStmtItemList *ast) = 0;
+            virtual void visitImplItemList(ASTNS::ImplItemList *ast) = 0;
         };
         virtual ~ListB() {}
         virtual void accept(Visitor *v) = 0;
@@ -250,6 +252,15 @@ namespace ASTNS {
         virtual Location const & start() override;
         virtual Location const & end() override;
         VarStmtItemList(File const &file, Location start, Location end, std::vector<std::unique_ptr<VarStmtItem>> items);
+    };
+    class ImplItemList : public ListB {
+    public:
+        Location _start, _end;
+        std::vector<std::unique_ptr<ImplItem>> items;
+        virtual void accept(ASTNS::ListB::Visitor *v) override;
+        virtual Location const & start() override;
+        virtual Location const & end() override;
+        ImplItemList(File const &file, Location start, Location end, std::vector<std::unique_ptr<ImplItem>> items);
     };
     class PureLocationB : public AST {
     public:

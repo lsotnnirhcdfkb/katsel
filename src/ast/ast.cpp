@@ -33,6 +33,10 @@ ASTNS::VarStmtItemList::VarStmtItemList(File const &file, Location start, Locati
 void ASTNS::VarStmtItemList::accept(ASTNS::ListB::Visitor *v) { v->visitVarStmtItemList(this); }
 Location const & ASTNS::VarStmtItemList::start() { return _start; }
 Location const & ASTNS::VarStmtItemList::end() { return _end; }
+ASTNS::ImplItemList::ImplItemList(File const &file, Location start, Location end, std::vector<std::unique_ptr<ImplItem>> items): ListB(file), _start(start), _end(end), items(std::move(items)) {}
+void ASTNS::ImplItemList::accept(ASTNS::ListB::Visitor *v) { v->visitImplItemList(this); }
+Location const & ASTNS::ImplItemList::start() { return _start; }
+Location const & ASTNS::ImplItemList::end() { return _end; }
 ASTNS::PureLocationB::PureLocationB(File const &file): AST(file) {}
 ASTNS::PureLocation::PureLocation(File const &file, Location start, Location end, int dummy): PureLocationB(file), _start(start), _end(end), dummy(std::move(dummy)) {}
 void ASTNS::PureLocation::accept(ASTNS::PureLocationB::Visitor *v) { v->visitPureLocation(this); }

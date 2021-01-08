@@ -218,6 +218,12 @@ class SimpleReduceAction:
         self.args = args
     def generate(self):
         return (f'std::unique_ptr<ASTNS::{self.classname}> push (std::make_unique<ASTNS::{self.classname}>(p.sourcefile, start, end, {self.args}));\n', 'std::move(push)')
+class EmptyVectorAction:
+    def __init__(self, classname, ty):
+        self.classname = classname
+        self.ty = ty
+    def generate(self):
+        return (f'std::unique_ptr<ASTNS::{self.classname}> push (std::make_unique<ASTNS::{self.classname}>(p.sourcefile, Location(), Location(), std::vector<{self.ty}> {{}}));\n', 'std::move(push)')
 class SkipReduceAction:
     def __init__(self, ind=0):
         self.ind = ind
@@ -627,14 +633,14 @@ def make_grammar():
     DeclList = list_rule(Decl, VectorPushOneAction('ASTNS::DeclList', 'std::move(a0)', 'std::unique_ptr<ASTNS::Decl>', 'decls'), VectorPushReduceAction('a0->decls', 'std::move(a1)', 'a0'), 'DeclList')
     ImplItemList = list_rule(ImplItem, VectorPushOneAction('ASTNS::ImplBody', 'std::move(a0)', 'std::unique_ptr<ASTNS::ImplItem>', 'items'), VectorPushReduceAction('a0->items', 'std::move(a1)', 'a0'), 'ImplBody')
 
-    ParamListOpt = make_opt(ParamList, SkipReduceAction(), NullptrReduceAction())
-    ArgListOpt = make_opt(ArgList, SkipReduceAction(), NullptrReduceAction())
-    StmtListOpt = make_opt(StmtList, SkipReduceAction(), NullptrReduceAction())
+    ParamListOpt = make_opt(ParamList, SkipReduceAction(), EmptyVectorAction('ParamList', 'std::unique_ptr<ASTNS::Param>'))
+    ArgListOpt = make_opt(ArgList, SkipReduceAction(), EmptyVectorAction('ArgList', 'std::unique_ptr<ASTNS::Arg>'))
+    StmtListOpt = make_opt(StmtList, SkipReduceAction(), EmptyVectorAction('StmtList', 'std::unique_ptr<ASTNS::Stmt>'))
+    ImplItemListOpt = make_opt(ImplItemList, SkipReduceAction(), NullptrReduceAction())
     ExprOpt = make_opt(Expr, SkipReduceAction(), NullptrReduceAction())
     VarStmtOpt = make_opt(VarStmt, SkipReduceAction(), NullptrReduceAction())
     LineEndingOpt = make_opt(LineEnding, SkipReduceAction(), NullptrReduceAction())
     TypeAnnotationOpt = make_opt(TypeAnnotation, SkipReduceAction(), NullptrReduceAction(), new_name='optional type annotation')
-    ImplItemListOpt = make_opt(ImplItemList, SkipReduceAction(), NullptrReduceAction())
 
     rule(CU, (DeclList,), SimpleReduceAction('CU', 'std::move(a0->decls)'))
     rule(CU, (), NullptrReduceAction())
