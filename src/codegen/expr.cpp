@@ -446,7 +446,13 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitBlock(ASTNS::Block *ast) {
         }
     }
 
-    ret = blockRet ? blockRet : IR::ASTValue(cg.context->getVoid(), ast);
+    ASTNS::AST *voidAST;
+    if (ast->stmts.size())
+        voidAST = ast->stmts[ast->stmts.size() - 1].get();
+    else
+        voidAST = ast;
+
+    ret = blockRet ? blockRet : IR::ASTValue(cg.context->getVoid(), voidAST);
 
     fcg.decScope();
 }
