@@ -299,7 +299,10 @@ void Error::report() const {
 
             for (auto i = lstart; i != lend; ++i)
                 if (i >= un.location.start && i < un.location.end)
-                    std::cerr << attr(A_BOLD, attr(un.messages[0].color, std::string(1, *i)));
+                    if (un.messages.size())
+                        std::cerr << attr(A_BOLD, attr(un.messages[0].color, std::string(1, *i)));
+                    else
+                        std::cerr << attr(A_BOLD, std::string(1, *i));
                 else
                     std::cerr << *i;
             std::cerr << std::endl;
@@ -308,7 +311,7 @@ void Error::report() const {
             if (unEndCol <= unStartCol)
                 unEndCol = unStartCol + 1;
 
-            std::cerr << std::string(unStartCol - 1, ' ') << attr(A_BOLD, attr(un.messages[0].color, std::string(unEndCol - unStartCol, '^'))) << std::endl;
+            std::cerr << std::string(unStartCol - 1, ' ') << attr(A_BOLD, attr(un.messages.size() ? un.messages[0].color : "", std::string(unEndCol - unStartCol, '^'))) << std::endl;
         }
     } else {
         std::cerr << "{\"type\":\"";
