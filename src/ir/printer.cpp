@@ -95,7 +95,7 @@ namespace {
             pr(idToStr(v->id));
         }
         void value_visitVoid(IR::Void *v) override {
-            pr("'void'");
+            pr("void");
         }
     };
     // }}}
@@ -190,6 +190,7 @@ namespace {
             pr(", ");
 
             i->target.val->value_accept(pr.vrp.get());
+            pr(")");
         }
         void visitPhi(IR::Instrs::Phi *i) override {
             instrName("phi");
