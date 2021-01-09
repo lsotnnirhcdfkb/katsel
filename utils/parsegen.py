@@ -714,46 +714,48 @@ def make_grammar():
 
     bin_expr_reduction = SimpleReduceAction('BinaryExpr', 'std::move(a0), a1, std::move(a2)')
 
-    rule(AssignmentExpr, (BinOrExpr, EQUAL, AssignmentExpr, ), SimpleReduceAction('AssignmentExpr', 'std::move(a0), a1, std::move(a2)'))
+    rule(AssignmentExpr, (BinOrExpr, EQUAL, AssignmentExpr), SimpleReduceAction('AssignmentExpr', 'std::move(a0), a1, std::move(a2)'))
     rule(AssignmentExpr, (BinOrExpr,), SkipReduceAction())
-    rule(BinOrExpr, (BinOrExpr, DOUBLEPIPE, BinAndExpr, ), SimpleReduceAction('ShortCircuitExpr', 'std::move(a0), a1, std::move(a2)'))
+    rule(BinOrExpr, (BinOrExpr, DOUBLEPIPE, BinAndExpr), SimpleReduceAction('ShortCircuitExpr', 'std::move(a0), a1, std::move(a2)'))
     rule(BinOrExpr, (BinAndExpr,), SkipReduceAction())
-    rule(BinAndExpr, (BinAndExpr, DOUBLEAMPER, CompEQExpr, ), SimpleReduceAction('ShortCircuitExpr', 'std::move(a0), a1, std::move(a2)'))
+    rule(BinAndExpr, (BinAndExpr, DOUBLEAMPER, CompEQExpr), SimpleReduceAction('ShortCircuitExpr', 'std::move(a0), a1, std::move(a2)'))
     rule(BinAndExpr, (CompEQExpr,), SkipReduceAction())
-    rule(CompEQExpr, (CompEQExpr, BANGEQUAL, CompLGTExpr, ), bin_expr_reduction)
-    rule(CompEQExpr, (CompEQExpr, DOUBLEEQUAL, CompLGTExpr, ), bin_expr_reduction)
+    rule(CompEQExpr, (CompEQExpr, BANGEQUAL, CompLGTExpr), bin_expr_reduction)
+    rule(CompEQExpr, (CompEQExpr, DOUBLEEQUAL, CompLGTExpr), bin_expr_reduction)
     rule(CompEQExpr, (CompLGTExpr,), SkipReduceAction())
-    rule(CompLGTExpr, (CompLGTExpr, LESS, BitXorExpr, ), bin_expr_reduction)
-    rule(CompLGTExpr, (CompLGTExpr, GREATER, BitXorExpr, ), bin_expr_reduction)
-    rule(CompLGTExpr, (CompLGTExpr, LESSEQUAL, BitXorExpr, ), bin_expr_reduction)
-    rule(CompLGTExpr, (CompLGTExpr, GREATEREQUAL, BitXorExpr, ), bin_expr_reduction)
+    rule(CompLGTExpr, (CompLGTExpr, LESS, BitXorExpr), bin_expr_reduction)
+    rule(CompLGTExpr, (CompLGTExpr, GREATER, BitXorExpr), bin_expr_reduction)
+    rule(CompLGTExpr, (CompLGTExpr, LESSEQUAL, BitXorExpr), bin_expr_reduction)
+    rule(CompLGTExpr, (CompLGTExpr, GREATEREQUAL, BitXorExpr), bin_expr_reduction)
     rule(CompLGTExpr, (BitXorExpr,), SkipReduceAction())
-    rule(BitXorExpr, (BitXorExpr, CARET, BitOrExpr, ), bin_expr_reduction)
+    rule(BitXorExpr, (BitXorExpr, CARET, BitOrExpr), bin_expr_reduction)
     rule(BitXorExpr, (BitOrExpr,), SkipReduceAction())
-    rule(BitOrExpr, (BitOrExpr, PIPE, BitAndExpr, ), bin_expr_reduction)
+    rule(BitOrExpr, (BitOrExpr, PIPE, BitAndExpr), bin_expr_reduction)
     rule(BitOrExpr, (BitAndExpr,), SkipReduceAction())
-    rule(BitAndExpr, (BitAndExpr, AMPER, BitShiftExpr, ), bin_expr_reduction)
+    rule(BitAndExpr, (BitAndExpr, AMPER, BitShiftExpr), bin_expr_reduction)
     rule(BitAndExpr, (BitShiftExpr,), SkipReduceAction())
-    rule(BitShiftExpr, (BitShiftExpr, DOUBLEGREATER, AdditionExpr, ), bin_expr_reduction)
-    rule(BitShiftExpr, (BitShiftExpr, DOUBLELESS, AdditionExpr, ), bin_expr_reduction)
+    rule(BitShiftExpr, (BitShiftExpr, DOUBLEGREATER, AdditionExpr), bin_expr_reduction)
+    rule(BitShiftExpr, (BitShiftExpr, DOUBLELESS, AdditionExpr), bin_expr_reduction)
     rule(BitShiftExpr, (AdditionExpr,), SkipReduceAction())
-    rule(AdditionExpr, (AdditionExpr, PLUS, MultExpr, ), bin_expr_reduction)
-    rule(AdditionExpr, (AdditionExpr, MINUS, MultExpr, ), bin_expr_reduction)
+    rule(AdditionExpr, (AdditionExpr, PLUS, MultExpr), bin_expr_reduction)
+    rule(AdditionExpr, (AdditionExpr, MINUS, MultExpr), bin_expr_reduction)
     rule(AdditionExpr, (MultExpr,), SkipReduceAction())
-    rule(MultExpr, (MultExpr, STAR, UnaryExpr, ), bin_expr_reduction)
-    rule(MultExpr, (MultExpr, SLASH, UnaryExpr, ), bin_expr_reduction)
-    rule(MultExpr, (MultExpr, PERCENT, UnaryExpr, ), bin_expr_reduction)
+    rule(MultExpr, (MultExpr, STAR, UnaryExpr), bin_expr_reduction)
+    rule(MultExpr, (MultExpr, SLASH, UnaryExpr), bin_expr_reduction)
+    rule(MultExpr, (MultExpr, PERCENT, UnaryExpr), bin_expr_reduction)
     rule(MultExpr, (CastExpr,), SkipReduceAction())
     rule(CastExpr, (CastExpr, RIGHTARROW, Type), SimpleReduceAction('CastExpr', 'std::move(a2), std::move(a0)'))
     rule(CastExpr, (UnaryExpr,), SkipReduceAction())
-    rule(UnaryExpr, (TILDE, UnaryExpr, ), SimpleReduceAction('UnaryExpr', 'a0, std::move(a1)'))
-    rule(UnaryExpr, (MINUS, UnaryExpr, ), SimpleReduceAction('UnaryExpr', 'a0, std::move(a1)'))
-    rule(UnaryExpr, (BANG, UnaryExpr, ), SimpleReduceAction('UnaryExpr', 'a0, std::move(a1)'))
-    rule(UnaryExpr, (AMPER, UnaryExpr, ), SimpleReduceAction('AddrofExpr', 'a0, std::move(a1), false'))
-    rule(UnaryExpr, (AMPER, MUT, UnaryExpr, ), SimpleReduceAction('AddrofExpr', 'a0, std::move(a2), true'))
-    rule(UnaryExpr, (STAR, UnaryExpr, ), SimpleReduceAction('DerefExpr', 'a0, std::move(a1)'))
+    rule(UnaryExpr, (TILDE, UnaryExpr), SimpleReduceAction('UnaryExpr', 'a0, std::move(a1)'))
+    rule(UnaryExpr, (MINUS, UnaryExpr), SimpleReduceAction('UnaryExpr', 'a0, std::move(a1)'))
+    rule(UnaryExpr, (BANG, UnaryExpr), SimpleReduceAction('UnaryExpr', 'a0, std::move(a1)'))
+    rule(UnaryExpr, (AMPER, UnaryExpr), SimpleReduceAction('AddrofExpr', 'a0, std::move(a1), false'))
+    rule(UnaryExpr, (AMPER, MUT, UnaryExpr), SimpleReduceAction('AddrofExpr', 'a0, std::move(a2), true'))
+    rule(UnaryExpr, (STAR, UnaryExpr), SimpleReduceAction('DerefExpr', 'a0, std::move(a1)'))
+
     rule(UnaryExpr, (CallExpr,), SkipReduceAction())
-    rule(CallExpr, (CallExpr, OPARN, ArgListOpt, CPARN, ), SimpleReduceAction('CallExpr', 'std::move(a0), a1, std::move(a2->args)'))
+
+    rule(CallExpr, (CallExpr, OPARN, ArgListOpt, CPARN), SimpleReduceAction('CallExpr', 'std::move(a0), a1, std::move(a2->args)'))
     rule(CallExpr, (PrimaryExpr,), SkipReduceAction())
 
     token_rule(PrimaryExpr, SimpleReduceAction('PrimaryExpr', 'a0'), TRUELIT, FALSELIT, FLOATLIT, NULLPTRLIT, DECINTLIT, OCTINTLIT, BININTLIT, HEXINTLIT, CHARLIT, STRINGLIT)
@@ -873,47 +875,39 @@ def gen_loop():
             if isinstance(ac, ReduceAction):
                 output.append(                    '{\n')
 
-                firstterminal = None
                 for i, sym in reversed(list(enumerate(ac.rule.expansion))):
                     if isinstance(sym, Terminal):
                         output.append(           f'                            auto a{i} (popT(stack));\n')
-                        firstterminal = i
                     elif isinstance(sym, NonTerminal):
                         output.append(           f'                            auto a{i} (popA<ASTNS::{sym.reduces_to}>(stack));\n')
 
                 if len(ac.rule.expansion) > 0:
-                    if firstterminal is not None:
-                        output.append(                        '                            Location start, end;\n')
-                    else:
-                        if isinstance(ac.rule.expansion[0], Terminal):
-                            output.append(                    '                            Location start, end;\n')
-                        else:
-                            output.append(                    '                            Location start ((a0.get())), end ((a0.get()));\n')
+                    output.append(                '                            Location start, end;\n')
                     for i in range(len(ac.rule.expansion)):
                         if isinstance(ac.rule.expansion[i], Terminal):
                             if i == 0:
-                                output.append(               f'                            start = a{i};\n')
+                                output.append(   f'                            start = a{i};\n')
                             else:
-                                output.append(               f'                            else start = a{i};\n')
+                                output.append(   f'                            else start = a{i};\n')
                             break
                         else:
                             if i == 0:
-                                output.append(               f'                            if (a{i}) start = a{i}->start();\n')
+                                output.append(   f'                            if (a{i}) start = a{i}->start();\n')
                             else:
-                                output.append(               f'                            else if (a{i}) start = a{i}->start();\n')
+                                output.append(   f'                            else if (a{i}) start = a{i}->start();\n')
 
                     for i in range(len(ac.rule.expansion) - 1, -1, -1):
                         if isinstance(ac.rule.expansion[i], Terminal):
                             if i == len(ac.rule.expansion) - 1:
-                                output.append(               f'                            end = a{i};\n')
+                                output.append(   f'                            end = a{i};\n')
                             else:
-                                output.append(               f'                            else end = a{i};\n')
+                                output.append(   f'                            else end = a{i};\n')
                             break
                         else:
                             if i == len(ac.rule.expansion) - 1:
-                                output.append(               f'                            if (a{i}) end = a{i}->end();\n')
+                                output.append(   f'                            if (a{i}) end = a{i}->end();\n')
                             else:
-                                output.append(               f'                            else if (a{i}) end = a{i}->end();\n')
+                                output.append(   f'                            else if (a{i}) end = a{i}->end();\n')
 
                 reduce_code, pushitem = ac.rule.reduce_action.generate()
                 output.append(reduce_code)

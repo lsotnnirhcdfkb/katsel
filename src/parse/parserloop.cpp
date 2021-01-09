@@ -638,7 +638,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::DeclList>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
 std::unique_ptr<ASTNS::CU> push (std::make_unique<ASTNS::CU>(p.sourcefile, start, end, std::move(a0->decls)));
@@ -656,7 +656,7 @@ std::unique_ptr<ASTNS::CU> push (std::make_unique<ASTNS::CU>(p.sourcefile, start
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Decl>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
 std::unique_ptr<ASTNS::DeclList> push(std::make_unique<ASTNS::DeclList>(p.sourcefile, start, end, std::vector<std::unique_ptr<ASTNS::Decl>> {}));
@@ -672,7 +672,7 @@ std::unique_ptr<ASTNS::DeclList> push(std::make_unique<ASTNS::DeclList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::FunctionDecl>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Decl> pushitem = std::move(a0);
@@ -685,7 +685,7 @@ std::unique_ptr<ASTNS::DeclList> push(std::make_unique<ASTNS::DeclList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Decl>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Decl> pushitem = std::move(a0);
@@ -719,7 +719,7 @@ std::unique_ptr<ASTNS::DeclList> push(std::make_unique<ASTNS::DeclList>(p.source
                     default: {
                             auto a1 (popA<ASTNS::Decl>(stack));
                             auto a0 (popA<ASTNS::DeclList>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             else if (a1) start = a1->start();
                             if (a1) end = a1->end();
@@ -735,7 +735,7 @@ a0->decls.push_back(std::move(a1));
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Decl>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Decl> pushitem = std::move(a0);
@@ -768,7 +768,7 @@ a0->decls.push_back(std::move(a1));
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::PathType>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Type> pushitem = std::move(a0);
@@ -781,7 +781,7 @@ a0->decls.push_back(std::move(a1));
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::PointerType>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Type> pushitem = std::move(a0);
@@ -794,7 +794,7 @@ a0->decls.push_back(std::move(a1));
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Path>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
 std::unique_ptr<ASTNS::PathType> push (std::make_unique<ASTNS::PathType>(p.sourcefile, start, end, std::move(a0)));
@@ -973,7 +973,7 @@ std::unique_ptr<ASTNS::PointerType> push (std::make_unique<ASTNS::PointerType>(p
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::ParamList>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::ParamList> pushitem = std::move(a0);
@@ -988,7 +988,7 @@ std::unique_ptr<ASTNS::PointerType> push (std::make_unique<ASTNS::PointerType>(p
                         shift(p, lasttok, lookahead, stack, steps, 43); break;
                     default: {
                             auto a0 (popA<ASTNS::ParamList>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::ParamList> pushitem = std::move(a0);
@@ -1001,7 +1001,7 @@ std::unique_ptr<ASTNS::PointerType> push (std::make_unique<ASTNS::PointerType>(p
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Param>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
 std::unique_ptr<ASTNS::ParamList> push(std::make_unique<ASTNS::ParamList>(p.sourcefile, start, end, std::vector<std::unique_ptr<ASTNS::Param>> {}));
@@ -1055,7 +1055,7 @@ std::unique_ptr<ASTNS::ImplDecl> push (std::make_unique<ASTNS::ImplDecl>(p.sourc
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::PureLocation>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::PureLocation> pushitem = std::move(a0);
@@ -1126,7 +1126,7 @@ std::unique_ptr<ASTNS::ImplItemList> push (std::make_unique<ASTNS::ImplItemList>
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::ImplItemList>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::ImplItemList> pushitem = std::move(a0);
@@ -1141,7 +1141,7 @@ std::unique_ptr<ASTNS::ImplItemList> push (std::make_unique<ASTNS::ImplItemList>
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::ImplItem>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
 std::unique_ptr<ASTNS::ImplItemList> push(std::make_unique<ASTNS::ImplItemList>(p.sourcefile, start, end, std::vector<std::unique_ptr<ASTNS::ImplItem>> {}));
@@ -1157,7 +1157,7 @@ std::unique_ptr<ASTNS::ImplItemList> push(std::make_unique<ASTNS::ImplItemList>(
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::FunctionDecl>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
 std::unique_ptr<ASTNS::FunctionImplItem> push (std::make_unique<ASTNS::FunctionImplItem>(p.sourcefile, start, end, std::move(a0)));
@@ -1343,7 +1343,7 @@ std::unique_ptr<ASTNS::ImplItemList> push (std::make_unique<ASTNS::ImplItemList>
                     default: {
                             auto a1 (popA<ASTNS::ImplItem>(stack));
                             auto a0 (popA<ASTNS::ImplItemList>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             else if (a1) start = a1->start();
                             if (a1) end = a1->end();
@@ -1359,7 +1359,7 @@ a0->items.push_back(std::move(a1));
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::ImplItem>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::ImplItem> pushitem = std::move(a0);
@@ -1412,7 +1412,7 @@ a0->params.push_back(std::move(a2));
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Param>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Param> pushitem = std::move(a0);
@@ -1563,7 +1563,7 @@ std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Block>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Block> pushitem = std::move(a0);
@@ -1576,7 +1576,7 @@ std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Block>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Block> pushitem = std::move(a0);
@@ -1834,7 +1834,7 @@ std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourc
                         shift(p, lasttok, lookahead, stack, steps, 113); break;
                     default: {
                             auto a0 (popA<ASTNS::StmtList>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::StmtList> pushitem = std::move(a0);
@@ -1885,7 +1885,7 @@ std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourc
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Stmt>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
 std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.sourcefile, start, end, std::vector<std::unique_ptr<ASTNS::Stmt>> {}));
@@ -1901,7 +1901,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::VarStmt>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Stmt> pushitem = std::move(a0);
@@ -1914,7 +1914,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::ExprStmt>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Stmt> pushitem = std::move(a0);
@@ -1927,7 +1927,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::RetStmt>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Stmt> pushitem = std::move(a0);
@@ -2060,7 +2060,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
@@ -2073,7 +2073,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::IfExpr>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
@@ -2086,7 +2086,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::ForExpr>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
@@ -2099,7 +2099,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Block>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
@@ -2112,7 +2112,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
@@ -2191,7 +2191,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
@@ -2208,7 +2208,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         shift(p, lasttok, lookahead, stack, steps, 146); break;
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
@@ -2223,7 +2223,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
@@ -2244,7 +2244,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
@@ -2259,7 +2259,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
@@ -2276,7 +2276,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         shift(p, lasttok, lookahead, stack, steps, 154); break;
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
@@ -2289,7 +2289,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
@@ -2306,7 +2306,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
@@ -2323,7 +2323,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
@@ -2342,7 +2342,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
@@ -2357,7 +2357,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
@@ -2577,7 +2577,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
@@ -2592,7 +2592,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
@@ -2792,7 +2792,7 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
@@ -2805,7 +2805,7 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Path>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
 std::unique_ptr<ASTNS::PathExpr> push (std::make_unique<ASTNS::PathExpr>(p.sourcefile, start, end, std::move(a0)));
@@ -2933,7 +2933,7 @@ std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourc
                     default: {
                             auto a1 (popA<ASTNS::Stmt>(stack));
                             auto a0 (popA<ASTNS::StmtList>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             else if (a1) start = a1->start();
                             if (a1) end = a1->end();
@@ -2949,7 +2949,7 @@ a0->stmts.push_back(std::move(a1));
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Stmt>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Stmt> pushitem = std::move(a0);
@@ -2975,7 +2975,7 @@ a0->stmts.push_back(std::move(a1));
                         shift(p, lasttok, lookahead, stack, steps, 175); break;
                     default: {
                             auto a0 (popA<ASTNS::VarStmtItemList>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::VarStmtItemList> pushitem = std::move(a0);
@@ -2988,7 +2988,7 @@ a0->stmts.push_back(std::move(a1));
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::VarStmtItem>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
 std::unique_ptr<ASTNS::VarStmtItemList> push(std::make_unique<ASTNS::VarStmtItemList>(p.sourcefile, start, end, std::vector<std::unique_ptr<ASTNS::VarStmtItem>> {}));
@@ -3023,7 +3023,7 @@ std::unique_ptr<ASTNS::VarStmtItemList> push(std::make_unique<ASTNS::VarStmtItem
                     default: {
                             auto a1 (popA<ASTNS::PureLocation>(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             else if (a1) start = a1->start();
                             if (a1) end = a1->end();
@@ -3051,7 +3051,7 @@ std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourc
                     default: {
                             auto a1 (popA<ASTNS::PureLocation>(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             else if (a1) start = a1->start();
                             if (a1) end = a1->end();
@@ -3105,7 +3105,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
@@ -3118,7 +3118,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
@@ -3233,7 +3233,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::VarStmt>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::VarStmt> pushitem = std::move(a0);
@@ -4826,7 +4826,7 @@ std::unique_ptr<ASTNS::AddrofExpr> push (std::make_unique<ASTNS::AddrofExpr>(p.s
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::ArgList>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::ArgList> pushitem = std::move(a0);
@@ -4841,7 +4841,7 @@ std::unique_ptr<ASTNS::AddrofExpr> push (std::make_unique<ASTNS::AddrofExpr>(p.s
                         shift(p, lasttok, lookahead, stack, steps, 220); break;
                     default: {
                             auto a0 (popA<ASTNS::ArgList>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::ArgList> pushitem = std::move(a0);
@@ -4854,7 +4854,7 @@ std::unique_ptr<ASTNS::AddrofExpr> push (std::make_unique<ASTNS::AddrofExpr>(p.s
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Arg>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
 std::unique_ptr<ASTNS::ArgList> push(std::make_unique<ASTNS::ArgList>(p.sourcefile, start, end, std::vector<std::unique_ptr<ASTNS::Arg>> {}));
@@ -4870,7 +4870,7 @@ std::unique_ptr<ASTNS::ArgList> push(std::make_unique<ASTNS::ArgList>(p.sourcefi
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
 std::unique_ptr<ASTNS::Arg> push (std::make_unique<ASTNS::Arg>(p.sourcefile, start, end, std::move(a0)));
@@ -4926,7 +4926,7 @@ a0->items.push_back(std::move(a2));
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::VarStmtItem>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::VarStmtItem> pushitem = std::move(a0);
@@ -5027,7 +5027,7 @@ std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
@@ -5307,7 +5307,7 @@ a0->args.push_back(std::move(a2));
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Arg>(stack));
-                            Location start ((a0.get())), end ((a0.get()));
+                            Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
                             std::unique_ptr<ASTNS::Arg> pushitem = std::move(a0);
