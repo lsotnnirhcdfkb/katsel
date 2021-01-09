@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <cstdint>
 #include "ir/value.h"
 
 namespace IR {
@@ -20,7 +21,7 @@ namespace IR {
             virtual void accept(InstructionVisitor *v) = 0;
             void value_accept(ValueVisitor *v) override;
 
-            int id;
+            uint64_t id;
         };
 
         class Br {

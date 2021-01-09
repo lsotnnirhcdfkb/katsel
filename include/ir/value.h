@@ -3,6 +3,7 @@
 #include "ir/block.h"
 #include <string>
 #include <cstddef>
+#include <cstdint>
 #include <vector>
 #include "ast/ast.h"
 
@@ -64,12 +65,12 @@ namespace IR {
 
         void value_accept(ValueVisitor *v) override;
 
-        int curindex;
+        uint64_t curindex;
 
     private:
         ASTNS::FunctionDecl *_defAST;
 
-        size_t blocki;
+        uint64_t blocki;
     };
     // }}}
     // Const values {{{

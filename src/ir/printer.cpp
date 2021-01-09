@@ -9,6 +9,18 @@
 IR::Printer::Printer(IR::Unit &unit, llvm::raw_ostream &ostream): unit(unit), ostream(ostream) {}
 
 namespace {
+    // idToStr {{{
+    std::string idToStr(uint64_t id) {
+        constexpr int base = 26;
+        std::string str;
+        do {
+            int rem = id % base;
+            id /= base;
+            str.insert(str.begin(), 'a' + rem);
+        } while (id);
+        return str;
+    }
+    // }}}
     // fw decls {{{
     class VDPrinter;
     class VRPrinter;
@@ -91,7 +103,7 @@ namespace {
         }
         void value_visitInstruction(IR::Instrs::Instruction *v) override {
             openParen();
-            pr("%")(v->id);
+            pr(idToStr(v->id));
             tyAnnotation(v);
         }
         void value_visitVoid(IR::Void *v) override {
@@ -123,7 +135,7 @@ namespace {
         // }}}
         // visit Instruction {{{
         void value_visitInstruction(IR::Instrs::Instruction *v) override {
-            pr("(%")(v->id)(" :: ")(v->type()->name())(") = ");
+            pr("(")(idToStr(v->id))(" :: ")(v->type()->name())(") = ");
             v->accept(this);
             pr(";\n");
         }
