@@ -182,7 +182,7 @@ namespace {
         void binaryInstruction(IR::Instrs::Instruction *i, std::string const &name, IR::ASTValue const &lhs, IR::ASTValue const &rhs) {
             instrName(name);
             lhs.val->value_accept(pr.vrp.get());
-            pr(",");
+            pr(", ");
             rhs.val->value_accept(pr.vrp.get());
             pr(")");
         }
