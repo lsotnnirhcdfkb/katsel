@@ -77,46 +77,25 @@ namespace {
         _Printer &pr;
 
         void value_visitConstBool(IR::ConstBool *v) override {
-            openParen();
             pr(v->val ? "true" : "false");
-            tyAnnotation(v);
         }
         void value_visitConstChar(IR::ConstChar *v) override {
-            openParen();
             pr("'")(v->val)("'");
-            tyAnnotation(v);
         }
         void value_visitConstInt(IR::ConstInt *v) override {
-            openParen();
             pr(v->val);
-            tyAnnotation(v);
         }
         void value_visitConstFloat(IR::ConstFloat *v) override {
-            openParen();
             pr(v->val);
-            tyAnnotation(v);
         }
         void value_visitFunction(IR::Function *v) override {
-            openParen();
             pr(v->name);
-            tyAnnotation(v);
         }
         void value_visitInstruction(IR::Instrs::Instruction *v) override {
-            openParen();
             pr(idToStr(v->id));
-            tyAnnotation(v);
         }
         void value_visitVoid(IR::Void *v) override {
-            openParen();
             pr("'void'");
-            tyAnnotation(v);
-        }
-
-        void openParen() {
-            pr("(");
-        }
-        void tyAnnotation(IR::Value *v) {
-            pr(" :: ")(v->type()->name())(")");
         }
     };
     // }}}
