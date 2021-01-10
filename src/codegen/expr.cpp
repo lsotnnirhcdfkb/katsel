@@ -419,7 +419,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitCastExpr(ASTNS::CastExpr *ast) 
         return;
     }
 
-    IR::Type *castToTy = cg.typeVisitor->type(ast->type.get());
+    IR::Type *castToTy = cg.typeVisitor->type(ast->type.get(), fcg.thisType);
     if (!castToTy) {
         fcg.errored = true;
         return;

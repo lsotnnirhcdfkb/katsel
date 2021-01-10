@@ -597,8 +597,9 @@ def make_grammar():
     IndentedBlock = nt('IndentedBlock', 'indented code block', 'Block', panickable=True)
     TypeAnnotation = nt('TypeAnnotation', 'required type annotation', 'Type')
     Type = nt('Type', 'type specifier', 'Type')
-    PointerType = nt('PointerType', 'pointer type specifier', 'PointerType')
-    PathType = nt('PathType', 'path type specifier', 'PathType')
+    PointerType = nt('PointerType', 'pointer type', 'PointerType')
+    ThisType = nt('ThisType', '\'this\' type', 'ThisType')
+    PathType = nt('PathType', 'path type', 'PathType')
     Arg = nt('Arg', 'argument', 'Arg', panickable=True)
     Param = nt('Param', 'function parameter', 'ParamB', panickable=True)
     ThisParam = nt('ThisParam', '\'this\' function parameter', 'ThisParam', panickable=True)
@@ -691,12 +692,14 @@ def make_grammar():
     rule(LineEnding, (SEMICOLON,), LocationReduceAction())
     rule(LineEnding, (SEMICOLON, NEWLINE), WarnAction('WARN_EXTRA_SEMI(a0);', LocationReduceAction()))
 
-    skip_to(Type, PathType, PointerType)
+    skip_to(Type, PathType, PointerType, ThisType)
 
     rule(PointerType, (STAR, Type), SimpleReduceAction('PointerType', 'false, std::move(a1)'))
     rule(PointerType, (STAR, MUT, Type), SimpleReduceAction('PointerType', 'true, std::move(a2)'))
 
     rule(PathType, (Path,), SimpleReduceAction('PathType', 'std::move(a0)'))
+
+    rule(ThisType, (THIS,), SimpleReduceAction('ThisType', 'a0'))
 
     rule(TypeAnnotation, (COLON, Type), SkipReduceAction(1));
 

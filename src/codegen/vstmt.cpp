@@ -10,7 +10,7 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem 
         return;
     }
 
-    IR::Type *varType = cg.typeVisitor->type(ast->type.get());
+    IR::Type *varType = cg.typeVisitor->type(ast->type.get(), fcg.thisType);
     if (!varType) {
         fcg.errored = true;
         return;

@@ -74,6 +74,7 @@ asts = [
 
     AST('PathType'         , 'Type', 'std::unique_ptr<Path>|path'),
     AST('PointerType'      , 'Type', 'bool|mut, std::unique_ptr<Type>|type'),
+    AST('ThisType'         , 'Type', 'Token|th'),
 
     AST('Arg'              , 'ArgB', 'std::unique_ptr<Expr>|expr'),
 

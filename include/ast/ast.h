@@ -39,6 +39,7 @@ namespace ASTNS {
     class RetStmt;
     class PathType;
     class PointerType;
+    class ThisType;
     class Arg;
     class Param;
     class ThisParam;
@@ -142,6 +143,7 @@ namespace ASTNS {
             virtual ~Visitor() {}
             virtual void visitPathType(ASTNS::PathType *ast) = 0;
             virtual void visitPointerType(ASTNS::PointerType *ast) = 0;
+            virtual void visitThisType(ASTNS::ThisType *ast) = 0;
         };
         virtual ~Type() {}
         virtual void accept(Visitor *v) = 0;
@@ -391,6 +393,15 @@ namespace ASTNS {
         virtual Location const & start() override;
         virtual Location const & end() override;
         PointerType(File const &file, Location start, Location end, bool mut, std::unique_ptr<Type> type);
+    };
+    class ThisType : public Type {
+    public:
+        Location _start, _end;
+        Token th;
+        virtual void accept(ASTNS::Type::Visitor *v) override;
+        virtual Location const & start() override;
+        virtual Location const & end() override;
+        ThisType(File const &file, Location start, Location end, Token th);
     };
     class Arg : public ArgB {
     public:

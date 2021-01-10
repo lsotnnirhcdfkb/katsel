@@ -214,6 +214,14 @@ void ASTNS::PrintVisitor::visitPointerType(ASTNS::PointerType *a) {
     --indent;
     pai("}\n");
 }
+void ASTNS::PrintVisitor::visitThisType(ASTNS::ThisType *a) {
+    pai("ThisType {\n");
+    ++indent;
+    pai("Token th = ");
+    printField(*this, a->th);
+    --indent;
+    pai("}\n");
+}
 void ASTNS::PrintVisitor::visitArg(ASTNS::Arg *a) {
     pai("Arg {\n");
     ++indent;

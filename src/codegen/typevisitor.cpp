@@ -4,14 +4,16 @@
 
 CodeGen::TypeVisitor::TypeVisitor(CodeGen &cg): cg(cg) {}
 
-IR::Type* CodeGen::TypeVisitor::type(ASTNS::Type *ast) {
+IR::Type* CodeGen::TypeVisitor::type(ASTNS::Type *ast, IR::Type *thisType) {
     IR::Type *oldret = ret;
     ret = nullptr;
+    this->thisType = thisType;
 
     ast->accept(this);
 
     IR::Type *newret = ret;
     ret = oldret;
+    this->thisType = nullptr;
 
     return newret;
 }
@@ -33,7 +35,7 @@ void CodeGen::TypeVisitor::visitPathType(ASTNS::PathType *ast) {
 }
 
 void CodeGen::TypeVisitor::visitPointerType(ASTNS::PointerType *ast) {
-    IR::Type *ty = type(ast->type.get());
+    IR::Type *ty = type(ast->type.get(), thisType);
     if (!ty) {
         cg.errored = true;
         ret = nullptr;
@@ -41,4 +43,15 @@ void CodeGen::TypeVisitor::visitPointerType(ASTNS::PointerType *ast) {
     } else {
         ret = cg.context->getPointerType(ast->mut, ty);
     }
+}
+
+void CodeGen::TypeVisitor::visitThisType(ASTNS::ThisType *ast) {
+    if (!thisType) {
+        ERR_NO_THIS(ast->th);
+        cg.errored = true;
+        ret = nullptr;
+        return;
+    }
+
+    ret = thisType;
 }

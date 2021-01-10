@@ -57,6 +57,7 @@ enum class NonTerminal {
     IndentedBlock,
     PathType,
     PointerType,
+    ThisType,
     Path,
     NormalParam,
     ThisParam,

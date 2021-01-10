@@ -10,7 +10,7 @@ CodeGen::ParamVisitor::ParamVisitor::ParamVisitor(CodeGen &cg, std::vector<std::
 }
 
 void CodeGen::ParamVisitor::visitParam(ASTNS::Param *ast) {
-    IR::Type *ty (cg.typeVisitor->type(ast->type.get()));
+    IR::Type *ty (cg.typeVisitor->type(ast->type.get(), thisType));
     if (!ty) {
         errored = true;
         return;

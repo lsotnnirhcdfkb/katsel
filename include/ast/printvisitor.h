@@ -45,6 +45,7 @@ void visitExprStmt(ASTNS::ExprStmt *ast) override;
 void visitRetStmt(ASTNS::RetStmt *ast) override;
 void visitPathType(ASTNS::PathType *ast) override;
 void visitPointerType(ASTNS::PointerType *ast) override;
+void visitThisType(ASTNS::ThisType *ast) override;
 void visitArg(ASTNS::Arg *ast) override;
 void visitParam(ASTNS::Param *ast) override;
 void visitThisParam(ASTNS::ThisParam *ast) override;

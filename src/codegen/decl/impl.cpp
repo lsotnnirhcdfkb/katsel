@@ -5,7 +5,7 @@
 CodeGen::ImplCodeGen::ImplCodeGen(CodeGen &cg, ASTNS::ImplDecl *ast): cg(cg), ast(ast), errored(false) {}
 
 bool CodeGen::ImplCodeGen::codegen() {
-    implFor = cg.typeVisitor->type(ast->implFor.get());
+    implFor = cg.typeVisitor->type(ast->implFor.get(), nullptr);
     for (std::unique_ptr<ASTNS::ImplItem> &item : ast->items)
         item->accept(this);
     return !errored;

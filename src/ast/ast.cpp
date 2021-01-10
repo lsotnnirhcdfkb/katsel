@@ -86,6 +86,10 @@ ASTNS::PointerType::PointerType(File const &file, Location start, Location end, 
 void ASTNS::PointerType::accept(ASTNS::Type::Visitor *v) { v->visitPointerType(this); }
 Location const & ASTNS::PointerType::start() { return _start; }
 Location const & ASTNS::PointerType::end() { return _end; }
+ASTNS::ThisType::ThisType(File const &file, Location start, Location end, Token th): Type(file), _start(start), _end(end), th(std::move(th)) {}
+void ASTNS::ThisType::accept(ASTNS::Type::Visitor *v) { v->visitThisType(this); }
+Location const & ASTNS::ThisType::start() { return _start; }
+Location const & ASTNS::ThisType::end() { return _end; }
 ASTNS::Arg::Arg(File const &file, Location start, Location end, std::unique_ptr<Expr> expr): ArgB(file), _start(start), _end(end), expr(std::move(expr)) {}
 void ASTNS::Arg::accept(ASTNS::ArgB::Visitor *v) { v->visitArg(this); }
 Location const & ASTNS::Arg::start() { return _start; }

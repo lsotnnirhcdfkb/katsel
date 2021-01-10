@@ -19,7 +19,7 @@ void CodeGen::Declarator::visitFunctionDecl(ASTNS::FunctionDecl *fun) {
         return;
     }
 
-    IR::Type *retty = cg.typeVisitor->type(fun->retty.get());
+    IR::Type *retty = cg.typeVisitor->type(fun->retty.get(), thisType);
     if (!retty)
         return;
 
@@ -40,7 +40,7 @@ void CodeGen::Declarator::visitFunctionDecl(ASTNS::FunctionDecl *fun) {
 }
 
 void CodeGen::Declarator::visitImplDecl(ASTNS::ImplDecl *impl) {
-    IR::Type *implFor = cg.typeVisitor->type(impl->implFor.get());
+    IR::Type *implFor = cg.typeVisitor->type(impl->implFor.get(), nullptr);
     if (!implFor) {
         cg.errored = true;
         ERR_UNDECL_SYMB(impl->implFor.get());
