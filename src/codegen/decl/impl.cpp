@@ -6,12 +6,12 @@ CodeGen::ImplCodeGen::ImplCodeGen(CodeGen &cg, ASTNS::ImplDecl *ast): cg(cg), as
 
 bool CodeGen::ImplCodeGen::codegen() {
     implFor = cg.typeVisitor->type(ast->implFor.get(), nullptr);
-    for (std::unique_ptr<ASTNS::ImplItem> &item : ast->items)
-        item->accept(this);
+    for (std::unique_ptr<ASTNS::ImplMember> &member : ast->members)
+        member->accept(this);
     return !errored;
 }
 
-void CodeGen::ImplCodeGen::visitFunctionImplItem(ASTNS::FunctionImplItem *ast) {
+void CodeGen::ImplCodeGen::visitFunctionImplMember(ASTNS::FunctionImplMember *ast) {
     if (!implFor) {
         errored = true;
         return;

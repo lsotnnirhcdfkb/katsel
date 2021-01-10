@@ -160,8 +160,8 @@ void E0203(Token const &name, IR::Instrs::Register const *prev);
 #define ERR_NOT_A_TYPE E0204
 void E0204(Location const &notty, ASTNS::AST *declAST);
 
-// E0205 - no-item-in
-#define ERR_NO_ITEM_IN E0205
+// E0205 - no-member-in
+#define ERR_NO_MEMBER_IN E0205
 void E0205(IR::DeclSymbol const *prev, Token const &current);
 
 // E0206 - no-this

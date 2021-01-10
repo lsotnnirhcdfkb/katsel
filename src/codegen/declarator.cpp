@@ -50,15 +50,15 @@ void CodeGen::Declarator::visitImplDecl(ASTNS::ImplDecl *impl) {
     IR::DeclSymbol *oldSymbol = currentSymbol;
     currentSymbol = implFor;
     thisType = implFor;
-    for (std::unique_ptr<ASTNS::ImplItem> &item : impl->items) {
-        item->accept(this);
+    for (std::unique_ptr<ASTNS::ImplMember> &member : impl->members) {
+        member->accept(this);
     }
     currentSymbol = oldSymbol;
     thisType = nullptr;
 }
 
-void CodeGen::Declarator::visitFunctionImplItem(ASTNS::FunctionImplItem *item) {
-    item->fun->accept(this);
+void CodeGen::Declarator::visitFunctionImplMember(ASTNS::FunctionImplMember *member) {
+    member->fun->accept(this);
 }
 
 void CodeGen::Declarator::visitImplicitDecl(ASTNS::ImplicitDecl *) {}

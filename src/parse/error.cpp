@@ -292,15 +292,15 @@ bool panicMode(errorstate const &e, std::vector<std::string> const &expectations
                         case TokenType::FUN: case TokenType::IMPL: case TokenType::EOF_:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
-                CHECKASI(AnotherImplItem)
+                CHECKASI(AnotherImplMember)
                         case TokenType::FUN: case TokenType::CCURB: case TokenType::DEDENT:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
-                CHECKASI(ImplItem)
+                CHECKASI(ImplMember)
                         case TokenType::FUN: case TokenType::CCURB: case TokenType::DEDENT:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
-                CHECKASI(ImplItemList)
+                CHECKASI(ImplMemberList)
                         case TokenType::FUN: case TokenType::CCURB: case TokenType::DEDENT:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()

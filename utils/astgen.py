@@ -32,7 +32,7 @@ asts = [
     ASTSuperBase(),
     ASTBase('CUB'),
     ASTBase('Decl'),
-    ASTBase('ImplItem'),
+    ASTBase('ImplMember'),
     ASTBase('Stmt'),
     ASTBase('Expr'),
     ASTBase('Type'),
@@ -47,7 +47,7 @@ asts = [
     list_ast('ParamList', 'ParamB', 'params'),
     list_ast('ArgList', 'Arg', 'args'),
     list_ast('VarStmtItemList', 'VarStmtItem', 'items'),
-    list_ast('ImplItemList', 'ImplItem', 'items'),
+    list_ast('ImplMemberList', 'ImplMember', 'members'),
 
     # a class to keep track of locations of syntactic elements that don't matter (like
     # line endings where the location matters (so that other statements can use the line
@@ -56,47 +56,47 @@ asts = [
     # it should never appear in the final AST, because no fields should have a PureLocationB
     # or a PureLocation as a field
     ASTBase('PureLocationB'),
-    AST('PureLocation',  'PureLocationB', 'int|dummy'),
+    AST('PureLocation', 'PureLocationB', 'int|dummy'),
 
-    AST('ImplicitDecl'     , 'Decl', 'int|dummy'),
+    AST('ImplicitDecl'      , 'Decl', 'int|dummy'),
 
-    AST('CU'               , 'CUB', 'std::vector<std::unique_ptr<Decl>>|decls'),
-    AST('ImplDecl'         , 'Decl', 'std::unique_ptr<Type>|implFor, std::vector<std::unique_ptr<ImplItem>>|items'),
-    AST('FunctionDecl'     , 'Decl', 'std::unique_ptr<Type>|retty, Token|name, std::vector<std::unique_ptr<ParamB>>|params, std::unique_ptr<Block>|body'),
+    AST('CU'                , 'CUB', 'std::vector<std::unique_ptr<Decl>>|decls'),
+    AST('ImplDecl'          , 'Decl', 'std::unique_ptr<Type>|implFor, std::vector<std::unique_ptr<ImplMember>>|members'),
+    AST('FunctionDecl'      , 'Decl', 'std::unique_ptr<Type>|retty, Token|name, std::vector<std::unique_ptr<ParamB>>|params, std::unique_ptr<Block>|body'),
 
-    AST('FunctionImplItem' , 'ImplItem', 'std::unique_ptr<FunctionDecl>|fun'),
+    AST('FunctionImplMember', 'ImplMember', 'std::unique_ptr<FunctionDecl>|fun'),
 
-    AST('VarStmt'          , 'Stmt', 'std::vector<std::unique_ptr<VarStmtItem>>|items'),
-    AST('VarStmtItem'      , 'VStmtIB', 'std::unique_ptr<Type>|type, bool|mut, Token|name, Token|equal, std::unique_ptr<Expr>|expr'),
+    AST('VarStmt'           , 'Stmt', 'std::vector<std::unique_ptr<VarStmtItem>>|items'),
+    AST('VarStmtItem'       , 'VStmtIB', 'std::unique_ptr<Type>|type, bool|mut, Token|name, Token|equal, std::unique_ptr<Expr>|expr'),
 
-    AST('ExprStmt'         , 'Stmt', 'std::unique_ptr<Expr>|expr, bool|suppress, Location|dot'),
-    AST('RetStmt'          , 'Stmt', 'std::unique_ptr<Expr>|expr'),
+    AST('ExprStmt'          , 'Stmt', 'std::unique_ptr<Expr>|expr, bool|suppress, Location|dot'),
+    AST('RetStmt'           , 'Stmt', 'std::unique_ptr<Expr>|expr'),
 
-    AST('PathType'         , 'Type', 'std::unique_ptr<Path>|path'),
-    AST('PointerType'      , 'Type', 'bool|mut, std::unique_ptr<Type>|type'),
-    AST('ThisType'         , 'Type', 'Token|th'),
+    AST('PathType'          , 'Type', 'std::unique_ptr<Path>|path'),
+    AST('PointerType'       , 'Type', 'bool|mut, std::unique_ptr<Type>|type'),
+    AST('ThisType'          , 'Type', 'Token|th'),
 
-    AST('Arg'              , 'ArgB', 'std::unique_ptr<Expr>|expr'),
+    AST('Arg'               , 'ArgB', 'std::unique_ptr<Expr>|expr'),
 
-    AST('Param'            , 'ParamB', 'std::unique_ptr<Type>|type, Token|name, bool|mut'),
-    AST('ThisParam'        , 'ParamB', 'bool|ptr, bool|mut'),
+    AST('Param'             , 'ParamB', 'std::unique_ptr<Type>|type, Token|name, bool|mut'),
+    AST('ThisParam'         , 'ParamB', 'bool|ptr, bool|mut'),
 
-    AST('Block'            , 'Expr', 'std::vector<std::unique_ptr<Stmt>>|stmts'),
-    AST('IfExpr'           , 'Expr', 'Token|iftok, Token|elsetok, std::unique_ptr<Expr>|cond, std::unique_ptr<Expr>|trues, std::unique_ptr<Expr>|falses'),
-    AST('ForExpr'          , 'Expr', 'std::unique_ptr<VarStmt>|initial, std::unique_ptr<Expr>|cond, std::unique_ptr<Expr>|increment, std::unique_ptr<Expr>|body'),
+    AST('Block'             , 'Expr', 'std::vector<std::unique_ptr<Stmt>>|stmts'),
+    AST('IfExpr'            , 'Expr', 'Token|iftok, Token|elsetok, std::unique_ptr<Expr>|cond, std::unique_ptr<Expr>|trues, std::unique_ptr<Expr>|falses'),
+    AST('ForExpr'           , 'Expr', 'std::unique_ptr<VarStmt>|initial, std::unique_ptr<Expr>|cond, std::unique_ptr<Expr>|increment, std::unique_ptr<Expr>|body'),
 
-    AST('AssignmentExpr'   , 'Expr', 'std::unique_ptr<Expr>|target, Token|equal, std::unique_ptr<Expr>|expr'),
-    AST('ShortCircuitExpr' , 'Expr', 'std::unique_ptr<Expr>|lhs, Token|op, std::unique_ptr<Expr>|rhs'),
-    AST('BinaryExpr'       , 'Expr', 'std::unique_ptr<Expr>|lhs, Token|op, std::unique_ptr<Expr>|rhs'),
-    AST('CastExpr'         , 'Expr', 'std::unique_ptr<Type>|type, std::unique_ptr<Expr>|expr'),
-    AST('UnaryExpr'        , 'Expr', 'Token|op, std::unique_ptr<Expr>|expr'),
-    AST('AddrofExpr'       , 'Expr', 'Token|op, std::unique_ptr<Expr>|expr, bool|mut'),
-    AST('DerefExpr'        , 'Expr', 'Token|op, std::unique_ptr<Expr>|expr'),
-    AST('CallExpr'         , 'Expr', 'std::unique_ptr<Expr>|callee, Token|oparn, std::vector<std::unique_ptr<Arg>>|args'),
-    AST('PrimaryExpr'      , 'Expr', 'Token|value'),
-    AST('PathExpr'         , 'Expr', 'std::unique_ptr<Path>|path'),
+    AST('AssignmentExpr'    , 'Expr', 'std::unique_ptr<Expr>|target, Token|equal, std::unique_ptr<Expr>|expr'),
+    AST('ShortCircuitExpr'  , 'Expr', 'std::unique_ptr<Expr>|lhs, Token|op, std::unique_ptr<Expr>|rhs'),
+    AST('BinaryExpr'        , 'Expr', 'std::unique_ptr<Expr>|lhs, Token|op, std::unique_ptr<Expr>|rhs'),
+    AST('CastExpr'          , 'Expr', 'std::unique_ptr<Type>|type, std::unique_ptr<Expr>|expr'),
+    AST('UnaryExpr'         , 'Expr', 'Token|op, std::unique_ptr<Expr>|expr'),
+    AST('AddrofExpr'        , 'Expr', 'Token|op, std::unique_ptr<Expr>|expr, bool|mut'),
+    AST('DerefExpr'         , 'Expr', 'Token|op, std::unique_ptr<Expr>|expr'),
+    AST('CallExpr'          , 'Expr', 'std::unique_ptr<Expr>|callee, Token|oparn, std::vector<std::unique_ptr<Arg>>|args'),
+    AST('PrimaryExpr'       , 'Expr', 'Token|value'),
+    AST('PathExpr'          , 'Expr', 'std::unique_ptr<Path>|path'),
 
-    AST('Path'             , 'PathB', 'std::vector<Token>|segments'),
+    AST('Path'              , 'PathB', 'std::vector<Token>|segments'),
 ]
 # Generating methods {{{1
 # Generating AST stuff {{{2

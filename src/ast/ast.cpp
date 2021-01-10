@@ -4,7 +4,7 @@
 ASTNS::AST::AST(File const &file): file(file) {}
 ASTNS::CUB::CUB(File const &file): AST(file) {}
 ASTNS::Decl::Decl(File const &file): AST(file) {}
-ASTNS::ImplItem::ImplItem(File const &file): AST(file) {}
+ASTNS::ImplMember::ImplMember(File const &file): AST(file) {}
 ASTNS::Stmt::Stmt(File const &file): AST(file) {}
 ASTNS::Expr::Expr(File const &file): AST(file) {}
 ASTNS::Type::Type(File const &file): AST(file) {}
@@ -33,10 +33,10 @@ ASTNS::VarStmtItemList::VarStmtItemList(File const &file, Location start, Locati
 void ASTNS::VarStmtItemList::accept(ASTNS::ListB::Visitor *v) { v->visitVarStmtItemList(this); }
 Location const & ASTNS::VarStmtItemList::start() { return _start; }
 Location const & ASTNS::VarStmtItemList::end() { return _end; }
-ASTNS::ImplItemList::ImplItemList(File const &file, Location start, Location end, std::vector<std::unique_ptr<ImplItem>> items): ListB(file), _start(start), _end(end), items(std::move(items)) {}
-void ASTNS::ImplItemList::accept(ASTNS::ListB::Visitor *v) { v->visitImplItemList(this); }
-Location const & ASTNS::ImplItemList::start() { return _start; }
-Location const & ASTNS::ImplItemList::end() { return _end; }
+ASTNS::ImplMemberList::ImplMemberList(File const &file, Location start, Location end, std::vector<std::unique_ptr<ImplMember>> members): ListB(file), _start(start), _end(end), members(std::move(members)) {}
+void ASTNS::ImplMemberList::accept(ASTNS::ListB::Visitor *v) { v->visitImplMemberList(this); }
+Location const & ASTNS::ImplMemberList::start() { return _start; }
+Location const & ASTNS::ImplMemberList::end() { return _end; }
 ASTNS::PureLocationB::PureLocationB(File const &file): AST(file) {}
 ASTNS::PureLocation::PureLocation(File const &file, Location start, Location end, int dummy): PureLocationB(file), _start(start), _end(end), dummy(std::move(dummy)) {}
 void ASTNS::PureLocation::accept(ASTNS::PureLocationB::Visitor *v) { v->visitPureLocation(this); }
@@ -50,7 +50,7 @@ ASTNS::CU::CU(File const &file, Location start, Location end, std::vector<std::u
 void ASTNS::CU::accept(ASTNS::CUB::Visitor *v) { v->visitCU(this); }
 Location const & ASTNS::CU::start() { return _start; }
 Location const & ASTNS::CU::end() { return _end; }
-ASTNS::ImplDecl::ImplDecl(File const &file, Location start, Location end, std::unique_ptr<Type> implFor, std::vector<std::unique_ptr<ImplItem>> items): Decl(file), _start(start), _end(end), implFor(std::move(implFor)), items(std::move(items)) {}
+ASTNS::ImplDecl::ImplDecl(File const &file, Location start, Location end, std::unique_ptr<Type> implFor, std::vector<std::unique_ptr<ImplMember>> members): Decl(file), _start(start), _end(end), implFor(std::move(implFor)), members(std::move(members)) {}
 void ASTNS::ImplDecl::accept(ASTNS::Decl::Visitor *v) { v->visitImplDecl(this); }
 Location const & ASTNS::ImplDecl::start() { return _start; }
 Location const & ASTNS::ImplDecl::end() { return _end; }
@@ -58,10 +58,10 @@ ASTNS::FunctionDecl::FunctionDecl(File const &file, Location start, Location end
 void ASTNS::FunctionDecl::accept(ASTNS::Decl::Visitor *v) { v->visitFunctionDecl(this); }
 Location const & ASTNS::FunctionDecl::start() { return _start; }
 Location const & ASTNS::FunctionDecl::end() { return _end; }
-ASTNS::FunctionImplItem::FunctionImplItem(File const &file, Location start, Location end, std::unique_ptr<FunctionDecl> fun): ImplItem(file), _start(start), _end(end), fun(std::move(fun)) {}
-void ASTNS::FunctionImplItem::accept(ASTNS::ImplItem::Visitor *v) { v->visitFunctionImplItem(this); }
-Location const & ASTNS::FunctionImplItem::start() { return _start; }
-Location const & ASTNS::FunctionImplItem::end() { return _end; }
+ASTNS::FunctionImplMember::FunctionImplMember(File const &file, Location start, Location end, std::unique_ptr<FunctionDecl> fun): ImplMember(file), _start(start), _end(end), fun(std::move(fun)) {}
+void ASTNS::FunctionImplMember::accept(ASTNS::ImplMember::Visitor *v) { v->visitFunctionImplMember(this); }
+Location const & ASTNS::FunctionImplMember::start() { return _start; }
+Location const & ASTNS::FunctionImplMember::end() { return _end; }
 ASTNS::VarStmt::VarStmt(File const &file, Location start, Location end, std::vector<std::unique_ptr<VarStmtItem>> items): Stmt(file), _start(start), _end(end), items(std::move(items)) {}
 void ASTNS::VarStmt::accept(ASTNS::Stmt::Visitor *v) { v->visitVarStmt(this); }
 Location const & ASTNS::VarStmt::start() { return _start; }

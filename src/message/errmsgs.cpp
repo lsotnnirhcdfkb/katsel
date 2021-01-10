@@ -459,12 +459,12 @@ void E0204(Location const &notty, ASTNS::AST *declAST) {
     e.report();
 }
 
-// E0205 - no-item-in
-// | No item of a certain name within another name
+// E0205 - no-member-in
+// | No member of a certain name within another member
 void E0205(IR::DeclSymbol const *prev, Token const &current) {
-    Error e = Error(MsgType::ERROR, current, "name error", "E0205", "no-item-in");
+    Error e = Error(MsgType::ERROR, current, "name error", "E0205", "no-member-in");
     e.underline(Underline(current, '^')
-        .error(format("no item called % in %", current, prev))
+        .error(format("no member called % in %", current, prev))
     );
     e.report();
 }

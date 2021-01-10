@@ -88,11 +88,11 @@ void ASTNS::PrintVisitor::visitVarStmtItemList(ASTNS::VarStmtItemList *a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visitImplItemList(ASTNS::ImplItemList *a) {
-    pai("ImplItemList {\n");
+void ASTNS::PrintVisitor::visitImplMemberList(ASTNS::ImplMemberList *a) {
+    pai("ImplMemberList {\n");
     ++indent;
-    pai("std::vector<std::unique_ptr<ImplItem>> items = ");
-    printField(*this, a->items);
+    pai("std::vector<std::unique_ptr<ImplMember>> members = ");
+    printField(*this, a->members);
     --indent;
     pai("}\n");
 }
@@ -125,8 +125,8 @@ void ASTNS::PrintVisitor::visitImplDecl(ASTNS::ImplDecl *a) {
     ++indent;
     pai("std::unique_ptr<Type> implFor = ");
     printField(*this, a->implFor);
-    pai("std::vector<std::unique_ptr<ImplItem>> items = ");
-    printField(*this, a->items);
+    pai("std::vector<std::unique_ptr<ImplMember>> members = ");
+    printField(*this, a->members);
     --indent;
     pai("}\n");
 }
@@ -144,8 +144,8 @@ void ASTNS::PrintVisitor::visitFunctionDecl(ASTNS::FunctionDecl *a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visitFunctionImplItem(ASTNS::FunctionImplItem *a) {
-    pai("FunctionImplItem {\n");
+void ASTNS::PrintVisitor::visitFunctionImplMember(ASTNS::FunctionImplMember *a) {
+    pai("FunctionImplMember {\n");
     ++indent;
     pai("std::unique_ptr<FunctionDecl> fun = ");
     printField(*this, a->fun);

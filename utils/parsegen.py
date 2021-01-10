@@ -584,8 +584,8 @@ def make_grammar():
     Decl = nt('Decl', 'declaration', 'Decl', panickable=True)
     FunctionDecl = nt('FunctionDecl', 'function declaration', 'FunctionDecl', panickable=True)
     ImplDecl = nt('ImplDecl', 'implementation', 'Decl', panickable=True)
-    ImplBody = nt('ImplBody', 'implementation body', 'ImplItemList', panickable=True)
-    ImplItem = nt('ImplItem', 'implementation item', 'ImplItem', panickable=True)
+    ImplBody = nt('ImplBody', 'implementation body', 'ImplMemberList', panickable=True)
+    ImplMember = nt('ImplMember', 'implementation member', 'ImplMember', panickable=True)
     Stmt = nt('Stmt', 'statement', 'Stmt', panickable=True)
     VarStmt = nt('VarStmt', 'variable declaration', 'VarStmt', panickable=True)
     ExprStmt = nt('ExprStmt', 'expression statement', 'ExprStmt', panickable=True)
@@ -635,12 +635,12 @@ def make_grammar():
     VarStmtItemList = list_rule(VarStmtItem, VectorPushOneAction('ASTNS::VarStmtItemList', 'std::move(a0)', 'std::unique_ptr<ASTNS::VarStmtItem>', 'items'), VectorPushReduceAction('a0->items', 'std::move(a2)', 'a0'), 'VarStmtItemList', COMMA)
     StmtList = list_rule(Stmt, VectorPushOneAction('ASTNS::StmtList', 'std::move(a0)', 'std::unique_ptr<ASTNS::Stmt>', 'stmts'), VectorPushReduceAction('a0->stmts', 'std::move(a1)', 'a0'), 'StmtList')
     DeclList = list_rule(Decl, VectorPushOneAction('ASTNS::DeclList', 'std::move(a0)', 'std::unique_ptr<ASTNS::Decl>', 'decls'), VectorPushReduceAction('a0->decls', 'std::move(a1)', 'a0'), 'DeclList')
-    ImplItemList = list_rule(ImplItem, VectorPushOneAction('ASTNS::ImplItemList', 'std::move(a0)', 'std::unique_ptr<ASTNS::ImplItem>', 'items'), VectorPushReduceAction('a0->items', 'std::move(a1)', 'a0'), 'ImplItemList')
+    ImplMemberList = list_rule(ImplMember, VectorPushOneAction('ASTNS::ImplMemberList', 'std::move(a0)', 'std::unique_ptr<ASTNS::ImplMember>', 'members'), VectorPushReduceAction('a0->members', 'std::move(a1)', 'a0'), 'ImplMemberList')
 
     ParamListOpt = make_opt(ParamList, SkipReduceAction(), EmptyVectorAction('ParamList', 'std::unique_ptr<ASTNS::ParamB>'))
     ArgListOpt = make_opt(ArgList, SkipReduceAction(), EmptyVectorAction('ArgList', 'std::unique_ptr<ASTNS::Arg>'))
     StmtListOpt = make_opt(StmtList, SkipReduceAction(), EmptyVectorAction('StmtList', 'std::unique_ptr<ASTNS::Stmt>'))
-    ImplItemListOpt = make_opt(ImplItemList, SkipReduceAction(), EmptyVectorAction('ImplItemList', 'std::unique_ptr<ASTNS::ImplItem>'))
+    ImplMemberListOpt = make_opt(ImplMemberList, SkipReduceAction(), EmptyVectorAction('ImplMemberList', 'std::unique_ptr<ASTNS::ImplMember>'))
     ExprOpt = make_opt(Expr, SkipReduceAction(), NullptrReduceAction())
     VarStmtOpt = make_opt(VarStmt, SkipReduceAction(), NullptrReduceAction())
     LineEndingOpt = make_opt(LineEnding, SkipReduceAction(), NullptrReduceAction())
@@ -654,15 +654,15 @@ def make_grammar():
     rule(FunctionDecl, (FUN, IDENTIFIER, OPARN, ParamListOpt, CPARN, TypeAnnotation, Block, LineEndingOpt), SimpleReduceAction('FunctionDecl', 'std::move(a5), a1, std::move(a3->params), std::move(a6)'))
     rule(FunctionDecl, (FUN, IDENTIFIER, OPARN, ParamListOpt, CPARN, TypeAnnotation, LineEnding), SimpleReduceAction('FunctionDecl', 'std::move(a5), a1, std::move(a3->params), nullptr'))
 
-    rule(ImplDecl, (IMPL, Type, ImplBody, LineEndingOpt), SimpleReduceAction('ImplDecl', 'std::move(a1), std::move(a2->items)'))
+    rule(ImplDecl, (IMPL, Type, ImplBody, LineEndingOpt), SimpleReduceAction('ImplDecl', 'std::move(a1), std::move(a2->members)'))
 
-    braced_rule(ImplBody, (ImplItemListOpt,),
+    braced_rule(ImplBody, (ImplMemberListOpt,),
         SkipReduceAction(1),
         SkipReduceAction(2),
         SkipReduceAction(3))
-    indented_rule(ImplBody, (ImplItemListOpt,), SkipReduceAction(2))
+    indented_rule(ImplBody, (ImplMemberListOpt,), SkipReduceAction(2))
 
-    rule(ImplItem, (FunctionDecl,), SimpleReduceAction('FunctionImplItem', 'std::move(a0)'))
+    rule(ImplMember, (FunctionDecl,), SimpleReduceAction('FunctionImplMember', 'std::move(a0)'))
 
     skip_to(Stmt, VarStmt, ExprStmt, RetStmt)
 

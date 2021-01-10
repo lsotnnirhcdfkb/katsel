@@ -28,7 +28,7 @@ static IR::DeclSymbol* tracePathDeclOnly(IR::DeclSymbol *current, std::vector<To
 
         if (!current) {
             if (curToken != tokStart)
-                ERR_NO_ITEM_IN(prev, *curToken);
+                ERR_NO_MEMBER_IN(prev, *curToken);
             else
                 ERR_UNDECL_SYMB(*curToken);
             return nullptr;
@@ -71,7 +71,7 @@ void CodeGen::PathVisitor::visitPath(ASTNS::Path *ast) {
             IR::DeclSymbol *last = tracePathDeclOnly(&cg.unit->mod, ast->segments.cbegin(), ast->segments.cend() - 1);
             IR::Value *ret = last->getValue(ast->segments.back().stringify());
             if (!ret) {
-                ERR_NO_ITEM_IN(last, ast->segments.back());
+                ERR_NO_MEMBER_IN(last, ast->segments.back());
                 vret = IR::ASTValue();
             } else {
                 vret = IR::ASTValue(ret, ast);

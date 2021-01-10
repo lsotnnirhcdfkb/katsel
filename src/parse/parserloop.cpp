@@ -139,13 +139,13 @@ size_t getGoto(NonTerminal nterm, size_t state) {
                     return 2;
                 default: reportAbortNoh("get invalid goto");
             }
-        case NonTerminal::AnotherImplItem:
+        case NonTerminal::AnotherImplMember:
             switch (state) {
                 case 42: 
                     return 59;
                 default: reportAbortNoh("get invalid goto");
             }
-        case NonTerminal::ImplItem:
+        case NonTerminal::ImplMember:
             switch (state) {
                 case 21: case 41: case 45: case 58: 
                     return 43;
@@ -153,7 +153,7 @@ size_t getGoto(NonTerminal nterm, size_t state) {
                     return 60;
                 default: reportAbortNoh("get invalid goto");
             }
-        case NonTerminal::ImplItemList:
+        case NonTerminal::ImplMemberList:
             switch (state) {
                 case 21: case 41: case 45: case 58: 
                     return 42;
@@ -183,7 +183,7 @@ size_t getGoto(NonTerminal nterm, size_t state) {
                     return 183;
                 default: reportAbortNoh("get invalid goto");
             }
-        case NonTerminal::ImplItemList_OPT:
+        case NonTerminal::ImplMemberList_OPT:
             switch (state) {
                 case 21: 
                     return 40;
@@ -955,9 +955,9 @@ std::unique_ptr<ASTNS::ParamList> push (std::make_unique<ASTNS::ParamList>(p.sou
                     case TokenType::CCURB:
                     case TokenType::DEDENT:
 {
-std::unique_ptr<ASTNS::ImplItemList> push (std::make_unique<ASTNS::ImplItemList>(p.sourcefile, Location(), Location(), std::vector<std::unique_ptr<ASTNS::ImplItem>> {}));
-                            std::unique_ptr<ASTNS::ImplItemList> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::ImplItemList_OPT, stack.back().state), std::move(pushitem), NonTerminal::ImplItemList_OPT);
+std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberList>(p.sourcefile, Location(), Location(), std::vector<std::unique_ptr<ASTNS::ImplMember>> {}));
+                            std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(push);
+                            stack.emplace_back(getGoto(NonTerminal::ImplMemberList_OPT, stack.back().state), std::move(pushitem), NonTerminal::ImplMemberList_OPT);
                         }
                         break;
                     case TokenType::FUN:
@@ -966,7 +966,7 @@ std::unique_ptr<ASTNS::ImplItemList> push (std::make_unique<ASTNS::ImplItemList>
                         shift(p, lasttok, lookahead, stack, steps, 41); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", format("either % or %", "optional implementation item list", stringifyTokenType(TokenType::NEWLINE)), "implementation body")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", format("either % or %", "optional implementation member list", stringifyTokenType(TokenType::NEWLINE)), "implementation body")  });
                 }
                 break;
             case 22:
@@ -1142,7 +1142,7 @@ std::unique_ptr<ASTNS::ThisParam> push (std::make_unique<ASTNS::ThisParam>(p.sou
                 switch (lookahead.type) {
                     default: {
                             auto a3 (popA<ASTNS::PureLocation>(stack));
-                            auto a2 (popA<ASTNS::ImplItemList>(stack));
+                            auto a2 (popA<ASTNS::ImplMemberList>(stack));
                             auto a1 (popA<ASTNS::Type>(stack));
                             auto a0 (popT(stack));
                             Location start, end;
@@ -1151,7 +1151,7 @@ std::unique_ptr<ASTNS::ThisParam> push (std::make_unique<ASTNS::ThisParam>(p.sou
                             else if (a2) end = a2->end();
                             else if (a1) end = a1->end();
                             else end = a0;
-std::unique_ptr<ASTNS::ImplDecl> push (std::make_unique<ASTNS::ImplDecl>(p.sourcefile, start, end, std::move(a1), std::move(a2->items)));
+std::unique_ptr<ASTNS::ImplDecl> push (std::make_unique<ASTNS::ImplDecl>(p.sourcefile, start, end, std::move(a1), std::move(a2->members)));
                             std::unique_ptr<ASTNS::Decl> pushitem = std::move(push);
                             stack.emplace_back(getGoto(NonTerminal::ImplDecl, stack.back().state), std::move(pushitem), NonTerminal::ImplDecl);
                         }
@@ -1215,9 +1215,9 @@ std::unique_ptr<ASTNS::PureLocation> push (std::make_unique<ASTNS::PureLocation>
                     case TokenType::CCURB:
                     case TokenType::DEDENT:
 {
-std::unique_ptr<ASTNS::ImplItemList> push (std::make_unique<ASTNS::ImplItemList>(p.sourcefile, Location(), Location(), std::vector<std::unique_ptr<ASTNS::ImplItem>> {}));
-                            std::unique_ptr<ASTNS::ImplItemList> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::ImplItemList_OPT, stack.back().state), std::move(pushitem), NonTerminal::ImplItemList_OPT);
+std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberList>(p.sourcefile, Location(), Location(), std::vector<std::unique_ptr<ASTNS::ImplMember>> {}));
+                            std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(push);
+                            stack.emplace_back(getGoto(NonTerminal::ImplMemberList_OPT, stack.back().state), std::move(pushitem), NonTerminal::ImplMemberList_OPT);
                         }
                         break;
                     case TokenType::FUN:
@@ -1226,18 +1226,18 @@ std::unique_ptr<ASTNS::ImplItemList> push (std::make_unique<ASTNS::ImplItemList>
                         shift(p, lasttok, lookahead, stack, steps, 58); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", format("either % or %", "optional implementation item list", stringifyTokenType(TokenType::INDENT)), "implementation body")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", format("either % or %", "optional implementation member list", stringifyTokenType(TokenType::INDENT)), "implementation body")  });
                 }
                 break;
             case 42:
                 switch (lookahead.type) {
                     default: {
-                            auto a0 (popA<ASTNS::ImplItemList>(stack));
+                            auto a0 (popA<ASTNS::ImplMemberList>(stack));
                             Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
-                            std::unique_ptr<ASTNS::ImplItemList> pushitem = std::move(a0);
-                            stack.emplace_back(getGoto(NonTerminal::ImplItemList_OPT, stack.back().state), std::move(pushitem), NonTerminal::ImplItemList_OPT);
+                            std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(a0);
+                            stack.emplace_back(getGoto(NonTerminal::ImplMemberList_OPT, stack.back().state), std::move(pushitem), NonTerminal::ImplMemberList_OPT);
                         }
                         break;
                     case TokenType::FUN:
@@ -1247,15 +1247,15 @@ std::unique_ptr<ASTNS::ImplItemList> push (std::make_unique<ASTNS::ImplItemList>
             case 43:
                 switch (lookahead.type) {
                     default: {
-                            auto a0 (popA<ASTNS::ImplItem>(stack));
+                            auto a0 (popA<ASTNS::ImplMember>(stack));
                             Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
-std::unique_ptr<ASTNS::ImplItemList> push(std::make_unique<ASTNS::ImplItemList>(p.sourcefile, start, end, std::vector<std::unique_ptr<ASTNS::ImplItem>> {}));
+std::unique_ptr<ASTNS::ImplMemberList> push(std::make_unique<ASTNS::ImplMemberList>(p.sourcefile, start, end, std::vector<std::unique_ptr<ASTNS::ImplMember>> {}));
 
-        push->items.push_back(std::move(a0));
-                            std::unique_ptr<ASTNS::ImplItemList> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::ImplItemList, stack.back().state), std::move(pushitem), NonTerminal::ImplItemList);
+        push->members.push_back(std::move(a0));
+                            std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(push);
+                            stack.emplace_back(getGoto(NonTerminal::ImplMemberList, stack.back().state), std::move(pushitem), NonTerminal::ImplMemberList);
                         }
                         break;
                 }
@@ -1267,9 +1267,9 @@ std::unique_ptr<ASTNS::ImplItemList> push(std::make_unique<ASTNS::ImplItemList>(
                             Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
-std::unique_ptr<ASTNS::FunctionImplItem> push (std::make_unique<ASTNS::FunctionImplItem>(p.sourcefile, start, end, std::move(a0)));
-                            std::unique_ptr<ASTNS::ImplItem> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::ImplItem, stack.back().state), std::move(pushitem), NonTerminal::ImplItem);
+std::unique_ptr<ASTNS::FunctionImplMember> push (std::make_unique<ASTNS::FunctionImplMember>(p.sourcefile, start, end, std::move(a0)));
+                            std::unique_ptr<ASTNS::ImplMember> pushitem = std::move(push);
+                            stack.emplace_back(getGoto(NonTerminal::ImplMember, stack.back().state), std::move(pushitem), NonTerminal::ImplMember);
                         }
                         break;
                 }
@@ -1279,16 +1279,16 @@ std::unique_ptr<ASTNS::FunctionImplItem> push (std::make_unique<ASTNS::FunctionI
                     case TokenType::CCURB:
                     case TokenType::DEDENT:
 {
-std::unique_ptr<ASTNS::ImplItemList> push (std::make_unique<ASTNS::ImplItemList>(p.sourcefile, Location(), Location(), std::vector<std::unique_ptr<ASTNS::ImplItem>> {}));
-                            std::unique_ptr<ASTNS::ImplItemList> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::ImplItemList_OPT, stack.back().state), std::move(pushitem), NonTerminal::ImplItemList_OPT);
+std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberList>(p.sourcefile, Location(), Location(), std::vector<std::unique_ptr<ASTNS::ImplMember>> {}));
+                            std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(push);
+                            stack.emplace_back(getGoto(NonTerminal::ImplMemberList_OPT, stack.back().state), std::move(pushitem), NonTerminal::ImplMemberList_OPT);
                         }
                         break;
                     case TokenType::FUN:
                         shift(p, lasttok, lookahead, stack, steps, 6); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional implementation item list", "implementation body")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional implementation member list", "implementation body")  });
                 }
                 break;
             case 46:
@@ -1438,12 +1438,12 @@ WARN_EXTRA_SEMI(a0);std::unique_ptr<ASTNS::PureLocation> push (std::make_unique<
                 switch (lookahead.type) {
                     default: {
                             auto a2 (popT(stack));
-                            auto a1 (popA<ASTNS::ImplItemList>(stack));
+                            auto a1 (popA<ASTNS::ImplMemberList>(stack));
                             auto a0 (popT(stack));
                             Location start, end;
                             start = a0;
                             end = a2;
-                            std::unique_ptr<ASTNS::ImplItemList> pushitem = std::move(a1);
+                            std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(a1);
                             stack.emplace_back(getGoto(NonTerminal::ImplBody, stack.back().state), std::move(pushitem), NonTerminal::ImplBody);
                         }
                         break;
@@ -1463,31 +1463,31 @@ WARN_EXTRA_SEMI(a0);std::unique_ptr<ASTNS::PureLocation> push (std::make_unique<
                     case TokenType::CCURB:
                     case TokenType::DEDENT:
 {
-std::unique_ptr<ASTNS::ImplItemList> push (std::make_unique<ASTNS::ImplItemList>(p.sourcefile, Location(), Location(), std::vector<std::unique_ptr<ASTNS::ImplItem>> {}));
-                            std::unique_ptr<ASTNS::ImplItemList> pushitem = std::move(push);
-                            stack.emplace_back(getGoto(NonTerminal::ImplItemList_OPT, stack.back().state), std::move(pushitem), NonTerminal::ImplItemList_OPT);
+std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberList>(p.sourcefile, Location(), Location(), std::vector<std::unique_ptr<ASTNS::ImplMember>> {}));
+                            std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(push);
+                            stack.emplace_back(getGoto(NonTerminal::ImplMemberList_OPT, stack.back().state), std::move(pushitem), NonTerminal::ImplMemberList_OPT);
                         }
                         break;
                     case TokenType::FUN:
                         shift(p, lasttok, lookahead, stack, steps, 6); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional implementation item list", "implementation body")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional implementation member list", "implementation body")  });
                 }
                 break;
             case 59:
                 switch (lookahead.type) {
                     default: {
-                            auto a1 (popA<ASTNS::ImplItem>(stack));
-                            auto a0 (popA<ASTNS::ImplItemList>(stack));
+                            auto a1 (popA<ASTNS::ImplMember>(stack));
+                            auto a0 (popA<ASTNS::ImplMemberList>(stack));
                             Location start, end;
                             if (a0) start = a0->start();
                             else if (a1) start = a1->start();
                             if (a1) end = a1->end();
                             else if (a0) end = a0->end();
-a0->items.push_back(std::move(a1));
-                            std::unique_ptr<ASTNS::ImplItemList> pushitem = std::move(a0);
-                            stack.emplace_back(getGoto(NonTerminal::ImplItemList, stack.back().state), std::move(pushitem), NonTerminal::ImplItemList);
+a0->members.push_back(std::move(a1));
+                            std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(a0);
+                            stack.emplace_back(getGoto(NonTerminal::ImplMemberList, stack.back().state), std::move(pushitem), NonTerminal::ImplMemberList);
                         }
                         break;
                 }
@@ -1495,12 +1495,12 @@ a0->items.push_back(std::move(a1));
             case 60:
                 switch (lookahead.type) {
                     default: {
-                            auto a0 (popA<ASTNS::ImplItem>(stack));
+                            auto a0 (popA<ASTNS::ImplMember>(stack));
                             Location start, end;
                             if (a0) start = a0->start();
                             if (a0) end = a0->end();
-                            std::unique_ptr<ASTNS::ImplItem> pushitem = std::move(a0);
-                            stack.emplace_back(getGoto(NonTerminal::AnotherImplItem, stack.back().state), std::move(pushitem), NonTerminal::AnotherImplItem);
+                            std::unique_ptr<ASTNS::ImplMember> pushitem = std::move(a0);
+                            stack.emplace_back(getGoto(NonTerminal::AnotherImplMember, stack.back().state), std::move(pushitem), NonTerminal::AnotherImplMember);
                         }
                         break;
                 }
@@ -1610,13 +1610,13 @@ std::unique_ptr<ASTNS::ThisParam> push (std::make_unique<ASTNS::ThisParam>(p.sou
                 switch (lookahead.type) {
                     default: {
                             auto a3 (popT(stack));
-                            auto a2 (popA<ASTNS::ImplItemList>(stack));
+                            auto a2 (popA<ASTNS::ImplMemberList>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popT(stack));
                             Location start, end;
                             start = a0;
                             end = a3;
-                            std::unique_ptr<ASTNS::ImplItemList> pushitem = std::move(a2);
+                            std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(a2);
                             stack.emplace_back(getGoto(NonTerminal::ImplBody, stack.back().state), std::move(pushitem), NonTerminal::ImplBody);
                         }
                         break;
@@ -1635,13 +1635,13 @@ std::unique_ptr<ASTNS::ThisParam> push (std::make_unique<ASTNS::ThisParam>(p.sou
                 switch (lookahead.type) {
                     default: {
                             auto a3 (popT(stack));
-                            auto a2 (popA<ASTNS::ImplItemList>(stack));
+                            auto a2 (popA<ASTNS::ImplMemberList>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popT(stack));
                             Location start, end;
                             start = a0;
                             end = a3;
-                            std::unique_ptr<ASTNS::ImplItemList> pushitem = std::move(a2);
+                            std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(a2);
                             stack.emplace_back(getGoto(NonTerminal::ImplBody, stack.back().state), std::move(pushitem), NonTerminal::ImplBody);
                         }
                         break;
@@ -3015,14 +3015,14 @@ std::unique_ptr<ASTNS::PathExpr> push (std::make_unique<ASTNS::PathExpr>(p.sourc
                     default: {
                             auto a5 (popT(stack));
                             auto a4 (popT(stack));
-                            auto a3 (popA<ASTNS::ImplItemList>(stack));
+                            auto a3 (popA<ASTNS::ImplMemberList>(stack));
                             auto a2 (popT(stack));
                             auto a1 (popT(stack));
                             auto a0 (popT(stack));
                             Location start, end;
                             start = a0;
                             end = a5;
-                            std::unique_ptr<ASTNS::ImplItemList> pushitem = std::move(a3);
+                            std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(a3);
                             stack.emplace_back(getGoto(NonTerminal::ImplBody, stack.back().state), std::move(pushitem), NonTerminal::ImplBody);
                         }
                         break;
