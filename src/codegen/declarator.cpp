@@ -23,9 +23,8 @@ void CodeGen::Declarator::visitFunctionDecl(ASTNS::FunctionDecl *fun) {
     if (!retty)
         return;
 
-    std::vector<CodeGen::ParamVisitor::Param> params;
     CodeGen::ParamVisitor p (cg, fun->params, thisType);
-    params = p.ret;
+    std::vector<CodeGen::ParamVisitor::Param> params (std::move(p.ret));
 
     std::vector<IR::Type*> ptys;
     for (auto const &p : params)
@@ -37,6 +36,10 @@ void CodeGen::Declarator::visitFunctionDecl(ASTNS::FunctionDecl *fun) {
     IR::Function *fraw = f.get();
     cg.unit->functions.push_back(std::move(f));
     currentSymbol->addValue(fname, fraw);
+
+    if (p.isMethod) {
+        thisType->addMethod(fname, IR::Type::Method { fraw, p.thisPtr, p.thisMut });
+    }
 }
 
 void CodeGen::Declarator::visitImplDecl(ASTNS::ImplDecl *impl) {

@@ -36,6 +36,12 @@ IR::ASTValue IR::VoidType::implCast(CodeGen::Context &cgc, IR::Function &fun, IR
     return v;
 }
 
+DERIVE_TYPE_METHOD_TABLE_IMPL(IR::VoidType)
+DERIVE_TYPE_METHOD_TABLE_IMPL(IR::FunctionType)
+
+DERIVE_TYPE_NO_FIELDS(IR::VoidType)
+DERIVE_TYPE_NO_FIELDS(IR::FunctionType)
+
 IR::FunctionType::FunctionType(CodeGen::Context &context, ASTNS::AST *declAST, Type *ret, std::vector<Type*> paramtys): Type(context), ret(ret), paramtys(paramtys), _declAST(declAST) {}
 ASTNS::AST* IR::FunctionType::declAST() const {
     return _declAST;

@@ -470,11 +470,31 @@ void E0205(IR::DeclSymbol const *prev, Token const &current) {
 }
 
 // E0206 - no-this
-// | usage of 'this' outside method
+// | Usage of 'this' outside method
 void E0206(Token const &th) {
     Error e = Error(MsgType::ERROR, th, "name error", "E0206", "no-this");
     e.underline(Underline(th, '^')
         .error(format("usage of % outside method", th))
+    );
+    e.report();
+}
+
+// E0207 - no-method
+// | Accessing a method that doesn't exist
+void E0207(IR::ASTValue const &op, Token const &name) {
+    Error e = Error(MsgType::ERROR, name, "name error", "E0207", "no-method");
+    e.underline(Underline(name, '^')
+        .error(format("no method called % on value of type %", name, op.type()))
+    );
+    e.report();
+}
+
+// E0208 - no-field
+// | Accessing a field that doesn't exist
+void E0208(IR::ASTValue const &op, Token const &name) {
+    Error e = Error(MsgType::ERROR, name, "name error", "E0208", "no-field");
+    e.underline(Underline(name, '^')
+        .error(format("no field called % on value of type %", name, op.type()))
     );
     e.report();
 }

@@ -340,10 +340,22 @@ errors = {
                 SimpleHighlight('current', UNDER0, [('error', '"no member called % in %"', 'current', 'prev')]),
             ]),
         Msg('no-this',
-            desc='usage of \'this\' outside method',
+            desc='Usage of \'this\' outside method',
             inputs='Token const &th', location='th',
             highlights=[
                 SimpleHighlight('th', UNDER0, [('error', '"usage of % outside method"', 'th')]),
+            ]),
+        Msg('no-method',
+            desc='Accessing a method that doesn\'t exist',
+            inputs='IR::ASTValue const &op, Token const &name', location='name',
+            highlights=[
+                SimpleHighlight('name', UNDER0, [('error', '"no method called % on value of type %"', 'name', 'op.type()')]),
+            ]),
+        Msg('no-field',
+            desc='Accessing a field that doesn\'t exist',
+            inputs='IR::ASTValue const &op, Token const &name', location='name',
+            highlights=[
+                SimpleHighlight('name', UNDER0, [('error', '"no field called % on value of type %"', 'name', 'op.type()')]),
             ]),
     ],
     # }}}

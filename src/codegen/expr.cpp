@@ -162,26 +162,25 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitAddrofExpr(ASTNS::AddrofExpr *a
 }
 
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast) {
-    IR::ASTValue func = expr(ast->callee.get());
-    if (!func) {
+    IR::ASTValue fun = expr(ast->callee.get());
+    if (!fun) {
         ret = IR::ASTValue();
         return;
     }
 
-    IR::FunctionType *fty = dynamic_cast<IR::FunctionType*>(func.type());
+    IR::FunctionType *fty = dynamic_cast<IR::FunctionType*>(fun.type());
     if (!fty) {
-        ERR_CALL_NONCALLABLE(func, ast->oparn);
+        ERR_CALL_NONCALLABLE(fun, ast->oparn);
         ret = IR::ASTValue();
         fcg.errored = true;
         return;
     }
 
-    std::vector<IR::ASTValue> args;
     CodeGen::ArgVisitor av (fcg, ast->args);
-    args = av.ret;
+    std::vector<IR::ASTValue> args (av.ret);
 
     if (args.size() != fty->paramtys.size()) {
-        ERR_WRONG_NUM_ARGS(func, ast->oparn, args);
+        ERR_WRONG_NUM_ARGS(fun, ast->oparn, args);
         ret = IR::ASTValue();
         fcg.errored = true;
         return;
@@ -210,7 +209,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitCallExpr(ASTNS::CallExpr *ast) 
         return;
     }
 
-    ret = IR::ASTValue(fcg.curBlock->add(std::make_unique<IR::Instrs::Call>(static_cast<IR::Function *>(func.val), args)), ast);
+    ret = IR::ASTValue(fcg.curBlock->add(std::make_unique<IR::Instrs::Call>(static_cast<IR::Function *>(fun.val), args)), ast);
 }
 
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitPrimaryExpr(ASTNS::PrimaryExpr *ast) {
@@ -473,4 +472,71 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitPathExpr(ASTNS::PathExpr *ast) 
     ret = cg.pathVisitor->resolveValue(ast->path.get(), fcg);
     if (!ret)
         fcg.errored = true;
+}
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitFieldAccessExpr(ASTNS::FieldAccessExpr *ast) {
+}
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitMethodCallExpr(ASTNS::MethodCallExpr *ast) {
+    IR::ASTValue op = expr(ast->operand.get());
+
+    IR::Type::Method method = op.type()->getMethod(ast->method.stringify());
+    if (!method.fun) {
+        ERR_NO_METHOD(op, ast->method);
+        fcg.errored = true;
+        return;
+    }
+
+    IR::ASTValue thisArg;
+    {
+        if (method.thisPtr) {
+            IR::Instrs::DerefPtr *opAsDeref = dynamic_cast<IR::Instrs::DerefPtr*>(op.val);
+            if (!opAsDeref) {
+                ERR_ADDROF_NOT_LVALUE(ast->dot, op);
+                fcg.errored = true;
+                return;
+            }
+
+            thisArg = IR::ASTValue(fcg.curBlock->add(std::make_unique<IR::Instrs::Addrof>(opAsDeref, method.thisMut)), op.ast);
+        } else {
+            thisArg = op;
+        }
+    }
+
+    std::vector<IR::ASTValue> args { thisArg };
+
+    CodeGen::ArgVisitor av (fcg, ast->args);
+    args.insert(args.end(), av.ret.begin(), av.ret.end());
+
+    std::vector<IR::Type*> &paramtys (method.fun->ty->paramtys);
+    if (args.size() != paramtys.size()) {
+        ERR_WRONG_NUM_ARGS(op, ast->oparn, args);
+        ret = IR::ASTValue();
+        fcg.errored = true;
+        return;
+    }
+
+    // TODO: move this code somewhere else so that it does not have to be copied and pasted from visitCallExpr
+    bool argserr = false;
+    auto i = args.begin();
+    auto j = paramtys.begin();
+    for (; i != args.end() && j != paramtys.end(); ++i, ++j) {
+        if (!*i) {
+            argserr = true;
+            continue;
+        }
+
+        *i = (*j)->implCast(*cg.context, *fcg.fun, fcg.curBlock, *i);
+        if (i->type() != *j) {
+            ERR_INCORRECT_ARG(*i, *j);
+            ret = IR::ASTValue();
+            fcg.errored = true;
+            argserr = true;
+        }
+    }
+
+    if (argserr) {
+        ret = IR::ASTValue();
+        return;
+    }
+
+    ret = IR::ASTValue(fcg.curBlock->add(std::make_unique<IR::Instrs::Call>(method.fun, args)), ast);
 }

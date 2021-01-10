@@ -22,6 +22,8 @@ std::string IR::PointerType::name() const {
 }
 
 DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::PointerType)
+DERIVE_TYPE_METHOD_TABLE_IMPL(IR::PointerType)
+DERIVE_TYPE_NO_FIELDS(IR::PointerType)
 
 IR::ASTValue IR::PointerType::binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::Type::BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) {
     ASSERT(l.type() == this);

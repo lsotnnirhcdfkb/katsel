@@ -1,7 +1,12 @@
 #include "codegenlocal.h"
 #include "message/errmsgs.h"
 
-CodeGen::ParamVisitor::ParamVisitor::ParamVisitor(CodeGen &cg, std::vector<std::unique_ptr<ASTNS::ParamB>> &params, IR::Type *thisType): errored(false), cg(cg), thisType(thisType), index(0) {
+CodeGen::ParamVisitor::ParamVisitor::ParamVisitor(CodeGen &cg, std::vector<std::unique_ptr<ASTNS::ParamB>> &params, IR::Type *thisType):
+    errored(false),
+    isMethod(false), thisPtr(false), thisMut(false),
+    cg(cg),
+    thisType(thisType),
+    index(0) {
     for (std::unique_ptr<ASTNS::ParamB> &p : params) {
         p->accept(this);
         ++index;
@@ -34,11 +39,16 @@ void CodeGen::ParamVisitor::visitThisParam(ASTNS::ThisParam *ast) {
         return;
     }
 
+    isMethod = true;
+    thisPtr = ast->ptr;
+    thisMut = ast->mut;
+
     IR::Type *ty;
-    if (!ast->ptr)
+    if (!ast->ptr) {
         ty = thisType;
-    else
+    } else {
         ty = cg.context->getPointerType(ast->mut, thisType);
+    }
 
     Param p {ty, "this", ast, false};
     ret.push_back(p);

@@ -28,7 +28,34 @@ namespace IR {
         IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) override; \
         IR::ASTValue castFrom(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) override; \
         llvm::Type* toLLVMType(llvm::LLVMContext &con) const override; \
-        void type_accept(IR::TypeVisitor *v) override;
+        void type_accept(IR::TypeVisitor *v) override; \
+        virtual Method getMethod(std::string const &name) const override; \
+        virtual void addMethod(std::string const &name, Method const &m) override; \
+        virtual bool hasField(std::string const &name) const override; \
+        virtual int getFieldIndex(std::string const &name) const override;
+
+#define DERIVE_TYPE_METHOD_TABLE_IMPL(cl) \
+    IR::Type::Method cl::getMethod(std::string const &name) const {                            \
+        auto m = methods.find(name);                                                           \
+        if (m == methods.end())                                                                \
+            return IR::Type::Method {nullptr, false, false};                                   \
+        return m->second;                                                                      \
+    }                                                                                          \
+    void cl::addMethod(std::string const &name, IR::Type::Method const &m) {                   \
+        if (methods.find(name) != methods.end())                                               \
+            reportAbortNoh(format("add duplicate method in type " #cl " under name %", name)); \
+                                                                                               \
+        methods[name] = m;                                                                     \
+    }
+
+#define DERIVE_TYPE_NO_FIELDS(cl) \
+    bool cl::hasField(std::string const &name) const {                                    \
+        return false;                                                                     \
+    }                                                                                     \
+    int cl::getFieldIndex(std::string const &name) const {                                \
+        reportAbortNoh(#cl "::hasField() is constant false, but getFieldIndex() called"); \
+    }
+
 
 // i learned about this from http://journal.stuffwithstuff.com/2012/01/24/higher-order-macros-in-c/
 #define IR_TYPES(mac) \
@@ -90,6 +117,16 @@ namespace IR {
 
         void declsym_accept(DeclSymbolVisitor *v) override;
 
+        struct Method {
+            IR::Function *fun;
+            bool thisPtr, thisMut;
+        };
+        virtual Method getMethod(std::string const &name) const = 0;
+        virtual void addMethod(std::string const &name, Method const &m) = 0;
+
+        virtual bool hasField(std::string const &name) const = 0;
+        virtual int getFieldIndex(std::string const &name) const = 0;
+
         CodeGen::Context &context;
     };
     // }}}
@@ -109,6 +146,8 @@ namespace IR {
 
     private:
         ASTNS::AST *_declAST;
+
+        std::map<std::string, IR::Type::Method> methods;
     };
     // Int {{{1
     class IntType : public Type {
@@ -127,6 +166,8 @@ namespace IR {
 
     private:
         ASTNS::AST *_declAST;
+
+        std::map<std::string, IR::Type::Method> methods;
     };
     // Char {{{1
     class CharType : public Type {
@@ -143,6 +184,8 @@ namespace IR {
 
     private:
         ASTNS::AST *_declAST;
+
+        std::map<std::string, IR::Type::Method> methods;
     };
     // Bool {{{1
     class BoolType : public Type {
@@ -159,6 +202,8 @@ namespace IR {
 
     private:
         ASTNS::AST *_declAST;
+
+        std::map<std::string, IR::Type::Method> methods;
     };
     // Function {{{1
     class FunctionType : public Type {
@@ -177,6 +222,8 @@ namespace IR {
 
     private:
         ASTNS::AST *_declAST;
+
+        std::map<std::string, IR::Type::Method> methods;
     };
     // Void {{{1
     class VoidType : public Type {
@@ -193,6 +240,8 @@ namespace IR {
 
     private:
         ASTNS::AST *_declAST;
+
+        std::map<std::string, IR::Type::Method> methods;
     };
     // Pointer {{{1
     class PointerType : public Type {
@@ -212,6 +261,8 @@ namespace IR {
 
     private:
         ASTNS::AST *_declAST;
+
+        std::map<std::string, IR::Type::Method> methods;
     };
     // Generic literal types {{{1
     // Int {{{2
@@ -229,6 +280,8 @@ namespace IR {
 
     private:
         ASTNS::AST *_declAST;
+
+        std::map<std::string, IR::Type::Method> methods;
     };
     // Float {{{2
     class GenericFloatType : public Type {
@@ -245,6 +298,8 @@ namespace IR {
 
     private:
         ASTNS::AST *_declAST;
+
+        std::map<std::string, IR::Type::Method> methods;
     };
     // }}}1
 

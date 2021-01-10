@@ -168,6 +168,14 @@ void E0205(IR::DeclSymbol const *prev, Token const &current);
 #define ERR_NO_THIS E0206
 void E0206(Token const &th);
 
+// E0207 - no-method
+#define ERR_NO_METHOD E0207
+void E0207(IR::ASTValue const &op, Token const &name);
+
+// E0208 - no-field
+#define ERR_NO_FIELD E0208
+void E0208(IR::ASTValue const &op, Token const &name);
+
 // === value error ===
 
 // E0300 - addrof-not-lvalue
