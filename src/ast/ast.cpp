@@ -21,7 +21,7 @@ ASTNS::StmtList::StmtList(File const &file, Location start, Location end, std::v
 void ASTNS::StmtList::accept(ASTNS::ListB::Visitor *v) { v->visitStmtList(this); }
 Location const & ASTNS::StmtList::start() { return _start; }
 Location const & ASTNS::StmtList::end() { return _end; }
-ASTNS::ParamList::ParamList(File const &file, Location start, Location end, std::vector<std::unique_ptr<Param>> params): ListB(file), _start(start), _end(end), params(std::move(params)) {}
+ASTNS::ParamList::ParamList(File const &file, Location start, Location end, std::vector<std::unique_ptr<ParamB>> params): ListB(file), _start(start), _end(end), params(std::move(params)) {}
 void ASTNS::ParamList::accept(ASTNS::ListB::Visitor *v) { v->visitParamList(this); }
 Location const & ASTNS::ParamList::start() { return _start; }
 Location const & ASTNS::ParamList::end() { return _end; }
@@ -54,7 +54,7 @@ ASTNS::ImplDecl::ImplDecl(File const &file, Location start, Location end, std::u
 void ASTNS::ImplDecl::accept(ASTNS::Decl::Visitor *v) { v->visitImplDecl(this); }
 Location const & ASTNS::ImplDecl::start() { return _start; }
 Location const & ASTNS::ImplDecl::end() { return _end; }
-ASTNS::FunctionDecl::FunctionDecl(File const &file, Location start, Location end, std::unique_ptr<Type> retty, Token name, std::vector<std::unique_ptr<Param>> params, std::unique_ptr<Block> body): Decl(file), _start(start), _end(end), retty(std::move(retty)), name(std::move(name)), params(std::move(params)), body(std::move(body)) {}
+ASTNS::FunctionDecl::FunctionDecl(File const &file, Location start, Location end, std::unique_ptr<Type> retty, Token name, std::vector<std::unique_ptr<ParamB>> params, std::unique_ptr<Block> body): Decl(file), _start(start), _end(end), retty(std::move(retty)), name(std::move(name)), params(std::move(params)), body(std::move(body)) {}
 void ASTNS::FunctionDecl::accept(ASTNS::Decl::Visitor *v) { v->visitFunctionDecl(this); }
 Location const & ASTNS::FunctionDecl::start() { return _start; }
 Location const & ASTNS::FunctionDecl::end() { return _end; }
@@ -94,6 +94,10 @@ ASTNS::Param::Param(File const &file, Location start, Location end, std::unique_
 void ASTNS::Param::accept(ASTNS::ParamB::Visitor *v) { v->visitParam(this); }
 Location const & ASTNS::Param::start() { return _start; }
 Location const & ASTNS::Param::end() { return _end; }
+ASTNS::ThisParam::ThisParam(File const &file, Location start, Location end, bool ptr, bool mut): ParamB(file), _start(start), _end(end), ptr(std::move(ptr)), mut(std::move(mut)) {}
+void ASTNS::ThisParam::accept(ASTNS::ParamB::Visitor *v) { v->visitThisParam(this); }
+Location const & ASTNS::ThisParam::start() { return _start; }
+Location const & ASTNS::ThisParam::end() { return _end; }
 ASTNS::Block::Block(File const &file, Location start, Location end, std::vector<std::unique_ptr<Stmt>> stmts): Expr(file), _start(start), _end(end), stmts(std::move(stmts)) {}
 void ASTNS::Block::accept(ASTNS::Expr::Visitor *v) { v->visitBlock(this); }
 Location const & ASTNS::Block::start() { return _start; }

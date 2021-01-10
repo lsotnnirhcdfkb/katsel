@@ -67,7 +67,7 @@ void ASTNS::PrintVisitor::visitStmtList(ASTNS::StmtList *a) {
 void ASTNS::PrintVisitor::visitParamList(ASTNS::ParamList *a) {
     pai("ParamList {\n");
     ++indent;
-    pai("std::vector<std::unique_ptr<Param>> params = ");
+    pai("std::vector<std::unique_ptr<ParamB>> params = ");
     printField(*this, a->params);
     --indent;
     pai("}\n");
@@ -137,7 +137,7 @@ void ASTNS::PrintVisitor::visitFunctionDecl(ASTNS::FunctionDecl *a) {
     printField(*this, a->retty);
     pai("Token name = ");
     printField(*this, a->name);
-    pai("std::vector<std::unique_ptr<Param>> params = ");
+    pai("std::vector<std::unique_ptr<ParamB>> params = ");
     printField(*this, a->params);
     pai("std::unique_ptr<Block> body = ");
     printField(*this, a->body);
@@ -229,6 +229,16 @@ void ASTNS::PrintVisitor::visitParam(ASTNS::Param *a) {
     printField(*this, a->type);
     pai("Token name = ");
     printField(*this, a->name);
+    pai("bool mut = ");
+    printField(*this, a->mut);
+    --indent;
+    pai("}\n");
+}
+void ASTNS::PrintVisitor::visitThisParam(ASTNS::ThisParam *a) {
+    pai("ThisParam {\n");
+    ++indent;
+    pai("bool ptr = ");
+    printField(*this, a->ptr);
     pai("bool mut = ");
     printField(*this, a->mut);
     --indent;

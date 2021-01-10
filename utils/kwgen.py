@@ -143,6 +143,8 @@ keywords = [
     ('mut', 'MUT'),
     ('let', 'LET'),
 
+    ('this', 'THIS'),
+
     ('return', 'RETURN'),
 
     ('while', 'WHILE'),

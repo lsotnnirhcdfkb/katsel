@@ -369,6 +369,16 @@ void E0113(IR::ASTValue const &truev, Token const &iftok) {
     e.report();
 }
 
+// E0114 - typeless-this
+// | 'this' parameter used outside of impl or class block
+void E0114(ASTNS::ThisParam *p) {
+    Error e = Error(MsgType::ERROR, p, "type error", "E0114", "typeless-this");
+    e.underline(Underline(p, '^')
+        .error("'this' parameter not allowed outside of impl or class block")
+    );
+    e.report();
+}
+
 // E0200 - redecl-sym
 // | Symbol was redeclared
 void E0200(Token const &name, IR::Value *val) {
@@ -397,9 +407,9 @@ void E0201(Location const &path) {
 
 // E0202 - redecl-param
 // | Redeclaraion of parameter in function declaration
-void E0202(Token const &name, IR::Instrs::Register const *prev) {
-    Error e = Error(MsgType::ERROR, name, "name error", "E0202", "redecl-param");
-    e.underline(Underline(name, '^')
+void E0202(ASTNS::ParamB *param, IR::Instrs::Register const *prev) {
+    Error e = Error(MsgType::ERROR, param, "name error", "E0202", "redecl-param");
+    e.underline(Underline(param, '^')
         .error("redeclaration of parameter")
     );
     e.underline(Underline(prev->defAST(), '~')
@@ -440,6 +450,16 @@ void E0205(IR::DeclSymbol const *prev, Token const &current) {
     Error e = Error(MsgType::ERROR, current, "name error", "E0205", "no-item-in");
     e.underline(Underline(current, '^')
         .error(format("no item called % in %", current, prev))
+    );
+    e.report();
+}
+
+// E0206 - no-this
+// | usage of 'this' outside method
+void E0206(Token const &th) {
+    Error e = Error(MsgType::ERROR, th, "name error", "E0206", "no-this");
+    e.underline(Underline(th, '^')
+        .error(format("usage of % outside method", th))
     );
     e.report();
 }

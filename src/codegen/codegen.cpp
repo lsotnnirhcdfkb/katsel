@@ -52,7 +52,7 @@ void CodeGen::visitFunctionDecl(ASTNS::FunctionDecl *ast) {
         return;
     }
 
-    FunctionCodeGen fcg (*this, ast, fun);
+    FunctionCodeGen fcg (*this, ast, fun, nullptr);
     if (!fcg.codegen())
         errored = true;
 }

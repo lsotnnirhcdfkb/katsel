@@ -3,7 +3,15 @@
 #include "message/errmsgs.h"
 #include "ir/unit.h"
 
-CodeGen::FunctionCodeGen::FunctionCodeGen(CodeGen &cg, ASTNS::FunctionDecl *ast, IR::Function *fun): curScope(0), cg(cg), ast(ast), exprCG(cg, *this), stmtCG(cg, *this), fun(fun), errored(false) {}
+CodeGen::FunctionCodeGen::FunctionCodeGen(CodeGen &cg, ASTNS::FunctionDecl *ast, IR::Function *fun, IR::Type *thisType):
+    curScope(0),
+    cg(cg),
+    ast(ast),
+    exprCG(cg, *this),
+    stmtCG(cg, *this),
+    fun(fun),
+    thisType(thisType),
+    errored(false) {}
 
 bool CodeGen::FunctionCodeGen::codegen() {
     IR::FunctionType *fty = fun->ty;
@@ -18,7 +26,7 @@ bool CodeGen::FunctionCodeGen::codegen() {
 
     incScope();
     ret = static_cast<IR::Instrs::Register*>(entryBlock->add(std::make_unique<IR::Instrs::Register>(cg.unit->implicitDeclAST.get(), fty->ret, true)));
-    ParamVisitor pv (cg, ast->params);
+    ParamVisitor pv (cg, ast->params, thisType);
     std::vector<ParamVisitor::Param> params (pv.ret);
 
     for (auto const &param : params) {
@@ -27,7 +35,7 @@ bool CodeGen::FunctionCodeGen::codegen() {
 
         Local *foundparam = getLocal(pname);
         if (foundparam) {
-            ERR_REDECL_PARAM(param.ast->name, foundparam->v);
+            ERR_REDECL_PARAM(param.ast, foundparam->v);
             errored = true;
         } else
             addLocal(pname, reg);

@@ -23,7 +23,7 @@ void CodeGen::ImplCodeGen::visitFunctionImplItem(ASTNS::FunctionImplItem *ast) {
         errored = true;
         return;
     }
-    FunctionCodeGen fcg (cg, ast->fun.get(), fun);
+    FunctionCodeGen fcg (cg, ast->fun.get(), fun, implFor);
     if (!fcg.codegen())
         errored = true;
 }

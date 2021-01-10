@@ -41,6 +41,7 @@ namespace ASTNS {
     class PointerType;
     class Arg;
     class Param;
+    class ThisParam;
     class Block;
     class IfExpr;
     class ForExpr;
@@ -163,6 +164,7 @@ namespace ASTNS {
         public:
             virtual ~Visitor() {}
             virtual void visitParam(ASTNS::Param *ast) = 0;
+            virtual void visitThisParam(ASTNS::ThisParam *ast) = 0;
         };
         virtual ~ParamB() {}
         virtual void accept(Visitor *v) = 0;
@@ -227,11 +229,11 @@ namespace ASTNS {
     class ParamList : public ListB {
     public:
         Location _start, _end;
-        std::vector<std::unique_ptr<Param>> params;
+        std::vector<std::unique_ptr<ParamB>> params;
         virtual void accept(ASTNS::ListB::Visitor *v) override;
         virtual Location const & start() override;
         virtual Location const & end() override;
-        ParamList(File const &file, Location start, Location end, std::vector<std::unique_ptr<Param>> params);
+        ParamList(File const &file, Location start, Location end, std::vector<std::unique_ptr<ParamB>> params);
     };
     class ArgList : public ListB {
     public:
@@ -313,12 +315,12 @@ namespace ASTNS {
         Location _start, _end;
         std::unique_ptr<Type> retty;
         Token name;
-        std::vector<std::unique_ptr<Param>> params;
+        std::vector<std::unique_ptr<ParamB>> params;
         std::unique_ptr<Block> body;
         virtual void accept(ASTNS::Decl::Visitor *v) override;
         virtual Location const & start() override;
         virtual Location const & end() override;
-        FunctionDecl(File const &file, Location start, Location end, std::unique_ptr<Type> retty, Token name, std::vector<std::unique_ptr<Param>> params, std::unique_ptr<Block> body);
+        FunctionDecl(File const &file, Location start, Location end, std::unique_ptr<Type> retty, Token name, std::vector<std::unique_ptr<ParamB>> params, std::unique_ptr<Block> body);
     };
     class FunctionImplItem : public ImplItem {
     public:
@@ -409,6 +411,16 @@ namespace ASTNS {
         virtual Location const & start() override;
         virtual Location const & end() override;
         Param(File const &file, Location start, Location end, std::unique_ptr<Type> type, Token name, bool mut);
+    };
+    class ThisParam : public ParamB {
+    public:
+        Location _start, _end;
+        bool ptr;
+        bool mut;
+        virtual void accept(ASTNS::ParamB::Visitor *v) override;
+        virtual Location const & start() override;
+        virtual Location const & end() override;
+        ThisParam(File const &file, Location start, Location end, bool ptr, bool mut);
     };
     class Block : public Expr {
     public:

@@ -256,6 +256,18 @@ makeIntLit:
         case TokenType::STRINGLIT:
             reportAbortNoh("string literals are not supported yet");
 
+        case TokenType::THIS: {
+                Local *l = fcg.getLocal("this");
+                if (!l) {
+                    ERR_NO_THIS(ast->value);
+                    fcg.errored = true;
+                    ret = IR::ASTValue();
+                    return;
+                }
+                ret = IR::ASTValue(fcg.curBlock->add(std::make_unique<IR::Instrs::DerefPtr>(IR::ASTValue(l->v, ast))), ast);
+                return;
+            }
+
         default:
             invalidTok("primary token", ast->value);
     }

@@ -1,19 +1,41 @@
 #include "codegenlocal.h"
+#include "message/errmsgs.h"
 
-CodeGen::ParamVisitor::ParamVisitor::ParamVisitor(CodeGen &cg, std::vector<std::unique_ptr<ASTNS::Param>> &params): cg(cg) {
-    for (std::unique_ptr<ASTNS::Param> &p : params) {
+CodeGen::ParamVisitor::ParamVisitor::ParamVisitor(CodeGen &cg, std::vector<std::unique_ptr<ASTNS::ParamB>> &params, IR::Type *thisType): cg(cg), thisType(thisType) {
+    for (std::unique_ptr<ASTNS::ParamB> &p : params)
         p->accept(this);
-    }
+
+    if (errored)
+        ret.clear();
 }
 
 void CodeGen::ParamVisitor::visitParam(ASTNS::Param *ast) {
     IR::Type *ty (cg.typeVisitor->type(ast->type.get()));
-    if (!ty)
+    if (!ty) {
+        errored = true;
         return;
+    }
 
     std::string name (ast->name.stringify());
 
     Param p {ty, std::move(name), ast, ast->mut};
+    ret.push_back(p);
+}
+
+void CodeGen::ParamVisitor::visitThisParam(ASTNS::ThisParam *ast) {
+    if (!thisType) {
+        errored = true;
+        ERR_TYPELESS_THIS(ast);
+        return;
+    }
+
+    IR::Type *ty;
+    if (!ast->ptr)
+        ty = thisType;
+    else
+        ty = cg.context->getPointerType(ast->mut, thisType);
+
+    Param p {ty, "this", ast, false};
     ret.push_back(p);
 }
 

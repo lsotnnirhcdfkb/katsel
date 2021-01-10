@@ -6,7 +6,7 @@ class AST:
     def __init__(self, name, base, fields):
         self.name = name
         def process_field(field):
-            return (item.strip().rstrip() for item in field.split('|'))
+            return (item.strip() for item in field.split('|'))
         self.fields = [ASTField(*process_field(field)) for field in fields.split(',')]
         self.base = base
 # ASTBase {{{2
@@ -44,7 +44,7 @@ asts = [
     ASTBase('ListB'),
     list_ast('DeclList', 'Decl', 'decls'),
     list_ast('StmtList', 'Stmt', 'stmts'),
-    list_ast('ParamList', 'Param', 'params'),
+    list_ast('ParamList', 'ParamB', 'params'),
     list_ast('ArgList', 'Arg', 'args'),
     list_ast('VarStmtItemList', 'VarStmtItem', 'items'),
     list_ast('ImplItemList', 'ImplItem', 'items'),
@@ -62,7 +62,7 @@ asts = [
 
     AST('CU'               , 'CUB', 'std::vector<std::unique_ptr<Decl>>|decls'),
     AST('ImplDecl'         , 'Decl', 'std::unique_ptr<Type>|implFor, std::vector<std::unique_ptr<ImplItem>>|items'),
-    AST('FunctionDecl'     , 'Decl', 'std::unique_ptr<Type>|retty, Token|name, std::vector<std::unique_ptr<Param>>|params, std::unique_ptr<Block>|body'),
+    AST('FunctionDecl'     , 'Decl', 'std::unique_ptr<Type>|retty, Token|name, std::vector<std::unique_ptr<ParamB>>|params, std::unique_ptr<Block>|body'),
 
     AST('FunctionImplItem' , 'ImplItem', 'std::unique_ptr<FunctionDecl>|fun'),
 
@@ -78,6 +78,7 @@ asts = [
     AST('Arg'              , 'ArgB', 'std::unique_ptr<Expr>|expr'),
 
     AST('Param'            , 'ParamB', 'std::unique_ptr<Type>|type, Token|name, bool|mut'),
+    AST('ThisParam'        , 'ParamB', 'bool|ptr, bool|mut'),
 
     AST('Block'            , 'Expr', 'std::vector<std::unique_ptr<Stmt>>|stmts'),
     AST('IfExpr'           , 'Expr', 'Token|iftok, Token|elsetok, std::unique_ptr<Expr>|cond, std::unique_ptr<Expr>|trues, std::unique_ptr<Expr>|falses'),

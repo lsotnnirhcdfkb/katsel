@@ -2,7 +2,7 @@
 #include "message/errmsgs.h"
 #include "ir/unit.h"
 
-CodeGen::Declarator::Declarator(CodeGen &cg): cg(cg), currentSymbol(&cg.unit->mod) {}
+CodeGen::Declarator::Declarator(CodeGen &cg): cg(cg), currentSymbol(&cg.unit->mod), thisType(nullptr) {}
 
 void CodeGen::Declarator::visitCU(ASTNS::CU *ast) {
     for (std::unique_ptr<ASTNS::Decl> &decl : ast->decls)
@@ -24,7 +24,7 @@ void CodeGen::Declarator::visitFunctionDecl(ASTNS::FunctionDecl *fun) {
         return;
 
     std::vector<CodeGen::ParamVisitor::Param> params;
-    CodeGen::ParamVisitor p (cg, fun->params);
+    CodeGen::ParamVisitor p (cg, fun->params, thisType);
     params = p.ret;
 
     std::vector<IR::Type*> ptys;
@@ -49,10 +49,12 @@ void CodeGen::Declarator::visitImplDecl(ASTNS::ImplDecl *impl) {
 
     IR::DeclSymbol *oldSymbol = currentSymbol;
     currentSymbol = implFor;
+    thisType = implFor;
     for (std::unique_ptr<ASTNS::ImplItem> &item : impl->items) {
         item->accept(this);
     }
     currentSymbol = oldSymbol;
+    thisType = nullptr;
 }
 
 void CodeGen::Declarator::visitFunctionImplItem(ASTNS::FunctionImplItem *item) {

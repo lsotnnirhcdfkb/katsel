@@ -73,6 +73,7 @@ enum class TokenType {
     NULLPTRLIT,
 
     // more keywords
+    THIS,
     VAR,
     FUN,
     LET,
@@ -162,6 +163,7 @@ inline constexpr char const * stringifyTokenType(TokenType ty) {
         STOKTY(TRUELIT, 'true')
         STOKTY(FALSELIT, 'false')
         STOKTY(NULLPTRLIT, 'nullptr')
+        STOKTY(THIS, 'this')
         STOKTY(VAR, 'var')
         STOKTY(LET, 'let')
         STOKTY(MUT, 'mut')

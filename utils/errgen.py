@@ -281,6 +281,12 @@ errors = {
                 SimpleHighlight('iftok', UNDER0, [('error', '"if expression with non-void true expression and no else case"')]),
                 SimpleHighlight('truev', UNDER1, [('note', '"%"', 'truev.type()')]),
             ]),
+        Msg('typeless-this',
+            desc='\'this\' parameter used outside of impl or class block',
+            inputs='ASTNS::ThisParam *p', location='p',
+            highlights=[
+                SimpleHighlight('p', UNDER0, [('error', '"\'this\' parameter not allowed outside of impl or class block"')]),
+            ]),
     ],
     # }}}
     # name errors {{{
@@ -300,9 +306,9 @@ errors = {
             ]),
         Msg('redecl-param',
             desc='Redeclaraion of parameter in function declaration',
-            inputs='Token const &name, IR::Instrs::Register const *prev', location='name',
+            inputs='ASTNS::ParamB *param, IR::Instrs::Register const *prev', location='param',
             highlights=[
-                SimpleHighlight('name', UNDER0, [('error', '"redeclaration of parameter"')]),
+                SimpleHighlight('param', UNDER0, [('error', '"redeclaration of parameter"')]),
                 SimpleHighlight('prev->defAST()', UNDER1, [('note', '"previous declaration"')]),
             ]),
         Msg('redecl-var',
@@ -324,6 +330,12 @@ errors = {
             inputs='IR::DeclSymbol const *prev, Token const &current', location='current',
             highlights=[
                 SimpleHighlight('current', UNDER0, [('error', '"no item called % in %"', 'current', 'prev')]),
+            ]),
+        Msg('no-this',
+            desc='usage of \'this\' outside method',
+            inputs='Token const &th', location='th',
+            highlights=[
+                SimpleHighlight('th', UNDER0, [('error', '"usage of % outside method"', 'th')]),
             ]),
     ],
     # }}}

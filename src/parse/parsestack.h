@@ -58,6 +58,8 @@ enum class NonTerminal {
     PathType,
     PointerType,
     Path,
+    NormalParam,
+    ThisParam,
     AssignmentExpr,
     IfExpr,
     ForExpr,

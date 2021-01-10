@@ -130,6 +130,10 @@ void E0112(IR::ASTValue const &lhs, Token const &optok, IR::ASTValue const &rhs)
 #define ERR_NO_ELSE_NOT_VOID E0113
 void E0113(IR::ASTValue const &truev, Token const &iftok);
 
+// E0114 - typeless-this
+#define ERR_TYPELESS_THIS E0114
+void E0114(ASTNS::ThisParam *p);
+
 // === name error ===
 
 // E0200 - redecl-sym
@@ -142,7 +146,7 @@ void E0201(Location const &path);
 
 // E0202 - redecl-param
 #define ERR_REDECL_PARAM E0202
-void E0202(Token const &name, IR::Instrs::Register const *prev);
+void E0202(ASTNS::ParamB *param, IR::Instrs::Register const *prev);
 
 // E0203 - redecl-var
 #define ERR_REDECL_VAR E0203
@@ -155,6 +159,10 @@ void E0204(Location const &notty, ASTNS::AST *declAST);
 // E0205 - no-item-in
 #define ERR_NO_ITEM_IN E0205
 void E0205(IR::DeclSymbol const *prev, Token const &current);
+
+// E0206 - no-this
+#define ERR_NO_THIS E0206
+void E0206(Token const &th);
 
 // === value error ===
 
