@@ -474,6 +474,17 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitPathExpr(ASTNS::PathExpr *ast) 
         fcg.errored = true;
 }
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitFieldAccessExpr(ASTNS::FieldAccessExpr *ast) {
+    IR::ASTValue op = expr(ast->operand.get());
+
+    bool has = op.type()->hasField(ast->field.stringify());
+    if (!has) {
+        ERR_NO_FIELD(op, ast->field);
+        fcg.errored = true;
+        return;
+    }
+
+    int ind = op.type()->getFieldIndex(ast->field.stringify());
+    // TODO: do this
 }
 void CodeGen::FunctionCodeGen::ExprCodeGen::visitMethodCallExpr(ASTNS::MethodCallExpr *ast) {
     IR::ASTValue op = expr(ast->operand.get());
