@@ -26,7 +26,12 @@ static void printField(ASTNS::PrintVisitor &p, Token const &t) {
     p.pai("\"\n");
 }
 static void printField(ASTNS::PrintVisitor &p, int i) {
-    p.ostream << i << '\n';
+    p.pai(std::to_string(i));
+    p.pai("\n");
+}
+static void printField(ASTNS::PrintVisitor &p, bool i) {
+    p.pai(i ? "true" : "false");
+    p.pai("\n");
 }
 static void printField(ASTNS::PrintVisitor &p, std::vector<Token> &v) {
     p.pai("[");
@@ -43,7 +48,7 @@ static void printField(ASTNS::PrintVisitor &p, std::vector<Token> &v) {
     p.pai("]\n");
 }
 static void printField(ASTNS::PrintVisitor &p, Location const &l) {
-    p.pai("<location>");
+    p.pai("<location>\n");
 }
 
 // PRINTVISITOR START
@@ -373,6 +378,34 @@ void ASTNS::PrintVisitor::visitCallExpr(ASTNS::CallExpr *a) {
     ++indent;
     pai("std::unique_ptr<Expr> callee = ");
     printField(*this, a->callee);
+    pai("Token oparn = ");
+    printField(*this, a->oparn);
+    pai("std::vector<std::unique_ptr<Arg>> args = ");
+    printField(*this, a->args);
+    --indent;
+    pai("}\n");
+}
+void ASTNS::PrintVisitor::visitFieldAccessExpr(ASTNS::FieldAccessExpr *a) {
+    pai("FieldAccessExpr {\n");
+    ++indent;
+    pai("std::unique_ptr<Expr> operand = ");
+    printField(*this, a->operand);
+    pai("Token dot = ");
+    printField(*this, a->dot);
+    pai("Token field = ");
+    printField(*this, a->field);
+    --indent;
+    pai("}\n");
+}
+void ASTNS::PrintVisitor::visitMethodCallExpr(ASTNS::MethodCallExpr *a) {
+    pai("MethodCallExpr {\n");
+    ++indent;
+    pai("std::unique_ptr<Expr> operand = ");
+    printField(*this, a->operand);
+    pai("Token dot = ");
+    printField(*this, a->dot);
+    pai("Token method = ");
+    printField(*this, a->method);
     pai("Token oparn = ");
     printField(*this, a->oparn);
     pai("std::vector<std::unique_ptr<Arg>> args = ");

@@ -233,6 +233,9 @@ Token Lexer::nextToken() {
         case '?': return makeToken(TokenType::QUESTION);
         case '~': return makeToken(TokenType::TILDE);
 
+        case '#': return makeToken(TokenType::HASH);
+        case '$': return makeToken(TokenType::DOLLAR);
+
                   // double and single
         case '=': return makeToken(match('=') ? TokenType::DOUBLEEQUAL : TokenType::EQUAL);
         case ':': return makeToken(match(':') ? TokenType::DOUBLECOLON : TokenType::COLON);

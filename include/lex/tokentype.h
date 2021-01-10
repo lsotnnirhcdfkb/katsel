@@ -25,6 +25,8 @@ enum class TokenType {
     AMPER,
     PIPE,
     CARET,
+    DOLLAR,
+    HASH,
 
     RIGHTARROW,
     LEFTARROW,
@@ -129,6 +131,8 @@ inline constexpr char const * stringifyTokenType(TokenType ty) {
         STOKTY(AMPER, '&')
         STOKTY(PIPE, '|')
         STOKTY(CARET, '^')
+        STOKTY(HASH, '#')
+        STOKTY(DOLLAR, '$')
         STOKTY(LEFTARROW, '<-')
         STOKTY(RIGHTARROW, '->')
         STOKTY(DOUBLEPLUS, '++')

@@ -60,6 +60,8 @@ void visitUnaryExpr(ASTNS::UnaryExpr *ast) override;
 void visitAddrofExpr(ASTNS::AddrofExpr *ast) override;
 void visitDerefExpr(ASTNS::DerefExpr *ast) override;
 void visitCallExpr(ASTNS::CallExpr *ast) override;
+void visitFieldAccessExpr(ASTNS::FieldAccessExpr *ast) override;
+void visitMethodCallExpr(ASTNS::MethodCallExpr *ast) override;
 void visitPrimaryExpr(ASTNS::PrimaryExpr *ast) override;
 void visitPathExpr(ASTNS::PathExpr *ast) override;
 void visitPath(ASTNS::Path *ast) override;

@@ -146,6 +146,14 @@ ASTNS::CallExpr::CallExpr(File const &file, Location start, Location end, std::u
 void ASTNS::CallExpr::accept(ASTNS::Expr::Visitor *v) { v->visitCallExpr(this); }
 Location const & ASTNS::CallExpr::start() { return _start; }
 Location const & ASTNS::CallExpr::end() { return _end; }
+ASTNS::FieldAccessExpr::FieldAccessExpr(File const &file, Location start, Location end, std::unique_ptr<Expr> operand, Token dot, Token field): Expr(file), _start(start), _end(end), operand(std::move(operand)), dot(std::move(dot)), field(std::move(field)) {}
+void ASTNS::FieldAccessExpr::accept(ASTNS::Expr::Visitor *v) { v->visitFieldAccessExpr(this); }
+Location const & ASTNS::FieldAccessExpr::start() { return _start; }
+Location const & ASTNS::FieldAccessExpr::end() { return _end; }
+ASTNS::MethodCallExpr::MethodCallExpr(File const &file, Location start, Location end, std::unique_ptr<Expr> operand, Token dot, Token method, Token oparn, std::vector<std::unique_ptr<Arg>> args): Expr(file), _start(start), _end(end), operand(std::move(operand)), dot(std::move(dot)), method(std::move(method)), oparn(std::move(oparn)), args(std::move(args)) {}
+void ASTNS::MethodCallExpr::accept(ASTNS::Expr::Visitor *v) { v->visitMethodCallExpr(this); }
+Location const & ASTNS::MethodCallExpr::start() { return _start; }
+Location const & ASTNS::MethodCallExpr::end() { return _end; }
 ASTNS::PrimaryExpr::PrimaryExpr(File const &file, Location start, Location end, Token value): Expr(file), _start(start), _end(end), value(std::move(value)) {}
 void ASTNS::PrimaryExpr::accept(ASTNS::Expr::Visitor *v) { v->visitPrimaryExpr(this); }
 Location const & ASTNS::PrimaryExpr::start() { return _start; }

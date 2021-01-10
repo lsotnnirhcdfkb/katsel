@@ -93,6 +93,8 @@ asts = [
     AST('AddrofExpr'        , 'Expr', 'Token|op, std::unique_ptr<Expr>|expr, bool|mut'),
     AST('DerefExpr'         , 'Expr', 'Token|op, std::unique_ptr<Expr>|expr'),
     AST('CallExpr'          , 'Expr', 'std::unique_ptr<Expr>|callee, Token|oparn, std::vector<std::unique_ptr<Arg>>|args'),
+    AST('FieldAccessExpr'   , 'Expr', 'std::unique_ptr<Expr>|operand, Token|dot, Token|field'),
+    AST('MethodCallExpr'    , 'Expr', 'std::unique_ptr<Expr>|operand, Token|dot, Token|method, Token|oparn, std::vector<std::unique_ptr<Arg>>|args'),
     AST('PrimaryExpr'       , 'Expr', 'Token|value'),
     AST('PathExpr'          , 'Expr', 'std::unique_ptr<Path>|path'),
 

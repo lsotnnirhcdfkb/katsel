@@ -54,6 +54,8 @@ namespace ASTNS {
     class AddrofExpr;
     class DerefExpr;
     class CallExpr;
+    class FieldAccessExpr;
+    class MethodCallExpr;
     class PrimaryExpr;
     class PathExpr;
     class Path;
@@ -129,6 +131,8 @@ namespace ASTNS {
             virtual void visitAddrofExpr(ASTNS::AddrofExpr *ast) = 0;
             virtual void visitDerefExpr(ASTNS::DerefExpr *ast) = 0;
             virtual void visitCallExpr(ASTNS::CallExpr *ast) = 0;
+            virtual void visitFieldAccessExpr(ASTNS::FieldAccessExpr *ast) = 0;
+            virtual void visitMethodCallExpr(ASTNS::MethodCallExpr *ast) = 0;
             virtual void visitPrimaryExpr(ASTNS::PrimaryExpr *ast) = 0;
             virtual void visitPathExpr(ASTNS::PathExpr *ast) = 0;
         };
@@ -551,6 +555,30 @@ namespace ASTNS {
         virtual Location const & start() override;
         virtual Location const & end() override;
         CallExpr(File const &file, Location start, Location end, std::unique_ptr<Expr> callee, Token oparn, std::vector<std::unique_ptr<Arg>> args);
+    };
+    class FieldAccessExpr : public Expr {
+    public:
+        Location _start, _end;
+        std::unique_ptr<Expr> operand;
+        Token dot;
+        Token field;
+        virtual void accept(ASTNS::Expr::Visitor *v) override;
+        virtual Location const & start() override;
+        virtual Location const & end() override;
+        FieldAccessExpr(File const &file, Location start, Location end, std::unique_ptr<Expr> operand, Token dot, Token field);
+    };
+    class MethodCallExpr : public Expr {
+    public:
+        Location _start, _end;
+        std::unique_ptr<Expr> operand;
+        Token dot;
+        Token method;
+        Token oparn;
+        std::vector<std::unique_ptr<Arg>> args;
+        virtual void accept(ASTNS::Expr::Visitor *v) override;
+        virtual Location const & start() override;
+        virtual Location const & end() override;
+        MethodCallExpr(File const &file, Location start, Location end, std::unique_ptr<Expr> operand, Token dot, Token method, Token oparn, std::vector<std::unique_ptr<Arg>> args);
     };
     class PrimaryExpr : public Expr {
     public:

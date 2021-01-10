@@ -533,6 +533,7 @@ COMMA = Terminal('COMMA')
 CPARN = Terminal('CPARN')
 DECINTLIT = Terminal('DECINTLIT')
 DEDENT = Terminal('DEDENT')
+DOLLAR = Terminal('DOLLAR')
 DOUBLEAMPER = Terminal('DOUBLEAMPER')
 DOUBLECOLON = Terminal('DOUBLECOLON')
 DOUBLEEQUAL = Terminal('DOUBLEEQUAL')
@@ -623,6 +624,8 @@ def make_grammar():
     CastExpr = nt('CastExpr', 'type cast expression', 'Expr')
     UnaryExpr = nt('UnaryExpr', 'unary expression', 'Expr')
     CallExpr = nt('CallExpr', 'function call expression', 'Expr')
+    FieldAccessExpr = nt('FieldAccessExpr', 'field access expression', 'Expr')
+    MethodCallExpr = nt('MethodCallExpr', 'method call expression', 'Expr')
     PrimaryExpr = nt('PrimaryExpr', 'primary expression', 'Expr')
     PathExpr = nt('PathExpr', 'path expression', 'Expr')
     Path = nt('Path', 'symbol path', 'Path')
@@ -670,8 +673,8 @@ def make_grammar():
 
     rule(ExprStmt, (NotBlockedExpr, LineEnding), SimpleReduceAction('ExprStmt', 'std::move(a0), false, Location()'))
     rule(ExprStmt, (BlockedExpr, LineEndingOpt), SimpleReduceAction('ExprStmt', 'std::move(a0), false, Location()'))
-    rule(ExprStmt, (NotBlockedExpr, PERIOD, LineEnding), SimpleReduceAction('ExprStmt', 'std::move(a0), true, a1'))
-    rule(ExprStmt, (BlockedExpr, PERIOD, LineEnding), SimpleReduceAction('ExprStmt', 'std::move(a0), true, a1'))
+    rule(ExprStmt, (NotBlockedExpr, DOLLAR, LineEnding), SimpleReduceAction('ExprStmt', 'std::move(a0), true, a1'))
+    rule(ExprStmt, (BlockedExpr, DOLLAR, LineEnding), SimpleReduceAction('ExprStmt', 'std::move(a0), true, a1'))
 
     rule(RetStmt, (RETURN, Expr, LineEnding), SimpleReduceAction('RetStmt', 'std::move(a1)'))
     rule(RetStmt, (RETURN, LineEnding), SimpleReduceAction('RetStmt', 'nullptr'))
@@ -765,8 +768,23 @@ def make_grammar():
     rule(UnaryExpr, (STAR, UnaryExpr), SimpleReduceAction('DerefExpr', 'a0, std::move(a1)'))
 
     rule(UnaryExpr, (CallExpr,), SkipReduceAction())
+    rule(UnaryExpr, (FieldAccessExpr,), SkipReduceAction())
+    rule(UnaryExpr, (MethodCallExpr,), SkipReduceAction())
 
-    rule(CallExpr, (CallExpr, OPARN, ArgListOpt, CPARN), SimpleReduceAction('CallExpr', 'std::move(a0), a1, std::move(a2->args)'))
+    field_access_reduce = SimpleReduceAction('FieldAccessExpr', 'std::move(a0), a1, a2')
+    rule(FieldAccessExpr, (FieldAccessExpr, PERIOD, IDENTIFIER), field_access_reduce)
+    rule(FieldAccessExpr, (MethodCallExpr , PERIOD, IDENTIFIER), field_access_reduce)
+    rule(FieldAccessExpr, (CallExpr       , PERIOD, IDENTIFIER), field_access_reduce)
+
+    method_call_reduce = SimpleReduceAction('MethodCallExpr', 'std::move(a0), a1, a2, a3, std::move(a4->args)')
+    rule(MethodCallExpr, (FieldAccessExpr, PERIOD, IDENTIFIER, OPARN, ArgListOpt, CPARN), method_call_reduce)
+    rule(MethodCallExpr, (MethodCallExpr , PERIOD, IDENTIFIER, OPARN, ArgListOpt, CPARN), method_call_reduce)
+    rule(MethodCallExpr, (CallExpr       , PERIOD, IDENTIFIER, OPARN, ArgListOpt, CPARN), method_call_reduce)
+
+    call_reduce = SimpleReduceAction('CallExpr', 'std::move(a0), a1, std::move(a2->args)')
+    rule(CallExpr, (MethodCallExpr, OPARN, ArgListOpt, CPARN), call_reduce)
+    rule(CallExpr, (CallExpr      , OPARN, ArgListOpt, CPARN), call_reduce)
+
     rule(CallExpr, (PrimaryExpr,), SkipReduceAction())
 
     token_rule(PrimaryExpr, SimpleReduceAction('PrimaryExpr', 'a0'), TRUELIT, FALSELIT, FLOATLIT, NULLPTRLIT, DECINTLIT, OCTINTLIT, BININTLIT, HEXINTLIT, CHARLIT, STRINGLIT, THIS)
