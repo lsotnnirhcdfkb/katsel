@@ -188,6 +188,7 @@ void visitThisParam(ASTNS::ThisParam *ast) override;
 
     CodeGen &cg;
     IR::Type *thisType;
+    int index;
 };
 
 // Arg {{{2

@@ -701,7 +701,7 @@ def make_grammar():
 
     rule(ThisType, (THIS,), SimpleReduceAction('ThisType', 'a0'))
 
-    rule(TypeAnnotation, (COLON, Type), SkipReduceAction(1));
+    rule(TypeAnnotation, (COLON, Type), SkipReduceAction(1))
 
     rule(Arg, (Expr,), SimpleReduceAction('Arg', 'std::move(a0)'))
 

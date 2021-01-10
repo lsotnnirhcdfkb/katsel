@@ -379,6 +379,21 @@ void E0114(ASTNS::ThisParam *p) {
     e.report();
 }
 
+// E0115 - wrong-num-args
+// | Wrong number of arguments to function call
+void E0115(IR::ASTValue const &func, Token const &oparn, std::vector<IR::ASTValue> const &args) {
+    Error e = Error(MsgType::ERROR, oparn, "type error", "E0115", "wrong-num-args");
+    e.underline(Underline(oparn, '^')
+        .error("wrong number of arguments to function call")
+    );
+    e.underline(Underline(func, '~')
+    );
+    e.underline(Underline(static_cast<IR::Function*>(func.val)->defAST(), '~')
+        .note(format("function expects % arguments, but got % arguments", static_cast<IR::FunctionType*>(func.type())->paramtys.size(), args.size()))
+    );
+    e.report();
+}
+
 // E0200 - redecl-sym
 // | Symbol was redeclared
 void E0200(Token const &name, IR::Value *val) {
@@ -522,28 +537,23 @@ void E0303(Token const &op, IR::Instrs::DerefPtr *asDeref) {
     e.report();
 }
 
-// E0400 - wrong-num-args
-// | Wrong number of arguments to function call
-void E0400(IR::ASTValue const &func, Token const &oparn, std::vector<IR::ASTValue> const &args) {
-    Error e = Error(MsgType::ERROR, oparn, "count error", "E0400", "wrong-num-args");
-    e.underline(Underline(oparn, '^')
-        .error("wrong number of arguments to function call")
-    );
-    e.underline(Underline(func, '~')
-    );
-    e.underline(Underline(static_cast<IR::Function*>(func.val)->defAST(), '~')
-        .note(format("function expects % arguments, but got % arguments", static_cast<IR::FunctionType*>(func.type())->paramtys.size(), args.size()))
+// E0400 - no-suppress
+// | Cannot suppress an expression that is not the implicit
+// | return value of a block
+void E0400(Location const &dot) {
+    Error e = Error(MsgType::ERROR, dot, "miscellaneous error", "E0400", "no-suppress");
+    e.underline(Underline(dot, '^')
+        .error("implicit return suppression not allowed here")
     );
     e.report();
 }
 
-// E0500 - no-suppress
-// | Cannot suppress an expression that is not the implicit
-// | return value of a block
-void E0500(Location const &dot) {
-    Error e = Error(MsgType::ERROR, dot, "miscellaneous error", "E0500", "no-suppress");
-    e.underline(Underline(dot, '^')
-        .error("implicit return suppression not allowed here")
+// E0401 - this-not-first
+// | 'this' parameter is not the first parameter of a method
+void E0401(ASTNS::ThisParam *ast) {
+    Error e = Error(MsgType::ERROR, ast, "miscellaneous error", "E0401", "this-not-first");
+    e.underline(Underline(ast, '^')
+        .error("'this' parameter must be the first parameter of a method")
     );
     e.report();
 }

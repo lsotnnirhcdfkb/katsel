@@ -134,6 +134,10 @@ void E0113(IR::ASTValue const &truev, Token const &iftok);
 #define ERR_TYPELESS_THIS E0114
 void E0114(ASTNS::ThisParam *p);
 
+// E0115 - wrong-num-args
+#define ERR_WRONG_NUM_ARGS E0115
+void E0115(IR::ASTValue const &func, Token const &oparn, std::vector<IR::ASTValue> const &args);
+
 // === name error ===
 
 // E0200 - redecl-sym
@@ -182,17 +186,15 @@ void E0302(IR::ASTValue const &v, Token const &eq, IR::Instrs::DerefPtr *targetD
 #define ERR_MUT_ADDROF_NONMUT_OP E0303
 void E0303(Token const &op, IR::Instrs::DerefPtr *asDeref);
 
-// === count error ===
-
-// E0400 - wrong-num-args
-#define ERR_WRONG_NUM_ARGS E0400
-void E0400(IR::ASTValue const &func, Token const &oparn, std::vector<IR::ASTValue> const &args);
-
 // === miscellaneous error ===
 
-// E0500 - no-suppress
-#define ERR_NO_SUPPRESS E0500
-void E0500(Location const &dot);
+// E0400 - no-suppress
+#define ERR_NO_SUPPRESS E0400
+void E0400(Location const &dot);
+
+// E0401 - this-not-first
+#define ERR_THIS_NOT_FIRST E0401
+void E0401(ASTNS::ThisParam *ast);
 
 // ===> warnings <===
 

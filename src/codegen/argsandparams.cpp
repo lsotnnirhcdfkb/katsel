@@ -1,12 +1,11 @@
 #include "codegenlocal.h"
 #include "message/errmsgs.h"
 
-CodeGen::ParamVisitor::ParamVisitor::ParamVisitor(CodeGen &cg, std::vector<std::unique_ptr<ASTNS::ParamB>> &params, IR::Type *thisType): cg(cg), thisType(thisType) {
-    for (std::unique_ptr<ASTNS::ParamB> &p : params)
+CodeGen::ParamVisitor::ParamVisitor::ParamVisitor(CodeGen &cg, std::vector<std::unique_ptr<ASTNS::ParamB>> &params, IR::Type *thisType): errored(false), cg(cg), thisType(thisType), index(0) {
+    for (std::unique_ptr<ASTNS::ParamB> &p : params) {
         p->accept(this);
-
-    if (errored)
-        ret.clear();
+        ++index;
+    }
 }
 
 void CodeGen::ParamVisitor::visitParam(ASTNS::Param *ast) {
@@ -26,6 +25,12 @@ void CodeGen::ParamVisitor::visitThisParam(ASTNS::ThisParam *ast) {
     if (!thisType) {
         errored = true;
         ERR_TYPELESS_THIS(ast);
+        return;
+    }
+
+    if (index != 0) {
+        errored = true;
+        ERR_THIS_NOT_FIRST(ast);
         return;
     }
 

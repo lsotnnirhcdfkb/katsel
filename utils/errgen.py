@@ -287,6 +287,14 @@ errors = {
             highlights=[
                 SimpleHighlight('p', UNDER0, [('error', '"\'this\' parameter not allowed outside of impl or class block"')]),
             ]),
+        Msg('wrong-num-args',
+            desc='Wrong number of arguments to function call',
+            inputs='IR::ASTValue const &func, Token const &oparn, std::vector<IR::ASTValue> const &args', location='oparn',
+            highlights=[
+                SimpleHighlight('oparn', UNDER0, [('error', '"wrong number of arguments to function call"')]),
+                SimpleHighlight('func', UNDER1, []),
+                SimpleHighlight('static_cast<IR::Function*>(func.val)->defAST()', UNDER1, [('note', '"function expects % arguments, but got % arguments"', 'static_cast<IR::FunctionType*>(func.type())->paramtys.size()', 'args.size()')]),
+            ]),
     ],
     # }}}
     # name errors {{{
@@ -372,18 +380,6 @@ errors = {
             ]),
         ],
     # }}}
-    # count errors {{{
-    'count error': [
-        Msg('wrong-num-args',
-            desc='Wrong number of arguments to function call',
-            inputs='IR::ASTValue const &func, Token const &oparn, std::vector<IR::ASTValue> const &args', location='oparn',
-            highlights=[
-                SimpleHighlight('oparn', UNDER0, [('error', '"wrong number of arguments to function call"')]),
-                SimpleHighlight('func', UNDER1, []),
-                SimpleHighlight('static_cast<IR::Function*>(func.val)->defAST()', UNDER1, [('note', '"function expects % arguments, but got % arguments"', 'static_cast<IR::FunctionType*>(func.type())->paramtys.size()', 'args.size()')]),
-            ]),
-    ],
-    # }}}
     # miscellaneous errors {{{
     'miscellaneous error': [
         Msg('no-suppress',
@@ -391,6 +387,12 @@ errors = {
             inputs='Location const &dot', location='dot',
             highlights=[
                 SimpleHighlight('dot', UNDER0, [('error', '"implicit return suppression not allowed here"')]),
+            ]),
+        Msg('this-not-first',
+            desc='\'this\' parameter is not the first parameter of a method',
+            inputs='ASTNS::ThisParam *ast', location='ast',
+            highlights=[
+                SimpleHighlight('ast', UNDER0, [('error', '"\'this\' parameter must be the first parameter of a method"')]),
             ]),
     ],
     # }}}
