@@ -40,13 +40,14 @@ class Terminal:
 # rule {{{2
 class Rule:
     __num = 0
-    def __init__(self, symbol, expansion, reduce_action, special):
+    def __init__(self, symbol, expansion, reduce_action, special, loc_start, loc_end):
         self.symbol = symbol
         self.expansion = expansion
         self.num = Rule.__num
         Rule.__num += 1
         self.reduce_action = reduce_action
         self.special = special
+        self.loc_start, self.loc_end = loc_start, loc_end
 
     def __repr__(self):
         return str(self)
@@ -453,7 +454,7 @@ def make_parse_table():
 def nt(sym, name, reduces_to, panickable=False):
     return NonTerminal(sym, panickable, name, reduces_to)
 
-def rule(sym, expansion, reduce_action, special=''):
+def rule(sym, expansion, reduce_action, special='', loc_start=None, loc_end=None):
     rsp = {}
     rsp['defaultreduce'] = True
 
@@ -468,7 +469,12 @@ def rule(sym, expansion, reduce_action, special=''):
         else:
             raise Exception(f'invalid special {rest}')
 
-    rule = Rule(sym, expansion, reduce_action, rsp)
+    if loc_start is None:
+        loc_start = 0
+    if loc_end is None:
+        loc_end = len(expansion) - 1
+
+    rule = Rule(sym, expansion, reduce_action, rsp, loc_start, loc_end)
     grammar.append(rule)
     return rule
 
@@ -654,7 +660,7 @@ def make_grammar():
 
     skip_to(Decl, FunctionDecl, ImplDecl)
 
-    rule(FunctionDecl, (FUN, IDENTIFIER, OPARN, ParamListOpt, CPARN, TypeAnnotation, Block, LineEndingOpt), SimpleReduceAction('FunctionDecl', 'std::move(a5), a1, std::move(a3->params), std::move(a6)'))
+    rule(FunctionDecl, (FUN, IDENTIFIER, OPARN, ParamListOpt, CPARN, TypeAnnotation, Block, LineEndingOpt), SimpleReduceAction('FunctionDecl', 'std::move(a5), a1, std::move(a3->params), std::move(a6)'), loc_end=5)
     rule(FunctionDecl, (FUN, IDENTIFIER, OPARN, ParamListOpt, CPARN, TypeAnnotation, LineEnding), SimpleReduceAction('FunctionDecl', 'std::move(a5), a1, std::move(a3->params), nullptr'))
 
     rule(ImplDecl, (IMPL, Type, ImplBody, LineEndingOpt), SimpleReduceAction('ImplDecl', 'std::move(a1), std::move(a2->members)'))
@@ -912,31 +918,29 @@ def gen_loop():
 
                 if len(ac.rule.expansion) > 0:
                     output.append(                '                            Location start, end;\n')
-                    for i in range(len(ac.rule.expansion)):
-                        if isinstance(ac.rule.expansion[i], Terminal):
-                            if i == 0:
-                                output.append(   f'                            start = a{i};\n')
-                            else:
-                                output.append(   f'                            else start = a{i};\n')
-                            break
+                    for i in range(ac.rule.loc_start, len(ac.rule.expansion)):
+                        if i != ac.rule.loc_start:
+                            output.append(        '                            else ')
                         else:
-                            if i == 0:
-                                output.append(   f'                            if (a{i}) start = a{i}->start();\n')
-                            else:
-                                output.append(   f'                            else if (a{i}) start = a{i}->start();\n')
+                            output.append(        '                            ')
 
-                    for i in range(len(ac.rule.expansion) - 1, -1, -1):
                         if isinstance(ac.rule.expansion[i], Terminal):
-                            if i == len(ac.rule.expansion) - 1:
-                                output.append(   f'                            end = a{i};\n')
-                            else:
-                                output.append(   f'                            else end = a{i};\n')
+                            output.append(   f'start = a{i};\n')
                             break
                         else:
-                            if i == len(ac.rule.expansion) - 1:
-                                output.append(   f'                            if (a{i}) end = a{i}->end();\n')
-                            else:
-                                output.append(   f'                            else if (a{i}) end = a{i}->end();\n')
+                            output.append(   f'if (a{i}) start = a{i}->start();\n')
+
+                    for i in range(ac.rule.loc_end, -1, -1):
+                        if i != ac.rule.loc_end:
+                            output.append(        '                            else ')
+                        else:
+                            output.append(        '                            ')
+
+                        if isinstance(ac.rule.expansion[i], Terminal):
+                            output.append(   f'end = a{i};\n')
+                            break
+                        else:
+                            output.append(   f'if (a{i}) end = a{i}->end();\n')
 
                 reduce_code, pushitem = ac.rule.reduce_action.generate()
                 output.append(reduce_code)

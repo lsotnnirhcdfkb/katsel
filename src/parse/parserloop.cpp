@@ -1860,9 +1860,7 @@ std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourc
                             auto a0 (popT(stack));
                             Location start, end;
                             start = a0;
-                            if (a7) end = a7->end();
-                            else if (a6) end = a6->end();
-                            else if (a5) end = a5->end();
+                            if (a5) end = a5->end();
                             else end = a4;
 std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>(p.sourcefile, start, end, std::move(a5), a1, std::move(a3->params), std::move(a6)));
                             std::unique_ptr<ASTNS::FunctionDecl> pushitem = std::move(push);
