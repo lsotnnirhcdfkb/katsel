@@ -30,7 +30,8 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem 
             return;
         }
         fcg.curBlock->add(std::make_unique<IR::Instrs::Store>(IR::ASTValue(reg, ast), val, true));
-    }
+    } else if (!ast->mut) // no initializer, not mutable
+        WARN_IMMUT_NOINIT(ast);
 
     fcg.addLocal(varname, reg);
 }

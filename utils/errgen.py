@@ -417,7 +417,15 @@ warnings = {
             highlights=[
                 SimpleHighlight('semi', UNDER0, [('warning', '"unnecessary semicolon"')]),
             ]),
-    ]
+    ],
+    '': [
+        Msg('immut-noinit',
+            desc='Uninitialized immutable variable',
+            inputs='ASTNS::VarStmtItem *ast', location='ast',
+            highlights=[
+                SimpleHighlight('ast', UNDER0, [('warning', '"uninitialized immutable variable will never be initialized"')]),
+            ]),
+    ],
 }
 # filling in error numbers {{{1
 def fill_numbers(msgs):
