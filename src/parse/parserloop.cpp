@@ -251,11 +251,15 @@ size_t getGoto(NonTerminal nterm, size_t state) {
                     return 78;
                 case 89: 
                     return 146;
+                case 145: 
+                    return 194;
+                case 147: 
+                    return 195;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::LineEnding:
             switch (state) {
-                case 20: case 71: case 89: 
+                case 20: case 71: case 89: case 145: case 147: 
                     return 37;
                 case 62: 
                     return 72;
@@ -265,10 +269,6 @@ size_t getGoto(NonTerminal nterm, size_t state) {
                     return 149;
                 case 139: 
                     return 190;
-                case 145: 
-                    return 194;
-                case 147: 
-                    return 195;
                 case 148: 
                     return 196;
                 default: reportAbortNoh("get invalid goto");
@@ -3282,13 +3282,46 @@ std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourc
                 break;
             case 145:
                 switch (lookahead.type) {
+                    case TokenType::AMPER:
+                    case TokenType::BANG:
+                    case TokenType::BININTLIT:
+                    case TokenType::CCURB:
+                    case TokenType::CHARLIT:
+                    case TokenType::DECINTLIT:
+                    case TokenType::DEDENT:
+                    case TokenType::EOF_:
+                    case TokenType::FALSELIT:
+                    case TokenType::FLOATLIT:
+                    case TokenType::FOR:
+                    case TokenType::FUN:
+                    case TokenType::HEXINTLIT:
+                    case TokenType::IDENTIFIER:
+                    case TokenType::IF:
+                    case TokenType::IMPL:
+                    case TokenType::MINUS:
+                    case TokenType::NULLPTRLIT:
+                    case TokenType::OCTINTLIT:
+                    case TokenType::OCURB:
+                    case TokenType::OPARN:
+                    case TokenType::RETURN:
+                    case TokenType::STAR:
+                    case TokenType::STRINGLIT:
+                    case TokenType::THIS:
+                    case TokenType::TILDE:
+                    case TokenType::TRUELIT:
+                    case TokenType::VAR:
+{
+                            std::unique_ptr<ASTNS::PureLocation> pushitem = nullptr;
+                            stack.emplace_back(getGoto(NonTerminal::LineEnding_OPT, stack.back().state), std::move(pushitem), NonTerminal::LineEnding_OPT);
+                        }
+                        break;
                     case TokenType::NEWLINE:
                         shift(p, lasttok, lookahead, stack, steps, 38); break;
                     case TokenType::SEMICOLON:
                         shift(p, lasttok, lookahead, stack, steps, 39); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "line ending", "expression statement")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional line ending", "expression statement")  });
                 }
                 break;
             case 146:
@@ -3310,13 +3343,46 @@ std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourc
                 break;
             case 147:
                 switch (lookahead.type) {
+                    case TokenType::AMPER:
+                    case TokenType::BANG:
+                    case TokenType::BININTLIT:
+                    case TokenType::CCURB:
+                    case TokenType::CHARLIT:
+                    case TokenType::DECINTLIT:
+                    case TokenType::DEDENT:
+                    case TokenType::EOF_:
+                    case TokenType::FALSELIT:
+                    case TokenType::FLOATLIT:
+                    case TokenType::FOR:
+                    case TokenType::FUN:
+                    case TokenType::HEXINTLIT:
+                    case TokenType::IDENTIFIER:
+                    case TokenType::IF:
+                    case TokenType::IMPL:
+                    case TokenType::MINUS:
+                    case TokenType::NULLPTRLIT:
+                    case TokenType::OCTINTLIT:
+                    case TokenType::OCURB:
+                    case TokenType::OPARN:
+                    case TokenType::RETURN:
+                    case TokenType::STAR:
+                    case TokenType::STRINGLIT:
+                    case TokenType::THIS:
+                    case TokenType::TILDE:
+                    case TokenType::TRUELIT:
+                    case TokenType::VAR:
+{
+                            std::unique_ptr<ASTNS::PureLocation> pushitem = nullptr;
+                            stack.emplace_back(getGoto(NonTerminal::LineEnding_OPT, stack.back().state), std::move(pushitem), NonTerminal::LineEnding_OPT);
+                        }
+                        break;
                     case TokenType::NEWLINE:
                         shift(p, lasttok, lookahead, stack, steps, 38); break;
                     case TokenType::SEMICOLON:
                         shift(p, lasttok, lookahead, stack, steps, 39); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "line ending", "expression statement")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional line ending", "expression statement")  });
                 }
                 break;
             case 148:

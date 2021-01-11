@@ -679,8 +679,8 @@ def make_grammar():
 
     rule(ExprStmt, (NotBlockedExpr, LineEnding), SimpleReduceAction('ExprStmt', 'std::move(a0), false, Location()'))
     rule(ExprStmt, (BlockedExpr, LineEndingOpt), SimpleReduceAction('ExprStmt', 'std::move(a0), false, Location()'))
-    rule(ExprStmt, (NotBlockedExpr, DOLLAR, LineEnding), SimpleReduceAction('ExprStmt', 'std::move(a0), true, a1'))
-    rule(ExprStmt, (BlockedExpr, DOLLAR, LineEnding), SimpleReduceAction('ExprStmt', 'std::move(a0), true, a1'))
+    rule(ExprStmt, (NotBlockedExpr, DOLLAR, LineEndingOpt), SimpleReduceAction('ExprStmt', 'std::move(a0), true, a1'))
+    rule(ExprStmt, (BlockedExpr, DOLLAR, LineEndingOpt), SimpleReduceAction('ExprStmt', 'std::move(a0), true, a1'))
 
     rule(RetStmt, (RETURN, Expr, LineEnding), SimpleReduceAction('RetStmt', 'std::move(a1)'))
     rule(RetStmt, (RETURN, LineEnding), SimpleReduceAction('RetStmt', 'nullptr'))
