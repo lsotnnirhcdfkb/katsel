@@ -82,21 +82,13 @@ void Lower::Lowerer::lower(IR::Function const &f) {
     if (f.prototypeonly)
         return;
 
-    llvm::BasicBlock *entryBlock;
-
     llvm::Function *fasllvm = functions.at(&f);
     for (std::unique_ptr<IR::Block> const &b : f.blocks) {
         blocks[b.get()] = llvm::BasicBlock::Create(context, b->name, fasllvm);
-        if (b->num == 0)
-            entryBlock = blocks[b.get()];
     }
 
     allocaIndex = 0;
     curFunction = fasllvm;
-
-    ASSERT(entryBlock)
-
-    builder.SetInsertPoint(entryBlock);
 
     for (std::unique_ptr<IR::Block> const &b : f.blocks)
         lower(*b);

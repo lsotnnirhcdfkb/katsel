@@ -16,7 +16,7 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem 
         return;
     }
 
-    IR::Instrs::Register *reg = static_cast<IR::Instrs::Register*>(fcg.entryBlock->add(std::make_unique<IR::Instrs::Register>(ast, varType, ast->mut)));
+    IR::Instrs::Register *reg = static_cast<IR::Instrs::Register*>(fcg.registerBlock->add(std::make_unique<IR::Instrs::Register>(ast, varType, ast->mut)));
 
     if (ast->expr) {
         IR::ASTValue val = fcg.exprCG.expr(ast->expr.get());

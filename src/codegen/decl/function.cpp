@@ -21,17 +21,20 @@ bool CodeGen::FunctionCodeGen::codegen() {
         return true;
     }
 
+    registerBlock = fun->addBlock("registers");
     IR::Block *entryBlock = fun->addBlock("entry");
+
+    registerBlock->branch(std::make_unique<IR::Instrs::GotoBr>(entryBlock));
     exitBlock = fun->addBlock("exit");
 
     incScope();
-    ret = static_cast<IR::Instrs::Register*>(entryBlock->add(std::make_unique<IR::Instrs::Register>(cg.unit->implicitDeclAST.get(), fty->ret, true)));
+    ret = static_cast<IR::Instrs::Register*>(registerBlock->add(std::make_unique<IR::Instrs::Register>(cg.unit->implicitDeclAST.get(), fty->ret, true)));
     ParamVisitor pv (cg, ast->params, thisType);
     std::vector<ParamVisitor::Param> params (pv.ret);
 
     for (auto const &param : params) {
         std::string pname = param.name;
-        IR::Instrs::Register *reg = static_cast<IR::Instrs::Register*>(entryBlock->add(std::make_unique<IR::Instrs::Register>(param.ast, param.ty, param.mut)));
+        IR::Instrs::Register *reg = static_cast<IR::Instrs::Register*>(registerBlock->add(std::make_unique<IR::Instrs::Register>(param.ast, param.ty, param.mut)));
 
         Local *foundparam = getLocal(pname);
         if (foundparam) {
@@ -41,7 +44,6 @@ bool CodeGen::FunctionCodeGen::codegen() {
             addLocal(pname, reg);
     }
 
-    this->entryBlock = entryBlock;
     curBlock = entryBlock;
 
     IR::ASTValue retval = exprCG.expr(ast->body.get());

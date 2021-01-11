@@ -135,7 +135,7 @@ public:
     IR::Function *fun;
     IR::Instrs::Register *ret;
     IR::Block *curBlock;
-    IR::Block *entryBlock;
+    IR::Block *registerBlock;
     IR::Block *exitBlock;
 
     IR::Type *thisType;
