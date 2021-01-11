@@ -15,9 +15,9 @@ Location::Location(std::string::iterator start, std::string::iterator end, File 
 Location::Location(): file(nullptr) {}
 Location::Location(ASTNS::AST *ast): Location(ast->start().start, ast->end().end, &ast->file) {}
 // Error methods {{{1
-Error::Error(MsgType type, Location const &location, std::string const &category, std::string const &code, std::string const &name):
+Error::Error(MsgType type, Location const &location, std::string const &code, std::string const &name):
     type(type), location(location),
-    category(category), code(code), name(name) {}
+    code(code), name(name) {}
 Error& Error::underline(Underline const &underline) {
     underlines.push_back(underline);
     return *this;

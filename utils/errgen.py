@@ -7,7 +7,6 @@ import itertools
 class Msg:
     def __init__(self, name, *, desc, inputs, location, highlights, extra=None):
         self.code = None
-        self.category = None
         self.name = name
         self.desc = desc
         self.inputs = inputs
@@ -67,9 +66,7 @@ UNDER2 = '-'
 PADAMT = 4
 RANGEMULT = 100
 # errors to generate {{{1
-errors = {
-    # syntax errors {{{
-    'syntax error': [
+errors = [
         Msg('unexpected-char',
             desc='The lexer found an unexpected character that could not begin a token.',
             inputs='Token const &tok', location='tok',
@@ -176,10 +173,6 @@ errors = {
                 'for (std::string const &expectation : expectations)\n'
                 '    un.hint(expectation);\n'
                 'e.underline(un);\n')),
-    ],
-    # }}}
-    # type errors {{{
-    'type error': [
         Msg('lhs-unsupported-op',
             desc='Left hand side of binary expression does not support operator',
             inputs='IR::ASTValue const &lhs, Token const &op', location='op',
@@ -295,10 +288,6 @@ errors = {
                 SimpleHighlight('func', UNDER1, []),
                 SimpleHighlight('static_cast<IR::Function*>(func.val)->defAST()', UNDER1, [('note', '"function expects % arguments, but got % arguments"', 'static_cast<IR::FunctionType*>(func.type())->paramtys.size()', 'args.size()')]),
             ]),
-    ],
-    # }}}
-    # name errors {{{
-    'name error': [
         Msg('redecl-sym',
             desc='Symbol was redeclared',
             inputs='Token const &name, IR::Value *val', location='name',
@@ -357,10 +346,6 @@ errors = {
             highlights=[
                 SimpleHighlight('name', UNDER0, [('error', '"no field called % on value of type %"', 'name', 'op.type()')]),
             ]),
-    ],
-    # }}}
-    # value errors {{{
-    'value error': [
         Msg('addrof-not-lvalue',
             desc='Taking an address of a non-lvalue is impossible',
             inputs='Token const &op, IR::ASTValue const &val', location='val',
@@ -390,10 +375,6 @@ errors = {
                 SimpleHighlight('op', UNDER0, [('error', '"cannot take mutable pointer to non-mutable lvalue"')]),
                 ValueDeclHighlight('asDeref->ptr.val', 'value', None, UNDER1, 'note', '"value declared immutable here"'),
             ]),
-        ],
-    # }}}
-    # miscellaneous errors {{{
-    'miscellaneous error': [
         Msg('no-suppress',
             desc='Cannot suppress an expression that is not the implicit return value of a block',
             inputs='Location const &dot', location='dot',
@@ -406,75 +387,59 @@ errors = {
             highlights=[
                 SimpleHighlight('ast', UNDER0, [('error', '"\'this\' parameter must be the first parameter of a method"')]),
             ]),
-    ],
-    # }}}
-}
-warnings = {
-    'code style': [
-        Msg('extra-semi',
-            desc='Extra semicolon',
-            inputs='Token const &semi', location='semi',
-            highlights=[
-                SimpleHighlight('semi', UNDER0, [('warning', '"unnecessary semicolon"')]),
-            ]),
-    ],
-    '': [
-        Msg('immut-noinit',
-            desc='Uninitialized immutable variable',
-            inputs='ASTNS::VarStmtItem *ast', location='ast',
-            highlights=[
-                SimpleHighlight('ast', UNDER0, [('warning', '"uninitialized immutable variable will never be initialized"')]),
-            ]),
-    ],
-}
-# filling in error numbers {{{1
-def fill_numbers(msgs):
-    num = 0
-    for category, category_msgs in msgs.items():
-        for msg in category_msgs:
-            msg.code = num
-            msg.category = category
-            num += 1
-        num //= RANGEMULT
-        num += 1
-        num *= RANGEMULT
-
-fill_numbers(errors)
-fill_numbers(warnings)
+]
+warnings = [
+    Msg('extra-semi',
+        desc='Extra semicolon',
+        inputs='Token const &semi', location='semi',
+        highlights=[
+            SimpleHighlight('semi', UNDER0, [('warning', '"unnecessary semicolon"')]),
+        ]),
+    Msg('immut-noinit',
+        desc='Uninitialized immutable variable',
+        inputs='ASTNS::VarStmtItem *ast', location='ast',
+        highlights=[
+            SimpleHighlight('ast', UNDER0, [('warning', '"uninitialized immutable variable will never be initialized"')]),
+        ]),
+]
+# fill numbers {{{1
+def fill(msgs):
+    i = 0
+    for msg in msgs:
+        msg.code = i
+        i += 1
+fill(errors)
+fill(warnings)
 # generating {{{1
 def gen_h():
     output = []
 
     output.append(     '\n')
 
-    for cat, errs in errors.items():
-        output.append(f'// === {cat} ===\n\n')
-        for error in errs:
-            code = str(error.code).zfill(PADAMT)
-            output.append(f'// E{code} - {error.name}\n')
-            output.append(f'#define ERR_{error.name.upper().replace("-", "_")} E{code}\n')
-            output.append(f'void E{code}({error.inputs});\n')
-            output.append( '\n')
+    for error in errors:
+        code = str(error.code).zfill(PADAMT)
+        output.append(f'// E{code} - {error.name}\n')
+        output.append(f'#define ERR_{error.name.upper().replace("-", "_")} E{code}\n')
+        output.append(f'void E{code}({error.inputs});\n')
+        output.append( '\n')
 
     output.append('// ===> warnings <===\n\n')
-    for cat, warns in warnings.items():
-        output.append(f'// === {cat} ===\n\n')
-        for warning in warns:
-            code = str(warning.code).zfill(PADAMT)
-            output.append(f'// W{code} - W{warning.name}\n')
-            output.append(f'#define WARN_{warning.name.upper().replace("-", "_")} W{code}\n')
-            output.append(f'void W{code}({warning.inputs});\n')
-            output.append( '\n')
+    for warning in warnings:
+        code = str(warning.code).zfill(PADAMT)
+        output.append(f'// W{code} - W{warning.name}\n')
+        output.append(f'#define WARN_{warning.name.upper().replace("-", "_")} W{code}\n')
+        output.append(f'void W{code}({warning.inputs});\n')
+        output.append( '\n')
 
     return ''.join(output)
 
 def gen_cpp():
-    def gen_message(code, name, category, msgtype, location, description, inputs, highlights, extra):
+    def gen_message(code, name, msgtype, location, description, inputs, highlights, extra):
         output.append(        f'// {code} - {name}\n')
         desc_wrapped = ''.join('// | ' + line + '\n' for line in textwrap.wrap(description, 60))
         output.append(        desc_wrapped)
         output.append(        f'void {code}({inputs}) {{\n')
-        output.append(        f'    Error e = Error(MsgType::{msgtype}, {location}, "{category}", "{code}", "{name}");\n')
+        output.append(        f'    Error e = Error(MsgType::{msgtype}, {location}, "{code}", "{name}");\n')
 
         for hi in highlights:
             output.append(hi.generate())
@@ -487,28 +452,26 @@ def gen_cpp():
 
     output = []
 
-    for error in itertools.chain.from_iterable(errors.values()):
+    for error in errors:
         code = 'E' + str(error.code).zfill(PADAMT)
         name = error.name
-        category = error.category
         msgtype = 'ERROR'
         location = error.location
         description = error.desc
         inputs = error.inputs
         highlights = error.highlights
         extra = error.extra
-        gen_message(code, name, category, msgtype, location, description, inputs, highlights, extra)
+        gen_message(code, name, msgtype, location, description, inputs, highlights, extra)
 
-    for warning in itertools.chain.from_iterable(warnings.values()):
+    for warning in warnings:
         code = 'W' + str(warning.code).zfill(PADAMT)
         name = 'W' + warning.name
-        category = warning.category
         msgtype = 'WARNING'
         location = warning.location
         description = warning.desc
         inputs = warning.inputs
         highlights = warning.highlights
         extra = warning.extra
-        gen_message(code, name, category, msgtype, location, description, inputs, highlights, extra)
+        gen_message(code, name, msgtype, location, description, inputs, highlights, extra)
 
     return ''.join(output)

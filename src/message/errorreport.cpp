@@ -100,8 +100,8 @@ namespace {
         std::cerr << format("% at %:%:%:%\n", msgtypestr, attr(FILEPATH_COLOR, location.file->filename, true), getLineN(fstart, location.start), getColN(fstart, location.start), resetIfNecessary());
     }
     // final line {{{2
-    void printFinalLine(std::string const &pad, MsgType type, std::string const &category, std::string const &code, std::string const &name) {
-        std::cerr << format("%==> % [%]: %\n", pad, attr(colorOfType(type), category), attr(A_BOLD, code), name);
+    void printFinalLine(std::string const &pad, MsgType type, std::string const &code, std::string const &name) {
+        std::cerr << format("%==> [%]: %\n", pad, attr(A_BOLD, code), name);
     }
     // collectShowlines {{{2
     std::vector<showline> collectShowlines(std::vector<Underline> const &underlines) {
@@ -302,7 +302,7 @@ void Error::report() const {
             lastnr = sl.line;
         }
 
-        printFinalLine(pad, type, category, code, name);
+        printFinalLine(pad, type, code, name);
     } else if (errformat == ErrorFormat::ALIGNED) {
         printHeading(type, location);
         auto showlines (collectShowlines(underlines));
@@ -346,7 +346,7 @@ void Error::report() const {
             std::cerr << std::string(unStartCol - 1, ' ') << attr(A_BOLD, attr(un.messages.size() ? un.messages[0].color : "", std::string(unEndCol - unStartCol, '^'))) << std::endl;
         }
 
-        printFinalLine(pad, type, category, code, name);
+        printFinalLine(pad, type, code, name);
     } else {
         std::cerr << "{\"type\":\"";
         switch (type) {
@@ -369,7 +369,7 @@ void Error::report() const {
         std::cerr << "\",";
         std::string::const_iterator const fstart = location.file->source.cbegin();
         std::cerr << jsonfield("location", formatLocation(*location.file, location.start, fstart));
-        std::cerr << jsonfield("category", category) << jsonfield("code", code) << jsonfield("name", name);
+        std::cerr << jsonfield("code", code) << jsonfield("name", name);
 
         std::cerr << "\"underlines\":[";
         bool f = true;

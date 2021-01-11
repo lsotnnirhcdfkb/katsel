@@ -43,7 +43,7 @@ enum class MsgType {
 
 class Error {
 public:
-    Error(MsgType type, Location const &location, std::string const &category, std::string const &code, std::string const &name);
+    Error(MsgType type, Location const &location, std::string const &code, std::string const &name);
 
     Error& underline(Underline const &underline);
 
@@ -52,7 +52,6 @@ public:
     MsgType type;
     Location location;
 
-    std::string const category;
     std::string const code;
     std::string const name;
 
