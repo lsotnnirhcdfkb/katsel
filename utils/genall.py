@@ -46,6 +46,8 @@ jobs = [
     ('src/message/errmsgs.cpp'             , 'ERRCPP START'              , 'ERRCPP END'              , errgen.gen_cpp),
 ]
 
+skipped = 0
+
 for jobi, job in enumerate(jobs):
     jobfile, jobstart, jobend, jobfunc = job
     # print(f'Running job {jobi + 1}/{len(jobs)}: insert {jobfunc} to {jobfile}')
@@ -93,6 +95,7 @@ for jobi, job in enumerate(jobs):
     FINAL_OUTPUT = ''.join(flines)
 
     if FINAL_OUTPUT == BACKUP:
+        skipped += 1
         continue
 
     try:
@@ -104,3 +107,6 @@ for jobi, job in enumerate(jobs):
 
         print(f'In writing file {jobfile} with function {jobfunc}')
         raise
+
+
+print(f'generation: {len(jobs)} jobs, {skipped} skipped')
