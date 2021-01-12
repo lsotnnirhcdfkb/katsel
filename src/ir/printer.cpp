@@ -312,20 +312,66 @@ namespace {
     };
     // }}}
     // Decl Symbol Decl Printer {{{
-    class DSDPrinter final : public IR::DeclSymbolVisitor {
+    class DSDPrinter final : public IR::DeclSymbolVisitor, public IR::TypeVisitor {
     public:
         DSDPrinter(_Printer &pr): pr(pr) {}
         _Printer &pr;
         // declsym {{{
         void declsym_visitType(IR::Type *ty) override {
-            // TODO: inherit from type visitor
-            pr("type ")(ty->name())(" {\n");
-            walk(ty);
-            pr("}\n");
+            ty->type_accept(this);
         }
         void declsym_visitModule(IR::Module *mod) override {
             pr("mod ")(mod->name())(" {\n");
             walk(mod);
+            pr("}\n");
+        }
+        // }}}
+        // types {{{
+        void type_visitFloatType(IR::FloatType *ty) override {
+            pr("type ")(ty->name())(" = builtin float ")(ty->size)(" {\n");
+            walk(ty);
+            pr("}\n");
+        }
+        void type_visitIntType(IR::IntType *ty) override {
+            pr("type ")(ty->name())(" = builtin int ")(ty->isSigned ? "signed " : "unsigned ")(ty->size)(" {\n");
+            walk(ty);
+            pr("}\n");
+        }
+        void type_visitCharType(IR::CharType *ty) override {
+            pr("type ")(ty->name())(" = builtin char {\n");
+            walk(ty);
+            pr("}\n");
+        }
+        void type_visitBoolType(IR::BoolType *ty) override {
+            pr("type ")(ty->name())(" = builtin bool {\n");
+            walk(ty);
+            pr("}\n");
+        }
+        void type_visitVoidType(IR::VoidType *ty) override {
+            pr("type ")(ty->name())(" = builtin void {\n");
+            walk(ty);
+            pr("}\n");
+        }
+        void type_visitGenericIntType(IR::GenericIntType *ty) override {
+            pr("type ")(ty->name())(" = builtin generic int {\n");
+            walk(ty);
+            pr("}\n");
+        }
+        void type_visitGenericFloatType(IR::GenericFloatType *ty) override {
+            pr("type ")(ty->name())(" = builtin generic float {\n");
+            walk(ty);
+            pr("}\n");
+        }
+
+        void type_visitPointerType(IR::PointerType *ty) override {
+            pr("type ")(ty->name())(" = pointer to ")(ty->ty->name())(" {\n");
+            walk(ty);
+            pr("}\n");
+        }
+
+        void type_visitFunctionType(IR::FunctionType *ty) override {
+            pr("type <functiontype at ")((void*) ty)("> = ")(ty->name())(" {\n");
+            walk(ty);
             pr("}\n");
         }
         // }}}
