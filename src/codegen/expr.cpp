@@ -497,25 +497,23 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitMethodCallExpr(ASTNS::MethodCal
     }
 
     IR::ASTValue thisArg;
-    {
-        if (method.thisPtr) {
-            IR::Instrs::DerefPtr *opAsDeref = dynamic_cast<IR::Instrs::DerefPtr*>(op.val);
-            if (!opAsDeref) {
-                ERR_ADDROF_NOT_LVALUE(ast->dot, op);
-                fcg.errored = true;
-                return;
-            }
-
-            if (static_cast<IR::PointerType*>(opAsDeref->ptr.type())->mut == false && method.thisMut) {
-                ERR_MUT_ADDROF_NONMUT_OP(ast->dot, opAsDeref);
-                fcg.errored = true;
-                return;
-            }
-
-            thisArg = IR::ASTValue(fcg.curBlock->add(std::make_unique<IR::Instrs::Addrof>(opAsDeref, method.thisMut)), op.ast);
-        } else {
-            thisArg = op;
+    if (method.thisPtr) {
+        IR::Instrs::DerefPtr *opAsDeref = dynamic_cast<IR::Instrs::DerefPtr*>(op.val);
+        if (!opAsDeref) {
+            ERR_ADDROF_NOT_LVALUE(ast->dot, op);
+            fcg.errored = true;
+            return;
         }
+
+        if (static_cast<IR::PointerType*>(opAsDeref->ptr.type())->mut == false && method.thisMut) {
+            ERR_MUT_ADDROF_NONMUT_OP(ast->dot, opAsDeref);
+            fcg.errored = true;
+            return;
+        }
+
+        thisArg = IR::ASTValue(fcg.curBlock->add(std::make_unique<IR::Instrs::Addrof>(opAsDeref, method.thisMut)), op.ast);
+    } else {
+        thisArg = op;
     }
 
     std::vector<IR::ASTValue> args { thisArg };
