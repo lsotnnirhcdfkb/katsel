@@ -64,22 +64,17 @@ class Item: # an LR1 item
         self.rule = rule
         self.index = index
         self.lookahead = lookahead
+        self.after = self.rule.expansion[self.index] if self.index < len(self.rule.expansion) else None
 
     @staticmethod
     def get(rule, index, lookahead):
         itemtuple = (rule, index, lookahead)
-        if itemtuple in Item.items:
-            return Item.items[itemtuple]
+        if found := Item.items.get(itemtuple):
+            return found
 
         i = Item(*itemtuple)
         Item.items[itemtuple] = i
         return i
-
-    def get_after_dot(self):
-        if self.index < len(self.rule.expansion):
-            return self.rule.expansion[self.index]
-        else:
-            return None
 
     def __repr__(self):
         return str(self)
@@ -127,11 +122,11 @@ class State:
         self.make_description()
 
     def set_action(self, sym, action):
-        if sym in self.actions.keys():
+        if sym in self.actions:
             conflict_type = 'sr' if isinstance(self.actions[sym], ShiftAction) or isinstance(action, ShiftAction) else 'rr'
             having_parsed = self.set_.kernel[0].rule.expansion[:self.set_.kernel[0].index]
             while_parsing = set(item.rule.symbol for item in self.set_.kernel)
-            possible_nexts = set(item.get_after_dot() for item in self.set_.kernel)
+            possible_nexts = set(item.after for item in self.set_.kernel)
 
             print(f'{conflict_type} conflict')
             print(f'   | in state {self.seti}')
@@ -151,7 +146,7 @@ class State:
         return True
 
     def set_goto(self, sym, newstate):
-        if sym in self.goto.keys():
+        if sym in self.goto:
             self.goto[sym] = None
             print('goto conflict')
             return False
@@ -164,11 +159,11 @@ class State:
         self.terminates = {}
 
         for item in self.set_.kernel:
-            if item.get_after_dot() is not None:
+            if item.after is not None:
                 if item.rule.symbol not in self.futures:
                     self.futures[item.rule.symbol] = []
-                if item.get_after_dot() not in self.futures[item.rule.symbol]:
-                    self.futures[item.rule.symbol].append(item.get_after_dot())
+                if item.after not in self.futures[item.rule.symbol]:
+                    self.futures[item.rule.symbol].append(item.after)
             else:
                 if item.rule.symbol not in self.terminates:
                     self.terminates[item.rule.symbol] = []
@@ -336,48 +331,55 @@ def find_follows():
                                     changed = True
 
                     addamt = 1
-                    while addamt == 1 or any([len(r.expansion) == 0 for r in grammar if i + addamt - 1 < len(rule.expansion) and r.symbol == rule.expansion[i + addamt - 1]]):
+                    while addamt == 1 or (i + addamt - 1 < len(rule.expansion) and any([len(r.expansion) == 0 for r in grammar if r.symbol == rule.expansion[i + addamt - 1]])):
                         add_firsts_of(i + addamt)
                         addamt += 1
     return (follows, nt_follows)
 
 # closure {{{2
-def get_closurelr0(lr0set):
+__rules_by_sym = {}
+def get_closure_lr0(lr0set):
+    if len(__rules_by_sym) == 0:
+        for rule in grammar:
+            sym = rule.symbol
+            if sym not in __rules_by_sym:
+                __rules_by_sym[sym] = []
+            __rules_by_sym[sym].append(rule)
+
     kernel = lr0set
     extras = []
     stack = list(lr0set)
     while len(stack) > 0:
-        cur = stack.pop(0)
+        item_rule, index = stack.pop(0)
 
-        if cur[1] < len(cur[0].expansion):
-            after = cur[0].expansion[cur[1]]
+        if index < len(item_rule.expansion):
+            after = item_rule.expansion[index]
             if isinstance(after, NonTerminal):
-                for rule in grammar:
-                    if rule.symbol == after:
-                        newitem = (rule, 0)
-                        if newitem not in extras and newitem not in kernel:
-                            extras.append(newitem)
-                            stack.append(newitem)
+                for rule in __rules_by_sym[after]:
+                    newitem = (rule, 0)
+                    if newitem not in extras and newitem not in kernel:
+                        extras.append(newitem)
+                        stack.append(newitem)
 
-    return lr0tolr1(kernel, extras)
-# lr0tolr1 {{{2
-def lr0tolr1(kernel, extras):
+    return lr0_to_lr1(kernel, extras)
+# lr0_to_lr1 {{{2
+def lr0_to_lr1(kernel, extras):
     lr1kernel = []
     lr1extras = []
 
-    for kerneli in kernel:
-        for follow in FOLLOWS[kerneli[0].symbol]:
-            lr1kernel.append(Item.get(kerneli[0], kerneli[1], follow))
+    for item_rule, item_ind in kernel:
+        for follow in FOLLOWS[item_rule.symbol]:
+            lr1kernel.append(Item.get(item_rule, item_ind, follow))
 
-    for extrai in extras:
-        for follow in FOLLOWS[extrai[0].symbol]:
-            lr1extras.append(Item.get(extrai[0], extrai[1], follow))
+    for item_rule, item_ind in extras:
+        for follow in FOLLOWS[item_rule.symbol]:
+            lr1extras.append(Item.get(item_rule, item_ind, follow))
 
     return ItemSet.get(lr1kernel, lr1extras)
 # make parser table {{{1
 # find item sets {{{2
 def get_item_sets():
-    initial = get_closurelr0([(AUGMENT_RULE, 0)])
+    initial = get_closure_lr0([(AUGMENT_RULE, 0)])
 
     isets = [initial]
     transitions = []
@@ -388,7 +390,7 @@ def get_item_sets():
 
         afters = {}
         for item in origset.items():
-            after = item.get_after_dot()
+            after = item.after
             if after is not None:
                 if after not in afters:
                     afters[after] = []
@@ -398,7 +400,7 @@ def get_item_sets():
                     afters[after].append(newitem)
 
         for after, afternewset in afters.items():
-            newsetlr1 = get_closurelr0(afternewset)
+            newsetlr1 = get_closure_lr0(afternewset)
             toseti = newsetlr1.n
             if newsetlr1 not in isets:
                 isets.append(newsetlr1)
@@ -428,15 +430,14 @@ def fill_parse_table(isets, transitions):
                 conflicts += 1
 
     for iset in isets:
-        for item in iset.items():
-            if item.get_after_dot() is None:
-                state = table[iset.n]
-                if item.rule.symbol != AUGMENT_SYM:
-                    if not state.set_action(item.lookahead, ReduceAction(item.rule)):
-                        conflicts += 1
-                else:
-                    if not state.set_action(item.lookahead, AcceptAction()):
-                        conflicts += 1
+        for item in filter(lambda i: i.after is None, iset.items()):
+            state = table[iset.n]
+            if item.rule.symbol != AUGMENT_SYM:
+                if not state.set_action(item.lookahead, ReduceAction(item.rule)):
+                    conflicts += 1
+            else:
+                if not state.set_action(item.lookahead, AcceptAction()):
+                    conflicts += 1
 
     if conflicts > 0:
         print('note: unabriged grammar is')
@@ -835,9 +836,9 @@ def print_parse_table(pad=True):
         print(padf(str(staten)), end='')
 
         for sym in symbols:
-            if sym in state.actions.keys():
+            if sym in state.actions:
                 print(padf(str(state.actions[sym])), end='')
-            elif sym in state.goto.keys():
+            elif sym in state.goto:
                 print(padf(str(state.goto[sym])), end='')
             else:
                 print(padf('_'), end='')
