@@ -158,7 +158,7 @@ for testi, testfile in enumerate(TESTS):
     comp_err_expectations  = EXPECT_COMP_ERR_REGEX  .finditer(contents)
     comp_warn_expectations = EXPECT_COMP_WARN_REGEX .finditer(contents)
     run_err_expectations   = EXPECT_RUN_ERR_REGEX   .finditer(contents)
-    print_expectations    = EXPECT_PRINT_REGEX     .finditer(contents)
+    print_expectations     = EXPECT_PRINT_REGEX     .finditer(contents)
 
     failed = False
     failmsg = ''

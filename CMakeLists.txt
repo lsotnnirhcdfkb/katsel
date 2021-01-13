@@ -24,11 +24,15 @@ add_definitions(${LLVM_DEFINITIONS})
 find_package(Python REQUIRED COMPONENTS Interpreter)
 
 set(GENCODEALLPY ${CMAKE_SOURCE_DIR}/utils/genall.py)
-add_custom_target(gencode ALL
+add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/gencode.timestamp
     COMMAND ${Python_EXECUTABLE} ${GENCODEALLPY}
+    COMMAND cmake -E touch ${CMAKE_BINARY_DIR}/gencode.timestamp
+    DEPENDS utils/astgen.py utils/genall.py utils/kwgen.py utils/errgen.py utils/instrgen.py utils/parsegen.py
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Generate code into .h and .cpp files"
     VERBATIM)
+add_custom_target(gencode ALL
+    DEPENDS ${CMAKE_BINARY_DIR}/gencode.timestamp)
 
 add_subdirectory(src)
 add_subdirectory(docs)
