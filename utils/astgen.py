@@ -83,7 +83,7 @@ asts = [
 
     AST('Block'             , 'Expr', 'std::vector<std::unique_ptr<Stmt>>|stmts'),
     AST('IfExpr'            , 'Expr', 'Token|iftok, Token|elsetok, std::unique_ptr<Expr>|cond, std::unique_ptr<Expr>|trues, std::unique_ptr<Expr>|falses'),
-    AST('ForExpr'           , 'Expr', 'std::unique_ptr<VarStmt>|initial, std::unique_ptr<Expr>|cond, std::unique_ptr<Expr>|increment, std::unique_ptr<Expr>|body'),
+    AST('WhileExpr'         , 'Expr', 'std::unique_ptr<Expr>|cond, std::unique_ptr<Expr>|body'),
 
     AST('AssignmentExpr'    , 'Expr', 'std::unique_ptr<Expr>|target, Token|equal, std::unique_ptr<Expr>|expr'),
     AST('ShortCircuitExpr'  , 'Expr', 'std::unique_ptr<Expr>|lhs, Token|op, std::unique_ptr<Expr>|rhs'),

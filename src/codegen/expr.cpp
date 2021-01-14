@@ -341,11 +341,8 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitIfExpr(ASTNS::IfExpr *ast) {
         ret = IR::ASTValue(truev.val, ast);
 
 }
-void CodeGen::FunctionCodeGen::ExprCodeGen::visitForExpr(ASTNS::ForExpr *ast) {
+void CodeGen::FunctionCodeGen::ExprCodeGen::visitWhileExpr(ASTNS::WhileExpr *ast) {
     fcg.incScope();
-
-    if (ast->initial)
-        fcg.stmtCG.stmt(ast->initial.get());
 
     IR::Block *loopCheckCond = fcg.fun->addBlock("loop_checkcond");
     IR::Block *loopBody = fcg.fun->addBlock("loop_body");
@@ -363,7 +360,6 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitForExpr(ASTNS::ForExpr *ast) {
     fcg.curBlock = loopBody;
     expr(ast->body.get());
 
-    expr(ast->increment.get());
     fcg.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(loopCheckCond));
 
     fcg.decScope();

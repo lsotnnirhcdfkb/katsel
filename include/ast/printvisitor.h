@@ -51,7 +51,7 @@ void visitParam(ASTNS::Param *ast) override;
 void visitThisParam(ASTNS::ThisParam *ast) override;
 void visitBlock(ASTNS::Block *ast) override;
 void visitIfExpr(ASTNS::IfExpr *ast) override;
-void visitForExpr(ASTNS::ForExpr *ast) override;
+void visitWhileExpr(ASTNS::WhileExpr *ast) override;
 void visitAssignmentExpr(ASTNS::AssignmentExpr *ast) override;
 void visitShortCircuitExpr(ASTNS::ShortCircuitExpr *ast) override;
 void visitBinaryExpr(ASTNS::BinaryExpr *ast) override;

@@ -45,7 +45,7 @@ namespace ASTNS {
     class ThisParam;
     class Block;
     class IfExpr;
-    class ForExpr;
+    class WhileExpr;
     class AssignmentExpr;
     class ShortCircuitExpr;
     class BinaryExpr;
@@ -122,7 +122,7 @@ namespace ASTNS {
             virtual ~Visitor() {}
             virtual void visitBlock(ASTNS::Block *ast) = 0;
             virtual void visitIfExpr(ASTNS::IfExpr *ast) = 0;
-            virtual void visitForExpr(ASTNS::ForExpr *ast) = 0;
+            virtual void visitWhileExpr(ASTNS::WhileExpr *ast) = 0;
             virtual void visitAssignmentExpr(ASTNS::AssignmentExpr *ast) = 0;
             virtual void visitShortCircuitExpr(ASTNS::ShortCircuitExpr *ast) = 0;
             virtual void visitBinaryExpr(ASTNS::BinaryExpr *ast) = 0;
@@ -459,17 +459,15 @@ namespace ASTNS {
         virtual Location const & end() override;
         IfExpr(File const &file, Location start, Location end, Token iftok, Token elsetok, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> trues, std::unique_ptr<Expr> falses);
     };
-    class ForExpr : public Expr {
+    class WhileExpr : public Expr {
     public:
         Location _start, _end;
-        std::unique_ptr<VarStmt> initial;
         std::unique_ptr<Expr> cond;
-        std::unique_ptr<Expr> increment;
         std::unique_ptr<Expr> body;
         virtual void accept(ASTNS::Expr::Visitor *v) override;
         virtual Location const & start() override;
         virtual Location const & end() override;
-        ForExpr(File const &file, Location start, Location end, std::unique_ptr<VarStmt> initial, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> increment, std::unique_ptr<Expr> body);
+        WhileExpr(File const &file, Location start, Location end, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> body);
     };
     class AssignmentExpr : public Expr {
     public:

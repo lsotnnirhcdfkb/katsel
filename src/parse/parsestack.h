@@ -63,7 +63,7 @@ enum class NonTerminal {
     ThisParam,
     AssignmentExpr,
     IfExpr,
-    ForExpr,
+    WhileExpr,
     BinOrExpr,
     BinAndExpr,
     CompEQExpr,

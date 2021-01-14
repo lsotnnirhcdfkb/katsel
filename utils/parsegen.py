@@ -551,7 +551,6 @@ EQUAL = Terminal('EQUAL')
 ELSE = Terminal('ELSE')
 FALSELIT = Terminal('FALSELIT')
 FLOATLIT = Terminal('FLOATLIT')
-FOR = Terminal('FOR')
 FUN = Terminal('FUN')
 GREATER = Terminal('GREATER')
 GREATEREQUAL = Terminal('GREATEREQUAL')
@@ -584,6 +583,7 @@ THIS = Terminal('THIS')
 TILDE = Terminal('TILDE')
 TRUELIT = Terminal('TRUELIT')
 VAR = Terminal('VAR')
+WHILE = Terminal('WHILE')
 
 def make_grammar():
     global AUGMENT_RULE, AUGMENT_SYM
@@ -616,7 +616,7 @@ def make_grammar():
     BlockedExpr = nt('BlockedExpr', 'braced expression', 'Expr')
     NotBlockedExpr = nt('NotBlockedExpr', 'non-braced expression', 'Expr')
     IfExpr = nt('IfExpr', 'if expression', 'IfExpr', panickable=True)
-    ForExpr = nt('ForExpr', 'for expression', 'ForExpr', panickable=True)
+    WhileExpr = nt('WhileExpr', 'while loop expression', 'WhileExpr', panickable=True)
     AssignmentExpr = nt('AssignmentExpr', 'assignment expression', 'Expr')
     BinOrExpr = nt('BinOrExpr', 'binary or expression', 'Expr')
     BinAndExpr = nt('BinAndExpr', 'binary and expression', 'Expr')
@@ -725,13 +725,13 @@ def make_grammar():
 
     skip_to(Expr, BlockedExpr, NotBlockedExpr)
     skip_to(NotBlockedExpr, AssignmentExpr)
-    skip_to(BlockedExpr, IfExpr, ForExpr, BracedBlock)
+    skip_to(BlockedExpr, IfExpr, WhileExpr, BracedBlock)
 
     rule(IfExpr, (IF, Expr, Block), SimpleReduceAction('IfExpr', 'a0, a0, std::move(a1), std::move(a2), nullptr'))
     rule(IfExpr, (IF, Expr, Block, ELSE, Block), SimpleReduceAction('IfExpr', 'a0, a3, std::move(a1), std::move(a2), std::move(a4)'))
     rule(IfExpr, (IF, Expr, Block, ELSE, IfExpr), SimpleReduceAction('IfExpr', 'a0, a3, std::move(a1), std::move(a2), std::move(a4)'))
 
-    rule(ForExpr, (FOR, VarStmtOpt, SEMICOLON, ExprOpt, SEMICOLON, ExprOpt, CPARN, Block), SimpleReduceAction('ForExpr', 'std::move(a1), std::move(a3), std::move(a5), std::move(a7)'))
+    rule(WhileExpr, (WHILE, Expr, Block), SimpleReduceAction('WhileExpr', 'std::move(a1), std::move(a2)'))
 
     bin_expr_reduction = SimpleReduceAction('BinaryExpr', 'std::move(a0), a1, std::move(a2)')
 

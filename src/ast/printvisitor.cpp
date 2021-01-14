@@ -281,15 +281,11 @@ void ASTNS::PrintVisitor::visitIfExpr(ASTNS::IfExpr *a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visitForExpr(ASTNS::ForExpr *a) {
-    pai("ForExpr {\n");
+void ASTNS::PrintVisitor::visitWhileExpr(ASTNS::WhileExpr *a) {
+    pai("WhileExpr {\n");
     ++indent;
-    pai("std::unique_ptr<VarStmt> initial = ");
-    printField(*this, a->initial);
     pai("std::unique_ptr<Expr> cond = ");
     printField(*this, a->cond);
-    pai("std::unique_ptr<Expr> increment = ");
-    printField(*this, a->increment);
     pai("std::unique_ptr<Expr> body = ");
     printField(*this, a->body);
     --indent;

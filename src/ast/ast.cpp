@@ -110,10 +110,10 @@ ASTNS::IfExpr::IfExpr(File const &file, Location start, Location end, Token ifto
 void ASTNS::IfExpr::accept(ASTNS::Expr::Visitor *v) { v->visitIfExpr(this); }
 Location const & ASTNS::IfExpr::start() { return _start; }
 Location const & ASTNS::IfExpr::end() { return _end; }
-ASTNS::ForExpr::ForExpr(File const &file, Location start, Location end, std::unique_ptr<VarStmt> initial, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> increment, std::unique_ptr<Expr> body): Expr(file), _start(start), _end(end), initial(std::move(initial)), cond(std::move(cond)), increment(std::move(increment)), body(std::move(body)) {}
-void ASTNS::ForExpr::accept(ASTNS::Expr::Visitor *v) { v->visitForExpr(this); }
-Location const & ASTNS::ForExpr::start() { return _start; }
-Location const & ASTNS::ForExpr::end() { return _end; }
+ASTNS::WhileExpr::WhileExpr(File const &file, Location start, Location end, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> body): Expr(file), _start(start), _end(end), cond(std::move(cond)), body(std::move(body)) {}
+void ASTNS::WhileExpr::accept(ASTNS::Expr::Visitor *v) { v->visitWhileExpr(this); }
+Location const & ASTNS::WhileExpr::start() { return _start; }
+Location const & ASTNS::WhileExpr::end() { return _end; }
 ASTNS::AssignmentExpr::AssignmentExpr(File const &file, Location start, Location end, std::unique_ptr<Expr> target, Token equal, std::unique_ptr<Expr> expr): Expr(file), _start(start), _end(end), target(std::move(target)), equal(std::move(equal)), expr(std::move(expr)) {}
 void ASTNS::AssignmentExpr::accept(ASTNS::Expr::Visitor *v) { v->visitAssignmentExpr(this); }
 Location const & ASTNS::AssignmentExpr::start() { return _start; }
