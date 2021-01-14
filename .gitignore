@@ -4,6 +4,6 @@ build*
 
 *__pycache__*
 
-scratch.*
+_v*
 
 **/.DS_Store
