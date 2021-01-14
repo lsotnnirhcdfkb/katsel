@@ -355,6 +355,12 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitWhileExpr(ASTNS::WhileExpr *ast
         ret = IR::ASTValue();
         return;
     }
+    if (!dynamic_cast<IR::BoolType*>(cond.type())) {
+        ERR_COND_NOT_BOOL(cond);
+        ret = IR::ASTValue();
+        fcg.errored = true;
+        return;
+    }
     fcg.curBlock->branch(std::make_unique<IR::Instrs::CondBr>(cond, loopBody, loopAfter));
 
     fcg.curBlock = loopBody;
