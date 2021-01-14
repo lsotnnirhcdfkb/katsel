@@ -508,8 +508,10 @@ def make_opt(toopt, with_action, no_action, new_name=None):
     rule(optnt, (), no_action, special='nodefaultreduce')
     return optnt
 
-def braced_rule(braced_nt, inside_block, reduce_off_1, reduce_off_2, reduce_off_3):
+def braced_rule(braced_nt, inside_block, warn_no_indent, reduce_off_1, reduce_off_2, reduce_off_3):
     rule(braced_nt, (OCURB, *inside_block, CCURB), reduce_off_1)
+    if warn_no_indent:
+        reduce_off_2 = WarnAction(f'WARN_BLOCK_NO_INDENT(a0, a{len(inside_block) + 2});', reduce_off_2)
     rule(braced_nt, (OCURB, NEWLINE, *inside_block, CCURB), reduce_off_2)
     rule(braced_nt, (OCURB, NEWLINE, INDENT, *inside_block, DEDENT, CCURB), reduce_off_3)
 
@@ -666,7 +668,7 @@ def make_grammar():
 
     rule(ImplDecl, (IMPL, Type, ImplBody, LineEndingOpt), SimpleReduceAction('ImplDecl', 'std::move(a1), std::move(a2->members)'), loc_end=1)
 
-    braced_rule(ImplBody, (ImplMemberListOpt,),
+    braced_rule(ImplBody, (ImplMemberListOpt,), True,
         SkipReduceAction(1),
         SkipReduceAction(2),
         SkipReduceAction(3))
@@ -692,7 +694,7 @@ def make_grammar():
     rule(VarStmtItem, (MUT, IDENTIFIER, TypeAnnotation), SimpleReduceAction('VarStmtItem', 'std::move(a2), true, a1, a1, nullptr'))
 
     skip_to(Block, BracedBlock, IndentedBlock)
-    braced_rule(BracedBlock, (StmtListOpt,),
+    braced_rule(BracedBlock, (StmtListOpt,), True,
         SimpleReduceAction('Block', 'std::move(a1->stmts)'), # offset 1
         SimpleReduceAction('Block', 'std::move(a2->stmts)'), # offset 2
         SimpleReduceAction('Block', 'std::move(a3->stmts)')) # offset 3

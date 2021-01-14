@@ -1626,7 +1626,7 @@ std::unique_ptr<ASTNS::ThisParam> push (std::make_unique<ASTNS::ThisParam>(p.sou
                             Location start, end;
                             start = a0;
                             end = a3;
-                            std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(a2);
+WARN_BLOCK_NO_INDENT(a0, a3);                            std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(a2);
                             stack.emplace_back(getGoto(NonTerminal::ImplBody, stack.back().state), std::move(pushitem), NonTerminal::ImplBody);
                         }
                         break;
@@ -4614,7 +4614,7 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                             Location start, end;
                             start = a0;
                             end = a3;
-std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, start, end, std::move(a2->stmts)));
+WARN_BLOCK_NO_INDENT(a0, a3);std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, start, end, std::move(a2->stmts)));
                             std::unique_ptr<ASTNS::Block> pushitem = std::move(push);
                             stack.emplace_back(getGoto(NonTerminal::BracedBlock, stack.back().state), std::move(pushitem), NonTerminal::BracedBlock);
                         }

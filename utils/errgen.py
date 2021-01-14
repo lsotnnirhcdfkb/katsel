@@ -401,6 +401,13 @@ warnings = [
         highlights=[
             SimpleHighlight('ast', UNDER0, [('warning', '"uninitialized immutable variable will never be initialized"')]),
         ]),
+    Msg('block-no-indent',
+        desc='Braced block without an indent',
+        inputs='Token const &obrace, Token const &cbrace', location='obrace',
+        highlights=[
+            SimpleHighlight('obrace', UNDER0, [('warning', '"braced block without indent"')]),
+            SimpleHighlight('cbrace', UNDER1, [('note', '"closing brace here"')]),
+        ]),
 ]
 # fill numbers {{{1
 def fill(msgs):
