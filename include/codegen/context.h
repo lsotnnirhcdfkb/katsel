@@ -10,23 +10,23 @@ class CodeGen::Context {
 public:
     Context(File const &file, CodeGen &cg);
 
-    IR::FloatType* getFloatType(int size);
-    IR::IntType* getIntType(int size, bool isSigned);
-    IR::GenericFloatType* getGenericFloatType();
-    IR::GenericIntType* getGenericIntType();
-    IR::CharType* getCharType();
-    IR::BoolType* getBoolType();
-    IR::FunctionType* getFunctionType(IR::Type *ret, std::vector<IR::Type*> paramtys);
-    IR::VoidType* getVoidType();
-    IR::PointerType* getPointerType(bool mut, IR::Type *ty);
+    NNPtr<IR::FloatType> getFloatType(int size);
+    NNPtr<IR::IntType> getIntType(int size, bool isSigned);
+    NNPtr<IR::GenericFloatType> getGenericFloatType();
+    NNPtr<IR::GenericIntType> getGenericIntType();
+    NNPtr<IR::CharType> getCharType();
+    NNPtr<IR::BoolType> getBoolType();
+    NNPtr<IR::FunctionType> getFunctionType(NNPtr<IR::Type> ret, std::vector<NNPtr<IR::Type>> paramtys);
+    NNPtr<IR::VoidType> getVoidType();
+    NNPtr<IR::PointerType> getPointerType(bool mut, NNPtr<IR::Type> ty);
 
-    IR::ConstFloat* getConstFloat(IR::FloatType *ty, double value);
-    IR::ConstInt* getConstInt(IR::IntType *ty, uint64_t value);
-    IR::ConstFloat* getConstFloat(IR::GenericFloatType *ty, double value);
-    IR::ConstInt* getConstInt(IR::GenericIntType *ty, uint64_t value);
-    IR::ConstChar* getConstChar(uint8_t value);
-    IR::ConstBool* getConstBool(bool value);
-    IR::Void* getVoid();
+    NNPtr<IR::ConstFloat> getConstFloat(NNPtr<IR::FloatType> ty, double value);
+    NNPtr<IR::ConstInt> getConstInt(NNPtr<IR::IntType> ty, uint64_t value);
+    NNPtr<IR::ConstFloat> getConstFloat(NNPtr<IR::GenericFloatType> ty, double value);
+    NNPtr<IR::ConstInt> getConstInt(NNPtr<IR::GenericIntType> ty, uint64_t value);
+    NNPtr<IR::ConstChar> getConstChar(uint8_t value);
+    NNPtr<IR::ConstBool> getConstBool(bool value);
+    NNPtr<IR::Void> getVoid();
 
 private:
     CodeGen &cg;

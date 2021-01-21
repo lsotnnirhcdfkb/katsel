@@ -85,15 +85,16 @@ enum class NonTerminal {
     // NONTERM ENUM END
 };
 // }}}
+
 struct tokenitem { Token tok; };
 struct astitem { std::unique_ptr<ASTNS::AST> ast; NonTerminal nt; };
-struct initialitem {};
+struct initialitem { int dummy; };
 
 struct stackitem {
     int state;
     std::variant<tokenitem, astitem, initialitem> item;
 
-    stackitem(int state): state(state), item(initialitem()) {}
+    stackitem(int state): state(state), item(initialitem {0}) {}
     stackitem(int state, Token const &t): state(state), item(tokenitem {t}) {}
     stackitem(int state, std::unique_ptr<ASTNS::AST> ast, NonTerminal nt): state(state), item(astitem {std::move(ast), nt}) {}
 };

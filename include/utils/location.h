@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include "utils/ptr.h"
 
 struct File;
 struct ASTen;
@@ -10,12 +11,14 @@ namespace ASTNS { class AST; }
 struct Location {
     std::string::iterator start;
     std::string::iterator end;
-    File const *file;
+    NNPtr<File const> file;
 
-    Location();
     Location(Token const &t);
-    Location(std::string::iterator start, std::string::iterator end, File const *file);
+    Location(std::string::iterator start, std::string::iterator end, NNPtr<File const> file);
     Location(IR::ASTValue const &v);
-    Location(IR::ASTValue const *v);
-    Location(ASTNS::AST *ast);
+    Location(NNPtr<IR::ASTValue const> v);
+    Location(NNPtr<ASTNS::AST> v);
+
+    template <typename T>
+    Location(NNPtr<T> ast): Location(NNPtr<ASTNS::AST>(ast)) {}
 };

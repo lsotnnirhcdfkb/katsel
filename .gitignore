@@ -5,11 +5,12 @@
 *__pycache__*
 
 # files of code in other languages in order to take inspiration from them
+# also the katsel scratch file that I use to mess around with
 _v*
 
 # no DS_Store files please
 **/.DS_Store
 
-# python script that uses libclang to search for certain AST elements through the source code,
+# python scripts that use libclang to search for certain AST elements through the source code,
 # so that I can easily make sweeping changes throughout the entire codebase
-find.py
+finds/*

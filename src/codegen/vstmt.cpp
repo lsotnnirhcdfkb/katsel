@@ -1,27 +1,31 @@
 #include "codegenlocal.h"
 #include "message/errmsgs.h"
 
-void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem *ast) {
+void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmtItem(NNPtr<ASTNS::VarStmtItem> ast) {
     std::string varname = ast->name.stringify();
-    CodeGen::FunctionCodeGen::Local *var = fcg.getLocal(varname);
-    if (var && var->scopenum == fcg.curScope) {
-        ERR_REDECL_VAR(ast->name, var->v);
+    Maybe<NNPtr<CodeGen::FunctionCodeGen::Local>> var = fcg.getLocal(varname);
+    if (var.has() && var.get()->scopenum == fcg.curScope) {
+        ERR_REDECL_VAR(ast->name, var.get()->v);
         cg.errored = true;
         return;
     }
 
-    IR::Type *varType = cg.typeVisitor->type(ast->type.get(), fcg.thisType);
-    if (!varType) {
+    Maybe<NNPtr<IR::Type>> m_varType = cg.typeVisitor->type(ast->type.get(), fcg.thisType);
+    if (!m_varType.has()) {
         fcg.errored = true;
         return;
     }
 
-    IR::Instrs::Register *reg = static_cast<IR::Instrs::Register*>(fcg.registerBlock->add(std::make_unique<IR::Instrs::Register>(ast, varType, ast->mut)));
+    NNPtr<IR::Type> varType = m_varType.get();
+
+    NNPtr<IR::Instrs::Register> reg = NNPtr<IR::Instrs::Register>(static_cast<IR::Instrs::Register*>(fcg.registerBlock->add(std::make_unique<IR::Instrs::Register>(ast, varType, ast->mut)).asRaw()));
 
     if (ast->expr) {
-        IR::ASTValue val = fcg.exprCG.expr(ast->expr.get());
-        if (!val)
+        Maybe<IR::ASTValue> m_val = fcg.exprCG.expr(ast->expr.get());
+        if (!m_val.has())
             return;
+
+        IR::ASTValue val = m_val.get();
 
         val = varType->implCast(*cg.context, *fcg.fun, fcg.curBlock, val);
         if (val.type() != varType) {

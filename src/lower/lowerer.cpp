@@ -112,34 +112,34 @@ void Lower::Lowerer::lower(IR::Block const &b) {
         i->accept(this);
 }
 
-llvm::Value* Lower::Lowerer::lower(IR::Value *v) {
+NNPtr<llvm::Value> Lower::Lowerer::lower(NNPtr<IR::Value> v) {
     lvret = nullptr;
     v->value_accept(this);
     return lvret;
 }
 
-llvm::Value* Lower::Lowerer::lower(IR::ASTValue &v) {
+NNPtr<llvm::Value> Lower::Lowerer::lower(IR::ASTValue &v) {
     return lower(v.val);
 }
 
-void Lower::Lowerer::value_visitConstBool(IR::ConstBool *v) {
-    lvret = llvm::ConstantInt::get(v->type()->toLLVMType(context), v->val);
+void Lower::Lowerer::value_visitConstBool(NNPtr<IR::ConstBool> v) {
+    lvret = llvm::ConstantInt::get(v->type()->toLLVMType(context).asRaw(), v->val);
 }
-void Lower::Lowerer::value_visitConstFloat(IR::ConstFloat *v) {
-    lvret = llvm::ConstantFP::get(v->type()->toLLVMType(context), v->val);
+void Lower::Lowerer::value_visitConstFloat(NNPtr<IR::ConstFloat> v) {
+    lvret = llvm::ConstantFP::get(v->type()->toLLVMType(context).asRaw(), v->val);
 }
-void Lower::Lowerer::value_visitConstInt(IR::ConstInt *v) {
-    lvret = llvm::ConstantInt::get(v->type()->toLLVMType(context), v->val);
+void Lower::Lowerer::value_visitConstInt(NNPtr<IR::ConstInt> v) {
+    lvret = llvm::ConstantInt::get(v->type()->toLLVMType(context).asRaw(), v->val);
 }
-void Lower::Lowerer::value_visitConstChar(IR::ConstChar *v) {
-    lvret = llvm::ConstantInt::get(v->type()->toLLVMType(context), v->val);
+void Lower::Lowerer::value_visitConstChar(NNPtr<IR::ConstChar> v) {
+    lvret = llvm::ConstantInt::get(v->type()->toLLVMType(context).asRaw(), v->val);
 }
-void Lower::Lowerer::value_visitFunction(IR::Function *v) {
+void Lower::Lowerer::value_visitFunction(NNPtr<IR::Function> v) {
     lvret = functions.at(v);
 }
-void Lower::Lowerer::value_visitVoid(IR::Void *v) {
+void Lower::Lowerer::value_visitVoid(NNPtr<IR::Void> v) {
     reportAbortNoh("lowerValue called with v = Void");
 }
-void Lower::Lowerer::value_visitInstruction(IR::Instrs::Instruction *v) {
+void Lower::Lowerer::value_visitInstruction(NNPtr<IR::Instrs::Instruction> v) {
     lvret = values.at(v);
 }

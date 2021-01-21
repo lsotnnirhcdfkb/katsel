@@ -14,7 +14,7 @@
 struct Message {
     std::string type;
     std::string text;
-    char const * const color;
+    NNPtr<char const> const color;
 };
 
 class Underline {
@@ -33,7 +33,7 @@ public:
     Underline(Location const &location, char ch);
 
 private:
-    Underline& addmsg(std::string const &type, char const * const color, std::string const &mesage);
+    Underline& addmsg(std::string const &type, NNPtr<char const> const color, std::string const &mesage);
 };
 
 enum class MsgType {

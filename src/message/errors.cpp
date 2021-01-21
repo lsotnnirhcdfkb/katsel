@@ -9,11 +9,23 @@
 ErrorFormat errformat = ErrorFormat::HUMAN;
 // constructors for location {{{1
 Location::Location(Token const &t): start(t.start), end(t.end), file(t.sourcefile) {}
-Location::Location(IR::ASTValue const &v): Location(v.ast) {}
-Location::Location(IR::ASTValue const *v): Location(v->ast) {}
-Location::Location(std::string::iterator start, std::string::iterator end, File const *file): start(start), end(end), file(file) {}
-Location::Location(): file(nullptr) {}
-Location::Location(ASTNS::AST *ast): Location(ast->start().start, ast->end().end, &ast->file) {}
+Location::Location(IR::ASTValue const &v): Location(*v.ast) {}
+Location::Location(NNPtr<IR::ASTValue const> v): Location(*v->ast) {}
+Location::Location(std::string::iterator start, std::string::iterator end, NNPtr<File const> file): start(start), end(end), file(*file) {}
+
+static Location locFromAST(NNPtr<ASTNS::AST> ast) {
+    Maybe<Location const> &maybeStart = ast->start();
+    Maybe<Location const> &maybeEnd = ast->end();
+
+   auto withOp = [] (Location const &l) -> Location const { return l; };
+   auto noOp =   [] ()                  -> Location const { reportAbortNoh("get location of ast with missing location info"); };
+    Location const
+        start (maybeStart.match<Location const>(withOp, noOp)),
+        end   (maybeEnd  .match<Location const>(withOp, noOp));
+
+    return Location(start.start, end.end, ast->file);
+}
+Location::Location(NNPtr<ASTNS::AST> ast): Location(locFromAST(ast)) {}
 // Error methods {{{1
 Error::Error(MsgType type, Location const &location, std::string const &code, std::string const &name):
     type(type), location(location),
@@ -25,24 +37,24 @@ Error& Error::underline(Underline const &underline) {
 // Underline message methods {{{1
 Underline::Underline(Location const &location, char ch): location(location), ch(ch) {}
 Underline& Underline::error(std::string const &message) {
-    return addmsg("error", A_FG_RED, message);
+    return addmsg("error", *A_FG_RED, message);
 }
 Underline& Underline::warning(std::string const &message) {
-    return addmsg("warning", A_FG_MAGENTA, message);
+    return addmsg("warning", *A_FG_MAGENTA, message);
 }
 Underline& Underline::note(std::string const &message) {
-    return addmsg("note", A_FG_GREEN, message);
+    return addmsg("note", *A_FG_GREEN, message);
 }
 Underline& Underline::help(std::string const &message) {
-    return addmsg("help", A_FG_CYAN, message);
+    return addmsg("help", *A_FG_CYAN, message);
 }
 Underline& Underline::hint(std::string const &message) {
-    return addmsg("hint", A_FG_YELLOW, message);
+    return addmsg("hint", *A_FG_YELLOW, message);
 }
 Underline& Underline::message(std::string const &type, std::string const &message) {
-    return addmsg(type, A_FG_WHITE A_BOLD, message);
+    return addmsg(type, *(A_FG_WHITE A_BOLD), message);
 }
-Underline& Underline::addmsg(std::string const &type, char const * const color, std::string const &message) {
+Underline& Underline::addmsg(std::string const &type, NNPtr<char const> const color, std::string const &message) {
     messages.push_back(Message {type, message, color});
     return *this;
 }

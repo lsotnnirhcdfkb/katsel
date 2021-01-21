@@ -13,7 +13,7 @@ void Lexer::resetToTok(Token const &t) {
     startline = endline = t.line;
     startcolumn = endcolumn = t.column;
 
-    ASSERT(t.sourcefile == &sourcefile)
+    ASSERT(t.sourcefile.asRaw() == &sourcefile)
 }
 // lex digit and lex identifier {{{1
 static bool isAlpha(char c) {
@@ -424,12 +424,12 @@ char Lexer::consumed() {
 // making tokens {{{1
 Token Lexer::makeToken(TokenType type) {
     if (type == TokenType::DEDENT)
-        return Token {type, start, start, nullptr, startline, startcolumn - 1, &sourcefile};
+        return Token {type, start, start, Maybe<Token::ErrFunc>(), startline, startcolumn - 1, sourcefile};
     else
-        return Token {type, start, end, nullptr, startline, startcolumn - 1, &sourcefile};
+        return Token {type, start, end, Maybe<Token::ErrFunc>(), startline, startcolumn - 1, sourcefile};
 }
-Token Lexer::makeErrorToken(void (*errf)(Token const &)) {
+Token Lexer::makeErrorToken(Token::ErrFunc errf) {
     Token token = makeToken(TokenType::ERROR);
-    token.errf = errf;
+    token.errf = Maybe(errf);
     return token;
 }

@@ -9,8 +9,8 @@
 
 #include "llvm/IR/DerivedTypes.h"
 
-IR::PointerType::PointerType(CodeGen::Context &context, ASTNS::AST *declAST, bool mut, Type *ty): Type(context), ty(ty), mut(mut), _declAST(declAST) {}
-ASTNS::AST* IR::PointerType::declAST() const {
+IR::PointerType::PointerType(CodeGen::Context &context, NNPtr<ASTNS::AST> declAST, bool mut, NNPtr<Type> ty): Type(context), ty(ty), mut(mut), _declAST(declAST) {}
+NNPtr<ASTNS::AST> IR::PointerType::declAST() const {
     return _declAST;
 }
 
@@ -25,13 +25,13 @@ DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::PointerType)
 DERIVE_TYPE_METHOD_TABLE_IMPL(IR::PointerType)
 DERIVE_TYPE_NO_FIELDS(IR::PointerType)
 
-IR::ASTValue IR::PointerType::binOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::Type::BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *ast) {
-    ASSERT(l.type() == this);
+Maybe<IR::ASTValue> IR::PointerType::binOp(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &curBlock, IR::Type::BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, NNPtr<ASTNS::AST> ast) {
+    ASSERT(l.type().asRaw() == this);
 
     r = cgc.getIntType(64, true)->implCast(cgc, fun, curBlock, r);
-    if (!dynamic_cast<IntType*>(r.type())) {
+    if (!dynamic_cast<IntType*>(r.type().asRaw())) {
         ERR_PTR_ARITH_RHS_NOT_NUM(l, optok, r);
-        return IR::ASTValue();
+        return Maybe<IR::ASTValue>();
     }
 
     switch (op) {
@@ -56,27 +56,27 @@ IR::ASTValue IR::PointerType::binOp(CodeGen::Context &cgc, IR::Function &fun, IR
 
         default:
             ERR_LHS_UNSUPPORTED_OP(l, optok);
-            return IR::ASTValue();
+            return Maybe<IR::ASTValue>();
     }
 }
-IR::ASTValue IR::PointerType::unaryOp(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::Type::UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST *ast) {
-    ASSERT(operand.type() == this);
+Maybe<IR::ASTValue> IR::PointerType::unaryOp(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &curBlock, IR::Type::UnaryOperator op, IR::ASTValue operand, Token optok, NNPtr<ASTNS::AST> ast) {
+    ASSERT(operand.type().asRaw() == this);
 
     ERR_UNARY_UNSUPPORTED_OP(operand, optok);
-    return ASTValue();
+    return Maybe<ASTValue>();
 }
-IR::ASTValue IR::PointerType::castFrom(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v, ASTNS::AST *ast) {
-    if (dynamic_cast<IR::PointerType*>(v.type())) {
+Maybe<IR::ASTValue> IR::PointerType::castFrom(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &curBlock, IR::ASTValue v, NNPtr<ASTNS::AST> ast) {
+    if (dynamic_cast<IR::PointerType*>(v.type().asRaw())) {
         return ASTValue(curBlock->add(std::make_unique<IR::Instrs::NoOpCast>(v, this)), ast);
     }
 
     ERR_INVALID_CAST(ast, v, this);
-    return ASTValue();
+    return Maybe<ASTValue>();
 }
-llvm::Type* IR::PointerType::toLLVMType(llvm::LLVMContext &con) const {
-    return llvm::PointerType::getUnqual(ty->toLLVMType(con));
+NNPtr<llvm::Type> IR::PointerType::toLLVMType(llvm::LLVMContext &con) const {
+    return llvm::PointerType::getUnqual(ty->toLLVMType(con).asRaw());
 }
-IR::ASTValue IR::PointerType::implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) {
+IR::ASTValue IR::PointerType::implCast(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &curBlock, IR::ASTValue v) {
     return v;
 }
 

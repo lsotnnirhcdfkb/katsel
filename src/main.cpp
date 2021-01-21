@@ -10,6 +10,7 @@
 #include "ast/ast.h"
 #include "parse/parser.h"
 #include "utils/file.h"
+#include "utils/ptr.h"
 #include "lex/lexer.h"
 #include "message/ansistuff.h"
 #include "message/error.h"
@@ -29,9 +30,9 @@ enum class OutFormats {
 };
 
 // read a file {{{1
-std::unique_ptr<File> readFile(char *filename) {
+std::unique_ptr<File> readFile(NNPtr<char> filename) {
     std::ifstream filein;
-    filein.open(filename);
+    filein.open(filename.asRaw());
 
     if (filein.is_open()) {
         std::string contents;
@@ -47,7 +48,7 @@ std::unique_ptr<File> readFile(char *filename) {
 
         filein.close();
 
-        return std::make_unique<File>(File {std::string(filename), contents});
+        return std::make_unique<File>(File {filename.asRaw(), contents});
     } else {
         std::perror("Could not open file");
         return nullptr;
@@ -56,17 +57,17 @@ std::unique_ptr<File> readFile(char *filename) {
 
 // open a file {{{1
 // llvm::raw_fd_ostream has no move assignment operator, no move constructor
-#define OPENFILE(p, extrepl)                                                                         \
-    std::filesystem::path pathrepl (p);                                                              \
-    pathrepl.replace_extension(extrepl);                                                             \
-    std::string passtr (pathrepl.string());                                                          \
-    std::error_code ec;                                                                              \
-    llvm::raw_fd_ostream os (passtr, ec);                                                            \
-    if (ec)                                                                                          \
+#define OPENFILE(p, extrepl) \
+    std::filesystem::path pathrepl (p.asRaw()); \
+    pathrepl.replace_extension(extrepl); \
+    std::string passtr (pathrepl.string()); \
+    std::error_code ec; \
+    llvm::raw_fd_ostream os (passtr, ec); \
+    if (ec) \
         llvm::errs() << "Could not open output file \"" << passtr << "\": " << ec.message() << "\n";
 
 // compile a file {{{1
-int compileFile(OutFormats ofmt, char *filename) {
+int compileFile(OutFormats ofmt, NNPtr<char> filename) {
     auto source (readFile(filename));
     if (!source)
         return false;
@@ -101,7 +102,7 @@ int compileFile(OutFormats ofmt, char *filename) {
             return false;
 
         auto printv = std::make_unique<ASTNS::PrintVisitor>(os);
-        parsed->accept(printv.get());
+        parsed->accept(*printv); // dereference to use constructor NNPtr(T &other)
 
         os.close();
         return true;
@@ -126,7 +127,7 @@ int compileFile(OutFormats ofmt, char *filename) {
             return false;
 
         codegen->unit->print(os);
-        
+
         os.close();
         return true;
     }
@@ -217,7 +218,7 @@ int main(int argc, char *argv[]) {
 
     bool success = true;
     for (; optind < argc; ++optind) {
-        if (!compileFile(ofmt, argv[optind]))
+        if (!compileFile(ofmt, NNPtr(*argv[optind])))
             success = false;
     }
 

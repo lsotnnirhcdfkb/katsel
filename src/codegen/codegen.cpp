@@ -1,7 +1,7 @@
 #include "codegenlocal.h"
 #include "ir/unit.h"
 
-CodeGen::CodeGen(File const &file, ASTNS::CUB *cub):
+CodeGen::CodeGen(File const &file, NNPtr<ASTNS::CUB> cub):
     unit(std::make_unique<IR::Unit>(file)),
     context(std::make_unique<Context>(file, *this)),
     typeVisitor(std::make_unique<TypeVisitor>(*this)),
@@ -39,28 +39,28 @@ void CodeGen::codegen() {
 }
 
 // visiting {{{1
-void CodeGen::visitCU(ASTNS::CU *ast) {
+void CodeGen::visitCU(NNPtr<ASTNS::CU> ast) {
     for (std::unique_ptr<ASTNS::Decl> &decl : ast->decls)
         decl->accept(this);
 }
 
-void CodeGen::visitFunctionDecl(ASTNS::FunctionDecl *ast) {
-    IR::Value *val = unit->mod.getValue(ast->name.stringify());
+void CodeGen::visitFunctionDecl(NNPtr<ASTNS::FunctionDecl> ast) {
+    Maybe<NNPtr<IR::Value>> val = unit->mod.getValue(ast->name.stringify());
     IR::Function *fun;
-    if (!val || !(fun = dynamic_cast<IR::Function*>(val))) {
+    if (!val.has() || !(fun = dynamic_cast<IR::Function*>(val.get().asRaw()))) {
         errored = true;
         return;
     }
 
-    FunctionCodeGen fcg (*this, ast, fun, nullptr);
+    FunctionCodeGen fcg (*this, ast, fun, Maybe<NNPtr<IR::Type>>());
     if (!fcg.codegen())
         errored = true;
 }
 
-void CodeGen::visitImplDecl(ASTNS::ImplDecl *ast) {
+void CodeGen::visitImplDecl(NNPtr<ASTNS::ImplDecl> ast) {
     ImplCodeGen icg (*this, ast);
     if (!icg.codegen())
         errored = true;
 }
 
-void CodeGen::visitImplicitDecl(ASTNS::ImplicitDecl *) {}
+void CodeGen::visitImplicitDecl(NNPtr<ASTNS::ImplicitDecl> ) {}

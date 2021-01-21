@@ -2,6 +2,9 @@
 
 #include "lex/tokentype.h"
 #include "utils/file.h"
+#include "utils/ptr.h"
+#include "utils/maybe.h"
+
 #include <string>
 #include <ostream>
 
@@ -10,12 +13,13 @@ struct Token {
     std::string::iterator start;
     std::string::iterator end;
 
-    void (*errf)(Token const &);
+    using ErrFunc = NNPtr<void (Token const &)>;
+    Maybe<ErrFunc> errf;
 
     int line;
     int column;
 
-    File *sourcefile;
+    NNPtr<File const> sourcefile;
 
     inline std::string stringify() const {
         return std::string(start, end);

@@ -6,36 +6,39 @@
 template <typename T>
 class Maybe {
 public:
-    Maybe(): data(Not()) {}
-    Maybe(T &thing): data( With { thing } ) {}
-    Maybe(T &&thing): data(With { std::forward<T>(thing) }) {}
+    Maybe(): data(not_t()) {}
+    Maybe(T &thing):  data( with_t { thing } ) {}
+    Maybe(T &&thing): data( with_t { std::forward<T>(thing) }) {}
 
-    template <typename WithOp, typename NoOp>
-    inline void match(WithOp withop, NoOp noop) const {
+    template <typename U, typename = std::enable_if_t<std::is_constructible_v<T, U>>>
+    Maybe(U &&thing): data( with_t { std::forward<U>(thing) } ) {}
+
+    template <typename Ret = void, typename WithOp, typename NoOp>
+    inline Ret match(WithOp withop, NoOp noop) const {
         if (has()) {
-            withop(get());
+            return withop(get());
         } else {
-            noop();
+            return noop();
         }
     }
 
     template <typename WithOp>
     inline void with(WithOp withop) const {
-        match(withop, []{});
+        match<void>(withop, []{});
     }
 
-private:
-    struct Not {};
-    struct With { T thing; };
-
-    std::variant<Not, With> data;
-
     bool has() const {
-        return std::holds_alternative<With>(data);
+        return std::holds_alternative<with_t>(data);
     }
 
     T get() const {
         ASSERT(has());
-        return std::get<With>(data).thing;
+        return std::get<with_t>(data).thing;
     }
+
+private:
+    struct not_t {};
+    struct with_t { T thing; };
+
+    std::variant<not_t, with_t> data;
 };

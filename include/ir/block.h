@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include <string>
+#include "utils/ptr.h"
 
 namespace llvm { class raw_ostream; }
 namespace IR {
@@ -14,8 +15,8 @@ namespace IR {
 
     class Block {
     public:
-        Block(IR::Function *fun, std::string name, size_t num);
-        Instrs::Instruction* add(std::unique_ptr<Instrs::Instruction> instr);
+        Block(NNPtr<IR::Function> fun, std::string name, size_t num);
+        NNPtr<Instrs::Instruction> add(std::unique_ptr<Instrs::Instruction> instr);
         void branch(std::unique_ptr<Instrs::Br> br);
 
         std::string name;
@@ -24,6 +25,6 @@ namespace IR {
         std::vector<std::unique_ptr<Instrs::Instruction>> instructions;
         std::unique_ptr<Instrs::Br> br;
 
-        IR::Function *fun;
+        NNPtr<IR::Function> fun;
     };
 }

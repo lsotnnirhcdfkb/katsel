@@ -84,7 +84,7 @@ void E0017(IR::ASTValue const &func, Token const &oparn);
 
 // E0018 - incorrect-arg
 #define ERR_INCORRECT_ARG E0018
-void E0018(IR::ASTValue const &arg, IR::Type const *expected);
+void E0018(IR::ASTValue const &arg, NNPtr<IR::Type const> expected);
 
 // E0019 - confl-tys-ifexpr
 #define ERR_CONFL_TYS_IFEXPR E0019
@@ -96,7 +96,7 @@ void E0020(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &eq);
 
 // E0021 - conflict-ret-ty
 #define ERR_CONFLICT_RET_TY E0021
-void E0021(IR::ASTValue const &val, IR::Function *f);
+void E0021(IR::ASTValue const &val, NNPtr<IR::Function> f);
 
 // E0022 - no-deref
 #define ERR_NO_DEREF E0022
@@ -104,11 +104,11 @@ void E0022(Token const &op, IR::ASTValue const &val);
 
 // E0023 - conflict-var-init-ty
 #define ERR_CONFLICT_VAR_INIT_TY E0023
-void E0023(Token const &eq, Token const &name, ASTNS::Type *typeAST, IR::ASTValue const &init, IR::Type const *expectedType);
+void E0023(Token const &eq, Token const &name, NNPtr<ASTNS::Type> typeAST, IR::ASTValue const &init, NNPtr<IR::Type const> expectedType);
 
 // E0024 - invalid-cast
 #define ERR_INVALID_CAST E0024
-void E0024(ASTNS::AST *ast, IR::ASTValue v, IR::Type const *newty);
+void E0024(NNPtr<ASTNS::AST> ast, IR::ASTValue v, NNPtr<IR::Type const> newty);
 
 // E0025 - conflict-tys-binary-op
 #define ERR_CONFLICT_TYS_BINARY_OP E0025
@@ -128,15 +128,15 @@ void E0028(IR::ASTValue const &truev, Token const &iftok);
 
 // E0029 - typeless-this
 #define ERR_TYPELESS_THIS E0029
-void E0029(ASTNS::ThisParam *p);
+void E0029(NNPtr<ASTNS::ThisParam> p);
 
 // E0030 - wrong-num-args
 #define ERR_WRONG_NUM_ARGS E0030
-void E0030(IR::ASTValue const &func, Token const &oparn, std::vector<IR::ASTValue> const &args);
+void E0030(NNPtr<IR::Function> func, NNPtr<ASTNS::AST> funcRefAST, Token const &oparn, std::vector<IR::ASTValue> const &args);
 
 // E0031 - redecl-sym
 #define ERR_REDECL_SYM E0031
-void E0031(Token const &name, IR::Value *val);
+void E0031(Token const &name, NNPtr<IR::Value> val);
 
 // E0032 - undecl-symb
 #define ERR_UNDECL_SYMB E0032
@@ -144,19 +144,19 @@ void E0032(Location const &path);
 
 // E0033 - redecl-param
 #define ERR_REDECL_PARAM E0033
-void E0033(ASTNS::ParamB *param, IR::Instrs::Register const *prev);
+void E0033(NNPtr<ASTNS::ParamB> param, NNPtr<IR::Instrs::Register const> prev);
 
 // E0034 - redecl-var
 #define ERR_REDECL_VAR E0034
-void E0034(Token const &name, IR::Instrs::Register const *prev);
+void E0034(Token const &name, NNPtr<IR::Instrs::Register const> prev);
 
 // E0035 - not-a-type
 #define ERR_NOT_A_TYPE E0035
-void E0035(Location const &notty, ASTNS::AST *declAST);
+void E0035(Location const &notty, NNPtr<ASTNS::AST> declAST);
 
 // E0036 - no-member-in
 #define ERR_NO_MEMBER_IN E0036
-void E0036(IR::DeclSymbol const *prev, Token const &current);
+void E0036(NNPtr<IR::DeclSymbol const> prev, Token const &current);
 
 // E0037 - no-this
 #define ERR_NO_THIS E0037
@@ -180,11 +180,11 @@ void E0041(Token const &eq, IR::ASTValue const &lhs);
 
 // E0042 - assign-not-mut
 #define ERR_ASSIGN_NOT_MUT E0042
-void E0042(IR::ASTValue const &v, Token const &eq, IR::Instrs::DerefPtr *targetDeref);
+void E0042(IR::ASTValue const &v, Token const &eq, NNPtr<IR::Instrs::DerefPtr> targetDeref);
 
 // E0043 - mut-addrof-nonmut-op
 #define ERR_MUT_ADDROF_NONMUT_OP E0043
-void E0043(Token const &op, IR::Instrs::DerefPtr *asDeref);
+void E0043(Token const &op, NNPtr<IR::Instrs::DerefPtr> asDeref);
 
 // E0044 - no-suppress
 #define ERR_NO_SUPPRESS E0044
@@ -192,7 +192,7 @@ void E0044(Location const &dot);
 
 // E0045 - this-not-first
 #define ERR_THIS_NOT_FIRST E0045
-void E0045(ASTNS::ThisParam *ast);
+void E0045(NNPtr<ASTNS::ThisParam> ast);
 
 // ===> warnings <===
 
@@ -202,7 +202,7 @@ void W0000(Token const &semi);
 
 // W0001 - Wimmut-noinit
 #define WARN_IMMUT_NOINIT W0001
-void W0001(ASTNS::VarStmtItem *ast);
+void W0001(NNPtr<ASTNS::VarStmtItem> ast);
 
 // W0002 - Wblock-no-indent
 #define WARN_BLOCK_NO_INDENT W0002

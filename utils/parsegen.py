@@ -219,7 +219,7 @@ class EmptyVectorAction:
         self.classname = classname
         self.ty = ty
     def generate(self):
-        return (f'std::unique_ptr<ASTNS::{self.classname}> push (std::make_unique<ASTNS::{self.classname}>(p.sourcefile, Location(), Location(), std::vector<{self.ty}> {{}}));\n', 'std::move(push)')
+        return (f'std::unique_ptr<ASTNS::{self.classname}> push (std::make_unique<ASTNS::{self.classname}>(p.sourcefile, Maybe<Location const>(), Maybe<Location const>(), std::vector<{self.ty}> {{}}));\n', 'std::move(push)')
 class SkipReduceAction:
     def __init__(self, ind=0):
         self.ind = ind
@@ -680,10 +680,10 @@ def make_grammar():
 
     rule(VarStmt, (VAR, VarStmtItemList, LineEnding), SimpleReduceAction('VarStmt', 'std::move(a1->items)'))
 
-    rule(ExprStmt, (NotBlockedExpr, LineEnding), SimpleReduceAction('ExprStmt', 'std::move(a0), false, Location()'))
-    rule(ExprStmt, (BlockedExpr, LineEndingOpt), SimpleReduceAction('ExprStmt', 'std::move(a0), false, Location()'))
-    rule(ExprStmt, (NotBlockedExpr, DOLLAR, LineEndingOpt), SimpleReduceAction('ExprStmt', 'std::move(a0), true, a1'))
-    rule(ExprStmt, (BlockedExpr, DOLLAR, LineEndingOpt), SimpleReduceAction('ExprStmt', 'std::move(a0), true, a1'))
+    rule(ExprStmt, (NotBlockedExpr,         LineEnding),    SimpleReduceAction('ExprStmt', 'std::move(a0), false, Maybe<Location const>()'))
+    rule(ExprStmt, (BlockedExpr   ,         LineEndingOpt), SimpleReduceAction('ExprStmt', 'std::move(a0), false, Maybe<Location const>()'))
+    rule(ExprStmt, (NotBlockedExpr, DOLLAR, LineEndingOpt), SimpleReduceAction('ExprStmt', 'std::move(a0), true , Maybe<Location const>(a1)'))
+    rule(ExprStmt, (BlockedExpr   , DOLLAR, LineEndingOpt), SimpleReduceAction('ExprStmt', 'std::move(a0), true , Maybe<Location const>(a1)'))
 
     rule(RetStmt, (RETURN, Expr, LineEnding), SimpleReduceAction('RetStmt', 'std::move(a1)'))
     rule(RetStmt, (RETURN, LineEnding), SimpleReduceAction('RetStmt', 'nullptr'))
@@ -920,30 +920,27 @@ def gen_loop():
                         output.append(           f'                            auto a{i} (popA<ASTNS::{sym.reduces_to}>(stack));\n')
 
                 if len(ac.rule.expansion) > 0:
-                    output.append(                '                            Location start, end;\n')
+                    output.append(                '                            Maybe<Location const> start = \n')
                     for i in range(ac.rule.loc_start, len(ac.rule.expansion)):
-                        if i != ac.rule.loc_start:
-                            output.append(        '                            else ')
-                        else:
-                            output.append(        '                            ')
-
                         if isinstance(ac.rule.expansion[i], Terminal):
-                            output.append(   f'start = a{i};\n')
+                            output.append(       f'                                Maybe<Location const>(a{i});\n')
                             break
                         else:
-                            output.append(   f'if (a{i}) start = a{i}->start();\n')
+                            if i == len(ac.rule.expansion) - 1:
+                                output.append(   f'                                a{i} ? Maybe(a{i}->start()) : Maybe<Location const>();\n')
+                            else:
+                                output.append(   f'                                a{i} ? Maybe(a{i}->start()) :\n')
 
+                    output.append(                '                            Maybe<Location const> end =\n')
                     for i in range(ac.rule.loc_end, -1, -1):
-                        if i != ac.rule.loc_end:
-                            output.append(        '                            else ')
-                        else:
-                            output.append(        '                            ')
-
                         if isinstance(ac.rule.expansion[i], Terminal):
-                            output.append(   f'end = a{i};\n')
+                            output.append(       f'                                Maybe<Location const>(a{i});\n')
                             break
                         else:
-                            output.append(   f'if (a{i}) end = a{i}->end();\n')
+                            if i == 0:
+                                output.append(       f'                                a{i} ? Maybe(a{i}->end()) : Maybe<Location const>();\n')
+                            else:
+                                output.append(       f'                                a{i} ? Maybe(a{i}->end()) :\n')
 
                 reduce_code, pushitem = ac.rule.reduce_action.generate()
                 output.append(reduce_code)

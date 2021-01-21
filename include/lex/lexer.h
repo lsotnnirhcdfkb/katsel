@@ -31,7 +31,7 @@ private:
     Token lexDigit(char current);
     Token lexIdentifier();
 
-    Token makeErrorToken(void (*errf)(Token const &));
+    Token makeErrorToken(NNPtr<void (Token const &)> errf);
     Token makeToken(TokenType type);
 
     std::string::iterator start;

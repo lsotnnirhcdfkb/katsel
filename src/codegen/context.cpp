@@ -6,13 +6,13 @@
 CodeGen::Context::Context(File const &file, CodeGen &cg): cg(cg), voidValue(getVoidType()) {}
 
 // getting types {{{1 TODO: make a template function to loop through things and either make operator== = default for all types or use a lambda to compare them
-#define GET_TYPE_DEF(type) IR::type* CodeGen::Context::get##type
+#define GET_TYPE_DEF(type) NNPtr<IR::type> CodeGen::Context::get##type
 #define LOOP_TYPES() for (std::unique_ptr<IR::Type> &_loopType : types)
 #define CHECK_TYPE_TYPE(type) IR::type *_casted (dynamic_cast<IR::type*>(_loopType.get()));
 #define CHECK_FIELD(field) (_casted->field == field)
 #define CONSTRUCT_TYPE(type) std::unique_ptr<IR::type> _newType = std::make_unique<IR::type>
 #define PUSH_RETURN(type) \
-    IR::type *_newTypeR (_newType.get()); \
+    NNPtr<IR::type> _newTypeR (_newType.get()); \
     types.push_back(std::move(_newType)); \
     return _newTypeR;
 
@@ -64,7 +64,7 @@ GET_TYPE_DEF(GenericFloatType)() {
     CONSTRUCT_TYPE(GenericFloatType)(*this, cg.unit->implicitDeclAST.get());
     PUSH_RETURN(GenericFloatType)
 }
-GET_TYPE_DEF(FunctionType)(IR::Type *ret, std::vector<IR::Type*> paramtys) {
+GET_TYPE_DEF(FunctionType)(NNPtr<IR::Type> ret, std::vector<NNPtr<IR::Type>> paramtys) {
     LOOP_TYPES() {
         CHECK_TYPE_TYPE(FunctionType)
         if (_casted && CHECK_FIELD(ret) && CHECK_FIELD(paramtys)) return _casted;
@@ -80,7 +80,7 @@ GET_TYPE_DEF(VoidType)() {
     CONSTRUCT_TYPE(VoidType)(*this, cg.unit->implicitDeclAST.get());
     PUSH_RETURN(VoidType)
 }
-GET_TYPE_DEF(PointerType)(bool mut, IR::Type *ty) {
+GET_TYPE_DEF(PointerType)(bool mut, NNPtr<IR::Type> ty) {
     LOOP_TYPES() {
         CHECK_TYPE_TYPE(PointerType)
         if (_casted && CHECK_FIELD(mut) && CHECK_FIELD(ty)) return _casted;
@@ -96,30 +96,30 @@ GET_TYPE_DEF(PointerType)(bool mut, IR::Type *ty) {
 #undef PUSH_RETURN
 // getting values {{{1
 template <typename Ret, typename ... Args>
-static Ret* getConstVal(std::vector<std::unique_ptr<IR::Value>> &constants, Args ...args) {
+static NNPtr<Ret> getConstVal(std::vector<std::unique_ptr<IR::Value>> &constants, Args ...args) {
     std::unique_ptr<Ret> cv = std::make_unique<Ret>(args...);
-    Ret *cvraw = cv.get();
+    NNPtr<Ret> cvraw = cv.get();
     constants.push_back(std::move(cv));
     return cvraw;
 }
-IR::ConstFloat* CodeGen::Context::getConstFloat(IR::FloatType *ty, double value) {
+NNPtr<IR::ConstFloat> CodeGen::Context::getConstFloat(NNPtr<IR::FloatType> ty, double value) {
     return getConstVal<IR::ConstFloat>(constants, ty, value);
 }
-IR::ConstInt* CodeGen::Context::getConstInt(IR::IntType *ty, uint64_t value) {
+NNPtr<IR::ConstInt> CodeGen::Context::getConstInt(NNPtr<IR::IntType> ty, uint64_t value) {
     return getConstVal<IR::ConstInt>(constants, ty, value);
 }
-IR::ConstFloat* CodeGen::Context::getConstFloat(IR::GenericFloatType *ty, double value) {
+NNPtr<IR::ConstFloat> CodeGen::Context::getConstFloat(NNPtr<IR::GenericFloatType> ty, double value) {
     return getConstVal<IR::ConstFloat>(constants, ty, value);
 }
-IR::ConstInt* CodeGen::Context::getConstInt(IR::GenericIntType *ty, uint64_t value) {
+NNPtr<IR::ConstInt> CodeGen::Context::getConstInt(NNPtr<IR::GenericIntType> ty, uint64_t value) {
     return getConstVal<IR::ConstInt>(constants, ty, value);
 }
-IR::ConstChar* CodeGen::Context::getConstChar(uint8_t value) {
+NNPtr<IR::ConstChar> CodeGen::Context::getConstChar(uint8_t value) {
     return getConstVal<IR::ConstChar>(constants, getCharType(), value);
 }
-IR::ConstBool* CodeGen::Context::getConstBool(bool value) {
+NNPtr<IR::ConstBool> CodeGen::Context::getConstBool(bool value) {
     return getConstVal<IR::ConstBool>(constants, getBoolType(), value);
 }
-IR::Void* CodeGen::Context::getVoid() {
+NNPtr<IR::Void> CodeGen::Context::getVoid() {
     return &voidValue;
 }

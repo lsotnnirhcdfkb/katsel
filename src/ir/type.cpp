@@ -8,31 +8,31 @@
 #include "llvm/IR/DerivedTypes.h"
 #include "utils/format.h"
 
-IR::VoidType::VoidType(CodeGen::Context &context, ASTNS::AST *declAST): Type(context), _declAST(declAST) {}
-ASTNS::AST* IR::VoidType::declAST() const {
+IR::VoidType::VoidType(CodeGen::Context &context, NNPtr<ASTNS::AST> declAST): Type(context), _declAST(declAST) {}
+NNPtr<ASTNS::AST> IR::VoidType::declAST() const {
     return _declAST;
 }
 std::string IR::VoidType::name() const {
     return "void";
 }
 
-IR::ASTValue IR::VoidType::binOp(CodeGen::Context &, IR::Function &, IR::Block *&, IR::Type::BinaryOperator , IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *) {
+Maybe<IR::ASTValue> IR::VoidType::binOp(CodeGen::Context &, IR::Function &, NNPtr<IR::Block> &, IR::Type::BinaryOperator , IR::ASTValue l, IR::ASTValue r, Token optok, NNPtr<ASTNS::AST> ) {
     ERR_LHS_UNSUPPORTED_OP(l, optok);
-    return ASTValue();
+    return Maybe<ASTValue>();
 }
-IR::ASTValue IR::VoidType::unaryOp(CodeGen::Context &, IR::Function &, IR::Block *&, IR::Type::UnaryOperator , IR::ASTValue operand, Token optok, ASTNS::AST *) {
+Maybe<IR::ASTValue> IR::VoidType::unaryOp(CodeGen::Context &, IR::Function &, NNPtr<IR::Block> &, IR::Type::UnaryOperator , IR::ASTValue operand, Token optok, NNPtr<ASTNS::AST> ) {
     ERR_UNARY_UNSUPPORTED_OP(operand, optok);
-    return ASTValue();
+    return Maybe<ASTValue>();
 }
-IR::ASTValue IR::VoidType::castFrom(CodeGen::Context &, IR::Function &, IR::Block *&, IR::ASTValue v, ASTNS::AST *ast) {
+Maybe<IR::ASTValue> IR::VoidType::castFrom(CodeGen::Context &, IR::Function &, NNPtr<IR::Block> &, IR::ASTValue v, NNPtr<ASTNS::AST> ast) {
     ERR_INVALID_CAST(ast, v, this);
-    return ASTValue();
+    return Maybe<ASTValue>();
 }
 
-llvm::Type* IR::VoidType::toLLVMType(llvm::LLVMContext &con) const {
+NNPtr<llvm::Type> IR::VoidType::toLLVMType(llvm::LLVMContext &con) const {
     return llvm::StructType::get(con);
 }
-IR::ASTValue IR::VoidType::implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) {
+IR::ASTValue IR::VoidType::implCast(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &curBlock, IR::ASTValue v) {
     return v;
 }
 
@@ -42,15 +42,15 @@ DERIVE_TYPE_METHOD_TABLE_IMPL(IR::FunctionType)
 DERIVE_TYPE_NO_FIELDS(IR::VoidType)
 DERIVE_TYPE_NO_FIELDS(IR::FunctionType)
 
-IR::FunctionType::FunctionType(CodeGen::Context &context, ASTNS::AST *declAST, Type *ret, std::vector<Type*> paramtys): Type(context), ret(ret), paramtys(paramtys), _declAST(declAST) {}
-ASTNS::AST* IR::FunctionType::declAST() const {
+IR::FunctionType::FunctionType(CodeGen::Context &context, NNPtr<ASTNS::AST> declAST, NNPtr<Type> ret, std::vector<NNPtr<Type>> paramtys): Type(context), ret(ret), paramtys(paramtys), _declAST(declAST) {}
+NNPtr<ASTNS::AST> IR::FunctionType::declAST() const {
     return _declAST;
 }
 std::string IR::FunctionType::name() const {
     std::stringstream ss;
     ss << "fun(";
     bool first = true;
-    for (Type *pty : paramtys) {
+    for (NNPtr<Type> pty : paramtys) {
         if (!first)
             ss << ", ";
         ss << pty->name();
@@ -60,32 +60,36 @@ std::string IR::FunctionType::name() const {
     return ss.str();
 }
 
-IR::ASTValue IR::FunctionType::binOp(CodeGen::Context &, IR::Function &, IR::Block *&, IR::Type::BinaryOperator , IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST *) {
+Maybe<IR::ASTValue> IR::FunctionType::binOp(CodeGen::Context &, IR::Function &, NNPtr<IR::Block> &, IR::Type::BinaryOperator , IR::ASTValue l, IR::ASTValue r, Token optok, NNPtr<ASTNS::AST> ) {
     ERR_LHS_UNSUPPORTED_OP(l, optok);
-    return ASTValue();
+    return Maybe<ASTValue>();
 }
-IR::ASTValue IR::FunctionType::unaryOp(CodeGen::Context &, IR::Function &, IR::Block *&, IR::Type::UnaryOperator , IR::ASTValue operand, Token optok, ASTNS::AST *) {
+Maybe<IR::ASTValue> IR::FunctionType::unaryOp(CodeGen::Context &, IR::Function &, NNPtr<IR::Block> &, IR::Type::UnaryOperator , IR::ASTValue operand, Token optok, NNPtr<ASTNS::AST> ) {
     ERR_UNARY_UNSUPPORTED_OP(operand, optok);
-    return ASTValue();
+    return Maybe<ASTValue>();
 }
 
-IR::ASTValue IR::FunctionType::castFrom(CodeGen::Context &, IR::Function &, IR::Block *&, IR::ASTValue v, ASTNS::AST *ast) {
+Maybe<IR::ASTValue> IR::FunctionType::castFrom(CodeGen::Context &, IR::Function &, NNPtr<IR::Block> &, IR::ASTValue v, NNPtr<ASTNS::AST> ast) {
     ERR_INVALID_CAST(ast, v, this);
-    return ASTValue();
+    return Maybe<ASTValue>();
 }
 
-llvm::Type* IR::FunctionType::toLLVMType(llvm::LLVMContext &con) const {
+NNPtr<llvm::Type> IR::FunctionType::toLLVMType(llvm::LLVMContext &con) const {
     std::vector<llvm::Type*> paramsasllvm;
-    for (Type *p : paramtys)
-        paramsasllvm.push_back(p->toLLVMType(con));
+    for (NNPtr<Type> p : paramtys)
+        paramsasllvm.push_back(p->toLLVMType(con).asRaw());
 
-    return llvm::FunctionType::get(ret->toLLVMType(con), paramsasllvm, false);
+    return llvm::FunctionType::get(ret->toLLVMType(con).asRaw(), paramsasllvm, false);
 }
-IR::ASTValue IR::FunctionType::implCast(CodeGen::Context &cgc, IR::Function &fun, IR::Block *&curBlock, IR::ASTValue v) {
+IR::ASTValue IR::FunctionType::implCast(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &curBlock, IR::ASTValue v) {
     return v;
 }
 
-std::ostream& operator<<(std::ostream &os, IR::Type const *ty) {
+std::ostream& operator<<(std::ostream &os, NNPtr<IR::Type> const &ty) {
+    os << "'" << ty->name() << "'";
+    return os;
+}
+std::ostream& operator<<(std::ostream &os, NNPtr<IR::Type const> const &ty) {
     os << "'" << ty->name() << "'";
     return os;
 }
@@ -93,6 +97,6 @@ std::ostream& operator<<(std::ostream &os, IR::Type const *ty) {
 DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::VoidType)
 DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::FunctionType)
 
-#define ACCEPT(cl) void IR::cl::type_accept(IR::TypeVisitor *v) { v->type_visit##cl(this); }
+#define ACCEPT(cl) void IR::cl::type_accept(NNPtr<IR::TypeVisitor> v) { v->type_visit##cl(this); }
 IR_TYPES(ACCEPT)
 #undef ACCEPT

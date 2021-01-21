@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <vector>
+#include <variant>
 #include "ast/ast.h"
 
 namespace IR {
@@ -32,99 +33,97 @@ namespace IR {
     public:
         virtual ~Value() {};
 
-        virtual Type* type() const = 0;
+        virtual NNPtr<Type> type() const = 0;
 
-        virtual void value_accept(ValueVisitor *v) = 0;
+        virtual void value_accept(NNPtr<ValueVisitor> v) = 0;
     };
 
     class DeclaredValue {
     public:
-        virtual ASTNS::AST* defAST() const = 0;
+        virtual NNPtr<ASTNS::AST> defAST() const = 0;
     };
 
     // Function {{{
     class Function : public Value, public DeclaredValue {
     public:
-        Function(FunctionType *ty, std::string name, ASTNS::FunctionDecl *defAST);
+        Function(NNPtr<FunctionType> ty, std::string name, NNPtr<ASTNS::FunctionDecl> defAST);
 
         void add(std::unique_ptr<Block> block);
 
         void definition(llvm::raw_ostream &os) const;
-        ASTNS::FunctionDecl* defAST() const override;
+        NNPtr<ASTNS::AST> defAST() const override;
 
-        Type* type() const override;
+        NNPtr<Type> type() const override;
 
         std::vector<std::unique_ptr<Block>> blocks;
 
-        Block* addBlock(std::string name);
+        NNPtr<Block> addBlock(std::string name);
 
-        FunctionType *ty;
+        NNPtr<FunctionType> ty;
         std::string name;
 
         bool prototypeonly;
 
-        void value_accept(ValueVisitor *v) override;
+        void value_accept(NNPtr<ValueVisitor> v) override;
 
         uint64_t curindex;
 
-    private:
-        ASTNS::FunctionDecl *_defAST;
+        NNPtr<ASTNS::FunctionDecl> _defAST;
 
+    private:
         uint64_t blocki;
     };
     // }}}
     // Const values {{{
     class ConstInt : public Value {
     public:
-        ConstInt(IntType *ty, uint64_t val);
-        ConstInt(GenericIntType *ty, uint64_t val);
-        Type* type() const override;
+        ConstInt(NNPtr<IntType> ty, uint64_t val);
+        ConstInt(NNPtr<GenericIntType> ty, uint64_t val);
+        NNPtr<Type> type() const override;
         uint64_t val;
-        void value_accept(ValueVisitor *v) override;
+        void value_accept(NNPtr<ValueVisitor> v) override;
     private:
-        IntType *concreteTy;
-        GenericIntType *genericTy;
+        std::variant<NNPtr<IntType>, NNPtr<GenericIntType>> ty;
         bool isGeneric;
     };
     class ConstFloat : public Value {
     public:
-        ConstFloat(FloatType *ty, double val);
-        ConstFloat(GenericFloatType *ty, double val);
-        Type* type() const override;
+        ConstFloat(NNPtr<FloatType> ty, double val);
+        ConstFloat(NNPtr<GenericFloatType> ty, double val);
+        NNPtr<Type> type() const override;
         double val;
-        void value_accept(ValueVisitor *v) override;
+        void value_accept(NNPtr<ValueVisitor> v) override;
     private:
-        FloatType *concreteTy;
-        GenericFloatType *genericTy;
+        std::variant<NNPtr<FloatType>, NNPtr<GenericFloatType>> ty;
         bool isGeneric;
     };
     class ConstBool : public Value {
     public:
-        ConstBool(BoolType *ty, bool val);
-        Type* type() const override;
+        ConstBool(NNPtr<BoolType> ty, bool val);
+        NNPtr<Type> type() const override;
         bool val;
-        void value_accept(ValueVisitor *v) override;
+        void value_accept(NNPtr<ValueVisitor> v) override;
     private:
-        BoolType *ty;
+        NNPtr<BoolType> ty;
     };
     class ConstChar : public Value {
     public:
-        ConstChar(CharType *ty, uint8_t val);
-        Type* type() const override;
+        ConstChar(NNPtr<CharType> ty, uint8_t val);
+        NNPtr<Type> type() const override;
         uint8_t val;
-        void value_accept(ValueVisitor *v) override;
+        void value_accept(NNPtr<ValueVisitor> v) override;
     private:
-        CharType *ty;
+        NNPtr<CharType> ty;
     };
     // }}}
     // Void {{{
     class Void : public Value {
     public:
-        Void(VoidType *ty);
-        Type* type() const override;
-        void value_accept(ValueVisitor *v) override;
+        Void(NNPtr<VoidType> ty);
+        NNPtr<Type> type() const override;
+        void value_accept(NNPtr<ValueVisitor> v) override;
     private:
-        VoidType *ty;
+        NNPtr<VoidType> ty;
     };
     // }}}
 
@@ -134,17 +133,12 @@ namespace IR {
         // also especially since ConstInts are uniqued together),
         // this struct allows values to be associated with an ast, and more importantly,
         // it isn't supposed to be heap-allocated and uniqued, so one value can have multiple ASTs
-        Value *val;
-        ASTNS::AST *ast;
+        NNPtr<Value> val;
+        NNPtr<ASTNS::AST> ast;
 
-        inline ASTValue(Value *val, ASTNS::AST *ast): val(val), ast(ast) {}
-        inline ASTValue(): val(nullptr), ast(nullptr) {}
+        inline ASTValue(NNPtr<Value> val, NNPtr<ASTNS::AST> ast): val(val), ast(ast) {}
 
-        explicit inline operator bool() const {
-            return val;
-        }
-
-        inline Type* type() const {
+        inline NNPtr<Type> type() const {
             return val->type();
         }
     };
@@ -152,7 +146,7 @@ namespace IR {
     class ValueVisitor {
     public:
 #define VISITMETHOD(cl, n) \
-        virtual void value_visit##n(cl *i) = 0;
+        virtual void value_visit##n(NNPtr<cl> i) = 0;
         IR_VALUE_LIST(VISITMETHOD)
 #undef VISITMETHOD
     };

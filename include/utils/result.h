@@ -12,12 +12,12 @@ public:
     Result(E &err):  Data(Errored { err }) {}
     Result(E &&err): Data(Errored { std::forward<E>(err) }) {}
 
-    template <typename SuccessOp, typename ErrOp>
-    inline void match(SuccessOp s, ErrOp e) const {
+    template <typename Ret, typename SuccessOp, typename ErrOp>
+    inline Ret match(SuccessOp s, ErrOp e) const {
         if (success()) {
-            s(getVal());
+            return s(getVal());
         } else {
-            e(getErr());
+            return e(getErr());
         }
     }
 

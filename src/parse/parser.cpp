@@ -22,13 +22,17 @@ std::unique_ptr<ASTNS::CUB> Parser::parse() {
 }
 
 Token Parser::consume() {
-    Token cur;
     bool lastboom = false;
     while (true) {
-        cur = lexer.nextToken();
+        Token cur (lexer.nextToken());
         if (cur.type == TokenType::ERROR) {
             errored = true;
-            cur.errf(cur);
+            cur.errf.match([&cur] (Token::ErrFunc const &e) {
+                    (*e)(cur);
+                },
+                [] {
+                    reportAbortNoh("Error token without error function");
+                });
         } else if (cur.type == TokenType::BOOM) {
             lastboom = true;
         } else if (lastboom && cur.type == TokenType::NEWLINE) {
@@ -37,6 +41,4 @@ Token Parser::consume() {
             return cur;
         }
     }
-
-    return cur;
 }

@@ -12,7 +12,7 @@
 namespace {
     // structs {{{2
     struct showline {
-        const File *file;
+        NNPtr<File const> file;
         int line;
     };
     struct MessageLocation {
@@ -29,11 +29,11 @@ namespace {
         } else
             return message;
     }
-    inline char const * resetIfNecessary() {
+    inline NNPtr<char const> resetIfNecessary() {
         if (ansiCodesEnabled())
-            return A_RESET;
+            return *A_RESET;
         else
-            return "";
+            return *"";
     }
     // jsonfield {{{2
     template <typename T>
@@ -97,7 +97,7 @@ namespace {
                 break;
         }
         std::string::const_iterator const fstart = location.file->source.cbegin();
-        std::cerr << format("% at %:%:%:%\n", msgtypestr, attr(FILEPATH_COLOR, location.file->filename, true), getLineN(fstart, location.start), getColN(fstart, location.start), resetIfNecessary());
+        std::cerr << format("% at %:%:%:%\n", msgtypestr, attr(FILEPATH_COLOR, location.file->filename, true), getLineN(fstart, location.start), getColN(fstart, location.start), resetIfNecessary().asRaw());
     }
     // final line {{{2
     void printFinalLine(std::string const &pad, MsgType type, std::string const &code, std::string const &name) {
@@ -154,7 +154,7 @@ namespace {
         return maxlinepad;
     }
     // printing lines {{{2
-    void printFileLine(std::string const &pad, File const *file) {
+    void printFileLine(std::string const &pad, NNPtr<File const> file) {
         std::cerr << pad << "> " << attr(FILEPATH_COLOR, file->filename) << std::endl;
     }
     void printElipsisLine(std::string const &pad) {
@@ -165,7 +165,7 @@ namespace {
         std::string::const_iterator lstart, lend;
         getLine(lstart, lend, *sl.file, sl.line);
 
-        std::vector<Underline const *> lchars;
+        std::vector<Maybe<NNPtr<Underline const>>> lchars;
         lchars.reserve(std::distance(lstart, lend));
 
         std::vector<MessageLocation> lineMessages;
@@ -178,10 +178,10 @@ namespace {
 
         bool lineHasUnder = false;
         for (std::string::const_iterator i = lstart; i <= lend; ++i) {
-            Underline const *charu = nullptr;
+            Maybe<NNPtr<Underline const>> charu;
             for (Underline const &u : underlines)
                 if (itInLoc(i, u.location)) {
-                    charu = &u;
+                    charu = Maybe(NNPtr(u));
                     lineHasUnder = true;
                     break;
                 }
@@ -189,12 +189,17 @@ namespace {
             lchars.push_back(charu);
 
             if (i == lend); // dont print newline
-            else if (charu && charu->messages.size())
-                std::cerr << attr(A_BOLD, attr(charu->messages[0].color, std::string(1, *i)));
-            else if (charu)
-                std::cerr << attr(A_BOLD, std::string(1, *i));
             else
-                std::cerr << *i;
+                charu.match(
+                    [&i](NNPtr<Underline const> const &un) {
+                        if (un->messages.size())
+                            std::cerr << attr(A_BOLD, attr(un->messages[0].color.asRaw(), std::string(1, *i)));
+                        else
+                            std::cerr << attr(A_BOLD, std::string(1, *i));
+                    },
+                    [&i] {
+                        std::cerr << *i;
+                    });
         }
 
         std::cerr << std::endl;
@@ -227,7 +232,7 @@ namespace {
                 bool foundMessage = false;
                 for (MessageLocation const &message : lineMessages) {
                     if (message.row == 0 && message.col == col + 1) {
-                        std::cerr << attr(message.message.color, "-- ", true) << message.message.type << ": " << resetIfNecessary() << message.message.text;
+                        std::cerr << attr(message.message.color.asRaw(), "-- ", true) << message.message.type << ": " << resetIfNecessary().asRaw() << message.message.text;
                         col = message.col + message.message.text.size() + message.message.type.size() + 5 - 1 - 1; // -1 because col is zero-based, and also -1 because of the ++col at the top of the for loop
                         foundMessage = true;
                         break;
@@ -239,13 +244,17 @@ namespace {
                 if (col == lchars.size())
                     continue;
 
-                Underline const *un = lchars[col];
-                if (un && un->messages.size()) // in a underline
-                    std::cerr << attr(A_BOLD, attr(un->messages[0].color, std::string(1, un->ch)));
-                else if (un)
-                    std::cerr << attr(A_BOLD, std::string(1, un->ch));
-                else
-                    std::cerr << " ";
+                Maybe<NNPtr<Underline const>> &un = lchars[col];
+                un.match(
+                    [](NNPtr<Underline const> const &un) {
+                        if (un->messages.size())
+                            std::cerr << attr(A_BOLD, attr(un->messages[0].color.asRaw(), std::string(1, un->ch)));
+                        else
+                            std::cerr << attr(A_BOLD, std::string(1, un->ch));
+                    },
+                    [] {
+                        std::cerr << " ";
+                    });
             }
             std::cerr << std::endl;
         }
@@ -258,7 +267,7 @@ namespace {
                 for (auto message = lineMessages.rbegin(); message != lineMessages.rend(); ++message) {
                     if (message->row == row) {
                         std::cerr << std::string(message->col - lastcol - 1, ' ');
-                        std::cerr << attr(message->message.color, "`-- ", true) << message->message.type << ": " << resetIfNecessary() << message->message.text;
+                        std::cerr << attr(message->message.color.asRaw(), "`-- ", true) << message->message.type << ": " << resetIfNecessary().asRaw() << message->message.text;
 
                         lastcol = message->col + message->message.text.size() + message->message.type.size() + 6;
                     }
@@ -278,13 +287,23 @@ void Error::report() const {
         int maxlinepad (countLinePad(showlines));
         std::string pad (maxlinepad + 1, ' ');
 
-        File const *lastfile = nullptr;
+        Maybe<NNPtr<File const>> lastfile;
         int lastnr = -1;
         for (showline const &sl : showlines) {
-            if (sl.file != lastfile) {
+            bool needFileLine = lastfile.match<bool>([&sl] (NNPtr<File const> file) -> bool {
+                    // if there is a last file, check that it is != to the current line's file
+                    return file != sl.file;
+                },
+                [] () -> bool {
+                    // if there is no last file, then print a file line
+                    return true;
+                });
+            if (needFileLine) {
                 printFileLine(pad, sl.file);
                 lastnr = -1;
-            } {
+            }
+
+            {
                 std::ios origState (nullptr);
                 origState.copyfmt(std::cerr);
 
@@ -298,7 +317,7 @@ void Error::report() const {
 
             printLine(sl, pad, underlines);
 
-            lastfile = sl.file;
+            lastfile = Maybe(NNPtr(*sl.file));
             lastnr = sl.line;
         }
 
@@ -313,9 +332,9 @@ void Error::report() const {
             auto fstart = un.location.file->source.begin();
             int lineN = getLineN(fstart, un.location.start);
             int colN = getColN(fstart, un.location.start);
-            std::cerr << format("%> %:%:% %\n", pad, attr(FILEPATH_COLOR, un.location.file->filename, true), lineN, colN, resetIfNecessary());
+            std::cerr << format("%> %:%:% %\n", pad, attr(FILEPATH_COLOR, un.location.file->filename, true), lineN, colN, resetIfNecessary().asRaw());
             for (Message const &me : un.messages)
-                std::cerr << format("%| [%] %\n", pad, attr(me.color, me.type), me.text);
+                std::cerr << format("%| [%] %\n", pad, attr(me.color.asRaw(), me.type), me.text);
 
             std::ios origState (nullptr);
             origState.copyfmt(std::cerr);
@@ -332,7 +351,7 @@ void Error::report() const {
             for (auto i = lstart; i != lend; ++i)
                 if (i >= un.location.start && i < un.location.end)
                     if (un.messages.size())
-                        std::cerr << attr(A_BOLD, attr(un.messages[0].color, std::string(1, *i)));
+                        std::cerr << attr(A_BOLD, attr(un.messages[0].color.asRaw(), std::string(1, *i)));
                     else
                         std::cerr << attr(A_BOLD, std::string(1, *i));
                 else
@@ -343,7 +362,7 @@ void Error::report() const {
             if (unEndCol <= unStartCol)
                 unEndCol = unStartCol + 1;
 
-            std::cerr << std::string(unStartCol - 1, ' ') << attr(A_BOLD, attr(un.messages.size() ? un.messages[0].color : "", std::string(unEndCol - unStartCol, '^'))) << std::endl;
+            std::cerr << std::string(unStartCol - 1, ' ') << attr(A_BOLD, attr(un.messages.size() ? un.messages[0].color.asRaw() : "", std::string(unEndCol - unStartCol, '^'))) << std::endl;
         }
 
         printFinalLine(pad, type, code, name);
