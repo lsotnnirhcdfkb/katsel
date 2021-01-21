@@ -13,9 +13,9 @@ Location::Location(IR::ASTValue const &v): Location(*v.ast) {}
 Location::Location(NNPtr<IR::ASTValue const> v): Location(*v->ast) {}
 Location::Location(std::string::iterator start, std::string::iterator end, NNPtr<File const> file): start(start), end(end), file(*file) {}
 
-static Location locFromAST(NNPtr<ASTNS::AST> ast) {
-    Maybe<Location const> &maybeStart = ast->start();
-    Maybe<Location const> &maybeEnd = ast->end();
+static Location locFromAST(ASTNS::AST &ast) {
+    Maybe<Location const> &maybeStart = ast.start();
+    Maybe<Location const> &maybeEnd = ast.end();
 
    auto withOp = [] (Location const &l) -> Location const { return l; };
    auto noOp =   [] ()                  -> Location const { reportAbortNoh("get location of ast with missing location info"); };
@@ -23,9 +23,10 @@ static Location locFromAST(NNPtr<ASTNS::AST> ast) {
         start (maybeStart.match<Location const>(withOp, noOp)),
         end   (maybeEnd  .match<Location const>(withOp, noOp));
 
-    return Location(start.start, end.end, ast->file);
+    return Location(start.start, end.end, ast.file);
 }
-Location::Location(NNPtr<ASTNS::AST> ast): Location(locFromAST(ast)) {}
+Location::Location(NNPtr<ASTNS::AST> ast): Location(locFromAST(*ast)) {}
+Location::Location(ASTNS::AST &ast): Location(locFromAST(ast)) {}
 // Error methods {{{1
 Error::Error(MsgType type, Location const &location, std::string const &code, std::string const &name):
     type(type), location(location),

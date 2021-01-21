@@ -18,8 +18,8 @@ namespace IR {
         class Instruction : public Value {
         public:
             virtual ~Instruction() {};
-            virtual void accept(NNPtr<InstructionVisitor> v) = 0;
-            void value_accept(NNPtr<ValueVisitor> v) override;
+            virtual void accept(InstructionVisitor &v) = 0;
+            void value_accept(ValueVisitor &v) override;
 
             uint64_t id;
         };
@@ -27,7 +27,7 @@ namespace IR {
         class Br {
         public:
             virtual ~Br() {};
-            virtual void accept(NNPtr<BrVisitor> v) = 0;
+            virtual void accept(BrVisitor &v) = 0;
         };
 
         // INSTR CLASSES START
@@ -83,7 +83,7 @@ namespace IR {
     class Store : public Instruction {
     public:
         Store(ASTValue target, ASTValue value, bool init);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue target;
         ASTValue value;
@@ -92,14 +92,14 @@ namespace IR {
     class Phi : public Instruction {
     public:
         Phi(std::vector<std::pair<NNPtr<Block>,ASTValue>> prevs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         std::vector<std::pair<NNPtr<Block>,ASTValue>> prevs;
     };
     class Register : public Instruction, public DeclaredValue {
     public:
         Register(NNPtr<ASTNS::AST> _defAST, NNPtr<Type> ty, bool mut);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         NNPtr<ASTNS::AST> defAST() const override;
     private:
@@ -111,7 +111,7 @@ namespace IR {
     class Or : public Instruction {
     public:
         Or(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -119,7 +119,7 @@ namespace IR {
     class And : public Instruction {
     public:
         And(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -127,14 +127,14 @@ namespace IR {
     class Not : public Instruction {
     public:
         Not(ASTValue op);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue op;
     };
     class ICmpNE : public Instruction {
     public:
         ICmpNE(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -142,7 +142,7 @@ namespace IR {
     class ICmpEQ : public Instruction {
     public:
         ICmpEQ(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -150,7 +150,7 @@ namespace IR {
     class ICmpLT : public Instruction {
     public:
         ICmpLT(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -158,7 +158,7 @@ namespace IR {
     class ICmpGT : public Instruction {
     public:
         ICmpGT(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -166,7 +166,7 @@ namespace IR {
     class ICmpLE : public Instruction {
     public:
         ICmpLE(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -174,7 +174,7 @@ namespace IR {
     class ICmpGE : public Instruction {
     public:
         ICmpGE(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -182,7 +182,7 @@ namespace IR {
     class IAdd : public Instruction {
     public:
         IAdd(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -190,7 +190,7 @@ namespace IR {
     class ISub : public Instruction {
     public:
         ISub(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -198,7 +198,7 @@ namespace IR {
     class IMult : public Instruction {
     public:
         IMult(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -206,7 +206,7 @@ namespace IR {
     class IDiv : public Instruction {
     public:
         IDiv(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -214,7 +214,7 @@ namespace IR {
     class IMod : public Instruction {
     public:
         IMod(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -222,14 +222,14 @@ namespace IR {
     class INeg : public Instruction {
     public:
         INeg(ASTValue op);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue op;
     };
     class FCmpNE : public Instruction {
     public:
         FCmpNE(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -237,7 +237,7 @@ namespace IR {
     class FCmpEQ : public Instruction {
     public:
         FCmpEQ(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -245,7 +245,7 @@ namespace IR {
     class FCmpLT : public Instruction {
     public:
         FCmpLT(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -253,7 +253,7 @@ namespace IR {
     class FCmpGT : public Instruction {
     public:
         FCmpGT(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -261,7 +261,7 @@ namespace IR {
     class FCmpLE : public Instruction {
     public:
         FCmpLE(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -269,7 +269,7 @@ namespace IR {
     class FCmpGE : public Instruction {
     public:
         FCmpGE(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -277,7 +277,7 @@ namespace IR {
     class FAdd : public Instruction {
     public:
         FAdd(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -285,7 +285,7 @@ namespace IR {
     class FSub : public Instruction {
     public:
         FSub(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -293,7 +293,7 @@ namespace IR {
     class FMult : public Instruction {
     public:
         FMult(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -301,7 +301,7 @@ namespace IR {
     class FDiv : public Instruction {
     public:
         FDiv(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -309,7 +309,7 @@ namespace IR {
     class FMod : public Instruction {
     public:
         FMod(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -317,14 +317,14 @@ namespace IR {
     class FNeg : public Instruction {
     public:
         FNeg(ASTValue op);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue op;
     };
     class BitXor : public Instruction {
     public:
         BitXor(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -332,7 +332,7 @@ namespace IR {
     class BitOr : public Instruction {
     public:
         BitOr(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -340,7 +340,7 @@ namespace IR {
     class BitAnd : public Instruction {
     public:
         BitAnd(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -348,14 +348,14 @@ namespace IR {
     class BitNot : public Instruction {
     public:
         BitNot(ASTValue op);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue op;
     };
     class ShiftR : public Instruction {
     public:
         ShiftR(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -363,7 +363,7 @@ namespace IR {
     class ShiftL : public Instruction {
     public:
         ShiftL(ASTValue lhs, ASTValue rhs);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue lhs;
         ASTValue rhs;
@@ -371,7 +371,7 @@ namespace IR {
     class NoOpCast : public Instruction {
     public:
         NoOpCast(ASTValue op, NNPtr<Type> newt);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue op;
         NNPtr<Type> newt;
@@ -379,7 +379,7 @@ namespace IR {
     class IntToInt : public Instruction {
     public:
         IntToInt(ASTValue op, NNPtr<IntType> newt);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue op;
         NNPtr<IntType> newt;
@@ -387,7 +387,7 @@ namespace IR {
     class IntToFloat : public Instruction {
     public:
         IntToFloat(ASTValue op, NNPtr<FloatType> newt);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue op;
         NNPtr<FloatType> newt;
@@ -395,7 +395,7 @@ namespace IR {
     class FloatToFloat : public Instruction {
     public:
         FloatToFloat(ASTValue op, NNPtr<FloatType> newt);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue op;
         NNPtr<FloatType> newt;
@@ -403,7 +403,7 @@ namespace IR {
     class FloatToInt : public Instruction {
     public:
         FloatToInt(ASTValue op, NNPtr<IntType> newt);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue op;
         NNPtr<IntType> newt;
@@ -411,7 +411,7 @@ namespace IR {
     class Call : public Instruction {
     public:
         Call(NNPtr<Function> f, std::vector<ASTValue> args);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         NNPtr<Function> f;
         std::vector<ASTValue> args;
@@ -419,7 +419,7 @@ namespace IR {
     class Addrof : public Instruction {
     public:
         Addrof(NNPtr<DerefPtr> deref, bool mut);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         NNPtr<DerefPtr> deref;
         bool mut;
@@ -427,14 +427,14 @@ namespace IR {
     class DerefPtr : public Instruction {
     public:
         DerefPtr(ASTValue ptr);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue ptr;
     };
     class PtrArith : public Instruction {
     public:
         PtrArith(ASTValue ptr, ASTValue offset);
-        void accept(NNPtr<InstructionVisitor> v) override;
+        void accept(InstructionVisitor &v) override;
         NNPtr<IR::Type> type() const override;
         ASTValue ptr;
         ASTValue offset;
@@ -442,19 +442,19 @@ namespace IR {
     class Return : public Br {
     public:
         Return(ASTValue value);
-        void accept(NNPtr<BrVisitor> v) override;
+        void accept(BrVisitor &v) override;
         ASTValue value;
     };
     class GotoBr : public Br {
     public:
         GotoBr(NNPtr<Block> to);
-        void accept(NNPtr<BrVisitor> v) override;
+        void accept(BrVisitor &v) override;
         NNPtr<Block> to;
     };
     class CondBr : public Br {
     public:
         CondBr(ASTValue v, NNPtr<Block> trueB, NNPtr<Block> falseB);
-        void accept(NNPtr<BrVisitor> v) override;
+        void accept(BrVisitor &v) override;
         ASTValue v;
         NNPtr<Block> trueB;
         NNPtr<Block> falseB;

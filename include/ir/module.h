@@ -69,7 +69,7 @@ namespace IR {
         virtual std::map<std::string, NNPtr<Value>> getValues() const = 0;
         virtual std::map<std::string, NNPtr<DeclSymbol>> getDeclSymbols() const = 0;
 
-        virtual void declsym_accept(NNPtr<DeclSymbolVisitor> v) = 0;
+        virtual void declsym_accept(DeclSymbolVisitor &v) = 0;
     };
 
     class Module : public DeclSymbol {
@@ -79,7 +79,7 @@ namespace IR {
         NNPtr<ASTNS::AST> declAST() const override;
         std::string name() const override;
 
-        virtual void declsym_accept(NNPtr<DeclSymbolVisitor> v) override;
+        virtual void declsym_accept(DeclSymbolVisitor &v) override;
 
         DERIVE_DECLSYMBOL_ITEMS_DECL()
 
@@ -93,7 +93,7 @@ namespace IR {
     public:
         virtual ~DeclSymbolVisitor() {}
 #define VISITMETHOD(cl) \
-        virtual void declsym_visit##cl(NNPtr<cl> ds) = 0;
+        virtual void declsym_visit##cl(cl &ds) = 0;
         DECLSYM_CLASS_LIST(VISITMETHOD)
 #undef VISITMETHOD
     };

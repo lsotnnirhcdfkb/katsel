@@ -35,7 +35,7 @@ namespace IR {
 
         virtual NNPtr<Type> type() const = 0;
 
-        virtual void value_accept(NNPtr<ValueVisitor> v) = 0;
+        virtual void value_accept(ValueVisitor &v) = 0;
     };
 
     class DeclaredValue {
@@ -64,7 +64,7 @@ namespace IR {
 
         bool prototypeonly;
 
-        void value_accept(NNPtr<ValueVisitor> v) override;
+        void value_accept(ValueVisitor &v) override;
 
         uint64_t curindex;
 
@@ -81,7 +81,7 @@ namespace IR {
         ConstInt(NNPtr<GenericIntType> ty, uint64_t val);
         NNPtr<Type> type() const override;
         uint64_t val;
-        void value_accept(NNPtr<ValueVisitor> v) override;
+        void value_accept(ValueVisitor &v) override;
     private:
         std::variant<NNPtr<IntType>, NNPtr<GenericIntType>> ty;
         bool isGeneric;
@@ -92,7 +92,7 @@ namespace IR {
         ConstFloat(NNPtr<GenericFloatType> ty, double val);
         NNPtr<Type> type() const override;
         double val;
-        void value_accept(NNPtr<ValueVisitor> v) override;
+        void value_accept(ValueVisitor &v) override;
     private:
         std::variant<NNPtr<FloatType>, NNPtr<GenericFloatType>> ty;
         bool isGeneric;
@@ -102,7 +102,7 @@ namespace IR {
         ConstBool(NNPtr<BoolType> ty, bool val);
         NNPtr<Type> type() const override;
         bool val;
-        void value_accept(NNPtr<ValueVisitor> v) override;
+        void value_accept(ValueVisitor &v) override;
     private:
         NNPtr<BoolType> ty;
     };
@@ -111,7 +111,7 @@ namespace IR {
         ConstChar(NNPtr<CharType> ty, uint8_t val);
         NNPtr<Type> type() const override;
         uint8_t val;
-        void value_accept(NNPtr<ValueVisitor> v) override;
+        void value_accept(ValueVisitor &v) override;
     private:
         NNPtr<CharType> ty;
     };
@@ -121,7 +121,7 @@ namespace IR {
     public:
         Void(NNPtr<VoidType> ty);
         NNPtr<Type> type() const override;
-        void value_accept(NNPtr<ValueVisitor> v) override;
+        void value_accept(ValueVisitor &v) override;
     private:
         NNPtr<VoidType> ty;
     };
@@ -146,7 +146,7 @@ namespace IR {
     class ValueVisitor {
     public:
 #define VISITMETHOD(cl, n) \
-        virtual void value_visit##n(NNPtr<cl> i) = 0;
+        virtual void value_visit##n(cl &i) = 0;
         IR_VALUE_LIST(VISITMETHOD)
 #undef VISITMETHOD
     };

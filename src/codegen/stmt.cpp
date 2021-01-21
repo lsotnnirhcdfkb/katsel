@@ -4,17 +4,17 @@
 CodeGen::FunctionCodeGen::StmtCodeGen::StmtCodeGen(CodeGen &cg, FunctionCodeGen &fcg): cg(cg), fcg(fcg) {}
 
 void CodeGen::FunctionCodeGen::StmtCodeGen::stmt(NNPtr<ASTNS::Stmt> ast) {
-    ast->accept(this);
+    ast->accept(*this);
 }
-void CodeGen::FunctionCodeGen::StmtCodeGen::visitExprStmt(NNPtr<ASTNS::ExprStmt> ast) {
-    fcg.exprCG.expr(ast->expr.get());
+void CodeGen::FunctionCodeGen::StmtCodeGen::visitExprStmt(ASTNS::ExprStmt &ast) {
+    fcg.exprCG.expr(ast.expr.get());
 }
-void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmt(NNPtr<ASTNS::VarStmt> ast) {
-    for (std::unique_ptr<ASTNS::VarStmtItem> &item : ast->items)
-        item->accept(this);
+void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmt(ASTNS::VarStmt &ast) {
+    for (std::unique_ptr<ASTNS::VarStmtItem> &item : ast.items)
+        item->accept(*this);
 }
-void CodeGen::FunctionCodeGen::StmtCodeGen::visitRetStmt(NNPtr<ASTNS::RetStmt> ast) {
-    Maybe<IR::ASTValue> m_v = ast->expr ? fcg.exprCG.expr(ast->expr.get()) : Maybe(IR::ASTValue(cg.context->getVoid(), ast));
+void CodeGen::FunctionCodeGen::StmtCodeGen::visitRetStmt(ASTNS::RetStmt &ast) {
+    Maybe<IR::ASTValue> m_v = ast.expr ? fcg.exprCG.expr(ast.expr.get()) : Maybe(IR::ASTValue(cg.context->getVoid(), ast));
     if (!m_v.has())
         return;
 

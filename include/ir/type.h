@@ -28,7 +28,7 @@ namespace IR {
         IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &curBlock, IR::ASTValue v) override; \
         Maybe<IR::ASTValue> castFrom(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &curBlock, IR::ASTValue v, NNPtr<ASTNS::AST> ast) override; \
         NNPtr<llvm::Type> toLLVMType(llvm::LLVMContext &con) const override; \
-        void type_accept(NNPtr<IR::TypeVisitor> v) override; \
+        void type_accept(IR::TypeVisitor &v) override; \
         virtual Maybe<Method const> getMethod(std::string const &name) const override; \
         virtual void addMethod(std::string const &name, Method const &m) override; \
         virtual bool hasField(std::string const &name) const override; \
@@ -113,9 +113,9 @@ namespace IR {
 
         virtual NNPtr<llvm::Type> toLLVMType(llvm::LLVMContext &con) const = 0;
 
-        virtual void type_accept(NNPtr<TypeVisitor> v) = 0;
+        virtual void type_accept(TypeVisitor &v) = 0;
 
-        void declsym_accept(NNPtr<DeclSymbolVisitor> v) override;
+        void declsym_accept(DeclSymbolVisitor &v) override;
 
         struct Method {
             NNPtr<IR::Function> fun;
@@ -306,7 +306,7 @@ namespace IR {
     class TypeVisitor {
     public:
         virtual ~TypeVisitor() {}
-#define VISITTY(cl) virtual void type_visit##cl(NNPtr<cl> ty) = 0;
+#define VISITTY(cl) virtual void type_visit##cl(cl &ty) = 0;
         IR_TYPES(VISITTY)
 #undef VISITTY
     };

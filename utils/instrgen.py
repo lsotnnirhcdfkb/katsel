@@ -128,7 +128,7 @@ def gen_decls():
 
         output.append(    ( '    public:\n'
                            f'        {instruction.name}({as_constructor(instruction, instruction.fields)});\n'
-                           f'        void accept(NNPtr<{instruction.base()}Visitor> v) override;\n'))
+                           f'        void accept({instruction.base()}Visitor &v) override;\n'))
         if instruction.base() == 'Instruction':
             output.append( f'        NNPtr<IR::Type> type() const override;\n')
 
@@ -150,7 +150,7 @@ def gen_defs():
         for assertion in instruction.assertions:
             output.append(    f'    ASSERT({assertion})\n')
         output.append(         '}\n')
-        output.append(        f'void IR::Instrs::{instruction.name}::accept(NNPtr<{instruction.base()}Visitor> v) {{ v->visit{instruction.name}(*this); }}\n')
+        output.append(        f'void IR::Instrs::{instruction.name}::accept({instruction.base()}Visitor &v) {{ v.visit{instruction.name}(*this); }}\n')
 
         if instruction.base() == 'Instruction':
             output.append(    f'NNPtr<IR::Type> IR::Instrs::{instruction.name}::type() const {{ return {instruction.type}; }}\n')
@@ -166,7 +166,7 @@ def gen_method_decls(base):
     output = []
     for instr in instructions:
         if instr.base() == base:
-            output.append(f'void visit{instr.name}(NNPtr<IR::Instrs::{instr.name}> i) override;\n')
+            output.append(f'void visit{instr.name}(IR::Instrs::{instr.name} &i) override;\n')
 
     return ''.join(output)
 
@@ -174,6 +174,6 @@ def gen_pure_method_decls(base):
     output = []
     for instr in instructions:
         if instr.base() == base:
-            output.append(f'virtual void visit{instr.name}(NNPtr<IR::Instrs::{instr.name}> i) = 0;\n')
+            output.append(f'virtual void visit{instr.name}(IR::Instrs::{instr.name} &i) = 0;\n')
 
     return ''.join(output)

@@ -26,26 +26,26 @@ void CodeGen::forwdecl() {
     unit->mod.addDeclSymbol("sint64", context->getIntType(64, true));
 
     ForwDecl f (*this);
-    cub->accept(&f);
+    cub->accept(f);
 }
 
 void CodeGen::declarate() {
     Declarator d (*this);
-    cub->accept(&d);
+    cub->accept(d);
 }
 
 void CodeGen::codegen() {
-    cub->accept(this);
+    cub->accept(*this);
 }
 
 // visiting {{{1
-void CodeGen::visitCU(NNPtr<ASTNS::CU> ast) {
-    for (std::unique_ptr<ASTNS::Decl> &decl : ast->decls)
-        decl->accept(this);
+void CodeGen::visitCU(ASTNS::CU &ast) {
+    for (std::unique_ptr<ASTNS::Decl> &decl : ast.decls)
+        decl->accept(*this);
 }
 
-void CodeGen::visitFunctionDecl(NNPtr<ASTNS::FunctionDecl> ast) {
-    Maybe<NNPtr<IR::Value>> val = unit->mod.getValue(ast->name.stringify());
+void CodeGen::visitFunctionDecl(ASTNS::FunctionDecl &ast) {
+    Maybe<NNPtr<IR::Value>> val = unit->mod.getValue(ast.name.stringify());
     IR::Function *fun;
     if (!val.has() || !(fun = dynamic_cast<IR::Function*>(val.get().asRaw()))) {
         errored = true;
@@ -57,10 +57,10 @@ void CodeGen::visitFunctionDecl(NNPtr<ASTNS::FunctionDecl> ast) {
         errored = true;
 }
 
-void CodeGen::visitImplDecl(NNPtr<ASTNS::ImplDecl> ast) {
+void CodeGen::visitImplDecl(ASTNS::ImplDecl &ast) {
     ImplCodeGen icg (*this, ast);
     if (!icg.codegen())
         errored = true;
 }
 
-void CodeGen::visitImplicitDecl(NNPtr<ASTNS::ImplicitDecl> ) {}
+void CodeGen::visitImplicitDecl(ASTNS::ImplicitDecl &) {}

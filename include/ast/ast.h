@@ -74,10 +74,10 @@ namespace ASTNS {
         class Visitor {
         public:
             virtual ~Visitor() {}
-            virtual void visitCU(NNPtr<ASTNS::CU> ast) = 0;
+            virtual void visitCU(ASTNS::CU &ast) = 0;
         };
         virtual ~CUB() {}
-        virtual void accept(NNPtr<Visitor> v) = 0;
+        virtual void accept(Visitor &v) = 0;
         CUB(File const &file);
     };
     class Decl : public AST {
@@ -85,12 +85,12 @@ namespace ASTNS {
         class Visitor {
         public:
             virtual ~Visitor() {}
-            virtual void visitImplicitDecl(NNPtr<ASTNS::ImplicitDecl> ast) = 0;
-            virtual void visitImplDecl(NNPtr<ASTNS::ImplDecl> ast) = 0;
-            virtual void visitFunctionDecl(NNPtr<ASTNS::FunctionDecl> ast) = 0;
+            virtual void visitImplicitDecl(ASTNS::ImplicitDecl &ast) = 0;
+            virtual void visitImplDecl(ASTNS::ImplDecl &ast) = 0;
+            virtual void visitFunctionDecl(ASTNS::FunctionDecl &ast) = 0;
         };
         virtual ~Decl() {}
-        virtual void accept(NNPtr<Visitor> v) = 0;
+        virtual void accept(Visitor &v) = 0;
         Decl(File const &file);
     };
     class ImplMember : public AST {
@@ -98,10 +98,10 @@ namespace ASTNS {
         class Visitor {
         public:
             virtual ~Visitor() {}
-            virtual void visitFunctionImplMember(NNPtr<ASTNS::FunctionImplMember> ast) = 0;
+            virtual void visitFunctionImplMember(ASTNS::FunctionImplMember &ast) = 0;
         };
         virtual ~ImplMember() {}
-        virtual void accept(NNPtr<Visitor> v) = 0;
+        virtual void accept(Visitor &v) = 0;
         ImplMember(File const &file);
     };
     class Stmt : public AST {
@@ -109,12 +109,12 @@ namespace ASTNS {
         class Visitor {
         public:
             virtual ~Visitor() {}
-            virtual void visitVarStmt(NNPtr<ASTNS::VarStmt> ast) = 0;
-            virtual void visitExprStmt(NNPtr<ASTNS::ExprStmt> ast) = 0;
-            virtual void visitRetStmt(NNPtr<ASTNS::RetStmt> ast) = 0;
+            virtual void visitVarStmt(ASTNS::VarStmt &ast) = 0;
+            virtual void visitExprStmt(ASTNS::ExprStmt &ast) = 0;
+            virtual void visitRetStmt(ASTNS::RetStmt &ast) = 0;
         };
         virtual ~Stmt() {}
-        virtual void accept(NNPtr<Visitor> v) = 0;
+        virtual void accept(Visitor &v) = 0;
         Stmt(File const &file);
     };
     class Expr : public AST {
@@ -122,24 +122,24 @@ namespace ASTNS {
         class Visitor {
         public:
             virtual ~Visitor() {}
-            virtual void visitBlock(NNPtr<ASTNS::Block> ast) = 0;
-            virtual void visitIfExpr(NNPtr<ASTNS::IfExpr> ast) = 0;
-            virtual void visitWhileExpr(NNPtr<ASTNS::WhileExpr> ast) = 0;
-            virtual void visitAssignmentExpr(NNPtr<ASTNS::AssignmentExpr> ast) = 0;
-            virtual void visitShortCircuitExpr(NNPtr<ASTNS::ShortCircuitExpr> ast) = 0;
-            virtual void visitBinaryExpr(NNPtr<ASTNS::BinaryExpr> ast) = 0;
-            virtual void visitCastExpr(NNPtr<ASTNS::CastExpr> ast) = 0;
-            virtual void visitUnaryExpr(NNPtr<ASTNS::UnaryExpr> ast) = 0;
-            virtual void visitAddrofExpr(NNPtr<ASTNS::AddrofExpr> ast) = 0;
-            virtual void visitDerefExpr(NNPtr<ASTNS::DerefExpr> ast) = 0;
-            virtual void visitCallExpr(NNPtr<ASTNS::CallExpr> ast) = 0;
-            virtual void visitFieldAccessExpr(NNPtr<ASTNS::FieldAccessExpr> ast) = 0;
-            virtual void visitMethodCallExpr(NNPtr<ASTNS::MethodCallExpr> ast) = 0;
-            virtual void visitPrimaryExpr(NNPtr<ASTNS::PrimaryExpr> ast) = 0;
-            virtual void visitPathExpr(NNPtr<ASTNS::PathExpr> ast) = 0;
+            virtual void visitBlock(ASTNS::Block &ast) = 0;
+            virtual void visitIfExpr(ASTNS::IfExpr &ast) = 0;
+            virtual void visitWhileExpr(ASTNS::WhileExpr &ast) = 0;
+            virtual void visitAssignmentExpr(ASTNS::AssignmentExpr &ast) = 0;
+            virtual void visitShortCircuitExpr(ASTNS::ShortCircuitExpr &ast) = 0;
+            virtual void visitBinaryExpr(ASTNS::BinaryExpr &ast) = 0;
+            virtual void visitCastExpr(ASTNS::CastExpr &ast) = 0;
+            virtual void visitUnaryExpr(ASTNS::UnaryExpr &ast) = 0;
+            virtual void visitAddrofExpr(ASTNS::AddrofExpr &ast) = 0;
+            virtual void visitDerefExpr(ASTNS::DerefExpr &ast) = 0;
+            virtual void visitCallExpr(ASTNS::CallExpr &ast) = 0;
+            virtual void visitFieldAccessExpr(ASTNS::FieldAccessExpr &ast) = 0;
+            virtual void visitMethodCallExpr(ASTNS::MethodCallExpr &ast) = 0;
+            virtual void visitPrimaryExpr(ASTNS::PrimaryExpr &ast) = 0;
+            virtual void visitPathExpr(ASTNS::PathExpr &ast) = 0;
         };
         virtual ~Expr() {}
-        virtual void accept(NNPtr<Visitor> v) = 0;
+        virtual void accept(Visitor &v) = 0;
         Expr(File const &file);
     };
     class Type : public AST {
@@ -147,12 +147,12 @@ namespace ASTNS {
         class Visitor {
         public:
             virtual ~Visitor() {}
-            virtual void visitPathType(NNPtr<ASTNS::PathType> ast) = 0;
-            virtual void visitPointerType(NNPtr<ASTNS::PointerType> ast) = 0;
-            virtual void visitThisType(NNPtr<ASTNS::ThisType> ast) = 0;
+            virtual void visitPathType(ASTNS::PathType &ast) = 0;
+            virtual void visitPointerType(ASTNS::PointerType &ast) = 0;
+            virtual void visitThisType(ASTNS::ThisType &ast) = 0;
         };
         virtual ~Type() {}
-        virtual void accept(NNPtr<Visitor> v) = 0;
+        virtual void accept(Visitor &v) = 0;
         Type(File const &file);
     };
     class ArgB : public AST {
@@ -160,10 +160,10 @@ namespace ASTNS {
         class Visitor {
         public:
             virtual ~Visitor() {}
-            virtual void visitArg(NNPtr<ASTNS::Arg> ast) = 0;
+            virtual void visitArg(ASTNS::Arg &ast) = 0;
         };
         virtual ~ArgB() {}
-        virtual void accept(NNPtr<Visitor> v) = 0;
+        virtual void accept(Visitor &v) = 0;
         ArgB(File const &file);
     };
     class ParamB : public AST {
@@ -171,11 +171,11 @@ namespace ASTNS {
         class Visitor {
         public:
             virtual ~Visitor() {}
-            virtual void visitParam(NNPtr<ASTNS::Param> ast) = 0;
-            virtual void visitThisParam(NNPtr<ASTNS::ThisParam> ast) = 0;
+            virtual void visitParam(ASTNS::Param &ast) = 0;
+            virtual void visitThisParam(ASTNS::ThisParam &ast) = 0;
         };
         virtual ~ParamB() {}
-        virtual void accept(NNPtr<Visitor> v) = 0;
+        virtual void accept(Visitor &v) = 0;
         ParamB(File const &file);
     };
     class VStmtIB : public AST {
@@ -183,10 +183,10 @@ namespace ASTNS {
         class Visitor {
         public:
             virtual ~Visitor() {}
-            virtual void visitVarStmtItem(NNPtr<ASTNS::VarStmtItem> ast) = 0;
+            virtual void visitVarStmtItem(ASTNS::VarStmtItem &ast) = 0;
         };
         virtual ~VStmtIB() {}
-        virtual void accept(NNPtr<Visitor> v) = 0;
+        virtual void accept(Visitor &v) = 0;
         VStmtIB(File const &file);
     };
     class PathB : public AST {
@@ -194,10 +194,10 @@ namespace ASTNS {
         class Visitor {
         public:
             virtual ~Visitor() {}
-            virtual void visitPath(NNPtr<ASTNS::Path> ast) = 0;
+            virtual void visitPath(ASTNS::Path &ast) = 0;
         };
         virtual ~PathB() {}
-        virtual void accept(NNPtr<Visitor> v) = 0;
+        virtual void accept(Visitor &v) = 0;
         PathB(File const &file);
     };
     class ListB : public AST {
@@ -205,22 +205,22 @@ namespace ASTNS {
         class Visitor {
         public:
             virtual ~Visitor() {}
-            virtual void visitDeclList(NNPtr<ASTNS::DeclList> ast) = 0;
-            virtual void visitStmtList(NNPtr<ASTNS::StmtList> ast) = 0;
-            virtual void visitParamList(NNPtr<ASTNS::ParamList> ast) = 0;
-            virtual void visitArgList(NNPtr<ASTNS::ArgList> ast) = 0;
-            virtual void visitVarStmtItemList(NNPtr<ASTNS::VarStmtItemList> ast) = 0;
-            virtual void visitImplMemberList(NNPtr<ASTNS::ImplMemberList> ast) = 0;
+            virtual void visitDeclList(ASTNS::DeclList &ast) = 0;
+            virtual void visitStmtList(ASTNS::StmtList &ast) = 0;
+            virtual void visitParamList(ASTNS::ParamList &ast) = 0;
+            virtual void visitArgList(ASTNS::ArgList &ast) = 0;
+            virtual void visitVarStmtItemList(ASTNS::VarStmtItemList &ast) = 0;
+            virtual void visitImplMemberList(ASTNS::ImplMemberList &ast) = 0;
         };
         virtual ~ListB() {}
-        virtual void accept(NNPtr<Visitor> v) = 0;
+        virtual void accept(Visitor &v) = 0;
         ListB(File const &file);
     };
     class DeclList : public ListB {
     public:
         Maybe<Location const> _start, _end;
         std::vector<std::unique_ptr<Decl>> decls;
-        virtual void accept(NNPtr<ASTNS::ListB::Visitor> v) override;
+        virtual void accept(ASTNS::ListB::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         DeclList(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::vector<std::unique_ptr<Decl>> decls);
@@ -229,7 +229,7 @@ namespace ASTNS {
     public:
         Maybe<Location const> _start, _end;
         std::vector<std::unique_ptr<Stmt>> stmts;
-        virtual void accept(NNPtr<ASTNS::ListB::Visitor> v) override;
+        virtual void accept(ASTNS::ListB::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         StmtList(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::vector<std::unique_ptr<Stmt>> stmts);
@@ -238,7 +238,7 @@ namespace ASTNS {
     public:
         Maybe<Location const> _start, _end;
         std::vector<std::unique_ptr<ParamB>> params;
-        virtual void accept(NNPtr<ASTNS::ListB::Visitor> v) override;
+        virtual void accept(ASTNS::ListB::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         ParamList(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::vector<std::unique_ptr<ParamB>> params);
@@ -247,7 +247,7 @@ namespace ASTNS {
     public:
         Maybe<Location const> _start, _end;
         std::vector<std::unique_ptr<Arg>> args;
-        virtual void accept(NNPtr<ASTNS::ListB::Visitor> v) override;
+        virtual void accept(ASTNS::ListB::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         ArgList(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::vector<std::unique_ptr<Arg>> args);
@@ -256,7 +256,7 @@ namespace ASTNS {
     public:
         Maybe<Location const> _start, _end;
         std::vector<std::unique_ptr<VarStmtItem>> items;
-        virtual void accept(NNPtr<ASTNS::ListB::Visitor> v) override;
+        virtual void accept(ASTNS::ListB::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         VarStmtItemList(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::vector<std::unique_ptr<VarStmtItem>> items);
@@ -265,7 +265,7 @@ namespace ASTNS {
     public:
         Maybe<Location const> _start, _end;
         std::vector<std::unique_ptr<ImplMember>> members;
-        virtual void accept(NNPtr<ASTNS::ListB::Visitor> v) override;
+        virtual void accept(ASTNS::ListB::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         ImplMemberList(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::vector<std::unique_ptr<ImplMember>> members);
@@ -275,17 +275,17 @@ namespace ASTNS {
         class Visitor {
         public:
             virtual ~Visitor() {}
-            virtual void visitPureLocation(NNPtr<ASTNS::PureLocation> ast) = 0;
+            virtual void visitPureLocation(ASTNS::PureLocation &ast) = 0;
         };
         virtual ~PureLocationB() {}
-        virtual void accept(NNPtr<Visitor> v) = 0;
+        virtual void accept(Visitor &v) = 0;
         PureLocationB(File const &file);
     };
     class PureLocation : public PureLocationB {
     public:
         Maybe<Location const> _start, _end;
         int dummy;
-        virtual void accept(NNPtr<ASTNS::PureLocationB::Visitor> v) override;
+        virtual void accept(ASTNS::PureLocationB::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         PureLocation(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, int dummy);
@@ -294,7 +294,7 @@ namespace ASTNS {
     public:
         Maybe<Location const> _start, _end;
         int dummy;
-        virtual void accept(NNPtr<ASTNS::Decl::Visitor> v) override;
+        virtual void accept(ASTNS::Decl::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         ImplicitDecl(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, int dummy);
@@ -303,7 +303,7 @@ namespace ASTNS {
     public:
         Maybe<Location const> _start, _end;
         std::vector<std::unique_ptr<Decl>> decls;
-        virtual void accept(NNPtr<ASTNS::CUB::Visitor> v) override;
+        virtual void accept(ASTNS::CUB::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         CU(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::vector<std::unique_ptr<Decl>> decls);
@@ -313,7 +313,7 @@ namespace ASTNS {
         Maybe<Location const> _start, _end;
         std::unique_ptr<Type> implFor;
         std::vector<std::unique_ptr<ImplMember>> members;
-        virtual void accept(NNPtr<ASTNS::Decl::Visitor> v) override;
+        virtual void accept(ASTNS::Decl::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         ImplDecl(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Type> implFor, std::vector<std::unique_ptr<ImplMember>> members);
@@ -325,7 +325,7 @@ namespace ASTNS {
         Token name;
         std::vector<std::unique_ptr<ParamB>> params;
         std::unique_ptr<Block> body;
-        virtual void accept(NNPtr<ASTNS::Decl::Visitor> v) override;
+        virtual void accept(ASTNS::Decl::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         FunctionDecl(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Type> retty, Token name, std::vector<std::unique_ptr<ParamB>> params, std::unique_ptr<Block> body);
@@ -334,7 +334,7 @@ namespace ASTNS {
     public:
         Maybe<Location const> _start, _end;
         std::unique_ptr<FunctionDecl> fun;
-        virtual void accept(NNPtr<ASTNS::ImplMember::Visitor> v) override;
+        virtual void accept(ASTNS::ImplMember::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         FunctionImplMember(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<FunctionDecl> fun);
@@ -343,7 +343,7 @@ namespace ASTNS {
     public:
         Maybe<Location const> _start, _end;
         std::vector<std::unique_ptr<VarStmtItem>> items;
-        virtual void accept(NNPtr<ASTNS::Stmt::Visitor> v) override;
+        virtual void accept(ASTNS::Stmt::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         VarStmt(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::vector<std::unique_ptr<VarStmtItem>> items);
@@ -356,7 +356,7 @@ namespace ASTNS {
         Token name;
         Token equal;
         std::unique_ptr<Expr> expr;
-        virtual void accept(NNPtr<ASTNS::VStmtIB::Visitor> v) override;
+        virtual void accept(ASTNS::VStmtIB::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         VarStmtItem(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Type> type, bool mut, Token name, Token equal, std::unique_ptr<Expr> expr);
@@ -367,7 +367,7 @@ namespace ASTNS {
         std::unique_ptr<Expr> expr;
         bool suppress;
         Maybe<Location const> dot;
-        virtual void accept(NNPtr<ASTNS::Stmt::Visitor> v) override;
+        virtual void accept(ASTNS::Stmt::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         ExprStmt(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Expr> expr, bool suppress, Maybe<Location const> dot);
@@ -376,7 +376,7 @@ namespace ASTNS {
     public:
         Maybe<Location const> _start, _end;
         std::unique_ptr<Expr> expr;
-        virtual void accept(NNPtr<ASTNS::Stmt::Visitor> v) override;
+        virtual void accept(ASTNS::Stmt::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         RetStmt(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Expr> expr);
@@ -385,7 +385,7 @@ namespace ASTNS {
     public:
         Maybe<Location const> _start, _end;
         std::unique_ptr<Path> path;
-        virtual void accept(NNPtr<ASTNS::Type::Visitor> v) override;
+        virtual void accept(ASTNS::Type::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         PathType(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Path> path);
@@ -395,7 +395,7 @@ namespace ASTNS {
         Maybe<Location const> _start, _end;
         bool mut;
         std::unique_ptr<Type> type;
-        virtual void accept(NNPtr<ASTNS::Type::Visitor> v) override;
+        virtual void accept(ASTNS::Type::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         PointerType(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, bool mut, std::unique_ptr<Type> type);
@@ -404,7 +404,7 @@ namespace ASTNS {
     public:
         Maybe<Location const> _start, _end;
         Token th;
-        virtual void accept(NNPtr<ASTNS::Type::Visitor> v) override;
+        virtual void accept(ASTNS::Type::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         ThisType(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, Token th);
@@ -413,7 +413,7 @@ namespace ASTNS {
     public:
         Maybe<Location const> _start, _end;
         std::unique_ptr<Expr> expr;
-        virtual void accept(NNPtr<ASTNS::ArgB::Visitor> v) override;
+        virtual void accept(ASTNS::ArgB::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         Arg(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Expr> expr);
@@ -424,7 +424,7 @@ namespace ASTNS {
         std::unique_ptr<Type> type;
         Token name;
         bool mut;
-        virtual void accept(NNPtr<ASTNS::ParamB::Visitor> v) override;
+        virtual void accept(ASTNS::ParamB::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         Param(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Type> type, Token name, bool mut);
@@ -434,7 +434,7 @@ namespace ASTNS {
         Maybe<Location const> _start, _end;
         bool ptr;
         bool mut;
-        virtual void accept(NNPtr<ASTNS::ParamB::Visitor> v) override;
+        virtual void accept(ASTNS::ParamB::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         ThisParam(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, bool ptr, bool mut);
@@ -443,7 +443,7 @@ namespace ASTNS {
     public:
         Maybe<Location const> _start, _end;
         std::vector<std::unique_ptr<Stmt>> stmts;
-        virtual void accept(NNPtr<ASTNS::Expr::Visitor> v) override;
+        virtual void accept(ASTNS::Expr::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         Block(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::vector<std::unique_ptr<Stmt>> stmts);
@@ -456,7 +456,7 @@ namespace ASTNS {
         std::unique_ptr<Expr> cond;
         std::unique_ptr<Expr> trues;
         std::unique_ptr<Expr> falses;
-        virtual void accept(NNPtr<ASTNS::Expr::Visitor> v) override;
+        virtual void accept(ASTNS::Expr::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         IfExpr(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, Token iftok, Token elsetok, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> trues, std::unique_ptr<Expr> falses);
@@ -466,7 +466,7 @@ namespace ASTNS {
         Maybe<Location const> _start, _end;
         std::unique_ptr<Expr> cond;
         std::unique_ptr<Expr> body;
-        virtual void accept(NNPtr<ASTNS::Expr::Visitor> v) override;
+        virtual void accept(ASTNS::Expr::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         WhileExpr(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> body);
@@ -477,7 +477,7 @@ namespace ASTNS {
         std::unique_ptr<Expr> target;
         Token equal;
         std::unique_ptr<Expr> expr;
-        virtual void accept(NNPtr<ASTNS::Expr::Visitor> v) override;
+        virtual void accept(ASTNS::Expr::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         AssignmentExpr(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Expr> target, Token equal, std::unique_ptr<Expr> expr);
@@ -488,7 +488,7 @@ namespace ASTNS {
         std::unique_ptr<Expr> lhs;
         Token op;
         std::unique_ptr<Expr> rhs;
-        virtual void accept(NNPtr<ASTNS::Expr::Visitor> v) override;
+        virtual void accept(ASTNS::Expr::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         ShortCircuitExpr(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Expr> lhs, Token op, std::unique_ptr<Expr> rhs);
@@ -499,7 +499,7 @@ namespace ASTNS {
         std::unique_ptr<Expr> lhs;
         Token op;
         std::unique_ptr<Expr> rhs;
-        virtual void accept(NNPtr<ASTNS::Expr::Visitor> v) override;
+        virtual void accept(ASTNS::Expr::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         BinaryExpr(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Expr> lhs, Token op, std::unique_ptr<Expr> rhs);
@@ -509,7 +509,7 @@ namespace ASTNS {
         Maybe<Location const> _start, _end;
         std::unique_ptr<Type> type;
         std::unique_ptr<Expr> expr;
-        virtual void accept(NNPtr<ASTNS::Expr::Visitor> v) override;
+        virtual void accept(ASTNS::Expr::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         CastExpr(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Type> type, std::unique_ptr<Expr> expr);
@@ -519,7 +519,7 @@ namespace ASTNS {
         Maybe<Location const> _start, _end;
         Token op;
         std::unique_ptr<Expr> expr;
-        virtual void accept(NNPtr<ASTNS::Expr::Visitor> v) override;
+        virtual void accept(ASTNS::Expr::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         UnaryExpr(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, Token op, std::unique_ptr<Expr> expr);
@@ -530,7 +530,7 @@ namespace ASTNS {
         Token op;
         std::unique_ptr<Expr> expr;
         bool mut;
-        virtual void accept(NNPtr<ASTNS::Expr::Visitor> v) override;
+        virtual void accept(ASTNS::Expr::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         AddrofExpr(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, Token op, std::unique_ptr<Expr> expr, bool mut);
@@ -540,7 +540,7 @@ namespace ASTNS {
         Maybe<Location const> _start, _end;
         Token op;
         std::unique_ptr<Expr> expr;
-        virtual void accept(NNPtr<ASTNS::Expr::Visitor> v) override;
+        virtual void accept(ASTNS::Expr::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         DerefExpr(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, Token op, std::unique_ptr<Expr> expr);
@@ -551,7 +551,7 @@ namespace ASTNS {
         std::unique_ptr<Expr> callee;
         Token oparn;
         std::vector<std::unique_ptr<Arg>> args;
-        virtual void accept(NNPtr<ASTNS::Expr::Visitor> v) override;
+        virtual void accept(ASTNS::Expr::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         CallExpr(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Expr> callee, Token oparn, std::vector<std::unique_ptr<Arg>> args);
@@ -562,7 +562,7 @@ namespace ASTNS {
         std::unique_ptr<Expr> operand;
         Token dot;
         Token field;
-        virtual void accept(NNPtr<ASTNS::Expr::Visitor> v) override;
+        virtual void accept(ASTNS::Expr::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         FieldAccessExpr(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Expr> operand, Token dot, Token field);
@@ -575,7 +575,7 @@ namespace ASTNS {
         Token method;
         Token oparn;
         std::vector<std::unique_ptr<Arg>> args;
-        virtual void accept(NNPtr<ASTNS::Expr::Visitor> v) override;
+        virtual void accept(ASTNS::Expr::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         MethodCallExpr(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Expr> operand, Token dot, Token method, Token oparn, std::vector<std::unique_ptr<Arg>> args);
@@ -584,7 +584,7 @@ namespace ASTNS {
     public:
         Maybe<Location const> _start, _end;
         Token value;
-        virtual void accept(NNPtr<ASTNS::Expr::Visitor> v) override;
+        virtual void accept(ASTNS::Expr::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         PrimaryExpr(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, Token value);
@@ -593,7 +593,7 @@ namespace ASTNS {
     public:
         Maybe<Location const> _start, _end;
         std::unique_ptr<Path> path;
-        virtual void accept(NNPtr<ASTNS::Expr::Visitor> v) override;
+        virtual void accept(ASTNS::Expr::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         PathExpr(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Path> path);
@@ -602,7 +602,7 @@ namespace ASTNS {
     public:
         Maybe<Location const> _start, _end;
         std::vector<Token> segments;
-        virtual void accept(NNPtr<ASTNS::PathB::Visitor> v) override;
+        virtual void accept(ASTNS::PathB::Visitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
         Path(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::vector<Token> segments);

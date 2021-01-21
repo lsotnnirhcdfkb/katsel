@@ -18,6 +18,7 @@ struct Location {
     Location(IR::ASTValue const &v);
     Location(NNPtr<IR::ASTValue const> v);
     Location(NNPtr<ASTNS::AST> v);
+    Location(ASTNS::AST &v);
 
     template <typename T>
     Location(NNPtr<T> ast): Location(NNPtr<ASTNS::AST>(ast)) {}

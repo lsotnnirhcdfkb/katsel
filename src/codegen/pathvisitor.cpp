@@ -7,7 +7,7 @@ CodeGen::PathVisitor::PathVisitor(CodeGen &cg): cg(cg) {}
 Maybe<NNPtr<IR::DeclSymbol>> CodeGen::PathVisitor::resolveDeclSymbol(NNPtr<ASTNS::PathB> ast)  {
     pty = PathType::DECLARED;
     dret = Maybe<NNPtr<IR::DeclSymbol>>();
-    ast->accept(this);
+    ast->accept(*this);
     return dret;
 }
 
@@ -15,7 +15,7 @@ Maybe<IR::ASTValue> CodeGen::PathVisitor::resolveValue(NNPtr<ASTNS::PathB> ast, 
     this->fcg = NNPtr<FunctionCodeGen>(fcg);
     pty = PathType::VALUE;
     vret = Maybe<IR::ASTValue>();
-    ast->accept(this);
+    ast->accept(*this);
     this->fcg = Maybe<NNPtr<FunctionCodeGen>>();
     return vret;
 }
@@ -38,13 +38,13 @@ static Maybe<NNPtr<IR::DeclSymbol>> tracePathDeclOnly(NNPtr<IR::DeclSymbol> star
     return current;
 }
 
-void CodeGen::PathVisitor::visitPath(NNPtr<ASTNS::Path> ast) {
+void CodeGen::PathVisitor::visitPath(ASTNS::Path &ast) {
     if (pty == PathType::DECLARED) {
-        dret = tracePathDeclOnly(&cg.unit->mod, ast->segments.cbegin(), ast->segments.cend());
+        dret = tracePathDeclOnly(&cg.unit->mod, ast.segments.cbegin(), ast.segments.cend());
     } else {
-        if (ast->segments.size() == 1) {
+        if (ast.segments.size() == 1) {
             // look for local or global variable
-            std::string vname = ast->segments.back().stringify();
+            std::string vname = ast.segments.back().stringify();
             Maybe<NNPtr<FunctionCodeGen::Local>> loc = fcg.get()->getLocal(vname);
 
             Maybe<NNPtr<IR::Value>> m_retVal;
@@ -71,7 +71,7 @@ void CodeGen::PathVisitor::visitPath(NNPtr<ASTNS::Path> ast) {
             // look through decl symbol table until last segment
             // look through value symbol table for last segment
 
-            Maybe<NNPtr<IR::DeclSymbol>> m_last = tracePathDeclOnly(&cg.unit->mod, ast->segments.cbegin(), ast->segments.cend() - 1);
+            Maybe<NNPtr<IR::DeclSymbol>> m_last = tracePathDeclOnly(&cg.unit->mod, ast.segments.cbegin(), ast.segments.cend() - 1);
             if (!m_last.has()) {
                 vret = Maybe<IR::ASTValue>();
                 return;
@@ -79,10 +79,10 @@ void CodeGen::PathVisitor::visitPath(NNPtr<ASTNS::Path> ast) {
 
             NNPtr<IR::DeclSymbol> last = m_last.get();
 
-            Maybe<NNPtr<IR::Value>> ret = last->getValue(ast->segments.back().stringify());
+            Maybe<NNPtr<IR::Value>> ret = last->getValue(ast.segments.back().stringify());
 
             if (!ret.has()) {
-                ERR_NO_MEMBER_IN(last, ast->segments.back());
+                ERR_NO_MEMBER_IN(last, ast.segments.back());
                 vret = Maybe<IR::ASTValue>();
             } else {
                 vret = IR::ASTValue(ret.get(), ast);

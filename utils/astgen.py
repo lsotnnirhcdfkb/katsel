@@ -118,7 +118,7 @@ def gen_ast_decls():
             for field in ast.fields:
                 output.append(f'        {field.type} {field.name};\n')
 
-            output.append(f'        virtual void accept(NNPtr<ASTNS::{ast.base}::Visitor> v) override;\n')
+            output.append(f'        virtual void accept(ASTNS::{ast.base}::Visitor &v) override;\n')
             output.append( '        virtual Maybe<Location const> & start() override;\n')
             output.append( '        virtual Maybe<Location const> & end() override;\n')
             output.append(f'        {ast.name}(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, {", ".join(f"{field.type} {field.name}" for field in ast.fields)});\n')
@@ -133,11 +133,11 @@ def gen_ast_decls():
             output.append('            virtual ~Visitor() {}\n')
             for _ast in asts:
                 if isinstance(_ast, AST) and _ast.base == ast.name:
-                    output.append(f'            virtual void visit{_ast.name}(NNPtr<ASTNS::{_ast.name}> ast) = 0;\n')
+                    output.append(f'            virtual void visit{_ast.name}(ASTNS::{_ast.name} &ast) = 0;\n')
             output.append('        };\n')
 
             output.append(f'        virtual ~{ast.name}() {{}}\n')
-            output.append('        virtual void accept(NNPtr<Visitor> v) = 0;\n')
+            output.append('        virtual void accept(Visitor &v) = 0;\n')
             output.append(f'        {ast.name}(File const &file);\n')
             output.append('    };\n')
         else:
@@ -165,7 +165,7 @@ def gen_ast_defs():
             output.append(', '.join(init_list))
             output.append(' {}\n')
 
-            output.append(f'void ASTNS::{ast.name}::accept(NNPtr<ASTNS::{ast.base}::Visitor> v) {{ v->visit{ast.name}(this); }}\n')
+            output.append(f'void ASTNS::{ast.name}::accept(ASTNS::{ast.base}::Visitor &v) {{ v.visit{ast.name}(*this); }}\n')
             output.append(f'Maybe<Location const> & ASTNS::{ast.name}::start() {{ return _start; }}\n')
             output.append(f'Maybe<Location const> & ASTNS::{ast.name}::end() {{ return _end; }}\n')
         elif isinstance(ast, ASTBase):
@@ -183,7 +183,7 @@ def gen_visitor_methods(*bases):
             continue
 
         if (ast.base in bases or bases == ('all',)):
-            output.append(f'void visit{ast.name}(NNPtr<ASTNS::{ast.name}> ast) override;\n')
+            output.append(f'void visit{ast.name}(ASTNS::{ast.name} &ast) override;\n')
 
     return''.join(output)
 # Generate inheriting classes {{{3
@@ -197,12 +197,12 @@ def gen_print_visitor_methods():
         if not isinstance(ast, AST):
             continue
 
-        output.append(          f'void ASTNS::PrintVisitor::visit{ast.name}(NNPtr<ASTNS::{ast.name}> a) {{\n')
+        output.append(          f'void ASTNS::PrintVisitor::visit{ast.name}(ASTNS::{ast.name} &a) {{\n')
         output.append(          f'    pai("{ast.name} {{\\n");\n')
         output.append(           '    ++indent;\n')
         for field in ast.fields:
             output.append(      f'    pai("{field.type} {field.name} = ");\n')
-            output.append(      f'    printField(*this, a->{field.name});\n')
+            output.append(      f'    printField(*this, a.{field.name});\n')
         output.append(           '    --indent;\n')
         output.append(           '    pai("}\\n");\n')
         output.append(           '}\n')

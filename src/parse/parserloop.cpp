@@ -18,189 +18,189 @@ size_t getGoto(NonTerminal nterm, size_t state) {
             }
         case NonTerminal::CU:
             switch (state) {
-                case 0:
+                case 0: 
                     return 1;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::AnotherParam:
             switch (state) {
-                case 49:
+                case 49: 
                     return 63;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::Param:
             switch (state) {
-                case 19:
+                case 19: 
                     return 29;
-                case 49:
+                case 49: 
                     return 64;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::ParamSegment:
             switch (state) {
-                case 19:
+                case 19: 
                     return 28;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::ParamList:
             switch (state) {
-                case 19:
+                case 19: 
                     return 27;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::AnotherArg:
             switch (state) {
-                case 237:
+                case 237: 
                     return 247;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::Arg:
             switch (state) {
-                case 180: case 183: case 238: case 239: case 241:
+                case 180: case 183: case 238: case 239: case 241: 
                     return 223;
-                case 237:
+                case 237: 
                     return 248;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::ArgSegment:
             switch (state) {
-                case 180: case 183: case 238: case 239: case 241:
+                case 180: case 183: case 238: case 239: case 241: 
                     return 222;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::ArgList:
             switch (state) {
-                case 180: case 183: case 238: case 239: case 241:
+                case 180: case 183: case 238: case 239: case 241: 
                     return 221;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::AnotherVarStmtItem:
             switch (state) {
-                case 190:
+                case 190: 
                     return 231;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::VarStmtItem:
             switch (state) {
-                case 87:
+                case 87: 
                     return 141;
-                case 190:
+                case 190: 
                     return 232;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::VarStmtItemSegment:
             switch (state) {
-                case 87:
+                case 87: 
                     return 140;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::VarStmtItemList:
             switch (state) {
-                case 87:
+                case 87: 
                     return 139;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::AnotherStmt:
             switch (state) {
-                case 82:
+                case 82: 
                     return 137;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::Stmt:
             switch (state) {
-                case 76: case 79: case 81: case 136:
+                case 76: case 79: case 81: case 136: 
                     return 83;
-                case 82:
+                case 82: 
                     return 138;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::StmtList:
             switch (state) {
-                case 76: case 79: case 81: case 136:
+                case 76: case 79: case 81: case 136: 
                     return 82;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::AnotherDecl:
             switch (state) {
-                case 2:
+                case 2: 
                     return 8;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::Decl:
             switch (state) {
-                case 0:
+                case 0: 
                     return 3;
-                case 2:
+                case 2: 
                     return 9;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::DeclList:
             switch (state) {
-                case 0:
+                case 0: 
                     return 2;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::AnotherImplMember:
             switch (state) {
-                case 42:
+                case 42: 
                     return 59;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::ImplMember:
             switch (state) {
-                case 21: case 41: case 45: case 58:
+                case 21: case 41: case 45: case 58: 
                     return 43;
-                case 42:
+                case 42: 
                     return 60;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::ImplMemberList:
             switch (state) {
-                case 21: case 41: case 45: case 58:
+                case 21: case 41: case 45: case 58: 
                     return 42;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::ParamList_OPT:
             switch (state) {
-                case 19:
+                case 19: 
                     return 26;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::ArgList_OPT:
             switch (state) {
-                case 180:
+                case 180: 
                     return 220;
-                case 183:
+                case 183: 
                     return 227;
-                case 238:
+                case 238: 
                     return 249;
-                case 239:
+                case 239: 
                     return 250;
-                case 241:
+                case 241: 
                     return 251;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::StmtList_OPT:
             switch (state) {
-                case 76:
+                case 76: 
                     return 80;
-                case 79:
+                case 79: 
                     return 133;
-                case 81:
+                case 81: 
                     return 135;
-                case 136:
+                case 136: 
                     return 188;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::ImplMemberList_OPT:
             switch (state) {
-                case 21:
+                case 21: 
                     return 40;
-                case 41:
+                case 41: 
                     return 57;
-                case 45:
+                case 45: 
                     return 61;
-                case 58:
+                case 58: 
                     return 69;
                 default: reportAbortNoh("get invalid goto");
             }
@@ -210,19 +210,19 @@ size_t getGoto(NonTerminal nterm, size_t state) {
             }
         case NonTerminal::Expr:
             switch (state) {
-                case 90:
+                case 90: 
                     return 148;
-                case 96:
+                case 96: 
                     return 154;
-                case 97:
+                case 97: 
                     return 155;
-                case 129:
+                case 129: 
                     return 185;
-                case 180: case 183: case 237: case 238: case 239: case 241:
+                case 180: case 183: case 237: case 238: case 239: case 241: 
                     return 224;
-                case 233:
+                case 233: 
                     return 243;
-                case 244:
+                case 244: 
                     return 252;
                 default: reportAbortNoh("get invalid goto");
             }
@@ -232,37 +232,37 @@ size_t getGoto(NonTerminal nterm, size_t state) {
             }
         case NonTerminal::VarStmt:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 136:
+                case 76: case 79: case 81: case 82: case 136: 
                     return 84;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::LineEnding_OPT:
             switch (state) {
-                case 20:
+                case 20: 
                     return 36;
-                case 71:
+                case 71: 
                     return 78;
-                case 89:
+                case 89: 
                     return 146;
-                case 145:
+                case 145: 
                     return 193;
-                case 147:
+                case 147: 
                     return 194;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::LineEnding:
             switch (state) {
-                case 20: case 71: case 89: case 145: case 147:
+                case 20: case 71: case 89: case 145: case 147: 
                     return 37;
-                case 62:
+                case 62: 
                     return 72;
-                case 88:
+                case 88: 
                     return 144;
-                case 90:
+                case 90: 
                     return 149;
-                case 139:
+                case 139: 
                     return 189;
-                case 148:
+                case 148: 
                     return 195;
                 default: reportAbortNoh("get invalid goto");
             }
@@ -272,313 +272,313 @@ size_t getGoto(NonTerminal nterm, size_t state) {
             }
         case NonTerminal::TypeAnnotation:
             switch (state) {
-                case 32:
+                case 32: 
                     return 50;
-                case 48:
+                case 48: 
                     return 62;
-                case 52:
+                case 52: 
                     return 66;
-                case 142:
+                case 142: 
                     return 191;
-                case 192:
+                case 192: 
                     return 234;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::FunctionDecl:
             switch (state) {
-                case 0: case 2:
+                case 0: case 2: 
                     return 4;
-                case 21: case 41: case 42: case 45: case 58:
+                case 21: case 41: case 42: case 45: case 58: 
                     return 44;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::ImplDecl:
             switch (state) {
-                case 0: case 2:
+                case 0: case 2: 
                     return 5;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::Block:
             switch (state) {
-                case 62:
+                case 62: 
                     return 71;
-                case 154:
+                case 154: 
                     return 198;
-                case 155:
+                case 155: 
                     return 200;
-                case 235:
+                case 235: 
                     return 245;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::Type:
             switch (state) {
-                case 7:
+                case 7: 
                     return 11;
-                case 16:
+                case 16: 
                     return 24;
-                case 25:
+                case 25: 
                     return 47;
-                case 51:
+                case 51: 
                     return 65;
-                case 173:
+                case 173: 
                     return 218;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::ImplBody:
             switch (state) {
-                case 11:
+                case 11: 
                     return 20;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::ExprStmt:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 136:
+                case 76: case 79: case 81: case 82: case 136: 
                     return 85;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::RetStmt:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 136:
+                case 76: case 79: case 81: case 82: case 136: 
                     return 86;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::NotBlockedExpr:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 136:
+                case 76: case 79: case 81: case 82: case 136: 
                     return 88;
-                case 90: case 96: case 97: case 129: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244:
+                case 90: case 96: case 97: case 129: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244: 
                     return 151;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::BlockedExpr:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 136:
+                case 76: case 79: case 81: case 82: case 136: 
                     return 89;
-                case 90: case 96: case 97: case 129: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244:
+                case 90: case 96: case 97: case 129: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244: 
                     return 150;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::BracedBlock:
             switch (state) {
-                case 62: case 154: case 155: case 235:
+                case 62: case 154: case 155: case 235: 
                     return 73;
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244: 
                     return 94;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::IndentedBlock:
             switch (state) {
-                case 62: case 154: case 155: case 235:
+                case 62: case 154: case 155: case 235: 
                     return 74;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::PathType:
             switch (state) {
-                case 7: case 16: case 25: case 51: case 173:
+                case 7: case 16: case 25: case 51: case 173: 
                     return 12;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::PointerType:
             switch (state) {
-                case 7: case 16: case 25: case 51: case 173:
+                case 7: case 16: case 25: case 51: case 173: 
                     return 13;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::ThisType:
             switch (state) {
-                case 7: case 16: case 25: case 51: case 173:
+                case 7: case 16: case 25: case 51: case 173: 
                     return 14;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::Path:
             switch (state) {
-                case 7: case 16: case 25: case 51: case 173:
+                case 7: case 16: case 25: case 51: case 173: 
                     return 15;
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 109: case 110: case 111: case 112: case 113: case 129: case 136: case 152: case 153: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 168: case 169: case 170: case 171: case 172: case 178: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 109: case 110: case 111: case 112: case 113: case 129: case 136: case 152: case 153: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 168: case 169: case 170: case 171: case 172: case 178: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244: 
                     return 131;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::NormalParam:
             switch (state) {
-                case 19: case 49:
+                case 19: case 49: 
                     return 30;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::ThisParam:
             switch (state) {
-                case 19: case 49:
+                case 19: case 49: 
                     return 31;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::AssignmentExpr:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244: 
                     return 91;
-                case 152:
+                case 152: 
                     return 196;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::IfExpr:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244: 
                     return 92;
-                case 235:
+                case 235: 
                     return 246;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::WhileExpr:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244: 
                     return 93;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::BinOrExpr:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 152: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 152: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244: 
                     return 95;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::BinAndExpr:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 152: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 152: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244: 
                     return 98;
-                case 153:
+                case 153: 
                     return 197;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::CompEQExpr:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 152: case 153: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 152: case 153: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244: 
                     return 99;
-                case 156:
+                case 156: 
                     return 201;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::CompLGTExpr:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 152: case 153: case 156: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 152: case 153: case 156: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244: 
                     return 100;
-                case 157:
+                case 157: 
                     return 202;
-                case 158:
+                case 158: 
                     return 203;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::BitXorExpr:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 152: case 153: case 156: case 157: case 158: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 152: case 153: case 156: case 157: case 158: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244: 
                     return 101;
-                case 159:
+                case 159: 
                     return 204;
-                case 160:
+                case 160: 
                     return 205;
-                case 161:
+                case 161: 
                     return 206;
-                case 162:
+                case 162: 
                     return 207;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::BitOrExpr:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 152: case 153: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 152: case 153: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244: 
                     return 102;
-                case 163:
+                case 163: 
                     return 208;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::BitAndExpr:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 152: case 153: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 152: case 153: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244: 
                     return 103;
-                case 164:
+                case 164: 
                     return 209;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::BitShiftExpr:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 152: case 153: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 152: case 153: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244: 
                     return 104;
-                case 165:
+                case 165: 
                     return 210;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::AdditionExpr:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 152: case 153: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 152: case 153: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244: 
                     return 105;
-                case 166:
+                case 166: 
                     return 211;
-                case 167:
+                case 167: 
                     return 212;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::MultExpr:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 152: case 153: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 152: case 153: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244: 
                     return 106;
-                case 168:
+                case 168: 
                     return 213;
-                case 169:
+                case 169: 
                     return 214;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::UnaryExpr:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 152: case 153: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 168: case 169: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 152: case 153: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 168: case 169: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244: 
                     return 108;
-                case 109:
+                case 109: 
                     return 174;
-                case 110:
+                case 110: 
                     return 175;
-                case 111:
+                case 111: 
                     return 176;
-                case 112:
+                case 112: 
                     return 177;
-                case 113:
+                case 113: 
                     return 179;
-                case 170:
+                case 170: 
                     return 215;
-                case 171:
+                case 171: 
                     return 216;
-                case 172:
+                case 172: 
                     return 217;
-                case 178:
+                case 178: 
                     return 219;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::CastExpr:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 152: case 153: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 168: case 169: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 129: case 136: case 152: case 153: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 168: case 169: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244: 
                     return 107;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::CallExpr:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 109: case 110: case 111: case 112: case 113: case 129: case 136: case 152: case 153: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 168: case 169: case 170: case 171: case 172: case 178: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 109: case 110: case 111: case 112: case 113: case 129: case 136: case 152: case 153: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 168: case 169: case 170: case 171: case 172: case 178: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244: 
                     return 114;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::FieldAccessExpr:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 109: case 110: case 111: case 112: case 113: case 129: case 136: case 152: case 153: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 168: case 169: case 170: case 171: case 172: case 178: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 109: case 110: case 111: case 112: case 113: case 129: case 136: case 152: case 153: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 168: case 169: case 170: case 171: case 172: case 178: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244: 
                     return 115;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::MethodCallExpr:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 109: case 110: case 111: case 112: case 113: case 129: case 136: case 152: case 153: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 168: case 169: case 170: case 171: case 172: case 178: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 109: case 110: case 111: case 112: case 113: case 129: case 136: case 152: case 153: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 168: case 169: case 170: case 171: case 172: case 178: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244: 
                     return 116;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::PrimaryExpr:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 109: case 110: case 111: case 112: case 113: case 129: case 136: case 152: case 153: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 168: case 169: case 170: case 171: case 172: case 178: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 109: case 110: case 111: case 112: case 113: case 129: case 136: case 152: case 153: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 168: case 169: case 170: case 171: case 172: case 178: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244: 
                     return 117;
                 default: reportAbortNoh("get invalid goto");
             }
         case NonTerminal::PathExpr:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 109: case 110: case 111: case 112: case 113: case 129: case 136: case 152: case 153: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 168: case 169: case 170: case 171: case 172: case 178: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 109: case 110: case 111: case 112: case 113: case 129: case 136: case 152: case 153: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 168: case 169: case 170: case 171: case 172: case 178: case 180: case 183: case 233: case 237: case 238: case 239: case 241: case 244: 
                     return 130;
                 default: reportAbortNoh("get invalid goto");
             }
@@ -666,7 +666,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::DeclList>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -685,7 +685,7 @@ std::unique_ptr<ASTNS::CU> push (std::make_unique<ASTNS::CU>(p.sourcefile, start
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Decl>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -702,7 +702,7 @@ std::unique_ptr<ASTNS::DeclList> push(std::make_unique<ASTNS::DeclList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::FunctionDecl>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -716,7 +716,7 @@ std::unique_ptr<ASTNS::DeclList> push(std::make_unique<ASTNS::DeclList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Decl>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -753,7 +753,7 @@ std::unique_ptr<ASTNS::DeclList> push(std::make_unique<ASTNS::DeclList>(p.source
                     default: {
                             auto a1 (popA<ASTNS::Decl>(stack));
                             auto a0 (popA<ASTNS::DeclList>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 a1 ? Maybe(a1->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
@@ -770,7 +770,7 @@ a0->decls.push_back(std::move(a1));
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Decl>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -804,7 +804,7 @@ a0->decls.push_back(std::move(a1));
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::PathType>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -818,7 +818,7 @@ a0->decls.push_back(std::move(a1));
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::PointerType>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -832,7 +832,7 @@ a0->decls.push_back(std::move(a1));
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::ThisType>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -846,7 +846,7 @@ a0->decls.push_back(std::move(a1));
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Path>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -878,7 +878,7 @@ std::unique_ptr<ASTNS::PathType> push (std::make_unique<ASTNS::PathType>(p.sourc
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a0);
@@ -893,7 +893,7 @@ std::unique_ptr<ASTNS::ThisType> push (std::make_unique<ASTNS::ThisType>(p.sourc
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a0);
@@ -1014,7 +1014,7 @@ std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberL
                     default: {
                             auto a1 (popA<ASTNS::Type>(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 a1 ? Maybe(a1->end()) :
@@ -1052,7 +1052,7 @@ std::unique_ptr<ASTNS::PointerType> push (std::make_unique<ASTNS::PointerType>(p
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::ParamList>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -1068,7 +1068,7 @@ std::unique_ptr<ASTNS::PointerType> push (std::make_unique<ASTNS::PointerType>(p
                         shift(p, lasttok, lookahead, stack, steps, 49); break;
                     default: {
                             auto a0 (popA<ASTNS::ParamList>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -1082,7 +1082,7 @@ std::unique_ptr<ASTNS::PointerType> push (std::make_unique<ASTNS::PointerType>(p
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::ParamB>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -1099,7 +1099,7 @@ std::unique_ptr<ASTNS::ParamList> push(std::make_unique<ASTNS::ParamList>(p.sour
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Param>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -1113,7 +1113,7 @@ std::unique_ptr<ASTNS::ParamList> push(std::make_unique<ASTNS::ParamList>(p.sour
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::ThisParam>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -1145,7 +1145,7 @@ std::unique_ptr<ASTNS::ParamList> push(std::make_unique<ASTNS::ParamList>(p.sour
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a0);
@@ -1174,7 +1174,7 @@ std::unique_ptr<ASTNS::ThisParam> push (std::make_unique<ASTNS::ThisParam>(p.sou
                             auto a2 (popA<ASTNS::ImplMemberList>(stack));
                             auto a1 (popA<ASTNS::Type>(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 a1 ? Maybe(a1->end()) :
@@ -1190,7 +1190,7 @@ std::unique_ptr<ASTNS::ImplDecl> push (std::make_unique<ASTNS::ImplDecl>(p.sourc
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::PureLocation>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -1204,7 +1204,7 @@ std::unique_ptr<ASTNS::ImplDecl> push (std::make_unique<ASTNS::ImplDecl>(p.sourc
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a0);
@@ -1219,7 +1219,7 @@ std::unique_ptr<ASTNS::PureLocation> push (std::make_unique<ASTNS::PureLocation>
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a0);
@@ -1264,7 +1264,7 @@ std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberL
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::ImplMemberList>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -1280,7 +1280,7 @@ std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberL
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::ImplMember>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -1297,7 +1297,7 @@ std::unique_ptr<ASTNS::ImplMemberList> push(std::make_unique<ASTNS::ImplMemberLi
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::FunctionDecl>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -1331,7 +1331,7 @@ std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberL
                             auto a2 (popT(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Path>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -1349,7 +1349,7 @@ a0->segments.push_back(a2);
                             auto a2 (popA<ASTNS::Type>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 a2 ? Maybe(a2->end()) :
@@ -1375,7 +1375,7 @@ std::unique_ptr<ASTNS::PointerType> push (std::make_unique<ASTNS::PointerType>(p
                     default: {
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::ParamList>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -1399,7 +1399,7 @@ std::unique_ptr<ASTNS::PointerType> push (std::make_unique<ASTNS::PointerType>(p
                     default: {
                             auto a1 (popA<ASTNS::Type>(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 a1 ? Maybe(a1->end()) :
@@ -1438,7 +1438,7 @@ std::unique_ptr<ASTNS::Param> push (std::make_unique<ASTNS::Param>(p.sourcefile,
                     default: {
                             auto a1 (popT(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a1);
@@ -1463,7 +1463,7 @@ std::unique_ptr<ASTNS::ThisParam> push (std::make_unique<ASTNS::ThisParam>(p.sou
                     default: {
                             auto a1 (popT(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a1);
@@ -1480,7 +1480,7 @@ WARN_EXTRA_SEMI(a0);std::unique_ptr<ASTNS::PureLocation> push (std::make_unique<
                             auto a2 (popT(stack));
                             auto a1 (popA<ASTNS::ImplMemberList>(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a2);
@@ -1521,7 +1521,7 @@ std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberL
                     default: {
                             auto a1 (popA<ASTNS::ImplMember>(stack));
                             auto a0 (popA<ASTNS::ImplMemberList>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 a1 ? Maybe(a1->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
@@ -1538,7 +1538,7 @@ a0->members.push_back(std::move(a1));
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::ImplMember>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -1576,7 +1576,7 @@ a0->members.push_back(std::move(a1));
                             auto a2 (popA<ASTNS::ParamB>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::ParamList>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -1593,7 +1593,7 @@ a0->params.push_back(std::move(a2));
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::ParamB>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -1608,7 +1608,7 @@ a0->params.push_back(std::move(a2));
                     default: {
                             auto a1 (popA<ASTNS::Type>(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 a1 ? Maybe(a1->end()) :
@@ -1625,7 +1625,7 @@ a0->params.push_back(std::move(a2));
                             auto a2 (popA<ASTNS::Type>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 a2 ? Maybe(a2->end()) :
@@ -1643,7 +1643,7 @@ std::unique_ptr<ASTNS::Param> push (std::make_unique<ASTNS::Param>(p.sourcefile,
                             auto a2 (popT(stack));
                             auto a1 (popT(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a2);
@@ -1661,7 +1661,7 @@ std::unique_ptr<ASTNS::ThisParam> push (std::make_unique<ASTNS::ThisParam>(p.sou
                             auto a2 (popA<ASTNS::ImplMemberList>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a3);
@@ -1687,7 +1687,7 @@ WARN_BLOCK_NO_INDENT(a0, a3);                            std::unique_ptr<ASTNS::
                             auto a2 (popA<ASTNS::ImplMemberList>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a3);
@@ -1751,7 +1751,7 @@ WARN_BLOCK_NO_INDENT(a0, a3);                            std::unique_ptr<ASTNS::
                             auto a2 (popT(stack));
                             auto a1 (popT(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 a6 ? Maybe(a6->end()) :
@@ -1768,7 +1768,7 @@ std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Block>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -1782,7 +1782,7 @@ std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Block>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -1796,7 +1796,7 @@ std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a0);
@@ -1892,7 +1892,7 @@ std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourc
                             auto a2 (popT(stack));
                             auto a1 (popT(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 a5 ? Maybe(a5->end()) :
@@ -2047,7 +2047,7 @@ std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourc
                         shift(p, lasttok, lookahead, stack, steps, 124); break;
                     default: {
                             auto a0 (popA<ASTNS::StmtList>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -2101,7 +2101,7 @@ std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourc
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Stmt>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -2118,7 +2118,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::VarStmt>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -2132,7 +2132,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::ExprStmt>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -2146,7 +2146,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::RetStmt>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -2283,7 +2283,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -2297,7 +2297,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::IfExpr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -2311,7 +2311,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::WhileExpr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -2325,7 +2325,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Block>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -2339,7 +2339,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -2455,7 +2455,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -2473,7 +2473,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         shift(p, lasttok, lookahead, stack, steps, 157); break;
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -2489,7 +2489,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -2511,7 +2511,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -2527,7 +2527,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -2545,7 +2545,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         shift(p, lasttok, lookahead, stack, steps, 165); break;
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -2559,7 +2559,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -2577,7 +2577,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -2595,7 +2595,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -2615,7 +2615,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -2631,7 +2631,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -2862,7 +2862,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -2880,7 +2880,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -2896,7 +2896,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -2914,7 +2914,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -2928,7 +2928,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a0);
@@ -2943,7 +2943,7 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a0);
@@ -2958,7 +2958,7 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a0);
@@ -2973,7 +2973,7 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a0);
@@ -2988,7 +2988,7 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a0);
@@ -3003,7 +3003,7 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a0);
@@ -3018,7 +3018,7 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a0);
@@ -3033,7 +3033,7 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a0);
@@ -3048,7 +3048,7 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a0);
@@ -3063,7 +3063,7 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a0);
@@ -3078,7 +3078,7 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a0);
@@ -3142,7 +3142,7 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -3156,7 +3156,7 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Path>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -3178,7 +3178,7 @@ std::unique_ptr<ASTNS::PathExpr> push (std::make_unique<ASTNS::PathExpr>(p.sourc
                             auto a2 (popT(stack));
                             auto a1 (popT(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a5);
@@ -3203,7 +3203,7 @@ std::unique_ptr<ASTNS::PathExpr> push (std::make_unique<ASTNS::PathExpr>(p.sourc
                             auto a2 (popT(stack));
                             auto a1 (popA<ASTNS::StmtList>(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a2);
@@ -3289,7 +3289,7 @@ std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourc
                     default: {
                             auto a1 (popA<ASTNS::Stmt>(stack));
                             auto a0 (popA<ASTNS::StmtList>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 a1 ? Maybe(a1->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
@@ -3306,7 +3306,7 @@ a0->stmts.push_back(std::move(a1));
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Stmt>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -3333,7 +3333,7 @@ a0->stmts.push_back(std::move(a1));
                         shift(p, lasttok, lookahead, stack, steps, 190); break;
                     default: {
                             auto a0 (popA<ASTNS::VarStmtItemList>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -3347,7 +3347,7 @@ a0->stmts.push_back(std::move(a1));
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::VarStmtItem>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -3383,7 +3383,7 @@ std::unique_ptr<ASTNS::VarStmtItemList> push(std::make_unique<ASTNS::VarStmtItem
                     default: {
                             auto a1 (popA<ASTNS::PureLocation>(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 a1 ? Maybe(a1->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
@@ -3445,7 +3445,7 @@ std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourc
                     default: {
                             auto a1 (popA<ASTNS::PureLocation>(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 a1 ? Maybe(a1->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
@@ -3518,7 +3518,7 @@ std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourc
                     default: {
                             auto a1 (popA<ASTNS::PureLocation>(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 a1 ? Maybe(a1->end()) :
@@ -3534,7 +3534,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -3548,7 +3548,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -4415,7 +4415,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                     default: {
                             auto a1 (popA<ASTNS::Expr>(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 a1 ? Maybe(a1->end()) :
@@ -4432,7 +4432,7 @@ std::unique_ptr<ASTNS::UnaryExpr> push (std::make_unique<ASTNS::UnaryExpr>(p.sou
                     default: {
                             auto a1 (popA<ASTNS::Expr>(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 a1 ? Maybe(a1->end()) :
@@ -4449,7 +4449,7 @@ std::unique_ptr<ASTNS::UnaryExpr> push (std::make_unique<ASTNS::UnaryExpr>(p.sou
                     default: {
                             auto a1 (popA<ASTNS::Expr>(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 a1 ? Maybe(a1->end()) :
@@ -4466,7 +4466,7 @@ std::unique_ptr<ASTNS::UnaryExpr> push (std::make_unique<ASTNS::UnaryExpr>(p.sou
                     default: {
                             auto a1 (popA<ASTNS::Expr>(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 a1 ? Maybe(a1->end()) :
@@ -4526,7 +4526,7 @@ std::unique_ptr<ASTNS::AddrofExpr> push (std::make_unique<ASTNS::AddrofExpr>(p.s
                     default: {
                             auto a1 (popA<ASTNS::Expr>(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 a1 ? Maybe(a1->end()) :
@@ -4693,7 +4693,7 @@ std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcef
                             auto a2 (popA<ASTNS::StmtList>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a3);
@@ -4711,7 +4711,7 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                             auto a2 (popA<ASTNS::StmtList>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a3);
@@ -4737,7 +4737,7 @@ WARN_BLOCK_NO_INDENT(a0, a3);std::unique_ptr<ASTNS::Block> push (std::make_uniqu
                             auto a2 (popA<ASTNS::PureLocation>(stack));
                             auto a1 (popA<ASTNS::VarStmtItemList>(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 a2 ? Maybe(a2->end()) :
@@ -4759,7 +4759,7 @@ std::unique_ptr<ASTNS::VarStmt> push (std::make_unique<ASTNS::VarStmt>(p.sourcef
                     default: {
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::VarStmtItemList>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -4775,7 +4775,7 @@ std::unique_ptr<ASTNS::VarStmt> push (std::make_unique<ASTNS::VarStmt>(p.sourcef
                     default: {
                             auto a1 (popA<ASTNS::Type>(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 a1 ? Maybe(a1->end()) :
@@ -4804,7 +4804,7 @@ std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p
                             auto a2 (popA<ASTNS::PureLocation>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -4823,7 +4823,7 @@ std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourc
                             auto a2 (popA<ASTNS::PureLocation>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -4842,7 +4842,7 @@ std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourc
                             auto a2 (popA<ASTNS::PureLocation>(stack));
                             auto a1 (popA<ASTNS::Expr>(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 a2 ? Maybe(a2->end()) :
@@ -4861,7 +4861,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                             auto a2 (popA<ASTNS::Expr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -4880,7 +4880,7 @@ std::unique_ptr<ASTNS::AssignmentExpr> push (std::make_unique<ASTNS::AssignmentE
                             auto a2 (popA<ASTNS::Expr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -4901,7 +4901,7 @@ std::unique_ptr<ASTNS::ShortCircuitExpr> push (std::make_unique<ASTNS::ShortCirc
                             auto a2 (popA<ASTNS::Block>(stack));
                             auto a1 (popA<ASTNS::Expr>(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 a2 ? Maybe(a2->end()) :
@@ -4931,7 +4931,7 @@ std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefil
                             auto a2 (popA<ASTNS::Block>(stack));
                             auto a1 (popA<ASTNS::Expr>(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 a2 ? Maybe(a2->end()) :
@@ -4952,7 +4952,7 @@ std::unique_ptr<ASTNS::WhileExpr> push (std::make_unique<ASTNS::WhileExpr>(p.sou
                             auto a2 (popA<ASTNS::Expr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -4973,7 +4973,7 @@ std::unique_ptr<ASTNS::ShortCircuitExpr> push (std::make_unique<ASTNS::ShortCirc
                             auto a2 (popA<ASTNS::Expr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -5000,7 +5000,7 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             auto a2 (popA<ASTNS::Expr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -5027,7 +5027,7 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             auto a2 (popA<ASTNS::Expr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -5048,7 +5048,7 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             auto a2 (popA<ASTNS::Expr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -5069,7 +5069,7 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             auto a2 (popA<ASTNS::Expr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -5090,7 +5090,7 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             auto a2 (popA<ASTNS::Expr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -5111,7 +5111,7 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             auto a2 (popA<ASTNS::Expr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -5134,7 +5134,7 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             auto a2 (popA<ASTNS::Expr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -5153,7 +5153,7 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             auto a2 (popA<ASTNS::Expr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -5176,7 +5176,7 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             auto a2 (popA<ASTNS::Expr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -5199,7 +5199,7 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             auto a2 (popA<ASTNS::Expr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -5222,7 +5222,7 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             auto a2 (popA<ASTNS::Expr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -5247,7 +5247,7 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             auto a2 (popA<ASTNS::Expr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -5272,7 +5272,7 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             auto a2 (popA<ASTNS::Expr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -5291,7 +5291,7 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             auto a2 (popA<ASTNS::Expr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -5310,7 +5310,7 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             auto a2 (popA<ASTNS::Expr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -5329,7 +5329,7 @@ std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.s
                             auto a2 (popA<ASTNS::Type>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -5348,7 +5348,7 @@ std::unique_ptr<ASTNS::CastExpr> push (std::make_unique<ASTNS::CastExpr>(p.sourc
                             auto a2 (popA<ASTNS::Expr>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 a2 ? Maybe(a2->end()) :
@@ -5373,7 +5373,7 @@ std::unique_ptr<ASTNS::AddrofExpr> push (std::make_unique<ASTNS::AddrofExpr>(p.s
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::ArgList>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -5389,7 +5389,7 @@ std::unique_ptr<ASTNS::AddrofExpr> push (std::make_unique<ASTNS::AddrofExpr>(p.s
                         shift(p, lasttok, lookahead, stack, steps, 237); break;
                     default: {
                             auto a0 (popA<ASTNS::ArgList>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -5403,7 +5403,7 @@ std::unique_ptr<ASTNS::AddrofExpr> push (std::make_unique<ASTNS::AddrofExpr>(p.s
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Arg>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -5420,7 +5420,7 @@ std::unique_ptr<ASTNS::ArgList> push(std::make_unique<ASTNS::ArgList>(p.sourcefi
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -5437,7 +5437,7 @@ std::unique_ptr<ASTNS::Arg> push (std::make_unique<ASTNS::Arg>(p.sourcefile, sta
                             auto a2 (popT(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -5457,7 +5457,7 @@ std::unique_ptr<ASTNS::FieldAccessExpr> push (std::make_unique<ASTNS::FieldAcces
                             auto a2 (popT(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -5486,7 +5486,7 @@ std::unique_ptr<ASTNS::FieldAccessExpr> push (std::make_unique<ASTNS::FieldAcces
                             auto a2 (popT(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -5506,7 +5506,7 @@ std::unique_ptr<ASTNS::FieldAccessExpr> push (std::make_unique<ASTNS::FieldAcces
                             auto a2 (popT(stack));
                             auto a1 (popA<ASTNS::Expr>(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a2);
@@ -5531,7 +5531,7 @@ std::unique_ptr<ASTNS::FieldAccessExpr> push (std::make_unique<ASTNS::FieldAcces
                             auto a2 (popA<ASTNS::VarStmtItem>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::VarStmtItemList>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -5548,7 +5548,7 @@ a0->items.push_back(std::move(a2));
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::VarStmtItem>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -5613,7 +5613,7 @@ a0->items.push_back(std::move(a2));
                             auto a2 (popA<ASTNS::Type>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 a2 ? Maybe(a2->end()) :
@@ -5647,7 +5647,7 @@ std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p
                             auto a2 (popA<ASTNS::ArgList>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -5672,7 +5672,7 @@ std::unique_ptr<ASTNS::CallExpr> push (std::make_unique<ASTNS::CallExpr>(p.sourc
                     default: {
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::ArgList>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -5836,7 +5836,7 @@ std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcef
                             auto a2 (popA<ASTNS::ArgList>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -5913,7 +5913,7 @@ std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcef
                             auto a2 (popT(stack));
                             auto a1 (popT(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 Maybe<Location const>(a5);
@@ -5931,7 +5931,7 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                             auto a2 (popT(stack));
                             auto a1 (popA<ASTNS::Type>(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 a3 ? Maybe(a3->end()) :
@@ -6000,7 +6000,7 @@ std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p
                             auto a2 (popA<ASTNS::Block>(stack));
                             auto a1 (popA<ASTNS::Expr>(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 a4 ? Maybe(a4->end()) :
@@ -6020,7 +6020,7 @@ std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefil
                             auto a2 (popA<ASTNS::Block>(stack));
                             auto a1 (popA<ASTNS::Expr>(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 a4 ? Maybe(a4->end()) :
@@ -6038,7 +6038,7 @@ std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefil
                             auto a2 (popA<ASTNS::Arg>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::ArgList>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -6055,7 +6055,7 @@ a0->args.push_back(std::move(a2));
                 switch (lookahead.type) {
                     default: {
                             auto a0 (popA<ASTNS::Arg>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) : Maybe<Location const>();
                             Maybe<Location const> end =
                                 a0 ? Maybe(a0->end()) : Maybe<Location const>();
@@ -6100,7 +6100,7 @@ a0->args.push_back(std::move(a2));
                             auto a2 (popA<ASTNS::Type>(stack));
                             auto a1 (popT(stack));
                             auto a0 (popT(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 Maybe<Location const>(a0);
                             Maybe<Location const> end =
                                 a4 ? Maybe(a4->end()) :
@@ -6121,7 +6121,7 @@ std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p
                             auto a2 (popT(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -6142,7 +6142,7 @@ std::unique_ptr<ASTNS::MethodCallExpr> push (std::make_unique<ASTNS::MethodCallE
                             auto a2 (popT(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
@@ -6163,7 +6163,7 @@ std::unique_ptr<ASTNS::MethodCallExpr> push (std::make_unique<ASTNS::MethodCallE
                             auto a2 (popT(stack));
                             auto a1 (popT(stack));
                             auto a0 (popA<ASTNS::Expr>(stack));
-                            Maybe<Location const> start =
+                            Maybe<Location const> start = 
                                 a0 ? Maybe(a0->start()) :
                                 Maybe<Location const>(a1);
                             Maybe<Location const> end =
