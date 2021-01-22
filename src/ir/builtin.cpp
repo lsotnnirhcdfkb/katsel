@@ -109,7 +109,7 @@ NNPtr<llvm::Type> IR::FloatType::toLLVMType(llvm::LLVMContext &con) const {
     else if (size == 64)
         return llvm::Type::getDoubleTy(con);
     else
-        reportAbortNoh(format("FloatType::toLLVMType: size = %", size));
+        reportAbortNoh(format("FloatType::toLLVMType: size = {}", size));
 }
 std::string IR::FloatType::name() const {
     if (size == 32)
@@ -117,7 +117,7 @@ std::string IR::FloatType::name() const {
     else if (size == 64)
         return "double";
     else
-        reportAbortNoh(format("FloatType::name: size = %", size));
+        reportAbortNoh(format("FloatType::name: size = {}", size));
 }
 Maybe<IR::ASTValue> IR::FloatType::binOp(BIN_OP_ARGS) {
     ASSERT(l.type().asRaw() == this);
@@ -162,7 +162,7 @@ NNPtr<llvm::Type> IR::IntType::toLLVMType(llvm::LLVMContext &con) const {
     return llvm::IntegerType::get(con, size);
 }
 std::string IR::IntType::name() const {
-    return format("%int%", isSigned ? 's' : 'u', size);
+    return format("{}int{}", isSigned ? 's' : 'u', size);
 }
 Maybe<IR::ASTValue> IR::IntType::binOp(BIN_OP_ARGS) {
     ASSERT(l.type().asRaw() == this)

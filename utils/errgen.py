@@ -41,8 +41,8 @@ class ValueDeclHighlight:
             message = self.message
             fallbackmessage = self.message
         else:
-            message = 'format("% declared here", {self.valuename})'
-            fallbackmessage = 'format("% implicitly declared", {self.valuename})'
+            message = 'format("{} declared here", {self.valuename})'
+            fallbackmessage = 'format("{} implicitly declared", {self.valuename})'
 
         output = (f'    if (IR::DeclaredValue *asDeclared = dynamic_cast<IR::DeclaredValue*>({self.val})) {{\n'
                    '        if (!dynamic_cast<ASTNS::ImplicitDecl*>(asDeclared->defAST().asRaw())) {\n'
@@ -143,7 +143,7 @@ errors = [
             desc='The parser found an unrecoverable syntax error.',
             inputs='Token const &lookahead, Token const &lasttok, std::vector<std::string> const &expectations', location='lookahead',
             highlights=[
-                SimpleHighlight('lookahead', UNDER0, [('error', '"unexpected %"', 'lookahead.type')]),
+                SimpleHighlight('lookahead', UNDER0, [('error', '"unexpected {}"', 'lookahead.type')]),
             ],
             extra=(
                 "auto un (Underline(lasttok, '~'));\n"
@@ -154,7 +154,7 @@ errors = [
             desc='The parser found a syntax error and recovered by inserting, substituting, or removing a single token.',
             inputs='Token const &lookahead, Token const &lasttok, std::string const &bestfix, std::vector<std::string> const &expectations', location='lookahead',
             highlights=[
-                SimpleHighlight('lookahead', UNDER0, [('error', '"unexpected %"', 'lookahead.type'), ('note', 'bestfix')]),
+                SimpleHighlight('lookahead', UNDER0, [('error', '"unexpected {}"', 'lookahead.type'), ('note', 'bestfix')]),
             ],
             extra=(
                 "auto un (Underline(lasttok, '~'));\n"
@@ -165,8 +165,8 @@ errors = [
             desc='The parser found a syntax error and recovered via panic mode error recovery.',
             inputs='Token const &lookahead, Token const &lasttok, Token const &panicuntil, std::vector<std::string> const &expectations', location='lookahead',
             highlights=[
-                SimpleHighlight('lookahead', UNDER0, [('error', '"unexpected %"', 'lookahead.type')]),
-                SimpleHighlight('panicuntil', UNDER2, [('note', '"parser panicked until %"', 'panicuntil.type')]),
+                SimpleHighlight('lookahead', UNDER0, [('error', '"unexpected {}"', 'lookahead.type')]),
+                SimpleHighlight('panicuntil', UNDER2, [('note', '"parser panicked until {}"', 'panicuntil.type')]),
             ],
             extra=(
                 "auto un (Underline(lasttok, '~'));\n"
@@ -177,27 +177,27 @@ errors = [
             desc='Left hand side of binary expression does not support operator',
             inputs='IR::ASTValue const &lhs, Token const &op', location='op',
             highlights=[
-                SimpleHighlight('lhs', UNDER0, [('note', '"lhs is of type %"', 'lhs.type()')]),
+                SimpleHighlight('lhs', UNDER0, [('note', '"lhs is of type {}"', 'lhs.type()')]),
                 SimpleHighlight('op', UNDER0, [('error', '"unsupported binary operator for left operand"')]),
             ]),
         Msg('unary-unsupported-op',
             desc='Operand of unary expression does not support operator',
             inputs='IR::ASTValue const &operand, Token const &_operator', location='_operator',
             highlights=[
-                SimpleHighlight('operand', UNDER0, [('note', '"operand is of type %"', 'operand.type()')]),
+                SimpleHighlight('operand', UNDER0, [('note', '"operand is of type {}"', 'operand.type()')]),
                 SimpleHighlight('_operator', UNDER0, [('error', '"unsupported unary operator"')]),
             ]),
         Msg('call-noncallable',
             desc='Non-callable value called',
             inputs='IR::ASTValue const &func, Token const &oparn', location='oparn',
             highlights=[
-                SimpleHighlight('func', UNDER0, [('error', '"calling of non-callable value"'), ('note', '"value of type %"', 'func.type()')]),
+                SimpleHighlight('func', UNDER0, [('error', '"calling of non-callable value"'), ('note', '"value of type {}"', 'func.type()')]),
             ]),
         Msg('incorrect-arg',
             desc='Incorrect argument to function call',
             inputs='IR::ASTValue const &arg, NNPtr<IR::Type const> expected', location='arg',
             highlights=[
-                SimpleHighlight('arg', UNDER0, [('error', '"invalid argument to function call"'), ('note', '"argument is of type %"', 'arg.type()'), ('note', '"function expects %"', 'expected')]),
+                SimpleHighlight('arg', UNDER0, [('error', '"invalid argument to function call"'), ('note', '"argument is of type {}"', 'arg.type()'), ('note', '"function expects {}"', 'expected')]),
             ]),
         Msg('confl-tys-ifexpr',
             desc='Conflicting types for branches of if expression',
@@ -205,29 +205,29 @@ errors = [
             highlights=[
                 SimpleHighlight('iftok', UNDER0, [('error', '"conflicting types for branches of if expression"')]),
                 SimpleHighlight('elsetok', UNDER2, []),
-                SimpleHighlight('truev', UNDER1, [('note', '"%"', 'truev.type()')]),
-                SimpleHighlight('falsev', UNDER1, [('note', '"%"', 'falsev.type()')]),
+                SimpleHighlight('truev', UNDER1, [('note', '"{}"', 'truev.type()')]),
+                SimpleHighlight('falsev', UNDER1, [('note', '"{}"', 'falsev.type()')]),
             ]),
         Msg('assign-conflict-tys',
             desc='Assignment target and value do not have same type',
             inputs='IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &eq', location='eq',
             highlights=[
                 SimpleHighlight('eq', UNDER0, [('error', '"conflicting types for assignment"')]),
-                SimpleHighlight('lhs', UNDER1, [('note', '"%"', 'lhs.type()')]),
-                SimpleHighlight('rhs', UNDER1, [('note', '"%"', 'rhs.type()')]),
+                SimpleHighlight('lhs', UNDER1, [('note', '"{}"', 'lhs.type()')]),
+                SimpleHighlight('rhs', UNDER1, [('note', '"{}"', 'rhs.type()')]),
             ]),
         Msg('conflict-ret-ty',
             desc='Conflicting return types',
             inputs='IR::ASTValue const &val, NNPtr<IR::Function> f', location='val',
             highlights=[
-                SimpleHighlight('val', UNDER0, [('error', '"conflicting return type"'), ('note', '"returning %"', 'val.type()')]),
-                SimpleHighlight('*f->_defAST->retty.get()', UNDER1, [('note', '"function returns %"', 'f->ty->ret')]),
+                SimpleHighlight('val', UNDER0, [('error', '"conflicting return type"'), ('note', '"returning {}"', 'val.type()')]),
+                SimpleHighlight('*f->_defAST->retty.get()', UNDER1, [('note', '"function returns {}"', 'f->ty->ret')]),
             ]),
         Msg('no-deref',
             desc='Cannot dereference non-pointer',
             inputs='Token const &op, IR::ASTValue const &val', location='val',
             highlights=[
-                SimpleHighlight('op', UNDER0, [('error', '"dereferencing of non-pointer type %"', 'val.type()')]),
+                SimpleHighlight('op', UNDER0, [('error', '"dereferencing of non-pointer type {}"', 'val.type()')]),
                 SimpleHighlight('val', UNDER1, []),
             ]),
         Msg('conflict-var-init-ty',
@@ -236,35 +236,35 @@ errors = [
             highlights=[
                 SimpleHighlight('eq', UNDER1, []),
                 SimpleHighlight('name', UNDER1, []),
-                SimpleHighlight('init', UNDER0, [('error', '"conflicting types for variable initialization"'), ('note', '"%"', 'init.type()')]),
-                SimpleHighlight('typeAST', UNDER1, [('note', '"%"', 'expectedType')]),
+                SimpleHighlight('init', UNDER0, [('error', '"conflicting types for variable initialization"'), ('note', '"{}"', 'init.type()')]),
+                SimpleHighlight('typeAST', UNDER1, [('note', '"{}"', 'expectedType')]),
             ]),
         Msg('invalid-cast',
             desc='Invalid cast',
             inputs='NNPtr<ASTNS::AST> ast, IR::ASTValue v, NNPtr<IR::Type const> newty', location='ast',
             highlights=[
-                SimpleHighlight('ast', UNDER0, [('error', '"invalid cast from % to %"', 'v.type()', 'newty')]),
+                SimpleHighlight('ast', UNDER0, [('error', '"invalid cast from {} to {}"', 'v.type()', 'newty')]),
             ]),
         Msg('conflict-tys-binary-op',
             desc='Conflicting types to binary operator',
             inputs='IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &op', location='op',
             highlights=[
-                SimpleHighlight('lhs', UNDER1, [('note', '"%"', 'lhs.type()')]),
-                SimpleHighlight('rhs', UNDER1, [('note', '"%"', 'rhs.type()')]),
+                SimpleHighlight('lhs', UNDER1, [('note', '"{}"', 'lhs.type()')]),
+                SimpleHighlight('rhs', UNDER1, [('note', '"{}"', 'rhs.type()')]),
                 SimpleHighlight('op', UNDER0, [('error', '"conflicting types to binary operator"')]),
             ]),
         Msg('cond-not-bool',
             desc='Using a non-bool value as a condition',
             inputs='IR::ASTValue &v', location='v',
             highlights=[
-                SimpleHighlight('v', UNDER0, [('error', '"usage of % as condition"', 'v.type()')]),
+                SimpleHighlight('v', UNDER0, [('error', '"usage of {} as condition"', 'v.type()')]),
             ]),
         Msg('ptr-arith-rhs-not-num',
             desc='Cannot do pointer arithmetic with non-integer as right-hand-side of expression',
             inputs='IR::ASTValue const &lhs, Token const &optok, IR::ASTValue const &rhs', location='optok',
             highlights=[
                 SimpleHighlight('lhs', UNDER1, []),
-                SimpleHighlight('rhs', UNDER1, [('note', '"%"', 'rhs.type()')]),
+                SimpleHighlight('rhs', UNDER1, [('note', '"{}"', 'rhs.type()')]),
                 SimpleHighlight('optok', UNDER0, [('error', '"pointer arithmetic requires an integral right-hand operand"')]),
             ]),
         Msg('no-else-not-void',
@@ -272,7 +272,7 @@ errors = [
             inputs='IR::ASTValue const &truev, Token const &iftok', location='iftok',
             highlights=[
                 SimpleHighlight('iftok', UNDER0, [('error', '"if expression with non-void true expression and no else case"')]),
-                SimpleHighlight('truev', UNDER1, [('note', '"%"', 'truev.type()')]),
+                SimpleHighlight('truev', UNDER1, [('note', '"{}"', 'truev.type()')]),
             ]),
         Msg('typeless-this',
             desc='\'this\' parameter used outside of impl or class block',
@@ -286,7 +286,7 @@ errors = [
             highlights=[
                 SimpleHighlight('oparn', UNDER0, [('error', '"wrong number of arguments to function call"')]),
                 SimpleHighlight('funcRefAST', UNDER1, []),
-                SimpleHighlight('func->defAST()', UNDER1, [('note', '"function expects % arguments, but got % arguments"', 'func->ty->paramtys.size()', 'args.size()')]),
+                SimpleHighlight('func->defAST()', UNDER1, [('note', '"function expects {} arguments, but got {} arguments"', 'func->ty->paramtys.size()', 'args.size()')]),
             ]),
         Msg('redecl-sym',
             desc='Symbol was redeclared',
@@ -326,25 +326,25 @@ errors = [
             desc='No member of a certain name within another member',
             inputs='NNPtr<IR::DeclSymbol const> prev, Token const &current', location='current',
             highlights=[
-                SimpleHighlight('current', UNDER0, [('error', '"no member called % in %"', 'current', 'prev')]),
+                SimpleHighlight('current', UNDER0, [('error', '"no member called {} in {}"', 'current', 'prev')]),
             ]),
         Msg('no-this',
             desc='Usage of \'this\' outside method',
             inputs='Token const &th', location='th',
             highlights=[
-                SimpleHighlight('th', UNDER0, [('error', '"usage of % outside method"', 'th')]),
+                SimpleHighlight('th', UNDER0, [('error', '"usage of {} outside method"', 'th')]),
             ]),
         Msg('no-method',
             desc='Accessing a method that doesn\'t exist',
             inputs='IR::ASTValue const &op, Token const &name', location='name',
             highlights=[
-                SimpleHighlight('name', UNDER0, [('error', '"no method called % on value of type %"', 'name', 'op.type()')]),
+                SimpleHighlight('name', UNDER0, [('error', '"no method called {} on value of type {}"', 'name', 'op.type()')]),
             ]),
         Msg('no-field',
             desc='Accessing a field that doesn\'t exist',
             inputs='IR::ASTValue const &op, Token const &name', location='name',
             highlights=[
-                SimpleHighlight('name', UNDER0, [('error', '"no field called % on value of type %"', 'name', 'op.type()')]),
+                SimpleHighlight('name', UNDER0, [('error', '"no field called {} on value of type {}"', 'name', 'op.type()')]),
             ]),
         Msg('addrof-not-lvalue',
             desc='Taking an address of a non-lvalue is impossible',

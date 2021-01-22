@@ -121,7 +121,7 @@ namespace {
         // }}}
         // Function {{{
         void value_visitFunction(IR::Function &fun) override {
-            pr(format("fun %", fun.type()));
+            pr(format("fun {}", fun.type()));
             if (fun.prototypeonly) {
                 pr(" (prototype);\n");
                 return;
@@ -156,7 +156,7 @@ namespace {
             pr(s)("(");
         }
         void stringifyBlock(IR::Block const &b) {
-            pr(format("%(%)", b.name, b.num));
+            pr(format("{}({})", b.name, b.num));
         }
         void binaryInstruction(NNPtr<IR::Instrs::Instruction> i, std::string const &name, IR::ASTValue const &lhs, IR::ASTValue const &rhs) {
             instrName(name);

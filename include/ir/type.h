@@ -43,7 +43,7 @@ namespace IR {
     } \
     void cl::addMethod(std::string const &name, IR::Type::Method const &m) { \
         if (methods.find(name) != methods.end()) \
-            reportAbortNoh(format("add duplicate method in type " #cl " under name %", name)); \
+            reportAbortNoh(format("add duplicate method in type " #cl " under name {}", name)); \
  \
         methods.emplace(name, m); \
     }

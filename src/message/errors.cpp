@@ -69,17 +69,17 @@ void reportAbortNoh(std::string const &message) {
     std::abort();
 }
 void invalidTok(std::string const &name, Token const &underline) {
-    reportAbortNoh(format("invalid token for %: \"%\"", name, underline));
+    reportAbortNoh(format("invalid token for {}: \"{}\"", name, underline));
 }
 void calledWithOpTyNEthis(std::string const &classN, std::string const &fnn, std::string const &opname) {
-    reportAbortNoh(format("%::% called with % type != this", classN, fnn, opname));
+    reportAbortNoh(format("{}::{} called with {} type != this", classN, fnn, opname));
 }
 void outOSwitchDDefaultLab(std::string const &fnn, Location const &highlight) {
-    reportAbortNoh(format("% went out of switch despite default label", fnn));
+    reportAbortNoh(format("{} went out of switch despite default label", fnn));
 }
 void fCalled(std::string const &fnn) {
-    reportAbortNoh(format("% called", fnn));
+    reportAbortNoh(format("{} called", fnn));
 }
 void outOSwitchNoh(std::string const &fnn) {
-    reportAbortNoh(format("% went out of switch", fnn));
+    reportAbortNoh(format("{} went out of switch", fnn));
 }

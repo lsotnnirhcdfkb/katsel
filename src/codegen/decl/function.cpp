@@ -75,7 +75,7 @@ bool CodeGen::FunctionCodeGen::codegen() {
 void CodeGen::FunctionCodeGen::addLocal(std::string const &name, NNPtr<IR::Instrs::Register> val) {
     for (auto last = locals.rbegin(); last != locals.rend(); ++last)
         if (last->name == name && last->scopenum == curScope)
-            reportAbortNoh(format("duplicate local added: \"%\"", name));
+            reportAbortNoh(format("duplicate local added: \"{}\"", name));
 
     Local l {curScope, val, name};
     locals.push_back(l);

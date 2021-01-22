@@ -852,11 +852,11 @@ def format_list(l):
     if len(l) == 1:
         return f'{l[0]}'
     elif len(l) == 2:
-        return f'format("either % or %", {l[0]}, {l[1]})'
+        return f'format("either {{}} or {{}}", {l[0]}, {l[1]})'
     elif len(l) == 0:
         return '"nothing"'
     else:
-        return 'format("' + ", ".join('%' for _ in l[:-1]) + ', or %", ' +  ', '.join(l) + ')'
+        return 'format("' + ", ".join('{}' for _ in l[:-1]) + ', or {}", ' +  ', '.join(l) + ')'
 # }}}
 def gen_loop():
     output = []
@@ -966,14 +966,14 @@ def gen_loop():
             output.append(                        '                    default:\n')
             output.append(                        '                        if (istrial) return false;\n')
 
-            futuress = [f'format("expected % for %", {format_list([stc(p) for p in future])}, {stc(nt)})' for nt, future in state.futures.items()]
-            terminatess = [f'format("expected % to terminate %", {format_list([stc(p) for p in future])}, {stc(nt)})' for nt, future in state.terminates.items()]
+            futuress = [f'format("expected {{}} for {{}}", {format_list([stc(p) for p in future])}, {stc(nt)})' for nt, future in state.futures.items()]
+            terminatess = [f'format("expected {{}} to terminate {{}}", {format_list([stc(p) for p in future])}, {stc(nt)})' for nt, future in state.terminates.items()]
             output.append(                       f'                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {{  {", ".join(futuress + terminatess)}  }});\n')
         output.append(                            '                }\n')
         output.append(                            '                break;\n')
 
     output.append(                                '            default:\n')
-    output.append(                                '                reportAbortNoh(format("Parser reached invalid state: %", stack.back().state));\n')
+    output.append(                                '                reportAbortNoh(format("Parser reached invalid state: {}", stack.back().state));\n')
 
     output.append(                                '        }\n')
     output.append(                                '    }\n')

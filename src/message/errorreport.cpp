@@ -97,11 +97,11 @@ namespace {
                 break;
         }
         std::string::const_iterator const fstart = location.file->source.cbegin();
-        std::cerr << format("% at %:%:%:%\n", msgtypestr, attr(FILEPATH_COLOR, location.file->filename, true), getLineN(fstart, location.start), getColN(fstart, location.start), resetIfNecessary().asRaw());
+        std::cerr << format("{} at {}:{}:{}{}:\n", msgtypestr, attr(FILEPATH_COLOR, location.file->filename, true), getLineN(fstart, location.start), getColN(fstart, location.start), resetIfNecessary().asRaw());
     }
     // final line {{{2
     void printFinalLine(std::string const &pad, MsgType type, std::string const &code, std::string const &name) {
-        std::cerr << format("%==> [%]: %\n", pad, attr(A_BOLD, code), name);
+        std::cerr << format("{}==> [{}]: {}\n", pad, attr(A_BOLD, code), name);
     }
     // collectShowlines {{{2
     std::vector<showline> collectShowlines(std::vector<Underline> const &underlines) {
@@ -332,9 +332,9 @@ void Error::report() const {
             auto fstart = un.location.file->source.begin();
             int lineN = getLineN(fstart, un.location.start);
             int colN = getColN(fstart, un.location.start);
-            std::cerr << format("%> %:%:% %\n", pad, attr(FILEPATH_COLOR, un.location.file->filename, true), lineN, colN, resetIfNecessary().asRaw());
+            std::cerr << format("{}> {}:{}:{}{}\n", pad, attr(FILEPATH_COLOR, un.location.file->filename, true), lineN, colN, resetIfNecessary().asRaw());
             for (Message const &me : un.messages)
-                std::cerr << format("%| [%] %\n", pad, attr(me.color.asRaw(), me.type), me.text);
+                std::cerr << format("{}| [{}] {}\n", pad, attr(me.color.asRaw(), me.type), me.text);
 
             std::ios origState (nullptr);
             origState.copyfmt(std::cerr);
@@ -378,7 +378,7 @@ void Error::report() const {
         }
 
         auto formatLocation = [](File const &f, std::string::const_iterator const &loc, std::string::const_iterator const &fstart) -> std::string {
-            return format("{%, %, %, %}",
+            return format("{{}, {}, {}, {}}",
                     jsonfield("file", f.filename),
                     jsonfield("line", getLineN(fstart, loc)),
                     jsonfield("column", getColN(fstart, loc)),

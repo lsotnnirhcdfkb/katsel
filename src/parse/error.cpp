@@ -78,10 +78,10 @@ struct fix {
                 return "implicitly removed token";
 
             case fix::fixtype::SUBSTITUTE:
-                return format("implicitly replaced token with %", stringifyTokenType(ttype));
+                return format("implicitly replaced token with {}", stringifyTokenType(ttype));
 
             case fix::fixtype::INSERT:
-                return format("implicitly inserted % before token", stringifyTokenType(ttype));
+                return format("implicitly inserted {} before token", stringifyTokenType(ttype));
 
             default:
                 reportAbortNoh("invalid fix type");

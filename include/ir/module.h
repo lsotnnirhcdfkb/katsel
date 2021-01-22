@@ -29,7 +29,7 @@ struct File;
     } \
     void cl::addValue(std::string const &name, NNPtr<IR::Value> v) { \
         if (values.find(name) != values.end()) \
-            reportAbortNoh(format("add duplicate value under name %", name)); \
+            reportAbortNoh(format("add duplicate value under name {}", name)); \
         values.emplace(name, v); \
     } \
     Maybe<NNPtr<IR::DeclSymbol>> cl::getDeclSymbol(std::string const &name) const { \
@@ -40,7 +40,7 @@ struct File;
     } \
     void cl::addDeclSymbol(std::string const &name, NNPtr<IR::DeclSymbol> v) { \
         if (decls.find(name) != decls.end()) \
-            reportAbortNoh(format("add duplicate decl under name %", name)); \
+            reportAbortNoh(format("add duplicate decl under name {}", name)); \
         decls.emplace(name, v); \
     } \
     std::map<std::string, NNPtr<IR::Value>> cl::getValues() const { \

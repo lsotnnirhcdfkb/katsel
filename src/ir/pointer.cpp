@@ -16,9 +16,9 @@ NNPtr<ASTNS::AST> IR::PointerType::declAST() const {
 
 std::string IR::PointerType::name() const {
     if (mut)
-        return format("*mut %", ty->name());
+        return format("*mut {}", ty->name());
     else
-        return format("*%", ty->name());
+        return format("*{}", ty->name());
 }
 
 DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::PointerType)

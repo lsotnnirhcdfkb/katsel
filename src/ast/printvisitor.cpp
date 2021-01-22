@@ -49,7 +49,7 @@ static void printField(ASTNS::PrintVisitor &p, std::vector<Token> &v) {
     p.pai("]\n");
 }
 static void printField(ASTNS::PrintVisitor &p, Maybe<Location const> const &l) {
-    p.pai(format("<maybe location: %>\n", l.has()));
+    p.pai(format("<maybe location: {}>\n", l.has()));
 }
 
 // PRINTVISITOR START

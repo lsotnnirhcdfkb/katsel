@@ -133,7 +133,7 @@ void E0011(Token const &tok) {
 void E0012(Token const &lookahead, Token const &lasttok, std::vector<std::string> const &expectations) {
     Error e = Error(MsgType::ERROR, Location(lookahead), "E0012", "unrecoverable-invalid-syntax");
     e.underline(Underline(Location(lookahead), '^')
-        .error(format("unexpected %", lookahead.type))
+        .error(format("unexpected {}", lookahead.type))
     );
 auto un (Underline(lasttok, '~'));
 for (std::string const &expectation : expectations)
@@ -148,7 +148,7 @@ e.underline(un);
 void E0013(Token const &lookahead, Token const &lasttok, std::string const &bestfix, std::vector<std::string> const &expectations) {
     Error e = Error(MsgType::ERROR, Location(lookahead), "E0013", "simple-invalid-syntax");
     e.underline(Underline(Location(lookahead), '^')
-        .error(format("unexpected %", lookahead.type))
+        .error(format("unexpected {}", lookahead.type))
         .note(bestfix)
     );
 auto un (Underline(lasttok, '~'));
@@ -164,10 +164,10 @@ e.underline(un);
 void E0014(Token const &lookahead, Token const &lasttok, Token const &panicuntil, std::vector<std::string> const &expectations) {
     Error e = Error(MsgType::ERROR, Location(lookahead), "E0014", "panicking-invalid-syntax");
     e.underline(Underline(Location(lookahead), '^')
-        .error(format("unexpected %", lookahead.type))
+        .error(format("unexpected {}", lookahead.type))
     );
     e.underline(Underline(Location(panicuntil), '-')
-        .note(format("parser panicked until %", panicuntil.type))
+        .note(format("parser panicked until {}", panicuntil.type))
     );
 auto un (Underline(lasttok, '~'));
 for (std::string const &expectation : expectations)
@@ -182,7 +182,7 @@ e.underline(un);
 void E0015(IR::ASTValue const &lhs, Token const &op) {
     Error e = Error(MsgType::ERROR, Location(op), "E0015", "lhs-unsupported-op");
     e.underline(Underline(Location(lhs), '^')
-        .note(format("lhs is of type %", lhs.type()))
+        .note(format("lhs is of type {}", lhs.type()))
     );
     e.underline(Underline(Location(op), '^')
         .error("unsupported binary operator for left operand")
@@ -195,7 +195,7 @@ void E0015(IR::ASTValue const &lhs, Token const &op) {
 void E0016(IR::ASTValue const &operand, Token const &_operator) {
     Error e = Error(MsgType::ERROR, Location(_operator), "E0016", "unary-unsupported-op");
     e.underline(Underline(Location(operand), '^')
-        .note(format("operand is of type %", operand.type()))
+        .note(format("operand is of type {}", operand.type()))
     );
     e.underline(Underline(Location(_operator), '^')
         .error("unsupported unary operator")
@@ -209,7 +209,7 @@ void E0017(IR::ASTValue const &func, Token const &oparn) {
     Error e = Error(MsgType::ERROR, Location(oparn), "E0017", "call-noncallable");
     e.underline(Underline(Location(func), '^')
         .error("calling of non-callable value")
-        .note(format("value of type %", func.type()))
+        .note(format("value of type {}", func.type()))
     );
     e.report();
 }
@@ -220,8 +220,8 @@ void E0018(IR::ASTValue const &arg, NNPtr<IR::Type const> expected) {
     Error e = Error(MsgType::ERROR, Location(arg), "E0018", "incorrect-arg");
     e.underline(Underline(Location(arg), '^')
         .error("invalid argument to function call")
-        .note(format("argument is of type %", arg.type()))
-        .note(format("function expects %", expected))
+        .note(format("argument is of type {}", arg.type()))
+        .note(format("function expects {}", expected))
     );
     e.report();
 }
@@ -236,10 +236,10 @@ void E0019(IR::ASTValue const &truev, IR::ASTValue const &falsev, Token const &i
     e.underline(Underline(Location(elsetok), '-')
     );
     e.underline(Underline(Location(truev), '~')
-        .note(format("%", truev.type()))
+        .note(format("{}", truev.type()))
     );
     e.underline(Underline(Location(falsev), '~')
-        .note(format("%", falsev.type()))
+        .note(format("{}", falsev.type()))
     );
     e.report();
 }
@@ -252,10 +252,10 @@ void E0020(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &eq) {
         .error("conflicting types for assignment")
     );
     e.underline(Underline(Location(lhs), '~')
-        .note(format("%", lhs.type()))
+        .note(format("{}", lhs.type()))
     );
     e.underline(Underline(Location(rhs), '~')
-        .note(format("%", rhs.type()))
+        .note(format("{}", rhs.type()))
     );
     e.report();
 }
@@ -266,10 +266,10 @@ void E0021(IR::ASTValue const &val, NNPtr<IR::Function> f) {
     Error e = Error(MsgType::ERROR, Location(val), "E0021", "conflict-ret-ty");
     e.underline(Underline(Location(val), '^')
         .error("conflicting return type")
-        .note(format("returning %", val.type()))
+        .note(format("returning {}", val.type()))
     );
     e.underline(Underline(Location(*f->_defAST->retty.get()), '~')
-        .note(format("function returns %", f->ty->ret))
+        .note(format("function returns {}", f->ty->ret))
     );
     e.report();
 }
@@ -279,7 +279,7 @@ void E0021(IR::ASTValue const &val, NNPtr<IR::Function> f) {
 void E0022(Token const &op, IR::ASTValue const &val) {
     Error e = Error(MsgType::ERROR, Location(val), "E0022", "no-deref");
     e.underline(Underline(Location(op), '^')
-        .error(format("dereferencing of non-pointer type %", val.type()))
+        .error(format("dereferencing of non-pointer type {}", val.type()))
     );
     e.underline(Underline(Location(val), '~')
     );
@@ -296,10 +296,10 @@ void E0023(Token const &eq, Token const &name, NNPtr<ASTNS::Type> typeAST, IR::A
     );
     e.underline(Underline(Location(init), '^')
         .error("conflicting types for variable initialization")
-        .note(format("%", init.type()))
+        .note(format("{}", init.type()))
     );
     e.underline(Underline(Location(typeAST), '~')
-        .note(format("%", expectedType))
+        .note(format("{}", expectedType))
     );
     e.report();
 }
@@ -309,7 +309,7 @@ void E0023(Token const &eq, Token const &name, NNPtr<ASTNS::Type> typeAST, IR::A
 void E0024(NNPtr<ASTNS::AST> ast, IR::ASTValue v, NNPtr<IR::Type const> newty) {
     Error e = Error(MsgType::ERROR, Location(ast), "E0024", "invalid-cast");
     e.underline(Underline(Location(ast), '^')
-        .error(format("invalid cast from % to %", v.type(), newty))
+        .error(format("invalid cast from {} to {}", v.type(), newty))
     );
     e.report();
 }
@@ -319,10 +319,10 @@ void E0024(NNPtr<ASTNS::AST> ast, IR::ASTValue v, NNPtr<IR::Type const> newty) {
 void E0025(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &op) {
     Error e = Error(MsgType::ERROR, Location(op), "E0025", "conflict-tys-binary-op");
     e.underline(Underline(Location(lhs), '~')
-        .note(format("%", lhs.type()))
+        .note(format("{}", lhs.type()))
     );
     e.underline(Underline(Location(rhs), '~')
-        .note(format("%", rhs.type()))
+        .note(format("{}", rhs.type()))
     );
     e.underline(Underline(Location(op), '^')
         .error("conflicting types to binary operator")
@@ -335,7 +335,7 @@ void E0025(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &op) {
 void E0026(IR::ASTValue &v) {
     Error e = Error(MsgType::ERROR, Location(v), "E0026", "cond-not-bool");
     e.underline(Underline(Location(v), '^')
-        .error(format("usage of % as condition", v.type()))
+        .error(format("usage of {} as condition", v.type()))
     );
     e.report();
 }
@@ -348,7 +348,7 @@ void E0027(IR::ASTValue const &lhs, Token const &optok, IR::ASTValue const &rhs)
     e.underline(Underline(Location(lhs), '~')
     );
     e.underline(Underline(Location(rhs), '~')
-        .note(format("%", rhs.type()))
+        .note(format("{}", rhs.type()))
     );
     e.underline(Underline(Location(optok), '^')
         .error("pointer arithmetic requires an integral right-hand operand")
@@ -364,7 +364,7 @@ void E0028(IR::ASTValue const &truev, Token const &iftok) {
         .error("if expression with non-void true expression and no else case")
     );
     e.underline(Underline(Location(truev), '~')
-        .note(format("%", truev.type()))
+        .note(format("{}", truev.type()))
     );
     e.report();
 }
@@ -389,7 +389,7 @@ void E0030(NNPtr<IR::Function> func, NNPtr<ASTNS::AST> funcRefAST, Token const &
     e.underline(Underline(Location(funcRefAST), '~')
     );
     e.underline(Underline(Location(func->defAST()), '~')
-        .note(format("function expects % arguments, but got % arguments", func->ty->paramtys.size(), args.size()))
+        .note(format("function expects {} arguments, but got {} arguments", func->ty->paramtys.size(), args.size()))
     );
     e.report();
 }
@@ -464,7 +464,7 @@ void E0035(Location const &notty, NNPtr<ASTNS::AST> declAST) {
 void E0036(NNPtr<IR::DeclSymbol const> prev, Token const &current) {
     Error e = Error(MsgType::ERROR, Location(current), "E0036", "no-member-in");
     e.underline(Underline(Location(current), '^')
-        .error(format("no member called % in %", current, prev))
+        .error(format("no member called {} in {}", current, prev))
     );
     e.report();
 }
@@ -474,7 +474,7 @@ void E0036(NNPtr<IR::DeclSymbol const> prev, Token const &current) {
 void E0037(Token const &th) {
     Error e = Error(MsgType::ERROR, Location(th), "E0037", "no-this");
     e.underline(Underline(Location(th), '^')
-        .error(format("usage of % outside method", th))
+        .error(format("usage of {} outside method", th))
     );
     e.report();
 }
@@ -484,7 +484,7 @@ void E0037(Token const &th) {
 void E0038(IR::ASTValue const &op, Token const &name) {
     Error e = Error(MsgType::ERROR, Location(name), "E0038", "no-method");
     e.underline(Underline(Location(name), '^')
-        .error(format("no method called % on value of type %", name, op.type()))
+        .error(format("no method called {} on value of type {}", name, op.type()))
     );
     e.report();
 }
@@ -494,7 +494,7 @@ void E0038(IR::ASTValue const &op, Token const &name) {
 void E0039(IR::ASTValue const &op, Token const &name) {
     Error e = Error(MsgType::ERROR, Location(name), "E0039", "no-field");
     e.underline(Underline(Location(name), '^')
-        .error(format("no field called % on value of type %", name, op.type()))
+        .error(format("no field called {} on value of type {}", name, op.type()))
     );
     e.report();
 }

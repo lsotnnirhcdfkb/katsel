@@ -659,7 +659,7 @@ bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_
                         break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % to terminate %", stringifyTokenType(TokenType::EOF_), "augment")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} to terminate {}", stringifyTokenType(TokenType::EOF_), "augment")  });
                 }
                 break;
             case 2:
@@ -732,7 +732,7 @@ std::unique_ptr<ASTNS::DeclList> push(std::make_unique<ASTNS::DeclList>(p.source
                         shift(p, lasttok, lookahead, stack, steps, 10); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::IDENTIFIER), "function declaration")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", stringifyTokenType(TokenType::IDENTIFIER), "function declaration")  });
                 }
                 break;
             case 7:
@@ -745,7 +745,7 @@ std::unique_ptr<ASTNS::DeclList> push(std::make_unique<ASTNS::DeclList>(p.source
                         shift(p, lasttok, lookahead, stack, steps, 17); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "type specifier", "implementation")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "type specifier", "implementation")  });
                 }
                 break;
             case 8:
@@ -786,7 +786,7 @@ a0->decls.push_back(std::move(a1));
                         shift(p, lasttok, lookahead, stack, steps, 19); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::OPARN), "function declaration")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", stringifyTokenType(TokenType::OPARN), "function declaration")  });
                 }
                 break;
             case 11:
@@ -797,7 +797,7 @@ a0->decls.push_back(std::move(a1));
                         shift(p, lasttok, lookahead, stack, steps, 21); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "implementation body", "implementation")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "implementation body", "implementation")  });
                 }
                 break;
             case 12:
@@ -871,7 +871,7 @@ std::unique_ptr<ASTNS::PathType> push (std::make_unique<ASTNS::PathType>(p.sourc
                         shift(p, lasttok, lookahead, stack, steps, 17); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", format("either % or %", "type specifier", stringifyTokenType(TokenType::MUT)), "pointer type")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", format("either {} or {}", "type specifier", stringifyTokenType(TokenType::MUT)), "pointer type")  });
                 }
                 break;
             case 17:
@@ -925,7 +925,7 @@ std::unique_ptr<ASTNS::ParamList> push (std::make_unique<ASTNS::ParamList>(p.sou
                         shift(p, lasttok, lookahead, stack, steps, 34); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional function parameter list", "function declaration")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "optional function parameter list", "function declaration")  });
                 }
                 break;
             case 20:
@@ -969,7 +969,7 @@ std::unique_ptr<ASTNS::ParamList> push (std::make_unique<ASTNS::ParamList>(p.sou
                         shift(p, lasttok, lookahead, stack, steps, 39); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional line ending", "implementation")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "optional line ending", "implementation")  });
                 }
                 break;
             case 21:
@@ -988,7 +988,7 @@ std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberL
                         shift(p, lasttok, lookahead, stack, steps, 41); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", format("either % or %", "optional implementation member list", stringifyTokenType(TokenType::NEWLINE)), "implementation body")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", format("either {} or {}", "optional implementation member list", stringifyTokenType(TokenType::NEWLINE)), "implementation body")  });
                 }
                 break;
             case 22:
@@ -997,7 +997,7 @@ std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberL
                         shift(p, lasttok, lookahead, stack, steps, 45); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::INDENT), "implementation body")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", stringifyTokenType(TokenType::INDENT), "implementation body")  });
                 }
                 break;
             case 23:
@@ -1006,7 +1006,7 @@ std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberL
                         shift(p, lasttok, lookahead, stack, steps, 46); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::IDENTIFIER), "symbol path")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", stringifyTokenType(TokenType::IDENTIFIER), "symbol path")  });
                 }
                 break;
             case 24:
@@ -1036,7 +1036,7 @@ std::unique_ptr<ASTNS::PointerType> push (std::make_unique<ASTNS::PointerType>(p
                         shift(p, lasttok, lookahead, stack, steps, 17); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "type specifier", "pointer type")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "type specifier", "pointer type")  });
                 }
                 break;
             case 26:
@@ -1045,7 +1045,7 @@ std::unique_ptr<ASTNS::PointerType> push (std::make_unique<ASTNS::PointerType>(p
                         shift(p, lasttok, lookahead, stack, steps, 48); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::CPARN), "function declaration")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", stringifyTokenType(TokenType::CPARN), "function declaration")  });
                 }
                 break;
             case 27:
@@ -1129,7 +1129,7 @@ std::unique_ptr<ASTNS::ParamList> push(std::make_unique<ASTNS::ParamList>(p.sour
                         shift(p, lasttok, lookahead, stack, steps, 51); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "required type annotation", "function parameter")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "required type annotation", "function parameter")  });
                 }
                 break;
             case 33:
@@ -1138,7 +1138,7 @@ std::unique_ptr<ASTNS::ParamList> push(std::make_unique<ASTNS::ParamList>(p.sour
                         shift(p, lasttok, lookahead, stack, steps, 52); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::IDENTIFIER), "function parameter")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", stringifyTokenType(TokenType::IDENTIFIER), "function parameter")  });
                 }
                 break;
             case 34:
@@ -1164,7 +1164,7 @@ std::unique_ptr<ASTNS::ThisParam> push (std::make_unique<ASTNS::ThisParam>(p.sou
                         shift(p, lasttok, lookahead, stack, steps, 53); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", format("either % or %", stringifyTokenType(TokenType::THIS), stringifyTokenType(TokenType::MUT)), "'this' function parameter")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", format("either {} or {}", stringifyTokenType(TokenType::THIS), stringifyTokenType(TokenType::MUT)), "'this' function parameter")  });
                 }
                 break;
             case 36:
@@ -1238,7 +1238,7 @@ std::unique_ptr<ASTNS::PureLocation> push (std::make_unique<ASTNS::PureLocation>
                         shift(p, lasttok, lookahead, stack, steps, 56); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::CCURB), "implementation body")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", stringifyTokenType(TokenType::CCURB), "implementation body")  });
                 }
                 break;
             case 41:
@@ -1257,7 +1257,7 @@ std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberL
                         shift(p, lasttok, lookahead, stack, steps, 58); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", format("either % or %", "optional implementation member list", stringifyTokenType(TokenType::INDENT)), "implementation body")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", format("either {} or {}", "optional implementation member list", stringifyTokenType(TokenType::INDENT)), "implementation body")  });
                 }
                 break;
             case 42:
@@ -1322,7 +1322,7 @@ std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberL
                         shift(p, lasttok, lookahead, stack, steps, 6); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional implementation member list", "implementation body")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "optional implementation member list", "implementation body")  });
                 }
                 break;
             case 46:
@@ -1367,7 +1367,7 @@ std::unique_ptr<ASTNS::PointerType> push (std::make_unique<ASTNS::PointerType>(p
                         shift(p, lasttok, lookahead, stack, steps, 51); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "required type annotation", "function declaration")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "required type annotation", "function declaration")  });
                 }
                 break;
             case 49:
@@ -1421,7 +1421,7 @@ std::unique_ptr<ASTNS::Param> push (std::make_unique<ASTNS::Param>(p.sourcefile,
                         shift(p, lasttok, lookahead, stack, steps, 17); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "type specifier", "required type annotation")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "type specifier", "required type annotation")  });
                 }
                 break;
             case 52:
@@ -1430,7 +1430,7 @@ std::unique_ptr<ASTNS::Param> push (std::make_unique<ASTNS::Param>(p.sourcefile,
                         shift(p, lasttok, lookahead, stack, steps, 51); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "required type annotation", "function parameter")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "required type annotation", "function parameter")  });
                 }
                 break;
             case 53:
@@ -1455,7 +1455,7 @@ std::unique_ptr<ASTNS::ThisParam> push (std::make_unique<ASTNS::ThisParam>(p.sou
                         shift(p, lasttok, lookahead, stack, steps, 67); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::THIS), "'this' function parameter")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", stringifyTokenType(TokenType::THIS), "'this' function parameter")  });
                 }
                 break;
             case 55:
@@ -1496,7 +1496,7 @@ WARN_EXTRA_SEMI(a0);std::unique_ptr<ASTNS::PureLocation> push (std::make_unique<
                         shift(p, lasttok, lookahead, stack, steps, 68); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::CCURB), "implementation body")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", stringifyTokenType(TokenType::CCURB), "implementation body")  });
                 }
                 break;
             case 58:
@@ -1513,7 +1513,7 @@ std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberL
                         shift(p, lasttok, lookahead, stack, steps, 6); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional implementation member list", "implementation body")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "optional implementation member list", "implementation body")  });
                 }
                 break;
             case 59:
@@ -1554,7 +1554,7 @@ a0->members.push_back(std::move(a1));
                         shift(p, lasttok, lookahead, stack, steps, 70); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::DEDENT), "implementation body")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", stringifyTokenType(TokenType::DEDENT), "implementation body")  });
                 }
                 break;
             case 62:
@@ -1567,7 +1567,7 @@ a0->members.push_back(std::move(a1));
                         shift(p, lasttok, lookahead, stack, steps, 39); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", format("either % or %", "code block", "line ending"), "function declaration")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", format("either {} or {}", "code block", "line ending"), "function declaration")  });
                 }
                 break;
             case 63:
@@ -1677,7 +1677,7 @@ WARN_BLOCK_NO_INDENT(a0, a3);                            std::unique_ptr<ASTNS::
                         shift(p, lasttok, lookahead, stack, steps, 77); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::DEDENT), "implementation body")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", stringifyTokenType(TokenType::DEDENT), "implementation body")  });
                 }
                 break;
             case 70:
@@ -1738,7 +1738,7 @@ WARN_BLOCK_NO_INDENT(a0, a3);                            std::unique_ptr<ASTNS::
                         shift(p, lasttok, lookahead, stack, steps, 39); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional line ending", "function declaration")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "optional line ending", "function declaration")  });
                 }
                 break;
             case 72:
@@ -1869,7 +1869,7 @@ std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourc
                         shift(p, lasttok, lookahead, stack, steps, 97); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", format("either % or %", "optional statement list", stringifyTokenType(TokenType::NEWLINE)), "braced code block")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", format("either {} or {}", "optional statement list", stringifyTokenType(TokenType::NEWLINE)), "braced code block")  });
                 }
                 break;
             case 77:
@@ -1878,7 +1878,7 @@ std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourc
                         shift(p, lasttok, lookahead, stack, steps, 132); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::CCURB), "implementation body")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", stringifyTokenType(TokenType::CCURB), "implementation body")  });
                 }
                 break;
             case 78:
@@ -1962,7 +1962,7 @@ std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourc
                         shift(p, lasttok, lookahead, stack, steps, 97); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional statement list", "indented code block")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "optional statement list", "indented code block")  });
                 }
                 break;
             case 80:
@@ -1971,7 +1971,7 @@ std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourc
                         shift(p, lasttok, lookahead, stack, steps, 134); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::CCURB), "braced code block")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", stringifyTokenType(TokenType::CCURB), "braced code block")  });
                 }
                 break;
             case 81:
@@ -2034,7 +2034,7 @@ std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourc
                         shift(p, lasttok, lookahead, stack, steps, 97); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", format("either % or %", "optional statement list", stringifyTokenType(TokenType::INDENT)), "braced code block")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", format("either {} or {}", "optional statement list", stringifyTokenType(TokenType::INDENT)), "braced code block")  });
                 }
                 break;
             case 82:
@@ -2164,7 +2164,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         shift(p, lasttok, lookahead, stack, steps, 143); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "variable binding list", "variable declaration")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "variable binding list", "variable declaration")  });
                 }
                 break;
             case 88:
@@ -2177,7 +2177,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         shift(p, lasttok, lookahead, stack, steps, 39); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", format("either % or %", "line ending", stringifyTokenType(TokenType::DOLLAR)), "expression statement")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", format("either {} or {}", "line ending", stringifyTokenType(TokenType::DOLLAR)), "expression statement")  });
                 }
                 break;
             case 89:
@@ -2223,7 +2223,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         shift(p, lasttok, lookahead, stack, steps, 39); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", format("either % or %", "optional line ending", stringifyTokenType(TokenType::DOLLAR)), "expression statement")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", format("either {} or {}", "optional line ending", stringifyTokenType(TokenType::DOLLAR)), "expression statement")  });
                 }
                 break;
             case 90:
@@ -2276,7 +2276,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         shift(p, lasttok, lookahead, stack, steps, 97); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", format("either % or %", "expression", "line ending"), "return statement")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", format("either {} or {}", "expression", "line ending"), "return statement")  });
                 }
                 break;
             case 91:
@@ -2399,7 +2399,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         shift(p, lasttok, lookahead, stack, steps, 97); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "expression", "if expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "expression", "if expression")  });
                 }
                 break;
             case 97:
@@ -2448,7 +2448,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         shift(p, lasttok, lookahead, stack, steps, 97); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "expression", "while loop expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "expression", "while loop expression")  });
                 }
                 break;
             case 98:
@@ -2681,7 +2681,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         shift(p, lasttok, lookahead, stack, steps, 118); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "unary expression", "unary expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "unary expression", "unary expression")  });
                 }
                 break;
             case 110:
@@ -2724,7 +2724,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         shift(p, lasttok, lookahead, stack, steps, 118); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "unary expression", "unary expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "unary expression", "unary expression")  });
                 }
                 break;
             case 111:
@@ -2767,7 +2767,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         shift(p, lasttok, lookahead, stack, steps, 118); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "unary expression", "unary expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "unary expression", "unary expression")  });
                 }
                 break;
             case 112:
@@ -2812,7 +2812,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         shift(p, lasttok, lookahead, stack, steps, 118); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", format("either % or %", "unary expression", stringifyTokenType(TokenType::MUT)), "unary expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", format("either {} or {}", "unary expression", stringifyTokenType(TokenType::MUT)), "unary expression")  });
                 }
                 break;
             case 113:
@@ -2855,7 +2855,7 @@ std::unique_ptr<ASTNS::StmtList> push(std::make_unique<ASTNS::StmtList>(p.source
                         shift(p, lasttok, lookahead, stack, steps, 118); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "unary expression", "unary expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "unary expression", "unary expression")  });
                 }
                 break;
             case 114:
@@ -3135,7 +3135,7 @@ std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p
                         shift(p, lasttok, lookahead, stack, steps, 97); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "expression", "primary expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "expression", "primary expression")  });
                 }
                 break;
             case 130:
@@ -3194,7 +3194,7 @@ std::unique_ptr<ASTNS::PathExpr> push (std::make_unique<ASTNS::PathExpr>(p.sourc
                         shift(p, lasttok, lookahead, stack, steps, 186); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::DEDENT), "indented code block")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", stringifyTokenType(TokenType::DEDENT), "indented code block")  });
                 }
                 break;
             case 134:
@@ -3220,7 +3220,7 @@ std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile,
                         shift(p, lasttok, lookahead, stack, steps, 187); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::CCURB), "braced code block")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", stringifyTokenType(TokenType::CCURB), "braced code block")  });
                 }
                 break;
             case 136:
@@ -3281,7 +3281,7 @@ std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourc
                         shift(p, lasttok, lookahead, stack, steps, 97); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional statement list", "braced code block")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "optional statement list", "braced code block")  });
                 }
                 break;
             case 137:
@@ -3324,7 +3324,7 @@ a0->stmts.push_back(std::move(a1));
                         shift(p, lasttok, lookahead, stack, steps, 39); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "line ending", "variable declaration")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "line ending", "variable declaration")  });
                 }
                 break;
             case 140:
@@ -3366,7 +3366,7 @@ std::unique_ptr<ASTNS::VarStmtItemList> push(std::make_unique<ASTNS::VarStmtItem
                         shift(p, lasttok, lookahead, stack, steps, 51); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "required type annotation", "variable binding")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "required type annotation", "variable binding")  });
                 }
                 break;
             case 143:
@@ -3375,7 +3375,7 @@ std::unique_ptr<ASTNS::VarStmtItemList> push(std::make_unique<ASTNS::VarStmtItem
                         shift(p, lasttok, lookahead, stack, steps, 192); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::IDENTIFIER), "variable binding")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", stringifyTokenType(TokenType::IDENTIFIER), "variable binding")  });
                 }
                 break;
             case 144:
@@ -3437,7 +3437,7 @@ std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourc
                         shift(p, lasttok, lookahead, stack, steps, 39); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional line ending", "expression statement")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "optional line ending", "expression statement")  });
                 }
                 break;
             case 146:
@@ -3499,7 +3499,7 @@ std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourc
                         shift(p, lasttok, lookahead, stack, steps, 39); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional line ending", "expression statement")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "optional line ending", "expression statement")  });
                 }
                 break;
             case 148:
@@ -3510,7 +3510,7 @@ std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourc
                         shift(p, lasttok, lookahead, stack, steps, 39); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "line ending", "return statement")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "line ending", "return statement")  });
                 }
                 break;
             case 149:
@@ -3598,7 +3598,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 118); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "assignment expression", "assignment expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "assignment expression", "assignment expression")  });
                 }
                 break;
             case 153:
@@ -3641,7 +3641,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 118); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "binary and expression", "binary or expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "binary and expression", "binary or expression")  });
                 }
                 break;
             case 154:
@@ -3652,7 +3652,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 76); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "code block", "if expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "code block", "if expression")  });
                 }
                 break;
             case 155:
@@ -3663,7 +3663,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 76); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "code block", "while loop expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "code block", "while loop expression")  });
                 }
                 break;
             case 156:
@@ -3706,7 +3706,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 118); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "equality expression", "binary and expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "equality expression", "binary and expression")  });
                 }
                 break;
             case 157:
@@ -3749,7 +3749,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 118); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "comparison expression", "equality expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "comparison expression", "equality expression")  });
                 }
                 break;
             case 158:
@@ -3792,7 +3792,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 118); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "comparison expression", "equality expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "comparison expression", "equality expression")  });
                 }
                 break;
             case 159:
@@ -3835,7 +3835,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 118); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "bitwise xor expression", "comparison expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "bitwise xor expression", "comparison expression")  });
                 }
                 break;
             case 160:
@@ -3878,7 +3878,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 118); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "bitwise xor expression", "comparison expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "bitwise xor expression", "comparison expression")  });
                 }
                 break;
             case 161:
@@ -3921,7 +3921,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 118); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "bitwise xor expression", "comparison expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "bitwise xor expression", "comparison expression")  });
                 }
                 break;
             case 162:
@@ -3964,7 +3964,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 118); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "bitwise xor expression", "comparison expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "bitwise xor expression", "comparison expression")  });
                 }
                 break;
             case 163:
@@ -4007,7 +4007,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 118); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "bitwise or expression", "bitwise xor expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "bitwise or expression", "bitwise xor expression")  });
                 }
                 break;
             case 164:
@@ -4050,7 +4050,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 118); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "bitwise and expression", "bitwise or expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "bitwise and expression", "bitwise or expression")  });
                 }
                 break;
             case 165:
@@ -4093,7 +4093,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 118); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "bit shift expression", "bitwise and expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "bit shift expression", "bitwise and expression")  });
                 }
                 break;
             case 166:
@@ -4136,7 +4136,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 118); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "addition expression", "bit shift expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "addition expression", "bit shift expression")  });
                 }
                 break;
             case 167:
@@ -4179,7 +4179,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 118); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "addition expression", "bit shift expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "addition expression", "bit shift expression")  });
                 }
                 break;
             case 168:
@@ -4222,7 +4222,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 118); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "multiplication expression", "addition expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "multiplication expression", "addition expression")  });
                 }
                 break;
             case 169:
@@ -4265,7 +4265,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 118); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "multiplication expression", "addition expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "multiplication expression", "addition expression")  });
                 }
                 break;
             case 170:
@@ -4308,7 +4308,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 118); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "unary expression", "multiplication expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "unary expression", "multiplication expression")  });
                 }
                 break;
             case 171:
@@ -4351,7 +4351,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 118); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "unary expression", "multiplication expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "unary expression", "multiplication expression")  });
                 }
                 break;
             case 172:
@@ -4394,7 +4394,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 118); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "unary expression", "multiplication expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "unary expression", "multiplication expression")  });
                 }
                 break;
             case 173:
@@ -4407,7 +4407,7 @@ std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 17); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "type specifier", "type cast expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "type specifier", "type cast expression")  });
                 }
                 break;
             case 174:
@@ -4518,7 +4518,7 @@ std::unique_ptr<ASTNS::AddrofExpr> push (std::make_unique<ASTNS::AddrofExpr>(p.s
                         shift(p, lasttok, lookahead, stack, steps, 118); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "unary expression", "unary expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "unary expression", "unary expression")  });
                 }
                 break;
             case 179:
@@ -4591,7 +4591,7 @@ std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 97); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional argument list", "function call expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "optional argument list", "function call expression")  });
                 }
                 break;
             case 181:
@@ -4600,7 +4600,7 @@ std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 225); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::IDENTIFIER), "field access expression"), format("expected % for %", stringifyTokenType(TokenType::IDENTIFIER), "method call expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", stringifyTokenType(TokenType::IDENTIFIER), "field access expression"), format("expected {} for {}", stringifyTokenType(TokenType::IDENTIFIER), "method call expression")  });
                 }
                 break;
             case 182:
@@ -4609,7 +4609,7 @@ std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 226); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::IDENTIFIER), "field access expression"), format("expected % for %", stringifyTokenType(TokenType::IDENTIFIER), "method call expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", stringifyTokenType(TokenType::IDENTIFIER), "field access expression"), format("expected {} for {}", stringifyTokenType(TokenType::IDENTIFIER), "method call expression")  });
                 }
                 break;
             case 183:
@@ -4665,7 +4665,7 @@ std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 97); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional argument list", "function call expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "optional argument list", "function call expression")  });
                 }
                 break;
             case 184:
@@ -4674,7 +4674,7 @@ std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 228); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::IDENTIFIER), "field access expression"), format("expected % for %", stringifyTokenType(TokenType::IDENTIFIER), "method call expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", stringifyTokenType(TokenType::IDENTIFIER), "field access expression"), format("expected {} for {}", stringifyTokenType(TokenType::IDENTIFIER), "method call expression")  });
                 }
                 break;
             case 185:
@@ -4683,7 +4683,7 @@ std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 229); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::CPARN), "primary expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", stringifyTokenType(TokenType::CPARN), "primary expression")  });
                 }
                 break;
             case 186:
@@ -4728,7 +4728,7 @@ WARN_BLOCK_NO_INDENT(a0, a3);std::unique_ptr<ASTNS::Block> push (std::make_uniqu
                         shift(p, lasttok, lookahead, stack, steps, 230); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::DEDENT), "braced code block")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", stringifyTokenType(TokenType::DEDENT), "braced code block")  });
                 }
                 break;
             case 189:
@@ -4795,7 +4795,7 @@ std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p
                         shift(p, lasttok, lookahead, stack, steps, 51); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "required type annotation", "variable binding")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "required type annotation", "variable binding")  });
                 }
                 break;
             case 193:
@@ -4922,7 +4922,7 @@ std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefil
                         shift(p, lasttok, lookahead, stack, steps, 79); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::INDENT), "indented code block")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", stringifyTokenType(TokenType::INDENT), "indented code block")  });
                 }
                 break;
             case 200:
@@ -5366,7 +5366,7 @@ std::unique_ptr<ASTNS::AddrofExpr> push (std::make_unique<ASTNS::AddrofExpr>(p.s
                         shift(p, lasttok, lookahead, stack, steps, 236); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::CPARN), "function call expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", stringifyTokenType(TokenType::CPARN), "function call expression")  });
                 }
                 break;
             case 221:
@@ -5477,7 +5477,7 @@ std::unique_ptr<ASTNS::FieldAccessExpr> push (std::make_unique<ASTNS::FieldAcces
                         shift(p, lasttok, lookahead, stack, steps, 240); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::CPARN), "function call expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", stringifyTokenType(TokenType::CPARN), "function call expression")  });
                 }
                 break;
             case 228:
@@ -5522,7 +5522,7 @@ std::unique_ptr<ASTNS::FieldAccessExpr> push (std::make_unique<ASTNS::FieldAcces
                         shift(p, lasttok, lookahead, stack, steps, 242); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::CCURB), "braced code block")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", stringifyTokenType(TokenType::CCURB), "braced code block")  });
                 }
                 break;
             case 231:
@@ -5604,7 +5604,7 @@ a0->items.push_back(std::move(a2));
                         shift(p, lasttok, lookahead, stack, steps, 97); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "expression", "variable binding")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "expression", "variable binding")  });
                 }
                 break;
             case 234:
@@ -5637,7 +5637,7 @@ std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p
                         shift(p, lasttok, lookahead, stack, steps, 76); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", format("either % or %", "code block", "if expression"), "if expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", format("either {} or {}", "code block", "if expression"), "if expression")  });
                 }
                 break;
             case 236:
@@ -5770,7 +5770,7 @@ std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 97); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional argument list", "method call expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "optional argument list", "method call expression")  });
                 }
                 break;
             case 239:
@@ -5826,7 +5826,7 @@ std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 97); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional argument list", "method call expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "optional argument list", "method call expression")  });
                 }
                 break;
             case 240:
@@ -5901,7 +5901,7 @@ std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcef
                         shift(p, lasttok, lookahead, stack, steps, 97); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "optional argument list", "method call expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "optional argument list", "method call expression")  });
                 }
                 break;
             case 242:
@@ -5989,7 +5989,7 @@ std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p
                         shift(p, lasttok, lookahead, stack, steps, 97); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", "expression", "variable binding")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", "expression", "variable binding")  });
                 }
                 break;
             case 245:
@@ -6071,7 +6071,7 @@ a0->args.push_back(std::move(a2));
                         shift(p, lasttok, lookahead, stack, steps, 253); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::CPARN), "method call expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", stringifyTokenType(TokenType::CPARN), "method call expression")  });
                 }
                 break;
             case 250:
@@ -6080,7 +6080,7 @@ a0->args.push_back(std::move(a2));
                         shift(p, lasttok, lookahead, stack, steps, 254); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::CPARN), "method call expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", stringifyTokenType(TokenType::CPARN), "method call expression")  });
                 }
                 break;
             case 251:
@@ -6089,7 +6089,7 @@ a0->args.push_back(std::move(a2));
                         shift(p, lasttok, lookahead, stack, steps, 255); break;
                     default:
                         if (istrial) return false;
-                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected % for %", stringifyTokenType(TokenType::CPARN), "method call expression")  });
+                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {  format("expected {} for {}", stringifyTokenType(TokenType::CPARN), "method call expression")  });
                 }
                 break;
             case 252:
@@ -6176,7 +6176,7 @@ std::unique_ptr<ASTNS::MethodCallExpr> push (std::make_unique<ASTNS::MethodCallE
                 }
                 break;
             default:
-                reportAbortNoh(format("Parser reached invalid state: %", stack.back().state));
+                reportAbortNoh(format("Parser reached invalid state: {}", stack.back().state));
         }
     }
 // This code was autogenerated - see the utils/ directory
