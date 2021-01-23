@@ -100,7 +100,8 @@ static void applyFix(fix const &f, Parser &p, Token &lookahead) {
             break;
 
         case fix::fixtype::INSERT:
-            p.lexer.resetToTok(lookahead);
+            // TODO: fix
+            // p.lexer.resetToTok(lookahead);
             lookahead.type = f.ttype;
             break;
 

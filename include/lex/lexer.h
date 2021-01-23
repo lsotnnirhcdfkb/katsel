@@ -14,8 +14,6 @@ public:
 
     Token nextToken();
 
-    void resetToTok(Token const &t);
-
 private:
     bool atEnd();
 

@@ -6,15 +6,6 @@
 Lexer::Lexer(File &sourcefile): start(sourcefile.source.begin()), end(start), startline(1), startcolumn(1), endline(1), endcolumn(1), indent(0), dedenting(false), srcstart(sourcefile.source.begin()), srcend(sourcefile.source.end()), sourcefile(sourcefile) {
     indentstack.push_back(0);
 }
-
-// resetToTok {{{1
-void Lexer::resetToTok(Token const &t) {
-    start = end = t.start;
-    startline = endline = t.line;
-    startcolumn = endcolumn = t.column;
-
-    ASSERT(t.sourcefile.asRaw() == &sourcefile)
-}
 // lex digit and lex identifier {{{1
 static bool isAlpha(char c) {
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_';
