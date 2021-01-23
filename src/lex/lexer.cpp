@@ -94,8 +94,11 @@ Token Lexer::lexDigit(char current) {
             }
         }
 }
-Token Lexer::lexIdentifier() {
+Token Lexer::lexIdentifier(bool apostrophesAllowed) {
     while (isAlpha(peek()) || (peek() >= '0' && peek() <= '9')) advance();
+
+    if (apostrophesAllowed)
+        while (peek() == '\'') advance();
 
     TokenType idenType = getIdentifierType();
     return makeToken(idenType);
@@ -275,7 +278,7 @@ Token Lexer::nextToken() {
     if (current >= '0' && current <= '9')
         return lexDigit(current);
     else if (isAlpha(current))
-        return lexIdentifier();
+        return lexIdentifier(true);
 
     return makeErrorToken(ERR_UNEXPECTED_CHAR);
 }

@@ -27,7 +27,7 @@ private:
     void startToEnd();
 
     Token lexDigit(char current);
-    Token lexIdentifier();
+    Token lexIdentifier(bool apostrophesAllowed);
 
     Token makeErrorToken(NNPtr<void (Token const &)> errf);
     Token makeToken(TokenType type);
