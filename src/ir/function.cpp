@@ -2,6 +2,7 @@
 #include "ir/type.h"
 #include "ir/instruction.h"
 #include "utils/format.h"
+#include "ast/ast.h"
 
 IR::Function::Function(NNPtr<IR::FunctionType> ty, std::string name, NNPtr<ASTNS::FunctionDecl> defAST): ty(ty), name(name), prototypeonly(false), curindex(0), _defAST(defAST), blocki(0) {}
 

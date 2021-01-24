@@ -1,6 +1,7 @@
 #include "codegenlocal.h"
 #include "message/errmsgs.h"
 #include "ir/unit.h"
+#include "ast/ast.h"
 
 CodeGen::TypeVisitor::TypeVisitor(CodeGen &cg): cg(cg) {}
 

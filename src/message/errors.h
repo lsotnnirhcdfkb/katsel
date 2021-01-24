@@ -5,7 +5,7 @@
 #include "lex/tokentype.h"
 #include "ir/type.h"
 #include "ir/value.h"
-#include "ast/ast.h"
+#include "ast/astfwd.h"
 #include "utils/location.h"
 
 #include <vector>

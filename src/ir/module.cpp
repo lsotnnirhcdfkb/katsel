@@ -1,6 +1,7 @@
 #include "ir/module.h"
 #include "utils/format.h"
 #include "ir/type.h"
+#include <ostream>
 
 IR::Module::Module(std::string const &name, NNPtr<ASTNS::AST> declAST): _declAST(declAST), _name(name) {}
 
@@ -18,3 +19,8 @@ DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::Module)
     void IR::cl::declsym_accept(IR::DeclSymbolVisitor &v) { v.declsym_visit##cl(*this); }
 DECLSYM_CLASS_LIST(DSACCEPTMETHOD)
 #undef DSACCEPTMETHOD
+
+std::ostream& operator<<(std::ostream &os, NNPtr<IR::DeclSymbol const> ds) {
+    os << "'" << ds->name() << "'";
+    return os;
+}

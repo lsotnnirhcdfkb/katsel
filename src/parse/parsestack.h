@@ -3,9 +3,8 @@
 #include <memory>
 #include <variant>
 #include "lex/token.h"
+#include "ast/ast.h"
 #include "parse/parser.h"
-
-namespace ASTNS { class AST; }
 
 // nonterminal enum {{{
 enum class NonTerminal {

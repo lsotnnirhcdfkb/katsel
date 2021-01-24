@@ -3,11 +3,11 @@
 #include "codegen/codegen.h"
 #include "codegen/context.h"
 
-#include "ast/ast.h"
+#include "ast/astfwd.h"
 
 #include "ir/value.h"
 #include "ir/type.h"
-#include "ir/instruction.h"
+#include "ir/instructionfwd.h"
 #include "ir/module.h"
 
 // ForwDecl {{{1

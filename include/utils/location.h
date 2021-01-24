@@ -7,6 +7,7 @@ struct File;
 struct ASTen;
 namespace IR { struct ASTValue; }
 namespace ASTNS { class AST; }
+struct Token;
 
 struct Location {
     std::string::iterator start;

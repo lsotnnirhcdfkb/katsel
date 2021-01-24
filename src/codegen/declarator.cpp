@@ -1,6 +1,8 @@
 #include "codegenlocal.h"
 #include "message/errmsgs.h"
 #include "ir/unit.h"
+#include "ast/ast.h"
+#include "ir/instruction.h"
 
 CodeGen::Declarator::Declarator(CodeGen &cg): cg(cg), currentSymbol(&cg.unit->mod), thisType(Maybe<NNPtr<IR::Type>>()) {}
 

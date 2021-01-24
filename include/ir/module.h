@@ -2,6 +2,7 @@
 
 #include <string>
 #include <map>
+#include "utils/maybe.h"
 #include "ir/value.h"
 
 struct File;
@@ -97,7 +98,4 @@ namespace IR {
     };
 }
 
-inline std::ostream& operator<<(std::ostream &os, NNPtr<IR::DeclSymbol const> ds) {
-    os << "'" << ds->name() << "'";
-    return os;
-}
+std::ostream& operator<<(std::ostream &os, NNPtr<IR::DeclSymbol const> ds);

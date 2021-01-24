@@ -2,6 +2,7 @@
 #include "parsestack.h"
 
 #include "lex/tokentype.h"
+#include "lex/lexer.h"
 
 #include <sstream>
 

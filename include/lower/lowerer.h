@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ir/instruction.h"
+#include "ir/instructionfwd.h"
 #include "ir/value.h"
 #include "ir/unit.h"
 #include "ir/visitor.h"

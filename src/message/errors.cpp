@@ -2,6 +2,7 @@
 #include "message/error.h"
 #include "message/ansistuff.h"
 #include "utils/format.h"
+#include "ast/ast.h"
 #include <iostream>
 #include <cstdlib>
 #include <typeinfo>

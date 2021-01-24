@@ -1,4 +1,5 @@
 #include "ast/printvisitor.h"
+#include "ast/ast.h"
 
 #include "utils/format.h"
 

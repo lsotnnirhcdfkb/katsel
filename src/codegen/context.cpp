@@ -2,6 +2,7 @@
 #include "ir/unit.h"
 #include "utils/format.h"
 #include <iostream>
+#include "ast/ast.h"
 
 CodeGen::Context::Context(File const &file, CodeGen &cg): cg(cg), voidValue(getVoidType()) {}
 

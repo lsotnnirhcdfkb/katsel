@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ir/instruction.h"
+#include "ir/instructionfwd.h"
 
 namespace IR {
     class InstructionVisitor {

@@ -1,5 +1,6 @@
 #include "codegenlocal.h"
 #include "message/errmsgs.h"
+#include "ast/ast.h"
 
 CodeGen::ParamVisitor::ParamVisitor::ParamVisitor(CodeGen &cg, std::vector<std::unique_ptr<ASTNS::ParamB>> &params, Maybe<NNPtr<IR::Type>> thisType):
     errored(false),

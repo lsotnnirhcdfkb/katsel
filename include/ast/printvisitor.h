@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ast/ast.h"
+#include "ast/visitor.h"
 
 #include "llvm/Support/raw_ostream.h"
 

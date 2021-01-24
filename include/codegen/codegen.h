@@ -2,7 +2,8 @@
 
 #include <memory>
 
-#include "ast/ast.h"
+#include "ast/visitor.h"
+#include "utils/ptr.h"
 
 namespace llvm { class raw_ostream; }
 namespace IR { class Unit; }

@@ -1,5 +1,7 @@
 #include "codegenlocal.h"
 #include "ir/unit.h"
+#include "ir/instruction.h"
+#include "ast/ast.h"
 
 CodeGen::CodeGen(File const &file, NNPtr<ASTNS::CUB> cub):
     unit(std::make_unique<IR::Unit>(file)),

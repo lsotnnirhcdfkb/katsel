@@ -2,6 +2,8 @@
 #include "utils/format.h"
 #include "message/errmsgs.h"
 #include "ir/unit.h"
+#include "ast/ast.h"
+#include "ir/instruction.h"
 
 CodeGen::FunctionCodeGen::FunctionCodeGen(CodeGen &cg, NNPtr<ASTNS::FunctionDecl> ast, NNPtr<IR::Function> fun, Maybe<NNPtr<IR::Type>> thisType):
     curScope(0),

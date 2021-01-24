@@ -1,5 +1,7 @@
 #include "codegenlocal.h"
 #include "message/errmsgs.h"
+#include "ast/ast.h"
+#include "ir/instruction.h"
 
 void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem &ast) {
     std::string varname = ast.name.stringify();

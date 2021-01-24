@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <vector>
 #include <variant>
-#include "ast/ast.h"
+#include "ast/astfwd.h"
 
 namespace IR {
     class Type;

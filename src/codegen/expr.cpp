@@ -3,6 +3,8 @@
 #include "message/reportAbort.h"
 #include "message/errmsgs.h"
 #include "ir/unit.h"
+#include "ast/ast.h"
+#include "ir/instruction.h"
 
 CodeGen::FunctionCodeGen::ExprCodeGen::ExprCodeGen(CodeGen &cg, FunctionCodeGen &fcg): cg(cg), fcg(fcg) {}
 
