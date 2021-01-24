@@ -20,7 +20,7 @@
 #define A_BG_CYAN      "\033[46m"
 #define A_BG_WHITE     "\033[47m"
 
-void enableTerminalCodes();
-void resetTerminal();
+void enable_terminal_codes();
+void reset_terminal();
 
-bool ansiCodesEnabled();
+bool ansi_codes_enabled();

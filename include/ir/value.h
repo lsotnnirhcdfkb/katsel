@@ -40,24 +40,24 @@ namespace IR {
 
     class DeclaredValue {
     public:
-        virtual NNPtr<ASTNS::AST> defAST() const = 0;
+        virtual NNPtr<ASTNS::AST> def_ast() const = 0;
     };
 
     // Function {{{
     class Function : public Value, public DeclaredValue {
     public:
-        Function(NNPtr<FunctionType> ty, std::string name, NNPtr<ASTNS::FunctionDecl> defAST);
+        Function(NNPtr<FunctionType> ty, std::string name, NNPtr<ASTNS::FunctionDecl> def_ast);
 
         void add(std::unique_ptr<Block> block);
 
         void definition(llvm::raw_ostream &os) const;
-        NNPtr<ASTNS::AST> defAST() const override;
+        NNPtr<ASTNS::AST> def_ast() const override;
 
         NNPtr<Type> type() const override;
 
         std::vector<std::unique_ptr<Block>> blocks;
 
-        NNPtr<Block> addBlock(std::string name);
+        NNPtr<Block> add_block(std::string name);
 
         NNPtr<FunctionType> ty;
         std::string name;
@@ -68,7 +68,7 @@ namespace IR {
 
         uint64_t curindex;
 
-        NNPtr<ASTNS::FunctionDecl> _defAST;
+        NNPtr<ASTNS::FunctionDecl> _def_ast;
 
     private:
         uint64_t blocki;
@@ -84,7 +84,7 @@ namespace IR {
         void value_accept(ValueVisitor &v) override;
     private:
         std::variant<NNPtr<IntType>, NNPtr<GenericIntType>> ty;
-        bool isGeneric;
+        bool is_generic;
     };
     class ConstFloat : public Value {
     public:
@@ -95,7 +95,7 @@ namespace IR {
         void value_accept(ValueVisitor &v) override;
     private:
         std::variant<NNPtr<FloatType>, NNPtr<GenericFloatType>> ty;
-        bool isGeneric;
+        bool is_generic;
     };
     class ConstBool : public Value {
     public:

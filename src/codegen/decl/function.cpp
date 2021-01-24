@@ -5,19 +5,19 @@
 #include "ast/ast.h"
 #include "ir/instruction.h"
 
-CodeGen::FunctionCodeGen::FunctionCodeGen(CodeGen &cg, NNPtr<ASTNS::FunctionDecl> ast, NNPtr<IR::Function> fun, Maybe<NNPtr<IR::Type>> thisType):
-    curScope(0),
+CodeGen::FunctionCodeGen::FunctionCodeGen(CodeGen &cg, NNPtr<ASTNS::FunctionDecl> ast, NNPtr<IR::Function> fun, Maybe<NNPtr<IR::Type>> this_type):
+    cur_scope(0),
     cg(cg),
     ast(ast),
-    exprCG(cg, *this),
-    stmtCG(cg, *this),
+    expr_cg(cg, *this),
+    stmt_cg(cg, *this),
     fun(fun),
-    registerBlock(fun->addBlock("registers")),
-    entryBlock(fun->addBlock("entry")),
-    exitBlock(fun->addBlock("exit")),
-    curBlock(entryBlock),
-    ret(static_cast<IR::Instrs::Register*>(registerBlock->add(std::make_unique<IR::Instrs::Register>(cg.unit->implicitDeclAST.get(), fun->ty->ret, true)).asRaw())),
-    thisType(thisType),
+    register_block(fun->add_block("registers")),
+    entry_block(fun->add_block("entry")),
+    exit_block(fun->add_block("exit")),
+    cur_block(entry_block),
+    ret(static_cast<IR::Instrs::Register*>(register_block->add(std::make_unique<IR::Instrs::Register>(cg.unit->implicit_decl_ast.get(), fun->ty->ret, true)).as_raw())),
+    this_type(this_type),
     errored(false) {}
 
 bool CodeGen::FunctionCodeGen::codegen() {
@@ -26,64 +26,64 @@ bool CodeGen::FunctionCodeGen::codegen() {
         return true;
     }
 
-    registerBlock->branch(std::make_unique<IR::Instrs::GotoBr>(entryBlock));
+    register_block->branch(std::make_unique<IR::Instrs::GotoBr>(entry_block));
 
-    incScope();
-    ParamVisitor pv (cg, ast->params, thisType);
+    inc_scope();
+    ParamVisitor pv (cg, ast->params, this_type);
     std::vector<ParamVisitor::Param> params (pv.ret);
 
     for (auto const &param : params) {
         std::string pname = param.name;
-        NNPtr<IR::Instrs::Register> reg = static_cast<IR::Instrs::Register*>(registerBlock->add(std::make_unique<IR::Instrs::Register>(param.ast, param.ty, param.mut)).asRaw());
+        NNPtr<IR::Instrs::Register> reg = static_cast<IR::Instrs::Register*>(register_block->add(std::make_unique<IR::Instrs::Register>(param.ast, param.ty, param.mut)).as_raw());
 
-        Maybe<NNPtr<Local>> foundparam = getLocal(pname);
+        Maybe<NNPtr<Local>> foundparam = get_local(pname);
         if (foundparam.has()) {
             ERR_REDECL_PARAM(param.ast, foundparam.get()->v);
             errored = true;
         } else
-            addLocal(pname, reg);
+            add_local(pname, reg);
     }
 
-    Maybe<IR::ASTValue> m_retval = exprCG.expr(ast->body.get());
+    Maybe<IR::ASTValue> m_retval = expr_cg.expr(ast->body.get());
 
-    decScope();
+    dec_scope();
 
     if (!errored) {
-        NNPtr<IR::Instrs::Instruction> derefRetReg = exitBlock->add(std::make_unique<IR::Instrs::DerefPtr>(IR::ASTValue(ret, ast->retty.get())));
-        exitBlock->branch(std::make_unique<IR::Instrs::Return>(IR::ASTValue(derefRetReg, ast->retty.get())));
+        NNPtr<IR::Instrs::Instruction> deref_ret_reg = exit_block->add(std::make_unique<IR::Instrs::DerefPtr>(IR::ASTValue(ret, ast->retty.get())));
+        exit_block->branch(std::make_unique<IR::Instrs::Return>(IR::ASTValue(deref_ret_reg, ast->retty.get())));
 
         if (!m_retval.has()) {
             errored = true;
         } else {
             IR::ASTValue retval = m_retval.get();
 
-            retval = fun->ty->ret->implCast(*cg.context, *fun, curBlock, retval);
+            retval = fun->ty->ret->impl_cast(*cg.context, *fun, cur_block, retval);
             if (fun->ty->ret != retval.type()) {
                 ERR_CONFLICT_RET_TY(retval, fun);
                 errored = true;
             } else {
-                curBlock->add(std::make_unique<IR::Instrs::Store>(IR::ASTValue(ret, ast->retty.get()), retval, false));
-                curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(exitBlock));
+                cur_block->add(std::make_unique<IR::Instrs::Store>(IR::ASTValue(ret, ast->retty.get()), retval, false));
+                cur_block->branch(std::make_unique<IR::Instrs::GotoBr>(exit_block));
             }
         }
     }
 
-    if (curScope != 0 && !errored)
-        reportAbortNoh("At the end of FunctionCodeGen::codegen, curScope != 0");
+    if (cur_scope != 0 && !errored)
+        report_abort_noh("At the end of FunctionCodeGen::codegen, cur_scope != 0");
 
     return !errored;
 }
 
-void CodeGen::FunctionCodeGen::addLocal(std::string const &name, NNPtr<IR::Instrs::Register> val) {
+void CodeGen::FunctionCodeGen::add_local(std::string const &name, NNPtr<IR::Instrs::Register> val) {
     for (auto last = locals.rbegin(); last != locals.rend(); ++last)
-        if (last->name == name && last->scopenum == curScope)
-            reportAbortNoh(format("duplicate local added: \"{}\"", name));
+        if (last->name == name && last->scopenum == cur_scope)
+            report_abort_noh(format("duplicate local added: \"{}\"", name));
 
-    Local l {curScope, val, name};
+    Local l {cur_scope, val, name};
     locals.push_back(l);
 }
 
-Maybe<NNPtr<CodeGen::FunctionCodeGen::Local>> CodeGen::FunctionCodeGen::getLocal(std::string const &name) {
+Maybe<NNPtr<CodeGen::FunctionCodeGen::Local>> CodeGen::FunctionCodeGen::get_local(std::string const &name) {
     for (auto last = locals.rbegin(); last != locals.rend(); ++last)
         if (last->name == name)
             return *last;
@@ -91,10 +91,10 @@ Maybe<NNPtr<CodeGen::FunctionCodeGen::Local>> CodeGen::FunctionCodeGen::getLocal
     return Maybe<NNPtr<Local>>();
 }
 
-void CodeGen::FunctionCodeGen::incScope() {
-    ++curScope;
+void CodeGen::FunctionCodeGen::inc_scope() {
+    ++cur_scope;
 }
-void CodeGen::FunctionCodeGen::decScope() {
-    --curScope;
-    while (locals.size() && locals.back().scopenum > curScope) locals.pop_back();
+void CodeGen::FunctionCodeGen::dec_scope() {
+    --cur_scope;
+    while (locals.size() && locals.back().scopenum > cur_scope) locals.pop_back();
 }

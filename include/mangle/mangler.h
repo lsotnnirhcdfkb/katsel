@@ -6,6 +6,6 @@
 namespace Mangle {
     class NameMangler {
     public:
-        std::string mangleName(IR::Function &f);
+        std::string mangle_name(IR::Function &f);
     };
 }

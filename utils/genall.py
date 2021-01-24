@@ -62,27 +62,27 @@ for jobi, job in enumerate(jobs):
 
     # delete old code
     ## Pattern to tell where to start generated code
-    genStartPattern = jobstart
+    gen_start_pattern = jobstart
     ## Pattern to tell where to end generated code
-    genEndPattern   = jobend
+    gen_end_pattern   = jobend
 
-    if genStartPattern is not None:
-        genStart = list(filter(lambda n: genStartPattern in flines[n], range(len(flines))))
-        if len(genStart) != 1:
-            print(f'"{genStartPattern}" found {len(genStart)} times in {jobfile}. Skipping {jobfile}')
+    if gen_start_pattern is not None:
+        gen_start = list(filter(lambda n: gen_start_pattern in flines[n], range(len(flines))))
+        if len(gen_start) != 1:
+            print(f'"{gen_start_pattern}" found {len(gen_start)} times in {jobfile}. Skipping {jobfile}')
             continue
         ## What line to start generated code
-        GEN_START_LINE = genStart[0]
+        GEN_START_LINE = gen_start[0]
     else:
         GEN_START_LINE = -1
 
-    if genEndPattern is not None:
-        genEnd = list(filter(lambda n: genEndPattern in flines[n], range(len(flines))))
-        if len(genEnd) != 1:
-            print(f'"{genEndPattern}" found {len(genEnd)} times in {jobfile}. Skipping {jobfile}')
+    if gen_end_pattern is not None:
+        gen_end = list(filter(lambda n: gen_end_pattern in flines[n], range(len(flines))))
+        if len(gen_end) != 1:
+            print(f'"{gen_end_pattern}" found {len(gen_end)} times in {jobfile}. Skipping {jobfile}')
             continue
         ## What line to end generated code
-        GEN_END_LINE = genEnd[0]
+        GEN_END_LINE = gen_end[0]
     else:
         GEN_END_LINE = len(flines)
 

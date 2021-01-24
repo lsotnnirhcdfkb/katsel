@@ -19,16 +19,16 @@
 #include "llvm/Target/TargetOptions.h"
 
 Lower::Lowerer::Lowerer(IR::Unit const &unit): errored(false), unit(unit), builder(context), mod(unit.file.filename, context), fpm(&mod) {
-    fpm.add(llvm::createPromoteMemoryToRegisterPass());
-    fpm.add(llvm::createInstructionCombiningPass());
-    fpm.add(llvm::createReassociatePass());
-    fpm.add(llvm::createGVNPass());
-    fpm.add(llvm::createCFGSimplificationPass());
+    fpm.add(llvm::create_promote_memory_to_register_pass());
+    fpm.add(llvm::create_instruction_combining_pass());
+    fpm.add(llvm::create_reassociate_pass());
+    fpm.add(llvm::create_gvnpass());
+    fpm.add(llvm::create_cfgsimplification_pass());
 
-    fpm.doInitialization();
+    fpm.do_initialization();
 }
 
-void Lower::Lowerer::printMod(llvm::raw_ostream &ostream) {
+void Lower::Lowerer::print_mod(llvm::raw_ostream &ostream) {
     mod.print(ostream, nullptr);
 }
 
@@ -39,10 +39,10 @@ bool Lower::Lowerer::objectify(llvm::raw_fd_ostream &ostream) {
     llvm::InitializeAllAsmParsers();
     llvm::InitializeAllAsmPrinters();
 
-    auto targetTriple = llvm::sys::getDefaultTargetTriple();
+    auto target_triple = llvm::sys::getDefaultTargetTriple();
 
     std::string err;
-    auto target = llvm::TargetRegistry::lookupTarget(targetTriple, err);
+    auto target = llvm::TargetRegistry::lookup_target(target_triple, err);
 
     if (!target) {
         llvm::errs() << err << "\n";
@@ -51,14 +51,14 @@ bool Lower::Lowerer::objectify(llvm::raw_fd_ostream &ostream) {
 
     llvm::TargetOptions opt;
     auto rm = llvm::Optional<llvm::Reloc::Model>();
-    auto targetMachine = target->createTargetMachine(targetTriple, "generic", "", opt, rm);
+    auto target_machine = target->create_target_machine(target_triple, "generic", "", opt, rm);
 
-    mod.setDataLayout(targetMachine->createDataLayout());
-    mod.setTargetTriple(targetTriple);
+    mod.set_data_layout(target_machine->create_data_layout());
+    mod.set_target_triple(target_triple);
 
     llvm::legacy::PassManager pm;
     auto fty = llvm::CodeGenFileType::CGFT_ObjectFile;
-    if (targetMachine->addPassesToEmitFile(pm, ostream, nullptr, fty)) {
+    if (target_machine->add_passes_to_emit_file(pm, ostream, nullptr, fty)) {
         llvm::errs() << "Target machine cannot emit object file\n";
         return false;
     }
@@ -70,8 +70,8 @@ bool Lower::Lowerer::objectify(llvm::raw_fd_ostream &ostream) {
 void Lower::Lowerer::lower() {
     // TODO
     // for (std::unique_ptr<IR::Function> const &f : unit.functions) {
-        // auto *fty = static_cast<llvm::FunctionType*>(f->ty->toLLVMType(context));
-        // std::string fname = f->name == "main" ? f->name : mangler.mangleName(*f);
+        // auto *fty = static_cast<llvm::FunctionType*>(f->ty->to_llvmtype(context));
+        // std::string fname = f->name == "main" ? f->name : mangler.mangle_name(*f);
         // auto *fllvm = llvm::Function::Create(fty, llvm::Function::ExternalLinkage, fname, &mod);
         // functions[f.get()] = fllvm;
     // }
@@ -89,8 +89,8 @@ void Lower::Lowerer::lower(IR::Function const &f) {
         blocks[b.get()] = llvm::BasicBlock::Create(context, b->name, fasllvm);
     }
 
-    allocaIndex = 0;
-    curFunction = fasllvm;
+    alloca_index = 0;
+    cur_function = fasllvm;
 
     for (std::unique_ptr<IR::Block> const &b : f.blocks)
         lower(*b);
@@ -104,7 +104,7 @@ void Lower::Lowerer::lower(IR::Function const &f) {
     blocks.clear();
     values.clear();
 
-    llvm::verifyFunction(*fasllvm);
+    llvm::verify_function(*fasllvm);
     // fpm.run(*fasllvm);
 }
 
@@ -124,24 +124,24 @@ NNPtr<llvm::Value> Lower::Lowerer::lower(IR::ASTValue &v) {
     return lower(v.val);
 }
 
-void Lower::Lowerer::value_visitConstBool(IR::ConstBool &v) {
-    lvret = llvm::ConstantInt::get(v.type()->toLLVMType(context).asRaw(), v.val);
+void Lower::Lowerer::value_visit_const_bool(IR::ConstBool &v) {
+    lvret = llvm::ConstantInt::get(v.type()->to_llvmtype(context).as_raw(), v.val);
 }
-void Lower::Lowerer::value_visitConstFloat(IR::ConstFloat &v) {
-    lvret = llvm::ConstantFP::get(v.type()->toLLVMType(context).asRaw(), v.val);
+void Lower::Lowerer::value_visit_const_float(IR::ConstFloat &v) {
+    lvret = llvm::ConstantFP::get(v.type()->to_llvmtype(context).as_raw(), v.val);
 }
-void Lower::Lowerer::value_visitConstInt(IR::ConstInt &v) {
-    lvret = llvm::ConstantInt::get(v.type()->toLLVMType(context).asRaw(), v.val);
+void Lower::Lowerer::value_visit_const_int(IR::ConstInt &v) {
+    lvret = llvm::ConstantInt::get(v.type()->to_llvmtype(context).as_raw(), v.val);
 }
-void Lower::Lowerer::value_visitConstChar(IR::ConstChar &v) {
-    lvret = llvm::ConstantInt::get(v.type()->toLLVMType(context).asRaw(), v.val);
+void Lower::Lowerer::value_visit_const_char(IR::ConstChar &v) {
+    lvret = llvm::ConstantInt::get(v.type()->to_llvmtype(context).as_raw(), v.val);
 }
-void Lower::Lowerer::value_visitFunction(IR::Function &v) {
+void Lower::Lowerer::value_visit_function(IR::Function &v) {
     lvret = functions.at(v);
 }
-void Lower::Lowerer::value_visitVoid(IR::Void &v) {
-    reportAbortNoh("lowerValue called with v = Void");
+void Lower::Lowerer::value_visit_void(IR::Void &v) {
+    report_abort_noh("lower_value called with v = Void");
 }
-void Lower::Lowerer::value_visitInstruction(IR::Instrs::Instruction &v) {
+void Lower::Lowerer::value_visit_instruction(IR::Instrs::Instruction &v) {
     lvret = values.at(v);
 }

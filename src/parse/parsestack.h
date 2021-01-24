@@ -110,10 +110,10 @@ struct errorstate {
     inline errorstate(Parser &p, std::vector<stackitem> &stack, Token &lasttok, Token &lookahead) : p(p), stack(stack), lasttok(lasttok), lookahead(lookahead), olh(lookahead) {}
 };
 
-bool errorRecovery(errorstate const &e, std::vector<std::string> const &expectations);
-bool singleTok(errorstate const &e, std::vector<std::string> const &expectations);
-bool panicMode(errorstate const &e, std::vector<std::string> const &expectations);
+bool error_recovery(errorstate const &e, std::vector<std::string> const &expectations);
+bool single_tok(errorstate const &e, std::vector<std::string> const &expectations);
+bool panic_mode(errorstate const &e, std::vector<std::string> const &expectations);
 
 template <typename AST>
-size_t getGoto(size_t state);
+size_t get_goto(size_t state);
 bool _parse(Parser &p, std::vector<stackitem> &stack, bool istrial, std::unique_ptr<ASTNS::CUB> &out, Token const &_lookahead);

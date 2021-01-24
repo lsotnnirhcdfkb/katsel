@@ -45,8 +45,8 @@ void visit_function_impl_member(ASTNS::FunctionImplMember &ast) override;
 
     CodeGen &cg;
 
-    NNPtr<IR::DeclSymbol> currentSymbol;
-    Maybe<NNPtr<IR::Type>> thisType;
+    NNPtr<IR::DeclSymbol> current_symbol;
+    Maybe<NNPtr<IR::Type>> this_type;
 };
 
 // Decls {{{1
@@ -107,7 +107,7 @@ void visit_path_expr(ASTNS::PathExpr &ast) override;
     };
     // }}}
 public:
-    FunctionCodeGen(CodeGen &cg, NNPtr<ASTNS::FunctionDecl> ast, NNPtr<IR::Function> fun, Maybe<NNPtr<IR::Type>> thisType);
+    FunctionCodeGen(CodeGen &cg, NNPtr<ASTNS::FunctionDecl> ast, NNPtr<IR::Function> fun, Maybe<NNPtr<IR::Type>> this_type);
 
     bool codegen();
 
@@ -118,28 +118,28 @@ public:
     };
 
     std::vector<Local> locals;
-    size_t curScope;
+    size_t cur_scope;
 
-    void addLocal(std::string const &name, NNPtr<IR::Instrs::Register> val);
-    Maybe<NNPtr<Local>> getLocal(std::string const &name);
+    void add_local(std::string const &name, NNPtr<IR::Instrs::Register> val);
+    Maybe<NNPtr<Local>> get_local(std::string const &name);
 
-    void incScope();
-    void decScope();
+    void inc_scope();
+    void dec_scope();
 
     CodeGen &cg;
     NNPtr<ASTNS::FunctionDecl> ast;
 
-    ExprCodeGen exprCG;
-    StmtCodeGen stmtCG;
+    ExprCodeGen expr_cg;
+    StmtCodeGen stmt_cg;
 
     NNPtr<IR::Function> fun;
-    NNPtr<IR::Block> registerBlock;
-    NNPtr<IR::Block> entryBlock;
-    NNPtr<IR::Block> exitBlock;
-    NNPtr<IR::Block> curBlock;
+    NNPtr<IR::Block> register_block;
+    NNPtr<IR::Block> entry_block;
+    NNPtr<IR::Block> exit_block;
+    NNPtr<IR::Block> cur_block;
     NNPtr<IR::Instrs::Register> ret;
 
-    Maybe<NNPtr<IR::Type>> thisType;
+    Maybe<NNPtr<IR::Type>> this_type;
 
     bool errored;
 };
@@ -160,7 +160,7 @@ void visit_function_impl_member(ASTNS::FunctionImplMember &ast) override;
     CodeGen &cg;
     NNPtr<ASTNS::ImplDecl> ast;
 
-    Maybe<NNPtr<IR::Type>> implFor;
+    Maybe<NNPtr<IR::Type>> impl_for;
 
     bool errored;
 };
@@ -175,13 +175,13 @@ public:
         bool mut;
     };
 
-    ParamVisitor(CodeGen &cg, std::vector<std::unique_ptr<ASTNS::ParamB>> &params, Maybe<NNPtr<IR::Type>> thisType);
+    ParamVisitor(CodeGen &cg, std::vector<std::unique_ptr<ASTNS::ParamB>> &params, Maybe<NNPtr<IR::Type>> this_type);
 
     std::vector<Param> ret;
 
     bool errored;
 
-    bool isMethod, thisPtr, thisMut;
+    bool is_method, this_ptr, this_mut;
 
 private:
     // PARAMVISITOR METHODS START
@@ -192,7 +192,7 @@ void visit_this_param(ASTNS::ThisParam &ast) override;
     // PARAMVISITOR METHODS END
 
     CodeGen &cg;
-    Maybe<NNPtr<IR::Type>> thisType;
+    Maybe<NNPtr<IR::Type>> this_type;
     int index;
 };
 
@@ -216,8 +216,8 @@ class CodeGen::PathVisitor : public ASTNS::PathBVisitor {
 public:
     PathVisitor(CodeGen &cg);
 
-    Maybe<IR::ASTValue> resolveValue(NNPtr<ASTNS::PathB> path, CodeGen::FunctionCodeGen &fcg);
-    Maybe<NNPtr<IR::DeclSymbol>> resolveDeclSymbol(NNPtr<ASTNS::PathB> path);
+    Maybe<IR::ASTValue> resolve_value(NNPtr<ASTNS::PathB> path, CodeGen::FunctionCodeGen &fcg);
+    Maybe<NNPtr<IR::DeclSymbol>> resolve_decl_symbol(NNPtr<ASTNS::PathB> path);
 
 private:
     enum class PathType { VALUE, DECLARED } pty;
@@ -239,7 +239,7 @@ class CodeGen::TypeVisitor : public ASTNS::TypeVisitor {
 public:
     TypeVisitor(CodeGen &cg);
 
-    Maybe<NNPtr<IR::Type>> type(NNPtr<ASTNS::Type> ast, Maybe<NNPtr<IR::Type>> thisType);
+    Maybe<NNPtr<IR::Type>> type(NNPtr<ASTNS::Type> ast, Maybe<NNPtr<IR::Type>> this_type);
 
 private:
     // TYPEVISITOR METHODS START
@@ -251,7 +251,7 @@ void visit_this_type(ASTNS::ThisType &ast) override;
     // TYPEVISITOR METHODS END
 
     Maybe<NNPtr<IR::Type>> ret;
-    Maybe<NNPtr<IR::Type>> thisType;
+    Maybe<NNPtr<IR::Type>> this_type;
 
     CodeGen &cg;
 };

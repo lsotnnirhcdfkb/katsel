@@ -32,6 +32,6 @@ inline std::ostream& operator<<(std::ostream &os, Token const &t) {
     return os;
 }
 inline std::ostream& operator<<(std::ostream &os, TokenType const &t) {
-    os << stringifyTokenType(t);
+    os << stringify_token_type(t);
     return os;
 }

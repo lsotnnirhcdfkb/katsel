@@ -36,10 +36,10 @@ public:
 
     std::unique_ptr<Context> context;
 
-    std::unique_ptr<TypeVisitor> typeVisitor;
-    std::unique_ptr<PathVisitor> pathVisitor;
+    std::unique_ptr<TypeVisitor> type_visitor;
+    std::unique_ptr<PathVisitor> path_visitor;
 
-    inline bool isErrored() { return errored; }
+    inline bool is_errored() { return errored; }
 
 private:
     // CG METHODS START

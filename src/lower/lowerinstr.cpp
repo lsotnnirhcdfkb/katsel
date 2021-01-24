@@ -5,13 +5,13 @@
 #include "utils/assert.h"
 
 // Store and Phi instructions {{{1
-void Lower::Lowerer::visitStore(IR::Instrs::Store &instr) {
-    builder.CreateStore(lower(instr.value).asRaw(), lower(instr.target).asRaw());
+void Lower::Lowerer::visit_store(IR::Instrs::Store &instr) {
+    builder.CreateStore(lower(instr.value).as_raw(), lower(instr.target).as_raw());
 }
-void Lower::Lowerer::visitPhi(IR::Instrs::Phi &instr) {
-    NNPtr<llvm::PHINode> phi = llvm::PHINode::Create(instr.type()->toLLVMType(context).asRaw(), instr.prevs.size());
+void Lower::Lowerer::visit_phi(IR::Instrs::Phi &instr) {
+    NNPtr<llvm::PHINode> phi = llvm::PHINode::Create(instr.type()->to_llvmtype(context).as_raw(), instr.prevs.size());
 
-    NNPtr<llvm::BasicBlock> currentBlock = builder.GetInsertBlock();
+    NNPtr<llvm::BasicBlock> current_block = builder.GetInsertBlock();
 
     for (auto &p : instr.prevs) {
         NNPtr<IR::Block> block = p.first;
@@ -22,36 +22,36 @@ void Lower::Lowerer::visitPhi(IR::Instrs::Phi &instr) {
 
         NNPtr<llvm::BasicBlock> blockllvm = blocks[block];
 
-        phi->addIncoming(valuellvm.asRaw(), blockllvm.asRaw());
+        phi->add_incoming(valuellvm.as_raw(), blockllvm.as_raw());
     }
 
-    builder.SetInsertPoint(currentBlock.asRaw());
-    builder.GetInsertBlock()->getInstList().push_back(phi.asRaw());
+    builder.SetInsertPoint(current_block.as_raw());
+    builder.GetInsertBlock()->get_inst_list().push_back(phi.as_raw());
 
-    values[instr] = phi.asRaw();
+    values[instr] = phi.as_raw();
 }
 // Logical instructions {{{1
-void Lower::Lowerer::visitOr(IR::Instrs::Or &instr) {
-    values[instr] = builder.CreateOr(lower(instr.lhs).asRaw(), lower(instr.rhs).asRaw());
+void Lower::Lowerer::visit_or(IR::Instrs::Or &instr) {
+    values[instr] = builder.CreateOr(lower(instr.lhs).as_raw(), lower(instr.rhs).as_raw());
 }
-void Lower::Lowerer::visitAnd(IR::Instrs::And &instr) {
-    values[instr] = builder.CreateAnd(lower(instr.lhs).asRaw(), lower(instr.rhs).asRaw());
+void Lower::Lowerer::visit_and(IR::Instrs::And &instr) {
+    values[instr] = builder.CreateAnd(lower(instr.lhs).as_raw(), lower(instr.rhs).as_raw());
 }
-void Lower::Lowerer::visitNot(IR::Instrs::Not &instr) {
-    values[instr] = builder.CreateICmpEQ(lower(instr.op).asRaw(), llvm::ConstantInt::get(llvm::Type::getInt1Ty(context), 0));
+void Lower::Lowerer::visit_not(IR::Instrs::Not &instr) {
+    values[instr] = builder.CreateICmpEQ(lower(instr.op).as_raw(), llvm::ConstantInt::get(llvm::Type::getInt1Ty(context), 0));
 }
 // Binary arithmetic instructions {{{1
-#define DEF_FLOAT_BIN_INSTR(name, llvmInstr) \
+#define DEF_FLOAT_BIN_INSTR(name, llvm_instr) \
     void Lower::Lowerer::visit##name(IR::Instrs::name &instr) { \
-        values[instr] = builder.Create##llvmInstr(lower(instr.lhs).asRaw(), lower(instr.rhs).asRaw()); \
+        values[instr] = builder.Create##llvm_instr(lower(instr.lhs).as_raw(), lower(instr.rhs).as_raw()); \
     }
-#define DEF_INT_BIN_INSTR(name, ifSignedInstr, ifUnsignedInstr) \
+#define DEF_INT_BIN_INSTR(name, if_signed_instr, if_unsigned_instr) \
     void Lower::Lowerer::visit##name(IR::Instrs::name &instr) { \
-        NNPtr<IR::IntType> intty (static_cast<IR::IntType*>(instr.lhs.type().asRaw())); \
-        if (intty->isSigned) \
-            values[instr] = builder.Create##ifSignedInstr(lower(instr.lhs).asRaw(), lower(instr.rhs).asRaw()); \
+        NNPtr<IR::IntType> intty (static_cast<IR::IntType*>(instr.lhs.type().as_raw())); \
+        if (intty->is_signed) \
+            values[instr] = builder.Create##if_signed_instr(lower(instr.lhs).as_raw(), lower(instr.rhs).as_raw()); \
         else \
-            values[instr] = builder.Create##ifUnsignedInstr(lower(instr.lhs).asRaw(), lower(instr.rhs).asRaw()); \
+            values[instr] = builder.Create##if_unsigned_instr(lower(instr.lhs).as_raw(), lower(instr.rhs).as_raw()); \
     }
 
 DEF_FLOAT_BIN_INSTR(FCmpNE, FCmpONE)
@@ -80,102 +80,102 @@ DEF_INT_BIN_INSTR(IMod  , SRem   , URem   )
 #undef DEF_FLOAT_BIN_INSTR
 #undef DEF_INT_BIN_INSTR
 // Unary arithmetic instructions {{{1
-void Lower::Lowerer::visitFNeg(IR::Instrs::FNeg &instr) {
-    values[instr] = builder.CreateFNeg(lower(instr.op).asRaw());
+void Lower::Lowerer::visit_fneg(IR::Instrs::FNeg &instr) {
+    values[instr] = builder.CreateFNeg(lower(instr.op).as_raw());
 }
-void Lower::Lowerer::visitINeg(IR::Instrs::INeg &instr) {
-    values[instr] = builder.CreateSub(llvm::ConstantInt::get(instr.op.type()->toLLVMType(context).asRaw(), 0), lower(instr.op).asRaw());
+void Lower::Lowerer::visit_ineg(IR::Instrs::INeg &instr) {
+    values[instr] = builder.CreateSub(llvm::ConstantInt::get(instr.op.type()->to_llvmtype(context).as_raw(), 0), lower(instr.op).as_raw());
 }
 // Bitwise instructions {{{1
-void Lower::Lowerer::visitBitXor(IR::Instrs::BitXor &instr) {
-    values[instr] = builder.CreateXor(lower(instr.lhs).asRaw(), lower(instr.rhs).asRaw());
+void Lower::Lowerer::visit_bit_xor(IR::Instrs::BitXor &instr) {
+    values[instr] = builder.CreateXor(lower(instr.lhs).as_raw(), lower(instr.rhs).as_raw());
 }
-void Lower::Lowerer::visitBitOr(IR::Instrs::BitOr &instr) {
-    values[instr] = builder.CreateOr(lower(instr.lhs).asRaw(), lower(instr.rhs).asRaw());
+void Lower::Lowerer::visit_bit_or(IR::Instrs::BitOr &instr) {
+    values[instr] = builder.CreateOr(lower(instr.lhs).as_raw(), lower(instr.rhs).as_raw());
 }
-void Lower::Lowerer::visitBitAnd(IR::Instrs::BitAnd &instr) {
-    values[instr] = builder.CreateAnd(lower(instr.lhs).asRaw(), lower(instr.rhs).asRaw());
+void Lower::Lowerer::visit_bit_and(IR::Instrs::BitAnd &instr) {
+    values[instr] = builder.CreateAnd(lower(instr.lhs).as_raw(), lower(instr.rhs).as_raw());
 }
-void Lower::Lowerer::visitBitNot(IR::Instrs::BitNot &instr) {
-    values[instr] = builder.CreateXor(llvm::ConstantInt::get(instr.op.type()->toLLVMType(context).asRaw(), -1), lower(instr.op).asRaw());
+void Lower::Lowerer::visit_bit_not(IR::Instrs::BitNot &instr) {
+    values[instr] = builder.CreateXor(llvm::ConstantInt::get(instr.op.type()->to_llvmtype(context).as_raw(), -1), lower(instr.op).as_raw());
 }
 // Shift instructions {{{1
-void Lower::Lowerer::visitShiftR(IR::Instrs::ShiftR &instr) {
-    values[instr] = builder.CreateLShr(lower(instr.lhs).asRaw(), lower(instr.rhs).asRaw());
+void Lower::Lowerer::visit_shift_r(IR::Instrs::ShiftR &instr) {
+    values[instr] = builder.CreateLShr(lower(instr.lhs).as_raw(), lower(instr.rhs).as_raw());
 }
-void Lower::Lowerer::visitShiftL(IR::Instrs::ShiftL &instr) {
-    values[instr] = builder.CreateShl(lower(instr.lhs).asRaw(), lower(instr.rhs).asRaw());
+void Lower::Lowerer::visit_shift_l(IR::Instrs::ShiftL &instr) {
+    values[instr] = builder.CreateShl(lower(instr.lhs).as_raw(), lower(instr.rhs).as_raw());
 }
 // Type conversion instructions {{{1
-void Lower::Lowerer::visitNoOpCast(IR::Instrs::NoOpCast &instr) {
-    values[instr] = builder.CreateBitCast(lower(instr.op).asRaw(), instr.newt->toLLVMType(context).asRaw());
+void Lower::Lowerer::visit_no_op_cast(IR::Instrs::NoOpCast &instr) {
+    values[instr] = builder.CreateBitCast(lower(instr.op).as_raw(), instr.newt->to_llvmtype(context).as_raw());
 }
-void Lower::Lowerer::visitFloatToFloat(IR::Instrs::FloatToFloat &instr) {
-    NNPtr<IR::FloatType> bty = static_cast<IR::FloatType*>(instr.op.type().asRaw());
+void Lower::Lowerer::visit_float_to_float(IR::Instrs::FloatToFloat &instr) {
+    NNPtr<IR::FloatType> bty = static_cast<IR::FloatType*>(instr.op.type().as_raw());
 
     if (bty->size < instr.newt->size)
-        values[instr] = builder.CreateFPExt(lower(instr.op).asRaw(), instr.newt->toLLVMType(context).asRaw());
+        values[instr] = builder.CreateFPExt(lower(instr.op).as_raw(), instr.newt->to_llvmtype(context).as_raw());
     else if (bty->size > instr.newt->size)
-        values[instr] = builder.CreateFPTrunc(lower(instr.op).asRaw(), instr.newt->toLLVMType(context).asRaw());
+        values[instr] = builder.CreateFPTrunc(lower(instr.op).as_raw(), instr.newt->to_llvmtype(context).as_raw());
     else
-        values[instr] = lower(instr.op).asRaw(); // no cast needed
+        values[instr] = lower(instr.op).as_raw(); // no cast needed
 }
-void Lower::Lowerer::visitIntToInt(IR::Instrs::IntToInt &instr) {
-    NNPtr<IR::IntType> bty = static_cast<IR::IntType*>(instr.op.type().asRaw());
+void Lower::Lowerer::visit_int_to_int(IR::Instrs::IntToInt &instr) {
+    NNPtr<IR::IntType> bty = static_cast<IR::IntType*>(instr.op.type().as_raw());
     if (bty->size < instr.newt->size)
-        if (bty->isSigned)
-            values[instr] = builder.CreateSExt(lower(instr.op).asRaw(), instr.newt->toLLVMType(context).asRaw());
+        if (bty->is_signed)
+            values[instr] = builder.CreateSExt(lower(instr.op).as_raw(), instr.newt->to_llvmtype(context).as_raw());
         else
-            values[instr] = builder.CreateZExt(lower(instr.op).asRaw(), instr.newt->toLLVMType(context).asRaw());
+            values[instr] = builder.CreateZExt(lower(instr.op).as_raw(), instr.newt->to_llvmtype(context).as_raw());
     else if (bty->size > instr.newt->size)
-        values[instr] = builder.CreateTrunc(lower(instr.op).asRaw(), instr.newt->toLLVMType(context).asRaw());
+        values[instr] = builder.CreateTrunc(lower(instr.op).as_raw(), instr.newt->to_llvmtype(context).as_raw());
     else
-        values[instr] = lower(instr.op).asRaw();
+        values[instr] = lower(instr.op).as_raw();
 }
-void Lower::Lowerer::visitIntToFloat(IR::Instrs::IntToFloat &instr) {
-    NNPtr<IR::IntType> bty = static_cast<IR::IntType*>(instr.op.type().asRaw());
-    if (bty->isSigned)
-        values[instr] = builder.CreateSIToFP(lower(instr.op).asRaw(), instr.newt->toLLVMType(context).asRaw());
+void Lower::Lowerer::visit_int_to_float(IR::Instrs::IntToFloat &instr) {
+    NNPtr<IR::IntType> bty = static_cast<IR::IntType*>(instr.op.type().as_raw());
+    if (bty->is_signed)
+        values[instr] = builder.CreateSIToFP(lower(instr.op).as_raw(), instr.newt->to_llvmtype(context).as_raw());
     else
-        values[instr] = builder.CreateUIToFP(lower(instr.op).asRaw(), instr.newt->toLLVMType(context).asRaw());
+        values[instr] = builder.CreateUIToFP(lower(instr.op).as_raw(), instr.newt->to_llvmtype(context).as_raw());
 }
-void Lower::Lowerer::visitFloatToInt(IR::Instrs::FloatToInt &instr) {
-    if (instr.newt->isSigned)
-        values[instr] = builder.CreateFPToSI(lower(instr.op).asRaw(), instr.newt->toLLVMType(context).asRaw());
+void Lower::Lowerer::visit_float_to_int(IR::Instrs::FloatToInt &instr) {
+    if (instr.newt->is_signed)
+        values[instr] = builder.CreateFPToSI(lower(instr.op).as_raw(), instr.newt->to_llvmtype(context).as_raw());
     else
-        values[instr] = builder.CreateFPToUI(lower(instr.op).asRaw(), instr.newt->toLLVMType(context).asRaw());
+        values[instr] = builder.CreateFPToUI(lower(instr.op).as_raw(), instr.newt->to_llvmtype(context).as_raw());
 }
 // Branch instructions {{{1
-void Lower::Lowerer::visitCall(IR::Instrs::Call &instr) {
+void Lower::Lowerer::visit_call(IR::Instrs::Call &instr) {
     std::vector<llvm::Value*> args;
     args.reserve(instr.args.size());
     for (IR::ASTValue &v : instr.args)
-        args.push_back(lower(v).asRaw());
+        args.push_back(lower(v).as_raw());
 
-    llvm::Function *callee = static_cast<llvm::Function*>(lower(instr.f).asRaw());
+    llvm::Function *callee = static_cast<llvm::Function*>(lower(instr.f).as_raw());
     NNPtr<llvm::Value> res = builder.CreateCall(callee, args);
 
-    if (!dynamic_cast<IR::VoidType*>(instr.type().asRaw()))
-        values[instr] = res.asRaw();
+    if (!dynamic_cast<IR::VoidType*>(instr.type().as_raw()))
+        values[instr] = res.as_raw();
 }
 // Pointer instruction {{{1
-void Lower::Lowerer::visitDerefPtr(IR::Instrs::DerefPtr &instr) {
-    values[instr] = builder.CreateLoad(lower(instr.ptr).asRaw());
+void Lower::Lowerer::visit_deref_ptr(IR::Instrs::DerefPtr &instr) {
+    values[instr] = builder.CreateLoad(lower(instr.ptr).as_raw());
 }
-void Lower::Lowerer::visitAddrof(IR::Instrs::Addrof &instr) {
-    NNPtr<IR::Instrs::Instruction> addrof = dynamic_cast<IR::Instrs::Instruction*>(instr.deref->ptr.val.asRaw());
+void Lower::Lowerer::visit_addrof(IR::Instrs::Addrof &instr) {
+    NNPtr<IR::Instrs::Instruction> addrof = dynamic_cast<IR::Instrs::Instruction*>(instr.deref->ptr.val.as_raw());
     values[instr] = values[addrof];
 }
-void Lower::Lowerer::visitPtrArith(IR::Instrs::PtrArith &instr) {
-    values[instr] = builder.CreateInBoundsGEP(lower(instr.ptr).asRaw(), { lower(instr.offset).asRaw() });
+void Lower::Lowerer::visit_ptr_arith(IR::Instrs::PtrArith &instr) {
+    values[instr] = builder.CreateInBoundsGEP(lower(instr.ptr).as_raw(), { lower(instr.offset).as_raw() });
 }
 // Register instruction {{{1
-void Lower::Lowerer::visitRegister(IR::Instrs::Register &instr) {
-    values[instr] = builder.CreateAlloca(instr.ty->toLLVMType(context).asRaw());
+void Lower::Lowerer::visit_register(IR::Instrs::Register &instr) {
+    values[instr] = builder.CreateAlloca(instr.ty->to_llvmtype(context).as_raw());
 
-    auto functionArgs = curFunction->args();
-    if (allocaIndex > 0 && allocaIndex <= std::distance(functionArgs.begin(), functionArgs.end()))
-        builder.CreateStore(curFunction->arg_begin() + (allocaIndex - 1), values[instr]);
+    auto function_args = cur_function->args();
+    if (alloca_index > 0 && alloca_index <= std::distance(function_args.begin(), function_args.end()))
+        builder.CreateStore(cur_function->arg_begin() + (alloca_index - 1), values[instr]);
 
-    ++allocaIndex;
+    ++alloca_index;
 }

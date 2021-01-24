@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 ## @file kwgen.py
-#  Generate keyword matching code to go in Lexer::getIdentifierType()
+#  Generate keyword matching code to go in Lexer::get_identifier_type()
 
 # TrieNode class {{{1
 ## A node in a Trie
@@ -73,7 +73,7 @@ class TrieNode:
     def generate(self, doc=''):
         output = []
         output.append(f'/// {doc}\n')
-        output.append('TokenType Lexer::getIdentifierType() {\n')
+        output.append('TokenType Lexer::get_identifier_type() {\n')
         output.append(self.__generate(1))
         output.append('\n')
         output.append(f'{TrieNode.get_indent(1)}return TokenType::IDENTIFIER;\n')

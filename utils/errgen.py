@@ -44,9 +44,9 @@ class ValueDeclHighlight:
             message = 'format("{} declared here", {self.valuename})'
             fallbackmessage = 'format("{} implicitly declared", {self.valuename})'
 
-        output = (f'    if (IR::DeclaredValue *asDeclared = dynamic_cast<IR::DeclaredValue*>({self.val})) {{\n'
-                   '        if (!dynamic_cast<ASTNS::ImplicitDecl*>(asDeclared->defAST().asRaw())) {\n'
-                  f'            e.underline(Underline(asDeclared->defAST(), \'{self.under}\')\n'
+        output = (f'    if (IR::DeclaredValue *as_declared = dynamic_cast<IR::DeclaredValue*>({self.val})) {{\n'
+                   '        if (!dynamic_cast<ASTNS::ImplicitDecl*>(as_declared->def_ast().as_raw())) {\n'
+                  f'            e.underline(Underline(as_declared->def_ast(), \'{self.under}\')\n'
                   f'                .{self.type}({message}));\n')
         if self.fallbackloc is not None:
             output += ('        } else {\n'
@@ -221,7 +221,7 @@ errors = [
             inputs='IR::ASTValue const &val, NNPtr<IR::Function> f', location='val',
             highlights=[
                 SimpleHighlight('val', UNDER0, [('error', '"conflicting return type"'), ('note', '"returning {}"', 'val.type()')]),
-                SimpleHighlight('*f->_defAST->retty.get()', UNDER1, [('note', '"function returns {}"', 'f->ty->ret')]),
+                SimpleHighlight('*f->_def_ast->retty.get()', UNDER1, [('note', '"function returns {}"', 'f->ty->ret')]),
             ]),
         Msg('no-deref',
             desc='Cannot dereference non-pointer',
@@ -232,12 +232,12 @@ errors = [
             ]),
         Msg('conflict-var-init-ty',
             desc='Conflicting type for variable initialization',
-            inputs='Token const &eq, Token const &name, NNPtr<ASTNS::Type> typeAST, IR::ASTValue const &init, NNPtr<IR::Type const> expectedType', location='eq',
+            inputs='Token const &eq, Token const &name, NNPtr<ASTNS::Type> type_ast, IR::ASTValue const &init, NNPtr<IR::Type const> expected_type', location='eq',
             highlights=[
                 SimpleHighlight('eq', UNDER1, []),
                 SimpleHighlight('name', UNDER1, []),
                 SimpleHighlight('init', UNDER0, [('error', '"conflicting types for variable initialization"'), ('note', '"{}"', 'init.type()')]),
-                SimpleHighlight('typeAST', UNDER1, [('note', '"{}"', 'expectedType')]),
+                SimpleHighlight('type_ast', UNDER1, [('note', '"{}"', 'expected_type')]),
             ]),
         Msg('invalid-cast',
             desc='Invalid cast',
@@ -282,18 +282,18 @@ errors = [
             ]),
         Msg('wrong-num-args',
             desc='Wrong number of arguments to function call',
-            inputs='NNPtr<IR::Function> func, NNPtr<ASTNS::AST> funcRefAST, Token const &oparn, std::vector<IR::ASTValue> const &args', location='oparn',
+            inputs='NNPtr<IR::Function> func, NNPtr<ASTNS::AST> func_ref_ast, Token const &oparn, std::vector<IR::ASTValue> const &args', location='oparn',
             highlights=[
                 SimpleHighlight('oparn', UNDER0, [('error', '"wrong number of arguments to function call"')]),
-                SimpleHighlight('funcRefAST', UNDER1, []),
-                SimpleHighlight('func->defAST()', UNDER1, [('note', '"function expects {} arguments, but got {} arguments"', 'func->ty->paramtys.size()', 'args.size()')]),
+                SimpleHighlight('func_ref_ast', UNDER1, []),
+                SimpleHighlight('func->def_ast()', UNDER1, [('note', '"function expects {} arguments, but got {} arguments"', 'func->ty->paramtys.size()', 'args.size()')]),
             ]),
         Msg('redecl-sym',
             desc='Symbol was redeclared',
             inputs='Token const &name, NNPtr<IR::Value> val', location='name',
             highlights=[
                 SimpleHighlight('name', UNDER0, [('error', '"redeclaration of symbol"')]),
-                ValueDeclHighlight('val.asRaw()', '', None, UNDER1, 'note', '"previous declaration"'),
+                ValueDeclHighlight('val.as_raw()', '', None, UNDER1, 'note', '"previous declaration"'),
             ]),
         Msg('undecl-symb',
             desc='Usage of undeclared symbol',
@@ -306,21 +306,21 @@ errors = [
             inputs='NNPtr<ASTNS::ParamB> param, NNPtr<IR::Instrs::Register const> prev', location='param',
             highlights=[
                 SimpleHighlight('param', UNDER0, [('error', '"redeclaration of parameter"')]),
-                SimpleHighlight('prev->defAST()', UNDER1, [('note', '"previous declaration"')]),
+                SimpleHighlight('prev->def_ast()', UNDER1, [('note', '"previous declaration"')]),
             ]),
         Msg('redecl-var',
             desc='Redeclaration of variable',
             inputs='Token const &name, NNPtr<IR::Instrs::Register const> prev', location='name',
             highlights=[
                 SimpleHighlight('name', UNDER0, [('error', '"redeclaration of variable"')]),
-                SimpleHighlight('prev->defAST()', UNDER1, [('note', '"previous declaration"')]),
+                SimpleHighlight('prev->def_ast()', UNDER1, [('note', '"previous declaration"')]),
             ]),
         Msg('not-a-type',
             desc='Expected a type but path resolved to something else',
-            inputs='Location const &notty, NNPtr<ASTNS::AST> declAST', location='notty',
+            inputs='Location const &notty, NNPtr<ASTNS::AST> decl_ast', location='notty',
             highlights=[
                 SimpleHighlight('notty', UNDER0, [('error', '"not a type"')]),
-                SimpleHighlight('declAST', UNDER1, [('note', '"declared here"')]),
+                SimpleHighlight('decl_ast', UNDER1, [('note', '"declared here"')]),
             ]),
         Msg('no-member-in',
             desc='No member of a certain name within another member',
@@ -362,18 +362,18 @@ errors = [
             ]),
         Msg('assign-not-mut',
             desc='Cannot assign to non-mutable lvalue',
-            inputs='IR::ASTValue const &v, Token const &eq, NNPtr<IR::Instrs::DerefPtr> targetDeref', location='v',
+            inputs='IR::ASTValue const &v, Token const &eq, NNPtr<IR::Instrs::DerefPtr> target_deref', location='v',
             highlights=[
                 SimpleHighlight('eq', UNDER0, [('error', '"cannot assign to immutable lvalue"')]),
                 SimpleHighlight('v', UNDER1, []),
-                ValueDeclHighlight('targetDeref->ptr.val.asRaw()', 'lvalue', None, UNDER1, 'note', '"variable declared immutable here"'),
+                ValueDeclHighlight('target_deref->ptr.val.as_raw()', 'lvalue', None, UNDER1, 'note', '"variable declared immutable here"'),
             ]),
         Msg('mut-addrof-nonmut-op',
             desc='Cannot take a mutable pointer to non-mutable lvalue',
-            inputs='Token const &op, NNPtr<IR::Instrs::DerefPtr> asDeref', location='op',
+            inputs='Token const &op, NNPtr<IR::Instrs::DerefPtr> as_deref', location='op',
             highlights=[
                 SimpleHighlight('op', UNDER0, [('error', '"cannot take mutable pointer to non-mutable lvalue"')]),
-                ValueDeclHighlight('asDeref->ptr.val.asRaw()', 'value', None, UNDER1, 'note', '"value declared immutable here"'),
+                ValueDeclHighlight('as_deref->ptr.val.as_raw()', 'value', None, UNDER1, 'note', '"value declared immutable here"'),
             ]),
         Msg('no-suppress',
             desc='Cannot suppress an expression that is not the implicit return value of a block',

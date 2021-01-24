@@ -4,7 +4,7 @@
 #include <sstream>
 #include <utility>
 
-#include "message/reportAbort.h"
+#include "message/report_abort.h"
 
 namespace __fmt {
     struct __FmtAction {
@@ -12,13 +12,13 @@ namespace __fmt {
         int di;
     };
 
-    __FmtAction __decideAction(std::string::const_iterator i, std::string::const_iterator end);
+    __FmtAction __decide_action(std::string::const_iterator i, std::string::const_iterator end);
     void __format(std::stringstream &ss, std::string const &fstr, std::string::const_iterator start);
 
     template <typename First, typename ... Formats>
     void __format(std::stringstream &ss, std::string const &fstr, std::string::const_iterator start, First &&first, Formats && ...f) {
         for (auto i = start; i != fstr.cend(); ) {
-            __FmtAction a (__decideAction(i, fstr.cend()));
+            __FmtAction a (__decide_action(i, fstr.cend()));
             switch (a.type) {
                 case __FmtAction::Type::INSERT_OPEN_BRACE:
                     ss << '{';
@@ -41,7 +41,7 @@ namespace __fmt {
             i += a.di;
         }
 
-        reportAbortNoh("unused interpolation arguments in __format call");
+        report_abort_noh("unused interpolation arguments in __format call");
     }
 }
 

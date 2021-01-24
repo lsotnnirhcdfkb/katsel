@@ -11,10 +11,10 @@ class Lexer {
 public:
     Lexer(File &sourcefile);
 
-    Token nextToken();
+    Token next_token();
 
 private:
-    bool atEnd();
+    bool at_end();
 
     char advance();
     bool match(char c);
@@ -23,13 +23,13 @@ private:
     char peekpeek();
     char consumed();
 
-    void startToEnd();
+    void start_to_end();
 
-    Token lexDigit(char current);
-    Token lexIdentifier(bool apostrophesAllowed);
+    Token lex_digit(char current);
+    Token lex_identifier(bool apostrophes_allowed);
 
-    Token makeErrorToken(NNPtr<void (Token const &)> errf);
-    Token makeToken(TokenType type);
+    Token make_error_token(NNPtr<void (Token const &)> errf);
+    Token make_token(TokenType type);
 
     std::string::iterator start;
     std::string::iterator end;
@@ -46,7 +46,7 @@ private:
     std::string::iterator srcstart;
     std::string::iterator srcend;
 
-    TokenType getIdentifierType();
+    TokenType get_identifier_type();
 
     File &sourcefile;
 };

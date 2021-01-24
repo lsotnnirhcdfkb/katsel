@@ -30,9 +30,9 @@ enum class OutFormats {
 };
 
 // read a file {{{1
-std::unique_ptr<File> readFile(NNPtr<char> filename) {
+std::unique_ptr<File> read_file(NNPtr<char> filename) {
     std::ifstream filein;
-    filein.open(filename.asRaw());
+    filein.open(filename.as_raw());
 
     if (filein.is_open()) {
         std::string contents;
@@ -48,7 +48,7 @@ std::unique_ptr<File> readFile(NNPtr<char> filename) {
 
         filein.close();
 
-        return std::make_unique<File>(File {filename.asRaw(), contents});
+        return std::make_unique<File>(File {filename.as_raw(), contents});
     } else {
         std::perror("Could not open file");
         return nullptr;
@@ -58,7 +58,7 @@ std::unique_ptr<File> readFile(NNPtr<char> filename) {
 // open a file {{{1
 // llvm::raw_fd_ostream has no move assignment operator, no move constructor
 #define OPENFILE(p, extrepl) \
-    std::filesystem::path pathrepl (p.asRaw()); \
+    std::filesystem::path pathrepl (p.as_raw()); \
     pathrepl.replace_extension(extrepl); \
     std::string passtr (pathrepl.string()); \
     std::error_code ec; \
@@ -67,8 +67,8 @@ std::unique_ptr<File> readFile(NNPtr<char> filename) {
         llvm::errs() << "Could not open output file \"" << passtr << "\": " << ec.message() << "\n";
 
 // compile a file {{{1
-int compileFile(OutFormats ofmt, NNPtr<char> filename) {
-    auto source (readFile(filename));
+int compile_file(OutFormats ofmt, NNPtr<char> filename) {
+    auto source (read_file(filename));
     if (!source)
         return false;
 
@@ -79,11 +79,11 @@ int compileFile(OutFormats ofmt, NNPtr<char> filename) {
             return false;
 
         while (true) {
-            Token t (lexer->nextToken());
+            Token t (lexer->next_token());
             if (t.type == TokenType::EOF_)
                 break;
 
-            os << t.sourcefile->filename << ':' << t.line << ':' << t.column << ": (" << stringifyTokenType(t.type) << ") \"" << std::string(t.start, t.end) << "\"\n";
+            os << t.sourcefile->filename << ':' << t.line << ':' << t.column << ": (" << stringify_token_type(t.type) << ") \"" << std::string(t.start, t.end) << "\"\n";
         }
 
         os.close();
@@ -110,15 +110,15 @@ int compileFile(OutFormats ofmt, NNPtr<char> filename) {
 
     auto codegen = std::make_unique<CodeGen>(*source, parsed.get());
     codegen->forwdecl();
-    if (codegen->isErrored())
+    if (codegen->is_errored())
         return false;
 
     codegen->declarate();
-    if (codegen->isErrored())
+    if (codegen->is_errored())
         return false;
 
     codegen->codegen();
-    if (codegen->isErrored())
+    if (codegen->is_errored())
         return false;
 
     if (ofmt == OutFormats::CODEGEN) {
@@ -142,7 +142,7 @@ int compileFile(OutFormats ofmt, NNPtr<char> filename) {
         if (os.has_error())
             return false;
 
-        lowerer->printMod(os);
+        lowerer->print_mod(os);
 
         os.close();
         return true;
@@ -214,14 +214,14 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    enableTerminalCodes();
+    enable_terminal_codes();
 
     bool success = true;
     for (; optind < argc; ++optind) {
-        if (!compileFile(ofmt, NNPtr(*argv[optind])))
+        if (!compile_file(ofmt, NNPtr(*argv[optind])))
             success = false;
     }
 
-    resetTerminal();
+    reset_terminal();
     return success ? 0 : 1;
 }

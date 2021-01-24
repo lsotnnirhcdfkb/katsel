@@ -15,9 +15,9 @@ public:
     template <typename Ret, typename SuccessOp, typename ErrOp>
     inline Ret match(SuccessOp s, ErrOp e) const {
         if (success()) {
-            return s(getVal());
+            return s(get_val());
         } else {
-            return e(getErr());
+            return e(get_err());
         }
     }
 
@@ -31,6 +31,6 @@ private:
         return std::holds_alternative<success_t>(data);
     }
 
-    T getVal() const { ASSERT( success()); return std::get<success_t>(data).value; }
-    E getErr() const { ASSERT(!success()); return std::get<Erorred>(data).err  ; }
+    T get_val() const { ASSERT( success()); return std::get<success_t>(data).value; }
+    E get_err() const { ASSERT(!success()); return std::get<Erorred>(data).err  ; }
 }

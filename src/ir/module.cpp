@@ -3,10 +3,10 @@
 #include "ir/type.h"
 #include <ostream>
 
-IR::Module::Module(std::string const &name, NNPtr<ASTNS::AST> declAST): _declAST(declAST), _name(name) {}
+IR::Module::Module(std::string const &name, NNPtr<ASTNS::AST> decl_ast): _decl_ast(decl_ast), _name(name) {}
 
-NNPtr<ASTNS::AST> IR::Module::declAST() const {
-    return _declAST;
+NNPtr<ASTNS::AST> IR::Module::decl_ast() const {
+    return _decl_ast;
 }
 std::string IR::Module::name() const {
     return _name;

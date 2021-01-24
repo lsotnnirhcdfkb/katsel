@@ -14,20 +14,20 @@ Location::Location(IR::ASTValue const &v): Location(*v.ast) {}
 Location::Location(NNPtr<IR::ASTValue const> v): Location(*v->ast) {}
 Location::Location(std::string::iterator start, std::string::iterator end, NNPtr<File const> file): start(start), end(end), file(*file) {}
 
-static Location locFromAST(ASTNS::AST &ast) {
-    Maybe<Location const> &maybeStart = ast.start();
-    Maybe<Location const> &maybeEnd = ast.end();
+static Location loc_from_ast(ASTNS::AST &ast) {
+    Maybe<Location const> &maybe_start = ast.start();
+    Maybe<Location const> &maybe_end = ast.end();
 
-   auto withOp = [] (Location const &l) -> Location const { return l; };
-   auto noOp =   [] ()                  -> Location const { reportAbortNoh("get location of ast with missing location info"); };
+   auto with_op = [] (Location const &l) -> Location const { return l; };
+   auto no_op =   [] ()                  -> Location const { report_abort_noh("get location of ast with missing location info"); };
     Location const
-        start (maybeStart.match<Location const>(withOp, noOp)),
-        end   (maybeEnd  .match<Location const>(withOp, noOp));
+        start (maybe_start.match<Location const>(with_op, no_op)),
+        end   (maybe_end  .match<Location const>(with_op, no_op));
 
     return Location(start.start, end.end, ast.file);
 }
-Location::Location(NNPtr<ASTNS::AST> ast): Location(locFromAST(*ast)) {}
-Location::Location(ASTNS::AST &ast): Location(locFromAST(ast)) {}
+Location::Location(NNPtr<ASTNS::AST> ast): Location(loc_from_ast(*ast)) {}
+Location::Location(ASTNS::AST &ast): Location(loc_from_ast(ast)) {}
 // Error methods {{{1
 Error::Error(MsgType type, Location const &location, std::string const &code, std::string const &name):
     type(type), location(location),
@@ -61,7 +61,7 @@ Underline& Underline::addmsg(std::string const &type, NNPtr<char const> const co
     return *this;
 }
 // other internal errors {{{1
-void reportAbortNoh(std::string const &message) {
+void report_abort_noh(std::string const &message) {
     std::cerr << "!!! Unrecoverable brokenness discovered in compiler !!!: " << message << std::endl;
     std::cerr << "!!! this is a bug - whether or not it has a bug report is unknown" << std::endl;
     std::cerr << "!!! bugs can be reported on the Katsel GitHub page: https://github.com/hpj2ltxry43b/katsel/issues" << std::endl;
@@ -69,18 +69,18 @@ void reportAbortNoh(std::string const &message) {
     std::cerr << "Aborting..." << std::endl;
     std::abort();
 }
-void invalidTok(std::string const &name, Token const &underline) {
-    reportAbortNoh(format("invalid token for {}: \"{}\"", name, underline));
+void invalid_tok(std::string const &name, Token const &underline) {
+    report_abort_noh(format("invalid token for {}: \"{}\"", name, underline));
 }
-void calledWithOpTyNEthis(std::string const &classN, std::string const &fnn, std::string const &opname) {
-    reportAbortNoh(format("{}::{} called with {} type != this", classN, fnn, opname));
+void called_with_op_ty_nethis(std::string const &class_n, std::string const &fnn, std::string const &opname) {
+    report_abort_noh(format("{}::{} called with {} type != this", class_n, fnn, opname));
 }
-void outOSwitchDDefaultLab(std::string const &fnn, Location const &highlight) {
-    reportAbortNoh(format("{} went out of switch despite default label", fnn));
+void out_oswitch_ddefault_lab(std::string const &fnn, Location const &highlight) {
+    report_abort_noh(format("{} went out of switch despite default label", fnn));
 }
-void fCalled(std::string const &fnn) {
-    reportAbortNoh(format("{} called", fnn));
+void f_called(std::string const &fnn) {
+    report_abort_noh(format("{} called", fnn));
 }
-void outOSwitchNoh(std::string const &fnn) {
-    reportAbortNoh(format("{} went out of switch", fnn));
+void out_oswitch_noh(std::string const &fnn) {
+    report_abort_noh(format("{} went out of switch", fnn));
 }

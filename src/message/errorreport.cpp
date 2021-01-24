@@ -22,7 +22,7 @@ namespace {
     };
     // attr {{{2
     inline std::string attr(std::string const &ansicode, std::string const &message, bool noreset=false) {
-        if (ansiCodesEnabled()) {
+        if (ansi_codes_enabled()) {
             if (noreset)
                 return ansicode + message;
             else
@@ -30,8 +30,8 @@ namespace {
         } else
             return message;
     }
-    inline NNPtr<char const> resetIfNecessary() {
-        if (ansiCodesEnabled())
+    inline NNPtr<char const> reset_if_necessary() {
+        if (ansi_codes_enabled())
             return *A_RESET;
         else
             return *"";
@@ -44,7 +44,7 @@ namespace {
         return ss.str();
     }
     // get line {{{2
-    void getLine(std::string::const_iterator &lstarto, std::string::const_iterator &lendo, File const &f, int linenr) {
+    void get_line(std::string::const_iterator &lstarto, std::string::const_iterator &lendo, File const &f, int linenr) {
         int cline = linenr;
         std::string::const_iterator lstart = f.source.begin();
         for (; lstart < f.source.end() && cline > 1; ++lstart)
@@ -64,14 +64,14 @@ namespace {
         lendo = lend;
     }
     // get col/line number {{{2
-    int getColN(std::string::const_iterator const &start, std::string::const_iterator loc) {
+    int get_col_n(std::string::const_iterator const &start, std::string::const_iterator loc) {
         int coln = 1;
 
         for (; loc != start && *(loc - 1) != '\n'; ++coln, --loc);
 
         return coln;
     }
-    int getLineN(std::string::const_iterator const &start, std::string::const_iterator loc) {
+    int get_line_n(std::string::const_iterator const &start, std::string::const_iterator loc) {
         int linen = 1; // current line will not have a newline to pass, but it still is a line
         while (loc > start) {
             if (*(loc - 1) == '\n') ++linen;
@@ -80,45 +80,45 @@ namespace {
         return linen;
     }
     // heading {{{2
-    std::string colorOfType(MsgType type) {
+    std::string color_of_type(MsgType type) {
         switch (type) {
             case MsgType::ERROR:   return A_BOLD A_FG_RED;
             case MsgType::WARNING: return A_BOLD A_FG_MAGENTA;
         }
     }
-    void printHeading(MsgType type, Location const &location) {
+    void print_heading(MsgType type, Location const &location) {
         std::string msgtypestr;
-        std::string const msgColor = colorOfType(type);
+        std::string const msg_color = color_of_type(type);
         switch (type) {
             case MsgType::ERROR:
-                msgtypestr = attr(msgColor, "Error");
+                msgtypestr = attr(msg_color, "Error");
                 break;
             case MsgType::WARNING:
-                msgtypestr = attr(msgColor, "Warning");
+                msgtypestr = attr(msg_color, "Warning");
                 break;
         }
         std::string::const_iterator const fstart = location.file->source.cbegin();
-        std::cerr << format("{} at {}:{}:{}{}:\n", msgtypestr, attr(FILEPATH_COLOR, location.file->filename, true), getLineN(fstart, location.start), getColN(fstart, location.start), resetIfNecessary().asRaw());
+        std::cerr << format("{} at {}:{}:{}{}:\n", msgtypestr, attr(FILEPATH_COLOR, location.file->filename, true), get_line_n(fstart, location.start), get_col_n(fstart, location.start), reset_if_necessary().as_raw());
     }
     // final line {{{2
-    void printFinalLine(std::string const &pad, MsgType type, std::string const &code, std::string const &name) {
+    void print_final_line(std::string const &pad, MsgType type, std::string const &code, std::string const &name) {
         std::cerr << format("{}==> [{}]: {}\n", pad, attr(A_BOLD, code), name);
     }
-    // collectShowlines {{{2
-    std::vector<showline> collectShowlines(std::vector<Underline> const &underlines) {
+    // collect_showlines {{{2
+    std::vector<showline> collect_showlines(std::vector<Underline> const &underlines) {
         std::vector<showline> showlines;
         for (Underline const &u : underlines) {
             std::string::const_iterator begin = u.location.file->source.begin();
-            int startLineN = getLineN(begin, u.location.start), endLineN = getLineN(begin, u.location.end - 1);
+            int start_line_n = get_line_n(begin, u.location.start), end_line_n = get_line_n(begin, u.location.end - 1);
             // because end is inclusive
-            if ((endLineN + 1) - startLineN < 4)
-                for (int i = startLineN; i <= endLineN; ++i)
+            if ((end_line_n + 1) - start_line_n < 4)
+                for (int i = start_line_n; i <= end_line_n; ++i)
                     showlines.push_back(showline {u.location.file, i});
             else {
-                showlines.push_back(showline {u.location.file, startLineN});
-                showlines.push_back(showline {u.location.file, startLineN + 1});
-                showlines.push_back(showline {u.location.file, endLineN});
-                showlines.push_back(showline {u.location.file, endLineN - 1});
+                showlines.push_back(showline {u.location.file, start_line_n});
+                showlines.push_back(showline {u.location.file, start_line_n + 1});
+                showlines.push_back(showline {u.location.file, end_line_n});
+                showlines.push_back(showline {u.location.file, end_line_n - 1});
             }
         }
 
@@ -143,8 +143,8 @@ namespace {
 
         return showlines;
     }
-    // countLinePad {{{2
-    int countLinePad(std::vector<showline> const &showlines) {
+    // count_line_pad {{{2
+    int count_line_pad(std::vector<showline> const &showlines) {
         int maxlinepad = 0;
         for (showline const &s : showlines) {
             int linew = 1, linenr = s.line;
@@ -155,35 +155,35 @@ namespace {
         return maxlinepad;
     }
     // printing lines {{{2
-    void printFileLine(std::string const &pad, NNPtr<File const> file) {
+    void print_file_line(std::string const &pad, NNPtr<File const> file) {
         std::cerr << pad << "> " << attr(FILEPATH_COLOR, file->filename) << std::endl;
     }
-    void printElipsisLine(std::string const &pad) {
+    void print_elipsis_line(std::string const &pad) {
         std::cerr << std::string(pad.size() - 1, '.') << " | ...\n";
     }
     // print line with underlines {{{3
-    void printLine(showline const &sl, std::string const &pad, std::vector<Underline> const &underlines) {
+    void print_line(showline const &sl, std::string const &pad, std::vector<Underline> const &underlines) {
         std::string::const_iterator lstart, lend;
-        getLine(lstart, lend, *sl.file, sl.line);
+        get_line(lstart, lend, *sl.file, sl.line);
 
         std::vector<Maybe<NNPtr<Underline const>>> lchars;
         lchars.reserve(std::distance(lstart, lend));
 
-        std::vector<MessageLocation> lineMessages;
+        std::vector<MessageLocation> line_messages;
 
-        auto itInLoc = [](std::string::const_iterator const &i, Location const &l) {
+        auto it_in_loc = [](std::string::const_iterator const &i, Location const &l) {
             if (l.start == l.end)
                 return i == l.start;
             return i >= l.start && i < l.end;
         };
 
-        bool lineHasUnder = false;
+        bool line_has_under = false;
         for (std::string::const_iterator i = lstart; i <= lend; ++i) {
             Maybe<NNPtr<Underline const>> charu;
             for (Underline const &u : underlines)
-                if (itInLoc(i, u.location)) {
+                if (it_in_loc(i, u.location)) {
                     charu = Maybe<NNPtr<Underline const>>(NNPtr(u));
-                    lineHasUnder = true;
+                    line_has_under = true;
                     break;
                 }
 
@@ -194,7 +194,7 @@ namespace {
                 charu.match(
                     [&i](NNPtr<Underline const> const &un) {
                         if (un->messages.size())
-                            std::cerr << attr(A_BOLD, attr(un->messages[0].color.asRaw(), std::string(1, *i)));
+                            std::cerr << attr(A_BOLD, attr(un->messages[0].color.as_raw(), std::string(1, *i)));
                         else
                             std::cerr << attr(A_BOLD, std::string(1, *i));
                     },
@@ -205,42 +205,42 @@ namespace {
 
         std::cerr << std::endl;
 
-        int maxRow = 0;
+        int max_row = 0;
         for (std::string::const_iterator i = lend; i >= lstart; --i)
             for (Underline const &u : underlines)
                 if (i == u.location.end - 1 || (u.location.start == u.location.end && i == u.location.start)) {
-                    int lcol = getColN(u.location.file->source.begin(), u.location.start);
-                    int col = getColN(u.location.file->source.begin(), u.location.end - 1) + 1; // end - 1 to get the character that this ends at, +1 to get the next column. end by itself could wrap around to the next line
+                    int lcol = get_col_n(u.location.file->source.begin(), u.location.start);
+                    int col = get_col_n(u.location.file->source.begin(), u.location.end - 1) + 1; // end - 1 to get the character that this ends at, +1 to get the next column. end by itself could wrap around to the next line
                     for (Message const &message : u.messages) {
                         int messagerow = 0;
-                        if (lineMessages.size() > 0) {
-                            int messageEndCol = col + message.text.size() + message.type.size() + 5; // 3 for '-- ' and ': '
-                            auto nextMessage = lineMessages.rbegin();
-                            while (nextMessage != lineMessages.rend() && nextMessage->lcol <= messageEndCol) {
-                                messagerow = std::max(messagerow, nextMessage->row + 1);
-                                ++nextMessage;
+                        if (line_messages.size() > 0) {
+                            int message_end_col = col + message.text.size() + message.type.size() + 5; // 3 for '-- ' and ': '
+                            auto next_message = line_messages.rbegin();
+                            while (next_message != line_messages.rend() && next_message->lcol <= message_end_col) {
+                                messagerow = std::max(messagerow, next_message->row + 1);
+                                ++next_message;
                             }
                         }
-                        maxRow = std::max(maxRow, messagerow);
+                        max_row = std::max(max_row, messagerow);
 
-                        lineMessages.push_back(MessageLocation {message, messagerow, col, lcol});
+                        line_messages.push_back(MessageLocation {message, messagerow, col, lcol});
                     }
                 }
 
-        if (lineHasUnder) {
+        if (line_has_under) {
             std::cerr << pad << "| ";
             for (unsigned int col = 0; col <= lchars.size(); ++col) {
-                bool foundMessage = false;
-                for (MessageLocation const &message : lineMessages) {
+                bool found_message = false;
+                for (MessageLocation const &message : line_messages) {
                     if (message.row == 0 && message.col == col + 1) {
-                        std::cerr << attr(message.message.color.asRaw(), "-- ", true) << message.message.type << ": " << resetIfNecessary().asRaw() << message.message.text;
+                        std::cerr << attr(message.message.color.as_raw(), "-- ", true) << message.message.type << ": " << reset_if_necessary().as_raw() << message.message.text;
                         col = message.col + message.message.text.size() + message.message.type.size() + 5 - 1 - 1; // -1 because col is zero-based, and also -1 because of the ++col at the top of the for loop
-                        foundMessage = true;
+                        found_message = true;
                         break;
                     }
                 }
 
-                if (foundMessage)
+                if (found_message)
                     continue;
                 if (col == lchars.size())
                     continue;
@@ -249,7 +249,7 @@ namespace {
                 un.match(
                     [](NNPtr<Underline const> const &un) {
                         if (un->messages.size())
-                            std::cerr << attr(A_BOLD, attr(un->messages[0].color.asRaw(), std::string(1, un->ch)));
+                            std::cerr << attr(A_BOLD, attr(un->messages[0].color.as_raw(), std::string(1, un->ch)));
                         else
                             std::cerr << attr(A_BOLD, std::string(1, un->ch));
                     },
@@ -261,14 +261,14 @@ namespace {
         }
 
 
-        if (lineMessages.size()) {
-            for (int row = 1; row <= maxRow; ++row) {
+        if (line_messages.size()) {
+            for (int row = 1; row <= max_row; ++row) {
                 std::cerr << pad << "| ";
                 int lastcol = 1;
-                for (auto message = lineMessages.rbegin(); message != lineMessages.rend(); ++message) {
+                for (auto message = line_messages.rbegin(); message != line_messages.rend(); ++message) {
                     if (message->row == row) {
                         std::cerr << std::string(message->col - lastcol - 1, ' ');
-                        std::cerr << attr(message->message.color.asRaw(), "`-- ", true) << message->message.type << ": " << resetIfNecessary().asRaw() << message->message.text;
+                        std::cerr << attr(message->message.color.as_raw(), "`-- ", true) << message->message.type << ": " << reset_if_necessary().as_raw() << message->message.text;
 
                         lastcol = message->col + message->message.text.size() + message->message.type.size() + 6;
                     }
@@ -283,15 +283,15 @@ namespace {
 // report {{{1
 void Error::report() const {
     if (errformat == ErrorFormat::HUMAN) {
-        printHeading(type, location);
-        auto showlines (collectShowlines(underlines));
-        int maxlinepad (countLinePad(showlines));
+        print_heading(type, location);
+        auto showlines (collect_showlines(underlines));
+        int maxlinepad (count_line_pad(showlines));
         std::string pad (maxlinepad + 1, ' ');
 
         Maybe<NNPtr<File const>> lastfile;
         int lastnr = -1;
         for (showline const &sl : showlines) {
-            bool needFileLine = lastfile.match<bool>([&sl] (NNPtr<File const> file) -> bool {
+            bool need_file_line = lastfile.match<bool>([&sl] (NNPtr<File const> file) -> bool {
                     // if there is a last file, check that it is != to the current line's file
                     return file != sl.file;
                 },
@@ -299,60 +299,60 @@ void Error::report() const {
                     // if there is no last file, then print a file line
                     return true;
                 });
-            if (needFileLine) {
-                printFileLine(pad, sl.file);
+            if (need_file_line) {
+                print_file_line(pad, sl.file);
                 lastnr = -1;
             }
 
             {
-                std::ios origState (nullptr);
-                origState.copyfmt(std::cerr);
+                std::ios orig_state (nullptr);
+                orig_state.copyfmt(std::cerr);
 
                 if (sl.line != lastnr + 1 && lastnr != -1)
-                    printElipsisLine(pad);
+                    print_elipsis_line(pad);
 
                 std::cerr << std::setw(maxlinepad) << std::right << sl.line;
-                std::cerr.copyfmt(origState);
+                std::cerr.copyfmt(orig_state);
                 std::cerr << " | ";
             }
 
-            printLine(sl, pad, underlines);
+            print_line(sl, pad, underlines);
 
             lastfile = Maybe<NNPtr<File const>>(NNPtr(*sl.file));
             lastnr = sl.line;
         }
 
-        printFinalLine(pad, type, code, name);
+        print_final_line(pad, type, code, name);
     } else if (errformat == ErrorFormat::ALIGNED) {
-        printHeading(type, location);
-        auto showlines (collectShowlines(underlines));
-        int maxlinepad (countLinePad(showlines));
+        print_heading(type, location);
+        auto showlines (collect_showlines(underlines));
+        int maxlinepad (count_line_pad(showlines));
         std::string pad (maxlinepad + 1, ' ');
 
         for (Underline const &un : underlines) {
             auto fstart = un.location.file->source.begin();
-            int lineN = getLineN(fstart, un.location.start);
-            int colN = getColN(fstart, un.location.start);
-            std::cerr << format("{}> {}:{}:{}{}\n", pad, attr(FILEPATH_COLOR, un.location.file->filename, true), lineN, colN, resetIfNecessary().asRaw());
+            int line_n = get_line_n(fstart, un.location.start);
+            int col_n = get_col_n(fstart, un.location.start);
+            std::cerr << format("{}> {}:{}:{}{}\n", pad, attr(FILEPATH_COLOR, un.location.file->filename, true), line_n, col_n, reset_if_necessary().as_raw());
             for (Message const &me : un.messages)
-                std::cerr << format("{}| [{}] {}\n", pad, attr(me.color.asRaw(), me.type), me.text);
+                std::cerr << format("{}| [{}] {}\n", pad, attr(me.color.as_raw(), me.type), me.text);
 
-            std::ios origState (nullptr);
-            origState.copyfmt(std::cerr);
-            std::cerr << std::setw(maxlinepad) << std::right << lineN;
-            std::cerr.copyfmt(origState);
+            std::ios orig_state (nullptr);
+            orig_state.copyfmt(std::cerr);
+            std::cerr << std::setw(maxlinepad) << std::right << line_n;
+            std::cerr.copyfmt(orig_state);
             std::cerr << " | ";
 
             std::string::const_iterator lstart, lend;
-            getLine(lstart, lend, *un.location.file, lineN);
+            get_line(lstart, lend, *un.location.file, line_n);
 
-            int unStartCol = getColN(fstart, un.location.start);
-            int unEndCol = getColN(fstart, un.location.end);
+            int un_start_col = get_col_n(fstart, un.location.start);
+            int un_end_col = get_col_n(fstart, un.location.end);
 
             for (auto i = lstart; i != lend; ++i)
                 if (i >= un.location.start && i < un.location.end)
                     if (un.messages.size())
-                        std::cerr << attr(A_BOLD, attr(un.messages[0].color.asRaw(), std::string(1, *i)));
+                        std::cerr << attr(A_BOLD, attr(un.messages[0].color.as_raw(), std::string(1, *i)));
                     else
                         std::cerr << attr(A_BOLD, std::string(1, *i));
                 else
@@ -360,13 +360,13 @@ void Error::report() const {
             std::cerr << std::endl;
 
             std::cerr << pad << "| ";
-            if (unEndCol <= unStartCol)
-                unEndCol = unStartCol + 1;
+            if (un_end_col <= un_start_col)
+                un_end_col = un_start_col + 1;
 
-            std::cerr << std::string(unStartCol - 1, ' ') << attr(A_BOLD, attr(un.messages.size() ? un.messages[0].color.asRaw() : "", std::string(unEndCol - unStartCol, '^'))) << std::endl;
+            std::cerr << std::string(un_start_col - 1, ' ') << attr(A_BOLD, attr(un.messages.size() ? un.messages[0].color.as_raw() : "", std::string(un_end_col - un_start_col, '^'))) << std::endl;
         }
 
-        printFinalLine(pad, type, code, name);
+        print_final_line(pad, type, code, name);
     } else {
         std::cerr << "{\"type\":\"";
         switch (type) {
@@ -378,17 +378,17 @@ void Error::report() const {
                 break;
         }
 
-        auto formatLocation = [](File const &f, std::string::const_iterator const &loc, std::string::const_iterator const &fstart) -> std::string {
+        auto format_location = [](File const &f, std::string::const_iterator const &loc, std::string::const_iterator const &fstart) -> std::string {
             return format("{{}, {}, {}, {}}",
                     jsonfield("file", f.filename),
-                    jsonfield("line", getLineN(fstart, loc)),
-                    jsonfield("column", getColN(fstart, loc)),
+                    jsonfield("line", get_line_n(fstart, loc)),
+                    jsonfield("column", get_col_n(fstart, loc)),
                     jsonfield("index", std::distance(fstart, loc)));
         };
 
         std::cerr << "\",";
         std::string::const_iterator const fstart = location.file->source.cbegin();
-        std::cerr << jsonfield("location", formatLocation(*location.file, location.start, fstart));
+        std::cerr << jsonfield("location", format_location(*location.file, location.start, fstart));
         std::cerr << jsonfield("code", code) << jsonfield("name", name);
 
         std::cerr << "\"underlines\":[";
@@ -397,7 +397,7 @@ void Error::report() const {
             if (!f) std::cerr << ",";
             f = false;
 
-            std::cerr << "{\"start\":" << formatLocation(*u.location.file, u.location.start, fstart) << ", \"end\": " << formatLocation(*u.location.file, u.location.end, fstart) << ",\"char\":\"" << u.ch << "\"," << "\"messages\": [";
+            std::cerr << "{\"start\":" << format_location(*u.location.file, u.location.start, fstart) << ", \"end\": " << format_location(*u.location.file, u.location.end, fstart) << ",\"char\":\"" << u.ch << "\"," << "\"messages\": [";
 
             bool fm = true;
             for (Message const &m : u.messages) {

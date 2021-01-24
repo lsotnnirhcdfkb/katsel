@@ -19,7 +19,7 @@ namespace IR {
 
         void print(llvm::raw_ostream &ostream);
 
-        std::unique_ptr<ASTNS::ImplicitDecl> implicitDeclAST;
+        std::unique_ptr<ASTNS::ImplicitDecl> implicit_decl_ast;
 
         File const &file;
         Module mod;

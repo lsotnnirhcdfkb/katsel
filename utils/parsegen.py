@@ -915,9 +915,9 @@ def gen_loop():
 
                 for i, sym in reversed(list(enumerate(ac.rule.expansion))):
                     if isinstance(sym, Terminal):
-                        output.append(           f'                            auto a{i} (popT(stack));\n')
+                        output.append(           f'                            auto a{i} (pop_t(stack));\n')
                     elif isinstance(sym, NonTerminal):
-                        output.append(           f'                            auto a{i} (popA<ASTNS::{sym.reduces_to}>(stack));\n')
+                        output.append(           f'                            auto a{i} (pop_a<ASTNS::{sym.reduces_to}>(stack));\n')
 
                 if len(ac.rule.expansion) > 0:
                     output.append(                '                            Maybe<Location const> start = \n')
@@ -945,7 +945,7 @@ def gen_loop():
                 reduce_code, pushitem = ac.rule.reduce_action.generate()
                 output.append(reduce_code)
                 output.append(                   f'                            std::unique_ptr<ASTNS::{ac.rule.symbol.reduces_to}> pushitem = {pushitem};\n')
-                output.append(                   f'                            stack.emplace_back(getGoto(NonTerminal::{ac.rule.symbol.symbol}, stack.back().state), std::move(pushitem), NonTerminal::{ac.rule.symbol.symbol});\n')
+                output.append(                   f'                            stack.emplace_back(get_goto(NonTerminal::{ac.rule.symbol.symbol}, stack.back().state), std::move(pushitem), NonTerminal::{ac.rule.symbol.symbol});\n')
                 output.append(                    '                        }\n')
 
 
@@ -961,7 +961,7 @@ def gen_loop():
                 if isinstance(s, NonTerminal):
                     return f'"{s.name}"'
                 else:
-                    return f'stringifyTokenType({s.astt()})'
+                    return f'stringify_token_type({s.astt()})'
 
             output.append(                        '                    default:\n')
             output.append(                        '                        if (istrial) return false;\n')
@@ -973,7 +973,7 @@ def gen_loop():
         output.append(                            '                break;\n')
 
     output.append(                                '            default:\n')
-    output.append(                                '                reportAbortNoh(format("Parser reached invalid state: {}", stack.back().state));\n')
+    output.append(                                '                report_abort_noh(format("Parser reached invalid state: {}", stack.back().state));\n')
 
     output.append(                                '        }\n')
     output.append(                                '    }\n')
@@ -983,7 +983,7 @@ def gen_loop():
 def gen_goto():
     output = []
 
-    output.append(                                'size_t getGoto(NonTerminal nterm, size_t state) {\n')
+    output.append(                                'size_t get_goto(NonTerminal nterm, size_t state) {\n')
     output.append(                                '    switch (nterm) {\n')
     for nonterm in symbols:
         if isinstance(nonterm, Terminal):
@@ -1006,7 +1006,7 @@ def gen_goto():
                 output.append(                   f'case {state}: ')
             output.append(                       f'\n                    return {retval};\n')
 
-        output.append(                            '                default: reportAbortNoh("get invalid goto");\n')
+        output.append(                            '                default: report_abort_noh("get invalid goto");\n')
 
         output.append(                            '            }\n')
 
@@ -1079,15 +1079,15 @@ def gen_panic_mode():
 # generate single token insertion/deletion/substitution error recovery code {{{2
 def gen_single_tok():
     output = []
-    output.append(                                '#define TRYINSERT(ty) if (tryInsert(ty, e.p, e.lookahead, e.stack)) {fix f = fix {fix::fixtype::INSERT, ty}; if (score(f) > score(bestfix)) bestfix = f;}\n')
-    output.append(                                '#define TRYSUB(ty) if (trySub(ty, e.p, e.lookahead, e.stack)) {fix f = fix {fix::fixtype::SUBSTITUTE, ty}; if (score(f) > score(bestfix)) bestfix = f;}\n')
+    output.append(                                '#define TRYINSERT(ty) if (try_insert(ty, e.p, e.lookahead, e.stack)) {fix f = fix {fix::fixtype::INSERT, ty}; if (score(f) > score(bestfix)) bestfix = f;}\n')
+    output.append(                                '#define TRYSUB(ty) if (try_sub(ty, e.p, e.lookahead, e.stack)) {fix f = fix {fix::fixtype::SUBSTITUTE, ty}; if (score(f) > score(bestfix)) bestfix = f;}\n')
     output.append(                                '#define TRYTOKTY(ty) TRYINSERT(ty); TRYSUB(ty);\n')
 
     for terminal in symbols:
         if isinstance(terminal, Terminal):
             output.append(                       f'    TRYTOKTY({terminal.astt()})\n')
 
-    output.append(                                '    if (tryDel(e.p, e.stack)) {fix f = fix {fix::fixtype::REMOVE, static_cast<TokenType>(-1)}; if (score(f) > score(bestfix)) bestfix = f;};\n')
+    output.append(                                '    if (try_del(e.p, e.stack)) {fix f = fix {fix::fixtype::REMOVE, static_cast<TokenType>(-1)}; if (score(f) > score(bestfix)) bestfix = f;};\n')
     return ''.join(output)
 # entry {{{1
 if __name__ == '__main__':

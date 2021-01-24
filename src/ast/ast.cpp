@@ -50,7 +50,7 @@ ASTNS::CU::CU(File const &file, Maybe<Location const> const &start, Maybe<Locati
 void ASTNS::CU::accept(ASTNS::CUBVisitor &v) { v.visit_cu(*this); }
 Maybe<Location const> & ASTNS::CU::start() { return _start; }
 Maybe<Location const> & ASTNS::CU::end() { return _end; }
-ASTNS::ImplDecl::ImplDecl(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Type> implFor, std::vector<std::unique_ptr<ImplMember>> members): Decl(file), _start(start), _end(end), implFor(std::move(implFor)), members(std::move(members)) {}
+ASTNS::ImplDecl::ImplDecl(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Type> impl_for, std::vector<std::unique_ptr<ImplMember>> members): Decl(file), _start(start), _end(end), impl_for(std::move(impl_for)), members(std::move(members)) {}
 void ASTNS::ImplDecl::accept(ASTNS::DeclVisitor &v) { v.visit_impl_decl(*this); }
 Maybe<Location const> & ASTNS::ImplDecl::start() { return _start; }
 Maybe<Location const> & ASTNS::ImplDecl::end() { return _end; }

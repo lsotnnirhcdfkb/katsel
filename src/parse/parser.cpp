@@ -25,14 +25,14 @@ std::unique_ptr<ASTNS::CUB> Parser::parse() {
 Token Parser::consume() {
     bool lastboom = false;
     while (true) {
-        Token cur (lexer.nextToken());
+        Token cur (lexer.next_token());
         if (cur.type == TokenType::ERROR) {
             errored = true;
             cur.errf.match([&cur] (Token::ErrFunc const &e) {
                     (*e)(cur);
                 },
                 [] {
-                    reportAbortNoh("Error token without error function");
+                    report_abort_noh("Error token without error function");
                 });
         } else if (cur.type == TokenType::BOOM) {
             lastboom = true;

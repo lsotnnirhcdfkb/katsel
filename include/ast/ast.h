@@ -176,12 +176,12 @@ namespace ASTNS {
     class ImplDecl : public Decl {
     public:
         Maybe<Location const> _start, _end;
-        std::unique_ptr<Type> implFor;
+        std::unique_ptr<Type> impl_for;
         std::vector<std::unique_ptr<ImplMember>> members;
         virtual void accept(DeclVisitor &v) override;
         virtual Maybe<Location const> & start() override;
         virtual Maybe<Location const> & end() override;
-        ImplDecl(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Type> implFor, std::vector<std::unique_ptr<ImplMember>> members);
+        ImplDecl(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Type> impl_for, std::vector<std::unique_ptr<ImplMember>> members);
     };
     class FunctionDecl : public Decl {
     public:

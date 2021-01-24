@@ -104,7 +104,7 @@ enum class TokenType {
     SOF // start of file to make sure parser does not report error on invalid token with garbage values/zeroes
 };
 
-inline constexpr char const * stringifyTokenType(TokenType ty) {
+inline constexpr char const * stringify_token_type(TokenType ty) {
 #define STOKTY(type, str) case TokenType::type: return #str;
     switch (ty) {
         STOKTY(OPARN, '(')

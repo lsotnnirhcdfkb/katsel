@@ -2,11 +2,11 @@
 #include "message/errmsgs.h"
 #include "ast/ast.h"
 
-CodeGen::ParamVisitor::ParamVisitor::ParamVisitor(CodeGen &cg, std::vector<std::unique_ptr<ASTNS::ParamB>> &params, Maybe<NNPtr<IR::Type>> thisType):
+CodeGen::ParamVisitor::ParamVisitor::ParamVisitor(CodeGen &cg, std::vector<std::unique_ptr<ASTNS::ParamB>> &params, Maybe<NNPtr<IR::Type>> this_type):
     errored(false),
-    isMethod(false), thisPtr(false), thisMut(false),
+    is_method(false), this_ptr(false), this_mut(false),
     cg(cg),
-    thisType(thisType),
+    this_type(this_type),
     index(0) {
     for (std::unique_ptr<ASTNS::ParamB> &p : params) {
         p->accept(*this);
@@ -15,7 +15,7 @@ CodeGen::ParamVisitor::ParamVisitor::ParamVisitor(CodeGen &cg, std::vector<std::
 }
 
 void CodeGen::ParamVisitor::visit_param(ASTNS::Param &ast) {
-    Maybe<NNPtr<IR::Type>> ty (cg.typeVisitor->type(ast.type.get(), thisType));
+    Maybe<NNPtr<IR::Type>> ty (cg.type_visitor->type(ast.type.get(), this_type));
     if (ty.has()) {
         std::string name (ast.name.stringify());
         Param p {ty.get(), std::move(name), ast, ast.mut};
@@ -27,7 +27,7 @@ void CodeGen::ParamVisitor::visit_param(ASTNS::Param &ast) {
 }
 
 void CodeGen::ParamVisitor::visit_this_param(ASTNS::ThisParam &ast) {
-    if (!thisType.has()) {
+    if (!this_type.has()) {
         errored = true;
         ERR_TYPELESS_THIS(ast);
         return;
@@ -39,11 +39,11 @@ void CodeGen::ParamVisitor::visit_this_param(ASTNS::ThisParam &ast) {
         return;
     }
 
-    isMethod = true;
-    thisPtr = ast.ptr;
-    thisMut = ast.mut;
+    is_method = true;
+    this_ptr = ast.ptr;
+    this_mut = ast.mut;
 
-    NNPtr<IR::Type> ty = ast.ptr ? cg.context->getPointerType(ast.mut, thisType.get()) : thisType.get();
+    NNPtr<IR::Type> ty = ast.ptr ? cg.context->get_pointer_type(ast.mut, this_type.get()) : this_type.get();
 
     Param p {ty, "this", ast, false};
     ret.push_back(p);
@@ -55,7 +55,7 @@ CodeGen::ArgVisitor::ArgVisitor::ArgVisitor(CodeGen::FunctionCodeGen &fcg, std::
 }
 
 void CodeGen::ArgVisitor::visit_arg(ASTNS::Arg &ast) {
-    Maybe<IR::ASTValue> a = fcg.exprCG.expr(ast.expr.get());
+    Maybe<IR::ASTValue> a = fcg.expr_cg.expr(ast.expr.get());
     if (a.has())
         ret.push_back(a.get());
 }

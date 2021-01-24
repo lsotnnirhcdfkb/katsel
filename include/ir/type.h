@@ -19,40 +19,40 @@ namespace IR {
 
 #include "codegen/codegen.h"
 
-#include "message/reportAbort.h"
+#include "message/report_abort.h"
 
 #define DERIVE_TYPE_DECL() \
     public: \
-        Maybe<IR::ASTValue> binOp(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, NNPtr<ASTNS::AST> ast) override; \
-        Maybe<IR::ASTValue> unaryOp(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, NNPtr<ASTNS::AST> ast) override; \
-        IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &curBlock, IR::ASTValue v) override; \
-        Maybe<IR::ASTValue> castFrom(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &curBlock, IR::ASTValue v, NNPtr<ASTNS::AST> ast) override; \
-        NNPtr<llvm::Type> toLLVMType(llvm::LLVMContext &con) const override; \
+        Maybe<IR::ASTValue> bin_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, NNPtr<ASTNS::AST> ast) override; \
+        Maybe<IR::ASTValue> unary_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, UnaryOperator op, IR::ASTValue operand, Token optok, NNPtr<ASTNS::AST> ast) override; \
+        IR::ASTValue impl_cast(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) override; \
+        Maybe<IR::ASTValue> cast_from(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, NNPtr<ASTNS::AST> ast) override; \
+        NNPtr<llvm::Type> to_llvmtype(llvm::LLVMContext &con) const override; \
         void type_accept(IR::TypeVisitor &v) override; \
-        virtual Maybe<Method const> getMethod(std::string const &name) const override; \
-        virtual void addMethod(std::string const &name, Method const &m) override; \
-        virtual bool hasField(std::string const &name) const override; \
-        virtual int getFieldIndex(std::string const &name) const override;
+        virtual Maybe<Method const> get_method(std::string const &name) const override; \
+        virtual void add_method(std::string const &name, Method const &m) override; \
+        virtual bool has_field(std::string const &name) const override; \
+        virtual int get_field_index(std::string const &name) const override;
 
 #define DERIVE_TYPE_METHOD_TABLE_IMPL(cl) \
-    Maybe<IR::Type::Method const> cl::getMethod(std::string const &name) const { \
+    Maybe<IR::Type::Method const> cl::get_method(std::string const &name) const { \
         auto m = methods.find(name); \
         if (m == methods.end()) \
             return Maybe<IR::Type::Method const>(); \
         return Maybe<IR::Type::Method const>(m->second); \
     } \
-    void cl::addMethod(std::string const &name, IR::Type::Method const &m) { \
+    void cl::add_method(std::string const &name, IR::Type::Method const &m) { \
         if (methods.find(name) != methods.end()) \
-            reportAbortNoh(format("add duplicate method in type " #cl " under name {}", name)); \
+            report_abort_noh(format("add duplicate method in type " #cl " under name {}", name)); \
         methods.emplace(name, m); \
     }
 
 #define DERIVE_TYPE_NO_FIELDS(cl) \
-    bool cl::hasField(std::string const &name) const { \
+    bool cl::has_field(std::string const &name) const { \
         return false; \
     } \
-    int cl::getFieldIndex(std::string const &name) const { \
-        reportAbortNoh(#cl "::hasField() is constant false, but getFieldIndex() called"); \
+    int cl::get_field_index(std::string const &name) const { \
+        report_abort_noh(#cl "::has_field() is constant false, but get_field_index() called"); \
     }
 
 
@@ -103,14 +103,14 @@ namespace IR {
             doubleminus
         };
 
-        virtual Maybe<IR::ASTValue> binOp(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &curBlock, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, NNPtr<ASTNS::AST> ast) = 0;
-        virtual Maybe<IR::ASTValue> unaryOp(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &curBlock, UnaryOperator op, IR::ASTValue operand, Token optok, NNPtr<ASTNS::AST> ast) = 0;
+        virtual Maybe<IR::ASTValue> bin_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, NNPtr<ASTNS::AST> ast) = 0;
+        virtual Maybe<IR::ASTValue> unary_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, UnaryOperator op, IR::ASTValue operand, Token optok, NNPtr<ASTNS::AST> ast) = 0;
 
-        virtual IR::ASTValue implCast(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &curBlock, IR::ASTValue v) = 0;
+        virtual IR::ASTValue impl_cast(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) = 0;
 
-        virtual Maybe<IR::ASTValue> castFrom(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &curBlock, IR::ASTValue v, NNPtr<ASTNS::AST> ast) = 0;
+        virtual Maybe<IR::ASTValue> cast_from(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, NNPtr<ASTNS::AST> ast) = 0;
 
-        virtual NNPtr<llvm::Type> toLLVMType(llvm::LLVMContext &con) const = 0;
+        virtual NNPtr<llvm::Type> to_llvmtype(llvm::LLVMContext &con) const = 0;
 
         virtual void type_accept(TypeVisitor &v) = 0;
 
@@ -118,13 +118,13 @@ namespace IR {
 
         struct Method {
             NNPtr<IR::Function> fun;
-            bool thisPtr, thisMut;
+            bool this_ptr, this_mut;
         };
-        virtual Maybe<Method const> getMethod(std::string const &name) const = 0;
-        virtual void addMethod(std::string const &name, Method const &m) = 0;
+        virtual Maybe<Method const> get_method(std::string const &name) const = 0;
+        virtual void add_method(std::string const &name, Method const &m) = 0;
 
-        virtual bool hasField(std::string const &name) const = 0;
-        virtual int getFieldIndex(std::string const &name) const = 0;
+        virtual bool has_field(std::string const &name) const = 0;
+        virtual int get_field_index(std::string const &name) const = 0;
 
         CodeGen::Context &context;
     };
@@ -132,10 +132,10 @@ namespace IR {
     // Float {{{1
     class FloatType : public Type {
     public:
-        FloatType(CodeGen::Context &context, NNPtr<ASTNS::AST> declAST, int size);
+        FloatType(CodeGen::Context &context, NNPtr<ASTNS::AST> decl_ast, int size);
 
         std::string name() const override;
-        NNPtr<ASTNS::AST> declAST() const override;
+        NNPtr<ASTNS::AST> decl_ast() const override;
 
         int size;
 
@@ -144,63 +144,63 @@ namespace IR {
         DERIVE_TYPE_DECL()
 
     private:
-        NNPtr<ASTNS::AST> _declAST;
+        NNPtr<ASTNS::AST> _decl_ast;
 
         std::map<std::string, IR::Type::Method> methods;
     };
     // Int {{{1
     class IntType : public Type {
     public:
-        IntType(CodeGen::Context &context, NNPtr<ASTNS::AST> declAST, int size, bool isSigned);
+        IntType(CodeGen::Context &context, NNPtr<ASTNS::AST> decl_ast, int size, bool is_signed);
 
         std::string name() const override;
-        NNPtr<ASTNS::AST> declAST() const override;
+        NNPtr<ASTNS::AST> decl_ast() const override;
 
         DERIVE_TYPE_DECL()
 
         int size;
-        bool isSigned;
+        bool is_signed;
 
         DERIVE_DECLSYMBOL_ITEMS_DECL()
 
     private:
-        NNPtr<ASTNS::AST> _declAST;
+        NNPtr<ASTNS::AST> _decl_ast;
 
         std::map<std::string, IR::Type::Method> methods;
     };
     // Char {{{1
     class CharType : public Type {
     public:
-        CharType(CodeGen::Context &context, NNPtr<ASTNS::AST> declAST);
+        CharType(CodeGen::Context &context, NNPtr<ASTNS::AST> decl_ast);
 
         std::string name() const override;
 
         DERIVE_TYPE_DECL()
 
-        NNPtr<ASTNS::AST> declAST() const override;
+        NNPtr<ASTNS::AST> decl_ast() const override;
 
         DERIVE_DECLSYMBOL_ITEMS_DECL()
 
     private:
-        NNPtr<ASTNS::AST> _declAST;
+        NNPtr<ASTNS::AST> _decl_ast;
 
         std::map<std::string, IR::Type::Method> methods;
     };
     // Bool {{{1
     class BoolType : public Type {
     public:
-        BoolType(CodeGen::Context &context, NNPtr<ASTNS::AST> declAST);
+        BoolType(CodeGen::Context &context, NNPtr<ASTNS::AST> decl_ast);
 
         std::string name() const override;
 
         DERIVE_TYPE_DECL()
 
-        NNPtr<ASTNS::AST> declAST() const override;
+        NNPtr<ASTNS::AST> decl_ast() const override;
 
         DERIVE_DECLSYMBOL_ITEMS_DECL()
 
     private:
-        NNPtr<ASTNS::AST> _declAST;
+        NNPtr<ASTNS::AST> _decl_ast;
 
         std::map<std::string, IR::Type::Method> methods;
     };
@@ -210,42 +210,42 @@ namespace IR {
         NNPtr<Type> ret;
         std::vector<NNPtr<Type>> paramtys;
 
-        FunctionType(CodeGen::Context &context, NNPtr<ASTNS::AST> declAST, NNPtr<Type> ret, std::vector<NNPtr<Type>> paramtys);
+        FunctionType(CodeGen::Context &context, NNPtr<ASTNS::AST> decl_ast, NNPtr<Type> ret, std::vector<NNPtr<Type>> paramtys);
         std::string name() const override;
 
         DERIVE_TYPE_DECL()
 
-        NNPtr<ASTNS::AST> declAST() const override;
+        NNPtr<ASTNS::AST> decl_ast() const override;
 
         DERIVE_DECLSYMBOL_ITEMS_DECL()
 
     private:
-        NNPtr<ASTNS::AST> _declAST;
+        NNPtr<ASTNS::AST> _decl_ast;
 
         std::map<std::string, IR::Type::Method> methods;
     };
     // Void {{{1
     class VoidType : public Type {
     public:
-        VoidType(CodeGen::Context &context, NNPtr<ASTNS::AST> declAST);
+        VoidType(CodeGen::Context &context, NNPtr<ASTNS::AST> decl_ast);
 
         std::string name() const override;
 
         DERIVE_TYPE_DECL()
 
-        NNPtr<ASTNS::AST> declAST() const override;
+        NNPtr<ASTNS::AST> decl_ast() const override;
 
         DERIVE_DECLSYMBOL_ITEMS_DECL()
 
     private:
-        NNPtr<ASTNS::AST> _declAST;
+        NNPtr<ASTNS::AST> _decl_ast;
 
         std::map<std::string, IR::Type::Method> methods;
     };
     // Pointer {{{1
     class PointerType : public Type {
     public:
-        PointerType(CodeGen::Context &context, NNPtr<ASTNS::AST> declAST, bool mut, NNPtr<Type> ty);
+        PointerType(CodeGen::Context &context, NNPtr<ASTNS::AST> decl_ast, bool mut, NNPtr<Type> ty);
 
         std::string name() const override;
 
@@ -254,12 +254,12 @@ namespace IR {
         NNPtr<Type> ty;
         bool mut;
 
-        NNPtr<ASTNS::AST> declAST() const override;
+        NNPtr<ASTNS::AST> decl_ast() const override;
 
         DERIVE_DECLSYMBOL_ITEMS_DECL()
 
     private:
-        NNPtr<ASTNS::AST> _declAST;
+        NNPtr<ASTNS::AST> _decl_ast;
 
         std::map<std::string, IR::Type::Method> methods;
     };
@@ -267,36 +267,36 @@ namespace IR {
     // Int {{{2
     class GenericIntType : public Type {
     public:
-        GenericIntType(CodeGen::Context &context, NNPtr<ASTNS::AST> declAST);
+        GenericIntType(CodeGen::Context &context, NNPtr<ASTNS::AST> decl_ast);
 
         std::string name() const override;
 
         DERIVE_TYPE_DECL()
 
-        NNPtr<ASTNS::AST> declAST() const override;
+        NNPtr<ASTNS::AST> decl_ast() const override;
 
         DERIVE_DECLSYMBOL_ITEMS_DECL()
 
     private:
-        NNPtr<ASTNS::AST> _declAST;
+        NNPtr<ASTNS::AST> _decl_ast;
 
         std::map<std::string, IR::Type::Method> methods;
     };
     // Float {{{2
     class GenericFloatType : public Type {
     public:
-        GenericFloatType(CodeGen::Context &context, NNPtr<ASTNS::AST> declAST);
+        GenericFloatType(CodeGen::Context &context, NNPtr<ASTNS::AST> decl_ast);
 
         std::string name() const override;
 
         DERIVE_TYPE_DECL()
 
-        NNPtr<ASTNS::AST> declAST() const override;
+        NNPtr<ASTNS::AST> decl_ast() const override;
 
         DERIVE_DECLSYMBOL_ITEMS_DECL()
 
     private:
-        NNPtr<ASTNS::AST> _declAST;
+        NNPtr<ASTNS::AST> _decl_ast;
 
         std::map<std::string, IR::Type::Method> methods;
     };

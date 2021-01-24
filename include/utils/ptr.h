@@ -15,11 +15,11 @@ public:
     NNPtr(U *other): ptr(other) { ASSERT(ptr); }
 
     template <typename U, typename = std::enable_if_t<std::is_constructible_v<T*, U*>, void>>
-    NNPtr(NNPtr<U> const &other): ptr(other.asRaw()) {}
+    NNPtr(NNPtr<U> const &other): ptr(other.as_raw()) {}
 
     T& operator*()  const { return *ptr; }
     T* operator->() const { return  ptr; }
-    T* asRaw()      const { return  ptr; }
+    T* as_raw()      const { return  ptr; }
 
     template <typename U>
     bool operator==(NNPtr<U> const &other) const { return ptr == other.ptr; }

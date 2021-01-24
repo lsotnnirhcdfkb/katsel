@@ -3,8 +3,8 @@
 
 #include "utils/format.h"
 
-bool errorRecovery(errorstate const &e, std::vector<std::string> const &expectations) {
-    if (singleTok(e, expectations) || panicMode(e, expectations))
+bool error_recovery(errorstate const &e, std::vector<std::string> const &expectations) {
+    if (single_tok(e, expectations) || panic_mode(e, expectations))
         return true;
     else {
         ERR_UNRECOVERABLE_INVALID_SYNTAX(e.olh, e.lasttok, expectations);
@@ -13,7 +13,7 @@ bool errorRecovery(errorstate const &e, std::vector<std::string> const &expectat
 }
 
 // helper functions {{{
-static std::vector<stackitem> copyStack(std::vector<stackitem> const &stack) {
+static std::vector<stackitem> copy_stack(std::vector<stackitem> const &stack) {
     std::vector<stackitem> tempstack;
     for (auto const &si : stack) {
         tempstack.emplace_back(si.state);
@@ -21,45 +21,45 @@ static std::vector<stackitem> copyStack(std::vector<stackitem> const &stack) {
     return tempstack;
 }
 
-static bool tryInsert(TokenType ty, Parser const &p, Token const &lookahead, std::vector<stackitem> const &stack) {
+static bool try_insert(TokenType ty, Parser const &p, Token const &lookahead, std::vector<stackitem> const &stack) {
     // TODO: fix these b/c with new indentation you cant reset the lexer to a previous token
-    // Lexer tempL (lookahead);
-    // Parser tempP (tempL, p.sourcefile);
-    // Token tempLookahead (lookahead);
-    // tempLookahead.type = ty;
+    // Lexer temp_l (lookahead);
+    // Parser temp_p (temp_l, p.sourcefile);
+    // Token temp_lookahead (lookahead);
+    // temp_lookahead.type = ty;
 
-    // auto tempstack (copyStack(stack));
+    // auto tempstack (copy_stack(stack));
 
-    // std::unique_ptr<ASTNS::CUB> tempC (nullptr);
+    // std::unique_ptr<ASTNS::CUB> temp_c (nullptr);
 
-    // return _parse(tempP, tempstack, true, tempC, tempLookahead);
+    // return _parse(temp_p, tempstack, true, temp_c, temp_lookahead);
     return false;
 }
 
-static bool tryDel(Parser const &p, std::vector<stackitem> const &stack) {
-    // Lexer tempL (p.lexer);
-    // Parser tempP (tempL, p.sourcefile);
-    // Token tempLookahead (tempP.consume());
+static bool try_del(Parser const &p, std::vector<stackitem> const &stack) {
+    // Lexer temp_l (p.lexer);
+    // Parser temp_p (temp_l, p.sourcefile);
+    // Token temp_lookahead (temp_p.consume());
 
-    // auto tempstack (copyStack(stack));
+    // auto tempstack (copy_stack(stack));
 
-    // std::unique_ptr<ASTNS::CUB> tempC (nullptr);
+    // std::unique_ptr<ASTNS::CUB> temp_c (nullptr);
 
-    // return _parse(tempP, tempstack, true, tempC, tempLookahead);
+    // return _parse(temp_p, tempstack, true, temp_c, temp_lookahead);
     return false;
 }
 
-static bool trySub(TokenType ty, Parser const &p, Token const &lookahead, std::vector<stackitem> const &stack) {
-    // Lexer tempL (p.lexer);
-    // Parser tempP (tempL, p.sourcefile);
-    // Token tempLookahead (lookahead);
-    // tempLookahead.type = ty;
+static bool try_sub(TokenType ty, Parser const &p, Token const &lookahead, std::vector<stackitem> const &stack) {
+    // Lexer temp_l (p.lexer);
+    // Parser temp_p (temp_l, p.sourcefile);
+    // Token temp_lookahead (lookahead);
+    // temp_lookahead.type = ty;
 
-    // auto tempstack (copyStack(stack));
+    // auto tempstack (copy_stack(stack));
 
-    // std::unique_ptr<ASTNS::CUB> tempC (nullptr);
+    // std::unique_ptr<ASTNS::CUB> temp_c (nullptr);
 
-    // return _parse(tempP, tempstack, true, tempC, tempLookahead);
+    // return _parse(temp_p, tempstack, true, temp_c, temp_lookahead);
     return false;
 }
 // }}}
@@ -78,18 +78,18 @@ struct fix {
                 return "implicitly removed token";
 
             case fix::fixtype::SUBSTITUTE:
-                return format("implicitly replaced token with {}", stringifyTokenType(ttype));
+                return format("implicitly replaced token with {}", stringify_token_type(ttype));
 
             case fix::fixtype::INSERT:
-                return format("implicitly inserted {} before token", stringifyTokenType(ttype));
+                return format("implicitly inserted {} before token", stringify_token_type(ttype));
 
             default:
-                reportAbortNoh("invalid fix type");
+                report_abort_noh("invalid fix type");
         }
     }
 };
 
-static void applyFix(fix const &f, Parser &p, Token &lookahead) {
+static void apply_fix(fix const &f, Parser &p, Token &lookahead) {
     switch (f.type) {
         case fix::fixtype::REMOVE:
             lookahead = p.consume();
@@ -101,16 +101,16 @@ static void applyFix(fix const &f, Parser &p, Token &lookahead) {
 
         case fix::fixtype::INSERT:
             // TODO: fix
-            // p.lexer.resetToTok(lookahead);
+            // p.lexer.reset_to_tok(lookahead);
             lookahead.type = f.ttype;
             break;
 
         default:
-            reportAbortNoh("attempt to apply invalid fix type");
+            report_abort_noh("attempt to apply invalid fix type");
     }
 }
 
-bool singleTok(errorstate const &e, std::vector<std::string> const &expectations) {
+bool single_tok(errorstate const &e, std::vector<std::string> const &expectations) {
     fix bestfix = fix {fix::fixtype::NOFIX, static_cast<TokenType>(-1)};
     auto score = [](fix const &f) {
         switch (f.type) {
@@ -123,15 +123,15 @@ bool singleTok(errorstate const &e, std::vector<std::string> const &expectations
             case fix::fixtype::NOFIX:
                 return -1;
             default:
-                reportAbortNoh("invalid fix type");
+                report_abort_noh("invalid fix type");
         }
     };
 
     // error recovery {{{
     // SINGLETOK START
 // The following code was autogenerated - see the utils/ directory
-#define TRYINSERT(ty) if (tryInsert(ty, e.p, e.lookahead, e.stack)) {fix f = fix {fix::fixtype::INSERT, ty}; if (score(f) > score(bestfix)) bestfix = f;}
-#define TRYSUB(ty) if (trySub(ty, e.p, e.lookahead, e.stack)) {fix f = fix {fix::fixtype::SUBSTITUTE, ty}; if (score(f) > score(bestfix)) bestfix = f;}
+#define TRYINSERT(ty) if (try_insert(ty, e.p, e.lookahead, e.stack)) {fix f = fix {fix::fixtype::INSERT, ty}; if (score(f) > score(bestfix)) bestfix = f;}
+#define TRYSUB(ty) if (try_sub(ty, e.p, e.lookahead, e.stack)) {fix f = fix {fix::fixtype::SUBSTITUTE, ty}; if (score(f) > score(bestfix)) bestfix = f;}
 #define TRYTOKTY(ty) TRYINSERT(ty); TRYSUB(ty);
     TRYTOKTY(TokenType::EOF_)
     TRYTOKTY(TokenType::COMMA)
@@ -189,13 +189,13 @@ bool singleTok(errorstate const &e, std::vector<std::string> const &expectations
     TRYTOKTY(TokenType::CHARLIT)
     TRYTOKTY(TokenType::STRINGLIT)
     TRYTOKTY(TokenType::DOUBLECOLON)
-    if (tryDel(e.p, e.stack)) {fix f = fix {fix::fixtype::REMOVE, static_cast<TokenType>(-1)}; if (score(f) > score(bestfix)) bestfix = f;};
+    if (try_del(e.p, e.stack)) {fix f = fix {fix::fixtype::REMOVE, static_cast<TokenType>(-1)}; if (score(f) > score(bestfix)) bestfix = f;};
 // This code was autogenerated - see the utils/ directory
     // SINGLETOK END
     // }}}
 
     if (bestfix.type != fix::fixtype::NOFIX) {
-        applyFix(bestfix, e.p, e.lookahead);
+        apply_fix(bestfix, e.p, e.lookahead);
         ERR_SIMPLE_INVALID_SYNTAX(e.olh, e.lasttok, bestfix.stringify(), expectations);
         return true;
     }
@@ -203,7 +203,7 @@ bool singleTok(errorstate const &e, std::vector<std::string> const &expectations
     return false;
 }
 
-bool panicMode(errorstate const &e, std::vector<std::string> const &expectations) {
+bool panic_mode(errorstate const &e, std::vector<std::string> const &expectations) {
     // error recovery {{{
     // PANIC MODE START
 // The following code was autogenerated - see the utils/ directory

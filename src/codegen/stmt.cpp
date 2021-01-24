@@ -9,27 +9,27 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::stmt(NNPtr<ASTNS::Stmt> ast) {
     ast->accept(*this);
 }
 void CodeGen::FunctionCodeGen::StmtCodeGen::visit_expr_stmt(ASTNS::ExprStmt &ast) {
-    fcg.exprCG.expr(ast.expr.get());
+    fcg.expr_cg.expr(ast.expr.get());
 }
 void CodeGen::FunctionCodeGen::StmtCodeGen::visit_var_stmt(ASTNS::VarStmt &ast) {
     for (std::unique_ptr<ASTNS::VarStmtItem> &item : ast.items)
         item->accept(*this);
 }
 void CodeGen::FunctionCodeGen::StmtCodeGen::visit_ret_stmt(ASTNS::RetStmt &ast) {
-    Maybe<IR::ASTValue> m_v = ast.expr ? fcg.exprCG.expr(ast.expr.get()) : Maybe<IR::ASTValue>(IR::ASTValue(cg.context->getVoid(), ast));
+    Maybe<IR::ASTValue> m_v = ast.expr ? fcg.expr_cg.expr(ast.expr.get()) : Maybe<IR::ASTValue>(IR::ASTValue(cg.context->get_void(), ast));
     if (!m_v.has())
         return;
 
     IR::ASTValue v = m_v.get();
 
-    v = fcg.ret->type()->implCast(*cg.context, *fcg.fun, fcg.curBlock, v);
+    v = fcg.ret->type()->impl_cast(*cg.context, *fcg.fun, fcg.cur_block, v);
     if (fcg.ret->type() != v.type()) {
         ERR_CONFLICT_RET_TY(v, fcg.fun);
         cg.errored = true;
         return;
     }
 
-    fcg.curBlock->add(std::make_unique<IR::Instrs::Store>(IR::ASTValue(fcg.ret, ast), v, false));
-    fcg.curBlock->branch(std::make_unique<IR::Instrs::GotoBr>(fcg.exitBlock));
-    // fcg.curBlock = cg.context.blackHoleBlock.get(); TODO: fix
+    fcg.cur_block->add(std::make_unique<IR::Instrs::Store>(IR::ASTValue(fcg.ret, ast), v, false));
+    fcg.cur_block->branch(std::make_unique<IR::Instrs::GotoBr>(fcg.exit_block));
+    // fcg.cur_block = cg.context.black_hole_block.get(); TODO: fix
 }
