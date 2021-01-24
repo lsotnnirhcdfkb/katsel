@@ -3,6 +3,8 @@
 #include "ir/type.h"
 #include "ir/unit.h"
 #include "ir/instruction.h"
+#include "ir/function.h"
+#include "ir/block.h"
 #include "utils/format.h"
 #include "ir/visitor.h"
 

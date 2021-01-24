@@ -1,4 +1,5 @@
 #include "ir/type.h"
+#include "ir/block.h"
 #include "ir/instruction.h"
 #include "message/errmsgs.h"
 #include "utils/format.h"

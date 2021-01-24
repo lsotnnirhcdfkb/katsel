@@ -1,6 +1,7 @@
 #include "../codegenlocal.h"
 #include "message/errmsgs.h"
 #include "ir/unit.h"
+#include "ir/function.h"
 #include "ast/ast.h"
 
 CodeGen::ImplCodeGen::ImplCodeGen(CodeGen &cg, NNPtr<ASTNS::ImplDecl> ast): cg(cg), ast(ast), impl_for(), errored(false) {}

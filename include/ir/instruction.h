@@ -5,8 +5,6 @@
 #include "ir/instructionfwd.h"
 
 namespace IR {
-    class Function;
-    class Value;
     class Type;
 
     class Block;

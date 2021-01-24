@@ -1,4 +1,5 @@
 #include "ir/value.h"
+#include "ir/function.h"
 #include "ir/type.h"
 #include "utils/format.h"
 #include "ir/instruction.h"

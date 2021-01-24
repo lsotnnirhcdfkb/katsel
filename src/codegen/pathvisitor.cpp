@@ -3,6 +3,7 @@
 #include "ir/unit.h"
 #include "ast/ast.h"
 #include "ir/instruction.h"
+#include "ir/block.h"
 
 CodeGen::PathVisitor::PathVisitor(CodeGen &cg): cg(cg) {}
 

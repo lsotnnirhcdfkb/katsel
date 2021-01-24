@@ -4,6 +4,8 @@
 #include "ir/unit.h"
 #include "ast/ast.h"
 #include "ir/instruction.h"
+#include "ir/function.h"
+#include "ir/block.h"
 
 CodeGen::FunctionCodeGen::FunctionCodeGen(CodeGen &cg, NNPtr<ASTNS::FunctionDecl> ast, NNPtr<IR::Function> fun, Maybe<NNPtr<IR::Type>> this_type):
     cur_scope(0),
@@ -16,7 +18,7 @@ CodeGen::FunctionCodeGen::FunctionCodeGen(CodeGen &cg, NNPtr<ASTNS::FunctionDecl
     entry_block(fun->add_block("entry")),
     exit_block(fun->add_block("exit")),
     cur_block(entry_block),
-    ret(static_cast<IR::Instrs::Register*>(register_block->add(std::make_unique<IR::Instrs::Register>(cg.unit->implicit_decl_ast.get(), fun->ty->ret, true)).as_raw())),
+    ret(register_block->add(std::make_unique<IR::Instrs::Register>(cg.unit->implicit_decl_ast.get(), fun->ty->ret, true))),
     this_type(this_type),
     errored(false) {}
 
@@ -34,7 +36,7 @@ bool CodeGen::FunctionCodeGen::codegen() {
 
     for (auto const &param : params) {
         std::string pname = param.name;
-        NNPtr<IR::Instrs::Register> reg = static_cast<IR::Instrs::Register*>(register_block->add(std::make_unique<IR::Instrs::Register>(param.ast, param.ty, param.mut)).as_raw());
+        IR::Instrs::Register &reg = register_block->add(std::make_unique<IR::Instrs::Register>(param.ast, param.ty, param.mut));
 
         Maybe<NNPtr<Local>> foundparam = get_local(pname);
         if (foundparam.has()) {

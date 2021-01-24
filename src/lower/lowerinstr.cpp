@@ -1,6 +1,7 @@
 #include "ir/instruction.h"
 #include "ir/visitor.h"
 #include "ir/type.h"
+#include "ir/function.h"
 #include "lower/lowerer.h"
 #include "utils/assert.h"
 

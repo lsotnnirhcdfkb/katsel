@@ -1,6 +1,8 @@
 #include "codegenlocal.h"
 #include "ir/unit.h"
 #include "ir/instruction.h"
+#include "ir/function.h"
+#include "ir/block.h"
 #include "ast/ast.h"
 
 CodeGen::CodeGen(File const &file, NNPtr<ASTNS::CUB> cub):

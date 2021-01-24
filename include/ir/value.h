@@ -1,12 +1,12 @@
 #pragma once
 
-#include "ir/block.h"
 #include <string>
-#include <cstddef>
 #include <cstdint>
 #include <vector>
 #include <variant>
+
 #include "ast/astfwd.h"
+#include "utils/ptr.h"
 
 namespace IR {
     class Type;
@@ -18,6 +18,8 @@ namespace IR {
     class BoolType;
     class FunctionType;
     class VoidType;
+
+    namespace Instrs { class Instruction; }
 
 #define IR_VALUE_LIST(macro) \
     macro(ConstBool, ConstBool) \
@@ -43,37 +45,7 @@ namespace IR {
         virtual NNPtr<ASTNS::AST> def_ast() const = 0;
     };
 
-    // Function {{{
-    class Function : public Value, public DeclaredValue {
-    public:
-        Function(NNPtr<FunctionType> ty, std::string name, NNPtr<ASTNS::FunctionDecl> def_ast);
-
-        void add(std::unique_ptr<Block> block);
-
-        void definition(llvm::raw_ostream &os) const;
-        NNPtr<ASTNS::AST> def_ast() const override;
-
-        NNPtr<Type> type() const override;
-
-        std::vector<std::unique_ptr<Block>> blocks;
-
-        NNPtr<Block> add_block(std::string name);
-
-        NNPtr<FunctionType> ty;
-        std::string name;
-
-        bool prototypeonly;
-
-        void value_accept(ValueVisitor &v) override;
-
-        uint64_t curindex;
-
-        NNPtr<ASTNS::FunctionDecl> _def_ast;
-
-    private:
-        uint64_t blocki;
-    };
-    // }}}
+    class Function;
     // Const values {{{
     class ConstInt : public Value {
     public:

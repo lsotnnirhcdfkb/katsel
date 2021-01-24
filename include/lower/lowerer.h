@@ -2,6 +2,7 @@
 
 #include "ir/instructionfwd.h"
 #include "ir/value.h"
+#include "ir/function.h"
 #include "ir/unit.h"
 #include "ir/visitor.h"
 #include "mangle/mangler.h"

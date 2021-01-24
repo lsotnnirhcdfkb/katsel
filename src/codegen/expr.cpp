@@ -5,6 +5,8 @@
 #include "ir/unit.h"
 #include "ast/ast.h"
 #include "ir/instruction.h"
+#include "ir/function.h"
+#include "ir/block.h"
 
 CodeGen::FunctionCodeGen::ExprCodeGen::ExprCodeGen(CodeGen &cg, FunctionCodeGen &fcg): cg(cg), fcg(fcg) {}
 

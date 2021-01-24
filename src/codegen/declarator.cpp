@@ -3,6 +3,8 @@
 #include "ir/unit.h"
 #include "ast/ast.h"
 #include "ir/instruction.h"
+#include "ir/function.h"
+#include "ir/block.h"
 
 CodeGen::Declarator::Declarator(CodeGen &cg): cg(cg), current_symbol(&cg.unit->mod), this_type(Maybe<NNPtr<IR::Type>>()) {}
 

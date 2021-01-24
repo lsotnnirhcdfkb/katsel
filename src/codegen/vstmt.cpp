@@ -2,6 +2,7 @@
 #include "message/errmsgs.h"
 #include "ast/ast.h"
 #include "ir/instruction.h"
+#include "ir/block.h"
 
 void CodeGen::FunctionCodeGen::StmtCodeGen::visit(ASTNS::VarStmtItem &ast) {
     std::string varname = ast.name.stringify();
@@ -20,7 +21,7 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::visit(ASTNS::VarStmtItem &ast) {
 
     NNPtr<IR::Type> var_type = m_var_type.get();
 
-    NNPtr<IR::Instrs::Register> reg = NNPtr<IR::Instrs::Register>(static_cast<IR::Instrs::Register*>(fcg.register_block->add(std::make_unique<IR::Instrs::Register>(ast, var_type, ast.mut)).as_raw()));
+    IR::Instrs::Register &reg = fcg.register_block->add(std::make_unique<IR::Instrs::Register>(ast, var_type, ast.mut));
 
     if (ast.expr) {
         Maybe<IR::ASTValue> m_val = fcg.expr_cg.expr(ast.expr.get());

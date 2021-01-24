@@ -1,4 +1,5 @@
 #include "ir/instruction.h"
+#include "ir/function.h"
 #include "ir/value.h"
 #include "ir/type.h"
 #include "ir/visitor.h"

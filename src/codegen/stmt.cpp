@@ -2,6 +2,7 @@
 #include "message/errmsgs.h"
 #include "ast/ast.h"
 #include "ir/instruction.h"
+#include "ir/block.h"
 
 CodeGen::FunctionCodeGen::StmtCodeGen::StmtCodeGen(CodeGen &cg, FunctionCodeGen &fcg): cg(cg), fcg(fcg) {}
 

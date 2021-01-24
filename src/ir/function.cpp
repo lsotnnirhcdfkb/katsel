@@ -1,6 +1,8 @@
 #include "ir/value.h"
+#include "ir/block.h"
 #include "ir/type.h"
 #include "ir/instruction.h"
+#include "ir/function.h"
 #include "utils/format.h"
 #include "ast/ast.h"
 

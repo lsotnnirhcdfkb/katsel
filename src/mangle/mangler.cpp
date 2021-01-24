@@ -4,6 +4,7 @@
 #include <memory>
 #include "ir/value.h"
 #include "ir/type.h"
+#include "ir/function.h"
 #include "message/report_abort.h"
 
 namespace {

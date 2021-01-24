@@ -4,6 +4,7 @@
 #include <memory>
 #include "utils/file.h"
 #include "ir/instruction.h"
+#include "ir/block.h"
 
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/Verifier.h"
