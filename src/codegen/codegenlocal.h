@@ -11,7 +11,7 @@
 #include "ir/module.h"
 
 // ForwDecl {{{1
-class CodeGen::ForwDecl : public ASTNS::Decl::Visitor, public ASTNS::CUB::Visitor {
+class CodeGen::ForwDecl : public ASTNS::DeclVisitor, public ASTNS::CUBVisitor {
 public:
     ForwDecl(CodeGen &cg);
 
@@ -28,7 +28,7 @@ void visitFunctionDecl(ASTNS::FunctionDecl &ast) override;
     CodeGen &cg;
 };
 // Declarator {{{1
-class CodeGen::Declarator : public ASTNS::Decl::Visitor, public ASTNS::ImplMember::Visitor, public ASTNS::CUB::Visitor {
+class CodeGen::Declarator : public ASTNS::DeclVisitor, public ASTNS::ImplMemberVisitor, public ASTNS::CUBVisitor {
 public:
     Declarator(CodeGen &cg);
 
@@ -53,7 +53,7 @@ void visitFunctionImplMember(ASTNS::FunctionImplMember &ast) override;
 // Function {{{2
 class CodeGen::FunctionCodeGen {
     // StmtCodeGen {{{
-    class StmtCodeGen : public ASTNS::Stmt::Visitor, public ASTNS::VStmtIB::Visitor {
+    class StmtCodeGen : public ASTNS::StmtVisitor, public ASTNS::VStmtIBVisitor {
     public:
         StmtCodeGen(CodeGen &cg, FunctionCodeGen &fcg);
 
@@ -74,7 +74,7 @@ void visitRetStmt(ASTNS::RetStmt &ast) override;
     };
     // }}}
     // ExprCodeGen {{{
-    class ExprCodeGen : public ASTNS::Expr::Visitor {
+    class ExprCodeGen : public ASTNS::ExprVisitor {
     public:
         ExprCodeGen(CodeGen &cg, FunctionCodeGen &fcg);
 
@@ -144,7 +144,7 @@ public:
     bool errored;
 };
 // Impl {{{2
-class CodeGen::ImplCodeGen : public ASTNS::ImplMember::Visitor {
+class CodeGen::ImplCodeGen : public ASTNS::ImplMemberVisitor {
 public:
     ImplCodeGen(CodeGen &cg, NNPtr<ASTNS::ImplDecl> ast);
 
@@ -166,7 +166,7 @@ void visitFunctionImplMember(ASTNS::FunctionImplMember &ast) override;
 };
 // Param and Args {{{1
 // Param {{{2
-class CodeGen::ParamVisitor : public ASTNS::ParamB::Visitor {
+class CodeGen::ParamVisitor : public ASTNS::ParamBVisitor {
 public:
     struct Param {
         NNPtr<IR::Type> ty;
@@ -197,7 +197,7 @@ void visitThisParam(ASTNS::ThisParam &ast) override;
 };
 
 // Arg {{{2
-class CodeGen::ArgVisitor : public ASTNS::ArgB::Visitor {
+class CodeGen::ArgVisitor : public ASTNS::ArgBVisitor {
 public:
     ArgVisitor(CodeGen::FunctionCodeGen &fcg, std::vector<std::unique_ptr<ASTNS::Arg>> &args);
     std::vector<IR::ASTValue> ret;
@@ -212,7 +212,7 @@ void visitArg(ASTNS::Arg &ast) override;
     CodeGen::FunctionCodeGen &fcg;
 };
 // Path {{{1
-class CodeGen::PathVisitor : public ASTNS::PathB::Visitor {
+class CodeGen::PathVisitor : public ASTNS::PathBVisitor {
 public:
     PathVisitor(CodeGen &cg);
 
@@ -235,7 +235,7 @@ void visitPath(ASTNS::Path &ast) override;
     Maybe<NNPtr<FunctionCodeGen>> fcg;
 };
 // TypeVisitor {{{1
-class CodeGen::TypeVisitor : public ASTNS::Type::Visitor {
+class CodeGen::TypeVisitor : public ASTNS::TypeVisitor {
 public:
     TypeVisitor(CodeGen &cg);
 

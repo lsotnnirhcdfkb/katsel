@@ -11,6 +11,8 @@ jobs = [
 
     ('src/ast/ast.cpp'                     , 'ASTCPP START'              , 'ASTCPP END'              , astgen.gen_ast_defs),
     ('include/ast/ast.h'                   , 'ASTHEADER START'           , 'ASTHEADER END'           , astgen.gen_ast_decls),
+    ('include/ast/astfwd.h'                , 'ASTFWD START'              , 'ASTFWD END'              , astgen.gen_ast_fwd),
+    ('include/ast/visitor.h'               , 'ASTVISITH START'           , 'ASTVISITH END'           , astgen.gen_visitor_decls),
 
     ('src/ast/printvisitor.cpp'            , 'PRINTVISITOR START'        , 'PRINTVISITOR END'        , astgen.gen_print_visitor_methods),
 
@@ -35,6 +37,7 @@ jobs = [
     ('include/codegen/codegen.h'           , 'CG METHODS START'          , 'CG METHODS END'          , lambda: astgen.gen_visitor_methods('Decl', 'CUB')),
 
     ('include/ir/instruction.h'            , 'INSTR CLASSES START'       , 'INSTR CLASSES END'       , instrgen.gen_decls),
+    ('include/ir/instructionfwd.h'         , 'INSTR FWD START'           , 'INSTR FWD END'           , instrgen.gen_fwd),
     ('src/ir/instruction.cpp'              , 'INSTR CPP START'           , 'INSTR CPP END'           , instrgen.gen_defs),
 
     ('include/ir/visitor.h'                , 'PURE INSTR VISIT START'    , 'PURE INSTR VISIT END'    , lambda: instrgen.gen_pure_method_decls('Instruction')),

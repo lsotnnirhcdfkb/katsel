@@ -106,9 +106,6 @@ asts = [
 def gen_ast_decls():
     output = []
     for ast in asts:
-        output.append(f'    class {ast.name};\n')
-
-    for ast in asts:
         if isinstance(ast, AST):
             output.append(f'    class {ast.name} : public {ast.base} {{\n')
 
@@ -118,7 +115,7 @@ def gen_ast_decls():
             for field in ast.fields:
                 output.append(f'        {field.type} {field.name};\n')
 
-            output.append(f'        virtual void accept(ASTNS::{ast.base}::Visitor &v) override;\n')
+            output.append(f'        virtual void accept({ast.base}Visitor &v) override;\n')
             output.append( '        virtual Maybe<Location const> & start() override;\n')
             output.append( '        virtual Maybe<Location const> & end() override;\n')
             output.append(f'        {ast.name}(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, {", ".join(f"{field.type} {field.name}" for field in ast.fields)});\n')
@@ -128,16 +125,9 @@ def gen_ast_decls():
             output.append(f'    class {ast.name} : public AST {{\n')
             output.append('    public:\n')
 
-            output.append('        class Visitor {\n')
-            output.append('        public:\n')
-            output.append('            virtual ~Visitor() {}\n')
-            for _ast in asts:
-                if isinstance(_ast, AST) and _ast.base == ast.name:
-                    output.append(f'            virtual void visit{_ast.name}(ASTNS::{_ast.name} &ast) = 0;\n')
-            output.append('        };\n')
 
             output.append(f'        virtual ~{ast.name}() {{}}\n')
-            output.append('        virtual void accept(Visitor &v) = 0;\n')
+            output.append(f'        virtual void accept({ast.name}Visitor &v) = 0;\n')
             output.append(f'        {ast.name}(File const &file);\n')
             output.append('    };\n')
         else:
@@ -165,7 +155,7 @@ def gen_ast_defs():
             output.append(', '.join(init_list))
             output.append(' {}\n')
 
-            output.append(f'void ASTNS::{ast.name}::accept(ASTNS::{ast.base}::Visitor &v) {{ v.visit{ast.name}(*this); }}\n')
+            output.append(f'void ASTNS::{ast.name}::accept(ASTNS::{ast.base}Visitor &v) {{ v.visit{ast.name}(*this); }}\n')
             output.append(f'Maybe<Location const> & ASTNS::{ast.name}::start() {{ return _start; }}\n')
             output.append(f'Maybe<Location const> & ASTNS::{ast.name}::end() {{ return _end; }}\n')
         elif isinstance(ast, ASTBase):
@@ -173,8 +163,26 @@ def gen_ast_defs():
         else:
             output.append('ASTNS::AST::AST(File const &file): file(file) {}\n')
 
-    return''.join(output)
+    return ''.join(output)
+# Generate AST forward decls {{{3
+def gen_ast_fwd():
+    output = []
+    for ast in asts: output.append(f'    class {ast.name};\n')
+    return ''.join(output)
 # Generating Visitor stuff {{{2
+# Generate Visitor decls {{{3
+def gen_visitor_decls():
+    output = []
+    for ast in asts:
+        if isinstance(ast, ASTBase):
+            output.append(f'    class {ast.name}Visitor {{\n')
+            output.append( '    public:\n')
+            output.append(f'        virtual ~{ast.name}Visitor() {{}}\n')
+            for _ast in asts:
+                if isinstance(_ast, AST) and _ast.base == ast.name:
+                    output.append(f'        virtual void visit{_ast.name}(ASTNS::{_ast.name} &ast) = 0;\n')
+            output.append('    };\n')
+    return ''.join(output)
 # Generate overrided functions for visitor classes {{{3
 def gen_visitor_methods(*bases):
     output = []
@@ -188,7 +196,7 @@ def gen_visitor_methods(*bases):
     return''.join(output)
 # Generate inheriting classes {{{3
 def gen_visitor_inherit_all():
-    return ',\n'.join([f'public ASTNS::{cl.name}::Visitor' for cl in asts if isinstance(cl, ASTBase)]) + '\n'
+    return ',\n'.join([f'public ASTNS::{cl.name}Visitor' for cl in asts if isinstance(cl, ASTBase)]) + '\n'
 # Generating printing stuff {{{2
 # Genearte print visitor {{{3
 def gen_print_visitor_methods():

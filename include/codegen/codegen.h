@@ -8,7 +8,7 @@ namespace llvm { class raw_ostream; }
 namespace IR { class Unit; }
 struct File;
 
-class CodeGen : public ASTNS::CUB::Visitor, public ASTNS::Decl::Visitor {
+class CodeGen : public ASTNS::CUBVisitor, public ASTNS::DeclVisitor {
     class ForwDecl;
     class Declarator;
 

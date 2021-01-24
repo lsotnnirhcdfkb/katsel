@@ -1,11 +1,13 @@
 #pragma once
 
+#include <vector>
+#include <memory>
+
 #include "ir/module.h"
 
-#include <vector>
-#include "llvm/Support/raw_ostream.h"
-
+namespace llvm { class raw_ostream; }
 struct File;
+namespace ASTNS { class ImplicitDecl; }
 
 namespace IR {
     class Function;

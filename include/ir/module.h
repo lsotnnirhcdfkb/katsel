@@ -2,8 +2,6 @@
 
 #include <string>
 #include <map>
-#include <type_traits>
-#include <memory>
 #include "ir/value.h"
 
 struct File;

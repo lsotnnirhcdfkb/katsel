@@ -1,9 +1,10 @@
 #pragma once
 
 #include "lex/tokentype.h"
-#include "utils/file.h"
 #include "utils/ptr.h"
 #include "utils/maybe.h"
+
+struct File;
 
 #include <string>
 #include <ostream>
@@ -24,8 +25,6 @@ struct Token {
     inline std::string stringify() const {
         return std::string(start, end);
     }
-
-    friend std::ostream& operator<<(std::ostream &, Token const &);
 };
 
 inline std::ostream& operator<<(std::ostream &os, Token const &t) {

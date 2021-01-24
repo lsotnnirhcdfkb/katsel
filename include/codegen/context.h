@@ -1,8 +1,8 @@
 #pragma once
 
-#include "codegen/codegen.h"
 #include <cstdint>
 
+#include "codegen/codegen.h"
 #include "ir/type.h"
 #include "ir/value.h"
 

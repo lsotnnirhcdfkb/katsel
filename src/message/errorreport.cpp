@@ -2,6 +2,7 @@
 #include "errors.h"
 #include "message/ansistuff.h"
 #include "utils/format.h"
+#include "utils/file.h"
 #include <algorithm>
 #include <iostream>
 #include <iomanip>

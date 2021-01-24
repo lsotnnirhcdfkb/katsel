@@ -2,6 +2,7 @@
 #include "ir/type.h"
 #include "utils/assert.h"
 #include <memory>
+#include "utils/file.h"
 
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/Verifier.h"
