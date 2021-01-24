@@ -5,6 +5,8 @@
 #include "lex/token.h"
 #include "parse/parser.h"
 
+namespace ASTNS { class AST; }
+
 // nonterminal enum {{{
 enum class NonTerminal {
     // NONTERM ENUM START

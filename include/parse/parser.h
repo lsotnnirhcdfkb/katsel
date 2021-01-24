@@ -1,14 +1,11 @@
 #pragma once
 
-#include "lex/lexer.h"
-#include "lex/token.h"
-#include "ast/ast.h"
-#include "utils/file.h"
-
 #include <memory>
-#include <string>
+#include "lex/token.h"
 
-#include <map>
+class Lexer;
+struct File;
+namespace ASTNS { class CUB; }
 
 class Parser {
 public:
