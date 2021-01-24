@@ -40,7 +40,7 @@ static Maybe<NNPtr<IR::DeclSymbol>> tracePathDeclOnly(NNPtr<IR::DeclSymbol> star
     return current;
 }
 
-void CodeGen::PathVisitor::visitPath(ASTNS::Path &ast) {
+void CodeGen::PathVisitor::visit_path(ASTNS::Path &ast) {
     if (pty == PathType::DECLARED) {
         dret = tracePathDeclOnly(&cg.unit->mod, ast.segments.cbegin(), ast.segments.cend());
     } else {

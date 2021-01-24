@@ -19,7 +19,7 @@ Maybe<NNPtr<IR::Type>> CodeGen::TypeVisitor::type(NNPtr<ASTNS::Type> ast, Maybe<
     return newret;
 }
 
-void CodeGen::TypeVisitor::visitPathType(ASTNS::PathType &ast) {
+void CodeGen::TypeVisitor::visit_path_type(ASTNS::PathType &ast) {
     Maybe<NNPtr<IR::DeclSymbol>> m_decl = cg.pathVisitor->resolveDeclSymbol(ast.path.get());
 
     if (!m_decl.has()) {
@@ -40,7 +40,7 @@ void CodeGen::TypeVisitor::visitPathType(ASTNS::PathType &ast) {
     }
 }
 
-void CodeGen::TypeVisitor::visitPointerType(ASTNS::PointerType &ast) {
+void CodeGen::TypeVisitor::visit_pointer_type(ASTNS::PointerType &ast) {
     Maybe<NNPtr<IR::Type>> ty = type(ast.type.get(), thisType);
     ty.match([this, &ast] (NNPtr<IR::Type> const &ty) {
             ret = Maybe<NNPtr<IR::Type>>(static_cast<NNPtr<IR::Type>>(cg.context->getPointerType(ast.mut, ty)));
@@ -51,7 +51,7 @@ void CodeGen::TypeVisitor::visitPointerType(ASTNS::PointerType &ast) {
         });
 }
 
-void CodeGen::TypeVisitor::visitThisType(ASTNS::ThisType &ast) {
+void CodeGen::TypeVisitor::visit_this_type(ASTNS::ThisType &ast) {
     if (thisType.has()) {
         ret = Maybe(thisType);
     } else {

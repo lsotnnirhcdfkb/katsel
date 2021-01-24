@@ -3,7 +3,7 @@
 #include "ast/ast.h"
 #include "ir/instruction.h"
 
-void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmtItem(ASTNS::VarStmtItem &ast) {
+void CodeGen::FunctionCodeGen::StmtCodeGen::visit_var_stmt_item(ASTNS::VarStmtItem &ast) {
     std::string varname = ast.name.stringify();
     Maybe<NNPtr<CodeGen::FunctionCodeGen::Local>> var = fcg.getLocal(varname);
     if (var.has() && var.get()->scopenum == fcg.curScope) {

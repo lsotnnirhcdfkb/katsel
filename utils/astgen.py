@@ -101,6 +101,20 @@ asts = [
     AST('Path'              , 'PathB', 'std::vector<Token>|segments'),
 ]
 # Generating methods {{{1
+# Helpers {{{2
+def to_snake_case(iden):
+    s = []
+    prev = ''
+    for ch in iden:
+        if ch.isupper() and len(prev) > 0 and prev.islower():
+            s.append('_')
+
+        s.append(ch.lower())
+        prev = ch
+
+    return ''.join(s)
+def visit_method_name(name):
+    return to_snake_case(f'visit{name}')
 # Generating AST stuff {{{2
 # Generate AST declarations {{{3
 def gen_ast_decls():
@@ -155,7 +169,7 @@ def gen_ast_defs():
             output.append(', '.join(init_list))
             output.append(' {}\n')
 
-            output.append(f'void ASTNS::{ast.name}::accept(ASTNS::{ast.base}Visitor &v) {{ v.visit{ast.name}(*this); }}\n')
+            output.append(f'void ASTNS::{ast.name}::accept(ASTNS::{ast.base}Visitor &v) {{ v.{visit_method_name(ast.name)}(*this); }}\n')
             output.append(f'Maybe<Location const> & ASTNS::{ast.name}::start() {{ return _start; }}\n')
             output.append(f'Maybe<Location const> & ASTNS::{ast.name}::end() {{ return _end; }}\n')
         elif isinstance(ast, ASTBase):
@@ -180,7 +194,7 @@ def gen_visitor_decls():
             output.append(f'        virtual ~{ast.name}Visitor() {{}}\n')
             for _ast in asts:
                 if isinstance(_ast, AST) and _ast.base == ast.name:
-                    output.append(f'        virtual void visit{_ast.name}(ASTNS::{_ast.name} &ast) = 0;\n')
+                    output.append(f'        virtual void {visit_method_name(_ast.name)}(ASTNS::{_ast.name} &ast) = 0;\n')
             output.append('    };\n')
     return ''.join(output)
 # Generate overrided functions for visitor classes {{{3
@@ -191,7 +205,7 @@ def gen_visitor_methods(*bases):
             continue
 
         if (ast.base in bases or bases == ('all',)):
-            output.append(f'void visit{ast.name}(ASTNS::{ast.name} &ast) override;\n')
+            output.append(f'void {visit_method_name(ast.name)}(ASTNS::{ast.name} &ast) override;\n')
 
     return''.join(output)
 # Generate inheriting classes {{{3
@@ -205,7 +219,7 @@ def gen_print_visitor_methods():
         if not isinstance(ast, AST):
             continue
 
-        output.append(          f'void ASTNS::PrintVisitor::visit{ast.name}(ASTNS::{ast.name} &a) {{\n')
+        output.append(          f'void ASTNS::PrintVisitor::{visit_method_name(ast.name)}(ASTNS::{ast.name} &a) {{\n')
         output.append(          f'    pai("{ast.name} {{\\n");\n')
         output.append(           '    ++indent;\n')
         for field in ast.fields:

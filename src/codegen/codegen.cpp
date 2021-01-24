@@ -41,12 +41,12 @@ void CodeGen::codegen() {
 }
 
 // visiting {{{1
-void CodeGen::visitCU(ASTNS::CU &ast) {
+void CodeGen::visit_cu(ASTNS::CU &ast) {
     for (std::unique_ptr<ASTNS::Decl> &decl : ast.decls)
         decl->accept(*this);
 }
 
-void CodeGen::visitFunctionDecl(ASTNS::FunctionDecl &ast) {
+void CodeGen::visit_function_decl(ASTNS::FunctionDecl &ast) {
     Maybe<NNPtr<IR::Value>> val = unit->mod.getValue(ast.name.stringify());
     IR::Function *fun;
     if (!val.has() || !(fun = dynamic_cast<IR::Function*>(val.get().asRaw()))) {
@@ -59,10 +59,10 @@ void CodeGen::visitFunctionDecl(ASTNS::FunctionDecl &ast) {
         errored = true;
 }
 
-void CodeGen::visitImplDecl(ASTNS::ImplDecl &ast) {
+void CodeGen::visit_impl_decl(ASTNS::ImplDecl &ast) {
     ImplCodeGen icg (*this, ast);
     if (!icg.codegen())
         errored = true;
 }
 
-void CodeGen::visitImplicitDecl(ASTNS::ImplicitDecl &) {}
+void CodeGen::visit_implicit_decl(ASTNS::ImplicitDecl &) {}

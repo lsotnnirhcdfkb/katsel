@@ -12,7 +12,7 @@ bool CodeGen::ImplCodeGen::codegen() {
     return !errored;
 }
 
-void CodeGen::ImplCodeGen::visitFunctionImplMember(ASTNS::FunctionImplMember &ast) {
+void CodeGen::ImplCodeGen::visit_function_impl_member(ASTNS::FunctionImplMember &ast) {
     if (!implFor.has()) {
         errored = true;
         return;
