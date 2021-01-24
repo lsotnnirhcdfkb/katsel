@@ -14,7 +14,7 @@ Maybe<IR::ASTValue> CodeGen::FunctionCodeGen::ExprCodeGen::expr(NNPtr<ASTNS::Exp
     return ret;
 }
 
-void CodeGen::FunctionCodeGen::ExprCodeGen::visit_binary_expr(ASTNS::BinaryExpr &ast) {
+void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::BinaryExpr &ast) {
     Maybe<IR::ASTValue> m_lhs = expr(ast.lhs.get());
     Maybe<IR::ASTValue> m_rhs = expr(ast.rhs.get());
     if (!m_lhs.has() || !m_rhs.has()) {
@@ -48,7 +48,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit_binary_expr(ASTNS::BinaryExpr 
     if (!ret.has())
         fcg.errored = true;
 }
-void CodeGen::FunctionCodeGen::ExprCodeGen::visit_short_circuit_expr(ASTNS::ShortCircuitExpr &ast) {
+void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::ShortCircuitExpr &ast) {
     Maybe<IR::ASTValue> m_lhs = expr(ast.lhs.get());
     if (!m_lhs.has()) {
         ret = Maybe<IR::ASTValue>();
@@ -105,7 +105,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit_short_circuit_expr(ASTNS::Shor
     ret = IR::ASTValue(fcg.cur_block->add(std::make_unique<IR::Instrs::Phi>(std::vector {std::make_pair(checkboth, rhs), std::make_pair(skip, IR::ASTValue(cg.context->get_const_bool(value_if_skipped), ast))})), ast);
 }
 
-void CodeGen::FunctionCodeGen::ExprCodeGen::visit_unary_expr(ASTNS::UnaryExpr &ast) {
+void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::UnaryExpr &ast) {
     Maybe<IR::ASTValue> m_oper = expr(ast.expr.get());
     if (!m_oper.has()) {
         ret = Maybe<IR::ASTValue>();
@@ -132,7 +132,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit_unary_expr(ASTNS::UnaryExpr &a
         fcg.errored = true;
 }
 
-void CodeGen::FunctionCodeGen::ExprCodeGen::visit_deref_expr(ASTNS::DerefExpr &ast) {
+void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::DerefExpr &ast) {
     Maybe<IR::ASTValue> m_oper = expr(ast.expr.get());
     if (!m_oper.has()) {
         ret = Maybe<IR::ASTValue>();
@@ -151,7 +151,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit_deref_expr(ASTNS::DerefExpr &a
 
     ret = IR::ASTValue(fcg.cur_block->add(std::make_unique<IR::Instrs::DerefPtr>(oper)), ast);
 }
-void CodeGen::FunctionCodeGen::ExprCodeGen::visit_addrof_expr(ASTNS::AddrofExpr &ast) {
+void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::AddrofExpr &ast) {
     Maybe<IR::ASTValue> m_oper = expr(ast.expr.get());
     if (!m_oper.has()) {
         ret = Maybe<IR::ASTValue>();
@@ -178,7 +178,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit_addrof_expr(ASTNS::AddrofExpr 
     ret = IR::ASTValue(fcg.cur_block->add(std::make_unique<IR::Instrs::Addrof>(as_deref, ast.mut)), ast);
 }
 
-void CodeGen::FunctionCodeGen::ExprCodeGen::visit_call_expr(ASTNS::CallExpr &ast) {
+void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::CallExpr &ast) {
     Maybe<IR::ASTValue> m_fun = expr(ast.callee.get());
     if (!m_fun.has()) {
         ret = Maybe<IR::ASTValue>();
@@ -226,7 +226,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit_call_expr(ASTNS::CallExpr &ast
     ret = IR::ASTValue(fcg.cur_block->add(std::make_unique<IR::Instrs::Call>(NNPtr<IR::Function>(static_cast<IR::Function*>(fun.val.as_raw())), args)), ast);
 }
 
-void CodeGen::FunctionCodeGen::ExprCodeGen::visit_primary_expr(ASTNS::PrimaryExpr &ast) {
+void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::PrimaryExpr &ast) {
     int _intbase;
     switch (ast.value.type) {
         case TokenType::TRUELIT:
@@ -286,7 +286,7 @@ make_int_lit:
             invalid_tok("primary token", ast.value);
     }
 }
-void CodeGen::FunctionCodeGen::ExprCodeGen::visit_if_expr(ASTNS::IfExpr &ast) {
+void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::IfExpr &ast) {
     Maybe<IR::ASTValue> m_cond = expr(ast.cond.get());
     if (!m_cond.has()) {
         ret = Maybe<IR::ASTValue>();
@@ -364,7 +364,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit_if_expr(ASTNS::IfExpr &ast) {
         ret = IR::ASTValue(truev.val, ast);
 
 }
-void CodeGen::FunctionCodeGen::ExprCodeGen::visit_while_expr(ASTNS::WhileExpr &ast) {
+void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::WhileExpr &ast) {
     fcg.inc_scope();
 
     NNPtr<IR::Block> loop_check_cond = fcg.fun->add_block("loop_checkcond");
@@ -402,7 +402,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit_while_expr(ASTNS::WhileExpr &a
     ret = IR::ASTValue(cg.context->get_void(), ast);
 }
 
-void CodeGen::FunctionCodeGen::ExprCodeGen::visit_assignment_expr(ASTNS::AssignmentExpr &ast) {
+void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::AssignmentExpr &ast) {
     Maybe<IR::ASTValue> m_lhs = expr(ast.target.get());
     Maybe<IR::ASTValue> m_rhs = expr(ast.expr.get());
 
@@ -443,7 +443,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit_assignment_expr(ASTNS::Assignm
 
     ret = rhs;
 }
-void CodeGen::FunctionCodeGen::ExprCodeGen::visit_cast_expr(ASTNS::CastExpr &ast) {
+void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::CastExpr &ast) {
     Maybe<IR::ASTValue> m_oper = expr(ast.expr.get());
     if (!m_oper.has()) {
         ret = Maybe<IR::ASTValue>();
@@ -466,7 +466,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit_cast_expr(ASTNS::CastExpr &ast
         fcg.errored = true;
 }
 
-void CodeGen::FunctionCodeGen::ExprCodeGen::visit_block(ASTNS::Block &ast) {
+void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::Block &ast) {
     fcg.inc_scope();
 
     Maybe<IR::ASTValue> block_ret;
@@ -504,12 +504,12 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit_block(ASTNS::Block &ast) {
     fcg.dec_scope();
 }
 
-void CodeGen::FunctionCodeGen::ExprCodeGen::visit_path_expr(ASTNS::PathExpr &ast) {
+void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::PathExpr &ast) {
     ret = cg.path_visitor->resolve_value(ast.path.get(), fcg);
     if (!ret.has())
         fcg.errored = true;
 }
-void CodeGen::FunctionCodeGen::ExprCodeGen::visit_field_access_expr(ASTNS::FieldAccessExpr &ast) {
+void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::FieldAccessExpr &ast) {
     Maybe<IR::ASTValue> m_op = expr(ast.operand.get());
     if (!m_op.has()) {
         fcg.errored = true;
@@ -528,7 +528,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit_field_access_expr(ASTNS::Field
     int ind = op.type()->get_field_index(ast.field.stringify());
     // TODO: do this
 }
-void CodeGen::FunctionCodeGen::ExprCodeGen::visit_method_call_expr(ASTNS::MethodCallExpr &ast) {
+void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::MethodCallExpr &ast) {
     Maybe<IR::ASTValue> m_op = expr(ast.operand.get());
     if (!m_op.has()) {
         fcg.errored = true;
@@ -582,7 +582,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit_method_call_expr(ASTNS::Method
         return;
     }
 
-    // TODO: move this code somewhere else so that it does not have to be copied and pasted from visit_call_expr
+    // TODO: move this code somewhere else so that it does not have to be copied and pasted from visiting call exprs
     bool argserr = false;
     auto i = args.begin();
     auto j = paramtys.begin();

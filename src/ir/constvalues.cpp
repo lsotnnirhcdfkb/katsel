@@ -28,6 +28,6 @@ NNPtr<IR::Type> IR::Void::type() const {
 
 // again, do all the accept methods here, even though it doesn't really fit in with the file structure
 #define ACCEPT(cl, name) \
-void IR::cl::value_accept(IR::ValueVisitor &v) { v.value_visit##name(*this); }
+void IR::cl::value_accept(IR::ValueVisitor &v) { v.value_visit(*this); }
 IR_VALUE_LIST(ACCEPT)
 #undef ACCEPT

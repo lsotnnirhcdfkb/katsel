@@ -157,7 +157,7 @@ def gen_ast_defs():
             output.append(', '.join(init_list))
             output.append(' {}\n')
 
-            output.append(f'void ASTNS::{ast.name}::accept(ASTNS::{ast.base}Visitor &v) {{ v.{helpers.visit_method_name(ast.name)}(*this); }}\n')
+            output.append(f'void ASTNS::{ast.name}::accept(ASTNS::{ast.base}Visitor &v) {{ v.visit(*this); }}\n')
             output.append(f'Maybe<Location const> & ASTNS::{ast.name}::start() {{ return _start; }}\n')
             output.append(f'Maybe<Location const> & ASTNS::{ast.name}::end() {{ return _end; }}\n')
         elif isinstance(ast, ASTBase):
@@ -182,7 +182,7 @@ def gen_visitor_decls():
             output.append(f'        virtual ~{ast.name}Visitor() {{}}\n')
             for _ast in asts:
                 if isinstance(_ast, AST) and _ast.base == ast.name:
-                    output.append(f'        virtual void {helpers.visit_method_name(_ast.name)}(ASTNS::{_ast.name} &ast) = 0;\n')
+                    output.append(f'        virtual void visit(ASTNS::{_ast.name} &ast) = 0;\n')
             output.append('    };\n')
     return ''.join(output)
 # Generate overrided functions for visitor classes {{{3
@@ -193,7 +193,7 @@ def gen_visitor_methods(*bases):
             continue
 
         if (ast.base in bases or bases == ('all',)):
-            output.append(f'void {helpers.visit_method_name(ast.name)}(ASTNS::{ast.name} &ast) override;\n')
+            output.append(f'void visit(ASTNS::{ast.name} &ast) override;\n')
 
     return''.join(output)
 # Generate inheriting classes {{{3
@@ -207,7 +207,7 @@ def gen_print_visitor_methods():
         if not isinstance(ast, AST):
             continue
 
-        output.append(          f'void ASTNS::PrintVisitor::{helpers.visit_method_name(ast.name)}(ASTNS::{ast.name} &a) {{\n')
+        output.append(          f'void ASTNS::PrintVisitor::visit(ASTNS::{ast.name} &a) {{\n')
         output.append(          f'    pai("{ast.name} {{\\n");\n')
         output.append(           '    ++indent;\n')
         for field in ast.fields:

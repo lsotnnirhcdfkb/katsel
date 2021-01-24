@@ -8,14 +8,14 @@ CodeGen::FunctionCodeGen::StmtCodeGen::StmtCodeGen(CodeGen &cg, FunctionCodeGen 
 void CodeGen::FunctionCodeGen::StmtCodeGen::stmt(NNPtr<ASTNS::Stmt> ast) {
     ast->accept(*this);
 }
-void CodeGen::FunctionCodeGen::StmtCodeGen::visit_expr_stmt(ASTNS::ExprStmt &ast) {
+void CodeGen::FunctionCodeGen::StmtCodeGen::visit(ASTNS::ExprStmt &ast) {
     fcg.expr_cg.expr(ast.expr.get());
 }
-void CodeGen::FunctionCodeGen::StmtCodeGen::visit_var_stmt(ASTNS::VarStmt &ast) {
+void CodeGen::FunctionCodeGen::StmtCodeGen::visit(ASTNS::VarStmt &ast) {
     for (std::unique_ptr<ASTNS::VarStmtItem> &item : ast.items)
         item->accept(*this);
 }
-void CodeGen::FunctionCodeGen::StmtCodeGen::visit_ret_stmt(ASTNS::RetStmt &ast) {
+void CodeGen::FunctionCodeGen::StmtCodeGen::visit(ASTNS::RetStmt &ast) {
     Maybe<IR::ASTValue> m_v = ast.expr ? fcg.expr_cg.expr(ast.expr.get()) : Maybe<IR::ASTValue>(IR::ASTValue(cg.context->get_void(), ast));
     if (!m_v.has())
         return;

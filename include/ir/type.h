@@ -305,7 +305,7 @@ namespace IR {
     class TypeVisitor {
     public:
         virtual ~TypeVisitor() {}
-#define VISITTY(cl) virtual void type_visit##cl(cl &ty) = 0;
+#define VISITTY(cl) virtual void type_visit(cl &ty) = 0;
         IR_TYPES(VISITTY)
 #undef VISITTY
     };

@@ -155,7 +155,7 @@ def gen_defs():
         for assertion in instruction.assertions:
             output.append(    f'    ASSERT({assertion})\n')
         output.append(         '}\n')
-        output.append(        f'void IR::Instrs::{instruction.name}::accept({instruction.base()}Visitor &v) {{ v.{helpers.visit_method_name(instruction.name)}(*this); }}\n')
+        output.append(        f'void IR::Instrs::{instruction.name}::accept({instruction.base()}Visitor &v) {{ v.visit(*this); }}\n')
 
         if instruction.base() == 'Instruction':
             output.append(    f'NNPtr<IR::Type> IR::Instrs::{instruction.name}::type() const {{ return {instruction.type}; }}\n')
@@ -171,7 +171,7 @@ def gen_method_decls(base):
     output = []
     for instr in instructions:
         if instr.base() == base:
-            output.append(f'void {helpers.visit_method_name(instr.name)}(IR::Instrs::{instr.name} &i) override;\n')
+            output.append(f'void visit(IR::Instrs::{instr.name} &i) override;\n')
 
     return ''.join(output)
 
@@ -179,6 +179,6 @@ def gen_pure_method_decls(base):
     output = []
     for instr in instructions:
         if instr.base() == base:
-            output.append(f'virtual void {helpers.visit_method_name(instr.name)}(IR::Instrs::{instr.name} &i) = 0;\n')
+            output.append(f'virtual void visit(IR::Instrs::{instr.name} &i) = 0;\n')
 
     return ''.join(output)

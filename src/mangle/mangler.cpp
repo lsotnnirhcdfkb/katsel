@@ -29,7 +29,7 @@ namespace {
     private:
         std::stringstream &ss;
 
-        void type_visit_int_type(IR::IntType &ty) override {
+        void type_visit(IR::IntType &ty) override {
             switch (ty.size) {
                 case 8:  ss << (ty.is_signed ? 's' : 'u'); break;
                 case 16: ss << (ty.is_signed ? 'r' : 'w'); break;
@@ -37,43 +37,43 @@ namespace {
                 case 64: ss << (ty.is_signed ? 'p' : 'y'); break;
             }
         }
-        void type_visit_float_type(IR::FloatType &ty) override {
+        void type_visit(IR::FloatType &ty) override {
             ss << (ty.size == 32 ? 'f' : 'd');
         }
-        void type_visit_char_type(IR::CharType &ty) override {
+        void type_visit(IR::CharType &ty) override {
             ss << 'c';
         }
-        void type_visit_bool_type(IR::BoolType &ty) override {
+        void type_visit(IR::BoolType &ty) override {
             ss << 'b';
         }
-        void type_visit_function_type(IR::FunctionType &ty) override {
+        void type_visit(IR::FunctionType &ty) override {
             ss << 'F';
             mangle(*ty.ret);
             for (NNPtr<IR::Type> pty : ty.paramtys)
                 mangle(*pty);
             ss << 'f';
         }
-        void type_visit_void_type(IR::VoidType &ty) override {
+        void type_visit(IR::VoidType &ty) override {
             ss << 'v';
         }
-        void type_visit_generic_int_type(IR::GenericIntType &ty) override {
+        void type_visit(IR::GenericIntType &ty) override {
             ss << 'x';
         }
-        void type_visit_generic_float_type(IR::GenericFloatType &ty) override {
+        void type_visit(IR::GenericFloatType &ty) override {
             ss << 'f';
         }
-        void type_visit_pointer_type(IR::PointerType &ty) override {
+        void type_visit(IR::PointerType &ty) override {
             ss << 'P';
             mangle(*ty.ty);
             ss << 'p';
         }
 
-        void declsym_visit_type(IR::Type &ty) override {
+        void declsym_visit(IR::Type &ty) override {
             ss << 'T';
             mangle(ty);
             ss << 't';
         }
-        void declsym_visit_module(IR::Module &m) override {
+        void declsym_visit(IR::Module &m) override {
             ss << 'M';
             identifier(m.name());
             ss << 'm';

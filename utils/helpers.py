@@ -9,6 +9,3 @@ def to_snake_case(iden):
         prev = ch
 
     return ''.join(s)
-
-def visit_method_name(name):
-    return to_snake_case(f'visit{name}')

@@ -92,7 +92,7 @@ namespace IR {
     public:
         virtual ~DeclSymbolVisitor() {}
 #define VISITMETHOD(cl) \
-        virtual void declsym_visit##cl(cl &ds) = 0;
+        virtual void declsym_visit(cl &ds) = 0;
         DECLSYM_CLASS_LIST(VISITMETHOD)
 #undef VISITMETHOD
     };

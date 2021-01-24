@@ -8,88 +8,88 @@ namespace ASTNS {
     class CUBVisitor {
     public:
         virtual ~CUBVisitor() {}
-        virtual void visit_cu(ASTNS::CU &ast) = 0;
+        virtual void visit(ASTNS::CU &ast) = 0;
     };
     class DeclVisitor {
     public:
         virtual ~DeclVisitor() {}
-        virtual void visit_implicit_decl(ASTNS::ImplicitDecl &ast) = 0;
-        virtual void visit_impl_decl(ASTNS::ImplDecl &ast) = 0;
-        virtual void visit_function_decl(ASTNS::FunctionDecl &ast) = 0;
+        virtual void visit(ASTNS::ImplicitDecl &ast) = 0;
+        virtual void visit(ASTNS::ImplDecl &ast) = 0;
+        virtual void visit(ASTNS::FunctionDecl &ast) = 0;
     };
     class ImplMemberVisitor {
     public:
         virtual ~ImplMemberVisitor() {}
-        virtual void visit_function_impl_member(ASTNS::FunctionImplMember &ast) = 0;
+        virtual void visit(ASTNS::FunctionImplMember &ast) = 0;
     };
     class StmtVisitor {
     public:
         virtual ~StmtVisitor() {}
-        virtual void visit_var_stmt(ASTNS::VarStmt &ast) = 0;
-        virtual void visit_expr_stmt(ASTNS::ExprStmt &ast) = 0;
-        virtual void visit_ret_stmt(ASTNS::RetStmt &ast) = 0;
+        virtual void visit(ASTNS::VarStmt &ast) = 0;
+        virtual void visit(ASTNS::ExprStmt &ast) = 0;
+        virtual void visit(ASTNS::RetStmt &ast) = 0;
     };
     class ExprVisitor {
     public:
         virtual ~ExprVisitor() {}
-        virtual void visit_block(ASTNS::Block &ast) = 0;
-        virtual void visit_if_expr(ASTNS::IfExpr &ast) = 0;
-        virtual void visit_while_expr(ASTNS::WhileExpr &ast) = 0;
-        virtual void visit_assignment_expr(ASTNS::AssignmentExpr &ast) = 0;
-        virtual void visit_short_circuit_expr(ASTNS::ShortCircuitExpr &ast) = 0;
-        virtual void visit_binary_expr(ASTNS::BinaryExpr &ast) = 0;
-        virtual void visit_cast_expr(ASTNS::CastExpr &ast) = 0;
-        virtual void visit_unary_expr(ASTNS::UnaryExpr &ast) = 0;
-        virtual void visit_addrof_expr(ASTNS::AddrofExpr &ast) = 0;
-        virtual void visit_deref_expr(ASTNS::DerefExpr &ast) = 0;
-        virtual void visit_call_expr(ASTNS::CallExpr &ast) = 0;
-        virtual void visit_field_access_expr(ASTNS::FieldAccessExpr &ast) = 0;
-        virtual void visit_method_call_expr(ASTNS::MethodCallExpr &ast) = 0;
-        virtual void visit_primary_expr(ASTNS::PrimaryExpr &ast) = 0;
-        virtual void visit_path_expr(ASTNS::PathExpr &ast) = 0;
+        virtual void visit(ASTNS::Block &ast) = 0;
+        virtual void visit(ASTNS::IfExpr &ast) = 0;
+        virtual void visit(ASTNS::WhileExpr &ast) = 0;
+        virtual void visit(ASTNS::AssignmentExpr &ast) = 0;
+        virtual void visit(ASTNS::ShortCircuitExpr &ast) = 0;
+        virtual void visit(ASTNS::BinaryExpr &ast) = 0;
+        virtual void visit(ASTNS::CastExpr &ast) = 0;
+        virtual void visit(ASTNS::UnaryExpr &ast) = 0;
+        virtual void visit(ASTNS::AddrofExpr &ast) = 0;
+        virtual void visit(ASTNS::DerefExpr &ast) = 0;
+        virtual void visit(ASTNS::CallExpr &ast) = 0;
+        virtual void visit(ASTNS::FieldAccessExpr &ast) = 0;
+        virtual void visit(ASTNS::MethodCallExpr &ast) = 0;
+        virtual void visit(ASTNS::PrimaryExpr &ast) = 0;
+        virtual void visit(ASTNS::PathExpr &ast) = 0;
     };
     class TypeVisitor {
     public:
         virtual ~TypeVisitor() {}
-        virtual void visit_path_type(ASTNS::PathType &ast) = 0;
-        virtual void visit_pointer_type(ASTNS::PointerType &ast) = 0;
-        virtual void visit_this_type(ASTNS::ThisType &ast) = 0;
+        virtual void visit(ASTNS::PathType &ast) = 0;
+        virtual void visit(ASTNS::PointerType &ast) = 0;
+        virtual void visit(ASTNS::ThisType &ast) = 0;
     };
     class ArgBVisitor {
     public:
         virtual ~ArgBVisitor() {}
-        virtual void visit_arg(ASTNS::Arg &ast) = 0;
+        virtual void visit(ASTNS::Arg &ast) = 0;
     };
     class ParamBVisitor {
     public:
         virtual ~ParamBVisitor() {}
-        virtual void visit_param(ASTNS::Param &ast) = 0;
-        virtual void visit_this_param(ASTNS::ThisParam &ast) = 0;
+        virtual void visit(ASTNS::Param &ast) = 0;
+        virtual void visit(ASTNS::ThisParam &ast) = 0;
     };
     class VStmtIBVisitor {
     public:
         virtual ~VStmtIBVisitor() {}
-        virtual void visit_var_stmt_item(ASTNS::VarStmtItem &ast) = 0;
+        virtual void visit(ASTNS::VarStmtItem &ast) = 0;
     };
     class PathBVisitor {
     public:
         virtual ~PathBVisitor() {}
-        virtual void visit_path(ASTNS::Path &ast) = 0;
+        virtual void visit(ASTNS::Path &ast) = 0;
     };
     class ListBVisitor {
     public:
         virtual ~ListBVisitor() {}
-        virtual void visit_decl_list(ASTNS::DeclList &ast) = 0;
-        virtual void visit_stmt_list(ASTNS::StmtList &ast) = 0;
-        virtual void visit_param_list(ASTNS::ParamList &ast) = 0;
-        virtual void visit_arg_list(ASTNS::ArgList &ast) = 0;
-        virtual void visit_var_stmt_item_list(ASTNS::VarStmtItemList &ast) = 0;
-        virtual void visit_impl_member_list(ASTNS::ImplMemberList &ast) = 0;
+        virtual void visit(ASTNS::DeclList &ast) = 0;
+        virtual void visit(ASTNS::StmtList &ast) = 0;
+        virtual void visit(ASTNS::ParamList &ast) = 0;
+        virtual void visit(ASTNS::ArgList &ast) = 0;
+        virtual void visit(ASTNS::VarStmtItemList &ast) = 0;
+        virtual void visit(ASTNS::ImplMemberList &ast) = 0;
     };
     class PureLocationBVisitor {
     public:
         virtual ~PureLocationBVisitor() {}
-        virtual void visit_pure_location(ASTNS::PureLocation &ast) = 0;
+        virtual void visit(ASTNS::PureLocation &ast) = 0;
     };
 // This code was autogenerated - see the utils/ directory
 // ASTVISITH END

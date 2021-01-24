@@ -97,6 +97,6 @@ std::ostream& operator<<(std::ostream &os, NNPtr<IR::Type const> const &ty) {
 DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::VoidType)
 DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::FunctionType)
 
-#define ACCEPT(cl) void IR::cl::type_accept(IR::TypeVisitor &v) { v.type_visit##cl(*this); }
+#define ACCEPT(cl) void IR::cl::type_accept(IR::TypeVisitor &v) { v.type_visit(*this); }
 IR_TYPES(ACCEPT)
 #undef ACCEPT

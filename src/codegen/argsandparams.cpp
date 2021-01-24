@@ -14,7 +14,7 @@ CodeGen::ParamVisitor::ParamVisitor::ParamVisitor(CodeGen &cg, std::vector<std::
     }
 }
 
-void CodeGen::ParamVisitor::visit_param(ASTNS::Param &ast) {
+void CodeGen::ParamVisitor::visit(ASTNS::Param &ast) {
     Maybe<NNPtr<IR::Type>> ty (cg.type_visitor->type(ast.type.get(), this_type));
     if (ty.has()) {
         std::string name (ast.name.stringify());
@@ -26,7 +26,7 @@ void CodeGen::ParamVisitor::visit_param(ASTNS::Param &ast) {
     }
 }
 
-void CodeGen::ParamVisitor::visit_this_param(ASTNS::ThisParam &ast) {
+void CodeGen::ParamVisitor::visit(ASTNS::ThisParam &ast) {
     if (!this_type.has()) {
         errored = true;
         ERR_TYPELESS_THIS(ast);
@@ -54,7 +54,7 @@ CodeGen::ArgVisitor::ArgVisitor::ArgVisitor(CodeGen::FunctionCodeGen &fcg, std::
         a->accept(*this);
 }
 
-void CodeGen::ArgVisitor::visit_arg(ASTNS::Arg &ast) {
+void CodeGen::ArgVisitor::visit(ASTNS::Arg &ast) {
     Maybe<IR::ASTValue> a = fcg.expr_cg.expr(ast.expr.get());
     if (a.has())
         ret.push_back(a.get());

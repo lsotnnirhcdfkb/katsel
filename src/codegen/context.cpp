@@ -7,7 +7,7 @@
 CodeGen::Context::Context(File const &file, CodeGen &cg): cg(cg), void_value(get_void_type()) {}
 
 // getting types {{{1 TODO: make a template function to loop through things and either make operator== = default for all types or use a lambda to compare them
-#define GET_TYPE_DEF(type) NNPtr<IR::type> CodeGen::Context::get##type
+#define GET_TYPE_DEF(ret, type) NNPtr<IR::ret> CodeGen::Context::get_##type
 #define LOOP_TYPES() for (std::unique_ptr<IR::Type> &_loop_type : types)
 #define CHECK_TYPE_TYPE(type) IR::type *_casted (dynamic_cast<IR::type*>(_loop_type.get()));
 #define CHECK_FIELD(field) (_casted->field == field)
@@ -17,7 +17,7 @@ CodeGen::Context::Context(File const &file, CodeGen &cg): cg(cg), void_value(get
     types.push_back(std::move(_new_type)); \
     return _new_type_r;
 
-GET_TYPE_DEF(FloatType)(int size) {
+GET_TYPE_DEF(FloatType, float_type)(int size) {
     LOOP_TYPES() {
         CHECK_TYPE_TYPE(FloatType)
         if (_casted && CHECK_FIELD(size)) return _casted;
@@ -25,7 +25,7 @@ GET_TYPE_DEF(FloatType)(int size) {
     CONSTRUCT_TYPE(FloatType)(*this, cg.unit->implicit_decl_ast.get(), size);
     PUSH_RETURN(FloatType)
 }
-GET_TYPE_DEF(IntType)(int size, bool is_signed) {
+GET_TYPE_DEF(IntType, int_type)(int size, bool is_signed) {
     LOOP_TYPES() {
         CHECK_TYPE_TYPE(IntType)
         if (_casted && CHECK_FIELD(size) && CHECK_FIELD(is_signed)) return _casted;
@@ -33,7 +33,7 @@ GET_TYPE_DEF(IntType)(int size, bool is_signed) {
     CONSTRUCT_TYPE(IntType)(*this, cg.unit->implicit_decl_ast.get(), size, is_signed);
     PUSH_RETURN(IntType)
 }
-GET_TYPE_DEF(CharType)() {
+GET_TYPE_DEF(CharType, char_type)() {
     LOOP_TYPES() {
         CHECK_TYPE_TYPE(CharType)
         if (_casted) return _casted;
@@ -41,7 +41,7 @@ GET_TYPE_DEF(CharType)() {
     CONSTRUCT_TYPE(CharType)(*this, cg.unit->implicit_decl_ast.get());
     PUSH_RETURN(CharType)
 }
-GET_TYPE_DEF(BoolType)() {
+GET_TYPE_DEF(BoolType, bool_type)() {
     LOOP_TYPES() {
         CHECK_TYPE_TYPE(BoolType)
         if (_casted) return _casted;
@@ -49,7 +49,7 @@ GET_TYPE_DEF(BoolType)() {
     CONSTRUCT_TYPE(BoolType)(*this, cg.unit->implicit_decl_ast.get());
     PUSH_RETURN(BoolType)
 }
-GET_TYPE_DEF(GenericIntType)() {
+GET_TYPE_DEF(GenericIntType, generic_int_type)() {
     LOOP_TYPES() {
         CHECK_TYPE_TYPE(GenericIntType)
         if (_casted) return _casted;
@@ -57,7 +57,7 @@ GET_TYPE_DEF(GenericIntType)() {
     CONSTRUCT_TYPE(GenericIntType)(*this, cg.unit->implicit_decl_ast.get());
     PUSH_RETURN(GenericIntType)
 }
-GET_TYPE_DEF(GenericFloatType)() {
+GET_TYPE_DEF(GenericFloatType, generic_float_type)() {
     LOOP_TYPES() {
         CHECK_TYPE_TYPE(GenericFloatType)
         if (_casted) return _casted;
@@ -65,7 +65,7 @@ GET_TYPE_DEF(GenericFloatType)() {
     CONSTRUCT_TYPE(GenericFloatType)(*this, cg.unit->implicit_decl_ast.get());
     PUSH_RETURN(GenericFloatType)
 }
-GET_TYPE_DEF(FunctionType)(NNPtr<IR::Type> ret, std::vector<NNPtr<IR::Type>> paramtys) {
+GET_TYPE_DEF(FunctionType, function_type)(NNPtr<IR::Type> ret, std::vector<NNPtr<IR::Type>> paramtys) {
     LOOP_TYPES() {
         CHECK_TYPE_TYPE(FunctionType)
         if (_casted && CHECK_FIELD(ret) && CHECK_FIELD(paramtys)) return _casted;
@@ -73,7 +73,7 @@ GET_TYPE_DEF(FunctionType)(NNPtr<IR::Type> ret, std::vector<NNPtr<IR::Type>> par
     CONSTRUCT_TYPE(FunctionType)(*this, cg.unit->implicit_decl_ast.get(), ret, paramtys);
     PUSH_RETURN(FunctionType)
 }
-GET_TYPE_DEF(VoidType)() {
+GET_TYPE_DEF(VoidType, void_type)() {
     LOOP_TYPES() {
         CHECK_TYPE_TYPE(VoidType)
         if (_casted) return _casted;
@@ -81,7 +81,7 @@ GET_TYPE_DEF(VoidType)() {
     CONSTRUCT_TYPE(VoidType)(*this, cg.unit->implicit_decl_ast.get());
     PUSH_RETURN(VoidType)
 }
-GET_TYPE_DEF(PointerType)(bool mut, NNPtr<IR::Type> ty) {
+GET_TYPE_DEF(PointerType, pointer_type)(bool mut, NNPtr<IR::Type> ty) {
     LOOP_TYPES() {
         CHECK_TYPE_TYPE(PointerType)
         if (_casted && CHECK_FIELD(mut) && CHECK_FIELD(ty)) return _casted;

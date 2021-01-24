@@ -146,7 +146,7 @@ namespace IR {
     class ValueVisitor {
     public:
 #define VISITMETHOD(cl, n) \
-        virtual void value_visit##n(cl &i) = 0;
+        virtual void value_visit(cl &i) = 0;
         IR_VALUE_LIST(VISITMETHOD)
 #undef VISITMETHOD
     };

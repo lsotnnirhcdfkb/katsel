@@ -16,7 +16,7 @@ DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::Module)
 
 // do the dsaccept methods here, even though that doesn't really make sense with the file structure but whatever
 #define DSACCEPTMETHOD(cl) \
-    void IR::cl::declsym_accept(IR::DeclSymbolVisitor &v) { v.declsym_visit##cl(*this); }
+    void IR::cl::declsym_accept(IR::DeclSymbolVisitor &v) { v.declsym_visit(*this); }
 DECLSYM_CLASS_LIST(DSACCEPTMETHOD)
 #undef DSACCEPTMETHOD
 

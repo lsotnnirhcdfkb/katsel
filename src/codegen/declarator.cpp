@@ -6,12 +6,12 @@
 
 CodeGen::Declarator::Declarator(CodeGen &cg): cg(cg), current_symbol(&cg.unit->mod), this_type(Maybe<NNPtr<IR::Type>>()) {}
 
-void CodeGen::Declarator::visit_cu(ASTNS::CU &ast) {
+void CodeGen::Declarator::visit(ASTNS::CU &ast) {
     for (std::unique_ptr<ASTNS::Decl> &decl : ast.decls)
         decl->accept(*this);
 }
 
-void CodeGen::Declarator::visit_function_decl(ASTNS::FunctionDecl &fun) {
+void CodeGen::Declarator::visit(ASTNS::FunctionDecl &fun) {
     std::string fname (fun.name.stringify());
     Maybe<NNPtr<IR::Value>> declbefore = current_symbol->get_value(fname);
 
@@ -46,7 +46,7 @@ void CodeGen::Declarator::visit_function_decl(ASTNS::FunctionDecl &fun) {
     }
 }
 
-void CodeGen::Declarator::visit_impl_decl(ASTNS::ImplDecl &impl) {
+void CodeGen::Declarator::visit(ASTNS::ImplDecl &impl) {
     Maybe<NNPtr<IR::Type>> m_impl_for = cg.type_visitor->type(impl.impl_for.get(), Maybe<NNPtr<IR::Type>>());
     if (!m_impl_for.has()) {
         cg.errored = true;
@@ -66,8 +66,8 @@ void CodeGen::Declarator::visit_impl_decl(ASTNS::ImplDecl &impl) {
     this_type = Maybe<NNPtr<IR::Type>>();
 }
 
-void CodeGen::Declarator::visit_function_impl_member(ASTNS::FunctionImplMember &member) {
+void CodeGen::Declarator::visit(ASTNS::FunctionImplMember &member) {
     member.fun->accept(*this);
 }
 
-void CodeGen::Declarator::visit_implicit_decl(ASTNS::ImplicitDecl &) {}
+void CodeGen::Declarator::visit(ASTNS::ImplicitDecl &) {}
