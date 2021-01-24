@@ -18,7 +18,7 @@ CodeGen::FunctionCodeGen::FunctionCodeGen(CodeGen &cg, NNPtr<ASTNS::FunctionDecl
     entry_block(fun->add_block("entry")),
     exit_block(fun->add_block("exit")),
     cur_block(entry_block),
-    ret(register_block->add(std::make_unique<IR::Instrs::Register>(cg.unit->implicit_decl_ast.get(), fun->ty->ret, true))),
+    ret(register_block->add<IR::Instrs::Register>(cg.unit->implicit_decl_ast.get(), fun->ty->ret, true)),
     this_type(this_type),
     errored(false) {}
 
@@ -36,7 +36,7 @@ bool CodeGen::FunctionCodeGen::codegen() {
 
     for (auto const &param : params) {
         std::string pname = param.name;
-        IR::Instrs::Register &reg = register_block->add(std::make_unique<IR::Instrs::Register>(param.ast, param.ty, param.mut));
+        IR::Instrs::Register &reg = register_block->add<IR::Instrs::Register>(param.ast, param.ty, param.mut);
 
         Maybe<NNPtr<Local>> foundparam = get_local(pname);
         if (foundparam.has()) {
@@ -51,7 +51,7 @@ bool CodeGen::FunctionCodeGen::codegen() {
     dec_scope();
 
     if (!errored) {
-        NNPtr<IR::Instrs::Instruction> deref_ret_reg = exit_block->add(std::make_unique<IR::Instrs::DerefPtr>(IR::ASTValue(ret, ast->retty.get())));
+        NNPtr<IR::Instrs::Instruction> deref_ret_reg = exit_block->add<IR::Instrs::DerefPtr>(IR::ASTValue(ret, ast->retty.get()));
         exit_block->branch(std::make_unique<IR::Instrs::Return>(IR::ASTValue(deref_ret_reg, ast->retty.get())));
 
         if (!m_retval.has()) {
@@ -64,7 +64,7 @@ bool CodeGen::FunctionCodeGen::codegen() {
                 ERR_CONFLICT_RET_TY(retval, fun);
                 errored = true;
             } else {
-                cur_block->add(std::make_unique<IR::Instrs::Store>(IR::ASTValue(ret, ast->retty.get()), retval, false));
+                cur_block->add<IR::Instrs::Store>(IR::ASTValue(ret, ast->retty.get()), retval, false);
                 cur_block->branch(std::make_unique<IR::Instrs::GotoBr>(exit_block));
             }
         }

@@ -21,7 +21,7 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::visit(ASTNS::VarStmtItem &ast) {
 
     NNPtr<IR::Type> var_type = m_var_type.get();
 
-    IR::Instrs::Register &reg = fcg.register_block->add(std::make_unique<IR::Instrs::Register>(ast, var_type, ast.mut));
+    IR::Instrs::Register &reg = fcg.register_block->add<IR::Instrs::Register>(ast, var_type, ast.mut);
 
     if (ast.expr) {
         Maybe<IR::ASTValue> m_val = fcg.expr_cg.expr(ast.expr.get());
@@ -36,7 +36,7 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::visit(ASTNS::VarStmtItem &ast) {
             fcg.errored = true;
             return;
         }
-        fcg.cur_block->add(std::make_unique<IR::Instrs::Store>(IR::ASTValue(reg, ast), val, true));
+        fcg.cur_block->add<IR::Instrs::Store>(IR::ASTValue(reg, ast), val, true);
     } else if (!ast.mut) // no initializer, not mutable
         WARN_IMMUT_NOINIT(ast);
 

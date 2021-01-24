@@ -37,23 +37,23 @@ Maybe<IR::ASTValue> IR::PointerType::bin_op(CodeGen::Context &cgc, IR::Function 
 
     switch (op) {
         case IR::Type::BinaryOperator::plus:
-            return IR::ASTValue(cur_block->add(std::make_unique<IR::Instrs::PtrArith>(l, r)), ast);
+            return IR::ASTValue(cur_block->add<IR::Instrs::PtrArith>(l, r), ast);
         case IR::Type::BinaryOperator::minus: {
-                IR::ASTValue r_negated = IR::ASTValue(cur_block->add(std::make_unique<IR::Instrs::INeg>(r)), r.ast);
-                return IR::ASTValue(cur_block->add(std::make_unique<IR::Instrs::PtrArith>(l, r_negated)), ast);
+                IR::ASTValue r_negated = IR::ASTValue(cur_block->add<IR::Instrs::INeg>(r), r.ast);
+                return IR::ASTValue(cur_block->add<IR::Instrs::PtrArith>(l, r_negated), ast);
             }
         case IR::Type::BinaryOperator::greater:
-            return IR::ASTValue(cur_block->add(std::make_unique<IR::Instrs::ICmpGT>(l, r)), ast);
+            return IR::ASTValue(cur_block->add<IR::Instrs::ICmpGT>(l, r), ast);
         case IR::Type::BinaryOperator::less:
-            return IR::ASTValue(cur_block->add(std::make_unique<IR::Instrs::ICmpLT>(l, r)), ast);
+            return IR::ASTValue(cur_block->add<IR::Instrs::ICmpLT>(l, r), ast);
         case IR::Type::BinaryOperator::greaterequal:
-            return IR::ASTValue(cur_block->add(std::make_unique<IR::Instrs::ICmpGE>(l, r)), ast);
+            return IR::ASTValue(cur_block->add<IR::Instrs::ICmpGE>(l, r), ast);
         case IR::Type::BinaryOperator::lessequal:
-            return IR::ASTValue(cur_block->add(std::make_unique<IR::Instrs::ICmpLE>(l, r)), ast);
+            return IR::ASTValue(cur_block->add<IR::Instrs::ICmpLE>(l, r), ast);
         case IR::Type::BinaryOperator::doubleequal:
-            return IR::ASTValue(cur_block->add(std::make_unique<IR::Instrs::ICmpEQ>(l, r)), ast);
+            return IR::ASTValue(cur_block->add<IR::Instrs::ICmpEQ>(l, r), ast);
         case IR::Type::BinaryOperator::bangequal:
-            return IR::ASTValue(cur_block->add(std::make_unique<IR::Instrs::ICmpNE>(l, r)), ast);
+            return IR::ASTValue(cur_block->add<IR::Instrs::ICmpNE>(l, r), ast);
 
         default:
             ERR_LHS_UNSUPPORTED_OP(l, optok);
@@ -68,7 +68,7 @@ Maybe<IR::ASTValue> IR::PointerType::unary_op(CodeGen::Context &cgc, IR::Functio
 }
 Maybe<IR::ASTValue> IR::PointerType::cast_from(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, NNPtr<ASTNS::AST> ast) {
     if (dynamic_cast<IR::PointerType*>(v.type().as_raw())) {
-        return ASTValue(cur_block->add(std::make_unique<IR::Instrs::NoOpCast>(v, this)), ast);
+        return ASTValue(cur_block->add<IR::Instrs::NoOpCast>(v, this), ast);
     }
 
     ERR_INVALID_CAST(ast, v, this);

@@ -13,7 +13,7 @@
 #define BIN_OP_ARGS CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::Type::BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, NNPtr<ASTNS::AST> ast
 #define UNARY_OP_ARGS CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::Type::UnaryOperator op, IR::ASTValue v, Token optok, NNPtr<ASTNS::AST> ast
 // static functions {{{1
-#define SUPPORT_OPERATOR_BASIC(op, instr) case IR::Type::BinaryOperator::op: return IR::ASTValue(cur_block->add(std::make_unique<IR::Instrs::instr>(l, r)), ast);
+#define SUPPORT_OPERATOR_BASIC(op, instr) case IR::Type::BinaryOperator::op: return IR::ASTValue(cur_block->add<IR::Instrs::instr>(l, r), ast);
 // float/int operations for reuse between generic float/int and concrete float/int types {{{2
 static Maybe<IR::ASTValue> float_bin_op(BIN_OP_ARGS) {
     l = r.type()->impl_cast(cgc, fun, cur_block, l);
@@ -45,7 +45,7 @@ static Maybe<IR::ASTValue> float_bin_op(BIN_OP_ARGS) {
 static Maybe<IR::ASTValue> float_unary_op(UNARY_OP_ARGS) {
     switch (op) {
         case IR::Type::UnaryOperator::minus:
-            return IR::ASTValue(cur_block->add(std::make_unique<IR::Instrs::FNeg>(v)), ast);
+            return IR::ASTValue(cur_block->add<IR::Instrs::FNeg>(v), ast);
 
         default:
             ERR_UNARY_UNSUPPORTED_OP(v, optok);
@@ -87,10 +87,10 @@ static Maybe<IR::ASTValue> int_bin_op(BIN_OP_ARGS) {
 static Maybe<IR::ASTValue> int_unary_op(UNARY_OP_ARGS) {
     switch (op) {
         case IR::Type::UnaryOperator::tilde:
-            return IR::ASTValue(cur_block->add(std::make_unique<IR::Instrs::BitNot>(v)), ast);
+            return IR::ASTValue(cur_block->add<IR::Instrs::BitNot>(v), ast);
 
         case IR::Type::UnaryOperator::minus:
-            return IR::ASTValue(cur_block->add(std::make_unique<IR::Instrs::INeg>(v)), ast);
+            return IR::ASTValue(cur_block->add<IR::Instrs::INeg>(v), ast);
 
         default:
             ERR_UNARY_UNSUPPORTED_OP(v, optok);
@@ -139,9 +139,9 @@ Maybe<IR::ASTValue> IR::FloatType::cast_from(CodeGen::Context &cgc, IR::Function
 
     IntType *sty (dynamic_cast<IntType*>(v.type().as_raw()));
     if (sty) {
-        return IR::ASTValue(cur_block->add(std::make_unique<IR::Instrs::IntToFloat>(v, this)), ast);
+        return IR::ASTValue(cur_block->add<IR::Instrs::IntToFloat>(v, this), ast);
     } else if (dynamic_cast<FloatType*>(v.type().as_raw())) {
-        return IR::ASTValue(cur_block->add(std::make_unique<IR::Instrs::FloatToFloat>(v, this)), ast);
+        return IR::ASTValue(cur_block->add<IR::Instrs::FloatToFloat>(v, this), ast);
     } else {
         ERR_INVALID_CAST(ast, v, this);
         return Maybe<IR::ASTValue>();
@@ -149,7 +149,7 @@ Maybe<IR::ASTValue> IR::FloatType::cast_from(CodeGen::Context &cgc, IR::Function
 }
 IR::ASTValue IR::FloatType::impl_cast(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) {
     if (dynamic_cast<GenericFloatType*>(v.type().as_raw()))
-        return IR::ASTValue(cur_block->add(std::make_unique<IR::Instrs::FloatToFloat>(v, this)), v.ast);
+        return IR::ASTValue(cur_block->add<IR::Instrs::FloatToFloat>(v, this), v.ast);
 
     return v;
 }
@@ -193,18 +193,18 @@ Maybe<IR::ASTValue> IR::IntType::cast_from(CodeGen::Context &cgc, IR::Function &
             sty_int = newt.as_raw();
             sty_char = nullptr;
 
-            v = IR::ASTValue(cur_block->add(std::make_unique<IR::Instrs::NoOpCast>(v, newt)), v.ast);
+            v = IR::ASTValue(cur_block->add<IR::Instrs::NoOpCast>(v, newt), v.ast);
         } else if (sty_bool) {
             NNPtr<IR::IntType> newt (cgc.get_int_type(1, false));
             sty_int = newt.as_raw();
             sty_bool = nullptr;
 
-            v = IR::ASTValue(cur_block->add(std::make_unique<IR::Instrs::NoOpCast>(v, newt)), v.ast);
+            v = IR::ASTValue(cur_block->add<IR::Instrs::NoOpCast>(v, newt), v.ast);
         }
 
-        return IR::ASTValue(cur_block->add(std::make_unique<IR::Instrs::IntToInt>(v, this)), ast);
+        return IR::ASTValue(cur_block->add<IR::Instrs::IntToInt>(v, this), ast);
     } else if (sty_float) {
-        return IR::ASTValue(cur_block->add(std::make_unique<IR::Instrs::FloatToInt>(v, this)), ast);
+        return IR::ASTValue(cur_block->add<IR::Instrs::FloatToInt>(v, this), ast);
     } else {
         ERR_INVALID_CAST(ast, v, this);
         return Maybe<IR::ASTValue>();
@@ -212,7 +212,7 @@ Maybe<IR::ASTValue> IR::IntType::cast_from(CodeGen::Context &cgc, IR::Function &
 }
 IR::ASTValue IR::IntType::impl_cast(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) {
     if (dynamic_cast<GenericIntType*>(v.type().as_raw()))
-        return ASTValue(cur_block->add(std::make_unique<IR::Instrs::IntToInt>(v, this)), v.ast);
+        return ASTValue(cur_block->add<IR::Instrs::IntToInt>(v, this), v.ast);
 
     return v;
 }
@@ -324,9 +324,9 @@ Maybe<IR::ASTValue> IR::CharType::cast_from(CodeGen::Context &cgc, IR::Function 
     }
 
     NNPtr<IR::IntType> char_as_int_type (cgc.get_int_type(8, false));
-    NNPtr<IR::Instrs::Instruction> as_int = cur_block->add(std::make_unique<IR::Instrs::IntToInt>(v, char_as_int_type));
+    NNPtr<IR::Instrs::Instruction> as_int = cur_block->add<IR::Instrs::IntToInt>(v, char_as_int_type);
 
-    return IR::ASTValue(cur_block->add(std::make_unique<IR::Instrs::NoOpCast>(IR::ASTValue(as_int, v.ast), this)), ast);
+    return IR::ASTValue(cur_block->add<IR::Instrs::NoOpCast>(IR::ASTValue(as_int, v.ast), this), ast);
 }
 IR::ASTValue IR::CharType::impl_cast(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) {
     return v;
@@ -370,7 +370,7 @@ Maybe<IR::ASTValue> IR::BoolType::unary_op(CodeGen::Context &cgc, IR::Function &
 
     switch (op) {
         case Type::UnaryOperator::bang:
-            return IR::ASTValue(cur_block->add(std::make_unique<IR::Instrs::Not>(v)), ast);
+            return IR::ASTValue(cur_block->add<IR::Instrs::Not>(v), ast);
 
         default:
             ERR_UNARY_UNSUPPORTED_OP(v, optok);
@@ -388,9 +388,9 @@ Maybe<IR::ASTValue> IR::BoolType::cast_from(CodeGen::Context &cgc, IR::Function 
     }
 
     NNPtr<IR::IntType> bool_as_int_type (cgc.get_int_type(1, false));
-    NNPtr<IR::Instrs::Instruction> as_int = cur_block->add(std::make_unique<IR::Instrs::IntToInt>(v, bool_as_int_type));
+    NNPtr<IR::Instrs::Instruction> as_int = cur_block->add<IR::Instrs::IntToInt>(v, bool_as_int_type);
 
-    return IR::ASTValue(cur_block->add(std::make_unique<IR::Instrs::NoOpCast>(ASTValue(as_int, v.ast), this)), ast);
+    return IR::ASTValue(cur_block->add<IR::Instrs::NoOpCast>(ASTValue(as_int, v.ast), this), ast);
 }
 IR::ASTValue IR::BoolType::impl_cast(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) {
     return v;

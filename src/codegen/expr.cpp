@@ -104,7 +104,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::ShortCircuitExpr &ast) 
     fcg.cur_block->branch(std::make_unique<IR::Instrs::GotoBr>(after));
 
     fcg.cur_block = after;
-    ret = IR::ASTValue(fcg.cur_block->add(std::make_unique<IR::Instrs::Phi>(std::vector {std::make_pair(checkboth, rhs), std::make_pair(skip, IR::ASTValue(cg.context->get_const_bool(value_if_skipped), ast))})), ast);
+    ret = IR::ASTValue(fcg.cur_block->add<IR::Instrs::Phi>(std::vector {std::make_pair(checkboth, rhs), std::make_pair(skip, IR::ASTValue(cg.context->get_const_bool(value_if_skipped), ast))}), ast);
 }
 
 void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::UnaryExpr &ast) {
@@ -151,7 +151,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::DerefExpr &ast) {
         return;
     }
 
-    ret = IR::ASTValue(fcg.cur_block->add(std::make_unique<IR::Instrs::DerefPtr>(oper)), ast);
+    ret = IR::ASTValue(fcg.cur_block->add<IR::Instrs::DerefPtr>(oper), ast);
 }
 void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::AddrofExpr &ast) {
     Maybe<IR::ASTValue> m_oper = expr(ast.expr.get());
@@ -177,7 +177,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::AddrofExpr &ast) {
         return;
     }
 
-    ret = IR::ASTValue(fcg.cur_block->add(std::make_unique<IR::Instrs::Addrof>(as_deref, ast.mut)), ast);
+    ret = IR::ASTValue(fcg.cur_block->add<IR::Instrs::Addrof>(as_deref, ast.mut), ast);
 }
 
 void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::CallExpr &ast) {
@@ -225,7 +225,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::CallExpr &ast) {
         return;
     }
 
-    ret = IR::ASTValue(fcg.cur_block->add(std::make_unique<IR::Instrs::Call>(NNPtr<IR::Function>(static_cast<IR::Function*>(fun.val.as_raw())), args)), ast);
+    ret = IR::ASTValue(fcg.cur_block->add<IR::Instrs::Call>(NNPtr<IR::Function>(static_cast<IR::Function*>(fun.val.as_raw())), args), ast);
 }
 
 void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::PrimaryExpr &ast) {
@@ -275,7 +275,7 @@ make_int_lit:
                 Maybe<NNPtr<Local>> m_loc = fcg.get_local("this");
                 if (m_loc.has()) {
                     NNPtr<Local> local = m_loc.get();
-                    ret = IR::ASTValue(fcg.cur_block->add(std::make_unique<IR::Instrs::DerefPtr>(IR::ASTValue(local->v, ast))), ast);
+                    ret = IR::ASTValue(fcg.cur_block->add<IR::Instrs::DerefPtr>(IR::ASTValue(local->v, ast)), ast);
                 } else {
                     ERR_NO_THIS(ast.value);
                     fcg.errored = true;
@@ -361,7 +361,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::IfExpr &ast) {
     fcg.cur_block = afterb;
 
     if (falseb.has()) {
-        ret = IR::ASTValue(afterb->add(std::make_unique<IR::Instrs::Phi>(std::vector({ std::make_pair(trueb, truev), std::make_pair(falseb.get(), falsev.get()) }))), ast);
+        ret = IR::ASTValue(afterb->add<IR::Instrs::Phi>(std::vector({ std::make_pair(trueb, truev), std::make_pair(falseb.get(), falsev.get()) })), ast);
     } else
         ret = IR::ASTValue(truev.val, ast);
 
@@ -441,7 +441,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::AssignmentExpr &ast) {
         return;
     }
 
-    fcg.cur_block->add(std::make_unique<IR::Instrs::Store>(target_deref->ptr, rhs, false));
+    fcg.cur_block->add<IR::Instrs::Store>(target_deref->ptr, rhs, false);
 
     ret = rhs;
 }
@@ -562,7 +562,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::MethodCallExpr &ast) {
             return Maybe<IR::ASTValue>();
         }
 
-        return Maybe<IR::ASTValue>(IR::ASTValue(fcg.cur_block->add(std::make_unique<IR::Instrs::Addrof>(op_as_deref, method.this_mut)), op.ast));
+        return Maybe<IR::ASTValue>(IR::ASTValue(fcg.cur_block->add<IR::Instrs::Addrof>(op_as_deref, method.this_mut), op.ast));
     }() : op;
 
     if (!m_this_arg.has()) {
@@ -603,5 +603,5 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::MethodCallExpr &ast) {
         return;
     }
 
-    ret = IR::ASTValue(fcg.cur_block->add(std::make_unique<IR::Instrs::Call>(method.fun, args)), ast);
+    ret = IR::ASTValue(fcg.cur_block->add<IR::Instrs::Call>(method.fun, args), ast);
 }

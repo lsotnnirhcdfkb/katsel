@@ -6,7 +6,7 @@
 #include "utils/format.h"
 #include "ast/ast.h"
 
-IR::Function::Function(NNPtr<IR::FunctionType> ty, std::string name, NNPtr<ASTNS::FunctionDecl> def_ast): ty(ty), name(name), prototypeonly(false), curindex(0), _def_ast(def_ast), blocki(0) {}
+IR::Function::Function(NNPtr<IR::FunctionType> ty, std::string name, NNPtr<ASTNS::FunctionDecl> def_ast): ty(ty), name(name), prototypeonly(false), instr_i(0), _def_ast(def_ast), block_i(0) {}
 
 void IR::Function::add(std::unique_ptr<IR::Block> block) {
     if (prototypeonly)
@@ -24,7 +24,7 @@ NNPtr<IR::Type> IR::Function::type() const {
 }
 
 NNPtr<IR::Block> IR::Function::add_block(std::string name) {
-    std::unique_ptr<Block> block = std::make_unique<Block>(this, name, blocki++);
+    std::unique_ptr<Block> block = std::make_unique<Block>(this, name, block_i++);
     NNPtr<Block> blockraw = block.get();
     blocks.push_back(std::move(block));
 

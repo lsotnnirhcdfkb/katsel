@@ -10,21 +10,19 @@
 
 namespace llvm { class raw_ostream; }
 namespace IR {
-    namespace Instrs {
-        class Instruction;
-        class Br;
-    }
-
     class Function;
 
     class Block {
     public:
         Block(NNPtr<Function> fun, std::string name, size_t num);
 
-        template <typename T, typename = std::enable_if_t<std::is_base_of_v<Instrs::Instruction, T>>>
-        T& add(std::unique_ptr<T> instr) {
-            instr->id = fun->curindex++;
-            T& raw = *instr;
+        template <typename I, typename ... Args,
+                  typename = std::enable_if_t<std::is_base_of_v<Instrs::Instruction, I>>,
+                  typename = std::enable_if_t<std::is_constructible_v<I, Args...>>>
+        I& add(Args && ... args) {
+            std::unique_ptr<I> instr = std::make_unique<I>(std::forward<Args>(args)...);
+            I& raw = *instr;
+            raw.id = fun->instr_i++;
             instructions.push_back(std::move(instr));
             return raw;
         }

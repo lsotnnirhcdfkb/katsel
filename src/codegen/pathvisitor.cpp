@@ -67,7 +67,7 @@ void CodeGen::PathVisitor::visit(ASTNS::Path &ast) {
             NNPtr<IR::Value> ret_val = m_ret_val.get();
 
             if (dynamic_cast<IR::Instrs::Register*>(ret_val.as_raw()))
-                vret = IR::ASTValue(fcg.get()->cur_block->add(std::make_unique<IR::Instrs::DerefPtr>(IR::ASTValue(ret_val, ast))), ast);
+                vret = IR::ASTValue(fcg.get()->cur_block->add<IR::Instrs::DerefPtr>(IR::ASTValue(ret_val, ast)), ast);
             else
                 vret = IR::ASTValue(ret_val, ast);
         } else {

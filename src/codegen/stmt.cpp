@@ -30,7 +30,7 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::visit(ASTNS::RetStmt &ast) {
         return;
     }
 
-    fcg.cur_block->add(std::make_unique<IR::Instrs::Store>(IR::ASTValue(fcg.ret, ast), v, false));
+    fcg.cur_block->add<IR::Instrs::Store>(IR::ASTValue(fcg.ret, ast), v, false);
     fcg.cur_block->branch(std::make_unique<IR::Instrs::GotoBr>(fcg.exit_block));
     // fcg.cur_block = cg.context.black_hole_block.get(); TODO: fix
 }
