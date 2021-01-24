@@ -7,94 +7,68 @@
 CodeGen::Context::Context(File const &file, CodeGen &cg): cg(cg), void_value(get_void_type()) {}
 
 // getting types {{{1 TODO: make a template function to loop through things and either make operator== = default for all types or use a lambda to compare them
-#define GET_TYPE_DEF(ret, type) NNPtr<IR::ret> CodeGen::Context::get_##type
-#define LOOP_TYPES() for (std::unique_ptr<IR::Type> &_loop_type : types)
-#define CHECK_TYPE_TYPE(type) IR::type *_casted (dynamic_cast<IR::type*>(_loop_type.get()));
-#define CHECK_FIELD(field) (_casted->field == field)
-#define CONSTRUCT_TYPE(type) std::unique_ptr<IR::type> _new_type = std::make_unique<IR::type>
-#define PUSH_RETURN(type) \
-    NNPtr<IR::type> _new_type_r (_new_type.get()); \
-    types.push_back(std::move(_new_type)); \
-    return _new_type_r;
+#define CHECK_FIELD(field) (casted->field == field)
 
-GET_TYPE_DEF(FloatType, float_type)(int size) {
-    LOOP_TYPES() {
-        CHECK_TYPE_TYPE(FloatType)
-        if (_casted && CHECK_FIELD(size)) return _casted;
+#define GET_TYPE_DEF(get_ret, method_name, params, fields, args) \
+    NNPtr<IR::get_ret> CodeGen::Context::get_##method_name params /* params are already wrapped in () */ { \
+        for (std::unique_ptr<IR::Type> &loop_type : types) { \
+            IR::get_ret *casted (dynamic_cast<IR::get_ret*>(loop_type.get())); \
+            /* fields in wrappd in (), which makes this a macro invocation */ \
+            if (casted && fields ) return casted; \
+        } \
+        auto new_type = std::make_unique<IR::get_ret> args; /* args are also already wrapped in () */ ; \
+        IR::get_ret &new_type_r (*new_type); \
+        types.push_back(std::move(new_type)); \
+        return new_type_r; \
     }
-    CONSTRUCT_TYPE(FloatType)(*this, cg.unit->implicit_decl_ast.get(), size);
-    PUSH_RETURN(FloatType)
-}
-GET_TYPE_DEF(IntType, int_type)(int size, bool is_signed) {
-    LOOP_TYPES() {
-        CHECK_TYPE_TYPE(IntType)
-        if (_casted && CHECK_FIELD(size) && CHECK_FIELD(is_signed)) return _casted;
-    }
-    CONSTRUCT_TYPE(IntType)(*this, cg.unit->implicit_decl_ast.get(), size, is_signed);
-    PUSH_RETURN(IntType)
-}
-GET_TYPE_DEF(CharType, char_type)() {
-    LOOP_TYPES() {
-        CHECK_TYPE_TYPE(CharType)
-        if (_casted) return _casted;
-    }
-    CONSTRUCT_TYPE(CharType)(*this, cg.unit->implicit_decl_ast.get());
-    PUSH_RETURN(CharType)
-}
-GET_TYPE_DEF(BoolType, bool_type)() {
-    LOOP_TYPES() {
-        CHECK_TYPE_TYPE(BoolType)
-        if (_casted) return _casted;
-    }
-    CONSTRUCT_TYPE(BoolType)(*this, cg.unit->implicit_decl_ast.get());
-    PUSH_RETURN(BoolType)
-}
-GET_TYPE_DEF(GenericIntType, generic_int_type)() {
-    LOOP_TYPES() {
-        CHECK_TYPE_TYPE(GenericIntType)
-        if (_casted) return _casted;
-    }
-    CONSTRUCT_TYPE(GenericIntType)(*this, cg.unit->implicit_decl_ast.get());
-    PUSH_RETURN(GenericIntType)
-}
-GET_TYPE_DEF(GenericFloatType, generic_float_type)() {
-    LOOP_TYPES() {
-        CHECK_TYPE_TYPE(GenericFloatType)
-        if (_casted) return _casted;
-    }
-    CONSTRUCT_TYPE(GenericFloatType)(*this, cg.unit->implicit_decl_ast.get());
-    PUSH_RETURN(GenericFloatType)
-}
-GET_TYPE_DEF(FunctionType, function_type)(NNPtr<IR::Type> ret, std::vector<NNPtr<IR::Type>> paramtys) {
-    LOOP_TYPES() {
-        CHECK_TYPE_TYPE(FunctionType)
-        if (_casted && CHECK_FIELD(ret) && CHECK_FIELD(paramtys)) return _casted;
-    }
-    CONSTRUCT_TYPE(FunctionType)(*this, cg.unit->implicit_decl_ast.get(), ret, paramtys);
-    PUSH_RETURN(FunctionType)
-}
-GET_TYPE_DEF(VoidType, void_type)() {
-    LOOP_TYPES() {
-        CHECK_TYPE_TYPE(VoidType)
-        if (_casted) return _casted;
-    }
-    CONSTRUCT_TYPE(VoidType)(*this, cg.unit->implicit_decl_ast.get());
-    PUSH_RETURN(VoidType)
-}
-GET_TYPE_DEF(PointerType, pointer_type)(bool mut, NNPtr<IR::Type> ty) {
-    LOOP_TYPES() {
-        CHECK_TYPE_TYPE(PointerType)
-        if (_casted && CHECK_FIELD(mut) && CHECK_FIELD(ty)) return _casted;
-    }
-    CONSTRUCT_TYPE(PointerType)(*this, cg.unit->implicit_decl_ast.get(), mut, ty);
-    PUSH_RETURN(PointerType)
-}
+
+GET_TYPE_DEF(FloatType, float_type,
+        (int size),
+        (CHECK_FIELD(size)),
+        (*this, cg.unit->implicit_decl_ast.get(), size))
+
+GET_TYPE_DEF(IntType, int_type,
+        (int size, bool is_signed),
+        (CHECK_FIELD(size) && CHECK_FIELD(is_signed)),
+        (*this, cg.unit->implicit_decl_ast.get(), size, is_signed))
+
+GET_TYPE_DEF(CharType, char_type,
+        (),
+        true,
+        (*this, cg.unit->implicit_decl_ast.get()))
+
+GET_TYPE_DEF(BoolType, bool_type,
+        (),
+        true,
+        (*this, cg.unit->implicit_decl_ast.get()))
+
+GET_TYPE_DEF(GenericIntType, generic_int_type,
+        (),
+        true,
+        (*this, cg.unit->implicit_decl_ast.get()))
+
+GET_TYPE_DEF(GenericFloatType, generic_float_type,
+        (),
+        true,
+        (*this, cg.unit->implicit_decl_ast.get()))
+
+GET_TYPE_DEF(FunctionType, function_type,
+        (NNPtr<IR::Type> ret, std::vector<NNPtr<IR::Type>> paramtys),
+        (CHECK_FIELD(ret) && CHECK_FIELD(paramtys)),
+        (*this, cg.unit->implicit_decl_ast.get(), ret, paramtys))
+
+GET_TYPE_DEF(VoidType, void_type,
+        (),
+        true,
+        (*this, cg.unit->implicit_decl_ast.get()))
+
+GET_TYPE_DEF(PointerType, pointer_type,
+        (bool mut, NNPtr<IR::Type> ty),
+        (CHECK_FIELD(mut) && CHECK_FIELD(ty)),
+        (*this, cg.unit->implicit_decl_ast.get(), mut, ty))
+
 #undef GET_TYPE_DEF
-#undef LOOP_TYPES
-#undef CHECK_TYPE_TYPE
 #undef CHECK_FIELD
-#undef CONSTRUCT_TYPE
-#undef PUSH_RETURN
 // getting values {{{1
 template <typename Ret, typename ... Args>
 static NNPtr<Ret> get_const_val(std::vector<std::unique_ptr<IR::Value>> &constants, Args ...args) {
@@ -103,6 +77,7 @@ static NNPtr<Ret> get_const_val(std::vector<std::unique_ptr<IR::Value>> &constan
     constants.push_back(std::move(cv));
     return cvraw;
 }
+
 NNPtr<IR::ConstFloat> CodeGen::Context::get_const_float(NNPtr<IR::FloatType> ty, double value) {
     return get_const_val<IR::ConstFloat>(constants, ty, value);
 }
