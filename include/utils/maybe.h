@@ -7,8 +7,6 @@ template <typename T>
 class Maybe {
 public:
     Maybe(): data(not_t()) {}
-    Maybe(T &thing):  data( with_t { thing } ) {}
-    Maybe(T &&thing): data( with_t { std::forward<T>(thing) }) {}
 
     template <typename U, typename = std::enable_if_t<std::is_constructible_v<T, U>>>
     Maybe(U &&thing): data( with_t { std::forward<U>(thing) } ) {}
