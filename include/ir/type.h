@@ -39,12 +39,11 @@ namespace IR {
         auto m = methods.find(name); \
         if (m == methods.end()) \
             return Maybe<IR::Type::Method const>(); \
-        return Maybe(m->second); \
+        return Maybe<IR::Type::Method const>(m->second); \
     } \
     void cl::addMethod(std::string const &name, IR::Type::Method const &m) { \
         if (methods.find(name) != methods.end()) \
             reportAbortNoh(format("add duplicate method in type " #cl " under name {}", name)); \
- \
         methods.emplace(name, m); \
     }
 

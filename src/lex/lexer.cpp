@@ -424,6 +424,6 @@ Token Lexer::makeToken(TokenType type) {
 }
 Token Lexer::makeErrorToken(Token::ErrFunc errf) {
     Token token = makeToken(TokenType::ERROR);
-    token.errf = Maybe(errf);
+    token.errf = Maybe<Token::ErrFunc>(errf);
     return token;
 }

@@ -14,7 +14,7 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::visitVarStmt(ASTNS::VarStmt &ast) {
         item->accept(*this);
 }
 void CodeGen::FunctionCodeGen::StmtCodeGen::visitRetStmt(ASTNS::RetStmt &ast) {
-    Maybe<IR::ASTValue> m_v = ast.expr ? fcg.exprCG.expr(ast.expr.get()) : Maybe(IR::ASTValue(cg.context->getVoid(), ast));
+    Maybe<IR::ASTValue> m_v = ast.expr ? fcg.exprCG.expr(ast.expr.get()) : Maybe<IR::ASTValue>(IR::ASTValue(cg.context->getVoid(), ast));
     if (!m_v.has())
         return;
 

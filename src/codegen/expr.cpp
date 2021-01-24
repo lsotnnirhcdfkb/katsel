@@ -300,7 +300,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitIfExpr(ASTNS::IfExpr &ast) {
     }
 
     NNPtr<IR::Block> trueb  = fcg.fun->addBlock("if_true");
-    Maybe<NNPtr<IR::Block>> falseb = ast.falses ? Maybe(fcg.fun->addBlock("if_false")) : Maybe<NNPtr<IR::Block>>();
+    Maybe<NNPtr<IR::Block>> falseb = ast.falses ? Maybe<NNPtr<IR::Block>>(fcg.fun->addBlock("if_false")) : Maybe<NNPtr<IR::Block>>();
     NNPtr<IR::Block> afterb = fcg.fun->addBlock("if_after");
 
     if (falseb.has())
@@ -558,7 +558,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visitMethodCallExpr(ASTNS::MethodCal
             return Maybe<IR::ASTValue>();
         }
 
-        return Maybe(IR::ASTValue(fcg.curBlock->add(std::make_unique<IR::Instrs::Addrof>(opAsDeref, method.thisMut)), op.ast));
+        return Maybe<IR::ASTValue>(IR::ASTValue(fcg.curBlock->add(std::make_unique<IR::Instrs::Addrof>(opAsDeref, method.thisMut)), op.ast));
     }() : op;
 
     if (!m_thisArg.has()) {

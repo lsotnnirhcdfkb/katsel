@@ -181,7 +181,7 @@ namespace {
             Maybe<NNPtr<Underline const>> charu;
             for (Underline const &u : underlines)
                 if (itInLoc(i, u.location)) {
-                    charu = Maybe(NNPtr(u));
+                    charu = Maybe<NNPtr<Underline const>>(NNPtr(u));
                     lineHasUnder = true;
                     break;
                 }
@@ -317,7 +317,7 @@ void Error::report() const {
 
             printLine(sl, pad, underlines);
 
-            lastfile = Maybe(NNPtr(*sl.file));
+            lastfile = Maybe<NNPtr<File const>>(NNPtr(*sl.file));
             lastnr = sl.line;
         }
 

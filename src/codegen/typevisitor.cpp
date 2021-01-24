@@ -35,14 +35,14 @@ void CodeGen::TypeVisitor::visitPathType(ASTNS::PathType &ast) {
         cg.errored = true;
         return;
     } else {
-        ret = Maybe(NNPtr<IR::Type>(asType));
+        ret = Maybe<NNPtr<IR::Type>>(NNPtr<IR::Type>(asType));
     }
 }
 
 void CodeGen::TypeVisitor::visitPointerType(ASTNS::PointerType &ast) {
     Maybe<NNPtr<IR::Type>> ty = type(ast.type.get(), thisType);
     ty.match([this, &ast] (NNPtr<IR::Type> const &ty) {
-            ret = Maybe(static_cast<NNPtr<IR::Type>>(cg.context->getPointerType(ast.mut, ty)));
+            ret = Maybe<NNPtr<IR::Type>>(static_cast<NNPtr<IR::Type>>(cg.context->getPointerType(ast.mut, ty)));
         },
         [this]  {
             cg.errored = true;
