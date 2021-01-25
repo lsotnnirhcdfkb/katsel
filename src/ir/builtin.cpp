@@ -189,14 +189,14 @@ Maybe<IR::ASTValue> IR::IntType::cast_from(CodeGen::Context &cgc, IR::Function &
 
     if (sty_int || sty_char || sty_bool) {
         if (sty_char) {
-            NNPtr<IR::IntType> newt (cgc.get_int_type(8, false));
-            sty_int = newt.as_raw();
+            IR::IntType &newt (cgc.get_int_type(8, false));
+            sty_int = &newt;
             sty_char = nullptr;
 
             v = IR::ASTValue(cur_block->add<IR::Instrs::NoOpCast>(v, newt), *v.ast);
         } else if (sty_bool) {
-            NNPtr<IR::IntType> newt (cgc.get_int_type(1, false));
-            sty_int = newt.as_raw();
+            IR::IntType &newt (cgc.get_int_type(1, false));
+            sty_int = &newt;
             sty_bool = nullptr;
 
             v = IR::ASTValue(cur_block->add<IR::Instrs::NoOpCast>(v, newt), *v.ast);

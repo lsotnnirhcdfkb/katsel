@@ -49,8 +49,8 @@ namespace IR {
     // Const values {{{
     class ConstInt : public Value {
     public:
-        ConstInt(NNPtr<IntType> ty, uint64_t val);
-        ConstInt(NNPtr<GenericIntType> ty, uint64_t val);
+        ConstInt(IntType &ty, uint64_t val);
+        ConstInt(GenericIntType &ty, uint64_t val);
         Type const &type() const override;
         uint64_t val;
         void value_accept(ValueVisitor &v) const override;
@@ -60,8 +60,8 @@ namespace IR {
     };
     class ConstFloat : public Value {
     public:
-        ConstFloat(NNPtr<FloatType> ty, double val);
-        ConstFloat(NNPtr<GenericFloatType> ty, double val);
+        ConstFloat(FloatType &ty, double val);
+        ConstFloat(GenericFloatType &ty, double val);
         Type const &type() const override;
         double val;
         void value_accept(ValueVisitor &v) const override;
@@ -71,7 +71,7 @@ namespace IR {
     };
     class ConstBool : public Value {
     public:
-        ConstBool(NNPtr<BoolType> ty, bool val);
+        ConstBool(BoolType &ty, bool val);
         Type const &type() const override;
         bool val;
         void value_accept(ValueVisitor &v) const override;
@@ -80,7 +80,7 @@ namespace IR {
     };
     class ConstChar : public Value {
     public:
-        ConstChar(NNPtr<CharType> ty, uint8_t val);
+        ConstChar(CharType &ty, uint8_t val);
         Type const &type() const override;
         uint8_t val;
         void value_accept(ValueVisitor &v) const override;
@@ -91,7 +91,7 @@ namespace IR {
     // Void {{{
     class Void : public Value {
     public:
-        Void(NNPtr<VoidType> ty);
+        Void(VoidType &ty);
         Type const &type() const override;
         void value_accept(ValueVisitor &v) const override;
     private:

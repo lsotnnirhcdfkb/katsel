@@ -172,10 +172,10 @@ namespace {
             op.val->value_accept(*pr.vrp);
             pr(")");
         }
-        void cast_instruction(IR::Instrs::Instruction const &i, std::string const &name, IR::ASTValue const &op, NNPtr<IR::Type const> const to) {
+        void cast_instruction(IR::Instrs::Instruction const &i, std::string const &name, IR::ASTValue const &op, IR::Type const &to) {
             instr_name(name);
             op.val->value_accept(*pr.vrp);
-            pr(", ")(to->name());
+            pr(", ")(to.name());
             pr(")");
         }
         // }}}
@@ -255,11 +255,11 @@ namespace {
         void visit(IR::Instrs::FNeg const &i)      override { unary_instruction(i, "fneg", i.op); }
         // }}}
         // cast instructions {{{
-        void visit(IR::Instrs::NoOpCast const &i)     override { cast_instruction(i, "noopcast", i.op, i.newt); }
-        void visit(IR::Instrs::FloatToFloat const &i) override { cast_instruction(i, "ftof", i.op, i.newt); }
-        void visit(IR::Instrs::IntToInt const &i)     override { cast_instruction(i, "itoi", i.op, i.newt); }
-        void visit(IR::Instrs::IntToFloat const &i)   override { cast_instruction(i, "itof", i.op, i.newt); }
-        void visit(IR::Instrs::FloatToInt const &i)   override { cast_instruction(i, "ftoi", i.op, i.newt); }
+        void visit(IR::Instrs::NoOpCast const &i)     override { cast_instruction(i, "noopcast", i.op, *i.newt); }
+        void visit(IR::Instrs::FloatToFloat const &i) override { cast_instruction(i, "ftof", i.op, *i.newt); }
+        void visit(IR::Instrs::IntToInt const &i)     override { cast_instruction(i, "itoi", i.op, *i.newt); }
+        void visit(IR::Instrs::IntToFloat const &i)   override { cast_instruction(i, "itof", i.op, *i.newt); }
+        void visit(IR::Instrs::FloatToInt const &i)   override { cast_instruction(i, "ftoi", i.op, *i.newt); }
         // }}}
         // pointer instructions {{{
         void visit(IR::Instrs::DerefPtr const &i) override {
