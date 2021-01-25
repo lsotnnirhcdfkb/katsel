@@ -19,7 +19,7 @@ namespace IR {
         template <typename I, typename ... Args,
                   typename = std::enable_if_t<std::is_base_of_v<Instrs::Instruction, I>>,
                   typename = std::enable_if_t<std::is_constructible_v<I, Args...>>>
-        I& add(Args && ... args) {
+        I& add(Args && ...args) {
             std::unique_ptr<I> instr = std::make_unique<I>(std::forward<Args>(args)...);
             I& raw = *instr;
             raw.id = fun->instr_i++;

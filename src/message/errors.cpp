@@ -66,7 +66,7 @@ void report_abort_noh(std::string const &message) {
     std::cerr << "!!! this is a bug - whether or not it has a bug report is unknown" << std::endl;
     std::cerr << "!!! bugs can be reported on the Katsel GitHub page: https://github.com/hpj2ltxry43b/katsel/issues" << std::endl;
     std::cerr << "!!! please search far and wide (on the GitHub page) before reporting a bug, so that there are no duplicate bug reports!" << std::endl;
-    std::cerr << "Aborting..." << std::endl;
+    std::cerr << "Aborting" << std::endl;
     std::abort();
 }
 void invalid_tok(std::string const &name, Token const &underline) {

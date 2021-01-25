@@ -71,8 +71,8 @@ GET_TYPE_DEF(PointerType, pointer_type,
 #undef CHECK_FIELD
 // getting values {{{1
 template <typename Ret, typename ... Args>
-static Ret& get_const_val(std::vector<std::unique_ptr<IR::Value>> &constants, Args ...args) {
-    std::unique_ptr<Ret> cv = std::make_unique<Ret>(args...);
+static Ret& get_const_val(std::vector<std::unique_ptr<IR::Value>> &constants, Args && ...args) {
+    std::unique_ptr<Ret> cv = std::make_unique<Ret>(std::forward<Args>(args)...);
     Ret& cvraw = *cv;
     constants.push_back(std::move(cv));
     return cvraw;
