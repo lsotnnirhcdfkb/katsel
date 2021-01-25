@@ -418,12 +418,12 @@ char Lexer::consumed() {
 // making tokens {{{1
 Token Lexer::make_token(TokenType type) {
     if (type == TokenType::DEDENT)
-        return Token {type, start, start, Maybe<Token::ErrFunc>(), startline, startcolumn - 1, sourcefile};
+        return Token {type, start, start, Maybe<Token::ErrFuncField>(), startline, startcolumn - 1, sourcefile};
     else
-        return Token {type, start, end, Maybe<Token::ErrFunc>(), startline, startcolumn - 1, sourcefile};
+        return Token {type, start, end, Maybe<Token::ErrFuncField>(), startline, startcolumn - 1, sourcefile};
 }
 Token Lexer::make_error_token(Token::ErrFunc errf) {
     Token token = make_token(TokenType::ERROR);
-    token.errf = Maybe<Token::ErrFunc>(errf);
+    token.errf = Maybe<Token::ErrFuncField>(errf);
     return token;
 }

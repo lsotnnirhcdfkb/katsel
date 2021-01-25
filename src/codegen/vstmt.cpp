@@ -6,14 +6,14 @@
 
 void CodeGen::FunctionCodeGen::StmtCodeGen::visit(ASTNS::VarStmtItem &ast) {
     std::string varname = ast.name.stringify();
-    Maybe<NNPtr<CodeGen::FunctionCodeGen::Local>> var = fcg.get_local(varname);
-    if (var.has() && var.get()->scopenum == fcg.cur_scope) {
-        ERR_REDECL_VAR(ast.name, var.get()->v);
+    Maybe<CodeGen::FunctionCodeGen::Local&> var = fcg.get_local(varname);
+    if (var.has() && var.get().scopenum == fcg.cur_scope) {
+        ERR_REDECL_VAR(ast.name, *var.get().v);
         cg.errored = true;
         return;
     }
 
-    Maybe<NNPtr<IR::Type>> m_var_type = cg.type_visitor->type(ast.type.get(), fcg.this_type);
+    Maybe<IR::Type&> m_var_type = cg.type_visitor->type(*ast.type, fcg.this_type);
     if (!m_var_type.has()) {
         fcg.errored = true;
         return;
@@ -24,15 +24,15 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::visit(ASTNS::VarStmtItem &ast) {
     IR::Instrs::Register &reg = fcg.register_block->add<IR::Instrs::Register>(ast, var_type, ast.mut);
 
     if (ast.expr) {
-        Maybe<IR::ASTValue> m_val = fcg.expr_cg.expr(ast.expr.get());
+        Maybe<IR::ASTValue> m_val = fcg.expr_cg.expr(*ast.expr);
         if (!m_val.has())
             return;
 
         IR::ASTValue val = m_val.get();
 
         val = var_type->impl_cast(*cg.context, *fcg.fun, fcg.cur_block, val);
-        if (val.type() != var_type) {
-            ERR_CONFLICT_VAR_INIT_TY(ast.equal, ast.name, ast.type.get(), val, var_type);
+        if (&val.type() != var_type.as_raw()) {
+            ERR_CONFLICT_VAR_INIT_TY(ast.equal, ast.name, *ast.type, val, *var_type);
             fcg.errored = true;
             return;
         }

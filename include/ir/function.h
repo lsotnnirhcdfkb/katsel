@@ -20,20 +20,20 @@ namespace IR {
         void add(std::unique_ptr<Block> block);
 
         void definition(llvm::raw_ostream &os) const;
-        NNPtr<ASTNS::AST> def_ast() const override;
+        ASTNS::AST const &def_ast() const override;
 
-        NNPtr<Type> type() const override;
+        Type const &type() const override;
 
         std::vector<std::unique_ptr<Block>> blocks;
 
-        NNPtr<Block> add_block(std::string name);
+        Block& add_block(std::string name);
 
         NNPtr<FunctionType> ty;
         std::string name;
 
         bool prototypeonly;
 
-        void value_accept(ValueVisitor &v) override;
+        void value_accept(ValueVisitor &v) const override;
 
         uint64_t instr_i;
 

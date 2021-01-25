@@ -218,7 +218,7 @@ void E0017(IR::ASTValue const &func, Token const &oparn) {
 
 // E0018 - incorrect-arg
 // | Incorrect argument to function call
-void E0018(IR::ASTValue const &arg, NNPtr<IR::Type const> expected) {
+void E0018(IR::ASTValue const &arg, IR::Type const &expected) {
     Error e = Error(MsgType::ERROR, Location(arg), "E0018", "incorrect-arg");
     e.underline(Underline(Location(arg), '^')
         .error("invalid argument to function call")
@@ -264,14 +264,14 @@ void E0020(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &eq) {
 
 // E0021 - conflict-ret-ty
 // | Conflicting return types
-void E0021(IR::ASTValue const &val, NNPtr<IR::Function> f) {
+void E0021(IR::ASTValue const &val, IR::Function const &f) {
     Error e = Error(MsgType::ERROR, Location(val), "E0021", "conflict-ret-ty");
     e.underline(Underline(Location(val), '^')
         .error("conflicting return type")
         .note(format("returning {}", val.type()))
     );
-    e.underline(Underline(Location(*f->_def_ast->retty.get()), '~')
-        .note(format("function returns {}", f->ty->ret))
+    e.underline(Underline(Location(f._def_ast->retty.get()), '~')
+        .note(format("function returns {}", *f.ty->ret))
     );
     e.report();
 }
@@ -290,7 +290,7 @@ void E0022(Token const &op, IR::ASTValue const &val) {
 
 // E0023 - conflict-var-init-ty
 // | Conflicting type for variable initialization
-void E0023(Token const &eq, Token const &name, NNPtr<ASTNS::Type> type_ast, IR::ASTValue const &init, NNPtr<IR::Type const> expected_type) {
+void E0023(Token const &eq, Token const &name, ASTNS::Type const &type_ast, IR::ASTValue const &init, IR::Type const &expected_type) {
     Error e = Error(MsgType::ERROR, Location(eq), "E0023", "conflict-var-init-ty");
     e.underline(Underline(Location(eq), '~')
     );
@@ -308,7 +308,7 @@ void E0023(Token const &eq, Token const &name, NNPtr<ASTNS::Type> type_ast, IR::
 
 // E0024 - invalid-cast
 // | Invalid cast
-void E0024(NNPtr<ASTNS::AST> ast, IR::ASTValue v, NNPtr<IR::Type const> newty) {
+void E0024(ASTNS::AST const &ast, IR::ASTValue v, IR::Type const &newty) {
     Error e = Error(MsgType::ERROR, Location(ast), "E0024", "invalid-cast");
     e.underline(Underline(Location(ast), '^')
         .error(format("invalid cast from {} to {}", v.type(), newty))
@@ -334,7 +334,7 @@ void E0025(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &op) {
 
 // E0026 - cond-not-bool
 // | Using a non-bool value as a condition
-void E0026(IR::ASTValue &v) {
+void E0026(IR::ASTValue const &v) {
     Error e = Error(MsgType::ERROR, Location(v), "E0026", "cond-not-bool");
     e.underline(Underline(Location(v), '^')
         .error(format("usage of {} as condition", v.type()))
@@ -373,7 +373,7 @@ void E0028(IR::ASTValue const &truev, Token const &iftok) {
 
 // E0029 - typeless-this
 // | 'this' parameter used outside of impl or class block
-void E0029(NNPtr<ASTNS::ThisParam> p) {
+void E0029(ASTNS::ThisParam const &p) {
     Error e = Error(MsgType::ERROR, Location(p), "E0029", "typeless-this");
     e.underline(Underline(Location(p), '^')
         .error("'this' parameter not allowed outside of impl or class block")
@@ -383,28 +383,28 @@ void E0029(NNPtr<ASTNS::ThisParam> p) {
 
 // E0030 - wrong-num-args
 // | Wrong number of arguments to function call
-void E0030(NNPtr<IR::Function> func, NNPtr<ASTNS::AST> func_ref_ast, Token const &oparn, std::vector<IR::ASTValue> const &args) {
+void E0030(IR::Function const &func, ASTNS::AST const &func_ref_ast, Token const &oparn, std::vector<IR::ASTValue> const &args) {
     Error e = Error(MsgType::ERROR, Location(oparn), "E0030", "wrong-num-args");
     e.underline(Underline(Location(oparn), '^')
         .error("wrong number of arguments to function call")
     );
     e.underline(Underline(Location(func_ref_ast), '~')
     );
-    e.underline(Underline(Location(func->def_ast()), '~')
-        .note(format("function expects {} arguments, but got {} arguments", func->ty->paramtys.size(), args.size()))
+    e.underline(Underline(Location(func.def_ast()), '~')
+        .note(format("function expects {} arguments, but got {} arguments", func.ty->paramtys.size(), args.size()))
     );
     e.report();
 }
 
 // E0031 - redecl-sym
 // | Symbol was redeclared
-void E0031(Token const &name, NNPtr<IR::Value> val) {
+void E0031(Token const &name, IR::Value const &val) {
     Error e = Error(MsgType::ERROR, Location(name), "E0031", "redecl-sym");
     e.underline(Underline(Location(name), '^')
         .error("redeclaration of symbol")
     );
-    if (IR::DeclaredValue *as_declared = dynamic_cast<IR::DeclaredValue*>(val.as_raw())) {
-        if (!dynamic_cast<ASTNS::ImplicitDecl*>(as_declared->def_ast().as_raw())) {
+    if (IR::DeclaredValue const *as_declared = dynamic_cast<IR::DeclaredValue const *>(&val)) {
+        if (!dynamic_cast<ASTNS::ImplicitDecl const *>(&as_declared->def_ast())) {
             e.underline(Underline(as_declared->def_ast(), '~')
                 .note("previous declaration"));
        }
@@ -424,12 +424,12 @@ void E0032(Location const &path) {
 
 // E0033 - redecl-param
 // | Redeclaraion of parameter in function declaration
-void E0033(NNPtr<ASTNS::ParamB> param, NNPtr<IR::Instrs::Register const> prev) {
+void E0033(ASTNS::ParamB const &param, IR::Instrs::Register const &prev) {
     Error e = Error(MsgType::ERROR, Location(param), "E0033", "redecl-param");
     e.underline(Underline(Location(param), '^')
         .error("redeclaration of parameter")
     );
-    e.underline(Underline(Location(prev->def_ast()), '~')
+    e.underline(Underline(Location(prev.def_ast()), '~')
         .note("previous declaration")
     );
     e.report();
@@ -437,12 +437,12 @@ void E0033(NNPtr<ASTNS::ParamB> param, NNPtr<IR::Instrs::Register const> prev) {
 
 // E0034 - redecl-var
 // | Redeclaration of variable
-void E0034(Token const &name, NNPtr<IR::Instrs::Register const> prev) {
+void E0034(Token const &name, IR::Instrs::Register const &prev) {
     Error e = Error(MsgType::ERROR, Location(name), "E0034", "redecl-var");
     e.underline(Underline(Location(name), '^')
         .error("redeclaration of variable")
     );
-    e.underline(Underline(Location(prev->def_ast()), '~')
+    e.underline(Underline(Location(prev.def_ast()), '~')
         .note("previous declaration")
     );
     e.report();
@@ -450,7 +450,7 @@ void E0034(Token const &name, NNPtr<IR::Instrs::Register const> prev) {
 
 // E0035 - not-a-type
 // | Expected a type but path resolved to something else
-void E0035(Location const &notty, NNPtr<ASTNS::AST> decl_ast) {
+void E0035(Location const &notty, ASTNS::AST const &decl_ast) {
     Error e = Error(MsgType::ERROR, Location(notty), "E0035", "not-a-type");
     e.underline(Underline(Location(notty), '^')
         .error("not a type")
@@ -463,7 +463,7 @@ void E0035(Location const &notty, NNPtr<ASTNS::AST> decl_ast) {
 
 // E0036 - no-member-in
 // | No member of a certain name within another member
-void E0036(NNPtr<IR::DeclSymbol const> prev, Token const &current) {
+void E0036(IR::DeclSymbol const &prev, Token const &current) {
     Error e = Error(MsgType::ERROR, Location(current), "E0036", "no-member-in");
     e.underline(Underline(Location(current), '^')
         .error(format("no member called {} in {}", current, prev))
@@ -527,15 +527,15 @@ void E0041(Token const &eq, IR::ASTValue const &lhs) {
 
 // E0042 - assign-not-mut
 // | Cannot assign to non-mutable lvalue
-void E0042(IR::ASTValue const &v, Token const &eq, NNPtr<IR::Instrs::DerefPtr> target_deref) {
+void E0042(IR::ASTValue const &v, Token const &eq, IR::Instrs::DerefPtr const &target_deref) {
     Error e = Error(MsgType::ERROR, Location(v), "E0042", "assign-not-mut");
     e.underline(Underline(Location(eq), '^')
         .error("cannot assign to immutable lvalue")
     );
     e.underline(Underline(Location(v), '~')
     );
-    if (IR::DeclaredValue *as_declared = dynamic_cast<IR::DeclaredValue*>(target_deref->ptr.val.as_raw())) {
-        if (!dynamic_cast<ASTNS::ImplicitDecl*>(as_declared->def_ast().as_raw())) {
+    if (IR::DeclaredValue const *as_declared = dynamic_cast<IR::DeclaredValue const *>(target_deref.ptr.val.as_raw())) {
+        if (!dynamic_cast<ASTNS::ImplicitDecl const *>(&as_declared->def_ast())) {
             e.underline(Underline(as_declared->def_ast(), '~')
                 .note("variable declared immutable here"));
        }
@@ -545,13 +545,13 @@ void E0042(IR::ASTValue const &v, Token const &eq, NNPtr<IR::Instrs::DerefPtr> t
 
 // E0043 - mut-addrof-nonmut-op
 // | Cannot take a mutable pointer to non-mutable lvalue
-void E0043(Token const &op, NNPtr<IR::Instrs::DerefPtr> as_deref) {
+void E0043(Token const &op, IR::Instrs::DerefPtr const &as_deref) {
     Error e = Error(MsgType::ERROR, Location(op), "E0043", "mut-addrof-nonmut-op");
     e.underline(Underline(Location(op), '^')
         .error("cannot take mutable pointer to non-mutable lvalue")
     );
-    if (IR::DeclaredValue *as_declared = dynamic_cast<IR::DeclaredValue*>(as_deref->ptr.val.as_raw())) {
-        if (!dynamic_cast<ASTNS::ImplicitDecl*>(as_declared->def_ast().as_raw())) {
+    if (IR::DeclaredValue const *as_declared = dynamic_cast<IR::DeclaredValue const *>(as_deref.ptr.val.as_raw())) {
+        if (!dynamic_cast<ASTNS::ImplicitDecl const *>(&as_declared->def_ast())) {
             e.underline(Underline(as_declared->def_ast(), '~')
                 .note("value declared immutable here"));
        }
@@ -572,7 +572,7 @@ void E0044(Location const &dot) {
 
 // E0045 - this-not-first
 // | 'this' parameter is not the first parameter of a method
-void E0045(NNPtr<ASTNS::ThisParam> ast) {
+void E0045(ASTNS::ThisParam const &ast) {
     Error e = Error(MsgType::ERROR, Location(ast), "E0045", "this-not-first");
     e.underline(Underline(Location(ast), '^')
         .error("'this' parameter must be the first parameter of a method")
@@ -592,7 +592,7 @@ void W0000(Token const &semi) {
 
 // W0001 - Wimmut-noinit
 // | Uninitialized immutable variable
-void W0001(NNPtr<ASTNS::VarStmtItem> ast) {
+void W0001(ASTNS::VarStmtItem const &ast) {
     Error e = Error(MsgType::WARNING, Location(ast), "W0001", "Wimmut-noinit");
     e.underline(Underline(Location(ast), '^')
         .warning("uninitialized immutable variable will never be initialized")

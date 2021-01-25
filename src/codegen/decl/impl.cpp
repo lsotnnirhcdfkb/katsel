@@ -7,8 +7,9 @@
 CodeGen::ImplCodeGen::ImplCodeGen(CodeGen &cg, NNPtr<ASTNS::ImplDecl> ast): cg(cg), ast(ast), impl_for(), errored(false) {}
 
 bool CodeGen::ImplCodeGen::codegen() {
-    impl_for = cg.type_visitor->type(ast->impl_for.get(), Maybe<NNPtr<IR::Type>>());
-    for (std::unique_ptr<ASTNS::ImplMember> &member : ast->members)
+    impl_for = cg.type_visitor->type(*ast->impl_for, Maybe<NNPtr<IR::Type>>())
+        .fmap<NNPtr<IR::Type>>([] (IR::Type &t) { return NNPtr(t); });
+    for (std::unique_ptr<ASTNS::ImplMember> const &member : ast->members)
         member->accept(*this);
     return !errored;
 }
@@ -21,7 +22,7 @@ void CodeGen::ImplCodeGen::visit(ASTNS::FunctionImplMember &ast) {
 
     NNPtr<IR::Type> impl_for = this->impl_for.get();
 
-    Maybe<NNPtr<IR::Value>> m_val = impl_for->get_value(ast.fun->name.stringify());
+    Maybe<IR::Value&> m_val = impl_for->get_value(ast.fun->name.stringify());
     if (!m_val.has()) {
         errored = true;
         return;

@@ -16,12 +16,12 @@ namespace {
     public:
         _Mangler(std::stringstream &ss): ss(ss) {}
 
-        void mangle(IR::Type &ty) {
+        void mangle(IR::Type const &ty) {
             ss << 'T';
             ty.type_accept(*this);
             ss << 't';
         }
-        void mangle(IR::DeclSymbol &ds) {
+        void mangle(IR::DeclSymbol const &ds) {
             ss << 'D';
             ds.declsym_accept(*this);
             ss << 'd';
@@ -30,7 +30,7 @@ namespace {
     private:
         std::stringstream &ss;
 
-        void type_visit(IR::IntType &ty) override {
+        void type_visit(IR::IntType const &ty) override {
             switch (ty.size) {
                 case 8:  ss << (ty.is_signed ? 's' : 'u'); break;
                 case 16: ss << (ty.is_signed ? 'r' : 'w'); break;
@@ -38,43 +38,43 @@ namespace {
                 case 64: ss << (ty.is_signed ? 'p' : 'y'); break;
             }
         }
-        void type_visit(IR::FloatType &ty) override {
+        void type_visit(IR::FloatType const &ty) override {
             ss << (ty.size == 32 ? 'f' : 'd');
         }
-        void type_visit(IR::CharType &ty) override {
+        void type_visit(IR::CharType const &ty) override {
             ss << 'c';
         }
-        void type_visit(IR::BoolType &ty) override {
+        void type_visit(IR::BoolType const &ty) override {
             ss << 'b';
         }
-        void type_visit(IR::FunctionType &ty) override {
+        void type_visit(IR::FunctionType const &ty) override {
             ss << 'F';
             mangle(*ty.ret);
-            for (NNPtr<IR::Type> pty : ty.paramtys)
+            for (NNPtr<IR::Type const> pty : ty.paramtys)
                 mangle(*pty);
             ss << 'f';
         }
-        void type_visit(IR::VoidType &ty) override {
+        void type_visit(IR::VoidType const &ty) override {
             ss << 'v';
         }
-        void type_visit(IR::GenericIntType &ty) override {
+        void type_visit(IR::GenericIntType const &ty) override {
             ss << 'x';
         }
-        void type_visit(IR::GenericFloatType &ty) override {
+        void type_visit(IR::GenericFloatType const &ty) override {
             ss << 'f';
         }
-        void type_visit(IR::PointerType &ty) override {
+        void type_visit(IR::PointerType const &ty) override {
             ss << 'P';
             mangle(*ty.ty);
             ss << 'p';
         }
 
-        void declsym_visit(IR::Type &ty) override {
+        void declsym_visit(IR::Type const &ty) override {
             ss << 'T';
             mangle(ty);
             ss << 't';
         }
-        void declsym_visit(IR::Module &m) override {
+        void declsym_visit(IR::Module const &m) override {
             ss << 'M';
             identifier(m.name());
             ss << 'm';
@@ -92,7 +92,7 @@ static void mangle_function(std::stringstream &ss, IR::Function &f) {
     _Mangler t (ss);
 
     mangle_identifier(ss, f.name);
-    for (NNPtr<IR::Type> ty : f.ty->paramtys)
+    for (NNPtr<IR::Type const> ty : f.ty->paramtys)
         t.mangle(*ty);
 
     ss << "f";

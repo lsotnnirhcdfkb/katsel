@@ -118,8 +118,8 @@ def gen_ast_decls():
                 output.append(f'        {field.type} {field.name};\n')
 
             output.append(f'        virtual void accept({ast.base}Visitor &v) override;\n')
-            output.append( '        virtual Maybe<Location const> & start() override;\n')
-            output.append( '        virtual Maybe<Location const> & end() override;\n')
+            output.append( '        virtual Maybe<Location const> const &start() const override;\n')
+            output.append( '        virtual Maybe<Location const> const &end() const override;\n')
             output.append(f'        {ast.name}(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, {", ".join(f"{field.type} {field.name}" for field in ast.fields)});\n')
 
             output.append('    };\n')
@@ -137,8 +137,8 @@ def gen_ast_decls():
             output.append('    public:\n')
             output.append('        AST(File const &file);\n')
             output.append('        virtual ~AST() {}\n')
-            output.append('        virtual Maybe<Location const> & start() = 0;\n')
-            output.append('        virtual Maybe<Location const> & end() = 0;\n')
+            output.append('        virtual Maybe<Location const> const &start() const = 0;\n')
+            output.append('        virtual Maybe<Location const> const &end() const = 0;\n')
             output.append('        File const &file;\n')
             output.append('    };\n')
 
@@ -158,8 +158,8 @@ def gen_ast_defs():
             output.append(' {}\n')
 
             output.append(f'void ASTNS::{ast.name}::accept(ASTNS::{ast.base}Visitor &v) {{ v.visit(*this); }}\n')
-            output.append(f'Maybe<Location const> & ASTNS::{ast.name}::start() {{ return _start; }}\n')
-            output.append(f'Maybe<Location const> & ASTNS::{ast.name}::end() {{ return _end; }}\n')
+            output.append(f'Maybe<Location const> const &ASTNS::{ast.name}::start() const {{ return _start; }}\n')
+            output.append(f'Maybe<Location const> const &ASTNS::{ast.name}::end() const {{ return _end; }}\n')
         elif isinstance(ast, ASTBase):
             output.append(f'ASTNS::{ast.name}::{ast.name}(File const &file): AST(file) {{}}\n')
         else:

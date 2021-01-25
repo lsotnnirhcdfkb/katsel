@@ -38,21 +38,21 @@ bool CodeGen::FunctionCodeGen::codegen() {
         std::string pname = param.name;
         IR::Instrs::Register &reg = register_block->add<IR::Instrs::Register>(param.ast, param.ty, param.mut);
 
-        Maybe<NNPtr<Local>> foundparam = get_local(pname);
+        Maybe<Local&> foundparam = get_local(pname);
         if (foundparam.has()) {
-            ERR_REDECL_PARAM(param.ast, foundparam.get()->v);
+            ERR_REDECL_PARAM(*param.ast, *foundparam.get().v);
             errored = true;
         } else
             add_local(pname, reg);
     }
 
-    Maybe<IR::ASTValue> m_retval = expr_cg.expr(ast->body.get());
+    Maybe<IR::ASTValue> m_retval = expr_cg.expr(*ast->body);
 
     dec_scope();
 
     if (!errored) {
-        NNPtr<IR::Instrs::Instruction> deref_ret_reg = exit_block->add<IR::Instrs::DerefPtr>(IR::ASTValue(ret, ast->retty.get()));
-        exit_block->branch(std::make_unique<IR::Instrs::Return>(IR::ASTValue(deref_ret_reg, ast->retty.get())));
+        NNPtr<IR::Instrs::Instruction> deref_ret_reg = exit_block->add<IR::Instrs::DerefPtr>(IR::ASTValue(*ret, *ast->retty));
+        exit_block->branch(std::make_unique<IR::Instrs::Return>(IR::ASTValue(*deref_ret_reg, *ast->retty)));
 
         if (!m_retval.has()) {
             errored = true;
@@ -60,11 +60,11 @@ bool CodeGen::FunctionCodeGen::codegen() {
             IR::ASTValue retval = m_retval.get();
 
             retval = fun->ty->ret->impl_cast(*cg.context, *fun, cur_block, retval);
-            if (fun->ty->ret != retval.type()) {
-                ERR_CONFLICT_RET_TY(retval, fun);
+            if (fun->ty->ret.as_raw() != &retval.type()) {
+                ERR_CONFLICT_RET_TY(retval, *fun);
                 errored = true;
             } else {
-                cur_block->add<IR::Instrs::Store>(IR::ASTValue(ret, ast->retty.get()), retval, false);
+                cur_block->add<IR::Instrs::Store>(IR::ASTValue(*ret, *ast->retty), retval, false);
                 cur_block->branch(std::make_unique<IR::Instrs::GotoBr>(exit_block));
             }
         }
@@ -76,7 +76,7 @@ bool CodeGen::FunctionCodeGen::codegen() {
     return !errored;
 }
 
-void CodeGen::FunctionCodeGen::add_local(std::string const &name, NNPtr<IR::Instrs::Register> val) {
+void CodeGen::FunctionCodeGen::add_local(std::string const &name, IR::Instrs::Register &val) {
     for (auto last = locals.rbegin(); last != locals.rend(); ++last)
         if (last->name == name && last->scopenum == cur_scope)
             report_abort_noh(format("duplicate local added: \"{}\"", name));
@@ -85,12 +85,12 @@ void CodeGen::FunctionCodeGen::add_local(std::string const &name, NNPtr<IR::Inst
     locals.push_back(l);
 }
 
-Maybe<NNPtr<CodeGen::FunctionCodeGen::Local>> CodeGen::FunctionCodeGen::get_local(std::string const &name) {
+Maybe<CodeGen::FunctionCodeGen::Local&> CodeGen::FunctionCodeGen::get_local(std::string const &name) {
     for (auto last = locals.rbegin(); last != locals.rend(); ++last)
         if (last->name == name)
             return *last;
 
-    return Maybe<NNPtr<Local>>();
+    return Maybe<Local&>();
 }
 
 void CodeGen::FunctionCodeGen::inc_scope() {

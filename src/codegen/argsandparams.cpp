@@ -15,7 +15,7 @@ CodeGen::ParamVisitor::ParamVisitor::ParamVisitor(CodeGen &cg, std::vector<std::
 }
 
 void CodeGen::ParamVisitor::visit(ASTNS::Param &ast) {
-    Maybe<NNPtr<IR::Type>> ty (cg.type_visitor->type(ast.type.get(), this_type));
+    Maybe<IR::Type&> ty (cg.type_visitor->type(*ast.type, this_type));
     if (ty.has()) {
         std::string name (ast.name.stringify());
         Param p {ty.get(), std::move(name), ast, ast.mut};
@@ -43,7 +43,7 @@ void CodeGen::ParamVisitor::visit(ASTNS::ThisParam &ast) {
     this_ptr = ast.ptr;
     this_mut = ast.mut;
 
-    NNPtr<IR::Type> ty = ast.ptr ? cg.context->get_pointer_type(ast.mut, this_type.get()) : this_type.get();
+    NNPtr<IR::Type> ty = ast.ptr ? cg.context->get_pointer_type(ast.mut, *this_type.get()) : this_type.get();
 
     Param p {ty, "this", ast, false};
     ret.push_back(p);
@@ -55,7 +55,7 @@ CodeGen::ArgVisitor::ArgVisitor::ArgVisitor(CodeGen::FunctionCodeGen &fcg, std::
 }
 
 void CodeGen::ArgVisitor::visit(ASTNS::Arg &ast) {
-    Maybe<IR::ASTValue> a = fcg.expr_cg.expr(ast.expr.get());
+    Maybe<IR::ASTValue> a = fcg.expr_cg.expr(*ast.expr);
     if (a.has())
         ret.push_back(a.get());
 }

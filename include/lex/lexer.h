@@ -28,7 +28,7 @@ private:
     Token lex_digit(char current);
     Token lex_identifier(bool apostrophes_allowed);
 
-    Token make_error_token(NNPtr<void (Token const &)> errf);
+    Token make_error_token(Token::ErrFunc err_func);
     Token make_token(TokenType type);
 
     std::string::iterator start;

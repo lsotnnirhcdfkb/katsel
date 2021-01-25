@@ -35,14 +35,14 @@ namespace IR {
     public:
         virtual ~Value() {};
 
-        virtual NNPtr<Type> type() const = 0;
+        virtual Type const &type() const = 0;
 
-        virtual void value_accept(ValueVisitor &v) = 0;
+        virtual void value_accept(ValueVisitor &v) const = 0;
     };
 
     class DeclaredValue {
     public:
-        virtual NNPtr<ASTNS::AST> def_ast() const = 0;
+        virtual ASTNS::AST const &def_ast() const = 0;
     };
 
     class Function;
@@ -51,9 +51,9 @@ namespace IR {
     public:
         ConstInt(NNPtr<IntType> ty, uint64_t val);
         ConstInt(NNPtr<GenericIntType> ty, uint64_t val);
-        NNPtr<Type> type() const override;
+        Type const &type() const override;
         uint64_t val;
-        void value_accept(ValueVisitor &v) override;
+        void value_accept(ValueVisitor &v) const override;
     private:
         std::variant<NNPtr<IntType>, NNPtr<GenericIntType>> ty;
         bool is_generic;
@@ -62,9 +62,9 @@ namespace IR {
     public:
         ConstFloat(NNPtr<FloatType> ty, double val);
         ConstFloat(NNPtr<GenericFloatType> ty, double val);
-        NNPtr<Type> type() const override;
+        Type const &type() const override;
         double val;
-        void value_accept(ValueVisitor &v) override;
+        void value_accept(ValueVisitor &v) const override;
     private:
         std::variant<NNPtr<FloatType>, NNPtr<GenericFloatType>> ty;
         bool is_generic;
@@ -72,18 +72,18 @@ namespace IR {
     class ConstBool : public Value {
     public:
         ConstBool(NNPtr<BoolType> ty, bool val);
-        NNPtr<Type> type() const override;
+        Type const &type() const override;
         bool val;
-        void value_accept(ValueVisitor &v) override;
+        void value_accept(ValueVisitor &v) const override;
     private:
         NNPtr<BoolType> ty;
     };
     class ConstChar : public Value {
     public:
         ConstChar(NNPtr<CharType> ty, uint8_t val);
-        NNPtr<Type> type() const override;
+        Type const &type() const override;
         uint8_t val;
-        void value_accept(ValueVisitor &v) override;
+        void value_accept(ValueVisitor &v) const override;
     private:
         NNPtr<CharType> ty;
     };
@@ -92,8 +92,8 @@ namespace IR {
     class Void : public Value {
     public:
         Void(NNPtr<VoidType> ty);
-        NNPtr<Type> type() const override;
-        void value_accept(ValueVisitor &v) override;
+        Type const &type() const override;
+        void value_accept(ValueVisitor &v) const override;
     private:
         NNPtr<VoidType> ty;
     };
@@ -105,12 +105,12 @@ namespace IR {
         // also especially since ConstInts are uniqued together),
         // this struct allows values to be associated with an ast, and more importantly,
         // it isn't supposed to be heap-allocated and uniqued, so one value can have multiple ASTs
-        NNPtr<Value> val;
-        NNPtr<ASTNS::AST> ast;
+        NNPtr<Value const> val;
+        NNPtr<ASTNS::AST const> ast;
 
-        inline ASTValue(NNPtr<Value> val, NNPtr<ASTNS::AST> ast): val(val), ast(ast) {}
+        inline ASTValue(Value const &val, ASTNS::AST const &ast): val(val), ast(ast) {}
 
-        inline NNPtr<Type> type() const {
+        inline Type const &type() const {
             return val->type();
         }
     };
@@ -118,7 +118,7 @@ namespace IR {
     class ValueVisitor {
     public:
 #define VISITMETHOD(cl, n) \
-        virtual void value_visit(cl &i) = 0;
+        virtual void value_visit(cl const &i) = 0;
         IR_VALUE_LIST(VISITMETHOD)
 #undef VISITMETHOD
     };

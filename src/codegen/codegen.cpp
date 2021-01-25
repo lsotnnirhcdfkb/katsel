@@ -49,9 +49,9 @@ void CodeGen::visit(ASTNS::CU &ast) {
 }
 
 void CodeGen::visit(ASTNS::FunctionDecl &ast) {
-    Maybe<NNPtr<IR::Value>> val = unit->mod.get_value(ast.name.stringify());
+    Maybe<IR::Value&> val = unit->mod.get_value(ast.name.stringify());
     IR::Function *fun;
-    if (!val.has() || !(fun = dynamic_cast<IR::Function*>(val.get().as_raw()))) {
+    if (!val.has() || !(fun = dynamic_cast<IR::Function*>(&val.get()))) {
         errored = true;
         return;
     }

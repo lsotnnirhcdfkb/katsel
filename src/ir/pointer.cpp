@@ -10,9 +10,9 @@
 
 #include "llvm/IR/DerivedTypes.h"
 
-IR::PointerType::PointerType(CodeGen::Context &context, NNPtr<ASTNS::AST> decl_ast, bool mut, NNPtr<Type> ty): Type(context), ty(ty), mut(mut), _decl_ast(decl_ast) {}
-NNPtr<ASTNS::AST> IR::PointerType::decl_ast() const {
-    return _decl_ast;
+IR::PointerType::PointerType(CodeGen::Context &context, ASTNS::AST const &decl_ast, bool mut, Type const &ty): Type(context), ty(ty), mut(mut), _decl_ast(decl_ast) {}
+ASTNS::AST const &IR::PointerType::decl_ast() const {
+    return *_decl_ast;
 }
 
 std::string IR::PointerType::name() const {
@@ -26,11 +26,11 @@ DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::PointerType)
 DERIVE_TYPE_METHOD_TABLE_IMPL(IR::PointerType)
 DERIVE_TYPE_NO_FIELDS(IR::PointerType)
 
-Maybe<IR::ASTValue> IR::PointerType::bin_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::Type::BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, NNPtr<ASTNS::AST> ast) {
-    ASSERT(l.type().as_raw() == this);
+Maybe<IR::ASTValue> IR::PointerType::bin_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::Type::BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST const &ast) const {
+    ASSERT(&l.type() == this);
 
-    r = cgc.get_int_type(64, true)->impl_cast(cgc, fun, cur_block, r);
-    if (!dynamic_cast<IntType*>(r.type().as_raw())) {
+    r = cgc.get_int_type(64, true).impl_cast(cgc, fun, cur_block, r);
+    if (!dynamic_cast<IntType const *>(&r.type())) {
         ERR_PTR_ARITH_RHS_NOT_NUM(l, optok, r);
         return Maybe<IR::ASTValue>();
     }
@@ -39,7 +39,7 @@ Maybe<IR::ASTValue> IR::PointerType::bin_op(CodeGen::Context &cgc, IR::Function 
         case IR::Type::BinaryOperator::plus:
             return IR::ASTValue(cur_block->add<IR::Instrs::PtrArith>(l, r), ast);
         case IR::Type::BinaryOperator::minus: {
-                IR::ASTValue r_negated = IR::ASTValue(cur_block->add<IR::Instrs::INeg>(r), r.ast);
+                IR::ASTValue r_negated = IR::ASTValue(cur_block->add<IR::Instrs::INeg>(r), *r.ast);
                 return IR::ASTValue(cur_block->add<IR::Instrs::PtrArith>(l, r_negated), ast);
             }
         case IR::Type::BinaryOperator::greater:
@@ -60,24 +60,24 @@ Maybe<IR::ASTValue> IR::PointerType::bin_op(CodeGen::Context &cgc, IR::Function 
             return Maybe<IR::ASTValue>();
     }
 }
-Maybe<IR::ASTValue> IR::PointerType::unary_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::Type::UnaryOperator op, IR::ASTValue operand, Token optok, NNPtr<ASTNS::AST> ast) {
-    ASSERT(operand.type().as_raw() == this);
+Maybe<IR::ASTValue> IR::PointerType::unary_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::Type::UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST const &ast) const {
+    ASSERT(&operand.type() == this);
 
     ERR_UNARY_UNSUPPORTED_OP(operand, optok);
     return Maybe<ASTValue>();
 }
-Maybe<IR::ASTValue> IR::PointerType::cast_from(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, NNPtr<ASTNS::AST> ast) {
-    if (dynamic_cast<IR::PointerType*>(v.type().as_raw())) {
+Maybe<IR::ASTValue> IR::PointerType::cast_from(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, ASTNS::AST const &ast) const {
+    if (dynamic_cast<IR::PointerType const *>(&v.type())) {
         return ASTValue(cur_block->add<IR::Instrs::NoOpCast>(v, this), ast);
     }
 
-    ERR_INVALID_CAST(ast, v, this);
+    ERR_INVALID_CAST(ast, v, *this);
     return Maybe<ASTValue>();
 }
-NNPtr<llvm::Type> IR::PointerType::to_llvmtype(llvm::LLVMContext &con) const {
-    return llvm::PointerType::getUnqual(ty->to_llvmtype(con).as_raw());
+llvm::Type& IR::PointerType::to_llvmtype(llvm::LLVMContext &con) const {
+    return *llvm::PointerType::getUnqual(&ty->to_llvmtype(con));
 }
-IR::ASTValue IR::PointerType::impl_cast(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) {
+IR::ASTValue IR::PointerType::impl_cast(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const {
     return v;
 }
 

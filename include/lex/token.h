@@ -14,8 +14,9 @@ struct Token {
     std::string::iterator start;
     std::string::iterator end;
 
-    using ErrFunc = NNPtr<void (Token const &)>;
-    Maybe<ErrFunc> errf;
+    using ErrFunc = void (&)(Token const &);
+    using ErrFuncField = NNPtr<void(Token const &)>;
+    Maybe<ErrFuncField> errf;
 
     int line;
     int column;

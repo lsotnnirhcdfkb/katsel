@@ -15,17 +15,17 @@ void IR::Function::add(std::unique_ptr<IR::Block> block) {
         report_abort_noh("push block on prototypeonly");
 }
 
-NNPtr<ASTNS::AST> IR::Function::def_ast() const {
-    return _def_ast;
+ASTNS::AST const &IR::Function::def_ast() const {
+    return *_def_ast;
 }
 
-NNPtr<IR::Type> IR::Function::type() const {
-    return ty;
+IR::Type const &IR::Function::type() const {
+    return *ty;
 }
 
-NNPtr<IR::Block> IR::Function::add_block(std::string name) {
+IR::Block& IR::Function::add_block(std::string name) {
     std::unique_ptr<Block> block = std::make_unique<Block>(this, name, block_i++);
-    NNPtr<Block> blockraw = block.get();
+    Block &blockraw = *block;
     blocks.push_back(std::move(block));
 
     return blockraw;

@@ -155,8 +155,8 @@ namespace {
         return maxlinepad;
     }
     // printing lines {{{2
-    void print_file_line(std::string const &pad, NNPtr<File const> file) {
-        std::cerr << pad << "> " << attr(FILEPATH_COLOR, file->filename) << std::endl;
+    void print_file_line(std::string const &pad, File const &file) {
+        std::cerr << pad << "> " << attr(FILEPATH_COLOR, file.filename) << std::endl;
     }
     void print_elipsis_line(std::string const &pad) {
         std::cerr << std::string(pad.size() - 1, '.') << " | ...\n";
@@ -300,7 +300,7 @@ void Error::report() const {
                     return true;
                 });
             if (need_file_line) {
-                print_file_line(pad, sl.file);
+                print_file_line(pad, *sl.file);
                 lastnr = -1;
             }
 

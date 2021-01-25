@@ -57,7 +57,7 @@ class CodeGen::FunctionCodeGen {
     public:
         StmtCodeGen(CodeGen &cg, FunctionCodeGen &fcg);
 
-        void stmt(NNPtr<ASTNS::Stmt> ast);
+        void stmt(ASTNS::Stmt &ast);
 
     private:
         // STMTCG METHODS START
@@ -78,7 +78,7 @@ void visit(ASTNS::RetStmt &ast) override;
     public:
         ExprCodeGen(CodeGen &cg, FunctionCodeGen &fcg);
 
-        Maybe<IR::ASTValue> expr(NNPtr<ASTNS::Expr> ast);
+        Maybe<IR::ASTValue> expr(ASTNS::Expr &ast);
 
     private:
         // EXPRCG METHODS START
@@ -120,8 +120,8 @@ public:
     std::vector<Local> locals;
     size_t cur_scope;
 
-    void add_local(std::string const &name, NNPtr<IR::Instrs::Register> val);
-    Maybe<NNPtr<Local>> get_local(std::string const &name);
+    void add_local(std::string const &name, IR::Instrs::Register &val);
+    Maybe<Local&> get_local(std::string const &name);
 
     void inc_scope();
     void dec_scope();
@@ -158,7 +158,7 @@ void visit(ASTNS::FunctionImplMember &ast) override;
     // IMPLCG METHODS END
 
     CodeGen &cg;
-    NNPtr<ASTNS::ImplDecl> ast;
+    NNPtr<ASTNS::ImplDecl const> ast;
 
     Maybe<NNPtr<IR::Type>> impl_for;
 
@@ -169,7 +169,7 @@ void visit(ASTNS::FunctionImplMember &ast) override;
 class CodeGen::ParamVisitor : public ASTNS::ParamBVisitor {
 public:
     struct Param {
-        NNPtr<IR::Type> ty;
+        NNPtr<IR::Type const> ty;
         std::string name;
         NNPtr<ASTNS::ParamB> ast;
         bool mut;
@@ -216,8 +216,8 @@ class CodeGen::PathVisitor : public ASTNS::PathBVisitor {
 public:
     PathVisitor(CodeGen &cg);
 
-    Maybe<IR::ASTValue> resolve_value(NNPtr<ASTNS::PathB> path, CodeGen::FunctionCodeGen &fcg);
-    Maybe<NNPtr<IR::DeclSymbol>> resolve_decl_symbol(NNPtr<ASTNS::PathB> path);
+    Maybe<IR::ASTValue> resolve_value(ASTNS::PathB &path, CodeGen::FunctionCodeGen &fcg);
+    Maybe<IR::DeclSymbol &> resolve_decl_symbol(ASTNS::PathB &path);
 
 private:
     enum class PathType { VALUE, DECLARED } pty;
@@ -239,7 +239,7 @@ class CodeGen::TypeVisitor : public ASTNS::TypeVisitor {
 public:
     TypeVisitor(CodeGen &cg);
 
-    Maybe<NNPtr<IR::Type>> type(NNPtr<ASTNS::Type> ast, Maybe<NNPtr<IR::Type>> this_type);
+    Maybe<IR::Type &> type(ASTNS::Type &ast, Maybe<NNPtr<IR::Type>> this_type);
 
 private:
     // TYPEVISITOR METHODS START

@@ -5,8 +5,8 @@
 
 IR::Module::Module(std::string const &name, NNPtr<ASTNS::AST> decl_ast): _decl_ast(decl_ast), _name(name) {}
 
-NNPtr<ASTNS::AST> IR::Module::decl_ast() const {
-    return _decl_ast;
+ASTNS::AST const &IR::Module::decl_ast() const {
+    return *_decl_ast;
 }
 std::string IR::Module::name() const {
     return _name;
@@ -16,11 +16,11 @@ DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::Module)
 
 // do the dsaccept methods here, even though that doesn't really make sense with the file structure but whatever
 #define DSACCEPTMETHOD(cl) \
-    void IR::cl::declsym_accept(IR::DeclSymbolVisitor &v) { v.declsym_visit(*this); }
+    void IR::cl::declsym_accept(IR::DeclSymbolVisitor &v) const { v.declsym_visit(*this); }
 DECLSYM_CLASS_LIST(DSACCEPTMETHOD)
 #undef DSACCEPTMETHOD
 
-std::ostream& operator<<(std::ostream &os, NNPtr<IR::DeclSymbol const> ds) {
-    os << "'" << ds->name() << "'";
+std::ostream& operator<<(std::ostream &os, IR::DeclSymbol const &ds) {
+    os << "'" << ds.name() << "'";
     return os;
 }

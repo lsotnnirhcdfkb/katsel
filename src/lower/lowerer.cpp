@@ -115,34 +115,34 @@ void Lower::Lowerer::lower(IR::Block const &b) {
         i->accept(*this);
 }
 
-NNPtr<llvm::Value> Lower::Lowerer::lower(NNPtr<IR::Value> v) {
+llvm::Value& Lower::Lowerer::lower(IR::Value const &v) {
     lvret = nullptr;
-    v->value_accept(*this);
-    return lvret;
+    v.value_accept(*this);
+    return *lvret;
 }
 
-NNPtr<llvm::Value> Lower::Lowerer::lower(IR::ASTValue &v) {
-    return lower(v.val);
+llvm::Value& Lower::Lowerer::lower(IR::ASTValue const &v) {
+    return lower(*v.val);
 }
 
-void Lower::Lowerer::value_visit(IR::ConstBool &v) {
-    lvret = llvm::ConstantInt::get(v.type()->to_llvmtype(context).as_raw(), v.val);
+void Lower::Lowerer::value_visit(IR::ConstBool const &v) {
+    lvret = llvm::ConstantInt::get(&v.type().to_llvmtype(context), v.val);
 }
-void Lower::Lowerer::value_visit(IR::ConstFloat &v) {
-    lvret = llvm::ConstantFP::get(v.type()->to_llvmtype(context).as_raw(), v.val);
+void Lower::Lowerer::value_visit(IR::ConstFloat const &v) {
+    lvret = llvm::ConstantFP::get(&v.type().to_llvmtype(context), v.val);
 }
-void Lower::Lowerer::value_visit(IR::ConstInt &v) {
-    lvret = llvm::ConstantInt::get(v.type()->to_llvmtype(context).as_raw(), v.val);
+void Lower::Lowerer::value_visit(IR::ConstInt const &v) {
+    lvret = llvm::ConstantInt::get(&v.type().to_llvmtype(context), v.val);
 }
-void Lower::Lowerer::value_visit(IR::ConstChar &v) {
-    lvret = llvm::ConstantInt::get(v.type()->to_llvmtype(context).as_raw(), v.val);
+void Lower::Lowerer::value_visit(IR::ConstChar const &v) {
+    lvret = llvm::ConstantInt::get(&v.type().to_llvmtype(context), v.val);
 }
-void Lower::Lowerer::value_visit(IR::Function &v) {
+void Lower::Lowerer::value_visit(IR::Function const &v) {
     lvret = functions.at(v);
 }
-void Lower::Lowerer::value_visit(IR::Void &v) {
+void Lower::Lowerer::value_visit(IR::Void const &v) {
     report_abort_noh("lower_value called with v = Void");
 }
-void Lower::Lowerer::value_visit(IR::Instrs::Instruction &v) {
+void Lower::Lowerer::value_visit(IR::Instrs::Instruction const &v) {
     lvret = values.at(v);
 }

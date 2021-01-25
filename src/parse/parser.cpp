@@ -28,7 +28,7 @@ Token Parser::consume() {
         Token cur (lexer.next_token());
         if (cur.type == TokenType::ERROR) {
             errored = true;
-            cur.errf.match([&cur] (Token::ErrFunc const &e) {
+            cur.errf.match([&cur] (Token::ErrFuncField const &e) {
                     (*e)(cur);
                 },
                 [] {

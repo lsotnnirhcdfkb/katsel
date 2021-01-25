@@ -10,11 +10,11 @@ CodeGen::Context::Context(File const &file, CodeGen &cg): cg(cg), void_value(get
 #define CHECK_FIELD(field) (casted->field == field)
 
 #define GET_TYPE_DEF(get_ret, method_name, params, fields, args) \
-    NNPtr<IR::get_ret> CodeGen::Context::get_##method_name params /* params are already wrapped in () */ { \
+    IR::get_ret& CodeGen::Context::get_##method_name params /* params are already wrapped in () */ { \
         for (std::unique_ptr<IR::Type> &loop_type : types) { \
             IR::get_ret *casted (dynamic_cast<IR::get_ret*>(loop_type.get())); \
             /* fields in wrappd in (), which makes this a macro invocation */ \
-            if (casted && fields ) return casted; \
+            if (casted && fields ) return *casted; \
         } \
         auto new_type = std::make_unique<IR::get_ret> args; /* args are also already wrapped in () */ ; \
         IR::get_ret &new_type_r (*new_type); \
@@ -25,77 +25,77 @@ CodeGen::Context::Context(File const &file, CodeGen &cg): cg(cg), void_value(get
 GET_TYPE_DEF(FloatType, float_type,
         (int size),
         (CHECK_FIELD(size)),
-        (*this, cg.unit->implicit_decl_ast.get(), size))
+        (*this, *cg.unit->implicit_decl_ast, size))
 
 GET_TYPE_DEF(IntType, int_type,
         (int size, bool is_signed),
         (CHECK_FIELD(size) && CHECK_FIELD(is_signed)),
-        (*this, cg.unit->implicit_decl_ast.get(), size, is_signed))
+        (*this, *cg.unit->implicit_decl_ast, size, is_signed))
 
 GET_TYPE_DEF(CharType, char_type,
         (),
         true,
-        (*this, cg.unit->implicit_decl_ast.get()))
+        (*this, *cg.unit->implicit_decl_ast))
 
 GET_TYPE_DEF(BoolType, bool_type,
         (),
         true,
-        (*this, cg.unit->implicit_decl_ast.get()))
+        (*this, *cg.unit->implicit_decl_ast))
 
 GET_TYPE_DEF(GenericIntType, generic_int_type,
         (),
         true,
-        (*this, cg.unit->implicit_decl_ast.get()))
+        (*this, *cg.unit->implicit_decl_ast))
 
 GET_TYPE_DEF(GenericFloatType, generic_float_type,
         (),
         true,
-        (*this, cg.unit->implicit_decl_ast.get()))
+        (*this, *cg.unit->implicit_decl_ast))
 
 GET_TYPE_DEF(FunctionType, function_type,
-        (NNPtr<IR::Type> ret, std::vector<NNPtr<IR::Type>> paramtys),
-        (CHECK_FIELD(ret) && CHECK_FIELD(paramtys)),
-        (*this, cg.unit->implicit_decl_ast.get(), ret, paramtys))
+        (IR::Type const &ret, std::vector<NNPtr<IR::Type const>> paramtys),
+        (&ret == &*casted->ret  && CHECK_FIELD(paramtys)),
+        (*this, *cg.unit->implicit_decl_ast, ret, paramtys))
 
 GET_TYPE_DEF(VoidType, void_type,
         (),
         true,
-        (*this, cg.unit->implicit_decl_ast.get()))
+        (*this, *cg.unit->implicit_decl_ast))
 
 GET_TYPE_DEF(PointerType, pointer_type,
-        (bool mut, NNPtr<IR::Type> ty),
-        (CHECK_FIELD(mut) && CHECK_FIELD(ty)),
-        (*this, cg.unit->implicit_decl_ast.get(), mut, ty))
+        (bool mut, IR::Type const &ty),
+        (CHECK_FIELD(mut) && casted->ty.as_raw() == &ty),
+        (*this, *cg.unit->implicit_decl_ast, mut, ty))
 
 #undef GET_TYPE_DEF
 #undef CHECK_FIELD
 // getting values {{{1
 template <typename Ret, typename ... Args>
-static NNPtr<Ret> get_const_val(std::vector<std::unique_ptr<IR::Value>> &constants, Args ...args) {
+static Ret& get_const_val(std::vector<std::unique_ptr<IR::Value>> &constants, Args ...args) {
     std::unique_ptr<Ret> cv = std::make_unique<Ret>(args...);
-    NNPtr<Ret> cvraw = cv.get();
+    Ret& cvraw = *cv;
     constants.push_back(std::move(cv));
     return cvraw;
 }
 
-NNPtr<IR::ConstFloat> CodeGen::Context::get_const_float(NNPtr<IR::FloatType> ty, double value) {
+IR::ConstFloat& CodeGen::Context::get_const_float(IR::FloatType &ty, double value) {
     return get_const_val<IR::ConstFloat>(constants, ty, value);
 }
-NNPtr<IR::ConstInt> CodeGen::Context::get_const_int(NNPtr<IR::IntType> ty, uint64_t value) {
+IR::ConstInt& CodeGen::Context::get_const_int(IR::IntType& ty, uint64_t value) {
     return get_const_val<IR::ConstInt>(constants, ty, value);
 }
-NNPtr<IR::ConstFloat> CodeGen::Context::get_const_float(NNPtr<IR::GenericFloatType> ty, double value) {
+IR::ConstFloat& CodeGen::Context::get_const_float(IR::GenericFloatType &ty, double value) {
     return get_const_val<IR::ConstFloat>(constants, ty, value);
 }
-NNPtr<IR::ConstInt> CodeGen::Context::get_const_int(NNPtr<IR::GenericIntType> ty, uint64_t value) {
+IR::ConstInt& CodeGen::Context::get_const_int(IR::GenericIntType &ty, uint64_t value) {
     return get_const_val<IR::ConstInt>(constants, ty, value);
 }
-NNPtr<IR::ConstChar> CodeGen::Context::get_const_char(uint8_t value) {
+IR::ConstChar& CodeGen::Context::get_const_char(uint8_t value) {
     return get_const_val<IR::ConstChar>(constants, get_char_type(), value);
 }
-NNPtr<IR::ConstBool> CodeGen::Context::get_const_bool(bool value) {
+IR::ConstBool& CodeGen::Context::get_const_bool(bool value) {
     return get_const_val<IR::ConstBool>(constants, get_bool_type(), value);
 }
-NNPtr<IR::Void> CodeGen::Context::get_void() {
-    return &void_value;
+IR::Void& CodeGen::Context::get_void() {
+    return void_value;
 }
