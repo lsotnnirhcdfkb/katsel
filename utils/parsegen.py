@@ -920,7 +920,7 @@ def gen_loop():
                         output.append(           f'                            auto a{i} (pop_a<ASTNS::{sym.reduces_to}>(stack));\n')
 
                 if len(ac.rule.expansion) > 0:
-                    output.append(                '                            Maybe<Location const> start = \n')
+                    output.append(                '                            Maybe<Location const> start =\n')
                     for i in range(ac.rule.loc_start, len(ac.rule.expansion)):
                         if isinstance(ac.rule.expansion[i], Terminal):
                             output.append(       f'                                Maybe<Location const>(a{i});\n')
@@ -1001,9 +1001,7 @@ def gen_goto():
                     returns[state.goto[nonterm]] = [staten]
 
         for retval, states in returns.items():
-            output.append(                        '                ')
-            for state in states:
-                output.append(                   f'case {state}: ')
+            output.append(                       f'                {" ".join(f"case {state}:" for state in states)}')
             output.append(                       f'\n                    return {retval};\n')
 
         output.append(                            '                default: report_abort_noh("get invalid goto");\n')

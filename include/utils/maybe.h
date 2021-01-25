@@ -20,7 +20,7 @@ public:
         }
     }
 
-    template <typename Ret, typename WithOp> 
+    template <typename Ret, typename WithOp>
     inline Maybe<Ret> fmap(WithOp withop) const {
         if (has()) {
             return Maybe<Ret>(withop(get()));
