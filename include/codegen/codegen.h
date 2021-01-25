@@ -43,10 +43,10 @@ public:
 
 private:
     // CG METHODS START
-void visit(ASTNS::ImplicitDecl &ast) override;
-void visit(ASTNS::CU &ast) override;
-void visit(ASTNS::ImplDecl &ast) override;
-void visit(ASTNS::FunctionDecl &ast) override;
+    void visit(ASTNS::ImplicitDecl &ast) override;
+    void visit(ASTNS::CU &ast) override;
+    void visit(ASTNS::ImplDecl &ast) override;
+    void visit(ASTNS::FunctionDecl &ast) override;
     // CG METHODS END
 
     bool errored;

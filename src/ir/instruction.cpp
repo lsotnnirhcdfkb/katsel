@@ -314,5 +314,4 @@ IR::Instrs::CondBr::CondBr(ASTValue v, NNPtr<Block> true_b, NNPtr<Block> false_b
     ASSERT(dynamic_cast<BoolType const *>(&v.type()))
 }
 void IR::Instrs::CondBr::accept(BrVisitor &v) const { v.visit(*this); }
-
 // INSTR CPP END

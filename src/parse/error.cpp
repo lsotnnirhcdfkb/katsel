@@ -129,9 +129,9 @@ bool single_tok(errorstate const &e, std::vector<std::string> const &expectation
 
     // error recovery {{{
     // SINGLETOK START
-#define TRYINSERT(ty) if (try_insert(ty, e.p, e.lookahead, e.stack)) {fix f = fix {fix::fixtype::INSERT, ty}; if (score(f) > score(bestfix)) bestfix = f;}
-#define TRYSUB(ty) if (try_sub(ty, e.p, e.lookahead, e.stack)) {fix f = fix {fix::fixtype::SUBSTITUTE, ty}; if (score(f) > score(bestfix)) bestfix = f;}
-#define TRYTOKTY(ty) TRYINSERT(ty); TRYSUB(ty);
+    #define TRYINSERT(ty) if (try_insert(ty, e.p, e.lookahead, e.stack)) {fix f = fix {fix::fixtype::INSERT, ty}; if (score(f) > score(bestfix)) bestfix = f;}
+    #define TRYSUB(ty) if (try_sub(ty, e.p, e.lookahead, e.stack)) {fix f = fix {fix::fixtype::SUBSTITUTE, ty}; if (score(f) > score(bestfix)) bestfix = f;}
+    #define TRYTOKTY(ty) TRYINSERT(ty); TRYSUB(ty);
     TRYTOKTY(TokenType::EOF_)
     TRYTOKTY(TokenType::COMMA)
     TRYTOKTY(TokenType::FUN)
@@ -204,18 +204,18 @@ bool single_tok(errorstate const &e, std::vector<std::string> const &expectation
 bool panic_mode(errorstate const &e, std::vector<std::string> const &expectations) {
     // error recovery {{{
     // PANIC MODE START
-#define CHECKASI(ty)\
-    if (nterm == NonTerminal::ty) {\
-        switch (e.lookahead.type) {
-#define FINISHCHECKASI()\
-        }\
-    }
-#define RECOVERANDDEFBREAK()\
-        valid = true;\
-        delto = i;\
-        break;\
-    default:\
-        break;
+    #define CHECKASI(ty)\
+        if (nterm == NonTerminal::ty) {\
+            switch (e.lookahead.type) {
+    #define FINISHCHECKASI()\
+            }\
+        }
+    #define RECOVERANDDEFBREAK()\
+            valid = true;\
+            delto = i;\
+            break;\
+        default:\
+            break;
     bool valid = false;
     e.lookahead = e.p.consume(); // prevent infinite panicking loops
     std::vector<stackitem>::reverse_iterator delto;
@@ -363,9 +363,9 @@ bool panic_mode(errorstate const &e, std::vector<std::string> const &expectation
             return false;
     }
     e.stack.erase(delto.base(), e.stack.end());
-#undef CHECKASI
-#undef FINISHCHECKASI
-#undef RECOVERANDDEFBREAK
+    #undef CHECKASI
+    #undef FINISHCHECKASI
+    #undef RECOVERANDDEFBREAK
     ERR_PANICKING_INVALID_SYNTAX(e.olh, e.lasttok, e.lookahead, expectations);
     return true;
     // PANIC MODE END

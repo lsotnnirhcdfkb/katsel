@@ -49,6 +49,8 @@ jobs = [
 
 skipped = 0
 
+LINE_START_PATTERN = re.compile(r'^(?!(\s*\n))', re.MULTILINE)
+
 for job_i, job in enumerate(jobs):
     job_file, job_marker, job_func = job
     # print(f'Running job {job_i + 1}/{len(jobs)}: insert {job_func} to {job_file}')
@@ -58,30 +60,33 @@ for job_i, job in enumerate(jobs):
         BACKUP = ''.join(job_file_lines)
 
     def find_marker(marker):
-        reg = re.compile(fr'\s*// {marker}')
+        reg = re.compile(fr'(\s*)// {marker}')
         matches = []
         for line_num, line in enumerate(job_file_lines):
-            if reg.match(line):
-                matches.append(line_num)
+            if match := reg.match(line):
+                matches.append((line_num, match))
 
         if len(matches) != 1:
-            print(f"marker '{marker}' matched {len(matched)} times")
-            return None
+            print(f"error: marker '{marker}' matched {len(matches)} times")
+            return (None, None)
         else:
             return matches[0]
 
     # delete old code
-    gen_start_line = find_marker(job_marker + ' START')
-    gen_end_line   = find_marker(job_marker + ' END')
+    gen_start_line, gen_start_match = find_marker(job_marker + ' START')
+    gen_end_line  , gen_end_match   = find_marker(job_marker + ' END')
 
-    del job_file_lines[gen_start_line + 1:gen_end_line]
+    if gen_start_line is None or gen_end_line is None:
+        continue
+
+    indent_str = gen_start_match.group(1)
 
     # run the function to generate the code
-    output = job_func()
-    if not output.endswith('\n'):
-        output += '\n'
+    output = LINE_START_PATTERN.sub(indent_str, job_func().rstrip('\n'))
+    if not output.endswith('\n'): output += '\n'
 
     # take the output of the function and put it back into the file
+    del job_file_lines[gen_start_line + 1 : gen_end_line]
     job_file_lines.insert(gen_start_line + 1, output)
     FINAL_OUTPUT = ''.join(job_file_lines)
 

@@ -10,7 +10,7 @@
 #include "utils/maybe.h"
 
 namespace ASTNS {
-// ASTHEADER START
+    // ASTHEADER START
     class AST {
     public:
         AST(File const &file);
@@ -471,5 +471,5 @@ namespace ASTNS {
         virtual Maybe<Location const> const &end() const override;
         Path(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::vector<Token> segments);
     };
-// ASTHEADER END
+    // ASTHEADER END
 }

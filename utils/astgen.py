@@ -109,38 +109,38 @@ def gen_ast_decls():
     output = []
     for ast in asts:
         if isinstance(ast, AST):
-            output.append(f'    class {ast.name} : public {ast.base} {{\n')
+            output.append(f'class {ast.name} : public {ast.base} {{\n')
 
-            output.append('    public:\n')
-            output.append('        Maybe<Location const> _start, _end;\n')
+            output.append( 'public:\n')
+            output.append( '    Maybe<Location const> _start, _end;\n')
 
             for field in ast.fields:
-                output.append(f'        {field.type} {field.name};\n')
+                output.append(f'    {field.type} {field.name};\n')
 
-            output.append(f'        virtual void accept({ast.base}Visitor &v) override;\n')
-            output.append( '        virtual Maybe<Location const> const &start() const override;\n')
-            output.append( '        virtual Maybe<Location const> const &end() const override;\n')
-            output.append(f'        {ast.name}(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, {", ".join(f"{field.type} {field.name}" for field in ast.fields)});\n')
+            output.append(f'    virtual void accept({ast.base}Visitor &v) override;\n')
+            output.append( '    virtual Maybe<Location const> const &start() const override;\n')
+            output.append( '    virtual Maybe<Location const> const &end() const override;\n')
+            output.append(f'    {ast.name}(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, {", ".join(f"{field.type} {field.name}" for field in ast.fields)});\n')
 
-            output.append('    };\n')
+            output.append( '};\n')
         elif isinstance(ast, ASTBase):
-            output.append(f'    class {ast.name} : public AST {{\n')
-            output.append('    public:\n')
+            output.append(f'class {ast.name} : public AST {{\n')
+            output.append( 'public:\n')
 
 
-            output.append(f'        virtual ~{ast.name}() {{}}\n')
-            output.append(f'        virtual void accept({ast.name}Visitor &v) = 0;\n')
-            output.append(f'        {ast.name}(File const &file);\n')
-            output.append('    };\n')
+            output.append(f'    virtual ~{ast.name}() {{}}\n')
+            output.append(f'    virtual void accept({ast.name}Visitor &v) = 0;\n')
+            output.append(f'    {ast.name}(File const &file);\n')
+            output.append( '};\n')
         else:
-            output.append('    class AST {\n')
-            output.append('    public:\n')
-            output.append('        AST(File const &file);\n')
-            output.append('        virtual ~AST() {}\n')
-            output.append('        virtual Maybe<Location const> const &start() const = 0;\n')
-            output.append('        virtual Maybe<Location const> const &end() const = 0;\n')
-            output.append('        File const &file;\n')
-            output.append('    };\n')
+            output.append(('class AST {\n'
+                           'public:\n'
+                           '    AST(File const &file);\n'
+                           '    virtual ~AST() {}\n'
+                           '    virtual Maybe<Location const> const &start() const = 0;\n'
+                           '    virtual Maybe<Location const> const &end() const = 0;\n'
+                           '    File const &file;\n'
+                           '};\n'))
 
     return''.join(output)
 # Generate AST definitions {{{3
@@ -169,7 +169,7 @@ def gen_ast_defs():
 # Generate AST forward decls {{{3
 def gen_ast_fwd():
     output = []
-    for ast in asts: output.append(f'    class {ast.name};\n')
+    for ast in asts: output.append(f'class {ast.name};\n')
     return ''.join(output)
 # Generating Visitor stuff {{{2
 # Generate Visitor decls {{{3
@@ -177,13 +177,13 @@ def gen_visitor_decls():
     output = []
     for ast in asts:
         if isinstance(ast, ASTBase):
-            output.append(f'    class {ast.name}Visitor {{\n')
-            output.append( '    public:\n')
-            output.append(f'        virtual ~{ast.name}Visitor() {{}}\n')
+            output.append(f'class {ast.name}Visitor {{\n')
+            output.append( 'public:\n')
+            output.append(f'    virtual ~{ast.name}Visitor() {{}}\n')
             for _ast in asts:
                 if isinstance(_ast, AST) and _ast.base == ast.name:
-                    output.append(f'        virtual void visit(ASTNS::{_ast.name} &ast) = 0;\n')
-            output.append('    };\n')
+                    output.append(f'    virtual void visit(ASTNS::{_ast.name} &ast) = 0;\n')
+            output.append('};\n')
     return ''.join(output)
 # Generate overrided functions for visitor classes {{{3
 def gen_visitor_methods(*bases):

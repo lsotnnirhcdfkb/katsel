@@ -207,5 +207,4 @@ void W0001(ASTNS::VarStmtItem const &ast);
 // W0002 - Wblock-no-indent
 #define WARN_BLOCK_NO_INDENT W0002
 void W0002(Token const &obrace, Token const &cbrace);
-
 // ERRH END

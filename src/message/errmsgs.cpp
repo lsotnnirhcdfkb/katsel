@@ -611,5 +611,4 @@ void W0002(Token const &obrace, Token const &cbrace) {
     );
     e.report();
 }
-
 // ERRCPP END

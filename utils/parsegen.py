@@ -854,20 +854,20 @@ def format_list(l):
 def gen_loop():
     output = []
 
-    output.append(                                '    bool done = false;\n')
-    output.append(                                '    bool errored = false;\n')
-    output.append(                                '    int steps = 0;\n')
-    output.append(                                '    Token lookahead (_lookahead); // for when you need to inject a new token\n')
-    output.append(                                '    Token lasttok = lookahead;\n')
+    output.append(                                'bool done = false;\n')
+    output.append(                                'bool errored = false;\n')
+    output.append(                                'int steps = 0;\n')
+    output.append(                                'Token lookahead (_lookahead); // for when you need to inject a new token\n')
+    output.append(                                'Token lasttok = lookahead;\n')
 
-    output.append(                                '    while (!done) {\n')
-    output.append(                                '        if (istrial && steps > 5)\n')
-    output.append(                                '            return true;\n')
-    output.append(                                '        switch (stack.back().state) {\n')
+    output.append(                                'while (!done) {\n')
+    output.append(                                '    if (istrial && steps > 5)\n')
+    output.append(                                '        return true;\n')
+    output.append(                                '    switch (stack.back().state) {\n')
 
     for staten, state in sorted(table.items(), key=lambda x:x[0]):
-        output.append(                           f'            case {staten}:\n')
-        output.append(                            '                switch (lookahead.type) {\n')
+        output.append(                           f'        case {staten}:\n')
+        output.append(                            '            switch (lookahead.type) {\n')
 
         stateactions = []
         for term, ac in sorted(state.actions.items(), key=lambda x:str(x[0])):
@@ -886,12 +886,12 @@ def gen_loop():
         for ac, nts in stateactions:
             if isinstance(ac, ShiftAction):
                 for term in nts:
-                    output.append(               f'                    case {term.astt()}:\n')
-                output.append(                   f'                        shift(p, lasttok, lookahead, stack, steps, {ac.newstate}); break;\n')
+                    output.append(               f'                case {term.astt()}:\n')
+                output.append(                   f'                    shift(p, lasttok, lookahead, stack, steps, {ac.newstate}); break;\n')
                 continue
 
             if reduce_only:
-                output.append(                    '                    default: ')
+                output.append(                    '                default: ')
                 # do not check for lookahead, just reduce to have better performance (kind of)
                 # if reduce_only, then all the reduce actions of this state reduce the same rule
                 # and according to Wikipedia, just reducing regardless of the lookahead in
@@ -901,53 +901,53 @@ def gen_loop():
                 # it will reduce 2 up the chain of expression precedence before reporting the error
             else:
                 for term in nts:
-                    output.append(               f'                    case {term.astt()}:\n')
+                    output.append(               f'                case {term.astt()}:\n')
 
             if isinstance(ac, ReduceAction):
                 output.append(                    '{\n')
 
                 for i, sym in reversed(list(enumerate(ac.rule.expansion))):
                     if isinstance(sym, Terminal):
-                        output.append(           f'                            auto a{i} (pop_t(stack));\n')
+                        output.append(           f'                        auto a{i} (pop_t(stack));\n')
                     elif isinstance(sym, NonTerminal):
-                        output.append(           f'                            auto a{i} (pop_a<ASTNS::{sym.reduces_to}>(stack));\n')
+                        output.append(           f'                        auto a{i} (pop_a<ASTNS::{sym.reduces_to}>(stack));\n')
 
                 if len(ac.rule.expansion) > 0:
-                    output.append(                '                            Maybe<Location const> start =\n')
+                    output.append(                '                        Maybe<Location const> start =\n')
                     for i in range(ac.rule.loc_start, len(ac.rule.expansion)):
                         if isinstance(ac.rule.expansion[i], Terminal):
-                            output.append(       f'                                Maybe<Location const>(a{i});\n')
+                            output.append(       f'                            Maybe<Location const>(a{i});\n')
                             break
                         else:
                             if i == len(ac.rule.expansion) - 1:
-                                output.append(   f'                                a{i} ? Maybe(a{i}->start()) : Maybe<Location const>();\n')
+                                output.append(   f'                            a{i} ? Maybe(a{i}->start()) : Maybe<Location const>();\n')
                             else:
-                                output.append(   f'                                a{i} ? Maybe(a{i}->start()) :\n')
+                                output.append(   f'                            a{i} ? Maybe(a{i}->start()) :\n')
 
-                    output.append(                '                            Maybe<Location const> end =\n')
+                    output.append(                '                        Maybe<Location const> end =\n')
                     for i in range(ac.rule.loc_end, -1, -1):
                         if isinstance(ac.rule.expansion[i], Terminal):
-                            output.append(       f'                                Maybe<Location const>(a{i});\n')
+                            output.append(       f'                            Maybe<Location const>(a{i});\n')
                             break
                         else:
                             if i == 0:
-                                output.append(       f'                                a{i} ? Maybe(a{i}->end()) : Maybe<Location const>();\n')
+                                output.append(       f'                            a{i} ? Maybe(a{i}->end()) : Maybe<Location const>();\n')
                             else:
-                                output.append(       f'                                a{i} ? Maybe(a{i}->end()) :\n')
+                                output.append(       f'                            a{i} ? Maybe(a{i}->end()) :\n')
 
                 reduce_code, pushitem = ac.rule.reduce_action.generate()
                 output.append(reduce_code)
-                output.append(                   f'                            std::unique_ptr<ASTNS::{ac.rule.symbol.reduces_to}> pushitem = {pushitem};\n')
-                output.append(                   f'                            stack.emplace_back(get_goto(NonTerminal::_{ac.rule.symbol.id}, stack.back().state), std::move(pushitem), NonTerminal::_{ac.rule.symbol.id});\n')
-                output.append(                    '                        }\n')
+                output.append(                   f'                        std::unique_ptr<ASTNS::{ac.rule.symbol.reduces_to}> pushitem = {pushitem};\n')
+                output.append(                   f'                        stack.emplace_back(get_goto(NonTerminal::_{ac.rule.symbol.id}, stack.back().state), std::move(pushitem), NonTerminal::_{ac.rule.symbol.id});\n')
+                output.append(                    '                    }\n')
 
 
             elif isinstance(ac, AcceptAction):
-                output.append(                    '                            done = true;\n')
+                output.append(                    '                        done = true;\n')
             else:
                 raise Exception('invalid action type')
 
-            output.append(                        '                        break;\n')
+            output.append(                        '                    break;\n')
 
         if not reduce_only:
             def stc(s):
@@ -956,20 +956,20 @@ def gen_loop():
                 else:
                     return f'stringify_token_type({s.astt()})'
 
-            output.append(                        '                    default:\n')
-            output.append(                        '                        if (istrial) return false;\n')
+            output.append(                        '                default:\n')
+            output.append(                        '                    if (istrial) return false;\n')
 
             futuress = [f'format("expected {{}} for {{}}", {format_list([stc(p) for p in future])}, {stc(nt)})' for nt, future in state.futures.items()]
             terminatess = [f'format("expected {{}} to terminate {{}}", {format_list([stc(p) for p in future])}, {stc(nt)})' for nt, future in state.terminates.items()]
-            output.append(                       f'                        error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {{  {", ".join(futuress + terminatess)}  }});\n')
-        output.append(                            '                }\n')
-        output.append(                            '                break;\n')
+            output.append(                       f'                    error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {{  {", ".join(futuress + terminatess)}  }});\n')
+        output.append(                            '            }\n')
+        output.append(                            '            break;\n')
 
-    output.append(                                '            default:\n')
-    output.append(                                '                report_abort_noh(format("Parser reached invalid state: {}", stack.back().state));\n')
+    output.append(                                '        default:\n')
+    output.append(                                '            report_abort_noh(format("Parser reached invalid state: {}", stack.back().state));\n')
 
-    output.append(                                '        }\n')
     output.append(                                '    }\n')
+    output.append(                                '}\n')
 
     return ''.join(output)
 # generate goto code {{{2
@@ -1011,7 +1011,8 @@ def gen_non_term_enum():
     output = []
     for symbol in symbols:
         if isinstance(symbol, NonTerminal):
-            output.append(f'    _{symbol.id},\n')
+            output.append(f'_{symbol.id}, ')
+    output.append('\n')
     return ''.join(output)
 # generate panic mode error recovery code {{{2
 def gen_panic_mode():
@@ -1028,13 +1029,13 @@ def gen_panic_mode():
                                                   '        break;\\\n'
                                                   '    default:\\\n'
                                                   '        break;\n'
-                                                  '    bool valid = false;\n'
-                                                  '    e.lookahead = e.p.consume(); // prevent infinite panicking loops\n'
-                                                  '    std::vector<stackitem>::reverse_iterator delto;\n'
-                                                  '    while (!valid) {\n'
-                                                  '        for (auto i = e.stack.rbegin(); i != e.stack.rend() && !valid; ++i) {\n'
-                                                  '            if (std::holds_alternative<astitem>(i->item)) {\n'
-                                                  '                NonTerminal nterm = std::get<astitem>(i->item).nt;\n'))
+                                                  'bool valid = false;\n'
+                                                  'e.lookahead = e.p.consume(); // prevent infinite panicking loops\n'
+                                                  'std::vector<stackitem>::reverse_iterator delto;\n'
+                                                  'while (!valid) {\n'
+                                                  '    for (auto i = e.stack.rbegin(); i != e.stack.rend() && !valid; ++i) {\n'
+                                                  '        if (std::holds_alternative<astitem>(i->item)) {\n'
+                                                  '            NonTerminal nterm = std::get<astitem>(i->item).nt;\n'))
 
     for nonterm in symbols:
         if not isinstance(nonterm, NonTerminal):
@@ -1044,27 +1045,27 @@ def gen_panic_mode():
         if not nonterm.panickable:
             continue
 
-        output.append(                           f'                CHECKASI({str(nonterm)})\n')
-        output.append(                            '                       ')
+        output.append(                           f'            CHECKASI({str(nonterm)})\n')
+        output.append(                            '                   ')
         for follow in FOLLOWS[nonterm]:
             output.append(                       f' case {follow.astt()}:')
         output.append(                            '\n')
-        output.append(                            '                            RECOVERANDDEFBREAK()\n')
-        output.append(                            '                FINISHCHECKASI()\n')
+        output.append(                            '                        RECOVERANDDEFBREAK()\n')
+        output.append(                            '            FINISHCHECKASI()\n')
 
-    output.append(                               ('            }\n'
-                                                  '        }\n'
-                                                  '        if (!valid)\n'
-                                                  '            e.lookahead = e.p.consume();\n'
-                                                  '        if (e.lookahead.type == TokenType::EOF_)\n'
-                                                  '            return false;\n'
+    output.append(                               ('        }\n'
                                                   '    }\n'
-                                                  '    e.stack.erase(delto.base(), e.stack.end());\n'
+                                                  '    if (!valid)\n'
+                                                  '        e.lookahead = e.p.consume();\n'
+                                                  '    if (e.lookahead.type == TokenType::EOF_)\n'
+                                                  '        return false;\n'
+                                                  '}\n'
+                                                  'e.stack.erase(delto.base(), e.stack.end());\n'
                                                   '#undef CHECKASI\n'
                                                   '#undef FINISHCHECKASI\n'
                                                   '#undef RECOVERANDDEFBREAK\n'
-                                                  '    ERR_PANICKING_INVALID_SYNTAX(e.olh, e.lasttok, e.lookahead, expectations);\n'
-                                                  '    return true;\n'))
+                                                  'ERR_PANICKING_INVALID_SYNTAX(e.olh, e.lasttok, e.lookahead, expectations);\n'
+                                                  'return true;\n'))
 
     return ''.join(output)
 # generate single token insertion/deletion/substitution error recovery code {{{2
@@ -1076,9 +1077,9 @@ def gen_single_tok():
 
     for terminal in symbols:
         if isinstance(terminal, Terminal):
-            output.append(                       f'    TRYTOKTY({terminal.astt()})\n')
+            output.append(                       f'TRYTOKTY({terminal.astt()})\n')
 
-    output.append(                                '    if (try_del(e.p, e.stack)) {fix f = fix {fix::fixtype::REMOVE, static_cast<TokenType>(-1)}; if (score(f) > score(bestfix)) bestfix = f;};\n')
+    output.append(                                'if (try_del(e.p, e.stack)) {fix f = fix {fix::fixtype::REMOVE, static_cast<TokenType>(-1)}; if (score(f) > score(bestfix)) bestfix = f;};\n')
     return ''.join(output)
 # entry {{{1
 if __name__ == '__main__':

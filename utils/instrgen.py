@@ -368,7 +368,7 @@ def as_constructor(instruction, fields):
 
     return ', '.join(fields)
 def as_fields(fields):
-    return ''.join('            ' + field.format() + ';\n' for field in fields)
+    return ''.join('    ' + field.format() + ';\n' for field in fields)
 def as_init_list(instruction, fields):
     fields = [f'{f.name}({f.name})' for f in fields]
     if instruction.declared:
@@ -381,31 +381,31 @@ def gen_decls():
 
     for instruction in instructions:
         if instruction.declared:
-            output.append( f'        class {instruction.name} : public {instruction.base()}, public DeclaredValue {{\n')
+            output.append( f'class {instruction.name} : public {instruction.base()}, public DeclaredValue {{\n')
         else:
-            output.append( f'        class {instruction.name} : public {instruction.base()} {{\n')
+            output.append( f'class {instruction.name} : public {instruction.base()} {{\n')
 
-        output.append(    ( '        public:\n'
-                           f'            {instruction.name}({as_constructor(instruction, instruction.fields)});\n'
-                           f'            void accept({instruction.base()}Visitor &v) const override;\n'))
+        output.append(    ( 'public:\n'
+                           f'    {instruction.name}({as_constructor(instruction, instruction.fields)});\n'
+                           f'    void accept({instruction.base()}Visitor &v) const override;\n'))
         if instruction.base() == 'Instruction':
-            output.append( f'            IR::Type const &type() const override;\n')
+            output.append( f'    IR::Type const &type() const override;\n')
 
         if instruction.declared:
-            output.append(  '            ASTNS::AST& def_ast() const override;\n')
-            output.append(  '        private:\n')
-            output.append(  '            NNPtr<ASTNS::AST> _def_ast;\n')
-            output.append(  '        public:\n')
+            output.append(  '    ASTNS::AST& def_ast() const override;\n')
+            output.append(  'private:\n')
+            output.append(  '    NNPtr<ASTNS::AST> _def_ast;\n')
+            output.append(  'public:\n')
 
         output.append(    (f'{as_fields(instruction.fields)}'
-                            '        };\n'))
+                            '};\n'))
 
     return ''.join(output)
 def gen_fwd():
     output = []
 
     for instruction in instructions:
-        output.append( f'        class {instruction.name};\n')
+        output.append( f'class {instruction.name};\n')
 
     return ''.join(output)
 def gen_defs():

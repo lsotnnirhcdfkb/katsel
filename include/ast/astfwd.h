@@ -1,7 +1,7 @@
 #pragma once
 
 namespace ASTNS {
-// ASTFWD START
+    // ASTFWD START
     class AST;
     class CUB;
     class Decl;
@@ -53,5 +53,5 @@ namespace ASTNS {
     class PrimaryExpr;
     class PathExpr;
     class Path;
-// ASTFWD END
+    // ASTFWD END
 }

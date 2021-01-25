@@ -3,7 +3,7 @@
 #include "ast/astfwd.h"
 
 namespace ASTNS {
-// ASTVISITH START
+    // ASTVISITH START
     class CUBVisitor {
     public:
         virtual ~CUBVisitor() {}
@@ -90,5 +90,5 @@ namespace ASTNS {
         virtual ~PureLocationBVisitor() {}
         virtual void visit(ASTNS::PureLocation &ast) = 0;
     };
-// ASTVISITH END
+    // ASTVISITH END
 }

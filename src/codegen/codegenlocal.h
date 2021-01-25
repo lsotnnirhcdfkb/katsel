@@ -17,10 +17,10 @@ public:
 
 private:
     // FORWDECL METHODS START
-void visit(ASTNS::ImplicitDecl &ast) override;
-void visit(ASTNS::CU &ast) override;
-void visit(ASTNS::ImplDecl &ast) override;
-void visit(ASTNS::FunctionDecl &ast) override;
+    void visit(ASTNS::ImplicitDecl &ast) override;
+    void visit(ASTNS::CU &ast) override;
+    void visit(ASTNS::ImplDecl &ast) override;
+    void visit(ASTNS::FunctionDecl &ast) override;
     // FORWDECL METHODS END
 
     CodeGen &cg;
@@ -32,11 +32,11 @@ public:
 
 private:
     // DECLARATOR METHODS START
-void visit(ASTNS::ImplicitDecl &ast) override;
-void visit(ASTNS::CU &ast) override;
-void visit(ASTNS::ImplDecl &ast) override;
-void visit(ASTNS::FunctionDecl &ast) override;
-void visit(ASTNS::FunctionImplMember &ast) override;
+    void visit(ASTNS::ImplicitDecl &ast) override;
+    void visit(ASTNS::CU &ast) override;
+    void visit(ASTNS::ImplDecl &ast) override;
+    void visit(ASTNS::FunctionDecl &ast) override;
+    void visit(ASTNS::FunctionImplMember &ast) override;
     // DECLARATOR METHODS END
 
     CodeGen &cg;
@@ -57,10 +57,10 @@ class CodeGen::FunctionCodeGen {
 
     private:
         // STMTCG METHODS START
-void visit(ASTNS::VarStmt &ast) override;
-void visit(ASTNS::VarStmtItem &ast) override;
-void visit(ASTNS::ExprStmt &ast) override;
-void visit(ASTNS::RetStmt &ast) override;
+        void visit(ASTNS::VarStmt &ast) override;
+        void visit(ASTNS::VarStmtItem &ast) override;
+        void visit(ASTNS::ExprStmt &ast) override;
+        void visit(ASTNS::RetStmt &ast) override;
         // STMTCG METHODS END
 
         CodeGen &cg;
@@ -76,21 +76,21 @@ void visit(ASTNS::RetStmt &ast) override;
 
     private:
         // EXPRCG METHODS START
-void visit(ASTNS::Block &ast) override;
-void visit(ASTNS::IfExpr &ast) override;
-void visit(ASTNS::WhileExpr &ast) override;
-void visit(ASTNS::AssignmentExpr &ast) override;
-void visit(ASTNS::ShortCircuitExpr &ast) override;
-void visit(ASTNS::BinaryExpr &ast) override;
-void visit(ASTNS::CastExpr &ast) override;
-void visit(ASTNS::UnaryExpr &ast) override;
-void visit(ASTNS::AddrofExpr &ast) override;
-void visit(ASTNS::DerefExpr &ast) override;
-void visit(ASTNS::CallExpr &ast) override;
-void visit(ASTNS::FieldAccessExpr &ast) override;
-void visit(ASTNS::MethodCallExpr &ast) override;
-void visit(ASTNS::PrimaryExpr &ast) override;
-void visit(ASTNS::PathExpr &ast) override;
+        void visit(ASTNS::Block &ast) override;
+        void visit(ASTNS::IfExpr &ast) override;
+        void visit(ASTNS::WhileExpr &ast) override;
+        void visit(ASTNS::AssignmentExpr &ast) override;
+        void visit(ASTNS::ShortCircuitExpr &ast) override;
+        void visit(ASTNS::BinaryExpr &ast) override;
+        void visit(ASTNS::CastExpr &ast) override;
+        void visit(ASTNS::UnaryExpr &ast) override;
+        void visit(ASTNS::AddrofExpr &ast) override;
+        void visit(ASTNS::DerefExpr &ast) override;
+        void visit(ASTNS::CallExpr &ast) override;
+        void visit(ASTNS::FieldAccessExpr &ast) override;
+        void visit(ASTNS::MethodCallExpr &ast) override;
+        void visit(ASTNS::PrimaryExpr &ast) override;
+        void visit(ASTNS::PathExpr &ast) override;
         // EXPRCG METHODS END
 
         Maybe<IR::ASTValue> ret;
@@ -144,7 +144,7 @@ public:
 
 private:
     // IMPLCG METHODS START
-void visit(ASTNS::FunctionImplMember &ast) override;
+    void visit(ASTNS::FunctionImplMember &ast) override;
     // IMPLCG METHODS END
 
     CodeGen &cg;
@@ -175,8 +175,8 @@ public:
 
 private:
     // PARAMVISITOR METHODS START
-void visit(ASTNS::Param &ast) override;
-void visit(ASTNS::ThisParam &ast) override;
+    void visit(ASTNS::Param &ast) override;
+    void visit(ASTNS::ThisParam &ast) override;
     // PARAMVISITOR METHODS END
 
     CodeGen &cg;
@@ -192,7 +192,7 @@ public:
 
 private:
     // ARGSVISITOR METHODS START
-void visit(ASTNS::Arg &ast) override;
+    void visit(ASTNS::Arg &ast) override;
     // ARGSVISITOR METHODS END
 
     CodeGen::FunctionCodeGen &fcg;
@@ -212,7 +212,7 @@ private:
     Maybe<NNPtr<IR::DeclSymbol>> dret;
 
     // PATH VISITOR START
-void visit(ASTNS::Path &ast) override;
+    void visit(ASTNS::Path &ast) override;
     // PATH VISITOR END
 
     CodeGen &cg;
@@ -227,9 +227,9 @@ public:
 
 private:
     // TYPEVISITOR METHODS START
-void visit(ASTNS::PathType &ast) override;
-void visit(ASTNS::PointerType &ast) override;
-void visit(ASTNS::ThisType &ast) override;
+    void visit(ASTNS::PathType &ast) override;
+    void visit(ASTNS::PointerType &ast) override;
+    void visit(ASTNS::ThisType &ast) override;
     // TYPEVISITOR METHODS END
 
     Maybe<NNPtr<IR::Type>> ret;
