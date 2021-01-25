@@ -1,115 +1,102 @@
 #!/usr/bin/env python3
-## @file genall.py
 #  Generate all the code everywhere necessary in this project
 
-import io
+import io, re
 import astgen, kwgen, parsegen, instrgen, errgen
 
-## A list of jobs to generate code for
 jobs = [
-    ('src/lex/lexer.cpp'                   , 'KWGEN START'               , 'KWGEN END'               , lambda: kwgen.trie.generate(doc='Check if an idenetifier token is a keyword type and return that type, or just return TokenType::IDENTIFIER')),
+    ('src/lex/lexer.cpp'           , 'KWMATCH'               , lambda: kwgen.trie.generate(doc='Check if an idenetifier token is a keyword type and return that type, or just return TokenType::IDENTIFIER')),
 
-    ('src/ast/ast.cpp'                     , 'ASTCPP START'              , 'ASTCPP END'              , astgen.gen_ast_defs),
-    ('include/ast/ast.h'                   , 'ASTHEADER START'           , 'ASTHEADER END'           , astgen.gen_ast_decls),
-    ('include/ast/astfwd.h'                , 'ASTFWD START'              , 'ASTFWD END'              , astgen.gen_ast_fwd),
-    ('include/ast/visitor.h'               , 'ASTVISITH START'           , 'ASTVISITH END'           , astgen.gen_visitor_decls),
+    ('src/ast/ast.cpp'             , 'ASTCPP'                , astgen.gen_ast_defs),
+    ('include/ast/ast.h'           , 'ASTHEADER'             , astgen.gen_ast_decls),
+    ('include/ast/astfwd.h'        , 'ASTFWD'                , astgen.gen_ast_fwd),
+    ('include/ast/visitor.h'       , 'ASTVISITH'             , astgen.gen_visitor_decls),
 
-    ('src/ast/printvisitor.cpp'            , 'PRINTVISITOR START'        , 'PRINTVISITOR END'        , astgen.gen_print_visitor_methods),
+    ('src/ast/printvisitor.cpp'    , 'PRINTVISITOR'          , astgen.gen_print_visitor_methods),
 
-    ('src/parse/parsestack.h'              , 'NONTERM ENUM START'        , 'NONTERM ENUM END'        , parsegen.gen_non_term_enum),
-    ('src/parse/parserloop.cpp'            , 'PARSERLOOP START'          , 'PARSERLOOP END'          , parsegen.gen_loop),
-    ('src/parse/parserloop.cpp'            , 'GETGOTO START'             , 'GETGOTO END'             , parsegen.gen_goto),
-    ('src/parse/error.cpp'                 , 'PANIC MODE START'          , 'PANIC MODE END'          , parsegen.gen_panic_mode),
-    ('src/parse/error.cpp'                 , 'SINGLETOK START'           , 'SINGLETOK END'           , parsegen.gen_single_tok),
+    ('src/parse/parsestack.h'      , 'NONTERM ENUM'          , parsegen.gen_non_term_enum),
+    ('src/parse/parserloop.cpp'    , 'PARSERLOOP'            , parsegen.gen_loop),
+    ('src/parse/parserloop.cpp'    , 'GETGOTO'               , parsegen.gen_goto),
+    ('src/parse/error.cpp'         , 'PANIC MODE'            , parsegen.gen_panic_mode),
+    ('src/parse/error.cpp'         , 'SINGLETOK'             , parsegen.gen_single_tok),
 
-    ('include/ast/printvisitor.h'          , 'PRINTVISIT METHODS START'  , 'PRINTVISIT METHODS END'  , lambda: astgen.gen_visitor_methods('all')),
-    ('include/ast/printvisitor.h'          , 'PRINTVISIT INHERIT START'  , 'PRINTVISIT INHERIT END'  , astgen.gen_visitor_inherit_all),
+    ('include/ast/printvisitor.h'  , 'PRINTVISIT METHODS'    , lambda: astgen.gen_visitor_methods('all')),
+    ('include/ast/printvisitor.h'  , 'PRINTVISIT INHERIT'    , astgen.gen_visitor_inherit_all),
 
-    ('src/codegen/codegenlocal.h'          , 'FORWDECL METHODS START'    , 'FORWDECL METHODS END'    , lambda: astgen.gen_visitor_methods('Decl', 'CUB')),
-    ('src/codegen/codegenlocal.h'          , 'DECLARATOR METHODS START'  , 'DECLARATOR METHODS END'  , lambda: astgen.gen_visitor_methods('Decl', 'CUB', 'ImplMember')),
-    ('src/codegen/codegenlocal.h'          , 'TYPEVISITOR METHODS START' , 'TYPEVISITOR METHODS END' , lambda: astgen.gen_visitor_methods('Type')),
-    ('src/codegen/codegenlocal.h'          , 'STMTCG METHODS START'      , 'STMTCG METHODS END'      , lambda: astgen.gen_visitor_methods('Stmt', 'VStmtIB')),
-    ('src/codegen/codegenlocal.h'          , 'EXPRCG METHODS START'      , 'EXPRCG METHODS END'      , lambda: astgen.gen_visitor_methods('Expr')),
-    ('src/codegen/codegenlocal.h'          , 'PARAMVISITOR METHODS START', 'PARAMVISITOR METHODS END', lambda: astgen.gen_visitor_methods('ParamB')),
-    ('src/codegen/codegenlocal.h'          , 'ARGSVISITOR METHODS START' , 'ARGSVISITOR METHODS END' , lambda: astgen.gen_visitor_methods('ArgB')),
-    ('src/codegen/codegenlocal.h'          , 'PATH VISITOR START'        , 'PATH VISITOR END'        , lambda: astgen.gen_visitor_methods('PathB')),
-    ('src/codegen/codegenlocal.h'          , 'IMPLCG METHODS START'      , 'IMPLCG METHODS END'      , lambda: astgen.gen_visitor_methods('ImplMember')),
-    ('include/codegen/codegen.h'           , 'CG METHODS START'          , 'CG METHODS END'          , lambda: astgen.gen_visitor_methods('Decl', 'CUB')),
+    ('src/codegen/codegenlocal.h'  , 'FORWDECL METHODS'      , lambda: astgen.gen_visitor_methods('Decl', 'CUB')),
+    ('src/codegen/codegenlocal.h'  , 'DECLARATOR METHODS'    , lambda: astgen.gen_visitor_methods('Decl', 'CUB', 'ImplMember')),
+    ('src/codegen/codegenlocal.h'  , 'TYPEVISITOR METHODS'   , lambda: astgen.gen_visitor_methods('Type')),
+    ('src/codegen/codegenlocal.h'  , 'STMTCG METHODS'        , lambda: astgen.gen_visitor_methods('Stmt', 'VStmtIB')),
+    ('src/codegen/codegenlocal.h'  , 'EXPRCG METHODS'        , lambda: astgen.gen_visitor_methods('Expr')),
+    ('src/codegen/codegenlocal.h'  , 'PARAMVISITOR METHODS'  , lambda: astgen.gen_visitor_methods('ParamB')),
+    ('src/codegen/codegenlocal.h'  , 'ARGSVISITOR METHODS'   , lambda: astgen.gen_visitor_methods('ArgB')),
+    ('src/codegen/codegenlocal.h'  , 'PATH VISITOR'          , lambda: astgen.gen_visitor_methods('PathB')),
+    ('src/codegen/codegenlocal.h'  , 'IMPLCG METHODS'        , lambda: astgen.gen_visitor_methods('ImplMember')),
+    ('include/codegen/codegen.h'   , 'CG METHODS'            , lambda: astgen.gen_visitor_methods('Decl', 'CUB')),
 
-    ('include/ir/instruction.h'            , 'INSTR CLASSES START'       , 'INSTR CLASSES END'       , instrgen.gen_decls),
-    ('include/ir/instructionfwd.h'         , 'INSTR FWD START'           , 'INSTR FWD END'           , instrgen.gen_fwd),
-    ('src/ir/instruction.cpp'              , 'INSTR CPP START'           , 'INSTR CPP END'           , instrgen.gen_defs),
+    ('include/ir/instruction.h'    , 'INSTR CLASSES'         , instrgen.gen_decls),
+    ('include/ir/instructionfwd.h' , 'INSTR FWD'             , instrgen.gen_fwd),
+    ('src/ir/instruction.cpp'      , 'INSTR CPP'             , instrgen.gen_defs),
 
-    ('include/ir/visitor.h'                , 'PURE INSTR VISIT START'    , 'PURE INSTR VISIT END'    , lambda: instrgen.gen_pure_method_decls('Instruction')),
-    ('include/ir/visitor.h'                , 'PURE BRANCH VISIT START'   , 'PURE BRANCH VISIT END'   , lambda: instrgen.gen_pure_method_decls('Br')),
-    ('include/lower/lowerer.h'             , 'LOWER VISIT INSTR START'   , 'LOWER VISIT INSTR END'   , lambda: instrgen.gen_method_decls('Instruction')),
-    ('include/lower/lowerer.h'             , 'LOWER VISIT BRANCH START'  , 'LOWER VISIT BRANCH END'  , lambda: instrgen.gen_method_decls('Br')),
+    ('include/ir/visitor.h'        , 'PURE INSTR VISIT'      , lambda: instrgen.gen_pure_method_decls('Instruction')),
+    ('include/ir/visitor.h'        , 'PURE BRANCH VISIT'     , lambda: instrgen.gen_pure_method_decls('Br')),
+    ('include/lower/lowerer.h'     , 'LOWER VISIT INSTR'     , lambda: instrgen.gen_method_decls('Instruction')),
+    ('include/lower/lowerer.h'     , 'LOWER VISIT BRANCH'    , lambda: instrgen.gen_method_decls('Br')),
 
-    ('include/message/errmsgs.h'           , 'ERRH START'                , 'ERRH END'                , errgen.gen_h),
-    ('src/message/errmsgs.cpp'             , 'ERRCPP START'              , 'ERRCPP END'              , errgen.gen_cpp),
+    ('include/message/errmsgs.h'   , 'ERRH'                  , errgen.gen_h),
+    ('src/message/errmsgs.cpp'     , 'ERRCPP'                , errgen.gen_cpp),
 ]
 
 skipped = 0
 
-for jobi, job in enumerate(jobs):
-    jobfile, jobstart, jobend, jobfunc = job
-    # print(f'Running job {jobi + 1}/{len(jobs)}: insert {jobfunc} to {jobfile}')
-    with io.open(jobfile, 'r', encoding='utf-8') as f:
-        ## The lines of the file
-        BACKUP = f.read()
-        f.seek(0)
-        flines = f.readlines()
+for job_i, job in enumerate(jobs):
+    job_file, job_marker, job_func = job
+    # print(f'Running job {job_i + 1}/{len(jobs)}: insert {job_func} to {job_file}')
+
+    with io.open(job_file, 'r', encoding='utf-8') as f:
+        job_file_lines = f.readlines()
+        BACKUP = ''.join(job_file_lines)
+
+    def find_marker(marker):
+        reg = re.compile(fr'\s*// {marker}')
+        matches = []
+        for line_num, line in enumerate(job_file_lines):
+            if reg.match(line):
+                matches.append(line_num)
+
+        if len(matches) != 1:
+            print(f"marker '{marker}' matched {len(matched)} times")
+            return None
+        else:
+            return matches[0]
 
     # delete old code
-    ## Pattern to tell where to start generated code
-    gen_start_pattern = jobstart
-    ## Pattern to tell where to end generated code
-    gen_end_pattern   = jobend
+    gen_start_line = find_marker(job_marker + ' START')
+    gen_end_line   = find_marker(job_marker + ' END')
 
-    if gen_start_pattern is not None:
-        gen_start = list(filter(lambda n: gen_start_pattern in flines[n], range(len(flines))))
-        if len(gen_start) != 1:
-            print(f'"{gen_start_pattern}" found {len(gen_start)} times in {jobfile}. Skipping {jobfile}')
-            continue
-        ## What line to start generated code
-        GEN_START_LINE = gen_start[0]
-    else:
-        GEN_START_LINE = -1
-
-    if gen_end_pattern is not None:
-        gen_end = list(filter(lambda n: gen_end_pattern in flines[n], range(len(flines))))
-        if len(gen_end) != 1:
-            print(f'"{gen_end_pattern}" found {len(gen_end)} times in {jobfile}. Skipping {jobfile}')
-            continue
-        ## What line to end generated code
-        GEN_END_LINE = gen_end[0]
-    else:
-        GEN_END_LINE = len(flines)
-
-    del flines[GEN_START_LINE + 1:GEN_END_LINE]
+    del job_file_lines[gen_start_line + 1:gen_end_line]
 
     # run the function to generate the code
-    ## Generated code to insert into the source file
-    output = jobfunc()
-    output = '// The following code was autogenerated - see the utils/ directory\n' + output + '// This code was autogenerated - see the utils/ directory\n'
+    output = job_func()
+    if not output.endswith('\n'):
+        output += '\n'
 
     # take the output of the function and put it back into the file
-    flines.insert(GEN_START_LINE + 1, output)
-    FINAL_OUTPUT = ''.join(flines)
+    job_file_lines.insert(gen_start_line + 1, output)
+    FINAL_OUTPUT = ''.join(job_file_lines)
 
     if FINAL_OUTPUT == BACKUP:
         skipped += 1
         continue
 
     try:
-        with io.open(jobfile, 'w', encoding='utf-8') as f:
+        with io.open(job_file, 'w', encoding='utf-8') as f:
             f.write(FINAL_OUTPUT) # write in all the code
     except Exception as e:
-        with io.open(jobfile, 'w', encoding='utf-8') as f:
+        with io.open(job_file, 'w', encoding='utf-8') as f:
             f.write(BACKUP)
 
-        print(f'In writing file {jobfile} with function {jobfunc}')
+        print(f'In writing file {job_file} with function {job_func}')
         raise
-
 
 print(f'generation: {len(jobs)} jobs, {skipped} skipped')
