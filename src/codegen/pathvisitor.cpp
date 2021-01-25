@@ -45,51 +45,38 @@ void CodeGen::PathVisitor::visit(ASTNS::Path &ast) {
     if (pty == PathType::DECLARED) {
         dret = trace_path_decl_only(cg.unit->mod, ast.segments.cbegin(), ast.segments.cend()).fmap<NNPtr<IR::DeclSymbol >>([] (IR::DeclSymbol &i) { return Maybe<NNPtr<IR::DeclSymbol >>(NNPtr(i)); });
     } else {
-        if (ast.segments.size() == 1) {
-            // look for local or global variable
+        if (ast.segments.size() == 1 && fcg.has()) {
+            // look for local
             std::string vname = ast.segments.back().stringify();
             Maybe<FunctionCodeGen::Local&> loc = fcg.get()->get_local(vname);
 
-            Maybe<NNPtr<IR::Value>> m_ret_val;
             if (loc.has()) {
-                m_ret_val = loc.get().v;
-            } else {
-                Maybe<IR::Value&> val = cg.unit->mod.get_value(vname);
-                if (!val.has()) {
-                    ERR_UNDECL_SYMB(ast);
-                    vret = Maybe<IR::ASTValue>();
-                    return;
-                } else {
-                    m_ret_val = val.get();
-                }
-            }
+                IR::Instrs::Register &reg = *loc.get().v;
+                IR::Instrs::DerefPtr &deref = fcg.get()->cur_block->add<IR::Instrs::DerefPtr>(IR::ASTValue(reg, ast));
 
-            NNPtr<IR::Value> ret_val = m_ret_val.get();
-
-            if (dynamic_cast<IR::Instrs::Register*>(ret_val.as_raw()))
-                vret = IR::ASTValue(fcg.get()->cur_block->add<IR::Instrs::DerefPtr>(IR::ASTValue(*ret_val, ast)), ast);
-            else
-                vret = IR::ASTValue(*ret_val, ast);
-        } else {
-            // look through decl symbol table until last segment
-            // look through value symbol table for last segment
-
-            Maybe<IR::DeclSymbol &> m_last = trace_path_decl_only(cg.unit->mod, ast.segments.cbegin(), ast.segments.cend() - 1);
-            if (!m_last.has()) {
-                vret = Maybe<IR::ASTValue>();
+                vret = IR::ASTValue(deref, ast);
                 return;
             }
+        } 
 
-            NNPtr<IR::DeclSymbol> last = m_last.get();
+        // look through decl symbol table until last segment
+        // look through value symbol table for last segment
 
-            Maybe<IR::Value&> ret = last->get_value(ast.segments.back().stringify());
+        Maybe<IR::DeclSymbol &> m_last = trace_path_decl_only(cg.unit->mod, ast.segments.cbegin(), ast.segments.cend() - 1);
+        if (!m_last.has()) {
+            vret = Maybe<IR::ASTValue>();
+            return;
+        }
 
-            if (!ret.has()) {
-                ERR_NO_MEMBER_IN(*last, ast.segments.back());
-                vret = Maybe<IR::ASTValue>();
-            } else {
-                vret = IR::ASTValue(ret.get(), ast);
-            }
+        NNPtr<IR::DeclSymbol> last = m_last.get();
+
+        Maybe<IR::Value&> ret = last->get_value(ast.segments.back().stringify());
+
+        if (!ret.has()) {
+            ERR_NO_MEMBER_IN(*last, ast.segments.back());
+            vret = Maybe<IR::ASTValue>();
+        } else {
+            vret = IR::ASTValue(ret.get(), ast);
         }
     }
 }
