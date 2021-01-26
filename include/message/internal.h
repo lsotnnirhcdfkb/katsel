@@ -2,7 +2,7 @@
 
 #include <string>
 
-struct Token;
+class Token;
 struct Location;
 
 void invalid_tok [[ noreturn ]] (std::string const &name, Token const &primary);

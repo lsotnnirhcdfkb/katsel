@@ -4,23 +4,33 @@
 #include "utils/ptr.h"
 
 struct File;
-struct ASTen;
-namespace IR { struct ASTValue; }
 namespace ASTNS { class AST; }
-struct Token;
+namespace IR { struct ASTValue; }
+class Token;
 
-struct Location {
-    std::string::iterator start;
-    std::string::iterator end;
+class Location {
+public:
+    std::string::iterator iter;
+    int line, column;
     NNPtr<File const> file;
 
-    Location(Token const &t);
-    Location(std::string::iterator start, std::string::iterator end, NNPtr<File const> file);
-    Location(IR::ASTValue const &v);
-    Location(NNPtr<IR::ASTValue const> v);
-    Location(NNPtr<ASTNS::AST> v);
-    Location(ASTNS::AST const &v);
-
-    template <typename T>
-    Location(NNPtr<T> ast): Location(NNPtr<ASTNS::AST>(ast)) {}
+    Location(std::string::iterator start, std::string::iterator end, int line, int column, NNPtr<File const> file);
 };
+
+class Span {
+public:
+    Location start;
+    Location end;
+
+    Span(Location const &start, Location const &end);
+
+    Span(IR::ASTValue const &v);
+    Span(ASTNS::AST const &v);
+
+    inline std::string stringify() const {
+        return std::string(start.iter, end.iter);
+    }
+};
+
+std::ostream& operator<<(std::ostream &os, Location const &loc);
+std::ostream& operator<<(std::ostream &os, Span const &span);

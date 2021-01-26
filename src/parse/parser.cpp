@@ -1,10 +1,6 @@
 #include "parse/parser.h"
 #include "parsestack.h"
-
-#include "lex/tokentype.h"
 #include "lex/lexer.h"
-
-#include <sstream>
 
 Parser::Parser(Lexer &l, File &sourcefile): lexer(l), sourcefile(sourcefile), errored(false) {}
 
@@ -26,17 +22,12 @@ Token Parser::consume() {
     bool lastboom = false;
     while (true) {
         Token cur (lexer.next_token());
-        if (cur.type == TokenType::ERROR) {
+        if (cur.is<Tokens::Error>()) {
             errored = true;
-            cur.errf.match([&cur] (Token::ErrFuncField const &e) {
-                    (*e)(cur);
-                },
-                [] {
-                    report_abort_noh("Error token without error function");
-                });
-        } else if (cur.type == TokenType::BOOM) {
+            (*cur.as<Tokens::Error>().errf)(cur);
+        } else if (cur.is<Tokens::Boom>()) {
             lastboom = true;
-        } else if (lastboom && cur.type == TokenType::NEWLINE) {
+        } else if (lastboom && cur.is<Tokens::Newline>()) {
             lastboom = false;
         } else {
             return cur;

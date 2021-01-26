@@ -1,8 +1,8 @@
 #pragma once
 
-struct Token;
+class Token;
 namespace IR { namespace Instrs { class Register; class DerefPtr; } class Value; class Function; class Type; struct ASTValue; class DeclSymbol; }
-struct Location;
+class Location;
 
 #include <vector>
 #include <string>

@@ -11,6 +11,7 @@
 #include "parse/parser.h"
 #include "utils/file.h"
 #include "utils/ptr.h"
+#include "utils/format.h"
 #include "lex/lexer.h"
 #include "message/ansistuff.h"
 #include "message/error.h"
@@ -80,10 +81,10 @@ int compile_file(OutFormats ofmt, NNPtr<char> filename) {
 
         while (true) {
             Token t (lexer->next_token());
-            if (t.type == TokenType::EOF_)
+            if (t.is<Tokens::_EOF>())
                 break;
 
-            os << t.sourcefile->filename << ':' << t.line << ':' << t.column << ": (" << stringify_token_type(t.type) << ") \"" << std::string(t.start, t.end) << "\"\n";
+            os << format("{}: ({}) '{}'", t.span, t.stringify_type(), t.span.stringify());
         }
 
         os.close();

@@ -8,26 +8,6 @@
 #include <typeinfo>
 
 ErrorFormat errformat = ErrorFormat::HUMAN;
-// constructors for location {{{1
-Location::Location(Token const &t): start(t.start), end(t.end), file(t.sourcefile) {}
-Location::Location(IR::ASTValue const &v): Location(*v.ast) {}
-Location::Location(NNPtr<IR::ASTValue const> v): Location(*v->ast) {}
-Location::Location(std::string::iterator start, std::string::iterator end, NNPtr<File const> file): start(start), end(end), file(*file) {}
-
-static Location loc_from_ast(ASTNS::AST const &ast) {
-    Maybe<Location const> const &maybe_start = ast.start();
-    Maybe<Location const> const &maybe_end = ast.end();
-
-   auto with_op = [] (Location const &l) -> Location const { return l; };
-   auto no_op =   [] ()                  -> Location const { report_abort_noh("get location of ast with missing location info"); };
-    Location const
-        start (maybe_start.match<Location const>(with_op, no_op)),
-        end   (maybe_end  .match<Location const>(with_op, no_op));
-
-    return Location(start.start, end.end, ast.file);
-}
-Location::Location(NNPtr<ASTNS::AST> ast): Location(loc_from_ast(*ast)) {}
-Location::Location(ASTNS::AST const &ast): Location(loc_from_ast(ast)) {}
 // Error methods {{{1
 Error::Error(MsgType type, Location const &location, std::string const &code, std::string const &name):
     type(type), location(location),

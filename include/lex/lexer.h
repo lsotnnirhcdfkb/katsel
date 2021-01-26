@@ -5,7 +5,6 @@
 
 #include "utils/file.h"
 #include "lex/token.h"
-#include "lex/tokentype.h"
 
 class Lexer {
 public:
@@ -28,8 +27,7 @@ private:
     Token lex_digit(char current);
     Token lex_identifier(bool apostrophes_allowed);
 
-    Token make_error_token(Token::ErrFunc err_func);
-    Token make_token(TokenType type);
+    Token make_token(TokenData const &data);
 
     std::string::iterator start;
     std::string::iterator end;
@@ -46,7 +44,7 @@ private:
     std::string::iterator srcstart;
     std::string::iterator srcend;
 
-    TokenType get_identifier_type();
+    TokenData get_identifier_type();
 
     File &sourcefile;
 };
