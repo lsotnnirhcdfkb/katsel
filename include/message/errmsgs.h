@@ -3,6 +3,7 @@
 class Token;
 namespace IR { namespace Instrs { class Register; class DerefPtr; } class Value; class Function; class Type; struct ASTValue; class DeclSymbol; }
 class Location;
+class Span;
 
 #include <vector>
 #include <string>
@@ -140,7 +141,7 @@ void E0031(Token const &name, IR::Value const &val);
 
 // E0032 - undecl-symb
 #define ERR_UNDECL_SYMB E0032
-void E0032(Location const &path);
+void E0032(Span const &path);
 
 // E0033 - redecl-param
 #define ERR_REDECL_PARAM E0033
@@ -152,7 +153,7 @@ void E0034(Token const &name, IR::Instrs::Register const &prev);
 
 // E0035 - not-a-type
 #define ERR_NOT_A_TYPE E0035
-void E0035(Location const &notty, ASTNS::AST const &decl_ast);
+void E0035(Span const &notty, ASTNS::AST const &decl_ast);
 
 // E0036 - no-member-in
 #define ERR_NO_MEMBER_IN E0036
@@ -188,7 +189,7 @@ void E0043(Token const &op, IR::Instrs::DerefPtr const &as_deref);
 
 // E0044 - no-suppress
 #define ERR_NO_SUPPRESS E0044
-void E0044(Location const &dot);
+void E0044(Span const &dollar);
 
 // E0045 - this-not-first
 #define ERR_THIS_NOT_FIRST E0045

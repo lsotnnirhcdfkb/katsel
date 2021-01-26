@@ -17,7 +17,7 @@ Error& Error::underline(Underline const &underline) {
     return *this;
 }
 // Underline message methods {{{1
-Underline::Underline(Location const &location, char ch): location(location), ch(ch) {}
+Underline::Underline(Span const &span, char ch): span(span), ch(ch) {}
 Underline& Underline::error(std::string const &message) {
     return addmsg("error", *A_FG_RED, message);
 }

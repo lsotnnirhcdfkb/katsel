@@ -20,7 +20,7 @@ class SimpleHighlight:
         self.under = under
         self.messages = messages
     def generate(self):
-        output = [f'    e.underline(Underline(Location({self.location}), \'{self.under}\')\n']
+        output = [f'    e.underline(Underline({self.location}, \'{self.under}\')\n']
         for message in self.messages:
             if len(message) == 2:
                 output.append(f'        .{message[0]}({message[1]})\n')
@@ -69,127 +69,127 @@ RANGEMULT = 100
 errors = [
         Msg('unexpected-char',
             desc='The lexer found an unexpected character that could not begin a token.',
-            inputs='Token const &tok', location='tok',
+            inputs='Token const &tok', location='tok.span',
             highlights=[
-                SimpleHighlight('tok', UNDER0, [('error', '"unexpected character"')]),
+                SimpleHighlight('tok.span', UNDER0, [('error', '"unexpected character"')]),
             ]),
         Msg('unterm-charlit',
             desc='The lexer found an unterminated character literal.',
-            inputs='Token const &tok', location='tok',
+            inputs='Token const &tok', location='tok.span',
             highlights=[
-                SimpleHighlight('tok', UNDER0, [('error', '"unterminated character literal"')]),
+                SimpleHighlight('tok.span', UNDER0, [('error', '"unterminated character literal"')]),
             ]),
         Msg('unterm-strlit',
             desc='The lexer found a newline in a string literal, thereby making it unterminated.',
-            inputs='Token const &tok', location='tok',
+            inputs='Token const &tok', location='tok.span',
             highlights=[
-                SimpleHighlight('tok', UNDER0, [('error', '"unterminated string literal"')]),
+                SimpleHighlight('tok.span', UNDER0, [('error', '"unterminated string literal"')]),
             ]),
         Msg('invalid-intlit-base',
             desc='The lexer found an integer literal that has an invalid base.',
-            inputs='Token const &tok', location='tok',
+            inputs='Token const &tok', location='tok.span',
             highlights=[
-                SimpleHighlight('tok', UNDER0, [('error', '"invalid integer literal base"')]),
+                SimpleHighlight('tok.span', UNDER0, [('error', '"invalid integer literal base"')]),
             ]),
         Msg('nondecimal-floatlit',
             desc='The lexer found a non-decimal floating point literal.',
-            inputs='Token const &tok', location='tok',
+            inputs='Token const &tok', location='tok.span',
             highlights=[
-                SimpleHighlight('tok', UNDER0, [('error', '"invalid integer literal base"')]),
+                SimpleHighlight('tok.span', UNDER0, [('error', '"invalid integer literal base"')]),
             ]),
         Msg('invalid-char-floatlit',
             desc='Invalid numeric character for floating point literal',
-            inputs='Token const &tok', location='tok',
+            inputs='Token const &tok', location='tok.span',
             highlights=[
-                SimpleHighlight('tok', UNDER0, [('error', '"invalid character in floating point literal"')]),
+                SimpleHighlight('tok.span', UNDER0, [('error', '"invalid character in floating point literal"')]),
             ]),
         Msg('invalid-char-for-base',
             desc='Invalid numberic character in integer literal for base',
-            inputs='Token const &tok', location='tok',
+            inputs='Token const &tok', location='tok.span',
             highlights=[
-                SimpleHighlight('tok', UNDER0, [('error', '"invalid character in integer literal for base"')]),
+                SimpleHighlight('tok.span', UNDER0, [('error', '"invalid character in integer literal for base"')]),
             ]),
         Msg('intlit-no-digits',
             desc='Integer literal with no digits',
-            inputs='Token const &tok', location='tok',
+            inputs='Token const &tok', location='tok.span',
             highlights=[
-                SimpleHighlight('tok', UNDER0, [('error', '"integer literal with no digits"')]),
+                SimpleHighlight('tok.span', UNDER0, [('error', '"integer literal with no digits"')]),
             ]),
         Msg('multichar-charlit',
             desc='Character literal with more than one character',
-            inputs='Token const &tok', location='tok',
+            inputs='Token const &tok', location='tok.span',
             highlights=[
-                SimpleHighlight('tok', UNDER0, [('error', '"character literal with more than one character"')]),
+                SimpleHighlight('tok.span', UNDER0, [('error', '"character literal with more than one character"')]),
             ]),
         Msg('unterm-multiline-comment',
             desc='Unterminated multiline comment',
-            inputs='Token const &tok', location='tok',
+            inputs='Token const &tok', location='tok.span',
             highlights=[
-                SimpleHighlight('tok', UNDER0, [('error', '"unterminated multiline comment"')]),
+                SimpleHighlight('tok.span', UNDER0, [('error', '"unterminated multiline comment"')]),
             ]),
         Msg('dedent-nomatch',
             desc='Dedent level does not match any other indentation level',
-            inputs='Token const &tok', location='tok',
+            inputs='Token const &tok', location='tok.span',
             highlights=[
-                SimpleHighlight('tok', UNDER0, [('error', '"dedent to unknown level"')]),
+                SimpleHighlight('tok.span', UNDER0, [('error', '"dedent to unknown level"')]),
             ]),
         Msg('char-after-backslash',
             desc='Non-newline after line continuation backslash',
-            inputs='Token const &tok', location='tok',
+            inputs='Token const &tok', location='tok.span',
             highlights=[
-                SimpleHighlight('tok', UNDER0, [('error', '"non-newline after line continuation backslash"')]),
+                SimpleHighlight('tok.span', UNDER0, [('error', '"non-newline after line continuation backslash"')]),
             ]),
         Msg('unrecoverable-invalid-syntax',
             desc='The parser found an unrecoverable syntax error.',
-            inputs='Token const &lookahead, Token const &lasttok, std::vector<std::string> const &expectations', location='lookahead',
+            inputs='Token const &lookahead, Token const &lasttok, std::vector<std::string> const &expectations', location='lookahead.span',
             highlights=[
-                SimpleHighlight('lookahead', UNDER0, [('error', '"unexpected {}"', 'lookahead.type')]),
+                SimpleHighlight('lookahead.span', UNDER0, [('error', '"unexpected {}"', 'lookahead.stringify_type()')]),
             ],
             extra=(
-                "auto un (Underline(lasttok, '~'));\n"
+                "auto un (Underline(lasttok.span, '~'));\n"
                 'for (std::string const &expectation : expectations)\n'
                 '    un.hint(expectation);\n'
                 'e.underline(un);\n')),
         Msg('simple-invalid-syntax',
             desc='The parser found a syntax error and recovered by inserting, substituting, or removing a single token.',
-            inputs='Token const &lookahead, Token const &lasttok, std::string const &bestfix, std::vector<std::string> const &expectations', location='lookahead',
+            inputs='Token const &lookahead, Token const &lasttok, std::string const &bestfix, std::vector<std::string> const &expectations', location='lookahead.span',
             highlights=[
-                SimpleHighlight('lookahead', UNDER0, [('error', '"unexpected {}"', 'lookahead.type'), ('note', 'bestfix')]),
+                SimpleHighlight('lookahead.span', UNDER0, [('error', '"unexpected {}"', 'lookahead.stringify_type()'), ('note', 'bestfix')]),
             ],
             extra=(
-                "auto un (Underline(lasttok, '~'));\n"
+                "auto un (Underline(lasttok.span, '~'));\n"
                 'for (std::string const &expectation : expectations)\n'
                 '    un.hint(expectation);\n'
                 'e.underline(un);\n')),
         Msg('panicking-invalid-syntax',
             desc='The parser found a syntax error and recovered via panic mode error recovery.',
-            inputs='Token const &lookahead, Token const &lasttok, Token const &panicuntil, std::vector<std::string> const &expectations', location='lookahead',
+            inputs='Token const &lookahead, Token const &lasttok, Token const &panicuntil, std::vector<std::string> const &expectations', location='lookahead.span',
             highlights=[
-                SimpleHighlight('lookahead', UNDER0, [('error', '"unexpected {}"', 'lookahead.type')]),
-                SimpleHighlight('panicuntil', UNDER2, [('note', '"parser panicked until {}"', 'panicuntil.type')]),
+                SimpleHighlight('lookahead.span', UNDER0, [('error', '"unexpected {}"', 'lookahead.stringify_type()')]),
+                SimpleHighlight('panicuntil.span', UNDER2, [('note', '"parser panicked until {}"', 'panicuntil.stringify_type()')]),
             ],
             extra=(
-                "auto un (Underline(lasttok, '~'));\n"
+                "auto un (Underline(lasttok.span, '~'));\n"
                 'for (std::string const &expectation : expectations)\n'
                 '    un.hint(expectation);\n'
                 'e.underline(un);\n')),
         Msg('lhs-unsupported-op',
             desc='Left hand side of binary expression does not support operator',
-            inputs='IR::ASTValue const &lhs, Token const &op', location='op',
+            inputs='IR::ASTValue const &lhs, Token const &op', location='op.span',
             highlights=[
                 SimpleHighlight('lhs', UNDER0, [('note', '"lhs is of type {}"', 'lhs.type()')]),
-                SimpleHighlight('op', UNDER0, [('error', '"unsupported binary operator for left operand"')]),
+                SimpleHighlight('op.span', UNDER0, [('error', '"unsupported binary operator for left operand"')]),
             ]),
         Msg('unary-unsupported-op',
             desc='Operand of unary expression does not support operator',
-            inputs='IR::ASTValue const &operand, Token const &_operator', location='_operator',
+            inputs='IR::ASTValue const &operand, Token const &_operator', location='_operator.span',
             highlights=[
                 SimpleHighlight('operand', UNDER0, [('note', '"operand is of type {}"', 'operand.type()')]),
-                SimpleHighlight('_operator', UNDER0, [('error', '"unsupported unary operator"')]),
+                SimpleHighlight('_operator.span', UNDER0, [('error', '"unsupported unary operator"')]),
             ]),
         Msg('call-noncallable',
             desc='Non-callable value called',
-            inputs='IR::ASTValue const &func, Token const &oparn', location='oparn',
+            inputs='IR::ASTValue const &func, Token const &oparn', location='oparn.span',
             highlights=[
                 SimpleHighlight('func', UNDER0, [('error', '"calling of non-callable value"'), ('note', '"value of type {}"', 'func.type()')]),
             ]),
@@ -201,18 +201,18 @@ errors = [
             ]),
         Msg('confl-tys-ifexpr',
             desc='Conflicting types for branches of if expression',
-            inputs='IR::ASTValue const &truev, IR::ASTValue const &falsev, Token const &iftok, Token const &elsetok', location='iftok',
+            inputs='IR::ASTValue const &truev, IR::ASTValue const &falsev, Token const &iftok, Token const &elsetok', location='iftok.span',
             highlights=[
-                SimpleHighlight('iftok', UNDER0, [('error', '"conflicting types for branches of if expression"')]),
-                SimpleHighlight('elsetok', UNDER2, []),
+                SimpleHighlight('iftok.span', UNDER0, [('error', '"conflicting types for branches of if expression"')]),
+                SimpleHighlight('elsetok.span', UNDER2, []),
                 SimpleHighlight('truev', UNDER1, [('note', '"{}"', 'truev.type()')]),
                 SimpleHighlight('falsev', UNDER1, [('note', '"{}"', 'falsev.type()')]),
             ]),
         Msg('assign-conflict-tys',
             desc='Assignment target and value do not have same type',
-            inputs='IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &eq', location='eq',
+            inputs='IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &eq', location='eq.span',
             highlights=[
-                SimpleHighlight('eq', UNDER0, [('error', '"conflicting types for assignment"')]),
+                SimpleHighlight('eq.span', UNDER0, [('error', '"conflicting types for assignment"')]),
                 SimpleHighlight('lhs', UNDER1, [('note', '"{}"', 'lhs.type()')]),
                 SimpleHighlight('rhs', UNDER1, [('note', '"{}"', 'rhs.type()')]),
             ]),
@@ -221,21 +221,21 @@ errors = [
             inputs='IR::ASTValue const &val, IR::Function const &f', location='val',
             highlights=[
                 SimpleHighlight('val', UNDER0, [('error', '"conflicting return type"'), ('note', '"returning {}"', 'val.type()')]),
-                SimpleHighlight('f._def_ast->retty.get()', UNDER1, [('note', '"function returns {}"', '*f.ty->ret')]),
+                SimpleHighlight('*f._def_ast->retty', UNDER1, [('note', '"function returns {}"', '*f.ty->ret')]),
             ]),
         Msg('no-deref',
             desc='Cannot dereference non-pointer',
             inputs='Token const &op, IR::ASTValue const &val', location='val',
             highlights=[
-                SimpleHighlight('op', UNDER0, [('error', '"dereferencing of non-pointer type {}"', 'val.type()')]),
+                SimpleHighlight('op.span', UNDER0, [('error', '"dereferencing of non-pointer type {}"', 'val.type()')]),
                 SimpleHighlight('val', UNDER1, []),
             ]),
         Msg('conflict-var-init-ty',
             desc='Conflicting type for variable initialization',
-            inputs='Token const &eq, Token const &name, ASTNS::Type const &type_ast, IR::ASTValue const &init, IR::Type const &expected_type', location='eq',
+            inputs='Token const &eq, Token const &name, ASTNS::Type const &type_ast, IR::ASTValue const &init, IR::Type const &expected_type', location='eq.span',
             highlights=[
-                SimpleHighlight('eq', UNDER1, []),
-                SimpleHighlight('name', UNDER1, []),
+                SimpleHighlight('eq.span', UNDER1, []),
+                SimpleHighlight('name.span', UNDER1, []),
                 SimpleHighlight('init', UNDER0, [('error', '"conflicting types for variable initialization"'), ('note', '"{}"', 'init.type()')]),
                 SimpleHighlight('type_ast', UNDER1, [('note', '"{}"', 'expected_type')]),
             ]),
@@ -247,11 +247,11 @@ errors = [
             ]),
         Msg('conflict-tys-binary-op',
             desc='Conflicting types to binary operator',
-            inputs='IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &op', location='op',
+            inputs='IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &op', location='op.span',
             highlights=[
                 SimpleHighlight('lhs', UNDER1, [('note', '"{}"', 'lhs.type()')]),
                 SimpleHighlight('rhs', UNDER1, [('note', '"{}"', 'rhs.type()')]),
-                SimpleHighlight('op', UNDER0, [('error', '"conflicting types to binary operator"')]),
+                SimpleHighlight('op.span', UNDER0, [('error', '"conflicting types to binary operator"')]),
             ]),
         Msg('cond-not-bool',
             desc='Using a non-bool value as a condition',
@@ -261,17 +261,17 @@ errors = [
             ]),
         Msg('ptr-arith-rhs-not-num',
             desc='Cannot do pointer arithmetic with non-integer as right-hand-side of expression',
-            inputs='IR::ASTValue const &lhs, Token const &optok, IR::ASTValue const &rhs', location='optok',
+            inputs='IR::ASTValue const &lhs, Token const &optok, IR::ASTValue const &rhs', location='optok.span',
             highlights=[
                 SimpleHighlight('lhs', UNDER1, []),
                 SimpleHighlight('rhs', UNDER1, [('note', '"{}"', 'rhs.type()')]),
-                SimpleHighlight('optok', UNDER0, [('error', '"pointer arithmetic requires an integral right-hand operand"')]),
+                SimpleHighlight('optok.span', UNDER0, [('error', '"pointer arithmetic requires an integral right-hand operand"')]),
             ]),
         Msg('no-else-not-void',
             desc='If expression with non-void true expression and no else case',
-            inputs='IR::ASTValue const &truev, Token const &iftok', location='iftok',
+            inputs='IR::ASTValue const &truev, Token const &iftok', location='iftok.span',
             highlights=[
-                SimpleHighlight('iftok', UNDER0, [('error', '"if expression with non-void true expression and no else case"')]),
+                SimpleHighlight('iftok.span', UNDER0, [('error', '"if expression with non-void true expression and no else case"')]),
                 SimpleHighlight('truev', UNDER1, [('note', '"{}"', 'truev.type()')]),
             ]),
         Msg('typeless-this',
@@ -282,22 +282,22 @@ errors = [
             ]),
         Msg('wrong-num-args',
             desc='Wrong number of arguments to function call',
-            inputs='IR::Function const &func, ASTNS::AST const &func_ref_ast, Token const &oparn, std::vector<IR::ASTValue> const &args', location='oparn',
+            inputs='IR::Function const &func, ASTNS::AST const &func_ref_ast, Token const &oparn, std::vector<IR::ASTValue> const &args', location='oparn.span',
             highlights=[
-                SimpleHighlight('oparn', UNDER0, [('error', '"wrong number of arguments to function call"')]),
+                SimpleHighlight('oparn.span', UNDER0, [('error', '"wrong number of arguments to function call"')]),
                 SimpleHighlight('func_ref_ast', UNDER1, []),
                 SimpleHighlight('func.def_ast()', UNDER1, [('note', '"function expects {} arguments, but got {} arguments"', 'func.ty->paramtys.size()', 'args.size()')]),
             ]),
         Msg('redecl-sym',
             desc='Symbol was redeclared',
-            inputs='Token const &name, IR::Value const &val', location='name',
+            inputs='Token const &name, IR::Value const &val', location='name.span',
             highlights=[
-                SimpleHighlight('name', UNDER0, [('error', '"redeclaration of symbol"')]),
+                SimpleHighlight('name.span', UNDER0, [('error', '"redeclaration of symbol"')]),
                 ValueDeclHighlight('&val', '', None, UNDER1, 'note', '"previous declaration"'),
             ]),
         Msg('undecl-symb',
             desc='Usage of undeclared symbol',
-            inputs='Location const &path', location='path',
+            inputs='Span const &path', location='path',
             highlights=[
                 SimpleHighlight('path', UNDER0, [('error', '"undeclared symbol"')]),
             ]),
@@ -310,76 +310,76 @@ errors = [
             ]),
         Msg('redecl-var',
             desc='Redeclaration of variable',
-            inputs='Token const &name, IR::Instrs::Register const &prev', location='name',
+            inputs='Token const &name, IR::Instrs::Register const &prev', location='name.span',
             highlights=[
-                SimpleHighlight('name', UNDER0, [('error', '"redeclaration of variable"')]),
+                SimpleHighlight('name.span', UNDER0, [('error', '"redeclaration of variable"')]),
                 SimpleHighlight('prev.def_ast()', UNDER1, [('note', '"previous declaration"')]),
             ]),
         Msg('not-a-type',
             desc='Expected a type but path resolved to something else',
-            inputs='Location const &notty, ASTNS::AST const &decl_ast', location='notty',
+            inputs='Span const &notty, ASTNS::AST const &decl_ast', location='notty',
             highlights=[
                 SimpleHighlight('notty', UNDER0, [('error', '"not a type"')]),
                 SimpleHighlight('decl_ast', UNDER1, [('note', '"declared here"')]),
             ]),
         Msg('no-member-in',
             desc='No member of a certain name within another member',
-            inputs='IR::DeclSymbol const &prev, Token const &current', location='current',
+            inputs='IR::DeclSymbol const &prev, Token const &current', location='current.span',
             highlights=[
-                SimpleHighlight('current', UNDER0, [('error', '"no member called {} in {}"', 'current', 'prev')]),
+                SimpleHighlight('current.span', UNDER0, [('error', '"no member called {} in {}"', 'current', 'prev')]),
             ]),
         Msg('no-this',
             desc='Usage of \'this\' outside method',
-            inputs='Token const &th', location='th',
+            inputs='Token const &th', location='th.span',
             highlights=[
-                SimpleHighlight('th', UNDER0, [('error', '"usage of {} outside method"', 'th')]),
+                SimpleHighlight('th.span', UNDER0, [('error', '"usage of {} outside method"', 'th')]),
             ]),
         Msg('no-method',
             desc='Accessing a method that doesn\'t exist',
-            inputs='IR::ASTValue const &op, Token const &name', location='name',
+            inputs='IR::ASTValue const &op, Token const &name', location='name.span',
             highlights=[
-                SimpleHighlight('name', UNDER0, [('error', '"no method called {} on value of type {}"', 'name', 'op.type()')]),
+                SimpleHighlight('name.span', UNDER0, [('error', '"no method called {} on value of type {}"', 'name', 'op.type()')]),
             ]),
         Msg('no-field',
             desc='Accessing a field that doesn\'t exist',
-            inputs='IR::ASTValue const &op, Token const &name', location='name',
+            inputs='IR::ASTValue const &op, Token const &name', location='name.span',
             highlights=[
-                SimpleHighlight('name', UNDER0, [('error', '"no field called {} on value of type {}"', 'name', 'op.type()')]),
+                SimpleHighlight('name.span', UNDER0, [('error', '"no field called {} on value of type {}"', 'name', 'op.type()')]),
             ]),
         Msg('addrof-not-lvalue',
             desc='Taking an address of a non-lvalue is impossible',
             inputs='Token const &op, IR::ASTValue const &val', location='val',
             highlights=[
-                SimpleHighlight('op', UNDER0, [('error', '"taking address of non-lvalue"')]),
+                SimpleHighlight('op.span', UNDER0, [('error', '"taking address of non-lvalue"')]),
                 SimpleHighlight('val', UNDER1, []),
             ]),
         Msg('assign-invalid-lhs',
             desc='Invalid assignment target',
-            inputs='Token const &eq, IR::ASTValue const &lhs', location='eq',
+            inputs='Token const &eq, IR::ASTValue const &lhs', location='eq.span',
             highlights=[
-                SimpleHighlight('eq', UNDER0, [('error', '"non-lvalue assignment"')]),
+                SimpleHighlight('eq.span', UNDER0, [('error', '"non-lvalue assignment"')]),
                 SimpleHighlight('lhs', UNDER1, []),
             ]),
         Msg('assign-not-mut',
             desc='Cannot assign to non-mutable lvalue',
             inputs='IR::ASTValue const &v, Token const &eq, IR::Instrs::DerefPtr const &target_deref', location='v',
             highlights=[
-                SimpleHighlight('eq', UNDER0, [('error', '"cannot assign to immutable lvalue"')]),
+                SimpleHighlight('eq.span', UNDER0, [('error', '"cannot assign to immutable lvalue"')]),
                 SimpleHighlight('v', UNDER1, []),
                 ValueDeclHighlight('target_deref.ptr.val.as_raw()', 'lvalue', None, UNDER1, 'note', '"variable declared immutable here"'),
             ]),
         Msg('mut-addrof-nonmut-op',
             desc='Cannot take a mutable pointer to non-mutable lvalue',
-            inputs='Token const &op, IR::Instrs::DerefPtr const &as_deref', location='op',
+            inputs='Token const &op, IR::Instrs::DerefPtr const &as_deref', location='op.span',
             highlights=[
-                SimpleHighlight('op', UNDER0, [('error', '"cannot take mutable pointer to non-mutable lvalue"')]),
+                SimpleHighlight('op.span', UNDER0, [('error', '"cannot take mutable pointer to non-mutable lvalue"')]),
                 ValueDeclHighlight('as_deref.ptr.val.as_raw()', 'value', None, UNDER1, 'note', '"value declared immutable here"'),
             ]),
         Msg('no-suppress',
             desc='Cannot suppress an expression that is not the implicit return value of a block',
-            inputs='Location const &dot', location='dot',
+            inputs='Span const &dollar', location='dollar',
             highlights=[
-                SimpleHighlight('dot', UNDER0, [('error', '"implicit return suppression not allowed here"')]),
+                SimpleHighlight('dollar', UNDER0, [('error', '"implicit return suppression not allowed here"')]),
             ]),
         Msg('this-not-first',
             desc='\'this\' parameter is not the first parameter of a method',
@@ -391,9 +391,9 @@ errors = [
 warnings = [
     Msg('extra-semi',
         desc='Extra semicolon',
-        inputs='Token const &semi', location='semi',
+        inputs='Token const &semi', location='semi.span',
         highlights=[
-            SimpleHighlight('semi', UNDER0, [('warning', '"unnecessary semicolon"')]),
+            SimpleHighlight('semi.span', UNDER0, [('warning', '"unnecessary semicolon"')]),
         ]),
     Msg('immut-noinit',
         desc='Uninitialized immutable variable',
@@ -403,10 +403,10 @@ warnings = [
         ]),
     Msg('block-no-indent',
         desc='Braced block without an indent',
-        inputs='Token const &obrace, Token const &cbrace', location='obrace',
+        inputs='Token const &obrace, Token const &cbrace', location='obrace.span',
         highlights=[
-            SimpleHighlight('obrace', UNDER0, [('warning', '"braced block without indent"')]),
-            SimpleHighlight('cbrace', UNDER1, [('note', '"closing brace here"')]),
+            SimpleHighlight('obrace.span', UNDER0, [('warning', '"braced block without indent"')]),
+            SimpleHighlight('cbrace.span', UNDER1, [('note', '"closing brace here"')]),
         ]),
 ]
 # fill numbers {{{1
@@ -446,7 +446,7 @@ def gen_cpp():
         desc_wrapped = ''.join('// | ' + line + '\n' for line in textwrap.wrap(description, 60))
         output.append(        desc_wrapped)
         output.append(        f'void {code}({inputs}) {{\n')
-        output.append(        f'    Error e = Error(MsgType::{msgtype}, Location({location}), "{code}", "{name}");\n')
+        output.append(        f'    Error e = Error(MsgType::{msgtype}, {location}, "{code}", "{name}");\n')
 
         for hi in highlights:
             output.append(hi.generate())

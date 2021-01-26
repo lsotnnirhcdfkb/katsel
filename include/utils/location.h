@@ -10,7 +10,7 @@ class Token;
 
 class Location {
 public:
-    std::string::iterator iter;
+    std::string::const_iterator iter;
     int line, column;
     NNPtr<File const> file;
 
@@ -21,6 +21,7 @@ class Span {
 public:
     Location start;
     Location end;
+    NNPtr<File const> file;
 
     Span(Location const &start, Location const &end);
 

@@ -12,7 +12,6 @@ namespace IR {
 #include "ir/module.h"
 
 #include "lex/token.h"
-#include "lex/tokentype.h"
 
 #include "llvm/IR/Type.h"
 #include "llvm/IR/LLVMContext.h"

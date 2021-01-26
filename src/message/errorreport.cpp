@@ -86,7 +86,7 @@ namespace {
             case MsgType::WARNING: return A_BOLD A_FG_MAGENTA;
         }
     }
-    void print_heading(MsgType type, Location const &location) {
+    void print_heading(MsgType type, Span const &span) {
         std::string msgtypestr;
         std::string const msg_color = color_of_type(type);
         switch (type) {
@@ -97,8 +97,8 @@ namespace {
                 msgtypestr = attr(msg_color, "Warning");
                 break;
         }
-        std::string::const_iterator const fstart = location.file->source.cbegin();
-        std::cerr << format("{} at {}:{}:{}{}:\n", msgtypestr, attr(FILEPATH_COLOR, location.file->filename, true), get_line_n(fstart, location.start), get_col_n(fstart, location.start), reset_if_necessary().as_raw());
+        std::string::const_iterator const fstart = span.start.file->source.cbegin();
+        std::cerr << format("{} at {}:{}:{}{}:\n", msgtypestr, attr(FILEPATH_COLOR, span.start.file->filename, true), get_line_n(fstart, span.start.iter), get_col_n(fstart, span.start.iter), reset_if_necessary().as_raw());
     }
     // final line {{{2
     void print_final_line(std::string const &pad, MsgType type, std::string const &code, std::string const &name) {
@@ -108,17 +108,17 @@ namespace {
     std::vector<showline> collect_showlines(std::vector<Underline> const &underlines) {
         std::vector<showline> showlines;
         for (Underline const &u : underlines) {
-            std::string::const_iterator begin = u.location.file->source.begin();
-            int start_line_n = get_line_n(begin, u.location.start), end_line_n = get_line_n(begin, u.location.end - 1);
+            std::string::const_iterator begin = u.span.file->source.begin();
+            int start_line_n = get_line_n(begin, u.span.start.iter), end_line_n = get_line_n(begin, u.span.end.iter - 1);
             // because end is inclusive
             if ((end_line_n + 1) - start_line_n < 4)
                 for (int i = start_line_n; i <= end_line_n; ++i)
-                    showlines.push_back(showline {u.location.file, i});
+                    showlines.push_back(showline {u.span.file, i});
             else {
-                showlines.push_back(showline {u.location.file, start_line_n});
-                showlines.push_back(showline {u.location.file, start_line_n + 1});
-                showlines.push_back(showline {u.location.file, end_line_n});
-                showlines.push_back(showline {u.location.file, end_line_n - 1});
+                showlines.push_back(showline {u.span.file, start_line_n});
+                showlines.push_back(showline {u.span.file, start_line_n + 1});
+                showlines.push_back(showline {u.span.file, end_line_n});
+                showlines.push_back(showline {u.span.file, end_line_n - 1});
             }
         }
 
@@ -171,17 +171,17 @@ namespace {
 
         std::vector<MessageLocation> line_messages;
 
-        auto it_in_loc = [](std::string::const_iterator const &i, Location const &l) {
-            if (l.start == l.end)
-                return i == l.start;
-            return i >= l.start && i < l.end;
+        auto it_in_span = [](std::string::const_iterator const &i, Span const &span) {
+            if (span.start.iter == span.end.iter)
+                return i == span.start.iter;
+            return i >= span.start.iter && i < span.end.iter;
         };
 
         bool line_has_under = false;
         for (std::string::const_iterator i = lstart; i <= lend; ++i) {
             Maybe<NNPtr<Underline const>> charu;
             for (Underline const &u : underlines)
-                if (it_in_loc(i, u.location)) {
+                if (it_in_span(i, u.span)) {
                     charu = Maybe<NNPtr<Underline const>>(NNPtr(u));
                     line_has_under = true;
                     break;
@@ -208,9 +208,9 @@ namespace {
         int max_row = 0;
         for (std::string::const_iterator i = lend; i >= lstart; --i)
             for (Underline const &u : underlines)
-                if (i == u.location.end - 1 || (u.location.start == u.location.end && i == u.location.start)) {
-                    int lcol = get_col_n(u.location.file->source.begin(), u.location.start);
-                    int col = get_col_n(u.location.file->source.begin(), u.location.end - 1) + 1; // end - 1 to get the character that this ends at, +1 to get the next column. end by itself could wrap around to the next line
+                if (i == u.span.end.iter - 1 || (u.span.start.iter == u.span.end.iter && i == u.span.start.iter)) {
+                    int lcol = get_col_n(u.span.file->source.begin(), u.span.start.iter);
+                    int col = get_col_n(u.span.file->source.begin(), u.span.end.iter - 1) + 1; // end - 1 to get the character that this ends at, +1 to get the next column. end by itself could wrap around to the next line
                     for (Message const &message : u.messages) {
                         int messagerow = 0;
                         if (line_messages.size() > 0) {
@@ -283,7 +283,7 @@ namespace {
 // report {{{1
 void Error::report() const {
     if (errformat == ErrorFormat::HUMAN) {
-        print_heading(type, location);
+        print_heading(type, span);
         auto showlines (collect_showlines(underlines));
         int maxlinepad (count_line_pad(showlines));
         std::string pad (maxlinepad + 1, ' ');
@@ -324,16 +324,16 @@ void Error::report() const {
 
         print_final_line(pad, type, code, name);
     } else if (errformat == ErrorFormat::ALIGNED) {
-        print_heading(type, location);
+        print_heading(type, span);
         auto showlines (collect_showlines(underlines));
         int maxlinepad (count_line_pad(showlines));
         std::string pad (maxlinepad + 1, ' ');
 
         for (Underline const &un : underlines) {
-            auto fstart = un.location.file->source.begin();
-            int line_n = get_line_n(fstart, un.location.start);
-            int col_n = get_col_n(fstart, un.location.start);
-            std::cerr << format("{}> {}:{}:{}{}\n", pad, attr(FILEPATH_COLOR, un.location.file->filename, true), line_n, col_n, reset_if_necessary().as_raw());
+            auto fstart = un.span.file->source.begin();
+            int line_n = get_line_n(fstart, un.span.start.iter);
+            int col_n = get_col_n(fstart, un.span.start.iter);
+            std::cerr << format("{}> {}:{}:{}{}\n", pad, attr(FILEPATH_COLOR, un.span.file->filename, true), line_n, col_n, reset_if_necessary().as_raw());
             for (Message const &me : un.messages)
                 std::cerr << format("{}| [{}] {}\n", pad, attr(me.color.as_raw(), me.type), me.text);
 
@@ -344,13 +344,13 @@ void Error::report() const {
             std::cerr << " | ";
 
             std::string::const_iterator lstart, lend;
-            get_line(lstart, lend, *un.location.file, line_n);
+            get_line(lstart, lend, *un.span.file, line_n);
 
-            int un_start_col = get_col_n(fstart, un.location.start);
-            int un_end_col = get_col_n(fstart, un.location.end);
+            int un_start_col = get_col_n(fstart, un.span.start.iter);
+            int un_end_col = get_col_n(fstart, un.span.end.iter);
 
             for (auto i = lstart; i != lend; ++i)
-                if (i >= un.location.start && i < un.location.end)
+                if (i >= un.span.start.iter && i < un.span.end.iter)
                     if (un.messages.size())
                         std::cerr << attr(A_BOLD, attr(un.messages[0].color.as_raw(), std::string(1, *i)));
                     else
@@ -378,17 +378,17 @@ void Error::report() const {
                 break;
         }
 
-        auto format_location = [](File const &f, std::string::const_iterator const &loc, std::string::const_iterator const &fstart) -> std::string {
-            return format("{{}, {}, {}, {}}",
-                    jsonfield("file", f.filename),
-                    jsonfield("line", get_line_n(fstart, loc)),
-                    jsonfield("column", get_col_n(fstart, loc)),
-                    jsonfield("index", std::distance(fstart, loc)));
+        auto format_location = [](Location const &l) -> std::string {
+            return format("{{ {}, {}, {}, {} }}",
+                    jsonfield("file", l.file->filename),
+                    jsonfield("line", get_line_n(l.file->source.cbegin(), l.iter)),
+                    jsonfield("column", get_col_n(l.file->source.cbegin(), l.iter)),
+                    jsonfield("index", std::distance(l.file->source.cbegin(), l.iter)));
         };
 
         std::cerr << "\",";
-        std::string::const_iterator const fstart = location.file->source.cbegin();
-        std::cerr << jsonfield("location", format_location(*location.file, location.start, fstart));
+        std::string::const_iterator const fstart = span.file->source.cbegin();
+        std::cerr << jsonfield("span", format_location(span.start));
         std::cerr << jsonfield("code", code) << jsonfield("name", name);
 
         std::cerr << "\"underlines\":[";
@@ -397,7 +397,7 @@ void Error::report() const {
             if (!f) std::cerr << ",";
             f = false;
 
-            std::cerr << "{\"start\":" << format_location(*u.location.file, u.location.start, fstart) << ", \"end\": " << format_location(*u.location.file, u.location.end, fstart) << ",\"char\":\"" << u.ch << "\"," << "\"messages\": [";
+            std::cerr << "{\"start\":" << format_location(u.span.start) << ", \"end\": " << format_location(u.span.end) << ",\"char\":\"" << u.ch << "\"," << "\"messages\": [";
 
             bool fm = true;
             for (Message const &m : u.messages) {
