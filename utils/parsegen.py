@@ -32,7 +32,7 @@ class Terminal:
         return self.symbol
 
     def astt(self):
-        return 'TokenType::' + self.symbol
+        return f'Tokens::{self.symbol}'
 
     def __hash__(self):
         return hash(self.symbol)
@@ -212,13 +212,13 @@ class SimpleReduceAction:
         self.classname = classname
         self.args = args
     def generate(self):
-        return (f'std::unique_ptr<ASTNS::{self.classname}> push (std::make_unique<ASTNS::{self.classname}>(p.sourcefile, start, end, {self.args}));\n', 'std::move(push)')
+        return (f'std::unique_ptr<ASTNS::{self.classname}> push (std::make_unique<ASTNS::{self.classname}>(p.sourcefile, span, {self.args}));\n', 'std::move(push)')
 class EmptyVectorAction:
     def __init__(self, classname, ty):
         self.classname = classname
         self.ty = ty
     def generate(self):
-        return (f'std::unique_ptr<ASTNS::{self.classname}> push (std::make_unique<ASTNS::{self.classname}>(p.sourcefile, Maybe<Location const>(), Maybe<Location const>(), std::vector<{self.ty}> {{}}));\n', 'std::move(push)')
+        return (f'std::unique_ptr<ASTNS::{self.classname}> push (std::make_unique<ASTNS::{self.classname}>(p.sourcefile, span, std::vector<{self.ty}> {{}}));\n', 'std::move(push)')
 class SkipReduceAction:
     def __init__(self, ind=0):
         self.ind = ind
@@ -244,7 +244,7 @@ class VectorPushOneAction:
         self.itemtype = itemtype
         self.vector_name = vector_name
     def generate(self):
-        return (f'''std::unique_ptr<{self.new_class}> push(std::make_unique<{self.new_class}>(p.sourcefile, start, end, std::vector<{self.itemtype}> {{}}));\n
+        return (f'''std::unique_ptr<{self.new_class}> push (std::make_unique<{self.new_class}>(p.sourcefile, span, std::vector<{self.itemtype}> {{}}));\n
         push->{self.vector_name}.push_back({self.item});\n''', 'std::move(push)')
 class WarnAction:
     def __init__(self, warning, other_action):
@@ -507,14 +507,14 @@ def make_opt(toopt, with_action, no_action, new_name=None):
     return optnt
 
 def braced_rule(braced_nt, inside_block, warn_no_indent, reduce_off_1, reduce_off_2, reduce_off_3):
-    rule(braced_nt, (OCURB, *inside_block, CCURB), reduce_off_1)
+    rule(braced_nt, (OBrace, *inside_block, CBrace), reduce_off_1)
     if warn_no_indent:
         reduce_off_2 = WarnAction(f'WARN_BLOCK_NO_INDENT(a0, a{len(inside_block) + 2});', reduce_off_2)
-    rule(braced_nt, (OCURB, NEWLINE, *inside_block, CCURB), reduce_off_2)
-    rule(braced_nt, (OCURB, NEWLINE, INDENT, *inside_block, DEDENT, CCURB), reduce_off_3)
+    rule(braced_nt, (OBrace, Newline, *inside_block, CBrace), reduce_off_2)
+    rule(braced_nt, (OBrace, Newline, Indent, *inside_block, Dedent, CBrace), reduce_off_3)
 
 def indented_rule(indented_nt, inside_block, reduce_action):
-    rule(indented_nt, (NEWLINE, INDENT, *inside_block, DEDENT), reduce_action)
+    rule(indented_nt, (Newline, Indent, *inside_block, Dedent), reduce_action)
 
 def skip_to(skip_from, *skip_to):
     for to in skip_to:
@@ -527,63 +527,81 @@ def token_rule(nt, reduce_action, *tokens):
 grammar = []
 
 # rules {{{1
-
-AMPER = Terminal('AMPER')
-BANG = Terminal('BANG')
-BANGEQUAL = Terminal('BANGEQUAL')
-BININTLIT = Terminal('BININTLIT')
-CARET = Terminal('CARET')
-CCURB = Terminal('CCURB')
-CHARLIT = Terminal('CHARLIT')
-COLON = Terminal('COLON')
-COMMA = Terminal('COMMA')
-CPARN = Terminal('CPARN')
-DECINTLIT = Terminal('DECINTLIT')
-DEDENT = Terminal('DEDENT')
-DOLLAR = Terminal('DOLLAR')
-DOUBLEAMPER = Terminal('DOUBLEAMPER')
-DOUBLECOLON = Terminal('DOUBLECOLON')
-DOUBLEEQUAL = Terminal('DOUBLEEQUAL')
-DOUBLEGREATER = Terminal('DOUBLEGREATER')
-DOUBLELESS = Terminal('DOUBLELESS')
-DOUBLEPIPE = Terminal('DOUBLEPIPE')
-EQUAL = Terminal('EQUAL')
-ELSE = Terminal('ELSE')
-FALSELIT = Terminal('FALSELIT')
-FLOATLIT = Terminal('FLOATLIT')
-FUN = Terminal('FUN')
-GREATER = Terminal('GREATER')
-GREATEREQUAL = Terminal('GREATEREQUAL')
-HEXINTLIT = Terminal('HEXINTLIT')
-IDENTIFIER = Terminal('IDENTIFIER')
-IF = Terminal('IF')
-INDENT = Terminal('INDENT')
-IMPL = Terminal('IMPL')
-LEFTARROW = Terminal('LEFTARROW')
-LESS = Terminal('LESS')
-LESSEQUAL = Terminal('LESSEQUAL')
-MINUS = Terminal('MINUS')
-MUT = Terminal('MUT')
-NEWLINE = Terminal('NEWLINE')
-NULLPTRLIT = Terminal('NULLPTRLIT')
-OCTINTLIT = Terminal('OCTINTLIT')
-OCURB = Terminal('OCURB')
-OPARN = Terminal('OPARN')
-PERCENT = Terminal('PERCENT')
-PERIOD = Terminal('PERIOD')
-PIPE = Terminal('PIPE')
-PLUS = Terminal('PLUS')
-RETURN = Terminal('RETURN')
-RIGHTARROW = Terminal('RIGHTARROW')
-SEMICOLON = Terminal('SEMICOLON')
-SLASH = Terminal('SLASH')
-STAR = Terminal('STAR')
-STRINGLIT = Terminal('STRINGLIT')
-THIS = Terminal('THIS')
-TILDE = Terminal('TILDE')
-TRUELIT = Terminal('TRUELIT')
-VAR = Terminal('VAR')
-WHILE = Terminal('WHILE')
+OParen = Terminal('OParen')
+CParen = Terminal('CParen')
+OBrack = Terminal('OBrack')
+CBrack = Terminal('CBrack')
+OBrace = Terminal('OBrace')
+CBrace = Terminal('CBrace')
+Comma = Terminal('Comma')
+Period = Terminal('Period')
+Semicolon = Terminal('Semicolon')
+Question = Terminal('Question')
+Colon = Terminal('Colon')
+Bang = Terminal('Bang')
+Plus = Terminal('Plus')
+Minus = Terminal('Minus')
+Star = Terminal('Star')
+Slash = Terminal('Slash')
+Percent = Terminal('Percent')
+Equal = Terminal('Equal')
+Greater = Terminal('Greater')
+Less = Terminal('Less')
+Tilde = Terminal('Tilde')
+Amper = Terminal('Amper')
+Pipe = Terminal('Pipe')
+Caret = Terminal('Caret')
+Dollar = Terminal('Dollar')
+Hash = Terminal('Hash')
+RightArrow = Terminal('RightArrow')
+LeftArrow = Terminal('LeftArrow')
+DoublePlus = Terminal('DoublePlus')
+DoubleMinus = Terminal('DoubleMinus')
+DoubleGreater = Terminal('DoubleGreater')
+DoubleLess = Terminal('DoubleLess')
+DoubleAmper = Terminal('DoubleAmper')
+DoublePipe = Terminal('DoublePipe')
+DoubleEqual = Terminal('DoubleEqual')
+DoubleColon = Terminal('DoubleColon')
+PlusEqual = Terminal('PlusEqual')
+MinusEqual = Terminal('MinusEqual')
+StarEqual = Terminal('StarEqual')
+SlashEqual = Terminal('SlashEqual')
+BangEqual = Terminal('BangEqual')
+GreaterEqual = Terminal('GreaterEqual')
+LessEqual = Terminal('LessEqual')
+PercentEqual = Terminal('PercentEqual')
+DoubleLessEqual = Terminal('DoubleLessEqual')
+DoubleGreaterEqual = Terminal('DoubleGreaterEqual')
+AmperEqual = Terminal('AmperEqual')
+PipeEqual = Terminal('PipeEqual')
+CaretEqual = Terminal('CaretEqual')
+Identifier = Terminal('Identifier')
+CharLit = Terminal('CharLit')
+StringLit = Terminal('StringLit')
+IntLit = Terminal('IntLit')
+FloatLit = Terminal('FloatLit')
+BoolLit = Terminal('BoolLit')
+This = Terminal('This')
+Var = Terminal('Var')
+Fun = Terminal('Fun')
+Let = Terminal('Let')
+Mut = Terminal('Mut')
+Data = Terminal('Data')
+Impl = Terminal('Impl')
+Return = Terminal('Return')
+While = Terminal('While')
+For = Terminal('For')
+If = Terminal('If')
+Else = Terminal('Else')
+Case = Terminal('Case')
+Break = Terminal('Break')
+Continue = Terminal('Continue')
+Boom = Terminal('Boom')
+Newline = Terminal('Newline')
+Indent = Terminal('Indent')
+Dedent = Terminal('Dedent')
+Error = Terminal('Error')
 
 CU = nt('compilation unit', 'CU')
 Decl = nt('declaration', 'Decl', panickable=True)
@@ -637,9 +655,9 @@ Path = nt('symbol path', 'Path')
 AUGMENT_SYM = nt('augment', '#error augment symbol reduces to class')
 AUGMENT_RULE = rule(AUGMENT_SYM, (CU,), None)
 
-ParamList = list_rule(Param, VectorPushOneAction('ASTNS::ParamList', 'std::move(a0)', 'std::unique_ptr<ASTNS::ParamB>', 'params'), VectorPushReduceAction('a0->params', 'std::move(a2)', 'a0'), 'ParamList', COMMA)
-ArgList = list_rule(Arg, VectorPushOneAction('ASTNS::ArgList', 'std::move(a0)', 'std::unique_ptr<ASTNS::Arg>', 'args'), VectorPushReduceAction('a0->args', 'std::move(a2)', 'a0'), 'ArgList', COMMA)
-VarStmtItemList = list_rule(VarStmtItem, VectorPushOneAction('ASTNS::VarStmtItemList', 'std::move(a0)', 'std::unique_ptr<ASTNS::VarStmtItem>', 'items'), VectorPushReduceAction('a0->items', 'std::move(a2)', 'a0'), 'VarStmtItemList', COMMA)
+ParamList = list_rule(Param, VectorPushOneAction('ASTNS::ParamList', 'std::move(a0)', 'std::unique_ptr<ASTNS::ParamB>', 'params'), VectorPushReduceAction('a0->params', 'std::move(a2)', 'a0'), 'ParamList', Comma)
+ArgList = list_rule(Arg, VectorPushOneAction('ASTNS::ArgList', 'std::move(a0)', 'std::unique_ptr<ASTNS::Arg>', 'args'), VectorPushReduceAction('a0->args', 'std::move(a2)', 'a0'), 'ArgList', Comma)
+VarStmtItemList = list_rule(VarStmtItem, VectorPushOneAction('ASTNS::VarStmtItemList', 'std::move(a0)', 'std::unique_ptr<ASTNS::VarStmtItem>', 'items'), VectorPushReduceAction('a0->items', 'std::move(a2)', 'a0'), 'VarStmtItemList', Comma)
 StmtList = list_rule(Stmt, VectorPushOneAction('ASTNS::StmtList', 'std::move(a0)', 'std::unique_ptr<ASTNS::Stmt>', 'stmts'), VectorPushReduceAction('a0->stmts', 'std::move(a1)', 'a0'), 'StmtList')
 DeclList = list_rule(Decl, VectorPushOneAction('ASTNS::DeclList', 'std::move(a0)', 'std::unique_ptr<ASTNS::Decl>', 'decls'), VectorPushReduceAction('a0->decls', 'std::move(a1)', 'a0'), 'DeclList')
 ImplMemberList = list_rule(ImplMember, VectorPushOneAction('ASTNS::ImplMemberList', 'std::move(a0)', 'std::unique_ptr<ASTNS::ImplMember>', 'members'), VectorPushReduceAction('a0->members', 'std::move(a1)', 'a0'), 'ImplMemberList')
@@ -658,10 +676,10 @@ rule(CU, (), NullptrReduceAction())
 
 skip_to(Decl, FunctionDecl, ImplDecl)
 
-rule(FunctionDecl, (FUN, IDENTIFIER, OPARN, ParamListOpt, CPARN, TypeAnnotation, Block, LineEndingOpt), SimpleReduceAction('FunctionDecl', 'std::move(a5), a1, std::move(a3->params), std::move(a6)'), loc_end=5)
-rule(FunctionDecl, (FUN, IDENTIFIER, OPARN, ParamListOpt, CPARN, TypeAnnotation, LineEnding), SimpleReduceAction('FunctionDecl', 'std::move(a5), a1, std::move(a3->params), nullptr'))
+rule(FunctionDecl, (Fun, Identifier, OParen, ParamListOpt, CParen, TypeAnnotation, Block, LineEndingOpt), SimpleReduceAction('FunctionDecl', 'std::move(a5), a1, std::move(a3->params), std::move(a6)'), loc_end=5)
+rule(FunctionDecl, (Fun, Identifier, OParen, ParamListOpt, CParen, TypeAnnotation, LineEnding), SimpleReduceAction('FunctionDecl', 'std::move(a5), a1, std::move(a3->params), nullptr'))
 
-rule(ImplDecl, (IMPL, Type, ImplBody, LineEndingOpt), SimpleReduceAction('ImplDecl', 'std::move(a1), std::move(a2->members)'), loc_end=1)
+rule(ImplDecl, (Impl, Type, ImplBody, LineEndingOpt), SimpleReduceAction('ImplDecl', 'std::move(a1), std::move(a2->members)'), loc_end=1)
 
 braced_rule(ImplBody, (ImplMemberListOpt,), True,
     SkipReduceAction(1),
@@ -673,20 +691,20 @@ rule(ImplMember, (FunctionDecl,), SimpleReduceAction('FunctionImplMember', 'std:
 
 skip_to(Stmt, VarStmt, ExprStmt, RetStmt)
 
-rule(VarStmt, (VAR, VarStmtItemList, LineEnding), SimpleReduceAction('VarStmt', 'std::move(a1->items)'))
+rule(VarStmt, (Var, VarStmtItemList, LineEnding), SimpleReduceAction('VarStmt', 'std::move(a1->items)'))
 
-rule(ExprStmt, (NotBlockedExpr,         LineEnding),    SimpleReduceAction('ExprStmt', 'std::move(a0), false, Maybe<Location const>()'))
-rule(ExprStmt, (BlockedExpr   ,         LineEndingOpt), SimpleReduceAction('ExprStmt', 'std::move(a0), false, Maybe<Location const>()'))
-rule(ExprStmt, (NotBlockedExpr, DOLLAR, LineEndingOpt), SimpleReduceAction('ExprStmt', 'std::move(a0), true , Maybe<Location const>(a1)'))
-rule(ExprStmt, (BlockedExpr   , DOLLAR, LineEndingOpt), SimpleReduceAction('ExprStmt', 'std::move(a0), true , Maybe<Location const>(a1)'))
+rule(ExprStmt, (NotBlockedExpr,         LineEnding),    SimpleReduceAction('ExprStmt', 'std::move(a0), false, Maybe<Span const>()'))
+rule(ExprStmt, (BlockedExpr   ,         LineEndingOpt), SimpleReduceAction('ExprStmt', 'std::move(a0), false, Maybe<Span const>()'))
+rule(ExprStmt, (NotBlockedExpr, Dollar, LineEndingOpt), SimpleReduceAction('ExprStmt', 'std::move(a0), true , Maybe<Span const>(a1.span)'))
+rule(ExprStmt, (BlockedExpr   , Dollar, LineEndingOpt), SimpleReduceAction('ExprStmt', 'std::move(a0), true , Maybe<Span const>(a1.span)'))
 
-rule(RetStmt, (RETURN, Expr, LineEnding), SimpleReduceAction('RetStmt', 'std::move(a1)'))
-rule(RetStmt, (RETURN, LineEnding), SimpleReduceAction('RetStmt', 'nullptr'))
+rule(RetStmt, (Return, Expr, LineEnding), SimpleReduceAction('RetStmt', 'std::move(a1)'))
+rule(RetStmt, (Return, LineEnding), SimpleReduceAction('RetStmt', 'nullptr'))
 
-rule(VarStmtItem, (IDENTIFIER, TypeAnnotation, EQUAL, Expr), SimpleReduceAction('VarStmtItem', 'std::move(a1), false, a0, a2, std::move(a3)'))
-rule(VarStmtItem, (IDENTIFIER, TypeAnnotation), SimpleReduceAction('VarStmtItem', 'std::move(a1), false, a0, a0, nullptr'))
-rule(VarStmtItem, (MUT, IDENTIFIER, TypeAnnotation, EQUAL, Expr), SimpleReduceAction('VarStmtItem', 'std::move(a2), true, a1, a3, std::move(a4)'))
-rule(VarStmtItem, (MUT, IDENTIFIER, TypeAnnotation), SimpleReduceAction('VarStmtItem', 'std::move(a2), true, a1, a1, nullptr'))
+rule(VarStmtItem, (Identifier, TypeAnnotation, Equal, Expr), SimpleReduceAction('VarStmtItem', 'std::move(a1), false, a0, a2, std::move(a3)'))
+rule(VarStmtItem, (Identifier, TypeAnnotation), SimpleReduceAction('VarStmtItem', 'std::move(a1), false, a0, a0, nullptr'))
+rule(VarStmtItem, (Mut, Identifier, TypeAnnotation, Equal, Expr), SimpleReduceAction('VarStmtItem', 'std::move(a2), true, a1, a3, std::move(a4)'))
+rule(VarStmtItem, (Mut, Identifier, TypeAnnotation), SimpleReduceAction('VarStmtItem', 'std::move(a2), true, a1, a1, nullptr'))
 
 skip_to(Block, BracedBlock, IndentedBlock)
 braced_rule(BracedBlock, (StmtListOpt,), True,
@@ -695,112 +713,112 @@ braced_rule(BracedBlock, (StmtListOpt,), True,
     SimpleReduceAction('Block', 'std::move(a3->stmts)')) # offset 3
 indented_rule(IndentedBlock, (StmtListOpt,), SimpleReduceAction('Block', 'std::move(a2->stmts)'))
 
-rule(LineEnding, (NEWLINE,), LocationReduceAction())
-rule(LineEnding, (SEMICOLON,), LocationReduceAction())
-rule(LineEnding, (SEMICOLON, NEWLINE), WarnAction('WARN_EXTRA_SEMI(a0);', LocationReduceAction()))
+rule(LineEnding, (Newline,), LocationReduceAction())
+rule(LineEnding, (Semicolon,), LocationReduceAction())
+rule(LineEnding, (Semicolon, Newline), WarnAction('WARN_EXTRA_SEMI(a0);', LocationReduceAction()))
 
 skip_to(Type, PathType, PointerType, ThisType)
 
-rule(PointerType, (STAR, Type), SimpleReduceAction('PointerType', 'false, std::move(a1)'))
-rule(PointerType, (STAR, MUT, Type), SimpleReduceAction('PointerType', 'true, std::move(a2)'))
+rule(PointerType, (Star, Type), SimpleReduceAction('PointerType', 'false, std::move(a1)'))
+rule(PointerType, (Star, Mut, Type), SimpleReduceAction('PointerType', 'true, std::move(a2)'))
 
 rule(PathType, (Path,), SimpleReduceAction('PathType', 'std::move(a0)'))
 
-rule(ThisType, (THIS,), SimpleReduceAction('ThisType', 'a0'))
+rule(ThisType, (This,), SimpleReduceAction('ThisType', 'a0'))
 
-rule(TypeAnnotation, (COLON, Type), SkipReduceAction(1))
+rule(TypeAnnotation, (Colon, Type), SkipReduceAction(1))
 
 rule(Arg, (Expr,), SimpleReduceAction('Arg', 'std::move(a0)'))
 
 skip_to(Param, NormalParam, ThisParam)
 
-rule(NormalParam, (IDENTIFIER, TypeAnnotation), SimpleReduceAction('Param', 'std::move(a1), a0, false'))
-rule(NormalParam, (MUT, IDENTIFIER, TypeAnnotation), SimpleReduceAction('Param', 'std::move(a2), a1, true'))
-rule(ThisParam, (THIS,), SimpleReduceAction('ThisParam', 'false, false'))
-rule(ThisParam, (STAR, THIS), SimpleReduceAction('ThisParam', 'true, false'))
-rule(ThisParam, (STAR, MUT, THIS), SimpleReduceAction('ThisParam', 'true, true'))
+rule(NormalParam, (Identifier, TypeAnnotation), SimpleReduceAction('Param', 'std::move(a1), a0, false'))
+rule(NormalParam, (Mut, Identifier, TypeAnnotation), SimpleReduceAction('Param', 'std::move(a2), a1, true'))
+rule(ThisParam, (This,), SimpleReduceAction('ThisParam', 'false, false'))
+rule(ThisParam, (Star, This), SimpleReduceAction('ThisParam', 'true, false'))
+rule(ThisParam, (Star, Mut, This), SimpleReduceAction('ThisParam', 'true, true'))
 
 skip_to(Expr, BlockedExpr, NotBlockedExpr)
 skip_to(NotBlockedExpr, AssignmentExpr)
 skip_to(BlockedExpr, IfExpr, WhileExpr, BracedBlock)
 
-rule(IfExpr, (IF, Expr, Block), SimpleReduceAction('IfExpr', 'a0, a0, std::move(a1), std::move(a2), nullptr'))
-rule(IfExpr, (IF, Expr, Block, ELSE, Block), SimpleReduceAction('IfExpr', 'a0, a3, std::move(a1), std::move(a2), std::move(a4)'))
-rule(IfExpr, (IF, Expr, Block, ELSE, IfExpr), SimpleReduceAction('IfExpr', 'a0, a3, std::move(a1), std::move(a2), std::move(a4)'))
+rule(IfExpr, (If, Expr, Block), SimpleReduceAction('IfExpr', 'a0, a0, std::move(a1), std::move(a2), nullptr'))
+rule(IfExpr, (If, Expr, Block, Else, Block), SimpleReduceAction('IfExpr', 'a0, a3, std::move(a1), std::move(a2), std::move(a4)'))
+rule(IfExpr, (If, Expr, Block, Else, IfExpr), SimpleReduceAction('IfExpr', 'a0, a3, std::move(a1), std::move(a2), std::move(a4)'))
 
-rule(WhileExpr, (WHILE, Expr, Block), SimpleReduceAction('WhileExpr', 'std::move(a1), std::move(a2)'))
+rule(WhileExpr, (While, Expr, Block), SimpleReduceAction('WhileExpr', 'std::move(a1), std::move(a2)'))
 
 bin_expr_reduction = SimpleReduceAction('BinaryExpr', 'std::move(a0), a1, std::move(a2)')
 
-rule(AssignmentExpr, (BinOrExpr, EQUAL, AssignmentExpr), SimpleReduceAction('AssignmentExpr', 'std::move(a0), a1, std::move(a2)'))
+rule(AssignmentExpr, (BinOrExpr, Equal, AssignmentExpr), SimpleReduceAction('AssignmentExpr', 'std::move(a0), a1, std::move(a2)'))
 rule(AssignmentExpr, (BinOrExpr,), SkipReduceAction())
-rule(BinOrExpr, (BinOrExpr, DOUBLEPIPE, BinAndExpr), SimpleReduceAction('ShortCircuitExpr', 'std::move(a0), a1, std::move(a2)'))
+rule(BinOrExpr, (BinOrExpr, DoublePipe, BinAndExpr), SimpleReduceAction('ShortCircuitExpr', 'std::move(a0), a1, std::move(a2)'))
 rule(BinOrExpr, (BinAndExpr,), SkipReduceAction())
-rule(BinAndExpr, (BinAndExpr, DOUBLEAMPER, CompEQExpr), SimpleReduceAction('ShortCircuitExpr', 'std::move(a0), a1, std::move(a2)'))
+rule(BinAndExpr, (BinAndExpr, DoubleAmper, CompEQExpr), SimpleReduceAction('ShortCircuitExpr', 'std::move(a0), a1, std::move(a2)'))
 rule(BinAndExpr, (CompEQExpr,), SkipReduceAction())
-rule(CompEQExpr, (CompEQExpr, BANGEQUAL, CompLGTExpr), bin_expr_reduction)
-rule(CompEQExpr, (CompEQExpr, DOUBLEEQUAL, CompLGTExpr), bin_expr_reduction)
+rule(CompEQExpr, (CompEQExpr, BangEqual, CompLGTExpr), bin_expr_reduction)
+rule(CompEQExpr, (CompEQExpr, DoubleEqual, CompLGTExpr), bin_expr_reduction)
 rule(CompEQExpr, (CompLGTExpr,), SkipReduceAction())
-rule(CompLGTExpr, (CompLGTExpr, LESS, BitXorExpr), bin_expr_reduction)
-rule(CompLGTExpr, (CompLGTExpr, GREATER, BitXorExpr), bin_expr_reduction)
-rule(CompLGTExpr, (CompLGTExpr, LESSEQUAL, BitXorExpr), bin_expr_reduction)
-rule(CompLGTExpr, (CompLGTExpr, GREATEREQUAL, BitXorExpr), bin_expr_reduction)
+rule(CompLGTExpr, (CompLGTExpr, Less, BitXorExpr), bin_expr_reduction)
+rule(CompLGTExpr, (CompLGTExpr, Greater, BitXorExpr), bin_expr_reduction)
+rule(CompLGTExpr, (CompLGTExpr, LessEqual, BitXorExpr), bin_expr_reduction)
+rule(CompLGTExpr, (CompLGTExpr, GreaterEqual, BitXorExpr), bin_expr_reduction)
 rule(CompLGTExpr, (BitXorExpr,), SkipReduceAction())
-rule(BitXorExpr, (BitXorExpr, CARET, BitOrExpr), bin_expr_reduction)
+rule(BitXorExpr, (BitXorExpr, Caret, BitOrExpr), bin_expr_reduction)
 rule(BitXorExpr, (BitOrExpr,), SkipReduceAction())
-rule(BitOrExpr, (BitOrExpr, PIPE, BitAndExpr), bin_expr_reduction)
+rule(BitOrExpr, (BitOrExpr, Pipe, BitAndExpr), bin_expr_reduction)
 rule(BitOrExpr, (BitAndExpr,), SkipReduceAction())
-rule(BitAndExpr, (BitAndExpr, AMPER, BitShiftExpr), bin_expr_reduction)
+rule(BitAndExpr, (BitAndExpr, Amper, BitShiftExpr), bin_expr_reduction)
 rule(BitAndExpr, (BitShiftExpr,), SkipReduceAction())
-rule(BitShiftExpr, (BitShiftExpr, DOUBLEGREATER, AdditionExpr), bin_expr_reduction)
-rule(BitShiftExpr, (BitShiftExpr, DOUBLELESS, AdditionExpr), bin_expr_reduction)
+rule(BitShiftExpr, (BitShiftExpr, DoubleGreater, AdditionExpr), bin_expr_reduction)
+rule(BitShiftExpr, (BitShiftExpr, DoubleLess, AdditionExpr), bin_expr_reduction)
 rule(BitShiftExpr, (AdditionExpr,), SkipReduceAction())
-rule(AdditionExpr, (AdditionExpr, PLUS, MultExpr), bin_expr_reduction)
-rule(AdditionExpr, (AdditionExpr, MINUS, MultExpr), bin_expr_reduction)
+rule(AdditionExpr, (AdditionExpr, Plus, MultExpr), bin_expr_reduction)
+rule(AdditionExpr, (AdditionExpr, Minus, MultExpr), bin_expr_reduction)
 rule(AdditionExpr, (MultExpr,), SkipReduceAction())
-rule(MultExpr, (MultExpr, STAR, UnaryExpr), bin_expr_reduction)
-rule(MultExpr, (MultExpr, SLASH, UnaryExpr), bin_expr_reduction)
-rule(MultExpr, (MultExpr, PERCENT, UnaryExpr), bin_expr_reduction)
+rule(MultExpr, (MultExpr, Star, UnaryExpr), bin_expr_reduction)
+rule(MultExpr, (MultExpr, Slash, UnaryExpr), bin_expr_reduction)
+rule(MultExpr, (MultExpr, Percent, UnaryExpr), bin_expr_reduction)
 rule(MultExpr, (CastExpr,), SkipReduceAction())
-rule(CastExpr, (CastExpr, RIGHTARROW, Type), SimpleReduceAction('CastExpr', 'std::move(a2), std::move(a0)'))
+rule(CastExpr, (CastExpr, RightArrow, Type), SimpleReduceAction('CastExpr', 'std::move(a2), std::move(a0)'))
 rule(CastExpr, (UnaryExpr,), SkipReduceAction())
-rule(UnaryExpr, (TILDE, UnaryExpr), SimpleReduceAction('UnaryExpr', 'a0, std::move(a1)'))
-rule(UnaryExpr, (MINUS, UnaryExpr), SimpleReduceAction('UnaryExpr', 'a0, std::move(a1)'))
-rule(UnaryExpr, (BANG, UnaryExpr), SimpleReduceAction('UnaryExpr', 'a0, std::move(a1)'))
-rule(UnaryExpr, (AMPER, UnaryExpr), SimpleReduceAction('AddrofExpr', 'a0, std::move(a1), false'))
-rule(UnaryExpr, (AMPER, MUT, UnaryExpr), SimpleReduceAction('AddrofExpr', 'a0, std::move(a2), true'))
-rule(UnaryExpr, (STAR, UnaryExpr), SimpleReduceAction('DerefExpr', 'a0, std::move(a1)'))
+rule(UnaryExpr, (Tilde, UnaryExpr), SimpleReduceAction('UnaryExpr', 'a0, std::move(a1)'))
+rule(UnaryExpr, (Minus, UnaryExpr), SimpleReduceAction('UnaryExpr', 'a0, std::move(a1)'))
+rule(UnaryExpr, (Bang, UnaryExpr), SimpleReduceAction('UnaryExpr', 'a0, std::move(a1)'))
+rule(UnaryExpr, (Amper, UnaryExpr), SimpleReduceAction('AddrofExpr', 'a0, std::move(a1), false'))
+rule(UnaryExpr, (Amper, Mut, UnaryExpr), SimpleReduceAction('AddrofExpr', 'a0, std::move(a2), true'))
+rule(UnaryExpr, (Star, UnaryExpr), SimpleReduceAction('DerefExpr', 'a0, std::move(a1)'))
 
 rule(UnaryExpr, (CallExpr,), SkipReduceAction())
 rule(UnaryExpr, (FieldAccessExpr,), SkipReduceAction())
 rule(UnaryExpr, (MethodCallExpr,), SkipReduceAction())
 
 field_access_reduce = SimpleReduceAction('FieldAccessExpr', 'std::move(a0), a1, a2')
-rule(FieldAccessExpr, (FieldAccessExpr, PERIOD, IDENTIFIER), field_access_reduce)
-rule(FieldAccessExpr, (MethodCallExpr , PERIOD, IDENTIFIER), field_access_reduce)
-rule(FieldAccessExpr, (CallExpr       , PERIOD, IDENTIFIER), field_access_reduce)
+rule(FieldAccessExpr, (FieldAccessExpr, Period, Identifier), field_access_reduce)
+rule(FieldAccessExpr, (MethodCallExpr , Period, Identifier), field_access_reduce)
+rule(FieldAccessExpr, (CallExpr       , Period, Identifier), field_access_reduce)
 
 method_call_reduce = SimpleReduceAction('MethodCallExpr', 'std::move(a0), a1, a2, a3, std::move(a4->args)')
-rule(MethodCallExpr, (FieldAccessExpr, PERIOD, IDENTIFIER, OPARN, ArgListOpt, CPARN), method_call_reduce)
-rule(MethodCallExpr, (MethodCallExpr , PERIOD, IDENTIFIER, OPARN, ArgListOpt, CPARN), method_call_reduce)
-rule(MethodCallExpr, (CallExpr       , PERIOD, IDENTIFIER, OPARN, ArgListOpt, CPARN), method_call_reduce)
+rule(MethodCallExpr, (FieldAccessExpr, Period, Identifier, OParen, ArgListOpt, CParen), method_call_reduce)
+rule(MethodCallExpr, (MethodCallExpr , Period, Identifier, OParen, ArgListOpt, CParen), method_call_reduce)
+rule(MethodCallExpr, (CallExpr       , Period, Identifier, OParen, ArgListOpt, CParen), method_call_reduce)
 
 call_reduce = SimpleReduceAction('CallExpr', 'std::move(a0), a1, std::move(a2->args)')
-rule(CallExpr, (MethodCallExpr, OPARN, ArgListOpt, CPARN), call_reduce)
-rule(CallExpr, (CallExpr      , OPARN, ArgListOpt, CPARN), call_reduce)
+rule(CallExpr, (MethodCallExpr, OParen, ArgListOpt, CParen), call_reduce)
+rule(CallExpr, (CallExpr      , OParen, ArgListOpt, CParen), call_reduce)
 
 rule(CallExpr, (PrimaryExpr,), SkipReduceAction())
 
-token_rule(PrimaryExpr, SimpleReduceAction('PrimaryExpr', 'a0'), TRUELIT, FALSELIT, FLOATLIT, NULLPTRLIT, DECINTLIT, OCTINTLIT, BININTLIT, HEXINTLIT, CHARLIT, STRINGLIT, THIS)
-rule(PrimaryExpr, (OPARN, Expr, CPARN), SkipReduceAction(1))
+token_rule(PrimaryExpr, SimpleReduceAction('PrimaryExpr', 'a0'), BoolLit, FloatLit, IntLit, CharLit, StringLit, This)
+rule(PrimaryExpr, (OParen, Expr, CParen), SkipReduceAction(1))
 rule(PrimaryExpr, (PathExpr,), SkipReduceAction())
 rule(PathExpr, (Path,), SimpleReduceAction('PathExpr', 'std::move(a0)'))
 
-rule(Path, (Path, DOUBLECOLON, IDENTIFIER), VectorPushReduceAction('a0->segments', 'a2', 'a0'))
-rule(Path, (IDENTIFIER,), VectorPushOneAction('ASTNS::Path', 'a0', 'Token', 'segments'))
+rule(Path, (Path, DoubleColon, Identifier), VectorPushReduceAction('a0->segments', 'a2', 'a0'))
+rule(Path, (Identifier,), VectorPushOneAction('ASTNS::Path', 'a0', 'Token', 'segments'))
 
 # convert grammar {{{1
-eof_sym = Terminal('EOF_')
+eof_sym = Terminal('_EOF')
 
 symbols = [eof_sym]
 for rule in grammar:
@@ -867,7 +885,7 @@ def gen_loop():
 
     for staten, state in sorted(table.items(), key=lambda x:x[0]):
         output.append(                           f'        case {staten}:\n')
-        output.append(                            '            switch (lookahead.type) {\n')
+        output.append(                            '            switch (lookahead.index()) {\n')
 
         stateactions = []
         for term, ac in sorted(state.actions.items(), key=lambda x:str(x[0])):
@@ -886,7 +904,7 @@ def gen_loop():
         for ac, nts in stateactions:
             if isinstance(ac, ShiftAction):
                 for term in nts:
-                    output.append(               f'                case {term.astt()}:\n')
+                    output.append(               f'                case Token::index_of<{term.astt()}>:\n')
                 output.append(                   f'                    shift(p, lasttok, lookahead, stack, steps, {ac.newstate}); break;\n')
                 continue
 
@@ -901,7 +919,7 @@ def gen_loop():
                 # it will reduce 2 up the chain of expression precedence before reporting the error
             else:
                 for term in nts:
-                    output.append(               f'                case {term.astt()}:\n')
+                    output.append(               f'                case Token::index_of<{term.astt()}>:\n')
 
             if isinstance(ac, ReduceAction):
                 output.append(                    '{\n')
@@ -916,24 +934,27 @@ def gen_loop():
                     output.append(                '                        Maybe<Location const> start =\n')
                     for i in range(ac.rule.loc_start, len(ac.rule.expansion)):
                         if isinstance(ac.rule.expansion[i], Terminal):
-                            output.append(       f'                            Maybe<Location const>(a{i});\n')
+                            output.append(       f'                            Maybe<Location const>(a{i}.span.start);\n')
                             break
                         else:
                             if i == len(ac.rule.expansion) - 1:
-                                output.append(   f'                            a{i} ? Maybe(a{i}->start()) : Maybe<Location const>();\n')
+                                output.append(   f'                            a{i} && a{i}->span().has() ? Maybe<Location const>(a{i}->span().get().start) : Maybe<Location const>();\n')
                             else:
-                                output.append(   f'                            a{i} ? Maybe(a{i}->start()) :\n')
+                                output.append(   f'                            a{i} && a{i}->span().has() ? Maybe<Location const>(a{i}->span().get().start) :\n')
 
                     output.append(                '                        Maybe<Location const> end =\n')
                     for i in range(ac.rule.loc_end, -1, -1):
                         if isinstance(ac.rule.expansion[i], Terminal):
-                            output.append(       f'                            Maybe<Location const>(a{i});\n')
+                            output.append(       f'                            Maybe<Location const>(a{i}.span.end);\n')
                             break
                         else:
                             if i == 0:
-                                output.append(       f'                            a{i} ? Maybe(a{i}->end()) : Maybe<Location const>();\n')
+                                output.append(       f'                            a{i} && a{i}->span().has() ? Maybe<Location const>(a{i}->span().get().end) : Maybe<Location const>();\n')
                             else:
-                                output.append(       f'                            a{i} ? Maybe(a{i}->end()) :\n')
+                                output.append(       f'                            a{i} && a{i}->span().has() ? Maybe<Location const>(a{i}->span().get().end) :\n')
+                else:
+                    output.append(                '                        Maybe<Location const> start, end;\n')
+                output.append(                    '                        Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();\n')
 
                 reduce_code, pushitem = ac.rule.reduce_action.generate()
                 output.append(reduce_code)
@@ -954,7 +975,7 @@ def gen_loop():
                 if isinstance(s, NonTerminal):
                     return f'"{s.name}"'
                 else:
-                    return f'stringify_token_type({s.astt()})'
+                    return f'{s.astt()}::stringify()'
 
             output.append(                        '                default:\n')
             output.append(                        '                    if (istrial) return false;\n')
@@ -1019,7 +1040,7 @@ def gen_panic_mode():
     output = []
     output.append(                               ('#define CHECKASI(ty)\\\n'
                                                   '    if (nterm == NonTerminal::ty) {\\\n'
-                                                  '        switch (e.lookahead.type) {\n'
+                                                  '        switch (e.lookahead.index()) {\n'
                                                   '#define FINISHCHECKASI()\\\n'
                                                   '        }\\\n'
                                                   '    }\n'
@@ -1048,7 +1069,7 @@ def gen_panic_mode():
         output.append(                           f'            CHECKASI({str(nonterm)})\n')
         output.append(                            '                   ')
         for follow in FOLLOWS[nonterm]:
-            output.append(                       f' case {follow.astt()}:')
+            output.append(                       f' case Token::index_of<{follow.astt()}>:')
         output.append(                            '\n')
         output.append(                            '                        RECOVERANDDEFBREAK()\n')
         output.append(                            '            FINISHCHECKASI()\n')
@@ -1057,7 +1078,7 @@ def gen_panic_mode():
                                                   '    }\n'
                                                   '    if (!valid)\n'
                                                   '        e.lookahead = e.p.consume();\n'
-                                                  '    if (e.lookahead.type == TokenType::EOF_)\n'
+                                                  '    if (e.lookahead.is<Tokens::_EOF>())\n'
                                                   '        return false;\n'
                                                   '}\n'
                                                   'e.stack.erase(delto.base(), e.stack.end());\n'

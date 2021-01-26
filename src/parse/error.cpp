@@ -4,15 +4,15 @@
 #include "utils/format.h"
 
 bool error_recovery(errorstate const &e, std::vector<std::string> const &expectations) {
-    if (single_tok(e, expectations) || panic_mode(e, expectations))
+    if (/*single_tok(e, expectations) || */ panic_mode(e, expectations))
         return true;
     else {
         ERR_UNRECOVERABLE_INVALID_SYNTAX(e.olh, e.lasttok, expectations);
         return false;
     }
 }
-
-// helper functions {{{
+// simple invalid syntax {{{
+/* 
 static std::vector<stackitem> copy_stack(std::vector<stackitem> const &stack) {
     std::vector<stackitem> tempstack;
     for (auto const &si : stack) {
@@ -62,7 +62,6 @@ static bool try_sub(TokenType ty, Parser const &p, Token const &lookahead, std::
     // return _parse(temp_p, tempstack, true, temp_c, temp_lookahead);
     return false;
 }
-// }}}
 struct fix {
     enum class fixtype {
         INSERT,
@@ -132,62 +131,57 @@ bool single_tok(errorstate const &e, std::vector<std::string> const &expectation
     #define TRYINSERT(ty) if (try_insert(ty, e.p, e.lookahead, e.stack)) {fix f = fix {fix::fixtype::INSERT, ty}; if (score(f) > score(bestfix)) bestfix = f;}
     #define TRYSUB(ty) if (try_sub(ty, e.p, e.lookahead, e.stack)) {fix f = fix {fix::fixtype::SUBSTITUTE, ty}; if (score(f) > score(bestfix)) bestfix = f;}
     #define TRYTOKTY(ty) TRYINSERT(ty); TRYSUB(ty);
-    TRYTOKTY(TokenType::EOF_)
-    TRYTOKTY(TokenType::COMMA)
-    TRYTOKTY(TokenType::FUN)
-    TRYTOKTY(TokenType::IDENTIFIER)
-    TRYTOKTY(TokenType::OPARN)
-    TRYTOKTY(TokenType::CPARN)
-    TRYTOKTY(TokenType::IMPL)
-    TRYTOKTY(TokenType::OCURB)
-    TRYTOKTY(TokenType::CCURB)
-    TRYTOKTY(TokenType::NEWLINE)
-    TRYTOKTY(TokenType::INDENT)
-    TRYTOKTY(TokenType::DEDENT)
-    TRYTOKTY(TokenType::VAR)
-    TRYTOKTY(TokenType::DOLLAR)
-    TRYTOKTY(TokenType::RETURN)
-    TRYTOKTY(TokenType::EQUAL)
-    TRYTOKTY(TokenType::MUT)
-    TRYTOKTY(TokenType::SEMICOLON)
-    TRYTOKTY(TokenType::STAR)
-    TRYTOKTY(TokenType::THIS)
-    TRYTOKTY(TokenType::COLON)
-    TRYTOKTY(TokenType::IF)
-    TRYTOKTY(TokenType::ELSE)
-    TRYTOKTY(TokenType::WHILE)
-    TRYTOKTY(TokenType::DOUBLEPIPE)
-    TRYTOKTY(TokenType::DOUBLEAMPER)
-    TRYTOKTY(TokenType::BANGEQUAL)
-    TRYTOKTY(TokenType::DOUBLEEQUAL)
-    TRYTOKTY(TokenType::LESS)
-    TRYTOKTY(TokenType::GREATER)
-    TRYTOKTY(TokenType::LESSEQUAL)
-    TRYTOKTY(TokenType::GREATEREQUAL)
-    TRYTOKTY(TokenType::CARET)
-    TRYTOKTY(TokenType::PIPE)
-    TRYTOKTY(TokenType::AMPER)
-    TRYTOKTY(TokenType::DOUBLEGREATER)
-    TRYTOKTY(TokenType::DOUBLELESS)
-    TRYTOKTY(TokenType::PLUS)
-    TRYTOKTY(TokenType::MINUS)
-    TRYTOKTY(TokenType::SLASH)
-    TRYTOKTY(TokenType::PERCENT)
-    TRYTOKTY(TokenType::RIGHTARROW)
-    TRYTOKTY(TokenType::TILDE)
-    TRYTOKTY(TokenType::BANG)
-    TRYTOKTY(TokenType::PERIOD)
-    TRYTOKTY(TokenType::TRUELIT)
-    TRYTOKTY(TokenType::FALSELIT)
-    TRYTOKTY(TokenType::FLOATLIT)
-    TRYTOKTY(TokenType::NULLPTRLIT)
-    TRYTOKTY(TokenType::DECINTLIT)
-    TRYTOKTY(TokenType::OCTINTLIT)
-    TRYTOKTY(TokenType::BININTLIT)
-    TRYTOKTY(TokenType::HEXINTLIT)
-    TRYTOKTY(TokenType::CHARLIT)
-    TRYTOKTY(TokenType::STRINGLIT)
-    TRYTOKTY(TokenType::DOUBLECOLON)
+    TRYTOKTY(Tokens::_EOF)
+    TRYTOKTY(Tokens::Comma)
+    TRYTOKTY(Tokens::Fun)
+    TRYTOKTY(Tokens::Identifier)
+    TRYTOKTY(Tokens::OParen)
+    TRYTOKTY(Tokens::CParen)
+    TRYTOKTY(Tokens::Impl)
+    TRYTOKTY(Tokens::OBrace)
+    TRYTOKTY(Tokens::CBrace)
+    TRYTOKTY(Tokens::Newline)
+    TRYTOKTY(Tokens::Indent)
+    TRYTOKTY(Tokens::Dedent)
+    TRYTOKTY(Tokens::Var)
+    TRYTOKTY(Tokens::Dollar)
+    TRYTOKTY(Tokens::Return)
+    TRYTOKTY(Tokens::Equal)
+    TRYTOKTY(Tokens::Mut)
+    TRYTOKTY(Tokens::Semicolon)
+    TRYTOKTY(Tokens::Star)
+    TRYTOKTY(Tokens::This)
+    TRYTOKTY(Tokens::Colon)
+    TRYTOKTY(Tokens::If)
+    TRYTOKTY(Tokens::Else)
+    TRYTOKTY(Tokens::While)
+    TRYTOKTY(Tokens::DoublePipe)
+    TRYTOKTY(Tokens::DoubleAmper)
+    TRYTOKTY(Tokens::BangEqual)
+    TRYTOKTY(Tokens::DoubleEqual)
+    TRYTOKTY(Tokens::Less)
+    TRYTOKTY(Tokens::Greater)
+    TRYTOKTY(Tokens::LessEqual)
+    TRYTOKTY(Tokens::GreaterEqual)
+    TRYTOKTY(Tokens::Caret)
+    TRYTOKTY(Tokens::Pipe)
+    TRYTOKTY(Tokens::Amper)
+    TRYTOKTY(Tokens::DoubleGreater)
+    TRYTOKTY(Tokens::DoubleLess)
+    TRYTOKTY(Tokens::Plus)
+    TRYTOKTY(Tokens::Minus)
+    TRYTOKTY(Tokens::Slash)
+    TRYTOKTY(Tokens::Percent)
+    TRYTOKTY(Tokens::RightArrow)
+    TRYTOKTY(Tokens::Tilde)
+    TRYTOKTY(Tokens::Bang)
+    TRYTOKTY(Tokens::Period)
+    TRYTOKTY(Tokens::BoolLit)
+    TRYTOKTY(Tokens::FloatLit)
+    TRYTOKTY(Tokens::IntLit)
+    TRYTOKTY(Tokens::CharLit)
+    TRYTOKTY(Tokens::StringLit)
+    TRYTOKTY(Tokens::DoubleColon)
     if (try_del(e.p, e.stack)) {fix f = fix {fix::fixtype::REMOVE, static_cast<TokenType>(-1)}; if (score(f) > score(bestfix)) bestfix = f;};
     // SINGLETOK END
     // }}}
@@ -200,13 +194,14 @@ bool single_tok(errorstate const &e, std::vector<std::string> const &expectation
 
     return false;
 }
+}}} */
 
 bool panic_mode(errorstate const &e, std::vector<std::string> const &expectations) {
     // error recovery {{{
     // PANIC MODE START
     #define CHECKASI(ty)\
         if (nterm == NonTerminal::ty) {\
-            switch (e.lookahead.type) {
+            switch (e.lookahead.index()) {
     #define FINISHCHECKASI()\
             }\
         }
@@ -224,142 +219,142 @@ bool panic_mode(errorstate const &e, std::vector<std::string> const &expectation
             if (std::holds_alternative<astitem>(i->item)) {
                 NonTerminal nterm = std::get<astitem>(i->item).nt;
                 CHECKASI(_49)
-                        case TokenType::COMMA: case TokenType::CPARN:
+                        case Token::index_of<Tokens::Comma>: case Token::index_of<Tokens::CParen>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_21)
-                        case TokenType::COMMA: case TokenType::CPARN:
+                        case Token::index_of<Tokens::Comma>: case Token::index_of<Tokens::CParen>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_51)
-                        case TokenType::COMMA: case TokenType::CPARN:
+                        case Token::index_of<Tokens::Comma>: case Token::index_of<Tokens::CParen>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_50)
-                        case TokenType::CPARN:
+                        case Token::index_of<Tokens::CParen>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_52)
-                        case TokenType::COMMA: case TokenType::CPARN:
+                        case Token::index_of<Tokens::Comma>: case Token::index_of<Tokens::CParen>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_20)
-                        case TokenType::COMMA: case TokenType::CPARN:
+                        case Token::index_of<Tokens::Comma>: case Token::index_of<Tokens::CParen>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_54)
-                        case TokenType::COMMA: case TokenType::CPARN:
+                        case Token::index_of<Tokens::Comma>: case Token::index_of<Tokens::CParen>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_53)
-                        case TokenType::CPARN:
+                        case Token::index_of<Tokens::CParen>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_55)
-                        case TokenType::COMMA: case TokenType::NEWLINE: case TokenType::SEMICOLON:
+                        case Token::index_of<Tokens::Comma>: case Token::index_of<Tokens::Newline>: case Token::index_of<Tokens::Semicolon>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_57)
-                        case TokenType::COMMA: case TokenType::NEWLINE: case TokenType::SEMICOLON:
+                        case Token::index_of<Tokens::Comma>: case Token::index_of<Tokens::Newline>: case Token::index_of<Tokens::Semicolon>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_56)
-                        case TokenType::NEWLINE: case TokenType::SEMICOLON:
+                        case Token::index_of<Tokens::Newline>: case Token::index_of<Tokens::Semicolon>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_58)
-                        case TokenType::VAR: case TokenType::RETURN: case TokenType::OCURB: case TokenType::IF: case TokenType::WHILE: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::AMPER: case TokenType::STAR: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::THIS: case TokenType::OPARN: case TokenType::IDENTIFIER: case TokenType::CCURB: case TokenType::DEDENT:
+                        case Token::index_of<Tokens::Var>: case Token::index_of<Tokens::Return>: case Token::index_of<Tokens::OBrace>: case Token::index_of<Tokens::If>: case Token::index_of<Tokens::While>: case Token::index_of<Tokens::Tilde>: case Token::index_of<Tokens::Minus>: case Token::index_of<Tokens::Bang>: case Token::index_of<Tokens::Amper>: case Token::index_of<Tokens::Star>: case Token::index_of<Tokens::BoolLit>: case Token::index_of<Tokens::FloatLit>: case Token::index_of<Tokens::IntLit>: case Token::index_of<Tokens::CharLit>: case Token::index_of<Tokens::StringLit>: case Token::index_of<Tokens::This>: case Token::index_of<Tokens::OParen>: case Token::index_of<Tokens::Identifier>: case Token::index_of<Tokens::CBrace>: case Token::index_of<Tokens::Dedent>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_6)
-                        case TokenType::VAR: case TokenType::RETURN: case TokenType::OCURB: case TokenType::IF: case TokenType::WHILE: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::AMPER: case TokenType::STAR: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::THIS: case TokenType::OPARN: case TokenType::IDENTIFIER: case TokenType::CCURB: case TokenType::DEDENT:
+                        case Token::index_of<Tokens::Var>: case Token::index_of<Tokens::Return>: case Token::index_of<Tokens::OBrace>: case Token::index_of<Tokens::If>: case Token::index_of<Tokens::While>: case Token::index_of<Tokens::Tilde>: case Token::index_of<Tokens::Minus>: case Token::index_of<Tokens::Bang>: case Token::index_of<Tokens::Amper>: case Token::index_of<Tokens::Star>: case Token::index_of<Tokens::BoolLit>: case Token::index_of<Tokens::FloatLit>: case Token::index_of<Tokens::IntLit>: case Token::index_of<Tokens::CharLit>: case Token::index_of<Tokens::StringLit>: case Token::index_of<Tokens::This>: case Token::index_of<Tokens::OParen>: case Token::index_of<Tokens::Identifier>: case Token::index_of<Tokens::CBrace>: case Token::index_of<Tokens::Dedent>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_59)
-                        case TokenType::VAR: case TokenType::RETURN: case TokenType::OCURB: case TokenType::IF: case TokenType::WHILE: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::AMPER: case TokenType::STAR: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::THIS: case TokenType::OPARN: case TokenType::IDENTIFIER: case TokenType::CCURB: case TokenType::DEDENT:
+                        case Token::index_of<Tokens::Var>: case Token::index_of<Tokens::Return>: case Token::index_of<Tokens::OBrace>: case Token::index_of<Tokens::If>: case Token::index_of<Tokens::While>: case Token::index_of<Tokens::Tilde>: case Token::index_of<Tokens::Minus>: case Token::index_of<Tokens::Bang>: case Token::index_of<Tokens::Amper>: case Token::index_of<Tokens::Star>: case Token::index_of<Tokens::BoolLit>: case Token::index_of<Tokens::FloatLit>: case Token::index_of<Tokens::IntLit>: case Token::index_of<Tokens::CharLit>: case Token::index_of<Tokens::StringLit>: case Token::index_of<Tokens::This>: case Token::index_of<Tokens::OParen>: case Token::index_of<Tokens::Identifier>: case Token::index_of<Tokens::CBrace>: case Token::index_of<Tokens::Dedent>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_60)
-                        case TokenType::FUN: case TokenType::IMPL: case TokenType::EOF_:
+                        case Token::index_of<Tokens::Fun>: case Token::index_of<Tokens::Impl>: case Token::index_of<Tokens::_EOF>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_1)
-                        case TokenType::FUN: case TokenType::IMPL: case TokenType::EOF_:
+                        case Token::index_of<Tokens::Fun>: case Token::index_of<Tokens::Impl>: case Token::index_of<Tokens::_EOF>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_61)
-                        case TokenType::FUN: case TokenType::IMPL: case TokenType::EOF_:
+                        case Token::index_of<Tokens::Fun>: case Token::index_of<Tokens::Impl>: case Token::index_of<Tokens::_EOF>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_62)
-                        case TokenType::FUN: case TokenType::CCURB: case TokenType::DEDENT:
+                        case Token::index_of<Tokens::Fun>: case Token::index_of<Tokens::CBrace>: case Token::index_of<Tokens::Dedent>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_5)
-                        case TokenType::FUN: case TokenType::CCURB: case TokenType::DEDENT:
+                        case Token::index_of<Tokens::Fun>: case Token::index_of<Tokens::CBrace>: case Token::index_of<Tokens::Dedent>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_63)
-                        case TokenType::FUN: case TokenType::CCURB: case TokenType::DEDENT:
+                        case Token::index_of<Tokens::Fun>: case Token::index_of<Tokens::CBrace>: case Token::index_of<Tokens::Dedent>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_7)
-                        case TokenType::VAR: case TokenType::RETURN: case TokenType::OCURB: case TokenType::IF: case TokenType::WHILE: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::AMPER: case TokenType::STAR: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::THIS: case TokenType::OPARN: case TokenType::IDENTIFIER: case TokenType::CCURB: case TokenType::DEDENT:
+                        case Token::index_of<Tokens::Var>: case Token::index_of<Tokens::Return>: case Token::index_of<Tokens::OBrace>: case Token::index_of<Tokens::If>: case Token::index_of<Tokens::While>: case Token::index_of<Tokens::Tilde>: case Token::index_of<Tokens::Minus>: case Token::index_of<Tokens::Bang>: case Token::index_of<Tokens::Amper>: case Token::index_of<Tokens::Star>: case Token::index_of<Tokens::BoolLit>: case Token::index_of<Tokens::FloatLit>: case Token::index_of<Tokens::IntLit>: case Token::index_of<Tokens::CharLit>: case Token::index_of<Tokens::StringLit>: case Token::index_of<Tokens::This>: case Token::index_of<Tokens::OParen>: case Token::index_of<Tokens::Identifier>: case Token::index_of<Tokens::CBrace>: case Token::index_of<Tokens::Dedent>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_2)
-                        case TokenType::FUN: case TokenType::IMPL: case TokenType::EOF_: case TokenType::CCURB: case TokenType::DEDENT:
+                        case Token::index_of<Tokens::Fun>: case Token::index_of<Tokens::Impl>: case Token::index_of<Tokens::_EOF>: case Token::index_of<Tokens::CBrace>: case Token::index_of<Tokens::Dedent>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_3)
-                        case TokenType::FUN: case TokenType::IMPL: case TokenType::EOF_:
+                        case Token::index_of<Tokens::Fun>: case Token::index_of<Tokens::Impl>: case Token::index_of<Tokens::_EOF>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_12)
-                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::FUN: case TokenType::IMPL: case TokenType::VAR: case TokenType::RETURN: case TokenType::OCURB: case TokenType::IF: case TokenType::WHILE: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::AMPER: case TokenType::STAR: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::THIS: case TokenType::OPARN: case TokenType::IDENTIFIER: case TokenType::DOLLAR: case TokenType::COMMA: case TokenType::ELSE: case TokenType::EOF_: case TokenType::CPARN: case TokenType::CCURB: case TokenType::DEDENT:
+                        case Token::index_of<Tokens::Newline>: case Token::index_of<Tokens::Semicolon>: case Token::index_of<Tokens::Fun>: case Token::index_of<Tokens::Impl>: case Token::index_of<Tokens::Var>: case Token::index_of<Tokens::Return>: case Token::index_of<Tokens::OBrace>: case Token::index_of<Tokens::If>: case Token::index_of<Tokens::While>: case Token::index_of<Tokens::Tilde>: case Token::index_of<Tokens::Minus>: case Token::index_of<Tokens::Bang>: case Token::index_of<Tokens::Amper>: case Token::index_of<Tokens::Star>: case Token::index_of<Tokens::BoolLit>: case Token::index_of<Tokens::FloatLit>: case Token::index_of<Tokens::IntLit>: case Token::index_of<Tokens::CharLit>: case Token::index_of<Tokens::StringLit>: case Token::index_of<Tokens::This>: case Token::index_of<Tokens::OParen>: case Token::index_of<Tokens::Identifier>: case Token::index_of<Tokens::Dollar>: case Token::index_of<Tokens::Comma>: case Token::index_of<Tokens::Else>: case Token::index_of<Tokens::_EOF>: case Token::index_of<Tokens::CParen>: case Token::index_of<Tokens::CBrace>: case Token::index_of<Tokens::Dedent>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_4)
-                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::FUN: case TokenType::IMPL: case TokenType::EOF_:
+                        case Token::index_of<Tokens::Newline>: case Token::index_of<Tokens::Semicolon>: case Token::index_of<Tokens::Fun>: case Token::index_of<Tokens::Impl>: case Token::index_of<Tokens::_EOF>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_8)
-                        case TokenType::VAR: case TokenType::RETURN: case TokenType::OCURB: case TokenType::IF: case TokenType::WHILE: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::AMPER: case TokenType::STAR: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::THIS: case TokenType::OPARN: case TokenType::IDENTIFIER: case TokenType::CCURB: case TokenType::DEDENT:
+                        case Token::index_of<Tokens::Var>: case Token::index_of<Tokens::Return>: case Token::index_of<Tokens::OBrace>: case Token::index_of<Tokens::If>: case Token::index_of<Tokens::While>: case Token::index_of<Tokens::Tilde>: case Token::index_of<Tokens::Minus>: case Token::index_of<Tokens::Bang>: case Token::index_of<Tokens::Amper>: case Token::index_of<Tokens::Star>: case Token::index_of<Tokens::BoolLit>: case Token::index_of<Tokens::FloatLit>: case Token::index_of<Tokens::IntLit>: case Token::index_of<Tokens::CharLit>: case Token::index_of<Tokens::StringLit>: case Token::index_of<Tokens::This>: case Token::index_of<Tokens::OParen>: case Token::index_of<Tokens::Identifier>: case Token::index_of<Tokens::CBrace>: case Token::index_of<Tokens::Dedent>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_9)
-                        case TokenType::VAR: case TokenType::RETURN: case TokenType::OCURB: case TokenType::IF: case TokenType::WHILE: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::AMPER: case TokenType::STAR: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::THIS: case TokenType::OPARN: case TokenType::IDENTIFIER: case TokenType::CCURB: case TokenType::DEDENT:
+                        case Token::index_of<Tokens::Var>: case Token::index_of<Tokens::Return>: case Token::index_of<Tokens::OBrace>: case Token::index_of<Tokens::If>: case Token::index_of<Tokens::While>: case Token::index_of<Tokens::Tilde>: case Token::index_of<Tokens::Minus>: case Token::index_of<Tokens::Bang>: case Token::index_of<Tokens::Amper>: case Token::index_of<Tokens::Star>: case Token::index_of<Tokens::BoolLit>: case Token::index_of<Tokens::FloatLit>: case Token::index_of<Tokens::IntLit>: case Token::index_of<Tokens::CharLit>: case Token::index_of<Tokens::StringLit>: case Token::index_of<Tokens::This>: case Token::index_of<Tokens::OParen>: case Token::index_of<Tokens::Identifier>: case Token::index_of<Tokens::CBrace>: case Token::index_of<Tokens::Dedent>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_13)
-                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::FUN: case TokenType::IMPL: case TokenType::VAR: case TokenType::RETURN: case TokenType::OCURB: case TokenType::IF: case TokenType::WHILE: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::AMPER: case TokenType::STAR: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::THIS: case TokenType::OPARN: case TokenType::IDENTIFIER: case TokenType::DOLLAR: case TokenType::COMMA: case TokenType::ELSE: case TokenType::EOF_: case TokenType::CPARN: case TokenType::CCURB: case TokenType::DEDENT:
+                        case Token::index_of<Tokens::Newline>: case Token::index_of<Tokens::Semicolon>: case Token::index_of<Tokens::Fun>: case Token::index_of<Tokens::Impl>: case Token::index_of<Tokens::Var>: case Token::index_of<Tokens::Return>: case Token::index_of<Tokens::OBrace>: case Token::index_of<Tokens::If>: case Token::index_of<Tokens::While>: case Token::index_of<Tokens::Tilde>: case Token::index_of<Tokens::Minus>: case Token::index_of<Tokens::Bang>: case Token::index_of<Tokens::Amper>: case Token::index_of<Tokens::Star>: case Token::index_of<Tokens::BoolLit>: case Token::index_of<Tokens::FloatLit>: case Token::index_of<Tokens::IntLit>: case Token::index_of<Tokens::CharLit>: case Token::index_of<Tokens::StringLit>: case Token::index_of<Tokens::This>: case Token::index_of<Tokens::OParen>: case Token::index_of<Tokens::Identifier>: case Token::index_of<Tokens::Dollar>: case Token::index_of<Tokens::Comma>: case Token::index_of<Tokens::Else>: case Token::index_of<Tokens::_EOF>: case Token::index_of<Tokens::CParen>: case Token::index_of<Tokens::CBrace>: case Token::index_of<Tokens::Dedent>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_14)
-                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::FUN: case TokenType::IMPL: case TokenType::VAR: case TokenType::RETURN: case TokenType::OCURB: case TokenType::IF: case TokenType::WHILE: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::AMPER: case TokenType::STAR: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::THIS: case TokenType::OPARN: case TokenType::IDENTIFIER: case TokenType::DOLLAR: case TokenType::COMMA: case TokenType::ELSE: case TokenType::EOF_: case TokenType::CPARN: case TokenType::CCURB: case TokenType::DEDENT:
+                        case Token::index_of<Tokens::Newline>: case Token::index_of<Tokens::Semicolon>: case Token::index_of<Tokens::Fun>: case Token::index_of<Tokens::Impl>: case Token::index_of<Tokens::Var>: case Token::index_of<Tokens::Return>: case Token::index_of<Tokens::OBrace>: case Token::index_of<Tokens::If>: case Token::index_of<Tokens::While>: case Token::index_of<Tokens::Tilde>: case Token::index_of<Tokens::Minus>: case Token::index_of<Tokens::Bang>: case Token::index_of<Tokens::Amper>: case Token::index_of<Tokens::Star>: case Token::index_of<Tokens::BoolLit>: case Token::index_of<Tokens::FloatLit>: case Token::index_of<Tokens::IntLit>: case Token::index_of<Tokens::CharLit>: case Token::index_of<Tokens::StringLit>: case Token::index_of<Tokens::This>: case Token::index_of<Tokens::OParen>: case Token::index_of<Tokens::Identifier>: case Token::index_of<Tokens::Dollar>: case Token::index_of<Tokens::Comma>: case Token::index_of<Tokens::Else>: case Token::index_of<Tokens::_EOF>: case Token::index_of<Tokens::CParen>: case Token::index_of<Tokens::CBrace>: case Token::index_of<Tokens::Dedent>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_23)
-                        case TokenType::COMMA: case TokenType::CPARN:
+                        case Token::index_of<Tokens::Comma>: case Token::index_of<Tokens::CParen>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_22)
-                        case TokenType::COMMA: case TokenType::CPARN:
+                        case Token::index_of<Tokens::Comma>: case Token::index_of<Tokens::CParen>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_27)
-                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::VAR: case TokenType::RETURN: case TokenType::OCURB: case TokenType::IF: case TokenType::WHILE: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::AMPER: case TokenType::STAR: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::THIS: case TokenType::OPARN: case TokenType::IDENTIFIER: case TokenType::DOLLAR: case TokenType::COMMA: case TokenType::CPARN: case TokenType::CCURB: case TokenType::DEDENT:
+                        case Token::index_of<Tokens::Newline>: case Token::index_of<Tokens::Semicolon>: case Token::index_of<Tokens::Var>: case Token::index_of<Tokens::Return>: case Token::index_of<Tokens::OBrace>: case Token::index_of<Tokens::If>: case Token::index_of<Tokens::While>: case Token::index_of<Tokens::Tilde>: case Token::index_of<Tokens::Minus>: case Token::index_of<Tokens::Bang>: case Token::index_of<Tokens::Amper>: case Token::index_of<Tokens::Star>: case Token::index_of<Tokens::BoolLit>: case Token::index_of<Tokens::FloatLit>: case Token::index_of<Tokens::IntLit>: case Token::index_of<Tokens::CharLit>: case Token::index_of<Tokens::StringLit>: case Token::index_of<Tokens::This>: case Token::index_of<Tokens::OParen>: case Token::index_of<Tokens::Identifier>: case Token::index_of<Tokens::Dollar>: case Token::index_of<Tokens::Comma>: case Token::index_of<Tokens::CParen>: case Token::index_of<Tokens::CBrace>: case Token::index_of<Tokens::Dedent>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
                 CHECKASI(_28)
-                        case TokenType::NEWLINE: case TokenType::SEMICOLON: case TokenType::VAR: case TokenType::RETURN: case TokenType::OCURB: case TokenType::IF: case TokenType::WHILE: case TokenType::TILDE: case TokenType::MINUS: case TokenType::BANG: case TokenType::AMPER: case TokenType::STAR: case TokenType::TRUELIT: case TokenType::FALSELIT: case TokenType::FLOATLIT: case TokenType::NULLPTRLIT: case TokenType::DECINTLIT: case TokenType::OCTINTLIT: case TokenType::BININTLIT: case TokenType::HEXINTLIT: case TokenType::CHARLIT: case TokenType::STRINGLIT: case TokenType::THIS: case TokenType::OPARN: case TokenType::IDENTIFIER: case TokenType::DOLLAR: case TokenType::COMMA: case TokenType::CPARN: case TokenType::CCURB: case TokenType::DEDENT:
+                        case Token::index_of<Tokens::Newline>: case Token::index_of<Tokens::Semicolon>: case Token::index_of<Tokens::Var>: case Token::index_of<Tokens::Return>: case Token::index_of<Tokens::OBrace>: case Token::index_of<Tokens::If>: case Token::index_of<Tokens::While>: case Token::index_of<Tokens::Tilde>: case Token::index_of<Tokens::Minus>: case Token::index_of<Tokens::Bang>: case Token::index_of<Tokens::Amper>: case Token::index_of<Tokens::Star>: case Token::index_of<Tokens::BoolLit>: case Token::index_of<Tokens::FloatLit>: case Token::index_of<Tokens::IntLit>: case Token::index_of<Tokens::CharLit>: case Token::index_of<Tokens::StringLit>: case Token::index_of<Tokens::This>: case Token::index_of<Tokens::OParen>: case Token::index_of<Tokens::Identifier>: case Token::index_of<Tokens::Dollar>: case Token::index_of<Tokens::Comma>: case Token::index_of<Tokens::CParen>: case Token::index_of<Tokens::CBrace>: case Token::index_of<Tokens::Dedent>:
                             RECOVERANDDEFBREAK()
                 FINISHCHECKASI()
             }
         }
         if (!valid)
             e.lookahead = e.p.consume();
-        if (e.lookahead.type == TokenType::EOF_)
+        if (e.lookahead.is<Tokens::_EOF>())
             return false;
     }
     e.stack.erase(delto.base(), e.stack.end());

@@ -189,7 +189,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::ExprStmt &a) {
     print_field(*this, a.expr);
     pai("bool suppress = ");
     print_field(*this, a.suppress);
-    pai("Maybe<Location const> dot = ");
+    pai("Maybe<Span const> dot = ");
     print_field(*this, a.dot);
     --indent;
     pai("}\n");

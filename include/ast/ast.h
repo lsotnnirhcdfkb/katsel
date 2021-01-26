@@ -15,8 +15,7 @@ namespace ASTNS {
     public:
         AST(File const &file);
         virtual ~AST() {}
-        virtual Maybe<Location const> const &start() const = 0;
-        virtual Maybe<Location const> const &end() const = 0;
+        virtual Maybe<Span const> const &span() const = 0;
         File const &file;
     };
     class CUB : public AST {
@@ -87,57 +86,51 @@ namespace ASTNS {
     };
     class DeclList : public ListB {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         std::vector<std::unique_ptr<Decl>> decls;
         virtual void accept(ListBVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        DeclList(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::vector<std::unique_ptr<Decl>> decls);
+        virtual Maybe<Span const> const &span() const override;
+        DeclList(File const &file, Maybe<Span const> const &span, std::vector<std::unique_ptr<Decl>> decls);
     };
     class StmtList : public ListB {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         std::vector<std::unique_ptr<Stmt>> stmts;
         virtual void accept(ListBVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        StmtList(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::vector<std::unique_ptr<Stmt>> stmts);
+        virtual Maybe<Span const> const &span() const override;
+        StmtList(File const &file, Maybe<Span const> const &span, std::vector<std::unique_ptr<Stmt>> stmts);
     };
     class ParamList : public ListB {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         std::vector<std::unique_ptr<ParamB>> params;
         virtual void accept(ListBVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        ParamList(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::vector<std::unique_ptr<ParamB>> params);
+        virtual Maybe<Span const> const &span() const override;
+        ParamList(File const &file, Maybe<Span const> const &span, std::vector<std::unique_ptr<ParamB>> params);
     };
     class ArgList : public ListB {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         std::vector<std::unique_ptr<Arg>> args;
         virtual void accept(ListBVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        ArgList(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::vector<std::unique_ptr<Arg>> args);
+        virtual Maybe<Span const> const &span() const override;
+        ArgList(File const &file, Maybe<Span const> const &span, std::vector<std::unique_ptr<Arg>> args);
     };
     class VarStmtItemList : public ListB {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         std::vector<std::unique_ptr<VarStmtItem>> items;
         virtual void accept(ListBVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        VarStmtItemList(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::vector<std::unique_ptr<VarStmtItem>> items);
+        virtual Maybe<Span const> const &span() const override;
+        VarStmtItemList(File const &file, Maybe<Span const> const &span, std::vector<std::unique_ptr<VarStmtItem>> items);
     };
     class ImplMemberList : public ListB {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         std::vector<std::unique_ptr<ImplMember>> members;
         virtual void accept(ListBVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        ImplMemberList(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::vector<std::unique_ptr<ImplMember>> members);
+        virtual Maybe<Span const> const &span() const override;
+        ImplMemberList(File const &file, Maybe<Span const> const &span, std::vector<std::unique_ptr<ImplMember>> members);
     };
     class PureLocationB : public AST {
     public:
@@ -147,329 +140,297 @@ namespace ASTNS {
     };
     class PureLocation : public PureLocationB {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         int dummy;
         virtual void accept(PureLocationBVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        PureLocation(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, int dummy);
+        virtual Maybe<Span const> const &span() const override;
+        PureLocation(File const &file, Maybe<Span const> const &span, int dummy);
     };
     class ImplicitDecl : public Decl {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         int dummy;
         virtual void accept(DeclVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        ImplicitDecl(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, int dummy);
+        virtual Maybe<Span const> const &span() const override;
+        ImplicitDecl(File const &file, Maybe<Span const> const &span, int dummy);
     };
     class CU : public CUB {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         std::vector<std::unique_ptr<Decl>> decls;
         virtual void accept(CUBVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        CU(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::vector<std::unique_ptr<Decl>> decls);
+        virtual Maybe<Span const> const &span() const override;
+        CU(File const &file, Maybe<Span const> const &span, std::vector<std::unique_ptr<Decl>> decls);
     };
     class ImplDecl : public Decl {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         std::unique_ptr<Type> impl_for;
         std::vector<std::unique_ptr<ImplMember>> members;
         virtual void accept(DeclVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        ImplDecl(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Type> impl_for, std::vector<std::unique_ptr<ImplMember>> members);
+        virtual Maybe<Span const> const &span() const override;
+        ImplDecl(File const &file, Maybe<Span const> const &span, std::unique_ptr<Type> impl_for, std::vector<std::unique_ptr<ImplMember>> members);
     };
     class FunctionDecl : public Decl {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         std::unique_ptr<Type> retty;
         Token name;
         std::vector<std::unique_ptr<ParamB>> params;
         std::unique_ptr<Block> body;
         virtual void accept(DeclVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        FunctionDecl(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Type> retty, Token name, std::vector<std::unique_ptr<ParamB>> params, std::unique_ptr<Block> body);
+        virtual Maybe<Span const> const &span() const override;
+        FunctionDecl(File const &file, Maybe<Span const> const &span, std::unique_ptr<Type> retty, Token name, std::vector<std::unique_ptr<ParamB>> params, std::unique_ptr<Block> body);
     };
     class FunctionImplMember : public ImplMember {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         std::unique_ptr<FunctionDecl> fun;
         virtual void accept(ImplMemberVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        FunctionImplMember(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<FunctionDecl> fun);
+        virtual Maybe<Span const> const &span() const override;
+        FunctionImplMember(File const &file, Maybe<Span const> const &span, std::unique_ptr<FunctionDecl> fun);
     };
     class VarStmt : public Stmt {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         std::vector<std::unique_ptr<VarStmtItem>> items;
         virtual void accept(StmtVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        VarStmt(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::vector<std::unique_ptr<VarStmtItem>> items);
+        virtual Maybe<Span const> const &span() const override;
+        VarStmt(File const &file, Maybe<Span const> const &span, std::vector<std::unique_ptr<VarStmtItem>> items);
     };
     class VarStmtItem : public VStmtIB {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         std::unique_ptr<Type> type;
         bool mut;
         Token name;
         Token equal;
         std::unique_ptr<Expr> expr;
         virtual void accept(VStmtIBVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        VarStmtItem(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Type> type, bool mut, Token name, Token equal, std::unique_ptr<Expr> expr);
+        virtual Maybe<Span const> const &span() const override;
+        VarStmtItem(File const &file, Maybe<Span const> const &span, std::unique_ptr<Type> type, bool mut, Token name, Token equal, std::unique_ptr<Expr> expr);
     };
     class ExprStmt : public Stmt {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         std::unique_ptr<Expr> expr;
         bool suppress;
-        Maybe<Location const> dot;
+        Maybe<Span const> dot;
         virtual void accept(StmtVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        ExprStmt(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Expr> expr, bool suppress, Maybe<Location const> dot);
+        virtual Maybe<Span const> const &span() const override;
+        ExprStmt(File const &file, Maybe<Span const> const &span, std::unique_ptr<Expr> expr, bool suppress, Maybe<Span const> dot);
     };
     class RetStmt : public Stmt {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         std::unique_ptr<Expr> expr;
         virtual void accept(StmtVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        RetStmt(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Expr> expr);
+        virtual Maybe<Span const> const &span() const override;
+        RetStmt(File const &file, Maybe<Span const> const &span, std::unique_ptr<Expr> expr);
     };
     class PathType : public Type {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         std::unique_ptr<Path> path;
         virtual void accept(TypeVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        PathType(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Path> path);
+        virtual Maybe<Span const> const &span() const override;
+        PathType(File const &file, Maybe<Span const> const &span, std::unique_ptr<Path> path);
     };
     class PointerType : public Type {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         bool mut;
         std::unique_ptr<Type> type;
         virtual void accept(TypeVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        PointerType(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, bool mut, std::unique_ptr<Type> type);
+        virtual Maybe<Span const> const &span() const override;
+        PointerType(File const &file, Maybe<Span const> const &span, bool mut, std::unique_ptr<Type> type);
     };
     class ThisType : public Type {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         Token th;
         virtual void accept(TypeVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        ThisType(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, Token th);
+        virtual Maybe<Span const> const &span() const override;
+        ThisType(File const &file, Maybe<Span const> const &span, Token th);
     };
     class Arg : public ArgB {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         std::unique_ptr<Expr> expr;
         virtual void accept(ArgBVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        Arg(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Expr> expr);
+        virtual Maybe<Span const> const &span() const override;
+        Arg(File const &file, Maybe<Span const> const &span, std::unique_ptr<Expr> expr);
     };
     class Param : public ParamB {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         std::unique_ptr<Type> type;
         Token name;
         bool mut;
         virtual void accept(ParamBVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        Param(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Type> type, Token name, bool mut);
+        virtual Maybe<Span const> const &span() const override;
+        Param(File const &file, Maybe<Span const> const &span, std::unique_ptr<Type> type, Token name, bool mut);
     };
     class ThisParam : public ParamB {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         bool ptr;
         bool mut;
         virtual void accept(ParamBVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        ThisParam(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, bool ptr, bool mut);
+        virtual Maybe<Span const> const &span() const override;
+        ThisParam(File const &file, Maybe<Span const> const &span, bool ptr, bool mut);
     };
     class Block : public Expr {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         std::vector<std::unique_ptr<Stmt>> stmts;
         virtual void accept(ExprVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        Block(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::vector<std::unique_ptr<Stmt>> stmts);
+        virtual Maybe<Span const> const &span() const override;
+        Block(File const &file, Maybe<Span const> const &span, std::vector<std::unique_ptr<Stmt>> stmts);
     };
     class IfExpr : public Expr {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         Token iftok;
         Token elsetok;
         std::unique_ptr<Expr> cond;
         std::unique_ptr<Expr> trues;
         std::unique_ptr<Expr> falses;
         virtual void accept(ExprVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        IfExpr(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, Token iftok, Token elsetok, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> trues, std::unique_ptr<Expr> falses);
+        virtual Maybe<Span const> const &span() const override;
+        IfExpr(File const &file, Maybe<Span const> const &span, Token iftok, Token elsetok, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> trues, std::unique_ptr<Expr> falses);
     };
     class WhileExpr : public Expr {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         std::unique_ptr<Expr> cond;
         std::unique_ptr<Expr> body;
         virtual void accept(ExprVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        WhileExpr(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> body);
+        virtual Maybe<Span const> const &span() const override;
+        WhileExpr(File const &file, Maybe<Span const> const &span, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> body);
     };
     class AssignmentExpr : public Expr {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         std::unique_ptr<Expr> target;
         Token equal;
         std::unique_ptr<Expr> expr;
         virtual void accept(ExprVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        AssignmentExpr(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Expr> target, Token equal, std::unique_ptr<Expr> expr);
+        virtual Maybe<Span const> const &span() const override;
+        AssignmentExpr(File const &file, Maybe<Span const> const &span, std::unique_ptr<Expr> target, Token equal, std::unique_ptr<Expr> expr);
     };
     class ShortCircuitExpr : public Expr {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         std::unique_ptr<Expr> lhs;
         Token op;
         std::unique_ptr<Expr> rhs;
         virtual void accept(ExprVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        ShortCircuitExpr(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Expr> lhs, Token op, std::unique_ptr<Expr> rhs);
+        virtual Maybe<Span const> const &span() const override;
+        ShortCircuitExpr(File const &file, Maybe<Span const> const &span, std::unique_ptr<Expr> lhs, Token op, std::unique_ptr<Expr> rhs);
     };
     class BinaryExpr : public Expr {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         std::unique_ptr<Expr> lhs;
         Token op;
         std::unique_ptr<Expr> rhs;
         virtual void accept(ExprVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        BinaryExpr(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Expr> lhs, Token op, std::unique_ptr<Expr> rhs);
+        virtual Maybe<Span const> const &span() const override;
+        BinaryExpr(File const &file, Maybe<Span const> const &span, std::unique_ptr<Expr> lhs, Token op, std::unique_ptr<Expr> rhs);
     };
     class CastExpr : public Expr {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         std::unique_ptr<Type> type;
         std::unique_ptr<Expr> expr;
         virtual void accept(ExprVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        CastExpr(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Type> type, std::unique_ptr<Expr> expr);
+        virtual Maybe<Span const> const &span() const override;
+        CastExpr(File const &file, Maybe<Span const> const &span, std::unique_ptr<Type> type, std::unique_ptr<Expr> expr);
     };
     class UnaryExpr : public Expr {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         Token op;
         std::unique_ptr<Expr> expr;
         virtual void accept(ExprVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        UnaryExpr(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, Token op, std::unique_ptr<Expr> expr);
+        virtual Maybe<Span const> const &span() const override;
+        UnaryExpr(File const &file, Maybe<Span const> const &span, Token op, std::unique_ptr<Expr> expr);
     };
     class AddrofExpr : public Expr {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         Token op;
         std::unique_ptr<Expr> expr;
         bool mut;
         virtual void accept(ExprVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        AddrofExpr(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, Token op, std::unique_ptr<Expr> expr, bool mut);
+        virtual Maybe<Span const> const &span() const override;
+        AddrofExpr(File const &file, Maybe<Span const> const &span, Token op, std::unique_ptr<Expr> expr, bool mut);
     };
     class DerefExpr : public Expr {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         Token op;
         std::unique_ptr<Expr> expr;
         virtual void accept(ExprVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        DerefExpr(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, Token op, std::unique_ptr<Expr> expr);
+        virtual Maybe<Span const> const &span() const override;
+        DerefExpr(File const &file, Maybe<Span const> const &span, Token op, std::unique_ptr<Expr> expr);
     };
     class CallExpr : public Expr {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         std::unique_ptr<Expr> callee;
         Token oparn;
         std::vector<std::unique_ptr<Arg>> args;
         virtual void accept(ExprVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        CallExpr(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Expr> callee, Token oparn, std::vector<std::unique_ptr<Arg>> args);
+        virtual Maybe<Span const> const &span() const override;
+        CallExpr(File const &file, Maybe<Span const> const &span, std::unique_ptr<Expr> callee, Token oparn, std::vector<std::unique_ptr<Arg>> args);
     };
     class FieldAccessExpr : public Expr {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         std::unique_ptr<Expr> operand;
         Token dot;
         Token field;
         virtual void accept(ExprVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        FieldAccessExpr(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Expr> operand, Token dot, Token field);
+        virtual Maybe<Span const> const &span() const override;
+        FieldAccessExpr(File const &file, Maybe<Span const> const &span, std::unique_ptr<Expr> operand, Token dot, Token field);
     };
     class MethodCallExpr : public Expr {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         std::unique_ptr<Expr> operand;
         Token dot;
         Token method;
         Token oparn;
         std::vector<std::unique_ptr<Arg>> args;
         virtual void accept(ExprVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        MethodCallExpr(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Expr> operand, Token dot, Token method, Token oparn, std::vector<std::unique_ptr<Arg>> args);
+        virtual Maybe<Span const> const &span() const override;
+        MethodCallExpr(File const &file, Maybe<Span const> const &span, std::unique_ptr<Expr> operand, Token dot, Token method, Token oparn, std::vector<std::unique_ptr<Arg>> args);
     };
     class PrimaryExpr : public Expr {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         Token value;
         virtual void accept(ExprVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        PrimaryExpr(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, Token value);
+        virtual Maybe<Span const> const &span() const override;
+        PrimaryExpr(File const &file, Maybe<Span const> const &span, Token value);
     };
     class PathExpr : public Expr {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         std::unique_ptr<Path> path;
         virtual void accept(ExprVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        PathExpr(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::unique_ptr<Path> path);
+        virtual Maybe<Span const> const &span() const override;
+        PathExpr(File const &file, Maybe<Span const> const &span, std::unique_ptr<Path> path);
     };
     class Path : public PathB {
     public:
-        Maybe<Location const> _start, _end;
+        Maybe<Span const> _span;
         std::vector<Token> segments;
         virtual void accept(PathBVisitor &v) override;
-        virtual Maybe<Location const> const &start() const override;
-        virtual Maybe<Location const> const &end() const override;
-        Path(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, std::vector<Token> segments);
+        virtual Maybe<Span const> const &span() const override;
+        Path(File const &file, Maybe<Span const> const &span, std::vector<Token> segments);
     };
     // ASTHEADER END
 }

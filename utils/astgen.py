@@ -71,7 +71,7 @@ asts = [
     AST('VarStmt'           , 'Stmt', 'std::vector<std::unique_ptr<VarStmtItem>>|items'),
     AST('VarStmtItem'       , 'VStmtIB', 'std::unique_ptr<Type>|type, bool|mut, Token|name, Token|equal, std::unique_ptr<Expr>|expr'),
 
-    AST('ExprStmt'          , 'Stmt', 'std::unique_ptr<Expr>|expr, bool|suppress, Maybe<Location const>|dot'),
+    AST('ExprStmt'          , 'Stmt', 'std::unique_ptr<Expr>|expr, bool|suppress, Maybe<Span const>|dot'),
     AST('RetStmt'           , 'Stmt', 'std::unique_ptr<Expr>|expr'),
 
     AST('PathType'          , 'Type', 'std::unique_ptr<Path>|path'),
@@ -112,15 +112,14 @@ def gen_ast_decls():
             output.append(f'class {ast.name} : public {ast.base} {{\n')
 
             output.append( 'public:\n')
-            output.append( '    Maybe<Location const> _start, _end;\n')
+            output.append( '    Maybe<Span const> _span;\n')
 
             for field in ast.fields:
                 output.append(f'    {field.type} {field.name};\n')
 
             output.append(f'    virtual void accept({ast.base}Visitor &v) override;\n')
-            output.append( '    virtual Maybe<Location const> const &start() const override;\n')
-            output.append( '    virtual Maybe<Location const> const &end() const override;\n')
-            output.append(f'    {ast.name}(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, {", ".join(f"{field.type} {field.name}" for field in ast.fields)});\n')
+            output.append( '    virtual Maybe<Span const> const &span() const override;\n')
+            output.append(f'    {ast.name}(File const &file, Maybe<Span const> const &span, {", ".join(f"{field.type} {field.name}" for field in ast.fields)});\n')
 
             output.append( '};\n')
         elif isinstance(ast, ASTBase):
@@ -137,8 +136,7 @@ def gen_ast_decls():
                            'public:\n'
                            '    AST(File const &file);\n'
                            '    virtual ~AST() {}\n'
-                           '    virtual Maybe<Location const> const &start() const = 0;\n'
-                           '    virtual Maybe<Location const> const &end() const = 0;\n'
+                           '    virtual Maybe<Span const> const &span() const = 0;\n'
                            '    File const &file;\n'
                            '};\n'))
 
@@ -148,7 +146,7 @@ def gen_ast_defs():
     output = []
     for ast in asts:
         if isinstance(ast, AST):
-            output.append(f'ASTNS::{ast.name}::{ast.name}(File const &file, Maybe<Location const> const &start, Maybe<Location const> const &end, {", ".join(f"{field.type} {field.name}" for field in ast.fields)}): ')
+            output.append(f'ASTNS::{ast.name}::{ast.name}(File const &file, Maybe<Span const> const &span, {", ".join(f"{field.type} {field.name}" for field in ast.fields)}): ')
 
             init_list = [f'{ast.base}(file), _start(start), _end(end)']
             for field in ast.fields:
@@ -158,8 +156,7 @@ def gen_ast_defs():
             output.append(' {}\n')
 
             output.append(f'void ASTNS::{ast.name}::accept(ASTNS::{ast.base}Visitor &v) {{ v.visit(*this); }}\n')
-            output.append(f'Maybe<Location const> const &ASTNS::{ast.name}::start() const {{ return _start; }}\n')
-            output.append(f'Maybe<Location const> const &ASTNS::{ast.name}::end() const {{ return _end; }}\n')
+            output.append(f'Maybe<Span const> const &ASTNS::{ast.name}::span() const {{ return _span; }}\n')
         elif isinstance(ast, ASTBase):
             output.append(f'ASTNS::{ast.name}::{ast.name}(File const &file): AST(file) {{}}\n')
         else:

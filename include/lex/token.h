@@ -11,113 +11,259 @@
 
 class Token;
 
+// Token Types {{{1
 namespace Tokens {
-    struct OParen {};
-    struct CParen {};
-    struct OBrack {};
-    struct CBrack {};
-    struct OBrace {};
-    struct CBrace {};
+    struct OParen {
+        inline static std::string stringify() { return "'('"; }
+    };
+    struct CParen {
+        inline static std::string stringify() { return "')'"; }
+    };
+    struct OBrack {
+        inline static std::string stringify() { return "'['"; }
+    };
+    struct CBrack {
+        inline static std::string stringify() { return "']'"; }
+    };
+    struct OBrace {
+        inline static std::string stringify() { return "'{'"; }
+    };
+    struct CBrace {
+        inline static std::string stringify() { return "'}'"; }
+    };
 
-    struct Comma {};
-    struct Period {};
-    struct Semicolon {};
-    struct Question {};
-    struct Colon {};
+    struct Comma {
+        inline static std::string stringify() { return "','"; }
+    };
+    struct Period {
+        inline static std::string stringify() { return "'.'"; }
+    };
+    struct Semicolon {
+        inline static std::string stringify() { return "';'"; }
+    };
+    struct Question {
+        inline static std::string stringify() { return "'?'"; }
+    };
+    struct Colon {
+        inline static std::string stringify() { return "':'"; }
+    };
 
-    struct Bang {};
-    struct Plus {};
-    struct Minus {};
-    struct Star {};
-    struct Slash {};
-    struct Percent {};
-    struct Equal {};
-    struct Greater {};
-    struct Less {};
-    struct Tilde {};
-    struct Amper {};
-    struct Pipe {};
-    struct Caret {};
-    struct Dollar {};
-    struct Hash {};
+    struct Bang {
+        inline static std::string stringify() { return "'!'"; }
+    };
+    struct Plus {
+        inline static std::string stringify() { return "'+'"; }
+    };
+    struct Minus {
+        inline static std::string stringify() { return "'-'"; }
+    };
+    struct Star {
+        inline static std::string stringify() { return "'*'"; }
+    };
+    struct Slash {
+        inline static std::string stringify() { return "'/'"; }
+    };
+    struct Percent {
+        inline static std::string stringify() { return "'%'"; }
+    };
+    struct Equal {
+        inline static std::string stringify() { return "'='"; }
+    };
+    struct Greater {
+        inline static std::string stringify() { return "'>'"; }
+    };
+    struct Less {
+        inline static std::string stringify() { return "'<'"; }
+    };
+    struct Tilde {
+        inline static std::string stringify() { return "'~'"; }
+    };
+    struct Amper {
+        inline static std::string stringify() { return "'&'"; }
+    };
+    struct Pipe {
+        inline static std::string stringify() { return "'|'"; }
+    };
+    struct Caret {
+        inline static std::string stringify() { return "'^'"; }
+    };
+    struct Dollar {
+        inline static std::string stringify() { return "'$'"; }
+    };
+    struct Hash {
+        inline static std::string stringify() { return "'#'"; }
+    };
 
-    struct RightArrow {};
-    struct LeftArrow {};
+    struct RightArrow {
+        inline static std::string stringify() { return "'->'"; }
+    };
+    struct LeftArrow {
+        inline static std::string stringify() { return "'<-'"; }
+    };
 
-    struct DoublePlus {};
-    struct DoubleMinus {};
-    struct DoubleGreater {};
-    struct DoubleLess {};
-    struct DoubleAmper {};
-    struct DoublePipe {};
-    struct DoubleEqual {};
-    struct DoubleColon {};
+    struct DoublePlus {
+        inline static std::string stringify() { return "'++'"; }
+    };
+    struct DoubleMinus {
+        inline static std::string stringify() { return "'--'"; }
+    };
+    struct DoubleGreater {
+        inline static std::string stringify() { return "'>>'"; }
+    };
+    struct DoubleLess {
+        inline static std::string stringify() { return "'<<'"; }
+    };
+    struct DoubleAmper {
+        inline static std::string stringify() { return "'&&'"; }
+    };
+    struct DoublePipe {
+        inline static std::string stringify() { return "'||'"; }
+    };
+    struct DoubleEqual {
+        inline static std::string stringify() { return "'=='"; }
+    };
+    struct DoubleColon {
+        inline static std::string stringify() { return "'::'"; }
+    };
 
-    struct PlusEqual {};
-    struct MinusEqual {};
-    struct StarEqual {};
-    struct SlashEqual {};
-    struct BangEqual {};
-    struct GreaterEqual {};
-    struct LessEqual {};
-    struct PercentEqual {};
-    struct DoubleLessEqual {};
-    struct DoubleGreaterEqual {};
-    struct AmperEqual {};
-    struct PipeEqual {};
-    struct CaretEqual {};
+    struct PlusEqual {
+        inline static std::string stringify() { return "'+='"; }
+    };
+    struct MinusEqual {
+        inline static std::string stringify() { return "'-='"; }
+    };
+    struct StarEqual {
+        inline static std::string stringify() { return "'*='"; }
+    };
+    struct SlashEqual {
+        inline static std::string stringify() { return "'/='"; }
+    };
+    struct BangEqual {
+        inline static std::string stringify() { return "'!='"; }
+    };
+    struct GreaterEqual {
+        inline static std::string stringify() { return "'>='"; }
+    };
+    struct LessEqual {
+        inline static std::string stringify() { return "'<='"; }
+    };
+    struct PercentEqual {
+        inline static std::string stringify() { return "'%='"; }
+    };
+    struct DoubleLessEqual {
+        inline static std::string stringify() { return "'<<='"; }
+    };
+    struct DoubleGreaterEqual {
+        inline static std::string stringify() { return "'>>='"; }
+    };
+    struct AmperEqual {
+        inline static std::string stringify() { return "'&='"; }
+    };
+    struct PipeEqual {
+        inline static std::string stringify() { return "'|='"; }
+    };
+    struct CaretEqual {
+        inline static std::string stringify() { return "'^='"; }
+    };
 
     struct Identifier {
+        inline static std::string stringify() { return "identifier"; }
         std::string name;
     };
 
     struct CharLit {
+        inline static std::string stringify() { return "char literal"; }
         char val;
     };
     struct StringLit {
+        inline static std::string stringify() { return "string literal"; }
         std::string val;
     };
     struct IntLit {
+        inline static std::string stringify() { return "integer literal"; }
         uint64_t val;
         enum class Base { DECIMAL, OCTAL, BINARY, HEX } base;
     };
     struct FloatLit {
+        inline static std::string stringify() { return "floating point literal"; }
         double val;
     };
     struct BoolLit {
+        inline static std::string stringify() { return "bool literal"; }
         bool val;
     };
 
-    struct This {};
-    struct Var {};
-    struct Fun {};
-    struct Let {};
-    struct Mut {};
-    struct Data {};
-    struct Impl {};
-    struct Return {};
-    struct While {};
-    struct For {};
-    struct If {};
-    struct Else {};
-    struct Case {};
-    struct Break {};
-    struct Continue {};
+    struct This {
+        inline static std::string stringify() { return "'this'"; }
+    };
+    struct Var {
+        inline static std::string stringify() { return "'var'"; }
+    };
+    struct Fun {
+        inline static std::string stringify() { return "'fun'"; }
+    };
+    struct Let {
+        inline static std::string stringify() { return "'let'"; }
+    };
+    struct Mut {
+        inline static std::string stringify() { return "'mut'"; }
+    };
+    struct Data {
+        inline static std::string stringify() { return "'data'"; }
+    };
+    struct Impl {
+        inline static std::string stringify() { return "'impl'"; }
+    };
+    struct Return {
+        inline static std::string stringify() { return "'return'"; }
+    };
+    struct While {
+        inline static std::string stringify() { return "'while'"; }
+    };
+    struct For {
+        inline static std::string stringify() { return "'for'"; }
+    };
+    struct If {
+        inline static std::string stringify() { return "'if'"; }
+    };
+    struct Else {
+        inline static std::string stringify() { return "'else'"; }
+    };
+    struct Case {
+        inline static std::string stringify() { return "'case'"; }
+    };
+    struct Break {
+        inline static std::string stringify() { return "'break'"; }
+    };
+    struct Continue {
+        inline static std::string stringify() { return "'continue'"; }
+    };
 
-    struct Boom {};
+    struct Boom {
+        inline static std::string stringify() { return "boom"; }
+    };
 
-    struct Newline {};
-    struct Indent {};
-    struct Dedent {};
+    struct Newline {
+        inline static std::string stringify() { return "newline"; }
+    };
+    struct Indent {
+        inline static std::string stringify() { return "indent"; }
+    };
+    struct Dedent {
+        inline static std::string stringify() { return "dedent"; }
+    };
 
-    struct _EOF {};
+    struct _EOF {
+        inline static std::string stringify() { return "end of file"; }
+    };
     struct Error {
+        inline static std::string stringify() { return "syntax error"; }
         using ErrFunc = void (&)(Token const &);
         using ErrFuncField = NNPtr<void(Token const &)>;
         ErrFuncField errf;
     };
 }
-
+// TokenData type alias {{{1
 using TokenData = std::variant<
         Tokens::OParen, Tokens::CParen,
         Tokens::OBrack, Tokens::CBrack,
@@ -202,129 +348,44 @@ using TokenData = std::variant<
         Tokens::_EOF,
         Tokens::Error
     >;
-
+// Token class {{{1
 class Token {
 public:
     Span span;
 
     TokenData data;
 
+    inline Token(Span const &span, TokenData const &data): span(span), data(data) {}
+
     template <typename T>
     constexpr bool is() const {
         return std::holds_alternative<T>(data);
     }
-
     template <typename T>
     constexpr T as() const {
         return std::get<T>(data);
     }
 
 private:
-    template <typename T>
-    static constexpr bool always_false = false;
+    template <typename T, size_t index = 0, bool match = std::is_same_v<T, std::variant_alternative_t<index, TokenData>>>
+    struct _index_of_type { static constexpr int value = _index_of_type<T, index + 1>::value; };
+    template <typename T, size_t index>
+    struct _index_of_type<T, index, true> { static constexpr int value = index; };
 
 public:
-    std::string stringify_type() const {
+    template <typename T>
+    static constexpr int index_of = _index_of_type<T>::value;
+
+    inline std::string stringify_type() const {
         return std::visit([] (auto &&arg) -> std::string {
-                using T = std::decay_t<decltype(arg)>;
-                     if constexpr (std::is_same_v<T, Tokens::OParen>            ) return "'('";
-                else if constexpr (std::is_same_v<T, Tokens::CParen>            ) return "')'";
-                else if constexpr (std::is_same_v<T, Tokens::OBrack>            ) return "'['";
-                else if constexpr (std::is_same_v<T, Tokens::CBrack>            ) return "']'";
-                else if constexpr (std::is_same_v<T, Tokens::OBrace>            ) return "'{'";
-                else if constexpr (std::is_same_v<T, Tokens::CBrace>            ) return "'}'";
-                else if constexpr (std::is_same_v<T, Tokens::Comma>             ) return "','";
-                else if constexpr (std::is_same_v<T, Tokens::Period>            ) return "'.'";
-                else if constexpr (std::is_same_v<T, Tokens::Semicolon>         ) return "';'";
-                else if constexpr (std::is_same_v<T, Tokens::Question>          ) return "'?'";
-                else if constexpr (std::is_same_v<T, Tokens::Colon>             ) return "':'";
-                else if constexpr (std::is_same_v<T, Tokens::Bang>              ) return "'!'";
-                else if constexpr (std::is_same_v<T, Tokens::Plus>              ) return "'+'";
-                else if constexpr (std::is_same_v<T, Tokens::Minus>             ) return "'-'";
-                else if constexpr (std::is_same_v<T, Tokens::Star>              ) return "'*'";
-                else if constexpr (std::is_same_v<T, Tokens::Slash>             ) return "'/'";
-                else if constexpr (std::is_same_v<T, Tokens::Percent>           ) return "'%'";
-                else if constexpr (std::is_same_v<T, Tokens::Equal>             ) return "'='";
-                else if constexpr (std::is_same_v<T, Tokens::Greater>           ) return "'>'";
-                else if constexpr (std::is_same_v<T, Tokens::Less>              ) return "'<'";
-                else if constexpr (std::is_same_v<T, Tokens::Tilde>             ) return "'~'";
-                else if constexpr (std::is_same_v<T, Tokens::Amper>             ) return "'&'";
-                else if constexpr (std::is_same_v<T, Tokens::Pipe>              ) return "'|'";
-                else if constexpr (std::is_same_v<T, Tokens::Caret>             ) return "'^'";
-                else if constexpr (std::is_same_v<T, Tokens::Hash>              ) return "'#'";
-                else if constexpr (std::is_same_v<T, Tokens::Dollar>            ) return "'$'";
-                else if constexpr (std::is_same_v<T, Tokens::LeftArrow>         ) return "'<-'";
-                else if constexpr (std::is_same_v<T, Tokens::RightArrow>        ) return "'->'";
-                else if constexpr (std::is_same_v<T, Tokens::DoublePlus>        ) return "'++'";
-                else if constexpr (std::is_same_v<T, Tokens::DoubleMinus>       ) return "'--'";
-                else if constexpr (std::is_same_v<T, Tokens::DoubleGreater>     ) return "'>>'";
-                else if constexpr (std::is_same_v<T, Tokens::DoubleLess>        ) return "'<<'";
-                else if constexpr (std::is_same_v<T, Tokens::DoubleAmper>       ) return "'&&'";
-                else if constexpr (std::is_same_v<T, Tokens::DoublePipe>        ) return "'||'";
-                else if constexpr (std::is_same_v<T, Tokens::DoubleEqual>       ) return "'=='";
-                else if constexpr (std::is_same_v<T, Tokens::DoubleColon>       ) return "'::'";
-                else if constexpr (std::is_same_v<T, Tokens::PlusEqual>         ) return "'+='";
-                else if constexpr (std::is_same_v<T, Tokens::MinusEqual>        ) return "'-='";
-                else if constexpr (std::is_same_v<T, Tokens::StarEqual>         ) return "'*='";
-                else if constexpr (std::is_same_v<T, Tokens::SlashEqual>        ) return "'/='";
-                else if constexpr (std::is_same_v<T, Tokens::BangEqual>         ) return "'!='";
-                else if constexpr (std::is_same_v<T, Tokens::GreaterEqual>      ) return "'>='";
-                else if constexpr (std::is_same_v<T, Tokens::LessEqual>         ) return "'<='";
-                else if constexpr (std::is_same_v<T, Tokens::PercentEqual>      ) return "'%='";
-                else if constexpr (std::is_same_v<T, Tokens::DoubleLessEqual>   ) return "'<<='";
-                else if constexpr (std::is_same_v<T, Tokens::DoubleGreaterEqual>) return "'>>='";
-                else if constexpr (std::is_same_v<T, Tokens::AmperEqual>        ) return "'&='";
-                else if constexpr (std::is_same_v<T, Tokens::PipeEqual>         ) return "'|='";
-                else if constexpr (std::is_same_v<T, Tokens::CaretEqual>        ) return "'^='";
-                else if constexpr (std::is_same_v<T, Tokens::Identifier>        ) return "identifier";
-                else if constexpr (std::is_same_v<T, Tokens::CharLit>           ) return "character literal";
-                else if constexpr (std::is_same_v<T, Tokens::StringLit>         ) return "string literal";
-                else if constexpr (std::is_same_v<T, Tokens::IntLit>            ) return "integer literal";
-                else if constexpr (std::is_same_v<T, Tokens::FloatLit>          ) return "floating point literal";
-                else if constexpr (std::is_same_v<T, Tokens::BoolLit>           ) return "bool literal";
-                else if constexpr (std::is_same_v<T, Tokens::This>              ) return "'this'";
-                else if constexpr (std::is_same_v<T, Tokens::Var>               ) return "'var'";
-                else if constexpr (std::is_same_v<T, Tokens::Let>               ) return "'let'";
-                else if constexpr (std::is_same_v<T, Tokens::Mut>               ) return "'mut'";
-                else if constexpr (std::is_same_v<T, Tokens::Fun>               ) return "'fun'";
-                else if constexpr (std::is_same_v<T, Tokens::Data>              ) return "'data'";
-                else if constexpr (std::is_same_v<T, Tokens::Impl>              ) return "'impl'";
-                else if constexpr (std::is_same_v<T, Tokens::Return>            ) return "'return'";
-                else if constexpr (std::is_same_v<T, Tokens::While>             ) return "'while'";
-                else if constexpr (std::is_same_v<T, Tokens::For>               ) return "'for'";
-                else if constexpr (std::is_same_v<T, Tokens::If>                ) return "'if'";
-                else if constexpr (std::is_same_v<T, Tokens::Else>              ) return "'else'";
-                else if constexpr (std::is_same_v<T, Tokens::Case>              ) return "'case'";
-                else if constexpr (std::is_same_v<T, Tokens::Break>             ) return "'break'";
-                else if constexpr (std::is_same_v<T, Tokens::Continue>          ) return "'continue'";
-                else if constexpr (std::is_same_v<T, Tokens::Boom>              ) return "boom";
-                else if constexpr (std::is_same_v<T, Tokens::Newline>           ) return "newline";
-                else if constexpr (std::is_same_v<T, Tokens::Indent>            ) return "indent";
-                else if constexpr (std::is_same_v<T, Tokens::Dedent>            ) return "dedent";
-                else if constexpr (std::is_same_v<T, Tokens::_EOF>              ) return "end of file";
-                else if constexpr (std::is_same_v<T, Tokens::Error>             ) return "syntax error";
-                else static_assert(always_false<T>, "Visitor to stringify token type is non-exhaustive!");
-            }, data);
-    }
+                    using T = std::decay_t<decltype(arg)>;
+                    return T::stringify();
+                }, data);
+    };
 
     constexpr int index() {
         return data.index();
     }
-
-private:
-    template <typename T, size_t index = 0, bool match = std::is_same_v<T, std::variant_alternative_t<index, TokenData>>>
-    struct _index_of_type {
-        static constexpr int value = _index_of_type<T, index + 1>::value;
-    };
-
-    template <typename T, size_t index>
-    struct _index_of_type<T, index, true> {
-        static constexpr int value = index;
-    };
-
-public:
-    template <typename T>
-    static constexpr int index_of_type = _index_of_type<T>::value;
 };
 
 inline std::ostream& operator<<(std::ostream &os, Token const &t) {
