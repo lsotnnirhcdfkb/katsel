@@ -587,7 +587,23 @@ size_t get_goto(NonTerminal nterm, size_t state) {
 // }}}
 
 std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
-    return nullptr;
+    if (istrial)
+        return true;
+
+    if (errored) {
+        p.errored = true;
+        out = nullptr;
+        return false;
+    }
+
+    stackitem topsi (std::move(stack.back()));
+    ASSERT(std::holds_alternative<astitem>(topsi.item))
+
+    astitem &ai = std::get<astitem>(topsi.item);
+    std::unique_ptr<ASTNS::AST> astu (std::move(ai.ast));
+    ASTNS::CUB *cub = static_cast<ASTNS::CUB*>(astu.release());
+    out = std::unique_ptr<ASTNS::CUB>(cub);
+    return true;
 }
 // PARSESTATES START {{{
 void state_0()void state_1()void state_2()void state_3()void state_4()void state_5()void state_6()void state_7()void state_8()void state_9()void state_10()void state_11()void state_12()void state_13()void state_14()void state_15()void state_16()void state_17()void state_18()void state_19()void state_20()void state_21()void state_22()void state_23()void state_24()void state_25()void state_26()void state_27()void state_28()void state_29()void state_30()void state_31()void state_32()void state_33()void state_34()void state_35()void state_36()void state_37()void state_38()void state_39()void state_40()void state_41()void state_42()void state_43()void state_44()void state_45()void state_46()void state_47()void state_48()void state_49()void state_50()void state_51()void state_52()void state_53()void state_54()void state_55()void state_56()void state_57()void state_58()void state_59()void state_60()void state_61()void state_62()void state_63()void state_64()void state_65()void state_66()void state_67()void state_68()void state_69()void state_70()void state_71()void state_72()void state_73()void state_74()void state_75()void state_76()void state_77()void state_78()void state_79()void state_80()void state_81()void state_82()void state_83()void state_84()void state_85()void state_86()void state_87()void state_88()void state_89()void state_90()void state_91()void state_92()void state_93()void state_94()void state_95()void state_96()void state_97()void state_98()void state_99()void state_100()void state_101()void state_102()void state_103()void state_104()void state_105()void state_106()void state_107()void state_108()void state_109()void state_110()void state_111()void state_112()void state_113()void state_114()void state_115()void state_116()void state_117()void state_118()void state_119()void state_120()void state_121()void state_122()void state_123()void state_124()void state_125()void state_126()void state_127()void state_128()void state_129()void state_130()void state_131()void state_132()void state_133()void state_134()void state_135()void state_136()void state_137()void state_138()void state_139()void state_140()void state_141()void state_142()void state_143()void state_144()void state_145()void state_146()void state_147()void state_148()void state_149()void state_150()void state_151()void state_152()void state_153()void state_154()void state_155()void state_156()void state_157()void state_158()void state_159()void state_160()void state_161()void state_162()void state_163()void state_164()void state_165()void state_166()void state_167()void state_168()void state_169()void state_170()void state_171()void state_172()void state_173()void state_174()void state_175()void state_176()void state_177()void state_178()void state_179()void state_180()void state_181()void state_182()void state_183()void state_184()void state_185()void state_186()void state_187()void state_188()void state_189()void state_190()void state_191()void state_192()void state_193()void state_194()void state_195()void state_196()void state_197()void state_198()void state_199()void state_200()void state_201()void state_202()void state_203()void state_204()void state_205()void state_206()void state_207()void state_208()void state_209()void state_210()void state_211()void state_212()void state_213()void state_214()void state_215()void state_216()void state_217()void state_218()void state_219()void state_220()void state_221()void state_222()void state_223()void state_224()void state_225()void state_226()void state_227()void state_228()void state_229()void state_230()void state_231()void state_232()void state_233()void state_234()void state_235()void state_236()void state_237()void state_238()void state_239()void state_240()void state_241()void state_242()void state_243()void state_244()void state_245()void state_246()void state_247()void state_248()void state_249()void state_250()
