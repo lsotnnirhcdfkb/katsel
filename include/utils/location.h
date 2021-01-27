@@ -7,7 +7,6 @@
 
 namespace ASTNS { class AST; }
 namespace IR { struct ASTValue; }
-class Token;
 
 class Location {
 public:
