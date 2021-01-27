@@ -1,5 +1,5 @@
 #include "parse/parser.h"
-#include "parserlocal.h"
+#include "parsestack.h"
 #include "lex/lexer.h"
 
 Parser::Parser(Lexer &l, File &sourcefile): lexer(l), sourcefile(sourcefile), errored(false) {}
