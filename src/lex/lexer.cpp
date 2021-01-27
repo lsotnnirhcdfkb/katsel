@@ -11,87 +11,82 @@ static bool is_alpha(char c) {
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_';
 }
 Token Lexer::lex_digit(char current) {
-    enum class IntBase {
-        dec,
-        oct,
-        hex,
-        bin,
-        inv
-    };
+    using Base = Tokens::IntLit::Base; // type less
 
-    auto is_digit = [](char const &c, IntBase const &base) {
+    auto is_digit = [](char const &c, Tokens::IntLit::Base base) {
         switch (base) {
-            case IntBase::dec:
+            case Base::DECIMAL:
                 return c >= '0' && c <= '9';
 
-            case IntBase::oct:
+            case Base::OCTAL:
                 return c >= '0' && c < '8';
 
-            case IntBase::bin:
+            case Base::BINARY:
                 return c == '0' || c == '1';
 
-            case IntBase::hex:
+            case Base::HEX:
                 return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
-
-            default:
-                return false;
         }
     };
 
-    IntBase base;
-    bool intvalid = true;
-    bool isfloat = false;
-    int ndigits = 0;
+    Base base;
 
-    if (current != '0' || is_digit(peek(), IntBase::dec) || !is_alpha(peek())) {
-        base = IntBase::dec;
-        ++ndigits;
-    } else
+    bool base_valid = true;
+    bool digits_valid = true;
+
+    bool is_float = false;
+    int num_digits = 0;
+    int num_float_digits = 0;
+
+    if (current == '0' && !is_digit(peek(), Base::DECIMAL) && is_alpha(peek())) {
         switch (advance()) {
-            case 'o': base = IntBase::oct; break;
-            case 'x': base = IntBase::hex; break;
-            case 'b': base = IntBase::bin; break;
+            case 'o':
+                base = Base::OCTAL; break;
+            case 'x':
+                base = Base::HEX; break;
+            case 'b':
+                base = Base::BINARY; break;
             default:
-                      base = IntBase::inv;
+                base = Base::DECIMAL;
+                base_valid = false;
         }
+    } else {
+        base = Base::DECIMAL;
+        ++num_digits;
+    }
 
     char next;
-    while (!at_end() && (is_digit(next = peek(), IntBase::hex) || next == '.')) {
+    while (!at_end() && (is_digit(next = peek(), Base::HEX) || next == '.')) {
         advance();
 
         if (next == '.')
-            isfloat = true;
+            is_float = true;
         else {
-            if (base != IntBase::inv && !is_digit(next, base))
-                intvalid = false;
-            ++ndigits;
+            if (!is_digit(next, base))
+                digits_valid = false;
+
+            if (is_float)
+                ++num_float_digits;
+            else
+                ++num_digits;
         }
     }
 
-    if (isfloat) {
-        if (base != IntBase::dec) return make_error_token(ERR_NONDECIMAL_FLOATLIT);
-        if (!intvalid) return make_error_token(ERR_INVALID_CHAR_FLOATLIT);
-        return make_token(TokenType::FLOATLIT);
-    } else
-        if (base == IntBase::inv)
-            return make_error_token(ERR_INVALID_INTLIT_BASE);
-        else if (ndigits == 0)
-            return make_error_token(ERR_INTLIT_NO_DIGITS);
-        else if (!intvalid)
-            return make_error_token(ERR_INVALID_CHAR_FOR_BASE);
-        else {
-            switch (base) {
-                case IntBase::dec:
-                    return make_token(TokenType::DECINTLIT);
-                case IntBase::hex:
-                    return make_token(TokenType::HEXINTLIT);
-                case IntBase::oct:
-                    return make_token(TokenType::OCTINTLIT);
-                case IntBase::bin:
-                    return make_token(TokenType::BININTLIT);
-                default:
-                    return make_token(TokenType::ERROR);
-            }
+    // TODO: if num_float_digits == 0, rewind, this is like when its '2.', that should be Intlit, DOT, not ERR_FLOAT_LIT_NO_DIGITS
+    // TODO: any radix for number literals like smalltalk
+
+    if (!base_valid)
+        return make_token(Tokens::Error { ERR_INVALID_NUMLIT_BASE });
+    else if (!digits_valid)
+        return make_token(Tokens::Error { ERR_INVALID_CHAR_FOR_BASE });
+    else if (num_digits == 0)
+        return make_token(Tokens::Error { ERR_INTLIT_NO_DIGITS });
+    else
+        if (is_float) {
+            if (base != Base::DECIMAL) return make_token(Tokens::Error { ERR_NONDECIMAL_FLOATLIT });
+            return make_token(Tokens::FloatLit {});
+        } else {
+            return make_token(Tokens::IntLit {});
         }
 }
 Token Lexer::lex_identifier(bool apostrophes_allowed) {
@@ -100,8 +95,8 @@ Token Lexer::lex_identifier(bool apostrophes_allowed) {
     if (apostrophes_allowed)
         while (peek() == '\'') advance();
 
-    TokenType iden_type = get_identifier_type();
-    return make_token(iden_type);
+    TokenData data = get_identifier_type();
+    return make_token(data);
 }
 // next_token {{{1
 Token Lexer::next_token() {
@@ -138,7 +133,7 @@ Token Lexer::next_token() {
                         endcolumn = 1;
                     } else {
                         advance();
-                        return make_error_token(ERR_CHAR_AFTER_BACKSLASH);
+                        return make_token(Tokens::Error { ERR_CHAR_AFTER_BACKSLASH });
                     }
                     break;
 
@@ -157,7 +152,7 @@ Token Lexer::next_token() {
                         }
 
                         if (at_end())
-                            return make_error_token(ERR_UNTERM_MULTILINE_COMMENT);
+                            return make_token(Tokens::Error { ERR_UNTERM_MULTILINE_COMMENT });
 
                         advance(); // advance twice to consume the * and /
                         advance();
@@ -189,23 +184,23 @@ Token Lexer::next_token() {
     if (indent > indentstack.back()) {
         if (dedenting) {
             dedenting = false;
-            return make_error_token(ERR_DEDENT_NOMATCH);
+            return make_token(Tokens::Error { ERR_DEDENT_NOMATCH });
         }
 
         start_to_end();
         indentstack.push_back(indent);
-        return make_token(TokenType::INDENT);
+        return make_token(Tokens::Indent {});
     } else if (indent < indentstack.back()) {
         dedenting = true;
         indentstack.pop_back();
-        return make_token(TokenType::DEDENT);
+        return make_token(Tokens::Dedent {});
     } else if (dedenting) // indent == indentstack.top()
         dedenting = false;
 
     start_to_end();
 
     if (at_end())
-        return make_token(TokenType::EOF_);
+        return make_token(Tokens::_EOF {});
 
     char current = advance();
 
@@ -213,46 +208,45 @@ Token Lexer::next_token() {
         case '\n':
             ++endline;
             endcolumn = 1;
-            return make_token(TokenType::NEWLINE);
+            return make_token(Tokens::Newline {});
 
-        case '(': return make_token(TokenType::OPARN);
-        case ')': return make_token(TokenType::CPARN);
-        case '[': return make_token(TokenType::OSQUB);
-        case ']': return make_token(TokenType::CSQUB);
-        case '{': return make_token(TokenType::OCURB);
-        case '}': return make_token(TokenType::CCURB);
-        case ',': return make_token(TokenType::COMMA);
-        case '.': return make_token(TokenType::PERIOD);
-        case ';': return make_token(TokenType::SEMICOLON);
-        case '?': return make_token(TokenType::QUESTION);
-        case '~': return make_token(TokenType::TILDE);
+        case '(': return make_token(Tokens::OParen {});
+        case ')': return make_token(Tokens::CParen {});
+        case '[': return make_token(Tokens::OBrack {});
+        case ']': return make_token(Tokens::CBrack {});
+        case '{': return make_token(Tokens::OBrace {});
+        case '}': return make_token(Tokens::CBrace {});
+        case ',': return make_token(Tokens::Comma {});
+        case '.': return make_token(Tokens::Period {});
+        case ';': return make_token(Tokens::Semicolon {});
+        case '?': return make_token(Tokens::Question {});
+        case '~': return make_token(Tokens::Tilde {});
 
-        case '#': return make_token(TokenType::HASH);
-        case '$': return make_token(TokenType::DOLLAR);
+        case '#': return make_token(Tokens::Hash {});
+        case '$': return make_token(Tokens::Dollar {});
 
                   // double and single
-        case '=': return make_token(match('=') ? TokenType::DOUBLEEQUAL : TokenType::EQUAL);
-        case ':': return make_token(match(':') ? TokenType::DOUBLECOLON : TokenType::COLON);
+        case '=': return make_token(match('=') ? TokenData(Tokens::DoubleEqual {}) : TokenData(Tokens::Equal {}));
+        case ':': return make_token(match(':') ? TokenData(Tokens::DoubleColon {}) : TokenData(Tokens::Colon {}));
 
                   // equal and single
-        case '*': return make_token(match('=') ? TokenType::STAREQUAL    : TokenType::STAR);
-        case '/': return make_token(match('=') ? TokenType::SLASHEQUAL   : TokenType::SLASH);
-        case '!': return make_token(match('=') ? TokenType::BANGEQUAL    : TokenType::BANG);
-        case '%': return make_token(match('=') ? TokenType::PERCENTEQUAL : TokenType::PERCENT);
-        case '^': return make_token(match('=') ? TokenType::CARETEQUAL   : TokenType::CARET);
+        case '*': return make_token(match('=') ? TokenData(Tokens::StarEqual {})    : TokenData(Tokens::Star {}));
+        case '/': return make_token(match('=') ? TokenData(Tokens::SlashEqual {})   : TokenData(Tokens::Slash {}));
+        case '!': return make_token(match('=') ? TokenData(Tokens::BangEqual {})    : TokenData(Tokens::Bang {}));
+        case '%': return make_token(match('=') ? TokenData(Tokens::PercentEqual {}) : TokenData(Tokens::Percent {}));
+        case '^': return make_token(match('=') ? TokenData(Tokens::CaretEqual {})   : TokenData(Tokens::Caret {}));
 
                   // double and equal and single
-        case '+': return make_token(match('+') ? TokenType::DOUBLEPLUS  : (match('=') ? TokenType::PLUSEQUAL  : TokenType::PLUS));
-        case '&': return make_token(match('&') ? TokenType::DOUBLEAMPER : (match('=') ? TokenType::AMPEREQUAL : TokenType::AMPER));
-        case '|': return make_token(match('|') ? TokenType::DOUBLEPIPE  : (match('=') ? TokenType::PIPEEQUAL  : TokenType::PIPE));
+        case '+': return make_token(match('+') ? TokenData(Tokens::DoublePlus {})  : (match('=') ? TokenData(Tokens::PlusEqual {})  : TokenData(Tokens::Plus {})));
+        case '&': return make_token(match('&') ? TokenData(Tokens::DoubleAmper {}) : (match('=') ? TokenData(Tokens::AmperEqual {}) : TokenData(Tokens::Amper {})));
+        case '|': return make_token(match('|') ? TokenData(Tokens::DoublePipe {})  : (match('=') ? TokenData(Tokens::PipeEqual {})  : TokenData(Tokens::Pipe {})));
 
                   // arrows
-        case '-': return make_token(match('-') ? TokenType::DOUBLEMINUS : (match('=') ? TokenType::MINUSEQUAL : (match('>') ? TokenType::RIGHTARROW : TokenType::MINUS)));
-        case '<': return make_token(match('<') ? (match('=') ? TokenType::DOUBLELESSEQUAL : TokenType::DOUBLELESS) : (match('=') ? TokenType::LESSEQUAL : (match('-') ? TokenType::LEFTARROW : TokenType::LESS)));
+        case '-': return make_token(match('-') ? TokenData(Tokens::DoubleMinus {}) : (match('=') ? TokenData(Tokens::MinusEqual {}) : (match('>') ? TokenData(Tokens::RightArrow {}) : TokenData(Tokens::Minus {}))));
+        case '<': return make_token(match('<') ? (match('=') ? TokenData(Tokens::DoubleLessEqual {}) : TokenData(Tokens::DoubleLess {})) : (match('=') ? TokenData(Tokens::LessEqual {}) : (match('-') ? TokenData(Tokens::LeftArrow {}) : TokenData(Tokens::Less {}))));
 
                   // double, doubleequal, singleequal, single
-                  //                  if matches double ? (is double so check if it has equal after it                          ) : (is not double so check if it has equal after it          )
-        case '>': return make_token(match('>') ? (match('=') ? TokenType::DOUBLEGREATEREQUAL : TokenType::DOUBLEGREATER) : (match('=') ? TokenType::GREATEREQUAL : TokenType::GREATER));
+        case '>': return make_token(match('>') ? (match('=') ? TokenData(Tokens::DoubleGreaterEqual {}) : TokenData(Tokens::DoubleGreater {})) : (match('=') ? TokenData(Tokens::GreaterEqual {}) : TokenData(Tokens::Greater {})));
 
         case '\'':
         case '"':
@@ -261,18 +255,18 @@ Token Lexer::next_token() {
                 advance();
 
             if (starting_quote == '"' && peek() != '"')
-                return make_error_token(ERR_UNTERM_STRLIT);
+                return make_token(Tokens::Error { ERR_UNTERM_STRLIT });
             else if (starting_quote == '\'' && peek() != '\'')
-                return make_error_token(ERR_UNTERM_CHARLIT);
+                return make_token(Tokens::Error { ERR_UNTERM_CHARLIT });
 
             advance(); // consume closing quote
 
             if (starting_quote == '\'') {
-                if (std::distance(start, end) != 3) return make_error_token(ERR_MULTICHAR_CHARLIT);
-                else return make_token(TokenType::CHARLIT);
+                if (std::distance(start, end) != 3) return make_token(Tokens::Error { ERR_MULTICHAR_CHARLIT });
+                else return make_token(Tokens::CharLit {});
             }
 
-            return make_token(TokenType::STRINGLIT);
+            return make_token(Tokens::StringLit {});
     }
 
     if (current >= '0' && current <= '9')
@@ -280,102 +274,88 @@ Token Lexer::next_token() {
     else if (is_alpha(current))
         return lex_identifier(true);
 
-    return make_error_token(ERR_UNEXPECTED_CHAR);
+    return make_token(Tokens::Error { ERR_UNEXPECTED_CHAR });
 }
 // KWMATCH START {{{1
-/// Check if an idenetifier token is a keyword type and return that type, or just return TokenType::IDENTIFIER
-TokenType Lexer::get_identifier_type() {
+TokenData Lexer::get_identifier_type() {
     switch (*(start + 0)) {
-        case 'c':
-            switch (*(start + 1)) {
-                case 'l':
-                    if (std::distance(start, end) == 5 && *(start + 2) == 'a' && *(start + 3) == 's' && *(start + 4) == 's') return TokenType::CLASS;
-                    break;
-                case 'o':
-                    if (std::distance(start, end) == 8 && *(start + 2) == 'n' && *(start + 3) == 't' && *(start + 4) == 'i' && *(start + 5) == 'n' && *(start + 6) == 'u' && *(start + 7) == 'e') return TokenType::CONTINUE;
-                    break;
-            }
-            break;
         case 'd':
-            if (std::distance(start, end) == 4 && *(start + 1) == 'a' && *(start + 2) == 't' && *(start + 3) == 'a') return TokenType::DATA;
+            if (std::distance(start, end) == 4 && *(start + 1) == 'a' && *(start + 2) == 't' && *(start + 3) == 'a') return Tokens::Data {  };
             break;
         case 'i':
             switch (*(start + 1)) {
                 case 'm':
-                    if (std::distance(start, end) == 4 && *(start + 2) == 'p' && *(start + 3) == 'l') return TokenType::IMPL;
+                    if (std::distance(start, end) == 4 && *(start + 2) == 'p' && *(start + 3) == 'l') return Tokens::Impl {  };
                     break;
                 case 'f':
-                    if (start + 2 == end) return TokenType::IF;
+                    if (start + 2 == end) return Tokens::If {  };
                     break;
             }
             break;
         case 'f':
             switch (*(start + 1)) {
                 case 'u':
-                    if (std::distance(start, end) == 3 && *(start + 2) == 'n') return TokenType::FUN;
+                    if (std::distance(start, end) == 3 && *(start + 2) == 'n') return Tokens::Fun {  };
                     break;
                 case 'o':
-                    if (std::distance(start, end) == 3 && *(start + 2) == 'r') return TokenType::FOR;
+                    if (std::distance(start, end) == 3 && *(start + 2) == 'r') return Tokens::For {  };
                     break;
                 case 'a':
-                    if (std::distance(start, end) == 5 && *(start + 2) == 'l' && *(start + 3) == 's' && *(start + 4) == 'e') return TokenType::FALSELIT;
+                    if (std::distance(start, end) == 5 && *(start + 2) == 'l' && *(start + 3) == 's' && *(start + 4) == 'e') return Tokens::BoolLit { false };
                     break;
             }
             break;
         case 'v':
-            if (std::distance(start, end) == 3 && *(start + 1) == 'a' && *(start + 2) == 'r') return TokenType::VAR;
+            if (std::distance(start, end) == 3 && *(start + 1) == 'a' && *(start + 2) == 'r') return Tokens::Var {  };
             break;
         case 'm':
-            switch (*(start + 1)) {
-                case 'u':
-                    if (std::distance(start, end) == 3 && *(start + 2) == 't') return TokenType::MUT;
-                    break;
-                case 'a':
-                    if (std::distance(start, end) == 5 && *(start + 2) == 't' && *(start + 3) == 'c' && *(start + 4) == 'h') return TokenType::MATCH;
-                    break;
-            }
+            if (std::distance(start, end) == 3 && *(start + 1) == 'u' && *(start + 2) == 't') return Tokens::Mut {  };
             break;
         case 'l':
-            if (std::distance(start, end) == 3 && *(start + 1) == 'e' && *(start + 2) == 't') return TokenType::LET;
+            if (std::distance(start, end) == 3 && *(start + 1) == 'e' && *(start + 2) == 't') return Tokens::Let {  };
             break;
         case 't':
             switch (*(start + 1)) {
                 case 'h':
-                    if (std::distance(start, end) == 4 && *(start + 2) == 'i' && *(start + 3) == 's') return TokenType::THIS;
+                    if (std::distance(start, end) == 4 && *(start + 2) == 'i' && *(start + 3) == 's') return Tokens::This {  };
                     break;
                 case 'r':
-                    if (std::distance(start, end) == 4 && *(start + 2) == 'u' && *(start + 3) == 'e') return TokenType::TRUELIT;
+                    if (std::distance(start, end) == 4 && *(start + 2) == 'u' && *(start + 3) == 'e') return Tokens::BoolLit { true };
                     break;
             }
             break;
         case 'r':
-            if (std::distance(start, end) == 6 && *(start + 1) == 'e' && *(start + 2) == 't' && *(start + 3) == 'u' && *(start + 4) == 'r' && *(start + 5) == 'n') return TokenType::RETURN;
+            if (std::distance(start, end) == 6 && *(start + 1) == 'e' && *(start + 2) == 't' && *(start + 3) == 'u' && *(start + 4) == 'r' && *(start + 5) == 'n') return Tokens::Return {  };
             break;
         case 'w':
-            if (std::distance(start, end) == 5 && *(start + 1) == 'h' && *(start + 2) == 'i' && *(start + 3) == 'l' && *(start + 4) == 'e') return TokenType::WHILE;
+            if (std::distance(start, end) == 5 && *(start + 1) == 'h' && *(start + 2) == 'i' && *(start + 3) == 'l' && *(start + 4) == 'e') return Tokens::While {  };
             break;
         case 'e':
-            if (std::distance(start, end) == 4 && *(start + 1) == 'l' && *(start + 2) == 's' && *(start + 3) == 'e') return TokenType::ELSE;
+            if (std::distance(start, end) == 4 && *(start + 1) == 'l' && *(start + 2) == 's' && *(start + 3) == 'e') return Tokens::Else {  };
+            break;
+        case 'c':
+            switch (*(start + 1)) {
+                case 'a':
+                    if (std::distance(start, end) == 4 && *(start + 2) == 's' && *(start + 3) == 'e') return Tokens::Case {  };
+                    break;
+                case 'o':
+                    if (std::distance(start, end) == 8 && *(start + 2) == 'n' && *(start + 3) == 't' && *(start + 4) == 'i' && *(start + 5) == 'n' && *(start + 6) == 'u' && *(start + 7) == 'e') return Tokens::Continue {  };
+                    break;
+            }
             break;
         case 'b':
             switch (*(start + 1)) {
                 case 'r':
-                    if (std::distance(start, end) == 5 && *(start + 2) == 'e' && *(start + 3) == 'a' && *(start + 4) == 'k') return TokenType::BREAK;
+                    if (std::distance(start, end) == 5 && *(start + 2) == 'e' && *(start + 3) == 'a' && *(start + 4) == 'k') return Tokens::Break {  };
                     break;
                 case 'o':
-                    if (std::distance(start, end) == 4 && *(start + 2) == 'o' && *(start + 3) == 'm') return TokenType::BOOM;
+                    if (std::distance(start, end) == 4 && *(start + 2) == 'o' && *(start + 3) == 'm') return Tokens::Boom {  };
                     break;
             }
             break;
-        case 'n':
-            if (std::distance(start, end) == 7 && *(start + 1) == 'u' && *(start + 2) == 'l' && *(start + 3) == 'l' && *(start + 4) == 'p' && *(start + 5) == 't' && *(start + 6) == 'r') return TokenType::NULLPTRLIT;
-            break;
-        case 'a':
-            if (std::distance(start, end) == 6 && *(start + 1) == 's' && *(start + 2) == 's' && *(start + 3) == 'e' && *(start + 4) == 'r' && *(start + 5) == 't') return TokenType::ASSERT;
-            break;
     }
 
-    return TokenType::IDENTIFIER;
+    return Tokens::Identifier {};
 }
 // KWMATCH END
 // helpers {{{1
@@ -413,14 +393,9 @@ char Lexer::consumed() {
 }
 
 // making tokens {{{1
-Token Lexer::make_token(TokenType type) {
-    if (type == TokenType::DEDENT)
-        return Token {type, start, start, Maybe<Token::ErrFuncField>(), startline, startcolumn - 1, sourcefile};
-    else
-        return Token {type, start, end, Maybe<Token::ErrFuncField>(), startline, startcolumn - 1, sourcefile};
-}
-Token Lexer::make_error_token(Token::ErrFunc errf) {
-    Token token = make_token(TokenType::ERROR);
-    token.errf = Maybe<Token::ErrFuncField>(errf);
-    return token;
+Token Lexer::make_token(TokenData const &data) {
+    Location tokstart (start, startline, startcolumn, sourcefile),
+             tokend (end, endline, endcolumn, sourcefile);
+    Span span (tokstart, tokend);
+    return Token (span, data);
 }

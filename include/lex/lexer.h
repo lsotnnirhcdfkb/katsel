@@ -29,8 +29,8 @@ private:
 
     Token make_token(TokenData const &data);
 
-    std::string::iterator start;
-    std::string::iterator end;
+    std::string::const_iterator start;
+    std::string::const_iterator end;
 
     int startline;
     int startcolumn;
@@ -41,8 +41,8 @@ private:
     bool dedenting;
     std::vector<int> indentstack;
 
-    std::string::iterator srcstart;
-    std::string::iterator srcend;
+    std::string::const_iterator srcstart;
+    std::string::const_iterator srcend;
 
     TokenData get_identifier_type();
 

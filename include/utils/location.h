@@ -14,7 +14,7 @@ public:
     int line, column;
     NNPtr<File const> file;
 
-    Location(std::string::iterator start, std::string::iterator end, int line, int column, NNPtr<File const> file);
+    Location(std::string::const_iterator iter, int line, int column, NNPtr<File const> file);
 };
 
 class Span {

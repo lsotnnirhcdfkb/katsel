@@ -5,7 +5,7 @@ import io, re
 import astgen, kwgen, parsegen, instrgen, errgen
 
 jobs = [
-    ('src/lex/lexer.cpp'           , 'KWMATCH'               , lambda: kwgen.trie.generate(doc='Check if an idenetifier token is a keyword type and return that type, or just return TokenType::IDENTIFIER')),
+    ('src/lex/lexer.cpp'           , 'KWMATCH'               , kwgen.trie.generate),
 
     ('src/ast/ast.cpp'             , 'ASTCPP'                , astgen.gen_ast_defs),
     ('include/ast/ast.h'           , 'ASTHEADER'             , astgen.gen_ast_decls),

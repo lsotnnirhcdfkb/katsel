@@ -1,45 +1,25 @@
 #!/usr/bin/env python3
-## @file kwgen.py
-#  Generate keyword matching code to go in Lexer::get_identifier_type()
 
 # TrieNode class {{{1
-## A node in a Trie
 class TrieNode:
-
-    ## @var value
-    # The value of this trie node
-
-    ## @var length
-    # The current depth of this trie node in the trie
-
-    ## @var nodes
-    # The children nodes of this node
-
-    ## @var tokentype
-    # The tokentype that this trienode could represent
-
-    ## The constructor
-    def __init__(self, value, length, tokentype=None):
+    def __init__(self, value, length):
         self.value = value
         self.length = length
         self.nodes = []
-        self.tokentype = tokentype
+        self.tokentype = None
+        self.initializer = None
 
-    ## Add a child node this node
     def add_node(self, node):
         self.nodes.append(node)
 
-    ## Check if this node has a child with a certain value
     def has_node(self, nodevalue):
         return nodevalue in [node.value for node in self.nodes]
 
-    ## Get a child node with a certain value
     def get_node(self, nodevalue):
-        #   every i in the self.nodes where self.nodes[i].value == nodevalue
+        # every i in the self.nodes where self.nodes[i].value == nodevalue
         i = [i for i in range(len(self.nodes)) if self.nodes[i].value == nodevalue][0]
         return self.nodes[i]
 
-    ## Wrapper method to show this node in a human readable format
     def show(self, uni=True):
         if uni:
             chars = ['\u2502', '\u2514', '\u2500']
@@ -48,7 +28,6 @@ class TrieNode:
 
         return self.__show([], False, chars)
 
-    ## Recursive method to show this node
     def __show(self, indent, is_last, chars):
         if is_last:
             indent = list(indent)
@@ -69,18 +48,15 @@ class TrieNode:
 
         return ''.join(output)
 
-    ## Wrapper method to generate code to match this node
-    def generate(self, doc=''):
+    def generate(self):
         output = []
-        output.append(f'/// {doc}\n')
-        output.append('TokenType Lexer::get_identifier_type() {\n')
+        output.append('TokenData Lexer::get_identifier_type() {\n')
         output.append(self.__generate(1))
         output.append('\n')
-        output.append(f'{TrieNode.get_indent(1)}return TokenType::IDENTIFIER;\n')
+        output.append(f'{TrieNode.get_indent(1)}return Tokens::Identifier {{}};\n')
         output.append('}\n')
         return ''.join(output)
 
-    ## Recursive method to generate code to match this node
     def __generate(self, indent):
         output = []
 
@@ -89,7 +65,7 @@ class TrieNode:
         break_indent_str = self.get_indent(indent + 2)
 
         if self.tokentype is not None:
-            output.append(f'{body_indent_str}if (start + {self.length} == end) return TokenType::{self.tokentype};\n')
+            output.append(f'{body_indent_str}if (start + {self.length} == end) return Tokens::{self.tokentype} {{ {self.initializer} }};\n')
 
         if len(self.nodes) == 0:
             return ''.join(output)
@@ -105,8 +81,7 @@ class TrieNode:
             for ind, val in letters:
                 output.append(f' && *(start + {ind}) == \'{val}\'')
 
-            output.append(f') return TokenType::{cur.tokentype};\n')
-
+            output.append(f') return Tokens::{cur.tokentype} {{ {cur.initializer} }};\n')
 
             return ''.join(output)
 
@@ -119,7 +94,6 @@ class TrieNode:
 
         return ''.join(output)
 
-    ## Get the string to pad with for a certain indent level
     @staticmethod
     def get_indent(indent, tab=False):
         return ('\t' if tab else '    ') * indent
@@ -133,44 +107,36 @@ class TrieNode:
             return False
 
 # keywords {{{1
-## Keywords to generate matching code for
 keywords = [
-    ('class', 'CLASS'),
-    ('data', 'DATA'),
-    ('impl', 'IMPL'),
-    ('fun', 'FUN'),
-    ('var', 'VAR'),
-    ('mut', 'MUT'),
-    ('let', 'LET'),
+    ('data', 'Data', None),
+    ('impl', 'Impl', None),
+    ('fun', 'Fun', None),
+    ('var', 'Var', None),
+    ('mut', 'Mut', None),
+    ('let', 'Let', None),
 
-    ('this', 'THIS'),
+    ('this', 'This', None),
 
-    ('return', 'RETURN'),
+    ('return', 'Return', None),
 
-    ('while', 'WHILE'),
-    ('for', 'FOR'),
-    ('if', 'IF'),
-    ('else', 'ELSE'),
-    ('match', 'MATCH'),
+    ('while', 'While', None),
+    ('for', 'For', None),
+    ('if', 'If', None),
+    ('else', 'Else', None),
+    ('case', 'Case', None),
 
-    ('break', 'BREAK'),
-    ('continue', 'CONTINUE'),
+    ('break', 'Break', None),
+    ('continue', 'Continue', None),
 
-    ('true', 'TRUELIT'),
-    ('false', 'FALSELIT'),
-    ('nullptr', 'NULLPTRLIT'),
+    ('true', 'BoolLit', 'true'),
+    ('false', 'BoolLit', 'false'),
 
-    ('assert', 'ASSERT'),
-
-    ('boom', 'BOOM'),
+    ('boom', 'Boom', None),
 ]
 # }}}
-
-## The trie that represents all the different keywords
 trie = TrieNode(None, 0)
-
-# generating {{{1
-for keyword, tokentype in keywords:
+# make the trie {{{1
+for keyword, tokentype, initializer in keywords:
     lastnode = trie
     for letter in keyword:
         if lastnode.has_node(letter):
@@ -182,3 +148,4 @@ for keyword, tokentype in keywords:
         lastnode = newnode
 
     lastnode.tokentype = tokentype
+    lastnode.initializer = '' if initializer is None else initializer
