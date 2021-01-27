@@ -148,7 +148,7 @@ def gen_ast_defs():
         if isinstance(ast, AST):
             output.append(f'ASTNS::{ast.name}::{ast.name}(File const &file, Maybe<Span const> const &span, {", ".join(f"{field.type} {field.name}" for field in ast.fields)}): ')
 
-            init_list = [f'{ast.base}(file), _start(start), _end(end)']
+            init_list = [f'{ast.base}(file), _span(span)']
             for field in ast.fields:
                 init_list.append(f'{field.name}(std::move({field.name}))')
 

@@ -24,7 +24,7 @@ static void print_field(ASTNS::PrintVisitor &p, std::vector<std::unique_ptr<T>> 
 }
 static void print_field(ASTNS::PrintVisitor &p, Token const &t) {
     p.pai("\"");
-    p.pai(t.stringify());
+    p.pai(t.span.stringify());
     p.pai("\"\n");
 }
 static void print_field(ASTNS::PrintVisitor &p, int i) {
@@ -42,15 +42,15 @@ static void print_field(ASTNS::PrintVisitor &p, std::vector<Token> &v) {
         if (!first)
             p.pai(", ");
         p.pai("\"");
-        p.pai(t.stringify());
+        p.pai(t.span.stringify());
         p.pai("\"");
 
         first = false;
     }
     p.pai("]\n");
 }
-static void print_field(ASTNS::PrintVisitor &p, Maybe<Location const> const &l) {
-    p.pai(format("<maybe location: {}>\n", l.has()));
+static void print_field(ASTNS::PrintVisitor &p, Maybe<Span const> const &s) {
+    p.pai(format("<maybe span: {}>\n", s.has()));
 }
 
 // PRINTVISITOR START

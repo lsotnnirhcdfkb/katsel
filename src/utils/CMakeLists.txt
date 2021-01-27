@@ -1,1 +1,1 @@
-target_sources(katselc PUBLIC format.cpp)
+target_sources(katselc PUBLIC format.cpp location.cpp)

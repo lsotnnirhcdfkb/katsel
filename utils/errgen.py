@@ -321,7 +321,7 @@ errors = [
             desc='No member of a certain name within another member',
             inputs='IR::DeclSymbol const &prev, Token const &current', location='current.span',
             highlights=[
-                SimpleHighlight('current.span', UNDER0, [('error', '"no member called {} in {}"', 'current', 'prev')]),
+                SimpleHighlight('current.span', UNDER0, [('error', '"no member called {} in {}"', 'current.span.stringify()', 'prev')]),
             ]),
         Msg('no-this',
             desc='Usage of \'this\' outside method',

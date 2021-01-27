@@ -84,7 +84,7 @@ int compile_file(OutFormats ofmt, NNPtr<char> filename) {
             if (t.is<Tokens::_EOF>())
                 break;
 
-            os << format("{}: ({}) '{}'", t.span, t.stringify_type(), t.span.stringify());
+            os << format("{}: ({}) '{}'", t.span.as_rowcol(), t.stringify_type(), t.span.stringify());
         }
 
         os.close();

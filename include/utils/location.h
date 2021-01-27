@@ -2,8 +2,9 @@
 
 #include <string>
 #include "utils/ptr.h"
+#include "utils/file.h"
+#include "utils/format.h"
 
-struct File;
 namespace ASTNS { class AST; }
 namespace IR { struct ASTValue; }
 class Token;
@@ -31,7 +32,9 @@ public:
     inline std::string stringify() const {
         return std::string(start.iter, end.iter);
     }
+
+    inline std::string as_rowcol() const {
+        return format("{}:{}:{}:{}:{}", file->filename, start.line, start.column, end.line, end.column);
+    }
 };
 
-std::ostream& operator<<(std::ostream &os, Location const &loc);
-std::ostream& operator<<(std::ostream &os, Span const &span);

@@ -455,7 +455,7 @@ void E0034(Span const &notty, ASTNS::AST const &decl_ast) {
 void E0035(IR::DeclSymbol const &prev, Token const &current) {
     Error e = Error(MsgType::ERROR, current.span, "E0035", "no-member-in");
     e.underline(Underline(current.span, '^')
-        .error(format("no member called {} in {}", current, prev))
+        .error(format("no member called {} in {}", current.span.stringify(), prev))
     );
     e.report();
 }
