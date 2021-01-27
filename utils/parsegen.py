@@ -122,7 +122,7 @@ class State:
 
         self.make_description()
 
-        self.return_types= list(set([item.rule.symbol.reduces_to for item in self.set_.kernel]))
+        self.return_types = sorted(list(set([item.rule.symbol.reduces_to for item in self.set_.kernel])))
 
         first_item = self.set_.kernel[0]
         self.before_dot = first_item.rule.expansion[:first_item.index]
@@ -251,8 +251,8 @@ class VectorPushOneAction:
         self.itemtype = itemtype
         self.vector_name = vector_name
     def generate(self):
-        return (f'''std::unique_ptr<{self.new_class}> push (std::make_unique<{self.new_class}>(p.sourcefile, span, std::vector<{self.itemtype}> {{}}));\n
-        push->{self.vector_name}.push_back({self.item});\n''', 'std::move(push)')
+        return ((f'std::unique_ptr<{self.new_class}> push (std::make_unique<{self.new_class}>(p.sourcefile, span, std::vector<{self.itemtype}> {{}}));\n'
+                 f'push->{self.vector_name}.push_back({self.item});\n'), 'std::move(push)')
 class WarnAction:
     def __init__(self, warning, other_action):
         self.warning = warning
@@ -950,36 +950,38 @@ def gen_states():
                 output.append(                    f'            return state_{action.new_state}({", ".join(pass_args)});\n');
             elif isinstance(action, ReduceAction):
                 if len(action.rule.expansion) > 0:
-                    output.append(                 '             Maybe<Location const> start =\n')
+                    output.append(                 '            Maybe<Location const> start =\n')
                     for i in range(action.rule.loc_start, len(action.rule.expansion)):
                         if isinstance(action.rule.expansion[i], Terminal):
-                            output.append(        f'             Maybe<Location const>(a{i}.span.start);\n')
+                            output.append(        f'            Maybe<Location const>(a{i}.span.start);\n')
                             break
                         else:
                             if i == len(action.rule.expansion) - 1:
-                                output.append(    f'                 a{i} && a{i}->span().has() ? Maybe<Location const>(a{i}->span().get().start) : Maybe<Location const>();\n')
+                                output.append(    f'                a{i} && a{i}->span().has() ? Maybe<Location const>(a{i}->span().get().start) : Maybe<Location const>();\n')
                             else:
-                                output.append(    f'                 a{i} && a{i}->span().has() ? Maybe<Location const>(a{i}->span().get().start) :\n')
+                                output.append(    f'                a{i} && a{i}->span().has() ? Maybe<Location const>(a{i}->span().get().start) :\n')
 
-                    output.append(                 '             Maybe<Location const> end =\n')
+                    output.append(                 '            Maybe<Location const> end =\n')
                     for i in range(action.rule.loc_end, -1, -1):
                         if isinstance(action.rule.expansion[i], Terminal):
-                            output.append(        f'             Maybe<Location const>(a{i}.span.end);\n')
+                            output.append(        f'            Maybe<Location const>(a{i}.span.end);\n')
                             break
                         else:
                             if i == 0:
-                                output.append(    f'                 a{i} && a{i}->span().has() ? Maybe<Location const>(a{i}->span().get().end) : Maybe<Location const>();\n')
+                                output.append(    f'                a{i} && a{i}->span().has() ? Maybe<Location const>(a{i}->span().get().end) : Maybe<Location const>();\n')
                             else:
-                                output.append(    f'                 a{i} && a{i}->span().has() ? Maybe<Location const>(a{i}->span().get().end) :\n')
+                                output.append(    f'                a{i} && a{i}->span().has() ? Maybe<Location const>(a{i}->span().get().end) :\n')
                 else:
-                    output.append(                 '             Maybe<Location const> start, end;\n')
-                output.append(                     '             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();\n')
+                    output.append(                 '            Maybe<Location const> start, end;\n')
+                output.append(                     '            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();\n')
                 reduce_code, pushitem = action.rule.reduce_action.generate()
-                output.append(reduce_code)
-                output.append(                    f'             {action.rule.symbol.reduces_to} pushitem = {pushitem};\n')
-                output.append(                     '             return RetAndToken { pushitem, next_token };\n')
+                if len(reduce_code) > 0:
+                    reduce_code = reduce_code.rstrip('\n')
+                    output.append(helpers.indent(reduce_code, 12) + '\n')
+                output.append(                    f'            {action.rule.symbol.reduces_to} pushitem = {pushitem};\n')
+                output.append(                     '            return RetAndToken { pushitem, next_token };\n')
             elif isinstance(action, AcceptAction):
-                output.append(                     '             accept(); // somehow\n')
+                output.append(                     '            accept(); // somehow\n')
             else:
                 raise Exception('invalid action type')
 

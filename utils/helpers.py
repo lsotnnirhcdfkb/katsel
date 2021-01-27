@@ -1,3 +1,7 @@
+import re
+
+LINE_START_PATTERN = re.compile(r'^(?!(\s*\n))', re.MULTILINE)
+
 def to_snake_case(iden):
     s = []
     prev = ''
@@ -9,3 +13,6 @@ def to_snake_case(iden):
         prev = ch
 
     return ''.join(s)
+
+def indent(text, amount):
+    return LINE_START_PATTERN.sub(' ' * amount, text)
