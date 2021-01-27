@@ -5,8 +5,6 @@ project(Katsel
     LANGUAGES CXX
     VERSION 0.0.0)
 
-
-
 option(GENDOC "Build documentation" ON)
 option(DOTEST "Test executable" OFF)
 
