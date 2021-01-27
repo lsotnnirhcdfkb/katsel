@@ -41,5 +41,5 @@ public:
 template <typename T>
 struct Located {
     Span span;
-    T t;
+    T value;
 };

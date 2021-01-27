@@ -80,11 +80,11 @@ int compile_file(OutFormats ofmt, NNPtr<char> filename) {
             return false;
 
         while (true) {
-            Token t (lexer->next_token());
-            if (t.is<Tokens::_EOF>())
+            Located<TokenData> t (lexer->next_token());
+            if (Tokens::is<Tokens::_EOF>(t.value))
                 break;
 
-            os << format("{}: ({}) '{}'", t.span.as_rowcol(), t.stringify_type(), t.span.stringify());
+            os << format("{}: ({}) '{}'", t.span.as_rowcol(), Tokens::stringify_type(t.value), t.span.stringify());
         }
 
         os.close();
