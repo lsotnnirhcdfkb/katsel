@@ -2,7 +2,7 @@
 #  Generate all the code everywhere necessary in this project
 
 import io, re
-import astgen, kwgen, parsegen, instrgen, errgen, helpers
+import astgen, kwgen, parsegen, instrgen, errgen
 
 jobs = [
     ('src/lex/lexer.cpp'           , 'KWMATCH'               , kwgen.trie.generate),
@@ -47,6 +47,8 @@ jobs = [
 
 skipped = 0
 
+LINE_START_PATTERN = re.compile(r'^(?!(\s*\n))', re.MULTILINE)
+
 for job_i, job in enumerate(jobs):
     job_file, job_marker, job_func = job
     # print(f'Running job {job_i + 1}/{len(jobs)}: insert {job_func} to {job_file}')
@@ -78,7 +80,7 @@ for job_i, job in enumerate(jobs):
     indent_str = gen_start_match.group(1)
 
     # run the function to generate the code
-    output = helpers.indent(job_func().rstrip('\n'), len(gen_start_match.group(1)))
+    output = LINE_START_PATTERN.sub(indent_str, job_func().rstrip('\n'))
     if not output.endswith('\n'): output += '\n'
 
     # take the output of the function and put it back into the file

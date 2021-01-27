@@ -608,7 +608,7 @@ static RetAndToken<std::unique_ptr<ASTNS::Decl>> state_11(Parser &parser, Locate
 static RetAndToken<std::unique_ptr<ASTNS::Type>> state_12(Parser &parser, std::unique_ptr<ASTNS::PathType> const &a0);
 static RetAndToken<std::unique_ptr<ASTNS::Type>> state_13(Parser &parser, std::unique_ptr<ASTNS::PointerType> const &a0);
 static RetAndToken<std::unique_ptr<ASTNS::Type>> state_14(Parser &parser, std::unique_ptr<ASTNS::ThisType> const &a0);
-static RetAndToken<std::variant<std::unique_ptr<ASTNS::Path>, std::unique_ptr<ASTNS::PathType>>> state_15(Parser &parser, std::unique_ptr<ASTNS::Path> const &a0);
+static RetAndToken<std::variant<std::unique_ptr<ASTNS::PathType>, std::unique_ptr<ASTNS::Path>>> state_15(Parser &parser, std::unique_ptr<ASTNS::Path> const &a0);
 static RetAndToken<std::unique_ptr<ASTNS::PointerType>> state_16(Parser &parser, Located<Tokens::Star> const &a0);
 static RetAndToken<std::unique_ptr<ASTNS::ThisType>> state_17(Parser &parser, Located<Tokens::This> const &a0);
 static RetAndToken<std::unique_ptr<ASTNS::Path>> state_18(Parser &parser, Located<Tokens::Identifier> const &a0);
@@ -668,7 +668,7 @@ static RetAndToken<std::unique_ptr<ASTNS::FunctionDecl>> state_71(Parser &parser
 static RetAndToken<std::unique_ptr<ASTNS::FunctionDecl>> state_72(Parser &parser, Located<Tokens::Fun> const &a0, Located<Tokens::Identifier> const &a1, Located<Tokens::OParen> const &a2, std::unique_ptr<ASTNS::ParamList> const &a3, Located<Tokens::CParen> const &a4, std::unique_ptr<ASTNS::Type> const &a5, std::unique_ptr<ASTNS::PureLocation> const &a6);
 static RetAndToken<std::unique_ptr<ASTNS::Block>> state_73(Parser &parser, std::unique_ptr<ASTNS::Block> const &a0);
 static RetAndToken<std::unique_ptr<ASTNS::Block>> state_74(Parser &parser, std::unique_ptr<ASTNS::Block> const &a0);
-static RetAndToken<std::variant<std::unique_ptr<ASTNS::Block>, std::unique_ptr<ASTNS::PureLocation>>> state_75(Parser &parser, Located<Tokens::Newline> const &a0);
+static RetAndToken<std::variant<std::unique_ptr<ASTNS::PureLocation>, std::unique_ptr<ASTNS::Block>>> state_75(Parser &parser, Located<Tokens::Newline> const &a0);
 static RetAndToken<std::unique_ptr<ASTNS::Block>> state_76(Parser &parser, Located<Tokens::OBrace> const &a0);
 static RetAndToken<std::unique_ptr<ASTNS::ImplMemberList>> state_77(Parser &parser, Located<Tokens::OBrace> const &a0, Located<Tokens::Newline> const &a1, Located<Tokens::Indent> const &a2, std::unique_ptr<ASTNS::ImplMemberList> const &a3, Located<Tokens::Dedent> const &a4);
 static RetAndToken<std::unique_ptr<ASTNS::FunctionDecl>> state_78(Parser &parser, Located<Tokens::Fun> const &a0, Located<Tokens::Identifier> const &a1, Located<Tokens::OParen> const &a2, std::unique_ptr<ASTNS::ParamList> const &a3, Located<Tokens::CParen> const &a4, std::unique_ptr<ASTNS::Type> const &a5, std::unique_ptr<ASTNS::Block> const &a6, std::unique_ptr<ASTNS::PureLocation> const &a7);
@@ -863,10 +863,10 @@ static RetAndToken<std::unique_ptr<ASTNS::CUB>>
         }
         default:
         {
-            Maybe<Location const> start, end;
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::CU> pushitem = nullptr;
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start, end;
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::CU> pushitem = nullptr;
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -880,7 +880,7 @@ static RetAndToken<std::unique_ptr<ASTNS::CUB>>
     switch (next_token.value.index()) {
         case Tokens::index_of<Tokens::_EOF>:
         {
-            accept(); // somehow
+             accept(); // somehow
         }
     }
 }
@@ -904,14 +904,14 @@ static RetAndToken<std::variant<std::unique_ptr<ASTNS::CU>, std::unique_ptr<ASTN
         }
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::CU> push (std::make_unique<ASTNS::CU>(p.sourcefile, span, std::move(a0->decls)));
-            std::unique_ptr<ASTNS::CU> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::CU> push (std::make_unique<ASTNS::CU>(p.sourcefile, span, std::move(a0->decls)));
+             std::unique_ptr<ASTNS::CU> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -925,15 +925,16 @@ static RetAndToken<std::unique_ptr<ASTNS::DeclList>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::DeclList> push (std::make_unique<ASTNS::DeclList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Decl>> {}));
-            push->decls.push_back(std::move(a0));
-            std::unique_ptr<ASTNS::DeclList> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::DeclList> push (std::make_unique<ASTNS::DeclList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Decl>> {}));
+
+        push->decls.push_back(std::move(a0));
+             std::unique_ptr<ASTNS::DeclList> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -947,13 +948,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Decl>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Decl> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Decl> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -967,13 +968,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Decl>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Decl> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Decl> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -1028,16 +1029,16 @@ static RetAndToken<std::unique_ptr<ASTNS::DeclList>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            a0->decls.push_back(std::move(a1));
-            std::unique_ptr<ASTNS::DeclList> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+a0->decls.push_back(std::move(a1));
+             std::unique_ptr<ASTNS::DeclList> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -1051,13 +1052,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Decl>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Decl> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Decl> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -1108,13 +1109,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Type>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Type> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Type> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -1128,13 +1129,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Type>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Type> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Type> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -1148,18 +1149,18 @@ static RetAndToken<std::unique_ptr<ASTNS::Type>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Type> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Type> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
 
-static RetAndToken<std::variant<std::unique_ptr<ASTNS::Path>, std::unique_ptr<ASTNS::PathType>>>
+static RetAndToken<std::variant<std::unique_ptr<ASTNS::PathType>, std::unique_ptr<ASTNS::Path>>>
     state_15 (
         Parser &parser,
         std::unique_ptr<ASTNS::Path> const &a0
@@ -1168,14 +1169,14 @@ static RetAndToken<std::variant<std::unique_ptr<ASTNS::Path>, std::unique_ptr<AS
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::PathType> push (std::make_unique<ASTNS::PathType>(p.sourcefile, span, std::move(a0)));
-            std::unique_ptr<ASTNS::PathType> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::PathType> push (std::make_unique<ASTNS::PathType>(p.sourcefile, span, std::move(a0)));
+             std::unique_ptr<ASTNS::PathType> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::DoubleColon>:
         {
@@ -1224,14 +1225,14 @@ static RetAndToken<std::unique_ptr<ASTNS::ThisType>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a0.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ThisType> push (std::make_unique<ASTNS::ThisType>(p.sourcefile, span, a0));
-            std::unique_ptr<ASTNS::ThisType> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a0.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::ThisType> push (std::make_unique<ASTNS::ThisType>(p.sourcefile, span, a0));
+             std::unique_ptr<ASTNS::ThisType> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -1245,15 +1246,16 @@ static RetAndToken<std::unique_ptr<ASTNS::Path>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a0.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Path> push (std::make_unique<ASTNS::Path>(p.sourcefile, span, std::vector<Token> {}));
-            push->segments.push_back(a0);
-            std::unique_ptr<ASTNS::Path> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a0.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::Path> push (std::make_unique<ASTNS::Path>(p.sourcefile, span, std::vector<Token> {}));
+
+        push->segments.push_back(a0);
+             std::unique_ptr<ASTNS::Path> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -1269,11 +1271,11 @@ static RetAndToken<std::unique_ptr<ASTNS::FunctionDecl>>
     switch (next_token.value.index()) {
         case Tokens::index_of<Tokens::CParen>:
         {
-            Maybe<Location const> start, end;
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ParamList> push (std::make_unique<ASTNS::ParamList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::ParamB>> {}));
-            std::unique_ptr<ASTNS::ParamList> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start, end;
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::ParamList> push (std::make_unique<ASTNS::ParamList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::ParamB>> {}));
+             std::unique_ptr<ASTNS::ParamList> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Identifier>:
         {
@@ -1331,10 +1333,10 @@ static RetAndToken<std::unique_ptr<ASTNS::Decl>>
         case Tokens::index_of<Tokens::While>:
         case Tokens::index_of<Tokens::_EOF>:
         {
-            Maybe<Location const> start, end;
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::PureLocation> pushitem = nullptr;
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start, end;
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::PureLocation> pushitem = nullptr;
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Newline>:
         {
@@ -1359,11 +1361,11 @@ static RetAndToken<std::unique_ptr<ASTNS::ImplMemberList>>
         case Tokens::index_of<Tokens::CBrace>:
         case Tokens::index_of<Tokens::Dedent>:
         {
-            Maybe<Location const> start, end;
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::ImplMember>> {}));
-            std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start, end;
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::ImplMember>> {}));
+             std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Fun>:
         {
@@ -1419,15 +1421,15 @@ static RetAndToken<std::unique_ptr<ASTNS::PointerType>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
-            Maybe<Location const>(a0.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::PointerType> push (std::make_unique<ASTNS::PointerType>(p.sourcefile, span, false, std::move(a1)));
-            std::unique_ptr<ASTNS::PointerType> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
+             Maybe<Location const>(a0.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::PointerType> push (std::make_unique<ASTNS::PointerType>(p.sourcefile, span, false, std::move(a1)));
+             std::unique_ptr<ASTNS::PointerType> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -1485,13 +1487,13 @@ static RetAndToken<std::unique_ptr<ASTNS::ParamList>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ParamList> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::ParamList> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -1505,13 +1507,13 @@ static RetAndToken<std::unique_ptr<ASTNS::ParamList>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ParamList> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::ParamList> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Comma>:
         {
@@ -1530,15 +1532,16 @@ static RetAndToken<std::unique_ptr<ASTNS::ParamList>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ParamList> push (std::make_unique<ASTNS::ParamList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::ParamB>> {}));
-            push->params.push_back(std::move(a0));
-            std::unique_ptr<ASTNS::ParamList> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::ParamList> push (std::make_unique<ASTNS::ParamList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::ParamB>> {}));
+
+        push->params.push_back(std::move(a0));
+             std::unique_ptr<ASTNS::ParamList> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -1552,13 +1555,13 @@ static RetAndToken<std::unique_ptr<ASTNS::ParamB>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ParamB> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::ParamB> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -1572,13 +1575,13 @@ static RetAndToken<std::unique_ptr<ASTNS::ParamB>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ParamB> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::ParamB> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -1622,14 +1625,14 @@ static RetAndToken<std::unique_ptr<ASTNS::ThisParam>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a0.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ThisParam> push (std::make_unique<ASTNS::ThisParam>(p.sourcefile, span, false, false));
-            std::unique_ptr<ASTNS::ThisParam> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a0.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::ThisParam> push (std::make_unique<ASTNS::ThisParam>(p.sourcefile, span, false, false));
+             std::unique_ptr<ASTNS::ThisParam> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -1666,15 +1669,15 @@ static RetAndToken<std::unique_ptr<ASTNS::Decl>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
-            Maybe<Location const>(a0.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ImplDecl> push (std::make_unique<ASTNS::ImplDecl>(p.sourcefile, span, std::move(a1), std::move(a2->members)));
-            std::unique_ptr<ASTNS::Decl> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
+             Maybe<Location const>(a0.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::ImplDecl> push (std::make_unique<ASTNS::ImplDecl>(p.sourcefile, span, std::move(a1), std::move(a2->members)));
+             std::unique_ptr<ASTNS::Decl> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -1688,13 +1691,13 @@ static RetAndToken<std::unique_ptr<ASTNS::PureLocation>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::PureLocation> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::PureLocation> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -1708,14 +1711,14 @@ static RetAndToken<std::unique_ptr<ASTNS::PureLocation>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a0.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::PureLocation> push (std::make_unique<ASTNS::PureLocation>(p.sourcefile, span, 0));
-            std::unique_ptr<ASTNS::PureLocation> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a0.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::PureLocation> push (std::make_unique<ASTNS::PureLocation>(p.sourcefile, span, 0));
+             std::unique_ptr<ASTNS::PureLocation> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -1729,14 +1732,14 @@ static RetAndToken<std::unique_ptr<ASTNS::PureLocation>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a0.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::PureLocation> push (std::make_unique<ASTNS::PureLocation>(p.sourcefile, span, 0));
-            std::unique_ptr<ASTNS::PureLocation> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a0.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::PureLocation> push (std::make_unique<ASTNS::PureLocation>(p.sourcefile, span, 0));
+             std::unique_ptr<ASTNS::PureLocation> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Newline>:
         {
@@ -1773,11 +1776,11 @@ static RetAndToken<std::unique_ptr<ASTNS::ImplMemberList>>
         case Tokens::index_of<Tokens::CBrace>:
         case Tokens::index_of<Tokens::Dedent>:
         {
-            Maybe<Location const> start, end;
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::ImplMember>> {}));
-            std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start, end;
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::ImplMember>> {}));
+             std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Fun>:
         {
@@ -1801,13 +1804,13 @@ static RetAndToken<std::unique_ptr<ASTNS::ImplMemberList>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Fun>:
         {
@@ -1826,15 +1829,16 @@ static RetAndToken<std::unique_ptr<ASTNS::ImplMemberList>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::ImplMember>> {}));
-            push->members.push_back(std::move(a0));
-            std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::ImplMember>> {}));
+
+        push->members.push_back(std::move(a0));
+             std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -1848,14 +1852,14 @@ static RetAndToken<std::unique_ptr<ASTNS::ImplMember>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::FunctionImplMember> push (std::make_unique<ASTNS::FunctionImplMember>(p.sourcefile, span, std::move(a0)));
-            std::unique_ptr<ASTNS::ImplMember> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::FunctionImplMember> push (std::make_unique<ASTNS::FunctionImplMember>(p.sourcefile, span, std::move(a0)));
+             std::unique_ptr<ASTNS::ImplMember> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -1871,11 +1875,11 @@ static RetAndToken<std::unique_ptr<ASTNS::ImplMemberList>>
         case Tokens::index_of<Tokens::CBrace>:
         case Tokens::index_of<Tokens::Dedent>:
         {
-            Maybe<Location const> start, end;
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::ImplMember>> {}));
-            std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start, end;
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::ImplMember>> {}));
+             std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Fun>:
         {
@@ -1896,15 +1900,15 @@ static RetAndToken<std::unique_ptr<ASTNS::Path>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a2.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            a0->segments.push_back(a2);
-            std::unique_ptr<ASTNS::Path> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a2.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+a0->segments.push_back(a2);
+             std::unique_ptr<ASTNS::Path> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -1920,15 +1924,15 @@ static RetAndToken<std::unique_ptr<ASTNS::PointerType>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::PointerType> push (std::make_unique<ASTNS::PointerType>(p.sourcefile, span, true, std::move(a2)));
-            std::unique_ptr<ASTNS::PointerType> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::PointerType> push (std::make_unique<ASTNS::PointerType>(p.sourcefile, span, true, std::move(a2)));
+             std::unique_ptr<ASTNS::PointerType> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -1962,14 +1966,14 @@ static RetAndToken<std::unique_ptr<ASTNS::ParamList>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ParamList> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::ParamList> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Identifier>:
         {
@@ -2004,15 +2008,15 @@ static RetAndToken<std::unique_ptr<ASTNS::Param>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
-            Maybe<Location const>(a0.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Param> push (std::make_unique<ASTNS::Param>(p.sourcefile, span, std::move(a1), a0, false));
-            std::unique_ptr<ASTNS::Param> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
+             Maybe<Location const>(a0.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::Param> push (std::make_unique<ASTNS::Param>(p.sourcefile, span, std::move(a1), a0, false));
+             std::unique_ptr<ASTNS::Param> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -2068,14 +2072,14 @@ static RetAndToken<std::unique_ptr<ASTNS::ThisParam>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ThisParam> push (std::make_unique<ASTNS::ThisParam>(p.sourcefile, span, true, false));
-            std::unique_ptr<ASTNS::ThisParam> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::ThisParam> push (std::make_unique<ASTNS::ThisParam>(p.sourcefile, span, true, false));
+             std::unique_ptr<ASTNS::ThisParam> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -2106,14 +2110,14 @@ static RetAndToken<std::unique_ptr<ASTNS::PureLocation>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            WARN_EXTRA_SEMI(a0);std::unique_ptr<ASTNS::PureLocation> push (std::make_unique<ASTNS::PureLocation>(p.sourcefile, span, 0));
-            std::unique_ptr<ASTNS::PureLocation> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+WARN_EXTRA_SEMI(a0);std::unique_ptr<ASTNS::PureLocation> push (std::make_unique<ASTNS::PureLocation>(p.sourcefile, span, 0));
+             std::unique_ptr<ASTNS::PureLocation> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -2129,13 +2133,13 @@ static RetAndToken<std::unique_ptr<ASTNS::ImplMemberList>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a2.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(a1);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a2.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(a1);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -2169,11 +2173,11 @@ static RetAndToken<std::unique_ptr<ASTNS::ImplMemberList>>
         case Tokens::index_of<Tokens::CBrace>:
         case Tokens::index_of<Tokens::Dedent>:
         {
-            Maybe<Location const> start, end;
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::ImplMember>> {}));
-            std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start, end;
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::ImplMember>> {}));
+             std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Fun>:
         {
@@ -2193,16 +2197,16 @@ static RetAndToken<std::unique_ptr<ASTNS::ImplMemberList>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            a0->members.push_back(std::move(a1));
-            std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+a0->members.push_back(std::move(a1));
+             std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -2216,13 +2220,13 @@ static RetAndToken<std::unique_ptr<ASTNS::ImplMember>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ImplMember> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::ImplMember> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -2285,16 +2289,16 @@ static RetAndToken<std::unique_ptr<ASTNS::ParamList>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            a0->params.push_back(std::move(a2));
-            std::unique_ptr<ASTNS::ParamList> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+a0->params.push_back(std::move(a2));
+             std::unique_ptr<ASTNS::ParamList> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -2308,13 +2312,13 @@ static RetAndToken<std::unique_ptr<ASTNS::ParamB>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ParamB> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::ParamB> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -2329,14 +2333,14 @@ static RetAndToken<std::unique_ptr<ASTNS::Type>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
-            Maybe<Location const>(a0.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Type> pushitem = std::move(a1);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
+             Maybe<Location const>(a0.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Type> pushitem = std::move(a1);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -2352,15 +2356,15 @@ static RetAndToken<std::unique_ptr<ASTNS::Param>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Param> push (std::make_unique<ASTNS::Param>(p.sourcefile, span, std::move(a2), a1, true));
-            std::unique_ptr<ASTNS::Param> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::Param> push (std::make_unique<ASTNS::Param>(p.sourcefile, span, std::move(a2), a1, true));
+             std::unique_ptr<ASTNS::Param> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -2376,14 +2380,14 @@ static RetAndToken<std::unique_ptr<ASTNS::ThisParam>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a2.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ThisParam> push (std::make_unique<ASTNS::ThisParam>(p.sourcefile, span, true, true));
-            std::unique_ptr<ASTNS::ThisParam> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a2.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::ThisParam> push (std::make_unique<ASTNS::ThisParam>(p.sourcefile, span, true, true));
+             std::unique_ptr<ASTNS::ThisParam> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -2400,14 +2404,13 @@ static RetAndToken<std::unique_ptr<ASTNS::ImplMemberList>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a3.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            WARN_BLOCK_NO_INDENT(a0, a3);
-            std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(a2);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a3.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+WARN_BLOCK_NO_INDENT(a0, a3);             std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(a2);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -2442,13 +2445,13 @@ static RetAndToken<std::unique_ptr<ASTNS::ImplMemberList>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a3.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(a2);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a3.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(a2);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -2490,10 +2493,10 @@ static RetAndToken<std::unique_ptr<ASTNS::FunctionDecl>>
         case Tokens::index_of<Tokens::While>:
         case Tokens::index_of<Tokens::_EOF>:
         {
-            Maybe<Location const> start, end;
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::PureLocation> pushitem = nullptr;
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start, end;
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::PureLocation> pushitem = nullptr;
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Newline>:
         {
@@ -2523,16 +2526,16 @@ static RetAndToken<std::unique_ptr<ASTNS::FunctionDecl>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-                a6 && a6->span().has() ? Maybe<Location const>(a6->span().get().end) :
-                a5 && a5->span().has() ? Maybe<Location const>(a5->span().get().end) :
-            Maybe<Location const>(a4.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>(p.sourcefile, span, std::move(a5), a1, std::move(a3->params), nullptr));
-            std::unique_ptr<ASTNS::FunctionDecl> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+                 a6 && a6->span().has() ? Maybe<Location const>(a6->span().get().end) :
+                 a5 && a5->span().has() ? Maybe<Location const>(a5->span().get().end) :
+             Maybe<Location const>(a4.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>(p.sourcefile, span, std::move(a5), a1, std::move(a3->params), nullptr));
+             std::unique_ptr<ASTNS::FunctionDecl> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -2546,13 +2549,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Block>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Block> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Block> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -2566,18 +2569,18 @@ static RetAndToken<std::unique_ptr<ASTNS::Block>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Block> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Block> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
 
-static RetAndToken<std::variant<std::unique_ptr<ASTNS::Block>, std::unique_ptr<ASTNS::PureLocation>>>
+static RetAndToken<std::variant<std::unique_ptr<ASTNS::PureLocation>, std::unique_ptr<ASTNS::Block>>>
     state_75 (
         Parser &parser,
         Located<Tokens::Newline> const &a0
@@ -2586,14 +2589,14 @@ static RetAndToken<std::variant<std::unique_ptr<ASTNS::Block>, std::unique_ptr<A
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a0.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::PureLocation> push (std::make_unique<ASTNS::PureLocation>(p.sourcefile, span, 0));
-            std::unique_ptr<ASTNS::PureLocation> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a0.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::PureLocation> push (std::make_unique<ASTNS::PureLocation>(p.sourcefile, span, 0));
+             std::unique_ptr<ASTNS::PureLocation> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Indent>:
         {
@@ -2628,11 +2631,11 @@ static RetAndToken<std::unique_ptr<ASTNS::Block>>
         case Tokens::index_of<Tokens::CBrace>:
         case Tokens::index_of<Tokens::Dedent>:
         {
-            Maybe<Location const> start, end;
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Stmt>> {}));
-            std::unique_ptr<ASTNS::StmtList> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start, end;
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Stmt>> {}));
+             std::unique_ptr<ASTNS::StmtList> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::CharLit>:
         {
@@ -2752,15 +2755,15 @@ static RetAndToken<std::unique_ptr<ASTNS::FunctionDecl>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-                a5 && a5->span().has() ? Maybe<Location const>(a5->span().get().end) :
-            Maybe<Location const>(a4.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>(p.sourcefile, span, std::move(a5), a1, std::move(a3->params), std::move(a6)));
-            std::unique_ptr<ASTNS::FunctionDecl> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+                 a5 && a5->span().has() ? Maybe<Location const>(a5->span().get().end) :
+             Maybe<Location const>(a4.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::FunctionDecl> push (std::make_unique<ASTNS::FunctionDecl>(p.sourcefile, span, std::move(a5), a1, std::move(a3->params), std::move(a6)));
+             std::unique_ptr<ASTNS::FunctionDecl> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -2791,11 +2794,11 @@ static RetAndToken<std::unique_ptr<ASTNS::Block>>
         case Tokens::index_of<Tokens::CBrace>:
         case Tokens::index_of<Tokens::Dedent>:
         {
-            Maybe<Location const> start, end;
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Stmt>> {}));
-            std::unique_ptr<ASTNS::StmtList> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start, end;
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Stmt>> {}));
+             std::unique_ptr<ASTNS::StmtList> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::CharLit>:
         {
@@ -2917,11 +2920,11 @@ static RetAndToken<std::unique_ptr<ASTNS::Block>>
         case Tokens::index_of<Tokens::CBrace>:
         case Tokens::index_of<Tokens::Dedent>:
         {
-            Maybe<Location const> start, end;
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Stmt>> {}));
-            std::unique_ptr<ASTNS::StmtList> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start, end;
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Stmt>> {}));
+             std::unique_ptr<ASTNS::StmtList> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::CharLit>:
         {
@@ -3030,13 +3033,13 @@ static RetAndToken<std::unique_ptr<ASTNS::StmtList>>
         }
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::StmtList> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::StmtList> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::CharLit>:
         {
@@ -3125,15 +3128,16 @@ static RetAndToken<std::unique_ptr<ASTNS::StmtList>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Stmt>> {}));
-            push->stmts.push_back(std::move(a0));
-            std::unique_ptr<ASTNS::StmtList> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Stmt>> {}));
+
+        push->stmts.push_back(std::move(a0));
+             std::unique_ptr<ASTNS::StmtList> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -3147,13 +3151,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Stmt>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Stmt> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Stmt> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -3167,13 +3171,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Stmt>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Stmt> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Stmt> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -3187,13 +3191,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Stmt>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Stmt> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Stmt> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -3274,10 +3278,10 @@ static RetAndToken<std::unique_ptr<ASTNS::ExprStmt>>
         case Tokens::index_of<Tokens::While>:
         case Tokens::index_of<Tokens::_EOF>:
         {
-            Maybe<Location const> start, end;
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::PureLocation> pushitem = nullptr;
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start, end;
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::PureLocation> pushitem = nullptr;
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Dollar>:
         {
@@ -3406,13 +3410,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -3426,13 +3430,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -3446,13 +3450,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -3466,13 +3470,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -3486,13 +3490,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::DoublePipe>:
         {
@@ -3696,13 +3700,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::DoubleAmper>:
         {
@@ -3726,13 +3730,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
         }
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::DoubleEqual>:
         {
@@ -3751,13 +3755,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Greater>:
         {
@@ -3791,13 +3795,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Caret>:
         {
@@ -3816,13 +3820,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Pipe>:
         {
@@ -3846,13 +3850,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
         }
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -3866,13 +3870,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::DoubleGreater>:
         {
@@ -3896,13 +3900,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Minus>:
         {
@@ -3926,13 +3930,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Percent>:
         {
@@ -3961,13 +3965,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::RightArrow>:
         {
@@ -3986,13 +3990,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -4386,13 +4390,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::OParen>:
         {
@@ -4416,13 +4420,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Period>:
         {
@@ -4441,13 +4445,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::OParen>:
         {
@@ -4471,13 +4475,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -4491,14 +4495,14 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a0.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p.sourcefile, span, a0));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a0.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p.sourcefile, span, a0));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -4512,14 +4516,14 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a0.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p.sourcefile, span, a0));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a0.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p.sourcefile, span, a0));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -4533,14 +4537,14 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a0.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p.sourcefile, span, a0));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a0.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p.sourcefile, span, a0));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -4554,14 +4558,14 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a0.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p.sourcefile, span, a0));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a0.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p.sourcefile, span, a0));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -4575,14 +4579,14 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a0.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p.sourcefile, span, a0));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a0.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p.sourcefile, span, a0));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -4596,14 +4600,14 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a0.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p.sourcefile, span, a0));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a0.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p.sourcefile, span, a0));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -4707,13 +4711,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -4727,14 +4731,14 @@ static RetAndToken<std::variant<std::unique_ptr<ASTNS::Expr>, std::unique_ptr<AS
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::PathExpr> push (std::make_unique<ASTNS::PathExpr>(p.sourcefile, span, std::move(a0)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::PathExpr> push (std::make_unique<ASTNS::PathExpr>(p.sourcefile, span, std::move(a0)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::DoubleColon>:
         {
@@ -4758,13 +4762,13 @@ static RetAndToken<std::unique_ptr<ASTNS::ImplMemberList>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a5.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(a3);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a5.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(a3);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -4797,14 +4801,14 @@ static RetAndToken<std::unique_ptr<ASTNS::Block>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a2.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, span, std::move(a1->stmts)));
-            std::unique_ptr<ASTNS::Block> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a2.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, span, std::move(a1->stmts)));
+             std::unique_ptr<ASTNS::Block> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -4853,11 +4857,11 @@ static RetAndToken<std::unique_ptr<ASTNS::Block>>
         case Tokens::index_of<Tokens::CBrace>:
         case Tokens::index_of<Tokens::Dedent>:
         {
-            Maybe<Location const> start, end;
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Stmt>> {}));
-            std::unique_ptr<ASTNS::StmtList> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start, end;
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Stmt>> {}));
+             std::unique_ptr<ASTNS::StmtList> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::CharLit>:
         {
@@ -4947,16 +4951,16 @@ static RetAndToken<std::unique_ptr<ASTNS::StmtList>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            a0->stmts.push_back(std::move(a1));
-            std::unique_ptr<ASTNS::StmtList> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+a0->stmts.push_back(std::move(a1));
+             std::unique_ptr<ASTNS::StmtList> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -4970,13 +4974,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Stmt>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Stmt> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Stmt> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -5016,13 +5020,13 @@ static RetAndToken<std::unique_ptr<ASTNS::VarStmtItemList>>
         }
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::VarStmtItemList> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::VarStmtItemList> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -5036,15 +5040,16 @@ static RetAndToken<std::unique_ptr<ASTNS::VarStmtItemList>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::VarStmtItemList> push (std::make_unique<ASTNS::VarStmtItemList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::VarStmtItem>> {}));
-            push->items.push_back(std::move(a0));
-            std::unique_ptr<ASTNS::VarStmtItemList> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::VarStmtItemList> push (std::make_unique<ASTNS::VarStmtItemList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::VarStmtItem>> {}));
+
+        push->items.push_back(std::move(a0));
+             std::unique_ptr<ASTNS::VarStmtItemList> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -5089,16 +5094,16 @@ static RetAndToken<std::unique_ptr<ASTNS::ExprStmt>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourcefile, span, std::move(a0), false, Maybe<Span const>()));
-            std::unique_ptr<ASTNS::ExprStmt> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourcefile, span, std::move(a0), false, Maybe<Span const>()));
+             std::unique_ptr<ASTNS::ExprStmt> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -5135,10 +5140,10 @@ static RetAndToken<std::unique_ptr<ASTNS::ExprStmt>>
         case Tokens::index_of<Tokens::While>:
         case Tokens::index_of<Tokens::_EOF>:
         {
-            Maybe<Location const> start, end;
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::PureLocation> pushitem = nullptr;
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start, end;
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::PureLocation> pushitem = nullptr;
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Newline>:
         {
@@ -5163,16 +5168,16 @@ static RetAndToken<std::unique_ptr<ASTNS::ExprStmt>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourcefile, span, std::move(a0), false, Maybe<Span const>()));
-            std::unique_ptr<ASTNS::ExprStmt> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourcefile, span, std::move(a0), false, Maybe<Span const>()));
+             std::unique_ptr<ASTNS::ExprStmt> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -5209,10 +5214,10 @@ static RetAndToken<std::unique_ptr<ASTNS::ExprStmt>>
         case Tokens::index_of<Tokens::While>:
         case Tokens::index_of<Tokens::_EOF>:
         {
-            Maybe<Location const> start, end;
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::PureLocation> pushitem = nullptr;
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start, end;
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::PureLocation> pushitem = nullptr;
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Newline>:
         {
@@ -5258,15 +5263,15 @@ static RetAndToken<std::unique_ptr<ASTNS::RetStmt>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
-            Maybe<Location const>(a0.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcefile, span, nullptr));
-            std::unique_ptr<ASTNS::RetStmt> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
+             Maybe<Location const>(a0.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcefile, span, nullptr));
+             std::unique_ptr<ASTNS::RetStmt> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -5280,13 +5285,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -5300,13 +5305,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -6833,15 +6838,15 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
-            Maybe<Location const>(a0.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::UnaryExpr> push (std::make_unique<ASTNS::UnaryExpr>(p.sourcefile, span, a0, std::move(a1)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
+             Maybe<Location const>(a0.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::UnaryExpr> push (std::make_unique<ASTNS::UnaryExpr>(p.sourcefile, span, a0, std::move(a1)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -6856,15 +6861,15 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
-            Maybe<Location const>(a0.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::UnaryExpr> push (std::make_unique<ASTNS::UnaryExpr>(p.sourcefile, span, a0, std::move(a1)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
+             Maybe<Location const>(a0.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::UnaryExpr> push (std::make_unique<ASTNS::UnaryExpr>(p.sourcefile, span, a0, std::move(a1)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -6879,15 +6884,15 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
-            Maybe<Location const>(a0.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::UnaryExpr> push (std::make_unique<ASTNS::UnaryExpr>(p.sourcefile, span, a0, std::move(a1)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
+             Maybe<Location const>(a0.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::UnaryExpr> push (std::make_unique<ASTNS::UnaryExpr>(p.sourcefile, span, a0, std::move(a1)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -6902,15 +6907,15 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
-            Maybe<Location const>(a0.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::AddrofExpr> push (std::make_unique<ASTNS::AddrofExpr>(p.sourcefile, span, a0, std::move(a1), false));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
+             Maybe<Location const>(a0.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::AddrofExpr> push (std::make_unique<ASTNS::AddrofExpr>(p.sourcefile, span, a0, std::move(a1), false));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -7001,15 +7006,15 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
-            Maybe<Location const>(a0.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::DerefExpr> push (std::make_unique<ASTNS::DerefExpr>(p.sourcefile, span, a0, std::move(a1)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
+             Maybe<Location const>(a0.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::DerefExpr> push (std::make_unique<ASTNS::DerefExpr>(p.sourcefile, span, a0, std::move(a1)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -7039,11 +7044,11 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
         }
         case Tokens::index_of<Tokens::CParen>:
         {
-            Maybe<Location const> start, end;
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Arg>> {}));
-            std::unique_ptr<ASTNS::ArgList> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start, end;
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Arg>> {}));
+             std::unique_ptr<ASTNS::ArgList> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::CharLit>:
         {
@@ -7170,11 +7175,11 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
         }
         case Tokens::index_of<Tokens::CParen>:
         {
-            Maybe<Location const> start, end;
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Arg>> {}));
-            std::unique_ptr<ASTNS::ArgList> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start, end;
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Arg>> {}));
+             std::unique_ptr<ASTNS::ArgList> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::CharLit>:
         {
@@ -7288,14 +7293,14 @@ static RetAndToken<std::unique_ptr<ASTNS::Block>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a3.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, span, std::move(a2->stmts)));
-            std::unique_ptr<ASTNS::Block> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a3.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, span, std::move(a2->stmts)));
+             std::unique_ptr<ASTNS::Block> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -7312,14 +7317,14 @@ static RetAndToken<std::unique_ptr<ASTNS::Block>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a3.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            WARN_BLOCK_NO_INDENT(a0, a3);std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, span, std::move(a2->stmts)));
-            std::unique_ptr<ASTNS::Block> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a3.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+WARN_BLOCK_NO_INDENT(a0, a3);std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, span, std::move(a2->stmts)));
+             std::unique_ptr<ASTNS::Block> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -7353,16 +7358,16 @@ static RetAndToken<std::unique_ptr<ASTNS::VarStmt>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
-            Maybe<Location const>(a0.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::VarStmt> push (std::make_unique<ASTNS::VarStmt>(p.sourcefile, span, std::move(a1->items)));
-            std::unique_ptr<ASTNS::VarStmt> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
+             Maybe<Location const>(a0.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::VarStmt> push (std::make_unique<ASTNS::VarStmt>(p.sourcefile, span, std::move(a1->items)));
+             std::unique_ptr<ASTNS::VarStmt> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -7387,14 +7392,14 @@ static RetAndToken<std::unique_ptr<ASTNS::VarStmtItemList>>
         }
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::VarStmtItemList> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::VarStmtItemList> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -7409,15 +7414,15 @@ static RetAndToken<std::unique_ptr<ASTNS::VarStmtItem>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
-            Maybe<Location const>(a0.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p.sourcefile, span, std::move(a1), false, a0, a0, nullptr));
-            std::unique_ptr<ASTNS::VarStmtItem> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
+             Maybe<Location const>(a0.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p.sourcefile, span, std::move(a1), false, a0, a0, nullptr));
+             std::unique_ptr<ASTNS::VarStmtItem> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Equal>:
         {
@@ -7454,16 +7459,16 @@ static RetAndToken<std::unique_ptr<ASTNS::ExprStmt>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourcefile, span, std::move(a0), true , Maybe<Span const>(a1.span)));
-            std::unique_ptr<ASTNS::ExprStmt> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourcefile, span, std::move(a0), true , Maybe<Span const>(a1.span)));
+             std::unique_ptr<ASTNS::ExprStmt> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -7479,16 +7484,16 @@ static RetAndToken<std::unique_ptr<ASTNS::ExprStmt>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourcefile, span, std::move(a0), true , Maybe<Span const>(a1.span)));
-            std::unique_ptr<ASTNS::ExprStmt> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourcefile, span, std::move(a0), true , Maybe<Span const>(a1.span)));
+             std::unique_ptr<ASTNS::ExprStmt> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -7504,16 +7509,16 @@ static RetAndToken<std::unique_ptr<ASTNS::RetStmt>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
-            Maybe<Location const>(a0.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcefile, span, std::move(a1)));
-            std::unique_ptr<ASTNS::RetStmt> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
+             Maybe<Location const>(a0.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::RetStmt> push (std::make_unique<ASTNS::RetStmt>(p.sourcefile, span, std::move(a1)));
+             std::unique_ptr<ASTNS::RetStmt> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -7529,16 +7534,16 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::AssignmentExpr> push (std::make_unique<ASTNS::AssignmentExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::AssignmentExpr> push (std::make_unique<ASTNS::AssignmentExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -7554,16 +7559,16 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ShortCircuitExpr> push (std::make_unique<ASTNS::ShortCircuitExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::ShortCircuitExpr> push (std::make_unique<ASTNS::ShortCircuitExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::DoubleAmper>:
         {
@@ -7584,16 +7589,16 @@ static RetAndToken<std::unique_ptr<ASTNS::IfExpr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
-            Maybe<Location const>(a0.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefile, span, a0, a0, std::move(a1), std::move(a2), nullptr));
-            std::unique_ptr<ASTNS::IfExpr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
+             Maybe<Location const>(a0.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefile, span, a0, a0, std::move(a1), std::move(a2), nullptr));
+             std::unique_ptr<ASTNS::IfExpr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Else>:
         {
@@ -7629,16 +7634,16 @@ static RetAndToken<std::unique_ptr<ASTNS::WhileExpr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
-            Maybe<Location const>(a0.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::WhileExpr> push (std::make_unique<ASTNS::WhileExpr>(p.sourcefile, span, std::move(a1), std::move(a2)));
-            std::unique_ptr<ASTNS::WhileExpr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
+             Maybe<Location const>(a0.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::WhileExpr> push (std::make_unique<ASTNS::WhileExpr>(p.sourcefile, span, std::move(a1), std::move(a2)));
+             std::unique_ptr<ASTNS::WhileExpr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -7659,16 +7664,16 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
         }
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ShortCircuitExpr> push (std::make_unique<ASTNS::ShortCircuitExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::ShortCircuitExpr> push (std::make_unique<ASTNS::ShortCircuitExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::DoubleEqual>:
         {
@@ -7689,16 +7694,16 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Greater>:
         {
@@ -7734,16 +7739,16 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Greater>:
         {
@@ -7779,16 +7784,16 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Caret>:
         {
@@ -7809,16 +7814,16 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Caret>:
         {
@@ -7839,16 +7844,16 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Caret>:
         {
@@ -7869,16 +7874,16 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Caret>:
         {
@@ -7899,16 +7904,16 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Pipe>:
         {
@@ -7934,16 +7939,16 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
         }
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -7959,16 +7964,16 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::DoubleGreater>:
         {
@@ -7994,16 +7999,16 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Minus>:
         {
@@ -8029,16 +8034,16 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Minus>:
         {
@@ -8064,16 +8069,16 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Percent>:
         {
@@ -8104,16 +8109,16 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Percent>:
         {
@@ -8144,16 +8149,16 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -8169,16 +8174,16 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -8194,16 +8199,16 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -8219,16 +8224,16 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::CastExpr> push (std::make_unique<ASTNS::CastExpr>(p.sourcefile, span, std::move(a2), std::move(a0)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::CastExpr> push (std::make_unique<ASTNS::CastExpr>(p.sourcefile, span, std::move(a2), std::move(a0)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -8244,15 +8249,15 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::AddrofExpr> push (std::make_unique<ASTNS::AddrofExpr>(p.sourcefile, span, a0, std::move(a2), true));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::AddrofExpr> push (std::make_unique<ASTNS::AddrofExpr>(p.sourcefile, span, a0, std::move(a2), true));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -8283,13 +8288,13 @@ static RetAndToken<std::unique_ptr<ASTNS::ArgList>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ArgList> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::ArgList> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -8303,13 +8308,13 @@ static RetAndToken<std::unique_ptr<ASTNS::ArgList>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ArgList> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::ArgList> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Comma>:
         {
@@ -8328,15 +8333,16 @@ static RetAndToken<std::unique_ptr<ASTNS::ArgList>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Arg>> {}));
-            push->args.push_back(std::move(a0));
-            std::unique_ptr<ASTNS::ArgList> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Arg>> {}));
+
+        push->args.push_back(std::move(a0));
+             std::unique_ptr<ASTNS::ArgList> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -8350,14 +8356,14 @@ static RetAndToken<std::unique_ptr<ASTNS::Arg>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Arg> push (std::make_unique<ASTNS::Arg>(p.sourcefile, span, std::move(a0)));
-            std::unique_ptr<ASTNS::Arg> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::Arg> push (std::make_unique<ASTNS::Arg>(p.sourcefile, span, std::move(a0)));
+             std::unique_ptr<ASTNS::Arg> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -8373,15 +8379,15 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a2.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::FieldAccessExpr> push (std::make_unique<ASTNS::FieldAccessExpr>(p.sourcefile, span, std::move(a0), a1, a2));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a2.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::FieldAccessExpr> push (std::make_unique<ASTNS::FieldAccessExpr>(p.sourcefile, span, std::move(a0), a1, a2));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::OParen>:
         {
@@ -8402,15 +8408,15 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a2.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::FieldAccessExpr> push (std::make_unique<ASTNS::FieldAccessExpr>(p.sourcefile, span, std::move(a0), a1, a2));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a2.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::FieldAccessExpr> push (std::make_unique<ASTNS::FieldAccessExpr>(p.sourcefile, span, std::move(a0), a1, a2));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::OParen>:
         {
@@ -8448,15 +8454,15 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a2.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::FieldAccessExpr> push (std::make_unique<ASTNS::FieldAccessExpr>(p.sourcefile, span, std::move(a0), a1, a2));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a2.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::FieldAccessExpr> push (std::make_unique<ASTNS::FieldAccessExpr>(p.sourcefile, span, std::move(a0), a1, a2));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::OParen>:
         {
@@ -8477,13 +8483,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a2.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(a1);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a2.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a1);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -8518,16 +8524,16 @@ static RetAndToken<std::unique_ptr<ASTNS::VarStmtItemList>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            a0->items.push_back(std::move(a2));
-            std::unique_ptr<ASTNS::VarStmtItemList> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+a0->items.push_back(std::move(a2));
+             std::unique_ptr<ASTNS::VarStmtItemList> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -8541,13 +8547,13 @@ static RetAndToken<std::unique_ptr<ASTNS::VarStmtItem>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::VarStmtItem> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::VarStmtItem> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -8655,15 +8661,15 @@ static RetAndToken<std::unique_ptr<ASTNS::VarStmtItem>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p.sourcefile, span, std::move(a2), true, a1, a1, nullptr));
-            std::unique_ptr<ASTNS::VarStmtItem> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p.sourcefile, span, std::move(a2), true, a1, a1, nullptr));
+             std::unique_ptr<ASTNS::VarStmtItem> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::Equal>:
         {
@@ -8713,15 +8719,15 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a3.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::CallExpr> push (std::make_unique<ASTNS::CallExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2->args)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a3.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::CallExpr> push (std::make_unique<ASTNS::CallExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2->args)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -8751,14 +8757,14 @@ static RetAndToken<std::unique_ptr<ASTNS::ArgList>>
         }
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ArgList> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::ArgList> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::CharLit>:
         {
@@ -8855,11 +8861,11 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
         }
         case Tokens::index_of<Tokens::CParen>:
         {
-            Maybe<Location const> start, end;
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Arg>> {}));
-            std::unique_ptr<ASTNS::ArgList> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start, end;
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Arg>> {}));
+             std::unique_ptr<ASTNS::ArgList> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::CharLit>:
         {
@@ -8956,11 +8962,11 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
         }
         case Tokens::index_of<Tokens::CParen>:
         {
-            Maybe<Location const> start, end;
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Arg>> {}));
-            std::unique_ptr<ASTNS::ArgList> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start, end;
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Arg>> {}));
+             std::unique_ptr<ASTNS::ArgList> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::CharLit>:
         {
@@ -9042,15 +9048,15 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a3.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::CallExpr> push (std::make_unique<ASTNS::CallExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2->args)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a3.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::CallExpr> push (std::make_unique<ASTNS::CallExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2->args)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -9082,11 +9088,11 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
         }
         case Tokens::index_of<Tokens::CParen>:
         {
-            Maybe<Location const> start, end;
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Arg>> {}));
-            std::unique_ptr<ASTNS::ArgList> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start, end;
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Arg>> {}));
+             std::unique_ptr<ASTNS::ArgList> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
         case Tokens::index_of<Tokens::CharLit>:
         {
@@ -9170,14 +9176,14 @@ static RetAndToken<std::unique_ptr<ASTNS::Block>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a5.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, span, std::move(a3->stmts)));
-            std::unique_ptr<ASTNS::Block> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a5.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, span, std::move(a3->stmts)));
+             std::unique_ptr<ASTNS::Block> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -9194,15 +9200,15 @@ static RetAndToken<std::unique_ptr<ASTNS::VarStmtItem>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-                a3 && a3->span().has() ? Maybe<Location const>(a3->span().get().end) :
-            Maybe<Location const>(a2.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p.sourcefile, span, std::move(a1), false, a0, a2, std::move(a3)));
-            std::unique_ptr<ASTNS::VarStmtItem> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+                 a3 && a3->span().has() ? Maybe<Location const>(a3->span().get().end) :
+             Maybe<Location const>(a2.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p.sourcefile, span, std::move(a1), false, a0, a2, std::move(a3)));
+             std::unique_ptr<ASTNS::VarStmtItem> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -9313,15 +9319,15 @@ static RetAndToken<std::unique_ptr<ASTNS::IfExpr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-                a4 && a4->span().has() ? Maybe<Location const>(a4->span().get().end) :
-            Maybe<Location const>(a3.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefile, span, a0, a3, std::move(a1), std::move(a2), std::move(a4)));
-            std::unique_ptr<ASTNS::IfExpr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+                 a4 && a4->span().has() ? Maybe<Location const>(a4->span().get().end) :
+             Maybe<Location const>(a3.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefile, span, a0, a3, std::move(a1), std::move(a2), std::move(a4)));
+             std::unique_ptr<ASTNS::IfExpr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -9339,15 +9345,15 @@ static RetAndToken<std::unique_ptr<ASTNS::IfExpr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-                a4 && a4->span().has() ? Maybe<Location const>(a4->span().get().end) :
-            Maybe<Location const>(a3.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefile, span, a0, a3, std::move(a1), std::move(a2), std::move(a4)));
-            std::unique_ptr<ASTNS::IfExpr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+                 a4 && a4->span().has() ? Maybe<Location const>(a4->span().get().end) :
+             Maybe<Location const>(a3.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefile, span, a0, a3, std::move(a1), std::move(a2), std::move(a4)));
+             std::unique_ptr<ASTNS::IfExpr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -9363,16 +9369,16 @@ static RetAndToken<std::unique_ptr<ASTNS::ArgList>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-            Maybe<Location const>(a1.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            a0->args.push_back(std::move(a2));
-            std::unique_ptr<ASTNS::ArgList> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+             Maybe<Location const>(a1.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+a0->args.push_back(std::move(a2));
+             std::unique_ptr<ASTNS::ArgList> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -9386,13 +9392,13 @@ static RetAndToken<std::unique_ptr<ASTNS::Arg>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
-            Maybe<Location const> end =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::Arg> pushitem = std::move(a0);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+             Maybe<Location const> end =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+             std::unique_ptr<ASTNS::Arg> pushitem = std::move(a0);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -9467,15 +9473,15 @@ static RetAndToken<std::unique_ptr<ASTNS::VarStmtItem>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-            Maybe<Location const>(a0.span.start);
-            Maybe<Location const> end =
-                a4 && a4->span().has() ? Maybe<Location const>(a4->span().get().end) :
-            Maybe<Location const>(a3.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p.sourcefile, span, std::move(a2), true, a1, a3, std::move(a4)));
-            std::unique_ptr<ASTNS::VarStmtItem> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+             Maybe<Location const>(a0.span.start);
+             Maybe<Location const> end =
+                 a4 && a4->span().has() ? Maybe<Location const>(a4->span().get().end) :
+             Maybe<Location const>(a3.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p.sourcefile, span, std::move(a2), true, a1, a3, std::move(a4)));
+             std::unique_ptr<ASTNS::VarStmtItem> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -9494,15 +9500,15 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a5.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::MethodCallExpr> push (std::make_unique<ASTNS::MethodCallExpr>(p.sourcefile, span, std::move(a0), a1, a2, a3, std::move(a4->args)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a5.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::MethodCallExpr> push (std::make_unique<ASTNS::MethodCallExpr>(p.sourcefile, span, std::move(a0), a1, a2, a3, std::move(a4->args)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -9521,15 +9527,15 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a5.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::MethodCallExpr> push (std::make_unique<ASTNS::MethodCallExpr>(p.sourcefile, span, std::move(a0), a1, a2, a3, std::move(a4->args)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a5.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::MethodCallExpr> push (std::make_unique<ASTNS::MethodCallExpr>(p.sourcefile, span, std::move(a0), a1, a2, a3, std::move(a4->args)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
@@ -9548,15 +9554,15 @@ static RetAndToken<std::unique_ptr<ASTNS::Expr>>
     switch (next_token.value.index()) {
         default:
         {
-            Maybe<Location const> start =
-                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-            Maybe<Location const>(a1.span.start);
-            Maybe<Location const> end =
-            Maybe<Location const>(a5.span.end);
-            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-            std::unique_ptr<ASTNS::MethodCallExpr> push (std::make_unique<ASTNS::MethodCallExpr>(p.sourcefile, span, std::move(a0), a1, a2, a3, std::move(a4->args)));
-            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-            return RetAndToken { pushitem, next_token };
+             Maybe<Location const> start =
+                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+             Maybe<Location const>(a1.span.start);
+             Maybe<Location const> end =
+             Maybe<Location const>(a5.span.end);
+             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+std::unique_ptr<ASTNS::MethodCallExpr> push (std::make_unique<ASTNS::MethodCallExpr>(p.sourcefile, span, std::move(a0), a1, a2, a3, std::move(a4->args)));
+             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+             return RetAndToken { pushitem, next_token };
         }
     }
 }
