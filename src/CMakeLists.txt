@@ -28,6 +28,9 @@ message(STATUS "Found libraries from llvm-config: ${llvm_libs}")
 target_link_libraries(katselc ${llvm_libs})
 
 set_target_properties(katselc PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS NO)
 
 target_compile_options(katselc PRIVATE -Wall -Wextra -Wpedantic -Wno-unused-parameter)
