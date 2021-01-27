@@ -76,32 +76,6 @@ namespace IR {
         inline Type(CodeGen::Context &context): context(context) {}
         virtual ~Type() {}
 
-        enum class BinaryOperator {
-            plus,
-            minus,
-            star,
-            slash,
-            percent,
-            greater,
-            less,
-            greaterequal,
-            lessequal,
-            amper,
-            pipe,
-            caret,
-            doublegreater,
-            doubleless,
-            doubleequal,
-            bangequal
-        };
-        enum class UnaryOperator {
-            bang,
-            tilde,
-            minus,
-            doubleplus,
-            doubleminus
-        };
-
         virtual Maybe<IR::ASTValue> bin_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST const &ast) const = 0;
         virtual Maybe<IR::ASTValue> unary_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST const &ast) const = 0;
 

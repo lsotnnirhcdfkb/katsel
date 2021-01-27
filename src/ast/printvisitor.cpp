@@ -141,7 +141,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::FunctionDecl &a) {
     ++indent;
     pai("std::unique_ptr<Type> retty = ");
     print_field(*this, a.retty);
-    pai("Token name = ");
+    pai("Located<Tokens::Identifier> name = ");
     print_field(*this, a.name);
     pai("std::vector<std::unique_ptr<ParamB>> params = ");
     print_field(*this, a.params);
@@ -173,9 +173,9 @@ void ASTNS::PrintVisitor::visit(ASTNS::VarStmtItem &a) {
     print_field(*this, a.type);
     pai("bool mut = ");
     print_field(*this, a.mut);
-    pai("Token name = ");
+    pai("Located<Tokens::Identifier> name = ");
     print_field(*this, a.name);
-    pai("Token equal = ");
+    pai("Located<Tokens::Equal> equal = ");
     print_field(*this, a.equal);
     pai("std::unique_ptr<Expr> expr = ");
     print_field(*this, a.expr);
@@ -223,7 +223,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::PointerType &a) {
 void ASTNS::PrintVisitor::visit(ASTNS::ThisType &a) {
     pai("ThisType {\n");
     ++indent;
-    pai("Token th = ");
+    pai("Located<Tokens::This> th = ");
     print_field(*this, a.th);
     --indent;
     pai("}\n");
@@ -241,7 +241,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::Param &a) {
     ++indent;
     pai("std::unique_ptr<Type> type = ");
     print_field(*this, a.type);
-    pai("Token name = ");
+    pai("Located<Tokens::Identifier> name = ");
     print_field(*this, a.name);
     pai("bool mut = ");
     print_field(*this, a.mut);
@@ -269,9 +269,9 @@ void ASTNS::PrintVisitor::visit(ASTNS::Block &a) {
 void ASTNS::PrintVisitor::visit(ASTNS::IfExpr &a) {
     pai("IfExpr {\n");
     ++indent;
-    pai("Token iftok = ");
+    pai("Located<Tokens::If> iftok = ");
     print_field(*this, a.iftok);
-    pai("Token elsetok = ");
+    pai("Located<Tokens::Else> elsetok = ");
     print_field(*this, a.elsetok);
     pai("std::unique_ptr<Expr> cond = ");
     print_field(*this, a.cond);
@@ -297,7 +297,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::AssignmentExpr &a) {
     ++indent;
     pai("std::unique_ptr<Expr> target = ");
     print_field(*this, a.target);
-    pai("Token equal = ");
+    pai("Located<AssignOperator> equal = ");
     print_field(*this, a.equal);
     pai("std::unique_ptr<Expr> expr = ");
     print_field(*this, a.expr);
@@ -309,7 +309,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::ShortCircuitExpr &a) {
     ++indent;
     pai("std::unique_ptr<Expr> lhs = ");
     print_field(*this, a.lhs);
-    pai("Token op = ");
+    pai("Located<ShortCircuitOperator> op = ");
     print_field(*this, a.op);
     pai("std::unique_ptr<Expr> rhs = ");
     print_field(*this, a.rhs);
@@ -321,7 +321,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::BinaryExpr &a) {
     ++indent;
     pai("std::unique_ptr<Expr> lhs = ");
     print_field(*this, a.lhs);
-    pai("Token op = ");
+    pai("Located<BinaryOperator> op = ");
     print_field(*this, a.op);
     pai("std::unique_ptr<Expr> rhs = ");
     print_field(*this, a.rhs);
@@ -341,7 +341,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::CastExpr &a) {
 void ASTNS::PrintVisitor::visit(ASTNS::UnaryExpr &a) {
     pai("UnaryExpr {\n");
     ++indent;
-    pai("Token op = ");
+    pai("Located<UnaryOperator> op = ");
     print_field(*this, a.op);
     pai("std::unique_ptr<Expr> expr = ");
     print_field(*this, a.expr);
@@ -351,7 +351,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::UnaryExpr &a) {
 void ASTNS::PrintVisitor::visit(ASTNS::AddrofExpr &a) {
     pai("AddrofExpr {\n");
     ++indent;
-    pai("Token op = ");
+    pai("Located<Tokens::Amper> op = ");
     print_field(*this, a.op);
     pai("std::unique_ptr<Expr> expr = ");
     print_field(*this, a.expr);
@@ -363,7 +363,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::AddrofExpr &a) {
 void ASTNS::PrintVisitor::visit(ASTNS::DerefExpr &a) {
     pai("DerefExpr {\n");
     ++indent;
-    pai("Token op = ");
+    pai("Located<Tokens::Star> op = ");
     print_field(*this, a.op);
     pai("std::unique_ptr<Expr> expr = ");
     print_field(*this, a.expr);
@@ -375,7 +375,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::CallExpr &a) {
     ++indent;
     pai("std::unique_ptr<Expr> callee = ");
     print_field(*this, a.callee);
-    pai("Token oparn = ");
+    pai("Located<Tokens::OParen> oparn = ");
     print_field(*this, a.oparn);
     pai("std::vector<std::unique_ptr<Arg>> args = ");
     print_field(*this, a.args);
@@ -387,9 +387,9 @@ void ASTNS::PrintVisitor::visit(ASTNS::FieldAccessExpr &a) {
     ++indent;
     pai("std::unique_ptr<Expr> operand = ");
     print_field(*this, a.operand);
-    pai("Token dot = ");
+    pai("Located<Tokens::Period> dot = ");
     print_field(*this, a.dot);
-    pai("Token field = ");
+    pai("Located<Tokens::Identifier> field = ");
     print_field(*this, a.field);
     --indent;
     pai("}\n");
@@ -399,22 +399,62 @@ void ASTNS::PrintVisitor::visit(ASTNS::MethodCallExpr &a) {
     ++indent;
     pai("std::unique_ptr<Expr> operand = ");
     print_field(*this, a.operand);
-    pai("Token dot = ");
+    pai("Located<Tokens::Period> dot = ");
     print_field(*this, a.dot);
-    pai("Token method = ");
+    pai("Located<Tokens::Identifier> method = ");
     print_field(*this, a.method);
-    pai("Token oparn = ");
+    pai("Located<Tokens::OParen> oparn = ");
     print_field(*this, a.oparn);
     pai("std::vector<std::unique_ptr<Arg>> args = ");
     print_field(*this, a.args);
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::PrimaryExpr &a) {
-    pai("PrimaryExpr {\n");
+void ASTNS::PrintVisitor::visit(ASTNS::BoolLit &a) {
+    pai("BoolLit {\n");
     ++indent;
-    pai("Token value = ");
-    print_field(*this, a.value);
+    pai("Located<Tokens::BoolLit> val = ");
+    print_field(*this, a.val);
+    --indent;
+    pai("}\n");
+}
+void ASTNS::PrintVisitor::visit(ASTNS::FloatLit &a) {
+    pai("FloatLit {\n");
+    ++indent;
+    pai("Located<Tokens::FloatLit> val = ");
+    print_field(*this, a.val);
+    --indent;
+    pai("}\n");
+}
+void ASTNS::PrintVisitor::visit(ASTNS::IntLit &a) {
+    pai("IntLit {\n");
+    ++indent;
+    pai("Located<Tokens::IntLit> val = ");
+    print_field(*this, a.val);
+    --indent;
+    pai("}\n");
+}
+void ASTNS::PrintVisitor::visit(ASTNS::CharLit &a) {
+    pai("CharLit {\n");
+    ++indent;
+    pai("Located<Tokens::CharLit> val = ");
+    print_field(*this, a.val);
+    --indent;
+    pai("}\n");
+}
+void ASTNS::PrintVisitor::visit(ASTNS::StringLit &a) {
+    pai("StringLit {\n");
+    ++indent;
+    pai("Located<Tokens::StringLit> val = ");
+    print_field(*this, a.val);
+    --indent;
+    pai("}\n");
+}
+void ASTNS::PrintVisitor::visit(ASTNS::ThisExpr &a) {
+    pai("ThisExpr {\n");
+    ++indent;
+    pai("Located<Tokens::This> tok = ");
+    print_field(*this, a.tok);
     --indent;
     pai("}\n");
 }
@@ -429,7 +469,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::PathExpr &a) {
 void ASTNS::PrintVisitor::visit(ASTNS::Path &a) {
     pai("Path {\n");
     ++indent;
-    pai("std::vector<Token> segments = ");
+    pai("std::vector<Located<Tokens::Identifier>> segments = ");
     print_field(*this, a.segments);
     --indent;
     pai("}\n");

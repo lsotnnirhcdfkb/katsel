@@ -10,7 +10,7 @@ class Lexer {
 public:
     Lexer(File &sourcefile);
 
-    Token next_token();
+    Located<TokenData> next_token();
 
 private:
     bool at_end();
@@ -24,10 +24,8 @@ private:
 
     void start_to_end();
 
-    Token lex_digit(char current);
-    Token lex_identifier(bool apostrophes_allowed);
-
-    Token make_token(TokenData const &data);
+    Located<TokenData> lex_digit(char current);
+    Located<TokenData> lex_identifier(bool apostrophes_allowed);
 
     std::string::const_iterator start;
     std::string::const_iterator end;

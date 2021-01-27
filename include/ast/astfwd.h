@@ -50,7 +50,12 @@ namespace ASTNS {
     class CallExpr;
     class FieldAccessExpr;
     class MethodCallExpr;
-    class PrimaryExpr;
+    class BoolLit;
+    class FloatLit;
+    class IntLit;
+    class CharLit;
+    class StringLit;
+    class ThisExpr;
     class PathExpr;
     class Path;
     // ASTFWD END

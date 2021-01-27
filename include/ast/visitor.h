@@ -44,7 +44,12 @@ namespace ASTNS {
         virtual void visit(ASTNS::CallExpr &ast) = 0;
         virtual void visit(ASTNS::FieldAccessExpr &ast) = 0;
         virtual void visit(ASTNS::MethodCallExpr &ast) = 0;
-        virtual void visit(ASTNS::PrimaryExpr &ast) = 0;
+        virtual void visit(ASTNS::BoolLit &ast) = 0;
+        virtual void visit(ASTNS::FloatLit &ast) = 0;
+        virtual void visit(ASTNS::IntLit &ast) = 0;
+        virtual void visit(ASTNS::CharLit &ast) = 0;
+        virtual void visit(ASTNS::StringLit &ast) = 0;
+        virtual void visit(ASTNS::ThisExpr &ast) = 0;
         virtual void visit(ASTNS::PathExpr &ast) = 0;
     };
     class TypeVisitor {

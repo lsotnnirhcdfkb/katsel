@@ -64,43 +64,48 @@ asts = [
 
     AST('CU'                , 'CUB', 'std::vector<std::unique_ptr<Decl>>|decls'),
     AST('ImplDecl'          , 'Decl', 'std::unique_ptr<Type>|impl_for, std::vector<std::unique_ptr<ImplMember>>|members'),
-    AST('FunctionDecl'      , 'Decl', 'std::unique_ptr<Type>|retty, Token|name, std::vector<std::unique_ptr<ParamB>>|params, std::unique_ptr<Block>|body'),
+    AST('FunctionDecl'      , 'Decl', 'std::unique_ptr<Type>|retty, Located<Tokens::Identifier>|name, std::vector<std::unique_ptr<ParamB>>|params, std::unique_ptr<Block>|body'),
 
     AST('FunctionImplMember', 'ImplMember', 'std::unique_ptr<FunctionDecl>|fun'),
 
     AST('VarStmt'           , 'Stmt', 'std::vector<std::unique_ptr<VarStmtItem>>|items'),
-    AST('VarStmtItem'       , 'VStmtIB', 'std::unique_ptr<Type>|type, bool|mut, Token|name, Token|equal, std::unique_ptr<Expr>|expr'),
+    AST('VarStmtItem'       , 'VStmtIB', 'std::unique_ptr<Type>|type, bool|mut, Located<Tokens::Identifier>|name, Located<Tokens::Equal>|equal, std::unique_ptr<Expr>|expr'),
 
     AST('ExprStmt'          , 'Stmt', 'std::unique_ptr<Expr>|expr, bool|suppress, Maybe<Span const>|dot'),
     AST('RetStmt'           , 'Stmt', 'std::unique_ptr<Expr>|expr'),
 
     AST('PathType'          , 'Type', 'std::unique_ptr<Path>|path'),
     AST('PointerType'       , 'Type', 'bool|mut, std::unique_ptr<Type>|type'),
-    AST('ThisType'          , 'Type', 'Token|th'),
+    AST('ThisType'          , 'Type', 'Located<Tokens::This>|th'),
 
     AST('Arg'               , 'ArgB', 'std::unique_ptr<Expr>|expr'),
 
-    AST('Param'             , 'ParamB', 'std::unique_ptr<Type>|type, Token|name, bool|mut'),
+    AST('Param'             , 'ParamB', 'std::unique_ptr<Type>|type, Located<Tokens::Identifier>|name, bool|mut'),
     AST('ThisParam'         , 'ParamB', 'bool|ptr, bool|mut'),
 
     AST('Block'             , 'Expr', 'std::vector<std::unique_ptr<Stmt>>|stmts'),
-    AST('IfExpr'            , 'Expr', 'Token|iftok, Token|elsetok, std::unique_ptr<Expr>|cond, std::unique_ptr<Expr>|trues, std::unique_ptr<Expr>|falses'),
+    AST('IfExpr'            , 'Expr', 'Located<Tokens::If>|iftok, Located<Tokens::Else>|elsetok, std::unique_ptr<Expr>|cond, std::unique_ptr<Expr>|trues, std::unique_ptr<Expr>|falses'),
     AST('WhileExpr'         , 'Expr', 'std::unique_ptr<Expr>|cond, std::unique_ptr<Expr>|body'),
 
-    AST('AssignmentExpr'    , 'Expr', 'std::unique_ptr<Expr>|target, Token|equal, std::unique_ptr<Expr>|expr'),
-    AST('ShortCircuitExpr'  , 'Expr', 'std::unique_ptr<Expr>|lhs, Token|op, std::unique_ptr<Expr>|rhs'),
-    AST('BinaryExpr'        , 'Expr', 'std::unique_ptr<Expr>|lhs, Token|op, std::unique_ptr<Expr>|rhs'),
+    AST('AssignmentExpr'    , 'Expr', 'std::unique_ptr<Expr>|target, Located<AssignOperator>|equal, std::unique_ptr<Expr>|expr'),
+    AST('ShortCircuitExpr'  , 'Expr', 'std::unique_ptr<Expr>|lhs, Located<ShortCircuitOperator>|op, std::unique_ptr<Expr>|rhs'),
+    AST('BinaryExpr'        , 'Expr', 'std::unique_ptr<Expr>|lhs, Located<BinaryOperator>|op, std::unique_ptr<Expr>|rhs'),
     AST('CastExpr'          , 'Expr', 'std::unique_ptr<Type>|type, std::unique_ptr<Expr>|expr'),
-    AST('UnaryExpr'         , 'Expr', 'Token|op, std::unique_ptr<Expr>|expr'),
-    AST('AddrofExpr'        , 'Expr', 'Token|op, std::unique_ptr<Expr>|expr, bool|mut'),
-    AST('DerefExpr'         , 'Expr', 'Token|op, std::unique_ptr<Expr>|expr'),
-    AST('CallExpr'          , 'Expr', 'std::unique_ptr<Expr>|callee, Token|oparn, std::vector<std::unique_ptr<Arg>>|args'),
-    AST('FieldAccessExpr'   , 'Expr', 'std::unique_ptr<Expr>|operand, Token|dot, Token|field'),
-    AST('MethodCallExpr'    , 'Expr', 'std::unique_ptr<Expr>|operand, Token|dot, Token|method, Token|oparn, std::vector<std::unique_ptr<Arg>>|args'),
-    AST('PrimaryExpr'       , 'Expr', 'Token|value'),
+    AST('UnaryExpr'         , 'Expr', 'Located<UnaryOperator>|op, std::unique_ptr<Expr>|expr'),
+    AST('AddrofExpr'        , 'Expr', 'Located<Tokens::Amper>|op, std::unique_ptr<Expr>|expr, bool|mut'),
+    AST('DerefExpr'         , 'Expr', 'Located<Tokens::Star>|op, std::unique_ptr<Expr>|expr'),
+    AST('CallExpr'          , 'Expr', 'std::unique_ptr<Expr>|callee, Located<Tokens::OParen>|oparn, std::vector<std::unique_ptr<Arg>>|args'),
+    AST('FieldAccessExpr'   , 'Expr', 'std::unique_ptr<Expr>|operand, Located<Tokens::Period>|dot, Located<Tokens::Identifier>|field'),
+    AST('MethodCallExpr'    , 'Expr', 'std::unique_ptr<Expr>|operand, Located<Tokens::Period>|dot, Located<Tokens::Identifier>|method, Located<Tokens::OParen>|oparn, std::vector<std::unique_ptr<Arg>>|args'),
+    AST('BoolLit'           , 'Expr', 'Located<Tokens::BoolLit>|val'),
+    AST('FloatLit'          , 'Expr', 'Located<Tokens::FloatLit>|val'),
+    AST('IntLit'            , 'Expr', 'Located<Tokens::IntLit>|val'),
+    AST('CharLit'           , 'Expr', 'Located<Tokens::CharLit>|val'),
+    AST('StringLit'         , 'Expr', 'Located<Tokens::StringLit>|val'),
+    AST('ThisExpr'          , 'Expr', 'Located<Tokens::This>|tok'),
     AST('PathExpr'          , 'Expr', 'std::unique_ptr<Path>|path'),
 
-    AST('Path'              , 'PathB', 'std::vector<Token>|segments'),
+    AST('Path'              , 'PathB', 'std::vector<Located<Tokens::Identifier>>|segments'),
 ]
 # Generating methods {{{1
 # Generating AST stuff {{{2

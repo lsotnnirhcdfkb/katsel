@@ -13,7 +13,7 @@ public:
 
     std::unique_ptr<ASTNS::CUB> parse();
 
-    Token consume();
+    Located<TokenData> consume();
 
     Lexer &lexer;
     File &sourcefile;

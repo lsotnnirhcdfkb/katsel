@@ -89,7 +89,12 @@ class CodeGen::FunctionCodeGen {
         void visit(ASTNS::CallExpr &ast) override;
         void visit(ASTNS::FieldAccessExpr &ast) override;
         void visit(ASTNS::MethodCallExpr &ast) override;
-        void visit(ASTNS::PrimaryExpr &ast) override;
+        void visit(ASTNS::BoolLit &ast) override;
+        void visit(ASTNS::FloatLit &ast) override;
+        void visit(ASTNS::IntLit &ast) override;
+        void visit(ASTNS::CharLit &ast) override;
+        void visit(ASTNS::StringLit &ast) override;
+        void visit(ASTNS::ThisExpr &ast) override;
         void visit(ASTNS::PathExpr &ast) override;
         // EXPRCG METHODS END
 
