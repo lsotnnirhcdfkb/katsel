@@ -368,16 +368,6 @@ void Error::report() const {
 
         print_final_line(pad, type, code, name);
     } else {
-        std::cerr << "{\"type\":\"";
-        switch (type) {
-            case MsgType::ERROR:
-                std::cerr << "error";
-                break;
-            case MsgType::WARNING:
-                std::cerr << "warning";
-                break;
-        }
-
         auto format_location = [](Location const &l) -> std::string {
             return format("{{ {}, {}, {}, {} }}",
                     jsonfield("file", l.file->filename),
@@ -386,9 +376,11 @@ void Error::report() const {
                     jsonfield("index", std::distance(l.file->source.cbegin(), l.iter)));
         };
 
-        std::cerr << "\",";
-        std::cerr << jsonfield("span", format_location(span.start));
-        std::cerr << jsonfield("code", code) << jsonfield("name", name);
+        std::cerr << format("{{ {}, {}, {}, {}, ",
+            jsonfield("type", type == MsgType::ERROR ? "\"error\"" : "\"warning\""),
+            jsonfield("start", span.as_rowcol()),
+            jsonfield("code", code),
+            jsonfield("name", name));
 
         std::cerr << "\"underlines\":[";
         bool f = true;
