@@ -869,22 +869,12 @@ def format_list(l):
     else:
         return 'format("' + ", ".join('{}' for _ in l[:-1]) + ', or {}", ' +  ', '.join(l) + ')'
 # }}}
-def gen_loop():
+def gen_states():
     output = []
 
-    output.append(                                'bool done = false;\n')
-    output.append(                                'bool errored = false;\n')
-    output.append(                                'int steps = 0;\n')
-    output.append(                                'Token lookahead (_lookahead); // for when you need to inject a new token\n')
-    output.append(                                'Token lasttok = lookahead;\n')
-
-    output.append(                                'while (!done) {\n')
-    output.append(                                '    if (istrial && steps > 5)\n')
-    output.append(                                '        return true;\n')
-    output.append(                                '    switch (stack.back().state) {\n')
-
     for staten, state in sorted(table.items(), key=lambda x:x[0]):
-        output.append(                           f'        case {staten}:\n')
+        output.append(                           f'void state_{staten}()')
+    """
         output.append(                            '            switch (lookahead.index()) {\n')
 
         stateactions = []
@@ -985,12 +975,7 @@ def gen_loop():
             output.append(                       f'                    error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {{  {", ".join(futuress + terminatess)}  }});\n')
         output.append(                            '            }\n')
         output.append(                            '            break;\n')
-
-    output.append(                                '        default:\n')
-    output.append(                                '            report_abort_noh(format("Parser reached invalid state: {}", stack.back().state));\n')
-
-    output.append(                                '    }\n')
-    output.append(                                '}\n')
+    """
 
     return ''.join(output)
 # generate goto code {{{2
@@ -1034,73 +1019,6 @@ def gen_non_term_enum():
         if isinstance(symbol, NonTerminal):
             output.append(f'_{symbol.id}, ')
     output.append('\n')
-    return ''.join(output)
-# generate panic mode error recovery code {{{2
-def gen_panic_mode():
-    output = []
-    output.append(                               ('#define CHECKASI(ty)\\\n'
-                                                  '    if (nterm == NonTerminal::ty) {\\\n'
-                                                  '        switch (e.lookahead.index()) {\n'
-                                                  '#define FINISHCHECKASI()\\\n'
-                                                  '        }\\\n'
-                                                  '    }\n'
-                                                  '#define RECOVERANDDEFBREAK()\\\n'
-                                                  '        valid = true;\\\n'
-                                                  '        delto = i;\\\n'
-                                                  '        break;\\\n'
-                                                  '    default:\\\n'
-                                                  '        break;\n'
-                                                  'bool valid = false;\n'
-                                                  'e.lookahead = e.p.consume(); // prevent infinite panicking loops\n'
-                                                  'std::vector<stackitem>::reverse_iterator delto;\n'
-                                                  'while (!valid) {\n'
-                                                  '    for (auto i = e.stack.rbegin(); i != e.stack.rend() && !valid; ++i) {\n'
-                                                  '        if (std::holds_alternative<astitem>(i->item)) {\n'
-                                                  '            NonTerminal nterm = std::get<astitem>(i->item).nt;\n'))
-
-    for nonterm in symbols:
-        if not isinstance(nonterm, NonTerminal):
-            continue
-        if nonterm == AUGMENT_SYM:
-            continue
-        if not nonterm.panickable:
-            continue
-
-        output.append(                           f'            CHECKASI({str(nonterm)})\n')
-        output.append(                            '                   ')
-        for follow in FOLLOWS[nonterm]:
-            output.append(                       f' case Token::index_of<{follow.astt()}>:')
-        output.append(                            '\n')
-        output.append(                            '                        RECOVERANDDEFBREAK()\n')
-        output.append(                            '            FINISHCHECKASI()\n')
-
-    output.append(                               ('        }\n'
-                                                  '    }\n'
-                                                  '    if (!valid)\n'
-                                                  '        e.lookahead = e.p.consume();\n'
-                                                  '    if (e.lookahead.is<Tokens::_EOF>())\n'
-                                                  '        return false;\n'
-                                                  '}\n'
-                                                  'e.stack.erase(delto.base(), e.stack.end());\n'
-                                                  '#undef CHECKASI\n'
-                                                  '#undef FINISHCHECKASI\n'
-                                                  '#undef RECOVERANDDEFBREAK\n'
-                                                  'ERR_PANICKING_INVALID_SYNTAX(e.olh, e.lasttok, e.lookahead, expectations);\n'
-                                                  'return true;\n'))
-
-    return ''.join(output)
-# generate single token insertion/deletion/substitution error recovery code {{{2
-def gen_single_tok():
-    output = []
-    output.append(                                '#define TRYINSERT(ty) if (try_insert(ty, e.p, e.lookahead, e.stack)) {fix f = fix {fix::fixtype::INSERT, ty}; if (score(f) > score(bestfix)) bestfix = f;}\n')
-    output.append(                                '#define TRYSUB(ty) if (try_sub(ty, e.p, e.lookahead, e.stack)) {fix f = fix {fix::fixtype::SUBSTITUTE, ty}; if (score(f) > score(bestfix)) bestfix = f;}\n')
-    output.append(                                '#define TRYTOKTY(ty) TRYINSERT(ty); TRYSUB(ty);\n')
-
-    for terminal in symbols:
-        if isinstance(terminal, Terminal):
-            output.append(                       f'TRYTOKTY({terminal.astt()})\n')
-
-    output.append(                                'if (try_del(e.p, e.stack)) {fix f = fix {fix::fixtype::REMOVE, static_cast<TokenType>(-1)}; if (score(f) > score(bestfix)) bestfix = f;};\n')
     return ''.join(output)
 # entry {{{1
 if __name__ == '__main__':
