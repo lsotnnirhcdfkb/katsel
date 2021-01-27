@@ -39,7 +39,7 @@ public:
     }
 
     T get() const {
-        ASSERT(has());
+        ASSERT(has())
         return std::get<with_t>(data).thing;
     }
 

@@ -12,7 +12,7 @@ public:
     NNPtr(T &other): ptr(&other) {}
 
     template <typename U, typename = std::enable_if_t<std::is_constructible_v<T*, U*>, void>>
-    NNPtr(U *other): ptr(other) { ASSERT(ptr); }
+    NNPtr(U *other): ptr(other) { ASSERT(ptr) }
 
     template <typename U, typename = std::enable_if_t<std::is_constructible_v<T*, U*>, void>>
     NNPtr(NNPtr<U> const &other): ptr(other.as_raw()) {}

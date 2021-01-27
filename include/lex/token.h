@@ -364,7 +364,7 @@ public:
     }
     template <typename T>
     constexpr T as() const {
-        ASSERT(is<T>());
+        ASSERT(is<T>())
         return std::get<T>(data);
     }
 
@@ -380,7 +380,7 @@ public:
 
     std::string stringify_type() const;
 
-    constexpr int index() {
+    constexpr size_t index() {
         return data.index();
     }
 };

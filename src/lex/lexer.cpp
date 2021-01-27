@@ -84,9 +84,11 @@ Token Lexer::lex_digit(char current) {
     else
         if (is_float) {
             if (base != Base::DECIMAL) return make_token(Tokens::Error { ERR_NONDECIMAL_FLOATLIT });
-            return make_token(Tokens::FloatLit {});
+            double val = stold(std::string(start, end));
+            return make_token(Tokens::FloatLit { val });
         } else {
-            return make_token(Tokens::IntLit {});
+            uint64_t val = stoll(std::string(start, end));
+            return make_token(Tokens::IntLit { val, base });
         }
 }
 Token Lexer::lex_identifier(bool apostrophes_allowed) {
@@ -263,10 +265,10 @@ Token Lexer::next_token() {
 
             if (starting_quote == '\'') {
                 if (std::distance(start, end) != 3) return make_token(Tokens::Error { ERR_MULTICHAR_CHARLIT });
-                else return make_token(Tokens::CharLit {});
+                else return make_token(Tokens::CharLit { *(start + 1) });
             }
 
-            return make_token(Tokens::StringLit {});
+            return make_token(Tokens::StringLit { std::string(start + 1, end - 2) });
     }
 
     if (current >= '0' && current <= '9')
@@ -355,7 +357,7 @@ TokenData Lexer::get_identifier_type() {
             break;
     }
 
-    return Tokens::Identifier {};
+    return Tokens::Identifier { std::string(start, end) };
 }
 // KWMATCH END
 // helpers {{{1

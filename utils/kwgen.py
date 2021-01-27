@@ -53,7 +53,7 @@ class TrieNode:
         output.append('TokenData Lexer::get_identifier_type() {\n')
         output.append(self.__generate(1))
         output.append('\n')
-        output.append(f'{TrieNode.get_indent(1)}return Tokens::Identifier {{}};\n')
+        output.append(f'{TrieNode.get_indent(1)}return Tokens::Identifier {{ std::string(start, end) }};\n')
         output.append('}\n')
         return ''.join(output)
 
