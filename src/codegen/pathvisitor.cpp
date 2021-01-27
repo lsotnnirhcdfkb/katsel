@@ -9,7 +9,7 @@ CodeGen::PathVisitor::PathVisitor(CodeGen &cg): cg(cg) {}
 
 Maybe<IR::DeclSymbol &> CodeGen::PathVisitor::resolve_decl_symbol(ASTNS::PathB &ast)  {
     pty = PathType::DECLARED;
-    dret = Maybe<NNPtr<IR::DeclSymbol >>();
+    dret = Maybe<NNPtr<IR::DeclSymbol>>();
     ast.accept(*this);
     return dret.fmap<IR::DeclSymbol &>( [] (NNPtr<IR::DeclSymbol> i) { return Maybe<IR::DeclSymbol &>(*i); });
 }
@@ -28,13 +28,13 @@ static Maybe<IR::DeclSymbol &> trace_path_decl_only(IR::DeclSymbol &start, std::
     Maybe<NNPtr<IR::DeclSymbol>> current = start;
     for (auto cur_token = tok_start; cur_token != tok_end; ++cur_token) {
         prev = current;
-        current = current.get()->get_decl_symbol(tok_start->stringify()).fmap<NNPtr<IR::DeclSymbol>>([] (IR::DeclSymbol &ds) { return NNPtr<IR::DeclSymbol>(ds); });
+        current = current.get()->get_decl_symbol(tok_start->as<Tokens::Identifier>().name).fmap<NNPtr<IR::DeclSymbol>>([] (IR::DeclSymbol &ds) { return NNPtr<IR::DeclSymbol>(ds); });
 
         if (!current.has()) {
             if (cur_token != tok_start)
                 ERR_NO_MEMBER_IN(*prev.get(), *cur_token);
             else
-                ERR_UNDECL_SYMB(*cur_token);
+                ERR_UNDECL_SYMB(cur_token->span);
             return Maybe<IR::DeclSymbol &>();
         }
     }
@@ -47,7 +47,7 @@ void CodeGen::PathVisitor::visit(ASTNS::Path &ast) {
     } else {
         if (ast.segments.size() == 1 && fcg.has()) {
             // look for local
-            std::string vname = ast.segments.back().stringify();
+            std::string vname = ast.segments.back().as<Tokens::Identifier>().name;
             Maybe<FunctionCodeGen::Local&> loc = fcg.get()->get_local(vname);
 
             if (loc.has()) {
@@ -70,7 +70,7 @@ void CodeGen::PathVisitor::visit(ASTNS::Path &ast) {
 
         NNPtr<IR::DeclSymbol> last = m_last.get();
 
-        Maybe<IR::Value&> ret = last->get_value(ast.segments.back().stringify());
+        Maybe<IR::Value&> ret = last->get_value(ast.segments.back().as<Tokens::Identifier>().name);
 
         if (!ret.has()) {
             ERR_NO_MEMBER_IN(*last, ast.segments.back());

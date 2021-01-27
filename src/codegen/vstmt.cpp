@@ -5,7 +5,7 @@
 #include "ir/block.h"
 
 void CodeGen::FunctionCodeGen::StmtCodeGen::visit(ASTNS::VarStmtItem &ast) {
-    std::string varname = ast.name.stringify();
+    std::string varname = ast.name.as<Tokens::Identifier>().name;
     Maybe<CodeGen::FunctionCodeGen::Local&> var = fcg.get_local(varname);
     if (var.has() && var.get().scopenum == fcg.cur_scope) {
         ERR_REDECL_VAR(ast.name, *var.get().v);

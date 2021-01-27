@@ -387,7 +387,6 @@ void Error::report() const {
         };
 
         std::cerr << "\",";
-        std::string::const_iterator const fstart = span.file->source.cbegin();
         std::cerr << jsonfield("span", format_location(span.start));
         std::cerr << jsonfield("code", code) << jsonfield("name", name);
 

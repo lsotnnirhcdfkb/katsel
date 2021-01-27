@@ -3,6 +3,7 @@
 #include "utils/ptr.h"
 #include "utils/maybe.h"
 #include "utils/location.h"
+#include "utils/assert.h"
 
 #include <string>
 #include <variant>
@@ -355,7 +356,7 @@ public:
 
     TokenData data;
 
-    inline Token(Span const &span, TokenData const &data): span(span), data(data) {}
+    Token(Span const &span, TokenData const &data);
 
     template <typename T>
     constexpr bool is() const {
@@ -363,6 +364,7 @@ public:
     }
     template <typename T>
     constexpr T as() const {
+        ASSERT(is<T>());
         return std::get<T>(data);
     }
 
@@ -376,12 +378,7 @@ public:
     template <typename T>
     static constexpr int index_of = _index_of_type<T>::value;
 
-    inline std::string stringify_type() const {
-        return std::visit([] (auto &&arg) -> std::string {
-                    using T = std::decay_t<decltype(arg)>;
-                    return T::stringify();
-                }, data);
-    };
+    std::string stringify_type() const;
 
     constexpr int index() {
         return data.index();

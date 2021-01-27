@@ -3,7 +3,7 @@
 #include <string>
 
 class Token;
-struct Location;
+class Location;
 
 void invalid_tok [[ noreturn ]] (std::string const &name, Token const &primary);
 void called_with_op_ty_nethis [[ noreturn ]] (std::string const &class_n, std::string const &fnn, std::string const &opname);

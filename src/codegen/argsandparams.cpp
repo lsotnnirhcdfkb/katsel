@@ -17,7 +17,7 @@ CodeGen::ParamVisitor::ParamVisitor::ParamVisitor(CodeGen &cg, std::vector<std::
 void CodeGen::ParamVisitor::visit(ASTNS::Param &ast) {
     Maybe<IR::Type&> ty (cg.type_visitor->type(*ast.type, this_type));
     if (ty.has()) {
-        std::string name (ast.name.stringify());
+        std::string name (ast.name.as<Tokens::Identifier>().stringify());
         Param p {ty.get(), std::move(name), ast, ast.mut};
         ret.push_back(p);
     } else {

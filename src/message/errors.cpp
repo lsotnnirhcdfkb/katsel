@@ -9,8 +9,8 @@
 
 ErrorFormat errformat = ErrorFormat::HUMAN;
 // Error methods {{{1
-Error::Error(MsgType type, Location const &location, std::string const &code, std::string const &name):
-    type(type), location(location),
+Error::Error(MsgType type, Span const &span, std::string const &code, std::string const &name):
+    type(type), span(span),
     code(code), name(name) {}
 Error& Error::underline(Underline const &underline) {
     underlines.push_back(underline);

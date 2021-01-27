@@ -14,7 +14,7 @@ void CodeGen::Declarator::visit(ASTNS::CU &ast) {
 }
 
 void CodeGen::Declarator::visit(ASTNS::FunctionDecl &fun) {
-    std::string fname (fun.name.stringify());
+    std::string fname (fun.name.as<Tokens::Identifier>().name);
     Maybe<IR::Value &> declbefore = current_symbol->get_value(fname);
 
     if (declbefore.has()) {
@@ -53,7 +53,7 @@ void CodeGen::Declarator::visit(ASTNS::ImplDecl &impl) {
     Maybe<IR::Type&> m_impl_for = cg.type_visitor->type(*impl.impl_for, Maybe<NNPtr<IR::Type>>());
     if (!m_impl_for.has()) {
         cg.errored = true;
-        ERR_UNDECL_SYMB(NNPtr<ASTNS::Type>(impl.impl_for.get()));
+        ERR_UNDECL_SYMB(*impl.impl_for);
         return;
     }
 

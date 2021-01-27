@@ -27,23 +27,23 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::BinaryExpr &ast) {
     IR::ASTValue lhs = m_lhs.get(), rhs = m_rhs.get();
 
     IR::Type::BinaryOperator oper;
-    switch (ast.op.type) {
-        case TokenType::BANGEQUAL: oper = IR::Type::BinaryOperator::bangequal; break;
-        case TokenType::DOUBLEEQUAL: oper = IR::Type::BinaryOperator::doubleequal; break;
-        case TokenType::LESS: oper = IR::Type::BinaryOperator::less; break;
-        case TokenType::GREATER: oper = IR::Type::BinaryOperator::greater; break;
-        case TokenType::LESSEQUAL: oper = IR::Type::BinaryOperator::lessequal; break;
-        case TokenType::GREATEREQUAL: oper = IR::Type::BinaryOperator::greaterequal; break;
-        case TokenType::CARET: oper = IR::Type::BinaryOperator::caret; break;
-        case TokenType::PIPE: oper = IR::Type::BinaryOperator::pipe; break;
-        case TokenType::AMPER: oper = IR::Type::BinaryOperator::amper; break;
-        case TokenType::DOUBLEGREATER: oper = IR::Type::BinaryOperator::doublegreater; break;
-        case TokenType::DOUBLELESS: oper = IR::Type::BinaryOperator::doubleless; break;
-        case TokenType::PLUS: oper = IR::Type::BinaryOperator::plus; break;
-        case TokenType::MINUS: oper = IR::Type::BinaryOperator::minus; break;
-        case TokenType::STAR: oper = IR::Type::BinaryOperator::star; break;
-        case TokenType::SLASH: oper = IR::Type::BinaryOperator::slash; break;
-        case TokenType::PERCENT: oper = IR::Type::BinaryOperator::percent; break;
+    switch (ast.op.index()) {
+        case Token::index_of<Tokens::BangEqual>: oper = IR::Type::BinaryOperator::bangequal; break;
+        case Token::index_of<Tokens::DoubleEqual>: oper = IR::Type::BinaryOperator::doubleequal; break;
+        case Token::index_of<Tokens::Less>: oper = IR::Type::BinaryOperator::less; break;
+        case Token::index_of<Tokens::Greater>: oper = IR::Type::BinaryOperator::greater; break;
+        case Token::index_of<Tokens::LessEqual>: oper = IR::Type::BinaryOperator::lessequal; break;
+        case Token::index_of<Tokens::GreaterEqual>: oper = IR::Type::BinaryOperator::greaterequal; break;
+        case Token::index_of<Tokens::Caret>: oper = IR::Type::BinaryOperator::caret; break;
+        case Token::index_of<Tokens::Pipe>: oper = IR::Type::BinaryOperator::pipe; break;
+        case Token::index_of<Tokens::Amper>: oper = IR::Type::BinaryOperator::amper; break;
+        case Token::index_of<Tokens::DoubleGreater>: oper = IR::Type::BinaryOperator::doublegreater; break;
+        case Token::index_of<Tokens::DoubleLess>: oper = IR::Type::BinaryOperator::doubleless; break;
+        case Token::index_of<Tokens::Plus>: oper = IR::Type::BinaryOperator::plus; break;
+        case Token::index_of<Tokens::Minus>: oper = IR::Type::BinaryOperator::minus; break;
+        case Token::index_of<Tokens::Star>: oper = IR::Type::BinaryOperator::star; break;
+        case Token::index_of<Tokens::Slash>: oper = IR::Type::BinaryOperator::slash; break;
+        case Token::index_of<Tokens::Percent>: oper = IR::Type::BinaryOperator::percent; break;
         default: invalid_tok("binary operator", ast.op);
     }
     ret = lhs.type().bin_op(*cg.context, *fcg.fun, fcg.cur_block, oper, lhs, rhs, ast.op, ast);
@@ -71,11 +71,11 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::ShortCircuitExpr &ast) 
     NNPtr<IR::Block> after = fcg.fun->add_block("shortcircuit_after");
 
     bool value_if_skipped;
-    if (ast.op.type == TokenType::DOUBLEPIPE) {
+    if (ast.op.is<Tokens::DoublePipe>()) {
         // jump to skip when true
         fcg.cur_block->branch(std::make_unique<IR::Instrs::CondBr>(lhs, skip, checkboth));
         value_if_skipped = true;
-    } else if (ast.op.type == TokenType::DOUBLEAMPER) {
+    } else if (ast.op.is<Tokens::DoubleAmper>()) {
         // jump to skip when false
         fcg.cur_block->branch(std::make_unique<IR::Instrs::CondBr>(lhs, checkboth, skip));
         value_if_skipped = false;
@@ -118,12 +118,12 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::UnaryExpr &ast) {
 
     IR::Type::UnaryOperator opor;
 
-    switch (ast.op.type) {
-        case TokenType::TILDE:
+    switch (ast.op.index()) {
+        case Token::index_of<Tokens::Tilde>:
             opor = IR::Type::UnaryOperator::tilde; break;
-        case TokenType::MINUS:
+        case Token::index_of<Tokens::Minus>:
             opor = IR::Type::UnaryOperator::minus; break;
-        case TokenType::BANG:
+        case Token::index_of<Tokens::Bang>:
             opor = IR::Type::UnaryOperator::bang; break;
         default:
             invalid_tok("unary operator", ast.op);
@@ -229,49 +229,27 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::CallExpr &ast) {
 }
 
 void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::PrimaryExpr &ast) {
-    int _intbase;
-    switch (ast.value.type) {
-        case TokenType::TRUELIT:
-            ret = IR::ASTValue(cg.context->get_const_bool(true), ast);
+    switch (ast.value.index()) {
+        case Token::index_of<Tokens::BoolLit>:
+            ret = IR::ASTValue(cg.context->get_const_bool(ast.value.as<Tokens::BoolLit>().val), ast);
             return;
 
-        case TokenType::FALSELIT:
-            ret = IR::ASTValue(cg.context->get_const_bool(false), ast);
+        case Token::index_of<Tokens::FloatLit>:
+            ret = IR::ASTValue(cg.context->get_const_float(cg.context->get_generic_float_type(), ast.value.as<Tokens::FloatLit>().val), ast);
             return;
 
-        case TokenType::FLOATLIT:
-            ret = IR::ASTValue(cg.context->get_const_float(cg.context->get_generic_float_type(), std::stod(ast.value.stringify())), ast);
+        case Token::index_of<Tokens::IntLit>:
+            ret = IR::ASTValue(cg.context->get_const_int(cg.context->get_generic_int_type(), ast.value.as<Tokens::IntLit>().val), ast);
             return;
 
-        case TokenType::NULLPTRLIT:
-            report_abort_noh("nullptr literals are not supported yet");
-
-        case TokenType::DECINTLIT:
-            ret = IR::ASTValue(cg.context->get_const_int(cg.context->get_generic_int_type(), std::stoll(ast.value.stringify())), ast);
+        case Token::index_of<Tokens::CharLit>:
+            ret = IR::ASTValue(cg.context->get_const_char(ast.value.as<Tokens::CharLit>().val), ast);
             return;
 
-        case TokenType::OCTINTLIT:
-            _intbase = 8;
-            goto make_int_lit;
-        case TokenType::BININTLIT:
-            _intbase = 2;
-            goto make_int_lit;
-        case TokenType::HEXINTLIT:
-            _intbase = 16;
-            goto make_int_lit;
-
-make_int_lit:
-            ret = IR::ASTValue(cg.context->get_const_int(cg.context->get_generic_int_type(), std::stoll(ast.value.stringify().erase(0, 2), nullptr, _intbase)), ast);
-            return;
-
-        case TokenType::CHARLIT:
-            ret = IR::ASTValue(cg.context->get_const_char(*(ast.value.start + 1)), ast);
-            return;
-
-        case TokenType::STRINGLIT:
+        case Token::index_of<Tokens::StringLit>:
             report_abort_noh("string literals are not supported yet");
 
-        case TokenType::THIS: {
+        case Token::index_of<Tokens::This>: {
                 Maybe<Local&> m_loc = fcg.get_local("this");
                 if (m_loc.has()) {
                     NNPtr<Local> local = m_loc.get();
@@ -520,14 +498,15 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::FieldAccessExpr &ast) {
 
     IR::ASTValue op = m_op.get();
 
-    bool has = op.type().has_field(ast.field.stringify());
+    std::string fieldName = ast.field.as<Tokens::Identifier>().name;
+    bool has = op.type().has_field(fieldName);
     if (!has) {
         ERR_NO_FIELD(op, ast.field);
         fcg.errored = true;
         return;
     }
 
-    int jnd = op.type().get_field_index(ast.field.stringify());
+    int ind = op.type().get_field_index(fieldName);
     // TODO: do this
 }
 void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::MethodCallExpr &ast) {
@@ -539,7 +518,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::MethodCallExpr &ast) {
 
     IR::ASTValue op = m_op.get();
 
-    Maybe<IR::Type::Method const> m_method = op.type().get_method(ast.method.stringify());
+    Maybe<IR::Type::Method const> m_method = op.type().get_method(ast.method.as<Tokens::Identifier>().name);
     if (!m_method.has()) {
         ERR_NO_METHOD(op, ast.method);
         fcg.errored = true;

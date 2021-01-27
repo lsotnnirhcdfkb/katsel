@@ -22,7 +22,7 @@ void CodeGen::ImplCodeGen::visit(ASTNS::FunctionImplMember &ast) {
 
     NNPtr<IR::Type> impl_for = this->impl_for.get();
 
-    Maybe<IR::Value&> m_val = impl_for->get_value(ast.fun->name.stringify());
+    Maybe<IR::Value&> m_val = impl_for->get_value(ast.fun->name.as<Tokens::Identifier>().name);
     if (!m_val.has()) {
         errored = true;
         return;
