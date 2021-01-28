@@ -413,7 +413,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::MethodCallExpr &a) {
 void ASTNS::PrintVisitor::visit(ASTNS::BoolLit &a) {
     pai("BoolLit {\n");
     ++indent;
-    pai("Located<Tokens::BoolLit> val = ");
+    pai("Located<bool> val = ");
     print_field(*this, a.val);
     --indent;
     pai("}\n");
@@ -421,7 +421,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::BoolLit &a) {
 void ASTNS::PrintVisitor::visit(ASTNS::FloatLit &a) {
     pai("FloatLit {\n");
     ++indent;
-    pai("Located<Tokens::FloatLit> val = ");
+    pai("Located<double> val = ");
     print_field(*this, a.val);
     --indent;
     pai("}\n");
@@ -429,7 +429,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::FloatLit &a) {
 void ASTNS::PrintVisitor::visit(ASTNS::IntLit &a) {
     pai("IntLit {\n");
     ++indent;
-    pai("Located<Tokens::IntLit> val = ");
+    pai("Located<uint64_t> val = ");
     print_field(*this, a.val);
     --indent;
     pai("}\n");
@@ -437,7 +437,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::IntLit &a) {
 void ASTNS::PrintVisitor::visit(ASTNS::CharLit &a) {
     pai("CharLit {\n");
     ++indent;
-    pai("Located<Tokens::CharLit> val = ");
+    pai("Located<char> val = ");
     print_field(*this, a.val);
     --indent;
     pai("}\n");
@@ -445,7 +445,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::CharLit &a) {
 void ASTNS::PrintVisitor::visit(ASTNS::StringLit &a) {
     pai("StringLit {\n");
     ++indent;
-    pai("Located<Tokens::StringLit> val = ");
+    pai("Located<std::string> val = ");
     print_field(*this, a.val);
     --indent;
     pai("}\n");
@@ -453,7 +453,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::StringLit &a) {
 void ASTNS::PrintVisitor::visit(ASTNS::ThisExpr &a) {
     pai("ThisExpr {\n");
     ++indent;
-    pai("Located<Tokens::This> tok = ");
+    pai("Span tok = ");
     print_field(*this, a.tok);
     --indent;
     pai("}\n");
