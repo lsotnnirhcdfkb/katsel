@@ -69,7 +69,7 @@ asts = [
     AST('FunctionImplMember', 'ImplMember', 'std::unique_ptr<FunctionDecl>|fun'),
 
     AST('VarStmt'           , 'Stmt', 'std::vector<std::unique_ptr<VarStmtItem>>|items'),
-    AST('VarStmtItem'       , 'VStmtIB', 'std::unique_ptr<Type>|type, bool|mut, Located<Tokens::Identifier>|name, Located<Tokens::Equal>|equal, std::unique_ptr<Expr>|expr'),
+    AST('VarStmtItem'       , 'VStmtIB', 'std::unique_ptr<Type>|type, bool|mut, Located<Tokens::Identifier>|name, Maybe<Located<Tokens::Equal>>|equal, std::unique_ptr<Expr>|expr'),
 
     AST('ExprStmt'          , 'Stmt', 'std::unique_ptr<Expr>|expr, bool|suppress, Maybe<Span const>|dot'),
     AST('RetStmt'           , 'Stmt', 'std::unique_ptr<Expr>|expr'),

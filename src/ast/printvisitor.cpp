@@ -175,7 +175,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::VarStmtItem &a) {
     print_field(*this, a.mut);
     pai("Located<Tokens::Identifier> name = ");
     print_field(*this, a.name);
-    pai("Located<Tokens::Equal> equal = ");
+    pai("Maybe<Located<Tokens::Equal>> equal = ");
     print_field(*this, a.equal);
     pai("std::unique_ptr<Expr> expr = ");
     print_field(*this, a.expr);

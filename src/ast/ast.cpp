@@ -52,7 +52,7 @@ Maybe<Span const> const &ASTNS::FunctionImplMember::span() const { return _span;
 ASTNS::VarStmt::VarStmt(File const &file, Maybe<Span const> const &span, std::vector<std::unique_ptr<VarStmtItem>> items): Stmt(file), _span(span), items(std::move(items)) {}
 void ASTNS::VarStmt::accept(ASTNS::StmtVisitor &v) { v.visit(*this); }
 Maybe<Span const> const &ASTNS::VarStmt::span() const { return _span; }
-ASTNS::VarStmtItem::VarStmtItem(File const &file, Maybe<Span const> const &span, std::unique_ptr<Type> type, bool mut, Located<Tokens::Identifier> name, Located<Tokens::Equal> equal, std::unique_ptr<Expr> expr): VStmtIB(file), _span(span), type(std::move(type)), mut(std::move(mut)), name(std::move(name)), equal(std::move(equal)), expr(std::move(expr)) {}
+ASTNS::VarStmtItem::VarStmtItem(File const &file, Maybe<Span const> const &span, std::unique_ptr<Type> type, bool mut, Located<Tokens::Identifier> name, Maybe<Located<Tokens::Equal>> equal, std::unique_ptr<Expr> expr): VStmtIB(file), _span(span), type(std::move(type)), mut(std::move(mut)), name(std::move(name)), equal(std::move(equal)), expr(std::move(expr)) {}
 void ASTNS::VarStmtItem::accept(ASTNS::VStmtIBVisitor &v) { v.visit(*this); }
 Maybe<Span const> const &ASTNS::VarStmtItem::span() const { return _span; }
 ASTNS::ExprStmt::ExprStmt(File const &file, Maybe<Span const> const &span, std::unique_ptr<Expr> expr, bool suppress, Maybe<Span const> dot): Stmt(file), _span(span), expr(std::move(expr)), suppress(std::move(suppress)), dot(std::move(dot)) {}

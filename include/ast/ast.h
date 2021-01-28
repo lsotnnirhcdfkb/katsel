@@ -236,11 +236,11 @@ namespace ASTNS {
         std::unique_ptr<Type> type;
         bool mut;
         Located<Tokens::Identifier> name;
-        Located<Tokens::Equal> equal;
+        Maybe<Located<Tokens::Equal>> equal;
         std::unique_ptr<Expr> expr;
         virtual void accept(VStmtIBVisitor &v) override;
         virtual Maybe<Span const> const &span() const override;
-        VarStmtItem(File const &file, Maybe<Span const> const &span, std::unique_ptr<Type> type, bool mut, Located<Tokens::Identifier> name, Located<Tokens::Equal> equal, std::unique_ptr<Expr> expr);
+        VarStmtItem(File const &file, Maybe<Span const> const &span, std::unique_ptr<Type> type, bool mut, Located<Tokens::Identifier> name, Maybe<Located<Tokens::Equal>> equal, std::unique_ptr<Expr> expr);
     };
     class ExprStmt : public Stmt {
     public:

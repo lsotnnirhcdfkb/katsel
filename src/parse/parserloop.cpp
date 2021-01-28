@@ -3836,7 +3836,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Location const> end =
                                 Maybe<Location const>(a0.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p.sourcefile, span, a0));
+    std::unique_ptr<ASTNS::BoolLit> push (std::make_unique<ASTNS::BoolLit>(p.sourcefile, span, a0));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_45, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_45 });
                         }
@@ -3854,7 +3854,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Location const> end =
                                 Maybe<Location const>(a0.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p.sourcefile, span, a0));
+    std::unique_ptr<ASTNS::FloatLit> push (std::make_unique<ASTNS::FloatLit>(p.sourcefile, span, a0));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_45, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_45 });
                         }
@@ -3872,7 +3872,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Location const> end =
                                 Maybe<Location const>(a0.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p.sourcefile, span, a0));
+    std::unique_ptr<ASTNS::IntLit> push (std::make_unique<ASTNS::IntLit>(p.sourcefile, span, a0));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_45, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_45 });
                         }
@@ -3890,7 +3890,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Location const> end =
                                 Maybe<Location const>(a0.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p.sourcefile, span, a0));
+    std::unique_ptr<ASTNS::CharLit> push (std::make_unique<ASTNS::CharLit>(p.sourcefile, span, a0));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_45, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_45 });
                         }
@@ -3908,7 +3908,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Location const> end =
                                 Maybe<Location const>(a0.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p.sourcefile, span, a0));
+    std::unique_ptr<ASTNS::StringLit> push (std::make_unique<ASTNS::StringLit>(p.sourcefile, span, a0));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_45, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_45 });
                         }
@@ -3926,7 +3926,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Location const> end =
                                 Maybe<Location const>(a0.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::PrimaryExpr> push (std::make_unique<ASTNS::PrimaryExpr>(p.sourcefile, span, a0));
+    std::unique_ptr<ASTNS::ThisExpr> push (std::make_unique<ASTNS::ThisExpr>(p.sourcefile, span, a0));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_45, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_45 });
                         }
@@ -5993,7 +5993,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
                                 Maybe<Location const>(a0.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::UnaryExpr> push (std::make_unique<ASTNS::UnaryExpr>(p.sourcefile, span, a0, std::move(a1)));
+    std::unique_ptr<ASTNS::UnaryExpr> push (std::make_unique<ASTNS::UnaryExpr>(p.sourcefile, span, Located<ASTNS::UnaryOperator> { a0.span, ASTNS::UnaryOperator::TILDE }, std::move(a1)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_41, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_41 });
                         }
@@ -6013,7 +6013,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
                                 Maybe<Location const>(a0.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::UnaryExpr> push (std::make_unique<ASTNS::UnaryExpr>(p.sourcefile, span, a0, std::move(a1)));
+    std::unique_ptr<ASTNS::UnaryExpr> push (std::make_unique<ASTNS::UnaryExpr>(p.sourcefile, span, Located<ASTNS::UnaryOperator> { a0.span, ASTNS::UnaryOperator::MINUS }, std::move(a1)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_41, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_41 });
                         }
@@ -6033,7 +6033,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
                                 Maybe<Location const>(a0.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::UnaryExpr> push (std::make_unique<ASTNS::UnaryExpr>(p.sourcefile, span, a0, std::move(a1)));
+    std::unique_ptr<ASTNS::UnaryExpr> push (std::make_unique<ASTNS::UnaryExpr>(p.sourcefile, span, Located<ASTNS::UnaryOperator> { a0.span, ASTNS::UnaryOperator::BANG }, std::move(a1)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_41, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_41 });
                         }
@@ -6514,7 +6514,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
                                 Maybe<Location const>(a0.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p.sourcefile, span, std::move(a1), false, a0, a0, nullptr));
+    std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p.sourcefile, span, std::move(a1), false, a0, Maybe<Located<Tokens::Equal>>(), nullptr));
                             std::unique_ptr<ASTNS::VarStmtItem> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_10, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_10 });
                         }
@@ -6619,7 +6619,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
                                 Maybe<Location const>(a1.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::AssignmentExpr> push (std::make_unique<ASTNS::AssignmentExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+    std::unique_ptr<ASTNS::AssignmentExpr> push (std::make_unique<ASTNS::AssignmentExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::AssignOperator> { a1.span, ASTNS::AssignOperator::EQUAL }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_29, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_29 });
                         }
@@ -6641,7 +6641,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
                                 Maybe<Location const>(a1.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::ShortCircuitExpr> push (std::make_unique<ASTNS::ShortCircuitExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+    std::unique_ptr<ASTNS::ShortCircuitExpr> push (std::make_unique<ASTNS::ShortCircuitExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::ShortCircuitOperator> { a1.span, ASTNS::ShortCircuitOperator::DOUBLEPIPE }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_30, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_30 });
                         }
@@ -6734,7 +6734,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
                                 Maybe<Location const>(a1.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::ShortCircuitExpr> push (std::make_unique<ASTNS::ShortCircuitExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+    std::unique_ptr<ASTNS::ShortCircuitExpr> push (std::make_unique<ASTNS::ShortCircuitExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::ShortCircuitOperator> { a1.span, ASTNS::ShortCircuitOperator::DOUBLEAMPER }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_31, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_31 });
                         }
@@ -6761,7 +6761,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
                                 Maybe<Location const>(a1.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::BANGEQUAL }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_32, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_32 });
                         }
@@ -6803,7 +6803,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
                                 Maybe<Location const>(a1.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::DOUBLEEQUAL }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_32, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_32 });
                         }
@@ -6845,7 +6845,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
                                 Maybe<Location const>(a1.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::LESS }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_33, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_33 });
                         }
@@ -6872,7 +6872,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
                                 Maybe<Location const>(a1.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::GREATER }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_33, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_33 });
                         }
@@ -6899,7 +6899,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
                                 Maybe<Location const>(a1.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::LESSEQUAL }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_33, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_33 });
                         }
@@ -6926,7 +6926,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
                                 Maybe<Location const>(a1.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::GREATEREQUAL }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_33, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_33 });
                         }
@@ -6953,7 +6953,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
                                 Maybe<Location const>(a1.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::CARET }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_34, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_34 });
                         }
@@ -6985,7 +6985,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
                                 Maybe<Location const>(a1.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::PIPE }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_35, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_35 });
                         }
@@ -7007,7 +7007,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
                                 Maybe<Location const>(a1.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::AMPER }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_36, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_36 });
                         }
@@ -7039,7 +7039,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
                                 Maybe<Location const>(a1.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::DOUBLEGREATER }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_37, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_37 });
                         }
@@ -7071,7 +7071,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
                                 Maybe<Location const>(a1.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::DOUBLELESS }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_37, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_37 });
                         }
@@ -7103,7 +7103,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
                                 Maybe<Location const>(a1.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::PLUS }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_38, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_38 });
                         }
@@ -7140,7 +7140,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
                                 Maybe<Location const>(a1.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::MINUS }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_38, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_38 });
                         }
@@ -7177,7 +7177,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
                                 Maybe<Location const>(a1.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::STAR }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_39, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_39 });
                         }
@@ -7199,7 +7199,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
                                 Maybe<Location const>(a1.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::SLASH }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_39, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_39 });
                         }
@@ -7221,7 +7221,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
                                 Maybe<Location const>(a1.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2)));
+    std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::PERCENT }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_39, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_39 });
                         }
@@ -7622,7 +7622,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
                                 Maybe<Location const>(a1.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p.sourcefile, span, std::move(a2), true, a1, a1, nullptr));
+    std::unique_ptr<ASTNS::VarStmtItem> push (std::make_unique<ASTNS::VarStmtItem>(p.sourcefile, span, std::move(a2), true, a1, Maybe<Located<Tokens::Equal>>(), nullptr));
                             std::unique_ptr<ASTNS::VarStmtItem> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_10, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_10 });
                         }
