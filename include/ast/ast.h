@@ -324,13 +324,13 @@ namespace ASTNS {
     public:
         Maybe<Span const> _span;
         Located<Tokens::If> iftok;
-        Located<Tokens::Else> elsetok;
+        Maybe<Located<Tokens::Else>> elsetok;
         std::unique_ptr<Expr> cond;
         std::unique_ptr<Expr> trues;
         std::unique_ptr<Expr> falses;
         virtual void accept(ExprVisitor &v) override;
         virtual Maybe<Span const> const &span() const override;
-        IfExpr(File const &file, Maybe<Span const> const &span, Located<Tokens::If> iftok, Located<Tokens::Else> elsetok, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> trues, std::unique_ptr<Expr> falses);
+        IfExpr(File const &file, Maybe<Span const> const &span, Located<Tokens::If> iftok, Maybe<Located<Tokens::Else>> elsetok, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> trues, std::unique_ptr<Expr> falses);
     };
     class WhileExpr : public Expr {
     public:

@@ -271,7 +271,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::IfExpr &a) {
     ++indent;
     pai("Located<Tokens::If> iftok = ");
     print_field(*this, a.iftok);
-    pai("Located<Tokens::Else> elsetok = ");
+    pai("Maybe<Located<Tokens::Else>> elsetok = ");
     print_field(*this, a.elsetok);
     pai("std::unique_ptr<Expr> cond = ");
     print_field(*this, a.cond);

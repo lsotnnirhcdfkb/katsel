@@ -82,7 +82,7 @@ Maybe<Span const> const &ASTNS::ThisParam::span() const { return _span; }
 ASTNS::Block::Block(File const &file, Maybe<Span const> const &span, std::vector<std::unique_ptr<Stmt>> stmts): Expr(file), _span(span), stmts(std::move(stmts)) {}
 void ASTNS::Block::accept(ASTNS::ExprVisitor &v) { v.visit(*this); }
 Maybe<Span const> const &ASTNS::Block::span() const { return _span; }
-ASTNS::IfExpr::IfExpr(File const &file, Maybe<Span const> const &span, Located<Tokens::If> iftok, Located<Tokens::Else> elsetok, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> trues, std::unique_ptr<Expr> falses): Expr(file), _span(span), iftok(std::move(iftok)), elsetok(std::move(elsetok)), cond(std::move(cond)), trues(std::move(trues)), falses(std::move(falses)) {}
+ASTNS::IfExpr::IfExpr(File const &file, Maybe<Span const> const &span, Located<Tokens::If> iftok, Maybe<Located<Tokens::Else>> elsetok, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> trues, std::unique_ptr<Expr> falses): Expr(file), _span(span), iftok(std::move(iftok)), elsetok(std::move(elsetok)), cond(std::move(cond)), trues(std::move(trues)), falses(std::move(falses)) {}
 void ASTNS::IfExpr::accept(ASTNS::ExprVisitor &v) { v.visit(*this); }
 Maybe<Span const> const &ASTNS::IfExpr::span() const { return _span; }
 ASTNS::WhileExpr::WhileExpr(File const &file, Maybe<Span const> const &span, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> body): Expr(file), _span(span), cond(std::move(cond)), body(std::move(body)) {}

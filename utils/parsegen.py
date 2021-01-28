@@ -509,7 +509,7 @@ def make_opt(toopt, with_action, no_action, new_name=None):
 def braced_rule(braced_nt, inside_block, warn_no_indent, reduce_off_1, reduce_off_2, reduce_off_3):
     rule(braced_nt, (OBrace, *inside_block, CBrace), reduce_off_1)
     if warn_no_indent:
-        reduce_off_2 = WarnAction(f'WARN_BLOCK_NO_INDENT(a0, a{len(inside_block) + 2});', reduce_off_2)
+        reduce_off_2 = WarnAction(f'WARN_BLOCK_NO_INDENT(a0.span, a{len(inside_block) + 2}.span);', reduce_off_2)
     rule(braced_nt, (OBrace, Newline, *inside_block, CBrace), reduce_off_2)
     rule(braced_nt, (OBrace, Newline, Indent, *inside_block, Dedent, CBrace), reduce_off_3)
 
@@ -603,64 +603,64 @@ Indent = Terminal('Indent')
 Dedent = Terminal('Dedent')
 Error = Terminal('Error')
 
-CU = nt('compilation unit', 'CU')
-Decl = nt('declaration', 'Decl', panickable=True)
-FunctionDecl = nt('function declaration', 'FunctionDecl', panickable=True)
-ImplDecl = nt('implementation', 'Decl', panickable=True)
-ImplBody = nt('implementation body', 'ImplMemberList', panickable=True)
-ImplMember = nt('implementation member', 'ImplMember', panickable=True)
-Stmt = nt('statement', 'Stmt', panickable=True)
-VarStmt = nt('variable declaration', 'VarStmt', panickable=True)
-ExprStmt = nt('expression statement', 'ExprStmt', panickable=True)
-RetStmt = nt('return statement', 'RetStmt', panickable=True)
-VarStmtItem = nt('variable binding', 'VarStmtItem')
-LineEnding = nt('line ending', 'PureLocation')
-Block = nt('code block', 'Block', panickable=True)
-BracedBlock = nt('braced code block', 'Block', panickable=True)
-IndentedBlock = nt('indented code block', 'Block', panickable=True)
-TypeAnnotation = nt('required type annotation', 'Type')
-Type = nt('type specifier', 'Type')
-PointerType = nt('pointer type', 'PointerType')
-ThisType = nt('\'this\' type', 'ThisType')
-PathType = nt('path type', 'PathType')
-Arg = nt('argument', 'Arg', panickable=True)
-Param = nt('function parameter', 'ParamB', panickable=True)
-ThisParam = nt('\'this\' function parameter', 'ThisParam', panickable=True)
-NormalParam = nt('function parameter', 'Param', panickable=True)
-Expr = nt('expression', 'Expr')
-BlockedExpr = nt('braced expression', 'Expr')
-NotBlockedExpr = nt('non-braced expression', 'Expr')
-IfExpr = nt('if expression', 'IfExpr', panickable=True)
-WhileExpr = nt('while loop expression', 'WhileExpr', panickable=True)
-AssignmentExpr = nt('assignment expression', 'Expr')
-BinOrExpr = nt('binary or expression', 'Expr')
-BinAndExpr = nt('binary and expression', 'Expr')
-CompEQExpr = nt('equality expression', 'Expr')
-CompLGTExpr = nt('comparison expression', 'Expr')
-BitXorExpr = nt('bitwise xor expression', 'Expr')
-BitOrExpr = nt('bitwise or expression', 'Expr')
-BitAndExpr = nt('bitwise and expression', 'Expr')
-BitShiftExpr = nt('bit shift expression', 'Expr')
-AdditionExpr = nt('addition expression', 'Expr')
-MultExpr = nt('multiplication expression', 'Expr')
-CastExpr = nt('type cast expression', 'Expr')
-UnaryExpr = nt('unary expression', 'Expr')
-CallExpr = nt('function call expression', 'Expr')
-FieldAccessExpr = nt('field access expression', 'Expr')
-MethodCallExpr = nt('method call expression', 'Expr')
-PrimaryExpr = nt('primary expression', 'Expr')
-PathExpr = nt('path expression', 'Expr')
-Path = nt('symbol path', 'Path')
+CU = nt('compilation unit', 'std::unique_ptr<ASTNS::CU>')
+Decl = nt('declaration', 'std::unique_ptr<ASTNS::Decl>', panickable=True)
+FunctionDecl = nt('function declaration', 'std::unique_ptr<ASTNS::FunctionDecl>', panickable=True)
+ImplDecl = nt('implementation', 'std::unique_ptr<ASTNS::Decl>', panickable=True)
+ImplBody = nt('implementation body', 'std::unique_ptr<ASTNS::ImplMemberList>', panickable=True)
+ImplMember = nt('implementation member', 'std::unique_ptr<ASTNS::ImplMember>', panickable=True)
+Stmt = nt('statement', 'std::unique_ptr<ASTNS::Stmt>', panickable=True)
+VarStmt = nt('variable declaration', 'std::unique_ptr<ASTNS::VarStmt>', panickable=True)
+ExprStmt = nt('expression statement', 'std::unique_ptr<ASTNS::ExprStmt>', panickable=True)
+RetStmt = nt('return statement', 'std::unique_ptr<ASTNS::RetStmt>', panickable=True)
+VarStmtItem = nt('variable binding', 'std::unique_ptr<ASTNS::VarStmtItem>')
+LineEnding = nt('line ending', 'std::unique_ptr<ASTNS::PureLocation>')
+Block = nt('code block', 'std::unique_ptr<ASTNS::Block>', panickable=True)
+BracedBlock = nt('braced code block', 'std::unique_ptr<ASTNS::Block>', panickable=True)
+IndentedBlock = nt('indented code block', 'std::unique_ptr<ASTNS::Block>', panickable=True)
+TypeAnnotation = nt('required type annotation', 'std::unique_ptr<ASTNS::Type>')
+Type = nt('type specifier', 'std::unique_ptr<ASTNS::Type>')
+PointerType = nt('pointer type', 'std::unique_ptr<ASTNS::PointerType>')
+ThisType = nt('\'this\' type', 'std::unique_ptr<ASTNS::ThisType>')
+PathType = nt('path type', 'std::unique_ptr<ASTNS::PathType>')
+Arg = nt('argument', 'std::unique_ptr<ASTNS::Arg>', panickable=True)
+Param = nt('function parameter', 'std::unique_ptr<ASTNS::ParamB>', panickable=True)
+ThisParam = nt('\'this\' function parameter', 'std::unique_ptr<ASTNS::ThisParam>', panickable=True)
+NormalParam = nt('function parameter', 'std::unique_ptr<ASTNS::Param>', panickable=True)
+Expr = nt('expression', 'std::unique_ptr<ASTNS::Expr>')
+BlockedExpr = nt('braced expression', 'std::unique_ptr<ASTNS::Expr>')
+NotBlockedExpr = nt('non-braced expression', 'std::unique_ptr<ASTNS::Expr>')
+IfExpr = nt('if expression', 'std::unique_ptr<ASTNS::IfExpr>', panickable=True)
+WhileExpr = nt('while loop expression', 'std::unique_ptr<ASTNS::WhileExpr>', panickable=True)
+AssignmentExpr = nt('assignment expression', 'std::unique_ptr<ASTNS::Expr>')
+BinOrExpr = nt('binary or expression', 'std::unique_ptr<ASTNS::Expr>')
+BinAndExpr = nt('binary and expression', 'std::unique_ptr<ASTNS::Expr>')
+CompEQExpr = nt('equality expression', 'std::unique_ptr<ASTNS::Expr>')
+CompLGTExpr = nt('comparison expression', 'std::unique_ptr<ASTNS::Expr>')
+BitXorExpr = nt('bitwise xor expression', 'std::unique_ptr<ASTNS::Expr>')
+BitOrExpr = nt('bitwise or expression', 'std::unique_ptr<ASTNS::Expr>')
+BitAndExpr = nt('bitwise and expression', 'std::unique_ptr<ASTNS::Expr>')
+BitShiftExpr = nt('bit shift expression', 'std::unique_ptr<ASTNS::Expr>')
+AdditionExpr = nt('addition expression', 'std::unique_ptr<ASTNS::Expr>')
+MultExpr = nt('multiplication expression', 'std::unique_ptr<ASTNS::Expr>')
+CastExpr = nt('type cast expression', 'std::unique_ptr<ASTNS::Expr>')
+UnaryExpr = nt('unary expression', 'std::unique_ptr<ASTNS::Expr>')
+CallExpr = nt('function call expression', 'std::unique_ptr<ASTNS::Expr>')
+FieldAccessExpr = nt('field access expression', 'std::unique_ptr<ASTNS::Expr>')
+MethodCallExpr = nt('method call expression', 'std::unique_ptr<ASTNS::Expr>')
+PrimaryExpr = nt('primary expression', 'std::unique_ptr<ASTNS::Expr>')
+PathExpr = nt('path expression', 'std::unique_ptr<ASTNS::Expr>')
+Path = nt('symbol path', 'std::unique_ptr<ASTNS::Path>')
 
-AUGMENT_SYM = nt('augment', '#error augment symbol reduces to class')
+AUGMENT_SYM = nt('augment', 'std::unique_ptr<ASTNS::AST>')
 AUGMENT_RULE = rule(AUGMENT_SYM, (CU,), None)
 
-ParamList = list_rule(Param, VectorPushOneAction('ASTNS::ParamList', 'std::move(a0)', 'std::unique_ptr<ASTNS::ParamB>', 'params'), VectorPushReduceAction('a0->params', 'std::move(a2)', 'a0'), 'ParamList', Comma)
-ArgList = list_rule(Arg, VectorPushOneAction('ASTNS::ArgList', 'std::move(a0)', 'std::unique_ptr<ASTNS::Arg>', 'args'), VectorPushReduceAction('a0->args', 'std::move(a2)', 'a0'), 'ArgList', Comma)
-VarStmtItemList = list_rule(VarStmtItem, VectorPushOneAction('ASTNS::VarStmtItemList', 'std::move(a0)', 'std::unique_ptr<ASTNS::VarStmtItem>', 'items'), VectorPushReduceAction('a0->items', 'std::move(a2)', 'a0'), 'VarStmtItemList', Comma)
-StmtList = list_rule(Stmt, VectorPushOneAction('ASTNS::StmtList', 'std::move(a0)', 'std::unique_ptr<ASTNS::Stmt>', 'stmts'), VectorPushReduceAction('a0->stmts', 'std::move(a1)', 'a0'), 'StmtList')
-DeclList = list_rule(Decl, VectorPushOneAction('ASTNS::DeclList', 'std::move(a0)', 'std::unique_ptr<ASTNS::Decl>', 'decls'), VectorPushReduceAction('a0->decls', 'std::move(a1)', 'a0'), 'DeclList')
-ImplMemberList = list_rule(ImplMember, VectorPushOneAction('ASTNS::ImplMemberList', 'std::move(a0)', 'std::unique_ptr<ASTNS::ImplMember>', 'members'), VectorPushReduceAction('a0->members', 'std::move(a1)', 'a0'), 'ImplMemberList')
+ParamList = list_rule(Param, VectorPushOneAction('ASTNS::ParamList', 'std::move(a0)', 'std::unique_ptr<ASTNS::ParamB>', 'params'), VectorPushReduceAction('a0->params', 'std::move(a2)', 'a0'), 'std::unique_ptr<ASTNS::ParamList>', Comma)
+ArgList = list_rule(Arg, VectorPushOneAction('ASTNS::ArgList', 'std::move(a0)', 'std::unique_ptr<ASTNS::Arg>', 'args'), VectorPushReduceAction('a0->args', 'std::move(a2)', 'a0'), 'std::unique_ptr<ASTNS::ArgList>', Comma)
+VarStmtItemList = list_rule(VarStmtItem, VectorPushOneAction('ASTNS::VarStmtItemList', 'std::move(a0)', 'std::unique_ptr<ASTNS::VarStmtItem>', 'items'), VectorPushReduceAction('a0->items', 'std::move(a2)', 'a0'), 'std::unique_ptr<ASTNS::VarStmtItemList>', Comma)
+StmtList = list_rule(Stmt, VectorPushOneAction('ASTNS::StmtList', 'std::move(a0)', 'std::unique_ptr<ASTNS::Stmt>', 'stmts'), VectorPushReduceAction('a0->stmts', 'std::move(a1)', 'a0'), 'std::unique_ptr<ASTNS::StmtList>')
+DeclList = list_rule(Decl, VectorPushOneAction('ASTNS::DeclList', 'std::move(a0)', 'std::unique_ptr<ASTNS::Decl>', 'decls'), VectorPushReduceAction('a0->decls', 'std::move(a1)', 'a0'), 'std::unique_ptr<ASTNS::DeclList>')
+ImplMemberList = list_rule(ImplMember, VectorPushOneAction('ASTNS::ImplMemberList', 'std::move(a0)', 'std::unique_ptr<ASTNS::ImplMember>', 'members'), VectorPushReduceAction('a0->members', 'std::move(a1)', 'a0'), 'std::unique_ptr<ASTNS::ImplMemberList>')
 
 ParamListOpt = make_opt(ParamList, SkipReduceAction(), EmptyVectorAction('ParamList', 'std::unique_ptr<ASTNS::ParamB>'))
 ArgListOpt = make_opt(ArgList, SkipReduceAction(), EmptyVectorAction('ArgList', 'std::unique_ptr<ASTNS::Arg>'))
@@ -715,7 +715,7 @@ indented_rule(IndentedBlock, (StmtListOpt,), SimpleReduceAction('Block', 'std::m
 
 rule(LineEnding, (Newline,), LocationReduceAction())
 rule(LineEnding, (Semicolon,), LocationReduceAction())
-rule(LineEnding, (Semicolon, Newline), WarnAction('WARN_EXTRA_SEMI(a0);', LocationReduceAction()))
+rule(LineEnding, (Semicolon, Newline), WarnAction('WARN_EXTRA_SEMI(a0.span);', LocationReduceAction()))
 
 skip_to(Type, PathType, PointerType, ThisType)
 
@@ -742,7 +742,7 @@ skip_to(Expr, BlockedExpr, NotBlockedExpr)
 skip_to(NotBlockedExpr, AssignmentExpr)
 skip_to(BlockedExpr, IfExpr, WhileExpr, BracedBlock)
 
-rule(IfExpr, (If, Expr, Block), SimpleReduceAction('IfExpr', 'a0, a0, std::move(a1), std::move(a2), nullptr'))
+rule(IfExpr, (If, Expr, Block), SimpleReduceAction('IfExpr', 'a0, Maybe<Located<Tokens::Else>>(), std::move(a1), std::move(a2), nullptr'))
 rule(IfExpr, (If, Expr, Block, Else, Block), SimpleReduceAction('IfExpr', 'a0, a3, std::move(a1), std::move(a2), std::move(a4)'))
 rule(IfExpr, (If, Expr, Block, Else, IfExpr), SimpleReduceAction('IfExpr', 'a0, a3, std::move(a1), std::move(a2), std::move(a4)'))
 
@@ -814,8 +814,8 @@ rule(PrimaryExpr, (OParen, Expr, CParen), SkipReduceAction(1))
 rule(PrimaryExpr, (PathExpr,), SkipReduceAction())
 rule(PathExpr, (Path,), SimpleReduceAction('PathExpr', 'std::move(a0)'))
 
+rule(Path, (Identifier,), VectorPushOneAction('ASTNS::Path', 'a0', 'Located<Tokens::Identifier>', 'segments'))
 rule(Path, (Path, DoubleColon, Identifier), VectorPushReduceAction('a0->segments', 'a2', 'a0'))
-rule(Path, (Identifier,), VectorPushOneAction('ASTNS::Path', 'a0', 'Token', 'segments'))
 
 # convert grammar {{{1
 eof_sym = Terminal('_EOF')
@@ -874,18 +874,17 @@ def gen_loop():
 
     output.append(                                'bool done = false;\n')
     output.append(                                'bool errored = false;\n')
-    output.append(                                'int steps = 0;\n')
-    output.append(                                'Token lookahead (_lookahead); // for when you need to inject a new token\n')
-    output.append(                                'Token lasttok = lookahead;\n')
+    output.append(                                'Located<TokenData> next_token = p.consume();\n')
+    output.append(                                'Located<TokenData> last_token = next_token;\n')
+    output.append(                                'std::vector<StackItem> stack;\n')
+    output.append(                                'stack.emplace_back(0); // make initial item\n')
 
     output.append(                                'while (!done) {\n')
-    output.append(                                '    if (istrial && steps > 5)\n')
-    output.append(                                '        return true;\n')
     output.append(                                '    switch (stack.back().state) {\n')
 
     for staten, state in sorted(table.items(), key=lambda x:x[0]):
         output.append(                           f'        case {staten}:\n')
-        output.append(                            '            switch (lookahead.index()) {\n')
+        output.append(                            '            switch (next_token.value.index()) {\n')
 
         stateactions = []
         for term, ac in sorted(state.actions.items(), key=lambda x:str(x[0])):
@@ -902,14 +901,8 @@ def gen_loop():
         statereduces = [ac for ac in stateactions if isinstance(ac[0], ReduceAction)]
         reduce_only = len(statereduces) == 1 and statereduces[0][0].rule.special['defaultreduce']
         for ac, nts in stateactions:
-            if isinstance(ac, ShiftAction):
-                for term in nts:
-                    output.append(               f'                case Token::index_of<{term.astt()}>:\n')
-                output.append(                   f'                    shift(p, lasttok, lookahead, stack, steps, {ac.newstate}); break;\n')
-                continue
-
-            if reduce_only:
-                output.append(                    '                default: ')
+            if isinstance(ac, ReduceAction) and reduce_only:
+                output.append(                    '                default:\n')
                 # do not check for lookahead, just reduce to have better performance (kind of)
                 # if reduce_only, then all the reduce actions of this state reduce the same rule
                 # and according to Wikipedia, just reducing regardless of the lookahead in
@@ -919,16 +912,21 @@ def gen_loop():
                 # it will reduce 2 up the chain of expression precedence before reporting the error
             else:
                 for term in nts:
-                    output.append(               f'                case Token::index_of<{term.astt()}>:\n')
+                    output.append(               f'                case Tokens::index_of<{term.astt()}>:\n')
 
-            if isinstance(ac, ReduceAction):
-                output.append(                    '{\n')
+            if isinstance(ac, ShiftAction):
+                output.append(                   f'                    stack.emplace_back({ac.newstate}, TokenItem {{ next_token }});\n')
+                output.append(                   f'                    last_token = next_token;\n')
+                output.append(                   f'                    next_token = p.consume();\n')
+            elif isinstance(ac, ReduceAction):
+                output.append(                    '                    {\n')
 
                 for i, sym in reversed(list(enumerate(ac.rule.expansion))):
                     if isinstance(sym, Terminal):
-                        output.append(           f'                        auto a{i} (pop_t(stack));\n')
+                        output.append(           f'                        auto _a{i} (pop_as<TokenItem>(stack).tok);\n')
+                        output.append(           f'                        Located<{sym.astt()}> a{i} {{ _a{i}.span, Tokens::as<{sym.astt()}>(_a{i}.value) }};\n')
                     elif isinstance(sym, NonTerminal):
-                        output.append(           f'                        auto a{i} (pop_a<ASTNS::{sym.reduces_to}>(stack));\n')
+                        output.append(           f'                        auto a{i} (pop_as<ASTItem<{sym.reduces_to}>>(stack).ast);\n')
 
                 if len(ac.rule.expansion) > 0:
                     output.append(                '                        Maybe<Location const> start =\n')
@@ -949,22 +947,22 @@ def gen_loop():
                             break
                         else:
                             if i == 0:
-                                output.append(       f'                            a{i} && a{i}->span().has() ? Maybe<Location const>(a{i}->span().get().end) : Maybe<Location const>();\n')
+                                output.append(   f'                            a{i} && a{i}->span().has() ? Maybe<Location const>(a{i}->span().get().end) : Maybe<Location const>();\n')
                             else:
-                                output.append(       f'                            a{i} && a{i}->span().has() ? Maybe<Location const>(a{i}->span().get().end) :\n')
+                                output.append(   f'                            a{i} && a{i}->span().has() ? Maybe<Location const>(a{i}->span().get().end) :\n')
                 else:
                     output.append(                '                        Maybe<Location const> start, end;\n')
                 output.append(                    '                        Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();\n')
 
                 reduce_code, pushitem = ac.rule.reduce_action.generate()
                 output.append(reduce_code)
-                output.append(                   f'                        std::unique_ptr<ASTNS::{ac.rule.symbol.reduces_to}> pushitem = {pushitem};\n')
-                output.append(                   f'                        stack.emplace_back(get_goto(NonTerminal::_{ac.rule.symbol.id}, stack.back().state), std::move(pushitem), NonTerminal::_{ac.rule.symbol.id});\n')
+                output.append(                   f'                        {ac.rule.symbol.reduces_to} pushitem = {pushitem};\n')
+                output.append(                   f'                        stack.emplace_back(get_goto(NonTerminal::_{ac.rule.symbol.id}, stack.back().state), ASTItem<decltype(pushitem)>{{ std::move(pushitem), NonTerminal::_{ac.rule.symbol.id} }});\n')
                 output.append(                    '                    }\n')
 
 
             elif isinstance(ac, AcceptAction):
-                output.append(                    '                        done = true;\n')
+                output.append(                    '                    done = true;\n')
             else:
                 raise Exception('invalid action type')
 
@@ -977,17 +975,17 @@ def gen_loop():
                 else:
                     return f'{s.astt()}::stringify()'
 
-            output.append(                        '                default:\n')
-            output.append(                        '                    if (istrial) return false;\n')
-
             futuress = [f'format("expected {{}} for {{}}", {format_list([stc(p) for p in future])}, {stc(nt)})' for nt, future in state.futures.items()]
             terminatess = [f'format("expected {{}} to terminate {{}}", {format_list([stc(p) for p in future])}, {stc(nt)})' for nt, future in state.terminates.items()]
-            output.append(                       f'                    error(done, errored, errorstate(p, stack, lasttok, lookahead), std::vector<std::string> {{  {", ".join(futuress + terminatess)}  }});\n')
+
+            output.append(                        '                default:\n')
+            output.append(                       f'                    ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, {{ {", ".join(futuress + terminatess)} }} );\n')
+            output.append(                        '                    done = true;\n')
         output.append(                            '            }\n')
         output.append(                            '            break;\n')
 
     output.append(                                '        default:\n')
-    output.append(                                '            report_abort_noh(format("Parser reached invalid state: {}", stack.back().state));\n')
+    output.append(                                '            report_abort_noh(format("parser reached invalid state {}", stack.back().state));\n')
 
     output.append(                                '    }\n')
     output.append(                                '}\n')
@@ -1035,73 +1033,10 @@ def gen_non_term_enum():
             output.append(f'_{symbol.id}, ')
     output.append('\n')
     return ''.join(output)
-# generate panic mode error recovery code {{{2
-def gen_panic_mode():
-    output = []
-    output.append(                               ('#define CHECKASI(ty)\\\n'
-                                                  '    if (nterm == NonTerminal::ty) {\\\n'
-                                                  '        switch (e.lookahead.index()) {\n'
-                                                  '#define FINISHCHECKASI()\\\n'
-                                                  '        }\\\n'
-                                                  '    }\n'
-                                                  '#define RECOVERANDDEFBREAK()\\\n'
-                                                  '        valid = true;\\\n'
-                                                  '        delto = i;\\\n'
-                                                  '        break;\\\n'
-                                                  '    default:\\\n'
-                                                  '        break;\n'
-                                                  'bool valid = false;\n'
-                                                  'e.lookahead = e.p.consume(); // prevent infinite panicking loops\n'
-                                                  'std::vector<stackitem>::reverse_iterator delto;\n'
-                                                  'while (!valid) {\n'
-                                                  '    for (auto i = e.stack.rbegin(); i != e.stack.rend() && !valid; ++i) {\n'
-                                                  '        if (std::holds_alternative<astitem>(i->item)) {\n'
-                                                  '            NonTerminal nterm = std::get<astitem>(i->item).nt;\n'))
-
-    for nonterm in symbols:
-        if not isinstance(nonterm, NonTerminal):
-            continue
-        if nonterm == AUGMENT_SYM:
-            continue
-        if not nonterm.panickable:
-            continue
-
-        output.append(                           f'            CHECKASI({str(nonterm)})\n')
-        output.append(                            '                   ')
-        for follow in FOLLOWS[nonterm]:
-            output.append(                       f' case Token::index_of<{follow.astt()}>:')
-        output.append(                            '\n')
-        output.append(                            '                        RECOVERANDDEFBREAK()\n')
-        output.append(                            '            FINISHCHECKASI()\n')
-
-    output.append(                               ('        }\n'
-                                                  '    }\n'
-                                                  '    if (!valid)\n'
-                                                  '        e.lookahead = e.p.consume();\n'
-                                                  '    if (e.lookahead.is<Tokens::_EOF>())\n'
-                                                  '        return false;\n'
-                                                  '}\n'
-                                                  'e.stack.erase(delto.base(), e.stack.end());\n'
-                                                  '#undef CHECKASI\n'
-                                                  '#undef FINISHCHECKASI\n'
-                                                  '#undef RECOVERANDDEFBREAK\n'
-                                                  'ERR_PANICKING_INVALID_SYNTAX(e.olh, e.lasttok, e.lookahead, expectations);\n'
-                                                  'return true;\n'))
-
-    return ''.join(output)
-# generate single token insertion/deletion/substitution error recovery code {{{2
-def gen_single_tok():
-    output = []
-    output.append(                                '#define TRYINSERT(ty) if (try_insert(ty, e.p, e.lookahead, e.stack)) {fix f = fix {fix::fixtype::INSERT, ty}; if (score(f) > score(bestfix)) bestfix = f;}\n')
-    output.append(                                '#define TRYSUB(ty) if (try_sub(ty, e.p, e.lookahead, e.stack)) {fix f = fix {fix::fixtype::SUBSTITUTE, ty}; if (score(f) > score(bestfix)) bestfix = f;}\n')
-    output.append(                                '#define TRYTOKTY(ty) TRYINSERT(ty); TRYSUB(ty);\n')
-
-    for terminal in symbols:
-        if isinstance(terminal, Terminal):
-            output.append(                       f'TRYTOKTY({terminal.astt()})\n')
-
-    output.append(                                'if (try_del(e.p, e.stack)) {fix f = fix {fix::fixtype::REMOVE, static_cast<TokenType>(-1)}; if (score(f) > score(bestfix)) bestfix = f;};\n')
-    return ''.join(output)
+# generate nonterminal types {{{2
+def gen_non_term_types():
+    things = sorted(list(set([f'ASTItem<{x.reduces_to}>' for x in symbols if isinstance(x, NonTerminal)])))
+    return ',\n'.join(things)
 # entry {{{1
 if __name__ == '__main__':
     print_parse_table(False)

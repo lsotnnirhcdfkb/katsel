@@ -84,7 +84,7 @@ asts = [
     AST('ThisParam'         , 'ParamB', 'bool|ptr, bool|mut'),
 
     AST('Block'             , 'Expr', 'std::vector<std::unique_ptr<Stmt>>|stmts'),
-    AST('IfExpr'            , 'Expr', 'Located<Tokens::If>|iftok, Located<Tokens::Else>|elsetok, std::unique_ptr<Expr>|cond, std::unique_ptr<Expr>|trues, std::unique_ptr<Expr>|falses'),
+    AST('IfExpr'            , 'Expr', 'Located<Tokens::If>|iftok, Maybe<Located<Tokens::Else>>|elsetok, std::unique_ptr<Expr>|cond, std::unique_ptr<Expr>|trues, std::unique_ptr<Expr>|falses'),
     AST('WhileExpr'         , 'Expr', 'std::unique_ptr<Expr>|cond, std::unique_ptr<Expr>|body'),
 
     AST('AssignmentExpr'    , 'Expr', 'std::unique_ptr<Expr>|target, Located<AssignOperator>|equal, std::unique_ptr<Expr>|expr'),

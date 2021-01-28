@@ -10,7 +10,7 @@
 // E0000 - unexpected-char
 // | The lexer found an unexpected character that could not begin
 // | a token.
-void E0000(Token const &tok) {
+void E0000(Span const &tok) {
     Error e = Error(MsgType::ERROR, tok.span, "E0000", "unexpected-char");
     e.underline(Underline(tok.span, '^')
         .error("unexpected character")
@@ -20,7 +20,7 @@ void E0000(Token const &tok) {
 
 // E0001 - unterm-charlit
 // | The lexer found an unterminated character literal.
-void E0001(Token const &tok) {
+void E0001(Span const &tok) {
     Error e = Error(MsgType::ERROR, tok.span, "E0001", "unterm-charlit");
     e.underline(Underline(tok.span, '^')
         .error("unterminated character literal")
@@ -31,7 +31,7 @@ void E0001(Token const &tok) {
 // E0002 - unterm-strlit
 // | The lexer found a newline in a string literal, thereby
 // | making it unterminated.
-void E0002(Token const &tok) {
+void E0002(Span const &tok) {
     Error e = Error(MsgType::ERROR, tok.span, "E0002", "unterm-strlit");
     e.underline(Underline(tok.span, '^')
         .error("unterminated string literal")
@@ -41,7 +41,7 @@ void E0002(Token const &tok) {
 
 // E0003 - invalid-numlit-base
 // | The lexer found an number literal that has an invalid base.
-void E0003(Token const &tok) {
+void E0003(Span const &tok) {
     Error e = Error(MsgType::ERROR, tok.span, "E0003", "invalid-numlit-base");
     e.underline(Underline(tok.span, '^')
         .error("invalid number literal base")
@@ -51,7 +51,7 @@ void E0003(Token const &tok) {
 
 // E0004 - nondecimal-floatlit
 // | The lexer found a non-decimal floating point literal.
-void E0004(Token const &tok) {
+void E0004(Span const &tok) {
     Error e = Error(MsgType::ERROR, tok.span, "E0004", "nondecimal-floatlit");
     e.underline(Underline(tok.span, '^')
         .error("non-decimal floating-point literal")
@@ -61,7 +61,7 @@ void E0004(Token const &tok) {
 
 // E0005 - invalid-char-for-base
 // | Invalid character in number literal for base
-void E0005(Token const &tok) {
+void E0005(Span const &tok) {
     Error e = Error(MsgType::ERROR, tok.span, "E0005", "invalid-char-for-base");
     e.underline(Underline(tok.span, '^')
         .error("invalid character in number literal for base")
@@ -71,7 +71,7 @@ void E0005(Token const &tok) {
 
 // E0006 - intlit-no-digits
 // | Number literal with no digits
-void E0006(Token const &tok) {
+void E0006(Span const &tok) {
     Error e = Error(MsgType::ERROR, tok.span, "E0006", "intlit-no-digits");
     e.underline(Underline(tok.span, '^')
         .error("Number literal with no digits")
@@ -81,7 +81,7 @@ void E0006(Token const &tok) {
 
 // E0007 - multichar-charlit
 // | Character literal with more than one character
-void E0007(Token const &tok) {
+void E0007(Span const &tok) {
     Error e = Error(MsgType::ERROR, tok.span, "E0007", "multichar-charlit");
     e.underline(Underline(tok.span, '^')
         .error("character literal with more than one character")
@@ -91,7 +91,7 @@ void E0007(Token const &tok) {
 
 // E0008 - unterm-multiline-comment
 // | Unterminated multiline comment
-void E0008(Token const &tok) {
+void E0008(Span const &tok) {
     Error e = Error(MsgType::ERROR, tok.span, "E0008", "unterm-multiline-comment");
     e.underline(Underline(tok.span, '^')
         .error("unterminated multiline comment")
@@ -101,7 +101,7 @@ void E0008(Token const &tok) {
 
 // E0009 - dedent-nomatch
 // | Dedent level does not match any other indentation level
-void E0009(Token const &tok) {
+void E0009(Span const &tok) {
     Error e = Error(MsgType::ERROR, tok.span, "E0009", "dedent-nomatch");
     e.underline(Underline(tok.span, '^')
         .error("dedent to unknown level")
@@ -111,7 +111,7 @@ void E0009(Token const &tok) {
 
 // E0010 - char-after-backslash
 // | Non-newline after line continuation backslash
-void E0010(Token const &tok) {
+void E0010(Span const &tok) {
     Error e = Error(MsgType::ERROR, tok.span, "E0010", "char-after-backslash");
     e.underline(Underline(tok.span, '^')
         .error("non-newline after line continuation backslash")
@@ -121,7 +121,7 @@ void E0010(Token const &tok) {
 
 // E0011 - unrecoverable-invalid-syntax
 // | The parser found an unrecoverable syntax error.
-void E0011(Token const &lookahead, Token const &lasttok, std::vector<std::string> const &expectations) {
+void E0011(Span const &lookahead, Span const &lasttok, std::vector<std::string> const &expectations) {
     Error e = Error(MsgType::ERROR, lookahead.span, "E0011", "unrecoverable-invalid-syntax");
     e.underline(Underline(lookahead.span, '^')
         .error(format("unexpected {}", lookahead.stringify_type()))
@@ -136,7 +136,7 @@ e.underline(un);
 // E0012 - simple-invalid-syntax
 // | The parser found a syntax error and recovered by inserting,
 // | substituting, or removing a single token.
-void E0012(Token const &lookahead, Token const &lasttok, std::string const &bestfix, std::vector<std::string> const &expectations) {
+void E0012(Span const &lookahead, Span const &lasttok, std::string const &bestfix, std::vector<std::string> const &expectations) {
     Error e = Error(MsgType::ERROR, lookahead.span, "E0012", "simple-invalid-syntax");
     e.underline(Underline(lookahead.span, '^')
         .error(format("unexpected {}", lookahead.stringify_type()))
@@ -152,7 +152,7 @@ e.underline(un);
 // E0013 - panicking-invalid-syntax
 // | The parser found a syntax error and recovered via panic mode
 // | error recovery.
-void E0013(Token const &lookahead, Token const &lasttok, Token const &panicuntil, std::vector<std::string> const &expectations) {
+void E0013(Span const &lookahead, Span const &lasttok, Span const &panicuntil, std::vector<std::string> const &expectations) {
     Error e = Error(MsgType::ERROR, lookahead.span, "E0013", "panicking-invalid-syntax");
     e.underline(Underline(lookahead.span, '^')
         .error(format("unexpected {}", lookahead.stringify_type()))
@@ -170,7 +170,7 @@ e.underline(un);
 // E0014 - lhs-unsupported-op
 // | Left hand side of binary expression does not support
 // | operator
-void E0014(IR::ASTValue const &lhs, Token const &op) {
+void E0014(IR::ASTValue const &lhs, Span const &op) {
     Error e = Error(MsgType::ERROR, op.span, "E0014", "lhs-unsupported-op");
     e.underline(Underline(lhs, '^')
         .note(format("lhs is of type {}", lhs.type()))
@@ -183,7 +183,7 @@ void E0014(IR::ASTValue const &lhs, Token const &op) {
 
 // E0015 - unary-unsupported-op
 // | Operand of unary expression does not support operator
-void E0015(IR::ASTValue const &operand, Token const &_operator) {
+void E0015(IR::ASTValue const &operand, Span const &_operator) {
     Error e = Error(MsgType::ERROR, _operator.span, "E0015", "unary-unsupported-op");
     e.underline(Underline(operand, '^')
         .note(format("operand is of type {}", operand.type()))
@@ -196,7 +196,7 @@ void E0015(IR::ASTValue const &operand, Token const &_operator) {
 
 // E0016 - call-noncallable
 // | Non-callable value called
-void E0016(IR::ASTValue const &func, Token const &oparn) {
+void E0016(IR::ASTValue const &func, Span const &oparn) {
     Error e = Error(MsgType::ERROR, oparn.span, "E0016", "call-noncallable");
     e.underline(Underline(func, '^')
         .error("calling of non-callable value")
@@ -219,7 +219,7 @@ void E0017(IR::ASTValue const &arg, IR::Type const &expected) {
 
 // E0018 - confl-tys-ifexpr
 // | Conflicting types for branches of if expression
-void E0018(IR::ASTValue const &truev, IR::ASTValue const &falsev, Token const &iftok, Token const &elsetok) {
+void E0018(IR::ASTValue const &truev, IR::ASTValue const &falsev, Span const &iftok, Span const &elsetok) {
     Error e = Error(MsgType::ERROR, iftok.span, "E0018", "confl-tys-ifexpr");
     e.underline(Underline(iftok.span, '^')
         .error("conflicting types for branches of if expression")
@@ -237,7 +237,7 @@ void E0018(IR::ASTValue const &truev, IR::ASTValue const &falsev, Token const &i
 
 // E0019 - assign-conflict-tys
 // | Assignment target and value do not have same type
-void E0019(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &eq) {
+void E0019(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Span const &eq) {
     Error e = Error(MsgType::ERROR, eq.span, "E0019", "assign-conflict-tys");
     e.underline(Underline(eq.span, '^')
         .error("conflicting types for assignment")
@@ -267,7 +267,7 @@ void E0020(IR::ASTValue const &val, IR::Function const &f) {
 
 // E0021 - no-deref
 // | Cannot dereference non-pointer
-void E0021(Token const &op, IR::ASTValue const &val) {
+void E0021(Span const &op, IR::ASTValue const &val) {
     Error e = Error(MsgType::ERROR, val, "E0021", "no-deref");
     e.underline(Underline(op.span, '^')
         .error(format("dereferencing of non-pointer type {}", val.type()))
@@ -279,7 +279,7 @@ void E0021(Token const &op, IR::ASTValue const &val) {
 
 // E0022 - conflict-var-init-ty
 // | Conflicting type for variable initialization
-void E0022(Token const &eq, Token const &name, ASTNS::Type const &type_ast, IR::ASTValue const &init, IR::Type const &expected_type) {
+void E0022(Span const &eq, Span const &name, ASTNS::Type const &type_ast, IR::ASTValue const &init, IR::Type const &expected_type) {
     Error e = Error(MsgType::ERROR, eq.span, "E0022", "conflict-var-init-ty");
     e.underline(Underline(eq.span, '~')
     );
@@ -307,7 +307,7 @@ void E0023(ASTNS::AST const &ast, IR::ASTValue v, IR::Type const &newty) {
 
 // E0024 - conflict-tys-binary-op
 // | Conflicting types to binary operator
-void E0024(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Token const &op) {
+void E0024(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Span const &op) {
     Error e = Error(MsgType::ERROR, op.span, "E0024", "conflict-tys-binary-op");
     e.underline(Underline(lhs, '~')
         .note(format("{}", lhs.type()))
@@ -334,7 +334,7 @@ void E0025(IR::ASTValue const &v) {
 // E0026 - ptr-arith-rhs-not-num
 // | Cannot do pointer arithmetic with non-integer as right-hand-
 // | side of expression
-void E0026(IR::ASTValue const &lhs, Token const &optok, IR::ASTValue const &rhs) {
+void E0026(IR::ASTValue const &lhs, Span const &optok, IR::ASTValue const &rhs) {
     Error e = Error(MsgType::ERROR, optok.span, "E0026", "ptr-arith-rhs-not-num");
     e.underline(Underline(lhs, '~')
     );
@@ -349,7 +349,7 @@ void E0026(IR::ASTValue const &lhs, Token const &optok, IR::ASTValue const &rhs)
 
 // E0027 - no-else-not-void
 // | If expression with non-void true expression and no else case
-void E0027(IR::ASTValue const &truev, Token const &iftok) {
+void E0027(IR::ASTValue const &truev, Span const &iftok) {
     Error e = Error(MsgType::ERROR, iftok.span, "E0027", "no-else-not-void");
     e.underline(Underline(iftok.span, '^')
         .error("if expression with non-void true expression and no else case")
@@ -372,7 +372,7 @@ void E0028(ASTNS::ThisParam const &p) {
 
 // E0029 - wrong-num-args
 // | Wrong number of arguments to function call
-void E0029(IR::Function const &func, ASTNS::AST const &func_ref_ast, Token const &oparn, std::vector<IR::ASTValue> const &args) {
+void E0029(IR::Function const &func, ASTNS::AST const &func_ref_ast, Span const &oparn, std::vector<IR::ASTValue> const &args) {
     Error e = Error(MsgType::ERROR, oparn.span, "E0029", "wrong-num-args");
     e.underline(Underline(oparn.span, '^')
         .error("wrong number of arguments to function call")
@@ -387,7 +387,7 @@ void E0029(IR::Function const &func, ASTNS::AST const &func_ref_ast, Token const
 
 // E0030 - redecl-sym
 // | Symbol was redeclared
-void E0030(Token const &name, IR::Value const &val) {
+void E0030(Span const &name, IR::Value const &val) {
     Error e = Error(MsgType::ERROR, name.span, "E0030", "redecl-sym");
     e.underline(Underline(name.span, '^')
         .error("redeclaration of symbol")
@@ -426,7 +426,7 @@ void E0032(ASTNS::ParamB const &param, IR::Instrs::Register const &prev) {
 
 // E0033 - redecl-var
 // | Redeclaration of variable
-void E0033(Token const &name, IR::Instrs::Register const &prev) {
+void E0033(Span const &name, IR::Instrs::Register const &prev) {
     Error e = Error(MsgType::ERROR, name.span, "E0033", "redecl-var");
     e.underline(Underline(name.span, '^')
         .error("redeclaration of variable")
@@ -452,7 +452,7 @@ void E0034(Span const &notty, ASTNS::AST const &decl_ast) {
 
 // E0035 - no-member-in
 // | No member of a certain name within another member
-void E0035(IR::DeclSymbol const &prev, Token const &current) {
+void E0035(IR::DeclSymbol const &prev, Span const &current) {
     Error e = Error(MsgType::ERROR, current.span, "E0035", "no-member-in");
     e.underline(Underline(current.span, '^')
         .error(format("no member called {} in {}", current.span.stringify(), prev))
@@ -462,7 +462,7 @@ void E0035(IR::DeclSymbol const &prev, Token const &current) {
 
 // E0036 - no-this
 // | Usage of 'this' outside method
-void E0036(Token const &th) {
+void E0036(Span const &th) {
     Error e = Error(MsgType::ERROR, th.span, "E0036", "no-this");
     e.underline(Underline(th.span, '^')
         .error(format("usage of {} outside method", th))
@@ -472,7 +472,7 @@ void E0036(Token const &th) {
 
 // E0037 - no-method
 // | Accessing a method that doesn't exist
-void E0037(IR::ASTValue const &op, Token const &name) {
+void E0037(IR::ASTValue const &op, Span const &name) {
     Error e = Error(MsgType::ERROR, name.span, "E0037", "no-method");
     e.underline(Underline(name.span, '^')
         .error(format("no method called {} on value of type {}", name, op.type()))
@@ -482,7 +482,7 @@ void E0037(IR::ASTValue const &op, Token const &name) {
 
 // E0038 - no-field
 // | Accessing a field that doesn't exist
-void E0038(IR::ASTValue const &op, Token const &name) {
+void E0038(IR::ASTValue const &op, Span const &name) {
     Error e = Error(MsgType::ERROR, name.span, "E0038", "no-field");
     e.underline(Underline(name.span, '^')
         .error(format("no field called {} on value of type {}", name, op.type()))
@@ -492,7 +492,7 @@ void E0038(IR::ASTValue const &op, Token const &name) {
 
 // E0039 - addrof-not-lvalue
 // | Taking an address of a non-lvalue is impossible
-void E0039(Token const &op, IR::ASTValue const &val) {
+void E0039(Span const &op, IR::ASTValue const &val) {
     Error e = Error(MsgType::ERROR, val, "E0039", "addrof-not-lvalue");
     e.underline(Underline(op.span, '^')
         .error("taking address of non-lvalue")
@@ -504,7 +504,7 @@ void E0039(Token const &op, IR::ASTValue const &val) {
 
 // E0040 - assign-invalid-lhs
 // | Invalid assignment target
-void E0040(Token const &eq, IR::ASTValue const &lhs) {
+void E0040(Span const &eq, IR::ASTValue const &lhs) {
     Error e = Error(MsgType::ERROR, eq.span, "E0040", "assign-invalid-lhs");
     e.underline(Underline(eq.span, '^')
         .error("non-lvalue assignment")
@@ -516,7 +516,7 @@ void E0040(Token const &eq, IR::ASTValue const &lhs) {
 
 // E0041 - assign-not-mut
 // | Cannot assign to non-mutable lvalue
-void E0041(IR::ASTValue const &v, Token const &eq, IR::Instrs::DerefPtr const &target_deref) {
+void E0041(IR::ASTValue const &v, Span const &eq, IR::Instrs::DerefPtr const &target_deref) {
     Error e = Error(MsgType::ERROR, v, "E0041", "assign-not-mut");
     e.underline(Underline(eq.span, '^')
         .error("cannot assign to immutable lvalue")
@@ -534,7 +534,7 @@ void E0041(IR::ASTValue const &v, Token const &eq, IR::Instrs::DerefPtr const &t
 
 // E0042 - mut-addrof-nonmut-op
 // | Cannot take a mutable pointer to non-mutable lvalue
-void E0042(Token const &op, IR::Instrs::DerefPtr const &as_deref) {
+void E0042(Span const &op, IR::Instrs::DerefPtr const &as_deref) {
     Error e = Error(MsgType::ERROR, op.span, "E0042", "mut-addrof-nonmut-op");
     e.underline(Underline(op.span, '^')
         .error("cannot take mutable pointer to non-mutable lvalue")
@@ -571,7 +571,7 @@ void E0044(ASTNS::ThisParam const &ast) {
 
 // W0000 - Wextra-semi
 // | Extra semicolon
-void W0000(Token const &semi) {
+void W0000(Span const &semi) {
     Error e = Error(MsgType::WARNING, semi.span, "W0000", "Wextra-semi");
     e.underline(Underline(semi.span, '^')
         .warning("unnecessary semicolon")
@@ -591,7 +591,7 @@ void W0001(ASTNS::VarStmtItem const &ast) {
 
 // W0002 - Wblock-no-indent
 // | Braced block without an indent
-void W0002(Token const &obrace, Token const &cbrace) {
+void W0002(Span const &obrace, Span const &cbrace) {
     Error e = Error(MsgType::WARNING, obrace.span, "W0002", "Wblock-no-indent");
     e.underline(Underline(obrace.span, '^')
         .warning("braced block without indent")

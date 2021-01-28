@@ -1,5 +1,5 @@
 #include "parse/parser.h"
-#include "parsestack.h"
+#include "parserlocal.h"
 #include "lex/lexer.h"
 
 Parser::Parser(Lexer &l, File &sourcefile): lexer(l), sourcefile(sourcefile), errored(false) {}
@@ -7,10 +7,10 @@ Parser::Parser(Lexer &l, File &sourcefile): lexer(l), sourcefile(sourcefile), er
 std::unique_ptr<ASTNS::CUB> Parser::parse() {
     std::unique_ptr<ASTNS::CUB> ret (nullptr);
 
-    std::vector<stackitem> stack;
+    std::vector<StackItem> stack;
     stack.emplace_back(0);
 
-    _parse(*this, stack, false, ret, consume());
+    _parse(*this);
 
     if (errored)
         return nullptr;
@@ -18,16 +18,16 @@ std::unique_ptr<ASTNS::CUB> Parser::parse() {
     return ret;
 }
 
-Token Parser::consume() {
+Located<TokenData> Parser::consume() {
     bool lastboom = false;
     while (true) {
-        Token cur (lexer.next_token());
-        if (cur.is<Tokens::Error>()) {
+        Located<TokenData> cur (lexer.next_token());
+        if (Tokens::is<Tokens::Error>(cur.value)) {
             errored = true;
-            (*cur.as<Tokens::Error>().errf)(cur);
-        } else if (cur.is<Tokens::Boom>()) {
+            (*Tokens::as<Tokens::Error>(cur.value).errf)(cur.span);
+        } else if (Tokens::is<Tokens::Boom>(cur.value)) {
             lastboom = true;
-        } else if (lastboom && cur.is<Tokens::Newline>()) {
+        } else if (lastboom && Tokens::is<Tokens::Newline>(cur.value)) {
             lastboom = false;
         } else {
             return cur;
