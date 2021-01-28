@@ -97,12 +97,12 @@ asts = [
     AST('CallExpr'          , 'Expr', 'std::unique_ptr<Expr>|callee, Located<Tokens::OParen>|oparn, std::vector<std::unique_ptr<Arg>>|args'),
     AST('FieldAccessExpr'   , 'Expr', 'std::unique_ptr<Expr>|operand, Located<Tokens::Period>|dot, Located<Tokens::Identifier>|field'),
     AST('MethodCallExpr'    , 'Expr', 'std::unique_ptr<Expr>|operand, Located<Tokens::Period>|dot, Located<Tokens::Identifier>|method, Located<Tokens::OParen>|oparn, std::vector<std::unique_ptr<Arg>>|args'),
-    AST('BoolLit'           , 'Expr', 'Located<bool>|val'),
-    AST('FloatLit'          , 'Expr', 'Located<double>|val'),
-    AST('IntLit'            , 'Expr', 'Located<uint64_t>|val'),
-    AST('CharLit'           , 'Expr', 'Located<char>|val'),
-    AST('StringLit'         , 'Expr', 'Located<std::string>|val'),
-    AST('ThisExpr'          , 'Expr', 'Span|tok'),
+    AST('BoolLit'           , 'Expr', 'Located<Tokens::BoolLit>|val'),
+    AST('FloatLit'          , 'Expr', 'Located<Tokens::FloatLit>|val'),
+    AST('IntLit'            , 'Expr', 'Located<Tokens::IntLit>|val'),
+    AST('CharLit'           , 'Expr', 'Located<Tokens::CharLit>|val'),
+    AST('StringLit'         , 'Expr', 'Located<Tokens::StringLit>|val'),
+    AST('ThisExpr'          , 'Expr', 'Located<Tokens::This>|tok'),
     AST('PathExpr'          , 'Expr', 'std::unique_ptr<Path>|path'),
 
     AST('Path'              , 'PathB', 'std::vector<Located<Tokens::Identifier>>|segments'),
@@ -117,12 +117,14 @@ def gen_ast_decls():
             output.append(f'class {ast.name} : public {ast.base} {{\n')
 
             output.append( 'public:\n')
+            output.append( '    Maybe<Span const> _span;\n')
 
             for field in ast.fields:
                 output.append(f'    {field.type} {field.name};\n')
 
             output.append(f'    virtual void accept({ast.base}Visitor &v) override;\n')
-            output.append(f'    {ast.name}({", ".join(f"{field.type} {field.name}" for field in ast.fields)});\n')
+            output.append( '    virtual Maybe<Span const> const &span() const override;\n')
+            output.append(f'    {ast.name}(File const &file, Maybe<Span const> const &span, {", ".join(f"{field.type} {field.name}" for field in ast.fields)});\n')
 
             output.append( '};\n')
         elif isinstance(ast, ASTBase):
@@ -139,6 +141,7 @@ def gen_ast_decls():
                            'public:\n'
                            '    AST(File const &file);\n'
                            '    virtual ~AST() {}\n'
+                           '    virtual Maybe<Span const> const &span() const = 0;\n'
                            '    File const &file;\n'
                            '};\n'))
 
@@ -148,9 +151,9 @@ def gen_ast_defs():
     output = []
     for ast in asts:
         if isinstance(ast, AST):
-            output.append(f'ASTNS::{ast.name}::{ast.name}({", ".join(f"{field.type} {field.name}" for field in ast.fields)}): ')
+            output.append(f'ASTNS::{ast.name}::{ast.name}(File const &file, Maybe<Span const> const &span, {", ".join(f"{field.type} {field.name}" for field in ast.fields)}): ')
 
-            init_list = []
+            init_list = [f'{ast.base}(file), _span(span)']
             for field in ast.fields:
                 init_list.append(f'{field.name}(std::move({field.name}))')
 
@@ -158,6 +161,7 @@ def gen_ast_defs():
             output.append(' {}\n')
 
             output.append(f'void ASTNS::{ast.name}::accept(ASTNS::{ast.base}Visitor &v) {{ v.visit(*this); }}\n')
+            output.append(f'Maybe<Span const> const &ASTNS::{ast.name}::span() const {{ return _span; }}\n')
         elif isinstance(ast, ASTBase):
             output.append(f'ASTNS::{ast.name}::{ast.name}(File const &file): AST(file) {{}}\n')
         else:
