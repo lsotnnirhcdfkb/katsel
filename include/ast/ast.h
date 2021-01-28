@@ -443,50 +443,50 @@ namespace ASTNS {
     class BoolLit : public Expr {
     public:
         Maybe<Span const> _span;
-        Located<bool> val;
+        Located<Tokens::BoolLit> val;
         virtual void accept(ExprVisitor &v) override;
         virtual Maybe<Span const> const &span() const override;
-        BoolLit(File const &file, Maybe<Span const> const &span, Located<bool> val);
+        BoolLit(File const &file, Maybe<Span const> const &span, Located<Tokens::BoolLit> val);
     };
     class FloatLit : public Expr {
     public:
         Maybe<Span const> _span;
-        Located<double> val;
+        Located<Tokens::FloatLit> val;
         virtual void accept(ExprVisitor &v) override;
         virtual Maybe<Span const> const &span() const override;
-        FloatLit(File const &file, Maybe<Span const> const &span, Located<double> val);
+        FloatLit(File const &file, Maybe<Span const> const &span, Located<Tokens::FloatLit> val);
     };
     class IntLit : public Expr {
     public:
         Maybe<Span const> _span;
-        Located<uint64_t> val;
+        Located<Tokens::IntLit> val;
         virtual void accept(ExprVisitor &v) override;
         virtual Maybe<Span const> const &span() const override;
-        IntLit(File const &file, Maybe<Span const> const &span, Located<uint64_t> val);
+        IntLit(File const &file, Maybe<Span const> const &span, Located<Tokens::IntLit> val);
     };
     class CharLit : public Expr {
     public:
         Maybe<Span const> _span;
-        Located<char> val;
+        Located<Tokens::CharLit> val;
         virtual void accept(ExprVisitor &v) override;
         virtual Maybe<Span const> const &span() const override;
-        CharLit(File const &file, Maybe<Span const> const &span, Located<char> val);
+        CharLit(File const &file, Maybe<Span const> const &span, Located<Tokens::CharLit> val);
     };
     class StringLit : public Expr {
     public:
         Maybe<Span const> _span;
-        Located<std::string> val;
+        Located<Tokens::StringLit> val;
         virtual void accept(ExprVisitor &v) override;
         virtual Maybe<Span const> const &span() const override;
-        StringLit(File const &file, Maybe<Span const> const &span, Located<std::string> val);
+        StringLit(File const &file, Maybe<Span const> const &span, Located<Tokens::StringLit> val);
     };
     class ThisExpr : public Expr {
     public:
         Maybe<Span const> _span;
-        Span tok;
+        Located<Tokens::This> tok;
         virtual void accept(ExprVisitor &v) override;
         virtual Maybe<Span const> const &span() const override;
-        ThisExpr(File const &file, Maybe<Span const> const &span, Span tok);
+        ThisExpr(File const &file, Maybe<Span const> const &span, Located<Tokens::This> tok);
     };
     class PathExpr : public Expr {
     public:
