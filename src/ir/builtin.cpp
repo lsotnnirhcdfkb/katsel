@@ -10,45 +10,45 @@
 
 #include "llvm/IR/DerivedTypes.h"
 
-#define BIN_OP_ARGS CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::Type::BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST const &ast
-#define UNARY_OP_ARGS CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::Type::UnaryOperator op, IR::ASTValue v, Token optok, ASTNS::AST const &ast
+#define BIN_OP_ARGS CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::BinaryOperator> op, IR::ASTValue l, IR::ASTValue r, ASTNS::AST const &ast
+#define UNARY_OP_ARGS CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue v, ASTNS::AST const &ast
 // static functions {{{1
-#define SUPPORT_OPERATOR_BASIC(op, instr) case IR::Type::BinaryOperator::op: return IR::ASTValue(cur_block->add<IR::Instrs::instr>(l, r), ast);
+#define SUPPORT_OPERATOR_BASIC(op, instr) case ASTNS::BinaryOperator::op: return IR::ASTValue(cur_block->add<IR::Instrs::instr>(l, r), ast);
 // float/int operations for reuse between generic float/int and concrete float/int types {{{2
 static Maybe<IR::ASTValue> float_bin_op(BIN_OP_ARGS) {
     l = r.type().impl_cast(cgc, fun, cur_block, l);
     r = l.type().impl_cast(cgc, fun, cur_block, r);
 
     if (&l.type() != &r.type()) {
-        ERR_CONFLICT_TYS_BINARY_OP(l, r, optok);
+        ERR_CONFLICT_TYS_BINARY_OP(l, r, op);
         return Maybe<IR::ASTValue>();
     }
 
-    switch (op) {
-        SUPPORT_OPERATOR_BASIC(plus, FAdd)
-        SUPPORT_OPERATOR_BASIC(minus, FSub)
-        SUPPORT_OPERATOR_BASIC(star, FMult)
-        SUPPORT_OPERATOR_BASIC(slash, FDiv)
-        SUPPORT_OPERATOR_BASIC(percent, FMod)
-        SUPPORT_OPERATOR_BASIC(greater, FCmpGT)
-        SUPPORT_OPERATOR_BASIC(less, FCmpLT)
-        SUPPORT_OPERATOR_BASIC(greaterequal, FCmpGE)
-        SUPPORT_OPERATOR_BASIC(lessequal, FCmpLE)
-        SUPPORT_OPERATOR_BASIC(doubleequal, FCmpEQ)
-        SUPPORT_OPERATOR_BASIC(bangequal, FCmpNE)
+    switch (op.value) {
+        SUPPORT_OPERATOR_BASIC(PLUS, FAdd)
+        SUPPORT_OPERATOR_BASIC(MINUS, FSub)
+        SUPPORT_OPERATOR_BASIC(STAR, FMult)
+        SUPPORT_OPERATOR_BASIC(SLASH, FDiv)
+        SUPPORT_OPERATOR_BASIC(PERCENT, FMod)
+        SUPPORT_OPERATOR_BASIC(GREATER, FCmpGT)
+        SUPPORT_OPERATOR_BASIC(LESS, FCmpLT)
+        SUPPORT_OPERATOR_BASIC(GREATEREQUAL, FCmpGE)
+        SUPPORT_OPERATOR_BASIC(LESSEQUAL, FCmpLE)
+        SUPPORT_OPERATOR_BASIC(DOUBLEEQUAL, FCmpEQ)
+        SUPPORT_OPERATOR_BASIC(BANGEQUAL, FCmpNE)
 
         default:
-            ERR_LHS_UNSUPPORTED_OP(l, optok);
+            ERR_LHS_UNSUPPORTED_OP(l, op);
             return Maybe<IR::ASTValue>();
     }
 }
 static Maybe<IR::ASTValue> float_unary_op(UNARY_OP_ARGS) {
-    switch (op) {
-        case IR::Type::UnaryOperator::minus:
+    switch (op.value) {
+        case ASTNS::UnaryOperator::MINUS:
             return IR::ASTValue(cur_block->add<IR::Instrs::FNeg>(v), ast);
 
         default:
-            ERR_UNARY_UNSUPPORTED_OP(v, optok);
+            ERR_UNARY_UNSUPPORTED_OP(v, op);
             return Maybe<IR::ASTValue>();
     }
 }
@@ -57,43 +57,43 @@ static Maybe<IR::ASTValue> int_bin_op(BIN_OP_ARGS) {
     r = l.type().impl_cast(cgc, fun, cur_block, r);
 
     if (&l.type() != &r.type()) {
-        ERR_CONFLICT_TYS_BINARY_OP(l, r, optok);
+        ERR_CONFLICT_TYS_BINARY_OP(l, r, op);
         return Maybe<IR::ASTValue>();
     }
 
-    switch (op) {
-        SUPPORT_OPERATOR_BASIC(plus, IAdd)
-        SUPPORT_OPERATOR_BASIC(minus, ISub)
-        SUPPORT_OPERATOR_BASIC(star, IMult)
-        SUPPORT_OPERATOR_BASIC(slash, IDiv)
-        SUPPORT_OPERATOR_BASIC(percent, IMod)
-        SUPPORT_OPERATOR_BASIC(greater, ICmpGT)
-        SUPPORT_OPERATOR_BASIC(less, ICmpLT)
-        SUPPORT_OPERATOR_BASIC(greaterequal, ICmpGE)
-        SUPPORT_OPERATOR_BASIC(lessequal, ICmpLE)
-        SUPPORT_OPERATOR_BASIC(doubleequal, ICmpEQ)
-        SUPPORT_OPERATOR_BASIC(bangequal, ICmpNE)
-        SUPPORT_OPERATOR_BASIC(amper, BitAnd)
-        SUPPORT_OPERATOR_BASIC(pipe, BitOr)
-        SUPPORT_OPERATOR_BASIC(caret, BitXor)
-        SUPPORT_OPERATOR_BASIC(doublegreater, ShiftR)
-        SUPPORT_OPERATOR_BASIC(doubleless, ShiftL)
+    switch (op.value) {
+        SUPPORT_OPERATOR_BASIC(PLUS, IAdd)
+        SUPPORT_OPERATOR_BASIC(MINUS, ISub)
+        SUPPORT_OPERATOR_BASIC(STAR, IMult)
+        SUPPORT_OPERATOR_BASIC(SLASH, IDiv)
+        SUPPORT_OPERATOR_BASIC(PERCENT, IMod)
+        SUPPORT_OPERATOR_BASIC(GREATER, ICmpGT)
+        SUPPORT_OPERATOR_BASIC(LESS, ICmpLT)
+        SUPPORT_OPERATOR_BASIC(GREATEREQUAL, ICmpGE)
+        SUPPORT_OPERATOR_BASIC(LESSEQUAL, ICmpLE)
+        SUPPORT_OPERATOR_BASIC(DOUBLEEQUAL, ICmpEQ)
+        SUPPORT_OPERATOR_BASIC(BANGEQUAL, ICmpNE)
+        SUPPORT_OPERATOR_BASIC(AMPER, BitAnd)
+        SUPPORT_OPERATOR_BASIC(PIPE, BitOr)
+        SUPPORT_OPERATOR_BASIC(CARET, BitXor)
+        SUPPORT_OPERATOR_BASIC(DOUBLEGREATER, ShiftR)
+        SUPPORT_OPERATOR_BASIC(DOUBLELESS, ShiftL)
 
         default:
-            ERR_LHS_UNSUPPORTED_OP(l, optok);
+            ERR_LHS_UNSUPPORTED_OP(l, op);
             return Maybe<IR::ASTValue>();
     }
 }
 static Maybe<IR::ASTValue> int_unary_op(UNARY_OP_ARGS) {
-    switch (op) {
-        case IR::Type::UnaryOperator::tilde:
+    switch (op.value) {
+        case ASTNS::UnaryOperator::TILDE:
             return IR::ASTValue(cur_block->add<IR::Instrs::BitNot>(v), ast);
 
-        case IR::Type::UnaryOperator::minus:
+        case ASTNS::UnaryOperator::MINUS:
             return IR::ASTValue(cur_block->add<IR::Instrs::INeg>(v), ast);
 
         default:
-            ERR_UNARY_UNSUPPORTED_OP(v, optok);
+            ERR_UNARY_UNSUPPORTED_OP(v, op);
             return Maybe<IR::ASTValue>();
     }
 }
@@ -122,11 +122,11 @@ std::string IR::FloatType::name() const {
 }
 Maybe<IR::ASTValue> IR::FloatType::bin_op(BIN_OP_ARGS) const {
     ASSERT(&l.type() == this);
-    return float_bin_op(cgc, fun, cur_block, op, l, r, optok, ast);
+    return float_bin_op(cgc, fun, cur_block, op, l, r, ast);
 }
-Maybe<IR::ASTValue> IR::FloatType::unary_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::Type::UnaryOperator op, IR::ASTValue v, Token optok, ASTNS::AST const &ast) const {
+Maybe<IR::ASTValue> IR::FloatType::unary_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue v, ASTNS::AST const &ast) const {
     ASSERT(&v.type() == this);
-    return float_unary_op(cgc, fun, cur_block, op, v, optok, ast);
+    return float_unary_op(cgc, fun, cur_block, op, v, ast);
 }
 Maybe<IR::ASTValue> IR::FloatType::cast_from(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, ASTNS::AST const &ast) const {
     if (&v.type() == this)
@@ -167,11 +167,11 @@ std::string IR::IntType::name() const {
 }
 Maybe<IR::ASTValue> IR::IntType::bin_op(BIN_OP_ARGS) const {
     ASSERT(&l.type() == this)
-    return int_bin_op(cgc, fun, cur_block, op, l, r, optok, ast);
+    return int_bin_op(cgc, fun, cur_block, op, l, r, ast);
 }
-Maybe<IR::ASTValue> IR::IntType::unary_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::Type::UnaryOperator op, IR::ASTValue v, Token optok, ASTNS::AST const &ast) const {
+Maybe<IR::ASTValue> IR::IntType::unary_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue v, ASTNS::AST const &ast) const {
     ASSERT(&v.type() == this)
-    return int_unary_op(cgc, fun, cur_block, op, v, optok, ast);
+    return int_unary_op(cgc, fun, cur_block, op, v, ast);
 }
 Maybe<IR::ASTValue> IR::IntType::cast_from(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, ASTNS::AST const &ast) const {
     if (&v.type() == this)
@@ -228,11 +228,11 @@ std::string IR::GenericIntType::name() const {
 }
 Maybe<IR::ASTValue> IR::GenericIntType::bin_op(BIN_OP_ARGS) const {
     ASSERT(&l.type() == this);
-    return int_bin_op(cgc, fun, cur_block, op, l, r, optok, ast);
+    return int_bin_op(cgc, fun, cur_block, op, l, r, ast);
 }
 Maybe<IR::ASTValue> IR::GenericIntType::unary_op(UNARY_OP_ARGS) const {
     ASSERT(&v.type() == this);
-    return int_unary_op(cgc, fun, cur_block, op, v, optok, ast);
+    return int_unary_op(cgc, fun, cur_block, op, v, ast);
 }
 Maybe<IR::ASTValue> IR::GenericIntType::cast_from(CodeGen::Context &, IR::Function &, NNPtr<IR::Block> &, IR::ASTValue v, ASTNS::AST const &ast) const {
     ERR_INVALID_CAST(ast, v, *this);
@@ -255,11 +255,11 @@ std::string IR::GenericFloatType::name() const {
 }
 Maybe<IR::ASTValue> IR::GenericFloatType::bin_op(BIN_OP_ARGS) const {
     ASSERT(&l.type() == this);
-    return float_bin_op(cgc, fun, cur_block, op, l, r, optok, ast);
+    return float_bin_op(cgc, fun, cur_block, op, l, r, ast);
 }
 Maybe<IR::ASTValue> IR::GenericFloatType::unary_op(UNARY_OP_ARGS) const {
     ASSERT(&v.type() == this);
-    return float_unary_op(cgc, fun, cur_block, op, v, optok, ast);
+    return float_unary_op(cgc, fun, cur_block, op, v, ast);
 }
 Maybe<IR::ASTValue> IR::GenericFloatType::cast_from(CodeGen::Context &, IR::Function &, NNPtr<IR::Block> &, IR::ASTValue v, ASTNS::AST const &ast) const {
     ERR_INVALID_CAST(ast, v, *this);
@@ -290,27 +290,27 @@ Maybe<IR::ASTValue> IR::CharType::bin_op(BIN_OP_ARGS) const {
     l = r.type().impl_cast(cgc, fun, cur_block, l);
     r = l.type().impl_cast(cgc, fun, cur_block, r);
     if (&l.type() != &r.type()) {
-        ERR_CONFLICT_TYS_BINARY_OP(l, r, optok);
+        ERR_CONFLICT_TYS_BINARY_OP(l, r, op);
         return Maybe<IR::ASTValue>();
     }
 
-    switch (op) {
-        SUPPORT_OPERATOR_BASIC(greater, ICmpGT)
-        SUPPORT_OPERATOR_BASIC(less, ICmpLT)
-        SUPPORT_OPERATOR_BASIC(greaterequal, ICmpGE)
-        SUPPORT_OPERATOR_BASIC(lessequal, ICmpLE)
-        SUPPORT_OPERATOR_BASIC(doubleequal, ICmpEQ)
-        SUPPORT_OPERATOR_BASIC(bangequal, ICmpNE)
+    switch (op.value) {
+        SUPPORT_OPERATOR_BASIC(GREATER, ICmpGT)
+        SUPPORT_OPERATOR_BASIC(LESS, ICmpLT)
+        SUPPORT_OPERATOR_BASIC(GREATEREQUAL, ICmpGE)
+        SUPPORT_OPERATOR_BASIC(LESSEQUAL, ICmpLE)
+        SUPPORT_OPERATOR_BASIC(DOUBLEEQUAL, ICmpEQ)
+        SUPPORT_OPERATOR_BASIC(BANGEQUAL, ICmpNE)
 
         default:
-            ERR_LHS_UNSUPPORTED_OP(l, optok);
+            ERR_LHS_UNSUPPORTED_OP(l, op);
             return Maybe<ASTValue>();
     }
 }
-Maybe<IR::ASTValue> IR::CharType::unary_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::Type::UnaryOperator op, IR::ASTValue v, Token optok, ASTNS::AST const &ast) const {
+Maybe<IR::ASTValue> IR::CharType::unary_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue v, ASTNS::AST const &ast) const {
     ASSERT(&v.type() == this)
 
-    ERR_UNARY_UNSUPPORTED_OP(v, optok);
+    ERR_UNARY_UNSUPPORTED_OP(v, op);
     return Maybe<ASTValue>();
 }
 Maybe<IR::ASTValue> IR::CharType::cast_from(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, ASTNS::AST const &ast) const {
@@ -343,37 +343,37 @@ llvm::Type& IR::BoolType::to_llvmtype(llvm::LLVMContext &con) const {
 std::string IR::BoolType::name() const {
     return "bool";
 }
-Maybe<IR::ASTValue> IR::BoolType::bin_op(CodeGen::Context &cgc, Function &fun, NNPtr<Block> &cur_block, BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST const &ast) const {
+Maybe<IR::ASTValue> IR::BoolType::bin_op(CodeGen::Context &cgc, Function &fun, NNPtr<Block> &cur_block, Located<ASTNS::BinaryOperator> op, IR::ASTValue l, IR::ASTValue r, ASTNS::AST const &ast) const {
     ASSERT(&l.type() == this)
 
     l = r.type().impl_cast(cgc, fun, cur_block, l);
     r = l.type().impl_cast(cgc, fun, cur_block, r);
     if (&l.type() != &r.type()) {
-        ERR_CONFLICT_TYS_BINARY_OP(l, r, optok);
+        ERR_CONFLICT_TYS_BINARY_OP(l, r, op);
         return Maybe<IR::ASTValue>();
     }
 
-    switch (op) {
-        SUPPORT_OPERATOR_BASIC(amper, BitAnd)
-        SUPPORT_OPERATOR_BASIC(pipe, BitOr)
-        SUPPORT_OPERATOR_BASIC(caret, BitXor)
-        SUPPORT_OPERATOR_BASIC(doubleequal, ICmpEQ)
-        SUPPORT_OPERATOR_BASIC(bangequal, ICmpNE)
+    switch (op.value) {
+        SUPPORT_OPERATOR_BASIC(AMPER, BitAnd)
+        SUPPORT_OPERATOR_BASIC(PIPE, BitOr)
+        SUPPORT_OPERATOR_BASIC(CARET, BitXor)
+        SUPPORT_OPERATOR_BASIC(DOUBLEEQUAL, ICmpEQ)
+        SUPPORT_OPERATOR_BASIC(BANGEQUAL, ICmpNE)
 
         default:
-            ERR_LHS_UNSUPPORTED_OP(l, optok);
+            ERR_LHS_UNSUPPORTED_OP(l, op);
             return Maybe<ASTValue>();
     }
 }
-Maybe<IR::ASTValue> IR::BoolType::unary_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::Type::UnaryOperator op, IR::ASTValue v, Token optok, ASTNS::AST const &ast) const {
+Maybe<IR::ASTValue> IR::BoolType::unary_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue v, ASTNS::AST const &ast) const {
     ASSERT(&v.type() == this)
 
-    switch (op) {
-        case Type::UnaryOperator::bang:
+    switch (op.value) {
+        case ASTNS::UnaryOperator::BANG:
             return IR::ASTValue(cur_block->add<IR::Instrs::Not>(v), ast);
 
         default:
-            ERR_UNARY_UNSUPPORTED_OP(v, optok);
+            ERR_UNARY_UNSUPPORTED_OP(v, op);
             return Maybe<ASTValue>();
     }
 }

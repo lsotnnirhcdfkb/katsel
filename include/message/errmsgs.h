@@ -7,6 +7,7 @@ class Span;
 #include <vector>
 #include <string>
 #include "ast/astfwd.h"
+#include "utils/location.h"
 
 // ERRH START
 
@@ -68,11 +69,11 @@ void E0013(Span const &lookahead, std::string lookahead_type_name, Span const &l
 
 // E0014 - lhs-unsupported-op
 #define ERR_LHS_UNSUPPORTED_OP E0014
-void E0014(IR::ASTValue const &lhs, Span const &op);
+void E0014(IR::ASTValue const &lhs, Located<ASTNS::BinaryOperator> const &op);
 
 // E0015 - unary-unsupported-op
 #define ERR_UNARY_UNSUPPORTED_OP E0015
-void E0015(IR::ASTValue const &operand, Span const &_operator);
+void E0015(IR::ASTValue const &operand, Located<ASTNS::UnaryOperator> const &op);
 
 // E0016 - call-noncallable
 #define ERR_CALL_NONCALLABLE E0016
@@ -108,7 +109,7 @@ void E0023(ASTNS::AST const &ast, IR::ASTValue v, IR::Type const &newty);
 
 // E0024 - conflict-tys-binary-op
 #define ERR_CONFLICT_TYS_BINARY_OP E0024
-void E0024(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Span const &op);
+void E0024(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Located<ASTNS::BinaryOperator> const &op);
 
 // E0025 - cond-not-bool
 #define ERR_COND_NOT_BOOL E0025
@@ -116,7 +117,7 @@ void E0025(IR::ASTValue const &v);
 
 // E0026 - ptr-arith-rhs-not-num
 #define ERR_PTR_ARITH_RHS_NOT_NUM E0026
-void E0026(IR::ASTValue const &lhs, Span const &optok, IR::ASTValue const &rhs);
+void E0026(IR::ASTValue const &lhs, Located<ASTNS::BinaryOperator> const &optok, IR::ASTValue const &rhs);
 
 // E0027 - no-else-not-void
 #define ERR_NO_ELSE_NOT_VOID E0027

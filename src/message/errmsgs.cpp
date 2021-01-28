@@ -170,12 +170,12 @@ e.underline(un);
 // E0014 - lhs-unsupported-op
 // | Left hand side of binary expression does not support
 // | operator
-void E0014(IR::ASTValue const &lhs, Span const &op) {
-    Error e = Error(MsgType::ERROR, op, "E0014", "lhs-unsupported-op");
+void E0014(IR::ASTValue const &lhs, Located<ASTNS::BinaryOperator> const &op) {
+    Error e = Error(MsgType::ERROR, op.span, "E0014", "lhs-unsupported-op");
     e.underline(Underline(lhs, '^')
         .note(format("lhs is of type {}", lhs.type()))
     );
-    e.underline(Underline(op, '^')
+    e.underline(Underline(op.span, '^')
         .error("unsupported binary operator for left operand")
     );
     e.report();
@@ -183,12 +183,12 @@ void E0014(IR::ASTValue const &lhs, Span const &op) {
 
 // E0015 - unary-unsupported-op
 // | Operand of unary expression does not support operator
-void E0015(IR::ASTValue const &operand, Span const &_operator) {
-    Error e = Error(MsgType::ERROR, _operator, "E0015", "unary-unsupported-op");
+void E0015(IR::ASTValue const &operand, Located<ASTNS::UnaryOperator> const &op) {
+    Error e = Error(MsgType::ERROR, op.span, "E0015", "unary-unsupported-op");
     e.underline(Underline(operand, '^')
         .note(format("operand is of type {}", operand.type()))
     );
-    e.underline(Underline(_operator, '^')
+    e.underline(Underline(op.span, '^')
         .error("unsupported unary operator")
     );
     e.report();
@@ -307,15 +307,15 @@ void E0023(ASTNS::AST const &ast, IR::ASTValue v, IR::Type const &newty) {
 
 // E0024 - conflict-tys-binary-op
 // | Conflicting types to binary operator
-void E0024(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Span const &op) {
-    Error e = Error(MsgType::ERROR, op, "E0024", "conflict-tys-binary-op");
+void E0024(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Located<ASTNS::BinaryOperator> const &op) {
+    Error e = Error(MsgType::ERROR, op.span, "E0024", "conflict-tys-binary-op");
     e.underline(Underline(lhs, '~')
         .note(format("{}", lhs.type()))
     );
     e.underline(Underline(rhs, '~')
         .note(format("{}", rhs.type()))
     );
-    e.underline(Underline(op, '^')
+    e.underline(Underline(op.span, '^')
         .error("conflicting types to binary operator")
     );
     e.report();
@@ -334,14 +334,14 @@ void E0025(IR::ASTValue const &v) {
 // E0026 - ptr-arith-rhs-not-num
 // | Cannot do pointer arithmetic with non-integer as right-hand-
 // | side of expression
-void E0026(IR::ASTValue const &lhs, Span const &optok, IR::ASTValue const &rhs) {
-    Error e = Error(MsgType::ERROR, optok, "E0026", "ptr-arith-rhs-not-num");
+void E0026(IR::ASTValue const &lhs, Located<ASTNS::BinaryOperator> const &optok, IR::ASTValue const &rhs) {
+    Error e = Error(MsgType::ERROR, optok.span, "E0026", "ptr-arith-rhs-not-num");
     e.underline(Underline(lhs, '~')
     );
     e.underline(Underline(rhs, '~')
         .note(format("{}", rhs.type()))
     );
-    e.underline(Underline(optok, '^')
+    e.underline(Underline(optok.span, '^')
         .error("pointer arithmetic requires an integral right-hand operand")
     );
     e.report();

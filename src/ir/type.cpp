@@ -16,12 +16,12 @@ std::string IR::VoidType::name() const {
     return "void";
 }
 
-Maybe<IR::ASTValue> IR::VoidType::bin_op(CodeGen::Context &, IR::Function &, NNPtr<IR::Block> &, IR::Type::BinaryOperator , IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST const &) const {
-    ERR_LHS_UNSUPPORTED_OP(l, optok);
+Maybe<IR::ASTValue> IR::VoidType::bin_op(CodeGen::Context &, IR::Function &, NNPtr<IR::Block> &, Located<ASTNS::BinaryOperator> op, IR::ASTValue l, IR::ASTValue r, ASTNS::AST const &) const {
+    ERR_LHS_UNSUPPORTED_OP(l, op);
     return Maybe<ASTValue>();
 }
-Maybe<IR::ASTValue> IR::VoidType::unary_op(CodeGen::Context &, IR::Function &, NNPtr<IR::Block> &, IR::Type::UnaryOperator , IR::ASTValue operand, Token optok, ASTNS::AST const &) const {
-    ERR_UNARY_UNSUPPORTED_OP(operand, optok);
+Maybe<IR::ASTValue> IR::VoidType::unary_op(CodeGen::Context &, IR::Function &, NNPtr<IR::Block> &, Located<ASTNS::UnaryOperator> op, IR::ASTValue operand, ASTNS::AST const &) const {
+    ERR_UNARY_UNSUPPORTED_OP(operand, op);
     return Maybe<ASTValue>();
 }
 Maybe<IR::ASTValue> IR::VoidType::cast_from(CodeGen::Context &, IR::Function &, NNPtr<IR::Block> &, IR::ASTValue v, ASTNS::AST const &ast) const {
@@ -60,12 +60,12 @@ std::string IR::FunctionType::name() const {
     return ss.str();
 }
 
-Maybe<IR::ASTValue> IR::FunctionType::bin_op(CodeGen::Context &, IR::Function &, NNPtr<IR::Block> &, IR::Type::BinaryOperator , IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST const &) const {
-    ERR_LHS_UNSUPPORTED_OP(l, optok);
+Maybe<IR::ASTValue> IR::FunctionType::bin_op(CodeGen::Context &, IR::Function &, NNPtr<IR::Block> &, Located<ASTNS::BinaryOperator> op, IR::ASTValue l, IR::ASTValue r, ASTNS::AST const &) const {
+    ERR_LHS_UNSUPPORTED_OP(l, op);
     return Maybe<ASTValue>();
 }
-Maybe<IR::ASTValue> IR::FunctionType::unary_op(CodeGen::Context &, IR::Function &, NNPtr<IR::Block> &, IR::Type::UnaryOperator , IR::ASTValue operand, Token optok, ASTNS::AST const &) const {
-    ERR_UNARY_UNSUPPORTED_OP(operand, optok);
+Maybe<IR::ASTValue> IR::FunctionType::unary_op(CodeGen::Context &, IR::Function &, NNPtr<IR::Block> &, Located<ASTNS::UnaryOperator> op, IR::ASTValue operand, ASTNS::AST const &) const {
+    ERR_UNARY_UNSUPPORTED_OP(operand, op);
     return Maybe<ASTValue>();
 }
 

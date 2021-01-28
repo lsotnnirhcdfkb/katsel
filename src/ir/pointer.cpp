@@ -26,44 +26,44 @@ DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::PointerType)
 DERIVE_TYPE_METHOD_TABLE_IMPL(IR::PointerType)
 DERIVE_TYPE_NO_FIELDS(IR::PointerType)
 
-Maybe<IR::ASTValue> IR::PointerType::bin_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::Type::BinaryOperator op, IR::ASTValue l, IR::ASTValue r, Token optok, ASTNS::AST const &ast) const {
+Maybe<IR::ASTValue> IR::PointerType::bin_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::BinaryOperator> op, IR::ASTValue l, IR::ASTValue r, ASTNS::AST const &ast) const {
     ASSERT(&l.type() == this);
 
     r = cgc.get_int_type(64, true).impl_cast(cgc, fun, cur_block, r);
     if (!dynamic_cast<IntType const *>(&r.type())) {
-        ERR_PTR_ARITH_RHS_NOT_NUM(l, optok, r);
+        ERR_PTR_ARITH_RHS_NOT_NUM(l, op, r);
         return Maybe<IR::ASTValue>();
     }
 
-    switch (op) {
-        case IR::Type::BinaryOperator::plus:
+    switch (op.value) {
+        case ASTNS::BinaryOperator::PLUS:
             return IR::ASTValue(cur_block->add<IR::Instrs::PtrArith>(l, r), ast);
-        case IR::Type::BinaryOperator::minus: {
+        case ASTNS::BinaryOperator::MINUS: {
                 IR::ASTValue r_negated = IR::ASTValue(cur_block->add<IR::Instrs::INeg>(r), *r.ast);
                 return IR::ASTValue(cur_block->add<IR::Instrs::PtrArith>(l, r_negated), ast);
             }
-        case IR::Type::BinaryOperator::greater:
+        case ASTNS::BinaryOperator::GREATER:
             return IR::ASTValue(cur_block->add<IR::Instrs::ICmpGT>(l, r), ast);
-        case IR::Type::BinaryOperator::less:
+        case ASTNS::BinaryOperator::LESS:
             return IR::ASTValue(cur_block->add<IR::Instrs::ICmpLT>(l, r), ast);
-        case IR::Type::BinaryOperator::greaterequal:
+        case ASTNS::BinaryOperator::GREATEREQUAL:
             return IR::ASTValue(cur_block->add<IR::Instrs::ICmpGE>(l, r), ast);
-        case IR::Type::BinaryOperator::lessequal:
+        case ASTNS::BinaryOperator::LESSEQUAL:
             return IR::ASTValue(cur_block->add<IR::Instrs::ICmpLE>(l, r), ast);
-        case IR::Type::BinaryOperator::doubleequal:
+        case ASTNS::BinaryOperator::DOUBLEEQUAL:
             return IR::ASTValue(cur_block->add<IR::Instrs::ICmpEQ>(l, r), ast);
-        case IR::Type::BinaryOperator::bangequal:
+        case ASTNS::BinaryOperator::BANGEQUAL:
             return IR::ASTValue(cur_block->add<IR::Instrs::ICmpNE>(l, r), ast);
 
         default:
-            ERR_LHS_UNSUPPORTED_OP(l, optok);
+            ERR_LHS_UNSUPPORTED_OP(l, op);
             return Maybe<IR::ASTValue>();
     }
 }
-Maybe<IR::ASTValue> IR::PointerType::unary_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::Type::UnaryOperator op, IR::ASTValue operand, Token optok, ASTNS::AST const &ast) const {
+Maybe<IR::ASTValue> IR::PointerType::unary_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue operand, ASTNS::AST const &ast) const {
     ASSERT(&operand.type() == this);
 
-    ERR_UNARY_UNSUPPORTED_OP(operand, optok);
+    ERR_UNARY_UNSUPPORTED_OP(operand, op);
     return Maybe<ASTValue>();
 }
 Maybe<IR::ASTValue> IR::PointerType::cast_from(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, ASTNS::AST const &ast) const {
