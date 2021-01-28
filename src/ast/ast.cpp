@@ -118,22 +118,22 @@ Maybe<Span const> const &ASTNS::FieldAccessExpr::span() const { return _span; }
 ASTNS::MethodCallExpr::MethodCallExpr(File const &file, Maybe<Span const> const &span, std::unique_ptr<Expr> operand, Located<Tokens::Period> dot, Located<Tokens::Identifier> method, Located<Tokens::OParen> oparn, std::vector<std::unique_ptr<Arg>> args): Expr(file), _span(span), operand(std::move(operand)), dot(std::move(dot)), method(std::move(method)), oparn(std::move(oparn)), args(std::move(args)) {}
 void ASTNS::MethodCallExpr::accept(ASTNS::ExprVisitor &v) { v.visit(*this); }
 Maybe<Span const> const &ASTNS::MethodCallExpr::span() const { return _span; }
-ASTNS::BoolLit::BoolLit(File const &file, Maybe<Span const> const &span, Located<Tokens::BoolLit> val): Expr(file), _span(span), val(std::move(val)) {}
+ASTNS::BoolLit::BoolLit(File const &file, Maybe<Span const> const &span, Located<bool> val): Expr(file), _span(span), val(std::move(val)) {}
 void ASTNS::BoolLit::accept(ASTNS::ExprVisitor &v) { v.visit(*this); }
 Maybe<Span const> const &ASTNS::BoolLit::span() const { return _span; }
-ASTNS::FloatLit::FloatLit(File const &file, Maybe<Span const> const &span, Located<Tokens::FloatLit> val): Expr(file), _span(span), val(std::move(val)) {}
+ASTNS::FloatLit::FloatLit(File const &file, Maybe<Span const> const &span, Located<double> val): Expr(file), _span(span), val(std::move(val)) {}
 void ASTNS::FloatLit::accept(ASTNS::ExprVisitor &v) { v.visit(*this); }
 Maybe<Span const> const &ASTNS::FloatLit::span() const { return _span; }
-ASTNS::IntLit::IntLit(File const &file, Maybe<Span const> const &span, Located<Tokens::IntLit> val): Expr(file), _span(span), val(std::move(val)) {}
+ASTNS::IntLit::IntLit(File const &file, Maybe<Span const> const &span, Located<uint64_t> val): Expr(file), _span(span), val(std::move(val)) {}
 void ASTNS::IntLit::accept(ASTNS::ExprVisitor &v) { v.visit(*this); }
 Maybe<Span const> const &ASTNS::IntLit::span() const { return _span; }
-ASTNS::CharLit::CharLit(File const &file, Maybe<Span const> const &span, Located<Tokens::CharLit> val): Expr(file), _span(span), val(std::move(val)) {}
+ASTNS::CharLit::CharLit(File const &file, Maybe<Span const> const &span, Located<char> val): Expr(file), _span(span), val(std::move(val)) {}
 void ASTNS::CharLit::accept(ASTNS::ExprVisitor &v) { v.visit(*this); }
 Maybe<Span const> const &ASTNS::CharLit::span() const { return _span; }
-ASTNS::StringLit::StringLit(File const &file, Maybe<Span const> const &span, Located<Tokens::StringLit> val): Expr(file), _span(span), val(std::move(val)) {}
+ASTNS::StringLit::StringLit(File const &file, Maybe<Span const> const &span, Located<std::string> val): Expr(file), _span(span), val(std::move(val)) {}
 void ASTNS::StringLit::accept(ASTNS::ExprVisitor &v) { v.visit(*this); }
 Maybe<Span const> const &ASTNS::StringLit::span() const { return _span; }
-ASTNS::ThisExpr::ThisExpr(File const &file, Maybe<Span const> const &span, Located<Tokens::This> tok): Expr(file), _span(span), tok(std::move(tok)) {}
+ASTNS::ThisExpr::ThisExpr(File const &file, Maybe<Span const> const &span, Span tok): Expr(file), _span(span), tok(std::move(tok)) {}
 void ASTNS::ThisExpr::accept(ASTNS::ExprVisitor &v) { v.visit(*this); }
 Maybe<Span const> const &ASTNS::ThisExpr::span() const { return _span; }
 ASTNS::PathExpr::PathExpr(File const &file, Maybe<Span const> const &span, std::unique_ptr<Path> path): Expr(file), _span(span), path(std::move(path)) {}
