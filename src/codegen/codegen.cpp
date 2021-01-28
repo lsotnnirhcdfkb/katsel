@@ -49,7 +49,7 @@ void CodeGen::visit(ASTNS::CU &ast) {
 }
 
 void CodeGen::visit(ASTNS::FunctionDecl &ast) {
-    Maybe<IR::Value&> val = unit->mod.get_value(ast.name.as<Tokens::Identifier>().name);
+    Maybe<IR::Value&> val = unit->mod.get_value(ast.name.value.name);
     IR::Function *fun;
     if (!val.has() || !(fun = dynamic_cast<IR::Function*>(&val.get()))) {
         errored = true;

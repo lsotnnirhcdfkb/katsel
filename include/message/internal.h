@@ -2,7 +2,6 @@
 
 #include <string>
 
-class Token;
 class Location;
 
 void invalid_tok [[ noreturn ]] (std::string const &name, Span const &primary);

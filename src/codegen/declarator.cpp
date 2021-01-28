@@ -14,11 +14,11 @@ void CodeGen::Declarator::visit(ASTNS::CU &ast) {
 }
 
 void CodeGen::Declarator::visit(ASTNS::FunctionDecl &fun) {
-    std::string fname (fun.name.as<Tokens::Identifier>().name);
+    std::string fname (fun.name.value.name);
     Maybe<IR::Value &> declbefore = current_symbol->get_value(fname);
 
     if (declbefore.has()) {
-        ERR_REDECL_SYM(fun.name, declbefore.get());
+        ERR_REDECL_SYM(fun.name.span, declbefore.get());
         cg.errored = true;
         return;
     }

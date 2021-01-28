@@ -55,7 +55,7 @@ void CodeGen::TypeVisitor::visit(ASTNS::ThisType &ast) {
     if (this_type.has()) {
         ret = Maybe(this_type);
     } else {
-        ERR_NO_THIS(ast.th);
+        ERR_NO_THIS(ast.th.span);
         cg.errored = true;
         ret = Maybe<NNPtr<IR::Type>>();
         return;

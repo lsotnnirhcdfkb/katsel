@@ -5,10 +5,10 @@
 #include "ir/block.h"
 
 void CodeGen::FunctionCodeGen::StmtCodeGen::visit(ASTNS::VarStmtItem &ast) {
-    std::string varname = ast.name.as<Tokens::Identifier>().name;
+    std::string varname = ast.name.value.name;
     Maybe<CodeGen::FunctionCodeGen::Local&> var = fcg.get_local(varname);
     if (var.has() && var.get().scopenum == fcg.cur_scope) {
-        ERR_REDECL_VAR(ast.name, *var.get().v);
+        ERR_REDECL_VAR(ast.name.span, *var.get().v);
         cg.errored = true;
         return;
     }
@@ -32,7 +32,7 @@ void CodeGen::FunctionCodeGen::StmtCodeGen::visit(ASTNS::VarStmtItem &ast) {
 
         val = var_type->impl_cast(*cg.context, *fcg.fun, fcg.cur_block, val);
         if (&val.type() != var_type.as_raw()) {
-            ERR_CONFLICT_VAR_INIT_TY(ast.equal, ast.name, *ast.type, val, *var_type);
+            ERR_CONFLICT_VAR_INIT_TY(ast.equal.get().span, ast.name.span, *ast.type, val, *var_type);
             fcg.errored = true;
             return;
         }

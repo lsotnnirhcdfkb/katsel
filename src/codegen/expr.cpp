@@ -25,28 +25,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::BinaryExpr &ast) {
     }
 
     IR::ASTValue lhs = m_lhs.get(), rhs = m_rhs.get();
-
-    IR::Type::BinaryOperator oper;
-    switch (ast.op.index()) {
-        case Token::index_of<Tokens::BangEqual>: oper = IR::Type::BinaryOperator::bangequal; break;
-        case Token::index_of<Tokens::DoubleEqual>: oper = IR::Type::BinaryOperator::doubleequal; break;
-        case Token::index_of<Tokens::Less>: oper = IR::Type::BinaryOperator::less; break;
-        case Token::index_of<Tokens::Greater>: oper = IR::Type::BinaryOperator::greater; break;
-        case Token::index_of<Tokens::LessEqual>: oper = IR::Type::BinaryOperator::lessequal; break;
-        case Token::index_of<Tokens::GreaterEqual>: oper = IR::Type::BinaryOperator::greaterequal; break;
-        case Token::index_of<Tokens::Caret>: oper = IR::Type::BinaryOperator::caret; break;
-        case Token::index_of<Tokens::Pipe>: oper = IR::Type::BinaryOperator::pipe; break;
-        case Token::index_of<Tokens::Amper>: oper = IR::Type::BinaryOperator::amper; break;
-        case Token::index_of<Tokens::DoubleGreater>: oper = IR::Type::BinaryOperator::doublegreater; break;
-        case Token::index_of<Tokens::DoubleLess>: oper = IR::Type::BinaryOperator::doubleless; break;
-        case Token::index_of<Tokens::Plus>: oper = IR::Type::BinaryOperator::plus; break;
-        case Token::index_of<Tokens::Minus>: oper = IR::Type::BinaryOperator::minus; break;
-        case Token::index_of<Tokens::Star>: oper = IR::Type::BinaryOperator::star; break;
-        case Token::index_of<Tokens::Slash>: oper = IR::Type::BinaryOperator::slash; break;
-        case Token::index_of<Tokens::Percent>: oper = IR::Type::BinaryOperator::percent; break;
-        default: invalid_tok("binary operator", ast.op);
-    }
-    ret = lhs.type().bin_op(*cg.context, *fcg.fun, fcg.cur_block, oper, lhs, rhs, ast.op, ast);
+    ret = lhs.type().bin_op(*cg.context, *fcg.fun, fcg.cur_block, ast.op, lhs, rhs, ast);
     if (!ret.has())
         fcg.errored = true;
 }
@@ -60,7 +39,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::ShortCircuitExpr &ast) 
     IR::ASTValue lhs = m_lhs.get();
 
     if (!dynamic_cast<IR::BoolType const *>(&lhs.type())) {
-        ERR_LHS_UNSUPPORTED_OP(lhs, ast.op);
+        // ERR_LHS_UNSUPPORTED_OP(lhs, ast.op); TODO: fix this
         ret = Maybe<IR::ASTValue>();
         fcg.errored = true;
         return;
@@ -71,16 +50,19 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::ShortCircuitExpr &ast) 
     NNPtr<IR::Block> after = fcg.fun->add_block("shortcircuit_after");
 
     bool value_if_skipped;
-    if (ast.op.is<Tokens::DoublePipe>()) {
-        // jump to skip when true
-        fcg.cur_block->branch(std::make_unique<IR::Instrs::CondBr>(lhs, skip, checkboth));
-        value_if_skipped = true;
-    } else if (ast.op.is<Tokens::DoubleAmper>()) {
-        // jump to skip when false
-        fcg.cur_block->branch(std::make_unique<IR::Instrs::CondBr>(lhs, checkboth, skip));
-        value_if_skipped = false;
-    } else
-        invalid_tok("short circuiting operator", ast.op);
+
+    switch (ast.op.value) {
+        case ASTNS::ShortCircuitOperator::DOUBLEPIPE:
+            // jump to skip when true
+            fcg.cur_block->branch(std::make_unique<IR::Instrs::CondBr>(lhs, skip, checkboth));
+            value_if_skipped = true;
+            break;
+        case ASTNS::ShortCircuitOperator::DOUBLEAMPER:
+            // jump to skip when false
+            fcg.cur_block->branch(std::make_unique<IR::Instrs::CondBr>(lhs, checkboth, skip));
+            value_if_skipped = false;
+            break;
+    }
 
     fcg.cur_block = checkboth;
 
@@ -93,7 +75,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::ShortCircuitExpr &ast) 
     IR::ASTValue rhs = m_rhs.get();
 
     if (!dynamic_cast<IR::BoolType const *>(&rhs.type())) {
-        ERR_CONFLICT_TYS_BINARY_OP(lhs, rhs, ast.op);
+        // ERR_CONFLICT_TYS_BINARY_OP(lhs, rhs, ast.op); // TODO: fix this
         ret = Maybe<IR::ASTValue>();
         fcg.errored = true;
         return;
@@ -116,20 +98,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::UnaryExpr &ast) {
 
     IR::ASTValue oper = m_oper.get();
 
-    IR::Type::UnaryOperator opor;
-
-    switch (ast.op.index()) {
-        case Token::index_of<Tokens::Tilde>:
-            opor = IR::Type::UnaryOperator::tilde; break;
-        case Token::index_of<Tokens::Minus>:
-            opor = IR::Type::UnaryOperator::minus; break;
-        case Token::index_of<Tokens::Bang>:
-            opor = IR::Type::UnaryOperator::bang; break;
-        default:
-            invalid_tok("unary operator", ast.op);
-    }
-
-    ret = oper.type().unary_op(*cg.context, *fcg.fun, fcg.cur_block, opor, oper, ast.op, ast);
+    ret = oper.type().unary_op(*cg.context, *fcg.fun, fcg.cur_block, ast.op, oper, ast);
     if (!ret.has())
         fcg.errored = true;
 }
@@ -145,7 +114,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::DerefExpr &ast) {
 
     IR::PointerType const *asptrty (dynamic_cast<IR::PointerType const *>(&oper.type()));
     if (!asptrty) {
-        ERR_NO_DEREF(ast.op, oper);
+        ERR_NO_DEREF(ast.op.span, oper);
         ret = Maybe<IR::ASTValue>();
         fcg.errored = true;
         return;
@@ -164,14 +133,14 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::AddrofExpr &ast) {
 
     IR::Instrs::DerefPtr const *as_deref = dynamic_cast<IR::Instrs::DerefPtr const *>(oper.val.as_raw());
     if (!as_deref) {
-        ERR_ADDROF_NOT_LVALUE(ast.op, oper);
+        ERR_ADDROF_NOT_LVALUE(ast.op.span, oper);
         ret = Maybe<IR::ASTValue>();
         fcg.errored = true;
         return;
     }
 
     if (static_cast<IR::PointerType const *>(&as_deref->ptr.type())->mut == false && ast.mut) {
-        ERR_MUT_ADDROF_NONMUT_OP(ast.op, *as_deref);
+        ERR_MUT_ADDROF_NONMUT_OP(ast.op.span, *as_deref);
         ret = Maybe<IR::ASTValue>();
         fcg.errored = true;
         return;
@@ -191,7 +160,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::CallExpr &ast) {
 
     IR::FunctionType const *fty = dynamic_cast<IR::FunctionType const *>(&fun.type());
     if (!fty) {
-        ERR_CALL_NONCALLABLE(fun, ast.oparn);
+        ERR_CALL_NONCALLABLE(fun, ast.oparn.span);
         ret = Maybe<IR::ASTValue>();
         fcg.errored = true;
         return;
@@ -201,7 +170,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::CallExpr &ast) {
     std::vector<IR::ASTValue> args (av.ret);
 
     if (args.size() != fty->paramtys.size()) {
-        ERR_WRONG_NUM_ARGS(*static_cast<IR::Function const *>(fun.val.as_raw()), *ast.callee, ast.oparn, args);
+        ERR_WRONG_NUM_ARGS(*static_cast<IR::Function const *>(fun.val.as_raw()), *ast.callee, ast.oparn.span, args);
         ret = Maybe<IR::ASTValue>();
         fcg.errored = true;
         return;
@@ -228,42 +197,30 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::CallExpr &ast) {
     ret = IR::ASTValue(fcg.cur_block->add<IR::Instrs::Call>(NNPtr<IR::Function const>(static_cast<IR::Function const *>(fun.val.as_raw())), args), ast);
 }
 
-void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::PrimaryExpr &ast) {
-    switch (ast.value.index()) {
-        case Token::index_of<Tokens::BoolLit>:
-            ret = IR::ASTValue(cg.context->get_const_bool(ast.value.as<Tokens::BoolLit>().val), ast);
-            return;
-
-        case Token::index_of<Tokens::FloatLit>:
-            ret = IR::ASTValue(cg.context->get_const_float(cg.context->get_generic_float_type(), ast.value.as<Tokens::FloatLit>().val), ast);
-            return;
-
-        case Token::index_of<Tokens::IntLit>:
-            ret = IR::ASTValue(cg.context->get_const_int(cg.context->get_generic_int_type(), ast.value.as<Tokens::IntLit>().val), ast);
-            return;
-
-        case Token::index_of<Tokens::CharLit>:
-            ret = IR::ASTValue(cg.context->get_const_char(ast.value.as<Tokens::CharLit>().val), ast);
-            return;
-
-        case Token::index_of<Tokens::StringLit>:
-            report_abort_noh("string literals are not supported yet");
-
-        case Token::index_of<Tokens::This>: {
-                Maybe<Local&> m_loc = fcg.get_local("this");
-                if (m_loc.has()) {
-                    NNPtr<Local> local = m_loc.get();
-                    ret = IR::ASTValue(fcg.cur_block->add<IR::Instrs::DerefPtr>(IR::ASTValue(*local->v, ast)), ast);
-                } else {
-                    ERR_NO_THIS(ast.value);
-                    fcg.errored = true;
-                    ret = Maybe<IR::ASTValue>();
-                }
-                return;
-            }
-
-        default:
-            invalid_tok("primary token", ast.value);
+void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::BoolLit &ast) {
+    ret = IR::ASTValue(cg.context->get_const_bool(ast.val.value.val), ast);
+}
+void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::FloatLit &ast) {
+    ret = IR::ASTValue(cg.context->get_const_float(cg.context->get_generic_float_type(), ast.val.value.val), ast);
+}
+void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::IntLit &ast) {
+    ret = IR::ASTValue(cg.context->get_const_int(cg.context->get_generic_int_type(), ast.val.value.val), ast);
+}
+void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::CharLit &ast) {
+    ret = IR::ASTValue(cg.context->get_const_char(ast.val.value.val), ast);
+}
+void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::StringLit &ast) {
+    report_abort_noh("string literals are not supported yet");
+}
+void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::ThisExpr &ast) {
+    Maybe<Local&> m_loc = fcg.get_local("this");
+    if (m_loc.has()) {
+        NNPtr<Local> local = m_loc.get();
+        ret = IR::ASTValue(fcg.cur_block->add<IR::Instrs::DerefPtr>(IR::ASTValue(*local->v, ast)), ast);
+    } else {
+        ERR_NO_THIS(ast.tok.span);
+        fcg.errored = true;
+        ret = Maybe<IR::ASTValue>();
     }
 }
 void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::IfExpr &ast) {
@@ -322,14 +279,14 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::IfExpr &ast) {
         falsev = truev.type().impl_cast(*cg.context, *fcg.fun, fcg.cur_block, falsev.get());
 
         if (&truev.type() != &falsev.get().type()) {
-            ERR_CONFL_TYS_IFEXPR(truev, falsev.get(), ast.iftok, ast.elsetok);
+            ERR_CONFL_TYS_IFEXPR(truev, falsev.get(), ast.iftok.span, ast.elsetok.get().span);
             ret = Maybe<IR::ASTValue>();
             fcg.errored = true;
             return;
         }
     } else {
         if (!dynamic_cast<IR::VoidType const *>(&truev.type())) {
-            ERR_NO_ELSE_NOT_VOID(truev, ast.iftok);
+            ERR_NO_ELSE_NOT_VOID(truev, ast.iftok.span);
             ret = Maybe<IR::ASTValue>();
             fcg.errored = true;
             return;
@@ -397,14 +354,14 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::AssignmentExpr &ast) {
     IR::Instrs::DerefPtr const *target_deref = dynamic_cast<IR::Instrs::DerefPtr const *>(lhs.val.as_raw());
 
     if (!target_deref) {
-        ERR_ASSIGN_INVALID_LHS(ast.equal, lhs);
+        ERR_ASSIGN_INVALID_LHS(ast.equal.span, lhs);
         ret = Maybe<IR::ASTValue>();
         fcg.errored = true;
         return;
     }
 
     if (!static_cast<IR::PointerType const *>(&target_deref->ptr.type())->mut) {
-        ERR_ASSIGN_NOT_MUT(lhs, ast.equal, *target_deref);
+        ERR_ASSIGN_NOT_MUT(lhs, ast.equal.span, *target_deref);
         ret = Maybe<IR::ASTValue>();
         fcg.errored = true;
         return;
@@ -413,7 +370,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::AssignmentExpr &ast) {
     NNPtr<IR::Type const> expect_type = target_deref->type();
     rhs = expect_type->impl_cast(*cg.context, *fcg.fun, fcg.cur_block, rhs);
     if (expect_type.as_raw() != &rhs.type()) {
-        ERR_ASSIGN_CONFLICT_TYS(lhs, rhs, ast.equal);
+        ERR_ASSIGN_CONFLICT_TYS(lhs, rhs, ast.equal.span);
         ret = Maybe<IR::ASTValue>();
         fcg.errored = true;
         return;
@@ -498,10 +455,10 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::FieldAccessExpr &ast) {
 
     IR::ASTValue op = m_op.get();
 
-    std::string fieldName = ast.field.as<Tokens::Identifier>().name;
+    std::string fieldName = ast.field.value.name;
     bool has = op.type().has_field(fieldName);
     if (!has) {
-        ERR_NO_FIELD(op, ast.field);
+        ERR_NO_FIELD(op, ast.field.span);
         fcg.errored = true;
         return;
     }
@@ -518,9 +475,9 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::MethodCallExpr &ast) {
 
     IR::ASTValue op = m_op.get();
 
-    Maybe<IR::Type::Method const> m_method = op.type().get_method(ast.method.as<Tokens::Identifier>().name);
+    Maybe<IR::Type::Method const> m_method = op.type().get_method(ast.method.value.name);
     if (!m_method.has()) {
-        ERR_NO_METHOD(op, ast.method);
+        ERR_NO_METHOD(op, ast.method.span);
         fcg.errored = true;
         return;
     }
@@ -531,14 +488,14 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::MethodCallExpr &ast) {
     if (method.this_ptr) {
         IR::Instrs::DerefPtr const *op_as_deref = dynamic_cast<IR::Instrs::DerefPtr const *>(op.val.as_raw());
         if (!op_as_deref) {
-            ERR_ADDROF_NOT_LVALUE(ast.dot, op);
+            ERR_ADDROF_NOT_LVALUE(ast.dot.span, op);
             fcg.errored = true;
             ret = Maybe<IR::ASTValue>();
             return;
         }
 
         if (static_cast<IR::PointerType const *>(&op_as_deref->ptr.type())->mut == false && method.this_mut) {
-            ERR_MUT_ADDROF_NONMUT_OP(ast.dot, *op_as_deref);
+            ERR_MUT_ADDROF_NONMUT_OP(ast.dot.span, *op_as_deref);
             fcg.errored = true;
             ret = Maybe<IR::ASTValue>();
             return;
@@ -557,7 +514,7 @@ void CodeGen::FunctionCodeGen::ExprCodeGen::visit(ASTNS::MethodCallExpr &ast) {
 
     std::vector<NNPtr<IR::Type const>> &paramtys (method.fun->ty->paramtys);
     if (args.size() != paramtys.size()) {
-        ERR_WRONG_NUM_ARGS(*method.fun, ast, ast.oparn, args);
+        ERR_WRONG_NUM_ARGS(*method.fun, ast, ast.oparn.span, args);
         ret = Maybe<IR::ASTValue>();
         fcg.errored = true;
         return;
