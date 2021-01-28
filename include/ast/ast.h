@@ -117,39 +117,39 @@ namespace ASTNS {
     };
     class DeclList : public ListB {
     public:
-        std::vector<std::unique_ptr<Decl>> decls;
+        std::vector<Located<std::unique_ptr<Decl>>> decls;
         virtual void accept(ListBVisitor &v) override;
-        DeclList(std::vector<std::unique_ptr<Decl>> decls);
+        DeclList(std::vector<Located<std::unique_ptr<Decl>>> decls);
     };
     class StmtList : public ListB {
     public:
-        std::vector<std::unique_ptr<Stmt>> stmts;
+        std::vector<Located<std::unique_ptr<Stmt>>> stmts;
         virtual void accept(ListBVisitor &v) override;
-        StmtList(std::vector<std::unique_ptr<Stmt>> stmts);
+        StmtList(std::vector<Located<std::unique_ptr<Stmt>>> stmts);
     };
     class ParamList : public ListB {
     public:
-        std::vector<std::unique_ptr<ParamB>> params;
+        std::vector<Located<std::unique_ptr<ParamB>>> params;
         virtual void accept(ListBVisitor &v) override;
-        ParamList(std::vector<std::unique_ptr<ParamB>> params);
+        ParamList(std::vector<Located<std::unique_ptr<ParamB>>> params);
     };
     class ArgList : public ListB {
     public:
-        std::vector<std::unique_ptr<Arg>> args;
+        std::vector<Located<std::unique_ptr<Arg>>> args;
         virtual void accept(ListBVisitor &v) override;
-        ArgList(std::vector<std::unique_ptr<Arg>> args);
+        ArgList(std::vector<Located<std::unique_ptr<Arg>>> args);
     };
     class VarStmtItemList : public ListB {
     public:
-        std::vector<std::unique_ptr<VarStmtItem>> items;
+        std::vector<Located<std::unique_ptr<VarStmtItem>>> items;
         virtual void accept(ListBVisitor &v) override;
-        VarStmtItemList(std::vector<std::unique_ptr<VarStmtItem>> items);
+        VarStmtItemList(std::vector<Located<std::unique_ptr<VarStmtItem>>> items);
     };
     class ImplMemberList : public ListB {
     public:
-        std::vector<std::unique_ptr<ImplMember>> members;
+        std::vector<Located<std::unique_ptr<ImplMember>>> members;
         virtual void accept(ListBVisitor &v) override;
-        ImplMemberList(std::vector<std::unique_ptr<ImplMember>> members);
+        ImplMemberList(std::vector<Located<std::unique_ptr<ImplMember>>> members);
     };
     class PureLocationB : public AST {
     public:
@@ -171,74 +171,74 @@ namespace ASTNS {
     };
     class CU : public CUB {
     public:
-        std::vector<std::unique_ptr<Decl>> decls;
+        std::vector<Located<std::unique_ptr<Decl>>> decls;
         virtual void accept(CUBVisitor &v) override;
-        CU(std::vector<std::unique_ptr<Decl>> decls);
+        CU(std::vector<Located<std::unique_ptr<Decl>>> decls);
     };
     class ImplDecl : public Decl {
     public:
-        std::unique_ptr<Type> impl_for;
-        std::vector<std::unique_ptr<ImplMember>> members;
+        Located<std::unique_ptr<Type>> impl_for;
+        std::vector<Located<std::unique_ptr<ImplMember>>> members;
         virtual void accept(DeclVisitor &v) override;
-        ImplDecl(std::unique_ptr<Type> impl_for, std::vector<std::unique_ptr<ImplMember>> members);
+        ImplDecl(Located<std::unique_ptr<Type>> impl_for, std::vector<Located<std::unique_ptr<ImplMember>>> members);
     };
     class FunctionDecl : public Decl {
     public:
-        std::unique_ptr<Type> retty;
+        Located<std::unique_ptr<Type>> retty;
         Located<Tokens::Identifier> name;
-        std::vector<std::unique_ptr<ParamB>> params;
-        std::unique_ptr<Block> body;
+        std::vector<Located<std::unique_ptr<ParamB>>> params;
+        Located<std::unique_ptr<Block>> body;
         virtual void accept(DeclVisitor &v) override;
-        FunctionDecl(std::unique_ptr<Type> retty, Located<Tokens::Identifier> name, std::vector<std::unique_ptr<ParamB>> params, std::unique_ptr<Block> body);
+        FunctionDecl(Located<std::unique_ptr<Type>> retty, Located<Tokens::Identifier> name, std::vector<Located<std::unique_ptr<ParamB>>> params, Located<std::unique_ptr<Block>> body);
     };
     class FunctionImplMember : public ImplMember {
     public:
-        std::unique_ptr<FunctionDecl> fun;
+        Located<std::unique_ptr<FunctionDecl>> fun;
         virtual void accept(ImplMemberVisitor &v) override;
-        FunctionImplMember(std::unique_ptr<FunctionDecl> fun);
+        FunctionImplMember(Located<std::unique_ptr<FunctionDecl>> fun);
     };
     class VarStmt : public Stmt {
     public:
-        std::vector<std::unique_ptr<VarStmtItem>> items;
+        std::vector<Located<std::unique_ptr<VarStmtItem>>> items;
         virtual void accept(StmtVisitor &v) override;
-        VarStmt(std::vector<std::unique_ptr<VarStmtItem>> items);
+        VarStmt(std::vector<Located<std::unique_ptr<VarStmtItem>>> items);
     };
     class VarStmtItem : public VStmtIB {
     public:
-        std::unique_ptr<Type> type;
+        Located<std::unique_ptr<Type>> type;
         bool mut;
         Located<Tokens::Identifier> name;
         Located<Tokens::Equal> equal;
-        std::unique_ptr<Expr> expr;
+        Located<std::unique_ptr<Expr>> expr;
         virtual void accept(VStmtIBVisitor &v) override;
-        VarStmtItem(std::unique_ptr<Type> type, bool mut, Located<Tokens::Identifier> name, Located<Tokens::Equal> equal, std::unique_ptr<Expr> expr);
+        VarStmtItem(Located<std::unique_ptr<Type>> type, bool mut, Located<Tokens::Identifier> name, Located<Tokens::Equal> equal, Located<std::unique_ptr<Expr>> expr);
     };
     class ExprStmt : public Stmt {
     public:
-        std::unique_ptr<Expr> expr;
+        Located<std::unique_ptr<Expr>> expr;
         bool suppress;
         Maybe<Span const> dot;
         virtual void accept(StmtVisitor &v) override;
-        ExprStmt(std::unique_ptr<Expr> expr, bool suppress, Maybe<Span const> dot);
+        ExprStmt(Located<std::unique_ptr<Expr>> expr, bool suppress, Maybe<Span const> dot);
     };
     class RetStmt : public Stmt {
     public:
-        std::unique_ptr<Expr> expr;
+        Located<std::unique_ptr<Expr>> expr;
         virtual void accept(StmtVisitor &v) override;
-        RetStmt(std::unique_ptr<Expr> expr);
+        RetStmt(Located<std::unique_ptr<Expr>> expr);
     };
     class PathType : public Type {
     public:
-        std::unique_ptr<Path> path;
+        Located<std::unique_ptr<Path>> path;
         virtual void accept(TypeVisitor &v) override;
-        PathType(std::unique_ptr<Path> path);
+        PathType(Located<std::unique_ptr<Path>> path);
     };
     class PointerType : public Type {
     public:
         bool mut;
-        std::unique_ptr<Type> type;
+        Located<std::unique_ptr<Type>> type;
         virtual void accept(TypeVisitor &v) override;
-        PointerType(bool mut, std::unique_ptr<Type> type);
+        PointerType(bool mut, Located<std::unique_ptr<Type>> type);
     };
     class ThisType : public Type {
     public:
@@ -248,17 +248,17 @@ namespace ASTNS {
     };
     class Arg : public ArgB {
     public:
-        std::unique_ptr<Expr> expr;
+        Located<std::unique_ptr<Expr>> expr;
         virtual void accept(ArgBVisitor &v) override;
-        Arg(std::unique_ptr<Expr> expr);
+        Arg(Located<std::unique_ptr<Expr>> expr);
     };
     class Param : public ParamB {
     public:
-        std::unique_ptr<Type> type;
+        Located<std::unique_ptr<Type>> type;
         Located<Tokens::Identifier> name;
         bool mut;
         virtual void accept(ParamBVisitor &v) override;
-        Param(std::unique_ptr<Type> type, Located<Tokens::Identifier> name, bool mut);
+        Param(Located<std::unique_ptr<Type>> type, Located<Tokens::Identifier> name, bool mut);
     };
     class ThisParam : public ParamB {
     public:
@@ -269,105 +269,105 @@ namespace ASTNS {
     };
     class Block : public Expr {
     public:
-        std::vector<std::unique_ptr<Stmt>> stmts;
+        std::vector<Located<std::unique_ptr<Stmt>>> stmts;
         virtual void accept(ExprVisitor &v) override;
-        Block(std::vector<std::unique_ptr<Stmt>> stmts);
+        Block(std::vector<Located<std::unique_ptr<Stmt>>> stmts);
     };
     class IfExpr : public Expr {
     public:
         Located<Tokens::If> iftok;
         Maybe<Located<Tokens::Else>> elsetok;
-        std::unique_ptr<Expr> cond;
-        std::unique_ptr<Expr> trues;
-        std::unique_ptr<Expr> falses;
+        Located<std::unique_ptr<Expr>> cond;
+        Located<std::unique_ptr<Expr>> trues;
+        Located<std::unique_ptr<Expr>> falses;
         virtual void accept(ExprVisitor &v) override;
-        IfExpr(Located<Tokens::If> iftok, Maybe<Located<Tokens::Else>> elsetok, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> trues, std::unique_ptr<Expr> falses);
+        IfExpr(Located<Tokens::If> iftok, Maybe<Located<Tokens::Else>> elsetok, Located<std::unique_ptr<Expr>> cond, Located<std::unique_ptr<Expr>> trues, Located<std::unique_ptr<Expr>> falses);
     };
     class WhileExpr : public Expr {
     public:
-        std::unique_ptr<Expr> cond;
-        std::unique_ptr<Expr> body;
+        Located<std::unique_ptr<Expr>> cond;
+        Located<std::unique_ptr<Expr>> body;
         virtual void accept(ExprVisitor &v) override;
-        WhileExpr(std::unique_ptr<Expr> cond, std::unique_ptr<Expr> body);
+        WhileExpr(Located<std::unique_ptr<Expr>> cond, Located<std::unique_ptr<Expr>> body);
     };
     class AssignmentExpr : public Expr {
     public:
-        std::unique_ptr<Expr> target;
+        Located<std::unique_ptr<Expr>> target;
         Located<AssignOperator> equal;
-        std::unique_ptr<Expr> expr;
+        Located<std::unique_ptr<Expr>> expr;
         virtual void accept(ExprVisitor &v) override;
-        AssignmentExpr(std::unique_ptr<Expr> target, Located<AssignOperator> equal, std::unique_ptr<Expr> expr);
+        AssignmentExpr(Located<std::unique_ptr<Expr>> target, Located<AssignOperator> equal, Located<std::unique_ptr<Expr>> expr);
     };
     class ShortCircuitExpr : public Expr {
     public:
-        std::unique_ptr<Expr> lhs;
+        Located<std::unique_ptr<Expr>> lhs;
         Located<ShortCircuitOperator> op;
-        std::unique_ptr<Expr> rhs;
+        Located<std::unique_ptr<Expr>> rhs;
         virtual void accept(ExprVisitor &v) override;
-        ShortCircuitExpr(std::unique_ptr<Expr> lhs, Located<ShortCircuitOperator> op, std::unique_ptr<Expr> rhs);
+        ShortCircuitExpr(Located<std::unique_ptr<Expr>> lhs, Located<ShortCircuitOperator> op, Located<std::unique_ptr<Expr>> rhs);
     };
     class BinaryExpr : public Expr {
     public:
-        std::unique_ptr<Expr> lhs;
+        Located<std::unique_ptr<Expr>> lhs;
         Located<BinaryOperator> op;
-        std::unique_ptr<Expr> rhs;
+        Located<std::unique_ptr<Expr>> rhs;
         virtual void accept(ExprVisitor &v) override;
-        BinaryExpr(std::unique_ptr<Expr> lhs, Located<BinaryOperator> op, std::unique_ptr<Expr> rhs);
+        BinaryExpr(Located<std::unique_ptr<Expr>> lhs, Located<BinaryOperator> op, Located<std::unique_ptr<Expr>> rhs);
     };
     class CastExpr : public Expr {
     public:
-        std::unique_ptr<Type> type;
-        std::unique_ptr<Expr> expr;
+        Located<std::unique_ptr<Type>> type;
+        Located<std::unique_ptr<Expr>> expr;
         virtual void accept(ExprVisitor &v) override;
-        CastExpr(std::unique_ptr<Type> type, std::unique_ptr<Expr> expr);
+        CastExpr(Located<std::unique_ptr<Type>> type, Located<std::unique_ptr<Expr>> expr);
     };
     class UnaryExpr : public Expr {
     public:
         Located<UnaryOperator> op;
-        std::unique_ptr<Expr> expr;
+        Located<std::unique_ptr<Expr>> expr;
         virtual void accept(ExprVisitor &v) override;
-        UnaryExpr(Located<UnaryOperator> op, std::unique_ptr<Expr> expr);
+        UnaryExpr(Located<UnaryOperator> op, Located<std::unique_ptr<Expr>> expr);
     };
     class AddrofExpr : public Expr {
     public:
         Located<Tokens::Amper> op;
-        std::unique_ptr<Expr> expr;
+        Located<std::unique_ptr<Expr>> expr;
         bool mut;
         virtual void accept(ExprVisitor &v) override;
-        AddrofExpr(Located<Tokens::Amper> op, std::unique_ptr<Expr> expr, bool mut);
+        AddrofExpr(Located<Tokens::Amper> op, Located<std::unique_ptr<Expr>> expr, bool mut);
     };
     class DerefExpr : public Expr {
     public:
         Located<Tokens::Star> op;
-        std::unique_ptr<Expr> expr;
+        Located<std::unique_ptr<Expr>> expr;
         virtual void accept(ExprVisitor &v) override;
-        DerefExpr(Located<Tokens::Star> op, std::unique_ptr<Expr> expr);
+        DerefExpr(Located<Tokens::Star> op, Located<std::unique_ptr<Expr>> expr);
     };
     class CallExpr : public Expr {
     public:
-        std::unique_ptr<Expr> callee;
+        Located<std::unique_ptr<Expr>> callee;
         Located<Tokens::OParen> oparn;
-        std::vector<std::unique_ptr<Arg>> args;
+        std::vector<Located<std::unique_ptr<Arg>>> args;
         virtual void accept(ExprVisitor &v) override;
-        CallExpr(std::unique_ptr<Expr> callee, Located<Tokens::OParen> oparn, std::vector<std::unique_ptr<Arg>> args);
+        CallExpr(Located<std::unique_ptr<Expr>> callee, Located<Tokens::OParen> oparn, std::vector<Located<std::unique_ptr<Arg>>> args);
     };
     class FieldAccessExpr : public Expr {
     public:
-        std::unique_ptr<Expr> operand;
+        Located<std::unique_ptr<Expr>> operand;
         Located<Tokens::Period> dot;
         Located<Tokens::Identifier> field;
         virtual void accept(ExprVisitor &v) override;
-        FieldAccessExpr(std::unique_ptr<Expr> operand, Located<Tokens::Period> dot, Located<Tokens::Identifier> field);
+        FieldAccessExpr(Located<std::unique_ptr<Expr>> operand, Located<Tokens::Period> dot, Located<Tokens::Identifier> field);
     };
     class MethodCallExpr : public Expr {
     public:
-        std::unique_ptr<Expr> operand;
+        Located<std::unique_ptr<Expr>> operand;
         Located<Tokens::Period> dot;
         Located<Tokens::Identifier> method;
         Located<Tokens::OParen> oparn;
-        std::vector<std::unique_ptr<Arg>> args;
+        std::vector<Located<std::unique_ptr<Arg>>> args;
         virtual void accept(ExprVisitor &v) override;
-        MethodCallExpr(std::unique_ptr<Expr> operand, Located<Tokens::Period> dot, Located<Tokens::Identifier> method, Located<Tokens::OParen> oparn, std::vector<std::unique_ptr<Arg>> args);
+        MethodCallExpr(Located<std::unique_ptr<Expr>> operand, Located<Tokens::Period> dot, Located<Tokens::Identifier> method, Located<Tokens::OParen> oparn, std::vector<Located<std::unique_ptr<Arg>>> args);
     };
     class BoolLit : public Expr {
     public:
@@ -407,9 +407,9 @@ namespace ASTNS {
     };
     class PathExpr : public Expr {
     public:
-        std::unique_ptr<Path> path;
+        Located<std::unique_ptr<Path>> path;
         virtual void accept(ExprVisitor &v) override;
-        PathExpr(std::unique_ptr<Path> path);
+        PathExpr(Located<std::unique_ptr<Path>> path);
     };
     class Path : public PathB {
     public:
