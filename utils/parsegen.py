@@ -986,7 +986,7 @@ def gen_loop():
 
             output.append(                        '                default:\n')
             output.append(                       f'                    ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, {{ {", ".join(futuress + terminatess)} }} );\n')
-            output.append(                        '                    done = true;\n')
+            output.append(                        '                    errored = done = true;\n')
         output.append(                            '            }\n')
         output.append(                            '            break;\n')
 
