@@ -27,6 +27,8 @@ private:
     Located<TokenData> lex_digit(char current);
     Located<TokenData> lex_identifier(bool apostrophes_allowed);
 
+    Located<TokenData> make_token(TokenData const &t);
+
     std::string::const_iterator start;
     std::string::const_iterator end;
 

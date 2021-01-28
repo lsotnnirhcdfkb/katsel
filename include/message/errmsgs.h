@@ -56,15 +56,15 @@ void E0010(Span const &tok);
 
 // E0011 - unrecoverable-invalid-syntax
 #define ERR_UNRECOVERABLE_INVALID_SYNTAX E0011
-void E0011(Span const &lookahead, Span const &lasttok, std::vector<std::string> const &expectations);
+void E0011(Span const &lookahead, std::string lookahead_type_name, Span const &lasttok, std::vector<std::string> const &expectations);
 
 // E0012 - simple-invalid-syntax
 #define ERR_SIMPLE_INVALID_SYNTAX E0012
-void E0012(Span const &lookahead, Span const &lasttok, std::string const &bestfix, std::vector<std::string> const &expectations);
+void E0012(Span const &lookahead, std::string lookahead_type_name, Span const &lasttok, std::string const &bestfix, std::vector<std::string> const &expectations);
 
 // E0013 - panicking-invalid-syntax
 #define ERR_PANICKING_INVALID_SYNTAX E0013
-void E0013(Span const &lookahead, Span const &lasttok, Span const &panicuntil, std::vector<std::string> const &expectations);
+void E0013(Span const &lookahead, std::string lookahead_type_name, Span const &lasttok, Span const &panicuntil, std::string const &panicuntil_type_name, std::vector<std::string> const &expectations);
 
 // E0014 - lhs-unsupported-op
 #define ERR_LHS_UNSUPPORTED_OP E0014

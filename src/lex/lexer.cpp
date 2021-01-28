@@ -10,7 +10,7 @@ Lexer::Lexer(File &sourcefile): start(sourcefile.source.begin()), end(start), st
 static bool is_alpha(char c) {
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_';
 }
-Token Lexer::lex_digit(char current) {
+Located<TokenData> Lexer::lex_digit(char current) {
     using Base = Tokens::IntLit::Base; // type less
 
     auto is_digit = [](char const &c, Tokens::IntLit::Base base) {
@@ -91,7 +91,7 @@ Token Lexer::lex_digit(char current) {
             return make_token(Tokens::IntLit { val, base });
         }
 }
-Token Lexer::lex_identifier(bool apostrophes_allowed) {
+Located<TokenData> Lexer::lex_identifier(bool apostrophes_allowed) {
     while (is_alpha(peek()) || (peek() >= '0' && peek() <= '9')) advance();
 
     if (apostrophes_allowed)
@@ -101,7 +101,7 @@ Token Lexer::lex_identifier(bool apostrophes_allowed) {
     return make_token(data);
 }
 // next_token {{{1
-Token Lexer::next_token() {
+Located<TokenData> Lexer::next_token() {
     {
         bool at_wh = true;
         bool findingindent = end == srcstart || consumed() == '\n';
@@ -395,9 +395,9 @@ char Lexer::consumed() {
 }
 
 // making tokens {{{1
-Token Lexer::make_token(TokenData const &data) {
+Located<TokenData> Lexer::make_token(TokenData const &data) {
     Location tokstart (start, startline, startcolumn, sourcefile),
              tokend (end, endline, endcolumn, sourcefile);
     Span span (tokstart, tokend);
-    return Token (span, data);
+    return Located<TokenData> { span, data };
 }

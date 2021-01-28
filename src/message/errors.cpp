@@ -49,8 +49,8 @@ void report_abort_noh(std::string const &message) {
     std::cerr << "Aborting" << std::endl;
     std::abort();
 }
-void invalid_tok(std::string const &name, Token const &underline) {
-    report_abort_noh(format("invalid token for {}: \"{}\"", name, underline));
+void invalid_tok(std::string const &name, Span const &span) {
+    report_abort_noh(format("invalid token for {}: \"{}\"", name, span.stringify()));
 }
 void called_with_op_ty_nethis(std::string const &class_n, std::string const &fnn, std::string const &opname) {
     report_abort_noh(format("{}::{} called with {} type != this", class_n, fnn, opname));

@@ -1,1 +1,1 @@
-target_sources(katselc PUBLIC parser.cpp parserloop.cpp error.cpp)
+target_sources(katselc PUBLIC parser.cpp parserloop.cpp)

@@ -10,38 +10,6 @@
 #include "utils/maybe.h"
 
 namespace ASTNS {
-    enum class AssignOperator {
-        EQUAL,
-    };
-    enum class BinaryOperator {
-        PLUS,
-        MINUS,
-        STAR,
-        SLASH,
-        PERCENT,
-        GREATER,
-        LESS,
-        GREATEREQUAL,
-        LESSEQUAL,
-        AMPER,
-        PIPE,
-        CARET,
-        DOUBLEGREATER,
-        DOUBLELESS,
-        DOUBLEEQUAL,
-        BANGEQUAL,
-    };
-    enum class UnaryOperator {
-        BANG,
-        TILDE,
-        MINUS,
-        DOUBLEPLUS,
-        DOUBLEMINUS,
-    };
-    enum class ShortCircuitOperator {
-        DOUBLEPIPE,
-        DOUBLEAMPER,
-    };
     // ASTHEADER START
     class AST {
     public:

@@ -635,7 +635,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         done = true;
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} to terminate {}", Tokens::_EOF::stringify(), "augment") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} to terminate {}", Tokens::_EOF::stringify(), "augment") } );
                         done = true;
                 }
                 break;
@@ -725,7 +725,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", Tokens::Identifier::stringify(), "function declaration") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", Tokens::Identifier::stringify(), "function declaration") } );
                         done = true;
                 }
                 break;
@@ -747,7 +747,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "type specifier", "implementation") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "type specifier", "implementation") } );
                         done = true;
                 }
                 break;
@@ -795,7 +795,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", Tokens::OParen::stringify(), "function declaration") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", Tokens::OParen::stringify(), "function declaration") } );
                         done = true;
                 }
                 break;
@@ -812,7 +812,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "implementation body", "implementation") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "implementation body", "implementation") } );
                         done = true;
                 }
                 break;
@@ -909,7 +909,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", format("either {} or {}", "type specifier", Tokens::Mut::stringify()), "pointer type") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", format("either {} or {}", "type specifier", Tokens::Mut::stringify()), "pointer type") } );
                         done = true;
                 }
                 break;
@@ -983,7 +983,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "optional function parameter list", "function declaration") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "optional function parameter list", "function declaration") } );
                         done = true;
                 }
                 break;
@@ -1030,7 +1030,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "optional line ending", "implementation") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "optional line ending", "implementation") } );
                         done = true;
                 }
                 break;
@@ -1057,7 +1057,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", format("either {} or {}", "optional implementation member list", Tokens::Newline::stringify()), "implementation body") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", format("either {} or {}", "optional implementation member list", Tokens::Newline::stringify()), "implementation body") } );
                         done = true;
                 }
                 break;
@@ -1069,7 +1069,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", Tokens::Indent::stringify(), "implementation body") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", Tokens::Indent::stringify(), "implementation body") } );
                         done = true;
                 }
                 break;
@@ -1081,7 +1081,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", Tokens::Identifier::stringify(), "symbol path") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", Tokens::Identifier::stringify(), "symbol path") } );
                         done = true;
                 }
                 break;
@@ -1123,7 +1123,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "type specifier", "pointer type") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "type specifier", "pointer type") } );
                         done = true;
                 }
                 break;
@@ -1135,7 +1135,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", Tokens::CParen::stringify(), "function declaration") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", Tokens::CParen::stringify(), "function declaration") } );
                         done = true;
                 }
                 break;
@@ -1235,7 +1235,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "required type annotation", "function parameter") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "required type annotation", "function parameter") } );
                         done = true;
                 }
                 break;
@@ -1247,7 +1247,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", Tokens::Identifier::stringify(), "function parameter") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", Tokens::Identifier::stringify(), "function parameter") } );
                         done = true;
                 }
                 break;
@@ -1282,7 +1282,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", format("either {} or {}", Tokens::This::stringify(), Tokens::Mut::stringify()), "'this' function parameter") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", format("either {} or {}", Tokens::This::stringify(), Tokens::Mut::stringify()), "'this' function parameter") } );
                         done = true;
                 }
                 break;
@@ -1373,7 +1373,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", Tokens::CBrace::stringify(), "implementation body") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", Tokens::CBrace::stringify(), "implementation body") } );
                         done = true;
                 }
                 break;
@@ -1400,7 +1400,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", format("either {} or {}", "optional implementation member list", Tokens::Indent::stringify()), "implementation body") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", format("either {} or {}", "optional implementation member list", Tokens::Indent::stringify()), "implementation body") } );
                         done = true;
                 }
                 break;
@@ -1479,7 +1479,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "optional implementation member list", "implementation body") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "optional implementation member list", "implementation body") } );
                         done = true;
                 }
                 break;
@@ -1535,7 +1535,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "required type annotation", "function declaration") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "required type annotation", "function declaration") } );
                         done = true;
                 }
                 break;
@@ -1616,7 +1616,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "type specifier", "required type annotation") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "type specifier", "required type annotation") } );
                         done = true;
                 }
                 break;
@@ -1628,7 +1628,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "required type annotation", "function parameter") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "required type annotation", "function parameter") } );
                         done = true;
                 }
                 break;
@@ -1660,7 +1660,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", Tokens::This::stringify(), "'this' function parameter") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", Tokens::This::stringify(), "'this' function parameter") } );
                         done = true;
                 }
                 break;
@@ -1712,7 +1712,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", Tokens::CBrace::stringify(), "implementation body") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", Tokens::CBrace::stringify(), "implementation body") } );
                         done = true;
                 }
                 break;
@@ -1734,7 +1734,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "optional implementation member list", "implementation body") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "optional implementation member list", "implementation body") } );
                         done = true;
                 }
                 break;
@@ -1782,7 +1782,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", Tokens::Dedent::stringify(), "implementation body") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", Tokens::Dedent::stringify(), "implementation body") } );
                         done = true;
                 }
                 break;
@@ -1804,7 +1804,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", format("either {} or {}", "code block", "line ending"), "function declaration") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", format("either {} or {}", "code block", "line ending"), "function declaration") } );
                         done = true;
                 }
                 break;
@@ -1939,7 +1939,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", Tokens::Dedent::stringify(), "implementation body") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", Tokens::Dedent::stringify(), "implementation body") } );
                         done = true;
                 }
                 break;
@@ -2008,7 +2008,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "optional line ending", "function declaration") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "optional line ending", "function declaration") } );
                         done = true;
                 }
                 break;
@@ -2204,7 +2204,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", format("either {} or {}", "optional statement list", Tokens::Newline::stringify()), "braced code block") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", format("either {} or {}", "optional statement list", Tokens::Newline::stringify()), "braced code block") } );
                         done = true;
                 }
                 break;
@@ -2216,7 +2216,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", Tokens::CBrace::stringify(), "implementation body") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", Tokens::CBrace::stringify(), "implementation body") } );
                         done = true;
                 }
                 break;
@@ -2352,7 +2352,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "optional statement list", "indented code block") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "optional statement list", "indented code block") } );
                         done = true;
                 }
                 break;
@@ -2364,7 +2364,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", Tokens::CBrace::stringify(), "braced code block") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", Tokens::CBrace::stringify(), "braced code block") } );
                         done = true;
                 }
                 break;
@@ -2476,7 +2476,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", format("either {} or {}", "optional statement list", Tokens::Indent::stringify()), "braced code block") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", format("either {} or {}", "optional statement list", Tokens::Indent::stringify()), "braced code block") } );
                         done = true;
                 }
                 break;
@@ -2666,7 +2666,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "variable binding list", "variable declaration") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "variable binding list", "variable declaration") } );
                         done = true;
                 }
                 break;
@@ -2688,7 +2688,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", format("either {} or {}", "line ending", Tokens::Dollar::stringify()), "expression statement") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", format("either {} or {}", "line ending", Tokens::Dollar::stringify()), "expression statement") } );
                         done = true;
                 }
                 break;
@@ -2740,7 +2740,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", format("either {} or {}", "optional line ending", Tokens::Dollar::stringify()), "expression statement") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", format("either {} or {}", "optional line ending", Tokens::Dollar::stringify()), "expression statement") } );
                         done = true;
                 }
                 break;
@@ -2837,7 +2837,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", format("either {} or {}", "expression", "line ending"), "return statement") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", format("either {} or {}", "expression", "line ending"), "return statement") } );
                         done = true;
                 }
                 break;
@@ -3014,7 +3014,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "expression", "if expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "expression", "if expression") } );
                         done = true;
                 }
                 break;
@@ -3101,7 +3101,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "expression", "while loop expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "expression", "while loop expression") } );
                         done = true;
                 }
                 break;
@@ -3439,7 +3439,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "unary expression", "unary expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "unary expression", "unary expression") } );
                         done = true;
                 }
                 break;
@@ -3511,7 +3511,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "unary expression", "unary expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "unary expression", "unary expression") } );
                         done = true;
                 }
                 break;
@@ -3583,7 +3583,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "unary expression", "unary expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "unary expression", "unary expression") } );
                         done = true;
                 }
                 break;
@@ -3660,7 +3660,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", format("either {} or {}", "unary expression", Tokens::Mut::stringify()), "unary expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", format("either {} or {}", "unary expression", Tokens::Mut::stringify()), "unary expression") } );
                         done = true;
                 }
                 break;
@@ -3732,7 +3732,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "unary expression", "unary expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "unary expression", "unary expression") } );
                         done = true;
                 }
                 break;
@@ -4016,7 +4016,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "expression", "primary expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "expression", "primary expression") } );
                         done = true;
                 }
                 break;
@@ -4092,7 +4092,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", Tokens::Dedent::stringify(), "indented code block") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", Tokens::Dedent::stringify(), "indented code block") } );
                         done = true;
                 }
                 break;
@@ -4125,7 +4125,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", Tokens::CBrace::stringify(), "braced code block") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", Tokens::CBrace::stringify(), "braced code block") } );
                         done = true;
                 }
                 break;
@@ -4232,7 +4232,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "optional statement list", "braced code block") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "optional statement list", "braced code block") } );
                         done = true;
                 }
                 break;
@@ -4285,7 +4285,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "line ending", "variable declaration") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "line ending", "variable declaration") } );
                         done = true;
                 }
                 break;
@@ -4337,7 +4337,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "required type annotation", "variable binding") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "required type annotation", "variable binding") } );
                         done = true;
                 }
                 break;
@@ -4349,7 +4349,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", Tokens::Identifier::stringify(), "variable binding") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", Tokens::Identifier::stringify(), "variable binding") } );
                         done = true;
                 }
                 break;
@@ -4416,7 +4416,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "optional line ending", "expression statement") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "optional line ending", "expression statement") } );
                         done = true;
                 }
                 break;
@@ -4483,7 +4483,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "optional line ending", "expression statement") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "optional line ending", "expression statement") } );
                         done = true;
                 }
                 break;
@@ -4500,7 +4500,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "line ending", "return statement") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "line ending", "return statement") } );
                         done = true;
                 }
                 break;
@@ -4624,7 +4624,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "assignment expression", "assignment expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "assignment expression", "assignment expression") } );
                         done = true;
                 }
                 break;
@@ -4696,7 +4696,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "binary and expression", "binary or expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "binary and expression", "binary or expression") } );
                         done = true;
                 }
                 break;
@@ -4713,7 +4713,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "code block", "if expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "code block", "if expression") } );
                         done = true;
                 }
                 break;
@@ -4730,7 +4730,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "code block", "while loop expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "code block", "while loop expression") } );
                         done = true;
                 }
                 break;
@@ -4802,7 +4802,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "equality expression", "binary and expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "equality expression", "binary and expression") } );
                         done = true;
                 }
                 break;
@@ -4874,7 +4874,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "comparison expression", "equality expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "comparison expression", "equality expression") } );
                         done = true;
                 }
                 break;
@@ -4946,7 +4946,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "comparison expression", "equality expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "comparison expression", "equality expression") } );
                         done = true;
                 }
                 break;
@@ -5018,7 +5018,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "bitwise xor expression", "comparison expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "bitwise xor expression", "comparison expression") } );
                         done = true;
                 }
                 break;
@@ -5090,7 +5090,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "bitwise xor expression", "comparison expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "bitwise xor expression", "comparison expression") } );
                         done = true;
                 }
                 break;
@@ -5162,7 +5162,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "bitwise xor expression", "comparison expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "bitwise xor expression", "comparison expression") } );
                         done = true;
                 }
                 break;
@@ -5234,7 +5234,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "bitwise xor expression", "comparison expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "bitwise xor expression", "comparison expression") } );
                         done = true;
                 }
                 break;
@@ -5306,7 +5306,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "bitwise or expression", "bitwise xor expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "bitwise or expression", "bitwise xor expression") } );
                         done = true;
                 }
                 break;
@@ -5378,7 +5378,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "bitwise and expression", "bitwise or expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "bitwise and expression", "bitwise or expression") } );
                         done = true;
                 }
                 break;
@@ -5450,7 +5450,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "bit shift expression", "bitwise and expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "bit shift expression", "bitwise and expression") } );
                         done = true;
                 }
                 break;
@@ -5522,7 +5522,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "addition expression", "bit shift expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "addition expression", "bit shift expression") } );
                         done = true;
                 }
                 break;
@@ -5594,7 +5594,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "addition expression", "bit shift expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "addition expression", "bit shift expression") } );
                         done = true;
                 }
                 break;
@@ -5666,7 +5666,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "multiplication expression", "addition expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "multiplication expression", "addition expression") } );
                         done = true;
                 }
                 break;
@@ -5738,7 +5738,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "multiplication expression", "addition expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "multiplication expression", "addition expression") } );
                         done = true;
                 }
                 break;
@@ -5810,7 +5810,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "unary expression", "multiplication expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "unary expression", "multiplication expression") } );
                         done = true;
                 }
                 break;
@@ -5882,7 +5882,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "unary expression", "multiplication expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "unary expression", "multiplication expression") } );
                         done = true;
                 }
                 break;
@@ -5954,7 +5954,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "unary expression", "multiplication expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "unary expression", "multiplication expression") } );
                         done = true;
                 }
                 break;
@@ -5976,7 +5976,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "type specifier", "type cast expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "type specifier", "type cast expression") } );
                         done = true;
                 }
                 break;
@@ -6128,7 +6128,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "unary expression", "unary expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "unary expression", "unary expression") } );
                         done = true;
                 }
                 break;
@@ -6244,7 +6244,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "optional argument list", "function call expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "optional argument list", "function call expression") } );
                         done = true;
                 }
                 break;
@@ -6256,7 +6256,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", Tokens::Identifier::stringify(), "field access expression"), format("expected {} for {}", Tokens::Identifier::stringify(), "method call expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", Tokens::Identifier::stringify(), "field access expression"), format("expected {} for {}", Tokens::Identifier::stringify(), "method call expression") } );
                         done = true;
                 }
                 break;
@@ -6268,7 +6268,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", Tokens::Identifier::stringify(), "field access expression"), format("expected {} for {}", Tokens::Identifier::stringify(), "method call expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", Tokens::Identifier::stringify(), "field access expression"), format("expected {} for {}", Tokens::Identifier::stringify(), "method call expression") } );
                         done = true;
                 }
                 break;
@@ -6364,7 +6364,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "optional argument list", "function call expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "optional argument list", "function call expression") } );
                         done = true;
                 }
                 break;
@@ -6376,7 +6376,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", Tokens::Identifier::stringify(), "field access expression"), format("expected {} for {}", Tokens::Identifier::stringify(), "method call expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", Tokens::Identifier::stringify(), "field access expression"), format("expected {} for {}", Tokens::Identifier::stringify(), "method call expression") } );
                         done = true;
                 }
                 break;
@@ -6388,7 +6388,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", Tokens::CParen::stringify(), "primary expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", Tokens::CParen::stringify(), "primary expression") } );
                         done = true;
                 }
                 break;
@@ -6446,7 +6446,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", Tokens::Dedent::stringify(), "braced code block") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", Tokens::Dedent::stringify(), "braced code block") } );
                         done = true;
                 }
                 break;
@@ -6534,7 +6534,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "required type annotation", "variable binding") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "required type annotation", "variable binding") } );
                         done = true;
                 }
                 break;
@@ -6688,7 +6688,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", Tokens::Indent::stringify(), "indented code block") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", Tokens::Indent::stringify(), "indented code block") } );
                         done = true;
                 }
                 break;
@@ -7280,7 +7280,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", Tokens::CParen::stringify(), "function call expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", Tokens::CParen::stringify(), "function call expression") } );
                         done = true;
                 }
                 break;
@@ -7419,7 +7419,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", Tokens::CParen::stringify(), "function call expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", Tokens::CParen::stringify(), "function call expression") } );
                         done = true;
                 }
                 break;
@@ -7478,7 +7478,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", Tokens::CBrace::stringify(), "braced code block") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", Tokens::CBrace::stringify(), "braced code block") } );
                         done = true;
                 }
                 break;
@@ -7603,7 +7603,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "expression", "variable binding") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "expression", "variable binding") } );
                         done = true;
                 }
                 break;
@@ -7652,7 +7652,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", format("either {} or {}", "code block", "if expression"), "if expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", format("either {} or {}", "code block", "if expression"), "if expression") } );
                         done = true;
                 }
                 break;
@@ -7870,7 +7870,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "optional argument list", "method call expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "optional argument list", "method call expression") } );
                         done = true;
                 }
                 break;
@@ -7966,7 +7966,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "optional argument list", "method call expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "optional argument list", "method call expression") } );
                         done = true;
                 }
                 break;
@@ -8085,7 +8085,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "optional argument list", "method call expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "optional argument list", "method call expression") } );
                         done = true;
                 }
                 break;
@@ -8222,7 +8222,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", "expression", "variable binding") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", "expression", "variable binding") } );
                         done = true;
                 }
                 break;
@@ -8320,7 +8320,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", Tokens::CParen::stringify(), "method call expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", Tokens::CParen::stringify(), "method call expression") } );
                         done = true;
                 }
                 break;
@@ -8332,7 +8332,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", Tokens::CParen::stringify(), "method call expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", Tokens::CParen::stringify(), "method call expression") } );
                         done = true;
                 }
                 break;
@@ -8344,7 +8344,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, { format("expected {} for {}", Tokens::CParen::stringify(), "method call expression") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} for {}", Tokens::CParen::stringify(), "method call expression") } );
                         done = true;
                 }
                 break;

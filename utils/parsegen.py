@@ -985,7 +985,7 @@ def gen_loop():
             terminatess = [f'format("expected {{}} to terminate {{}}", {format_list([stc(p) for p in future])}, {stc(nt)})' for nt, future in state.terminates.items()]
 
             output.append(                        '                default:\n')
-            output.append(                       f'                    ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, last_token.span, {{ {", ".join(futuress + terminatess)} }} );\n')
+            output.append(                       f'                    ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, {{ {", ".join(futuress + terminatess)} }} );\n')
             output.append(                        '                    done = true;\n')
         output.append(                            '            }\n')
         output.append(                            '            break;\n')
