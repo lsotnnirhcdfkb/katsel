@@ -5,12 +5,7 @@
 Parser::Parser(Lexer &l, File &sourcefile): lexer(l), sourcefile(sourcefile), errored(false) {}
 
 std::unique_ptr<ASTNS::CUB> Parser::parse() {
-    std::unique_ptr<ASTNS::CUB> ret (nullptr);
-
-    std::vector<StackItem> stack;
-    stack.emplace_back(0);
-
-    _parse(*this);
+    std::unique_ptr<ASTNS::CUB> ret (_parse(*this));
 
     if (errored)
         return nullptr;
