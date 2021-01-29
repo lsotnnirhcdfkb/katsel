@@ -15,7 +15,6 @@ namespace IR {
     class Block {
     public:
         Block(NNPtr<Function> fun, std::string name, size_t num);
-        ~Block();
 
         template <typename I, typename ... Args,
                   typename = std::enable_if_t<std::is_base_of_v<Instrs::Instruction, I>>,

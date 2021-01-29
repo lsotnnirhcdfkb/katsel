@@ -8,7 +8,7 @@
 #include "utils/format.h"
 #include "ir/visitor.h"
 
-IR::Printer::Printer(IR::Unit &unit, llvm::raw_ostream &ostream): unit(unit), ostream(ostream) {}
+IR::Printer::Printer(IR::Unit const &unit, llvm::raw_ostream &ostream): unit(unit), ostream(ostream) {}
 
 namespace {
     // id_to_str {{{
@@ -31,11 +31,11 @@ namespace {
     // _Printer {{{
     class _Printer {
     public:
-        _Printer(IR::Unit &unit, llvm::raw_ostream &ostream);
+        _Printer(IR::Unit const &unit, llvm::raw_ostream &ostream);
 
         void print();
 
-        IR::Unit &unit;
+        IR::Unit const &unit;
         llvm::raw_ostream &ostream;
 
         template <typename T>
@@ -396,7 +396,7 @@ namespace {
     // }}}
 
     // _Printer impl {{{1
-    _Printer::_Printer(IR::Unit &unit, llvm::raw_ostream &ostream):
+    _Printer::_Printer(IR::Unit const &unit, llvm::raw_ostream &ostream):
             unit(unit),
             ostream(ostream),
             indent(0),

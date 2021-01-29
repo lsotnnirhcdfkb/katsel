@@ -9,7 +9,7 @@
 
 IR::Unit::Unit(File const &file, ASTNS::ImplicitDecl &implicit): file(file), mod("", implicit) {}
 
-void IR::Unit::print(llvm::raw_ostream &ostream) {
+void IR::Unit::print(llvm::raw_ostream &ostream) const {
     ostream << "> Unit '" << file.filename << "'\n";
     IR::Printer p (*this, ostream);
     p.print();

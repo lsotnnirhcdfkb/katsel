@@ -25,47 +25,47 @@ CodeGen::Context::Context(File const &file): implicit_decl_ast(std::make_unique<
 GET_TYPE_DEF(FloatType, float_type,
         (int size),
         (CHECK_FIELD(size)),
-        (*this, *cg.unit->implicit_decl_ast, size))
+        (*this, *implicit_decl_ast, size))
 
 GET_TYPE_DEF(IntType, int_type,
         (int size, bool is_signed),
         (CHECK_FIELD(size) && CHECK_FIELD(is_signed)),
-        (*this, *cg.unit->implicit_decl_ast, size, is_signed))
+        (*this, *implicit_decl_ast, size, is_signed))
 
 GET_TYPE_DEF(CharType, char_type,
         (),
         true,
-        (*this, *cg.unit->implicit_decl_ast))
+        (*this, *implicit_decl_ast))
 
 GET_TYPE_DEF(BoolType, bool_type,
         (),
         true,
-        (*this, *cg.unit->implicit_decl_ast))
+        (*this, *implicit_decl_ast))
 
 GET_TYPE_DEF(GenericIntType, generic_int_type,
         (),
         true,
-        (*this, *cg.unit->implicit_decl_ast))
+        (*this, *implicit_decl_ast))
 
 GET_TYPE_DEF(GenericFloatType, generic_float_type,
         (),
         true,
-        (*this, *cg.unit->implicit_decl_ast))
+        (*this, *implicit_decl_ast))
 
 GET_TYPE_DEF(FunctionType, function_type,
         (IR::Type const &ret, std::vector<NNPtr<IR::Type const>> paramtys),
         (&ret == &*casted->ret  && CHECK_FIELD(paramtys)),
-        (*this, *cg.unit->implicit_decl_ast, ret, paramtys))
+        (*this, *implicit_decl_ast, ret, paramtys))
 
 GET_TYPE_DEF(VoidType, void_type,
         (),
         true,
-        (*this, *cg.unit->implicit_decl_ast))
+        (*this, *implicit_decl_ast))
 
 GET_TYPE_DEF(PointerType, pointer_type,
         (bool mut, IR::Type const &ty),
         (CHECK_FIELD(mut) && casted->ty.as_raw() == &ty),
-        (*this, *cg.unit->implicit_decl_ast, mut, ty))
+        (*this, *implicit_decl_ast, mut, ty))
 
 #undef GET_TYPE_DEF
 #undef CHECK_FIELD

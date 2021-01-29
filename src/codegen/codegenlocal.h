@@ -33,155 +33,73 @@
 //   stage0 -> stage1, and stage1 -> stage2 class for that kind
 
 namespace CodeGen {
-    class Stage3CG;
-    class Stage2CG;
-    class Stage1CG;
+    namespace Helpers {
+        // Param {{{
+        class CodeGen::ParamVisitor : public ASTNS::ParamBVisitor {
+        public:
+            struct Param {
+                NNPtr<IR::Type const> ty;
+                std::string name;
+                NNPtr<ASTNS::ParamB> ast;
+                bool mut;
+            };
 
-    class Stage0CG {
-        virtual std::unique_ptr<Stage1CG> type_fw_declare() const = 0;
-    };
-    class Stage1CG {
-        virtual std::unique_ptr<Stage2CG> value_fw_declare() const = 0;
-    };
-    class Stage2CG {
-        virtual std::unique_ptr<Stage3CG> block_codegen() const = 0;
-    };
-    class Stage3CG {
-        // codegen finished: no more stages to be done
-    };
+            ParamVisitor(CodeGen &cg, std::vector<std::unique_ptr<ASTNS::ParamB>> &params, Maybe<NNPtr<IR::Type>> this_type);
 
-    namespace Function {
-        class Stage0 : public Stage0CG {
+            std::vector<Param> ret;
 
+            bool errored;
+
+            bool is_method, this_ptr, this_mut;
+
+        private:
+            // PARAMVISITOR METHODS START
+            void visit(ASTNS::Param &ast) override;
+            void visit(ASTNS::ThisParam &ast) override;
+            // PARAMVISITOR METHODS END
+
+            CodeGen &cg;
+            Maybe<NNPtr<IR::Type>> this_type;
+            int index;
         };
-        class Stage1 : public Stage1CG {
+        // }}}
+        // Arg {{{
+        class CodeGen::ArgVisitor : public ASTNS::ArgBVisitor {
+        public:
+            ArgVisitor(CodeGen::FunctionCodeGen &fcg, std::vector<std::unique_ptr<ASTNS::Arg>> &args);
+            std::vector<IR::ASTValue> ret;
 
+        private:
+            // ARGSVISITOR METHODS START
+            void visit(ASTNS::Arg &ast) override;
+            // ARGSVISITOR METHODS END
+
+            CodeGen::FunctionCodeGen &fcg;
         };
-        class Stage2 : public Stage2CG {
+        // }}}
+        // Path {{{
+        class CodeGen::PathVisitor : public ASTNS::PathBVisitor {
+        public:
+            PathVisitor(CodeGen &cg, CodeGen::FunctionCodeGen &fcg);
 
+            Maybe<IR::ASTValue> resolve_value(ASTNS::PathB &path);
+            Maybe<IR::DeclSymbol &> resolve_decl_symbol(ASTNS::PathB &path);
+
+        private:
+            enum class PathType { VALUE, DECLARED } pty;
+
+            Maybe<IR::ASTValue> vret;
+            Maybe<NNPtr<IR::DeclSymbol>> dret;
+
+            // PATH VISITOR START
+            void visit(ASTNS::Path &ast) override;
+            // PATH VISITOR END
+
+            CodeGen &cg;
+            NNPtr<FunctionCodeGen> fcg;
         };
-    }
-
-    namespace Impl {
-        class Stage0 : public Stage0CG {
-
-        };
-        class Stage1 : public Stage1CG {
-
-        };
-        class Stage2 : public Stage2CG {
-
-        };
-    }
-}
-
-/*
-class CodeGen : public ASTNS::CUBVisitor, public ASTNS::DeclVisitor {
-    class ForwDecl;
-    class Declarator;
-
-    class TypeVisitor;
-
-    class ParamVisitor;
-    class ArgVisitor;
-
-    class FunctionCodeGen;
-    class ImplCodeGen;
-
-    class PathVisitor;
-public:
-    class Context;
-
-    CodeGen(File const &file, NNPtr<ASTNS::CUB> cub);
-    ~CodeGen();
-
-    void forwdecl();
-    void declarate();
-    void codegen();
-
-    std::unique_ptr<IR::Unit> unit;
-
-    std::unique_ptr<Context> context;
-
-    inline bool is_errored() { return errored; }
-
-private:
-    // CG METHODS START
-    void visit(ASTNS::ImplicitDecl &ast) override;
-    void visit(ASTNS::CU &ast) override;
-    void visit(ASTNS::ImplDecl &ast) override;
-    void visit(ASTNS::FunctionDecl &ast) override;
-    // CG METHODS END
-
-    bool errored;
-
-    NNPtr<ASTNS::CUB> cub;
-};
-// Param and Args {{{1
-// Param {{{2
-class CodeGen::ParamVisitor : public ASTNS::ParamBVisitor {
-public:
-    struct Param {
-        NNPtr<IR::Type const> ty;
-        std::string name;
-        NNPtr<ASTNS::ParamB> ast;
-        bool mut;
-    };
-
-    ParamVisitor(CodeGen &cg, std::vector<std::unique_ptr<ASTNS::ParamB>> &params, Maybe<NNPtr<IR::Type>> this_type);
-
-    std::vector<Param> ret;
-
-    bool errored;
-
-    bool is_method, this_ptr, this_mut;
-
-private:
-    // PARAMVISITOR METHODS START
-    void visit(ASTNS::Param &ast) override;
-    void visit(ASTNS::ThisParam &ast) override;
-    // PARAMVISITOR METHODS END
-
-    CodeGen &cg;
-    Maybe<NNPtr<IR::Type>> this_type;
-    int index;
-};
-
-// Arg {{{2
-class CodeGen::ArgVisitor : public ASTNS::ArgBVisitor {
-public:
-    ArgVisitor(CodeGen::FunctionCodeGen &fcg, std::vector<std::unique_ptr<ASTNS::Arg>> &args);
-    std::vector<IR::ASTValue> ret;
-
-private:
-    // ARGSVISITOR METHODS START
-    void visit(ASTNS::Arg &ast) override;
-    // ARGSVISITOR METHODS END
-
-    CodeGen::FunctionCodeGen &fcg;
-};
-// Path {{{1
-class CodeGen::PathVisitor : public ASTNS::PathBVisitor {
-public:
-    PathVisitor(CodeGen &cg, CodeGen::FunctionCodeGen &fcg);
-
-    Maybe<IR::ASTValue> resolve_value(ASTNS::PathB &path);
-    Maybe<IR::DeclSymbol &> resolve_decl_symbol(ASTNS::PathB &path);
-
-private:
-    enum class PathType { VALUE, DECLARED } pty;
-
-    Maybe<IR::ASTValue> vret;
-    Maybe<NNPtr<IR::DeclSymbol>> dret;
-
-    // PATH VISITOR START
-    void visit(ASTNS::Path &ast) override;
-    // PATH VISITOR END
-
-    CodeGen &cg;
-    NNPtr<FunctionCodeGen> fcg;
-};
-// TypeVisitor {{{1
+        // }}}
+// TypeVisitor {{{
 class CodeGen::TypeVisitor : public ASTNS::TypeVisitor {
 public:
     TypeVisitor(CodeGen &cg, Maybe<NNPtr<IR::Type>> this_type);
@@ -200,8 +118,8 @@ private:
 
     CodeGen &cg;
 };
-
-// ForwDecl {{{1
+// }}}
+// ForwDecl {{{
 class CodeGen::ForwDecl : public ASTNS::DeclVisitor, public ASTNS::CUBVisitor {
 public:
     ForwDecl(CodeGen &cg);
@@ -216,29 +134,7 @@ private:
 
     CodeGen &cg;
 };
-// Declarator {{{1
-class CodeGen::Declarator : public ASTNS::DeclVisitor, public ASTNS::ImplMemberVisitor, public ASTNS::CUBVisitor {
-public:
-    Declarator(CodeGen &cg);
-
-private:
-    // DECLARATOR METHODS START
-    void visit(ASTNS::ImplicitDecl &ast) override;
-    void visit(ASTNS::CU &ast) override;
-    void visit(ASTNS::ImplDecl &ast) override;
-    void visit(ASTNS::FunctionDecl &ast) override;
-    void visit(ASTNS::FunctionImplMember &ast) override;
-    // DECLARATOR METHODS END
-
-    CodeGen &cg;
-
-    NNPtr<IR::DeclSymbol> current_symbol;
-    Maybe<NNPtr<IR::Type>> this_type;
-};
-
-// Decls {{{1
-// Function {{{2
-class CodeGen::FunctionCodeGen {
+// }}}
     // StmtCodeGen {{{
     class StmtCodeGen : public ASTNS::StmtVisitor, public ASTNS::VStmtIBVisitor {
     public:
@@ -294,6 +190,53 @@ class CodeGen::FunctionCodeGen {
         FunctionCodeGen &fcg;
     };
     // }}}
+// Decls {{{1
+// }}}1
+// Param and Args {{{1
+// Param {{{2
+class CodeGen::ParamVisitor : public ASTNS::ParamBVisitor {
+public:
+    struct Param {
+        NNPtr<IR::Type const> ty;
+        std::string name;
+        NNPtr<ASTNS::ParamB> ast;
+        bool mut;
+    };
+
+    ParamVisitor(CodeGen &cg, std::vector<std::unique_ptr<ASTNS::ParamB>> &params, Maybe<NNPtr<IR::Type>> this_type);
+
+    std::vector<Param> ret;
+
+    bool errored;
+
+    bool is_method, this_ptr, this_mut;
+
+private:
+    // PARAMVISITOR METHODS START
+    void visit(ASTNS::Param &ast) override;
+    void visit(ASTNS::ThisParam &ast) override;
+    // PARAMVISITOR METHODS END
+
+    CodeGen &cg;
+    Maybe<NNPtr<IR::Type>> this_type;
+    int index;
+};
+
+// Arg {{{2
+class CodeGen::ArgVisitor : public ASTNS::ArgBVisitor {
+public:
+    ArgVisitor(CodeGen::FunctionCodeGen &fcg, std::vector<std::unique_ptr<ASTNS::Arg>> &args);
+    std::vector<IR::ASTValue> ret;
+
+private:
+    // ARGSVISITOR METHODS START
+    void visit(ASTNS::Arg &ast) override;
+    // ARGSVISITOR METHODS END
+
+    CodeGen::FunctionCodeGen &fcg;
+};
+// Function {{{2
+class CodeGen::FunctionCodeGen {
 public:
     FunctionCodeGen(CodeGen &cg, NNPtr<ASTNS::FunctionDecl> ast, NNPtr<IR::Function> fun, Maybe<NNPtr<IR::Type>> this_type);
 
@@ -352,3 +295,91 @@ private:
     bool errored;
 };
 */
+    }
+
+    class Stage3CG;
+    class Stage2CG;
+    class Stage1CG;
+
+    class Stage0CG {
+        virtual std::unique_ptr<Stage1CG> type_fw_declare() const = 0;
+    };
+    class Stage1CG {
+        virtual std::unique_ptr<Stage2CG> value_fw_declare() const = 0;
+    };
+    class Stage2CG {
+        virtual std::unique_ptr<Stage3CG> block_codegen() const = 0;
+    };
+    class Stage3CG {
+        // codegen finished: no more stages to be done
+    };
+
+    namespace Function {
+        class Stage0 {
+            std::unique_ptr<Stage1> type_fw_declare() const override;
+        };
+        class Stage1 {
+            std::unique_ptr<Stage2> value_fw_declare() const override;
+        };
+        class Stage2 {
+            std::unique_ptr<Stage3> block_codegen() const override;
+        };
+        class Stage3 {};
+    }
+
+    namespace Impl {
+        class Stage0 {
+            std::unique_ptr<Stage1> type_fw_declare() const override;
+        };
+        class Stage1 {
+            std::unique_ptr<Stage2> value_fw_declare() const override;
+        };
+        class Stage2 {
+            std::unique_ptr<Stage3> block_codegen() const override;
+        };
+        class Stage3 {};
+    }
+}
+
+/*
+class CodeGen : public ASTNS::CUBVisitor, public ASTNS::DeclVisitor {
+    class ForwDecl;
+    class Declarator;
+
+    class TypeVisitor;
+
+    class ParamVisitor;
+    class ArgVisitor;
+
+    class FunctionCodeGen;
+    class ImplCodeGen;
+
+    class PathVisitor;
+public:
+    class Context;
+
+    CodeGen(File const &file, NNPtr<ASTNS::CUB> cub);
+    ~CodeGen();
+
+    void forwdecl();
+    void declarate();
+    void codegen();
+
+    std::unique_ptr<IR::Unit> unit;
+
+    std::unique_ptr<Context> context;
+
+    inline bool is_errored() { return errored; }
+
+private:
+    // CG METHODS START
+    void visit(ASTNS::ImplicitDecl &ast) override;
+    void visit(ASTNS::CU &ast) override;
+    void visit(ASTNS::ImplDecl &ast) override;
+    void visit(ASTNS::FunctionDecl &ast) override;
+    // CG METHODS END
+
+    bool errored;
+
+    NNPtr<ASTNS::CUB> cub;
+};

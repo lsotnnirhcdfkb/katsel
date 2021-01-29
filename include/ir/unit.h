@@ -4,6 +4,8 @@
 #include <memory>
 
 #include "ir/module.h"
+#include "ir/function.h"
+#include "ir/block.h"
 
 namespace llvm { class raw_ostream; }
 struct File;
@@ -16,7 +18,7 @@ namespace IR {
     public:
         Unit(File const &file, ASTNS::ImplicitDecl &implicit);
 
-        void print(llvm::raw_ostream &ostream);
+        void print(llvm::raw_ostream &ostream) const;
 
         File const &file;
         Module mod;

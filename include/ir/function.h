@@ -16,7 +16,6 @@ namespace IR {
     class Function : public Value, public DeclaredValue {
     public:
         Function(NNPtr<FunctionType> ty, std::string name, NNPtr<ASTNS::FunctionDecl> def_ast);
-        ~Function();
 
         void add(std::unique_ptr<Block> block);
 

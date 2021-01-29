@@ -109,7 +109,12 @@ int compile_file(OutFormats ofmt, NNPtr<char> filename) {
         return true;
     }
 
-    auto unit = CodeGen::codegen(*parsed);
+    auto m_unit = CodeGen::codegen(*parsed);
+    if (!m_unit.has())
+        return false;
+
+    auto &unit (m_unit.get());
+
     if (ofmt == OutFormats::CODEGEN) {
         OPENFILE(filename, ".kslir");
         if (os.has_error())
