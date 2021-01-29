@@ -109,31 +109,19 @@ int compile_file(OutFormats ofmt, NNPtr<char> filename) {
         return true;
     }
 
-    auto codegen = std::make_unique<CodeGen>(*source, parsed.get());
-    codegen->forwdecl();
-    if (codegen->is_errored())
-        return false;
-
-    codegen->declarate();
-    if (codegen->is_errored())
-        return false;
-
-    codegen->codegen();
-    if (codegen->is_errored())
-        return false;
-
+    auto unit = CodeGen::codegen(*parsed);
     if (ofmt == OutFormats::CODEGEN) {
         OPENFILE(filename, ".kslir");
         if (os.has_error())
             return false;
 
-        codegen->unit->print(os);
+        unit.print(os);
 
         os.close();
         return true;
     }
 
-    auto lowerer = std::make_unique<Lower::Lowerer>(*codegen->unit);
+    auto lowerer = std::make_unique<Lower::Lowerer>(unit);
     lowerer->lower();
     if (lowerer->errored)
         return false;

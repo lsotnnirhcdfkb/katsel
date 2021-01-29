@@ -19,7 +19,8 @@ CodeGen::FunctionCodeGen::FunctionCodeGen(CodeGen &cg, NNPtr<ASTNS::FunctionDecl
     exit_block(fun->add_block("exit")),
     cur_block(entry_block),
     ret(register_block->add<IR::Instrs::Register>(cg.unit->implicit_decl_ast.get(), fun->ty->ret, true)),
-    this_type(this_type),
+    type_visitor(cg, this_type),
+    path_visitor(cg, *this),
     errored(false) {}
 
 bool CodeGen::FunctionCodeGen::codegen() {

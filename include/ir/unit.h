@@ -7,7 +7,6 @@
 
 namespace llvm { class raw_ostream; }
 struct File;
-namespace ASTNS { class ImplicitDecl; }
 
 namespace IR {
     class Function;
@@ -15,11 +14,9 @@ namespace IR {
 
     class Unit {
     public:
-        Unit(File const &file);
+        Unit(File const &file, ASTNS::ImplicitDecl &implicit);
 
         void print(llvm::raw_ostream &ostream);
-
-        std::unique_ptr<ASTNS::ImplicitDecl> implicit_decl_ast;
 
         File const &file;
         Module mod;

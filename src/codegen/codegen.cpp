@@ -8,8 +8,6 @@
 CodeGen::CodeGen(File const &file, NNPtr<ASTNS::CUB> cub):
     unit(std::make_unique<IR::Unit>(file)),
     context(std::make_unique<Context>(file, *this)),
-    type_visitor(std::make_unique<TypeVisitor>(*this)),
-    path_visitor(std::make_unique<PathVisitor>(*this)),
     errored(false),
     cub(cub) {}
 CodeGen::~CodeGen() = default;

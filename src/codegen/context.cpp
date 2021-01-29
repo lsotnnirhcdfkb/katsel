@@ -4,7 +4,7 @@
 #include <iostream>
 #include "ast/ast.h"
 
-CodeGen::Context::Context(File const &file, CodeGen &cg): cg(cg), void_value(get_void_type()) {}
+CodeGen::Context::Context(File const &file): implicit_decl_ast(std::make_unique<ASTNS::ImplicitDecl>(file, Maybe<Span const>(), 0)), void_value(get_void_type()) {}
 
 // getting types {{{1 TODO: make a template function to loop through things and either make operator== = default for all types or use a lambda to compare them
 #define CHECK_FIELD(field) (casted->field == field)

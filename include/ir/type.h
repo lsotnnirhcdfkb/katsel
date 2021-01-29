@@ -8,6 +8,9 @@ namespace IR {
     class Block;
     class Function;
 }
+namespace CodeGen {
+    class Context;
+}
 
 #include "ir/module.h"
 
@@ -15,8 +18,6 @@ namespace IR {
 
 #include "llvm/IR/Type.h"
 #include "llvm/IR/LLVMContext.h"
-
-#include "codegen/codegen.h"
 
 #include "message/report_abort.h"
 
