@@ -404,8 +404,6 @@ def get_item_sets():
             if newsetlr1 not in isets:
                 isets.append(newsetlr1)
                 stack.append(newsetlr1)
-            else:
-                toseti = isets[isets.index(newsetlr1)].n
 
             transitions.append((origset.n, after, toseti))
 
