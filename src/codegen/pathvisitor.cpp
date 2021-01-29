@@ -24,21 +24,23 @@ Maybe<IR::ASTValue> CodeGen::PathVisitor::resolve_value(ASTNS::PathB &ast, Funct
 }
 
 static Maybe<IR::DeclSymbol &> trace_path_decl_only(IR::DeclSymbol &start, std::vector<Located<Tokens::Identifier>>::const_iterator const tok_start, std::vector<Located<Tokens::Identifier>>::const_iterator const tok_end) {
-    Maybe<NNPtr<IR::DeclSymbol>> prev;
-    Maybe<NNPtr<IR::DeclSymbol>> current = start;
+    NNPtr<IR::DeclSymbol> prev = start;
+    NNPtr<IR::DeclSymbol> current = start;
     for (auto cur_token = tok_start; cur_token != tok_end; ++cur_token) {
         prev = current;
-        current = current.get()->get_decl_symbol(cur_token->value.name).fmap<NNPtr<IR::DeclSymbol>>([] (IR::DeclSymbol &ds) { return NNPtr<IR::DeclSymbol>(ds); });
+        auto m_current = current->get_decl_symbol(cur_token->value.name).fmap<NNPtr<IR::DeclSymbol>>([] (IR::DeclSymbol &ds) { return NNPtr<IR::DeclSymbol>(ds); });
 
-        if (!current.has()) {
-            if (prev.has())
-                ERR_NO_MEMBER_IN(*prev.get(), cur_token->span);
+        if (m_current.has()) {
+            current = m_current.get();
+        } else {
+            if (prev.as_raw() != &start)
+                ERR_NO_MEMBER_IN(*prev, cur_token->span);
             else
                 ERR_UNDECL_SYMB(cur_token->span);
             return Maybe<IR::DeclSymbol &>();
         }
     }
-    return current.fmap<IR::DeclSymbol &> ([] (NNPtr<IR::DeclSymbol> i) { return Maybe<IR::DeclSymbol &>(*i); });
+    return *current;
 }
 
 void CodeGen::PathVisitor::visit(ASTNS::Path &ast) {
@@ -73,7 +75,10 @@ void CodeGen::PathVisitor::visit(ASTNS::Path &ast) {
         Maybe<IR::Value&> ret = last->get_value(ast.segments.back().value.name);
 
         if (!ret.has()) {
-            ERR_NO_MEMBER_IN(*last, ast.segments.back().span);
+            if (last.as_raw() != &cg.unit->mod)
+                ERR_NO_MEMBER_IN(*last, ast.segments.back().span);
+            else
+                ERR_UNDECL_SYMB(ast.segments.back().span);
             vret = Maybe<IR::ASTValue>();
         } else {
             vret = IR::ASTValue(ret.get(), ast);
