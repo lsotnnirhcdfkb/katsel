@@ -24,57 +24,6 @@ CodeGen::FunctionCodeGen::FunctionCodeGen(CodeGen &cg, NNPtr<ASTNS::FunctionDecl
     errored(false) {}
 
 bool CodeGen::FunctionCodeGen::codegen() {
-    if (!ast->body) {
-        fun->prototypeonly = true;
-        return true;
-    }
-
-    register_block->branch(std::make_unique<IR::Instrs::GotoBr>(entry_block));
-
-    inc_scope();
-    ParamVisitor pv (cg, ast->params, this_type);
-    std::vector<ParamVisitor::Param> params (pv.ret);
-
-    for (auto const &param : params) {
-        std::string pname = param.name;
-        IR::Instrs::Register &reg = register_block->add<IR::Instrs::Register>(param.ast, param.ty, param.mut);
-
-        Maybe<Local&> foundparam = get_local(pname);
-        if (foundparam.has()) {
-            ERR_REDECL_PARAM(*param.ast, *foundparam.get().v);
-            errored = true;
-        } else
-            add_local(pname, reg);
-    }
-
-    Maybe<IR::ASTValue> m_retval = expr_cg.expr(*ast->body);
-
-    dec_scope();
-
-    if (!errored) {
-        NNPtr<IR::Instrs::Instruction> deref_ret_reg = exit_block->add<IR::Instrs::DerefPtr>(IR::ASTValue(*ret, *ast->retty));
-        exit_block->branch(std::make_unique<IR::Instrs::Return>(IR::ASTValue(*deref_ret_reg, *ast->retty)));
-
-        if (!m_retval.has()) {
-            errored = true;
-        } else {
-            IR::ASTValue retval = m_retval.get();
-
-            retval = fun->ty->ret->impl_cast(*cg.context, *fun, cur_block, retval);
-            if (fun->ty->ret.as_raw() != &retval.type()) {
-                ERR_CONFLICT_RET_TY(retval, *fun);
-                errored = true;
-            } else {
-                cur_block->add<IR::Instrs::Store>(IR::ASTValue(*ret, *ast->retty), retval, false);
-                cur_block->branch(std::make_unique<IR::Instrs::GotoBr>(exit_block));
-            }
-        }
-    }
-
-    if (cur_scope != 0 && !errored)
-        report_abort_noh("At the end of FunctionCodeGen::codegen, cur_scope != 0");
-
-    return !errored;
 }
 
 void CodeGen::FunctionCodeGen::add_local(std::string const &name, IR::Instrs::Register &val) {

@@ -7,11 +7,6 @@
 CodeGen::ImplCodeGen::ImplCodeGen(CodeGen &cg, NNPtr<ASTNS::ImplDecl> ast): cg(cg), ast(ast), impl_for(), errored(false) {}
 
 bool CodeGen::ImplCodeGen::codegen() {
-    impl_for = cg.type_visitor->type(*ast->impl_for, Maybe<NNPtr<IR::Type>>())
-        .fmap<NNPtr<IR::Type>>([] (IR::Type &t) { return NNPtr(t); });
-    for (std::unique_ptr<ASTNS::ImplMember> const &member : ast->members)
-        member->accept(*this);
-    return !errored;
 }
 
 void CodeGen::ImplCodeGen::visit(ASTNS::FunctionImplMember &ast) {
