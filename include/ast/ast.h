@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <vector>
-#include "lex/token.h"
+#include "lex/tokens.h"
 #include "ast/astfwd.h"
 #include "ast/visitor.h"
 #include "utils/location.h"
