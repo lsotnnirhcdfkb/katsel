@@ -979,8 +979,8 @@ def gen_loop():
                 else:
                     return f'{s.astt()}::stringify()'
 
-            futuress = [f'format("expected {{}} for {{}}", {format_list([stc(p) for p in future])}, {stc(nt)})' for nt, future in state.futures.items()]
-            terminatess = [f'format("expected {{}} to terminate {{}}", {format_list([stc(p) for p in future])}, {stc(nt)})' for nt, future in state.terminates.items()]
+            futuress = [f'format("expected {{}} of {{}}", {format_list([stc(p) for p in future])}, {stc(nt)})' for nt, future in state.futures.items()]
+            terminatess = [f'format("expected {{}} after {{}}", {format_list([stc(p) for p in future])}, {stc(nt)})' for nt, future in state.terminates.items()]
 
             output.append(                        '                default:\n')
             output.append(                       f'                    ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, {{ {", ".join(futuress + terminatess)} }} );\n')
