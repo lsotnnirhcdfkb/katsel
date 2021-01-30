@@ -4,29 +4,27 @@
 using CodeGen::Stage0CG, CodeGen::Stage1CG, CodeGen::Stage2CG, CodeGen::Stage3CG;
 using namespace CodeGen::Impl;
 
-Stage0::Stage0(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast, IR::DeclSymbol &parent_symbol):
+Stage0::Stage0(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast):
+    unit(unit),
+    context(context),
+    ast(ast) {}
+Stage1::Stage1(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast, Helpers::TypeVisitor type_visitor):
     unit(unit),
     context(context),
     ast(ast),
-    parent_symbol(parent_symbol) {}
-Stage1::Stage1(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast, IR::DeclSymbol &parent_symbol, Helpers::TypeVisitor type_visitor):
-    unit(unit),
-    context(context),
-    ast(ast),
-    parent_symbol(parent_symbol),
     type_visitor(type_visitor),
     impl_for(type_visitor.type(*ast.impl_for)),
     errored(false) {}
-Stage2::Stage2(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast, IR::DeclSymbol &parent_symbol, Helpers::TypeVisitor type_visitor, IR::Type &impl_for):
+Stage2::Stage2(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast, Helpers::TypeVisitor type_visitor, IR::Type &impl_for):
     unit(unit),
     context(context),
     ast(ast),
-    parent_symbol(parent_symbol),
     type_visitor(type_visitor),
     impl_for(impl_for) {}
 
 Maybe<std::unique_ptr<Stage1CG>> Stage0::type_fw_declare() {
-    return std::unique_ptr<Stage1>();
+    Helpers::TypeVisitor type_visitor ((Maybe<NNPtr<IR::Type>>()));
+    return std::make_unique<Stage1>(unit, context, ast, type_visitor);
 }
 
 Maybe<std::unique_ptr<Stage2CG>> Stage1::value_fw_declare() {
@@ -41,7 +39,7 @@ Maybe<std::unique_ptr<Stage2CG>> Stage1::value_fw_declare() {
     if (errored)
         return Maybe<std::unique_ptr<Stage2CG>>();
     else
-        return std::make_unique<Stage2>(unit, context, ast, parent_symbol, type_visitor, impl_for.get());
+        return std::make_unique<Stage2>(unit, context, ast, type_visitor, impl_for.get());
 }
 
 void Stage1::visit(ASTNS::FunctionImplMember &member) {

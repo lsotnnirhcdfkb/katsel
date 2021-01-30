@@ -285,23 +285,21 @@ namespace CodeGen {
     namespace Impl {
         class Stage0 : public Stage0CG {
         public:
-            Stage0(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast, IR::DeclSymbol &parent_symbol);
+            Stage0(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast);
             Maybe<std::unique_ptr<Stage1CG>> type_fw_declare() override;
         private:
             IR::Unit &unit;
             CodeGen::Context &context;
             ASTNS::ImplDecl &ast;
-            IR::DeclSymbol &parent_symbol;
         };
         class Stage1 : public Stage1CG, public ASTNS::ImplMemberVisitor {
         public:
-            Stage1(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast, IR::DeclSymbol &parent_symbol, Helpers::TypeVisitor type_visitor);
+            Stage1(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast, Helpers::TypeVisitor type_visitor);
             Maybe<std::unique_ptr<Stage2CG>> value_fw_declare() override;
         private:
             IR::Unit &unit;
             CodeGen::Context &context;
             ASTNS::ImplDecl &ast;
-            IR::DeclSymbol &parent_symbol;
             Helpers::TypeVisitor type_visitor;
             Maybe<IR::Type &> impl_for;
 
@@ -315,13 +313,12 @@ namespace CodeGen {
         };
         class Stage2 : public Stage2CG {
         public:
-            Stage2(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast, IR::DeclSymbol &parent_symbol, Helpers::TypeVisitor type_visitor, IR::Type &impl_for);
+            Stage2(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast, Helpers::TypeVisitor type_visitor, IR::Type &impl_for);
             Maybe<std::unique_ptr<Stage3CG>> block_codegen() override;
         private:
             IR::Unit &unit;
             CodeGen::Context &context;
             ASTNS::ImplDecl &ast;
-            IR::DeclSymbol &parent_symbol;
             Helpers::TypeVisitor type_visitor;
             NNPtr<IR::Type> impl_for;
             std::vector<std::unique_ptr<Stage2CG>> item_codegens;
