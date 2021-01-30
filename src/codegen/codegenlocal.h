@@ -62,89 +62,17 @@ namespace CodeGen {
 
             Maybe<IR::Type &> type(ASTNS::Type &ast);
 
+            Context &context;
+            Maybe<NNPtr<IR::Type>> ret;
+            Maybe<NNPtr<IR::Type>> this_type;
+
+            PathVisitor &path_visitor;
         private:
             // TYPEVISITOR METHODS START
             void visit(ASTNS::PathType &ast) override;
             void visit(ASTNS::PointerType &ast) override;
             void visit(ASTNS::ThisType &ast) override;
             // TYPEVISITOR METHODS END
-
-            Context &context;
-            Maybe<NNPtr<IR::Type>> ret;
-            Maybe<NNPtr<IR::Type>> this_type;
-
-            PathVisitor &path_visitor;
-        };
-        // }}}
-        // Param {{{
-        class ParamVisitor : public ASTNS::ParamBVisitor {
-        public:
-            struct Param {
-                NNPtr<IR::Type const> ty;
-                std::string name;
-                NNPtr<ASTNS::ParamB> ast;
-                bool mut;
-            };
-
-            ParamVisitor(std::vector<std::unique_ptr<ASTNS::ParamB>> &params, Helpers::TypeVisitor &type_visitor);
-
-            std::vector<Param> ret;
-
-            bool errored;
-
-            bool is_method, this_ptr, this_mut;
-
-        private:
-            // PARAMVISITOR METHODS START
-            void visit(ASTNS::Param &ast) override;
-            void visit(ASTNS::ThisParam &ast) override;
-            // PARAMVISITOR METHODS END
-
-            TypeVisitor &type_visitor;
-            int index;
-        };
-        // }}}
-        // Arg {{{
-        class ArgVisitor : public ASTNS::ArgBVisitor {
-        public:
-            ArgVisitor(std::vector<std::unique_ptr<ASTNS::Arg>> &args);
-            std::vector<IR::ASTValue> ret;
-
-        private:
-            // ARGSVISITOR METHODS START
-            void visit(ASTNS::Arg &ast) override;
-            // ARGSVISITOR METHODS END
-
-        };
-        // }}}
-        // ForwDecl {{{
-        class ForwDecl : public ASTNS::DeclVisitor, public ASTNS::CUBVisitor {
-        public:
-            ForwDecl();
-
-        private:
-            // FORWDECL METHODS START
-            void visit(ASTNS::ImplicitDecl &ast) override;
-            void visit(ASTNS::CU &ast) override;
-            void visit(ASTNS::ImplDecl &ast) override;
-            void visit(ASTNS::FunctionDecl &ast) override;
-            // FORWDECL METHODS END
-        };
-        // }}}
-        // StmtCodeGen {{{
-        class StmtCodeGen : public ASTNS::StmtVisitor, public ASTNS::VStmtIBVisitor {
-        public:
-            StmtCodeGen();
-
-            void stmt(ASTNS::Stmt &ast);
-
-        private:
-            // STMTCG METHODS START
-            void visit(ASTNS::VarStmt &ast) override;
-            void visit(ASTNS::VarStmtItem &ast) override;
-            void visit(ASTNS::ExprStmt &ast) override;
-            void visit(ASTNS::RetStmt &ast) override;
-            // STMTCG METHODS END
         };
         // }}}
         // ExprCodeGen {{{
@@ -179,6 +107,65 @@ namespace CodeGen {
             // EXPRCG METHODS END
 
             Maybe<IR::ASTValue> ret;
+        };
+        // }}}
+        // Param {{{
+        class ParamVisitor : public ASTNS::ParamBVisitor {
+        public:
+            struct Param {
+                NNPtr<IR::Type const> ty;
+                std::string name;
+                NNPtr<ASTNS::ParamB> ast;
+                bool mut;
+            };
+
+            ParamVisitor(CodeGen::Context &context, std::vector<std::unique_ptr<ASTNS::ParamB>> &params, Helpers::TypeVisitor &type_visitor);
+
+            std::vector<Param> ret;
+
+            bool errored;
+
+            bool is_method, this_ptr, this_mut;
+
+        private:
+            // PARAMVISITOR METHODS START
+            void visit(ASTNS::Param &ast) override;
+            void visit(ASTNS::ThisParam &ast) override;
+            // PARAMVISITOR METHODS END
+
+            CodeGen::Context &context;
+            TypeVisitor &type_visitor;
+            int index;
+        };
+        // }}}
+        // Arg {{{
+        class ArgVisitor : public ASTNS::ArgBVisitor {
+        public:
+            ArgVisitor(ExprCodeGen &expr_cg, std::vector<std::unique_ptr<ASTNS::Arg>> &args);
+            std::vector<IR::ASTValue> ret;
+
+        private:
+            ExprCodeGen &expr_cg;
+            // ARGSVISITOR METHODS START
+            void visit(ASTNS::Arg &ast) override;
+            // ARGSVISITOR METHODS END
+
+        };
+        // }}}
+        // StmtCodeGen {{{
+        class StmtCodeGen : public ASTNS::StmtVisitor, public ASTNS::VStmtIBVisitor {
+        public:
+            StmtCodeGen();
+
+            void stmt(ASTNS::Stmt &ast);
+
+        private:
+            // STMTCG METHODS START
+            void visit(ASTNS::VarStmt &ast) override;
+            void visit(ASTNS::VarStmtItem &ast) override;
+            void visit(ASTNS::ExprStmt &ast) override;
+            void visit(ASTNS::RetStmt &ast) override;
+            // STMTCG METHODS END
         };
         // }}}
     }
