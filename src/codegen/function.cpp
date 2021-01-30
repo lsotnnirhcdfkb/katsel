@@ -29,6 +29,7 @@ Stage2::Stage2(IR::Unit &unit, CodeGen::Context &context, ASTNS::FunctionDecl &a
     this_type(this_type),
     parent_symbol(parent_symbol),
     params(params),
+    stmt_cg(context, fun, *exit_block, *ret, cur_block, expr_cg),
     register_block(fun.add_block("registers")),
     entry_block(fun.add_block("entry")),
     exit_block(fun.add_block("exit")),
@@ -55,7 +56,7 @@ Maybe<std::unique_ptr<Stage2CG>> Stage1::value_fw_declare() {
 
     IR::Type const &retty = m_retty.get();
 
-    Helpers::ParamVisitor param_visitor (ast.params, type_visitor);
+    Helpers::ParamVisitor param_visitor (context, ast.params, type_visitor);
     std::vector<Helpers::ParamVisitor::Param> params (std::move(param_visitor.ret));
 
     std::vector<NNPtr<IR::Type const>> ptys;
