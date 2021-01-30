@@ -155,7 +155,7 @@ namespace CodeGen {
         // StmtCodeGen {{{
         class StmtCodeGen : public ASTNS::StmtVisitor, public ASTNS::VStmtIBVisitor {
         public:
-            StmtCodeGen();
+            StmtCodeGen(CodeGen::Context &context, IR::Function &fun, IR::Block &exit_block, IR::Instrs::Register &ret_reg, NNPtr<IR::Block> &cur_block, ExprCodeGen &expr_cg);
 
             void stmt(ASTNS::Stmt &ast);
 
@@ -166,6 +166,13 @@ namespace CodeGen {
             void visit(ASTNS::ExprStmt &ast) override;
             void visit(ASTNS::RetStmt &ast) override;
             // STMTCG METHODS END
+
+            CodeGen::Context &context;
+            IR::Function &fun;
+            IR::Block &exit_block;
+            IR::Instrs::Register &ret_reg;
+            NNPtr<IR::Block> &cur_block;
+            ExprCodeGen &expr_cg;
         };
         // }}}
     }

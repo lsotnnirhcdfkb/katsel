@@ -4,33 +4,38 @@
 #include "ir/instruction.h"
 #include "ir/block.h"
 
-CodeGen::FunctionCodeGen::StmtCodeGen::StmtCodeGen(CodeGen &cg, FunctionCodeGen &fcg): cg(cg), fcg(fcg) {}
+CodeGen::Helpers::StmtCodeGen::StmtCodeGen(CodeGen::Context &context, IR::Function &fun, IR::Block &exit_block, IR::Instrs::Register &ret_reg, NNPtr<IR::Block> &cur_block, ExprCodeGen &expr_cg):
+    context(context),
+    fun(fun),
+    exit_block(exit_block),
+    ret_reg(ret_reg),
+    cur_block(cur_block),
+    expr_cg(expr_cg) {}
 
-void CodeGen::FunctionCodeGen::StmtCodeGen::stmt(ASTNS::Stmt &ast) {
+void CodeGen::Helpers::StmtCodeGen::stmt(ASTNS::Stmt &ast) {
     ast.accept(*this);
 }
-void CodeGen::FunctionCodeGen::StmtCodeGen::visit(ASTNS::ExprStmt &ast) {
-    fcg.expr_cg.expr(*ast.expr);
+void CodeGen::Helpers::StmtCodeGen::visit(ASTNS::ExprStmt &ast) {
+    expr_cg.expr(*ast.expr);
 }
-void CodeGen::FunctionCodeGen::StmtCodeGen::visit(ASTNS::VarStmt &ast) {
+void CodeGen::Helpers::StmtCodeGen::visit(ASTNS::VarStmt &ast) {
     for (std::unique_ptr<ASTNS::VarStmtItem> &item : ast.items)
         item->accept(*this);
 }
-void CodeGen::FunctionCodeGen::StmtCodeGen::visit(ASTNS::RetStmt &ast) {
-    Maybe<IR::ASTValue> m_v = ast.expr ? fcg.expr_cg.expr(*ast.expr) : Maybe<IR::ASTValue>(IR::ASTValue(cg.context->get_void(), ast));
+void CodeGen::Helpers::StmtCodeGen::visit(ASTNS::RetStmt &ast) {
+    Maybe<IR::ASTValue> m_v = ast.expr ? expr_cg.expr(*ast.expr) : Maybe<IR::ASTValue>(IR::ASTValue(context.get_void(), ast));
     if (!m_v.has())
         return;
 
     IR::ASTValue v = m_v.get();
 
-    v = fcg.ret->type().impl_cast(*cg.context, *fcg.fun, fcg.cur_block, v);
-    if (&fcg.ret->type() != &v.type()) {
-        ERR_CONFLICT_RET_TY(v, *fcg.fun);
-        cg.errored = true;
+    v = fun.ty->ret->impl_cast(context, fun, cur_block, v);
+    if (fun.ty->ret.as_raw() != &v.type()) {
+        ERR_CONFLICT_RET_TY(v, fun);
         return;
     }
 
-    fcg.cur_block->add<IR::Instrs::Store>(IR::ASTValue(*fcg.ret, ast), v, false);
-    fcg.cur_block->branch(std::make_unique<IR::Instrs::GotoBr>(fcg.exit_block));
-    // fcg.cur_block = cg.context.black_hole_block.get(); TODO: fix
+    cur_block->add<IR::Instrs::Store>(IR::ASTValue(ret_reg, ast), v, false);
+    cur_block->branch(std::make_unique<IR::Instrs::GotoBr>(exit_block));
+    cur_block = fun.add_block("after_return");
 }

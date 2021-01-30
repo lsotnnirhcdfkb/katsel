@@ -3,9 +3,9 @@
 #include "ast/ast.h"
 
 CodeGen::Helpers::ParamVisitor::ParamVisitor::ParamVisitor(CodeGen::Context &context, std::vector<std::unique_ptr<ASTNS::ParamB>> &params, TypeVisitor &type_visitor):
-    context(context),
     errored(false),
     is_method(false), this_ptr(false), this_mut(false),
+    context(context),
     type_visitor(type_visitor),
     index(0) {
     for (std::unique_ptr<ASTNS::ParamB> &p : params) {
