@@ -6,6 +6,7 @@
 #include "ast/astfwd.h"
 #include "ast/visitor.h"
 
+#include "ir/ir_builder.h"
 #include "ir/value.h"
 #include "ir/type.h"
 #include "ir/instructionfwd.h"
@@ -155,7 +156,7 @@ namespace CodeGen {
         // StmtCodeGen {{{
         class StmtCodeGen : public ASTNS::StmtVisitor, public ASTNS::VStmtIBVisitor {
         public:
-            StmtCodeGen(CodeGen::Context &context, IR::Function &fun, IR::Block &exit_block, IR::Instrs::Register &ret_reg, NNPtr<IR::Block> &cur_block, ExprCodeGen &expr_cg);
+            StmtCodeGen(IR::Builder &ir_builder, ExprCodeGen &expr_cg);
 
             void stmt(ASTNS::Stmt &ast);
 
@@ -167,11 +168,7 @@ namespace CodeGen {
             void visit(ASTNS::RetStmt &ast) override;
             // STMTCG METHODS END
 
-            CodeGen::Context &context;
-            IR::Function &fun;
-            IR::Block &exit_block;
-            IR::Instrs::Register &ret_reg;
-            NNPtr<IR::Block> &cur_block;
+            IR::Builder &builder;
             ExprCodeGen &expr_cg;
         };
         // }}}
@@ -238,9 +235,7 @@ namespace CodeGen {
 
         private:
             IR::Unit &unit;
-            CodeGen::Context &context;
             ASTNS::FunctionDecl &ast;
-            IR::Function &fun;
             Helpers::PathVisitor path_visitor;
             Helpers::TypeVisitor type_visitor;
             Maybe<NNPtr<IR::Type>> this_type;
@@ -271,9 +266,9 @@ namespace CodeGen {
 
             NNPtr<IR::Block> register_block;
             NNPtr<IR::Block> entry_block;
-            NNPtr<IR::Block> exit_block;
-            NNPtr<IR::Block> cur_block;
             NNPtr<IR::Instrs::Register> ret;
+
+            IR::Builder builder;
         };
         class Stage3 : public Stage3CG {};
     }
