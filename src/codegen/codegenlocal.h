@@ -284,13 +284,47 @@ namespace CodeGen {
     // Impl {{{
     namespace Impl {
         class Stage0 : public Stage0CG {
-            Maybe<std::unique_ptr<Stage1CG>> type_fw_declare();
+        public:
+            Stage0(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast, IR::DeclSymbol &parent_symbol);
+            Maybe<std::unique_ptr<Stage1CG>> type_fw_declare() override;
+        private:
+            IR::Unit &unit;
+            CodeGen::Context &context;
+            ASTNS::ImplDecl &ast;
+            IR::DeclSymbol &parent_symbol;
         };
-        class Stage1 : public Stage1CG {
-            Maybe<std::unique_ptr<Stage2CG>> value_fw_declare();
+        class Stage1 : public Stage1CG, public ASTNS::ImplMemberVisitor {
+        public:
+            Stage1(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast, IR::DeclSymbol &parent_symbol, Helpers::TypeVisitor type_visitor);
+            Maybe<std::unique_ptr<Stage2CG>> value_fw_declare() override;
+        private:
+            IR::Unit &unit;
+            CodeGen::Context &context;
+            ASTNS::ImplDecl &ast;
+            IR::DeclSymbol &parent_symbol;
+            Helpers::TypeVisitor type_visitor;
+            Maybe<IR::Type &> impl_for;
+
+            std::vector<std::unique_ptr<Stage1CG>> item_codegens;
+
+            bool errored;
+
+            // IMPL STAGE1 METHODS START
+            void visit(ASTNS::FunctionImplMember &ast) override;
+            // IMPL STAGE1 METHODS END
         };
         class Stage2 : public Stage2CG {
-            Maybe<std::unique_ptr<Stage3CG>> block_codegen();
+        public:
+            Stage2(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast, IR::DeclSymbol &parent_symbol, Helpers::TypeVisitor type_visitor, IR::Type &impl_for);
+            Maybe<std::unique_ptr<Stage3CG>> block_codegen() override;
+        private:
+            IR::Unit &unit;
+            CodeGen::Context &context;
+            ASTNS::ImplDecl &ast;
+            IR::DeclSymbol &parent_symbol;
+            Helpers::TypeVisitor type_visitor;
+            NNPtr<IR::Type> impl_for;
+            std::vector<std::unique_ptr<Stage2CG>> item_codegens;
         };
         class Stage3 : public Stage3CG {};
     }

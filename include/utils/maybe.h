@@ -43,6 +43,11 @@ public:
         return std::get<with_t>(data).thing;
     }
 
+    T &get() {
+        ASSERT(has())
+        return std::get<with_t>(data).thing;
+    }
+
 private:
     struct not_t {};
     struct with_t { T thing; };

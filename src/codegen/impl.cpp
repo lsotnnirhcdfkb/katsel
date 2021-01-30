@@ -1,34 +1,60 @@
 #include "codegenlocal.h"
+#include "ast/ast.h"
 
 using CodeGen::Stage0CG, CodeGen::Stage1CG, CodeGen::Stage2CG, CodeGen::Stage3CG;
 using namespace CodeGen::Impl;
 
-Maybe<std::unique_ptr<Stage1CG>> Stage0::type_fw_declare() const {}
+Stage0::Stage0(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast, IR::DeclSymbol &parent_symbol):
+    unit(unit),
+    context(context),
+    ast(ast),
+    parent_symbol(parent_symbol) {}
+Stage1::Stage1(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast, IR::DeclSymbol &parent_symbol, Helpers::TypeVisitor type_visitor):
+    unit(unit),
+    context(context),
+    ast(ast),
+    parent_symbol(parent_symbol),
+    type_visitor(type_visitor),
+    impl_for(type_visitor.type(*ast.impl_for)),
+    errored(false) {}
+Stage2::Stage2(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast, IR::DeclSymbol &parent_symbol, Helpers::TypeVisitor type_visitor, IR::Type &impl_for):
+    unit(unit),
+    context(context),
+    ast(ast),
+    parent_symbol(parent_symbol),
+    type_visitor(type_visitor),
+    impl_for(impl_for) {}
 
-Maybe<std::unique_ptr<Stage2CG>> Stage1::value_fw_declare() const {
-    Maybe<IR::Type&> m_impl_for = cg.type_visitor->type(*impl.impl_for, Maybe<NNPtr<IR::Type>>());
-    if (!m_impl_for.has()) {
-        cg.errored = true;
-        ERR_UNDECL_SYMB(*impl.impl_for);
-        return;
-    }
-
-    NNPtr<IR::Type> impl_for = m_impl_for.get();
-
-    NNPtr<IR::DeclSymbol> old_symbol = current_symbol;
-    current_symbol = impl_for;
-    this_type = impl_for;
-    for (std::unique_ptr<ASTNS::ImplMember> &member : impl.members) {
-        member->accept(*this);
-    }
-    current_symbol = old_symbol;
-    this_type = Maybe<NNPtr<IR::Type>>();
+Maybe<std::unique_ptr<Stage1CG>> Stage0::type_fw_declare() {
+    return std::unique_ptr<Stage1>();
 }
 
-Maybe<std::unique_ptr<Stage3CG>> Stage2::block_codegen() const {
-    impl_for = cg.type_visitor->type(*ast->impl_for, Maybe<NNPtr<IR::Type>>())
-        .fmap<NNPtr<IR::Type>>([] (IR::Type &t) { return NNPtr(t); });
-    for (std::unique_ptr<ASTNS::ImplMember> const &member : ast->members)
+Maybe<std::unique_ptr<Stage2CG>> Stage1::value_fw_declare() {
+    if (!impl_for.has()) {
+        return Maybe<std::unique_ptr<Stage2CG>>();
+    }
+
+    for (std::unique_ptr<ASTNS::ImplMember> &member : ast.members) {
         member->accept(*this);
-    return !errored;
+    }
+
+    if (errored)
+        return Maybe<std::unique_ptr<Stage2CG>>();
+    else
+        return std::make_unique<Stage2>(unit, context, ast, parent_symbol, type_visitor, impl_for.get());
+}
+
+void Stage1::visit(ASTNS::FunctionImplMember &member) {
+    auto m_s2 = CodeGen::Function::Stage0(unit, context, *member.fun, impl_for.get(), impl_for.get()).type_fw_declare();
+    if (m_s2.has())
+        item_codegens.push_back(std::move(m_s2.get())); // TODO: when type alias member items are added, this vector should go in stage 0
+    else
+        errored = true;
+}
+
+Maybe<std::unique_ptr<Stage3CG>> Stage2::block_codegen() {
+    for (std::unique_ptr<Stage2CG> &s2cg : item_codegens)
+        s2cg->block_codegen();
+
+    return std::make_unique<Stage3>();
 }
