@@ -58,7 +58,7 @@ namespace CodeGen {
         // Path {{{
         class PathVisitor : public ASTNS::PathBVisitor {
         public:
-            PathVisitor();
+            PathVisitor(Maybe<Locals&> locals, IR::Module &mod, IR::Builder &ir_builder);
 
             Maybe<IR::ASTValue> resolve_value(ASTNS::PathB &path);
             Maybe<IR::DeclSymbol &> resolve_decl_symbol(ASTNS::PathB &path);
@@ -68,6 +68,10 @@ namespace CodeGen {
 
             Maybe<IR::ASTValue> vret;
             Maybe<NNPtr<IR::DeclSymbol>> dret;
+            Maybe<Locals&> locals;
+            IR::Module &mod;
+
+            IR::Builder &ir_builder;
 
             // PATH VISITOR START
             void visit(ASTNS::Path &ast) override;

@@ -5,21 +5,22 @@
 #include "ir/instruction.h"
 #include "ir/block.h"
 
-CodeGen::PathVisitor::PathVisitor(CodeGen &cg): cg(cg) {}
+CodeGen::Helpers::PathVisitor::PathVisitor(Maybe<Locals&> locals, IR::Module &mod, IR::Builder &ir_builder):
+    locals(locals),
+    mod(mod),
+    ir_builder(ir_builder) {}
 
-Maybe<IR::DeclSymbol &> CodeGen::PathVisitor::resolve_decl_symbol(ASTNS::PathB &ast)  {
+Maybe<IR::DeclSymbol &> CodeGen::Helpers::PathVisitor::resolve_decl_symbol(ASTNS::PathB &ast)  {
     pty = PathType::DECLARED;
     dret = Maybe<NNPtr<IR::DeclSymbol>>();
     ast.accept(*this);
     return dret.fmap<IR::DeclSymbol &>( [] (NNPtr<IR::DeclSymbol> i) { return Maybe<IR::DeclSymbol &>(*i); });
 }
 
-Maybe<IR::ASTValue> CodeGen::PathVisitor::resolve_value(ASTNS::PathB &ast, FunctionCodeGen &fcg)  {
-    this->fcg = NNPtr<FunctionCodeGen>(fcg);
+Maybe<IR::ASTValue> CodeGen::Helpers::PathVisitor::resolve_value(ASTNS::PathB &ast)  {
     pty = PathType::VALUE;
     vret = Maybe<IR::ASTValue>();
     ast.accept(*this);
-    this->fcg = Maybe<NNPtr<FunctionCodeGen>>();
     return vret;
 }
 
@@ -43,18 +44,18 @@ static Maybe<IR::DeclSymbol &> trace_path_decl_only(IR::DeclSymbol &start, std::
     return *current;
 }
 
-void CodeGen::PathVisitor::visit(ASTNS::Path &ast) {
+void CodeGen::Helpers::PathVisitor::visit(ASTNS::Path &ast) {
     if (pty == PathType::DECLARED) {
-        dret = trace_path_decl_only(cg.unit->mod, ast.segments.cbegin(), ast.segments.cend()).fmap<NNPtr<IR::DeclSymbol >>([] (IR::DeclSymbol &i) { return Maybe<NNPtr<IR::DeclSymbol >>(NNPtr(i)); });
+        dret = trace_path_decl_only(mod, ast.segments.cbegin(), ast.segments.cend()).fmap<NNPtr<IR::DeclSymbol >>([] (IR::DeclSymbol &i) { return Maybe<NNPtr<IR::DeclSymbol>>(NNPtr(i)); });
     } else {
-        if (ast.segments.size() == 1 && fcg.has()) {
+        if (ast.segments.size() == 1 && locals.has()) {
             // look for local
             std::string vname = ast.segments.back().value.name;
-            Maybe<FunctionCodeGen::Local&> loc = fcg.get()->get_local(vname);
+            Maybe<Local> loc = locals.get().get_local(vname);
 
             if (loc.has()) {
                 IR::Instrs::Register &reg = *loc.get().v;
-                IR::Instrs::DerefPtr &deref = fcg.get()->cur_block->add<IR::Instrs::DerefPtr>(IR::ASTValue(reg, ast));
+                IR::Instrs::DerefPtr &deref = ir_builder.cur_block()->add<IR::Instrs::DerefPtr>(IR::ASTValue(reg, ast));
 
                 vret = IR::ASTValue(deref, ast);
                 return;
@@ -64,7 +65,7 @@ void CodeGen::PathVisitor::visit(ASTNS::Path &ast) {
         // look through decl symbol table until last segment
         // look through value symbol table for last segment
 
-        Maybe<IR::DeclSymbol &> m_last = trace_path_decl_only(cg.unit->mod, ast.segments.cbegin(), ast.segments.cend() - 1);
+        Maybe<IR::DeclSymbol &> m_last = trace_path_decl_only(mod, ast.segments.cbegin(), ast.segments.cend() - 1);
         if (!m_last.has()) {
             vret = Maybe<IR::ASTValue>();
             return;
@@ -75,7 +76,7 @@ void CodeGen::PathVisitor::visit(ASTNS::Path &ast) {
         Maybe<IR::Value&> ret = last->get_value(ast.segments.back().value.name);
 
         if (!ret.has()) {
-            if (last.as_raw() != &cg.unit->mod)
+            if (last.as_raw() != &mod)
                 ERR_NO_MEMBER_IN(*last, ast.segments.back().span);
             else
                 ERR_UNDECL_SYMB(ast.segments.back().span);
