@@ -4,9 +4,12 @@
 #include "ir/instruction.h"
 #include "ir/block.h"
 
-CodeGen::Helpers::StmtCodeGen::StmtCodeGen(IR::Builder &builder, ExprCodeGen &expr_cg):
-    builder(builder),
-    expr_cg(expr_cg) {}
+CodeGen::Helpers::StmtCodeGen::StmtCodeGen(IR::Builder &ir_builder, Locals &locals, ExprCodeGen &expr_cg, TypeVisitor &type_visitor, PathVisitor &path_visitor):
+    ir_builder(ir_builder),
+    locals(locals),
+    expr_cg(expr_cg),
+    type_visitor(type_visitor),
+    path_visitor(path_visitor) {}
 
 void CodeGen::Helpers::StmtCodeGen::stmt(ASTNS::Stmt &ast) {
     ast.accept(*this);
@@ -19,19 +22,19 @@ void CodeGen::Helpers::StmtCodeGen::visit(ASTNS::VarStmt &ast) {
         item->accept(*this);
 }
 void CodeGen::Helpers::StmtCodeGen::visit(ASTNS::RetStmt &ast) {
-    Maybe<IR::ASTValue> m_v = ast.expr ? expr_cg.expr(*ast.expr) : Maybe<IR::ASTValue>(IR::ASTValue(builder.context().get_void(), ast));
+    Maybe<IR::ASTValue> m_v = ast.expr ? expr_cg.expr(*ast.expr) : Maybe<IR::ASTValue>(IR::ASTValue(ir_builder.context().get_void(), ast));
     if (!m_v.has())
         return;
 
     IR::ASTValue v = m_v.get();
 
-    v = builder.fun().ty->ret->impl_cast(builder.context(), builder.fun(), builder.cur_block(), v);
-    if (builder.fun().ty->ret.as_raw() != &v.type()) {
-        ERR_CONFLICT_RET_TY(v, builder.fun());
+    v = ir_builder.fun().ty->ret->impl_cast(ir_builder.context(), ir_builder.fun(), ir_builder.cur_block(), v);
+    if (ir_builder.fun().ty->ret.as_raw() != &v.type()) {
+        ERR_CONFLICT_RET_TY(v, ir_builder.fun());
         return;
     }
 
-    builder.cur_block()->add<IR::Instrs::Store>(IR::ASTValue(builder.ret_reg(), ast), v, false);
-    builder.cur_block()->branch(std::make_unique<IR::Instrs::GotoBr>(builder.exit_block()));
-    builder.cur_block() = builder.fun().add_block("after_return");
+    ir_builder.cur_block()->add<IR::Instrs::Store>(IR::ASTValue(ir_builder.ret_reg(), ast), v, false);
+    ir_builder.cur_block()->branch(std::make_unique<IR::Instrs::GotoBr>(ir_builder.exit_block()));
+    ir_builder.cur_block() = ir_builder.fun().add_block("after_return");
 }

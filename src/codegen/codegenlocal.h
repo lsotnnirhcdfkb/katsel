@@ -37,6 +37,24 @@
 namespace CodeGen {
     // Helpers {{{
     namespace Helpers {
+        // Locals {{{
+        struct Local {
+            size_t scopenum;
+            NNPtr<IR::Instrs::Register> v;
+            std::string name;
+        };
+
+        struct Locals {
+            std::vector<Local> locals;
+            size_t cur_scope;
+
+            void add_local(std::string const &name, IR::Instrs::Register &val);
+            Maybe<Local> get_local(std::string const &name);
+
+            void inc_scope();
+            void dec_scope();
+        };
+        // }}}
         // Path {{{
         class PathVisitor : public ASTNS::PathBVisitor {
         public:
@@ -76,10 +94,33 @@ namespace CodeGen {
             // TYPEVISITOR METHODS END
         };
         // }}}
+        // StmtCodeGen {{{
+        class ExprCodeGen;
+        class StmtCodeGen : public ASTNS::StmtVisitor, public ASTNS::VStmtIBVisitor {
+        public:
+            StmtCodeGen(IR::Builder &ir_builder, Locals &locals, ExprCodeGen &expr_cg, TypeVisitor &type_visitor, PathVisitor &path_visitor);
+
+            void stmt(ASTNS::Stmt &ast);
+
+        private:
+            // STMTCG METHODS START
+            void visit(ASTNS::VarStmt &ast) override;
+            void visit(ASTNS::VarStmtItem &ast) override;
+            void visit(ASTNS::ExprStmt &ast) override;
+            void visit(ASTNS::RetStmt &ast) override;
+            // STMTCG METHODS END
+
+            IR::Builder &ir_builder;
+            Locals &locals;
+            ExprCodeGen &expr_cg;
+            TypeVisitor &type_visitor;
+            PathVisitor &path_visitor;
+        };
+        // }}}
         // ExprCodeGen {{{
         class ExprCodeGen : public ASTNS::ExprVisitor {
         public:
-            ExprCodeGen();
+            ExprCodeGen(IR::Builder &ir_builder, Helpers::Locals &locals, StmtCodeGen &stmt_cg, TypeVisitor &type_visitor, PathVisitor &path_visitor);
 
             Maybe<IR::ASTValue> expr(ASTNS::Expr &ast);
 
@@ -107,6 +148,11 @@ namespace CodeGen {
             void visit(ASTNS::PathExpr &ast) override;
             // EXPRCG METHODS END
 
+            IR::Builder &ir_builder;
+            Helpers::Locals &locals;
+            StmtCodeGen &stmt_cg;
+            TypeVisitor &type_visitor;
+            PathVisitor &path_visitor;
             Maybe<IR::ASTValue> ret;
         };
         // }}}
@@ -151,25 +197,6 @@ namespace CodeGen {
             void visit(ASTNS::Arg &ast) override;
             // ARGSVISITOR METHODS END
 
-        };
-        // }}}
-        // StmtCodeGen {{{
-        class StmtCodeGen : public ASTNS::StmtVisitor, public ASTNS::VStmtIBVisitor {
-        public:
-            StmtCodeGen(IR::Builder &ir_builder, ExprCodeGen &expr_cg);
-
-            void stmt(ASTNS::Stmt &ast);
-
-        private:
-            // STMTCG METHODS START
-            void visit(ASTNS::VarStmt &ast) override;
-            void visit(ASTNS::VarStmtItem &ast) override;
-            void visit(ASTNS::ExprStmt &ast) override;
-            void visit(ASTNS::RetStmt &ast) override;
-            // STMTCG METHODS END
-
-            IR::Builder &builder;
-            ExprCodeGen &expr_cg;
         };
         // }}}
     }
@@ -242,27 +269,10 @@ namespace CodeGen {
             IR::DeclSymbol &parent_symbol;
             std::vector<Helpers::ParamVisitor::Param> params;
 
-            struct Local {
-                size_t scopenum;
-                NNPtr<IR::Instrs::Register> v;
-                std::string name;
-            };
-
-            struct Locals {
-                std::vector<Local> locals;
-                size_t cur_scope;
-
-                void add_local(std::string const &name, IR::Instrs::Register &val);
-                Maybe<Local> get_local(std::string const &name);
-
-                void inc_scope();
-                void dec_scope();
-            };
-
             Helpers::ExprCodeGen expr_cg;
             Helpers::StmtCodeGen stmt_cg;
 
-            Locals locals;
+            Helpers::Locals locals;
 
             NNPtr<IR::Block> register_block;
             NNPtr<IR::Block> entry_block;
