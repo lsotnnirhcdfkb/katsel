@@ -36,6 +36,24 @@
 namespace CodeGen {
     // Helpers {{{
     namespace Helpers {
+        // TypeVisitor {{{
+        class TypeVisitor : public ASTNS::TypeVisitor {
+        public:
+            TypeVisitor(Maybe<NNPtr<IR::Type>> this_type);
+
+            Maybe<IR::Type &> type(ASTNS::Type &ast);
+
+        private:
+            // TYPEVISITOR METHODS START
+            void visit(ASTNS::PathType &ast) override;
+            void visit(ASTNS::PointerType &ast) override;
+            void visit(ASTNS::ThisType &ast) override;
+            // TYPEVISITOR METHODS END
+
+            Maybe<NNPtr<IR::Type>> ret;
+            Maybe<NNPtr<IR::Type>> this_type;
+        };
+        // }}}
         // Param {{{
         class ParamVisitor : public ASTNS::ParamBVisitor {
         public:
@@ -46,7 +64,7 @@ namespace CodeGen {
                 bool mut;
             };
 
-            ParamVisitor(std::vector<std::unique_ptr<ASTNS::ParamB>> &params, Maybe<NNPtr<IR::Type>> this_type);
+            ParamVisitor(std::vector<std::unique_ptr<ASTNS::ParamB>> &params, Helpers::TypeVisitor &type_visitor);
 
             std::vector<Param> ret;
 
@@ -60,7 +78,7 @@ namespace CodeGen {
             void visit(ASTNS::ThisParam &ast) override;
             // PARAMVISITOR METHODS END
 
-            Maybe<NNPtr<IR::Type>> this_type;
+            TypeVisitor &type_visitor;
             int index;
         };
         // }}}
@@ -94,24 +112,6 @@ namespace CodeGen {
             // PATH VISITOR START
             void visit(ASTNS::Path &ast) override;
             // PATH VISITOR END
-        };
-        // }}}
-        // TypeVisitor {{{
-        class TypeVisitor : public ASTNS::TypeVisitor {
-        public:
-            TypeVisitor(Maybe<NNPtr<IR::Type>> this_type);
-
-            Maybe<IR::Type &> type(ASTNS::Type &ast);
-
-        private:
-            // TYPEVISITOR METHODS START
-            void visit(ASTNS::PathType &ast) override;
-            void visit(ASTNS::PointerType &ast) override;
-            void visit(ASTNS::ThisType &ast) override;
-            // TYPEVISITOR METHODS END
-
-            Maybe<NNPtr<IR::Type>> ret;
-            Maybe<NNPtr<IR::Type>> this_type;
         };
         // }}}
         // ForwDecl {{{
@@ -186,28 +186,97 @@ namespace CodeGen {
     class Stage1CG;
 
     class Stage0CG {
-        virtual std::unique_ptr<Stage1CG> type_fw_declare() const = 0;
+    public:
+        virtual ~Stage0CG() = default;
+        virtual Maybe<std::unique_ptr<Stage1CG>> type_fw_declare();
     };
     class Stage1CG {
-        virtual std::unique_ptr<Stage2CG> value_fw_declare() const = 0;
+    public:
+        virtual ~Stage1CG() = default;
+        virtual Maybe<std::unique_ptr<Stage2CG>> value_fw_declare();
     };
     class Stage2CG {
-        virtual std::unique_ptr<Stage3CG> block_codegen() const = 0;
+    public:
+        virtual ~Stage2CG() = default;
+        virtual Maybe<std::unique_ptr<Stage3CG>> block_codegen();
     };
     class Stage3CG {
+    public:
+        virtual ~Stage3CG() = default;
         // codegen finished: no more stages to be done
     };
     // }}}
     // Function {{{
     namespace Function {
         class Stage0 : public Stage0CG {
-            std::unique_ptr<Stage1CG> type_fw_declare() const override;
+        public:
+            Stage0(IR::Unit &unit, CodeGen::Context &context, ASTNS::FunctionDecl &ast, Maybe<NNPtr<IR::Type>> this_type, IR::DeclSymbol &parent_symbol);
+            Maybe<std::unique_ptr<Stage1CG>> type_fw_declare();
+
+        private:
+            IR::Unit &unit;
+            CodeGen::Context &context;
+            ASTNS::FunctionDecl &ast;
+            Maybe<NNPtr<IR::Type>> this_type;
+            IR::DeclSymbol &parent_symbol;
         };
         class Stage1 : public Stage1CG {
-            std::unique_ptr<Stage2CG> value_fw_declare() const override;
+        public:
+            Stage1(IR::Unit &unit, CodeGen::Context &context, ASTNS::FunctionDecl &ast, Maybe<NNPtr<IR::Type>> this_type, IR::DeclSymbol &parent_symbol);
+            Maybe<std::unique_ptr<Stage2CG>> value_fw_declare();
+
+        private:
+            IR::Unit &unit;
+            CodeGen::Context &context;
+            ASTNS::FunctionDecl &ast;
+            Helpers::TypeVisitor type_visitor;
+            Maybe<NNPtr<IR::Type>> this_type;
+            IR::DeclSymbol &parent_symbol;
         };
         class Stage2 : public Stage2CG {
-            std::unique_ptr<Stage3CG> block_codegen() const override;
+        public:
+            Stage2(IR::Unit &unit, CodeGen::Context &context, ASTNS::FunctionDecl &ast, IR::Function &fun, Helpers::TypeVisitor &type_visitor, Maybe<NNPtr<IR::Type>> this_type, IR::DeclSymbol &parent_symbol, std::vector<Helpers::ParamVisitor::Param> &params);
+            Maybe<std::unique_ptr<Stage3CG>> block_codegen();
+
+        private:
+            IR::Unit &unit;
+            CodeGen::Context &context;
+            ASTNS::FunctionDecl &ast;
+            IR::Function &fun;
+            Helpers::TypeVisitor type_visitor;
+            Maybe<NNPtr<IR::Type>> this_type;
+            IR::DeclSymbol &parent_symbol;
+            std::vector<Helpers::ParamVisitor::Param> params;
+
+            struct Local {
+                size_t scopenum;
+                NNPtr<IR::Instrs::Register> v;
+                std::string name;
+            };
+
+            struct Locals {
+                std::vector<Local> locals;
+                size_t cur_scope;
+
+                void add_local(std::string const &name, IR::Instrs::Register &val);
+                Maybe<Local> get_local(std::string const &name);
+
+                void inc_scope();
+                void dec_scope();
+            };
+
+            Helpers::ExprCodeGen expr_cg;
+            Helpers::StmtCodeGen stmt_cg;
+
+            Locals locals;
+
+            NNPtr<IR::Block> register_block;
+            NNPtr<IR::Block> entry_block;
+            NNPtr<IR::Block> exit_block;
+            NNPtr<IR::Block> cur_block;
+            NNPtr<IR::Instrs::Register> ret;
+
+            Helpers::PathVisitor path_visitor;
         };
         class Stage3 : public Stage3CG {};
     }
@@ -215,13 +284,13 @@ namespace CodeGen {
     // Impl {{{
     namespace Impl {
         class Stage0 : public Stage0CG {
-            std::unique_ptr<Stage1CG> type_fw_declare() const override;
+            Maybe<std::unique_ptr<Stage1CG>> type_fw_declare();
         };
         class Stage1 : public Stage1CG {
-            std::unique_ptr<Stage2CG> value_fw_declare() const override;
+            Maybe<std::unique_ptr<Stage2CG>> value_fw_declare();
         };
         class Stage2 : public Stage2CG {
-            std::unique_ptr<Stage3CG> block_codegen() const override;
+            Maybe<std::unique_ptr<Stage3CG>> block_codegen();
         };
         class Stage3 : public Stage3CG {};
     }
