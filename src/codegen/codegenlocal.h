@@ -36,10 +36,29 @@
 namespace CodeGen {
     // Helpers {{{
     namespace Helpers {
+        // Path {{{
+        class PathVisitor : public ASTNS::PathBVisitor {
+        public:
+            PathVisitor();
+
+            Maybe<IR::ASTValue> resolve_value(ASTNS::PathB &path);
+            Maybe<IR::DeclSymbol &> resolve_decl_symbol(ASTNS::PathB &path);
+
+        private:
+            enum class PathType { VALUE, DECLARED } pty;
+
+            Maybe<IR::ASTValue> vret;
+            Maybe<NNPtr<IR::DeclSymbol>> dret;
+
+            // PATH VISITOR START
+            void visit(ASTNS::Path &ast) override;
+            // PATH VISITOR END
+        };
+        // }}}
         // TypeVisitor {{{
         class TypeVisitor : public ASTNS::TypeVisitor {
         public:
-            TypeVisitor(Maybe<NNPtr<IR::Type>> this_type);
+            TypeVisitor(Context &context, Maybe<NNPtr<IR::Type>> this_type, Helpers::PathVisitor &path_visitor);
 
             Maybe<IR::Type &> type(ASTNS::Type &ast);
 
@@ -50,8 +69,11 @@ namespace CodeGen {
             void visit(ASTNS::ThisType &ast) override;
             // TYPEVISITOR METHODS END
 
+            Context &context;
             Maybe<NNPtr<IR::Type>> ret;
             Maybe<NNPtr<IR::Type>> this_type;
+
+            PathVisitor &path_visitor;
         };
         // }}}
         // Param {{{
@@ -93,25 +115,6 @@ namespace CodeGen {
             void visit(ASTNS::Arg &ast) override;
             // ARGSVISITOR METHODS END
 
-        };
-        // }}}
-        // Path {{{
-        class PathVisitor : public ASTNS::PathBVisitor {
-        public:
-            PathVisitor();
-
-            Maybe<IR::ASTValue> resolve_value(ASTNS::PathB &path);
-            Maybe<IR::DeclSymbol &> resolve_decl_symbol(ASTNS::PathB &path);
-
-        private:
-            enum class PathType { VALUE, DECLARED } pty;
-
-            Maybe<IR::ASTValue> vret;
-            Maybe<NNPtr<IR::DeclSymbol>> dret;
-
-            // PATH VISITOR START
-            void visit(ASTNS::Path &ast) override;
-            // PATH VISITOR END
         };
         // }}}
         // ForwDecl {{{
@@ -229,13 +232,14 @@ namespace CodeGen {
             IR::Unit &unit;
             CodeGen::Context &context;
             ASTNS::FunctionDecl &ast;
+            Helpers::PathVisitor path_visitor;
             Helpers::TypeVisitor type_visitor;
             Maybe<NNPtr<IR::Type>> this_type;
             IR::DeclSymbol &parent_symbol;
         };
         class Stage2 : public Stage2CG {
         public:
-            Stage2(IR::Unit &unit, CodeGen::Context &context, ASTNS::FunctionDecl &ast, IR::Function &fun, Helpers::TypeVisitor &type_visitor, Maybe<NNPtr<IR::Type>> this_type, IR::DeclSymbol &parent_symbol, std::vector<Helpers::ParamVisitor::Param> &params);
+            Stage2(IR::Unit &unit, CodeGen::Context &context, ASTNS::FunctionDecl &ast, IR::Function &fun, Helpers::PathVisitor &path_visitor, Helpers::TypeVisitor &type_visitor, Maybe<NNPtr<IR::Type>> this_type, IR::DeclSymbol &parent_symbol, std::vector<Helpers::ParamVisitor::Param> &params);
             Maybe<std::unique_ptr<Stage3CG>> block_codegen();
 
         private:
@@ -243,6 +247,7 @@ namespace CodeGen {
             CodeGen::Context &context;
             ASTNS::FunctionDecl &ast;
             IR::Function &fun;
+            Helpers::PathVisitor path_visitor;
             Helpers::TypeVisitor type_visitor;
             Maybe<NNPtr<IR::Type>> this_type;
             IR::DeclSymbol &parent_symbol;
@@ -275,8 +280,6 @@ namespace CodeGen {
             NNPtr<IR::Block> exit_block;
             NNPtr<IR::Block> cur_block;
             NNPtr<IR::Instrs::Register> ret;
-
-            Helpers::PathVisitor path_visitor;
         };
         class Stage3 : public Stage3CG {};
     }
@@ -294,12 +297,13 @@ namespace CodeGen {
         };
         class Stage1 : public Stage1CG, public ASTNS::ImplMemberVisitor {
         public:
-            Stage1(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast, Helpers::TypeVisitor type_visitor);
+            Stage1(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast, Helpers::PathVisitor path_visitor, Helpers::TypeVisitor type_visitor);
             Maybe<std::unique_ptr<Stage2CG>> value_fw_declare() override;
         private:
             IR::Unit &unit;
             CodeGen::Context &context;
             ASTNS::ImplDecl &ast;
+            Helpers::PathVisitor path_visitor;
             Helpers::TypeVisitor type_visitor;
             Maybe<IR::Type &> impl_for;
 
@@ -313,12 +317,13 @@ namespace CodeGen {
         };
         class Stage2 : public Stage2CG {
         public:
-            Stage2(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast, Helpers::TypeVisitor type_visitor, IR::Type &impl_for);
+            Stage2(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast, Helpers::PathVisitor path_visitor, Helpers::TypeVisitor type_visitor, IR::Type &impl_for);
             Maybe<std::unique_ptr<Stage3CG>> block_codegen() override;
         private:
             IR::Unit &unit;
             CodeGen::Context &context;
             ASTNS::ImplDecl &ast;
+            Helpers::PathVisitor path_visitor;
             Helpers::TypeVisitor type_visitor;
             NNPtr<IR::Type> impl_for;
             std::vector<std::unique_ptr<Stage2CG>> item_codegens;

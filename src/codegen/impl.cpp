@@ -4,27 +4,31 @@
 using CodeGen::Stage0CG, CodeGen::Stage1CG, CodeGen::Stage2CG, CodeGen::Stage3CG;
 using namespace CodeGen::Impl;
 
+// TODO: this will not work due to the lifetimes of previous stage's helper instances being deleted while being passed to the next stage's references
 Stage0::Stage0(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast):
     unit(unit),
     context(context),
     ast(ast) {}
-Stage1::Stage1(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast, Helpers::TypeVisitor type_visitor):
+Stage1::Stage1(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast, Helpers::PathVisitor path_visitor, Helpers::TypeVisitor type_visitor):
     unit(unit),
     context(context),
     ast(ast),
+    path_visitor(path_visitor),
     type_visitor(type_visitor),
     impl_for(type_visitor.type(*ast.impl_for)),
     errored(false) {}
-Stage2::Stage2(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast, Helpers::TypeVisitor type_visitor, IR::Type &impl_for):
+Stage2::Stage2(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast, Helpers::PathVisitor path_visitor, Helpers::TypeVisitor type_visitor, IR::Type &impl_for):
     unit(unit),
     context(context),
     ast(ast),
+    path_visitor(path_visitor),
     type_visitor(type_visitor),
     impl_for(impl_for) {}
 
 Maybe<std::unique_ptr<Stage1CG>> Stage0::type_fw_declare() {
-    Helpers::TypeVisitor type_visitor ((Maybe<NNPtr<IR::Type>>()));
-    return std::make_unique<Stage1>(unit, context, ast, type_visitor);
+    Helpers::PathVisitor path_visitor;
+    Helpers::TypeVisitor type_visitor (context, Maybe<NNPtr<IR::Type>>(), path_visitor);
+    return std::make_unique<Stage1>(unit, context, ast, path_visitor, type_visitor);
 }
 
 Maybe<std::unique_ptr<Stage2CG>> Stage1::value_fw_declare() {
@@ -39,7 +43,7 @@ Maybe<std::unique_ptr<Stage2CG>> Stage1::value_fw_declare() {
     if (errored)
         return Maybe<std::unique_ptr<Stage2CG>>();
     else
-        return std::make_unique<Stage2>(unit, context, ast, type_visitor, impl_for.get());
+        return std::make_unique<Stage2>(unit, context, ast, path_visitor, type_visitor, impl_for.get());
 }
 
 void Stage1::visit(ASTNS::FunctionImplMember &member) {

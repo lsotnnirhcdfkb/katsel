@@ -15,14 +15,16 @@ Stage1::Stage1(IR::Unit &unit, CodeGen::Context &context, ASTNS::FunctionDecl &a
     unit(unit),
     context(context),
     ast(ast),
-    type_visitor(this_type),
+    path_visitor(),
+    type_visitor(context, this_type, path_visitor),
     this_type(this_type),
     parent_symbol(parent_symbol) {}
-Stage2::Stage2(IR::Unit &unit, CodeGen::Context &context, ASTNS::FunctionDecl &ast, IR::Function &fun, Helpers::TypeVisitor &type_visitor, Maybe<NNPtr<IR::Type>> this_type, IR::DeclSymbol &parent_symbol, std::vector<Helpers::ParamVisitor::Param> &params):
+Stage2::Stage2(IR::Unit &unit, CodeGen::Context &context, ASTNS::FunctionDecl &ast, IR::Function &fun, Helpers::PathVisitor &path_visitor, Helpers::TypeVisitor &type_visitor, Maybe<NNPtr<IR::Type>> this_type, IR::DeclSymbol &parent_symbol, std::vector<Helpers::ParamVisitor::Param> &params):
     unit(unit),
     context(context),
     ast(ast),
     fun(fun),
+    path_visitor(path_visitor),
     type_visitor(type_visitor),
     this_type(this_type),
     parent_symbol(parent_symbol),
@@ -31,8 +33,7 @@ Stage2::Stage2(IR::Unit &unit, CodeGen::Context &context, ASTNS::FunctionDecl &a
     entry_block(fun.add_block("entry")),
     exit_block(fun.add_block("exit")),
     cur_block(entry_block),
-    ret(register_block->add<IR::Instrs::Register>(context.implicit_decl_ast.get(), fun.ty->ret, true)),
-    path_visitor() {}
+    ret(register_block->add<IR::Instrs::Register>(context.implicit_decl_ast.get(), fun.ty->ret, true)) {}
 
 Maybe<std::unique_ptr<Stage1CG>> Stage0::type_fw_declare() {
     return std::make_unique<Stage1>(unit, context, ast, this_type, parent_symbol);
@@ -71,7 +72,7 @@ Maybe<std::unique_ptr<Stage2CG>> Stage1::value_fw_declare() {
     if (param_visitor.is_method) {
         this_type.get()->add_method(fname, IR::Type::Method { f_ref, param_visitor.this_ptr, param_visitor.this_mut });
     }
-    return std::make_unique<Stage2>(unit, context, ast, f_ref, type_visitor, this_type, parent_symbol, params);
+    return std::make_unique<Stage2>(unit, context, ast, f_ref, path_visitor, type_visitor, this_type, parent_symbol, params);
 }
 
 Maybe<std::unique_ptr<Stage3CG>> Stage2::block_codegen() {
