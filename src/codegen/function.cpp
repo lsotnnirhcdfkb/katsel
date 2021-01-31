@@ -15,13 +15,12 @@ Stage1::Stage1(IR::Unit &unit, CodeGen::Context &context, ASTNS::FunctionDecl &a
     unit(unit),
     context(context),
     ast(ast),
-    path_visitor(),
+    path_visitor(Maybe<Helpers::Locals&>(), unit),
     type_visitor(context, this_type, path_visitor),
     this_type(this_type),
     parent_symbol(parent_symbol) {}
 Stage2::Stage2(IR::Unit &unit, CodeGen::Context &context, ASTNS::FunctionDecl &ast, IR::Function &fun, Helpers::PathVisitor &path_visitor, Helpers::TypeVisitor &type_visitor, Maybe<NNPtr<IR::Type>> this_type, IR::DeclSymbol &parent_symbol, std::vector<Helpers::ParamVisitor::Param> &params):
     unit(unit),
-    context(context),
     ast(ast),
     fun(fun),
     path_visitor(path_visitor),
@@ -29,12 +28,12 @@ Stage2::Stage2(IR::Unit &unit, CodeGen::Context &context, ASTNS::FunctionDecl &a
     this_type(this_type),
     parent_symbol(parent_symbol),
     params(params),
-    stmt_cg(context, fun, *exit_block, *ret, cur_block, expr_cg),
+    expr_cg(ir_builder, locals, stmt_cg, type_visitor, path_visitor),
+    stmt_cg(ir_builder, locals, expr_cg, type_visitor, path_visitor),
     register_block(fun.add_block("registers")),
     entry_block(fun.add_block("entry")),
-    exit_block(fun.add_block("exit")),
-    cur_block(entry_block),
-    ret(register_block->add<IR::Instrs::Register>(context.implicit_decl_ast.get(), fun.ty->ret, true)) {}
+    ret(register_block->add<IR::Instrs::Register>(context.implicit_decl_ast.get(), fun.ty->ret, true)),
+    ir_builder(fun, *register_block, fun.add_block("exit"), *ret, *entry_block, context) {}
 
 Maybe<std::unique_ptr<Stage1CG>> Stage0::type_fw_declare() {
     return std::make_unique<Stage1>(unit, context, ast, this_type, parent_symbol);
@@ -91,7 +90,7 @@ Maybe<std::unique_ptr<Stage3CG>> Stage2::block_codegen() {
         std::string pname = param.name;
         IR::Instrs::Register &reg = register_block->add<IR::Instrs::Register>(param.ast, param.ty, param.mut);
 
-        Maybe<Local> foundparam = locals.get_local(pname);
+        Maybe<Helpers::Local> foundparam = locals.get_local(pname);
         if (foundparam.has()) {
             ERR_REDECL_PARAM(*param.ast, *foundparam.get().v);
             errored = true;
@@ -104,18 +103,18 @@ Maybe<std::unique_ptr<Stage3CG>> Stage2::block_codegen() {
     locals.dec_scope();
 
     if (m_retval.has()) {
-        NNPtr<IR::Instrs::Instruction> deref_ret_reg = exit_block->add<IR::Instrs::DerefPtr>(IR::ASTValue(*ret, *ast.retty));
-        exit_block->branch(std::make_unique<IR::Instrs::Return>(IR::ASTValue(*deref_ret_reg, *ast.retty)));
+        NNPtr<IR::Instrs::Instruction> deref_ret_reg = ir_builder.exit_block().add<IR::Instrs::DerefPtr>(IR::ASTValue(*ret, *ast.retty));
+        ir_builder.exit_block().branch(std::make_unique<IR::Instrs::Return>(IR::ASTValue(*deref_ret_reg, *ast.retty)));
 
         IR::ASTValue retval = m_retval.get();
 
-        retval = fun.ty->ret->impl_cast(context, fun, cur_block, retval);
+        retval = fun.ty->ret->impl_cast(ir_builder.context(), ir_builder.fun(), ir_builder.cur_block(), retval);
         if (fun.ty->ret.as_raw() != &retval.type()) {
             ERR_CONFLICT_RET_TY(retval, fun);
             errored = true;
         } else {
-            cur_block->add<IR::Instrs::Store>(IR::ASTValue(*ret, *ast.retty), retval, false);
-            cur_block->branch(std::make_unique<IR::Instrs::GotoBr>(exit_block));
+            ir_builder.cur_block()->add<IR::Instrs::Store>(IR::ASTValue(*ret, *ast.retty), retval, false);
+            ir_builder.cur_block()->branch(std::make_unique<IR::Instrs::GotoBr>(ir_builder.exit_block()));
         }
     }
 

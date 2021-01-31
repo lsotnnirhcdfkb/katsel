@@ -5,10 +5,9 @@
 #include "ir/instruction.h"
 #include "ir/block.h"
 
-CodeGen::Helpers::PathVisitor::PathVisitor(Maybe<Locals&> locals, IR::Module &mod, IR::Builder &ir_builder):
+CodeGen::Helpers::PathVisitor::PathVisitor(Maybe<Locals&> locals, IR::Unit &unit):
     locals(locals),
-    mod(mod),
-    ir_builder(ir_builder) {}
+    unit(unit) {}
 
 Maybe<IR::DeclSymbol &> CodeGen::Helpers::PathVisitor::resolve_decl_symbol(ASTNS::PathB &ast)  {
     pty = PathType::DECLARED;
@@ -46,7 +45,7 @@ static Maybe<IR::DeclSymbol &> trace_path_decl_only(IR::DeclSymbol &start, std::
 
 void CodeGen::Helpers::PathVisitor::visit(ASTNS::Path &ast) {
     if (pty == PathType::DECLARED) {
-        dret = trace_path_decl_only(mod, ast.segments.cbegin(), ast.segments.cend()).fmap<NNPtr<IR::DeclSymbol >>([] (IR::DeclSymbol &i) { return Maybe<NNPtr<IR::DeclSymbol>>(NNPtr(i)); });
+        dret = trace_path_decl_only(unit.mod, ast.segments.cbegin(), ast.segments.cend()).fmap<NNPtr<IR::DeclSymbol >>([] (IR::DeclSymbol &i) { return Maybe<NNPtr<IR::DeclSymbol>>(NNPtr(i)); });
     } else {
         if (ast.segments.size() == 1 && locals.has()) {
             // look for local
@@ -54,10 +53,7 @@ void CodeGen::Helpers::PathVisitor::visit(ASTNS::Path &ast) {
             Maybe<Local> loc = locals.get().get_local(vname);
 
             if (loc.has()) {
-                IR::Instrs::Register &reg = *loc.get().v;
-                IR::Instrs::DerefPtr &deref = ir_builder.cur_block()->add<IR::Instrs::DerefPtr>(IR::ASTValue(reg, ast));
-
-                vret = IR::ASTValue(deref, ast);
+                vret = IR::ASTValue(*loc.get().v, ast);
                 return;
             }
         } 
@@ -65,7 +61,7 @@ void CodeGen::Helpers::PathVisitor::visit(ASTNS::Path &ast) {
         // look through decl symbol table until last segment
         // look through value symbol table for last segment
 
-        Maybe<IR::DeclSymbol &> m_last = trace_path_decl_only(mod, ast.segments.cbegin(), ast.segments.cend() - 1);
+        Maybe<IR::DeclSymbol &> m_last = trace_path_decl_only(unit.mod, ast.segments.cbegin(), ast.segments.cend() - 1);
         if (!m_last.has()) {
             vret = Maybe<IR::ASTValue>();
             return;
@@ -76,7 +72,7 @@ void CodeGen::Helpers::PathVisitor::visit(ASTNS::Path &ast) {
         Maybe<IR::Value&> ret = last->get_value(ast.segments.back().value.name);
 
         if (!ret.has()) {
-            if (last.as_raw() != &mod)
+            if (last.as_raw() != &unit.mod)
                 ERR_NO_MEMBER_IN(*last, ast.segments.back().span);
             else
                 ERR_UNDECL_SYMB(ast.segments.back().span);

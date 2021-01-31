@@ -26,7 +26,7 @@ Stage2::Stage2(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast, 
     impl_for(impl_for) {}
 
 Maybe<std::unique_ptr<Stage1CG>> Stage0::type_fw_declare() {
-    Helpers::PathVisitor path_visitor;
+    Helpers::PathVisitor path_visitor (Maybe<Helpers::Locals&>(), unit);
     Helpers::TypeVisitor type_visitor (context, Maybe<NNPtr<IR::Type>>(), path_visitor);
     return std::make_unique<Stage1>(unit, context, ast, path_visitor, type_visitor);
 }

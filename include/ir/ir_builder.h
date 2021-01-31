@@ -17,6 +17,8 @@ namespace IR {
         NNPtr<CodeGen::Context> _context;
 
     public:
+        inline Builder(IR::Function &fun, IR::Block &reg_block, IR::Block &exit_block, IR::Instrs::Register &ret_reg, IR::Block &cur_block, CodeGen::Context &context):
+            _fun(fun), _register_block(reg_block), _exit_block(exit_block), _ret_reg(ret_reg), _cur_block(cur_block), _context(context) {}
         CodeGen::Context &context() { return *_context; }
         inline IR::Function &fun() { return *_fun; }
         inline IR::Block &register_block() { return *_register_block; }

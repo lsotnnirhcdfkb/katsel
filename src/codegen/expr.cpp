@@ -422,6 +422,9 @@ void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::Block &ast) {
 
 void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::PathExpr &ast) {
     ret = path_visitor.resolve_value(*ast.path);
+    if (ret.has())
+        if (dynamic_cast<IR::Instrs::Register const *>(ret.get().val.as_raw()))
+            ret = IR::ASTValue(ir_builder.cur_block()->add<IR::Instrs::DerefPtr>(ret.get()), ast);
 }
 void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::FieldAccessExpr &ast) {
     Maybe<IR::ASTValue> m_op = expr(*ast.operand);

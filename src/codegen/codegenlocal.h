@@ -58,7 +58,7 @@ namespace CodeGen {
         // Path {{{
         class PathVisitor : public ASTNS::PathBVisitor {
         public:
-            PathVisitor(Maybe<Locals&> locals, IR::Module &mod, IR::Builder &ir_builder);
+            PathVisitor(Maybe<Locals&> locals, IR::Unit &unit);
 
             Maybe<IR::ASTValue> resolve_value(ASTNS::PathB &path);
             Maybe<IR::DeclSymbol &> resolve_decl_symbol(ASTNS::PathB &path);
@@ -69,9 +69,7 @@ namespace CodeGen {
             Maybe<IR::ASTValue> vret;
             Maybe<NNPtr<IR::DeclSymbol>> dret;
             Maybe<Locals&> locals;
-            IR::Module &mod;
-
-            IR::Builder &ir_builder;
+            IR::Unit &unit;
 
             // PATH VISITOR START
             void visit(ASTNS::Path &ast) override;
@@ -242,6 +240,7 @@ namespace CodeGen {
             IR::Unit &unit;
             CodeGen::Context &context;
             ASTNS::FunctionDecl &ast;
+
             Maybe<NNPtr<IR::Type>> this_type;
             IR::DeclSymbol &parent_symbol;
         };
@@ -254,6 +253,7 @@ namespace CodeGen {
             IR::Unit &unit;
             CodeGen::Context &context;
             ASTNS::FunctionDecl &ast;
+
             Helpers::PathVisitor path_visitor;
             Helpers::TypeVisitor type_visitor;
             Maybe<NNPtr<IR::Type>> this_type;
@@ -267,6 +267,8 @@ namespace CodeGen {
         private:
             IR::Unit &unit;
             ASTNS::FunctionDecl &ast;
+            IR::Function &fun;
+
             Helpers::PathVisitor path_visitor;
             Helpers::TypeVisitor type_visitor;
             Maybe<NNPtr<IR::Type>> this_type;
@@ -282,7 +284,7 @@ namespace CodeGen {
             NNPtr<IR::Block> entry_block;
             NNPtr<IR::Instrs::Register> ret;
 
-            IR::Builder builder;
+            IR::Builder ir_builder;
         };
         class Stage3 : public Stage3CG {};
     }
