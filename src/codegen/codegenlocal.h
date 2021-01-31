@@ -211,17 +211,17 @@ namespace CodeGen {
     class Stage0CG {
     public:
         virtual ~Stage0CG() = default;
-        virtual Maybe<std::unique_ptr<Stage1CG>> type_fw_declare();
+        virtual Maybe<std::unique_ptr<Stage1CG>> type_fw_declare() = 0;
     };
     class Stage1CG {
     public:
         virtual ~Stage1CG() = default;
-        virtual Maybe<std::unique_ptr<Stage2CG>> value_fw_declare();
+        virtual Maybe<std::unique_ptr<Stage2CG>> value_fw_declare() = 0;
     };
     class Stage2CG {
     public:
         virtual ~Stage2CG() = default;
-        virtual Maybe<std::unique_ptr<Stage3CG>> block_codegen();
+        virtual Maybe<std::unique_ptr<Stage3CG>> block_codegen() = 0;
     };
     class Stage3CG {
     public:
