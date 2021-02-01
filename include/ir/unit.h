@@ -4,15 +4,12 @@
 #include <memory>
 
 #include "ir/module.h"
-#include "ir/function.h"
-#include "ir/block.h"
 
 namespace llvm { class raw_ostream; }
 struct File;
 
 namespace IR {
     class Function;
-    class FunctionType;
 
     class Unit {
     public:
