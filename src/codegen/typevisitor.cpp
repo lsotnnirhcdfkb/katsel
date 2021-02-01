@@ -21,7 +21,7 @@ Maybe<IR::Type &> CodeGen::Helpers::TypeVisitor::type(ASTNS::Type &ast) {
 }
 
 void CodeGen::Helpers::TypeVisitor::visit(ASTNS::PathType &ast) {
-    Maybe<IR::DeclSymbol &> m_decl = path_visitor.resolve_decl_symbol(*ast.path);
+    Maybe<IR::DeclSymbol &> m_decl = path_visitor->resolve_decl_symbol(*ast.path);
 
     if (!m_decl.has()) {
         ret = Maybe<NNPtr<IR::Type>>();
@@ -42,7 +42,7 @@ void CodeGen::Helpers::TypeVisitor::visit(ASTNS::PathType &ast) {
 void CodeGen::Helpers::TypeVisitor::visit(ASTNS::PointerType &ast) {
     Maybe<IR::Type &> ty = type(*ast.type);
     ty.match([this, &ast] (NNPtr<IR::Type const> const &ty) {
-            ret = Maybe<NNPtr<IR::Type>>(static_cast<NNPtr<IR::Type>>(context.get_pointer_type(ast.mut, *ty)));
+            ret = Maybe<NNPtr<IR::Type>>(static_cast<NNPtr<IR::Type>>(context->get_pointer_type(ast.mut, *ty)));
         },
         [this]  {
             ret = Maybe<NNPtr<IR::Type>>();

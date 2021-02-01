@@ -6,7 +6,7 @@
 #include "ir/block.h"
 
 CodeGen::Helpers::PathVisitor::PathVisitor(Maybe<Locals&> locals, IR::Unit &unit):
-    locals(locals),
+    locals(locals.fmap<NNPtr<Locals>>([] (Locals& l) { return NNPtr<Locals>(l); })),
     unit(unit) {}
 
 Maybe<IR::DeclSymbol &> CodeGen::Helpers::PathVisitor::resolve_decl_symbol(ASTNS::PathB &ast)  {
@@ -50,7 +50,7 @@ void CodeGen::Helpers::PathVisitor::visit(ASTNS::Path &ast) {
         if (ast.segments.size() == 1 && locals.has()) {
             // look for local
             std::string vname = ast.segments.back().value.name;
-            Maybe<Local> loc = locals.get().get_local(vname);
+            Maybe<Local> loc = locals.get()->get_local(vname);
 
             if (loc.has()) {
                 vret = IR::ASTValue(*loc.get().v, ast);

@@ -1,62 +1,54 @@
 #include "codegenlocal.h"
 #include "ast/ast.h"
 
-using CodeGen::Stage0CG, CodeGen::Stage1CG, CodeGen::Stage2CG, CodeGen::Stage3CG;
-using namespace CodeGen::Impl;
+using CodeGen::Impl;
 
-// TODO: this will not work due to the lifetimes of previous stage's helper instances being deleted while being passed to the next stage's references
-Stage0::Stage0(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast):
-    unit(unit),
-    context(context),
-    ast(ast) {}
-Stage1::Stage1(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast, Helpers::PathVisitor path_visitor, Helpers::TypeVisitor type_visitor):
+Impl::Impl(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast):
     unit(unit),
     context(context),
     ast(ast),
-    path_visitor(path_visitor),
-    type_visitor(type_visitor),
-    impl_for(type_visitor.type(*ast.impl_for)),
-    errored(false) {}
-Stage2::Stage2(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast, Helpers::PathVisitor path_visitor, Helpers::TypeVisitor type_visitor, IR::Type &impl_for):
-    unit(unit),
-    context(context),
-    ast(ast),
-    path_visitor(path_visitor),
-    type_visitor(type_visitor),
-    impl_for(impl_for) {}
+    visit_errored(false) {}
 
-Maybe<std::unique_ptr<Stage1CG>> Stage0::type_fw_declare() {
-    Helpers::PathVisitor path_visitor (Maybe<Helpers::Locals&>(), unit);
-    Helpers::TypeVisitor type_visitor (context, Maybe<NNPtr<IR::Type>>(), path_visitor);
-    return std::make_unique<Stage1>(unit, context, ast, path_visitor, type_visitor);
+bool Impl::type_declare() {
+    return true;
 }
 
-Maybe<std::unique_ptr<Stage2CG>> Stage1::value_fw_declare() {
+void Impl::visit(ASTNS::FunctionImplMember &member) {
+    ASSERT(m_s1_data.has());
+    auto &s1_data = m_s1_data.get();
+
+    auto fun_cg = std::make_unique<CodeGen::Function>(unit, context, *member.fun, *s1_data.impl_for, *s1_data.impl_for);
+    if (fun_cg->type_declare() && fun_cg->value_declare())
+        member_codegens.push_back(std::move(fun_cg)); // TODO: when type alias member items are added, this vector should go in stage 0
+    else
+        visit_errored = true;
+}
+
+bool Impl::value_declare() {
+    auto path_visitor = std::make_unique<Helpers::PathVisitor>(Maybe<Helpers::Locals&>(), unit);
+    auto type_visitor = std::make_unique<Helpers::TypeVisitor>(context, Maybe<NNPtr<IR::Type>>(), *path_visitor);
+
+    auto impl_for = type_visitor->type(*ast.impl_for);
     if (!impl_for.has()) {
-        return Maybe<std::unique_ptr<Stage2CG>>();
+        return false;
     }
 
-    for (std::unique_ptr<ASTNS::ImplMember> &member : ast.members) {
+    m_s1_data = S1Data {
+        std::move(path_visitor),
+        std::move(type_visitor),
+        impl_for.get(),
+    };
+
+    for (std::unique_ptr<ASTNS::ImplMember> &member : ast.members)
         member->accept(*this);
-    }
 
-    if (errored)
-        return Maybe<std::unique_ptr<Stage2CG>>();
-    else
-        return std::make_unique<Stage2>(unit, context, ast, path_visitor, type_visitor, impl_for.get());
+    return !visit_errored;
 }
 
-void Stage1::visit(ASTNS::FunctionImplMember &member) {
-    auto m_s2 = CodeGen::Function::Stage0(unit, context, *member.fun, impl_for.get(), impl_for.get()).type_fw_declare();
-    if (m_s2.has())
-        item_codegens.push_back(std::move(m_s2.get())); // TODO: when type alias member items are added, this vector should go in stage 0
-    else
-        errored = true;
-}
+bool Impl::value_define() {
+    bool success = true;
+    for (std::unique_ptr<CodeGen::CG> &s2cg : member_codegens)
+        if (!s2cg->value_define()) success = false;
 
-Maybe<std::unique_ptr<Stage3CG>> Stage2::block_codegen() {
-    for (std::unique_ptr<Stage2CG> &s2cg : item_codegens)
-        s2cg->block_codegen();
-
-    return std::make_unique<Stage3>();
+    return success;
 }

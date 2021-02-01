@@ -15,7 +15,7 @@ CodeGen::Helpers::ParamVisitor::ParamVisitor::ParamVisitor(CodeGen::Context &con
 }
 
 void CodeGen::Helpers::ParamVisitor::visit(ASTNS::Param &ast) {
-    Maybe<IR::Type&> ty (type_visitor.type(*ast.type));
+    Maybe<IR::Type&> ty (type_visitor->type(*ast.type));
     if (ty.has()) {
         std::string name (ast.name.value.name);
         Param p {ty.get(), std::move(name), ast, ast.mut};
@@ -27,7 +27,7 @@ void CodeGen::Helpers::ParamVisitor::visit(ASTNS::Param &ast) {
 }
 
 void CodeGen::Helpers::ParamVisitor::visit(ASTNS::ThisParam &ast) {
-    if (!type_visitor.this_type.has()) {
+    if (!type_visitor->this_type.has()) {
         errored = true;
         ERR_TYPELESS_THIS(ast);
         return;
@@ -39,13 +39,13 @@ void CodeGen::Helpers::ParamVisitor::visit(ASTNS::ThisParam &ast) {
         return;
     }
 
-    NNPtr<IR::Type> this_type = type_visitor.this_type.get();
+    NNPtr<IR::Type> this_type = type_visitor->this_type.get();
 
     is_method = true;
     this_ptr = ast.ptr;
     this_mut = ast.mut;
 
-    NNPtr<IR::Type> ty = ast.ptr ? context.get_pointer_type(ast.mut, *this_type) : this_type;
+    NNPtr<IR::Type> ty = ast.ptr ? context->get_pointer_type(ast.mut, *this_type) : this_type;
 
     Param p {ty, "this", ast, false};
     ret.push_back(p);
@@ -58,7 +58,7 @@ CodeGen::Helpers::ArgVisitor::ArgVisitor::ArgVisitor(ExprCodeGen &expr_cg, std::
 }
 
 void CodeGen::Helpers::ArgVisitor::visit(ASTNS::Arg &ast) {
-    Maybe<IR::ASTValue> a = expr_cg.expr(*ast.expr);
+    Maybe<IR::ASTValue> a = expr_cg->expr(*ast.expr);
     if (a.has())
         ret.push_back(a.get());
 }

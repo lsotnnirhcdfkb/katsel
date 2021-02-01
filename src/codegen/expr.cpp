@@ -8,10 +8,10 @@
 #include "ir/function.h"
 #include "ir/block.h"
 
-CodeGen::Helpers::ExprCodeGen::ExprCodeGen(IR::Builder &ir_builder, Helpers::Locals &locals, StmtCodeGen &stmt_cg, TypeVisitor &type_visitor, PathVisitor &path_visitor):
+CodeGen::Helpers::ExprCodeGen::ExprCodeGen(IR::Builder &ir_builder, Helpers::Locals &locals, TypeVisitor &type_visitor, PathVisitor &path_visitor):
     ir_builder(ir_builder),
     locals(locals),
-    stmt_cg(stmt_cg),
+    stmt_cg(ir_builder, locals, *this, type_visitor, path_visitor),
     type_visitor(type_visitor),
     path_visitor(path_visitor) {}
 
@@ -30,7 +30,7 @@ void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::BinaryExpr &ast) {
     }
 
     IR::ASTValue lhs = m_lhs.get(), rhs = m_rhs.get();
-    ret = lhs.type().bin_op(ir_builder.context(), ir_builder.fun(), ir_builder.cur_block(), ast.op, lhs, rhs, ast);
+    ret = lhs.type().bin_op(ir_builder->context(), ir_builder->fun(), ir_builder->cur_block(), ast.op, lhs, rhs, ast);
 }
 void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::ShortCircuitExpr &ast) {
     Maybe<IR::ASTValue> m_lhs = expr(*ast.lhs);
@@ -47,26 +47,26 @@ void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::ShortCircuitExpr &ast) {
         return;
     }
 
-    NNPtr<IR::Block> skip = ir_builder.fun().add_block("shortcircuit_skip");
-    NNPtr<IR::Block> checkboth = ir_builder.fun().add_block("shortcircuit_checkboth");
-    NNPtr<IR::Block> after = ir_builder.fun().add_block("shortcircuit_after");
+    NNPtr<IR::Block> skip = ir_builder->fun().add_block("shortcircuit_skip");
+    NNPtr<IR::Block> checkboth = ir_builder->fun().add_block("shortcircuit_checkboth");
+    NNPtr<IR::Block> after = ir_builder->fun().add_block("shortcircuit_after");
 
     bool value_if_skipped;
 
     switch (ast.op.value) {
         case ASTNS::ShortCircuitOperator::DOUBLEPIPE:
             // jump to skip when true
-            ir_builder.cur_block()->branch(std::make_unique<IR::Instrs::CondBr>(lhs, skip, checkboth));
+            ir_builder->cur_block()->branch(std::make_unique<IR::Instrs::CondBr>(lhs, skip, checkboth));
             value_if_skipped = true;
             break;
         case ASTNS::ShortCircuitOperator::DOUBLEAMPER:
             // jump to skip when false
-            ir_builder.cur_block()->branch(std::make_unique<IR::Instrs::CondBr>(lhs, checkboth, skip));
+            ir_builder->cur_block()->branch(std::make_unique<IR::Instrs::CondBr>(lhs, checkboth, skip));
             value_if_skipped = false;
             break;
     }
 
-    ir_builder.cur_block() = checkboth;
+    ir_builder->cur_block() = checkboth;
 
     Maybe<IR::ASTValue> m_rhs = expr(*ast.rhs);
     if (!m_rhs.has()) {
@@ -81,13 +81,13 @@ void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::ShortCircuitExpr &ast) {
         ret = Maybe<IR::ASTValue>();
         return;
     }
-    ir_builder.cur_block()->branch(std::make_unique<IR::Instrs::GotoBr>(after));
+    ir_builder->cur_block()->branch(std::make_unique<IR::Instrs::GotoBr>(after));
 
-    ir_builder.cur_block() = skip;
-    ir_builder.cur_block()->branch(std::make_unique<IR::Instrs::GotoBr>(after));
+    ir_builder->cur_block() = skip;
+    ir_builder->cur_block()->branch(std::make_unique<IR::Instrs::GotoBr>(after));
 
-    ir_builder.cur_block() = after;
-    ret = IR::ASTValue(ir_builder.cur_block()->add<IR::Instrs::Phi>(std::vector<std::pair<NNPtr<IR::Block const>, IR::ASTValue>>{std::make_pair(checkboth, rhs), std::make_pair(skip, IR::ASTValue(ir_builder.context().get_const_bool(value_if_skipped), ast))}), ast);
+    ir_builder->cur_block() = after;
+    ret = IR::ASTValue(ir_builder->cur_block()->add<IR::Instrs::Phi>(std::vector<std::pair<NNPtr<IR::Block const>, IR::ASTValue>>{std::make_pair(checkboth, rhs), std::make_pair(skip, IR::ASTValue(ir_builder->context().get_const_bool(value_if_skipped), ast))}), ast);
 }
 
 void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::UnaryExpr &ast) {
@@ -99,7 +99,7 @@ void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::UnaryExpr &ast) {
 
     IR::ASTValue oper = m_oper.get();
 
-    ret = oper.type().unary_op(ir_builder.context(), ir_builder.fun(), ir_builder.cur_block(), ast.op, oper, ast);
+    ret = oper.type().unary_op(ir_builder->context(), ir_builder->fun(), ir_builder->cur_block(), ast.op, oper, ast);
 }
 
 void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::DerefExpr &ast) {
@@ -118,7 +118,7 @@ void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::DerefExpr &ast) {
         return;
     }
 
-    ret = IR::ASTValue(ir_builder.cur_block()->add<IR::Instrs::DerefPtr>(oper), ast);
+    ret = IR::ASTValue(ir_builder->cur_block()->add<IR::Instrs::DerefPtr>(oper), ast);
 }
 void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::AddrofExpr &ast) {
     Maybe<IR::ASTValue> m_oper = expr(*ast.expr);
@@ -142,7 +142,7 @@ void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::AddrofExpr &ast) {
         return;
     }
 
-    ret = IR::ASTValue(ir_builder.cur_block()->add<IR::Instrs::Addrof>(as_deref, ast.mut), ast);
+    ret = IR::ASTValue(ir_builder->cur_block()->add<IR::Instrs::Addrof>(as_deref, ast.mut), ast);
 }
 
 void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::CallExpr &ast) {
@@ -174,7 +174,7 @@ void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::CallExpr &ast) {
     auto i = args.begin();
     auto j = fty->paramtys.begin();
     for (; i != args.end() && j != fty->paramtys.end(); ++i, ++j) {
-        *i = (*j)->impl_cast(ir_builder.context(), ir_builder.fun(), ir_builder.cur_block(), *i);
+        *i = (*j)->impl_cast(ir_builder->context(), ir_builder->fun(), ir_builder->cur_block(), *i);
         if (&i->type() != &**j) {
             ERR_INCORRECT_ARG(*i, **j);
             ret = Maybe<IR::ASTValue>();
@@ -187,29 +187,29 @@ void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::CallExpr &ast) {
         return;
     }
 
-    ret = IR::ASTValue(ir_builder.cur_block()->add<IR::Instrs::Call>(NNPtr<IR::Function const>(static_cast<IR::Function const *>(fun.val.as_raw())), args), ast);
+    ret = IR::ASTValue(ir_builder->cur_block()->add<IR::Instrs::Call>(NNPtr<IR::Function const>(static_cast<IR::Function const *>(fun.val.as_raw())), args), ast);
 }
 
 void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::BoolLit &ast) {
-    ret = IR::ASTValue(ir_builder.context().get_const_bool(ast.val.value.val), ast);
+    ret = IR::ASTValue(ir_builder->context().get_const_bool(ast.val.value.val), ast);
 }
 void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::FloatLit &ast) {
-    ret = IR::ASTValue(ir_builder.context().get_const_float(ir_builder.context().get_generic_float_type(), ast.val.value.val), ast);
+    ret = IR::ASTValue(ir_builder->context().get_const_float(ir_builder->context().get_generic_float_type(), ast.val.value.val), ast);
 }
 void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::IntLit &ast) {
-    ret = IR::ASTValue(ir_builder.context().get_const_int(ir_builder.context().get_generic_int_type(), ast.val.value.val), ast);
+    ret = IR::ASTValue(ir_builder->context().get_const_int(ir_builder->context().get_generic_int_type(), ast.val.value.val), ast);
 }
 void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::CharLit &ast) {
-    ret = IR::ASTValue(ir_builder.context().get_const_char(ast.val.value.val), ast);
+    ret = IR::ASTValue(ir_builder->context().get_const_char(ast.val.value.val), ast);
 }
 void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::StringLit &ast) {
     report_abort_noh("string literals are not supported yet");
 }
 void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::ThisExpr &ast) {
-    Maybe<Local> m_loc = locals.get_local("this");
+    Maybe<Local> m_loc = locals->get_local("this");
     if (m_loc.has()) {
         NNPtr<Local> local = m_loc.get();
-        ret = IR::ASTValue(ir_builder.cur_block()->add<IR::Instrs::DerefPtr>(IR::ASTValue(*local->v, ast)), ast);
+        ret = IR::ASTValue(ir_builder->cur_block()->add<IR::Instrs::DerefPtr>(IR::ASTValue(*local->v, ast)), ast);
     } else {
         ERR_NO_THIS(ast.tok.span);
         ret = Maybe<IR::ASTValue>();
@@ -229,16 +229,16 @@ void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::IfExpr &ast) {
         return;
     }
 
-    NNPtr<IR::Block> trueb  = ir_builder.fun().add_block("if_true");
-    Maybe<NNPtr<IR::Block>> falseb = ast.falses ? Maybe<NNPtr<IR::Block>>(ir_builder.fun().add_block("if_false")) : Maybe<NNPtr<IR::Block>>();
-    NNPtr<IR::Block> afterb = ir_builder.fun().add_block("if_after");
+    NNPtr<IR::Block> trueb  = ir_builder->fun().add_block("if_true");
+    Maybe<NNPtr<IR::Block>> falseb = ast.falses ? Maybe<NNPtr<IR::Block>>(ir_builder->fun().add_block("if_false")) : Maybe<NNPtr<IR::Block>>();
+    NNPtr<IR::Block> afterb = ir_builder->fun().add_block("if_after");
 
     if (falseb.has())
-        ir_builder.cur_block()->branch(std::make_unique<IR::Instrs::CondBr>(cond, trueb, falseb.get()));
+        ir_builder->cur_block()->branch(std::make_unique<IR::Instrs::CondBr>(cond, trueb, falseb.get()));
     else
-        ir_builder.cur_block()->branch(std::make_unique<IR::Instrs::CondBr>(cond, trueb, afterb));
+        ir_builder->cur_block()->branch(std::make_unique<IR::Instrs::CondBr>(cond, trueb, afterb));
 
-    ir_builder.cur_block() = trueb;
+    ir_builder->cur_block() = trueb;
     Maybe<IR::ASTValue> m_truev = expr(*ast.trues);
     if (!m_truev.has()) {
         ret = Maybe<IR::ASTValue>();
@@ -247,12 +247,12 @@ void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::IfExpr &ast) {
 
     IR::ASTValue truev = m_truev.get();
 
-    ir_builder.cur_block()->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
-    trueb = ir_builder.cur_block();
+    ir_builder->cur_block()->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
+    trueb = ir_builder->cur_block();
 
     Maybe<IR::ASTValue> falsev;
     if (falseb.has()) {
-        ir_builder.cur_block() = falseb.get();
+        ir_builder->cur_block() = falseb.get();
 
         Maybe<IR::ASTValue> m_falsev = expr(*ast.falses);
         if (!m_falsev.has()) {
@@ -262,12 +262,12 @@ void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::IfExpr &ast) {
 
         falsev = m_falsev;
 
-        ir_builder.cur_block()->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
-        falseb = ir_builder.cur_block();
+        ir_builder->cur_block()->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
+        falseb = ir_builder->cur_block();
 
         // try both implicit casts -- they are mostly asymmetrical so it should be fine
-        truev = falsev.get().type().impl_cast(ir_builder.context(), ir_builder.fun(), ir_builder.cur_block(), truev);
-        falsev = truev.type().impl_cast(ir_builder.context(), ir_builder.fun(), ir_builder.cur_block(), falsev.get());
+        truev = falsev.get().type().impl_cast(ir_builder->context(), ir_builder->fun(), ir_builder->cur_block(), truev);
+        falsev = truev.type().impl_cast(ir_builder->context(), ir_builder->fun(), ir_builder->cur_block(), falsev.get());
 
         if (&truev.type() != &falsev.get().type()) {
             ERR_CONFL_TYS_IFEXPR(truev, falsev.get(), ast.iftok.span, ast.elsetok.get().span);
@@ -282,7 +282,7 @@ void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::IfExpr &ast) {
         }
     }
 
-    ir_builder.cur_block() = afterb;
+    ir_builder->cur_block() = afterb;
 
     if (falseb.has()) {
         ret = IR::ASTValue(afterb->add<IR::Instrs::Phi>(std::vector<std::pair<NNPtr<IR::Block const>, IR::ASTValue>>({ std::make_pair(trueb, truev), std::make_pair(falseb.get(), falsev.get()) })), ast);
@@ -291,14 +291,14 @@ void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::IfExpr &ast) {
 
 }
 void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::WhileExpr &ast) {
-    locals.inc_scope();
+    locals->inc_scope();
 
-    IR::Block &loop_check_cond = ir_builder.fun().add_block("loop_checkcond");
-    IR::Block &loop_body = ir_builder.fun().add_block("loop_body");
-    IR::Block &loop_after = ir_builder.fun().add_block("loop_after");
+    IR::Block &loop_check_cond = ir_builder->fun().add_block("loop_checkcond");
+    IR::Block &loop_body = ir_builder->fun().add_block("loop_body");
+    IR::Block &loop_after = ir_builder->fun().add_block("loop_after");
 
-    ir_builder.cur_block()->branch(std::make_unique<IR::Instrs::GotoBr>(loop_check_cond));
-    ir_builder.cur_block() = loop_check_cond;
+    ir_builder->cur_block()->branch(std::make_unique<IR::Instrs::GotoBr>(loop_check_cond));
+    ir_builder->cur_block() = loop_check_cond;
 
     Maybe<IR::ASTValue> m_cond = expr(*ast.cond);
     if (!m_cond.has()) {
@@ -313,18 +313,18 @@ void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::WhileExpr &ast) {
         ret = Maybe<IR::ASTValue>();
         return;
     }
-    ir_builder.cur_block()->branch(std::make_unique<IR::Instrs::CondBr>(cond, loop_body, loop_after));
+    ir_builder->cur_block()->branch(std::make_unique<IR::Instrs::CondBr>(cond, loop_body, loop_after));
 
-    ir_builder.cur_block() = loop_body;
+    ir_builder->cur_block() = loop_body;
     expr(*ast.body);
 
-    ir_builder.cur_block()->branch(std::make_unique<IR::Instrs::GotoBr>(loop_check_cond));
+    ir_builder->cur_block()->branch(std::make_unique<IR::Instrs::GotoBr>(loop_check_cond));
 
-    locals.dec_scope();
+    locals->dec_scope();
 
-    ir_builder.cur_block() = loop_after;
+    ir_builder->cur_block() = loop_after;
 
-    ret = IR::ASTValue(ir_builder.context().get_void(), ast);
+    ret = IR::ASTValue(ir_builder->context().get_void(), ast);
 }
 
 void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::AssignmentExpr &ast) {
@@ -354,14 +354,14 @@ void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::AssignmentExpr &ast) {
     }
 
     NNPtr<IR::Type const> expect_type = target_deref->type();
-    rhs = expect_type->impl_cast(ir_builder.context(), ir_builder.fun(), ir_builder.cur_block(), rhs);
+    rhs = expect_type->impl_cast(ir_builder->context(), ir_builder->fun(), ir_builder->cur_block(), rhs);
     if (expect_type.as_raw() != &rhs.type()) {
         ERR_ASSIGN_CONFLICT_TYS(lhs, rhs, ast.equal.span);
         ret = Maybe<IR::ASTValue>();
         return;
     }
 
-    ir_builder.cur_block()->add<IR::Instrs::Store>(target_deref->ptr, rhs, false);
+    ir_builder->cur_block()->add<IR::Instrs::Store>(target_deref->ptr, rhs, false);
 
     ret = rhs;
 }
@@ -374,18 +374,18 @@ void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::CastExpr &ast) {
 
     IR::ASTValue oper = m_oper.get();
 
-    Maybe<IR::Type&> m_cast_to_ty = type_visitor.type(*ast.type);
+    Maybe<IR::Type&> m_cast_to_ty = type_visitor->type(*ast.type);
     if (!m_cast_to_ty.has()) {
         return;
     }
 
     NNPtr<IR::Type> cast_to_ty = m_cast_to_ty.get();
 
-    ret = cast_to_ty->cast_from(ir_builder.context(), ir_builder.fun(), ir_builder.cur_block(), oper, ast);
+    ret = cast_to_ty->cast_from(ir_builder->context(), ir_builder->fun(), ir_builder->cur_block(), oper, ast);
 }
 
 void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::Block &ast) {
-    locals.inc_scope();
+    locals->inc_scope();
 
     Maybe<IR::ASTValue> block_ret;
 
@@ -415,16 +415,16 @@ void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::Block &ast) {
 
     ASTNS::AST &void_ast = ast.stmts.size() ? *static_cast<ASTNS::AST*>(ast.stmts[ast.stmts.size() - 1].get()) : *static_cast<ASTNS::AST*>(&ast);
 
-    ret = block_ret.has() ? block_ret.get() : IR::ASTValue(ir_builder.context().get_void(), void_ast);
+    ret = block_ret.has() ? block_ret.get() : IR::ASTValue(ir_builder->context().get_void(), void_ast);
 
-    locals.dec_scope();
+    locals->dec_scope();
 }
 
 void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::PathExpr &ast) {
-    ret = path_visitor.resolve_value(*ast.path);
+    ret = path_visitor->resolve_value(*ast.path);
     if (ret.has())
         if (dynamic_cast<IR::Instrs::Register const *>(ret.get().val.as_raw()))
-            ret = IR::ASTValue(ir_builder.cur_block()->add<IR::Instrs::DerefPtr>(ret.get()), ast);
+            ret = IR::ASTValue(ir_builder->cur_block()->add<IR::Instrs::DerefPtr>(ret.get()), ast);
 }
 void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::FieldAccessExpr &ast) {
     Maybe<IR::ASTValue> m_op = expr(*ast.operand);
@@ -475,7 +475,7 @@ void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::MethodCallExpr &ast) {
             return;
         }
 
-        m_this_arg = Maybe<IR::ASTValue>(IR::ASTValue(ir_builder.cur_block()->add<IR::Instrs::Addrof>(op_as_deref, method.this_mut), *op.ast));
+        m_this_arg = Maybe<IR::ASTValue>(IR::ASTValue(ir_builder->cur_block()->add<IR::Instrs::Addrof>(op_as_deref, method.this_mut), *op.ast));
     } else
         m_this_arg = op;
 
@@ -498,7 +498,7 @@ void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::MethodCallExpr &ast) {
     auto i = args.begin();
     auto j = paramtys.begin();
     for (; i != args.end() && j != paramtys.end(); ++i, ++j) {
-        *i = (*j)->impl_cast(ir_builder.context(), ir_builder.fun(), ir_builder.cur_block(), *i);
+        *i = (*j)->impl_cast(ir_builder->context(), ir_builder->fun(), ir_builder->cur_block(), *i);
         if (&i->type() != j->as_raw()) {
             ERR_INCORRECT_ARG(*i, **j);
             ret = Maybe<IR::ASTValue>();
@@ -511,5 +511,5 @@ void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::MethodCallExpr &ast) {
         return;
     }
 
-    ret = IR::ASTValue(ir_builder.cur_block()->add<IR::Instrs::Call>(method.fun, args), ast);
+    ret = IR::ASTValue(ir_builder->cur_block()->add<IR::Instrs::Call>(method.fun, args), ast);
 }
