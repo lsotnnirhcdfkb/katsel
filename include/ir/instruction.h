@@ -51,9 +51,7 @@ namespace IR {
             void accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             ASTNS::AST& def_ast() const override;
-        private:
             NNPtr<ASTNS::AST> _def_ast;
-        public:
             NNPtr<Type const> ty;
             bool mut;
         };

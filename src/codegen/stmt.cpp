@@ -5,12 +5,12 @@
 #include "ir/block.h"
 
 Codegen::Helpers::StmtCodegen::StmtCodegen(IR::Builder &ir_builder, Locals &locals, ExprCodegen &expr_cg, TypeVisitor &type_visitor, PathVisitor &path_visitor):
+    success(true),
     ir_builder(ir_builder),
     locals(locals),
     expr_cg(expr_cg),
     type_visitor(type_visitor),
-    path_visitor(path_visitor),
-    success(true) {}
+    path_visitor(path_visitor) {}
 
 void Codegen::Helpers::StmtCodegen::stmt(ASTNS::Stmt &ast) {
     ast.accept(*this);

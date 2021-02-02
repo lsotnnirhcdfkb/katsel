@@ -4,9 +4,13 @@ class Instruction:
     def __init__(self, name, type_, fields, assertions=None, declared=False):
         self.name = name
         self.type = type_
-        self.fields = list(map(Field, fields))
+        self.fields = helpers.Field.process(fields)
         self.assertions = assertions if assertions is not None else []
         self.declared = declared
+
+        if self.declared:
+            self.fields.insert(0, helpers.Field('NNPtr<ASTNS::AST>', '_def_ast'))
+
     def base(self):
         return 'Instruction'
 class Br(Instruction):
@@ -14,19 +18,6 @@ class Br(Instruction):
         super().__init__(name, False, fields, assertions)
     def base(self):
         return 'Br'
-
-class Field:
-    def __init__(self, fromstr):
-        if len(splitted := fromstr.split('|')) == 2:
-            self.type_, self.name = splitted
-        else:
-            raise Exception('incorrect number of fields to get make field')
-
-    def format(self):
-        if self.type_.endswith('*'):
-            return f'{self.type_[:-1].rstrip()} *{self.name}'
-        else:
-            return f'{self.type_} {self.name}'
 # assertion shorthands {{{1
 def type_must_be(var_type, must_be):
     return f'dynamic_cast<{must_be} *>(&{var_type})'
@@ -38,344 +29,289 @@ def type_is_floating(v):
     return f'{type_must_be(v, "FloatType const")} || {type_must_be(v, "GenericFloatType const")}'
 # instructions {{{1
 instructions = [
-    Instruction('Store', 'target.type().context.get_void_type()', [
-        'ASTValue|target',
-        'ASTValue|value',
-        'bool|init',
-    ], [
+    Instruction('Store', 'target.type().context.get_void_type()',
+        'ASTValue|target ! ASTValue|value ! bool|init',
+    [
         type_must_be('target.type()', 'PointerType const'),
         'static_cast<PointerType const *>(&target.type())->ty.as_raw() == &value.type()',
         'init || static_cast<PointerType const *>(&target.type())->mut',
     ]),
-    Instruction('Phi', 'prevs[0].second.type()', [
+    Instruction('Phi', 'prevs[0].second.type()',
         'std::vector<std::pair<NNPtr<Block const>, ASTValue>>|prevs',
-    ], [
+    [
         'prevs.size() > 0',
     ]),
-    Instruction('Register', 'ty->context.get_pointer_type(mut, *ty)', [
-        'NNPtr<Type const>|ty',
-        'bool|mut',
-    ], [
+    Instruction('Register', 'ty->context.get_pointer_type(mut, *ty)',
+        'NNPtr<Type const>|ty ! bool|mut',
+    [
     ], declared=True),
-    Instruction('Or', 'lhs.type().context.get_bool_type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs',
-    ], [
+    Instruction('Or', 'lhs.type().context.get_bool_type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         type_must_be('lhs.type()', 'BoolType const'), *operands_equal('lhs.type()', 'rhs.type()')
     ]),
-    Instruction('And', 'lhs.type().context.get_bool_type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs'
-    ], [
+    Instruction('And', 'lhs.type().context.get_bool_type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         type_must_be('lhs.type()', 'BoolType const'), *operands_equal('lhs.type()', 'rhs.type()')
     ]),
-    Instruction('Not', 'op.type().context.get_bool_type()', [
-        'ASTValue|op'
-    ], [
+    Instruction('Not', 'op.type().context.get_bool_type()',
+        'ASTValue|op',
+    [
     ]),
-    Instruction('ICmpNE', 'lhs.type().context.get_bool_type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs'
-    ], [
+    Instruction('ICmpNE', 'lhs.type().context.get_bool_type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         *operands_equal('lhs.type()', 'rhs.type()')
     ]),
-    Instruction('ICmpEQ', 'lhs.type().context.get_bool_type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs'
-    ], [
+    Instruction('ICmpEQ', 'lhs.type().context.get_bool_type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         *operands_equal('lhs.type()', 'rhs.type()')
     ]),
-    Instruction('ICmpLT', 'lhs.type().context.get_bool_type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs'
-    ], [
+    Instruction('ICmpLT', 'lhs.type().context.get_bool_type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         *operands_equal('lhs.type()', 'rhs.type()')
     ]),
-    Instruction('ICmpGT', 'lhs.type().context.get_bool_type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs'
-    ], [
+    Instruction('ICmpGT', 'lhs.type().context.get_bool_type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         *operands_equal('lhs.type()', 'rhs.type()')
     ]),
-    Instruction('ICmpLE', 'lhs.type().context.get_bool_type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs'
-    ], [
+    Instruction('ICmpLE', 'lhs.type().context.get_bool_type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         *operands_equal('lhs.type()', 'rhs.type()')
     ]),
-    Instruction('ICmpGE', 'lhs.type().context.get_bool_type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs'
-    ], [
+    Instruction('ICmpGE', 'lhs.type().context.get_bool_type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         *operands_equal('lhs.type()', 'rhs.type()')
     ]),
-    Instruction('IAdd', 'lhs.type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs'
-    ], [
+    Instruction('IAdd', 'lhs.type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         type_is_integral('lhs.type()'),
         *operands_equal('lhs.type()',
         'rhs.type()')
     ]),
-    Instruction('ISub', 'lhs.type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs'
-    ], [
+    Instruction('ISub', 'lhs.type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         type_is_integral('lhs.type()'),
         *operands_equal('lhs.type()',
         'rhs.type()')
     ]),
-    Instruction('IMult', 'lhs.type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs'
-    ], [
+    Instruction('IMult', 'lhs.type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         type_is_integral('lhs.type()'),
         *operands_equal('lhs.type()',
         'rhs.type()')
     ]),
-    Instruction('IDiv', 'lhs.type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs'
-    ], [
+    Instruction('IDiv', 'lhs.type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         type_is_integral('lhs.type()'),
         *operands_equal('lhs.type()',
         'rhs.type()')
     ]),
-    Instruction('IMod', 'lhs.type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs'
-    ], [
+    Instruction('IMod', 'lhs.type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         type_is_integral('lhs.type()'),
         *operands_equal('lhs.type()',
         'rhs.type()')
     ]),
-    Instruction('INeg', 'op.type()', [
-        'ASTValue|op'
-    ], [
+    Instruction('INeg', 'op.type()',
+        'ASTValue|op',
+    [
         type_is_integral('op.type()')
     ]),
-    Instruction('FCmpNE', 'lhs.type().context.get_bool_type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs'
-    ], [
+    Instruction('FCmpNE', 'lhs.type().context.get_bool_type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         type_is_floating('lhs.type()'),
         *operands_equal('lhs.type()',
         'rhs.type()')
     ]),
-    Instruction('FCmpEQ', 'lhs.type().context.get_bool_type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs'
-    ], [
+    Instruction('FCmpEQ', 'lhs.type().context.get_bool_type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         type_is_floating('lhs.type()'),
         *operands_equal('lhs.type()',
         'rhs.type()')
     ]),
-    Instruction('FCmpLT', 'lhs.type().context.get_bool_type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs'
-    ], [
+    Instruction('FCmpLT', 'lhs.type().context.get_bool_type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         type_is_floating('lhs.type()'),
         *operands_equal('lhs.type()',
         'rhs.type()')
     ]),
-    Instruction('FCmpGT', 'lhs.type().context.get_bool_type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs'
-    ], [
+    Instruction('FCmpGT', 'lhs.type().context.get_bool_type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         type_is_floating('lhs.type()'),
         *operands_equal('lhs.type()',
         'rhs.type()')
     ]),
-    Instruction('FCmpLE', 'lhs.type().context.get_bool_type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs'
-    ], [
+    Instruction('FCmpLE', 'lhs.type().context.get_bool_type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         type_is_floating('lhs.type()'),
         *operands_equal('lhs.type()',
         'rhs.type()')
     ]),
-    Instruction('FCmpGE', 'lhs.type().context.get_bool_type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs'
-    ], [
+    Instruction('FCmpGE', 'lhs.type().context.get_bool_type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         type_is_floating('lhs.type()'),
         *operands_equal('lhs.type()',
         'rhs.type()')
     ]),
-    Instruction('FAdd', 'lhs.type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs'
-    ], [
+    Instruction('FAdd', 'lhs.type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         type_is_floating('lhs.type()'),
         *operands_equal('lhs.type()',
         'rhs.type()')
     ]),
-    Instruction('FSub', 'lhs.type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs'
-    ], [
+    Instruction('FSub', 'lhs.type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         type_is_floating('lhs.type()'),
         *operands_equal('lhs.type()',
         'rhs.type()')
     ]),
-    Instruction('FMult', 'lhs.type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs'
-    ], [
+    Instruction('FMult', 'lhs.type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         type_is_floating('lhs.type()'),
         *operands_equal('lhs.type()',
         'rhs.type()')
     ]),
-    Instruction('FDiv', 'lhs.type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs'
-    ], [
+    Instruction('FDiv', 'lhs.type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         type_is_floating('lhs.type()'),
         *operands_equal('lhs.type()',
         'rhs.type()')
     ]),
-    Instruction('FMod', 'lhs.type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs'
-    ], [
+    Instruction('FMod', 'lhs.type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         type_is_floating('lhs.type()'),
         *operands_equal('lhs.type()',
         'rhs.type()')
     ]),
-    Instruction('FNeg', 'op.type()', [
-        'ASTValue|op'
-    ], [
+    Instruction('FNeg', 'op.type()',
+        'ASTValue|op',
+    [
         type_is_floating('op.type()')
     ]),
-    Instruction('BitXor', 'lhs.type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs'
-    ], [
+    Instruction('BitXor', 'lhs.type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         type_is_integral('lhs.type()'),
         *operands_equal('lhs.type()',
         'rhs.type()')
     ]),
-    Instruction('BitOr', 'lhs.type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs'
-    ], [
+    Instruction('BitOr', 'lhs.type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         type_is_integral('lhs.type()'),
         *operands_equal('lhs.type()',
         'rhs.type()')
     ]),
-    Instruction('BitAnd', 'lhs.type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs'
-    ], [
+    Instruction('BitAnd', 'lhs.type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         type_is_integral('lhs.type()'),
         *operands_equal('lhs.type()',
         'rhs.type()')
     ]),
-    Instruction('BitNot', 'op.type()', [
-        'ASTValue|op'
-    ], [
+    Instruction('BitNot', 'op.type()',
+        'ASTValue|op',
+    [
         type_is_integral('op.type()')
     ]),
-    Instruction('ShiftR', 'lhs.type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs'
-    ], [
+    Instruction('ShiftR', 'lhs.type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         type_is_integral('lhs.type()'),
         type_is_integral('lhs.type()')
     ]),
-    Instruction('ShiftL', 'lhs.type()', [
-        'ASTValue|lhs',
-        'ASTValue|rhs'
-    ], [
+    Instruction('ShiftL', 'lhs.type()',
+        'ASTValue|lhs ! ASTValue|rhs',
+    [
         type_is_integral('lhs.type()'),
         type_is_integral('lhs.type()')
     ]),
-    Instruction('NoOpCast', '*newt', [
-        'ASTValue|op',
-        'NNPtr<Type const>|newt'
-    ], [
+    Instruction('NoOpCast', '*newt',
+        'ASTValue|op ! NNPtr<Type const>|newt',
+    [
     ]),
-    Instruction('IntToInt', '*newt', [
-        'ASTValue|op',
-        'NNPtr<IntType const>|newt'
-    ], [
+    Instruction('IntToInt', '*newt',
+        'ASTValue|op ! NNPtr<IntType const>|newt',
+    [
         type_is_integral('op.type()')
     ]),
-    Instruction('IntToFloat', '*newt', [
-        'ASTValue|op',
-        'NNPtr<FloatType const>|newt'
-    ], [
+    Instruction('IntToFloat', '*newt',
+        'ASTValue|op ! NNPtr<FloatType const>|newt',
+    [
         type_is_integral('op.type()')
     ]),
-    Instruction('FloatToFloat', '*newt', [
-        'ASTValue|op',
-        'NNPtr<FloatType const>|newt'
-    ], [
+    Instruction('FloatToFloat', '*newt',
+        'ASTValue|op ! NNPtr<FloatType const>|newt',
+    [
         type_is_floating('op.type()')
     ]),
-    Instruction('FloatToInt', '*newt', [
-        'ASTValue|op',
-        'NNPtr<IntType const>|newt'
-    ], [
+    Instruction('FloatToInt', '*newt',
+        'ASTValue|op ! NNPtr<IntType const>|newt',
+    [
         type_is_floating('op.type()')
     ]),
-    Instruction('Call', '*f->ty->ret', [
-        'NNPtr<Function const>|f',
-        'std::vector<ASTValue>|args'
-    ], [
+    Instruction('Call', '*f->ty->ret',
+        'NNPtr<Function const>|f ! std::vector<ASTValue>|args',
+    [
         'args.size() == f->ty->paramtys.size()'
     ]),
-    Instruction('Addrof', 'deref->type().context.get_pointer_type(mut, deref->type())', [
-        'NNPtr<DerefPtr const>|deref',
-        'bool|mut'
-    ], [
+    Instruction('Addrof', 'deref->type().context.get_pointer_type(mut, deref->type())',
+        'NNPtr<DerefPtr const>|deref ! bool|mut',
+    [
         'static_cast<int>(mut) <= static_cast<int>(static_cast<PointerType const *>(&deref->ptr.type())->mut)'
     ]),
-    Instruction('DerefPtr', '*static_cast<PointerType const *>(&ptr.type())->ty', [
-        'ASTValue|ptr'
-    ], [
+    Instruction('DerefPtr', '*static_cast<PointerType const *>(&ptr.type())->ty',
+        'ASTValue|ptr',
+    [
         type_must_be('ptr.type()', 'PointerType const')
     ]),
-    Instruction('PtrArith', 'ptr.type()', [
-        'ASTValue|ptr',
-        'ASTValue|offset'
-    ], [
+    Instruction('PtrArith', 'ptr.type()',
+        'ASTValue|ptr ! ASTValue|offset',
+    [
         type_must_be('ptr.type()',
         'PointerType const'),
         type_is_integral('offset.type()')
     ]),
 
-    Br('Return', [
-        'ASTValue|value'
-    ], [
+    Br('Return',
+        'ASTValue|value',
+    [
     ]),
-    Br('GotoBr', [
-        'NNPtr<Block>|to'
-    ], [
+    Br('GotoBr',
+        'NNPtr<Block>|to',
+    [
     ]),
-    Br('CondBr', [
-        'ASTValue|v', 'NNPtr<Block>|true_b', 'NNPtr<Block>|false_b'
-    ], [
+    Br('CondBr',
+        'ASTValue|v ! NNPtr<Block>|true_b ! NNPtr<Block>|false_b',
+    [
         type_must_be('v.type()', 'BoolType const')
     ]),
 ]
 
 # generating stuff {{{1
-def as_constructor(instruction, fields):
-    fields = [field.format() for field in fields]
-    if instruction.declared:
-        fields.insert(0, 'NNPtr<ASTNS::AST> _def_ast')
-
-    return ', '.join(fields)
-def as_fields(fields):
-    return ''.join('    ' + field.format() + ';\n' for field in fields)
-def as_init_list(instruction, fields):
-    fields = [f'{f.name}({f.name})' for f in fields]
-    if instruction.declared:
-        fields.insert(0, '_def_ast(_def_ast)')
-
-    return ', '.join(fields)
-
 def gen_decls():
     output = []
 
@@ -386,19 +322,16 @@ def gen_decls():
             output.append( f'class {instruction.name} : public {instruction.base()} {{\n')
 
         output.append(    ( 'public:\n'
-                           f'    {instruction.name}({as_constructor(instruction, instruction.fields)});\n'
+                           f'    {instruction.name}({helpers.Field.as_params(instruction.fields)});\n'
                            f'    void accept({instruction.base()}Visitor &v) const override;\n'))
         if instruction.base() == 'Instruction':
             output.append( f'    IR::Type const &type() const override;\n')
 
         if instruction.declared:
             output.append(  '    ASTNS::AST& def_ast() const override;\n')
-            output.append(  'private:\n')
-            output.append(  '    NNPtr<ASTNS::AST> _def_ast;\n')
-            output.append(  'public:\n')
 
-        output.append(    (f'{as_fields(instruction.fields)}'
-                            '};\n'))
+        output.append(       helpers.Field.as_fields(instruction.fields, indent=4))
+        output.append(       '};\n')
 
     return ''.join(output)
 def gen_fwd():
@@ -412,7 +345,7 @@ def gen_defs():
     output = []
 
     for instruction in instructions:
-        output.append(        f'IR::Instrs::{instruction.name}::{instruction.name}({as_constructor(instruction, instruction.fields)}): {as_init_list(instruction, instruction.fields)} {{\n')
+        output.append(        f'IR::Instrs::{instruction.name}::{instruction.name}({helpers.Field.as_params(instruction.fields)}): {helpers.Field.as_init_list(instruction.fields)} {{\n')
         for assertion in instruction.assertions:
             output.append(    f'    ASSERT({assertion})\n')
         output.append(         '}\n')
