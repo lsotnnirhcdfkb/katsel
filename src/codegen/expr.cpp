@@ -389,6 +389,8 @@ void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::Block &ast) {
 
     Maybe<IR::ASTValue> block_ret;
 
+    bool success = true;
+
     for (auto stmt = ast.stmts.begin(); stmt != ast.stmts.end(); ++stmt) {
         if (ASTNS::ExprStmt *exprstmt = dynamic_cast<ASTNS::ExprStmt*>(stmt->get())) {
             bool last = stmt + 1 == ast.stmts.end();
@@ -397,15 +399,19 @@ void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::Block &ast) {
                 // if the stmt is the last stmt of the block, and is not suppressed
                 block_ret = expr(*exprstmt->expr);
                 if (!block_ret.has()) {
+                    success = false;
                     return;
                 }
             } else {
                 // if the stmt does not count as a return value
                 // (ie it is not the last stmt, or it is the last stmt and is suppressed)
-                expr(*exprstmt->expr);
+                Maybe<IR::ASTValue> e = expr(*exprstmt->expr);
+                if (!e.has())
+                    success = false;
 
                 if (!last && exprstmt->suppress) {
                     ERR_NO_SUPPRESS(exprstmt->dot.get());
+                    success = false;
                 }
             }
         } else {
@@ -415,7 +421,10 @@ void CodeGen::Helpers::ExprCodeGen::visit(ASTNS::Block &ast) {
 
     ASTNS::AST &void_ast = ast.stmts.size() ? *static_cast<ASTNS::AST*>(ast.stmts[ast.stmts.size() - 1].get()) : *static_cast<ASTNS::AST*>(&ast);
 
-    ret = block_ret.has() ? block_ret.get() : IR::ASTValue(ir_builder->context().get_void(), void_ast);
+    if (!success)
+        ret = Maybe<IR::ASTValue>();
+    else
+        ret = block_ret.has() ? block_ret.get() : IR::ASTValue(ir_builder->context().get_void(), void_ast);
 
     locals->dec_scope();
 }

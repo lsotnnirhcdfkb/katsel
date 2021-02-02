@@ -9,11 +9,13 @@ void CodeGen::Helpers::StmtCodeGen::visit(ASTNS::VarStmtItem &ast) {
     Maybe<CodeGen::Helpers::Local> var = locals->get_local(varname);
     if (var.has() && var.get().scopenum == locals->cur_scope) {
         ERR_REDECL_VAR(ast.name.span, *var.get().v);
+        success = false;
         return;
     }
 
     Maybe<IR::Type&> m_var_type = type_visitor->type(*ast.type);
     if (!m_var_type.has()) {
+        success = false;
         return;
     }
 
@@ -23,14 +25,17 @@ void CodeGen::Helpers::StmtCodeGen::visit(ASTNS::VarStmtItem &ast) {
 
     if (ast.expr) {
         Maybe<IR::ASTValue> m_val = expr_cg->expr(*ast.expr);
-        if (!m_val.has())
+        if (!m_val.has()) {
+            success = false;
             return;
+        }
 
         IR::ASTValue val = m_val.get();
 
         val = var_type->impl_cast(ir_builder->context(), ir_builder->fun(), ir_builder->cur_block(), val);
         if (&val.type() != var_type.as_raw()) {
             ERR_CONFLICT_VAR_INIT_TY(ast.equal.get().span, ast.name.span, *ast.type, val, *var_type);
+            success = false;
             return;
         }
         ir_builder->cur_block()->add<IR::Instrs::Store>(IR::ASTValue(reg, ast), val, true);

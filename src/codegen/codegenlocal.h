@@ -103,6 +103,7 @@ namespace CodeGen {
             StmtCodeGen(IR::Builder &ir_builder, Locals &locals, ExprCodeGen &expr_cg, TypeVisitor &type_visitor, PathVisitor &path_visitor);
 
             void stmt(ASTNS::Stmt &ast);
+            bool success;
 
         private:
             // STMTCG METHODS START

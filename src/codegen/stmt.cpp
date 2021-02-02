@@ -9,13 +9,16 @@ CodeGen::Helpers::StmtCodeGen::StmtCodeGen(IR::Builder &ir_builder, Locals &loca
     locals(locals),
     expr_cg(expr_cg),
     type_visitor(type_visitor),
-    path_visitor(path_visitor) {}
+    path_visitor(path_visitor),
+    success(true) {}
 
 void CodeGen::Helpers::StmtCodeGen::stmt(ASTNS::Stmt &ast) {
     ast.accept(*this);
 }
 void CodeGen::Helpers::StmtCodeGen::visit(ASTNS::ExprStmt &ast) {
-    expr_cg->expr(*ast.expr);
+    Maybe<IR::ASTValue> res = expr_cg->expr(*ast.expr);
+    if (!res.has())
+        success = false;
 }
 void CodeGen::Helpers::StmtCodeGen::visit(ASTNS::VarStmt &ast) {
     for (std::unique_ptr<ASTNS::VarStmtItem> &item : ast.items)
@@ -23,14 +26,17 @@ void CodeGen::Helpers::StmtCodeGen::visit(ASTNS::VarStmt &ast) {
 }
 void CodeGen::Helpers::StmtCodeGen::visit(ASTNS::RetStmt &ast) {
     Maybe<IR::ASTValue> m_v = ast.expr ? expr_cg->expr(*ast.expr) : Maybe<IR::ASTValue>(IR::ASTValue(ir_builder->context().get_void(), ast));
-    if (!m_v.has())
+    if (!m_v.has()) {
+        success = false;
         return;
+    }
 
     IR::ASTValue v = m_v.get();
 
     v = ir_builder->fun().ty->ret->impl_cast(ir_builder->context(), ir_builder->fun(), ir_builder->cur_block(), v);
     if (ir_builder->fun().ty->ret.as_raw() != &v.type()) {
         ERR_CONFLICT_RET_TY(v, ir_builder->fun());
+        success = false;
         return;
     }
 

@@ -76,7 +76,10 @@ bool Function::value_define() {
     IR::Block &entry_block = s1_data.fun->add_block("entry");
     IR::Instrs::Register &ret_reg = register_block.add<IR::Instrs::Register>(*ast.retty, *s1_data.fun->ty->ret, true);
     auto ir_builder (std::make_unique<IR::Builder>(*s1_data.fun, register_block, exit_block, ret_reg, entry_block, context));
-    auto locals(std::make_unique<Helpers::Locals>());
+    auto locals (std::make_unique<Helpers::Locals>());
+
+    auto local_path_visitor (std::make_unique<CodeGen::Helpers::PathVisitor>(*locals, unit));
+    auto local_type_visitor (std::make_unique<CodeGen::Helpers::TypeVisitor>(context, this_type, *local_path_visitor));
 
     ir_builder->register_block().branch(std::make_unique<IR::Instrs::GotoBr>(entry_block));
 
@@ -94,7 +97,7 @@ bool Function::value_define() {
             locals->add_local(pname, reg);
     }
 
-    auto expr_cg (std::make_unique<CodeGen::Helpers::ExprCodeGen>(*ir_builder, *locals, *s1_data.type_visitor, *s1_data.path_visitor));
+    auto expr_cg (std::make_unique<CodeGen::Helpers::ExprCodeGen>(*ir_builder, *locals, *local_type_visitor, *local_path_visitor));
     Maybe<IR::ASTValue> m_retval = expr_cg->expr(*ast.body);
 
     locals->dec_scope();
@@ -113,6 +116,8 @@ bool Function::value_define() {
             ir_builder->cur_block()->add<IR::Instrs::Store>(IR::ASTValue(ir_builder->ret_reg(), *ast.retty), retval, false);
             ir_builder->cur_block()->branch(std::make_unique<IR::Instrs::GotoBr>(ir_builder->exit_block()));
         }
+    } else {
+        errored = true;
     }
 
     if (locals->cur_scope != 0 && m_retval.has())
