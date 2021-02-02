@@ -413,7 +413,7 @@ void E0031(Span const &path) {
 
 // E0032 - redecl-param
 // | Redeclaraion of parameter in function declaration
-void E0032(ASTNS::ParamB const &param, IR::Instrs::Register const &prev) {
+void E0032(ASTNS::ParamB const &param, IR::Register const &prev) {
     Error e = Error(MsgType::ERROR, param, "E0032", "redecl-param");
     e.underline(Underline(param, '^')
         .error("redeclaration of parameter")
@@ -426,7 +426,7 @@ void E0032(ASTNS::ParamB const &param, IR::Instrs::Register const &prev) {
 
 // E0033 - redecl-var
 // | Redeclaration of variable
-void E0033(Span const &name, IR::Instrs::Register const &prev) {
+void E0033(Span const &name, IR::Register const &prev) {
     Error e = Error(MsgType::ERROR, name, "E0033", "redecl-var");
     e.underline(Underline(name, '^')
         .error("redeclaration of variable")

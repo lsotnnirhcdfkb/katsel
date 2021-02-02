@@ -1,6 +1,6 @@
 #pragma once
 
-namespace IR { namespace Instrs { class Register; class DerefPtr; } class Value; class Function; class Type; struct ASTValue; class DeclSymbol; }
+namespace IR { namespace Instrs { class DerefPtr; } class Value; class Function; class Register; class Type; struct ASTValue; class DeclSymbol; }
 class Location;
 class Span;
 
@@ -141,11 +141,11 @@ void E0031(Span const &path);
 
 // E0032 - redecl-param
 #define ERR_REDECL_PARAM E0032
-void E0032(ASTNS::ParamB const &param, IR::Instrs::Register const &prev);
+void E0032(ASTNS::ParamB const &param, IR::Register const &prev);
 
 // E0033 - redecl-var
 #define ERR_REDECL_VAR E0033
-void E0033(Span const &name, IR::Instrs::Register const &prev);
+void E0033(Span const &name, IR::Register const &prev);
 
 // E0034 - not-a-type
 #define ERR_NOT_A_TYPE E0034

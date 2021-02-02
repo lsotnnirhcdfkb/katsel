@@ -10,6 +10,7 @@
 namespace llvm { class raw_ostream; }
 namespace IR {
     class Function;
+    class Register;
 
     class Block {
     public:
@@ -23,7 +24,6 @@ namespace IR {
             __push_instr(std::move(instr));
             return raw;
         }
-
         void branch(std::unique_ptr<Instrs::Br> br);
 
         std::string name;

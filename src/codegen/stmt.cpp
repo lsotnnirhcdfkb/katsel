@@ -40,7 +40,7 @@ void Codegen::Helpers::StmtCodegen::visit(ASTNS::RetStmt &ast) {
         return;
     }
 
-    ir_builder->cur_block()->add<IR::Instrs::Store>(IR::ASTValue(ir_builder->ret_reg(), ast), v, false);
+    ir_builder->cur_block()->add<IR::Instrs::Copy>(*ir_builder->fun().ret_reg, v);
     ir_builder->cur_block()->branch(std::make_unique<IR::Instrs::GotoBr>(ir_builder->exit_block()));
     ir_builder->cur_block() = ir_builder->fun().add_block("after_return");
 }

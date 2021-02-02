@@ -40,7 +40,7 @@ namespace Codegen {
         // Locals {{{
         struct Local {
             size_t scopenum;
-            NNPtr<IR::Instrs::Register> v;
+            NNPtr<IR::Register> v;
             std::string name;
         };
 
@@ -48,7 +48,7 @@ namespace Codegen {
             std::vector<Local> locals;
             size_t cur_scope;
 
-            void add_local(std::string const &name, IR::Instrs::Register &val);
+            void add_local(std::string const &name, IR::Register &val);
             Maybe<Local> get_local(std::string const &name);
 
             void inc_scope();

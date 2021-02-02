@@ -93,8 +93,9 @@ namespace {
         void value_visit(IR::Function const &v) override {
             pr(v.name);
         }
-        void value_visit(IR::Instrs::Instruction const &v) override {
-            pr(id_to_str(v.id));
+        void value_visit(IR::Register const &v) override {
+            // pr(id_to_str(v.id));
+            pr("<register>");
         }
         void value_visit(IR::Void const &v) override {
             pr("void");
@@ -107,19 +108,13 @@ namespace {
         VDPrinter(_Printer &pr): pr(pr) {}
         _Printer &pr;
 
-        // Const Values (all abort) {{{
+        // Const Values and Register (all abort) {{{
         void value_visit(IR::ConstBool const &)  override { report_abort_noh("print declaratino of ConstBool"); }
         void value_visit(IR::ConstChar const &)  override { report_abort_noh("print declaration of ConstChar"); }
         void value_visit(IR::ConstInt const &)   override { report_abort_noh("print declaration of ConstInt"); }
         void value_visit(IR::ConstFloat const &) override { report_abort_noh("print declaration of ConstFloat"); }
         void value_visit(IR::Void const &)       override { report_abort_noh("print declaration of Void"); }
-        // }}}
-        // visit Instruction {{{
-        void value_visit(IR::Instrs::Instruction const &v) override {
-            pr("(")(id_to_str(v.id))(" :: ")(v.type().name())(") = ");
-            v.accept(*this);
-            pr(";\n");
-        }
+        void value_visit(IR::Register const &v)  override { report_abort_noh("print declaration of Register"); }
         // }}}
         // Function {{{
         void value_visit(IR::Function const &fun) override {
@@ -142,7 +137,7 @@ namespace {
             pr(": {\n");
 
             for (std::unique_ptr<IR::Instrs::Instruction> const &instr : b.instructions) {
-                instr->value_accept(*this);
+                instr->accept(*this);
             }
             if (b.br) {
                 pr("=>: ");
@@ -180,43 +175,7 @@ namespace {
         }
         // }}}
 
-        void visit(IR::Instrs::Store const &i) override {
-            instr_name("store");
-            i.value.val->value_accept(*pr.vrp);
-
-            pr(", ");
-            if (i.init)
-                pr("init");
-            else
-                pr("noinit");
-            pr(", ");
-
-            i.target.val->value_accept(*pr.vrp);
-            pr(")");
-        }
-        void visit(IR::Instrs::Phi const &i) override {
-            instr_name("phi");
-            bool first = true;
-            for (auto &p : i.prevs) {
-                if (!first)
-                    pr(", ");
-
-                stringify_block(*p.first);
-                pr(": ");
-                p.second.val->value_accept(*pr.vrp);
-
-                first = false;
-            }
-            pr(")");
-        }
-        void visit(IR::Instrs::Register const &i) override {
-            instr_name("register");
-            pr(i.ty->name());
-            if (i.mut) pr(", mut");
-            else        pr(", const");
-            pr(")");
-        }
-
+        void visit(IR::Instrs::Copy const &i)   override { /* TODO */ }
         // binary instructions {{{
         void visit(IR::Instrs::Or const &i)     override { binary_instruction(i, "or", i.lhs, i.rhs); }
         void visit(IR::Instrs::And const &i)    override { binary_instruction(i, "and", i.lhs, i.rhs); }
@@ -266,12 +225,15 @@ namespace {
             unary_instruction(i, "derefptr", i.ptr);
         }
         void visit(IR::Instrs::Addrof const &i) override {
+            /*
             instr_name("addrof");
             i.deref->value_accept(*pr.vrp);
             pr(", ");
             if (i.mut) pr("mut");
             else        pr("const");
             pr(")");
+            TODO: fix this
+            */
         }
         void visit(IR::Instrs::PtrArith const &i) override {
             binary_instruction(i, "ptrarith", i.ptr, i.offset);

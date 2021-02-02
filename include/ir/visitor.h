@@ -8,9 +8,7 @@ namespace IR {
         virtual ~InstructionVisitor() {}
 
         // PURE INSTR VISIT START
-        virtual void visit(IR::Instrs::Store const &i) = 0;
-        virtual void visit(IR::Instrs::Phi const &i) = 0;
-        virtual void visit(IR::Instrs::Register const &i) = 0;
+        virtual void visit(IR::Instrs::Copy const &i) = 0;
         virtual void visit(IR::Instrs::Or const &i) = 0;
         virtual void visit(IR::Instrs::And const &i) = 0;
         virtual void visit(IR::Instrs::Not const &i) = 0;

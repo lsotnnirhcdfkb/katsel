@@ -19,16 +19,14 @@ namespace IR {
     class FunctionType;
     class VoidType;
 
-    namespace Instrs { class Instruction; }
-
 #define IR_VALUE_LIST(macro) \
-    macro(ConstBool, ConstBool) \
-    macro(ConstChar, ConstChar) \
-    macro(ConstInt, ConstInt) \
-    macro(ConstFloat, ConstFloat) \
-    macro(Function, Function) \
-    macro(Instrs::Instruction, Instruction) \
-    macro(Void, Void)
+    macro(ConstBool) \
+    macro(ConstChar) \
+    macro(ConstInt) \
+    macro(ConstFloat) \
+    macro(Function) \
+    macro(Register) \
+    macro(Void)
 
     class ValueVisitor;
     class Value {
@@ -46,6 +44,17 @@ namespace IR {
     };
 
     class Function;
+
+    class Register : public Value, public DeclaredValue {
+    public:
+        Register(Type const &ty, ASTNS::AST const &def_ast);
+        Type const &type() const override;
+        ASTNS::AST const &def_ast() const override;
+        void value_accept(ValueVisitor &v) const override;
+    private:
+        NNPtr<IR::Type const> ty;
+        NNPtr<ASTNS::AST const> _def_ast;
+    };
     // Const values {{{
     class ConstInt : public Value {
     public:
@@ -117,7 +126,7 @@ namespace IR {
 
     class ValueVisitor {
     public:
-#define VISITMETHOD(cl, n) \
+#define VISITMETHOD(cl) \
         virtual void value_visit(cl const &i) = 0;
         IR_VALUE_LIST(VISITMETHOD)
 #undef VISITMETHOD

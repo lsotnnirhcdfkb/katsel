@@ -13,11 +13,10 @@ namespace IR {
     class BrVisitor;
 
     namespace Instrs {
-        class Instruction : public Value {
+        class Instruction {
         public:
             virtual ~Instruction() {};
             virtual void accept(InstructionVisitor &v) const = 0;
-            void value_accept(ValueVisitor &v) const override;
 
             size_t id;
         };
@@ -29,360 +28,341 @@ namespace IR {
         };
 
         // INSTR CLASSES START
-        class Store : public Instruction {
+        class Copy : public Instruction {
         public:
-            Store(ASTValue target, ASTValue value, bool init);
+            Copy(IR::Register& target, ASTValue val);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
-            ASTValue target;
-            ASTValue value;
-            bool init;
-        };
-        class Phi : public Instruction {
-        public:
-            Phi(std::vector<std::pair<NNPtr<Block const>, ASTValue>> prevs);
-            void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
-            std::vector<std::pair<NNPtr<Block const>, ASTValue>> prevs;
-        };
-        class Register : public Instruction, public DeclaredValue {
-        public:
-            Register(NNPtr<ASTNS::AST> _def_ast, NNPtr<Type const> ty, bool mut);
-            void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
-            ASTNS::AST& def_ast() const override;
-            NNPtr<ASTNS::AST> _def_ast;
-            NNPtr<Type const> ty;
-            bool mut;
+            IR::Register& target;
+            ASTValue val;
         };
         class Or : public Instruction {
         public:
-            Or(ASTValue lhs, ASTValue rhs);
+            Or(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class And : public Instruction {
         public:
-            And(ASTValue lhs, ASTValue rhs);
+            And(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class Not : public Instruction {
         public:
-            Not(ASTValue op);
+            Not(IR::Register& target, ASTValue op);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue op;
         };
         class ICmpNE : public Instruction {
         public:
-            ICmpNE(ASTValue lhs, ASTValue rhs);
+            ICmpNE(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class ICmpEQ : public Instruction {
         public:
-            ICmpEQ(ASTValue lhs, ASTValue rhs);
+            ICmpEQ(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class ICmpLT : public Instruction {
         public:
-            ICmpLT(ASTValue lhs, ASTValue rhs);
+            ICmpLT(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class ICmpGT : public Instruction {
         public:
-            ICmpGT(ASTValue lhs, ASTValue rhs);
+            ICmpGT(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class ICmpLE : public Instruction {
         public:
-            ICmpLE(ASTValue lhs, ASTValue rhs);
+            ICmpLE(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class ICmpGE : public Instruction {
         public:
-            ICmpGE(ASTValue lhs, ASTValue rhs);
+            ICmpGE(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class IAdd : public Instruction {
         public:
-            IAdd(ASTValue lhs, ASTValue rhs);
+            IAdd(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class ISub : public Instruction {
         public:
-            ISub(ASTValue lhs, ASTValue rhs);
+            ISub(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class IMult : public Instruction {
         public:
-            IMult(ASTValue lhs, ASTValue rhs);
+            IMult(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class IDiv : public Instruction {
         public:
-            IDiv(ASTValue lhs, ASTValue rhs);
+            IDiv(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class IMod : public Instruction {
         public:
-            IMod(ASTValue lhs, ASTValue rhs);
+            IMod(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class INeg : public Instruction {
         public:
-            INeg(ASTValue op);
+            INeg(IR::Register& target, ASTValue op);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue op;
         };
         class FCmpNE : public Instruction {
         public:
-            FCmpNE(ASTValue lhs, ASTValue rhs);
+            FCmpNE(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class FCmpEQ : public Instruction {
         public:
-            FCmpEQ(ASTValue lhs, ASTValue rhs);
+            FCmpEQ(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class FCmpLT : public Instruction {
         public:
-            FCmpLT(ASTValue lhs, ASTValue rhs);
+            FCmpLT(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class FCmpGT : public Instruction {
         public:
-            FCmpGT(ASTValue lhs, ASTValue rhs);
+            FCmpGT(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class FCmpLE : public Instruction {
         public:
-            FCmpLE(ASTValue lhs, ASTValue rhs);
+            FCmpLE(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class FCmpGE : public Instruction {
         public:
-            FCmpGE(ASTValue lhs, ASTValue rhs);
+            FCmpGE(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class FAdd : public Instruction {
         public:
-            FAdd(ASTValue lhs, ASTValue rhs);
+            FAdd(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class FSub : public Instruction {
         public:
-            FSub(ASTValue lhs, ASTValue rhs);
+            FSub(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class FMult : public Instruction {
         public:
-            FMult(ASTValue lhs, ASTValue rhs);
+            FMult(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class FDiv : public Instruction {
         public:
-            FDiv(ASTValue lhs, ASTValue rhs);
+            FDiv(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class FMod : public Instruction {
         public:
-            FMod(ASTValue lhs, ASTValue rhs);
+            FMod(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class FNeg : public Instruction {
         public:
-            FNeg(ASTValue op);
+            FNeg(IR::Register& target, ASTValue op);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue op;
         };
         class BitXor : public Instruction {
         public:
-            BitXor(ASTValue lhs, ASTValue rhs);
+            BitXor(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class BitOr : public Instruction {
         public:
-            BitOr(ASTValue lhs, ASTValue rhs);
+            BitOr(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class BitAnd : public Instruction {
         public:
-            BitAnd(ASTValue lhs, ASTValue rhs);
+            BitAnd(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class BitNot : public Instruction {
         public:
-            BitNot(ASTValue op);
+            BitNot(IR::Register& target, ASTValue op);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue op;
         };
         class ShiftR : public Instruction {
         public:
-            ShiftR(ASTValue lhs, ASTValue rhs);
+            ShiftR(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class ShiftL : public Instruction {
         public:
-            ShiftL(ASTValue lhs, ASTValue rhs);
+            ShiftL(IR::Register& target, ASTValue lhs, ASTValue rhs);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue lhs;
             ASTValue rhs;
         };
         class NoOpCast : public Instruction {
         public:
-            NoOpCast(ASTValue op, NNPtr<Type const> newt);
+            NoOpCast(IR::Register& target, ASTValue op, NNPtr<Type const> newt);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue op;
             NNPtr<Type const> newt;
         };
         class IntToInt : public Instruction {
         public:
-            IntToInt(ASTValue op, NNPtr<IntType const> newt);
+            IntToInt(IR::Register& target, ASTValue op, NNPtr<IntType const> newt);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue op;
             NNPtr<IntType const> newt;
         };
         class IntToFloat : public Instruction {
         public:
-            IntToFloat(ASTValue op, NNPtr<FloatType const> newt);
+            IntToFloat(IR::Register& target, ASTValue op, NNPtr<FloatType const> newt);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue op;
             NNPtr<FloatType const> newt;
         };
         class FloatToFloat : public Instruction {
         public:
-            FloatToFloat(ASTValue op, NNPtr<FloatType const> newt);
+            FloatToFloat(IR::Register& target, ASTValue op, NNPtr<FloatType const> newt);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue op;
             NNPtr<FloatType const> newt;
         };
         class FloatToInt : public Instruction {
         public:
-            FloatToInt(ASTValue op, NNPtr<IntType const> newt);
+            FloatToInt(IR::Register& target, ASTValue op, NNPtr<IntType const> newt);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue op;
             NNPtr<IntType const> newt;
         };
         class Call : public Instruction {
         public:
-            Call(NNPtr<Function const> f, std::vector<ASTValue> args);
+            Call(IR::Register& target, NNPtr<Function const> f, std::vector<ASTValue> args);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             NNPtr<Function const> f;
             std::vector<ASTValue> args;
         };
         class Addrof : public Instruction {
         public:
-            Addrof(NNPtr<DerefPtr const> deref, bool mut);
+            Addrof(IR::Register& target, NNPtr<DerefPtr const> deref, bool mut);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             NNPtr<DerefPtr const> deref;
             bool mut;
         };
         class DerefPtr : public Instruction {
         public:
-            DerefPtr(ASTValue ptr);
+            DerefPtr(IR::Register& target, ASTValue ptr);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue ptr;
         };
         class PtrArith : public Instruction {
         public:
-            PtrArith(ASTValue ptr, ASTValue offset);
+            PtrArith(IR::Register& target, ASTValue ptr, ASTValue offset);
             void accept(InstructionVisitor &v) const override;
-            IR::Type const &type() const override;
+            IR::Register& target;
             ASTValue ptr;
             ASTValue offset;
         };

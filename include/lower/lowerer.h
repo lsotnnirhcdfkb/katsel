@@ -20,9 +20,7 @@ namespace Lower {
         Lowerer(IR::Unit const &unit);
 
         // LOWER VISIT INSTR START
-        void visit(IR::Instrs::Store const &i) override;
-        void visit(IR::Instrs::Phi const &i) override;
-        void visit(IR::Instrs::Register const &i) override;
+        void visit(IR::Instrs::Copy const &i) override;
         void visit(IR::Instrs::Or const &i) override;
         void visit(IR::Instrs::And const &i) override;
         void visit(IR::Instrs::Not const &i) override;
@@ -72,7 +70,7 @@ namespace Lower {
         void visit(IR::Instrs::CondBr const &i) override;
         // LOWER VISIT BRANCH END
 
-#define METHOD(cl, n) \
+#define METHOD(cl) \
         void value_visit(IR::cl const &v) override;
         IR_VALUE_LIST(METHOD)
 #undef METHOD

@@ -5,9 +5,7 @@ namespace IR {
         class Instruction;
         class Br;
         // INSTR FWD START
-        class Store;
-        class Phi;
-        class Register;
+        class Copy;
         class Or;
         class And;
         class Not;

@@ -1,5 +1,6 @@
 #include "ir/type.h"
 #include "ir/block.h"
+#include "ir/function.h"
 #include "ir/instruction.h"
 #include "message/errmsgs.h"
 #include "utils/format.h"
@@ -36,24 +37,32 @@ Maybe<IR::ASTValue> IR::PointerType::bin_op(Codegen::Context &cgc, IR::Function 
     }
 
     switch (op.value) {
-        case ASTNS::BinaryOperator::PLUS:
-            return IR::ASTValue(cur_block->add<IR::Instrs::PtrArith>(l, r), ast);
+        case ASTNS::BinaryOperator::PLUS: {
+            IR::Register &out = fun.add_register(l.type(), ast);
+            cur_block->add<IR::Instrs::PtrArith>(out, l, r);
+            return IR::ASTValue(out, ast);
+        }
         case ASTNS::BinaryOperator::MINUS: {
-                IR::ASTValue r_negated = IR::ASTValue(cur_block->add<IR::Instrs::INeg>(r), *r.ast);
-                return IR::ASTValue(cur_block->add<IR::Instrs::PtrArith>(l, r_negated), ast);
-            }
-        case ASTNS::BinaryOperator::GREATER:
-            return IR::ASTValue(cur_block->add<IR::Instrs::ICmpGT>(l, r), ast);
-        case ASTNS::BinaryOperator::LESS:
-            return IR::ASTValue(cur_block->add<IR::Instrs::ICmpLT>(l, r), ast);
-        case ASTNS::BinaryOperator::GREATEREQUAL:
-            return IR::ASTValue(cur_block->add<IR::Instrs::ICmpGE>(l, r), ast);
-        case ASTNS::BinaryOperator::LESSEQUAL:
-            return IR::ASTValue(cur_block->add<IR::Instrs::ICmpLE>(l, r), ast);
-        case ASTNS::BinaryOperator::DOUBLEEQUAL:
-            return IR::ASTValue(cur_block->add<IR::Instrs::ICmpEQ>(l, r), ast);
-        case ASTNS::BinaryOperator::BANGEQUAL:
-            return IR::ASTValue(cur_block->add<IR::Instrs::ICmpNE>(l, r), ast);
+            IR::Register &negated = fun.add_register(r.type(), *r.ast);
+            cur_block->add<IR::Instrs::INeg>(negated, r);
+
+            IR::Register &out = fun.add_register(l.type(), ast);
+            cur_block->add<IR::Instrs::PtrArith>(out, l, IR::ASTValue(negated, *r.ast));
+            return IR::ASTValue(out, ast);
+        }
+#define OP(op, instr) \
+    case ASTNS::BinaryOperator::op: { \
+        IR::Register &out = fun.add_register(cgc.get_bool_type(), ast); \
+        cur_block->add<IR::Instrs::instr>(out, l, r); \
+        return IR::ASTValue(out, ast); \
+    }
+        OP(GREATER, ICmpGT)
+        OP(LESS, ICmpLT)
+        OP(GREATEREQUAL, ICmpGE)
+        OP(LESSEQUAL, ICmpLE)
+        OP(DOUBLEEQUAL, ICmpEQ)
+        OP(BANGEQUAL, ICmpNE)
+#undef OP
 
         default:
             ERR_LHS_UNSUPPORTED_OP(l, op);
@@ -68,7 +77,9 @@ Maybe<IR::ASTValue> IR::PointerType::unary_op(Codegen::Context &cgc, IR::Functio
 }
 Maybe<IR::ASTValue> IR::PointerType::cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, ASTNS::AST const &ast) const {
     if (dynamic_cast<IR::PointerType const *>(&v.type())) {
-        return ASTValue(cur_block->add<IR::Instrs::NoOpCast>(v, this), ast);
+        IR::Register &out = fun.add_register(*this, *v.ast);
+        cur_block->add<IR::Instrs::NoOpCast>(out, v, this);
+        return IR::ASTValue(out, ast);
     }
 
     ERR_INVALID_CAST(ast, v, *this);

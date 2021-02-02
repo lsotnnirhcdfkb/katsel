@@ -1,6 +1,6 @@
 #include "codegenlocal.h"
 
-void Codegen::Helpers::Locals::add_local(std::string const &name, IR::Instrs::Register &val) {
+void Codegen::Helpers::Locals::add_local(std::string const &name, IR::Register &val) {
     for (auto last = locals.rbegin(); last != locals.rend(); ++last)
         if (last->name == name && last->scopenum == cur_scope)
             report_abort_noh(format("duplicate local added: \"{}\"", name));

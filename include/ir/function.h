@@ -11,6 +11,7 @@ namespace llvm { class raw_ostream; }
 namespace IR {
     class Block;
     class FunctionType;
+    class Register;
     class Type;
 
     class Function : public Value, public DeclaredValue {
@@ -25,8 +26,13 @@ namespace IR {
         Type const &type() const override;
 
         std::vector<std::unique_ptr<Block>> blocks;
+        std::vector<std::unique_ptr<Register>> registers;
 
-        Block& add_block(std::string name);
+        Block &add_block(std::string name);
+        Register &add_register(IR::Type const &ty, ASTNS::AST const &def_ast);
+
+        NNPtr<IR::Register> ret_reg;
+        std::vector<IR::Register> param_regs;
 
         NNPtr<FunctionType> ty;
         std::string name;

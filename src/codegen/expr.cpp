@@ -81,13 +81,19 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::ShortCircuitExpr &ast) {
         ret = Maybe<IR::ASTValue>();
         return;
     }
+
+    IR::Register &out = ir_builder->fun().add_register(lhs.type(), ast);
+
+    ir_builder->cur_block()->add<IR::Instrs::Copy>(out, rhs);
     ir_builder->cur_block()->branch(std::make_unique<IR::Instrs::GotoBr>(after));
 
     ir_builder->cur_block() = skip;
+    ir_builder->cur_block()->add<IR::Instrs::Copy>(out, lhs);
     ir_builder->cur_block()->branch(std::make_unique<IR::Instrs::GotoBr>(after));
 
     ir_builder->cur_block() = after;
-    ret = IR::ASTValue(ir_builder->cur_block()->add<IR::Instrs::Phi>(std::vector<std::pair<NNPtr<IR::Block const>, IR::ASTValue>>{std::make_pair(checkboth, rhs), std::make_pair(skip, IR::ASTValue(ir_builder->context().get_const_bool(value_if_skipped), ast))}), ast);
+
+    ret = IR::ASTValue(out, ast);
 }
 
 void Codegen::Helpers::ExprCodegen::visit(ASTNS::UnaryExpr &ast) {
