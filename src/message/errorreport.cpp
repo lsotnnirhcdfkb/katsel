@@ -291,11 +291,11 @@ void Error::report() const {
         Maybe<NNPtr<File const>> lastfile;
         int lastnr = -1;
         for (showline const &sl : showlines) {
-            bool need_file_line = lastfile.match<bool>([&sl] (NNPtr<File const> file) -> bool {
+            bool need_file_line = lastfile.match([&sl] (NNPtr<File const> file) {
                     // if there is a last file, check that it is != to the current line's file
                     return file != sl.file;
                 },
-                [] () -> bool {
+                [] () {
                     // if there is no last file, then print a file line
                     return true;
                 });

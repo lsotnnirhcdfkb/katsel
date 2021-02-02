@@ -1,6 +1,7 @@
 #pragma once
 
 #include <variant>
+#include <type_traits>
 #include "utils/assert.h"
 
 template <typename T, typename E>
@@ -12,7 +13,7 @@ public:
     template <typename F, typename = std::enable_if_t<std::is_constructible_v<E, F>>
     Result(F &&err): Data( errored_t { std::forward<F>(err) } );
 
-    template <typename Ret, typename SuccessOp, typename ErrOp>
+    template <typename SuccessOp, typename ErrOp, typename Ret = std::invoke_result_t<SuccessOp, T const &>>
     inline Ret match(SuccessOp s, ErrOp e) const {
         if (success()) {
             return s(get_val());
@@ -31,6 +32,6 @@ private:
         return std::holds_alternative<success_t>(data);
     }
 
-    T get_val() const { ASSERT( success()); return std::get<success_t>(data).value; }
-    E get_err() const { ASSERT(!success()); return std::get<Erorred>(data).err  ; }
+    T const &get_val() const { ASSERT( success()); return std::get<success_t>(data).value; }
+    E const &get_err() const { ASSERT(!success()); return std::get<Erorred>(data).err  ; }
 }

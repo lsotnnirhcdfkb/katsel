@@ -11,7 +11,7 @@ Location::Location(std::string::const_iterator iter, int line, int column, NNPtr
 static Span loc_from_ast(ASTNS::AST const &ast) {
     Maybe<Span const> const &maybe_span = ast.span();
 
-    return maybe_span.match<Span const>(
+    return maybe_span.match(
             [] (Span const &l) -> Span const { return l; },
             [] ()              -> Span const { report_abort_noh("get span of ast with missing span"); });
 }

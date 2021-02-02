@@ -1,6 +1,7 @@
 #pragma once
 
 #include <variant>
+#include <type_traits>
 #include "utils/assert.h"
 
 template <typename T>
@@ -11,7 +12,7 @@ public:
     template <typename U, typename = std::enable_if_t<std::is_constructible_v<T, U>>>
     Maybe(U &&thing): data( with_t { std::forward<U>(thing) } ) {}
 
-    template <typename Ret = void, typename WithOp, typename NoOp>
+    template <typename WithOp, typename NoOp, typename Ret = std::invoke_result_t<WithOp, T const &>>
     inline Ret match(WithOp withop, NoOp noop) const {
         if (has()) {
             return withop(get());
@@ -20,7 +21,7 @@ public:
         }
     }
 
-    template <typename Ret, typename WithOp>
+    template <typename WithOp, typename Ret = std::invoke_result_t<WithOp, T const &>>
     inline Maybe<Ret> fmap(WithOp withop) const {
         if (has()) {
             return Maybe<Ret>(withop(get()));

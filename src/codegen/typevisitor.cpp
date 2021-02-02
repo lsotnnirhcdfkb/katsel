@@ -17,7 +17,7 @@ Maybe<IR::Type &> Codegen::Helpers::TypeVisitor::type(ASTNS::Type &ast) {
     Maybe<NNPtr<IR::Type>> newret = ret;
     ret = oldret;
 
-    return newret.fmap<IR::Type &>([] (NNPtr<IR::Type> i) -> IR::Type & { return *i; });
+    return newret.fmap([](NNPtr<IR::Type> i) -> IR::Type & { return *i; });
 }
 
 void Codegen::Helpers::TypeVisitor::visit(ASTNS::PathType &ast) {

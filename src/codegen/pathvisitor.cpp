@@ -6,14 +6,14 @@
 #include "ir/block.h"
 
 Codegen::Helpers::PathVisitor::PathVisitor(Maybe<Locals&> locals, IR::Unit &unit):
-    locals(locals.fmap<NNPtr<Locals>>([] (Locals& l) { return NNPtr<Locals>(l); })),
+    locals(locals.fmap([](Locals& l) { return NNPtr<Locals>(l); })),
     unit(unit) {}
 
 Maybe<IR::DeclSymbol &> Codegen::Helpers::PathVisitor::resolve_decl_symbol(ASTNS::PathB &ast)  {
     pty = PathType::DECLARED;
     dret = Maybe<NNPtr<IR::DeclSymbol>>();
     ast.accept(*this);
-    return dret.fmap<IR::DeclSymbol &>( [] (NNPtr<IR::DeclSymbol> i) { return Maybe<IR::DeclSymbol &>(*i); });
+    return dret.fmap([](NNPtr<IR::DeclSymbol> i) -> IR::DeclSymbol & { return *i; });
 }
 
 Maybe<IR::ASTValue> Codegen::Helpers::PathVisitor::resolve_value(ASTNS::PathB &ast)  {
@@ -28,7 +28,7 @@ static Maybe<IR::DeclSymbol &> trace_path_decl_only(IR::DeclSymbol &start, std::
     NNPtr<IR::DeclSymbol> current = start;
     for (auto cur_token = tok_start; cur_token != tok_end; ++cur_token) {
         prev = current;
-        auto m_current = current->get_decl_symbol(cur_token->value.name).fmap<NNPtr<IR::DeclSymbol>>([] (IR::DeclSymbol &ds) { return NNPtr<IR::DeclSymbol>(ds); });
+        auto m_current = current->get_decl_symbol(cur_token->value.name).fmap([](IR::DeclSymbol &ds) { return NNPtr<IR::DeclSymbol>(ds); });
 
         if (m_current.has()) {
             current = m_current.get();
@@ -45,7 +45,7 @@ static Maybe<IR::DeclSymbol &> trace_path_decl_only(IR::DeclSymbol &start, std::
 
 void Codegen::Helpers::PathVisitor::visit(ASTNS::Path &ast) {
     if (pty == PathType::DECLARED) {
-        dret = trace_path_decl_only(unit.mod, ast.segments.cbegin(), ast.segments.cend()).fmap<NNPtr<IR::DeclSymbol >>([] (IR::DeclSymbol &i) { return Maybe<NNPtr<IR::DeclSymbol>>(NNPtr(i)); });
+        dret = trace_path_decl_only(unit.mod, ast.segments.cbegin(), ast.segments.cend()).fmap([](IR::DeclSymbol &i) { return NNPtr<IR::DeclSymbol>(i); });
     } else {
         if (ast.segments.size() == 1 && locals.has()) {
             // look for local
