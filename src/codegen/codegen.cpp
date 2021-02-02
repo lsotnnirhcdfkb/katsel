@@ -1,70 +1,96 @@
+#include "codegen/codegen.h"
 #include "codegenlocal.h"
-#include "ir/unit.h"
-#include "ir/instruction.h"
-#include "ir/function.h"
-#include "ir/block.h"
+#include "ast/visitor.h"
 #include "ast/ast.h"
+#include "ir/function.h"
+#include "ir/unit.h"
 
-CodeGen::CodeGen(File const &file, NNPtr<ASTNS::CUB> cub):
-    unit(std::make_unique<IR::Unit>(file)),
-    context(std::make_unique<Context>(file, *this)),
-    type_visitor(std::make_unique<TypeVisitor>(*this)),
-    path_visitor(std::make_unique<PathVisitor>(*this)),
-    errored(false),
-    cub(cub) {}
-CodeGen::~CodeGen() = default;
+namespace {
+    class _CG : public ASTNS::DeclVisitor, public ASTNS::CUBVisitor {
+    public:
+        _CG(File const &file):
+            unit(std::make_unique<IR::Unit>(file)),
+            success(true) {}
 
-void CodeGen::forwdecl() {
-    unit->mod.add_decl_symbol("void", context->get_void_type());
-    unit->mod.add_decl_symbol("float", context->get_float_type(32));
-    unit->mod.add_decl_symbol("double", context->get_float_type(64));
-    unit->mod.add_decl_symbol("bool", context->get_bool_type());
-    unit->mod.add_decl_symbol("char", context->get_char_type());
-    unit->mod.add_decl_symbol("uint8", context->get_int_type(8, false));
-    unit->mod.add_decl_symbol("uint16", context->get_int_type(16, false));
-    unit->mod.add_decl_symbol("uint32", context->get_int_type(32, false));
-    unit->mod.add_decl_symbol("uint64", context->get_int_type(64, false));
-    unit->mod.add_decl_symbol("sint8", context->get_int_type(8, true));
-    unit->mod.add_decl_symbol("sint16", context->get_int_type(16, true));
-    unit->mod.add_decl_symbol("sint32", context->get_int_type(32, true));
-    unit->mod.add_decl_symbol("sint64", context->get_int_type(64, true));
+        // MAINCG METHODS START
+        void visit(ASTNS::ImplicitDecl &ast) override;
+        void visit(ASTNS::CU &ast) override;
+        void visit(ASTNS::ImplDecl &ast) override;
+        void visit(ASTNS::FunctionDecl &ast) override;
+        // MAINCG METHODS END
 
-    ForwDecl f (*this);
-    cub->accept(f);
+        // for reasons beyond my understanding, this member has to be
+        // wrapped in a unique_ptr, because if it is not, then even
+        // when using:
+        //     IR::Unit unit = std::move(cg.unit);
+        // where 'cg' is an instance of this class, it still needs to
+        // instantiate a constructor of the field 'Unit::functions' of
+        // type 'std::vector<std::unique_ptr<IR::Function>>', which for
+        // some reason instantiates std::uninitialized_copy, which
+        // requires that std::unique_ptr<IR::Function> has a copy
+        // constructor, and the copy constructor for std::unique_ptr is
+        // supposed to be (and is) explicitly deleted
+        std::unique_ptr<IR::Unit> unit;
+
+        std::vector<std::unique_ptr<Codegen::CG>> codegens;
+
+        void run() {
+            unit->mod.add_decl_symbol("void", unit->context.get_void_type());
+            unit->mod.add_decl_symbol("float", unit->context.get_float_type(32));
+            unit->mod.add_decl_symbol("double", unit->context.get_float_type(64));
+            unit->mod.add_decl_symbol("bool", unit->context.get_bool_type());
+            unit->mod.add_decl_symbol("char", unit->context.get_char_type());
+            unit->mod.add_decl_symbol("uint8", unit->context.get_int_type(8, false));
+            unit->mod.add_decl_symbol("uint16", unit->context.get_int_type(16, false));
+            unit->mod.add_decl_symbol("uint32", unit->context.get_int_type(32, false));
+            unit->mod.add_decl_symbol("uint64", unit->context.get_int_type(64, false));
+            unit->mod.add_decl_symbol("sint8", unit->context.get_int_type(8, true));
+            unit->mod.add_decl_symbol("sint16", unit->context.get_int_type(16, true));
+            unit->mod.add_decl_symbol("sint32", unit->context.get_int_type(32, true));
+            unit->mod.add_decl_symbol("sint64", unit->context.get_int_type(64, true));
+
+#define DEFINE_PASS(input_codegens, output_codegens, stage_name) \
+            std::vector<std::unique_ptr<Codegen::CG>> output_codegens; \
+            for (std::unique_ptr<Codegen::CG> &cg : input_codegens) { \
+                if (cg->stage_name()) \
+                    output_codegens.push_back(std::move(cg)); \
+                else \
+                    success = false; \
+            }
+
+            DEFINE_PASS(codegens, after_type_decl, type_declare);
+            DEFINE_PASS(after_type_decl, after_value_decl, value_declare);
+            DEFINE_PASS(after_value_decl, after_value_def, value_define);
+#undef DEFINE_PASS
+        }
+
+        bool success;
+    };
 }
 
-void CodeGen::declarate() {
-    Declarator d (*this);
-    cub->accept(d);
+Maybe<std::unique_ptr<IR::Unit>> Codegen::codegen(NNPtr<ASTNS::CUB> cub) {
+    _CG cg (cub->file);
+
+    cub->accept(cg);
+    cg.run();
+
+    if (cg.success)
+        return std::move(cg.unit);
+    else
+        return Maybe<std::unique_ptr<IR::Unit>>();
 }
 
-void CodeGen::codegen() {
-    cub->accept(*this);
-}
+void _CG::visit(ASTNS::ImplicitDecl &ast) {}
 
-// visiting {{{1
-void CodeGen::visit(ASTNS::CU &ast) {
-    for (std::unique_ptr<ASTNS::Decl> &decl : ast.decls)
+void _CG::visit(ASTNS::CU &ast) {
+    for (auto &decl : ast.decls) {
         decl->accept(*this);
-}
-
-void CodeGen::visit(ASTNS::FunctionDecl &ast) {
-    Maybe<IR::Value&> val = unit->mod.get_value(ast.name.value.name);
-    IR::Function *fun;
-    if (!val.has() || !(fun = dynamic_cast<IR::Function*>(&val.get()))) {
-        errored = true;
-        return;
     }
-
-    FunctionCodeGen fcg (*this, ast, fun, Maybe<NNPtr<IR::Type>>());
-    if (!fcg.codegen())
-        errored = true;
 }
 
-void CodeGen::visit(ASTNS::ImplDecl &ast) {
-    ImplCodeGen icg (*this, ast);
-    if (!icg.codegen())
-        errored = true;
+void _CG::visit(ASTNS::ImplDecl &ast) {
+    codegens.push_back(std::make_unique<Codegen::Impl>(*unit, unit->context, ast));
 }
-
-void CodeGen::visit(ASTNS::ImplicitDecl &) {}
+void _CG::visit(ASTNS::FunctionDecl &ast) {
+    codegens.push_back(std::make_unique<Codegen::Function>(*unit, unit->context, ast, Maybe<NNPtr<IR::Type>>(), unit->mod));
+}

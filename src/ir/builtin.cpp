@@ -10,8 +10,8 @@
 
 #include "llvm/IR/DerivedTypes.h"
 
-#define BIN_OP_ARGS CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::BinaryOperator> op, IR::ASTValue l, IR::ASTValue r, ASTNS::AST const &ast
-#define UNARY_OP_ARGS CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue v, ASTNS::AST const &ast
+#define BIN_OP_ARGS Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::BinaryOperator> op, IR::ASTValue l, IR::ASTValue r, ASTNS::AST const &ast
+#define UNARY_OP_ARGS Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue v, ASTNS::AST const &ast
 // static functions {{{1
 #define SUPPORT_OPERATOR_BASIC(op, instr) case ASTNS::BinaryOperator::op: return IR::ASTValue(cur_block->add<IR::Instrs::instr>(l, r), ast);
 // float/int operations for reuse between generic float/int and concrete float/int types {{{2
@@ -99,7 +99,7 @@ static Maybe<IR::ASTValue> int_unary_op(UNARY_OP_ARGS) {
 }
 // Float and Int {{{1
 // Float {{{2
-IR::FloatType::FloatType(CodeGen::Context &context, ASTNS::AST const &decl_ast, int size): Type(context), size(size), _decl_ast(decl_ast) {ASSERT(size == 32 || size == 64)}
+IR::FloatType::FloatType(Codegen::Context &context, ASTNS::AST const &decl_ast, int size): Type(context), size(size), _decl_ast(decl_ast) {ASSERT(size == 32 || size == 64)}
 ASTNS::AST const &IR::FloatType::decl_ast() const {
     return *_decl_ast;
 }
@@ -124,11 +124,11 @@ Maybe<IR::ASTValue> IR::FloatType::bin_op(BIN_OP_ARGS) const {
     ASSERT(&l.type() == this);
     return float_bin_op(cgc, fun, cur_block, op, l, r, ast);
 }
-Maybe<IR::ASTValue> IR::FloatType::unary_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue v, ASTNS::AST const &ast) const {
+Maybe<IR::ASTValue> IR::FloatType::unary_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue v, ASTNS::AST const &ast) const {
     ASSERT(&v.type() == this);
     return float_unary_op(cgc, fun, cur_block, op, v, ast);
 }
-Maybe<IR::ASTValue> IR::FloatType::cast_from(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, ASTNS::AST const &ast) const {
+Maybe<IR::ASTValue> IR::FloatType::cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, ASTNS::AST const &ast) const {
     if (&v.type() == this)
         return IR::ASTValue(*v.val, ast);
 
@@ -147,14 +147,14 @@ Maybe<IR::ASTValue> IR::FloatType::cast_from(CodeGen::Context &cgc, IR::Function
         return Maybe<IR::ASTValue>();
     }
 }
-IR::ASTValue IR::FloatType::impl_cast(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const {
+IR::ASTValue IR::FloatType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const {
     if (dynamic_cast<GenericFloatType const *>(&v.type()))
         return IR::ASTValue(cur_block->add<IR::Instrs::FloatToFloat>(v, this), *v.ast);
 
     return v;
 }
 // Int {{{2
-IR::IntType::IntType(CodeGen::Context &context, ASTNS::AST const &decl_ast, int size, bool is_signed): Type(context), size(size), is_signed(is_signed), _decl_ast(decl_ast) {ASSERT(size == 1 || size == 8 || size == 16 || size == 32 || size == 64)}
+IR::IntType::IntType(Codegen::Context &context, ASTNS::AST const &decl_ast, int size, bool is_signed): Type(context), size(size), is_signed(is_signed), _decl_ast(decl_ast) {ASSERT(size == 1 || size == 8 || size == 16 || size == 32 || size == 64)}
 ASTNS::AST const &IR::IntType::decl_ast() const {
     return *_decl_ast;
 }
@@ -169,11 +169,11 @@ Maybe<IR::ASTValue> IR::IntType::bin_op(BIN_OP_ARGS) const {
     ASSERT(&l.type() == this)
     return int_bin_op(cgc, fun, cur_block, op, l, r, ast);
 }
-Maybe<IR::ASTValue> IR::IntType::unary_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue v, ASTNS::AST const &ast) const {
+Maybe<IR::ASTValue> IR::IntType::unary_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue v, ASTNS::AST const &ast) const {
     ASSERT(&v.type() == this)
     return int_unary_op(cgc, fun, cur_block, op, v, ast);
 }
-Maybe<IR::ASTValue> IR::IntType::cast_from(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, ASTNS::AST const &ast) const {
+Maybe<IR::ASTValue> IR::IntType::cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, ASTNS::AST const &ast) const {
     if (&v.type() == this)
         return IR::ASTValue(*v.val, ast);
 
@@ -210,7 +210,7 @@ Maybe<IR::ASTValue> IR::IntType::cast_from(CodeGen::Context &cgc, IR::Function &
         return Maybe<IR::ASTValue>();
     }
 }
-IR::ASTValue IR::IntType::impl_cast(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const {
+IR::ASTValue IR::IntType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const {
     if (dynamic_cast<GenericIntType const *>(&v.type()))
         return ASTValue(cur_block->add<IR::Instrs::IntToInt>(v, this), *v.ast);
 
@@ -218,7 +218,7 @@ IR::ASTValue IR::IntType::impl_cast(CodeGen::Context &cgc, IR::Function &fun, NN
 }
 // Generic types {{{2
 // GenericInt {{{2
-IR::GenericIntType::GenericIntType(CodeGen::Context &context, ASTNS::AST const &decl_ast): Type(context), _decl_ast(decl_ast) {}
+IR::GenericIntType::GenericIntType(Codegen::Context &context, ASTNS::AST const &decl_ast): Type(context), _decl_ast(decl_ast) {}
 ASTNS::AST const &IR::GenericIntType::decl_ast() const {
     return *_decl_ast;
 }
@@ -234,18 +234,18 @@ Maybe<IR::ASTValue> IR::GenericIntType::unary_op(UNARY_OP_ARGS) const {
     ASSERT(&v.type() == this);
     return int_unary_op(cgc, fun, cur_block, op, v, ast);
 }
-Maybe<IR::ASTValue> IR::GenericIntType::cast_from(CodeGen::Context &, IR::Function &, NNPtr<IR::Block> &, IR::ASTValue v, ASTNS::AST const &ast) const {
+Maybe<IR::ASTValue> IR::GenericIntType::cast_from(Codegen::Context &, IR::Function &, NNPtr<IR::Block> &, IR::ASTValue v, ASTNS::AST const &ast) const {
     ERR_INVALID_CAST(ast, v, *this);
     return Maybe<ASTValue>();
 }
 llvm::Type& IR::GenericIntType::to_llvmtype(llvm::LLVMContext &con) const {
     return *llvm::Type::getInt32Ty(con);
 }
-IR::ASTValue IR::GenericIntType::impl_cast(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const {
+IR::ASTValue IR::GenericIntType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const {
     return v;
 }
 // GenericFloat {{{2
-IR::GenericFloatType::GenericFloatType(CodeGen::Context &context, ASTNS::AST const &decl_ast): Type(context), _decl_ast(decl_ast) {}
+IR::GenericFloatType::GenericFloatType(Codegen::Context &context, ASTNS::AST const &decl_ast): Type(context), _decl_ast(decl_ast) {}
 ASTNS::AST const &IR::GenericFloatType::decl_ast() const {
     return *_decl_ast;
 }
@@ -261,7 +261,7 @@ Maybe<IR::ASTValue> IR::GenericFloatType::unary_op(UNARY_OP_ARGS) const {
     ASSERT(&v.type() == this);
     return float_unary_op(cgc, fun, cur_block, op, v, ast);
 }
-Maybe<IR::ASTValue> IR::GenericFloatType::cast_from(CodeGen::Context &, IR::Function &, NNPtr<IR::Block> &, IR::ASTValue v, ASTNS::AST const &ast) const {
+Maybe<IR::ASTValue> IR::GenericFloatType::cast_from(Codegen::Context &, IR::Function &, NNPtr<IR::Block> &, IR::ASTValue v, ASTNS::AST const &ast) const {
     ERR_INVALID_CAST(ast, v, *this);
     return Maybe<ASTValue>();
 }
@@ -269,11 +269,11 @@ llvm::Type& IR::GenericFloatType::to_llvmtype(llvm::LLVMContext &con) const {
     return *llvm::Type::getFloatTy(con);
 }
 
-IR::ASTValue IR::GenericFloatType::impl_cast(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const {
+IR::ASTValue IR::GenericFloatType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const {
     return v;
 }
 // Char {{{1
-IR::CharType::CharType(CodeGen::Context &context, ASTNS::AST const &decl_ast): Type(context), _decl_ast(decl_ast) {}
+IR::CharType::CharType(Codegen::Context &context, ASTNS::AST const &decl_ast): Type(context), _decl_ast(decl_ast) {}
 ASTNS::AST const &IR::CharType::decl_ast() const {
     return *_decl_ast;
 }
@@ -307,13 +307,13 @@ Maybe<IR::ASTValue> IR::CharType::bin_op(BIN_OP_ARGS) const {
             return Maybe<ASTValue>();
     }
 }
-Maybe<IR::ASTValue> IR::CharType::unary_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue v, ASTNS::AST const &ast) const {
+Maybe<IR::ASTValue> IR::CharType::unary_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue v, ASTNS::AST const &ast) const {
     ASSERT(&v.type() == this)
 
     ERR_UNARY_UNSUPPORTED_OP(v, op);
     return Maybe<ASTValue>();
 }
-Maybe<IR::ASTValue> IR::CharType::cast_from(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, ASTNS::AST const &ast) const {
+Maybe<IR::ASTValue> IR::CharType::cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, ASTNS::AST const &ast) const {
     if (&v.type() == this)
         return IR::ASTValue(*v.val, ast);
 
@@ -328,11 +328,11 @@ Maybe<IR::ASTValue> IR::CharType::cast_from(CodeGen::Context &cgc, IR::Function 
 
     return IR::ASTValue(cur_block->add<IR::Instrs::NoOpCast>(IR::ASTValue(as_int, *v.ast), this), ast);
 }
-IR::ASTValue IR::CharType::impl_cast(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const {
+IR::ASTValue IR::CharType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const {
     return v;
 }
 // Bool {{{1
-IR::BoolType::BoolType(CodeGen::Context &context, ASTNS::AST const &decl_ast): Type(context), _decl_ast(decl_ast) {}
+IR::BoolType::BoolType(Codegen::Context &context, ASTNS::AST const &decl_ast): Type(context), _decl_ast(decl_ast) {}
 ASTNS::AST const &IR::BoolType::decl_ast() const {
     return *_decl_ast;
 }
@@ -343,7 +343,7 @@ llvm::Type& IR::BoolType::to_llvmtype(llvm::LLVMContext &con) const {
 std::string IR::BoolType::name() const {
     return "bool";
 }
-Maybe<IR::ASTValue> IR::BoolType::bin_op(CodeGen::Context &cgc, Function &fun, NNPtr<Block> &cur_block, Located<ASTNS::BinaryOperator> op, IR::ASTValue l, IR::ASTValue r, ASTNS::AST const &ast) const {
+Maybe<IR::ASTValue> IR::BoolType::bin_op(Codegen::Context &cgc, Function &fun, NNPtr<Block> &cur_block, Located<ASTNS::BinaryOperator> op, IR::ASTValue l, IR::ASTValue r, ASTNS::AST const &ast) const {
     ASSERT(&l.type() == this)
 
     l = r.type().impl_cast(cgc, fun, cur_block, l);
@@ -365,7 +365,7 @@ Maybe<IR::ASTValue> IR::BoolType::bin_op(CodeGen::Context &cgc, Function &fun, N
             return Maybe<ASTValue>();
     }
 }
-Maybe<IR::ASTValue> IR::BoolType::unary_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue v, ASTNS::AST const &ast) const {
+Maybe<IR::ASTValue> IR::BoolType::unary_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue v, ASTNS::AST const &ast) const {
     ASSERT(&v.type() == this)
 
     switch (op.value) {
@@ -377,7 +377,7 @@ Maybe<IR::ASTValue> IR::BoolType::unary_op(CodeGen::Context &cgc, IR::Function &
             return Maybe<ASTValue>();
     }
 }
-Maybe<IR::ASTValue> IR::BoolType::cast_from(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, ASTNS::AST const &ast) const {
+Maybe<IR::ASTValue> IR::BoolType::cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, ASTNS::AST const &ast) const {
     if (&v.type() == this)
         return IR::ASTValue(*v.val, ast);
 
@@ -392,7 +392,7 @@ Maybe<IR::ASTValue> IR::BoolType::cast_from(CodeGen::Context &cgc, IR::Function 
 
     return IR::ASTValue(cur_block->add<IR::Instrs::NoOpCast>(ASTValue(as_int, *v.ast), this), ast);
 }
-IR::ASTValue IR::BoolType::impl_cast(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const {
+IR::ASTValue IR::BoolType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const {
     return v;
 }
 // Deriving {{{1

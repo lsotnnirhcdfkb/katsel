@@ -22,16 +22,14 @@ jobs = [
     ('include/ast/printvisitor.h'  , 'PRINTVISIT METHODS'    , lambda: astgen.gen_visitor_methods('all')),
     ('include/ast/printvisitor.h'  , 'PRINTVISIT INHERIT'    , astgen.gen_visitor_inherit_all),
 
-    ('src/codegen/codegenlocal.h'  , 'FORWDECL METHODS'      , lambda: astgen.gen_visitor_methods('Decl', 'CUB')),
-    ('src/codegen/codegenlocal.h'  , 'DECLARATOR METHODS'    , lambda: astgen.gen_visitor_methods('Decl', 'CUB', 'ImplMember')),
     ('src/codegen/codegenlocal.h'  , 'TYPEVISITOR METHODS'   , lambda: astgen.gen_visitor_methods('Type')),
     ('src/codegen/codegenlocal.h'  , 'STMTCG METHODS'        , lambda: astgen.gen_visitor_methods('Stmt', 'VStmtIB')),
     ('src/codegen/codegenlocal.h'  , 'EXPRCG METHODS'        , lambda: astgen.gen_visitor_methods('Expr')),
     ('src/codegen/codegenlocal.h'  , 'PARAMVISITOR METHODS'  , lambda: astgen.gen_visitor_methods('ParamB')),
     ('src/codegen/codegenlocal.h'  , 'ARGSVISITOR METHODS'   , lambda: astgen.gen_visitor_methods('ArgB')),
     ('src/codegen/codegenlocal.h'  , 'PATH VISITOR'          , lambda: astgen.gen_visitor_methods('PathB')),
-    ('src/codegen/codegenlocal.h'  , 'IMPLCG METHODS'        , lambda: astgen.gen_visitor_methods('ImplMember')),
-    ('include/codegen/codegen.h'   , 'CG METHODS'            , lambda: astgen.gen_visitor_methods('Decl', 'CUB')),
+    ('src/codegen/codegenlocal.h'  , 'IMPL CG METHODS'       , lambda: astgen.gen_visitor_methods('ImplMember')),
+    ('src/codegen/codegen.cpp'     , 'MAINCG METHODS'        , lambda: astgen.gen_visitor_methods('Decl', 'CUB')),
 
     ('include/ir/instruction.h'    , 'INSTR CLASSES'         , instrgen.gen_decls),
     ('include/ir/instructionfwd.h' , 'INSTR FWD'             , instrgen.gen_fwd),

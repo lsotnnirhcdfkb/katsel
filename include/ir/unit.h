@@ -4,24 +4,24 @@
 #include <memory>
 
 #include "ir/module.h"
+#include "codegen/context.h"
 
 namespace llvm { class raw_ostream; }
 struct File;
-namespace ASTNS { class ImplicitDecl; }
 
 namespace IR {
     class Function;
-    class FunctionType;
 
     class Unit {
     public:
         Unit(File const &file);
+        ~Unit();
 
-        void print(llvm::raw_ostream &ostream);
+        void print(llvm::raw_ostream &ostream) const;
 
-        std::unique_ptr<ASTNS::ImplicitDecl> implicit_decl_ast;
+        Codegen::Context context;
 
-        File const &file;
+        NNPtr<File const> file;
         Module mod;
 
         std::vector<std::unique_ptr<Function>> functions;

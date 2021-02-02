@@ -7,10 +7,11 @@
 #include "ir/function.h"
 #include "ir/block.h"
 
-IR::Unit::Unit(File const &file): implicit_decl_ast(std::make_unique<ASTNS::ImplicitDecl>(file, Maybe<Span const>(), 0)), file(file), mod("", *implicit_decl_ast) {}
+IR::Unit::Unit(File const &file): context(file), file(file), mod("", *context.implicit_decl_ast) {}
+IR::Unit::~Unit() = default;
 
-void IR::Unit::print(llvm::raw_ostream &ostream) {
-    ostream << "> Unit '" << file.filename << "'\n";
+void IR::Unit::print(llvm::raw_ostream &ostream) const {
+    ostream << "> Unit '" << file->filename << "'\n";
     IR::Printer p (*this, ostream);
     p.print();
 }

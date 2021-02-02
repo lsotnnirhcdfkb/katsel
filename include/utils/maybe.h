@@ -38,7 +38,12 @@ public:
         return std::holds_alternative<with_t>(data);
     }
 
-    T get() const {
+    T const &get() const {
+        ASSERT(has())
+        return std::get<with_t>(data).thing;
+    }
+
+    T &get() {
         ASSERT(has())
         return std::get<with_t>(data).thing;
     }

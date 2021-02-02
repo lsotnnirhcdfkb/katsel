@@ -8,7 +8,7 @@
 #include "utils/format.h"
 #include "ir/visitor.h"
 
-IR::Printer::Printer(IR::Unit &unit, llvm::raw_ostream &ostream): unit(unit), ostream(ostream) {}
+IR::Printer::Printer(IR::Unit const &unit, llvm::raw_ostream &ostream): unit(unit), ostream(ostream) {}
 
 namespace {
     // id_to_str {{{
@@ -31,11 +31,11 @@ namespace {
     // _Printer {{{
     class _Printer {
     public:
-        _Printer(IR::Unit &unit, llvm::raw_ostream &ostream);
+        _Printer(IR::Unit const &unit, llvm::raw_ostream &ostream);
 
         void print();
 
-        IR::Unit &unit;
+        IR::Unit const &unit;
         llvm::raw_ostream &ostream;
 
         template <typename T>
@@ -377,14 +377,14 @@ namespace {
         // walk {{{
         void walk(IR::DeclSymbol const &ds) {
             for (auto _ds : ds.get_decl_symbols()) {
-                std::string name = _ds.first;
+                std::string const &name = _ds.first;
                 NNPtr<IR::DeclSymbol> pds = _ds.second;
 
                 pr(name)(" = ");
                 pds->declsym_accept(*pr.dsdp);
             }
             for (auto v : ds.get_values()) {
-                std::string name = v.first;
+                std::string const &name = v.first;
                 NNPtr<IR::Value> val = v.second;
 
                 pr(name)(" = ");
@@ -396,7 +396,7 @@ namespace {
     // }}}
 
     // _Printer impl {{{1
-    _Printer::_Printer(IR::Unit &unit, llvm::raw_ostream &ostream):
+    _Printer::_Printer(IR::Unit const &unit, llvm::raw_ostream &ostream):
             unit(unit),
             ostream(ostream),
             indent(0),
