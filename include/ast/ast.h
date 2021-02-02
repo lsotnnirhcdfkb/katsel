@@ -214,11 +214,9 @@ namespace ASTNS {
     public:
         Maybe<Span const> _span;
         std::unique_ptr<Expr> expr;
-        bool suppress;
-        Maybe<Span const> dot;
         virtual void accept(StmtVisitor &v) override;
         virtual Maybe<Span const> const &span() const override;
-        ExprStmt(File const &file, Maybe<Span const> const &span, std::unique_ptr<Expr> expr, bool suppress, Maybe<Span const> dot);
+        ExprStmt(File const &file, Maybe<Span const> const &span, std::unique_ptr<Expr> expr);
     };
     class RetStmt : public Stmt {
     public:
@@ -284,9 +282,10 @@ namespace ASTNS {
     public:
         Maybe<Span const> _span;
         std::vector<std::unique_ptr<Stmt>> stmts;
+        std::unique_ptr<Expr> ret;
         virtual void accept(ExprVisitor &v) override;
         virtual Maybe<Span const> const &span() const override;
-        Block(File const &file, Maybe<Span const> const &span, std::vector<std::unique_ptr<Stmt>> stmts);
+        Block(File const &file, Maybe<Span const> const &span, std::vector<std::unique_ptr<Stmt>> stmts, std::unique_ptr<Expr> ret);
     };
     class IfExpr : public Expr {
     public:

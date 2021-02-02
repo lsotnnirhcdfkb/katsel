@@ -11,7 +11,7 @@
 // GETGOTO START
 size_t get_goto(NonTerminal nterm, size_t state) {
     switch (nterm) {
-        case NonTerminal::_48:
+        case NonTerminal::_49:
             switch (state) {
                 default: report_abort_noh("get invalid goto");
             }
@@ -21,13 +21,13 @@ size_t get_goto(NonTerminal nterm, size_t state) {
                     return 1;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_49:
+        case NonTerminal::_50:
             switch (state) {
                 case 49:
                     return 63;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_21:
+        case NonTerminal::_22:
             switch (state) {
                 case 19:
                     return 29;
@@ -35,91 +35,91 @@ size_t get_goto(NonTerminal nterm, size_t state) {
                     return 64;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_51:
+        case NonTerminal::_52:
             switch (state) {
                 case 19:
                     return 28;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_50:
+        case NonTerminal::_51:
             switch (state) {
                 case 19:
                     return 27;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_52:
-            switch (state) {
-                case 232:
-                    return 242;
-                default: report_abort_noh("get invalid goto");
-            }
-        case NonTerminal::_20:
-            switch (state) {
-                case 175: case 178: case 233: case 234: case 236:
-                    return 218;
-                case 232:
-                    return 243;
-                default: report_abort_noh("get invalid goto");
-            }
-        case NonTerminal::_54:
-            switch (state) {
-                case 175: case 178: case 233: case 234: case 236:
-                    return 217;
-                default: report_abort_noh("get invalid goto");
-            }
         case NonTerminal::_53:
             switch (state) {
-                case 175: case 178: case 233: case 234: case 236:
-                    return 216;
+                case 235:
+                    return 245;
+                default: report_abort_noh("get invalid goto");
+            }
+        case NonTerminal::_21:
+            switch (state) {
+                case 175: case 178: case 236: case 237: case 239:
+                    return 218;
+                case 235:
+                    return 246;
                 default: report_abort_noh("get invalid goto");
             }
         case NonTerminal::_55:
             switch (state) {
-                case 185:
-                    return 226;
+                case 175: case 178: case 236: case 237: case 239:
+                    return 217;
+                default: report_abort_noh("get invalid goto");
+            }
+        case NonTerminal::_54:
+            switch (state) {
+                case 175: case 178: case 236: case 237: case 239:
+                    return 216;
+                default: report_abort_noh("get invalid goto");
+            }
+        case NonTerminal::_56:
+            switch (state) {
+                case 187:
+                    return 229;
                 default: report_abort_noh("get invalid goto");
             }
         case NonTerminal::_10:
             switch (state) {
                 case 87:
-                    return 136;
-                case 185:
-                    return 227;
+                    return 138;
+                case 187:
+                    return 230;
+                default: report_abort_noh("get invalid goto");
+            }
+        case NonTerminal::_58:
+            switch (state) {
+                case 87:
+                    return 137;
                 default: report_abort_noh("get invalid goto");
             }
         case NonTerminal::_57:
             switch (state) {
                 case 87:
-                    return 135;
-                default: report_abort_noh("get invalid goto");
-            }
-        case NonTerminal::_56:
-            switch (state) {
-                case 87:
-                    return 134;
-                default: report_abort_noh("get invalid goto");
-            }
-        case NonTerminal::_58:
-            switch (state) {
-                case 82:
-                    return 132;
-                default: report_abort_noh("get invalid goto");
-            }
-        case NonTerminal::_6:
-            switch (state) {
-                case 76: case 79: case 81: case 131:
-                    return 83;
-                case 82:
-                    return 133;
+                    return 136;
                 default: report_abort_noh("get invalid goto");
             }
         case NonTerminal::_59:
             switch (state) {
-                case 76: case 79: case 81: case 131:
-                    return 82;
+                case 82:
+                    return 134;
+                default: report_abort_noh("get invalid goto");
+            }
+        case NonTerminal::_6:
+            switch (state) {
+                case 76: case 79: case 81: case 133:
+                    return 83;
+                case 82:
+                    return 135;
                 default: report_abort_noh("get invalid goto");
             }
         case NonTerminal::_60:
+            switch (state) {
+                case 76: case 79: case 81: case 133:
+                    return 82;
+                default: report_abort_noh("get invalid goto");
+            }
+        case NonTerminal::_61:
             switch (state) {
                 case 2:
                     return 8;
@@ -133,13 +133,13 @@ size_t get_goto(NonTerminal nterm, size_t state) {
                     return 9;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_61:
+        case NonTerminal::_62:
             switch (state) {
                 case 0:
                     return 2;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_62:
+        case NonTerminal::_63:
             switch (state) {
                 case 42:
                     return 59;
@@ -153,45 +153,45 @@ size_t get_goto(NonTerminal nterm, size_t state) {
                     return 60;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_63:
+        case NonTerminal::_64:
             switch (state) {
                 case 21: case 41: case 45: case 58:
                     return 42;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_64:
+        case NonTerminal::_65:
             switch (state) {
                 case 19:
                     return 26;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_65:
+        case NonTerminal::_66:
             switch (state) {
                 case 175:
                     return 215;
                 case 178:
                     return 222;
-                case 233:
-                    return 244;
-                case 234:
-                    return 245;
                 case 236:
-                    return 246;
+                    return 247;
+                case 237:
+                    return 248;
+                case 239:
+                    return 249;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_66:
+        case NonTerminal::_67:
             switch (state) {
                 case 76:
                     return 80;
                 case 79:
                     return 128;
                 case 81:
-                    return 130;
-                case 131:
-                    return 183;
+                    return 132;
+                case 133:
+                    return 185;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_67:
+        case NonTerminal::_68:
             switch (state) {
                 case 21:
                     return 40;
@@ -203,11 +203,11 @@ size_t get_goto(NonTerminal nterm, size_t state) {
                     return 69;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_68:
+        case NonTerminal::_69:
             switch (state) {
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_24:
+        case NonTerminal::_25:
             switch (state) {
                 case 90:
                     return 143;
@@ -217,59 +217,77 @@ size_t get_goto(NonTerminal nterm, size_t state) {
                     return 150;
                 case 124:
                     return 180;
-                case 175: case 178: case 232: case 233: case 234: case 236:
+                case 131:
+                    return 183;
+                case 175: case 178: case 235: case 236: case 237: case 239:
                     return 219;
-                case 228:
-                    return 238;
-                case 239:
-                    return 247;
+                case 231:
+                    return 241;
+                case 242:
+                    return 251;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_69:
+        case NonTerminal::_70:
             switch (state) {
                 default: report_abort_noh("get invalid goto");
             }
         case NonTerminal::_7:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 131:
+                case 76: case 79: case 81: case 82: case 133:
                     return 84;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_70:
+        case NonTerminal::_71:
             switch (state) {
                 case 20:
                     return 36;
                 case 71:
                     return 78;
                 case 89:
-                    return 141;
-                case 140:
-                    return 188;
-                case 142:
-                    return 189;
+                    return 142;
+                case 183:
+                    return 226;
                 default: report_abort_noh("get invalid goto");
             }
         case NonTerminal::_11:
             switch (state) {
-                case 20: case 71: case 89: case 140: case 142:
+                case 20: case 71: case 89: case 183:
                     return 37;
                 case 62:
                     return 72;
                 case 88:
-                    return 139;
+                    return 141;
                 case 90:
                     return 144;
-                case 134:
-                    return 184;
+                case 136:
+                    return 186;
                 case 143:
                     return 190;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_71:
+        case NonTerminal::_72:
+            switch (state) {
+                case 80:
+                    return 129;
+                case 128:
+                    return 181;
+                case 132:
+                    return 184;
+                case 185:
+                    return 228;
+                default: report_abort_noh("get invalid goto");
+            }
+        case NonTerminal::_12:
+            switch (state) {
+                case 80: case 128: case 132: case 185:
+                    return 130;
+                default: report_abort_noh("get invalid goto");
+            }
+        case NonTerminal::_73:
             switch (state) {
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_15:
+        case NonTerminal::_16:
             switch (state) {
                 case 32:
                     return 50;
@@ -277,10 +295,10 @@ size_t get_goto(NonTerminal nterm, size_t state) {
                     return 62;
                 case 52:
                     return 66;
-                case 137:
-                    return 186;
-                case 187:
-                    return 229;
+                case 139:
+                    return 188;
+                case 189:
+                    return 232;
                 default: report_abort_noh("get invalid goto");
             }
         case NonTerminal::_2:
@@ -297,7 +315,7 @@ size_t get_goto(NonTerminal nterm, size_t state) {
                     return 5;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_12:
+        case NonTerminal::_13:
             switch (state) {
                 case 62:
                     return 71;
@@ -305,11 +323,11 @@ size_t get_goto(NonTerminal nterm, size_t state) {
                     return 193;
                 case 150:
                     return 195;
-                case 230:
-                    return 240;
+                case 233:
+                    return 243;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_16:
+        case NonTerminal::_17:
             switch (state) {
                 case 7:
                     return 11;
@@ -331,131 +349,131 @@ size_t get_goto(NonTerminal nterm, size_t state) {
             }
         case NonTerminal::_8:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 131:
+                case 76: case 79: case 81: case 82: case 133:
                     return 85;
                 default: report_abort_noh("get invalid goto");
             }
         case NonTerminal::_9:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 131:
+                case 76: case 79: case 81: case 82: case 133:
                     return 86;
+                default: report_abort_noh("get invalid goto");
+            }
+        case NonTerminal::_27:
+            switch (state) {
+                case 76: case 79: case 81: case 82: case 133:
+                    return 88;
+                case 90: case 96: case 97: case 124: case 131: case 175: case 178: case 231: case 235: case 236: case 237: case 239: case 242:
+                    return 146;
                 default: report_abort_noh("get invalid goto");
             }
         case NonTerminal::_26:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 131:
-                    return 88;
-                case 90: case 96: case 97: case 124: case 175: case 178: case 228: case 232: case 233: case 234: case 236: case 239:
-                    return 146;
-                default: report_abort_noh("get invalid goto");
-            }
-        case NonTerminal::_25:
-            switch (state) {
-                case 76: case 79: case 81: case 82: case 131:
+                case 76: case 79: case 81: case 82: case 133:
                     return 89;
-                case 90: case 96: case 97: case 124: case 175: case 178: case 228: case 232: case 233: case 234: case 236: case 239:
+                case 90: case 96: case 97: case 124: case 131: case 175: case 178: case 231: case 235: case 236: case 237: case 239: case 242:
                     return 145;
-                default: report_abort_noh("get invalid goto");
-            }
-        case NonTerminal::_13:
-            switch (state) {
-                case 62: case 149: case 150: case 230:
-                    return 73;
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 175: case 178: case 228: case 232: case 233: case 234: case 236: case 239:
-                    return 94;
                 default: report_abort_noh("get invalid goto");
             }
         case NonTerminal::_14:
             switch (state) {
-                case 62: case 149: case 150: case 230:
+                case 62: case 149: case 150: case 233:
+                    return 73;
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 133: case 175: case 178: case 231: case 235: case 236: case 237: case 239: case 242:
+                    return 94;
+                default: report_abort_noh("get invalid goto");
+            }
+        case NonTerminal::_15:
+            switch (state) {
+                case 62: case 149: case 150: case 233:
                     return 74;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_19:
+        case NonTerminal::_20:
             switch (state) {
                 case 7: case 16: case 25: case 51: case 168:
                     return 12;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_17:
+        case NonTerminal::_18:
             switch (state) {
                 case 7: case 16: case 25: case 51: case 168:
                     return 13;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_18:
+        case NonTerminal::_19:
             switch (state) {
                 case 7: case 16: case 25: case 51: case 168:
                     return 14;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_47:
+        case NonTerminal::_48:
             switch (state) {
                 case 7: case 16: case 25: case 51: case 168:
                     return 15;
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 109: case 110: case 111: case 112: case 113: case 124: case 131: case 147: case 148: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 173: case 175: case 178: case 228: case 232: case 233: case 234: case 236: case 239:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 109: case 110: case 111: case 112: case 113: case 124: case 131: case 133: case 147: case 148: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 173: case 175: case 178: case 231: case 235: case 236: case 237: case 239: case 242:
                     return 126;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_23:
+        case NonTerminal::_24:
             switch (state) {
                 case 19: case 49:
                     return 30;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_22:
+        case NonTerminal::_23:
             switch (state) {
                 case 19: case 49:
                     return 31;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_29:
+        case NonTerminal::_30:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 175: case 178: case 228: case 232: case 233: case 234: case 236: case 239:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 133: case 175: case 178: case 231: case 235: case 236: case 237: case 239: case 242:
                     return 91;
                 case 147:
                     return 191;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_27:
-            switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 175: case 178: case 228: case 232: case 233: case 234: case 236: case 239:
-                    return 92;
-                case 230:
-                    return 241;
-                default: report_abort_noh("get invalid goto");
-            }
         case NonTerminal::_28:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 175: case 178: case 228: case 232: case 233: case 234: case 236: case 239:
-                    return 93;
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 133: case 175: case 178: case 231: case 235: case 236: case 237: case 239: case 242:
+                    return 92;
+                case 233:
+                    return 244;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_30:
+        case NonTerminal::_29:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 147: case 175: case 178: case 228: case 232: case 233: case 234: case 236: case 239:
-                    return 95;
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 133: case 175: case 178: case 231: case 235: case 236: case 237: case 239: case 242:
+                    return 93;
                 default: report_abort_noh("get invalid goto");
             }
         case NonTerminal::_31:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 147: case 175: case 178: case 228: case 232: case 233: case 234: case 236: case 239:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 133: case 147: case 175: case 178: case 231: case 235: case 236: case 237: case 239: case 242:
+                    return 95;
+                default: report_abort_noh("get invalid goto");
+            }
+        case NonTerminal::_32:
+            switch (state) {
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 133: case 147: case 175: case 178: case 231: case 235: case 236: case 237: case 239: case 242:
                     return 98;
                 case 148:
                     return 192;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_32:
+        case NonTerminal::_33:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 147: case 148: case 175: case 178: case 228: case 232: case 233: case 234: case 236: case 239:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 133: case 147: case 148: case 175: case 178: case 231: case 235: case 236: case 237: case 239: case 242:
                     return 99;
                 case 151:
                     return 196;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_33:
+        case NonTerminal::_34:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 147: case 148: case 151: case 175: case 178: case 228: case 232: case 233: case 234: case 236: case 239:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 133: case 147: case 148: case 151: case 175: case 178: case 231: case 235: case 236: case 237: case 239: case 242:
                     return 100;
                 case 152:
                     return 197;
@@ -463,9 +481,9 @@ size_t get_goto(NonTerminal nterm, size_t state) {
                     return 198;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_34:
+        case NonTerminal::_35:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 147: case 148: case 151: case 152: case 153: case 175: case 178: case 228: case 232: case 233: case 234: case 236: case 239:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 133: case 147: case 148: case 151: case 152: case 153: case 175: case 178: case 231: case 235: case 236: case 237: case 239: case 242:
                     return 101;
                 case 154:
                     return 199;
@@ -477,33 +495,33 @@ size_t get_goto(NonTerminal nterm, size_t state) {
                     return 202;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_35:
+        case NonTerminal::_36:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 147: case 148: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 175: case 178: case 228: case 232: case 233: case 234: case 236: case 239:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 133: case 147: case 148: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 175: case 178: case 231: case 235: case 236: case 237: case 239: case 242:
                     return 102;
                 case 158:
                     return 203;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_36:
+        case NonTerminal::_37:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 147: case 148: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 175: case 178: case 228: case 232: case 233: case 234: case 236: case 239:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 133: case 147: case 148: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 175: case 178: case 231: case 235: case 236: case 237: case 239: case 242:
                     return 103;
                 case 159:
                     return 204;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_37:
+        case NonTerminal::_38:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 147: case 148: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 175: case 178: case 228: case 232: case 233: case 234: case 236: case 239:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 133: case 147: case 148: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 175: case 178: case 231: case 235: case 236: case 237: case 239: case 242:
                     return 104;
                 case 160:
                     return 205;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_38:
+        case NonTerminal::_39:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 147: case 148: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 160: case 175: case 178: case 228: case 232: case 233: case 234: case 236: case 239:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 133: case 147: case 148: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 160: case 175: case 178: case 231: case 235: case 236: case 237: case 239: case 242:
                     return 105;
                 case 161:
                     return 206;
@@ -511,9 +529,9 @@ size_t get_goto(NonTerminal nterm, size_t state) {
                     return 207;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_39:
+        case NonTerminal::_40:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 147: case 148: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 175: case 178: case 228: case 232: case 233: case 234: case 236: case 239:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 133: case 147: case 148: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 175: case 178: case 231: case 235: case 236: case 237: case 239: case 242:
                     return 106;
                 case 163:
                     return 208;
@@ -521,9 +539,9 @@ size_t get_goto(NonTerminal nterm, size_t state) {
                     return 209;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_41:
+        case NonTerminal::_42:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 147: case 148: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 175: case 178: case 228: case 232: case 233: case 234: case 236: case 239:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 133: case 147: case 148: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 175: case 178: case 231: case 235: case 236: case 237: case 239: case 242:
                     return 108;
                 case 109:
                     return 169;
@@ -545,39 +563,39 @@ size_t get_goto(NonTerminal nterm, size_t state) {
                     return 214;
                 default: report_abort_noh("get invalid goto");
             }
-        case NonTerminal::_40:
+        case NonTerminal::_41:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 147: case 148: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 175: case 178: case 228: case 232: case 233: case 234: case 236: case 239:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 124: case 131: case 133: case 147: case 148: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 175: case 178: case 231: case 235: case 236: case 237: case 239: case 242:
                     return 107;
-                default: report_abort_noh("get invalid goto");
-            }
-        case NonTerminal::_42:
-            switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 109: case 110: case 111: case 112: case 113: case 124: case 131: case 147: case 148: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 173: case 175: case 178: case 228: case 232: case 233: case 234: case 236: case 239:
-                    return 114;
                 default: report_abort_noh("get invalid goto");
             }
         case NonTerminal::_43:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 109: case 110: case 111: case 112: case 113: case 124: case 131: case 147: case 148: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 173: case 175: case 178: case 228: case 232: case 233: case 234: case 236: case 239:
-                    return 115;
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 109: case 110: case 111: case 112: case 113: case 124: case 131: case 133: case 147: case 148: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 173: case 175: case 178: case 231: case 235: case 236: case 237: case 239: case 242:
+                    return 114;
                 default: report_abort_noh("get invalid goto");
             }
         case NonTerminal::_44:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 109: case 110: case 111: case 112: case 113: case 124: case 131: case 147: case 148: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 173: case 175: case 178: case 228: case 232: case 233: case 234: case 236: case 239:
-                    return 116;
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 109: case 110: case 111: case 112: case 113: case 124: case 131: case 133: case 147: case 148: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 173: case 175: case 178: case 231: case 235: case 236: case 237: case 239: case 242:
+                    return 115;
                 default: report_abort_noh("get invalid goto");
             }
         case NonTerminal::_45:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 109: case 110: case 111: case 112: case 113: case 124: case 131: case 147: case 148: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 173: case 175: case 178: case 228: case 232: case 233: case 234: case 236: case 239:
-                    return 117;
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 109: case 110: case 111: case 112: case 113: case 124: case 131: case 133: case 147: case 148: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 173: case 175: case 178: case 231: case 235: case 236: case 237: case 239: case 242:
+                    return 116;
                 default: report_abort_noh("get invalid goto");
             }
         case NonTerminal::_46:
             switch (state) {
-                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 109: case 110: case 111: case 112: case 113: case 124: case 131: case 147: case 148: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 173: case 175: case 178: case 228: case 232: case 233: case 234: case 236: case 239:
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 109: case 110: case 111: case 112: case 113: case 124: case 131: case 133: case 147: case 148: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 173: case 175: case 178: case 231: case 235: case 236: case 237: case 239: case 242:
+                    return 117;
+                default: report_abort_noh("get invalid goto");
+            }
+        case NonTerminal::_47:
+            switch (state) {
+                case 76: case 79: case 81: case 82: case 90: case 96: case 97: case 109: case 110: case 111: case 112: case 113: case 124: case 131: case 133: case 147: case 148: case 151: case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159: case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167: case 173: case 175: case 178: case 231: case 235: case 236: case 237: case 239: case 242:
                     return 125;
                 default: report_abort_noh("get invalid goto");
             }
@@ -680,7 +698,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
 
             push->decls.push_back(std::move(a0));
                             std::unique_ptr<ASTNS::DeclList> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_61, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_61 });
+                            stack.emplace_back(get_goto(NonTerminal::_62, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_62 });
                         }
                         break;
                 }
@@ -766,7 +784,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     a0->decls.push_back(std::move(a1));
                             std::unique_ptr<ASTNS::DeclList> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_61, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_61 });
+                            stack.emplace_back(get_goto(NonTerminal::_62, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_62 });
                         }
                         break;
                 }
@@ -782,7 +800,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Decl> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_60, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_60 });
+                            stack.emplace_back(get_goto(NonTerminal::_61, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_61 });
                         }
                         break;
                 }
@@ -827,7 +845,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Type> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_16, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_16 });
+                            stack.emplace_back(get_goto(NonTerminal::_17, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_17 });
                         }
                         break;
                 }
@@ -843,7 +861,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Type> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_16, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_16 });
+                            stack.emplace_back(get_goto(NonTerminal::_17, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_17 });
                         }
                         break;
                 }
@@ -859,7 +877,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Type> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_16, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_16 });
+                            stack.emplace_back(get_goto(NonTerminal::_17, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_17 });
                         }
                         break;
                 }
@@ -876,7 +894,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::PathType> push (std::make_unique<ASTNS::PathType>(p.sourcefile, span, std::move(a0)));
                             std::unique_ptr<ASTNS::PathType> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_19, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_19 });
+                            stack.emplace_back(get_goto(NonTerminal::_20, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_20 });
                         }
                         break;
                     case Tokens::index_of<Tokens::DoubleColon>:
@@ -926,7 +944,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::ThisType> push (std::make_unique<ASTNS::ThisType>(p.sourcefile, span, a0));
                             std::unique_ptr<ASTNS::ThisType> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_18, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_18 });
+                            stack.emplace_back(get_goto(NonTerminal::_19, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_19 });
                         }
                         break;
                 }
@@ -946,7 +964,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
 
             push->segments.push_back(a0);
                             std::unique_ptr<ASTNS::Path> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_47, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_47 });
+                            stack.emplace_back(get_goto(NonTerminal::_48, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_48 });
                         }
                         break;
                 }
@@ -959,7 +977,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::ParamList> push (std::make_unique<ASTNS::ParamList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::ParamB>> {}));
                             std::unique_ptr<ASTNS::ParamList> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_64, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_64 });
+                            stack.emplace_back(get_goto(NonTerminal::_65, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_65 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
@@ -993,6 +1011,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                     case Tokens::index_of<Tokens::Bang>:
                     case Tokens::index_of<Tokens::BoolLit>:
                     case Tokens::index_of<Tokens::CBrace>:
+                    case Tokens::index_of<Tokens::Caret>:
                     case Tokens::index_of<Tokens::CharLit>:
                     case Tokens::index_of<Tokens::Dedent>:
                     case Tokens::index_of<Tokens::FloatLit>:
@@ -1016,7 +1035,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::PureLocation> pushitem = nullptr;
-                            stack.emplace_back(get_goto(NonTerminal::_70, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_70 });
+                            stack.emplace_back(get_goto(NonTerminal::_71, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_71 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Newline>:
@@ -1043,7 +1062,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::ImplMember>> {}));
                             std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_67, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_67 });
+                            stack.emplace_back(get_goto(NonTerminal::_68, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_68 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Fun>:
@@ -1100,7 +1119,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::PointerType> push (std::make_unique<ASTNS::PointerType>(p.sourcefile, span, false, std::move(a1)));
                             std::unique_ptr<ASTNS::PointerType> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_17, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_17 });
+                            stack.emplace_back(get_goto(NonTerminal::_18, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_18 });
                         }
                         break;
                 }
@@ -1150,7 +1169,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::ParamList> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_64, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_64 });
+                            stack.emplace_back(get_goto(NonTerminal::_65, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_65 });
                         }
                         break;
                 }
@@ -1166,7 +1185,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::ParamList> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_50, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_50 });
+                            stack.emplace_back(get_goto(NonTerminal::_51, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_51 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Comma>:
@@ -1190,7 +1209,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
 
             push->params.push_back(std::move(a0));
                             std::unique_ptr<ASTNS::ParamList> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_51, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_51 });
+                            stack.emplace_back(get_goto(NonTerminal::_52, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_52 });
                         }
                         break;
                 }
@@ -1206,7 +1225,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::ParamB> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_21, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_21 });
+                            stack.emplace_back(get_goto(NonTerminal::_22, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_22 });
                         }
                         break;
                 }
@@ -1222,7 +1241,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::ParamB> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_21, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_21 });
+                            stack.emplace_back(get_goto(NonTerminal::_22, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_22 });
                         }
                         break;
                 }
@@ -1264,7 +1283,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::ThisParam> push (std::make_unique<ASTNS::ThisParam>(p.sourcefile, span, false, false));
                             std::unique_ptr<ASTNS::ThisParam> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_22, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_22 });
+                            stack.emplace_back(get_goto(NonTerminal::_23, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_23 });
                         }
                         break;
                 }
@@ -1319,7 +1338,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::PureLocation> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_70, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_70 });
+                            stack.emplace_back(get_goto(NonTerminal::_71, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_71 });
                         }
                         break;
                 }
@@ -1386,7 +1405,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::ImplMember>> {}));
                             std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_67, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_67 });
+                            stack.emplace_back(get_goto(NonTerminal::_68, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_68 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Fun>:
@@ -1415,7 +1434,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_67, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_67 });
+                            stack.emplace_back(get_goto(NonTerminal::_68, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_68 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Fun>:
@@ -1439,7 +1458,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
 
             push->members.push_back(std::move(a0));
                             std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_63, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_63 });
+                            stack.emplace_back(get_goto(NonTerminal::_64, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_64 });
                         }
                         break;
                 }
@@ -1470,7 +1489,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::ImplMember>> {}));
                             std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_67, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_67 });
+                            stack.emplace_back(get_goto(NonTerminal::_68, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_68 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Fun>:
@@ -1500,7 +1519,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     a0->segments.push_back(a2);
                             std::unique_ptr<ASTNS::Path> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_47, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_47 });
+                            stack.emplace_back(get_goto(NonTerminal::_48, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_48 });
                         }
                         break;
                 }
@@ -1522,7 +1541,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::PointerType> push (std::make_unique<ASTNS::PointerType>(p.sourcefile, span, true, std::move(a2)));
                             std::unique_ptr<ASTNS::PointerType> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_17, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_17 });
+                            stack.emplace_back(get_goto(NonTerminal::_18, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_18 });
                         }
                         break;
                 }
@@ -1553,7 +1572,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 Maybe<Location const>(a1.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::ParamList> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_50, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_50 });
+                            stack.emplace_back(get_goto(NonTerminal::_51, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_51 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
@@ -1593,7 +1612,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::Param> push (std::make_unique<ASTNS::Param>(p.sourcefile, span, std::move(a1), a0, false));
                             std::unique_ptr<ASTNS::Param> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_23, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_23 });
+                            stack.emplace_back(get_goto(NonTerminal::_24, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_24 });
                         }
                         break;
                 }
@@ -1647,7 +1666,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::ThisParam> push (std::make_unique<ASTNS::ThisParam>(p.sourcefile, span, true, false));
                             std::unique_ptr<ASTNS::ThisParam> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_22, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_22 });
+                            stack.emplace_back(get_goto(NonTerminal::_23, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_23 });
                         }
                         break;
                 }
@@ -1725,7 +1744,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::ImplMember>> {}));
                             std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_67, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_67 });
+                            stack.emplace_back(get_goto(NonTerminal::_68, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_68 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Fun>:
@@ -1753,7 +1772,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     a0->members.push_back(std::move(a1));
                             std::unique_ptr<ASTNS::ImplMemberList> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_63, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_63 });
+                            stack.emplace_back(get_goto(NonTerminal::_64, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_64 });
                         }
                         break;
                 }
@@ -1769,7 +1788,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::ImplMember> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_62, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_62 });
+                            stack.emplace_back(get_goto(NonTerminal::_63, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_63 });
                         }
                         break;
                 }
@@ -1825,7 +1844,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     a0->params.push_back(std::move(a2));
                             std::unique_ptr<ASTNS::ParamList> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_51, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_51 });
+                            stack.emplace_back(get_goto(NonTerminal::_52, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_52 });
                         }
                         break;
                 }
@@ -1841,7 +1860,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::ParamB> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_49, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_49 });
+                            stack.emplace_back(get_goto(NonTerminal::_50, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_50 });
                         }
                         break;
                 }
@@ -1860,7 +1879,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 Maybe<Location const>(a0.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Type> pushitem = std::move(a1);
-                            stack.emplace_back(get_goto(NonTerminal::_15, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_15 });
+                            stack.emplace_back(get_goto(NonTerminal::_16, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_16 });
                         }
                         break;
                 }
@@ -1882,7 +1901,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::Param> push (std::make_unique<ASTNS::Param>(p.sourcefile, span, std::move(a2), a1, true));
                             std::unique_ptr<ASTNS::Param> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_23, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_23 });
+                            stack.emplace_back(get_goto(NonTerminal::_24, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_24 });
                         }
                         break;
                 }
@@ -1904,7 +1923,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::ThisParam> push (std::make_unique<ASTNS::ThisParam>(p.sourcefile, span, true, true));
                             std::unique_ptr<ASTNS::ThisParam> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_22, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_22 });
+                            stack.emplace_back(get_goto(NonTerminal::_23, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_23 });
                         }
                         break;
                 }
@@ -1971,6 +1990,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                     case Tokens::index_of<Tokens::Bang>:
                     case Tokens::index_of<Tokens::BoolLit>:
                     case Tokens::index_of<Tokens::CBrace>:
+                    case Tokens::index_of<Tokens::Caret>:
                     case Tokens::index_of<Tokens::CharLit>:
                     case Tokens::index_of<Tokens::Dedent>:
                     case Tokens::index_of<Tokens::FloatLit>:
@@ -1994,7 +2014,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::PureLocation> pushitem = nullptr;
-                            stack.emplace_back(get_goto(NonTerminal::_70, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_70 });
+                            stack.emplace_back(get_goto(NonTerminal::_71, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_71 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Newline>:
@@ -2052,7 +2072,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Block> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_12, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_12 });
+                            stack.emplace_back(get_goto(NonTerminal::_13, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_13 });
                         }
                         break;
                 }
@@ -2068,7 +2088,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Block> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_12, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_12 });
+                            stack.emplace_back(get_goto(NonTerminal::_13, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_13 });
                         }
                         break;
                 }
@@ -2114,13 +2134,14 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     case Tokens::index_of<Tokens::CBrace>:
+                    case Tokens::index_of<Tokens::Caret>:
                     case Tokens::index_of<Tokens::Dedent>:
                         {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Stmt>> {}));
                             std::unique_ptr<ASTNS::StmtList> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_66, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_66 });
+                            stack.emplace_back(get_goto(NonTerminal::_67, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_67 });
                         }
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
@@ -2267,13 +2288,14 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     case Tokens::index_of<Tokens::CBrace>:
+                    case Tokens::index_of<Tokens::Caret>:
                     case Tokens::index_of<Tokens::Dedent>:
                         {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Stmt>> {}));
                             std::unique_ptr<ASTNS::StmtList> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_66, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_66 });
+                            stack.emplace_back(get_goto(NonTerminal::_67, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_67 });
                         }
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
@@ -2359,12 +2381,21 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
             case 80:
                 switch (next_token.value.index()) {
                     case Tokens::index_of<Tokens::CBrace>:
-                        stack.emplace_back(129, TokenItem { next_token });
+                    case Tokens::index_of<Tokens::Dedent>:
+                        {
+                            Maybe<Location const> start, end;
+                            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+                            std::unique_ptr<ASTNS::Expr> pushitem = nullptr;
+                            stack.emplace_back(get_goto(NonTerminal::_72, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_72 });
+                        }
+                        break;
+                    case Tokens::index_of<Tokens::Caret>:
+                        stack.emplace_back(131, TokenItem { next_token });
                         last_token = next_token;
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", Tokens::CBrace::stringify(), "braced code block") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", "optional implicit return value", "braced code block") } );
                         errored = done = true;
                 }
                 break;
@@ -2386,13 +2417,14 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     case Tokens::index_of<Tokens::CBrace>:
+                    case Tokens::index_of<Tokens::Caret>:
                     case Tokens::index_of<Tokens::Dedent>:
                         {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Stmt>> {}));
                             std::unique_ptr<ASTNS::StmtList> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_66, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_66 });
+                            stack.emplace_back(get_goto(NonTerminal::_67, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_67 });
                         }
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
@@ -2416,7 +2448,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     case Tokens::index_of<Tokens::Indent>:
-                        stack.emplace_back(131, TokenItem { next_token });
+                        stack.emplace_back(133, TokenItem { next_token });
                         last_token = next_token;
                         next_token = p.consume();
                         break;
@@ -2506,7 +2538,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::StmtList> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_66, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_66 });
+                            stack.emplace_back(get_goto(NonTerminal::_67, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_67 });
                         }
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
@@ -2600,7 +2632,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
 
             push->stmts.push_back(std::move(a0));
                             std::unique_ptr<ASTNS::StmtList> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_59, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_59 });
+                            stack.emplace_back(get_goto(NonTerminal::_60, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_60 });
                         }
                         break;
                 }
@@ -2656,12 +2688,12 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
             case 87:
                 switch (next_token.value.index()) {
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(137, TokenItem { next_token });
+                        stack.emplace_back(139, TokenItem { next_token });
                         last_token = next_token;
                         next_token = p.consume();
                         break;
                     case Tokens::index_of<Tokens::Mut>:
-                        stack.emplace_back(138, TokenItem { next_token });
+                        stack.emplace_back(140, TokenItem { next_token });
                         last_token = next_token;
                         next_token = p.consume();
                         break;
@@ -2672,11 +2704,6 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                 break;
             case 88:
                 switch (next_token.value.index()) {
-                    case Tokens::index_of<Tokens::Dollar>:
-                        stack.emplace_back(140, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
                     case Tokens::index_of<Tokens::Newline>:
                         stack.emplace_back(38, TokenItem { next_token });
                         last_token = next_token;
@@ -2688,7 +2715,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", format("either {} or {}", "line ending", Tokens::Dollar::stringify()), "expression statement") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", "line ending", "expression statement") } );
                         errored = done = true;
                 }
                 break;
@@ -2698,6 +2725,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                     case Tokens::index_of<Tokens::Bang>:
                     case Tokens::index_of<Tokens::BoolLit>:
                     case Tokens::index_of<Tokens::CBrace>:
+                    case Tokens::index_of<Tokens::Caret>:
                     case Tokens::index_of<Tokens::CharLit>:
                     case Tokens::index_of<Tokens::Dedent>:
                     case Tokens::index_of<Tokens::FloatLit>:
@@ -2721,13 +2749,8 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::PureLocation> pushitem = nullptr;
-                            stack.emplace_back(get_goto(NonTerminal::_70, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_70 });
+                            stack.emplace_back(get_goto(NonTerminal::_71, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_71 });
                         }
-                        break;
-                    case Tokens::index_of<Tokens::Dollar>:
-                        stack.emplace_back(142, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
                         break;
                     case Tokens::index_of<Tokens::Newline>:
                         stack.emplace_back(38, TokenItem { next_token });
@@ -2740,7 +2763,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", format("either {} or {}", "optional line ending", Tokens::Dollar::stringify()), "expression statement") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", "optional line ending", "expression statement") } );
                         errored = done = true;
                 }
                 break;
@@ -2852,7 +2875,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_26, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_26 });
+                            stack.emplace_back(get_goto(NonTerminal::_27, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_27 });
                         }
                         break;
                 }
@@ -2868,7 +2891,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_25, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_25 });
+                            stack.emplace_back(get_goto(NonTerminal::_26, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_26 });
                         }
                         break;
                 }
@@ -2884,7 +2907,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_25, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_25 });
+                            stack.emplace_back(get_goto(NonTerminal::_26, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_26 });
                         }
                         break;
                 }
@@ -2900,7 +2923,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_25, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_25 });
+                            stack.emplace_back(get_goto(NonTerminal::_26, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_26 });
                         }
                         break;
                 }
@@ -2916,7 +2939,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_29, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_29 });
+                            stack.emplace_back(get_goto(NonTerminal::_30, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_30 });
                         }
                         break;
                     case Tokens::index_of<Tokens::DoublePipe>:
@@ -3116,7 +3139,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_30, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_30 });
+                            stack.emplace_back(get_goto(NonTerminal::_31, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_31 });
                         }
                         break;
                     case Tokens::index_of<Tokens::DoubleAmper>:
@@ -3142,7 +3165,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_31, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_31 });
+                            stack.emplace_back(get_goto(NonTerminal::_32, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_32 });
                         }
                         break;
                     case Tokens::index_of<Tokens::DoubleEqual>:
@@ -3163,7 +3186,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_32, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_32 });
+                            stack.emplace_back(get_goto(NonTerminal::_33, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_33 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Greater>:
@@ -3199,7 +3222,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_33, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_33 });
+                            stack.emplace_back(get_goto(NonTerminal::_34, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_34 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Caret>:
@@ -3220,7 +3243,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_34, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_34 });
+                            stack.emplace_back(get_goto(NonTerminal::_35, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_35 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Pipe>:
@@ -3246,7 +3269,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_35, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_35 });
+                            stack.emplace_back(get_goto(NonTerminal::_36, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_36 });
                         }
                         break;
                 }
@@ -3262,7 +3285,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_36, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_36 });
+                            stack.emplace_back(get_goto(NonTerminal::_37, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_37 });
                         }
                         break;
                     case Tokens::index_of<Tokens::DoubleGreater>:
@@ -3288,7 +3311,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_37, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_37 });
+                            stack.emplace_back(get_goto(NonTerminal::_38, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_38 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Minus>:
@@ -3314,7 +3337,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_38, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_38 });
+                            stack.emplace_back(get_goto(NonTerminal::_39, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_39 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Percent>:
@@ -3345,7 +3368,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_39, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_39 });
+                            stack.emplace_back(get_goto(NonTerminal::_40, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_40 });
                         }
                         break;
                     case Tokens::index_of<Tokens::RightArrow>:
@@ -3366,7 +3389,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_40, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_40 });
+                            stack.emplace_back(get_goto(NonTerminal::_41, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_41 });
                         }
                         break;
                 }
@@ -3747,7 +3770,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_41, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_41 });
+                            stack.emplace_back(get_goto(NonTerminal::_42, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_42 });
                         }
                         break;
                     case Tokens::index_of<Tokens::OParen>:
@@ -3773,7 +3796,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_41, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_41 });
+                            stack.emplace_back(get_goto(NonTerminal::_42, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_42 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Period>:
@@ -3794,7 +3817,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_41, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_41 });
+                            stack.emplace_back(get_goto(NonTerminal::_42, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_42 });
                         }
                         break;
                     case Tokens::index_of<Tokens::OParen>:
@@ -3820,7 +3843,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_42, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_42 });
+                            stack.emplace_back(get_goto(NonTerminal::_43, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_43 });
                         }
                         break;
                 }
@@ -3838,7 +3861,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::BoolLit> push (std::make_unique<ASTNS::BoolLit>(p.sourcefile, span, a0));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_45, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_45 });
+                            stack.emplace_back(get_goto(NonTerminal::_46, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_46 });
                         }
                         break;
                 }
@@ -3856,7 +3879,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::FloatLit> push (std::make_unique<ASTNS::FloatLit>(p.sourcefile, span, a0));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_45, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_45 });
+                            stack.emplace_back(get_goto(NonTerminal::_46, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_46 });
                         }
                         break;
                 }
@@ -3874,7 +3897,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::IntLit> push (std::make_unique<ASTNS::IntLit>(p.sourcefile, span, a0));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_45, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_45 });
+                            stack.emplace_back(get_goto(NonTerminal::_46, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_46 });
                         }
                         break;
                 }
@@ -3892,7 +3915,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::CharLit> push (std::make_unique<ASTNS::CharLit>(p.sourcefile, span, a0));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_45, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_45 });
+                            stack.emplace_back(get_goto(NonTerminal::_46, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_46 });
                         }
                         break;
                 }
@@ -3910,7 +3933,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::StringLit> push (std::make_unique<ASTNS::StringLit>(p.sourcefile, span, a0));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_45, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_45 });
+                            stack.emplace_back(get_goto(NonTerminal::_46, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_46 });
                         }
                         break;
                 }
@@ -3928,7 +3951,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::ThisExpr> push (std::make_unique<ASTNS::ThisExpr>(p.sourcefile, span, a0));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_45, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_45 });
+                            stack.emplace_back(get_goto(NonTerminal::_46, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_46 });
                         }
                         break;
                 }
@@ -4031,7 +4054,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_45, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_45 });
+                            stack.emplace_back(get_goto(NonTerminal::_46, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_46 });
                         }
                         break;
                 }
@@ -4048,7 +4071,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::PathExpr> push (std::make_unique<ASTNS::PathExpr>(p.sourcefile, span, std::move(a0)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_46, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_46 });
+                            stack.emplace_back(get_goto(NonTerminal::_47, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_47 });
                         }
                         break;
                     case Tokens::index_of<Tokens::DoubleColon>:
@@ -4086,38 +4109,26 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                 break;
             case 128:
                 switch (next_token.value.index()) {
+                    case Tokens::index_of<Tokens::CBrace>:
                     case Tokens::index_of<Tokens::Dedent>:
-                        stack.emplace_back(181, TokenItem { next_token });
+                        {
+                            Maybe<Location const> start, end;
+                            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+                            std::unique_ptr<ASTNS::Expr> pushitem = nullptr;
+                            stack.emplace_back(get_goto(NonTerminal::_72, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_72 });
+                        }
+                        break;
+                    case Tokens::index_of<Tokens::Caret>:
+                        stack.emplace_back(131, TokenItem { next_token });
                         last_token = next_token;
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", Tokens::Dedent::stringify(), "indented code block") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", "optional implicit return value", "indented code block") } );
                         errored = done = true;
                 }
                 break;
             case 129:
-                switch (next_token.value.index()) {
-                    default:
-                        {
-                            auto _a2 (pop_as<TokenItem>(stack).tok);
-                            Located<Tokens::CBrace> a2 { _a2.span, Tokens::as<Tokens::CBrace>(_a2.value) };
-                            auto a1 (pop_as<ASTItem<std::unique_ptr<ASTNS::StmtList>>>(stack).ast);
-                            auto _a0 (pop_as<TokenItem>(stack).tok);
-                            Located<Tokens::OBrace> a0 { _a0.span, Tokens::as<Tokens::OBrace>(_a0.value) };
-                            Maybe<Location const> start =
-                                Maybe<Location const>(a0.span.start);
-                            Maybe<Location const> end =
-                                Maybe<Location const>(a2.span.end);
-                            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, span, std::move(a1->stmts)));
-                            std::unique_ptr<ASTNS::Block> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_13, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_13 });
-                        }
-                        break;
-                }
-                break;
-            case 130:
                 switch (next_token.value.index()) {
                     case Tokens::index_of<Tokens::CBrace>:
                         stack.emplace_back(182, TokenItem { next_token });
@@ -4127,6 +4138,22 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                     default:
                         ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", Tokens::CBrace::stringify(), "braced code block") } );
                         errored = done = true;
+                }
+                break;
+            case 130:
+                switch (next_token.value.index()) {
+                    default:
+                        {
+                            auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
+                            Maybe<Location const> start =
+                                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
+                            Maybe<Location const> end =
+                                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
+                            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+                            std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
+                            stack.emplace_back(get_goto(NonTerminal::_72, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_72 });
+                        }
+                        break;
                 }
                 break;
             case 131:
@@ -4146,14 +4173,123 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         last_token = next_token;
                         next_token = p.consume();
                         break;
+                    case Tokens::index_of<Tokens::CharLit>:
+                        stack.emplace_back(121, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::FloatLit>:
+                        stack.emplace_back(119, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::Identifier>:
+                        stack.emplace_back(18, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::If>:
+                        stack.emplace_back(96, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::IntLit>:
+                        stack.emplace_back(120, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::Minus>:
+                        stack.emplace_back(110, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::OBrace>:
+                        stack.emplace_back(76, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::OParen>:
+                        stack.emplace_back(124, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::Star>:
+                        stack.emplace_back(113, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::StringLit>:
+                        stack.emplace_back(122, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::This>:
+                        stack.emplace_back(123, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::Tilde>:
+                        stack.emplace_back(109, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::While>:
+                        stack.emplace_back(97, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    default:
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", "expression", "implicit return value") } );
+                        errored = done = true;
+                }
+                break;
+            case 132:
+                switch (next_token.value.index()) {
                     case Tokens::index_of<Tokens::CBrace>:
+                    case Tokens::index_of<Tokens::Dedent>:
+                        {
+                            Maybe<Location const> start, end;
+                            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+                            std::unique_ptr<ASTNS::Expr> pushitem = nullptr;
+                            stack.emplace_back(get_goto(NonTerminal::_72, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_72 });
+                        }
+                        break;
+                    case Tokens::index_of<Tokens::Caret>:
+                        stack.emplace_back(131, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    default:
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", "optional implicit return value", "braced code block") } );
+                        errored = done = true;
+                }
+                break;
+            case 133:
+                switch (next_token.value.index()) {
+                    case Tokens::index_of<Tokens::Amper>:
+                        stack.emplace_back(112, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::Bang>:
+                        stack.emplace_back(111, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::BoolLit>:
+                        stack.emplace_back(118, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::CBrace>:
+                    case Tokens::index_of<Tokens::Caret>:
                     case Tokens::index_of<Tokens::Dedent>:
                         {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Stmt>> {}));
                             std::unique_ptr<ASTNS::StmtList> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_66, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_66 });
+                            stack.emplace_back(get_goto(NonTerminal::_67, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_67 });
                         }
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
@@ -4236,7 +4372,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         errored = done = true;
                 }
                 break;
-            case 132:
+            case 134:
                 switch (next_token.value.index()) {
                     default:
                         {
@@ -4251,12 +4387,12 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     a0->stmts.push_back(std::move(a1));
                             std::unique_ptr<ASTNS::StmtList> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_59, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_59 });
+                            stack.emplace_back(get_goto(NonTerminal::_60, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_60 });
                         }
                         break;
                 }
                 break;
-            case 133:
+            case 135:
                 switch (next_token.value.index()) {
                     default:
                         {
@@ -4267,12 +4403,12 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Stmt> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_58, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_58 });
+                            stack.emplace_back(get_goto(NonTerminal::_59, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_59 });
                         }
                         break;
                 }
                 break;
-            case 134:
+            case 136:
                 switch (next_token.value.index()) {
                     case Tokens::index_of<Tokens::Newline>:
                         stack.emplace_back(38, TokenItem { next_token });
@@ -4289,10 +4425,10 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         errored = done = true;
                 }
                 break;
-            case 135:
+            case 137:
                 switch (next_token.value.index()) {
                     case Tokens::index_of<Tokens::Comma>:
-                        stack.emplace_back(185, TokenItem { next_token });
+                        stack.emplace_back(187, TokenItem { next_token });
                         last_token = next_token;
                         next_token = p.consume();
                         break;
@@ -4305,12 +4441,12 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::VarStmtItemList> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_56, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_56 });
+                            stack.emplace_back(get_goto(NonTerminal::_57, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_57 });
                         }
                         break;
                 }
                 break;
-            case 136:
+            case 138:
                 switch (next_token.value.index()) {
                     default:
                         {
@@ -4324,12 +4460,12 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
 
             push->items.push_back(std::move(a0));
                             std::unique_ptr<ASTNS::VarStmtItemList> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_57, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_57 });
+                            stack.emplace_back(get_goto(NonTerminal::_58, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_58 });
                         }
                         break;
                 }
                 break;
-            case 137:
+            case 139:
                 switch (next_token.value.index()) {
                     case Tokens::index_of<Tokens::Colon>:
                         stack.emplace_back(51, TokenItem { next_token });
@@ -4341,82 +4477,15 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         errored = done = true;
                 }
                 break;
-            case 138:
+            case 140:
                 switch (next_token.value.index()) {
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(187, TokenItem { next_token });
+                        stack.emplace_back(189, TokenItem { next_token });
                         last_token = next_token;
                         next_token = p.consume();
                         break;
                     default:
                         ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", Tokens::Identifier::stringify(), "variable binding") } );
-                        errored = done = true;
-                }
-                break;
-            case 139:
-                switch (next_token.value.index()) {
-                    default:
-                        {
-                            auto a1 (pop_as<ASTItem<std::unique_ptr<ASTNS::PureLocation>>>(stack).ast);
-                            auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
-                            Maybe<Location const> start =
-                                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-                                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().start) : Maybe<Location const>();
-                            Maybe<Location const> end =
-                                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
-                                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
-                            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourcefile, span, std::move(a0), false, Maybe<Span const>()));
-                            std::unique_ptr<ASTNS::ExprStmt> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_8, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_8 });
-                        }
-                        break;
-                }
-                break;
-            case 140:
-                switch (next_token.value.index()) {
-                    case Tokens::index_of<Tokens::Amper>:
-                    case Tokens::index_of<Tokens::Bang>:
-                    case Tokens::index_of<Tokens::BoolLit>:
-                    case Tokens::index_of<Tokens::CBrace>:
-                    case Tokens::index_of<Tokens::CharLit>:
-                    case Tokens::index_of<Tokens::Dedent>:
-                    case Tokens::index_of<Tokens::FloatLit>:
-                    case Tokens::index_of<Tokens::Fun>:
-                    case Tokens::index_of<Tokens::Identifier>:
-                    case Tokens::index_of<Tokens::If>:
-                    case Tokens::index_of<Tokens::Impl>:
-                    case Tokens::index_of<Tokens::IntLit>:
-                    case Tokens::index_of<Tokens::Minus>:
-                    case Tokens::index_of<Tokens::OBrace>:
-                    case Tokens::index_of<Tokens::OParen>:
-                    case Tokens::index_of<Tokens::Return>:
-                    case Tokens::index_of<Tokens::Star>:
-                    case Tokens::index_of<Tokens::StringLit>:
-                    case Tokens::index_of<Tokens::This>:
-                    case Tokens::index_of<Tokens::Tilde>:
-                    case Tokens::index_of<Tokens::Var>:
-                    case Tokens::index_of<Tokens::While>:
-                    case Tokens::index_of<Tokens::_EOF>:
-                        {
-                            Maybe<Location const> start, end;
-                            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-                            std::unique_ptr<ASTNS::PureLocation> pushitem = nullptr;
-                            stack.emplace_back(get_goto(NonTerminal::_70, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_70 });
-                        }
-                        break;
-                    case Tokens::index_of<Tokens::Newline>:
-                        stack.emplace_back(38, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::Semicolon>:
-                        stack.emplace_back(39, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", "optional line ending", "expression statement") } );
                         errored = done = true;
                 }
                 break;
@@ -4433,7 +4502,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourcefile, span, std::move(a0), false, Maybe<Span const>()));
+    std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourcefile, span, std::move(a0)));
                             std::unique_ptr<ASTNS::ExprStmt> pushitem = std::move(push);
                             stack.emplace_back(get_goto(NonTerminal::_8, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_8 });
                         }
@@ -4442,49 +4511,22 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                 break;
             case 142:
                 switch (next_token.value.index()) {
-                    case Tokens::index_of<Tokens::Amper>:
-                    case Tokens::index_of<Tokens::Bang>:
-                    case Tokens::index_of<Tokens::BoolLit>:
-                    case Tokens::index_of<Tokens::CBrace>:
-                    case Tokens::index_of<Tokens::CharLit>:
-                    case Tokens::index_of<Tokens::Dedent>:
-                    case Tokens::index_of<Tokens::FloatLit>:
-                    case Tokens::index_of<Tokens::Fun>:
-                    case Tokens::index_of<Tokens::Identifier>:
-                    case Tokens::index_of<Tokens::If>:
-                    case Tokens::index_of<Tokens::Impl>:
-                    case Tokens::index_of<Tokens::IntLit>:
-                    case Tokens::index_of<Tokens::Minus>:
-                    case Tokens::index_of<Tokens::OBrace>:
-                    case Tokens::index_of<Tokens::OParen>:
-                    case Tokens::index_of<Tokens::Return>:
-                    case Tokens::index_of<Tokens::Star>:
-                    case Tokens::index_of<Tokens::StringLit>:
-                    case Tokens::index_of<Tokens::This>:
-                    case Tokens::index_of<Tokens::Tilde>:
-                    case Tokens::index_of<Tokens::Var>:
-                    case Tokens::index_of<Tokens::While>:
-                    case Tokens::index_of<Tokens::_EOF>:
+                    default:
                         {
-                            Maybe<Location const> start, end;
+                            auto a1 (pop_as<ASTItem<std::unique_ptr<ASTNS::PureLocation>>>(stack).ast);
+                            auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
+                            Maybe<Location const> start =
+                                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+                                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().start) : Maybe<Location const>();
+                            Maybe<Location const> end =
+                                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
+                                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-                            std::unique_ptr<ASTNS::PureLocation> pushitem = nullptr;
-                            stack.emplace_back(get_goto(NonTerminal::_70, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_70 });
+    std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourcefile, span, std::move(a0)));
+                            std::unique_ptr<ASTNS::ExprStmt> pushitem = std::move(push);
+                            stack.emplace_back(get_goto(NonTerminal::_8, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_8 });
                         }
                         break;
-                    case Tokens::index_of<Tokens::Newline>:
-                        stack.emplace_back(38, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::Semicolon>:
-                        stack.emplace_back(39, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", "optional line ending", "expression statement") } );
-                        errored = done = true;
                 }
                 break;
             case 143:
@@ -4535,7 +4577,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_24, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_24 });
+                            stack.emplace_back(get_goto(NonTerminal::_25, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_25 });
                         }
                         break;
                 }
@@ -4551,7 +4593,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_24, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_24 });
+                            stack.emplace_back(get_goto(NonTerminal::_25, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_25 });
                         }
                         break;
                 }
@@ -5995,7 +6037,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::UnaryExpr> push (std::make_unique<ASTNS::UnaryExpr>(p.sourcefile, span, Located<ASTNS::UnaryOperator> { a0.span, ASTNS::UnaryOperator::TILDE }, std::move(a1)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_41, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_41 });
+                            stack.emplace_back(get_goto(NonTerminal::_42, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_42 });
                         }
                         break;
                 }
@@ -6015,7 +6057,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::UnaryExpr> push (std::make_unique<ASTNS::UnaryExpr>(p.sourcefile, span, Located<ASTNS::UnaryOperator> { a0.span, ASTNS::UnaryOperator::MINUS }, std::move(a1)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_41, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_41 });
+                            stack.emplace_back(get_goto(NonTerminal::_42, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_42 });
                         }
                         break;
                 }
@@ -6035,7 +6077,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::UnaryExpr> push (std::make_unique<ASTNS::UnaryExpr>(p.sourcefile, span, Located<ASTNS::UnaryOperator> { a0.span, ASTNS::UnaryOperator::BANG }, std::move(a1)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_41, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_41 });
+                            stack.emplace_back(get_goto(NonTerminal::_42, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_42 });
                         }
                         break;
                 }
@@ -6055,7 +6097,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::AddrofExpr> push (std::make_unique<ASTNS::AddrofExpr>(p.sourcefile, span, a0, std::move(a1), false));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_41, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_41 });
+                            stack.emplace_back(get_goto(NonTerminal::_42, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_42 });
                         }
                         break;
                 }
@@ -6147,7 +6189,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::DerefExpr> push (std::make_unique<ASTNS::DerefExpr>(p.sourcefile, span, a0, std::move(a1)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_41, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_41 });
+                            stack.emplace_back(get_goto(NonTerminal::_42, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_42 });
                         }
                         break;
                 }
@@ -6175,7 +6217,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Arg>> {}));
                             std::unique_ptr<ASTNS::ArgList> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_65, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_65 });
+                            stack.emplace_back(get_goto(NonTerminal::_66, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_66 });
                         }
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
@@ -6295,7 +6337,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Arg>> {}));
                             std::unique_ptr<ASTNS::ArgList> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_65, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_65 });
+                            stack.emplace_back(get_goto(NonTerminal::_66, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_66 });
                         }
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
@@ -6394,25 +6436,14 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                 break;
             case 181:
                 switch (next_token.value.index()) {
-                    default:
-                        {
-                            auto _a3 (pop_as<TokenItem>(stack).tok);
-                            Located<Tokens::Dedent> a3 { _a3.span, Tokens::as<Tokens::Dedent>(_a3.value) };
-                            auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::StmtList>>>(stack).ast);
-                            auto _a1 (pop_as<TokenItem>(stack).tok);
-                            Located<Tokens::Indent> a1 { _a1.span, Tokens::as<Tokens::Indent>(_a1.value) };
-                            auto _a0 (pop_as<TokenItem>(stack).tok);
-                            Located<Tokens::Newline> a0 { _a0.span, Tokens::as<Tokens::Newline>(_a0.value) };
-                            Maybe<Location const> start =
-                                Maybe<Location const>(a0.span.start);
-                            Maybe<Location const> end =
-                                Maybe<Location const>(a3.span.end);
-                            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, span, std::move(a2->stmts)));
-                            std::unique_ptr<ASTNS::Block> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_14, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_14 });
-                        }
+                    case Tokens::index_of<Tokens::Dedent>:
+                        stack.emplace_back(225, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
                         break;
+                    default:
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", Tokens::Dedent::stringify(), "indented code block") } );
+                        errored = done = true;
                 }
                 break;
             case 182:
@@ -6421,9 +6452,8 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         {
                             auto _a3 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::CBrace> a3 { _a3.span, Tokens::as<Tokens::CBrace>(_a3.value) };
-                            auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::StmtList>>>(stack).ast);
-                            auto _a1 (pop_as<TokenItem>(stack).tok);
-                            Located<Tokens::Newline> a1 { _a1.span, Tokens::as<Tokens::Newline>(_a1.value) };
+                            auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
+                            auto a1 (pop_as<ASTItem<std::unique_ptr<ASTNS::StmtList>>>(stack).ast);
                             auto _a0 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::OBrace> a0 { _a0.span, Tokens::as<Tokens::OBrace>(_a0.value) };
                             Maybe<Location const> start =
@@ -6431,26 +6461,95 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Location const> end =
                                 Maybe<Location const>(a3.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    WARN_BLOCK_NO_INDENT(a0.span, a3.span);std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, span, std::move(a2->stmts)));
+    std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, span, std::move(a1->stmts), std::move(a2)));
                             std::unique_ptr<ASTNS::Block> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_13, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_13 });
+                            stack.emplace_back(get_goto(NonTerminal::_14, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_14 });
                         }
                         break;
                 }
                 break;
             case 183:
                 switch (next_token.value.index()) {
+                    case Tokens::index_of<Tokens::Amper>:
+                    case Tokens::index_of<Tokens::Bang>:
+                    case Tokens::index_of<Tokens::BoolLit>:
+                    case Tokens::index_of<Tokens::CBrace>:
+                    case Tokens::index_of<Tokens::Caret>:
+                    case Tokens::index_of<Tokens::CharLit>:
                     case Tokens::index_of<Tokens::Dedent>:
-                        stack.emplace_back(225, TokenItem { next_token });
+                    case Tokens::index_of<Tokens::FloatLit>:
+                    case Tokens::index_of<Tokens::Fun>:
+                    case Tokens::index_of<Tokens::Identifier>:
+                    case Tokens::index_of<Tokens::If>:
+                    case Tokens::index_of<Tokens::Impl>:
+                    case Tokens::index_of<Tokens::IntLit>:
+                    case Tokens::index_of<Tokens::Minus>:
+                    case Tokens::index_of<Tokens::OBrace>:
+                    case Tokens::index_of<Tokens::OParen>:
+                    case Tokens::index_of<Tokens::Return>:
+                    case Tokens::index_of<Tokens::Star>:
+                    case Tokens::index_of<Tokens::StringLit>:
+                    case Tokens::index_of<Tokens::This>:
+                    case Tokens::index_of<Tokens::Tilde>:
+                    case Tokens::index_of<Tokens::Var>:
+                    case Tokens::index_of<Tokens::While>:
+                    case Tokens::index_of<Tokens::_EOF>:
+                        {
+                            Maybe<Location const> start, end;
+                            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+                            std::unique_ptr<ASTNS::PureLocation> pushitem = nullptr;
+                            stack.emplace_back(get_goto(NonTerminal::_71, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_71 });
+                        }
+                        break;
+                    case Tokens::index_of<Tokens::Newline>:
+                        stack.emplace_back(38, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::Semicolon>:
+                        stack.emplace_back(39, TokenItem { next_token });
                         last_token = next_token;
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", Tokens::Dedent::stringify(), "braced code block") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", "optional line ending", "implicit return value") } );
                         errored = done = true;
                 }
                 break;
             case 184:
+                switch (next_token.value.index()) {
+                    case Tokens::index_of<Tokens::CBrace>:
+                        stack.emplace_back(227, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    default:
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", Tokens::CBrace::stringify(), "braced code block") } );
+                        errored = done = true;
+                }
+                break;
+            case 185:
+                switch (next_token.value.index()) {
+                    case Tokens::index_of<Tokens::CBrace>:
+                    case Tokens::index_of<Tokens::Dedent>:
+                        {
+                            Maybe<Location const> start, end;
+                            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+                            std::unique_ptr<ASTNS::Expr> pushitem = nullptr;
+                            stack.emplace_back(get_goto(NonTerminal::_72, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_72 });
+                        }
+                        break;
+                    case Tokens::index_of<Tokens::Caret>:
+                        stack.emplace_back(131, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    default:
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", "optional implicit return value", "braced code block") } );
+                        errored = done = true;
+                }
+                break;
+            case 186:
                 switch (next_token.value.index()) {
                     default:
                         {
@@ -6472,15 +6571,15 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         break;
                 }
                 break;
-            case 185:
+            case 187:
                 switch (next_token.value.index()) {
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(137, TokenItem { next_token });
+                        stack.emplace_back(139, TokenItem { next_token });
                         last_token = next_token;
                         next_token = p.consume();
                         break;
                     case Tokens::index_of<Tokens::Mut>:
-                        stack.emplace_back(138, TokenItem { next_token });
+                        stack.emplace_back(140, TokenItem { next_token });
                         last_token = next_token;
                         next_token = p.consume();
                         break;
@@ -6496,12 +6595,12 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 Maybe<Location const>(a1.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::VarStmtItemList> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_56, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_56 });
+                            stack.emplace_back(get_goto(NonTerminal::_57, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_57 });
                         }
                         break;
                 }
                 break;
-            case 186:
+            case 188:
                 switch (next_token.value.index()) {
                     default:
                         {
@@ -6520,13 +6619,13 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         }
                         break;
                     case Tokens::index_of<Tokens::Equal>:
-                        stack.emplace_back(228, TokenItem { next_token });
+                        stack.emplace_back(231, TokenItem { next_token });
                         last_token = next_token;
                         next_token = p.consume();
                         break;
                 }
                 break;
-            case 187:
+            case 189:
                 switch (next_token.value.index()) {
                     case Tokens::index_of<Tokens::Colon>:
                         stack.emplace_back(51, TokenItem { next_token });
@@ -6536,50 +6635,6 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                     default:
                         ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", "required type annotation", "variable binding") } );
                         errored = done = true;
-                }
-                break;
-            case 188:
-                switch (next_token.value.index()) {
-                    default:
-                        {
-                            auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::PureLocation>>>(stack).ast);
-                            auto _a1 (pop_as<TokenItem>(stack).tok);
-                            Located<Tokens::Dollar> a1 { _a1.span, Tokens::as<Tokens::Dollar>(_a1.value) };
-                            auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
-                            Maybe<Location const> start =
-                                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-                                Maybe<Location const>(a1.span.start);
-                            Maybe<Location const> end =
-                                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-                                Maybe<Location const>(a1.span.end);
-                            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourcefile, span, std::move(a0), true , Maybe<Span const>(a1.span)));
-                            std::unique_ptr<ASTNS::ExprStmt> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_8, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_8 });
-                        }
-                        break;
-                }
-                break;
-            case 189:
-                switch (next_token.value.index()) {
-                    default:
-                        {
-                            auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::PureLocation>>>(stack).ast);
-                            auto _a1 (pop_as<TokenItem>(stack).tok);
-                            Located<Tokens::Dollar> a1 { _a1.span, Tokens::as<Tokens::Dollar>(_a1.value) };
-                            auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
-                            Maybe<Location const> start =
-                                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-                                Maybe<Location const>(a1.span.start);
-                            Maybe<Location const> end =
-                                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
-                                Maybe<Location const>(a1.span.end);
-                            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::ExprStmt> push (std::make_unique<ASTNS::ExprStmt>(p.sourcefile, span, std::move(a0), true , Maybe<Span const>(a1.span)));
-                            std::unique_ptr<ASTNS::ExprStmt> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_8, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_8 });
-                        }
-                        break;
                 }
                 break;
             case 190:
@@ -6621,7 +6676,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::AssignmentExpr> push (std::make_unique<ASTNS::AssignmentExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::AssignOperator> { a1.span, ASTNS::AssignOperator::EQUAL }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_29, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_29 });
+                            stack.emplace_back(get_goto(NonTerminal::_30, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_30 });
                         }
                         break;
                 }
@@ -6643,7 +6698,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::ShortCircuitExpr> push (std::make_unique<ASTNS::ShortCircuitExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::ShortCircuitOperator> { a1.span, ASTNS::ShortCircuitOperator::DOUBLEPIPE }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_30, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_30 });
+                            stack.emplace_back(get_goto(NonTerminal::_31, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_31 });
                         }
                         break;
                     case Tokens::index_of<Tokens::DoubleAmper>:
@@ -6670,11 +6725,11 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefile, span, a0, Maybe<Located<Tokens::Else>>(), std::move(a1), std::move(a2), nullptr));
                             std::unique_ptr<ASTNS::IfExpr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_27, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_27 });
+                            stack.emplace_back(get_goto(NonTerminal::_28, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_28 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Else>:
-                        stack.emplace_back(230, TokenItem { next_token });
+                        stack.emplace_back(233, TokenItem { next_token });
                         last_token = next_token;
                         next_token = p.consume();
                         break;
@@ -6709,7 +6764,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::WhileExpr> push (std::make_unique<ASTNS::WhileExpr>(p.sourcefile, span, std::move(a1), std::move(a2)));
                             std::unique_ptr<ASTNS::WhileExpr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_28, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_28 });
+                            stack.emplace_back(get_goto(NonTerminal::_29, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_29 });
                         }
                         break;
                 }
@@ -6736,7 +6791,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::ShortCircuitExpr> push (std::make_unique<ASTNS::ShortCircuitExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::ShortCircuitOperator> { a1.span, ASTNS::ShortCircuitOperator::DOUBLEAMPER }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_31, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_31 });
+                            stack.emplace_back(get_goto(NonTerminal::_32, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_32 });
                         }
                         break;
                     case Tokens::index_of<Tokens::DoubleEqual>:
@@ -6763,7 +6818,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::BANGEQUAL }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_32, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_32 });
+                            stack.emplace_back(get_goto(NonTerminal::_33, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_33 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Greater>:
@@ -6805,7 +6860,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::DOUBLEEQUAL }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_32, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_32 });
+                            stack.emplace_back(get_goto(NonTerminal::_33, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_33 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Greater>:
@@ -6847,7 +6902,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::LESS }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_33, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_33 });
+                            stack.emplace_back(get_goto(NonTerminal::_34, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_34 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Caret>:
@@ -6874,7 +6929,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::GREATER }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_33, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_33 });
+                            stack.emplace_back(get_goto(NonTerminal::_34, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_34 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Caret>:
@@ -6901,7 +6956,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::LESSEQUAL }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_33, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_33 });
+                            stack.emplace_back(get_goto(NonTerminal::_34, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_34 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Caret>:
@@ -6928,7 +6983,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::GREATEREQUAL }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_33, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_33 });
+                            stack.emplace_back(get_goto(NonTerminal::_34, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_34 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Caret>:
@@ -6955,7 +7010,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::CARET }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_34, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_34 });
+                            stack.emplace_back(get_goto(NonTerminal::_35, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_35 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Pipe>:
@@ -6987,7 +7042,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::PIPE }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_35, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_35 });
+                            stack.emplace_back(get_goto(NonTerminal::_36, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_36 });
                         }
                         break;
                 }
@@ -7009,7 +7064,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::AMPER }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_36, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_36 });
+                            stack.emplace_back(get_goto(NonTerminal::_37, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_37 });
                         }
                         break;
                     case Tokens::index_of<Tokens::DoubleGreater>:
@@ -7041,7 +7096,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::DOUBLEGREATER }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_37, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_37 });
+                            stack.emplace_back(get_goto(NonTerminal::_38, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_38 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Minus>:
@@ -7073,7 +7128,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::DOUBLELESS }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_37, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_37 });
+                            stack.emplace_back(get_goto(NonTerminal::_38, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_38 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Minus>:
@@ -7105,7 +7160,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::PLUS }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_38, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_38 });
+                            stack.emplace_back(get_goto(NonTerminal::_39, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_39 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Percent>:
@@ -7142,7 +7197,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::MINUS }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_38, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_38 });
+                            stack.emplace_back(get_goto(NonTerminal::_39, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_39 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Percent>:
@@ -7179,7 +7234,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::STAR }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_39, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_39 });
+                            stack.emplace_back(get_goto(NonTerminal::_40, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_40 });
                         }
                         break;
                 }
@@ -7201,7 +7256,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::SLASH }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_39, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_39 });
+                            stack.emplace_back(get_goto(NonTerminal::_40, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_40 });
                         }
                         break;
                 }
@@ -7223,7 +7278,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::BinaryExpr> push (std::make_unique<ASTNS::BinaryExpr>(p.sourcefile, span, std::move(a0), Located<ASTNS::BinaryOperator> { a1.span, ASTNS::BinaryOperator::PERCENT }, std::move(a2)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_39, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_39 });
+                            stack.emplace_back(get_goto(NonTerminal::_40, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_40 });
                         }
                         break;
                 }
@@ -7245,7 +7300,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::CastExpr> push (std::make_unique<ASTNS::CastExpr>(p.sourcefile, span, std::move(a2), std::move(a0)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_40, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_40 });
+                            stack.emplace_back(get_goto(NonTerminal::_41, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_41 });
                         }
                         break;
                 }
@@ -7267,7 +7322,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::AddrofExpr> push (std::make_unique<ASTNS::AddrofExpr>(p.sourcefile, span, a0, std::move(a2), true));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_41, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_41 });
+                            stack.emplace_back(get_goto(NonTerminal::_42, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_42 });
                         }
                         break;
                 }
@@ -7275,7 +7330,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
             case 215:
                 switch (next_token.value.index()) {
                     case Tokens::index_of<Tokens::CParen>:
-                        stack.emplace_back(231, TokenItem { next_token });
+                        stack.emplace_back(234, TokenItem { next_token });
                         last_token = next_token;
                         next_token = p.consume();
                         break;
@@ -7295,7 +7350,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::ArgList> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_65, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_65 });
+                            stack.emplace_back(get_goto(NonTerminal::_66, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_66 });
                         }
                         break;
                 }
@@ -7311,11 +7366,11 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::ArgList> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_53, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_53 });
+                            stack.emplace_back(get_goto(NonTerminal::_54, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_54 });
                         }
                         break;
                     case Tokens::index_of<Tokens::Comma>:
-                        stack.emplace_back(232, TokenItem { next_token });
+                        stack.emplace_back(235, TokenItem { next_token });
                         last_token = next_token;
                         next_token = p.consume();
                         break;
@@ -7335,7 +7390,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
 
             push->args.push_back(std::move(a0));
                             std::unique_ptr<ASTNS::ArgList> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_54, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_54 });
+                            stack.emplace_back(get_goto(NonTerminal::_55, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_55 });
                         }
                         break;
                 }
@@ -7352,7 +7407,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::Arg> push (std::make_unique<ASTNS::Arg>(p.sourcefile, span, std::move(a0)));
                             std::unique_ptr<ASTNS::Arg> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_20, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_20 });
+                            stack.emplace_back(get_goto(NonTerminal::_21, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_21 });
                         }
                         break;
                 }
@@ -7374,11 +7429,11 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::FieldAccessExpr> push (std::make_unique<ASTNS::FieldAccessExpr>(p.sourcefile, span, std::move(a0), a1, a2));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_43, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_43 });
+                            stack.emplace_back(get_goto(NonTerminal::_44, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_44 });
                         }
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(233, TokenItem { next_token });
+                        stack.emplace_back(236, TokenItem { next_token });
                         last_token = next_token;
                         next_token = p.consume();
                         break;
@@ -7401,11 +7456,11 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::FieldAccessExpr> push (std::make_unique<ASTNS::FieldAccessExpr>(p.sourcefile, span, std::move(a0), a1, a2));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_43, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_43 });
+                            stack.emplace_back(get_goto(NonTerminal::_44, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_44 });
                         }
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(234, TokenItem { next_token });
+                        stack.emplace_back(237, TokenItem { next_token });
                         last_token = next_token;
                         next_token = p.consume();
                         break;
@@ -7414,7 +7469,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
             case 222:
                 switch (next_token.value.index()) {
                     case Tokens::index_of<Tokens::CParen>:
-                        stack.emplace_back(235, TokenItem { next_token });
+                        stack.emplace_back(238, TokenItem { next_token });
                         last_token = next_token;
                         next_token = p.consume();
                         break;
@@ -7440,11 +7495,11 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::FieldAccessExpr> push (std::make_unique<ASTNS::FieldAccessExpr>(p.sourcefile, span, std::move(a0), a1, a2));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_43, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_43 });
+                            stack.emplace_back(get_goto(NonTerminal::_44, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_44 });
                         }
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(236, TokenItem { next_token });
+                        stack.emplace_back(239, TokenItem { next_token });
                         last_token = next_token;
                         next_token = p.consume();
                         break;
@@ -7465,24 +7520,93 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 Maybe<Location const>(a2.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(a1);
-                            stack.emplace_back(get_goto(NonTerminal::_45, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_45 });
+                            stack.emplace_back(get_goto(NonTerminal::_46, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_46 });
                         }
                         break;
                 }
                 break;
             case 225:
                 switch (next_token.value.index()) {
-                    case Tokens::index_of<Tokens::CBrace>:
-                        stack.emplace_back(237, TokenItem { next_token });
+                    default:
+                        {
+                            auto _a4 (pop_as<TokenItem>(stack).tok);
+                            Located<Tokens::Dedent> a4 { _a4.span, Tokens::as<Tokens::Dedent>(_a4.value) };
+                            auto a3 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
+                            auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::StmtList>>>(stack).ast);
+                            auto _a1 (pop_as<TokenItem>(stack).tok);
+                            Located<Tokens::Indent> a1 { _a1.span, Tokens::as<Tokens::Indent>(_a1.value) };
+                            auto _a0 (pop_as<TokenItem>(stack).tok);
+                            Located<Tokens::Newline> a0 { _a0.span, Tokens::as<Tokens::Newline>(_a0.value) };
+                            Maybe<Location const> start =
+                                Maybe<Location const>(a0.span.start);
+                            Maybe<Location const> end =
+                                Maybe<Location const>(a4.span.end);
+                            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+    std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, span, std::move(a2->stmts), std::move(a3)));
+                            std::unique_ptr<ASTNS::Block> pushitem = std::move(push);
+                            stack.emplace_back(get_goto(NonTerminal::_15, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_15 });
+                        }
+                        break;
+                }
+                break;
+            case 226:
+                switch (next_token.value.index()) {
+                    default:
+                        {
+                            auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::PureLocation>>>(stack).ast);
+                            auto a1 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
+                            auto _a0 (pop_as<TokenItem>(stack).tok);
+                            Located<Tokens::Caret> a0 { _a0.span, Tokens::as<Tokens::Caret>(_a0.value) };
+                            Maybe<Location const> start =
+                                Maybe<Location const>(a0.span.start);
+                            Maybe<Location const> end =
+                                a2 && a2->span().has() ? Maybe<Location const>(a2->span().get().end) :
+                                a1 && a1->span().has() ? Maybe<Location const>(a1->span().get().end) :
+                                Maybe<Location const>(a0.span.end);
+                            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+                            std::unique_ptr<ASTNS::Expr> pushitem = std::move(a1);
+                            stack.emplace_back(get_goto(NonTerminal::_12, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_12 });
+                        }
+                        break;
+                }
+                break;
+            case 227:
+                switch (next_token.value.index()) {
+                    default:
+                        {
+                            auto _a4 (pop_as<TokenItem>(stack).tok);
+                            Located<Tokens::CBrace> a4 { _a4.span, Tokens::as<Tokens::CBrace>(_a4.value) };
+                            auto a3 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
+                            auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::StmtList>>>(stack).ast);
+                            auto _a1 (pop_as<TokenItem>(stack).tok);
+                            Located<Tokens::Newline> a1 { _a1.span, Tokens::as<Tokens::Newline>(_a1.value) };
+                            auto _a0 (pop_as<TokenItem>(stack).tok);
+                            Located<Tokens::OBrace> a0 { _a0.span, Tokens::as<Tokens::OBrace>(_a0.value) };
+                            Maybe<Location const> start =
+                                Maybe<Location const>(a0.span.start);
+                            Maybe<Location const> end =
+                                Maybe<Location const>(a4.span.end);
+                            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+    WARN_BLOCK_NO_INDENT(a0.span, a4.span);std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, span, std::move(a2->stmts), std::move(a3)));
+                            std::unique_ptr<ASTNS::Block> pushitem = std::move(push);
+                            stack.emplace_back(get_goto(NonTerminal::_14, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_14 });
+                        }
+                        break;
+                }
+                break;
+            case 228:
+                switch (next_token.value.index()) {
+                    case Tokens::index_of<Tokens::Dedent>:
+                        stack.emplace_back(240, TokenItem { next_token });
                         last_token = next_token;
                         next_token = p.consume();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", Tokens::CBrace::stringify(), "braced code block") } );
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", Tokens::Dedent::stringify(), "braced code block") } );
                         errored = done = true;
                 }
                 break;
-            case 226:
+            case 229:
                 switch (next_token.value.index()) {
                     default:
                         {
@@ -7499,12 +7623,12 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     a0->items.push_back(std::move(a2));
                             std::unique_ptr<ASTNS::VarStmtItemList> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_57, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_57 });
+                            stack.emplace_back(get_goto(NonTerminal::_58, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_58 });
                         }
                         break;
                 }
                 break;
-            case 227:
+            case 230:
                 switch (next_token.value.index()) {
                     default:
                         {
@@ -7515,12 +7639,12 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::VarStmtItem> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_55, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_55 });
+                            stack.emplace_back(get_goto(NonTerminal::_56, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_56 });
                         }
                         break;
                 }
                 break;
-            case 228:
+            case 231:
                 switch (next_token.value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
                         stack.emplace_back(112, TokenItem { next_token });
@@ -7607,7 +7731,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         errored = done = true;
                 }
                 break;
-            case 229:
+            case 232:
                 switch (next_token.value.index()) {
                     default:
                         {
@@ -7628,13 +7752,13 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         }
                         break;
                     case Tokens::index_of<Tokens::Equal>:
-                        stack.emplace_back(239, TokenItem { next_token });
+                        stack.emplace_back(242, TokenItem { next_token });
                         last_token = next_token;
                         next_token = p.consume();
                         break;
                 }
                 break;
-            case 230:
+            case 233:
                 switch (next_token.value.index()) {
                     case Tokens::index_of<Tokens::If>:
                         stack.emplace_back(96, TokenItem { next_token });
@@ -7656,7 +7780,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         errored = done = true;
                 }
                 break;
-            case 231:
+            case 234:
                 switch (next_token.value.index()) {
                     default:
                         {
@@ -7674,12 +7798,12 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::CallExpr> push (std::make_unique<ASTNS::CallExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2->args)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_42, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_42 });
+                            stack.emplace_back(get_goto(NonTerminal::_43, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_43 });
                         }
                         break;
                 }
                 break;
-            case 232:
+            case 235:
                 switch (next_token.value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
                         stack.emplace_back(112, TokenItem { next_token });
@@ -7708,7 +7832,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 Maybe<Location const>(a1.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::ArgList> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_53, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_53 });
+                            stack.emplace_back(get_goto(NonTerminal::_54, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_54 });
                         }
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
@@ -7775,221 +7899,6 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         stack.emplace_back(97, TokenItem { next_token });
                         last_token = next_token;
                         next_token = p.consume();
-                        break;
-                }
-                break;
-            case 233:
-                switch (next_token.value.index()) {
-                    case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::CParen>:
-                        {
-                            Maybe<Location const> start, end;
-                            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Arg>> {}));
-                            std::unique_ptr<ASTNS::ArgList> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_65, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_65 });
-                        }
-                        break;
-                    case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::If>:
-                        stack.emplace_back(96, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::OBrace>:
-                        stack.emplace_back(76, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::While>:
-                        stack.emplace_back(97, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", "optional argument list", "method call expression") } );
-                        errored = done = true;
-                }
-                break;
-            case 234:
-                switch (next_token.value.index()) {
-                    case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::CParen>:
-                        {
-                            Maybe<Location const> start, end;
-                            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Arg>> {}));
-                            std::unique_ptr<ASTNS::ArgList> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_65, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_65 });
-                        }
-                        break;
-                    case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::If>:
-                        stack.emplace_back(96, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::OBrace>:
-                        stack.emplace_back(76, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    case Tokens::index_of<Tokens::While>:
-                        stack.emplace_back(97, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", "optional argument list", "method call expression") } );
-                        errored = done = true;
-                }
-                break;
-            case 235:
-                switch (next_token.value.index()) {
-                    default:
-                        {
-                            auto _a3 (pop_as<TokenItem>(stack).tok);
-                            Located<Tokens::CParen> a3 { _a3.span, Tokens::as<Tokens::CParen>(_a3.value) };
-                            auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::ArgList>>>(stack).ast);
-                            auto _a1 (pop_as<TokenItem>(stack).tok);
-                            Located<Tokens::OParen> a1 { _a1.span, Tokens::as<Tokens::OParen>(_a1.value) };
-                            auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
-                            Maybe<Location const> start =
-                                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
-                                Maybe<Location const>(a1.span.start);
-                            Maybe<Location const> end =
-                                Maybe<Location const>(a3.span.end);
-                            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::CallExpr> push (std::make_unique<ASTNS::CallExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2->args)));
-                            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_42, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_42 });
-                        }
                         break;
                 }
                 break;
@@ -8016,7 +7925,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Arg>> {}));
                             std::unique_ptr<ASTNS::ArgList> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_65, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_65 });
+                            stack.emplace_back(get_goto(NonTerminal::_66, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_66 });
                         }
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
@@ -8091,32 +8000,232 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                 break;
             case 237:
                 switch (next_token.value.index()) {
+                    case Tokens::index_of<Tokens::Amper>:
+                        stack.emplace_back(112, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::Bang>:
+                        stack.emplace_back(111, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::BoolLit>:
+                        stack.emplace_back(118, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::CParen>:
+                        {
+                            Maybe<Location const> start, end;
+                            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+    std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Arg>> {}));
+                            std::unique_ptr<ASTNS::ArgList> pushitem = std::move(push);
+                            stack.emplace_back(get_goto(NonTerminal::_66, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_66 });
+                        }
+                        break;
+                    case Tokens::index_of<Tokens::CharLit>:
+                        stack.emplace_back(121, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::FloatLit>:
+                        stack.emplace_back(119, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::Identifier>:
+                        stack.emplace_back(18, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::If>:
+                        stack.emplace_back(96, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::IntLit>:
+                        stack.emplace_back(120, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::Minus>:
+                        stack.emplace_back(110, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::OBrace>:
+                        stack.emplace_back(76, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::OParen>:
+                        stack.emplace_back(124, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::Star>:
+                        stack.emplace_back(113, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::StringLit>:
+                        stack.emplace_back(122, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::This>:
+                        stack.emplace_back(123, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::Tilde>:
+                        stack.emplace_back(109, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::While>:
+                        stack.emplace_back(97, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    default:
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", "optional argument list", "method call expression") } );
+                        errored = done = true;
+                }
+                break;
+            case 238:
+                switch (next_token.value.index()) {
                     default:
                         {
-                            auto _a5 (pop_as<TokenItem>(stack).tok);
-                            Located<Tokens::CBrace> a5 { _a5.span, Tokens::as<Tokens::CBrace>(_a5.value) };
-                            auto _a4 (pop_as<TokenItem>(stack).tok);
-                            Located<Tokens::Dedent> a4 { _a4.span, Tokens::as<Tokens::Dedent>(_a4.value) };
-                            auto a3 (pop_as<ASTItem<std::unique_ptr<ASTNS::StmtList>>>(stack).ast);
-                            auto _a2 (pop_as<TokenItem>(stack).tok);
-                            Located<Tokens::Indent> a2 { _a2.span, Tokens::as<Tokens::Indent>(_a2.value) };
+                            auto _a3 (pop_as<TokenItem>(stack).tok);
+                            Located<Tokens::CParen> a3 { _a3.span, Tokens::as<Tokens::CParen>(_a3.value) };
+                            auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::ArgList>>>(stack).ast);
                             auto _a1 (pop_as<TokenItem>(stack).tok);
-                            Located<Tokens::Newline> a1 { _a1.span, Tokens::as<Tokens::Newline>(_a1.value) };
-                            auto _a0 (pop_as<TokenItem>(stack).tok);
-                            Located<Tokens::OBrace> a0 { _a0.span, Tokens::as<Tokens::OBrace>(_a0.value) };
+                            Located<Tokens::OParen> a1 { _a1.span, Tokens::as<Tokens::OParen>(_a1.value) };
+                            auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             Maybe<Location const> start =
-                                Maybe<Location const>(a0.span.start);
+                                a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) :
+                                Maybe<Location const>(a1.span.start);
                             Maybe<Location const> end =
-                                Maybe<Location const>(a5.span.end);
+                                Maybe<Location const>(a3.span.end);
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
-    std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, span, std::move(a3->stmts)));
-                            std::unique_ptr<ASTNS::Block> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_13, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_13 });
+    std::unique_ptr<ASTNS::CallExpr> push (std::make_unique<ASTNS::CallExpr>(p.sourcefile, span, std::move(a0), a1, std::move(a2->args)));
+                            std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
+                            stack.emplace_back(get_goto(NonTerminal::_43, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_43 });
                         }
                         break;
                 }
                 break;
-            case 238:
+            case 239:
+                switch (next_token.value.index()) {
+                    case Tokens::index_of<Tokens::Amper>:
+                        stack.emplace_back(112, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::Bang>:
+                        stack.emplace_back(111, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::BoolLit>:
+                        stack.emplace_back(118, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::CParen>:
+                        {
+                            Maybe<Location const> start, end;
+                            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+    std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(p.sourcefile, span, std::vector<std::unique_ptr<ASTNS::Arg>> {}));
+                            std::unique_ptr<ASTNS::ArgList> pushitem = std::move(push);
+                            stack.emplace_back(get_goto(NonTerminal::_66, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_66 });
+                        }
+                        break;
+                    case Tokens::index_of<Tokens::CharLit>:
+                        stack.emplace_back(121, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::FloatLit>:
+                        stack.emplace_back(119, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::Identifier>:
+                        stack.emplace_back(18, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::If>:
+                        stack.emplace_back(96, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::IntLit>:
+                        stack.emplace_back(120, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::Minus>:
+                        stack.emplace_back(110, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::OBrace>:
+                        stack.emplace_back(76, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::OParen>:
+                        stack.emplace_back(124, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::Star>:
+                        stack.emplace_back(113, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::StringLit>:
+                        stack.emplace_back(122, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::This>:
+                        stack.emplace_back(123, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::Tilde>:
+                        stack.emplace_back(109, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    case Tokens::index_of<Tokens::While>:
+                        stack.emplace_back(97, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    default:
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", "optional argument list", "method call expression") } );
+                        errored = done = true;
+                }
+                break;
+            case 240:
+                switch (next_token.value.index()) {
+                    case Tokens::index_of<Tokens::CBrace>:
+                        stack.emplace_back(250, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    default:
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", Tokens::CBrace::stringify(), "braced code block") } );
+                        errored = done = true;
+                }
+                break;
+            case 241:
                 switch (next_token.value.index()) {
                     default:
                         {
@@ -8139,7 +8248,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         break;
                 }
                 break;
-            case 239:
+            case 242:
                 switch (next_token.value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
                         stack.emplace_back(112, TokenItem { next_token });
@@ -8226,7 +8335,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         errored = done = true;
                 }
                 break;
-            case 240:
+            case 243:
                 switch (next_token.value.index()) {
                     default:
                         {
@@ -8245,12 +8354,12 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefile, span, a0, a3, std::move(a1), std::move(a2), std::move(a4)));
                             std::unique_ptr<ASTNS::IfExpr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_27, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_27 });
+                            stack.emplace_back(get_goto(NonTerminal::_28, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_28 });
                         }
                         break;
                 }
                 break;
-            case 241:
+            case 244:
                 switch (next_token.value.index()) {
                     default:
                         {
@@ -8269,12 +8378,12 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::IfExpr> push (std::make_unique<ASTNS::IfExpr>(p.sourcefile, span, a0, a3, std::move(a1), std::move(a2), std::move(a4)));
                             std::unique_ptr<ASTNS::IfExpr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_27, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_27 });
+                            stack.emplace_back(get_goto(NonTerminal::_28, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_28 });
                         }
                         break;
                 }
                 break;
-            case 242:
+            case 245:
                 switch (next_token.value.index()) {
                     default:
                         {
@@ -8291,12 +8400,12 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     a0->args.push_back(std::move(a2));
                             std::unique_ptr<ASTNS::ArgList> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_54, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_54 });
+                            stack.emplace_back(get_goto(NonTerminal::_55, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_55 });
                         }
                         break;
                 }
                 break;
-            case 243:
+            case 246:
                 switch (next_token.value.index()) {
                     default:
                         {
@@ -8307,48 +8416,76 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().end) : Maybe<Location const>();
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Arg> pushitem = std::move(a0);
-                            stack.emplace_back(get_goto(NonTerminal::_52, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_52 });
+                            stack.emplace_back(get_goto(NonTerminal::_53, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_53 });
                         }
                         break;
                 }
                 break;
-            case 244:
-                switch (next_token.value.index()) {
-                    case Tokens::index_of<Tokens::CParen>:
-                        stack.emplace_back(248, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", Tokens::CParen::stringify(), "method call expression") } );
-                        errored = done = true;
-                }
-                break;
-            case 245:
-                switch (next_token.value.index()) {
-                    case Tokens::index_of<Tokens::CParen>:
-                        stack.emplace_back(249, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", Tokens::CParen::stringify(), "method call expression") } );
-                        errored = done = true;
-                }
-                break;
-            case 246:
-                switch (next_token.value.index()) {
-                    case Tokens::index_of<Tokens::CParen>:
-                        stack.emplace_back(250, TokenItem { next_token });
-                        last_token = next_token;
-                        next_token = p.consume();
-                        break;
-                    default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", Tokens::CParen::stringify(), "method call expression") } );
-                        errored = done = true;
-                }
-                break;
             case 247:
+                switch (next_token.value.index()) {
+                    case Tokens::index_of<Tokens::CParen>:
+                        stack.emplace_back(252, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    default:
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", Tokens::CParen::stringify(), "method call expression") } );
+                        errored = done = true;
+                }
+                break;
+            case 248:
+                switch (next_token.value.index()) {
+                    case Tokens::index_of<Tokens::CParen>:
+                        stack.emplace_back(253, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    default:
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", Tokens::CParen::stringify(), "method call expression") } );
+                        errored = done = true;
+                }
+                break;
+            case 249:
+                switch (next_token.value.index()) {
+                    case Tokens::index_of<Tokens::CParen>:
+                        stack.emplace_back(254, TokenItem { next_token });
+                        last_token = next_token;
+                        next_token = p.consume();
+                        break;
+                    default:
+                        ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, { format("expected {} of {}", Tokens::CParen::stringify(), "method call expression") } );
+                        errored = done = true;
+                }
+                break;
+            case 250:
+                switch (next_token.value.index()) {
+                    default:
+                        {
+                            auto _a6 (pop_as<TokenItem>(stack).tok);
+                            Located<Tokens::CBrace> a6 { _a6.span, Tokens::as<Tokens::CBrace>(_a6.value) };
+                            auto _a5 (pop_as<TokenItem>(stack).tok);
+                            Located<Tokens::Dedent> a5 { _a5.span, Tokens::as<Tokens::Dedent>(_a5.value) };
+                            auto a4 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
+                            auto a3 (pop_as<ASTItem<std::unique_ptr<ASTNS::StmtList>>>(stack).ast);
+                            auto _a2 (pop_as<TokenItem>(stack).tok);
+                            Located<Tokens::Indent> a2 { _a2.span, Tokens::as<Tokens::Indent>(_a2.value) };
+                            auto _a1 (pop_as<TokenItem>(stack).tok);
+                            Located<Tokens::Newline> a1 { _a1.span, Tokens::as<Tokens::Newline>(_a1.value) };
+                            auto _a0 (pop_as<TokenItem>(stack).tok);
+                            Located<Tokens::OBrace> a0 { _a0.span, Tokens::as<Tokens::OBrace>(_a0.value) };
+                            Maybe<Location const> start =
+                                Maybe<Location const>(a0.span.start);
+                            Maybe<Location const> end =
+                                Maybe<Location const>(a6.span.end);
+                            Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
+    std::unique_ptr<ASTNS::Block> push (std::make_unique<ASTNS::Block>(p.sourcefile, span, std::move(a3->stmts), std::move(a4)));
+                            std::unique_ptr<ASTNS::Block> pushitem = std::move(push);
+                            stack.emplace_back(get_goto(NonTerminal::_14, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_14 });
+                        }
+                        break;
+                }
+                break;
+            case 251:
                 switch (next_token.value.index()) {
                     default:
                         {
@@ -8373,7 +8510,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                         break;
                 }
                 break;
-            case 248:
+            case 252:
                 switch (next_token.value.index()) {
                     default:
                         {
@@ -8395,12 +8532,12 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::MethodCallExpr> push (std::make_unique<ASTNS::MethodCallExpr>(p.sourcefile, span, std::move(a0), a1, a2, a3, std::move(a4->args)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_44, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_44 });
+                            stack.emplace_back(get_goto(NonTerminal::_45, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_45 });
                         }
                         break;
                 }
                 break;
-            case 249:
+            case 253:
                 switch (next_token.value.index()) {
                     default:
                         {
@@ -8422,12 +8559,12 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::MethodCallExpr> push (std::make_unique<ASTNS::MethodCallExpr>(p.sourcefile, span, std::move(a0), a1, a2, a3, std::move(a4->args)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_44, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_44 });
+                            stack.emplace_back(get_goto(NonTerminal::_45, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_45 });
                         }
                         break;
                 }
                 break;
-            case 250:
+            case 254:
                 switch (next_token.value.index()) {
                     default:
                         {
@@ -8449,7 +8586,7 @@ std::unique_ptr<ASTNS::CUB> _parse(Parser &p) {
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
     std::unique_ptr<ASTNS::MethodCallExpr> push (std::make_unique<ASTNS::MethodCallExpr>(p.sourcefile, span, std::move(a0), a1, a2, a3, std::move(a4->args)));
                             std::unique_ptr<ASTNS::Expr> pushitem = std::move(push);
-                            stack.emplace_back(get_goto(NonTerminal::_44, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_44 });
+                            stack.emplace_back(get_goto(NonTerminal::_45, stack.back().state), ASTItem<decltype(pushitem)>{ std::move(pushitem), NonTerminal::_45 });
                         }
                         break;
                 }

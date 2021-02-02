@@ -71,7 +71,7 @@ asts = [
     AST('VarStmt'           , 'Stmt', 'std::vector<std::unique_ptr<VarStmtItem>>|items'),
     AST('VarStmtItem'       , 'VStmtIB', 'std::unique_ptr<Type>|type, bool|mut, Located<Tokens::Identifier>|name, Maybe<Located<Tokens::Equal>>|equal, std::unique_ptr<Expr>|expr'),
 
-    AST('ExprStmt'          , 'Stmt', 'std::unique_ptr<Expr>|expr, bool|suppress, Maybe<Span const>|dot'),
+    AST('ExprStmt'          , 'Stmt', 'std::unique_ptr<Expr>|expr'),
     AST('RetStmt'           , 'Stmt', 'std::unique_ptr<Expr>|expr'),
 
     AST('PathType'          , 'Type', 'std::unique_ptr<Path>|path'),
@@ -83,7 +83,7 @@ asts = [
     AST('Param'             , 'ParamB', 'std::unique_ptr<Type>|type, Located<Tokens::Identifier>|name, bool|mut'),
     AST('ThisParam'         , 'ParamB', 'bool|ptr, bool|mut'),
 
-    AST('Block'             , 'Expr', 'std::vector<std::unique_ptr<Stmt>>|stmts'),
+    AST('Block'             , 'Expr', 'std::vector<std::unique_ptr<Stmt>>|stmts, std::unique_ptr<Expr>|ret'),
     AST('IfExpr'            , 'Expr', 'Located<Tokens::If>|iftok, Maybe<Located<Tokens::Else>>|elsetok, std::unique_ptr<Expr>|cond, std::unique_ptr<Expr>|trues, std::unique_ptr<Expr>|falses'),
     AST('WhileExpr'         , 'Expr', 'std::unique_ptr<Expr>|cond, std::unique_ptr<Expr>|body'),
 

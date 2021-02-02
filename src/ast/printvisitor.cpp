@@ -282,10 +282,6 @@ void ASTNS::PrintVisitor::visit(ASTNS::ExprStmt &a) {
     ++indent;
     pai("std::unique_ptr<Expr> expr = ");
     print_field(*this, a.expr);
-    pai("bool suppress = ");
-    print_field(*this, a.suppress);
-    pai("Maybe<Span const> dot = ");
-    print_field(*this, a.dot);
     --indent;
     pai("}\n");
 }
@@ -358,6 +354,8 @@ void ASTNS::PrintVisitor::visit(ASTNS::Block &a) {
     ++indent;
     pai("std::vector<std::unique_ptr<Stmt>> stmts = ");
     print_field(*this, a.stmts);
+    pai("std::unique_ptr<Expr> ret = ");
+    print_field(*this, a.ret);
     --indent;
     pai("}\n");
 }

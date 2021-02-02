@@ -613,6 +613,7 @@ ExprStmt = nt('expression statement', 'std::unique_ptr<ASTNS::ExprStmt>', panick
 RetStmt = nt('return statement', 'std::unique_ptr<ASTNS::RetStmt>', panickable=True)
 VarStmtItem = nt('variable binding', 'std::unique_ptr<ASTNS::VarStmtItem>')
 LineEnding = nt('line ending', 'std::unique_ptr<ASTNS::PureLocation>')
+ImplicitRet = nt('implicit return value', 'std::unique_ptr<ASTNS::Expr>', panickable=True)
 Block = nt('code block', 'std::unique_ptr<ASTNS::Block>', panickable=True)
 BracedBlock = nt('braced code block', 'std::unique_ptr<ASTNS::Block>', panickable=True)
 IndentedBlock = nt('indented code block', 'std::unique_ptr<ASTNS::Block>', panickable=True)
@@ -667,6 +668,7 @@ ImplMemberListOpt = make_opt(ImplMemberList, SkipReduceAction(), EmptyVectorActi
 ExprOpt = make_opt(Expr, SkipReduceAction(), NullptrReduceAction())
 VarStmtOpt = make_opt(VarStmt, SkipReduceAction(), NullptrReduceAction())
 LineEndingOpt = make_opt(LineEnding, SkipReduceAction(), NullptrReduceAction())
+ImplicitRetOpt = make_opt(ImplicitRet, SkipReduceAction(), NullptrReduceAction())
 TypeAnnotationOpt = make_opt(TypeAnnotation, SkipReduceAction(), NullptrReduceAction(), new_name='optional type annotation')
 
 rule(CU, (DeclList,), SimpleReduceAction('CU', 'std::move(a0->decls)'))
@@ -691,10 +693,8 @@ skip_to(Stmt, VarStmt, ExprStmt, RetStmt)
 
 rule(VarStmt, (Var, VarStmtItemList, LineEnding), SimpleReduceAction('VarStmt', 'std::move(a1->items)'))
 
-rule(ExprStmt, (NotBlockedExpr,         LineEnding),    SimpleReduceAction('ExprStmt', 'std::move(a0), false, Maybe<Span const>()'))
-rule(ExprStmt, (BlockedExpr   ,         LineEndingOpt), SimpleReduceAction('ExprStmt', 'std::move(a0), false, Maybe<Span const>()'))
-rule(ExprStmt, (NotBlockedExpr, Dollar, LineEndingOpt), SimpleReduceAction('ExprStmt', 'std::move(a0), true , Maybe<Span const>(a1.span)'))
-rule(ExprStmt, (BlockedExpr   , Dollar, LineEndingOpt), SimpleReduceAction('ExprStmt', 'std::move(a0), true , Maybe<Span const>(a1.span)'))
+rule(ExprStmt, (NotBlockedExpr,         LineEnding),    SimpleReduceAction('ExprStmt', 'std::move(a0)'))
+rule(ExprStmt, (BlockedExpr   ,         LineEndingOpt), SimpleReduceAction('ExprStmt', 'std::move(a0)'))
 
 rule(RetStmt, (Return, Expr, LineEnding), SimpleReduceAction('RetStmt', 'std::move(a1)'))
 rule(RetStmt, (Return, LineEnding), SimpleReduceAction('RetStmt', 'nullptr'))
@@ -706,11 +706,13 @@ rule(VarStmtItem, (     Identifier, TypeAnnotation), SimpleReduceAction('VarStmt
 rule(VarStmtItem, (Mut, Identifier, TypeAnnotation), SimpleReduceAction('VarStmtItem', 'std::move(a2), true, a1, Maybe<Located<Tokens::Equal>>(), nullptr'))
 
 skip_to(Block, BracedBlock, IndentedBlock)
-braced_rule(BracedBlock, (StmtListOpt,), True,
-    SimpleReduceAction('Block', 'std::move(a1->stmts)'), # offset 1
-    SimpleReduceAction('Block', 'std::move(a2->stmts)'), # offset 2
-    SimpleReduceAction('Block', 'std::move(a3->stmts)')) # offset 3
-indented_rule(IndentedBlock, (StmtListOpt,), SimpleReduceAction('Block', 'std::move(a2->stmts)'))
+braced_rule(BracedBlock, (StmtListOpt, ImplicitRetOpt), True,
+    SimpleReduceAction('Block', 'std::move(a1->stmts), std::move(a2)'), # offset 1
+    SimpleReduceAction('Block', 'std::move(a2->stmts), std::move(a3)'), # offset 2
+    SimpleReduceAction('Block', 'std::move(a3->stmts), std::move(a4)')) # offset 3
+indented_rule(IndentedBlock, (StmtListOpt, ImplicitRetOpt), SimpleReduceAction('Block', 'std::move(a2->stmts), std::move(a3)'))
+
+rule(ImplicitRet, (Caret, Expr, LineEndingOpt), SkipReduceAction(1))
 
 rule(LineEnding, (Newline,), LocationReduceAction())
 rule(LineEnding, (Semicolon,), LocationReduceAction())
