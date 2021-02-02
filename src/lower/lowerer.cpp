@@ -58,7 +58,7 @@ bool Lower::Lowerer::objectify(llvm::raw_fd_ostream &ostream) {
     mod.setTargetTriple(target_triple);
 
     llvm::legacy::PassManager pm;
-    auto fty = llvm::CodegenFileType::CGFT_ObjectFile;
+    auto fty = llvm::CodeGenFileType::CGFT_ObjectFile;
     if (target_machine->addPassesToEmitFile(pm, ostream, nullptr, fty)) {
         llvm::errs() << "Target machine cannot emit object file\n";
         return false;
