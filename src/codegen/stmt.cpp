@@ -4,7 +4,7 @@
 #include "ir/instruction.h"
 #include "ir/block.h"
 
-CodeGen::Helpers::StmtCodeGen::StmtCodeGen(IR::Builder &ir_builder, Locals &locals, ExprCodeGen &expr_cg, TypeVisitor &type_visitor, PathVisitor &path_visitor):
+Codegen::Helpers::StmtCodegen::StmtCodegen(IR::Builder &ir_builder, Locals &locals, ExprCodegen &expr_cg, TypeVisitor &type_visitor, PathVisitor &path_visitor):
     ir_builder(ir_builder),
     locals(locals),
     expr_cg(expr_cg),
@@ -12,19 +12,19 @@ CodeGen::Helpers::StmtCodeGen::StmtCodeGen(IR::Builder &ir_builder, Locals &loca
     path_visitor(path_visitor),
     success(true) {}
 
-void CodeGen::Helpers::StmtCodeGen::stmt(ASTNS::Stmt &ast) {
+void Codegen::Helpers::StmtCodegen::stmt(ASTNS::Stmt &ast) {
     ast.accept(*this);
 }
-void CodeGen::Helpers::StmtCodeGen::visit(ASTNS::ExprStmt &ast) {
+void Codegen::Helpers::StmtCodegen::visit(ASTNS::ExprStmt &ast) {
     Maybe<IR::ASTValue> res = expr_cg->expr(*ast.expr);
     if (!res.has())
         success = false;
 }
-void CodeGen::Helpers::StmtCodeGen::visit(ASTNS::VarStmt &ast) {
+void Codegen::Helpers::StmtCodegen::visit(ASTNS::VarStmt &ast) {
     for (std::unique_ptr<ASTNS::VarStmtItem> &item : ast.items)
         item->accept(*this);
 }
-void CodeGen::Helpers::StmtCodeGen::visit(ASTNS::RetStmt &ast) {
+void Codegen::Helpers::StmtCodegen::visit(ASTNS::RetStmt &ast) {
     Maybe<IR::ASTValue> m_v = ast.expr ? expr_cg->expr(*ast.expr) : Maybe<IR::ASTValue>(IR::ASTValue(ir_builder->context().get_void(), ast));
     if (!m_v.has()) {
         success = false;

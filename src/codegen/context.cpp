@@ -4,13 +4,13 @@
 #include <iostream>
 #include "ast/ast.h"
 
-CodeGen::Context::Context(File const &file): implicit_decl_ast(std::make_unique<ASTNS::ImplicitDecl>(file, Maybe<Span const>(), 0)), void_value(get_void_type()) {}
+Codegen::Context::Context(File const &file): implicit_decl_ast(std::make_unique<ASTNS::ImplicitDecl>(file, Maybe<Span const>(), 0)), void_value(get_void_type()) {}
 
 // getting types {{{1 TODO: make a template function to loop through things and either make operator== = default for all types or use a lambda to compare them
 #define CHECK_FIELD(field) (casted->field == field)
 
 #define GET_TYPE_DEF(get_ret, method_name, params, fields, args) \
-    IR::get_ret& CodeGen::Context::get_##method_name params /* params are already wrapped in () */ { \
+    IR::get_ret& Codegen::Context::get_##method_name params /* params are already wrapped in () */ { \
         for (std::unique_ptr<IR::Type> &loop_type : types) { \
             IR::get_ret *casted (dynamic_cast<IR::get_ret*>(loop_type.get())); \
             /* fields in wrappd in (), which makes this a macro invocation */ \
@@ -78,24 +78,24 @@ static Ret& get_const_val(std::vector<std::unique_ptr<IR::Value>> &constants, Ar
     return cvraw;
 }
 
-IR::ConstFloat& CodeGen::Context::get_const_float(IR::FloatType &ty, double value) {
+IR::ConstFloat& Codegen::Context::get_const_float(IR::FloatType &ty, double value) {
     return get_const_val<IR::ConstFloat>(constants, ty, value);
 }
-IR::ConstInt& CodeGen::Context::get_const_int(IR::IntType& ty, uint64_t value) {
+IR::ConstInt& Codegen::Context::get_const_int(IR::IntType& ty, uint64_t value) {
     return get_const_val<IR::ConstInt>(constants, ty, value);
 }
-IR::ConstFloat& CodeGen::Context::get_const_float(IR::GenericFloatType &ty, double value) {
+IR::ConstFloat& Codegen::Context::get_const_float(IR::GenericFloatType &ty, double value) {
     return get_const_val<IR::ConstFloat>(constants, ty, value);
 }
-IR::ConstInt& CodeGen::Context::get_const_int(IR::GenericIntType &ty, uint64_t value) {
+IR::ConstInt& Codegen::Context::get_const_int(IR::GenericIntType &ty, uint64_t value) {
     return get_const_val<IR::ConstInt>(constants, ty, value);
 }
-IR::ConstChar& CodeGen::Context::get_const_char(uint8_t value) {
+IR::ConstChar& Codegen::Context::get_const_char(uint8_t value) {
     return get_const_val<IR::ConstChar>(constants, get_char_type(), value);
 }
-IR::ConstBool& CodeGen::Context::get_const_bool(bool value) {
+IR::ConstBool& Codegen::Context::get_const_bool(bool value) {
     return get_const_val<IR::ConstBool>(constants, get_bool_type(), value);
 }
-IR::Void& CodeGen::Context::get_void() {
+IR::Void& Codegen::Context::get_void() {
     return void_value;
 }

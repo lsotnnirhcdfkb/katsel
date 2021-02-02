@@ -8,7 +8,7 @@ namespace IR {
     class Block;
     class Function;
 }
-namespace CodeGen {
+namespace Codegen {
     class Context;
 }
 
@@ -23,10 +23,10 @@ namespace CodeGen {
 
 #define DERIVE_TYPE_DECL() \
     public: \
-        Maybe<IR::ASTValue> bin_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::BinaryOperator> op, IR::ASTValue l, IR::ASTValue r, ASTNS::AST const &ast) const override; \
-        Maybe<IR::ASTValue> unary_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue operand, ASTNS::AST const &ast) const override; \
-        IR::ASTValue impl_cast(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const override; \
-        Maybe<IR::ASTValue> cast_from(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, ASTNS::AST const &ast) const override; \
+        Maybe<IR::ASTValue> bin_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::BinaryOperator> op, IR::ASTValue l, IR::ASTValue r, ASTNS::AST const &ast) const override; \
+        Maybe<IR::ASTValue> unary_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue operand, ASTNS::AST const &ast) const override; \
+        IR::ASTValue impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const override; \
+        Maybe<IR::ASTValue> cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, ASTNS::AST const &ast) const override; \
         llvm::Type& to_llvmtype(llvm::LLVMContext &con) const override; \
         void type_accept(IR::TypeVisitor &v) const override; \
         virtual Maybe<Method const> get_method(std::string const &name) const override; \
@@ -74,15 +74,15 @@ namespace IR {
     // Base class {{{1
     class Type : public DeclSymbol {
     public:
-        inline Type(CodeGen::Context &context): context(context) {}
+        inline Type(Codegen::Context &context): context(context) {}
         virtual ~Type() {}
 
-        virtual Maybe<IR::ASTValue> bin_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::BinaryOperator> op, IR::ASTValue l, IR::ASTValue r, ASTNS::AST const &ast) const = 0;
-        virtual Maybe<IR::ASTValue> unary_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue operand, ASTNS::AST const &ast) const = 0;
+        virtual Maybe<IR::ASTValue> bin_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::BinaryOperator> op, IR::ASTValue l, IR::ASTValue r, ASTNS::AST const &ast) const = 0;
+        virtual Maybe<IR::ASTValue> unary_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue operand, ASTNS::AST const &ast) const = 0;
 
-        virtual IR::ASTValue impl_cast(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const = 0;
+        virtual IR::ASTValue impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const = 0;
 
-        virtual Maybe<IR::ASTValue> cast_from(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, ASTNS::AST const &ast) const = 0;
+        virtual Maybe<IR::ASTValue> cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, ASTNS::AST const &ast) const = 0;
 
         virtual llvm::Type& to_llvmtype(llvm::LLVMContext &con) const = 0;
 
@@ -100,13 +100,13 @@ namespace IR {
         virtual bool has_field(std::string const &name) const = 0;
         virtual int get_field_index(std::string const &name) const = 0;
 
-        CodeGen::Context &context;
+        Codegen::Context &context;
     };
     // }}}
     // Float {{{1
     class FloatType : public Type {
     public:
-        FloatType(CodeGen::Context &context, ASTNS::AST const &decl_ast, int size);
+        FloatType(Codegen::Context &context, ASTNS::AST const &decl_ast, int size);
 
         std::string name() const override;
         ASTNS::AST const &decl_ast() const override;
@@ -125,7 +125,7 @@ namespace IR {
     // Int {{{1
     class IntType : public Type {
     public:
-        IntType(CodeGen::Context &context, ASTNS::AST const &decl_ast, int size, bool is_signed);
+        IntType(Codegen::Context &context, ASTNS::AST const &decl_ast, int size, bool is_signed);
 
         std::string name() const override;
         ASTNS::AST const &decl_ast() const override;
@@ -145,7 +145,7 @@ namespace IR {
     // Char {{{1
     class CharType : public Type {
     public:
-        CharType(CodeGen::Context &context, ASTNS::AST const &decl_ast);
+        CharType(Codegen::Context &context, ASTNS::AST const &decl_ast);
 
         std::string name() const override;
 
@@ -163,7 +163,7 @@ namespace IR {
     // Bool {{{1
     class BoolType : public Type {
     public:
-        BoolType(CodeGen::Context &context, ASTNS::AST const &decl_ast);
+        BoolType(Codegen::Context &context, ASTNS::AST const &decl_ast);
 
         std::string name() const override;
 
@@ -184,7 +184,7 @@ namespace IR {
         NNPtr<Type const> ret;
         std::vector<NNPtr<Type const>> paramtys;
 
-        FunctionType(CodeGen::Context &context, ASTNS::AST const &decl_ast, Type const &ret, std::vector<NNPtr<Type const>> paramtys);
+        FunctionType(Codegen::Context &context, ASTNS::AST const &decl_ast, Type const &ret, std::vector<NNPtr<Type const>> paramtys);
         std::string name() const override;
 
         DERIVE_TYPE_DECL()
@@ -201,7 +201,7 @@ namespace IR {
     // Void {{{1
     class VoidType : public Type {
     public:
-        VoidType(CodeGen::Context &context, ASTNS::AST const &decl_ast);
+        VoidType(Codegen::Context &context, ASTNS::AST const &decl_ast);
 
         std::string name() const override;
 
@@ -219,7 +219,7 @@ namespace IR {
     // Pointer {{{1
     class PointerType : public Type {
     public:
-        PointerType(CodeGen::Context &context, ASTNS::AST const &decl_ast, bool mut, Type const &ty);
+        PointerType(Codegen::Context &context, ASTNS::AST const &decl_ast, bool mut, Type const &ty);
 
         std::string name() const override;
 
@@ -241,7 +241,7 @@ namespace IR {
     // Int {{{2
     class GenericIntType : public Type {
     public:
-        GenericIntType(CodeGen::Context &context, ASTNS::AST const &decl_ast);
+        GenericIntType(Codegen::Context &context, ASTNS::AST const &decl_ast);
 
         std::string name() const override;
 
@@ -259,7 +259,7 @@ namespace IR {
     // Float {{{2
     class GenericFloatType : public Type {
     public:
-        GenericFloatType(CodeGen::Context &context, ASTNS::AST const &decl_ast);
+        GenericFloatType(Codegen::Context &context, ASTNS::AST const &decl_ast);
 
         std::string name() const override;
 

@@ -109,7 +109,7 @@ int compile_file(OutFormats ofmt, NNPtr<char> filename) {
         return true;
     }
 
-    auto m_unit = CodeGen::codegen(*parsed);
+    auto m_unit = Codegen::codegen(*parsed);
     if (!m_unit.has())
         return false;
 

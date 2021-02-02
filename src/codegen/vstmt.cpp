@@ -4,9 +4,9 @@
 #include "ir/instruction.h"
 #include "ir/block.h"
 
-void CodeGen::Helpers::StmtCodeGen::visit(ASTNS::VarStmtItem &ast) {
+void Codegen::Helpers::StmtCodegen::visit(ASTNS::VarStmtItem &ast) {
     std::string varname = ast.name.value.name;
-    Maybe<CodeGen::Helpers::Local> var = locals->get_local(varname);
+    Maybe<Codegen::Helpers::Local> var = locals->get_local(varname);
     if (var.has() && var.get().scopenum == locals->cur_scope) {
         ERR_REDECL_VAR(ast.name.span, *var.get().v);
         success = false;

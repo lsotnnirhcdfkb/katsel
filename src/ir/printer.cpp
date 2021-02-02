@@ -377,14 +377,14 @@ namespace {
         // walk {{{
         void walk(IR::DeclSymbol const &ds) {
             for (auto _ds : ds.get_decl_symbols()) {
-                std::string name = _ds.first;
+                std::string const &name = _ds.first;
                 NNPtr<IR::DeclSymbol> pds = _ds.second;
 
                 pr(name)(" = ");
                 pds->declsym_accept(*pr.dsdp);
             }
             for (auto v : ds.get_values()) {
-                std::string name = v.first;
+                std::string const &name = v.first;
                 NNPtr<IR::Value> val = v.second;
 
                 pr(name)(" = ");

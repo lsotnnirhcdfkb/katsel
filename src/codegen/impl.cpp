@@ -1,9 +1,9 @@
 #include "codegenlocal.h"
 #include "ast/ast.h"
 
-using CodeGen::Impl;
+using Codegen::Impl;
 
-Impl::Impl(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast):
+Impl::Impl(IR::Unit &unit, Codegen::Context &context, ASTNS::ImplDecl &ast):
     unit(unit),
     context(context),
     ast(ast),
@@ -17,7 +17,7 @@ void Impl::visit(ASTNS::FunctionImplMember &member) {
     ASSERT(m_s1_data.has());
     auto &s1_data = m_s1_data.get();
 
-    auto fun_cg = std::make_unique<CodeGen::Function>(unit, context, *member.fun, *s1_data.impl_for, *s1_data.impl_for);
+    auto fun_cg = std::make_unique<Codegen::Function>(unit, context, *member.fun, *s1_data.impl_for, *s1_data.impl_for);
     if (fun_cg->type_declare() && fun_cg->value_declare())
         member_codegens.push_back(std::move(fun_cg)); // TODO: when type alias member items are added, this vector should go in stage 0
     else
@@ -47,7 +47,7 @@ bool Impl::value_declare() {
 
 bool Impl::value_define() {
     bool success = true;
-    for (std::unique_ptr<CodeGen::CG> &s2cg : member_codegens)
+    for (std::unique_ptr<Codegen::CG> &s2cg : member_codegens)
         if (!s2cg->value_define()) success = false;
 
     return success;

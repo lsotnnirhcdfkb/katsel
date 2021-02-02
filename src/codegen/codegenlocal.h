@@ -12,7 +12,7 @@
 #include "ir/instructionfwd.h"
 #include "ir/module.h"
 
-// CodeGen happens in 4 stages
+// Codegen happens in 4 stages
 // Stage 0 (begin):
 //     - the unit has an empty symbol table, functions are empty
 //     - everything is empty
@@ -32,9 +32,9 @@
 //     - code is generated for functions bodies
 //     - global variables are assigned
 //
-// Each type of declaration has a CodeGen class that does each of these things
+// Each type of declaration has a Codegen class that does each of these things
 
-namespace CodeGen {
+namespace Codegen {
     // Helpers {{{
     namespace Helpers {
         // Locals {{{
@@ -96,11 +96,11 @@ namespace CodeGen {
             // TYPEVISITOR METHODS END
         };
         // }}}
-        // StmtCodeGen {{{
-        class ExprCodeGen;
-        class StmtCodeGen : public ASTNS::StmtVisitor, public ASTNS::VStmtIBVisitor {
+        // StmtCodegen {{{
+        class ExprCodegen;
+        class StmtCodegen : public ASTNS::StmtVisitor, public ASTNS::VStmtIBVisitor {
         public:
-            StmtCodeGen(IR::Builder &ir_builder, Locals &locals, ExprCodeGen &expr_cg, TypeVisitor &type_visitor, PathVisitor &path_visitor);
+            StmtCodegen(IR::Builder &ir_builder, Locals &locals, ExprCodegen &expr_cg, TypeVisitor &type_visitor, PathVisitor &path_visitor);
 
             void stmt(ASTNS::Stmt &ast);
             bool success;
@@ -115,15 +115,15 @@ namespace CodeGen {
 
             NNPtr<IR::Builder> ir_builder;
             NNPtr<Locals> locals;
-            NNPtr<ExprCodeGen> expr_cg;
+            NNPtr<ExprCodegen> expr_cg;
             NNPtr<TypeVisitor> type_visitor;
             NNPtr<PathVisitor> path_visitor;
         };
         // }}}
-        // ExprCodeGen {{{
-        class ExprCodeGen : public ASTNS::ExprVisitor {
+        // ExprCodegen {{{
+        class ExprCodegen : public ASTNS::ExprVisitor {
         public:
-            ExprCodeGen(IR::Builder &ir_builder, Helpers::Locals &locals, TypeVisitor &type_visitor, PathVisitor &path_visitor);
+            ExprCodegen(IR::Builder &ir_builder, Helpers::Locals &locals, TypeVisitor &type_visitor, PathVisitor &path_visitor);
 
             Maybe<IR::ASTValue> expr(ASTNS::Expr &ast);
 
@@ -153,7 +153,7 @@ namespace CodeGen {
 
             NNPtr<IR::Builder> ir_builder;
             NNPtr<Helpers::Locals> locals;
-            StmtCodeGen stmt_cg;
+            StmtCodegen stmt_cg;
             NNPtr<TypeVisitor> type_visitor;
             NNPtr<PathVisitor> path_visitor;
             Maybe<IR::ASTValue> ret;
@@ -169,7 +169,7 @@ namespace CodeGen {
                 bool mut;
             };
 
-            ParamVisitor(CodeGen::Context &context, std::vector<std::unique_ptr<ASTNS::ParamB>> &params, Helpers::TypeVisitor &type_visitor);
+            ParamVisitor(Codegen::Context &context, std::vector<std::unique_ptr<ASTNS::ParamB>> &params, Helpers::TypeVisitor &type_visitor);
 
             std::vector<Param> ret;
 
@@ -183,7 +183,7 @@ namespace CodeGen {
             void visit(ASTNS::ThisParam &ast) override;
             // PARAMVISITOR METHODS END
 
-            NNPtr<CodeGen::Context> context;
+            NNPtr<Codegen::Context> context;
             NNPtr<TypeVisitor> type_visitor;
             int index;
         };
@@ -191,11 +191,11 @@ namespace CodeGen {
         // Arg {{{
         class ArgVisitor : public ASTNS::ArgBVisitor {
         public:
-            ArgVisitor(ExprCodeGen &expr_cg, std::vector<std::unique_ptr<ASTNS::Arg>> &args);
+            ArgVisitor(ExprCodegen &expr_cg, std::vector<std::unique_ptr<ASTNS::Arg>> &args);
             std::vector<IR::ASTValue> ret;
 
         private:
-            NNPtr<ExprCodeGen> expr_cg;
+            NNPtr<ExprCodegen> expr_cg;
             // ARGSVISITOR METHODS START
             void visit(ASTNS::Arg &ast) override;
             // ARGSVISITOR METHODS END
@@ -217,14 +217,14 @@ namespace CodeGen {
     // Function {{{
     class Function : public CG {
     public:
-        Function(IR::Unit &unit, CodeGen::Context &context, ASTNS::FunctionDecl &ast, Maybe<NNPtr<IR::Type>> this_type, IR::DeclSymbol &parent_symbol);
+        Function(IR::Unit &unit, Codegen::Context &context, ASTNS::FunctionDecl &ast, Maybe<NNPtr<IR::Type>> this_type, IR::DeclSymbol &parent_symbol);
         bool type_declare() override;
         bool value_declare() override;
         bool value_define() override;
 
     private:
         IR::Unit &unit;
-        CodeGen::Context &context;
+        Codegen::Context &context;
         ASTNS::FunctionDecl &ast;
         Maybe<NNPtr<IR::Type>> this_type;
         IR::DeclSymbol &parent_symbol;
@@ -236,7 +236,7 @@ namespace CodeGen {
             std::vector<Helpers::ParamVisitor::Param> params;
         };
         struct S2Data {
-            std::unique_ptr<Helpers::ExprCodeGen> expr_cg;
+            std::unique_ptr<Helpers::ExprCodegen> expr_cg;
             std::unique_ptr<Helpers::Locals> locals;
             NNPtr<IR::Block> entry_block;
             std::unique_ptr<IR::Builder> ir_builder;
@@ -247,12 +247,12 @@ namespace CodeGen {
     /*
         class S0 : public Stage0CG {
         public:
-            S0(IR::Unit &unit, CodeGen::Context &context, ASTNS::FunctionDecl &ast, Maybe<NNPtr<IR::Type>> this_type, IR::DeclSymbol &parent_symbol);
+            S0(IR::Unit &unit, Codegen::Context &context, ASTNS::FunctionDecl &ast, Maybe<NNPtr<IR::Type>> this_type, IR::DeclSymbol &parent_symbol);
             Maybe<std::unique_ptr<CStage0CG>> type_declare() override;
 
         private:
             IR::Unit &unit;
-            CodeGen::Context &context;
+            Codegen::Context &context;
             ASTNS::FunctionDecl &ast;
 
             Maybe<NNPtr<IR::Type>> this_type;
@@ -260,12 +260,12 @@ namespace CodeGen {
         };
         class S1 : public Stage1CG {
         public:
-            S1(IR::Unit &unit, CodeGen::Context &context, ASTNS::FunctionDecl &ast, Maybe<NNPtr<IR::Type>> this_type, IR::DeclSymbol &parent_symbol, std::unique_ptr<Helpers::PathVisitor> path_visitor, std::unique_ptr<Helpers::TypeVisitor> type_visitor);
+            S1(IR::Unit &unit, Codegen::Context &context, ASTNS::FunctionDecl &ast, Maybe<NNPtr<IR::Type>> this_type, IR::DeclSymbol &parent_symbol, std::unique_ptr<Helpers::PathVisitor> path_visitor, std::unique_ptr<Helpers::TypeVisitor> type_visitor);
             Maybe<std::unique_ptr<CStage1CG>> value_declare() override;
 
         private:
             IR::Unit &unit;
-            CodeGen::Context &context;
+            Codegen::Context &context;
             ASTNS::FunctionDecl &ast;
 
             std::unique_ptr<Helpers::PathVisitor> path_visitor;
@@ -275,7 +275,7 @@ namespace CodeGen {
         };
         class S2 : public Stage2CG {
         public:
-            S2(IR::Unit &unit, ASTNS::FunctionDecl &ast, IR::Function &fun, std::unique_ptr<Helpers::PathVisitor> path_visitor, std::unique_ptr<Helpers::TypeVisitor> type_visitor, Maybe<NNPtr<IR::Type>> this_type, IR::DeclSymbol &parent_symbol, std::vector<Helpers::ParamVisitor::Param> &params, std::unique_ptr<Helpers::ExprCodeGen> expr_cg, std::unique_ptr<Helpers::Locals> locals, IR::Block &entry_block, std::unique_ptr<IR::Builder> ir_builder);
+            S2(IR::Unit &unit, ASTNS::FunctionDecl &ast, IR::Function &fun, std::unique_ptr<Helpers::PathVisitor> path_visitor, std::unique_ptr<Helpers::TypeVisitor> type_visitor, Maybe<NNPtr<IR::Type>> this_type, IR::DeclSymbol &parent_symbol, std::vector<Helpers::ParamVisitor::Param> &params, std::unique_ptr<Helpers::ExprCodegen> expr_cg, std::unique_ptr<Helpers::Locals> locals, IR::Block &entry_block, std::unique_ptr<IR::Builder> ir_builder);
             Maybe<std::unique_ptr<CStage2CG>> value_define() override;
 
         private:
@@ -289,7 +289,7 @@ namespace CodeGen {
             IR::DeclSymbol &parent_symbol;
             std::vector<Helpers::ParamVisitor::Param> params;
 
-            std::unique_ptr<Helpers::ExprCodeGen> expr_cg;
+            std::unique_ptr<Helpers::ExprCodegen> expr_cg;
 
             std::unique_ptr<Helpers::Locals> locals;
 
@@ -302,7 +302,7 @@ namespace CodeGen {
     // Impl {{{
     class Impl : public CG, public ASTNS::ImplMemberVisitor {
     public:
-        Impl(IR::Unit &unit, CodeGen::Context &context, ASTNS::ImplDecl &ast);
+        Impl(IR::Unit &unit, Codegen::Context &context, ASTNS::ImplDecl &ast);
 
         bool type_declare() override;
         bool value_declare() override;
@@ -314,7 +314,7 @@ namespace CodeGen {
 
     private:
         IR::Unit &unit;
-        CodeGen::Context &context;
+        Codegen::Context &context;
         ASTNS::ImplDecl &ast;
 
         std::vector<std::unique_ptr<CG>> member_codegens;

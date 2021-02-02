@@ -2,9 +2,9 @@
 #include "ast/ast.h"
 #include "message/errmsgs.h"
 
-using CodeGen::Function;
+using Codegen::Function;
 
-Function::Function(IR::Unit &unit, CodeGen::Context &context, ASTNS::FunctionDecl &ast, Maybe<NNPtr<IR::Type>> this_type, IR::DeclSymbol &parent_symbol):
+Function::Function(IR::Unit &unit, Codegen::Context &context, ASTNS::FunctionDecl &ast, Maybe<NNPtr<IR::Type>> this_type, IR::DeclSymbol &parent_symbol):
     unit(unit),
     context(context),
     ast(ast),
@@ -78,8 +78,8 @@ bool Function::value_define() {
     auto ir_builder (std::make_unique<IR::Builder>(*s1_data.fun, register_block, exit_block, ret_reg, entry_block, context));
     auto locals (std::make_unique<Helpers::Locals>());
 
-    auto local_path_visitor (std::make_unique<CodeGen::Helpers::PathVisitor>(*locals, unit));
-    auto local_type_visitor (std::make_unique<CodeGen::Helpers::TypeVisitor>(context, this_type, *local_path_visitor));
+    auto local_path_visitor (std::make_unique<Codegen::Helpers::PathVisitor>(*locals, unit));
+    auto local_type_visitor (std::make_unique<Codegen::Helpers::TypeVisitor>(context, this_type, *local_path_visitor));
 
     ir_builder->register_block().branch(std::make_unique<IR::Instrs::GotoBr>(entry_block));
 
@@ -97,7 +97,7 @@ bool Function::value_define() {
             locals->add_local(pname, reg);
     }
 
-    auto expr_cg (std::make_unique<CodeGen::Helpers::ExprCodeGen>(*ir_builder, *locals, *local_type_visitor, *local_path_visitor));
+    auto expr_cg (std::make_unique<Codegen::Helpers::ExprCodegen>(*ir_builder, *locals, *local_type_visitor, *local_path_visitor));
     Maybe<IR::ASTValue> m_retval = expr_cg->expr(*ast.body);
 
     locals->dec_scope();
@@ -121,7 +121,7 @@ bool Function::value_define() {
     }
 
     if (locals->cur_scope != 0 && m_retval.has())
-        report_abort_noh("At the end of FunctionCodeGen::codegen, cur_scope != 0");
+        report_abort_noh("At the end of FunctionCodegen::codegen, cur_scope != 0");
 
     m_s2_data = {
 

@@ -3,12 +3,12 @@
 #include "ir/unit.h"
 #include "ast/ast.h"
 
-CodeGen::Helpers::TypeVisitor::TypeVisitor(CodeGen::Context &context, Maybe<NNPtr<IR::Type>> this_type, Helpers::PathVisitor &path_visitor):
+Codegen::Helpers::TypeVisitor::TypeVisitor(Codegen::Context &context, Maybe<NNPtr<IR::Type>> this_type, Helpers::PathVisitor &path_visitor):
     context(context),
     this_type(this_type),
     path_visitor(path_visitor) {}
 
-Maybe<IR::Type &> CodeGen::Helpers::TypeVisitor::type(ASTNS::Type &ast) {
+Maybe<IR::Type &> Codegen::Helpers::TypeVisitor::type(ASTNS::Type &ast) {
     Maybe<NNPtr<IR::Type>> oldret = ret;
     ret = Maybe<NNPtr<IR::Type>>();
 
@@ -20,7 +20,7 @@ Maybe<IR::Type &> CodeGen::Helpers::TypeVisitor::type(ASTNS::Type &ast) {
     return newret.fmap<IR::Type &>([] (NNPtr<IR::Type> i) -> IR::Type & { return *i; });
 }
 
-void CodeGen::Helpers::TypeVisitor::visit(ASTNS::PathType &ast) {
+void Codegen::Helpers::TypeVisitor::visit(ASTNS::PathType &ast) {
     Maybe<IR::DeclSymbol &> m_decl = path_visitor->resolve_decl_symbol(*ast.path);
 
     if (!m_decl.has()) {
@@ -39,7 +39,7 @@ void CodeGen::Helpers::TypeVisitor::visit(ASTNS::PathType &ast) {
     }
 }
 
-void CodeGen::Helpers::TypeVisitor::visit(ASTNS::PointerType &ast) {
+void Codegen::Helpers::TypeVisitor::visit(ASTNS::PointerType &ast) {
     Maybe<IR::Type &> ty = type(*ast.type);
     ty.match([this, &ast] (NNPtr<IR::Type const> const &ty) {
             ret = Maybe<NNPtr<IR::Type>>(static_cast<NNPtr<IR::Type>>(context->get_pointer_type(ast.mut, *ty)));
@@ -49,7 +49,7 @@ void CodeGen::Helpers::TypeVisitor::visit(ASTNS::PointerType &ast) {
         });
 }
 
-void CodeGen::Helpers::TypeVisitor::visit(ASTNS::ThisType &ast) {
+void Codegen::Helpers::TypeVisitor::visit(ASTNS::ThisType &ast) {
     if (this_type.has()) {
         ret = Maybe(this_type);
     } else {

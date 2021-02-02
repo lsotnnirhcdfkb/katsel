@@ -5,18 +5,18 @@
 #include "ir/instruction.h"
 #include "ir/block.h"
 
-CodeGen::Helpers::PathVisitor::PathVisitor(Maybe<Locals&> locals, IR::Unit &unit):
+Codegen::Helpers::PathVisitor::PathVisitor(Maybe<Locals&> locals, IR::Unit &unit):
     locals(locals.fmap<NNPtr<Locals>>([] (Locals& l) { return NNPtr<Locals>(l); })),
     unit(unit) {}
 
-Maybe<IR::DeclSymbol &> CodeGen::Helpers::PathVisitor::resolve_decl_symbol(ASTNS::PathB &ast)  {
+Maybe<IR::DeclSymbol &> Codegen::Helpers::PathVisitor::resolve_decl_symbol(ASTNS::PathB &ast)  {
     pty = PathType::DECLARED;
     dret = Maybe<NNPtr<IR::DeclSymbol>>();
     ast.accept(*this);
     return dret.fmap<IR::DeclSymbol &>( [] (NNPtr<IR::DeclSymbol> i) { return Maybe<IR::DeclSymbol &>(*i); });
 }
 
-Maybe<IR::ASTValue> CodeGen::Helpers::PathVisitor::resolve_value(ASTNS::PathB &ast)  {
+Maybe<IR::ASTValue> Codegen::Helpers::PathVisitor::resolve_value(ASTNS::PathB &ast)  {
     pty = PathType::VALUE;
     vret = Maybe<IR::ASTValue>();
     ast.accept(*this);
@@ -43,7 +43,7 @@ static Maybe<IR::DeclSymbol &> trace_path_decl_only(IR::DeclSymbol &start, std::
     return *current;
 }
 
-void CodeGen::Helpers::PathVisitor::visit(ASTNS::Path &ast) {
+void Codegen::Helpers::PathVisitor::visit(ASTNS::Path &ast) {
     if (pty == PathType::DECLARED) {
         dret = trace_path_decl_only(unit.mod, ast.segments.cbegin(), ast.segments.cend()).fmap<NNPtr<IR::DeclSymbol >>([] (IR::DeclSymbol &i) { return Maybe<NNPtr<IR::DeclSymbol>>(NNPtr(i)); });
     } else {

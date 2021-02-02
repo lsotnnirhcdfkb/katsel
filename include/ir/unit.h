@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "ir/module.h"
+#include "codegen/context.h"
 
 namespace llvm { class raw_ostream; }
 struct File;
@@ -13,10 +14,12 @@ namespace IR {
 
     class Unit {
     public:
-        Unit(File const &file, ASTNS::ImplicitDecl &implicit);
+        Unit(File const &file);
         ~Unit();
 
         void print(llvm::raw_ostream &ostream) const;
+
+        Codegen::Context context;
 
         NNPtr<File const> file;
         Module mod;

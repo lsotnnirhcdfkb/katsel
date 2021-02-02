@@ -2,11 +2,10 @@
 
 #include <cstdint>
 
-#include "codegen/codegen.h"
 #include "ir/type.h"
 #include "ir/value.h"
 
-namespace CodeGen {
+namespace Codegen {
     class Context {
     public:
         Context(File const &file);

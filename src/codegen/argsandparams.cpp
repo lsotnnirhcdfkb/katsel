@@ -2,7 +2,7 @@
 #include "message/errmsgs.h"
 #include "ast/ast.h"
 
-CodeGen::Helpers::ParamVisitor::ParamVisitor::ParamVisitor(CodeGen::Context &context, std::vector<std::unique_ptr<ASTNS::ParamB>> &params, TypeVisitor &type_visitor):
+Codegen::Helpers::ParamVisitor::ParamVisitor::ParamVisitor(Codegen::Context &context, std::vector<std::unique_ptr<ASTNS::ParamB>> &params, TypeVisitor &type_visitor):
     errored(false),
     is_method(false), this_ptr(false), this_mut(false),
     context(context),
@@ -14,7 +14,7 @@ CodeGen::Helpers::ParamVisitor::ParamVisitor::ParamVisitor(CodeGen::Context &con
     }
 }
 
-void CodeGen::Helpers::ParamVisitor::visit(ASTNS::Param &ast) {
+void Codegen::Helpers::ParamVisitor::visit(ASTNS::Param &ast) {
     Maybe<IR::Type&> ty (type_visitor->type(*ast.type));
     if (ty.has()) {
         std::string name (ast.name.value.name);
@@ -26,7 +26,7 @@ void CodeGen::Helpers::ParamVisitor::visit(ASTNS::Param &ast) {
     }
 }
 
-void CodeGen::Helpers::ParamVisitor::visit(ASTNS::ThisParam &ast) {
+void Codegen::Helpers::ParamVisitor::visit(ASTNS::ThisParam &ast) {
     if (!type_visitor->this_type.has()) {
         errored = true;
         ERR_TYPELESS_THIS(ast);
@@ -51,13 +51,13 @@ void CodeGen::Helpers::ParamVisitor::visit(ASTNS::ThisParam &ast) {
     ret.push_back(p);
 }
 
-CodeGen::Helpers::ArgVisitor::ArgVisitor::ArgVisitor(ExprCodeGen &expr_cg, std::vector<std::unique_ptr<ASTNS::Arg>> &args):
+Codegen::Helpers::ArgVisitor::ArgVisitor::ArgVisitor(ExprCodegen &expr_cg, std::vector<std::unique_ptr<ASTNS::Arg>> &args):
     expr_cg(expr_cg) {
     for (std::unique_ptr<ASTNS::Arg> &a : args)
         a->accept(*this);
 }
 
-void CodeGen::Helpers::ArgVisitor::visit(ASTNS::Arg &ast) {
+void Codegen::Helpers::ArgVisitor::visit(ASTNS::Arg &ast) {
     Maybe<IR::ASTValue> a = expr_cg->expr(*ast.expr);
     if (a.has())
         ret.push_back(a.get());

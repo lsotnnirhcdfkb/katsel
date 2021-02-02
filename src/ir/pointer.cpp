@@ -10,7 +10,7 @@
 
 #include "llvm/IR/DerivedTypes.h"
 
-IR::PointerType::PointerType(CodeGen::Context &context, ASTNS::AST const &decl_ast, bool mut, Type const &ty): Type(context), ty(ty), mut(mut), _decl_ast(decl_ast) {}
+IR::PointerType::PointerType(Codegen::Context &context, ASTNS::AST const &decl_ast, bool mut, Type const &ty): Type(context), ty(ty), mut(mut), _decl_ast(decl_ast) {}
 ASTNS::AST const &IR::PointerType::decl_ast() const {
     return *_decl_ast;
 }
@@ -26,7 +26,7 @@ DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::PointerType)
 DERIVE_TYPE_METHOD_TABLE_IMPL(IR::PointerType)
 DERIVE_TYPE_NO_FIELDS(IR::PointerType)
 
-Maybe<IR::ASTValue> IR::PointerType::bin_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::BinaryOperator> op, IR::ASTValue l, IR::ASTValue r, ASTNS::AST const &ast) const {
+Maybe<IR::ASTValue> IR::PointerType::bin_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::BinaryOperator> op, IR::ASTValue l, IR::ASTValue r, ASTNS::AST const &ast) const {
     ASSERT(&l.type() == this);
 
     r = cgc.get_int_type(64, true).impl_cast(cgc, fun, cur_block, r);
@@ -60,13 +60,13 @@ Maybe<IR::ASTValue> IR::PointerType::bin_op(CodeGen::Context &cgc, IR::Function 
             return Maybe<IR::ASTValue>();
     }
 }
-Maybe<IR::ASTValue> IR::PointerType::unary_op(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue operand, ASTNS::AST const &ast) const {
+Maybe<IR::ASTValue> IR::PointerType::unary_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue operand, ASTNS::AST const &ast) const {
     ASSERT(&operand.type() == this);
 
     ERR_UNARY_UNSUPPORTED_OP(operand, op);
     return Maybe<ASTValue>();
 }
-Maybe<IR::ASTValue> IR::PointerType::cast_from(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, ASTNS::AST const &ast) const {
+Maybe<IR::ASTValue> IR::PointerType::cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, ASTNS::AST const &ast) const {
     if (dynamic_cast<IR::PointerType const *>(&v.type())) {
         return ASTValue(cur_block->add<IR::Instrs::NoOpCast>(v, this), ast);
     }
@@ -77,7 +77,7 @@ Maybe<IR::ASTValue> IR::PointerType::cast_from(CodeGen::Context &cgc, IR::Functi
 llvm::Type& IR::PointerType::to_llvmtype(llvm::LLVMContext &con) const {
     return *llvm::PointerType::getUnqual(&ty->to_llvmtype(con));
 }
-IR::ASTValue IR::PointerType::impl_cast(CodeGen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const {
+IR::ASTValue IR::PointerType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const {
     return v;
 }
 
