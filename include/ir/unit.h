@@ -14,10 +14,11 @@ namespace IR {
     class Unit {
     public:
         Unit(File const &file, ASTNS::ImplicitDecl &implicit);
+        ~Unit();
 
         void print(llvm::raw_ostream &ostream) const;
 
-        File const &file;
+        NNPtr<File const> file;
         Module mod;
 
         std::vector<std::unique_ptr<Function>> functions;

@@ -29,6 +29,7 @@ jobs = [
     ('src/codegen/codegenlocal.h'  , 'ARGSVISITOR METHODS'   , lambda: astgen.gen_visitor_methods('ArgB')),
     ('src/codegen/codegenlocal.h'  , 'PATH VISITOR'          , lambda: astgen.gen_visitor_methods('PathB')),
     ('src/codegen/codegenlocal.h'  , 'IMPL CG METHODS'       , lambda: astgen.gen_visitor_methods('ImplMember')),
+    ('src/codegen/codegen.cpp'     , 'MAINCG METHODS'        , lambda: astgen.gen_visitor_methods('Decl', 'CUB')),
 
     ('include/ir/instruction.h'    , 'INSTR CLASSES'         , instrgen.gen_decls),
     ('include/ir/instructionfwd.h' , 'INSTR FWD'             , instrgen.gen_fwd),

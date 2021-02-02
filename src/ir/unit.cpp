@@ -8,9 +8,10 @@
 #include "ir/block.h"
 
 IR::Unit::Unit(File const &file, ASTNS::ImplicitDecl &implicit): file(file), mod("", implicit) {}
+IR::Unit::~Unit() = default;
 
 void IR::Unit::print(llvm::raw_ostream &ostream) const {
-    ostream << "> Unit '" << file.filename << "'\n";
+    ostream << "> Unit '" << file->filename << "'\n";
     IR::Printer p (*this, ostream);
     p.print();
 }

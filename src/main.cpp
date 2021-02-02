@@ -113,20 +113,20 @@ int compile_file(OutFormats ofmt, NNPtr<char> filename) {
     if (!m_unit.has())
         return false;
 
-    auto &unit (m_unit.get());
+    auto unit (std::move(m_unit.get()));
 
     if (ofmt == OutFormats::CODEGEN) {
         OPENFILE(filename, ".kslir");
         if (os.has_error())
             return false;
 
-        unit.print(os);
+        unit->print(os);
 
         os.close();
         return true;
     }
 
-    auto lowerer = std::make_unique<Lower::Lowerer>(unit);
+    auto lowerer = std::make_unique<Lower::Lowerer>(*unit);
     lowerer->lower();
     if (lowerer->errored)
         return false;
