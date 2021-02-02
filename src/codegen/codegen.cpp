@@ -37,6 +37,20 @@ namespace {
         std::vector<std::unique_ptr<CodeGen::CG>> codegens;
 
         void run() {
+            unit->mod.add_decl_symbol("void", context->get_void_type());
+            unit->mod.add_decl_symbol("float", context->get_float_type(32));
+            unit->mod.add_decl_symbol("double", context->get_float_type(64));
+            unit->mod.add_decl_symbol("bool", context->get_bool_type());
+            unit->mod.add_decl_symbol("char", context->get_char_type());
+            unit->mod.add_decl_symbol("uint8", context->get_int_type(8, false));
+            unit->mod.add_decl_symbol("uint16", context->get_int_type(16, false));
+            unit->mod.add_decl_symbol("uint32", context->get_int_type(32, false));
+            unit->mod.add_decl_symbol("uint64", context->get_int_type(64, false));
+            unit->mod.add_decl_symbol("sint8", context->get_int_type(8, true));
+            unit->mod.add_decl_symbol("sint16", context->get_int_type(16, true));
+            unit->mod.add_decl_symbol("sint32", context->get_int_type(32, true));
+            unit->mod.add_decl_symbol("sint64", context->get_int_type(64, true));
+
 #define DEFINE_PASS(input_codegens, output_codegens, stage_name) \
             std::vector<std::unique_ptr<CodeGen::CG>> output_codegens; \
             for (std::unique_ptr<CodeGen::CG> &cg : input_codegens) { \
