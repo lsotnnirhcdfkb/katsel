@@ -212,13 +212,13 @@ class SimpleReduceAction:
         self.classname = classname
         self.args = args
     def generate(self):
-        return (f'std::unique_ptr<ASTNS::{self.classname}> push (std::make_unique<ASTNS::{self.classname}>(p.sourcefile, span, {self.args}));\n', 'std::move(push)')
+        return (f'std::unique_ptr<ASTNS::{self.classname}> push (std::make_unique<ASTNS::{self.classname}>(file, span, {self.args}));\n', 'std::move(push)')
 class EmptyVectorAction:
     def __init__(self, classname, ty):
         self.classname = classname
         self.ty = ty
     def generate(self):
-        return (f'std::unique_ptr<ASTNS::{self.classname}> push (std::make_unique<ASTNS::{self.classname}>(p.sourcefile, span, std::vector<{self.ty}> {{}}));\n', 'std::move(push)')
+        return (f'std::unique_ptr<ASTNS::{self.classname}> push (std::make_unique<ASTNS::{self.classname}>(file, span, std::vector<{self.ty}> {{}}));\n', 'std::move(push)')
 class SkipReduceAction:
     def __init__(self, ind=0):
         self.ind = ind
@@ -244,7 +244,7 @@ class VectorPushOneAction:
         self.itemtype = itemtype
         self.vector_name = vector_name
     def generate(self):
-        return (f'''std::unique_ptr<{self.new_class}> push (std::make_unique<{self.new_class}>(p.sourcefile, span, std::vector<{self.itemtype}> {{}}));\n
+        return (f'''std::unique_ptr<{self.new_class}> push (std::make_unique<{self.new_class}>(file, span, std::vector<{self.itemtype}> {{}}));\n
         push->{self.vector_name}.push_back({self.item});\n''', 'std::move(push)')
 class WarnAction:
     def __init__(self, warning, other_action):
@@ -878,19 +878,11 @@ def format_list(l):
 def gen_loop():
     output = []
 
-    output.append(                                'bool done = false;\n')
-    output.append(                                'bool errored = false;\n')
-    output.append(                                'Located<TokenData> next_token = p.consume();\n')
-    output.append(                                'Located<TokenData> last_token = next_token;\n')
-    output.append(                                'std::vector<StackItem> stack;\n')
-    output.append(                                'stack.emplace_back(0); // make initial item\n')
-
-    output.append(                                'while (!done) {\n')
-    output.append(                                '    switch (stack.back().state) {\n')
+    output.append(                                'switch (stack.back().state) {\n')
 
     for staten, state in sorted(table.items(), key=lambda x:x[0]):
-        output.append(                           f'        case {staten}:\n')
-        output.append(                            '            switch (next_token.value.index()) {\n')
+        output.append(                           f'    case {staten}:\n')
+        output.append(                            '        switch (tsv.next().value.index()) {\n')
 
         stateactions = []
         for term, ac in sorted(state.actions.items(), key=lambda x:str(x[0])):
@@ -908,7 +900,7 @@ def gen_loop():
         reduce_only = len(statereduces) == 1 and statereduces[0][0].rule.special['defaultreduce']
         for ac, nts in stateactions:
             if isinstance(ac, ReduceAction) and reduce_only:
-                output.append(                    '                default:\n')
+                output.append(                    '            default:\n')
                 # do not check for lookahead, just reduce to have better performance (kind of)
                 # if reduce_only, then all the reduce actions of this state reduce the same rule
                 # and according to Wikipedia, just reducing regardless of the lookahead in
@@ -918,61 +910,60 @@ def gen_loop():
                 # it will reduce 2 up the chain of expression precedence before reporting the error
             else:
                 for term in nts:
-                    output.append(               f'                case Tokens::index_of<{term.astt()}>:\n')
+                    output.append(               f'            case Tokens::index_of<{term.astt()}>:\n')
 
             if isinstance(ac, ShiftAction):
-                output.append(                   f'                    stack.emplace_back({ac.newstate}, TokenItem {{ next_token }});\n')
-                output.append(                   f'                    last_token = next_token;\n')
-                output.append(                   f'                    next_token = p.consume();\n')
+                output.append(                   f'                stack.emplace_back({ac.newstate}, TokenItem {{ tsv.next() }});\n')
+                output.append(                   f'                tsv.advance();\n')
             elif isinstance(ac, ReduceAction):
-                output.append(                    '                    {\n')
+                output.append(                    '                {\n')
 
                 for i, sym in reversed(list(enumerate(ac.rule.expansion))):
                     if isinstance(sym, Terminal):
-                        output.append(           f'                        auto _a{i} (pop_as<TokenItem>(stack).tok);\n')
-                        output.append(           f'                        Located<{sym.astt()}> a{i} {{ _a{i}.span, Tokens::as<{sym.astt()}>(_a{i}.value) }};\n')
+                        output.append(           f'                    auto _a{i} (pop_as<TokenItem>(stack).tok);\n')
+                        output.append(           f'                    Located<{sym.astt()}> a{i} {{ _a{i}.span, Tokens::as<{sym.astt()}>(_a{i}.value) }};\n')
                     elif isinstance(sym, NonTerminal):
-                        output.append(           f'                        auto a{i} (pop_as<ASTItem<{sym.reduces_to}>>(stack).ast);\n')
+                        output.append(           f'                    auto a{i} (pop_as<ASTItem<{sym.reduces_to}>>(stack).ast);\n')
 
                 if len(ac.rule.expansion) > 0:
-                    output.append(                '                        Maybe<Location const> start =\n')
+                    output.append(                '                    Maybe<Location const> start =\n')
                     for i in range(ac.rule.loc_start, len(ac.rule.expansion)):
                         if isinstance(ac.rule.expansion[i], Terminal):
-                            output.append(       f'                            Maybe<Location const>(a{i}.span.start);\n')
+                            output.append(       f'                        Maybe<Location const>(a{i}.span.start);\n')
                             break
                         else:
                             if i == len(ac.rule.expansion) - 1:
-                                output.append(   f'                            a{i} && a{i}->span().has() ? Maybe<Location const>(a{i}->span().get().start) : Maybe<Location const>();\n')
+                                output.append(   f'                        a{i} && a{i}->span().has() ? Maybe<Location const>(a{i}->span().get().start) : Maybe<Location const>();\n')
                             else:
-                                output.append(   f'                            a{i} && a{i}->span().has() ? Maybe<Location const>(a{i}->span().get().start) :\n')
+                                output.append(   f'                        a{i} && a{i}->span().has() ? Maybe<Location const>(a{i}->span().get().start) :\n')
 
-                    output.append(                '                        Maybe<Location const> end =\n')
+                    output.append(                '                    Maybe<Location const> end =\n')
                     for i in range(ac.rule.loc_end, -1, -1):
                         if isinstance(ac.rule.expansion[i], Terminal):
-                            output.append(       f'                            Maybe<Location const>(a{i}.span.end);\n')
+                            output.append(       f'                        Maybe<Location const>(a{i}.span.end);\n')
                             break
                         else:
                             if i == 0:
-                                output.append(   f'                            a{i} && a{i}->span().has() ? Maybe<Location const>(a{i}->span().get().end) : Maybe<Location const>();\n')
+                                output.append(   f'                        a{i} && a{i}->span().has() ? Maybe<Location const>(a{i}->span().get().end) : Maybe<Location const>();\n')
                             else:
-                                output.append(   f'                            a{i} && a{i}->span().has() ? Maybe<Location const>(a{i}->span().get().end) :\n')
+                                output.append(   f'                        a{i} && a{i}->span().has() ? Maybe<Location const>(a{i}->span().get().end) :\n')
                 else:
-                    output.append(                '                        Maybe<Location const> start, end;\n')
-                output.append(                    '                        Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();\n')
+                    output.append(                '                    Maybe<Location const> start, end;\n')
+                output.append(                    '                    Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();\n')
 
                 reduce_code, pushitem = ac.rule.reduce_action.generate()
                 output.append(reduce_code)
-                output.append(                   f'                        {ac.rule.symbol.reduces_to} pushitem = {pushitem};\n')
-                output.append(                   f'                        stack.emplace_back(get_goto(NonTerminal::_{ac.rule.symbol.id}, stack.back().state), ASTItem<decltype(pushitem)>{{ std::move(pushitem), NonTerminal::_{ac.rule.symbol.id} }});\n')
-                output.append(                    '                    }\n')
+                output.append(                   f'                    {ac.rule.symbol.reduces_to} pushitem = {pushitem};\n')
+                output.append(                   f'                    stack.emplace_back(get_goto(NonTerminal::_{ac.rule.symbol.id}, stack.back().state), ASTItem<decltype(pushitem)>{{ std::move(pushitem), NonTerminal::_{ac.rule.symbol.id} }});\n')
+                output.append(                    '                }\n')
 
 
             elif isinstance(ac, AcceptAction):
-                output.append(                    '                    done = true;\n')
+                output.append(                    '                done = true;\n')
             else:
                 raise Exception('invalid action type')
 
-            output.append(                        '                    break;\n')
+            output.append(                        '                break;\n')
 
         if not reduce_only:
             def stc(s):
@@ -984,16 +975,15 @@ def gen_loop():
             futuress = [f'format("expected {{}} of {{}}", {format_list([stc(p) for p in future])}, {stc(nt)})' for nt, future in state.futures.items()]
             terminatess = [f'format("expected {{}} after {{}}", {format_list([stc(p) for p in future])}, {stc(nt)})' for nt, future in state.terminates.items()]
 
-            output.append(                        '                default:\n')
-            output.append(                       f'                    ERR_UNRECOVERABLE_INVALID_SYNTAX(next_token.span, Tokens::stringify_type(next_token.value), last_token.span, {{ {", ".join(futuress + terminatess)} }} );\n')
-            output.append(                        '                    errored = done = true;\n')
-        output.append(                            '            }\n')
-        output.append(                            '            break;\n')
+            output.append(                        '            default:\n')
+            output.append(                       f'                ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, {{ {", ".join(futuress + terminatess)} }} );\n')
+            output.append(                        '                errored = done = true;\n')
+        output.append(                            '        }\n')
+        output.append(                            '        break;\n')
 
-    output.append(                                '        default:\n')
-    output.append(                                '            report_abort_noh(format("parser reached invalid state {}", stack.back().state));\n')
+    output.append(                                '    default:\n')
+    output.append(                                '        report_abort_noh(format("parser reached invalid state {}", stack.back().state));\n')
 
-    output.append(                                '    }\n')
     output.append(                                '}\n')
 
     return ''.join(output)
@@ -1042,7 +1032,7 @@ def gen_non_term_enum():
 # generate nonterminal types {{{2
 def gen_non_term_types():
     things = sorted(list(set([f'ASTItem<{x.reduces_to}>' for x in symbols if isinstance(x, NonTerminal)])))
-    return ',\n'.join(things)
+    return ', '.join(things)
 # entry {{{1
 if __name__ == '__main__':
     print_parse_table(False)

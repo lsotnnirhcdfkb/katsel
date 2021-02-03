@@ -14,10 +14,10 @@ jobs = [
 
     ('src/ast/printvisitor.cpp'    , 'PRINTVISITOR'          , astgen.gen_print_visitor_methods),
 
-    ('src/parse/parserlocal.h'     , 'NONTERM ENUM'          , parsegen.gen_non_term_enum),
-    ('src/parse/parserlocal.h'     , 'PARSESTACK ITEM TYPES' , parsegen.gen_non_term_types),
-    ('src/parse/parserloop.cpp'    , 'PARSERLOOP'            , parsegen.gen_loop),
-    ('src/parse/parserloop.cpp'    , 'GETGOTO'               , parsegen.gen_goto),
+    ('src/parse/parser.cpp'        , 'NONTERM ENUM'          , parsegen.gen_non_term_enum),
+    ('src/parse/parser.cpp'        , 'PARSESTACK ITEM TYPES' , parsegen.gen_non_term_types),
+    ('src/parse/parser.cpp'        , 'PARSERLOOP'            , parsegen.gen_loop),
+    ('src/parse/parser.cpp'        , 'GETGOTO'               , parsegen.gen_goto),
 
     ('include/ast/printvisitor.h'  , 'PRINTVISIT METHODS'    , lambda: astgen.gen_visitor_methods('all')),
     ('include/ast/printvisitor.h'  , 'PRINTVISIT INHERIT'    , astgen.gen_visitor_inherit_all),
