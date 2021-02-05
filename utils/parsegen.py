@@ -693,8 +693,8 @@ skip_to(Stmt, VarStmt, ExprStmt, RetStmt)
 
 rule(VarStmt, (Var, VarStmtItemList, LineEnding), SimpleReduceAction('VarStmt', 'std::move(a1->items)'))
 
-rule(ExprStmt, (NotBlockedExpr,         LineEnding),    SimpleReduceAction('ExprStmt', 'std::move(a0)'))
-rule(ExprStmt, (BlockedExpr   ,         LineEndingOpt), SimpleReduceAction('ExprStmt', 'std::move(a0)'))
+rule(ExprStmt, (NotBlockedExpr, LineEnding),    SimpleReduceAction('ExprStmt', 'std::move(a0)'))
+rule(ExprStmt, (BlockedExpr   , LineEndingOpt), SimpleReduceAction('ExprStmt', 'std::move(a0)'))
 
 rule(RetStmt, (Return, Expr, LineEnding), SimpleReduceAction('RetStmt', 'std::move(a1)'))
 rule(RetStmt, (Return, LineEnding), SimpleReduceAction('RetStmt', 'nullptr'))
