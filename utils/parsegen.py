@@ -913,10 +913,14 @@ def gen_loop():
                     output.append(               f'            case Tokens::index_of<{term.astt()}>:\n')
 
             if isinstance(ac, ShiftAction):
-                output.append(                   f'                stack.emplace_back({ac.newstate}, TokenItem {{ tsv.next() }});\n')
+                output.append(                   f'                if (trial) stack.emplace_back({ac.newstate}, TrialItem {{}});\n')
+                output.append(                   f'                else       stack.emplace_back({ac.newstate}, TokenItem {{ tsv.next() }});\n')
                 output.append(                   f'                tsv.advance();\n')
             elif isinstance(ac, ReduceAction):
-                output.append(                    '                {\n')
+                output.append(                    '                if (trial) {\n')
+                output.append(                   f'                    for (int i = 0; i < {len(ac.rule.expansion)}; ++i) pop_as<TrialItem>(stack);\n')
+                output.append(                   f'                    stack.emplace_back(get_goto(NonTerminal::_{ac.rule.symbol.id}, stack.back().state), TrialItem {{}});\n')
+                output.append(                    '                } else {\n')
 
                 for i, sym in reversed(list(enumerate(ac.rule.expansion))):
                     if isinstance(sym, Terminal):
@@ -972,12 +976,12 @@ def gen_loop():
                 else:
                     return f'{s.astt()}::stringify()'
 
+            output.append(                        '            default:\n')
+
             futuress = [f'format("expected {{}} of {{}}", {format_list([stc(p) for p in future])}, {stc(nt)})' for nt, future in state.futures.items()]
             terminatess = [f'format("expected {{}} after {{}}", {format_list([stc(p) for p in future])}, {stc(nt)})' for nt, future in state.terminates.items()]
 
-            output.append(                        '            default:\n')
-            output.append(                       f'                ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, {{ {", ".join(futuress + terminatess)} }} );\n')
-            output.append(                        '                errored = done = true;\n')
+            output.append(                       f'                error({{ {", ".join(futuress + terminatess)} }});\n')
         output.append(                            '        }\n')
         output.append(                            '        break;\n')
 
@@ -1033,6 +1037,96 @@ def gen_non_term_enum():
 def gen_non_term_types():
     things = sorted(list(set([f'ASTItem<{x.reduces_to}>' for x in symbols if isinstance(x, NonTerminal)])))
     return ', '.join(things)
+# generate token type for loop {{{2
+def gen_token_insert():
+    output = []
+    token_instances = {
+        eof_sym: '',
+        Comma: '',
+        OParen: '',
+        CParen: '',
+        OBrack: '',
+        CBrack: '',
+        OBrace: '',
+        CBrace: '',
+        Comma: '',
+        Period: '',
+        Semicolon: '',
+        Question: '',
+        Colon: '',
+        Bang: '',
+        Plus: '',
+        Minus: '',
+        Star: '',
+        Slash: '',
+        Percent: '',
+        Equal: '',
+        Greater: '',
+        Less: '',
+        Tilde: '',
+        Amper: '',
+        Pipe: '',
+        Caret: '',
+        Dollar: '',
+        Hash: '',
+        RightArrow: '',
+        LeftArrow: '',
+        DoublePlus: '',
+        DoubleMinus: '',
+        DoubleGreater: '',
+        DoubleLess: '',
+        DoubleAmper: '',
+        DoublePipe: '',
+        DoubleEqual: '',
+        DoubleColon: '',
+        PlusEqual: '',
+        MinusEqual: '',
+        StarEqual: '',
+        SlashEqual: '',
+        BangEqual: '',
+        GreaterEqual: '',
+        LessEqual: '',
+        PercentEqual: '',
+        DoubleLessEqual: '',
+        DoubleGreaterEqual: '',
+        AmperEqual: '',
+        PipeEqual: '',
+        CaretEqual: '',
+        Identifier: 'Tokens::Identifier { "<identifier created due to syntax error>" }',
+        CharLit: "Tokens::CharLit { 'a' }",
+        StringLit: 'Tokens::StringLit { "<string literal created due to syntax error>" }',
+        IntLit: 'Tokens::IntLit { 0, Tokens::IntLit::Base::DECIMAL }',
+        FloatLit: 'Tokens::FloatLit { 0 }',
+        BoolLit: 'Tokens::BoolLit { false }',
+        This: '',
+        Var: '',
+        Fun: '',
+        Let: '',
+        Mut: '',
+        Data: '',
+        Impl: '',
+        Return: '',
+        While: '',
+        For: '',
+        If: '',
+        Else: '',
+        Case: '',
+        Break: '',
+        Continue: '',
+        Boom: '',
+        Newline: '',
+        Indent: '',
+        Dedent: '',
+    }
+
+    for sym in symbols:
+        if isinstance(sym, Terminal):
+            token_instance = token_instances[sym]
+            if token_instance == '':
+                token_instance = f'{sym.astt()} {{}}'
+            output.append(f'if (try_insert<{sym.astt()}>({token_instance})) {{ report_recovery<{sym.astt()}>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> {{ original_next.span, {token_instance} }}); return; }}\n')
+
+    return ''.join(output)
 # entry {{{1
 if __name__ == '__main__':
     print_parse_table(False)

@@ -120,10 +120,10 @@ void E0010(Span const &tok) {
 }
 
 // E0011 - unrecoverable-invalid-syntax
-// | The parser found an unrecoverable syntax error.
-void E0011(Span const &lookahead, std::string lookahead_type_name, Span const &lasttok, std::vector<std::string> const &expectations) {
-    Error e = Error(MsgType::ERROR, lookahead, "E0011", "unrecoverable-invalid-syntax");
-    e.underline(Underline(lookahead, '^')
+// | The parser found a syntax error and could not recover.
+void E0011(Span const &next, std::string lookahead_type_name, Span const &lasttok, std::initializer_list<std::string> const &expectations) {
+    Error e = Error(MsgType::ERROR, next, "E0011", "unrecoverable-invalid-syntax");
+    e.underline(Underline(next, '^')
         .error(format("unexpected {}", lookahead_type_name))
     );
 auto un (Underline(lasttok, '~'));
@@ -134,13 +134,13 @@ e.underline(un);
 }
 
 // E0012 - simple-invalid-syntax
-// | The parser found a syntax error and recovered by inserting,
-// | substituting, or removing a single token.
-void E0012(Span const &lookahead, std::string lookahead_type_name, Span const &lasttok, std::string const &bestfix, std::vector<std::string> const &expectations) {
-    Error e = Error(MsgType::ERROR, lookahead, "E0012", "simple-invalid-syntax");
-    e.underline(Underline(lookahead, '^')
+// | The parser found a syntax error and recovered by inserting a
+// | single token.
+void E0012(Span const &next, std::string lookahead_type_name, Span const &lasttok, std::initializer_list<std::string> const &expectations, std::string const &inserted_type) {
+    Error e = Error(MsgType::ERROR, next, "E0012", "simple-invalid-syntax");
+    e.underline(Underline(next, '^')
         .error(format("unexpected {}", lookahead_type_name))
-        .note(bestfix)
+        .note(format("parser recovered by inserting {} before this {}", inserted_type, lookahead_type_name))
     );
 auto un (Underline(lasttok, '~'));
 for (std::string const &expectation : expectations)
@@ -149,16 +149,16 @@ e.underline(un);
     e.report();
 }
 
-// E0013 - panicking-invalid-syntax
-// | The parser found a syntax error and recovered via panic mode
-// | error recovery.
-void E0013(Span const &lookahead, std::string lookahead_type_name, Span const &lasttok, Span const &panicuntil, std::string const &panicuntil_type_name, std::vector<std::string> const &expectations) {
-    Error e = Error(MsgType::ERROR, lookahead, "E0013", "panicking-invalid-syntax");
-    e.underline(Underline(lookahead, '^')
+// E0013 - skipping-invalid-syntax
+// | The parser found a syntax error and recovered by replacing a
+// | sequence of tokens with a single token.
+void E0013(Span const &next, std::string lookahead_type_name, Span const &lasttok, std::initializer_list<std::string> const &expectations, Span const &replaced, std::string const &replacement_type) {
+    Error e = Error(MsgType::ERROR, next, "E0013", "skipping-invalid-syntax");
+    e.underline(Underline(next, '^')
         .error(format("unexpected {}", lookahead_type_name))
     );
-    e.underline(Underline(panicuntil, '-')
-        .note(format("parser panicked until {}", panicuntil_type_name))
+    e.underline(Underline(replaced, '~')
+        .note(format("parser recovered by replacing this with {}", replacement_type))
     );
 auto un (Underline(lasttok, '~'));
 for (std::string const &expectation : expectations)

@@ -18,6 +18,7 @@ jobs = [
     ('src/parse/parser.cpp'        , 'PARSESTACK ITEM TYPES' , parsegen.gen_non_term_types),
     ('src/parse/parser.cpp'        , 'PARSERLOOP'            , parsegen.gen_loop),
     ('src/parse/parser.cpp'        , 'GETGOTO'               , parsegen.gen_goto),
+    ('src/parse/parser.cpp'        , 'TOKEN INSERT'          , parsegen.gen_token_insert),
 
     ('include/ast/printvisitor.h'  , 'PRINTVISIT METHODS'    , lambda: astgen.gen_visitor_methods('all')),
     ('include/ast/printvisitor.h'  , 'PRINTVISIT INHERIT'    , astgen.gen_visitor_inherit_all),

@@ -54,15 +54,23 @@ public:
         ts(ts), loc(loc) {}
 
     void advance() {
-        ++loc;
-        ts.ensure(loc);
+        if (injections.size()) {
+            injections.erase(injections.begin());
+        } else {
+            ++loc;
+            ts.ensure(loc);
+        }
     }
-    void rewind() {
-        --loc;
+
+    void inject(Located<TokenData> injection) {
+        injections.push_back(injection);
     }
 
     Located<TokenData> next() {
-        return ts.at(loc);
+        if (injections.size())
+            return injections.front();
+        else
+            return ts.at(loc);
     }
     Located<TokenData> prev() {
         return ts.at(loc == 0 ? loc : loc - 1);
@@ -71,6 +79,7 @@ public:
 private:
     TokenStream &ts;
     size_t loc;
+    std::vector<Located<TokenData>> injections;
 };
 // }}}
 // _Parser {{{
@@ -86,11 +95,12 @@ class _Parser {
     template <typename T>
     struct ASTItem { T ast; NonTerminal nt; };
     struct TokenItem { Located<TokenData> tok; };
-    struct InitialItem { int dummy; };
+    struct InitialItem {};
+    struct TrialItem {}; // only used in trial parsers
 
     struct StackItem {
         int state;
-        std::variant<TokenItem, InitialItem,
+        std::variant<TokenItem, InitialItem, TrialItem,
             // PARSESTACK ITEM TYPES START {{{
             ASTItem<std::unique_ptr<ASTNS::AST>>, ASTItem<std::unique_ptr<ASTNS::Arg>>, ASTItem<std::unique_ptr<ASTNS::ArgList>>, ASTItem<std::unique_ptr<ASTNS::Block>>, ASTItem<std::unique_ptr<ASTNS::CU>>, ASTItem<std::unique_ptr<ASTNS::Decl>>, ASTItem<std::unique_ptr<ASTNS::DeclList>>, ASTItem<std::unique_ptr<ASTNS::Expr>>, ASTItem<std::unique_ptr<ASTNS::ExprStmt>>, ASTItem<std::unique_ptr<ASTNS::FunctionDecl>>, ASTItem<std::unique_ptr<ASTNS::IfExpr>>, ASTItem<std::unique_ptr<ASTNS::ImplMember>>, ASTItem<std::unique_ptr<ASTNS::ImplMemberList>>, ASTItem<std::unique_ptr<ASTNS::Param>>, ASTItem<std::unique_ptr<ASTNS::ParamB>>, ASTItem<std::unique_ptr<ASTNS::ParamList>>, ASTItem<std::unique_ptr<ASTNS::Path>>, ASTItem<std::unique_ptr<ASTNS::PathType>>, ASTItem<std::unique_ptr<ASTNS::PointerType>>, ASTItem<std::unique_ptr<ASTNS::PureLocation>>, ASTItem<std::unique_ptr<ASTNS::RetStmt>>, ASTItem<std::unique_ptr<ASTNS::Stmt>>, ASTItem<std::unique_ptr<ASTNS::StmtList>>, ASTItem<std::unique_ptr<ASTNS::ThisParam>>, ASTItem<std::unique_ptr<ASTNS::ThisType>>, ASTItem<std::unique_ptr<ASTNS::Type>>, ASTItem<std::unique_ptr<ASTNS::VarStmt>>, ASTItem<std::unique_ptr<ASTNS::VarStmtItem>>, ASTItem<std::unique_ptr<ASTNS::VarStmtItemList>>, ASTItem<std::unique_ptr<ASTNS::WhileExpr>>
             // PARSESTACK ITEM TYPES END }}}
@@ -701,10 +711,17 @@ class _Parser {
 
 public:
     _Parser(TokenStreamView &tsv, File &file):
-        tsv(tsv), file(file), done(false), errored(false) {}
+        tsv(tsv), file(file), done(false), errored(false), trial(false) {
+        stack.emplace_back(0);
+    }
+
+    _Parser(_Parser const &other, TokenStreamView &tsv):
+        tsv(tsv), file(other.file), done(false), errored(false), trial(true) {
+        for (StackItem const &stack_item : other.stack)
+            stack.emplace_back(stack_item.state, TrialItem {});
+    }
 
     std::unique_ptr<ASTNS::CUB> parse() {
-        stack.emplace_back(0);
         while (!done) {
             next_move();
         }
@@ -715,21 +732,34 @@ public:
             return pop_as<ASTItem<std::unique_ptr<ASTNS::CU>>>(stack).ast;
     }
 
+    bool attempt(int amt) {
+        for (int i = 0; i < amt && !done; ++i) {
+            next_move();
+        }
+
+        return !errored;
+    }
+
     void next_move() {
         // PARSERLOOP START {{{
         switch (stack.back().state) {
             case 0:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Fun>:
-                        stack.emplace_back(6, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(6, TrialItem {});
+                        else       stack.emplace_back(6, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Impl>:
-                        stack.emplace_back(7, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(7, TrialItem {});
+                        else       stack.emplace_back(7, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 0; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_0, stack.back().state), TrialItem {});
+                        } else {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::CU> pushitem = nullptr;
@@ -744,22 +774,26 @@ public:
                         done = true;
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} after {}", Tokens::_EOF::stringify(), "augment") } );
-                        errored = done = true;
+                        error({ format("expected {} after {}", Tokens::_EOF::stringify(), "augment") });
                 }
                 break;
             case 2:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Fun>:
-                        stack.emplace_back(6, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(6, TrialItem {});
+                        else       stack.emplace_back(6, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Impl>:
-                        stack.emplace_back(7, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(7, TrialItem {});
+                        else       stack.emplace_back(7, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_0, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::DeclList>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -776,7 +810,10 @@ public:
             case 3:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_62, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Decl>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -795,7 +832,10 @@ public:
             case 4:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_1, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::FunctionDecl>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -811,7 +851,10 @@ public:
             case 5:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_1, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Decl>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -827,37 +870,42 @@ public:
             case 6:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(10, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(10, TrialItem {});
+                        else       stack.emplace_back(10, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", Tokens::Identifier::stringify(), "function declaration") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", Tokens::Identifier::stringify(), "function declaration") });
                 }
                 break;
             case 7:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(16, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(16, TrialItem {});
+                        else       stack.emplace_back(16, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(17, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(17, TrialItem {});
+                        else       stack.emplace_back(17, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "type specifier", "implementation") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "type specifier", "implementation") });
                 }
                 break;
             case 8:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 2; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_62, stack.back().state), TrialItem {});
+                        } else {
                             auto a1 (pop_as<ASTItem<std::unique_ptr<ASTNS::Decl>>>(stack).ast);
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::DeclList>>>(stack).ast);
                             Maybe<Location const> start =
@@ -877,7 +925,10 @@ public:
             case 9:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_61, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Decl>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -893,33 +944,37 @@ public:
             case 10:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(19, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(19, TrialItem {});
+                        else       stack.emplace_back(19, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", Tokens::OParen::stringify(), "function declaration") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", Tokens::OParen::stringify(), "function declaration") });
                 }
                 break;
             case 11:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Newline>:
-                        stack.emplace_back(22, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(22, TrialItem {});
+                        else       stack.emplace_back(22, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OBrace>:
-                        stack.emplace_back(21, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(21, TrialItem {});
+                        else       stack.emplace_back(21, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "implementation body", "implementation") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "implementation body", "implementation") });
                 }
                 break;
             case 12:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_17, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::PathType>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -935,7 +990,10 @@ public:
             case 13:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_17, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::PointerType>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -951,7 +1009,10 @@ public:
             case 14:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_17, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::ThisType>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -967,7 +1028,10 @@ public:
             case 15:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_20, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Path>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -980,7 +1044,8 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::DoubleColon>:
-                        stack.emplace_back(23, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(23, TrialItem {});
+                        else       stack.emplace_back(23, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -988,30 +1053,36 @@ public:
             case 16:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Mut>:
-                        stack.emplace_back(25, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(25, TrialItem {});
+                        else       stack.emplace_back(25, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(16, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(16, TrialItem {});
+                        else       stack.emplace_back(16, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(17, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(17, TrialItem {});
+                        else       stack.emplace_back(17, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", format("either {} or {}", "type specifier", Tokens::Mut::stringify()), "pointer type") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", format("either {} or {}", "type specifier", Tokens::Mut::stringify()), "pointer type") });
                 }
                 break;
             case 17:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_19, stack.back().state), TrialItem {});
+                        } else {
                             auto _a0 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::This> a0 { _a0.span, Tokens::as<Tokens::This>(_a0.value) };
                             Maybe<Location const> start =
@@ -1029,7 +1100,10 @@ public:
             case 18:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_48, stack.back().state), TrialItem {});
+                        } else {
                             auto _a0 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Identifier> a0 { _a0.span, Tokens::as<Tokens::Identifier>(_a0.value) };
                             Maybe<Location const> start =
@@ -1049,7 +1123,10 @@ public:
             case 19:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::CParen>:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 0; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_65, stack.back().state), TrialItem {});
+                        } else {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
         std::unique_ptr<ASTNS::ParamList> push (std::make_unique<ASTNS::ParamList>(file, span, std::vector<std::unique_ptr<ASTNS::ParamB>> {}));
@@ -1058,24 +1135,27 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(32, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(32, TrialItem {});
+                        else       stack.emplace_back(32, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Mut>:
-                        stack.emplace_back(33, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(33, TrialItem {});
+                        else       stack.emplace_back(33, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(35, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(35, TrialItem {});
+                        else       stack.emplace_back(35, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(34, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(34, TrialItem {});
+                        else       stack.emplace_back(34, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "optional function parameter list", "function declaration") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "optional function parameter list", "function declaration") });
                 }
                 break;
             case 20:
@@ -1104,7 +1184,10 @@ public:
                     case Tokens::index_of<Tokens::Var>:
                     case Tokens::index_of<Tokens::While>:
                     case Tokens::index_of<Tokens::_EOF>:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 0; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_71, stack.back().state), TrialItem {});
+                        } else {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::PureLocation> pushitem = nullptr;
@@ -1112,23 +1195,27 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Newline>:
-                        stack.emplace_back(38, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(38, TrialItem {});
+                        else       stack.emplace_back(38, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Semicolon>:
-                        stack.emplace_back(39, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(39, TrialItem {});
+                        else       stack.emplace_back(39, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "optional line ending", "implementation") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "optional line ending", "implementation") });
                 }
                 break;
             case 21:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::CBrace>:
                     case Tokens::index_of<Tokens::Dedent>:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 0; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_68, stack.back().state), TrialItem {});
+                        } else {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
         std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberList>(file, span, std::vector<std::unique_ptr<ASTNS::ImplMember>> {}));
@@ -1137,44 +1224,48 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Fun>:
-                        stack.emplace_back(6, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(6, TrialItem {});
+                        else       stack.emplace_back(6, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Newline>:
-                        stack.emplace_back(41, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(41, TrialItem {});
+                        else       stack.emplace_back(41, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", format("either {} or {}", "optional implementation member list", Tokens::Newline::stringify()), "implementation body") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", format("either {} or {}", "optional implementation member list", Tokens::Newline::stringify()), "implementation body") });
                 }
                 break;
             case 22:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Indent>:
-                        stack.emplace_back(45, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(45, TrialItem {});
+                        else       stack.emplace_back(45, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", Tokens::Indent::stringify(), "implementation body") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", Tokens::Indent::stringify(), "implementation body") });
                 }
                 break;
             case 23:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(46, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(46, TrialItem {});
+                        else       stack.emplace_back(46, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", Tokens::Identifier::stringify(), "symbol path") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", Tokens::Identifier::stringify(), "symbol path") });
                 }
                 break;
             case 24:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 2; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_18, stack.back().state), TrialItem {});
+                        } else {
                             auto a1 (pop_as<ASTItem<std::unique_ptr<ASTNS::Type>>>(stack).ast);
                             auto _a0 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Star> a0 { _a0.span, Tokens::as<Tokens::Star>(_a0.value) };
@@ -1194,37 +1285,42 @@ public:
             case 25:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(16, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(16, TrialItem {});
+                        else       stack.emplace_back(16, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(17, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(17, TrialItem {});
+                        else       stack.emplace_back(17, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "type specifier", "pointer type") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "type specifier", "pointer type") });
                 }
                 break;
             case 26:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::CParen>:
-                        stack.emplace_back(48, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(48, TrialItem {});
+                        else       stack.emplace_back(48, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", Tokens::CParen::stringify(), "function declaration") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", Tokens::CParen::stringify(), "function declaration") });
                 }
                 break;
             case 27:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_65, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::ParamList>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -1240,7 +1336,10 @@ public:
             case 28:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_51, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::ParamList>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -1252,7 +1351,8 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Comma>:
-                        stack.emplace_back(49, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(49, TrialItem {});
+                        else       stack.emplace_back(49, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -1260,7 +1360,10 @@ public:
             case 29:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_52, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::ParamB>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -1279,7 +1382,10 @@ public:
             case 30:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_22, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Param>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -1295,7 +1401,10 @@ public:
             case 31:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_22, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::ThisParam>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -1311,29 +1420,32 @@ public:
             case 32:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Colon>:
-                        stack.emplace_back(51, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(51, TrialItem {});
+                        else       stack.emplace_back(51, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "required type annotation", "function parameter") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "required type annotation", "function parameter") });
                 }
                 break;
             case 33:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(52, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(52, TrialItem {});
+                        else       stack.emplace_back(52, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", Tokens::Identifier::stringify(), "function parameter") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", Tokens::Identifier::stringify(), "function parameter") });
                 }
                 break;
             case 34:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_23, stack.back().state), TrialItem {});
+                        } else {
                             auto _a0 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::This> a0 { _a0.span, Tokens::as<Tokens::This>(_a0.value) };
                             Maybe<Location const> start =
@@ -1351,22 +1463,26 @@ public:
             case 35:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Mut>:
-                        stack.emplace_back(54, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(54, TrialItem {});
+                        else       stack.emplace_back(54, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(53, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(53, TrialItem {});
+                        else       stack.emplace_back(53, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", format("either {} or {}", Tokens::This::stringify(), Tokens::Mut::stringify()), "'this' function parameter") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", format("either {} or {}", Tokens::This::stringify(), Tokens::Mut::stringify()), "'this' function parameter") });
                 }
                 break;
             case 36:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 4; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_3, stack.back().state), TrialItem {});
+                        } else {
                             auto a3 (pop_as<ASTItem<std::unique_ptr<ASTNS::PureLocation>>>(stack).ast);
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::ImplMemberList>>>(stack).ast);
                             auto a1 (pop_as<ASTItem<std::unique_ptr<ASTNS::Type>>>(stack).ast);
@@ -1388,7 +1504,10 @@ public:
             case 37:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_71, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::PureLocation>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -1404,7 +1523,10 @@ public:
             case 38:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_11, stack.back().state), TrialItem {});
+                        } else {
                             auto _a0 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Newline> a0 { _a0.span, Tokens::as<Tokens::Newline>(_a0.value) };
                             Maybe<Location const> start =
@@ -1422,7 +1544,10 @@ public:
             case 39:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_11, stack.back().state), TrialItem {});
+                        } else {
                             auto _a0 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Semicolon> a0 { _a0.span, Tokens::as<Tokens::Semicolon>(_a0.value) };
                             Maybe<Location const> start =
@@ -1436,7 +1561,8 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Newline>:
-                        stack.emplace_back(55, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(55, TrialItem {});
+                        else       stack.emplace_back(55, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -1444,19 +1570,22 @@ public:
             case 40:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::CBrace>:
-                        stack.emplace_back(56, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(56, TrialItem {});
+                        else       stack.emplace_back(56, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", Tokens::CBrace::stringify(), "implementation body") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", Tokens::CBrace::stringify(), "implementation body") });
                 }
                 break;
             case 41:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::CBrace>:
                     case Tokens::index_of<Tokens::Dedent>:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 0; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_68, stack.back().state), TrialItem {});
+                        } else {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
         std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberList>(file, span, std::vector<std::unique_ptr<ASTNS::ImplMember>> {}));
@@ -1465,22 +1594,26 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Fun>:
-                        stack.emplace_back(6, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(6, TrialItem {});
+                        else       stack.emplace_back(6, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Indent>:
-                        stack.emplace_back(58, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(58, TrialItem {});
+                        else       stack.emplace_back(58, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", format("either {} or {}", "optional implementation member list", Tokens::Indent::stringify()), "implementation body") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", format("either {} or {}", "optional implementation member list", Tokens::Indent::stringify()), "implementation body") });
                 }
                 break;
             case 42:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_68, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::ImplMemberList>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -1492,7 +1625,8 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Fun>:
-                        stack.emplace_back(6, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(6, TrialItem {});
+                        else       stack.emplace_back(6, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -1500,7 +1634,10 @@ public:
             case 43:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_64, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::ImplMember>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -1519,7 +1656,10 @@ public:
             case 44:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_5, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::FunctionDecl>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -1537,7 +1677,10 @@ public:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::CBrace>:
                     case Tokens::index_of<Tokens::Dedent>:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 0; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_68, stack.back().state), TrialItem {});
+                        } else {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
         std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberList>(file, span, std::vector<std::unique_ptr<ASTNS::ImplMember>> {}));
@@ -1546,18 +1689,21 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Fun>:
-                        stack.emplace_back(6, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(6, TrialItem {});
+                        else       stack.emplace_back(6, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "optional implementation member list", "implementation body") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "optional implementation member list", "implementation body") });
                 }
                 break;
             case 46:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_48, stack.back().state), TrialItem {});
+                        } else {
                             auto _a2 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Identifier> a2 { _a2.span, Tokens::as<Tokens::Identifier>(_a2.value) };
                             auto _a1 (pop_as<TokenItem>(stack).tok);
@@ -1579,7 +1725,10 @@ public:
             case 47:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_18, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Type>>>(stack).ast);
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Mut> a1 { _a1.span, Tokens::as<Tokens::Mut>(_a1.value) };
@@ -1601,18 +1750,21 @@ public:
             case 48:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Colon>:
-                        stack.emplace_back(51, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(51, TrialItem {});
+                        else       stack.emplace_back(51, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "required type annotation", "function declaration") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "required type annotation", "function declaration") });
                 }
                 break;
             case 49:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 2; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_51, stack.back().state), TrialItem {});
+                        } else {
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Comma> a1 { _a1.span, Tokens::as<Tokens::Comma>(_a1.value) };
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::ParamList>>>(stack).ast);
@@ -1627,19 +1779,23 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(32, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(32, TrialItem {});
+                        else       stack.emplace_back(32, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Mut>:
-                        stack.emplace_back(33, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(33, TrialItem {});
+                        else       stack.emplace_back(33, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(35, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(35, TrialItem {});
+                        else       stack.emplace_back(35, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(34, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(34, TrialItem {});
+                        else       stack.emplace_back(34, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -1647,7 +1803,10 @@ public:
             case 50:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 2; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_24, stack.back().state), TrialItem {});
+                        } else {
                             auto a1 (pop_as<ASTItem<std::unique_ptr<ASTNS::Type>>>(stack).ast);
                             auto _a0 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Identifier> a0 { _a0.span, Tokens::as<Tokens::Identifier>(_a0.value) };
@@ -1667,37 +1826,42 @@ public:
             case 51:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(16, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(16, TrialItem {});
+                        else       stack.emplace_back(16, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(17, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(17, TrialItem {});
+                        else       stack.emplace_back(17, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "type specifier", "required type annotation") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "type specifier", "required type annotation") });
                 }
                 break;
             case 52:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Colon>:
-                        stack.emplace_back(51, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(51, TrialItem {});
+                        else       stack.emplace_back(51, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "required type annotation", "function parameter") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "required type annotation", "function parameter") });
                 }
                 break;
             case 53:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 2; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_23, stack.back().state), TrialItem {});
+                        } else {
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::This> a1 { _a1.span, Tokens::as<Tokens::This>(_a1.value) };
                             auto _a0 (pop_as<TokenItem>(stack).tok);
@@ -1717,18 +1881,21 @@ public:
             case 54:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(67, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(67, TrialItem {});
+                        else       stack.emplace_back(67, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", Tokens::This::stringify(), "'this' function parameter") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", Tokens::This::stringify(), "'this' function parameter") });
                 }
                 break;
             case 55:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 2; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_11, stack.back().state), TrialItem {});
+                        } else {
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Newline> a1 { _a1.span, Tokens::as<Tokens::Newline>(_a1.value) };
                             auto _a0 (pop_as<TokenItem>(stack).tok);
@@ -1748,7 +1915,10 @@ public:
             case 56:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_4, stack.back().state), TrialItem {});
+                        } else {
                             auto _a2 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::CBrace> a2 { _a2.span, Tokens::as<Tokens::CBrace>(_a2.value) };
                             auto a1 (pop_as<ASTItem<std::unique_ptr<ASTNS::ImplMemberList>>>(stack).ast);
@@ -1768,19 +1938,22 @@ public:
             case 57:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::CBrace>:
-                        stack.emplace_back(68, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(68, TrialItem {});
+                        else       stack.emplace_back(68, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", Tokens::CBrace::stringify(), "implementation body") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", Tokens::CBrace::stringify(), "implementation body") });
                 }
                 break;
             case 58:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::CBrace>:
                     case Tokens::index_of<Tokens::Dedent>:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 0; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_68, stack.back().state), TrialItem {});
+                        } else {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
         std::unique_ptr<ASTNS::ImplMemberList> push (std::make_unique<ASTNS::ImplMemberList>(file, span, std::vector<std::unique_ptr<ASTNS::ImplMember>> {}));
@@ -1789,18 +1962,21 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Fun>:
-                        stack.emplace_back(6, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(6, TrialItem {});
+                        else       stack.emplace_back(6, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "optional implementation member list", "implementation body") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "optional implementation member list", "implementation body") });
                 }
                 break;
             case 59:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 2; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_64, stack.back().state), TrialItem {});
+                        } else {
                             auto a1 (pop_as<ASTItem<std::unique_ptr<ASTNS::ImplMember>>>(stack).ast);
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::ImplMemberList>>>(stack).ast);
                             Maybe<Location const> start =
@@ -1820,7 +1996,10 @@ public:
             case 60:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_63, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::ImplMember>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -1836,37 +2015,42 @@ public:
             case 61:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Dedent>:
-                        stack.emplace_back(70, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(70, TrialItem {});
+                        else       stack.emplace_back(70, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", Tokens::Dedent::stringify(), "implementation body") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", Tokens::Dedent::stringify(), "implementation body") });
                 }
                 break;
             case 62:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Newline>:
-                        stack.emplace_back(75, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(75, TrialItem {});
+                        else       stack.emplace_back(75, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OBrace>:
-                        stack.emplace_back(76, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(76, TrialItem {});
+                        else       stack.emplace_back(76, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Semicolon>:
-                        stack.emplace_back(39, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(39, TrialItem {});
+                        else       stack.emplace_back(39, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", format("either {} or {}", "code block", "line ending"), "function declaration") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", format("either {} or {}", "code block", "line ending"), "function declaration") });
                 }
                 break;
             case 63:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_52, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::ParamB>>>(stack).ast);
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Comma> a1 { _a1.span, Tokens::as<Tokens::Comma>(_a1.value) };
@@ -1888,7 +2072,10 @@ public:
             case 64:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_50, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::ParamB>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -1904,7 +2091,10 @@ public:
             case 65:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 2; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_16, stack.back().state), TrialItem {});
+                        } else {
                             auto a1 (pop_as<ASTItem<std::unique_ptr<ASTNS::Type>>>(stack).ast);
                             auto _a0 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Colon> a0 { _a0.span, Tokens::as<Tokens::Colon>(_a0.value) };
@@ -1923,7 +2113,10 @@ public:
             case 66:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_24, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Type>>>(stack).ast);
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Identifier> a1 { _a1.span, Tokens::as<Tokens::Identifier>(_a1.value) };
@@ -1945,7 +2138,10 @@ public:
             case 67:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_23, stack.back().state), TrialItem {});
+                        } else {
                             auto _a2 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::This> a2 { _a2.span, Tokens::as<Tokens::This>(_a2.value) };
                             auto _a1 (pop_as<TokenItem>(stack).tok);
@@ -1967,7 +2163,10 @@ public:
             case 68:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 4; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_4, stack.back().state), TrialItem {});
+                        } else {
                             auto _a3 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::CBrace> a3 { _a3.span, Tokens::as<Tokens::CBrace>(_a3.value) };
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::ImplMemberList>>>(stack).ast);
@@ -1989,18 +2188,21 @@ public:
             case 69:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Dedent>:
-                        stack.emplace_back(77, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(77, TrialItem {});
+                        else       stack.emplace_back(77, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", Tokens::Dedent::stringify(), "implementation body") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", Tokens::Dedent::stringify(), "implementation body") });
                 }
                 break;
             case 70:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 4; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_4, stack.back().state), TrialItem {});
+                        } else {
                             auto _a3 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Dedent> a3 { _a3.span, Tokens::as<Tokens::Dedent>(_a3.value) };
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::ImplMemberList>>>(stack).ast);
@@ -2045,7 +2247,10 @@ public:
                     case Tokens::index_of<Tokens::Var>:
                     case Tokens::index_of<Tokens::While>:
                     case Tokens::index_of<Tokens::_EOF>:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 0; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_71, stack.back().state), TrialItem {});
+                        } else {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::PureLocation> pushitem = nullptr;
@@ -2053,22 +2258,26 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Newline>:
-                        stack.emplace_back(38, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(38, TrialItem {});
+                        else       stack.emplace_back(38, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Semicolon>:
-                        stack.emplace_back(39, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(39, TrialItem {});
+                        else       stack.emplace_back(39, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "optional line ending", "function declaration") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "optional line ending", "function declaration") });
                 }
                 break;
             case 72:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 7; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_2, stack.back().state), TrialItem {});
+                        } else {
                             auto a6 (pop_as<ASTItem<std::unique_ptr<ASTNS::PureLocation>>>(stack).ast);
                             auto a5 (pop_as<ASTItem<std::unique_ptr<ASTNS::Type>>>(stack).ast);
                             auto _a4 (pop_as<TokenItem>(stack).tok);
@@ -2097,7 +2306,10 @@ public:
             case 73:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_13, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Block>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -2113,7 +2325,10 @@ public:
             case 74:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_13, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Block>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -2129,7 +2344,10 @@ public:
             case 75:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_11, stack.back().state), TrialItem {});
+                        } else {
                             auto _a0 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Newline> a0 { _a0.span, Tokens::as<Tokens::Newline>(_a0.value) };
                             Maybe<Location const> start =
@@ -2143,7 +2361,8 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Indent>:
-                        stack.emplace_back(79, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(79, TrialItem {});
+                        else       stack.emplace_back(79, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -2151,21 +2370,27 @@ public:
             case 76:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CBrace>:
                     case Tokens::index_of<Tokens::Caret>:
                     case Tokens::index_of<Tokens::Dedent>:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 0; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_67, stack.back().state), TrialItem {});
+                        } else {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
         std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(file, span, std::vector<std::unique_ptr<ASTNS::Stmt>> {}));
@@ -2174,89 +2399,107 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::If>:
-                        stack.emplace_back(96, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(96, TrialItem {});
+                        else       stack.emplace_back(96, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Newline>:
-                        stack.emplace_back(81, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(81, TrialItem {});
+                        else       stack.emplace_back(81, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OBrace>:
-                        stack.emplace_back(76, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(76, TrialItem {});
+                        else       stack.emplace_back(76, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Return>:
-                        stack.emplace_back(90, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(90, TrialItem {});
+                        else       stack.emplace_back(90, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Var>:
-                        stack.emplace_back(87, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(87, TrialItem {});
+                        else       stack.emplace_back(87, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::While>:
-                        stack.emplace_back(97, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(97, TrialItem {});
+                        else       stack.emplace_back(97, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", format("either {} or {}", "optional statement list", Tokens::Newline::stringify()), "braced code block") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", format("either {} or {}", "optional statement list", Tokens::Newline::stringify()), "braced code block") });
                 }
                 break;
             case 77:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::CBrace>:
-                        stack.emplace_back(127, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(127, TrialItem {});
+                        else       stack.emplace_back(127, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", Tokens::CBrace::stringify(), "implementation body") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", Tokens::CBrace::stringify(), "implementation body") });
                 }
                 break;
             case 78:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 8; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_2, stack.back().state), TrialItem {});
+                        } else {
                             auto a7 (pop_as<ASTItem<std::unique_ptr<ASTNS::PureLocation>>>(stack).ast);
                             auto a6 (pop_as<ASTItem<std::unique_ptr<ASTNS::Block>>>(stack).ast);
                             auto a5 (pop_as<ASTItem<std::unique_ptr<ASTNS::Type>>>(stack).ast);
@@ -2285,21 +2528,27 @@ public:
             case 79:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CBrace>:
                     case Tokens::index_of<Tokens::Caret>:
                     case Tokens::index_of<Tokens::Dedent>:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 0; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_67, stack.back().state), TrialItem {});
+                        } else {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
         std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(file, span, std::vector<std::unique_ptr<ASTNS::Stmt>> {}));
@@ -2308,75 +2557,92 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::If>:
-                        stack.emplace_back(96, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(96, TrialItem {});
+                        else       stack.emplace_back(96, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OBrace>:
-                        stack.emplace_back(76, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(76, TrialItem {});
+                        else       stack.emplace_back(76, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Return>:
-                        stack.emplace_back(90, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(90, TrialItem {});
+                        else       stack.emplace_back(90, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Var>:
-                        stack.emplace_back(87, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(87, TrialItem {});
+                        else       stack.emplace_back(87, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::While>:
-                        stack.emplace_back(97, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(97, TrialItem {});
+                        else       stack.emplace_back(97, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "optional statement list", "indented code block") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "optional statement list", "indented code block") });
                 }
                 break;
             case 80:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::CBrace>:
                     case Tokens::index_of<Tokens::Dedent>:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 0; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_72, stack.back().state), TrialItem {});
+                        } else {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Expr> pushitem = nullptr;
@@ -2384,32 +2650,38 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Caret>:
-                        stack.emplace_back(131, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(131, TrialItem {});
+                        else       stack.emplace_back(131, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "optional implicit return value", "braced code block") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "optional implicit return value", "braced code block") });
                 }
                 break;
             case 81:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CBrace>:
                     case Tokens::index_of<Tokens::Caret>:
                     case Tokens::index_of<Tokens::Dedent>:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 0; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_67, stack.back().state), TrialItem {});
+                        } else {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
         std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(file, span, std::vector<std::unique_ptr<ASTNS::Stmt>> {}));
@@ -2418,90 +2690,111 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::If>:
-                        stack.emplace_back(96, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(96, TrialItem {});
+                        else       stack.emplace_back(96, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Indent>:
-                        stack.emplace_back(133, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(133, TrialItem {});
+                        else       stack.emplace_back(133, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OBrace>:
-                        stack.emplace_back(76, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(76, TrialItem {});
+                        else       stack.emplace_back(76, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Return>:
-                        stack.emplace_back(90, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(90, TrialItem {});
+                        else       stack.emplace_back(90, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Var>:
-                        stack.emplace_back(87, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(87, TrialItem {});
+                        else       stack.emplace_back(87, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::While>:
-                        stack.emplace_back(97, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(97, TrialItem {});
+                        else       stack.emplace_back(97, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", format("either {} or {}", "optional statement list", Tokens::Indent::stringify()), "braced code block") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", format("either {} or {}", "optional statement list", Tokens::Indent::stringify()), "braced code block") });
                 }
                 break;
             case 82:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_67, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::StmtList>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -2513,63 +2806,78 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::If>:
-                        stack.emplace_back(96, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(96, TrialItem {});
+                        else       stack.emplace_back(96, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OBrace>:
-                        stack.emplace_back(76, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(76, TrialItem {});
+                        else       stack.emplace_back(76, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Return>:
-                        stack.emplace_back(90, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(90, TrialItem {});
+                        else       stack.emplace_back(90, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Var>:
-                        stack.emplace_back(87, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(87, TrialItem {});
+                        else       stack.emplace_back(87, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::While>:
-                        stack.emplace_back(97, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(97, TrialItem {});
+                        else       stack.emplace_back(97, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -2577,7 +2885,10 @@ public:
             case 83:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_60, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Stmt>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -2596,7 +2907,10 @@ public:
             case 84:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_6, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::VarStmt>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -2612,7 +2926,10 @@ public:
             case 85:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_6, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::ExprStmt>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -2628,7 +2945,10 @@ public:
             case 86:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_6, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::RetStmt>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -2644,31 +2964,33 @@ public:
             case 87:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(139, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(139, TrialItem {});
+                        else       stack.emplace_back(139, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Mut>:
-                        stack.emplace_back(140, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(140, TrialItem {});
+                        else       stack.emplace_back(140, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "variable binding list", "variable declaration") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "variable binding list", "variable declaration") });
                 }
                 break;
             case 88:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Newline>:
-                        stack.emplace_back(38, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(38, TrialItem {});
+                        else       stack.emplace_back(38, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Semicolon>:
-                        stack.emplace_back(39, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(39, TrialItem {});
+                        else       stack.emplace_back(39, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "line ending", "expression statement") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "line ending", "expression statement") });
                 }
                 break;
             case 89:
@@ -2697,7 +3019,10 @@ public:
                     case Tokens::index_of<Tokens::Var>:
                     case Tokens::index_of<Tokens::While>:
                     case Tokens::index_of<Tokens::_EOF>:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 0; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_71, stack.back().state), TrialItem {});
+                        } else {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::PureLocation> pushitem = nullptr;
@@ -2705,101 +3030,122 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Newline>:
-                        stack.emplace_back(38, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(38, TrialItem {});
+                        else       stack.emplace_back(38, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Semicolon>:
-                        stack.emplace_back(39, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(39, TrialItem {});
+                        else       stack.emplace_back(39, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "optional line ending", "expression statement") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "optional line ending", "expression statement") });
                 }
                 break;
             case 90:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::If>:
-                        stack.emplace_back(96, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(96, TrialItem {});
+                        else       stack.emplace_back(96, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Newline>:
-                        stack.emplace_back(38, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(38, TrialItem {});
+                        else       stack.emplace_back(38, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OBrace>:
-                        stack.emplace_back(76, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(76, TrialItem {});
+                        else       stack.emplace_back(76, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Semicolon>:
-                        stack.emplace_back(39, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(39, TrialItem {});
+                        else       stack.emplace_back(39, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::While>:
-                        stack.emplace_back(97, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(97, TrialItem {});
+                        else       stack.emplace_back(97, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", format("either {} or {}", "expression", "line ending"), "return statement") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", format("either {} or {}", "expression", "line ending"), "return statement") });
                 }
                 break;
             case 91:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_27, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -2815,7 +3161,10 @@ public:
             case 92:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_26, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::IfExpr>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -2831,7 +3180,10 @@ public:
             case 93:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_26, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::WhileExpr>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -2847,7 +3199,10 @@ public:
             case 94:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_26, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Block>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -2863,7 +3218,10 @@ public:
             case 95:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_30, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -2875,11 +3233,13 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::DoublePipe>:
-                        stack.emplace_back(148, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(148, TrialItem {});
+                        else       stack.emplace_back(148, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Equal>:
-                        stack.emplace_back(147, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(147, TrialItem {});
+                        else       stack.emplace_back(147, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -2887,149 +3247,182 @@ public:
             case 96:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::If>:
-                        stack.emplace_back(96, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(96, TrialItem {});
+                        else       stack.emplace_back(96, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OBrace>:
-                        stack.emplace_back(76, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(76, TrialItem {});
+                        else       stack.emplace_back(76, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::While>:
-                        stack.emplace_back(97, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(97, TrialItem {});
+                        else       stack.emplace_back(97, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "expression", "if expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "expression", "if expression") });
                 }
                 break;
             case 97:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::If>:
-                        stack.emplace_back(96, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(96, TrialItem {});
+                        else       stack.emplace_back(96, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OBrace>:
-                        stack.emplace_back(76, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(76, TrialItem {});
+                        else       stack.emplace_back(76, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::While>:
-                        stack.emplace_back(97, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(97, TrialItem {});
+                        else       stack.emplace_back(97, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "expression", "while loop expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "expression", "while loop expression") });
                 }
                 break;
             case 98:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_31, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -3041,7 +3434,8 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::DoubleAmper>:
-                        stack.emplace_back(151, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(151, TrialItem {});
+                        else       stack.emplace_back(151, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -3049,11 +3443,15 @@ public:
             case 99:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::BangEqual>:
-                        stack.emplace_back(152, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(152, TrialItem {});
+                        else       stack.emplace_back(152, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_32, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -3065,7 +3463,8 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::DoubleEqual>:
-                        stack.emplace_back(153, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(153, TrialItem {});
+                        else       stack.emplace_back(153, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -3073,7 +3472,10 @@ public:
             case 100:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_33, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -3085,19 +3487,23 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Greater>:
-                        stack.emplace_back(155, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(155, TrialItem {});
+                        else       stack.emplace_back(155, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::GreaterEqual>:
-                        stack.emplace_back(157, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(157, TrialItem {});
+                        else       stack.emplace_back(157, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Less>:
-                        stack.emplace_back(154, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(154, TrialItem {});
+                        else       stack.emplace_back(154, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::LessEqual>:
-                        stack.emplace_back(156, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(156, TrialItem {});
+                        else       stack.emplace_back(156, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -3105,7 +3511,10 @@ public:
             case 101:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_34, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -3117,7 +3526,8 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Caret>:
-                        stack.emplace_back(158, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(158, TrialItem {});
+                        else       stack.emplace_back(158, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -3125,7 +3535,10 @@ public:
             case 102:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_35, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -3137,7 +3550,8 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Pipe>:
-                        stack.emplace_back(159, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(159, TrialItem {});
+                        else       stack.emplace_back(159, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -3145,11 +3559,15 @@ public:
             case 103:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(160, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(160, TrialItem {});
+                        else       stack.emplace_back(160, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_36, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -3165,7 +3583,10 @@ public:
             case 104:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_37, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -3177,11 +3598,13 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::DoubleGreater>:
-                        stack.emplace_back(161, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(161, TrialItem {});
+                        else       stack.emplace_back(161, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::DoubleLess>:
-                        stack.emplace_back(162, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(162, TrialItem {});
+                        else       stack.emplace_back(162, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -3189,7 +3612,10 @@ public:
             case 105:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_38, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -3201,11 +3627,13 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(164, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(164, TrialItem {});
+                        else       stack.emplace_back(164, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Plus>:
-                        stack.emplace_back(163, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(163, TrialItem {});
+                        else       stack.emplace_back(163, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -3213,7 +3641,10 @@ public:
             case 106:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_39, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -3225,15 +3656,18 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Percent>:
-                        stack.emplace_back(167, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(167, TrialItem {});
+                        else       stack.emplace_back(167, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Slash>:
-                        stack.emplace_back(166, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(166, TrialItem {});
+                        else       stack.emplace_back(166, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(165, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(165, TrialItem {});
+                        else       stack.emplace_back(165, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -3241,7 +3675,10 @@ public:
             case 107:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_40, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -3253,7 +3690,8 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::RightArrow>:
-                        stack.emplace_back(168, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(168, TrialItem {});
+                        else       stack.emplace_back(168, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -3261,7 +3699,10 @@ public:
             case 108:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_41, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -3277,306 +3718,370 @@ public:
             case 109:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "unary expression", "unary expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "unary expression", "unary expression") });
                 }
                 break;
             case 110:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "unary expression", "unary expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "unary expression", "unary expression") });
                 }
                 break;
             case 111:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "unary expression", "unary expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "unary expression", "unary expression") });
                 }
                 break;
             case 112:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Mut>:
-                        stack.emplace_back(173, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(173, TrialItem {});
+                        else       stack.emplace_back(173, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", format("either {} or {}", "unary expression", Tokens::Mut::stringify()), "unary expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", format("either {} or {}", "unary expression", Tokens::Mut::stringify()), "unary expression") });
                 }
                 break;
             case 113:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "unary expression", "unary expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "unary expression", "unary expression") });
                 }
                 break;
             case 114:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_42, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -3588,11 +4093,13 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(175, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(175, TrialItem {});
+                        else       stack.emplace_back(175, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Period>:
-                        stack.emplace_back(176, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(176, TrialItem {});
+                        else       stack.emplace_back(176, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -3600,7 +4107,10 @@ public:
             case 115:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_42, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -3612,7 +4122,8 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Period>:
-                        stack.emplace_back(177, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(177, TrialItem {});
+                        else       stack.emplace_back(177, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -3620,7 +4131,10 @@ public:
             case 116:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_42, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -3632,11 +4146,13 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(178, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(178, TrialItem {});
+                        else       stack.emplace_back(178, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Period>:
-                        stack.emplace_back(179, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(179, TrialItem {});
+                        else       stack.emplace_back(179, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -3644,7 +4160,10 @@ public:
             case 117:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_43, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -3660,7 +4179,10 @@ public:
             case 118:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_46, stack.back().state), TrialItem {});
+                        } else {
                             auto _a0 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::BoolLit> a0 { _a0.span, Tokens::as<Tokens::BoolLit>(_a0.value) };
                             Maybe<Location const> start =
@@ -3678,7 +4200,10 @@ public:
             case 119:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_46, stack.back().state), TrialItem {});
+                        } else {
                             auto _a0 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::FloatLit> a0 { _a0.span, Tokens::as<Tokens::FloatLit>(_a0.value) };
                             Maybe<Location const> start =
@@ -3696,7 +4221,10 @@ public:
             case 120:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_46, stack.back().state), TrialItem {});
+                        } else {
                             auto _a0 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::IntLit> a0 { _a0.span, Tokens::as<Tokens::IntLit>(_a0.value) };
                             Maybe<Location const> start =
@@ -3714,7 +4242,10 @@ public:
             case 121:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_46, stack.back().state), TrialItem {});
+                        } else {
                             auto _a0 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::CharLit> a0 { _a0.span, Tokens::as<Tokens::CharLit>(_a0.value) };
                             Maybe<Location const> start =
@@ -3732,7 +4263,10 @@ public:
             case 122:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_46, stack.back().state), TrialItem {});
+                        } else {
                             auto _a0 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::StringLit> a0 { _a0.span, Tokens::as<Tokens::StringLit>(_a0.value) };
                             Maybe<Location const> start =
@@ -3750,7 +4284,10 @@ public:
             case 123:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_46, stack.back().state), TrialItem {});
+                        } else {
                             auto _a0 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::This> a0 { _a0.span, Tokens::as<Tokens::This>(_a0.value) };
                             Maybe<Location const> start =
@@ -3768,78 +4305,96 @@ public:
             case 124:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::If>:
-                        stack.emplace_back(96, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(96, TrialItem {});
+                        else       stack.emplace_back(96, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OBrace>:
-                        stack.emplace_back(76, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(76, TrialItem {});
+                        else       stack.emplace_back(76, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::While>:
-                        stack.emplace_back(97, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(97, TrialItem {});
+                        else       stack.emplace_back(97, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "expression", "primary expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "expression", "primary expression") });
                 }
                 break;
             case 125:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_46, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -3855,7 +4410,10 @@ public:
             case 126:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_47, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Path>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -3868,7 +4426,8 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::DoubleColon>:
-                        stack.emplace_back(23, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(23, TrialItem {});
+                        else       stack.emplace_back(23, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -3876,7 +4435,10 @@ public:
             case 127:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 6; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_4, stack.back().state), TrialItem {});
+                        } else {
                             auto _a5 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::CBrace> a5 { _a5.span, Tokens::as<Tokens::CBrace>(_a5.value) };
                             auto _a4 (pop_as<TokenItem>(stack).tok);
@@ -3903,7 +4465,10 @@ public:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::CBrace>:
                     case Tokens::index_of<Tokens::Dedent>:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 0; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_72, stack.back().state), TrialItem {});
+                        } else {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Expr> pushitem = nullptr;
@@ -3911,29 +4476,32 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Caret>:
-                        stack.emplace_back(131, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(131, TrialItem {});
+                        else       stack.emplace_back(131, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "optional implicit return value", "indented code block") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "optional implicit return value", "indented code block") });
                 }
                 break;
             case 129:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::CBrace>:
-                        stack.emplace_back(182, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(182, TrialItem {});
+                        else       stack.emplace_back(182, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", Tokens::CBrace::stringify(), "braced code block") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", Tokens::CBrace::stringify(), "braced code block") });
                 }
                 break;
             case 130:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_72, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -3949,79 +4517,97 @@ public:
             case 131:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::If>:
-                        stack.emplace_back(96, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(96, TrialItem {});
+                        else       stack.emplace_back(96, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OBrace>:
-                        stack.emplace_back(76, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(76, TrialItem {});
+                        else       stack.emplace_back(76, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::While>:
-                        stack.emplace_back(97, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(97, TrialItem {});
+                        else       stack.emplace_back(97, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "expression", "implicit return value") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "expression", "implicit return value") });
                 }
                 break;
             case 132:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::CBrace>:
                     case Tokens::index_of<Tokens::Dedent>:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 0; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_72, stack.back().state), TrialItem {});
+                        } else {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Expr> pushitem = nullptr;
@@ -4029,32 +4615,38 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Caret>:
-                        stack.emplace_back(131, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(131, TrialItem {});
+                        else       stack.emplace_back(131, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "optional implicit return value", "braced code block") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "optional implicit return value", "braced code block") });
                 }
                 break;
             case 133:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CBrace>:
                     case Tokens::index_of<Tokens::Caret>:
                     case Tokens::index_of<Tokens::Dedent>:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 0; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_67, stack.back().state), TrialItem {});
+                        } else {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
         std::unique_ptr<ASTNS::StmtList> push (std::make_unique<ASTNS::StmtList>(file, span, std::vector<std::unique_ptr<ASTNS::Stmt>> {}));
@@ -4063,74 +4655,91 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::If>:
-                        stack.emplace_back(96, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(96, TrialItem {});
+                        else       stack.emplace_back(96, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OBrace>:
-                        stack.emplace_back(76, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(76, TrialItem {});
+                        else       stack.emplace_back(76, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Return>:
-                        stack.emplace_back(90, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(90, TrialItem {});
+                        else       stack.emplace_back(90, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Var>:
-                        stack.emplace_back(87, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(87, TrialItem {});
+                        else       stack.emplace_back(87, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::While>:
-                        stack.emplace_back(97, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(97, TrialItem {});
+                        else       stack.emplace_back(97, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "optional statement list", "braced code block") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "optional statement list", "braced code block") });
                 }
                 break;
             case 134:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 2; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_60, stack.back().state), TrialItem {});
+                        } else {
                             auto a1 (pop_as<ASTItem<std::unique_ptr<ASTNS::Stmt>>>(stack).ast);
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::StmtList>>>(stack).ast);
                             Maybe<Location const> start =
@@ -4150,7 +4759,10 @@ public:
             case 135:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_59, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Stmt>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -4166,26 +4778,31 @@ public:
             case 136:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Newline>:
-                        stack.emplace_back(38, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(38, TrialItem {});
+                        else       stack.emplace_back(38, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Semicolon>:
-                        stack.emplace_back(39, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(39, TrialItem {});
+                        else       stack.emplace_back(39, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "line ending", "variable declaration") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "line ending", "variable declaration") });
                 }
                 break;
             case 137:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Comma>:
-                        stack.emplace_back(187, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(187, TrialItem {});
+                        else       stack.emplace_back(187, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_57, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::VarStmtItemList>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -4201,7 +4818,10 @@ public:
             case 138:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_58, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::VarStmtItem>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -4220,29 +4840,32 @@ public:
             case 139:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Colon>:
-                        stack.emplace_back(51, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(51, TrialItem {});
+                        else       stack.emplace_back(51, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "required type annotation", "variable binding") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "required type annotation", "variable binding") });
                 }
                 break;
             case 140:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(189, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(189, TrialItem {});
+                        else       stack.emplace_back(189, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", Tokens::Identifier::stringify(), "variable binding") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", Tokens::Identifier::stringify(), "variable binding") });
                 }
                 break;
             case 141:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 2; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_8, stack.back().state), TrialItem {});
+                        } else {
                             auto a1 (pop_as<ASTItem<std::unique_ptr<ASTNS::PureLocation>>>(stack).ast);
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             Maybe<Location const> start =
@@ -4262,7 +4885,10 @@ public:
             case 142:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 2; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_8, stack.back().state), TrialItem {});
+                        } else {
                             auto a1 (pop_as<ASTItem<std::unique_ptr<ASTNS::PureLocation>>>(stack).ast);
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             Maybe<Location const> start =
@@ -4282,22 +4908,26 @@ public:
             case 143:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Newline>:
-                        stack.emplace_back(38, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(38, TrialItem {});
+                        else       stack.emplace_back(38, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Semicolon>:
-                        stack.emplace_back(39, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(39, TrialItem {});
+                        else       stack.emplace_back(39, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "line ending", "return statement") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "line ending", "return statement") });
                 }
                 break;
             case 144:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 2; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_9, stack.back().state), TrialItem {});
+                        } else {
                             auto a1 (pop_as<ASTItem<std::unique_ptr<ASTNS::PureLocation>>>(stack).ast);
                             auto _a0 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Return> a0 { _a0.span, Tokens::as<Tokens::Return>(_a0.value) };
@@ -4317,7 +4947,10 @@ public:
             case 145:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_25, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -4333,7 +4966,10 @@ public:
             case 146:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_25, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -4349,1177 +4985,1412 @@ public:
             case 147:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "assignment expression", "assignment expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "assignment expression", "assignment expression") });
                 }
                 break;
             case 148:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "binary and expression", "binary or expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "binary and expression", "binary or expression") });
                 }
                 break;
             case 149:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Newline>:
-                        stack.emplace_back(194, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(194, TrialItem {});
+                        else       stack.emplace_back(194, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OBrace>:
-                        stack.emplace_back(76, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(76, TrialItem {});
+                        else       stack.emplace_back(76, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "code block", "if expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "code block", "if expression") });
                 }
                 break;
             case 150:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Newline>:
-                        stack.emplace_back(194, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(194, TrialItem {});
+                        else       stack.emplace_back(194, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OBrace>:
-                        stack.emplace_back(76, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(76, TrialItem {});
+                        else       stack.emplace_back(76, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "code block", "while loop expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "code block", "while loop expression") });
                 }
                 break;
             case 151:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "equality expression", "binary and expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "equality expression", "binary and expression") });
                 }
                 break;
             case 152:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "comparison expression", "equality expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "comparison expression", "equality expression") });
                 }
                 break;
             case 153:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "comparison expression", "equality expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "comparison expression", "equality expression") });
                 }
                 break;
             case 154:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "bitwise xor expression", "comparison expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "bitwise xor expression", "comparison expression") });
                 }
                 break;
             case 155:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "bitwise xor expression", "comparison expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "bitwise xor expression", "comparison expression") });
                 }
                 break;
             case 156:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "bitwise xor expression", "comparison expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "bitwise xor expression", "comparison expression") });
                 }
                 break;
             case 157:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "bitwise xor expression", "comparison expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "bitwise xor expression", "comparison expression") });
                 }
                 break;
             case 158:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "bitwise or expression", "bitwise xor expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "bitwise or expression", "bitwise xor expression") });
                 }
                 break;
             case 159:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "bitwise and expression", "bitwise or expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "bitwise and expression", "bitwise or expression") });
                 }
                 break;
             case 160:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "bit shift expression", "bitwise and expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "bit shift expression", "bitwise and expression") });
                 }
                 break;
             case 161:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "addition expression", "bit shift expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "addition expression", "bit shift expression") });
                 }
                 break;
             case 162:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "addition expression", "bit shift expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "addition expression", "bit shift expression") });
                 }
                 break;
             case 163:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "multiplication expression", "addition expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "multiplication expression", "addition expression") });
                 }
                 break;
             case 164:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "multiplication expression", "addition expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "multiplication expression", "addition expression") });
                 }
                 break;
             case 165:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "unary expression", "multiplication expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "unary expression", "multiplication expression") });
                 }
                 break;
             case 166:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "unary expression", "multiplication expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "unary expression", "multiplication expression") });
                 }
                 break;
             case 167:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "unary expression", "multiplication expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "unary expression", "multiplication expression") });
                 }
                 break;
             case 168:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(16, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(16, TrialItem {});
+                        else       stack.emplace_back(16, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(17, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(17, TrialItem {});
+                        else       stack.emplace_back(17, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "type specifier", "type cast expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "type specifier", "type cast expression") });
                 }
                 break;
             case 169:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 2; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_42, stack.back().state), TrialItem {});
+                        } else {
                             auto a1 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a0 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Tilde> a0 { _a0.span, Tokens::as<Tokens::Tilde>(_a0.value) };
@@ -5539,7 +6410,10 @@ public:
             case 170:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 2; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_42, stack.back().state), TrialItem {});
+                        } else {
                             auto a1 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a0 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Minus> a0 { _a0.span, Tokens::as<Tokens::Minus>(_a0.value) };
@@ -5559,7 +6433,10 @@ public:
             case 171:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 2; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_42, stack.back().state), TrialItem {});
+                        } else {
                             auto a1 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a0 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Bang> a0 { _a0.span, Tokens::as<Tokens::Bang>(_a0.value) };
@@ -5579,7 +6456,10 @@ public:
             case 172:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 2; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_42, stack.back().state), TrialItem {});
+                        } else {
                             auto a1 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a0 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Amper> a0 { _a0.span, Tokens::as<Tokens::Amper>(_a0.value) };
@@ -5599,66 +6479,81 @@ public:
             case 173:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "unary expression", "unary expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "unary expression", "unary expression") });
                 }
                 break;
             case 174:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 2; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_42, stack.back().state), TrialItem {});
+                        } else {
                             auto a1 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a0 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Star> a0 { _a0.span, Tokens::as<Tokens::Star>(_a0.value) };
@@ -5678,19 +6573,25 @@ public:
             case 175:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CParen>:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 0; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_66, stack.back().state), TrialItem {});
+                        } else {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
         std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(file, span, std::vector<std::unique_ptr<ASTNS::Arg>> {}));
@@ -5699,100 +6600,118 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::If>:
-                        stack.emplace_back(96, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(96, TrialItem {});
+                        else       stack.emplace_back(96, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OBrace>:
-                        stack.emplace_back(76, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(76, TrialItem {});
+                        else       stack.emplace_back(76, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::While>:
-                        stack.emplace_back(97, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(97, TrialItem {});
+                        else       stack.emplace_back(97, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "optional argument list", "function call expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "optional argument list", "function call expression") });
                 }
                 break;
             case 176:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(220, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(220, TrialItem {});
+                        else       stack.emplace_back(220, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", Tokens::Identifier::stringify(), "field access expression"), format("expected {} of {}", Tokens::Identifier::stringify(), "method call expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", Tokens::Identifier::stringify(), "field access expression"), format("expected {} of {}", Tokens::Identifier::stringify(), "method call expression") });
                 }
                 break;
             case 177:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(221, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(221, TrialItem {});
+                        else       stack.emplace_back(221, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", Tokens::Identifier::stringify(), "field access expression"), format("expected {} of {}", Tokens::Identifier::stringify(), "method call expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", Tokens::Identifier::stringify(), "field access expression"), format("expected {} of {}", Tokens::Identifier::stringify(), "method call expression") });
                 }
                 break;
             case 178:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CParen>:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 0; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_66, stack.back().state), TrialItem {});
+                        } else {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
         std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(file, span, std::vector<std::unique_ptr<ASTNS::Arg>> {}));
@@ -5801,99 +6720,114 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::If>:
-                        stack.emplace_back(96, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(96, TrialItem {});
+                        else       stack.emplace_back(96, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OBrace>:
-                        stack.emplace_back(76, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(76, TrialItem {});
+                        else       stack.emplace_back(76, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::While>:
-                        stack.emplace_back(97, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(97, TrialItem {});
+                        else       stack.emplace_back(97, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "optional argument list", "function call expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "optional argument list", "function call expression") });
                 }
                 break;
             case 179:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(223, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(223, TrialItem {});
+                        else       stack.emplace_back(223, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", Tokens::Identifier::stringify(), "field access expression"), format("expected {} of {}", Tokens::Identifier::stringify(), "method call expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", Tokens::Identifier::stringify(), "field access expression"), format("expected {} of {}", Tokens::Identifier::stringify(), "method call expression") });
                 }
                 break;
             case 180:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::CParen>:
-                        stack.emplace_back(224, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(224, TrialItem {});
+                        else       stack.emplace_back(224, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", Tokens::CParen::stringify(), "primary expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", Tokens::CParen::stringify(), "primary expression") });
                 }
                 break;
             case 181:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Dedent>:
-                        stack.emplace_back(225, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(225, TrialItem {});
+                        else       stack.emplace_back(225, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", Tokens::Dedent::stringify(), "indented code block") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", Tokens::Dedent::stringify(), "indented code block") });
                 }
                 break;
             case 182:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 4; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_14, stack.back().state), TrialItem {});
+                        } else {
                             auto _a3 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::CBrace> a3 { _a3.span, Tokens::as<Tokens::CBrace>(_a3.value) };
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
@@ -5938,7 +6872,10 @@ public:
                     case Tokens::index_of<Tokens::Var>:
                     case Tokens::index_of<Tokens::While>:
                     case Tokens::index_of<Tokens::_EOF>:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 0; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_71, stack.back().state), TrialItem {});
+                        } else {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::PureLocation> pushitem = nullptr;
@@ -5946,34 +6883,38 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Newline>:
-                        stack.emplace_back(38, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(38, TrialItem {});
+                        else       stack.emplace_back(38, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Semicolon>:
-                        stack.emplace_back(39, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(39, TrialItem {});
+                        else       stack.emplace_back(39, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "optional line ending", "implicit return value") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "optional line ending", "implicit return value") });
                 }
                 break;
             case 184:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::CBrace>:
-                        stack.emplace_back(227, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(227, TrialItem {});
+                        else       stack.emplace_back(227, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", Tokens::CBrace::stringify(), "braced code block") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", Tokens::CBrace::stringify(), "braced code block") });
                 }
                 break;
             case 185:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::CBrace>:
                     case Tokens::index_of<Tokens::Dedent>:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 0; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_72, stack.back().state), TrialItem {});
+                        } else {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
                             std::unique_ptr<ASTNS::Expr> pushitem = nullptr;
@@ -5981,18 +6922,21 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Caret>:
-                        stack.emplace_back(131, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(131, TrialItem {});
+                        else       stack.emplace_back(131, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "optional implicit return value", "braced code block") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "optional implicit return value", "braced code block") });
                 }
                 break;
             case 186:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_7, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::PureLocation>>>(stack).ast);
                             auto a1 (pop_as<ASTItem<std::unique_ptr<ASTNS::VarStmtItemList>>>(stack).ast);
                             auto _a0 (pop_as<TokenItem>(stack).tok);
@@ -6014,15 +6958,20 @@ public:
             case 187:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(139, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(139, TrialItem {});
+                        else       stack.emplace_back(139, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Mut>:
-                        stack.emplace_back(140, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(140, TrialItem {});
+                        else       stack.emplace_back(140, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 2; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_57, stack.back().state), TrialItem {});
+                        } else {
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Comma> a1 { _a1.span, Tokens::as<Tokens::Comma>(_a1.value) };
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::VarStmtItemList>>>(stack).ast);
@@ -6041,7 +6990,10 @@ public:
             case 188:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 2; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_10, stack.back().state), TrialItem {});
+                        } else {
                             auto a1 (pop_as<ASTItem<std::unique_ptr<ASTNS::Type>>>(stack).ast);
                             auto _a0 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Identifier> a0 { _a0.span, Tokens::as<Tokens::Identifier>(_a0.value) };
@@ -6057,7 +7009,8 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Equal>:
-                        stack.emplace_back(231, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(231, TrialItem {});
+                        else       stack.emplace_back(231, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -6065,18 +7018,21 @@ public:
             case 189:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Colon>:
-                        stack.emplace_back(51, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(51, TrialItem {});
+                        else       stack.emplace_back(51, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "required type annotation", "variable binding") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "required type annotation", "variable binding") });
                 }
                 break;
             case 190:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_9, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::PureLocation>>>(stack).ast);
                             auto a1 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a0 (pop_as<TokenItem>(stack).tok);
@@ -6098,7 +7054,10 @@ public:
             case 191:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_30, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Equal> a1 { _a1.span, Tokens::as<Tokens::Equal>(_a1.value) };
@@ -6120,7 +7079,10 @@ public:
             case 192:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_31, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::DoublePipe> a1 { _a1.span, Tokens::as<Tokens::DoublePipe>(_a1.value) };
@@ -6138,7 +7100,8 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::DoubleAmper>:
-                        stack.emplace_back(151, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(151, TrialItem {});
+                        else       stack.emplace_back(151, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -6146,7 +7109,10 @@ public:
             case 193:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_28, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Block>>>(stack).ast);
                             auto a1 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a0 (pop_as<TokenItem>(stack).tok);
@@ -6164,7 +7130,8 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Else>:
-                        stack.emplace_back(233, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(233, TrialItem {});
+                        else       stack.emplace_back(233, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -6172,18 +7139,21 @@ public:
             case 194:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Indent>:
-                        stack.emplace_back(79, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(79, TrialItem {});
+                        else       stack.emplace_back(79, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", Tokens::Indent::stringify(), "indented code block") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", Tokens::Indent::stringify(), "indented code block") });
                 }
                 break;
             case 195:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_29, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Block>>>(stack).ast);
                             auto a1 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a0 (pop_as<TokenItem>(stack).tok);
@@ -6205,11 +7175,15 @@ public:
             case 196:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::BangEqual>:
-                        stack.emplace_back(152, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(152, TrialItem {});
+                        else       stack.emplace_back(152, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_32, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::DoubleAmper> a1 { _a1.span, Tokens::as<Tokens::DoubleAmper>(_a1.value) };
@@ -6227,7 +7201,8 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::DoubleEqual>:
-                        stack.emplace_back(153, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(153, TrialItem {});
+                        else       stack.emplace_back(153, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -6235,7 +7210,10 @@ public:
             case 197:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_33, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::BangEqual> a1 { _a1.span, Tokens::as<Tokens::BangEqual>(_a1.value) };
@@ -6253,19 +7231,23 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Greater>:
-                        stack.emplace_back(155, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(155, TrialItem {});
+                        else       stack.emplace_back(155, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::GreaterEqual>:
-                        stack.emplace_back(157, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(157, TrialItem {});
+                        else       stack.emplace_back(157, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Less>:
-                        stack.emplace_back(154, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(154, TrialItem {});
+                        else       stack.emplace_back(154, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::LessEqual>:
-                        stack.emplace_back(156, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(156, TrialItem {});
+                        else       stack.emplace_back(156, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -6273,7 +7255,10 @@ public:
             case 198:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_33, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::DoubleEqual> a1 { _a1.span, Tokens::as<Tokens::DoubleEqual>(_a1.value) };
@@ -6291,19 +7276,23 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Greater>:
-                        stack.emplace_back(155, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(155, TrialItem {});
+                        else       stack.emplace_back(155, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::GreaterEqual>:
-                        stack.emplace_back(157, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(157, TrialItem {});
+                        else       stack.emplace_back(157, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Less>:
-                        stack.emplace_back(154, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(154, TrialItem {});
+                        else       stack.emplace_back(154, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::LessEqual>:
-                        stack.emplace_back(156, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(156, TrialItem {});
+                        else       stack.emplace_back(156, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -6311,7 +7300,10 @@ public:
             case 199:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_34, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Less> a1 { _a1.span, Tokens::as<Tokens::Less>(_a1.value) };
@@ -6329,7 +7321,8 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Caret>:
-                        stack.emplace_back(158, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(158, TrialItem {});
+                        else       stack.emplace_back(158, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -6337,7 +7330,10 @@ public:
             case 200:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_34, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Greater> a1 { _a1.span, Tokens::as<Tokens::Greater>(_a1.value) };
@@ -6355,7 +7351,8 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Caret>:
-                        stack.emplace_back(158, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(158, TrialItem {});
+                        else       stack.emplace_back(158, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -6363,7 +7360,10 @@ public:
             case 201:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_34, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::LessEqual> a1 { _a1.span, Tokens::as<Tokens::LessEqual>(_a1.value) };
@@ -6381,7 +7381,8 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Caret>:
-                        stack.emplace_back(158, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(158, TrialItem {});
+                        else       stack.emplace_back(158, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -6389,7 +7390,10 @@ public:
             case 202:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_34, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::GreaterEqual> a1 { _a1.span, Tokens::as<Tokens::GreaterEqual>(_a1.value) };
@@ -6407,7 +7411,8 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Caret>:
-                        stack.emplace_back(158, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(158, TrialItem {});
+                        else       stack.emplace_back(158, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -6415,7 +7420,10 @@ public:
             case 203:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_35, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Caret> a1 { _a1.span, Tokens::as<Tokens::Caret>(_a1.value) };
@@ -6433,7 +7441,8 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Pipe>:
-                        stack.emplace_back(159, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(159, TrialItem {});
+                        else       stack.emplace_back(159, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -6441,11 +7450,15 @@ public:
             case 204:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(160, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(160, TrialItem {});
+                        else       stack.emplace_back(160, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_36, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Pipe> a1 { _a1.span, Tokens::as<Tokens::Pipe>(_a1.value) };
@@ -6467,7 +7480,10 @@ public:
             case 205:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_37, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Amper> a1 { _a1.span, Tokens::as<Tokens::Amper>(_a1.value) };
@@ -6485,11 +7501,13 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::DoubleGreater>:
-                        stack.emplace_back(161, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(161, TrialItem {});
+                        else       stack.emplace_back(161, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::DoubleLess>:
-                        stack.emplace_back(162, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(162, TrialItem {});
+                        else       stack.emplace_back(162, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -6497,7 +7515,10 @@ public:
             case 206:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_38, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::DoubleGreater> a1 { _a1.span, Tokens::as<Tokens::DoubleGreater>(_a1.value) };
@@ -6515,11 +7536,13 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(164, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(164, TrialItem {});
+                        else       stack.emplace_back(164, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Plus>:
-                        stack.emplace_back(163, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(163, TrialItem {});
+                        else       stack.emplace_back(163, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -6527,7 +7550,10 @@ public:
             case 207:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_38, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::DoubleLess> a1 { _a1.span, Tokens::as<Tokens::DoubleLess>(_a1.value) };
@@ -6545,11 +7571,13 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(164, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(164, TrialItem {});
+                        else       stack.emplace_back(164, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Plus>:
-                        stack.emplace_back(163, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(163, TrialItem {});
+                        else       stack.emplace_back(163, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -6557,7 +7585,10 @@ public:
             case 208:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_39, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Plus> a1 { _a1.span, Tokens::as<Tokens::Plus>(_a1.value) };
@@ -6575,15 +7606,18 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Percent>:
-                        stack.emplace_back(167, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(167, TrialItem {});
+                        else       stack.emplace_back(167, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Slash>:
-                        stack.emplace_back(166, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(166, TrialItem {});
+                        else       stack.emplace_back(166, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(165, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(165, TrialItem {});
+                        else       stack.emplace_back(165, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -6591,7 +7625,10 @@ public:
             case 209:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_39, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Minus> a1 { _a1.span, Tokens::as<Tokens::Minus>(_a1.value) };
@@ -6609,15 +7646,18 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Percent>:
-                        stack.emplace_back(167, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(167, TrialItem {});
+                        else       stack.emplace_back(167, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Slash>:
-                        stack.emplace_back(166, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(166, TrialItem {});
+                        else       stack.emplace_back(166, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(165, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(165, TrialItem {});
+                        else       stack.emplace_back(165, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -6625,7 +7665,10 @@ public:
             case 210:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_40, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Star> a1 { _a1.span, Tokens::as<Tokens::Star>(_a1.value) };
@@ -6647,7 +7690,10 @@ public:
             case 211:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_40, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Slash> a1 { _a1.span, Tokens::as<Tokens::Slash>(_a1.value) };
@@ -6669,7 +7715,10 @@ public:
             case 212:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_40, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Percent> a1 { _a1.span, Tokens::as<Tokens::Percent>(_a1.value) };
@@ -6691,7 +7740,10 @@ public:
             case 213:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_41, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Type>>>(stack).ast);
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::RightArrow> a1 { _a1.span, Tokens::as<Tokens::RightArrow>(_a1.value) };
@@ -6713,7 +7765,10 @@ public:
             case 214:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_42, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Mut> a1 { _a1.span, Tokens::as<Tokens::Mut>(_a1.value) };
@@ -6735,18 +7790,21 @@ public:
             case 215:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::CParen>:
-                        stack.emplace_back(234, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(234, TrialItem {});
+                        else       stack.emplace_back(234, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", Tokens::CParen::stringify(), "function call expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", Tokens::CParen::stringify(), "function call expression") });
                 }
                 break;
             case 216:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_66, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::ArgList>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -6762,7 +7820,10 @@ public:
             case 217:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_54, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::ArgList>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -6774,7 +7835,8 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Comma>:
-                        stack.emplace_back(235, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(235, TrialItem {});
+                        else       stack.emplace_back(235, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -6782,7 +7844,10 @@ public:
             case 218:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_55, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Arg>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -6801,7 +7866,10 @@ public:
             case 219:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_21, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -6818,7 +7886,10 @@ public:
             case 220:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_44, stack.back().state), TrialItem {});
+                        } else {
                             auto _a2 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Identifier> a2 { _a2.span, Tokens::as<Tokens::Identifier>(_a2.value) };
                             auto _a1 (pop_as<TokenItem>(stack).tok);
@@ -6836,7 +7907,8 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(236, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(236, TrialItem {});
+                        else       stack.emplace_back(236, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -6844,7 +7916,10 @@ public:
             case 221:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_44, stack.back().state), TrialItem {});
+                        } else {
                             auto _a2 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Identifier> a2 { _a2.span, Tokens::as<Tokens::Identifier>(_a2.value) };
                             auto _a1 (pop_as<TokenItem>(stack).tok);
@@ -6862,7 +7937,8 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(237, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(237, TrialItem {});
+                        else       stack.emplace_back(237, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -6870,18 +7946,21 @@ public:
             case 222:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::CParen>:
-                        stack.emplace_back(238, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(238, TrialItem {});
+                        else       stack.emplace_back(238, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", Tokens::CParen::stringify(), "function call expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", Tokens::CParen::stringify(), "function call expression") });
                 }
                 break;
             case 223:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_44, stack.back().state), TrialItem {});
+                        } else {
                             auto _a2 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Identifier> a2 { _a2.span, Tokens::as<Tokens::Identifier>(_a2.value) };
                             auto _a1 (pop_as<TokenItem>(stack).tok);
@@ -6899,7 +7978,8 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(239, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(239, TrialItem {});
+                        else       stack.emplace_back(239, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -6907,7 +7987,10 @@ public:
             case 224:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_46, stack.back().state), TrialItem {});
+                        } else {
                             auto _a2 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::CParen> a2 { _a2.span, Tokens::as<Tokens::CParen>(_a2.value) };
                             auto a1 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
@@ -6927,7 +8010,10 @@ public:
             case 225:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 5; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_15, stack.back().state), TrialItem {});
+                        } else {
                             auto _a4 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Dedent> a4 { _a4.span, Tokens::as<Tokens::Dedent>(_a4.value) };
                             auto a3 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
@@ -6951,7 +8037,10 @@ public:
             case 226:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_12, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::PureLocation>>>(stack).ast);
                             auto a1 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a0 (pop_as<TokenItem>(stack).tok);
@@ -6972,7 +8061,10 @@ public:
             case 227:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 5; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_14, stack.back().state), TrialItem {});
+                        } else {
                             auto _a4 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::CBrace> a4 { _a4.span, Tokens::as<Tokens::CBrace>(_a4.value) };
                             auto a3 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
@@ -6996,18 +8088,21 @@ public:
             case 228:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Dedent>:
-                        stack.emplace_back(240, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(240, TrialItem {});
+                        else       stack.emplace_back(240, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", Tokens::Dedent::stringify(), "braced code block") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", Tokens::Dedent::stringify(), "braced code block") });
                 }
                 break;
             case 229:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_58, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::VarStmtItem>>>(stack).ast);
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Comma> a1 { _a1.span, Tokens::as<Tokens::Comma>(_a1.value) };
@@ -7029,7 +8124,10 @@ public:
             case 230:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_56, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::VarStmtItem>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -7045,78 +8143,96 @@ public:
             case 231:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::If>:
-                        stack.emplace_back(96, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(96, TrialItem {});
+                        else       stack.emplace_back(96, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OBrace>:
-                        stack.emplace_back(76, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(76, TrialItem {});
+                        else       stack.emplace_back(76, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::While>:
-                        stack.emplace_back(97, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(97, TrialItem {});
+                        else       stack.emplace_back(97, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "expression", "variable binding") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "expression", "variable binding") });
                 }
                 break;
             case 232:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_10, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Type>>>(stack).ast);
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Identifier> a1 { _a1.span, Tokens::as<Tokens::Identifier>(_a1.value) };
@@ -7134,7 +8250,8 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::Equal>:
-                        stack.emplace_back(242, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(242, TrialItem {});
+                        else       stack.emplace_back(242, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -7142,26 +8259,31 @@ public:
             case 233:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::If>:
-                        stack.emplace_back(96, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(96, TrialItem {});
+                        else       stack.emplace_back(96, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Newline>:
-                        stack.emplace_back(194, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(194, TrialItem {});
+                        else       stack.emplace_back(194, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OBrace>:
-                        stack.emplace_back(76, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(76, TrialItem {});
+                        else       stack.emplace_back(76, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", format("either {} or {}", "code block", "if expression"), "if expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", format("either {} or {}", "code block", "if expression"), "if expression") });
                 }
                 break;
             case 234:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 4; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_43, stack.back().state), TrialItem {});
+                        } else {
                             auto _a3 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::CParen> a3 { _a3.span, Tokens::as<Tokens::CParen>(_a3.value) };
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::ArgList>>>(stack).ast);
@@ -7184,19 +8306,25 @@ public:
             case 235:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 2; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_54, stack.back().state), TrialItem {});
+                        } else {
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Comma> a1 { _a1.span, Tokens::as<Tokens::Comma>(_a1.value) };
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::ArgList>>>(stack).ast);
@@ -7211,55 +8339,68 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::If>:
-                        stack.emplace_back(96, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(96, TrialItem {});
+                        else       stack.emplace_back(96, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OBrace>:
-                        stack.emplace_back(76, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(76, TrialItem {});
+                        else       stack.emplace_back(76, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::While>:
-                        stack.emplace_back(97, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(97, TrialItem {});
+                        else       stack.emplace_back(97, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                 }
@@ -7267,19 +8408,25 @@ public:
             case 236:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CParen>:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 0; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_66, stack.back().state), TrialItem {});
+                        } else {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
         std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(file, span, std::vector<std::unique_ptr<ASTNS::Arg>> {}));
@@ -7288,78 +8435,96 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::If>:
-                        stack.emplace_back(96, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(96, TrialItem {});
+                        else       stack.emplace_back(96, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OBrace>:
-                        stack.emplace_back(76, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(76, TrialItem {});
+                        else       stack.emplace_back(76, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::While>:
-                        stack.emplace_back(97, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(97, TrialItem {});
+                        else       stack.emplace_back(97, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "optional argument list", "method call expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "optional argument list", "method call expression") });
                 }
                 break;
             case 237:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CParen>:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 0; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_66, stack.back().state), TrialItem {});
+                        } else {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
         std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(file, span, std::vector<std::unique_ptr<ASTNS::Arg>> {}));
@@ -7368,66 +8533,81 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::If>:
-                        stack.emplace_back(96, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(96, TrialItem {});
+                        else       stack.emplace_back(96, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OBrace>:
-                        stack.emplace_back(76, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(76, TrialItem {});
+                        else       stack.emplace_back(76, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::While>:
-                        stack.emplace_back(97, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(97, TrialItem {});
+                        else       stack.emplace_back(97, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "optional argument list", "method call expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "optional argument list", "method call expression") });
                 }
                 break;
             case 238:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 4; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_43, stack.back().state), TrialItem {});
+                        } else {
                             auto _a3 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::CParen> a3 { _a3.span, Tokens::as<Tokens::CParen>(_a3.value) };
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::ArgList>>>(stack).ast);
@@ -7450,19 +8630,25 @@ public:
             case 239:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CParen>:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 0; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_66, stack.back().state), TrialItem {});
+                        } else {
                             Maybe<Location const> start, end;
                             Maybe<Span const> span = start.has() && end.has() ? Span(start.get(), end.get()) : Maybe<Span const>();
         std::unique_ptr<ASTNS::ArgList> push (std::make_unique<ASTNS::ArgList>(file, span, std::vector<std::unique_ptr<ASTNS::Arg>> {}));
@@ -7471,77 +8657,92 @@ public:
                         }
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::If>:
-                        stack.emplace_back(96, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(96, TrialItem {});
+                        else       stack.emplace_back(96, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OBrace>:
-                        stack.emplace_back(76, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(76, TrialItem {});
+                        else       stack.emplace_back(76, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::While>:
-                        stack.emplace_back(97, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(97, TrialItem {});
+                        else       stack.emplace_back(97, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "optional argument list", "method call expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "optional argument list", "method call expression") });
                 }
                 break;
             case 240:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::CBrace>:
-                        stack.emplace_back(250, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(250, TrialItem {});
+                        else       stack.emplace_back(250, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", Tokens::CBrace::stringify(), "braced code block") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", Tokens::CBrace::stringify(), "braced code block") });
                 }
                 break;
             case 241:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 4; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_10, stack.back().state), TrialItem {});
+                        } else {
                             auto a3 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a2 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Equal> a2 { _a2.span, Tokens::as<Tokens::Equal>(_a2.value) };
@@ -7564,78 +8765,96 @@ public:
             case 242:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::Amper>:
-                        stack.emplace_back(112, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(112, TrialItem {});
+                        else       stack.emplace_back(112, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Bang>:
-                        stack.emplace_back(111, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(111, TrialItem {});
+                        else       stack.emplace_back(111, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::BoolLit>:
-                        stack.emplace_back(118, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(118, TrialItem {});
+                        else       stack.emplace_back(118, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::CharLit>:
-                        stack.emplace_back(121, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(121, TrialItem {});
+                        else       stack.emplace_back(121, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::FloatLit>:
-                        stack.emplace_back(119, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(119, TrialItem {});
+                        else       stack.emplace_back(119, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Identifier>:
-                        stack.emplace_back(18, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(18, TrialItem {});
+                        else       stack.emplace_back(18, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::If>:
-                        stack.emplace_back(96, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(96, TrialItem {});
+                        else       stack.emplace_back(96, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::IntLit>:
-                        stack.emplace_back(120, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(120, TrialItem {});
+                        else       stack.emplace_back(120, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Minus>:
-                        stack.emplace_back(110, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(110, TrialItem {});
+                        else       stack.emplace_back(110, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OBrace>:
-                        stack.emplace_back(76, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(76, TrialItem {});
+                        else       stack.emplace_back(76, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::OParen>:
-                        stack.emplace_back(124, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(124, TrialItem {});
+                        else       stack.emplace_back(124, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Star>:
-                        stack.emplace_back(113, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(113, TrialItem {});
+                        else       stack.emplace_back(113, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::StringLit>:
-                        stack.emplace_back(122, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(122, TrialItem {});
+                        else       stack.emplace_back(122, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::This>:
-                        stack.emplace_back(123, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(123, TrialItem {});
+                        else       stack.emplace_back(123, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::Tilde>:
-                        stack.emplace_back(109, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(109, TrialItem {});
+                        else       stack.emplace_back(109, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     case Tokens::index_of<Tokens::While>:
-                        stack.emplace_back(97, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(97, TrialItem {});
+                        else       stack.emplace_back(97, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", "expression", "variable binding") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", "expression", "variable binding") });
                 }
                 break;
             case 243:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 5; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_28, stack.back().state), TrialItem {});
+                        } else {
                             auto a4 (pop_as<ASTItem<std::unique_ptr<ASTNS::Block>>>(stack).ast);
                             auto _a3 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Else> a3 { _a3.span, Tokens::as<Tokens::Else>(_a3.value) };
@@ -7659,7 +8878,10 @@ public:
             case 244:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 5; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_28, stack.back().state), TrialItem {});
+                        } else {
                             auto a4 (pop_as<ASTItem<std::unique_ptr<ASTNS::IfExpr>>>(stack).ast);
                             auto _a3 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Else> a3 { _a3.span, Tokens::as<Tokens::Else>(_a3.value) };
@@ -7683,7 +8905,10 @@ public:
             case 245:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 3; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_55, stack.back().state), TrialItem {});
+                        } else {
                             auto a2 (pop_as<ASTItem<std::unique_ptr<ASTNS::Arg>>>(stack).ast);
                             auto _a1 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Comma> a1 { _a1.span, Tokens::as<Tokens::Comma>(_a1.value) };
@@ -7705,7 +8930,10 @@ public:
             case 246:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 1; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_53, stack.back().state), TrialItem {});
+                        } else {
                             auto a0 (pop_as<ASTItem<std::unique_ptr<ASTNS::Arg>>>(stack).ast);
                             Maybe<Location const> start =
                                 a0 && a0->span().has() ? Maybe<Location const>(a0->span().get().start) : Maybe<Location const>();
@@ -7721,40 +8949,43 @@ public:
             case 247:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::CParen>:
-                        stack.emplace_back(252, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(252, TrialItem {});
+                        else       stack.emplace_back(252, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", Tokens::CParen::stringify(), "method call expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", Tokens::CParen::stringify(), "method call expression") });
                 }
                 break;
             case 248:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::CParen>:
-                        stack.emplace_back(253, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(253, TrialItem {});
+                        else       stack.emplace_back(253, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", Tokens::CParen::stringify(), "method call expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", Tokens::CParen::stringify(), "method call expression") });
                 }
                 break;
             case 249:
                 switch (tsv.next().value.index()) {
                     case Tokens::index_of<Tokens::CParen>:
-                        stack.emplace_back(254, TokenItem { tsv.next() });
+                        if (trial) stack.emplace_back(254, TrialItem {});
+                        else       stack.emplace_back(254, TokenItem { tsv.next() });
                         tsv.advance();
                         break;
                     default:
-                        ERR_UNRECOVERABLE_INVALID_SYNTAX(tsv.next().span, Tokens::stringify_type(tsv.next().value), tsv.prev().span, { format("expected {} of {}", Tokens::CParen::stringify(), "method call expression") } );
-                        errored = done = true;
+                        error({ format("expected {} of {}", Tokens::CParen::stringify(), "method call expression") });
                 }
                 break;
             case 250:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 7; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_14, stack.back().state), TrialItem {});
+                        } else {
                             auto _a6 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::CBrace> a6 { _a6.span, Tokens::as<Tokens::CBrace>(_a6.value) };
                             auto _a5 (pop_as<TokenItem>(stack).tok);
@@ -7782,7 +9013,10 @@ public:
             case 251:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 5; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_10, stack.back().state), TrialItem {});
+                        } else {
                             auto a4 (pop_as<ASTItem<std::unique_ptr<ASTNS::Expr>>>(stack).ast);
                             auto _a3 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::Equal> a3 { _a3.span, Tokens::as<Tokens::Equal>(_a3.value) };
@@ -7807,7 +9041,10 @@ public:
             case 252:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 6; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_45, stack.back().state), TrialItem {});
+                        } else {
                             auto _a5 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::CParen> a5 { _a5.span, Tokens::as<Tokens::CParen>(_a5.value) };
                             auto a4 (pop_as<ASTItem<std::unique_ptr<ASTNS::ArgList>>>(stack).ast);
@@ -7834,7 +9071,10 @@ public:
             case 253:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 6; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_45, stack.back().state), TrialItem {});
+                        } else {
                             auto _a5 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::CParen> a5 { _a5.span, Tokens::as<Tokens::CParen>(_a5.value) };
                             auto a4 (pop_as<ASTItem<std::unique_ptr<ASTNS::ArgList>>>(stack).ast);
@@ -7861,7 +9101,10 @@ public:
             case 254:
                 switch (tsv.next().value.index()) {
                     default:
-                        {
+                        if (trial) {
+                            for (int i = 0; i < 6; ++i) pop_as<TrialItem>(stack);
+                            stack.emplace_back(get_goto(NonTerminal::_45, stack.back().state), TrialItem {});
+                        } else {
                             auto _a5 (pop_as<TokenItem>(stack).tok);
                             Located<Tokens::CParen> a5 { _a5.span, Tokens::as<Tokens::CParen>(_a5.value) };
                             auto a4 (pop_as<ASTItem<std::unique_ptr<ASTNS::ArgList>>>(stack).ast);
@@ -7903,9 +9146,110 @@ public:
     }
 
 private:
+    void error(std::initializer_list<std::string> const &expectations) {
+        errored = true;
+
+        if (trial) {
+            done = true;
+            return;
+        } else
+            error_recovery(expectations);
+    }
+    void error_recovery(std::initializer_list<std::string> const &expectations) {
+        int amount_skipped = 0;
+
+        Located<TokenData> original_prev = tsv.prev(),
+            original_next = tsv.next();
+
+        while (!Tokens::is<Tokens::_EOF>(tsv.next().value)) {
+            // TOKEN INSERT START {{{
+            if (try_insert<Tokens::_EOF>(Tokens::_EOF {})) { report_recovery<Tokens::_EOF>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::_EOF {} }); return; }
+            if (try_insert<Tokens::Comma>(Tokens::Comma {})) { report_recovery<Tokens::Comma>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Comma {} }); return; }
+            if (try_insert<Tokens::Fun>(Tokens::Fun {})) { report_recovery<Tokens::Fun>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Fun {} }); return; }
+            if (try_insert<Tokens::Identifier>(Tokens::Identifier { "<identifier created due to syntax error>" })) { report_recovery<Tokens::Identifier>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Identifier { "<identifier created due to syntax error>" } }); return; }
+            if (try_insert<Tokens::OParen>(Tokens::OParen {})) { report_recovery<Tokens::OParen>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::OParen {} }); return; }
+            if (try_insert<Tokens::CParen>(Tokens::CParen {})) { report_recovery<Tokens::CParen>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::CParen {} }); return; }
+            if (try_insert<Tokens::Impl>(Tokens::Impl {})) { report_recovery<Tokens::Impl>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Impl {} }); return; }
+            if (try_insert<Tokens::OBrace>(Tokens::OBrace {})) { report_recovery<Tokens::OBrace>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::OBrace {} }); return; }
+            if (try_insert<Tokens::CBrace>(Tokens::CBrace {})) { report_recovery<Tokens::CBrace>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::CBrace {} }); return; }
+            if (try_insert<Tokens::Newline>(Tokens::Newline {})) { report_recovery<Tokens::Newline>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Newline {} }); return; }
+            if (try_insert<Tokens::Indent>(Tokens::Indent {})) { report_recovery<Tokens::Indent>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Indent {} }); return; }
+            if (try_insert<Tokens::Dedent>(Tokens::Dedent {})) { report_recovery<Tokens::Dedent>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Dedent {} }); return; }
+            if (try_insert<Tokens::Var>(Tokens::Var {})) { report_recovery<Tokens::Var>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Var {} }); return; }
+            if (try_insert<Tokens::Return>(Tokens::Return {})) { report_recovery<Tokens::Return>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Return {} }); return; }
+            if (try_insert<Tokens::Equal>(Tokens::Equal {})) { report_recovery<Tokens::Equal>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Equal {} }); return; }
+            if (try_insert<Tokens::Mut>(Tokens::Mut {})) { report_recovery<Tokens::Mut>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Mut {} }); return; }
+            if (try_insert<Tokens::Caret>(Tokens::Caret {})) { report_recovery<Tokens::Caret>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Caret {} }); return; }
+            if (try_insert<Tokens::Semicolon>(Tokens::Semicolon {})) { report_recovery<Tokens::Semicolon>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Semicolon {} }); return; }
+            if (try_insert<Tokens::Star>(Tokens::Star {})) { report_recovery<Tokens::Star>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Star {} }); return; }
+            if (try_insert<Tokens::This>(Tokens::This {})) { report_recovery<Tokens::This>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::This {} }); return; }
+            if (try_insert<Tokens::Colon>(Tokens::Colon {})) { report_recovery<Tokens::Colon>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Colon {} }); return; }
+            if (try_insert<Tokens::If>(Tokens::If {})) { report_recovery<Tokens::If>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::If {} }); return; }
+            if (try_insert<Tokens::Else>(Tokens::Else {})) { report_recovery<Tokens::Else>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Else {} }); return; }
+            if (try_insert<Tokens::While>(Tokens::While {})) { report_recovery<Tokens::While>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::While {} }); return; }
+            if (try_insert<Tokens::DoublePipe>(Tokens::DoublePipe {})) { report_recovery<Tokens::DoublePipe>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::DoublePipe {} }); return; }
+            if (try_insert<Tokens::DoubleAmper>(Tokens::DoubleAmper {})) { report_recovery<Tokens::DoubleAmper>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::DoubleAmper {} }); return; }
+            if (try_insert<Tokens::BangEqual>(Tokens::BangEqual {})) { report_recovery<Tokens::BangEqual>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::BangEqual {} }); return; }
+            if (try_insert<Tokens::DoubleEqual>(Tokens::DoubleEqual {})) { report_recovery<Tokens::DoubleEqual>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::DoubleEqual {} }); return; }
+            if (try_insert<Tokens::Less>(Tokens::Less {})) { report_recovery<Tokens::Less>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Less {} }); return; }
+            if (try_insert<Tokens::Greater>(Tokens::Greater {})) { report_recovery<Tokens::Greater>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Greater {} }); return; }
+            if (try_insert<Tokens::LessEqual>(Tokens::LessEqual {})) { report_recovery<Tokens::LessEqual>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::LessEqual {} }); return; }
+            if (try_insert<Tokens::GreaterEqual>(Tokens::GreaterEqual {})) { report_recovery<Tokens::GreaterEqual>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::GreaterEqual {} }); return; }
+            if (try_insert<Tokens::Pipe>(Tokens::Pipe {})) { report_recovery<Tokens::Pipe>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Pipe {} }); return; }
+            if (try_insert<Tokens::Amper>(Tokens::Amper {})) { report_recovery<Tokens::Amper>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Amper {} }); return; }
+            if (try_insert<Tokens::DoubleGreater>(Tokens::DoubleGreater {})) { report_recovery<Tokens::DoubleGreater>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::DoubleGreater {} }); return; }
+            if (try_insert<Tokens::DoubleLess>(Tokens::DoubleLess {})) { report_recovery<Tokens::DoubleLess>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::DoubleLess {} }); return; }
+            if (try_insert<Tokens::Plus>(Tokens::Plus {})) { report_recovery<Tokens::Plus>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Plus {} }); return; }
+            if (try_insert<Tokens::Minus>(Tokens::Minus {})) { report_recovery<Tokens::Minus>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Minus {} }); return; }
+            if (try_insert<Tokens::Slash>(Tokens::Slash {})) { report_recovery<Tokens::Slash>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Slash {} }); return; }
+            if (try_insert<Tokens::Percent>(Tokens::Percent {})) { report_recovery<Tokens::Percent>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Percent {} }); return; }
+            if (try_insert<Tokens::RightArrow>(Tokens::RightArrow {})) { report_recovery<Tokens::RightArrow>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::RightArrow {} }); return; }
+            if (try_insert<Tokens::Tilde>(Tokens::Tilde {})) { report_recovery<Tokens::Tilde>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Tilde {} }); return; }
+            if (try_insert<Tokens::Bang>(Tokens::Bang {})) { report_recovery<Tokens::Bang>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Bang {} }); return; }
+            if (try_insert<Tokens::Period>(Tokens::Period {})) { report_recovery<Tokens::Period>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Period {} }); return; }
+            if (try_insert<Tokens::BoolLit>(Tokens::BoolLit { false })) { report_recovery<Tokens::BoolLit>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::BoolLit { false } }); return; }
+            if (try_insert<Tokens::FloatLit>(Tokens::FloatLit { 0 })) { report_recovery<Tokens::FloatLit>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::FloatLit { 0 } }); return; }
+            if (try_insert<Tokens::IntLit>(Tokens::IntLit { 0, Tokens::IntLit::Base::DECIMAL })) { report_recovery<Tokens::IntLit>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::IntLit { 0, Tokens::IntLit::Base::DECIMAL } }); return; }
+            if (try_insert<Tokens::CharLit>(Tokens::CharLit { 'a' })) { report_recovery<Tokens::CharLit>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::CharLit { 'a' } }); return; }
+            if (try_insert<Tokens::StringLit>(Tokens::StringLit { "<string literal created due to syntax error>" })) { report_recovery<Tokens::StringLit>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::StringLit { "<string literal created due to syntax error>" } }); return; }
+            if (try_insert<Tokens::DoubleColon>(Tokens::DoubleColon {})) { report_recovery<Tokens::DoubleColon>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::DoubleColon {} }); return; }
+            // TOKEN INSERT END }}}
+
+            tsv.advance();
+            ++amount_skipped;
+        }
+
+        done = true;
+        errored = true;
+        ERR_UNRECOVERABLE_INVALID_SYNTAX(original_next.span, Tokens::stringify_type(original_next.value), original_prev.span, expectations);
+    }
+
+    template <typename TokenType>
+    bool try_insert(TokenType const &tok) {
+        TokenStreamView trial_stream (tsv);
+        _Parser trial_parser (*this, trial_stream);
+
+        trial_stream.inject(Located<TokenData> {tsv.next().span, tok});
+
+        return trial_parser.attempt(5);
+    }
+
+    template <typename InsertedType>
+    void report_recovery(std::initializer_list<std::string> const &expectations, int amount_skipped, Located<TokenData> original_prev, Located<TokenData> original_next) {
+        if (amount_skipped == 0) {
+            ERR_SIMPLE_INVALID_SYNTAX(original_next.span, Tokens::stringify_type(original_next.value), original_prev.span, expectations, InsertedType::stringify());
+        } else {
+            Location replace_start = original_next.span.start;
+            Location replace_end = tsv.prev().span.end;
+            ERR_SKIPPING_INVALID_SYNTAX(original_next.span, Tokens::stringify_type(original_next.value), original_prev.span, expectations, Span { replace_start, replace_end }, InsertedType::stringify());
+        }
+    }
+
     TokenStreamView &tsv;
     File &file;
     bool done, errored;
+
+    bool trial;
 
     std::vector<StackItem> stack;
 };

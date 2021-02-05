@@ -135,10 +135,10 @@ errors = [
                 SimpleHighlight('tok', UNDER0, [('error', '"non-newline after line continuation backslash"')]),
             ]),
         Msg('unrecoverable-invalid-syntax',
-            desc='The parser found an unrecoverable syntax error.',
-            inputs='Span const &lookahead, std::string lookahead_type_name, Span const &lasttok, std::vector<std::string> const &expectations', location='lookahead',
+            desc='The parser found a syntax error and could not recover.',
+            inputs='Span const &next, std::string lookahead_type_name, Span const &lasttok, std::initializer_list<std::string> const &expectations', location='next',
             highlights=[
-                SimpleHighlight('lookahead', UNDER0, [('error', '"unexpected {}"', 'lookahead_type_name')]),
+                SimpleHighlight('next', UNDER0, [('error', '"unexpected {}"', 'lookahead_type_name')]),
             ],
             extra=(
                 "auto un (Underline(lasttok, '~'));\n"
@@ -146,22 +146,22 @@ errors = [
                 '    un.hint(expectation);\n'
                 'e.underline(un);\n')),
         Msg('simple-invalid-syntax',
-            desc='The parser found a syntax error and recovered by inserting, substituting, or removing a single token.',
-            inputs='Span const &lookahead, std::string lookahead_type_name, Span const &lasttok, std::string const &bestfix, std::vector<std::string> const &expectations', location='lookahead',
+            desc='The parser found a syntax error and recovered by inserting a single token.',
+            inputs='Span const &next, std::string lookahead_type_name, Span const &lasttok, std::initializer_list<std::string> const &expectations, std::string const &inserted_type', location='next',
             highlights=[
-                SimpleHighlight('lookahead', UNDER0, [('error', '"unexpected {}"', 'lookahead_type_name'), ('note', 'bestfix')]),
+                SimpleHighlight('next', UNDER0, [('error', '"unexpected {}"', 'lookahead_type_name'), ('note', '"parser recovered by inserting {} before this {}"', 'inserted_type', 'lookahead_type_name')]),
             ],
             extra=(
                 "auto un (Underline(lasttok, '~'));\n"
                 'for (std::string const &expectation : expectations)\n'
                 '    un.hint(expectation);\n'
                 'e.underline(un);\n')),
-        Msg('panicking-invalid-syntax',
-            desc='The parser found a syntax error and recovered via panic mode error recovery.',
-            inputs='Span const &lookahead, std::string lookahead_type_name, Span const &lasttok, Span const &panicuntil, std::string const &panicuntil_type_name, std::vector<std::string> const &expectations', location='lookahead',
+        Msg('skipping-invalid-syntax',
+            desc='The parser found a syntax error and recovered by replacing a sequence of tokens with a single token.',
+            inputs='Span const &next, std::string lookahead_type_name, Span const &lasttok, std::initializer_list<std::string> const &expectations, Span const &replaced, std::string const &replacement_type', location='next',
             highlights=[
-                SimpleHighlight('lookahead', UNDER0, [('error', '"unexpected {}"', 'lookahead_type_name')]),
-                SimpleHighlight('panicuntil', UNDER2, [('note', '"parser panicked until {}"', 'panicuntil_type_name')]),
+                SimpleHighlight('next', UNDER0, [('error', '"unexpected {}"', 'lookahead_type_name')]),
+                SimpleHighlight('replaced', UNDER1, [('note', '"parser recovered by replacing this with {}"', 'replacement_type')], ),
             ],
             extra=(
                 "auto un (Underline(lasttok, '~'));\n"
