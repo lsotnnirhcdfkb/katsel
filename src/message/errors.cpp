@@ -42,10 +42,7 @@ Underline& Underline::addmsg(std::string const &type, NNPtr<char const> const co
 }
 // other internal errors {{{1
 void report_abort_noh(std::string const &message) {
-    std::cerr << "!!! Unrecoverable brokenness discovered in compiler !!!: " << message << std::endl;
-    std::cerr << "!!! this is a bug - whether or not it has a bug report is unknown" << std::endl;
-    std::cerr << "!!! bugs can be reported on the Katsel GitHub page: https://github.com/hpj2ltxry43b/katsel/issues" << std::endl;
-    std::cerr << "!!! please search far and wide (on the GitHub page) before reporting a bug, so that there are no duplicate bug reports!" << std::endl;
+    std::cerr << "katselc is broken!!! : " << message << std::endl;
     std::cerr << "Aborting" << std::endl;
     std::abort();
 }
