@@ -1041,7 +1041,7 @@ def gen_non_term_types():
 def gen_token_insert():
     output = []
     token_instances = {
-        eof_sym: '',
+        eof_sym: 'disable',
         Comma: '',
         OParen: '',
         CParen: '',
@@ -1113,10 +1113,10 @@ def gen_token_insert():
         Case: '',
         Break: '',
         Continue: '',
-        Boom: '',
-        Newline: '',
-        Indent: '',
-        Dedent: '',
+        Boom: 'disable',
+        Newline: 'disable',
+        Indent: 'disable',
+        Dedent: 'disable',
     }
 
     for sym in symbols:
@@ -1124,6 +1124,8 @@ def gen_token_insert():
             token_instance = token_instances[sym]
             if token_instance == '':
                 token_instance = f'{sym.astt()} {{}}'
+            elif token_instance == 'disable':
+                continue
             output.append(f'if (try_insert<{sym.astt()}>({token_instance})) {{ report_recovery<{sym.astt()}>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> {{ original_next.span, {token_instance} }}); return; }}\n')
 
     return ''.join(output)

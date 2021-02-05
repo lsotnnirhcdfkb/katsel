@@ -9163,7 +9163,6 @@ private:
 
         while (!Tokens::is<Tokens::_EOF>(tsv.next().value)) {
             // TOKEN INSERT START {{{
-            if (try_insert<Tokens::_EOF>(Tokens::_EOF {})) { report_recovery<Tokens::_EOF>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::_EOF {} }); return; }
             if (try_insert<Tokens::Comma>(Tokens::Comma {})) { report_recovery<Tokens::Comma>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Comma {} }); return; }
             if (try_insert<Tokens::Fun>(Tokens::Fun {})) { report_recovery<Tokens::Fun>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Fun {} }); return; }
             if (try_insert<Tokens::Identifier>(Tokens::Identifier { "<identifier created due to syntax error>" })) { report_recovery<Tokens::Identifier>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Identifier { "<identifier created due to syntax error>" } }); return; }
@@ -9172,9 +9171,6 @@ private:
             if (try_insert<Tokens::Impl>(Tokens::Impl {})) { report_recovery<Tokens::Impl>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Impl {} }); return; }
             if (try_insert<Tokens::OBrace>(Tokens::OBrace {})) { report_recovery<Tokens::OBrace>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::OBrace {} }); return; }
             if (try_insert<Tokens::CBrace>(Tokens::CBrace {})) { report_recovery<Tokens::CBrace>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::CBrace {} }); return; }
-            if (try_insert<Tokens::Newline>(Tokens::Newline {})) { report_recovery<Tokens::Newline>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Newline {} }); return; }
-            if (try_insert<Tokens::Indent>(Tokens::Indent {})) { report_recovery<Tokens::Indent>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Indent {} }); return; }
-            if (try_insert<Tokens::Dedent>(Tokens::Dedent {})) { report_recovery<Tokens::Dedent>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Dedent {} }); return; }
             if (try_insert<Tokens::Var>(Tokens::Var {})) { report_recovery<Tokens::Var>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Var {} }); return; }
             if (try_insert<Tokens::Return>(Tokens::Return {})) { report_recovery<Tokens::Return>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Return {} }); return; }
             if (try_insert<Tokens::Equal>(Tokens::Equal {})) { report_recovery<Tokens::Equal>(expectations, amount_skipped, original_prev, original_next); tsv.inject(Located<TokenData> { original_next.span, Tokens::Equal {} }); return; }
