@@ -9216,7 +9216,6 @@ private:
         }
 
         done = true;
-        errored = true;
         ERR_UNRECOVERABLE_INVALID_SYNTAX(original_next.span, Tokens::stringify_type(original_next.value), original_prev.span, expectations);
     }
 
@@ -9227,7 +9226,7 @@ private:
 
         trial_stream.inject(Located<TokenData> {tsv.next().span, tok});
 
-        return trial_parser.attempt(5);
+        return trial_parser.attempt(10);
     }
 
     template <typename InsertedType>
