@@ -17,8 +17,6 @@ namespace IR {
         public:
             virtual ~Instruction() {};
             virtual void accept(InstructionVisitor &v) const = 0;
-
-            size_t id;
         };
 
         class Br {

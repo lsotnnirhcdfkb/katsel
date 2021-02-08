@@ -7,11 +7,11 @@
 #include "ast/ast.h"
 
 IR::Function::Function(NNPtr<IR::FunctionType> ty, std::string name, NNPtr<ASTNS::FunctionDecl> def_ast):
+    register_id(0),
     ret_reg(add_register(*ty->ret, *def_ast)),
     ty(ty),
     name(name),
     prototypeonly(false),
-    instr_i(0),
     _def_ast(def_ast),
     block_i(0) {
     for (NNPtr<IR::Type const> pty : ty->paramtys) {
@@ -43,7 +43,7 @@ IR::Block& IR::Function::add_block(std::string name) {
     return blockraw;
 }
 IR::Register& IR::Function::add_register(IR::Type const &ty, ASTNS::AST const &def_ast) {
-    auto reg = std::make_unique<Register>(ty, def_ast);
+    auto reg = std::make_unique<Register>(ty, def_ast, register_id++);
     auto &reg_raw = *reg;
     registers.push_back(std::move(reg));
 

@@ -48,7 +48,10 @@ bool Function::value_declare() {
     parent_symbol.add_value(fname, f_ref);
 
     if (param_visitor.is_method) {
-        this_type.get()->add_method(fname, IR::Type::Method { f_ref, param_visitor.this_ptr, param_visitor.this_mut });
+        NNPtr<IR::Type> this_param_type = param_visitor.this_ptr ?
+            context.get_pointer_type(param_visitor.this_mut, *this_type.get()) :
+            this_type.get();
+        this_type.get()->add_method(fname, IR::Type::Method { f_ref, this_param_type, param_visitor.this_ptr, param_visitor.this_mut });
     }
 
     m_s1_data = S1Data {

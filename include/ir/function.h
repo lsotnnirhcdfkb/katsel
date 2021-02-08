@@ -31,6 +31,11 @@ namespace IR {
         Block &add_block(std::string name);
         Register &add_register(IR::Type const &ty, ASTNS::AST const &def_ast);
 
+    private:
+         // because initialization order
+        uint64_t register_id;
+
+    public:
         NNPtr<IR::Register> ret_reg;
         std::vector<IR::Register> param_regs;
 
@@ -40,8 +45,6 @@ namespace IR {
         bool prototypeonly;
 
         void value_accept(ValueVisitor &v) const override;
-
-        uint64_t instr_i;
 
         NNPtr<ASTNS::FunctionDecl> _def_ast;
 

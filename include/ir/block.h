@@ -9,8 +9,8 @@
 
 namespace llvm { class raw_ostream; }
 namespace IR {
-    class Function;
     class Register;
+    class Function;
 
     class Block {
     public:
@@ -21,7 +21,7 @@ namespace IR {
         I& add(Args && ...args) {
             std::unique_ptr<I> instr = std::make_unique<I>(std::forward<Args>(args)...);
             I& raw = *instr;
-            __push_instr(std::move(instr));
+            instructions.push_back(std::move(instr));
             return raw;
         }
         void branch(std::unique_ptr<Instrs::Br> br);
@@ -33,8 +33,5 @@ namespace IR {
         std::unique_ptr<Instrs::Br> br;
 
         NNPtr<IR::Function> fun;
-
-    private:
-        void __push_instr(std::unique_ptr<Instrs::Instruction> instr);
     };
 }
