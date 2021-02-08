@@ -305,9 +305,10 @@ instructions = [
         'args.size() == f->ty->paramtys.size()'
     ]),
     Instruction('Addrof',
-        'IR::Register&|target ! NNPtr<DerefPtr const>|deref ! bool|mut',
+        'IR::Register&|target ! IR::Register&|reg ! bool|mut',
     [
-        'static_cast<int>(mut) <= static_cast<int>(static_cast<PointerType const *>(&deref->ptr.type())->mut)'
+        # 'static_cast<int>(mut) <= static_cast<int>(static_cast<PointerType const *>(&deref->ptr.type())->mut)'
+        # TODO: check for mutability once registers get mutability
     ]),
     Instruction('DerefPtr',
         'IR::Register&|target ! ASTValue|ptr',

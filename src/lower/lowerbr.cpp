@@ -5,6 +5,7 @@
 
 #include "llvm/IR/Constants.h"
 
+/*
 void Lower::Lowerer::visit(IR::Instrs::GotoBr const &instr) {
     builder.CreateBr(blocks.at(instr.to));
 }
@@ -17,3 +18,4 @@ void Lower::Lowerer::visit(IR::Instrs::Return const &instr) {
     else
         builder.CreateRet(llvm::ConstantStruct::get(llvm::StructType::get(context)));
 }
+*/

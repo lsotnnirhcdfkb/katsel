@@ -345,10 +345,10 @@ namespace IR {
         };
         class Addrof : public Instruction {
         public:
-            Addrof(IR::Register& target, NNPtr<DerefPtr const> deref, bool mut);
+            Addrof(IR::Register& target, IR::Register& reg, bool mut);
             void accept(InstructionVisitor &v) const override;
             IR::Register& target;
-            NNPtr<DerefPtr const> deref;
+            IR::Register& reg;
             bool mut;
         };
         class DerefPtr : public Instruction {

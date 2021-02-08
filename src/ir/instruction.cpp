@@ -268,8 +268,7 @@ IR::Instrs::Call::Call(IR::Register& target, NNPtr<Function const> f, std::vecto
 }
 void IR::Instrs::Call::accept(InstructionVisitor &v) const { v.visit(*this); }
 
-IR::Instrs::Addrof::Addrof(IR::Register& target, NNPtr<DerefPtr const> deref, bool mut): target(target), deref(deref), mut(mut) {
-    ASSERT(static_cast<int>(mut) <= static_cast<int>(static_cast<PointerType const *>(&deref->ptr.type())->mut))
+IR::Instrs::Addrof::Addrof(IR::Register& target, IR::Register& reg, bool mut): target(target), reg(reg), mut(mut) {
 }
 void IR::Instrs::Addrof::accept(InstructionVisitor &v) const { v.visit(*this); }
 

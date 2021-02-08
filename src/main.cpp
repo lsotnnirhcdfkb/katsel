@@ -126,6 +126,7 @@ int compile_file(OutFormats ofmt, NNPtr<char> filename) {
         return true;
     }
 
+    /*
     auto lowerer = std::make_unique<Lower::Lowerer>(*unit);
     lowerer->lower();
     if (lowerer->errored)
@@ -155,6 +156,7 @@ int compile_file(OutFormats ofmt, NNPtr<char> filename) {
         os.close();
         return true;
     }
+    */
 
     return true;
 }

@@ -16,6 +16,7 @@
 
 namespace Lower {
     class Lowerer : public IR::InstructionVisitor, public IR::BrVisitor, public IR::ValueVisitor {
+        /*
     public:
         Lowerer(IR::Unit const &unit);
 
@@ -105,5 +106,6 @@ namespace Lower {
         llvm::Function *cur_function;
 
         llvm::Value *lvret;
+        */
     };
 }

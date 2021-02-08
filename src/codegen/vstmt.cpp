@@ -21,7 +21,7 @@ void Codegen::Helpers::StmtCodegen::visit(ASTNS::VarStmtItem &ast) {
 
     NNPtr<IR::Type> var_type = m_var_type.get();
 
-    IR::Instrs::Register &reg = ir_builder->register_block().add<IR::Instrs::Register>(ast, var_type, ast.mut);
+    IR::Register &reg = ir_builder->fun().add_register(*var_type, ast);
 
     if (ast.expr) {
         Maybe<IR::ASTValue> m_val = expr_cg->expr(*ast.expr);
@@ -38,7 +38,7 @@ void Codegen::Helpers::StmtCodegen::visit(ASTNS::VarStmtItem &ast) {
             success = false;
             return;
         }
-        ir_builder->cur_block()->add<IR::Instrs::Store>(IR::ASTValue(reg, ast), val, true);
+        ir_builder->cur_block()->add<IR::Instrs::Copy>(reg, val);
     } else if (!ast.mut) // no initializer, not mutable
         WARN_IMMUT_NOINIT(ast);
 

@@ -114,10 +114,10 @@ namespace IR {
         // also especially since ConstInts are uniqued together),
         // this struct allows values to be associated with an ast, and more importantly,
         // it isn't supposed to be heap-allocated and uniqued, so one value can have multiple ASTs
-        NNPtr<Value const> val;
+        NNPtr<Value> val;
         NNPtr<ASTNS::AST const> ast;
 
-        inline ASTValue(Value const &val, ASTNS::AST const &ast): val(val), ast(ast) {}
+        inline ASTValue(Value &val, ASTNS::AST const &ast): val(val), ast(ast) {}
 
         inline Type const &type() const {
             return val->type();

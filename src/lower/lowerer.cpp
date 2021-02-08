@@ -19,6 +19,7 @@
 #include "llvm/Target/TargetMachine.h"
 #include "llvm/Target/TargetOptions.h"
 
+/*
 Lower::Lowerer::Lowerer(IR::Unit const &unit): errored(false), unit(unit), builder(context), mod(unit.file->filename, context), fpm(&mod) {
     fpm.add(llvm::createPromoteMemoryToRegisterPass());
     fpm.add(llvm::createInstructionCombiningPass());
@@ -146,3 +147,4 @@ void Lower::Lowerer::value_visit(IR::Void const &v) {
 void Lower::Lowerer::value_visit(IR::Instrs::Instruction const &v) {
     lvret = values.at(v);
 }
+*/
