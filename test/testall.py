@@ -10,14 +10,11 @@ else:
     sys.exit(1)
 
 def fail(testfile, msg):
-    global nfailed
-    nfailed += 1
-    print( '\033[0;1;31mfailed\033[0m')
-    print(f'\t- {msg}')
+    global num_failed
+    num_failed += 1
+    print(f'\033[0;1;31mfailed\033[0m: \033[0;1m{msg}\033[0m')
 
     tmplog = f'/tmp/log_{os.path.basename(testfile)}.txt'
-
-    print(f'\t- log written to \033[36m{tmplog}\033[0m')
 
     with open(tmplog, 'w') as f:
         f.write(f'failed with {msg}\n')
@@ -30,8 +27,8 @@ def mark_failed(msg):
         failmsg = msg
 
 def pass_test(_):
-    global npassed
-    npassed += 1
+    global num_passed
+    num_passed += 1
     print('\033[0;1;32mpassed\033[0m', end='')
 
 def set_outputs(outputs, category, process):
@@ -39,12 +36,12 @@ def set_outputs(outputs, category, process):
     outputs[category]['stdout'] = process.stdout.decode('utf-8')
     outputs[category]['stderr'] = process.stderr.decode('utf-8')
 
-TESTDIR = os.path.abspath(os.path.dirname(__file__))
+TEST_DIR = os.path.abspath(os.path.dirname(__file__))
 
-TESTS = glob.glob(f'{TESTDIR}/**/*.ksl', recursive=True)
-NTESTS = len(TESTS)
-NTESTWIDTH = len(str(NTESTS))
-LONGESTNAME = max(map(len, TESTS))
+TESTS = glob.glob(f'{TEST_DIR}/**/*.ksl', recursive=True)
+NUM_TESTS = len(TESTS)
+NUM_TEST_WIDTH = len(str(NUM_TESTS))
+LONGEST_NAME = max(map(len, TESTS))
 
 PRINTDEFF = 'printdef.cpp'
 
@@ -99,19 +96,19 @@ EXPECT_COMP_WARN_REGEX = re.compile(r'expect compile warning \(([\w-]+)\)')
 EXPECT_RUN_ERR_REGEX = re.compile(r'expect runtime error')
 EXPECT_PRINT_REGEX = re.compile(r'expect output (.+)')
 
-npassed = 0
-nfailed = 0
+num_passed = 0
+num_failed = 0
 
 for testi, testfile in enumerate(TESTS):
     teststart = time.perf_counter()
-    print(f'[{str(testi + 1).rjust(NTESTWIDTH)}/{NTESTS}] \033[36m{testfile.ljust(LONGESTNAME)}\033[0m (', end='')
+    print(f'[{str(testi + 1).rjust(NUM_TEST_WIDTH)}/{NUM_TESTS}] \033[36m{testfile.ljust(LONGEST_NAME)}\033[0m (', end='')
     sys.stdout.flush()
 
     with open(testfile, 'r') as f:
         contents = f.read()
 
-    compiledfile = os.path.join(TESTDIR, os.path.splitext(testfile)[0] + '.o')
-    linkedfile = os.path.join(TESTDIR, 'testout')
+    compiledfile = os.path.join(TEST_DIR, os.path.splitext(testfile)[0] + '.o')
+    linkedfile = os.path.join(TEST_DIR, 'testout')
 
     outputs = {
         'compile': None,
@@ -163,26 +160,31 @@ for testi, testfile in enumerate(TESTS):
     failed = False
     failmsg = ''
 
-    try:
-        compile_messages = [json.loads(e) for e in outputs['compile']['stderr'].split('\n') if len(e)]
-    except json.decoder.JSONDecodeError:
-        mark_failed('got internal error')
+    if outputs['compile']['stderr'].startswith('!!!'):
+        make_failed('got internal error')
+        compile_messages = []
+    else:
+        try:
+            compile_messages = [json.loads(e) for e in outputs['compile']['stderr'].split('\n') if len(e)]
+        except json.decoder.JSONDecodeError as je:
+            compile_messages = []
+            mark_failed(f'json decode error: {je}')
 
     for expect in comp_err_expectations:
         expect_nr = contents[:expect.start(0)].count('\n') + 1
-        matchede = [e for e in compile_messages if e['type'] == 'error' and e['location']['line'] == expect_nr and os.path.abspath(e['location']['file']) == os.path.abspath(testfile) and e['message'].split(' ')[1] == f'({expect.group(1)})']
-        if len(matchede) != 1:
-            mark_failed(f'expected {expect.group(1)} on testfile line {expect_nr}, but got {len(matchede)} matched errors')
+        matched_errs = [e for e in compile_messages if e['type'] == 'error' and e['start']['line'] == expect_nr and os.path.abspath(e['start']['file']) == os.path.abspath(testfile) and e['name'] == f'({expect.group(1)})']
+        if len(matched_errs) != 1:
+            mark_failed(f'expected {expect.group(1)} on testfile line {expect_nr}, but got {len(matched_errs)} matched errors')
         else:
-            compile_messages.remove(matchede[0])
+            compile_messages.remove(matched_errs[0])
 
     for expect in comp_warn_expectations:
         expect_nr = contents[:expect.start(0)].count('\n') + 1
-        matchede = [e for e in compile_messages if e['type'] == 'warning' and e['location']['line'] == expect_nr and os.path.abspath(e['location']['file']) == os.path.abspath(testfile) and e['message'].split(' ')[1] == f'({expect.group(1)})']
-        if len(matchede) != 1:
-            mark_failed(f'expected {expect.group(1)} on testfile line {expect_nr}, but got {len(matchede)} matched warnings')
+        matched_errs = [e for e in compile_messages if e['type'] == 'warning' and e['start']['line'] == expect_nr and os.path.abspath(e['start']['file']) == os.path.abspath(testfile) and e['name'] == f'({expect.group(1)})']
+        if len(matched_errs) != 1:
+            mark_failed(f'expected {expect.group(1)} on testfile line {expect_nr}, but got {len(matched_errs)} matched warnings')
         else:
-            compile_messages.remove(matchede[0])
+            compile_messages.remove(matched_errs[0])
 
     if len(compile_messages):
         mark_failed(f'got {len(compile_messages)} extra compile messages')
@@ -216,5 +218,5 @@ for testi, testfile in enumerate(TESTS):
 
 os.remove(PRINTDEFF)
 
-if nfailed:
+if num_failed:
     sys.exit(1)
