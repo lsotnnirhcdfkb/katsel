@@ -74,8 +74,8 @@ bool Function::value_define() {
         return true;
     }
 
-    IR::Block &exit_block = s1_data.fun->add_block("exit");
     IR::Block &entry_block = s1_data.fun->add_block("entry");
+    IR::Block &exit_block = s1_data.fun->add_block("exit");
     auto ir_builder (std::make_unique<IR::Builder>(*s1_data.fun, exit_block, entry_block, context));
     auto locals (std::make_unique<Helpers::Locals>());
 
