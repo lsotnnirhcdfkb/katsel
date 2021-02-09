@@ -4,8 +4,6 @@ import json, re
 import colorama
 import itertools
 
-import time
-
 class Process:
     def __init__(self, command):
         self.command = command
@@ -186,32 +184,34 @@ with open(PRINT_DEF_FILE, 'w') as f:
 num_passed = 0
 num_failed = 0
 
-for test_num, test_path in enumerate(TESTS):
-    write('\n')
-    write(f'\033[32m{num_passed}\033[0m passed, \033[31m{num_failed}\033[0m failed')
-    write('\033[F\033[2K')
-
-    test = Test(test_num, test_path)
-    test_success = test.run()
-
-    time.sleep(0.1)
-    write('\033[2K\033[1000D')
-    if test_success:
-        num_passed += 1
-    else:
-        num_failed += 1
-
-        write(f'\033[31mFAIL\033[0m: \033[36m{test_path}\033[0m\n')
-
-        for failure in test.failures:
-            write(f' \033[31;1m*\033[0m {failure}\n')
-
+try:
+    for test_num, test_path in enumerate(TESTS):
         write('\n')
+        write(f'\033[32m{num_passed}\033[0m passed, \033[31m{num_failed}\033[0m failed')
+        write('\033[F\033[2K')
 
-os.remove(PRINT_DEF_FILE)
+        test = Test(test_num, test_path)
+        test_success = test.run()
 
-if num_failed == 0:
-    write('\033[32;1mALL TESTS PASSED!\033[0m\n')
+        write('\033[2K\033[1000D')
+        if test_success:
+            num_passed += 1
+        else:
+            num_failed += 1
+
+            write(f'\033[31mFAIL\033[0m: \033[36m{test_path}\033[0m\n')
+
+            for failure in test.failures:
+                write(f' \033[31;1m*\033[0m {failure}\n')
+
+            write('\n')
+except KeyboardInterrupt:
+    write('\033[0m\n\033[2K')
 else:
-    write(f'\033[31;1m{num_failed} tests failed\033[0m, \033[32;1m{num_passed} tests passed\033[0m\n')
-    sys.exit(1)
+    if num_failed == 0:
+        write('\033[32;1mALL TESTS PASSED!\033[0m\n')
+    else:
+        write(f'\033[31;1m{num_failed} tests failed\033[0m, \033[32;1m{num_passed} tests passed\033[0m\n')
+        sys.exit(1)
+finally:
+    os.remove(PRINT_DEF_FILE)
