@@ -265,7 +265,7 @@ namespace {
             }
 
             for (std::unique_ptr<IR::Register> const &reg : fun.registers)
-                pr(id_to_str(reg->id))(": ")(reg->type().name())("\n");
+                pr(reg->mut ? "mut " : "")(id_to_str(reg->id))(": ")(reg->type().name())("\n");
 
             for (std::unique_ptr<IR::Block> const &block : fun.blocks)
                 print_block(*block);
