@@ -1,4 +1,142 @@
-import os, sys, subprocess, glob, json, time, re, colorama
+import os, sys, glob
+import subprocess
+import json, re
+import colorama
+import itertools
+
+import time
+
+class Process:
+    def __init__(self, command):
+        self.command = command
+        self.process = subprocess.run(command, capture_output=True)
+        self.stdout = self.process.stdout.decode('utf-8')
+        self.stderr = self.process.stderr.decode('utf-8')
+        self.success = self.process.returncode == 0
+class SkippedProcess:
+    def __init__(self, command):
+        self.command = command
+        self.process = None
+        self.stdout = ''
+        self.stderr = ''
+        self.success = False
+
+class Test:
+    def __init__(self, num, test_path):
+        self.num = num
+        self.test_path = test_path
+        self.failures = []
+
+    def run(self):
+        write(f'[{self.num}/{NUM_TESTS}] \033[36m{self.test_path}\033[0m (   )\033[4D')
+        expect_errors, expect_warnings, expect_prints = self.read_file()
+
+        object_path = os.path.join(TEST_DIR, os.path.splitext(self.test_path)[0] + '.o')
+        linked_path = os.path.join(TEST_DIR, 'testout')
+
+        compile_command = [EXECLOC, '-e', 'json', self.test_path]
+        link_command = [CPPCOMP, object_path, PRINT_DEF_FILE, '-o', linked_path]
+        run_command = [linked_path]
+
+        compile_process = Process(compile_command)
+
+        if compile_process.success:
+            write('c')
+            link_process = Process(link_command)
+        else:
+            write('-')
+            link_process = SkippedProcess(link_command)
+
+        if link_process.success:
+            write('l')
+            run_process = Process(run_command)
+        else:
+            write('-')
+            run_process = SkippedProcess(run_command)
+
+        if run_process.success:
+            write('r')
+        else:
+            write('-')
+
+        write(')')
+
+        self.verify_compilation(expect_errors, expect_warnings, compile_process)
+        self.verify_running(expect_prints, run_process)
+
+        if compile_process.success:
+            os.remove(object_path)
+        if link_process.success:
+            os.remove(linked_path)
+
+        return len(self.failures) == 0
+
+    def verify_compilation(self, expect_errors, expect_warnings, process):
+        total_expects = itertools.chain(expect_errors, expect_warnings)
+
+        stderr_lines = filter(len, process.stderr.split('\n')) # filter only non-empty lines
+        messages = []
+
+        for line in stderr_lines:
+            if '!!!' in line or 'Aborted' in line or 'core dumped' in line:
+                self.failures.append('Compiler crash')
+            else:
+                try:
+                    messages.append(json.loads(line))
+                except json.decoder.JSONDecodeError as jexc:
+                    self.failures.append((f'JSON Decode Error: {jexc}\n'
+                                          f'on line: "{line}"'))
+
+        for expect in total_expects:
+            expect_line = match_line(self.test_contents, expect)
+            expect_message = expect.group(1)
+
+            found_matching_message = False
+            for message in messages:
+                if message['start']['line'] == expect_line and message['name'] == expect_message:
+                    messages.remove(message)
+                    found_matching_message = True
+                    break
+
+            if not found_matching_message:
+                self.failures.append(f'No match for expected message: {expect_message} on line {expect_line}')
+
+        for message in messages:
+            message_line = message['start']['line']
+            message_name = message['name']
+            self.failures.append(f'Unexpected message {message_name} on line {message_line}')
+
+    def verify_running(self, expect_prints, process):
+        if process.stdout == '':
+            process_output = []
+        else:
+            process_output = process.stdout.split('\n')
+
+        expect_prints = [expect.group(1) for expect in expect_prints]
+
+        if len(expect_prints) != len(process_output):
+            self.failures.append(f'Expected {len(expect_prints)} lines of output, but got {len(process_output)}')
+
+        for expect_line, output_line in zip(expect_prints, process_output):
+            if expect_line != output_line:
+                self.failures.append(f'Printed wrong thing: expected {expect_line}, but got {output_line}')
+
+    def read_file(self):
+        with open(self.test_path, 'r') as f:
+            self.test_contents = f.read()
+
+        expect_errors     = EXPECT_ERROR_REGEX.finditer(self.test_contents)
+        expect_warnings   = EXPECT_WARN_REGEX .finditer(self.test_contents)
+        expect_prints     = EXPECT_PRINT_REGEX.finditer(self.test_contents)
+
+        return expect_errors, expect_warnings, expect_prints
+
+def match_line(contents, match):
+    return contents[:match.start(0)].count('\n') + 1
+
+def write(thing):
+    sys.stdout.write(thing)
+    sys.stdout.flush()
 
 colorama.init()
 
@@ -9,214 +147,71 @@ else:
     print(f'Usage: {sys.argv[0]} <katselc path> <c++ compiler>')
     sys.exit(1)
 
-def fail(testfile, msg):
-    global num_failed
-    num_failed += 1
-    print(f'\033[0;1;31mfailed\033[0m: \033[0;1m{msg}\033[0m')
+EXPECT_ERROR_REGEX = re.compile(r'expect compile error \(([\w-]+)\)')
+EXPECT_WARN_REGEX  = re.compile(r'expect compile warning \(([\w-]+)\)')
+EXPECT_PRINT_REGEX = re.compile(r'expect output (.+)')
 
-    tmplog = f'/tmp/log_{os.path.basename(testfile)}.txt'
-
-    with open(tmplog, 'w') as f:
-        f.write(f'failed with {msg}\n')
-        f.write(str(outputs))
-
-def mark_failed(msg):
-    global failed, failmsg
-    if not failed:
-        failed = True
-        failmsg = msg
-
-def pass_test(_):
-    global num_passed
-    num_passed += 1
-    print('\033[0;1;32mpassed\033[0m', end='')
-
-def set_outputs(outputs, category, process):
-    outputs[category]           = {}
-    outputs[category]['stdout'] = process.stdout.decode('utf-8')
-    outputs[category]['stderr'] = process.stderr.decode('utf-8')
+PRINT_DEF_FILE = 'printdef.cpp'
 
 TEST_DIR = os.path.abspath(os.path.dirname(__file__))
 
 TESTS = glob.glob(f'{TEST_DIR}/**/*.ksl', recursive=True)
 NUM_TESTS = len(TESTS)
-NUM_TEST_WIDTH = len(str(NUM_TESTS))
-LONGEST_NAME = max(map(len, TESTS))
 
-PRINTDEFF = 'printdef.cpp'
-
-with open(PRINTDEFF, 'w') as f:
+with open(PRINT_DEF_FILE, 'w') as f:
     f.write(r'''
-#ifdef __cplusplus
-#include <cstdio>
-#include <cstdint>
-#else
-#include <stdio.h>
-#include <stdint.h>
-#endif
+        #ifdef __cplusplus
+        #include <cstdio>
+        #include <cstdint>
+        #else
+        #include <stdio.h>
+        #include <stdint.h>
+        #endif
 
-#ifdef __cplusplus
-extern "C"
-#endif
-void printunsigned(uint32_t i) {
-    printf("%u\n", i);
-}
+        #ifdef __cplusplus
+        extern "C" {
+        #endif
 
-#ifdef __cplusplus
-extern "C"
-#endif
-void printsigned(int32_t i) {
-    printf("%d\n", i);
-}
+        void printunsigned(uint32_t i) { printf("%u\n", i); }
+        void printsigned  (int32_t i)  { printf("%d\n", i); }
+        void printchar    (uint32_t i) { printf("%c\n", i); }
+        void printfloat   (float i)    { printf("%.2f\n", i); }
+        void printdouble  (double i)   { printf("%.2f\n", i); }
 
-#ifdef __cplusplus
-extern "C"
-#endif
-void printchar(uint32_t i) {
-    printf("%c\n", i);
-}
-
-#ifdef __cplusplus
-extern "C"
-#endif
-void printfloat(float i) {
-    printf("%.2f\n", i);
-}
-
-#ifdef __cplusplus
-extern "C"
-#endif
-void printdouble(double i) {
-    printf("%.2f\n", i);
-}
-''')
-
-EXPECT_COMP_ERR_REGEX = re.compile(r'expect compile error \(([\w-]+)\)')
-EXPECT_COMP_WARN_REGEX = re.compile(r'expect compile warning \(([\w-]+)\)')
-EXPECT_RUN_ERR_REGEX = re.compile(r'expect runtime error')
-EXPECT_PRINT_REGEX = re.compile(r'expect output (.+)')
+        #ifdef __cplusplus
+        }
+        #endif
+    ''')
 
 num_passed = 0
 num_failed = 0
 
-for testi, testfile in enumerate(TESTS):
-    teststart = time.perf_counter()
-    print(f'[{str(testi + 1).rjust(NUM_TEST_WIDTH)}/{NUM_TESTS}] \033[36m{testfile.ljust(LONGEST_NAME)}\033[0m (', end='')
-    sys.stdout.flush()
+for test_num, test_path in enumerate(TESTS):
+    write('\n')
+    write(f'\033[32m{num_passed}\033[0m passed, \033[31m{num_failed}\033[0m failed')
+    write('\033[F\033[2K')
 
-    with open(testfile, 'r') as f:
-        contents = f.read()
+    test = Test(test_num, test_path)
+    test_success = test.run()
 
-    compiledfile = os.path.join(TEST_DIR, os.path.splitext(testfile)[0] + '.o')
-    linkedfile = os.path.join(TEST_DIR, 'testout')
-
-    outputs = {
-        'compile': None,
-        'linking': None,
-        'running': None
-    }
-
-    compiled = False
-    linked = False
-    ran = False
-
-    compile_command = [EXECLOC, '-e', 'json', testfile]
-    link_command = [CPPCOMP, compiledfile, PRINTDEFF, '-o', linkedfile]
-    run_command = [linkedfile]
-
-    compilation = subprocess.run(compile_command, capture_output=True)
-    compiled = compilation.returncode == 0
-    set_outputs(outputs, 'compile', compilation)
-    print('c' if compiled else '-', end='')
-    sys.stdout.flush()
-
-    if compiled:
-        linking = subprocess.run(link_command, capture_output=True)
-        linked = linking.returncode == 0
-        set_outputs(outputs, 'linking', linking)
-    print('l' if linked else '-', end='')
-    sys.stdout.flush()
-
-    if linked:
-        running = subprocess.run(run_command, capture_output=True)
-        ran = True
-        set_outputs(outputs, 'running', running)
-    print('r' if ran else '-', end='')
-    sys.stdout.flush()
-
-    if compiled:
-        os.remove(compiledfile)
-    if linked:
-        os.remove(linkedfile)
-
-    print(') ', end='')
-    sys.stdout.flush()
-
-    comp_err_expectations  = EXPECT_COMP_ERR_REGEX  .finditer(contents)
-    comp_warn_expectations = EXPECT_COMP_WARN_REGEX .finditer(contents)
-    run_err_expectations   = EXPECT_RUN_ERR_REGEX   .finditer(contents)
-    print_expectations     = EXPECT_PRINT_REGEX     .finditer(contents)
-
-    failed = False
-    failmsg = ''
-
-    if outputs['compile']['stderr'].startswith('!!!'):
-        make_failed('got internal error')
-        compile_messages = []
+    time.sleep(0.1)
+    write('\033[2K\033[1000D')
+    if test_success:
+        num_passed += 1
     else:
-        try:
-            compile_messages = [json.loads(e) for e in outputs['compile']['stderr'].split('\n') if len(e)]
-        except json.decoder.JSONDecodeError as je:
-            compile_messages = []
-            mark_failed(f'json decode error: {je}')
+        num_failed += 1
 
-    for expect in comp_err_expectations:
-        expect_nr = contents[:expect.start(0)].count('\n') + 1
-        matched_errs = [e for e in compile_messages if e['type'] == 'error' and e['start']['line'] == expect_nr and os.path.abspath(e['start']['file']) == os.path.abspath(testfile) and e['name'] == f'({expect.group(1)})']
-        if len(matched_errs) != 1:
-            mark_failed(f'expected {expect.group(1)} on testfile line {expect_nr}, but got {len(matched_errs)} matched errors')
-        else:
-            compile_messages.remove(matched_errs[0])
+        write(f'\033[31mFAIL\033[0m: \033[36m{test_path}\033[0m\n')
 
-    for expect in comp_warn_expectations:
-        expect_nr = contents[:expect.start(0)].count('\n') + 1
-        matched_errs = [e for e in compile_messages if e['type'] == 'warning' and e['start']['line'] == expect_nr and os.path.abspath(e['start']['file']) == os.path.abspath(testfile) and e['name'] == f'({expect.group(1)})']
-        if len(matched_errs) != 1:
-            mark_failed(f'expected {expect.group(1)} on testfile line {expect_nr}, but got {len(matched_errs)} matched warnings')
-        else:
-            compile_messages.remove(matched_errs[0])
+        for failure in test.failures:
+            write(f' \033[31;1m*\033[0m {failure}\n')
 
-    if len(compile_messages):
-        mark_failed(f'got {len(compile_messages)} extra compile messages')
+        write('\n')
 
-    if ran:
-        output_lines = outputs['running']['stdout'].split('\n')
-        if len(output_lines[-1]) == 0:
-            del output_lines[-1]
+os.remove(PRINT_DEF_FILE)
 
-        for expect in print_expectations:
-            if len(output_lines) == 0:
-                mark_failed('have more print expects, but ran out of lines to check against')
-                break
-
-            if expect.group(1) != (l := output_lines.pop(0)):
-                mark_failed(f'printed wrong thing (expected {expect.group(1)} but got {l})')
-
-        if len(output_lines) > 0:
-            mark_failed('got extra print lines')
-    else:
-        if len([0 for _ in print_expectations]) > 0:
-            mark_failed('expected printing but did not run')
-
-    if failed:
-        fail(testfile, failmsg)
-    else:
-        pass_test(testfile)
-        print(' in', round(time.perf_counter() - teststart, 3), 'seconds')
-
-    sys.stdout.flush()
-
-os.remove(PRINTDEFF)
-
-if num_failed:
+if num_failed == 0:
+    write('\033[32;1mALL TESTS PASSED!\033[0m\n')
+else:
+    write(f'\033[31;1m{num_failed} tests failed\033[0m, \033[32;1m{num_passed} tests passed\033[0m\n')
     sys.exit(1)
