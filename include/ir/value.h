@@ -47,12 +47,13 @@ namespace IR {
 
     class Register : public Value, public DeclaredValue {
     public:
-        Register(Type const &ty, ASTNS::AST const &def_ast, int id);
+        Register(Type const &ty, ASTNS::AST const &def_ast, bool mut, int id);
         Type const &type() const override;
         ASTNS::AST const &def_ast() const override;
         void value_accept(ValueVisitor &v) const override;
 
         int id;
+        bool mut;
 
     private:
         NNPtr<IR::Type const> ty;

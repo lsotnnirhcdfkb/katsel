@@ -21,7 +21,7 @@ void Codegen::Helpers::StmtCodegen::visit(ASTNS::VarStmtItem &ast) {
 
     NNPtr<IR::Type> var_type = m_var_type.get();
 
-    IR::Register &reg = ir_builder->fun().add_register(*var_type, ast);
+    IR::Register &reg = ir_builder->fun().add_register(*var_type, ast, ast.mut);
 
     if (ast.expr) {
         Maybe<IR::ASTValue> m_val = expr_cg->expr(*ast.expr);

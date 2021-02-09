@@ -307,8 +307,7 @@ instructions = [
     Instruction('Addrof',
         'IR::Register&|target ! IR::Register&|reg ! bool|mut',
     [
-        # 'static_cast<int>(mut) <= static_cast<int>(static_cast<PointerType const *>(&deref->ptr.type())->mut)'
-        # TODO: check for mutability once registers get mutability
+        'static_cast<int>(mut) <= static_cast<int>(reg.mut)'
     ]),
     Instruction('DerefPtr',
         'IR::Register&|target ! ASTValue|ptr',

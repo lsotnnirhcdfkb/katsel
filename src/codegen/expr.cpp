@@ -82,7 +82,7 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::ShortCircuitExpr &ast) {
         return;
     }
 
-    IR::Register &out = ir_builder->fun().add_register(lhs.type(), ast);
+    IR::Register &out = ir_builder->fun().add_register(lhs.type(), ast, false);
 
     ir_builder->cur_block()->add<IR::Instrs::Copy>(out, rhs);
     ir_builder->cur_block()->branch(std::make_unique<IR::Instrs::GotoBr>(after));
@@ -124,7 +124,7 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::DerefExpr &ast) {
         return;
     }
 
-    IR::Register &ret_reg = ir_builder->fun().add_register(*asptrty->ty, ast);
+    IR::Register &ret_reg = ir_builder->fun().add_register(*asptrty->ty, ast, false);
     ir_builder->cur_block()->add<IR::Instrs::DerefPtr>(ret_reg, oper);
     ret = IR::ASTValue(ret_reg, ast);
 }
@@ -146,7 +146,7 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::AddrofExpr &ast) {
 
     // TODO: check for mutability
 
-    IR::Register &ret_reg = ir_builder->fun().add_register(ir_builder->context().get_pointer_type(ast.mut, oper.type()), ast);
+    IR::Register &ret_reg = ir_builder->fun().add_register(ir_builder->context().get_pointer_type(ast.mut, oper.type()), ast, false);
     ir_builder->cur_block()->add<IR::Instrs::Addrof>(ret_reg, *as_register, ast.mut);
     ret = IR::ASTValue(ret_reg, ast);
 }
@@ -193,7 +193,7 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::CallExpr &ast) {
         return;
     }
 
-    IR::Register &ret_reg = ir_builder->fun().add_register(*fty->ret, ast);
+    IR::Register &ret_reg = ir_builder->fun().add_register(*fty->ret, ast, false);
     ir_builder->cur_block()->add<IR::Instrs::Call>(ret_reg, NNPtr<IR::Function const>(static_cast<IR::Function const *>(fun.val.as_raw())), args);
     ret = IR::ASTValue(ret_reg, ast);
 }
@@ -217,7 +217,7 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::ThisExpr &ast) {
     Maybe<Local> m_loc = locals->get_local("this");
     if (m_loc.has()) {
         NNPtr<Local> local = m_loc.get();
-        IR::Register &ret_reg = ir_builder->fun().add_register(local->v->type(), ast);
+        IR::Register &ret_reg = ir_builder->fun().add_register(local->v->type(), ast, false);
         ir_builder->cur_block()->add<IR::Instrs::DerefPtr>(ret_reg, IR::ASTValue(*local->v, ast));
         ret = IR::ASTValue(ret_reg, ast);
     } else {
@@ -258,7 +258,7 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::IfExpr &ast) {
     IR::ASTValue truev = m_truev.get();
     trueb = ir_builder->cur_block();
 
-    IR::Register &ret_reg = ir_builder->fun().add_register(truev.type(), ast);
+    IR::Register &ret_reg = ir_builder->fun().add_register(truev.type(), ast, false);
     trueb->add<IR::Instrs::Copy>(ret_reg, truev);
     trueb->branch(std::make_unique<IR::Instrs::GotoBr>(afterb));
 
@@ -456,7 +456,7 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::MethodCallExpr &ast) {
 
         // TODO: check for mut and non mut
 
-        IR::Register &reference_reg = ir_builder->fun().add_register(*method.this_arg_type, *op.ast);
+        IR::Register &reference_reg = ir_builder->fun().add_register(*method.this_arg_type, *op.ast, false);
         ir_builder->cur_block()->add<IR::Instrs::Addrof>(reference_reg, *as_register, method.this_mut);
         
         m_this_arg = IR::ASTValue(reference_reg, *op.ast);
@@ -495,7 +495,7 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::MethodCallExpr &ast) {
         return;
     }
 
-    IR::Register &ret_reg = ir_builder->fun().add_register(*method.fun->ty->ret, ast);
+    IR::Register &ret_reg = ir_builder->fun().add_register(*method.fun->ty->ret, ast, false);
     ir_builder->cur_block()->add<IR::Instrs::Call>(ret_reg, method.fun, args);
     ret = IR::ASTValue(ret_reg, ast);
 }

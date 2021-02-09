@@ -38,21 +38,21 @@ Maybe<IR::ASTValue> IR::PointerType::bin_op(Codegen::Context &cgc, IR::Function 
 
     switch (op.value) {
         case ASTNS::BinaryOperator::PLUS: {
-            IR::Register &out = fun.add_register(l.type(), ast);
+            IR::Register &out = fun.add_register(l.type(), ast, false);
             cur_block->add<IR::Instrs::PtrArith>(out, l, r);
             return IR::ASTValue(out, ast);
         }
         case ASTNS::BinaryOperator::MINUS: {
-            IR::Register &negated = fun.add_register(r.type(), *r.ast);
+            IR::Register &negated = fun.add_register(r.type(), *r.ast, false);
             cur_block->add<IR::Instrs::INeg>(negated, r);
 
-            IR::Register &out = fun.add_register(l.type(), ast);
+            IR::Register &out = fun.add_register(l.type(), ast, false);
             cur_block->add<IR::Instrs::PtrArith>(out, l, IR::ASTValue(negated, *r.ast));
             return IR::ASTValue(out, ast);
         }
 #define OP(op, instr) \
     case ASTNS::BinaryOperator::op: { \
-        IR::Register &out = fun.add_register(cgc.get_bool_type(), ast); \
+        IR::Register &out = fun.add_register(cgc.get_bool_type(), ast, false); \
         cur_block->add<IR::Instrs::instr>(out, l, r); \
         return IR::ASTValue(out, ast); \
     }
@@ -77,7 +77,7 @@ Maybe<IR::ASTValue> IR::PointerType::unary_op(Codegen::Context &cgc, IR::Functio
 }
 Maybe<IR::ASTValue> IR::PointerType::cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, ASTNS::AST const &ast) const {
     if (dynamic_cast<IR::PointerType const *>(&v.type())) {
-        IR::Register &out = fun.add_register(*this, *v.ast);
+        IR::Register &out = fun.add_register(*this, *v.ast, false);
         cur_block->add<IR::Instrs::NoOpCast>(out, v, this);
         return IR::ASTValue(out, ast);
     }

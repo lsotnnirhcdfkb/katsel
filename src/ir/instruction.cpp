@@ -269,6 +269,7 @@ IR::Instrs::Call::Call(IR::Register& target, NNPtr<Function const> f, std::vecto
 void IR::Instrs::Call::accept(InstructionVisitor &v) const { v.visit(*this); }
 
 IR::Instrs::Addrof::Addrof(IR::Register& target, IR::Register& reg, bool mut): target(target), reg(reg), mut(mut) {
+    ASSERT(static_cast<int>(mut) <= static_cast<int>(reg.mut))
 }
 void IR::Instrs::Addrof::accept(InstructionVisitor &v) const { v.visit(*this); }
 

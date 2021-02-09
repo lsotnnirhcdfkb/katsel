@@ -162,16 +162,9 @@ namespace Codegen {
         // Param {{{
         class ParamVisitor : public ASTNS::ParamBVisitor {
         public:
-            struct Param {
-                NNPtr<IR::Type const> ty;
-                std::string name;
-                NNPtr<ASTNS::ParamB> ast;
-                bool mut;
-            };
-
             ParamVisitor(Codegen::Context &context, std::vector<std::unique_ptr<ASTNS::ParamB>> &params, Helpers::TypeVisitor &type_visitor);
 
-            std::vector<Param> ret;
+            std::vector<IR::Function::Param> ret;
 
             bool errored;
 
@@ -233,7 +226,7 @@ namespace Codegen {
             std::unique_ptr<Helpers::PathVisitor> path_visitor;
             std::unique_ptr<Helpers::TypeVisitor> type_visitor;
             NNPtr<IR::Function> fun;
-            std::vector<Helpers::ParamVisitor::Param> params;
+            std::vector<IR::Function::Param> params;
         };
         struct S2Data {
             std::unique_ptr<Helpers::ExprCodegen> expr_cg;

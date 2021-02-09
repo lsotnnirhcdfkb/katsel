@@ -16,7 +16,7 @@
 // static functions {{{1
 #define SUPPORT_OPERATOR_BASIC(op, instr, out_ty) \
     case ASTNS::BinaryOperator::op: { \
-        IR::Register &out = fun.add_register(out_ty, ast); \
+        IR::Register &out = fun.add_register(out_ty, ast, false); \
         cur_block->add<IR::Instrs::instr>(out, l, r); \
         return IR::ASTValue(out, ast); \
     }
@@ -51,7 +51,7 @@ static Maybe<IR::ASTValue> float_bin_op(BIN_OP_ARGS) {
 static Maybe<IR::ASTValue> float_unary_op(UNARY_OP_ARGS) {
     switch (op.value) {
         case ASTNS::UnaryOperator::MINUS: {
-            IR::Register &out = fun.add_register(v.type(), ast);
+            IR::Register &out = fun.add_register(v.type(), ast, false);
             cur_block->add<IR::Instrs::FNeg>(out, v);
             return IR::ASTValue(out, ast);
         }
@@ -96,13 +96,13 @@ static Maybe<IR::ASTValue> int_bin_op(BIN_OP_ARGS) {
 static Maybe<IR::ASTValue> int_unary_op(UNARY_OP_ARGS) {
     switch (op.value) {
         case ASTNS::UnaryOperator::TILDE: {
-            IR::Register &out = fun.add_register(v.type(), ast);
+            IR::Register &out = fun.add_register(v.type(), ast, false);
             cur_block->add<IR::Instrs::BitNot>(out, v);
             return IR::ASTValue(out, ast);
         }
 
         case ASTNS::UnaryOperator::MINUS: {
-            IR::Register &out = fun.add_register(v.type(), ast);
+            IR::Register &out = fun.add_register(v.type(), ast, false);
             cur_block->add<IR::Instrs::INeg>(out, v);
             return IR::ASTValue(out, ast);
         }
@@ -152,7 +152,7 @@ Maybe<IR::ASTValue> IR::FloatType::cast_from(Codegen::Context &cgc, IR::Function
     if (&v.type() == this)
         return IR::ASTValue(*v.val, ast);
 
-    IR::Register &out = fun.add_register(*this, ast);
+    IR::Register &out = fun.add_register(*this, ast, false);
 
     IntType const *sty (dynamic_cast<IntType const *>(&v.type()));
     if (sty) {
@@ -168,7 +168,7 @@ Maybe<IR::ASTValue> IR::FloatType::cast_from(Codegen::Context &cgc, IR::Function
 }
 IR::ASTValue IR::FloatType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const {
     if (dynamic_cast<GenericFloatType const *>(&v.type())) {
-        IR::Register &out = fun.add_register(*this, *v.ast);
+        IR::Register &out = fun.add_register(*this, *v.ast, false);
         cur_block->add<IR::Instrs::FloatToFloat>(out, v, this);
         return IR::ASTValue(out, *v.ast);
     }
@@ -215,7 +215,7 @@ Maybe<IR::ASTValue> IR::IntType::cast_from(Codegen::Context &cgc, IR::Function &
             sty_int = &newt;
             sty_char = nullptr;
 
-            IR::Register &to_int = fun.add_register(newt, *v.ast);
+            IR::Register &to_int = fun.add_register(newt, *v.ast, false);
             v = IR::ASTValue(to_int, *v.ast);
 
             cur_block->add<IR::Instrs::NoOpCast>(to_int, v, newt);
@@ -224,17 +224,17 @@ Maybe<IR::ASTValue> IR::IntType::cast_from(Codegen::Context &cgc, IR::Function &
             sty_int = &newt;
             sty_bool = nullptr;
 
-            IR::Register &to_int = fun.add_register(newt, *v.ast);
+            IR::Register &to_int = fun.add_register(newt, *v.ast, false);
             v = IR::ASTValue(to_int, *v.ast);
 
             cur_block->add<IR::Instrs::NoOpCast>(to_int, v, newt);
         }
 
-        IR::Register &out = fun.add_register(*this, *v.ast);
+        IR::Register &out = fun.add_register(*this, *v.ast, false);
         cur_block->add<IR::Instrs::IntToInt>(out, v, this);
         return IR::ASTValue(out, ast);
     } else if (sty_float) {
-        IR::Register &out = fun.add_register(*this, *v.ast);
+        IR::Register &out = fun.add_register(*this, *v.ast, false);
         cur_block->add<IR::Instrs::FloatToInt>(out, v, this);
         return IR::ASTValue(out, ast);
     } else {
@@ -244,7 +244,7 @@ Maybe<IR::ASTValue> IR::IntType::cast_from(Codegen::Context &cgc, IR::Function &
 }
 IR::ASTValue IR::IntType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const {
     if (dynamic_cast<GenericIntType const *>(&v.type())) {
-        IR::Register &out = fun.add_register(*this, *v.ast);
+        IR::Register &out = fun.add_register(*this, *v.ast, false);
         cur_block->add<IR::Instrs::IntToInt>(out, v, this);
         return IR::ASTValue(out, *v.ast);
     }
@@ -360,10 +360,10 @@ Maybe<IR::ASTValue> IR::CharType::cast_from(Codegen::Context &cgc, IR::Function 
 
     IR::IntType const &char_as_int_type (cgc.get_int_type(8, false));
 
-    IR::Register &as_int = fun.add_register(char_as_int_type, *v.ast);
+    IR::Register &as_int = fun.add_register(char_as_int_type, *v.ast, false);
     cur_block->add<IR::Instrs::IntToInt>(as_int, v, char_as_int_type);
 
-    IR::Register &out = fun.add_register(*this, ast);
+    IR::Register &out = fun.add_register(*this, ast, false);
     cur_block->add<IR::Instrs::NoOpCast>(out, IR::ASTValue(as_int, *v.ast), this);
     return IR::ASTValue(out, ast);
 }
@@ -409,7 +409,7 @@ Maybe<IR::ASTValue> IR::BoolType::unary_op(Codegen::Context &cgc, IR::Function &
 
     switch (op.value) {
         case ASTNS::UnaryOperator::BANG: {
-            IR::Register &out = fun.add_register(v.type(), ast);
+            IR::Register &out = fun.add_register(v.type(), ast, false);
             cur_block->add<IR::Instrs::Not>(out, v);
             return IR::ASTValue(out, ast);
          }
@@ -431,10 +431,10 @@ Maybe<IR::ASTValue> IR::BoolType::cast_from(Codegen::Context &cgc, IR::Function 
 
     IR::IntType const &bool_as_int_type (cgc.get_int_type(1, false));
 
-    IR::Register &as_int = fun.add_register(bool_as_int_type, *v.ast);
+    IR::Register &as_int = fun.add_register(bool_as_int_type, *v.ast, false);
     cur_block->add<IR::Instrs::IntToInt>(as_int, v, bool_as_int_type);
 
-    IR::Register &out = fun.add_register(*this, ast);
+    IR::Register &out = fun.add_register(*this, ast, false);
     cur_block->add<IR::Instrs::NoOpCast>(out, IR::ASTValue(as_int, *v.ast), *this);
 
     return IR::ASTValue(out, ast);

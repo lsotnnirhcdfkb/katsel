@@ -34,7 +34,7 @@ bool Function::value_declare() {
     IR::Type const &retty = m_retty.get();
 
     Helpers::ParamVisitor param_visitor (context, ast.params, *type_visitor);
-    std::vector<Helpers::ParamVisitor::Param> params (std::move(param_visitor.ret));
+    std::vector<IR::Function::Param> params (std::move(param_visitor.ret));
 
     std::vector<NNPtr<IR::Type const>> ptys;
     for (auto const &p : params)
@@ -42,7 +42,7 @@ bool Function::value_declare() {
 
     NNPtr<IR::FunctionType> ft = context.get_function_type(retty, ptys);
 
-    std::unique_ptr<IR::Function> f = std::make_unique<IR::Function>(ft, fname, ast);
+    std::unique_ptr<IR::Function> f = std::make_unique<IR::Function>(ft, fname, ast, params);
     IR::Function &f_ref = *f;
     unit.functions.push_back(std::move(f));
     parent_symbol.add_value(fname, f_ref);

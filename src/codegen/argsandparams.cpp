@@ -18,7 +18,7 @@ void Codegen::Helpers::ParamVisitor::visit(ASTNS::Param &ast) {
     Maybe<IR::Type&> ty (type_visitor->type(*ast.type));
     if (ty.has()) {
         std::string name (ast.name.value.name);
-        Param p {ty.get(), std::move(name), ast, ast.mut};
+        IR::Function::Param p {ty.get(), std::move(name), ast, ast.mut};
         ret.push_back(p);
     } else {
         errored = true;
@@ -47,7 +47,7 @@ void Codegen::Helpers::ParamVisitor::visit(ASTNS::ThisParam &ast) {
 
     NNPtr<IR::Type> ty = ast.ptr ? context->get_pointer_type(ast.mut, *this_type) : this_type;
 
-    Param p {ty, "this", ast, false};
+    IR::Function::Param p {ty, "this", ast, false};
     ret.push_back(p);
 }
 

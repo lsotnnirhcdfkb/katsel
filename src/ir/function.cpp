@@ -6,16 +6,16 @@
 #include "utils/format.h"
 #include "ast/ast.h"
 
-IR::Function::Function(NNPtr<IR::FunctionType> ty, std::string name, NNPtr<ASTNS::FunctionDecl> def_ast):
+IR::Function::Function(NNPtr<IR::FunctionType> ty, std::string name, NNPtr<ASTNS::FunctionDecl> def_ast, std::vector<IR::Function::Param> const &params):
     register_id(0),
-    ret_reg(add_register(*ty->ret, *def_ast)),
+    ret_reg(add_register(*ty->ret, *def_ast, true)),
     ty(ty),
     name(name),
     prototypeonly(false),
     _def_ast(def_ast),
     block_i(0) {
-    for (NNPtr<IR::Type const> pty : ty->paramtys) {
-        param_regs.push_back(add_register(*pty, *def_ast));
+    for (IR::Function::Param const &param : params) {
+        param_regs.push_back(add_register(*param.ty, *param.ast, param.mut));
         // TODO: param def ast should not be the function decl ast
     }
 }
@@ -42,8 +42,8 @@ IR::Block& IR::Function::add_block(std::string name) {
 
     return blockraw;
 }
-IR::Register& IR::Function::add_register(IR::Type const &ty, ASTNS::AST const &def_ast) {
-    auto reg = std::make_unique<Register>(ty, def_ast, register_id++);
+IR::Register& IR::Function::add_register(IR::Type const &ty, ASTNS::AST const &def_ast, bool mut) {
+    auto reg = std::make_unique<Register>(ty, def_ast, mut, register_id++);
     auto &reg_raw = *reg;
     registers.push_back(std::move(reg));
 
