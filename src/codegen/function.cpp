@@ -34,7 +34,7 @@ bool Function::value_declare() {
     IR::Type const &retty = m_retty.get();
 
     Helpers::ParamVisitor param_visitor (context, ast.params, *type_visitor);
-    std::vector<Helpers::ParamVisitor::Param> params (std::move(param_visitor.ret));
+    std::vector<IR::Function::Param> params (std::move(param_visitor.ret));
 
     std::vector<NNPtr<IR::Type const>> ptys;
     for (auto const &p : params)
@@ -42,13 +42,16 @@ bool Function::value_declare() {
 
     NNPtr<IR::FunctionType> ft = context.get_function_type(retty, ptys);
 
-    std::unique_ptr<IR::Function> f = std::make_unique<IR::Function>(ft, fname, ast);
+    std::unique_ptr<IR::Function> f = std::make_unique<IR::Function>(ft, fname, ast, params);
     IR::Function &f_ref = *f;
     unit.functions.push_back(std::move(f));
     parent_symbol.add_value(fname, f_ref);
 
     if (param_visitor.is_method) {
-        this_type.get()->add_method(fname, IR::Type::Method { f_ref, param_visitor.this_ptr, param_visitor.this_mut });
+        NNPtr<IR::Type> this_param_type = param_visitor.this_ptr ?
+            context.get_pointer_type(param_visitor.this_mut, *this_type.get()) :
+            this_type.get();
+        this_type.get()->add_method(fname, IR::Type::Method { f_ref, this_param_type, param_visitor.this_ptr, param_visitor.this_mut });
     }
 
     m_s1_data = S1Data {
@@ -71,23 +74,20 @@ bool Function::value_define() {
         return true;
     }
 
-    IR::Block &register_block = s1_data.fun->add_block("registers");
-    IR::Block &exit_block = s1_data.fun->add_block("exit");
     IR::Block &entry_block = s1_data.fun->add_block("entry");
-    IR::Instrs::Register &ret_reg = register_block.add<IR::Instrs::Register>(*ast.retty, *s1_data.fun->ty->ret, true);
-    auto ir_builder (std::make_unique<IR::Builder>(*s1_data.fun, register_block, exit_block, ret_reg, entry_block, context));
+    IR::Block &exit_block = s1_data.fun->add_block("exit");
+    auto ir_builder (std::make_unique<IR::Builder>(*s1_data.fun, exit_block, entry_block, context));
     auto locals (std::make_unique<Helpers::Locals>());
 
     auto local_path_visitor (std::make_unique<Codegen::Helpers::PathVisitor>(*locals, unit));
     auto local_type_visitor (std::make_unique<Codegen::Helpers::TypeVisitor>(context, this_type, *local_path_visitor));
 
-    ir_builder->register_block().branch(std::make_unique<IR::Instrs::GotoBr>(entry_block));
-
     locals->inc_scope();
 
+    int param_i = 0;
     for (auto const &param : s1_data.params) {
         std::string pname = param.name;
-        IR::Instrs::Register &reg = ir_builder->register_block().add<IR::Instrs::Register>(param.ast, param.ty, param.mut);
+        IR::Register &reg = ir_builder->fun().param_regs[param_i];
 
         Maybe<Helpers::Local> foundparam = locals->get_local(pname);
         if (foundparam.has()) {
@@ -95,6 +95,8 @@ bool Function::value_define() {
             errored = true;
         } else
             locals->add_local(pname, reg);
+
+        ++param_i;
     }
 
     auto expr_cg (std::make_unique<Codegen::Helpers::ExprCodegen>(*ir_builder, *locals, *local_type_visitor, *local_path_visitor));
@@ -103,8 +105,7 @@ bool Function::value_define() {
     locals->dec_scope();
 
     if (m_retval.has()) {
-        NNPtr<IR::Instrs::Instruction> deref_ret_reg = ir_builder->exit_block().add<IR::Instrs::DerefPtr>(IR::ASTValue(ir_builder->ret_reg(), *ast.retty));
-        ir_builder->exit_block().branch(std::make_unique<IR::Instrs::Return>(IR::ASTValue(*deref_ret_reg, *ast.retty)));
+        ir_builder->exit_block().branch(std::make_unique<IR::Instrs::Return>(IR::ASTValue(*ir_builder->fun().ret_reg, *ast.retty)));
 
         IR::ASTValue retval = m_retval.get();
 
@@ -113,7 +114,7 @@ bool Function::value_define() {
             ERR_CONFLICT_RET_TY(retval, *s1_data.fun);
             errored = true;
         } else {
-            ir_builder->cur_block()->add<IR::Instrs::Store>(IR::ASTValue(ir_builder->ret_reg(), *ast.retty), retval, false);
+            ir_builder->cur_block()->add<IR::Instrs::Copy>(*ir_builder->fun().ret_reg, retval);
             ir_builder->cur_block()->branch(std::make_unique<IR::Instrs::GotoBr>(ir_builder->exit_block()));
         }
     } else {

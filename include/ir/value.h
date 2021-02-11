@@ -19,16 +19,14 @@ namespace IR {
     class FunctionType;
     class VoidType;
 
-    namespace Instrs { class Instruction; }
-
 #define IR_VALUE_LIST(macro) \
-    macro(ConstBool, ConstBool) \
-    macro(ConstChar, ConstChar) \
-    macro(ConstInt, ConstInt) \
-    macro(ConstFloat, ConstFloat) \
-    macro(Function, Function) \
-    macro(Instrs::Instruction, Instruction) \
-    macro(Void, Void)
+    macro(ConstBool) \
+    macro(ConstChar) \
+    macro(ConstInt) \
+    macro(ConstFloat) \
+    macro(Function) \
+    macro(Register) \
+    macro(Void)
 
     class ValueVisitor;
     class Value {
@@ -46,6 +44,21 @@ namespace IR {
     };
 
     class Function;
+
+    class Register : public Value, public DeclaredValue {
+    public:
+        Register(Type const &ty, ASTNS::AST const &def_ast, bool mut, int id);
+        Type const &type() const override;
+        ASTNS::AST const &def_ast() const override;
+        void value_accept(ValueVisitor &v) const override;
+
+        int id;
+        bool mut;
+
+    private:
+        NNPtr<IR::Type const> ty;
+        NNPtr<ASTNS::AST const> _def_ast;
+    };
     // Const values {{{
     class ConstInt : public Value {
     public:
@@ -105,10 +118,10 @@ namespace IR {
         // also especially since ConstInts are uniqued together),
         // this struct allows values to be associated with an ast, and more importantly,
         // it isn't supposed to be heap-allocated and uniqued, so one value can have multiple ASTs
-        NNPtr<Value const> val;
+        NNPtr<Value> val;
         NNPtr<ASTNS::AST const> ast;
 
-        inline ASTValue(Value const &val, ASTNS::AST const &ast): val(val), ast(ast) {}
+        inline ASTValue(Value &val, ASTNS::AST const &ast): val(val), ast(ast) {}
 
         inline Type const &type() const {
             return val->type();
@@ -117,7 +130,7 @@ namespace IR {
 
     class ValueVisitor {
     public:
-#define VISITMETHOD(cl, n) \
+#define VISITMETHOD(cl) \
         virtual void value_visit(cl const &i) = 0;
         IR_VALUE_LIST(VISITMETHOD)
 #undef VISITMETHOD

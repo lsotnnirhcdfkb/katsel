@@ -1,5 +1,4 @@
 #include "ir/block.h"
-#include "ir/function.h"
 #include "ir/instruction.h"
 #include "message/report_abort.h"
 
@@ -12,7 +11,3 @@ void IR::Block::branch(std::unique_ptr<IR::Instrs::Br> br) {
     this->br = std::move(br);
 }
 
-void IR::Block::__push_instr(std::unique_ptr<Instrs::Instruction> instr) {
-    instr->id = fun->instr_i++;
-    instructions.push_back(std::move(instr));
-}

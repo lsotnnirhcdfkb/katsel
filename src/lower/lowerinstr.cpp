@@ -5,32 +5,7 @@
 #include "lower/lowerer.h"
 #include "utils/assert.h"
 
-// Store and Phi instructions {{{1
-void Lower::Lowerer::visit(IR::Instrs::Store const &instr) {
-    builder.CreateStore(&lower(instr.value), &lower(instr.target));
-}
-void Lower::Lowerer::visit(IR::Instrs::Phi const &instr) {
-    NNPtr<llvm::PHINode> phi = llvm::PHINode::Create(&instr.type().to_llvmtype(context), instr.prevs.size());
-
-    NNPtr<llvm::BasicBlock> current_block = builder.GetInsertBlock();
-
-    for (auto &p : instr.prevs) {
-        NNPtr<IR::Block const> block = p.first;
-        IR::ASTValue const &value = p.second;
-
-        builder.SetInsertPoint(blocks[block]);
-        NNPtr<llvm::Value> valuellvm = lower(value);
-
-        NNPtr<llvm::BasicBlock> blockllvm = blocks[block];
-
-        phi->addIncoming(valuellvm.as_raw(), blockllvm.as_raw());
-    }
-
-    builder.SetInsertPoint(current_block.as_raw());
-    builder.GetInsertBlock()->getInstList().push_back(phi.as_raw());
-
-    values[instr] = phi.as_raw();
-}
+/*
 // Logical instructions {{{1
 void Lower::Lowerer::visit(IR::Instrs::Or const &instr) {
     values[instr] = builder.CreateOr(&lower(instr.lhs), &lower(instr.rhs));
@@ -180,3 +155,4 @@ void Lower::Lowerer::visit(IR::Instrs::Register const &instr) {
 
     ++alloca_index;
 }
+*/

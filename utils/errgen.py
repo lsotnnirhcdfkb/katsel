@@ -298,14 +298,14 @@ errors = [
             ]),
         Msg('redecl-param',
             desc='Redeclaraion of parameter in function declaration',
-            inputs='ASTNS::ParamB const &param, IR::Instrs::Register const &prev', location='param',
+            inputs='ASTNS::ParamB const &param, IR::Register const &prev', location='param',
             highlights=[
                 SimpleHighlight('param', UNDER0, [('error', '"redeclaration of parameter"')]),
                 SimpleHighlight('prev.def_ast()', UNDER1, [('note', '"previous declaration"')]),
             ]),
         Msg('redecl-var',
             desc='Redeclaration of variable',
-            inputs='Span const &name, IR::Instrs::Register const &prev', location='name',
+            inputs='Span const &name, IR::Register const &prev', location='name',
             highlights=[
                 SimpleHighlight('name', UNDER0, [('error', '"redeclaration of variable"')]),
                 SimpleHighlight('prev.def_ast()', UNDER1, [('note', '"previous declaration"')]),

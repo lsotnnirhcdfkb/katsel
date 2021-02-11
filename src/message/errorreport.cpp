@@ -43,6 +43,13 @@ namespace {
         ss << "\"" << name << "\": " << v;
         return ss.str();
     }
+    // quote {{{2
+    template <typename T>
+    std::string quote(T const &v) {
+        std::stringstream ss;
+        ss << "\"" << v << "\"";
+        return ss.str();
+    }
     // get line {{{2
     void get_line(std::string::const_iterator &lstarto, std::string::const_iterator &lendo, File const &f, int linenr) {
         int cline = linenr;
@@ -369,18 +376,19 @@ void Error::report() const {
         print_final_line(pad, type, code, name);
     } else {
         auto format_location = [](Location const &l) -> std::string {
-            return format("{{ {}, {}, {}, {} }}",
-                    jsonfield("file", l.file->filename),
+            return format("{{{}, {}, {}, {}}}",
+                    jsonfield("file", quote(l.file->filename)),
                     jsonfield("line", get_line_n(l.file->source.cbegin(), l.iter)),
                     jsonfield("column", get_col_n(l.file->source.cbegin(), l.iter)),
                     jsonfield("index", std::distance(l.file->source.cbegin(), l.iter)));
         };
 
-        std::cerr << format("{{ {}, {}, {}, {}, ",
+        std::cerr << format("{{{}, {}, {}, {}, {}, ",
             jsonfield("type", type == MsgType::ERROR ? "\"error\"" : "\"warning\""),
-            jsonfield("start", span.as_rowcol()),
-            jsonfield("code", code),
-            jsonfield("name", name));
+            jsonfield("start", format_location(span.start)),
+            jsonfield("end", format_location(span.end)),
+            jsonfield("code", quote(code)),
+            jsonfield("name", quote(name)));
 
         std::cerr << "\"underlines\":[";
         bool f = true;

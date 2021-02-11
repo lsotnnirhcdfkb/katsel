@@ -28,7 +28,7 @@ IR::Type const &IR::Void::type() const {
 }
 
 // again, do all the accept methods here, even though it doesn't really fit in with the file structure
-#define ACCEPT(cl, name) \
+#define ACCEPT(cl) \
 void IR::cl::value_accept(IR::ValueVisitor &v) const { v.value_visit(*this); }
 IR_VALUE_LIST(ACCEPT)
 #undef ACCEPT

@@ -92,6 +92,7 @@ namespace IR {
 
         struct Method {
             NNPtr<IR::Function> fun;
+            NNPtr<IR::Type> this_arg_type;
             bool this_ptr, this_mut;
         };
         virtual Maybe<Method const> get_method(std::string const &name) const = 0;
