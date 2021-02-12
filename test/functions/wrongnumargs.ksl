@@ -1,6 +1,6 @@
 
 
-fun void test()
+fun test(): void
     arg0()
     arg0(0)             // expect compile error (wrong-num-args)
     arg0(0, 0)          // expect compile error (wrong-num-args)
@@ -36,8 +36,8 @@ fun void test()
     arg4(0, 0, 0, 0)
     arg4(0, 0, 0, 0, 0) // expect compile error (wrong-num-args)
 
-fun void arg0()
-fun void arg1(uint32 a)
-fun void arg2(uint32 a, uint32 b)
-fun void arg3(uint32 a, uint32 b, uint32 c)
-fun void arg4(uint32 a, uint32 b, uint32 c, uint32 d)
+fun arg0(): void
+fun arg1(uint32 a): void
+fun arg2(uint32 a, uint32 b): void
+fun arg3(uint32 a, uint32 b, uint32 c): void
+fun arg4(uint32 a, uint32 b, uint32 c, uint32 d): void

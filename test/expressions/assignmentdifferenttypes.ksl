@@ -1,9 +1,9 @@
 
 
-fun void test()
-    var uint32 a
-    var sint64 b = 2
-    var sint64 c
+fun test(): void
+    var a: uint32
+    var b: sint64 = 2
+    var c: sint64
 
     b = 2
     a = b // expect compile error (assign-conflict-tys)

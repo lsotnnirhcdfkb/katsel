@@ -1,13 +1,13 @@
-fun uint32 main()
-    var uint32 x = {
+fun main(): uint32
+    var x: uint32 = {
         3 + 3
-        <- 2 + 2
+        ^2 + 2
     }
 
     printunsigned(x) // expect output 4
 
-    <- {
-        <- 0
+    ^{
+        ^0
     }
 
-fun void printunsigned(uint32 x)
+fun printunsigned(uint32 x): void

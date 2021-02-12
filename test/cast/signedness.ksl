@@ -1,13 +1,13 @@
 
-fun uint32 main()
+fun main(): uint32
     //                     overflow     no overflow
     // signed to unsigned                x
     // unsigned to signed                x
     // unsigned to unsigned              x
     // signed to signed                  x
 
-    var uint8 un = 2
-    var sint8 sn = 2
+    var un: uint8 = 2
+    var sn: sint8 = 2
 
     printunsigned((uint32) (uint8) un) // expect output 2
     printunsigned((uint32) (uint8) sn) // expect output 2
@@ -15,8 +15,8 @@ fun uint32 main()
     printsigned((sint32) (sint8) un) // expect output 2
     printsigned((sint32) (sint8) sn) // expect output 2
 
-    var uint8 uy = 250
-    var sint8 sy = 250
+    var uy: uint8 = 250
+    var sy: sint8 = 250
 
     printunsigned((uint32) (uint8) uy) // expect output 250
     printunsigned((uint32) (uint8) sy) // expect output 250
@@ -24,7 +24,7 @@ fun uint32 main()
     printsigned((sint32) (sint8) uy) // expect output -6
     printsigned((sint32) (sint8) sy) // expect output -6
 
-    <- 0
+    ^0
 
-fun void printunsigned(uint32 i)
-fun void printsigned(sint32 i)
+fun printunsigned(uint32 i): void
+fun printsigned(sint32 i): void

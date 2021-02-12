@@ -1,13 +1,13 @@
 
 
-fun uint32 main()
-    var uint32 a
+fun main(): uint32
+    var a: uint32
     {
-        var uint32 b
+        var b: uint32
         {
-            var uint32 c
+            var c: uint32
             {
-                var uint32 d
+                var d: uint32
 
                 a
                 b
@@ -31,4 +31,4 @@ fun uint32 main()
     b // expect compile error (undecl-symb)
     c // expect compile error (undecl-symb)
     d // expect compile error (undecl-symb)
-    <- 0
+    ^0

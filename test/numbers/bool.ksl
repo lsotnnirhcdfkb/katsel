@@ -1,8 +1,8 @@
 
 
-fun uint32 main()
+fun main(): uint32
     printunsigned(true) // expect output 1
     printunsigned(false) // expect output 0
-    <- 0
+    ^0
 
-fun uint32 printunsigned(bool i)
+fun printunsigned(bool i): uint32

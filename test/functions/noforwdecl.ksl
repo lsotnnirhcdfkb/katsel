@@ -1,9 +1,9 @@
 
 
-fun uint32 main()
+fun main(): uint32
     thingy()
-    <- 0
+    ^0
 
-fun uint32 thingy()
-    <- 2
+fun thingy(): uint32
+    ^2
 

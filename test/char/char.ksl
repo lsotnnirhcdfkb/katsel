@@ -1,6 +1,6 @@
 
 
-fun uint32 main()
+fun main(): uint32
     printunsigned((uint32) 'A') // expect output 65
     printunsigned((uint32) 'B') // expect output 66
     printunsigned((uint32) 'C') // expect output 67
@@ -11,7 +11,7 @@ fun uint32 main()
     printchar('C') // expect output C
     printchar('D') // expect output D
     printchar('E') // expect output E
-    <- 0
+    ^0
 
-fun void printunsigned(uint32 i)
-fun void printchar(char i)
+fun printunsigned(uint32 i): void
+fun printchar(char i): void

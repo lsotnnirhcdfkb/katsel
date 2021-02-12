@@ -1,4 +1,4 @@
 
 
-fun void test()
+fun test(): void
     i // expect compile error (undecl-symb)

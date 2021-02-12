@@ -1,7 +1,7 @@
 
 
-fun void test()
-    var uint32 a
+fun test(): void
+    var a: uint32
 
     a = 4
     2 = 3 // expect compile error (assign-invalid-lhs)

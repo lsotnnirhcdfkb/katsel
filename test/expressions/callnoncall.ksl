@@ -1,5 +1,5 @@
 
 
-fun void test()
-    var uint32 i
+fun test(): void
+    var i: uint32
     i() // expect compile error (call-noncallable)

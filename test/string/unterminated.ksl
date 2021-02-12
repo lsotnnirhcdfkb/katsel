@@ -1,4 +1,4 @@
 
 
-fun void test()
+fun test(): void
     "fjwaoeigji // expect compile error (unterm-strlit) // expect compile error (unrecoverable-invalid-syntax)

@@ -1,8 +1,8 @@
 
 
-fun uint32 main()
-    var uint32 i, j, k
+fun main(): uint32
+    var i: uint32, j, k
     i
     j
     k
-    <- 0
+    ^0

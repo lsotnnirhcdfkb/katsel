@@ -1,7 +1,7 @@
 
 
-fun void test()
-    var uint32 a
-    var sint64 b
+fun test(): void
+    var a: uint32
+    var b: sint64
 
     a + b // expect compile error (conflict-tys-binary-op)

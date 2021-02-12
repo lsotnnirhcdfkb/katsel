@@ -1,5 +1,5 @@
-fun uint32 main()
-    var uint32 a = 1, b = 2, c = 3
+fun main(): uint32
+    var a: uint32 = 1, b = 2, c = 3
 
     printunsigned(a) // expect output 1
     printunsigned(b) // expect output 2
@@ -10,6 +10,6 @@ fun uint32 main()
     printunsigned(a) // expect output 3
     printunsigned(b) // expect output 3
     printunsigned(c) // expect output 3
-    <- 0
+    ^0
 
-fun void printunsigned(uint32 i)
+fun printunsigned(uint32 i): void

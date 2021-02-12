@@ -1,7 +1,7 @@
 
 
-fun uint32 main()
+fun main(): uint32
     2
     2 + 2
     3 + 3
-    <- 0
+    ^0

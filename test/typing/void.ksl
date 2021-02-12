@@ -1,3 +1,3 @@
-fun void test()
+fun test(): void
     test() + 2 // expect compile error (lhs-unsupported-op)
     test()() // expect compile error (call-noncallable)

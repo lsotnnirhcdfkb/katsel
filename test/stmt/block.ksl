@@ -1,15 +1,15 @@
 
 
-fun uint32 main() {
+fun main(): uint32 {
         printunsigned(2) // expect output 2
         printunsigned(3) // expect output 3
         printunsigned(4) // expect output 4
-        <- 3
+        ^3
     }
 
     printunsigned(2) // expect output 2
     printunsigned(3) // expect output 3
     printunsigned(4) // expect output 4
-    <- 0
+    ^0
 
-fun void printunsigned(uint32 i)
+fun printunsigned(uint32 i): void

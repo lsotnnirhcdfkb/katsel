@@ -63,9 +63,15 @@ class Test:
         self.verify_running(expect_prints, run_process)
 
         if compile_process.success:
-            os.remove(object_path)
+            try:
+                os.remove(object_path)
+            except FileNotFoundError as e:
+                self.failures.append('Could not remove object file: {e}')
         if link_process.success:
-            os.remove(linked_path)
+            try:
+                os.remove(linked_path)
+            except FileNotFoundError as e:
+                self.failures.append('Could not remove executable file: {e}')
 
         return len(self.failures) == 0
 
