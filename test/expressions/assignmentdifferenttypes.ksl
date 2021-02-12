@@ -1,9 +1,11 @@
 
 
 fun test(): void
-    var a: uint32
-    var b: sint64 = 2
-    var c: sint64
+    var mut a: uint32 = 0
+    var mut b: sint64 = 2
+    var mut c: sint64 = 0
 
     b = 2
     a = b // expect compile error (assign-conflict-tys)
+    c = b
+    b = c

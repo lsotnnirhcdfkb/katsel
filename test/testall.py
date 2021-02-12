@@ -66,12 +66,12 @@ class Test:
             try:
                 os.remove(object_path)
             except FileNotFoundError as e:
-                self.failures.append('Could not remove object file: {e}')
+                self.failures.append(f'Could not remove object file: {e}')
         if link_process.success:
             try:
                 os.remove(linked_path)
             except FileNotFoundError as e:
-                self.failures.append('Could not remove executable file: {e}')
+                self.failures.append(f'Could not remove executable file: {e}')
 
         return len(self.failures) == 0
 

@@ -6,8 +6,7 @@ fun main(): uint32
     // unsigned to unsigned              x
     // signed to signed                  x
 
-    var un: uint8 = 2
-    var sn: sint8 = 2
+    var un: uint8 = 2, sn: sint8 = 2
 
     printunsigned((uint32) (uint8) un) // expect output 2
     printunsigned((uint32) (uint8) sn) // expect output 2

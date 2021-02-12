@@ -10,4 +10,4 @@ fun main(): uint32
         ^0
     }
 
-fun printunsigned(uint32 x): void
+fun printunsigned(x: uint32): void
