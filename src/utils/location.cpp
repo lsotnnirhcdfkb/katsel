@@ -17,7 +17,6 @@ static Span loc_from_ast(ASTNS::AST const &ast) {
 }
 
 Span::Span(ASTNS::AST const &ast): Span(loc_from_ast(ast)) {}
-Span::Span(IR::ASTValue const &v): Span(*v.ast) {}
 
 Span::Span(Location const &start, Location const &end): start(start), end(end), file(start.file) {
     ASSERT(start.file == end.file);

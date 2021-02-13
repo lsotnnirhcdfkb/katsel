@@ -11,31 +11,31 @@
 
 #include "llvm/IR/DerivedTypes.h"
 
-#define BIN_OP_ARGS Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::BinaryOperator> op, IR::ASTValue l, IR::ASTValue r, ASTNS::AST const &ast
-#define UNARY_OP_ARGS Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue v, ASTNS::AST const &ast
+#define BIN_OP_ARGS Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::BinaryOperator> op, Located<NNPtr<IR::Value>> l, Located<NNPtr<IR::Value>> r, ASTNS::AST const &ast
+#define UNARY_OP_ARGS Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast
 // static functions {{{1
 #define SUPPORT_OPERATOR_BASIC(op, instr, out_ty) \
     case ASTNS::BinaryOperator::op: { \
         IR::Register &out = fun.add_register(out_ty, ast, false); \
         cur_block->add<IR::Instrs::instr>(out, l, r); \
-        return IR::ASTValue(out, ast); \
+        return Located<NNPtr<IR::Value>> { ast, out }; \
     }
 // float/int operations for reuse between generic float/int and concrete float/int types {{{2
-static Maybe<IR::ASTValue> float_bin_op(BIN_OP_ARGS) {
-    l = r.type().impl_cast(cgc, fun, cur_block, l);
-    r = l.type().impl_cast(cgc, fun, cur_block, r);
+static Maybe<Located<NNPtr<IR::Value>>> float_bin_op(BIN_OP_ARGS) {
+    l = r.value->type().impl_cast(cgc, fun, cur_block, l);
+    r = l.value->type().impl_cast(cgc, fun, cur_block, r);
 
-    if (&l.type() != &r.type()) {
+    if (&l.value->type() != &r.value->type()) {
         ERR_CONFLICT_TYS_BINARY_OP(l, r, op);
-        return Maybe<IR::ASTValue>();
+        return Maybe<Located<NNPtr<IR::Value>>>();
     }
 
     switch (op.value) {
-        SUPPORT_OPERATOR_BASIC(PLUS, FAdd, l.type())
-        SUPPORT_OPERATOR_BASIC(MINUS, FSub, l.type())
-        SUPPORT_OPERATOR_BASIC(STAR, FMult, l.type())
-        SUPPORT_OPERATOR_BASIC(SLASH, FDiv, l.type())
-        SUPPORT_OPERATOR_BASIC(PERCENT, FMod, l.type())
+        SUPPORT_OPERATOR_BASIC(PLUS, FAdd, l.value->type())
+        SUPPORT_OPERATOR_BASIC(MINUS, FSub, l.value->type())
+        SUPPORT_OPERATOR_BASIC(STAR, FMult, l.value->type())
+        SUPPORT_OPERATOR_BASIC(SLASH, FDiv, l.value->type())
+        SUPPORT_OPERATOR_BASIC(PERCENT, FMod, l.value->type())
         SUPPORT_OPERATOR_BASIC(GREATER, FCmpGT, cgc.get_bool_type())
         SUPPORT_OPERATOR_BASIC(LESS, FCmpLT, cgc.get_bool_type())
         SUPPORT_OPERATOR_BASIC(GREATEREQUAL, FCmpGE, cgc.get_bool_type())
@@ -45,71 +45,71 @@ static Maybe<IR::ASTValue> float_bin_op(BIN_OP_ARGS) {
 
         default:
             ERR_LHS_UNSUPPORTED_OP(l, op);
-            return Maybe<IR::ASTValue>();
+            return Maybe<Located<NNPtr<IR::Value>>>();
     }
 }
-static Maybe<IR::ASTValue> float_unary_op(UNARY_OP_ARGS) {
+static Maybe<Located<NNPtr<IR::Value>>> float_unary_op(UNARY_OP_ARGS) {
     switch (op.value) {
         case ASTNS::UnaryOperator::MINUS: {
-            IR::Register &out = fun.add_register(v.type(), ast, false);
+            IR::Register &out = fun.add_register(v.value->type(), ast, false);
             cur_block->add<IR::Instrs::FNeg>(out, v);
-            return IR::ASTValue(out, ast);
+            return Located<NNPtr<IR::Value>> { ast, out };
         }
 
         default:
             ERR_UNARY_UNSUPPORTED_OP(v, op);
-            return Maybe<IR::ASTValue>();
+            return Maybe<Located<NNPtr<IR::Value>>>();
     }
 }
-static Maybe<IR::ASTValue> int_bin_op(BIN_OP_ARGS) {
-    l = r.type().impl_cast(cgc, fun, cur_block, l);
-    r = l.type().impl_cast(cgc, fun, cur_block, r);
+static Maybe<Located<NNPtr<IR::Value>>> int_bin_op(BIN_OP_ARGS) {
+    l = r.value->type().impl_cast(cgc, fun, cur_block, l);
+    r = l.value->type().impl_cast(cgc, fun, cur_block, r);
 
-    if (&l.type() != &r.type()) {
+    if (&l.value->type() != &r.value->type()) {
         ERR_CONFLICT_TYS_BINARY_OP(l, r, op);
-        return Maybe<IR::ASTValue>();
+        return Maybe<Located<NNPtr<IR::Value>>>();
     }
 
     switch (op.value) {
-        SUPPORT_OPERATOR_BASIC(PLUS, IAdd, l.type())
-        SUPPORT_OPERATOR_BASIC(MINUS, ISub, l.type())
-        SUPPORT_OPERATOR_BASIC(STAR, IMult, l.type())
-        SUPPORT_OPERATOR_BASIC(SLASH, IDiv, l.type())
-        SUPPORT_OPERATOR_BASIC(PERCENT, IMod, l.type())
+        SUPPORT_OPERATOR_BASIC(PLUS, IAdd, l.value->type())
+        SUPPORT_OPERATOR_BASIC(MINUS, ISub, l.value->type())
+        SUPPORT_OPERATOR_BASIC(STAR, IMult, l.value->type())
+        SUPPORT_OPERATOR_BASIC(SLASH, IDiv, l.value->type())
+        SUPPORT_OPERATOR_BASIC(PERCENT, IMod, l.value->type())
         SUPPORT_OPERATOR_BASIC(GREATER, ICmpGT, cgc.get_bool_type())
         SUPPORT_OPERATOR_BASIC(LESS, ICmpLT, cgc.get_bool_type())
         SUPPORT_OPERATOR_BASIC(GREATEREQUAL, ICmpGE, cgc.get_bool_type())
         SUPPORT_OPERATOR_BASIC(LESSEQUAL, ICmpLE, cgc.get_bool_type())
         SUPPORT_OPERATOR_BASIC(DOUBLEEQUAL, ICmpEQ, cgc.get_bool_type())
         SUPPORT_OPERATOR_BASIC(BANGEQUAL, ICmpNE, cgc.get_bool_type())
-        SUPPORT_OPERATOR_BASIC(AMPER, BitAnd, l.type())
-        SUPPORT_OPERATOR_BASIC(PIPE, BitOr, l.type())
-        SUPPORT_OPERATOR_BASIC(CARET, BitXor, l.type())
-        SUPPORT_OPERATOR_BASIC(DOUBLEGREATER, ShiftR, l.type())
-        SUPPORT_OPERATOR_BASIC(DOUBLELESS, ShiftL, l.type())
+        SUPPORT_OPERATOR_BASIC(AMPER, BitAnd, l.value->type())
+        SUPPORT_OPERATOR_BASIC(PIPE, BitOr, l.value->type())
+        SUPPORT_OPERATOR_BASIC(CARET, BitXor, l.value->type())
+        SUPPORT_OPERATOR_BASIC(DOUBLEGREATER, ShiftR, l.value->type())
+        SUPPORT_OPERATOR_BASIC(DOUBLELESS, ShiftL, l.value->type())
 
         default:
             ERR_LHS_UNSUPPORTED_OP(l, op);
-            return Maybe<IR::ASTValue>();
+            return Maybe<Located<NNPtr<IR::Value>>>();
     }
 }
-static Maybe<IR::ASTValue> int_unary_op(UNARY_OP_ARGS) {
+static Maybe<Located<NNPtr<IR::Value>>> int_unary_op(UNARY_OP_ARGS) {
     switch (op.value) {
         case ASTNS::UnaryOperator::TILDE: {
-            IR::Register &out = fun.add_register(v.type(), ast, false);
+            IR::Register &out = fun.add_register(v.value->type(), ast, false);
             cur_block->add<IR::Instrs::BitNot>(out, v);
-            return IR::ASTValue(out, ast);
+            return Located<NNPtr<IR::Value>> { ast, out };
         }
 
         case ASTNS::UnaryOperator::MINUS: {
-            IR::Register &out = fun.add_register(v.type(), ast, false);
+            IR::Register &out = fun.add_register(v.value->type(), ast, false);
             cur_block->add<IR::Instrs::INeg>(out, v);
-            return IR::ASTValue(out, ast);
+            return Located<NNPtr<IR::Value>> { ast, out };
         }
 
         default:
             ERR_UNARY_UNSUPPORTED_OP(v, op);
-            return Maybe<IR::ASTValue>();
+            return Maybe<Located<NNPtr<IR::Value>>>();
     }
 }
 // Float and Int {{{1
@@ -135,42 +135,42 @@ std::string IR::FloatType::name() const {
     else
         report_abort_noh(format("FloatType::name: size = {}", size));
 }
-Maybe<IR::ASTValue> IR::FloatType::bin_op(BIN_OP_ARGS) const {
-    ASSERT(&l.type() == this);
+Maybe<Located<NNPtr<IR::Value>>> IR::FloatType::bin_op(BIN_OP_ARGS) const {
+    ASSERT(&l.value->type() == this);
     return float_bin_op(cgc, fun, cur_block, op, l, r, ast);
 }
-Maybe<IR::ASTValue> IR::FloatType::unary_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue v, ASTNS::AST const &ast) const {
-    ASSERT(&v.type() == this);
+Maybe<Located<NNPtr<IR::Value>>> IR::FloatType::unary_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast) const {
+    ASSERT(&v.value->type() == this);
     return float_unary_op(cgc, fun, cur_block, op, v, ast);
 }
-Maybe<IR::ASTValue> IR::FloatType::cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, ASTNS::AST const &ast) const {
-    if (&v.type() == this)
-        return IR::ASTValue(*v.val, ast);
+Maybe<Located<NNPtr<IR::Value>>> IR::FloatType::cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast) const {
+    if (&v.value->type() == this)
+        return Located<NNPtr<IR::Value>> { ast, v.value };
 
     v = impl_cast(cgc, fun, cur_block, v); // try implicit cast to self
 
-    if (&v.type() == this)
-        return IR::ASTValue(*v.val, ast);
+    if (&v.value->type() == this)
+        return Located<NNPtr<IR::Value>> { ast, v.value };
 
     IR::Register &out = fun.add_register(*this, ast, false);
 
-    IntType const *sty (dynamic_cast<IntType const *>(&v.type()));
+    IntType const *sty (dynamic_cast<IntType const *>(&v.value->type()));
     if (sty) {
         cur_block->add<IR::Instrs::IntToFloat>(out, v, this);
-    } else if (dynamic_cast<FloatType const *>(&v.type())) {
+    } else if (dynamic_cast<FloatType const *>(&v.value->type())) {
         cur_block->add<IR::Instrs::FloatToFloat>(out, v, this);
     } else {
         ERR_INVALID_CAST(ast, v, *this);
-        return Maybe<IR::ASTValue>();
+        return Maybe<Located<NNPtr<IR::Value>>>();
     }
 
-    return IR::ASTValue(out, ast);
+    return Located<NNPtr<IR::Value>> { ast, out };
 }
-IR::ASTValue IR::FloatType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const {
-    if (dynamic_cast<GenericFloatType const *>(&v.type())) {
-        IR::Register &out = fun.add_register(*this, *v.ast, false);
+Located<NNPtr<IR::Value>> IR::FloatType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v) const {
+    if (dynamic_cast<GenericFloatType const *>(&v.value->type())) {
+        IR::Register &out = fun.add_register(*this, v.span, false);
         cur_block->add<IR::Instrs::FloatToFloat>(out, v, this);
-        return IR::ASTValue(out, *v.ast);
+        return Located<NNPtr<IR::Value>> { v.span, out };
     }
 
     return v;
@@ -187,27 +187,27 @@ llvm::Type& IR::IntType::to_llvmtype(llvm::LLVMContext &con) const {
 std::string IR::IntType::name() const {
     return format("{}int{}", is_signed ? 's' : 'u', size);
 }
-Maybe<IR::ASTValue> IR::IntType::bin_op(BIN_OP_ARGS) const {
-    ASSERT(&l.type() == this)
+Maybe<Located<NNPtr<IR::Value>>> IR::IntType::bin_op(BIN_OP_ARGS) const {
+    ASSERT(&l.value->type() == this)
     return int_bin_op(cgc, fun, cur_block, op, l, r, ast);
 }
-Maybe<IR::ASTValue> IR::IntType::unary_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue v, ASTNS::AST const &ast) const {
-    ASSERT(&v.type() == this)
+Maybe<Located<NNPtr<IR::Value>>> IR::IntType::unary_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast) const {
+    ASSERT(&v.value->type() == this)
     return int_unary_op(cgc, fun, cur_block, op, v, ast);
 }
-Maybe<IR::ASTValue> IR::IntType::cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, ASTNS::AST const &ast) const {
-    if (&v.type() == this)
-        return IR::ASTValue(*v.val, ast);
+Maybe<Located<NNPtr<IR::Value>>> IR::IntType::cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast) const {
+    if (&v.value->type() == this)
+        return Located<NNPtr<IR::Value>> { ast, v.value };
 
     v = impl_cast(cgc, fun, cur_block, v); // try implicit cast to self
 
-    if (&v.type() == this)
-        return IR::ASTValue(*v.val, ast);
+    if (&v.value->type() == this)
+        return Located<NNPtr<IR::Value>> { ast, v.value };
 
-    IntType const *sty_int (dynamic_cast<IntType const *> (&v.type()));
-    FloatType const *sty_float (dynamic_cast<FloatType const *> (&v.type()));
-    CharType const *sty_char (dynamic_cast<CharType const *> (&v.type()));
-    BoolType const *sty_bool (dynamic_cast<BoolType const *> (&v.type()));
+    IntType const *sty_int (dynamic_cast<IntType const *> (&v.value->type()));
+    FloatType const *sty_float (dynamic_cast<FloatType const *> (&v.value->type()));
+    CharType const *sty_char (dynamic_cast<CharType const *> (&v.value->type()));
+    BoolType const *sty_bool (dynamic_cast<BoolType const *> (&v.value->type()));
 
     if (sty_int || sty_char || sty_bool) {
         if (sty_char) {
@@ -215,8 +215,8 @@ Maybe<IR::ASTValue> IR::IntType::cast_from(Codegen::Context &cgc, IR::Function &
             sty_int = &newt;
             sty_char = nullptr;
 
-            IR::Register &to_int = fun.add_register(newt, *v.ast, false);
-            v = IR::ASTValue(to_int, *v.ast);
+            IR::Register &to_int = fun.add_register(newt, v.span, false);
+            v = Located<NNPtr<IR::Value>> { v.span, to_int };
 
             cur_block->add<IR::Instrs::NoOpCast>(to_int, v, newt);
         } else if (sty_bool) {
@@ -224,29 +224,29 @@ Maybe<IR::ASTValue> IR::IntType::cast_from(Codegen::Context &cgc, IR::Function &
             sty_int = &newt;
             sty_bool = nullptr;
 
-            IR::Register &to_int = fun.add_register(newt, *v.ast, false);
-            v = IR::ASTValue(to_int, *v.ast);
+            IR::Register &to_int = fun.add_register(newt, v.span, false);
+            v = Located<NNPtr<IR::Value>> { v.span, to_int };
 
             cur_block->add<IR::Instrs::NoOpCast>(to_int, v, newt);
         }
 
-        IR::Register &out = fun.add_register(*this, *v.ast, false);
+        IR::Register &out = fun.add_register(*this, v.span, false);
         cur_block->add<IR::Instrs::IntToInt>(out, v, this);
-        return IR::ASTValue(out, ast);
+        return Located<NNPtr<IR::Value>> { ast, out };
     } else if (sty_float) {
-        IR::Register &out = fun.add_register(*this, *v.ast, false);
+        IR::Register &out = fun.add_register(*this, v.span, false);
         cur_block->add<IR::Instrs::FloatToInt>(out, v, this);
-        return IR::ASTValue(out, ast);
+        return Located<NNPtr<IR::Value>> { ast, out };
     } else {
         ERR_INVALID_CAST(ast, v, *this);
-        return Maybe<IR::ASTValue>();
+        return Maybe<Located<NNPtr<IR::Value>>>();
     }
 }
-IR::ASTValue IR::IntType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const {
-    if (dynamic_cast<GenericIntType const *>(&v.type())) {
-        IR::Register &out = fun.add_register(*this, *v.ast, false);
+Located<NNPtr<IR::Value>> IR::IntType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v) const {
+    if (dynamic_cast<GenericIntType const *>(&v.value->type())) {
+        IR::Register &out = fun.add_register(*this, v.span, false);
         cur_block->add<IR::Instrs::IntToInt>(out, v, this);
-        return IR::ASTValue(out, *v.ast);
+        return Located<NNPtr<IR::Value>> { v.span, out };
     }
 
     return v;
@@ -261,22 +261,22 @@ ASTNS::AST const &IR::GenericIntType::decl_ast() const {
 std::string IR::GenericIntType::name() const {
     return "<integer>";
 }
-Maybe<IR::ASTValue> IR::GenericIntType::bin_op(BIN_OP_ARGS) const {
-    ASSERT(&l.type() == this);
+Maybe<Located<NNPtr<IR::Value>>> IR::GenericIntType::bin_op(BIN_OP_ARGS) const {
+    ASSERT(&l.value->type() == this);
     return int_bin_op(cgc, fun, cur_block, op, l, r, ast);
 }
-Maybe<IR::ASTValue> IR::GenericIntType::unary_op(UNARY_OP_ARGS) const {
-    ASSERT(&v.type() == this);
+Maybe<Located<NNPtr<IR::Value>>> IR::GenericIntType::unary_op(UNARY_OP_ARGS) const {
+    ASSERT(&v.value->type() == this);
     return int_unary_op(cgc, fun, cur_block, op, v, ast);
 }
-Maybe<IR::ASTValue> IR::GenericIntType::cast_from(Codegen::Context &, IR::Function &, NNPtr<IR::Block> &, IR::ASTValue v, ASTNS::AST const &ast) const {
+Maybe<Located<NNPtr<IR::Value>>> IR::GenericIntType::cast_from(Codegen::Context &, IR::Function &, NNPtr<IR::Block> &, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast) const {
     ERR_INVALID_CAST(ast, v, *this);
-    return Maybe<ASTValue>();
+    return Maybe<Located<NNPtr<Value>>>();
 }
 llvm::Type& IR::GenericIntType::to_llvmtype(llvm::LLVMContext &con) const {
     return *llvm::Type::getInt32Ty(con);
 }
-IR::ASTValue IR::GenericIntType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const {
+Located<NNPtr<IR::Value>> IR::GenericIntType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v) const {
     return v;
 }
 // GenericFloat {{{2
@@ -288,23 +288,23 @@ ASTNS::AST const &IR::GenericFloatType::decl_ast() const {
 std::string IR::GenericFloatType::name() const {
     return "<float>";
 }
-Maybe<IR::ASTValue> IR::GenericFloatType::bin_op(BIN_OP_ARGS) const {
-    ASSERT(&l.type() == this);
+Maybe<Located<NNPtr<IR::Value>>> IR::GenericFloatType::bin_op(BIN_OP_ARGS) const {
+    ASSERT(&l.value->type() == this);
     return float_bin_op(cgc, fun, cur_block, op, l, r, ast);
 }
-Maybe<IR::ASTValue> IR::GenericFloatType::unary_op(UNARY_OP_ARGS) const {
-    ASSERT(&v.type() == this);
+Maybe<Located<NNPtr<IR::Value>>> IR::GenericFloatType::unary_op(UNARY_OP_ARGS) const {
+    ASSERT(&v.value->type() == this);
     return float_unary_op(cgc, fun, cur_block, op, v, ast);
 }
-Maybe<IR::ASTValue> IR::GenericFloatType::cast_from(Codegen::Context &, IR::Function &, NNPtr<IR::Block> &, IR::ASTValue v, ASTNS::AST const &ast) const {
+Maybe<Located<NNPtr<IR::Value>>> IR::GenericFloatType::cast_from(Codegen::Context &, IR::Function &, NNPtr<IR::Block> &, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast) const {
     ERR_INVALID_CAST(ast, v, *this);
-    return Maybe<ASTValue>();
+    return Maybe<Located<NNPtr<Value>>>();
 }
 llvm::Type& IR::GenericFloatType::to_llvmtype(llvm::LLVMContext &con) const {
     return *llvm::Type::getFloatTy(con);
 }
 
-IR::ASTValue IR::GenericFloatType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const {
+Located<NNPtr<IR::Value>> IR::GenericFloatType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v) const {
     return v;
 }
 // Char {{{1
@@ -319,14 +319,14 @@ llvm::Type& IR::CharType::to_llvmtype(llvm::LLVMContext &con) const {
 std::string IR::CharType::name() const {
     return "char";
 }
-Maybe<IR::ASTValue> IR::CharType::bin_op(BIN_OP_ARGS) const {
-    ASSERT(&l.type() == this)
+Maybe<Located<NNPtr<IR::Value>>> IR::CharType::bin_op(BIN_OP_ARGS) const {
+    ASSERT(&l.value->type() == this)
 
-    l = r.type().impl_cast(cgc, fun, cur_block, l);
-    r = l.type().impl_cast(cgc, fun, cur_block, r);
-    if (&l.type() != &r.type()) {
+    l = r.value->type().impl_cast(cgc, fun, cur_block, l);
+    r = l.value->type().impl_cast(cgc, fun, cur_block, r);
+    if (&l.value->type() != &r.value->type()) {
         ERR_CONFLICT_TYS_BINARY_OP(l, r, op);
-        return Maybe<IR::ASTValue>();
+        return Maybe<Located<NNPtr<IR::Value>>>();
     }
 
     switch (op.value) {
@@ -339,35 +339,35 @@ Maybe<IR::ASTValue> IR::CharType::bin_op(BIN_OP_ARGS) const {
 
         default:
             ERR_LHS_UNSUPPORTED_OP(l, op);
-            return Maybe<ASTValue>();
+            return Maybe<Located<NNPtr<Value>>>();
     }
 }
-Maybe<IR::ASTValue> IR::CharType::unary_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue v, ASTNS::AST const &ast) const {
-    ASSERT(&v.type() == this)
+Maybe<Located<NNPtr<IR::Value>>> IR::CharType::unary_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast) const {
+    ASSERT(&v.value->type() == this)
 
     ERR_UNARY_UNSUPPORTED_OP(v, op);
-    return Maybe<ASTValue>();
+    return Maybe<Located<NNPtr<Value>>>();
 }
-Maybe<IR::ASTValue> IR::CharType::cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, ASTNS::AST const &ast) const {
-    if (&v.type() == this)
-        return IR::ASTValue(*v.val, ast);
+Maybe<Located<NNPtr<IR::Value>>> IR::CharType::cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast) const {
+    if (&v.value->type() == this)
+        return Located<NNPtr<IR::Value>> { ast, v.value };
 
-    IntType const *sty (dynamic_cast<IntType const *>(&v.type()));
+    IntType const *sty (dynamic_cast<IntType const *>(&v.value->type()));
     if (!sty) {
         ERR_INVALID_CAST(ast, v, *this);
-        return Maybe<IR::ASTValue>();
+        return Maybe<Located<NNPtr<IR::Value>>>();
     }
 
     IR::IntType const &char_as_int_type (cgc.get_int_type(8, false));
 
-    IR::Register &as_int = fun.add_register(char_as_int_type, *v.ast, false);
+    IR::Register &as_int = fun.add_register(char_as_int_type, v.span, false);
     cur_block->add<IR::Instrs::IntToInt>(as_int, v, char_as_int_type);
 
     IR::Register &out = fun.add_register(*this, ast, false);
-    cur_block->add<IR::Instrs::NoOpCast>(out, IR::ASTValue(as_int, *v.ast), this);
-    return IR::ASTValue(out, ast);
+    cur_block->add<IR::Instrs::NoOpCast>(out, Located<NNPtr<IR::Value>> { v.span, as_int }, this);
+    return Located<NNPtr<IR::Value>> { ast, out };
 }
-IR::ASTValue IR::CharType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const {
+Located<NNPtr<IR::Value>> IR::CharType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v) const {
     return v;
 }
 // Bool {{{1
@@ -382,64 +382,64 @@ llvm::Type& IR::BoolType::to_llvmtype(llvm::LLVMContext &con) const {
 std::string IR::BoolType::name() const {
     return "bool";
 }
-Maybe<IR::ASTValue> IR::BoolType::bin_op(Codegen::Context &cgc, Function &fun, NNPtr<Block> &cur_block, Located<ASTNS::BinaryOperator> op, IR::ASTValue l, IR::ASTValue r, ASTNS::AST const &ast) const {
-    ASSERT(&l.type() == this)
+Maybe<Located<NNPtr<IR::Value>>> IR::BoolType::bin_op(Codegen::Context &cgc, Function &fun, NNPtr<Block> &cur_block, Located<ASTNS::BinaryOperator> op, Located<NNPtr<IR::Value>> l, Located<NNPtr<IR::Value>> r, ASTNS::AST const &ast) const {
+    ASSERT(&l.value->type() == this)
 
-    l = r.type().impl_cast(cgc, fun, cur_block, l);
-    r = l.type().impl_cast(cgc, fun, cur_block, r);
-    if (&l.type() != &r.type()) {
+    l = r.value->type().impl_cast(cgc, fun, cur_block, l);
+    r = l.value->type().impl_cast(cgc, fun, cur_block, r);
+    if (&l.value->type() != &r.value->type()) {
         ERR_CONFLICT_TYS_BINARY_OP(l, r, op);
-        return Maybe<IR::ASTValue>();
+        return Maybe<Located<NNPtr<IR::Value>>>();
     }
 
     switch (op.value) {
-        SUPPORT_OPERATOR_BASIC(AMPER, BitAnd, l.type())
-        SUPPORT_OPERATOR_BASIC(PIPE, BitOr, l.type())
-        SUPPORT_OPERATOR_BASIC(CARET, BitXor, l.type())
+        SUPPORT_OPERATOR_BASIC(AMPER, BitAnd, l.value->type())
+        SUPPORT_OPERATOR_BASIC(PIPE, BitOr, l.value->type())
+        SUPPORT_OPERATOR_BASIC(CARET, BitXor, l.value->type())
         SUPPORT_OPERATOR_BASIC(DOUBLEEQUAL, ICmpEQ, cgc.get_bool_type())
         SUPPORT_OPERATOR_BASIC(BANGEQUAL, ICmpNE, cgc.get_bool_type())
 
         default:
             ERR_LHS_UNSUPPORTED_OP(l, op);
-            return Maybe<ASTValue>();
+            return Maybe<Located<NNPtr<Value>>>();
     }
 }
-Maybe<IR::ASTValue> IR::BoolType::unary_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue v, ASTNS::AST const &ast) const {
-    ASSERT(&v.type() == this)
+Maybe<Located<NNPtr<IR::Value>>> IR::BoolType::unary_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast) const {
+    ASSERT(&v.value->type() == this)
 
     switch (op.value) {
         case ASTNS::UnaryOperator::BANG: {
-            IR::Register &out = fun.add_register(v.type(), ast, false);
+            IR::Register &out = fun.add_register(v.value->type(), ast, false);
             cur_block->add<IR::Instrs::Not>(out, v);
-            return IR::ASTValue(out, ast);
+            return Located<NNPtr<IR::Value>> { ast, out };
          }
 
         default:
             ERR_UNARY_UNSUPPORTED_OP(v, op);
-            return Maybe<ASTValue>();
+            return Maybe<Located<NNPtr<Value>>>();
     }
 }
-Maybe<IR::ASTValue> IR::BoolType::cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, ASTNS::AST const &ast) const {
-    if (&v.type() == this)
-        return IR::ASTValue(*v.val, ast);
+Maybe<Located<NNPtr<IR::Value>>> IR::BoolType::cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast) const {
+    if (&v.value->type() == this)
+        return Located<NNPtr<IR::Value>> { ast, v.value };
 
-    IntType const *sty (dynamic_cast<IntType const *>(&v.type()));
+    IntType const *sty (dynamic_cast<IntType const *>(&v.value->type()));
     if (!sty) {
         ERR_INVALID_CAST(ast, v, *this);
-        return Maybe<IR::ASTValue>();
+        return Maybe<Located<NNPtr<IR::Value>>>();
     }
 
     IR::IntType const &bool_as_int_type (cgc.get_int_type(1, false));
 
-    IR::Register &as_int = fun.add_register(bool_as_int_type, *v.ast, false);
+    IR::Register &as_int = fun.add_register(bool_as_int_type, v.span, false);
     cur_block->add<IR::Instrs::IntToInt>(as_int, v, bool_as_int_type);
 
     IR::Register &out = fun.add_register(*this, ast, false);
-    cur_block->add<IR::Instrs::NoOpCast>(out, IR::ASTValue(as_int, *v.ast), *this);
+    cur_block->add<IR::Instrs::NoOpCast>(out, Located<NNPtr<IR::Value>> { v.span, as_int }, *this);
 
-    return IR::ASTValue(out, ast);
+    return Located<NNPtr<IR::Value>> { ast, out };
 }
-IR::ASTValue IR::BoolType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const {
+Located<NNPtr<IR::Value>> IR::BoolType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v) const {
     return v;
 }
 // Deriving {{{1

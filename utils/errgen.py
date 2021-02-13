@@ -39,24 +39,13 @@ class ValueDeclHighlight:
     def generate(self):
         if self.message is not None:
             message = self.message
-            fallbackmessage = self.message
         else:
             message = 'format("{} declared here", {self.valuename})'
-            fallbackmessage = 'format("{} implicitly declared", {self.valuename})'
 
-        output = (f'    if (IR::DeclaredValue const *as_declared = dynamic_cast<IR::DeclaredValue const *>({self.val})) {{\n'
-                   '        if (!dynamic_cast<ASTNS::ImplicitDecl const *>(&as_declared->def_ast())) {\n'
-                  f'            e.underline(Underline(as_declared->def_ast(), \'{self.under}\')\n'
-                  f'                .{self.type}({message}));\n')
-        if self.fallbackloc is not None:
-            output += ('        } else {\n'
-                      f'            e.underline(Underline({self.fallbackloc}, \'{self.under}\')\n'
-                      f'                .{self.type}({fallbackmessage}));\n'
-                       '        }\n')
-        else:
-            output += ('       }\n')
+        output = (f'    if (IR::DeclaredValue const *as_declared = dynamic_cast<IR::DeclaredValue const *>({self.val}))\n'
+                  f'        e.underline(Underline(as_declared->def_span(), \'{self.under}\')\n'
+                  f'            .{self.type}({message}));\n')
 
-        output += '    }\n'
         return output
 # constants {{{1
 UNDER0 = '^'
@@ -170,104 +159,104 @@ errors = [
                 'e.underline(un);\n')),
         Msg('lhs-unsupported-op',
             desc='Left hand side of binary expression does not support operator',
-            inputs='IR::ASTValue const &lhs, Located<ASTNS::BinaryOperator> const &op', location='op.span',
+            inputs='Located<NNPtr<IR::Value>> const &lhs, Located<ASTNS::BinaryOperator> const &op', location='op.span',
             highlights=[
-                SimpleHighlight('lhs', UNDER0, [('note', '"lhs is of type {}"', 'lhs.type()')]),
+                SimpleHighlight('lhs.span', UNDER0, [('note', '"lhs is of type {}"', 'lhs.value->type()')]),
                 SimpleHighlight('op.span', UNDER0, [('error', '"unsupported binary operator for left operand"')]),
             ]),
         Msg('unary-unsupported-op',
             desc='Operand of unary expression does not support operator',
-            inputs='IR::ASTValue const &operand, Located<ASTNS::UnaryOperator> const &op', location='op.span',
+            inputs='Located<NNPtr<IR::Value>> const &operand, Located<ASTNS::UnaryOperator> const &op', location='op.span',
             highlights=[
-                SimpleHighlight('operand', UNDER0, [('note', '"operand is of type {}"', 'operand.type()')]),
+                SimpleHighlight('operand.span', UNDER0, [('note', '"operand is of type {}"', 'operand.value->type()')]),
                 SimpleHighlight('op.span', UNDER0, [('error', '"unsupported unary operator"')]),
             ]),
         Msg('call-noncallable',
             desc='Non-callable value called',
-            inputs='IR::ASTValue const &func, Span const &oparn', location='oparn',
+            inputs='Located<NNPtr<IR::Value>> const &func, Span const &oparn', location='oparn',
             highlights=[
-                SimpleHighlight('func', UNDER0, [('error', '"calling of non-callable value"'), ('note', '"value of type {}"', 'func.type()')]),
+                SimpleHighlight('func.span', UNDER0, [('error', '"calling of non-callable value"'), ('note', '"value of type {}"', 'func.value->type()')]),
             ]),
         Msg('incorrect-arg',
             desc='Incorrect argument to function call',
-            inputs='IR::ASTValue const &arg, IR::Type const &expected', location='arg',
+            inputs='Located<NNPtr<IR::Value>> const &arg, IR::Type const &expected', location='arg.span',
             highlights=[
-                SimpleHighlight('arg', UNDER0, [('error', '"invalid argument to function call"'), ('note', '"argument is of type {}"', 'arg.type()'), ('note', '"function expects {}"', 'expected')]),
+                SimpleHighlight('arg.span', UNDER0, [('error', '"invalid argument to function call"'), ('note', '"argument is of type {}"', 'arg.value->type()'), ('note', '"function expects {}"', 'expected')]),
             ]),
         Msg('confl-tys-ifexpr',
             desc='Conflicting types for branches of if expression',
-            inputs='IR::ASTValue const &truev, IR::ASTValue const &falsev, Span const &iftok, Span const &elsetok', location='iftok',
+            inputs='Located<NNPtr<IR::Value>> const &truev, Located<NNPtr<IR::Value>> const &falsev, Span const &iftok, Span const &elsetok', location='iftok',
             highlights=[
                 SimpleHighlight('iftok', UNDER0, [('error', '"conflicting types for branches of if expression"')]),
                 SimpleHighlight('elsetok', UNDER2, []),
-                SimpleHighlight('truev', UNDER1, [('note', '"{}"', 'truev.type()')]),
-                SimpleHighlight('falsev', UNDER1, [('note', '"{}"', 'falsev.type()')]),
+                SimpleHighlight('truev.span', UNDER1, [('note', '"{}"', 'truev.value->type()')]),
+                SimpleHighlight('falsev.span', UNDER1, [('note', '"{}"', 'falsev.value->type()')]),
             ]),
         Msg('assign-conflict-tys',
             desc='Assignment target and value do not have same type',
-            inputs='IR::ASTValue const &lhs, IR::ASTValue const &rhs, Span const &eq', location='eq',
+            inputs='Located<NNPtr<IR::Value>> const &lhs, Located<NNPtr<IR::Value>> const &rhs, Span const &eq', location='eq',
             highlights=[
                 SimpleHighlight('eq', UNDER0, [('error', '"conflicting types for assignment"')]),
-                SimpleHighlight('lhs', UNDER1, [('note', '"{}"', 'lhs.type()')]),
-                SimpleHighlight('rhs', UNDER1, [('note', '"{}"', 'rhs.type()')]),
+                SimpleHighlight('lhs.span', UNDER1, [('note', '"{}"', 'lhs.value->type()')]),
+                SimpleHighlight('rhs.span', UNDER1, [('note', '"{}"', 'rhs.value->type()')]),
             ]),
         Msg('conflict-ret-ty',
             desc='Conflicting return types',
-            inputs='IR::ASTValue const &val, IR::Function const &f', location='val',
+            inputs='Located<NNPtr<IR::Value>> const &val, IR::Function const &f', location='val.span',
             highlights=[
-                SimpleHighlight('val', UNDER0, [('error', '"conflicting return type"'), ('note', '"returning {}"', 'val.type()')]),
-                SimpleHighlight('*f._def_ast->retty', UNDER1, [('note', '"function returns {}"', '*f.ty->ret')]),
+                SimpleHighlight('val.span', UNDER0, [('error', '"conflicting return type"'), ('note', '"returning {}"', 'val.value->type()')]),
+                SimpleHighlight('f.def_span()', UNDER1, [('note', '"function returns {}"', '*f.ty->ret')]),
             ]),
         Msg('no-deref',
             desc='Cannot dereference non-pointer',
-            inputs='Span const &op, IR::ASTValue const &val', location='val',
+            inputs='Span const &op, Located<NNPtr<IR::Value>> const &val', location='val.span',
             highlights=[
-                SimpleHighlight('op', UNDER0, [('error', '"dereferencing of non-pointer type {}"', 'val.type()')]),
-                SimpleHighlight('val', UNDER1, []),
+                SimpleHighlight('op', UNDER0, [('error', '"dereferencing of non-pointer type {}"', 'val.value->type()')]),
+                SimpleHighlight('val.span', UNDER1, []),
             ]),
         Msg('conflict-var-init-ty',
             desc='Conflicting type for variable initialization',
-            inputs='Span const &eq, Span const &name, ASTNS::Type const &type_ast, IR::ASTValue const &init, IR::Type const &expected_type', location='eq',
+            inputs='Span const &eq, Span const &name, ASTNS::Type const &type_ast, Located<NNPtr<IR::Value>> const &init, IR::Type const &expected_type', location='eq',
             highlights=[
                 SimpleHighlight('eq', UNDER1, []),
                 SimpleHighlight('name', UNDER1, []),
-                SimpleHighlight('init', UNDER0, [('error', '"conflicting types for variable initialization"'), ('note', '"{}"', 'init.type()')]),
+                SimpleHighlight('init.span', UNDER0, [('error', '"conflicting types for variable initialization"'), ('note', '"{}"', 'init.value->type()')]),
                 SimpleHighlight('type_ast', UNDER1, [('note', '"{}"', 'expected_type')]),
             ]),
         Msg('invalid-cast',
             desc='Invalid cast',
-            inputs='ASTNS::AST const &ast, IR::ASTValue v, IR::Type const &newty', location='ast',
+            inputs='ASTNS::AST const &ast, Located<NNPtr<IR::Value>> v, IR::Type const &newty', location='ast',
             highlights=[
-                SimpleHighlight('ast', UNDER0, [('error', '"invalid cast from {} to {}"', 'v.type()', 'newty')]),
+                SimpleHighlight('ast', UNDER0, [('error', '"invalid cast from {} to {}"', 'v.value->type()', 'newty')]),
             ]),
         Msg('conflict-tys-binary-op',
             desc='Conflicting types to binary operator',
-            inputs='IR::ASTValue const &lhs, IR::ASTValue const &rhs, Located<ASTNS::BinaryOperator> const &op', location='op.span',
+            inputs='Located<NNPtr<IR::Value>> const &lhs, Located<NNPtr<IR::Value>> const &rhs, Located<ASTNS::BinaryOperator> const &op', location='op.span',
             highlights=[
-                SimpleHighlight('lhs', UNDER1, [('note', '"{}"', 'lhs.type()')]),
-                SimpleHighlight('rhs', UNDER1, [('note', '"{}"', 'rhs.type()')]),
+                SimpleHighlight('lhs.span', UNDER1, [('note', '"{}"', 'lhs.value->type()')]),
+                SimpleHighlight('rhs.span', UNDER1, [('note', '"{}"', 'rhs.value->type()')]),
                 SimpleHighlight('op.span', UNDER0, [('error', '"conflicting types to binary operator"')]),
             ]),
         Msg('cond-not-bool',
             desc='Using a non-bool value as a condition',
-            inputs='IR::ASTValue const &v', location='v',
+            inputs='Located<NNPtr<IR::Value>> const &v', location='v.span',
             highlights=[
-                SimpleHighlight('v', UNDER0, [('error', '"usage of {} as condition"', 'v.type()')]),
+                SimpleHighlight('v.span', UNDER0, [('error', '"usage of {} as condition"', 'v.value->type()')]),
             ]),
         Msg('ptr-arith-rhs-not-num',
             desc='Cannot do pointer arithmetic with non-integer as right-hand-side of expression',
-            inputs='IR::ASTValue const &lhs, Located<ASTNS::BinaryOperator> const &optok, IR::ASTValue const &rhs', location='optok.span',
+            inputs='Located<NNPtr<IR::Value>> const &lhs, Located<ASTNS::BinaryOperator> const &optok, Located<NNPtr<IR::Value>> const &rhs', location='optok.span',
             highlights=[
-                SimpleHighlight('lhs', UNDER1, []),
-                SimpleHighlight('rhs', UNDER1, [('note', '"{}"', 'rhs.type()')]),
+                SimpleHighlight('lhs.span', UNDER1, []),
+                SimpleHighlight('rhs.span', UNDER1, [('note', '"{}"', 'rhs.value->type()')]),
                 SimpleHighlight('optok.span', UNDER0, [('error', '"pointer arithmetic requires an integral right-hand operand"')]),
             ]),
         Msg('no-else-not-void',
             desc='If expression with non-void true expression and no else case',
-            inputs='IR::ASTValue const &truev, Span const &iftok', location='iftok',
+            inputs='Located<NNPtr<IR::Value>> const &truev, Span const &iftok', location='iftok',
             highlights=[
                 SimpleHighlight('iftok', UNDER0, [('error', '"if expression with non-void true expression and no else case"')]),
-                SimpleHighlight('truev', UNDER1, [('note', '"{}"', 'truev.type()')]),
+                SimpleHighlight('truev.span', UNDER1, [('note', '"{}"', 'truev.value->type()')]),
             ]),
         Msg('typeless-this',
             desc='\'this\' parameter used outside of impl or class block',
@@ -277,11 +266,11 @@ errors = [
             ]),
         Msg('wrong-num-args',
             desc='Wrong number of arguments to function call',
-            inputs='IR::Function const &func, ASTNS::AST const &func_ref_ast, Span const &oparn, std::vector<IR::ASTValue> const &args', location='oparn',
+            inputs='IR::Function const &func, ASTNS::AST const &func_ref_ast, Span const &oparn, std::vector<Located<NNPtr<IR::Value>>> const &args', location='oparn',
             highlights=[
                 SimpleHighlight('oparn', UNDER0, [('error', '"wrong number of arguments to function call"')]),
                 SimpleHighlight('func_ref_ast', UNDER1, []),
-                SimpleHighlight('func.def_ast()', UNDER1, [('note', '"function expects {} arguments, but got {} arguments"', 'func.ty->paramtys.size()', 'args.size()')]),
+                SimpleHighlight('func.def_span()', UNDER1, [('note', '"function expects {} arguments, but got {} arguments"', 'func.ty->paramtys.size()', 'args.size()')]),
             ]),
         Msg('redecl-sym',
             desc='Symbol was redeclared',
@@ -301,14 +290,14 @@ errors = [
             inputs='ASTNS::ParamB const &param, IR::Register const &prev', location='param',
             highlights=[
                 SimpleHighlight('param', UNDER0, [('error', '"redeclaration of parameter"')]),
-                SimpleHighlight('prev.def_ast()', UNDER1, [('note', '"previous declaration"')]),
+                SimpleHighlight('prev.def_span()', UNDER1, [('note', '"previous declaration"')]),
             ]),
         Msg('redecl-var',
             desc='Redeclaration of variable',
             inputs='Span const &name, IR::Register const &prev', location='name',
             highlights=[
                 SimpleHighlight('name', UNDER0, [('error', '"redeclaration of variable"')]),
-                SimpleHighlight('prev.def_ast()', UNDER1, [('note', '"previous declaration"')]),
+                SimpleHighlight('prev.def_span()', UNDER1, [('note', '"previous declaration"')]),
             ]),
         Msg('not-a-type',
             desc='Expected a type but path resolved to something else',
@@ -331,44 +320,44 @@ errors = [
             ]),
         Msg('no-method',
             desc='Accessing a method that doesn\'t exist',
-            inputs='IR::ASTValue const &op, Span const &name', location='name',
+            inputs='Located<NNPtr<IR::Value>> const &op, Span const &name', location='name',
             highlights=[
-                SimpleHighlight('name', UNDER0, [('error', '"no method called \'{}\' on value of type {}"', 'name.stringify()', 'op.type()')]),
+                SimpleHighlight('name', UNDER0, [('error', '"no method called \'{}\' on value of type {}"', 'name.stringify()', 'op.value->type()')]),
             ]),
         Msg('no-field',
             desc='Accessing a field that doesn\'t exist',
-            inputs='IR::ASTValue const &op, Span const &name', location='name',
+            inputs='Located<NNPtr<IR::Value>> const &op, Span const &name', location='name',
             highlights=[
-                SimpleHighlight('name', UNDER0, [('error', '"no field called \'{}\' on value of type {}"', 'name.stringify()', 'op.type()')]),
+                SimpleHighlight('name', UNDER0, [('error', '"no field called \'{}\' on value of type {}"', 'name.stringify()', 'op.value->type()')]),
             ]),
         Msg('addrof-not-lvalue',
             desc='Taking an address of a non-lvalue is impossible',
-            inputs='Span const &op, IR::ASTValue const &val', location='val',
+            inputs='Span const &op, Located<NNPtr<IR::Value>> const &val', location='val.span',
             highlights=[
                 SimpleHighlight('op', UNDER0, [('error', '"taking address of non-lvalue"')]),
-                SimpleHighlight('val', UNDER1, []),
+                SimpleHighlight('val.span', UNDER1, []),
             ]),
         Msg('assign-invalid-lhs',
             desc='Invalid assignment target',
-            inputs='Span const &eq, IR::ASTValue const &lhs', location='eq',
+            inputs='Span const &eq, Located<NNPtr<IR::Value>> const &lhs', location='eq',
             highlights=[
                 SimpleHighlight('eq', UNDER0, [('error', '"non-lvalue assignment"')]),
-                SimpleHighlight('lhs', UNDER1, []),
+                SimpleHighlight('lhs.span', UNDER1, []),
             ]),
         Msg('assign-not-mut',
             desc='Cannot assign to non-mutable lvalue',
-            inputs='IR::ASTValue const &v, Span const &eq, IR::Instrs::DerefPtr const &target_deref', location='v',
+            inputs='Located<NNPtr<IR::Value>> const &v, Span const &eq, IR::Instrs::DerefPtr const &target_deref', location='v.span',
             highlights=[
                 SimpleHighlight('eq', UNDER0, [('error', '"cannot assign to immutable lvalue"')]),
-                SimpleHighlight('v', UNDER1, []),
-                ValueDeclHighlight('target_deref.ptr.val.as_raw()', 'lvalue', None, UNDER1, 'note', '"variable declared immutable here"'),
+                SimpleHighlight('v.span', UNDER1, []),
+                ValueDeclHighlight('target_deref.ptr.value.as_raw()', 'lvalue', None, UNDER1, 'note', '"variable declared immutable here"'),
             ]),
         Msg('mut-addrof-nonmut-op',
             desc='Cannot take a mutable pointer to non-mutable lvalue',
             inputs='Span const &op, IR::Instrs::DerefPtr const &as_deref', location='op',
             highlights=[
                 SimpleHighlight('op', UNDER0, [('error', '"cannot take mutable pointer to non-mutable lvalue"')]),
-                ValueDeclHighlight('as_deref.ptr.val.as_raw()', 'value', None, UNDER1, 'note', '"value declared immutable here"'),
+                ValueDeclHighlight('as_deref.ptr.value.as_raw()', 'value', None, UNDER1, 'note', '"value declared immutable here"'),
             ]),
         Msg('no-suppress',
             desc='Cannot suppress an expression that is not the implicit return value of a block',

@@ -13,8 +13,8 @@ void Lower::LowerInstr::visit(IR::Instrs::GotoBr const &instr) {
     fl.builder.CreateBr(&fl.get_block(*instr.to));
 }
 void Lower::LowerInstr::visit(IR::Instrs::CondBr const &instr) {
-    fl.builder.CreateCondBr(&fl.value_ref.lower(*instr.v.val), &fl.get_block(*instr.true_b), &fl.get_block(*instr.false_b));
+    fl.builder.CreateCondBr(&fl.value_ref.lower(*instr.v.value), &fl.get_block(*instr.true_b), &fl.get_block(*instr.false_b));
 }
 void Lower::LowerInstr::visit(IR::Instrs::Return const &instr) {
-    fl.builder.CreateRet(&fl.value_ref.lower(*instr.value.val));
+    fl.builder.CreateRet(&fl.value_ref.lower(*instr.value.value));
 }

@@ -117,23 +117,23 @@ namespace {
         void instr_name(std::string const &s) {
             pr(s)("(");
         }
-        void binary_instruction(IR::Instrs::Instruction const &i, std::string const &name, IR::Register const &target, IR::ASTValue const &lhs, IR::ASTValue const &rhs) {
+        void binary_instruction(IR::Instrs::Instruction const &i, std::string const &name, IR::Register const &target, Located<NNPtr<IR::Value>> const &lhs, Located<NNPtr<IR::Value>> const &rhs) {
             instr_name(name);
-            lhs.val->value_accept(*pr.vrp);
+            lhs.value->value_accept(*pr.vrp);
             pr(", ");
-            rhs.val->value_accept(*pr.vrp);
+            rhs.value->value_accept(*pr.vrp);
             pr(") -> ");
             target.value_accept(*pr.vrp);
         }
-        void unary_instruction(IR::Instrs::Instruction const &i, std::string const &name, IR::Register const &target, IR::ASTValue const &op) {
+        void unary_instruction(IR::Instrs::Instruction const &i, std::string const &name, IR::Register const &target, Located<NNPtr<IR::Value>> const &op) {
             instr_name(name);
-            op.val->value_accept(*pr.vrp);
+            op.value->value_accept(*pr.vrp);
             pr(") -> ");
             target.value_accept(*pr.vrp);
         }
-        void cast_instruction(IR::Instrs::Instruction const &i, std::string const &name, IR::Register const &target, IR::ASTValue const &op, IR::Type const &to) {
+        void cast_instruction(IR::Instrs::Instruction const &i, std::string const &name, IR::Register const &target, Located<NNPtr<IR::Value>> const &op, IR::Type const &to) {
             instr_name(name);
-            op.val->value_accept(*pr.vrp);
+            op.value->value_accept(*pr.vrp);
             pr(", ")(to.name());
             pr(") -> ");
             target.value_accept(*pr.vrp);
@@ -205,16 +205,16 @@ namespace {
 
         void visit(IR::Instrs::Copy const &i)   override {
             instr_name("copy");
-            i.val.val->value_accept(*pr.vrp);
+            i.val.value->value_accept(*pr.vrp);
             pr(") -> ");
             i.target.value_accept(*pr.vrp);
         }
         void visit(IR::Instrs::Call const &i) override {
             instr_name("call");
             i.f->value_accept(*pr.vrp);
-            for (IR::ASTValue const &v : i.args) {
+            for (Located<NNPtr<IR::Value>> const &v : i.args) {
                 pr(", ");
-                v.val->value_accept(*pr.vrp);
+                v.value->value_accept(*pr.vrp);
             }
             pr(") -> ");
             i.target.value_accept(*pr.vrp);
@@ -223,7 +223,7 @@ namespace {
         // branches {{{
         void visit(IR::Instrs::Return const &i) override {
             instr_name("return");
-            i.value.val->value_accept(*pr.vrp);
+            i.value.value->value_accept(*pr.vrp);
             pr(")");
         }
         void visit(IR::Instrs::GotoBr const &i) override {
@@ -232,7 +232,7 @@ namespace {
         }
         void visit(IR::Instrs::CondBr const &i) override {
             instr_name("condbr");
-            i.v.val->value_accept(*pr.vrp);
+            i.v.value->value_accept(*pr.vrp);
             pr(", true=")(stringify_block(*i.true_b))
               (", false=")(stringify_block(*i.false_b))(")");
         }

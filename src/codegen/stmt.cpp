@@ -16,7 +16,7 @@ void Codegen::Helpers::StmtCodegen::stmt(ASTNS::Stmt &ast) {
     ast.accept(*this);
 }
 void Codegen::Helpers::StmtCodegen::visit(ASTNS::ExprStmt &ast) {
-    Maybe<IR::ASTValue> res = expr_cg->expr(*ast.expr);
+    Maybe<Located<NNPtr<IR::Value>>> res = expr_cg->expr(*ast.expr);
     if (!res.has())
         success = false;
 }
@@ -25,16 +25,16 @@ void Codegen::Helpers::StmtCodegen::visit(ASTNS::VarStmt &ast) {
         item->accept(*this);
 }
 void Codegen::Helpers::StmtCodegen::visit(ASTNS::RetStmt &ast) {
-    Maybe<IR::ASTValue> m_v = ast.expr ? expr_cg->expr(*ast.expr) : Maybe<IR::ASTValue>(IR::ASTValue(ir_builder->context().get_void(), ast));
+    Maybe<Located<NNPtr<IR::Value>>> m_v = ast.expr ? expr_cg->expr(*ast.expr) : Maybe<Located<NNPtr<IR::Value>>>(Located<NNPtr<IR::Value>> { ast, ir_builder->context().get_void() });
     if (!m_v.has()) {
         success = false;
         return;
     }
 
-    IR::ASTValue v = m_v.get();
+    Located<NNPtr<IR::Value>> v = m_v.get();
 
     v = ir_builder->fun().ty->ret->impl_cast(ir_builder->context(), ir_builder->fun(), ir_builder->cur_block(), v);
-    if (ir_builder->fun().ty->ret.as_raw() != &v.type()) {
+    if (ir_builder->fun().ty->ret.as_raw() != &v.value->type()) {
         ERR_CONFLICT_RET_TY(v, ir_builder->fun());
         success = false;
         return;

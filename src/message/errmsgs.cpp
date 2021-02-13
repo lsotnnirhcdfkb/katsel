@@ -170,10 +170,10 @@ e.underline(un);
 // E0014 - lhs-unsupported-op
 // | Left hand side of binary expression does not support
 // | operator
-void E0014(IR::ASTValue const &lhs, Located<ASTNS::BinaryOperator> const &op) {
+void E0014(Located<NNPtr<IR::Value>> const &lhs, Located<ASTNS::BinaryOperator> const &op) {
     Error e = Error(MsgType::ERROR, op.span, "E0014", "lhs-unsupported-op");
-    e.underline(Underline(lhs, '^')
-        .note(format("lhs is of type {}", lhs.type()))
+    e.underline(Underline(lhs.span, '^')
+        .note(format("lhs is of type {}", lhs.value->type()))
     );
     e.underline(Underline(op.span, '^')
         .error("unsupported binary operator for left operand")
@@ -183,10 +183,10 @@ void E0014(IR::ASTValue const &lhs, Located<ASTNS::BinaryOperator> const &op) {
 
 // E0015 - unary-unsupported-op
 // | Operand of unary expression does not support operator
-void E0015(IR::ASTValue const &operand, Located<ASTNS::UnaryOperator> const &op) {
+void E0015(Located<NNPtr<IR::Value>> const &operand, Located<ASTNS::UnaryOperator> const &op) {
     Error e = Error(MsgType::ERROR, op.span, "E0015", "unary-unsupported-op");
-    e.underline(Underline(operand, '^')
-        .note(format("operand is of type {}", operand.type()))
+    e.underline(Underline(operand.span, '^')
+        .note(format("operand is of type {}", operand.value->type()))
     );
     e.underline(Underline(op.span, '^')
         .error("unsupported unary operator")
@@ -196,22 +196,22 @@ void E0015(IR::ASTValue const &operand, Located<ASTNS::UnaryOperator> const &op)
 
 // E0016 - call-noncallable
 // | Non-callable value called
-void E0016(IR::ASTValue const &func, Span const &oparn) {
+void E0016(Located<NNPtr<IR::Value>> const &func, Span const &oparn) {
     Error e = Error(MsgType::ERROR, oparn, "E0016", "call-noncallable");
-    e.underline(Underline(func, '^')
+    e.underline(Underline(func.span, '^')
         .error("calling of non-callable value")
-        .note(format("value of type {}", func.type()))
+        .note(format("value of type {}", func.value->type()))
     );
     e.report();
 }
 
 // E0017 - incorrect-arg
 // | Incorrect argument to function call
-void E0017(IR::ASTValue const &arg, IR::Type const &expected) {
-    Error e = Error(MsgType::ERROR, arg, "E0017", "incorrect-arg");
-    e.underline(Underline(arg, '^')
+void E0017(Located<NNPtr<IR::Value>> const &arg, IR::Type const &expected) {
+    Error e = Error(MsgType::ERROR, arg.span, "E0017", "incorrect-arg");
+    e.underline(Underline(arg.span, '^')
         .error("invalid argument to function call")
-        .note(format("argument is of type {}", arg.type()))
+        .note(format("argument is of type {}", arg.value->type()))
         .note(format("function expects {}", expected))
     );
     e.report();
@@ -219,47 +219,47 @@ void E0017(IR::ASTValue const &arg, IR::Type const &expected) {
 
 // E0018 - confl-tys-ifexpr
 // | Conflicting types for branches of if expression
-void E0018(IR::ASTValue const &truev, IR::ASTValue const &falsev, Span const &iftok, Span const &elsetok) {
+void E0018(Located<NNPtr<IR::Value>> const &truev, Located<NNPtr<IR::Value>> const &falsev, Span const &iftok, Span const &elsetok) {
     Error e = Error(MsgType::ERROR, iftok, "E0018", "confl-tys-ifexpr");
     e.underline(Underline(iftok, '^')
         .error("conflicting types for branches of if expression")
     );
     e.underline(Underline(elsetok, '-')
     );
-    e.underline(Underline(truev, '~')
-        .note(format("{}", truev.type()))
+    e.underline(Underline(truev.span, '~')
+        .note(format("{}", truev.value->type()))
     );
-    e.underline(Underline(falsev, '~')
-        .note(format("{}", falsev.type()))
+    e.underline(Underline(falsev.span, '~')
+        .note(format("{}", falsev.value->type()))
     );
     e.report();
 }
 
 // E0019 - assign-conflict-tys
 // | Assignment target and value do not have same type
-void E0019(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Span const &eq) {
+void E0019(Located<NNPtr<IR::Value>> const &lhs, Located<NNPtr<IR::Value>> const &rhs, Span const &eq) {
     Error e = Error(MsgType::ERROR, eq, "E0019", "assign-conflict-tys");
     e.underline(Underline(eq, '^')
         .error("conflicting types for assignment")
     );
-    e.underline(Underline(lhs, '~')
-        .note(format("{}", lhs.type()))
+    e.underline(Underline(lhs.span, '~')
+        .note(format("{}", lhs.value->type()))
     );
-    e.underline(Underline(rhs, '~')
-        .note(format("{}", rhs.type()))
+    e.underline(Underline(rhs.span, '~')
+        .note(format("{}", rhs.value->type()))
     );
     e.report();
 }
 
 // E0020 - conflict-ret-ty
 // | Conflicting return types
-void E0020(IR::ASTValue const &val, IR::Function const &f) {
-    Error e = Error(MsgType::ERROR, val, "E0020", "conflict-ret-ty");
-    e.underline(Underline(val, '^')
+void E0020(Located<NNPtr<IR::Value>> const &val, IR::Function const &f) {
+    Error e = Error(MsgType::ERROR, val.span, "E0020", "conflict-ret-ty");
+    e.underline(Underline(val.span, '^')
         .error("conflicting return type")
-        .note(format("returning {}", val.type()))
+        .note(format("returning {}", val.value->type()))
     );
-    e.underline(Underline(*f._def_ast->retty, '~')
+    e.underline(Underline(f.def_span(), '~')
         .note(format("function returns {}", *f.ty->ret))
     );
     e.report();
@@ -267,27 +267,27 @@ void E0020(IR::ASTValue const &val, IR::Function const &f) {
 
 // E0021 - no-deref
 // | Cannot dereference non-pointer
-void E0021(Span const &op, IR::ASTValue const &val) {
-    Error e = Error(MsgType::ERROR, val, "E0021", "no-deref");
+void E0021(Span const &op, Located<NNPtr<IR::Value>> const &val) {
+    Error e = Error(MsgType::ERROR, val.span, "E0021", "no-deref");
     e.underline(Underline(op, '^')
-        .error(format("dereferencing of non-pointer type {}", val.type()))
+        .error(format("dereferencing of non-pointer type {}", val.value->type()))
     );
-    e.underline(Underline(val, '~')
+    e.underline(Underline(val.span, '~')
     );
     e.report();
 }
 
 // E0022 - conflict-var-init-ty
 // | Conflicting type for variable initialization
-void E0022(Span const &eq, Span const &name, ASTNS::Type const &type_ast, IR::ASTValue const &init, IR::Type const &expected_type) {
+void E0022(Span const &eq, Span const &name, ASTNS::Type const &type_ast, Located<NNPtr<IR::Value>> const &init, IR::Type const &expected_type) {
     Error e = Error(MsgType::ERROR, eq, "E0022", "conflict-var-init-ty");
     e.underline(Underline(eq, '~')
     );
     e.underline(Underline(name, '~')
     );
-    e.underline(Underline(init, '^')
+    e.underline(Underline(init.span, '^')
         .error("conflicting types for variable initialization")
-        .note(format("{}", init.type()))
+        .note(format("{}", init.value->type()))
     );
     e.underline(Underline(type_ast, '~')
         .note(format("{}", expected_type))
@@ -297,23 +297,23 @@ void E0022(Span const &eq, Span const &name, ASTNS::Type const &type_ast, IR::AS
 
 // E0023 - invalid-cast
 // | Invalid cast
-void E0023(ASTNS::AST const &ast, IR::ASTValue v, IR::Type const &newty) {
+void E0023(ASTNS::AST const &ast, Located<NNPtr<IR::Value>> v, IR::Type const &newty) {
     Error e = Error(MsgType::ERROR, ast, "E0023", "invalid-cast");
     e.underline(Underline(ast, '^')
-        .error(format("invalid cast from {} to {}", v.type(), newty))
+        .error(format("invalid cast from {} to {}", v.value->type(), newty))
     );
     e.report();
 }
 
 // E0024 - conflict-tys-binary-op
 // | Conflicting types to binary operator
-void E0024(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Located<ASTNS::BinaryOperator> const &op) {
+void E0024(Located<NNPtr<IR::Value>> const &lhs, Located<NNPtr<IR::Value>> const &rhs, Located<ASTNS::BinaryOperator> const &op) {
     Error e = Error(MsgType::ERROR, op.span, "E0024", "conflict-tys-binary-op");
-    e.underline(Underline(lhs, '~')
-        .note(format("{}", lhs.type()))
+    e.underline(Underline(lhs.span, '~')
+        .note(format("{}", lhs.value->type()))
     );
-    e.underline(Underline(rhs, '~')
-        .note(format("{}", rhs.type()))
+    e.underline(Underline(rhs.span, '~')
+        .note(format("{}", rhs.value->type()))
     );
     e.underline(Underline(op.span, '^')
         .error("conflicting types to binary operator")
@@ -323,10 +323,10 @@ void E0024(IR::ASTValue const &lhs, IR::ASTValue const &rhs, Located<ASTNS::Bina
 
 // E0025 - cond-not-bool
 // | Using a non-bool value as a condition
-void E0025(IR::ASTValue const &v) {
-    Error e = Error(MsgType::ERROR, v, "E0025", "cond-not-bool");
-    e.underline(Underline(v, '^')
-        .error(format("usage of {} as condition", v.type()))
+void E0025(Located<NNPtr<IR::Value>> const &v) {
+    Error e = Error(MsgType::ERROR, v.span, "E0025", "cond-not-bool");
+    e.underline(Underline(v.span, '^')
+        .error(format("usage of {} as condition", v.value->type()))
     );
     e.report();
 }
@@ -334,12 +334,12 @@ void E0025(IR::ASTValue const &v) {
 // E0026 - ptr-arith-rhs-not-num
 // | Cannot do pointer arithmetic with non-integer as right-hand-
 // | side of expression
-void E0026(IR::ASTValue const &lhs, Located<ASTNS::BinaryOperator> const &optok, IR::ASTValue const &rhs) {
+void E0026(Located<NNPtr<IR::Value>> const &lhs, Located<ASTNS::BinaryOperator> const &optok, Located<NNPtr<IR::Value>> const &rhs) {
     Error e = Error(MsgType::ERROR, optok.span, "E0026", "ptr-arith-rhs-not-num");
-    e.underline(Underline(lhs, '~')
+    e.underline(Underline(lhs.span, '~')
     );
-    e.underline(Underline(rhs, '~')
-        .note(format("{}", rhs.type()))
+    e.underline(Underline(rhs.span, '~')
+        .note(format("{}", rhs.value->type()))
     );
     e.underline(Underline(optok.span, '^')
         .error("pointer arithmetic requires an integral right-hand operand")
@@ -349,13 +349,13 @@ void E0026(IR::ASTValue const &lhs, Located<ASTNS::BinaryOperator> const &optok,
 
 // E0027 - no-else-not-void
 // | If expression with non-void true expression and no else case
-void E0027(IR::ASTValue const &truev, Span const &iftok) {
+void E0027(Located<NNPtr<IR::Value>> const &truev, Span const &iftok) {
     Error e = Error(MsgType::ERROR, iftok, "E0027", "no-else-not-void");
     e.underline(Underline(iftok, '^')
         .error("if expression with non-void true expression and no else case")
     );
-    e.underline(Underline(truev, '~')
-        .note(format("{}", truev.type()))
+    e.underline(Underline(truev.span, '~')
+        .note(format("{}", truev.value->type()))
     );
     e.report();
 }
@@ -372,14 +372,14 @@ void E0028(ASTNS::ThisParam const &p) {
 
 // E0029 - wrong-num-args
 // | Wrong number of arguments to function call
-void E0029(IR::Function const &func, ASTNS::AST const &func_ref_ast, Span const &oparn, std::vector<IR::ASTValue> const &args) {
+void E0029(IR::Function const &func, ASTNS::AST const &func_ref_ast, Span const &oparn, std::vector<Located<NNPtr<IR::Value>>> const &args) {
     Error e = Error(MsgType::ERROR, oparn, "E0029", "wrong-num-args");
     e.underline(Underline(oparn, '^')
         .error("wrong number of arguments to function call")
     );
     e.underline(Underline(func_ref_ast, '~')
     );
-    e.underline(Underline(func.def_ast(), '~')
+    e.underline(Underline(func.def_span(), '~')
         .note(format("function expects {} arguments, but got {} arguments", func.ty->paramtys.size(), args.size()))
     );
     e.report();
@@ -392,12 +392,9 @@ void E0030(Span const &name, IR::Value const &val) {
     e.underline(Underline(name, '^')
         .error("redeclaration of symbol")
     );
-    if (IR::DeclaredValue const *as_declared = dynamic_cast<IR::DeclaredValue const *>(&val)) {
-        if (!dynamic_cast<ASTNS::ImplicitDecl const *>(&as_declared->def_ast())) {
-            e.underline(Underline(as_declared->def_ast(), '~')
-                .note("previous declaration"));
-       }
-    }
+    if (IR::DeclaredValue const *as_declared = dynamic_cast<IR::DeclaredValue const *>(&val))
+        e.underline(Underline(as_declared->def_span(), '~')
+            .note("previous declaration"));
     e.report();
 }
 
@@ -418,7 +415,7 @@ void E0032(ASTNS::ParamB const &param, IR::Register const &prev) {
     e.underline(Underline(param, '^')
         .error("redeclaration of parameter")
     );
-    e.underline(Underline(prev.def_ast(), '~')
+    e.underline(Underline(prev.def_span(), '~')
         .note("previous declaration")
     );
     e.report();
@@ -431,7 +428,7 @@ void E0033(Span const &name, IR::Register const &prev) {
     e.underline(Underline(name, '^')
         .error("redeclaration of variable")
     );
-    e.underline(Underline(prev.def_ast(), '~')
+    e.underline(Underline(prev.def_span(), '~')
         .note("previous declaration")
     );
     e.report();
@@ -472,63 +469,60 @@ void E0036(Span const &th) {
 
 // E0037 - no-method
 // | Accessing a method that doesn't exist
-void E0037(IR::ASTValue const &op, Span const &name) {
+void E0037(Located<NNPtr<IR::Value>> const &op, Span const &name) {
     Error e = Error(MsgType::ERROR, name, "E0037", "no-method");
     e.underline(Underline(name, '^')
-        .error(format("no method called '{}' on value of type {}", name.stringify(), op.type()))
+        .error(format("no method called '{}' on value of type {}", name.stringify(), op.value->type()))
     );
     e.report();
 }
 
 // E0038 - no-field
 // | Accessing a field that doesn't exist
-void E0038(IR::ASTValue const &op, Span const &name) {
+void E0038(Located<NNPtr<IR::Value>> const &op, Span const &name) {
     Error e = Error(MsgType::ERROR, name, "E0038", "no-field");
     e.underline(Underline(name, '^')
-        .error(format("no field called '{}' on value of type {}", name.stringify(), op.type()))
+        .error(format("no field called '{}' on value of type {}", name.stringify(), op.value->type()))
     );
     e.report();
 }
 
 // E0039 - addrof-not-lvalue
 // | Taking an address of a non-lvalue is impossible
-void E0039(Span const &op, IR::ASTValue const &val) {
-    Error e = Error(MsgType::ERROR, val, "E0039", "addrof-not-lvalue");
+void E0039(Span const &op, Located<NNPtr<IR::Value>> const &val) {
+    Error e = Error(MsgType::ERROR, val.span, "E0039", "addrof-not-lvalue");
     e.underline(Underline(op, '^')
         .error("taking address of non-lvalue")
     );
-    e.underline(Underline(val, '~')
+    e.underline(Underline(val.span, '~')
     );
     e.report();
 }
 
 // E0040 - assign-invalid-lhs
 // | Invalid assignment target
-void E0040(Span const &eq, IR::ASTValue const &lhs) {
+void E0040(Span const &eq, Located<NNPtr<IR::Value>> const &lhs) {
     Error e = Error(MsgType::ERROR, eq, "E0040", "assign-invalid-lhs");
     e.underline(Underline(eq, '^')
         .error("non-lvalue assignment")
     );
-    e.underline(Underline(lhs, '~')
+    e.underline(Underline(lhs.span, '~')
     );
     e.report();
 }
 
 // E0041 - assign-not-mut
 // | Cannot assign to non-mutable lvalue
-void E0041(IR::ASTValue const &v, Span const &eq, IR::Instrs::DerefPtr const &target_deref) {
-    Error e = Error(MsgType::ERROR, v, "E0041", "assign-not-mut");
+void E0041(Located<NNPtr<IR::Value>> const &v, Span const &eq, IR::Instrs::DerefPtr const &target_deref) {
+    Error e = Error(MsgType::ERROR, v.span, "E0041", "assign-not-mut");
     e.underline(Underline(eq, '^')
         .error("cannot assign to immutable lvalue")
     );
-    e.underline(Underline(v, '~')
+    e.underline(Underline(v.span, '~')
     );
-    if (IR::DeclaredValue const *as_declared = dynamic_cast<IR::DeclaredValue const *>(target_deref.ptr.val.as_raw())) {
-        if (!dynamic_cast<ASTNS::ImplicitDecl const *>(&as_declared->def_ast())) {
-            e.underline(Underline(as_declared->def_ast(), '~')
-                .note("variable declared immutable here"));
-       }
-    }
+    if (IR::DeclaredValue const *as_declared = dynamic_cast<IR::DeclaredValue const *>(target_deref.ptr.value.as_raw()))
+        e.underline(Underline(as_declared->def_span(), '~')
+            .note("variable declared immutable here"));
     e.report();
 }
 
@@ -539,12 +533,9 @@ void E0042(Span const &op, IR::Instrs::DerefPtr const &as_deref) {
     e.underline(Underline(op, '^')
         .error("cannot take mutable pointer to non-mutable lvalue")
     );
-    if (IR::DeclaredValue const *as_declared = dynamic_cast<IR::DeclaredValue const *>(as_deref.ptr.val.as_raw())) {
-        if (!dynamic_cast<ASTNS::ImplicitDecl const *>(&as_declared->def_ast())) {
-            e.underline(Underline(as_declared->def_ast(), '~')
-                .note("value declared immutable here"));
-       }
-    }
+    if (IR::DeclaredValue const *as_declared = dynamic_cast<IR::DeclaredValue const *>(as_deref.ptr.value.as_raw()))
+        e.underline(Underline(as_declared->def_span(), '~')
+            .note("value declared immutable here"));
     e.report();
 }
 

@@ -6,6 +6,8 @@
 #include "utils/ptr.h"
 #include "ir/value.h"
 
+#include "utils/location.h"
+
 namespace llvm { class raw_ostream; }
 
 namespace IR {
@@ -23,12 +25,12 @@ namespace IR {
             bool mut;
         };
 
-        Function(NNPtr<FunctionType> ty, std::string name, NNPtr<ASTNS::FunctionDecl> def_ast, std::vector<Param> const &params);
+        Function(NNPtr<FunctionType> ty, std::string name, Span const &def_span, std::vector<Param> const &params);
 
         void add(std::unique_ptr<Block> block);
 
         void definition(llvm::raw_ostream &os) const;
-        ASTNS::AST const &def_ast() const override;
+        Span const &def_span() const override;
 
         Type const &type() const override;
 
@@ -36,7 +38,7 @@ namespace IR {
         std::vector<std::unique_ptr<Register>> registers;
 
         Block &add_block(std::string name);
-        Register &add_register(IR::Type const &ty, ASTNS::AST const &def_ast, bool mut);
+        Register &add_register(IR::Type const &ty, Span const &def_span, bool mut);
 
     private:
          // because initialization order
@@ -53,9 +55,9 @@ namespace IR {
 
         void value_accept(ValueVisitor &v) const override;
 
-        NNPtr<ASTNS::FunctionDecl> _def_ast;
-
     private:
+        Span const _def_span;
+
         uint64_t block_i;
     };
 }

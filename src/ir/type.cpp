@@ -16,23 +16,23 @@ std::string IR::VoidType::name() const {
     return "void";
 }
 
-Maybe<IR::ASTValue> IR::VoidType::bin_op(Codegen::Context &, IR::Function &, NNPtr<IR::Block> &, Located<ASTNS::BinaryOperator> op, IR::ASTValue l, IR::ASTValue r, ASTNS::AST const &) const {
+Maybe<Located<NNPtr<IR::Value>>> IR::VoidType::bin_op(Codegen::Context &, IR::Function &, NNPtr<IR::Block> &, Located<ASTNS::BinaryOperator> op, Located<NNPtr<IR::Value>> l, Located<NNPtr<IR::Value>> r, ASTNS::AST const &) const {
     ERR_LHS_UNSUPPORTED_OP(l, op);
-    return Maybe<ASTValue>();
+    return Maybe<Located<NNPtr<Value>>>();
 }
-Maybe<IR::ASTValue> IR::VoidType::unary_op(Codegen::Context &, IR::Function &, NNPtr<IR::Block> &, Located<ASTNS::UnaryOperator> op, IR::ASTValue operand, ASTNS::AST const &) const {
+Maybe<Located<NNPtr<IR::Value>>> IR::VoidType::unary_op(Codegen::Context &, IR::Function &, NNPtr<IR::Block> &, Located<ASTNS::UnaryOperator> op, Located<NNPtr<IR::Value>> operand, ASTNS::AST const &) const {
     ERR_UNARY_UNSUPPORTED_OP(operand, op);
-    return Maybe<ASTValue>();
+    return Maybe<Located<NNPtr<Value>>>();
 }
-Maybe<IR::ASTValue> IR::VoidType::cast_from(Codegen::Context &, IR::Function &, NNPtr<IR::Block> &, IR::ASTValue v, ASTNS::AST const &ast) const {
+Maybe<Located<NNPtr<IR::Value>>> IR::VoidType::cast_from(Codegen::Context &, IR::Function &, NNPtr<IR::Block> &, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast) const {
     ERR_INVALID_CAST(ast, v, *this);
-    return Maybe<ASTValue>();
+    return Maybe<Located<NNPtr<Value>>>();
 }
 
 llvm::Type& IR::VoidType::to_llvmtype(llvm::LLVMContext &con) const {
     return *llvm::StructType::get(con);
 }
-IR::ASTValue IR::VoidType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const {
+Located<NNPtr<IR::Value>> IR::VoidType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v) const {
     return v;
 }
 
@@ -60,18 +60,18 @@ std::string IR::FunctionType::name() const {
     return ss.str();
 }
 
-Maybe<IR::ASTValue> IR::FunctionType::bin_op(Codegen::Context &, IR::Function &, NNPtr<IR::Block> &, Located<ASTNS::BinaryOperator> op, IR::ASTValue l, IR::ASTValue r, ASTNS::AST const &) const {
+Maybe<Located<NNPtr<IR::Value>>> IR::FunctionType::bin_op(Codegen::Context &, IR::Function &, NNPtr<IR::Block> &, Located<ASTNS::BinaryOperator> op, Located<NNPtr<IR::Value>> l, Located<NNPtr<IR::Value>> r, ASTNS::AST const &) const {
     ERR_LHS_UNSUPPORTED_OP(l, op);
-    return Maybe<ASTValue>();
+    return Maybe<Located<NNPtr<Value>>>();
 }
-Maybe<IR::ASTValue> IR::FunctionType::unary_op(Codegen::Context &, IR::Function &, NNPtr<IR::Block> &, Located<ASTNS::UnaryOperator> op, IR::ASTValue operand, ASTNS::AST const &) const {
+Maybe<Located<NNPtr<IR::Value>>> IR::FunctionType::unary_op(Codegen::Context &, IR::Function &, NNPtr<IR::Block> &, Located<ASTNS::UnaryOperator> op, Located<NNPtr<IR::Value>> operand, ASTNS::AST const &) const {
     ERR_UNARY_UNSUPPORTED_OP(operand, op);
-    return Maybe<ASTValue>();
+    return Maybe<Located<NNPtr<Value>>>();
 }
 
-Maybe<IR::ASTValue> IR::FunctionType::cast_from(Codegen::Context &, IR::Function &, NNPtr<IR::Block> &, IR::ASTValue v, ASTNS::AST const &ast) const {
+Maybe<Located<NNPtr<IR::Value>>> IR::FunctionType::cast_from(Codegen::Context &, IR::Function &, NNPtr<IR::Block> &, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast) const {
     ERR_INVALID_CAST(ast, v, *this);
-    return Maybe<ASTValue>();
+    return Maybe<Located<NNPtr<Value>>>();
 }
 
 llvm::Type& IR::FunctionType::to_llvmtype(llvm::LLVMContext &con) const {
@@ -81,7 +81,7 @@ llvm::Type& IR::FunctionType::to_llvmtype(llvm::LLVMContext &con) const {
 
     return *llvm::FunctionType::get(&ret->to_llvmtype(con), paramsasllvm, false);
 }
-IR::ASTValue IR::FunctionType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const {
+Located<NNPtr<IR::Value>> IR::FunctionType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v) const {
     return v;
 }
 

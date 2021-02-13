@@ -1,10 +1,10 @@
 #include "ir/value.h"
 
-IR::Register::Register(IR::Type const &ty, ASTNS::AST const &def_ast, bool mut, int id): id(id), mut(mut), ty(ty), _def_ast(def_ast) {}
+IR::Register::Register(IR::Type const &ty, Span const &def_span, bool mut, int id): id(id), mut(mut), ty(ty), _def_span(def_span) {}
 IR::Type const &IR::Register::type() const {
     return *ty;
 }
 
-ASTNS::AST const &IR::Register::def_ast() const {
-    return *_def_ast;
+Span const &IR::Register::def_span() const {
+    return _def_span;
 }

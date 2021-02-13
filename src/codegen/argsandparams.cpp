@@ -58,7 +58,7 @@ Codegen::Helpers::ArgVisitor::ArgVisitor::ArgVisitor(ExprCodegen &expr_cg, std::
 }
 
 void Codegen::Helpers::ArgVisitor::visit(ASTNS::Arg &ast) {
-    Maybe<IR::ASTValue> a = expr_cg->expr(*ast.expr);
+    Maybe<Located<NNPtr<IR::Value>>> a = expr_cg->expr(*ast.expr);
     if (a.has())
         ret.push_back(a.get());
 }

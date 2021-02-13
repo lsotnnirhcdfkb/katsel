@@ -1,4 +1,5 @@
 #include "codegenlocal.h"
+#include "utils/format.h"
 
 void Codegen::Helpers::Locals::add_local(std::string const &name, IR::Register &val) {
     for (auto last = locals.rbegin(); last != locals.rend(); ++last)

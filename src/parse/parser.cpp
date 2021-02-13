@@ -7,6 +7,8 @@
 #include "ast/ast.h"
 #include "message/errmsgs.h"
 
+#include "utils/format.h"
+
 // Token stream {{{
 class TokenStream {
 public:

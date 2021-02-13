@@ -4,7 +4,6 @@
 #include <map>
 
 namespace IR {
-    struct ASTValue;
     class Block;
     class Function;
 }
@@ -23,10 +22,10 @@ namespace Codegen {
 
 #define DERIVE_TYPE_DECL() \
     public: \
-        Maybe<IR::ASTValue> bin_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::BinaryOperator> op, IR::ASTValue l, IR::ASTValue r, ASTNS::AST const &ast) const override; \
-        Maybe<IR::ASTValue> unary_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue operand, ASTNS::AST const &ast) const override; \
-        IR::ASTValue impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const override; \
-        Maybe<IR::ASTValue> cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, ASTNS::AST const &ast) const override; \
+        Maybe<Located<NNPtr<IR::Value>>> bin_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::BinaryOperator> op, Located<NNPtr<IR::Value>> l, Located<NNPtr<IR::Value>> r, ASTNS::AST const &ast) const override; \
+        Maybe<Located<NNPtr<IR::Value>>> unary_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, Located<NNPtr<IR::Value>> operand, ASTNS::AST const &ast) const override; \
+        Located<NNPtr<IR::Value>> impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v) const override; \
+        Maybe<Located<NNPtr<IR::Value>>> cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast) const override; \
         llvm::Type& to_llvmtype(llvm::LLVMContext &con) const override; \
         void type_accept(IR::TypeVisitor &v) const override; \
         virtual Maybe<Method const> get_method(std::string const &name) const override; \
@@ -77,12 +76,12 @@ namespace IR {
         inline Type(Codegen::Context &context): context(context) {}
         virtual ~Type() {}
 
-        virtual Maybe<IR::ASTValue> bin_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::BinaryOperator> op, IR::ASTValue l, IR::ASTValue r, ASTNS::AST const &ast) const = 0;
-        virtual Maybe<IR::ASTValue> unary_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, IR::ASTValue operand, ASTNS::AST const &ast) const = 0;
+        virtual Maybe<Located<NNPtr<IR::Value>>> bin_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::BinaryOperator> op, Located<NNPtr<IR::Value>> l, Located<NNPtr<IR::Value>> r, ASTNS::AST const &ast) const = 0;
+        virtual Maybe<Located<NNPtr<IR::Value>>> unary_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, Located<NNPtr<IR::Value>> operand, ASTNS::AST const &ast) const = 0;
 
-        virtual IR::ASTValue impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v) const = 0;
+        virtual Located<NNPtr<IR::Value>> impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v) const = 0;
 
-        virtual Maybe<IR::ASTValue> cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, IR::ASTValue v, ASTNS::AST const &ast) const = 0;
+        virtual Maybe<Located<NNPtr<IR::Value>>> cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast) const = 0;
 
         virtual llvm::Type& to_llvmtype(llvm::LLVMContext &con) const = 0;
 

@@ -27,279 +27,279 @@ def target_equal(ty):
 # instructions {{{1
 instructions = [
     Instruction('Copy',
-        'IR::Register&|target ! ASTValue|val',
+        'IR::Register&|target ! Located<NNPtr<Value>>|val',
     [
-        target_equal('val.type()'),
+        target_equal('val.value->type()'),
     ]),
 
     Instruction('Or',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
         type_must_be('target.type()', 'BoolType const'),
-        type_must_be('lhs.type()', 'BoolType const'), *operands_equal('lhs.type()', 'rhs.type()')
+        type_must_be('lhs.value->type()', 'BoolType const'), *operands_equal('lhs.value->type()', 'rhs.value->type()')
     ]),
     Instruction('And',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
         type_must_be('target.type()', 'BoolType const'),
-        type_must_be('lhs.type()', 'BoolType const'), *operands_equal('lhs.type()', 'rhs.type()')
+        type_must_be('lhs.value->type()', 'BoolType const'), *operands_equal('lhs.value->type()', 'rhs.value->type()')
     ]),
     Instruction('Not',
-        'IR::Register&|target ! ASTValue|op',
+        'IR::Register&|target ! Located<NNPtr<Value>>|op',
     [
         type_must_be('target.type()', 'BoolType const'),
     ]),
     Instruction('ICmpNE',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
         type_must_be('target.type()', 'BoolType const'),
-        *operands_equal('lhs.type()', 'rhs.type()')
+        *operands_equal('lhs.value->type()', 'rhs.value->type()')
     ]),
     Instruction('ICmpEQ',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
         type_must_be('target.type()', 'BoolType const'),
-        *operands_equal('lhs.type()', 'rhs.type()')
+        *operands_equal('lhs.value->type()', 'rhs.value->type()')
     ]),
     Instruction('ICmpLT',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
         type_must_be('target.type()', 'BoolType const'),
-        *operands_equal('lhs.type()', 'rhs.type()')
+        *operands_equal('lhs.value->type()', 'rhs.value->type()')
     ]),
     Instruction('ICmpGT',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
         type_must_be('target.type()', 'BoolType const'),
-        *operands_equal('lhs.type()', 'rhs.type()')
+        *operands_equal('lhs.value->type()', 'rhs.value->type()')
     ]),
     Instruction('ICmpLE',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
         type_must_be('target.type()', 'BoolType const'),
-        *operands_equal('lhs.type()', 'rhs.type()')
+        *operands_equal('lhs.value->type()', 'rhs.value->type()')
     ]),
     Instruction('ICmpGE',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
         type_must_be('target.type()', 'BoolType const'),
-        *operands_equal('lhs.type()', 'rhs.type()')
+        *operands_equal('lhs.value->type()', 'rhs.value->type()')
     ]),
     Instruction('IAdd',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
-        target_equal('lhs.type()'),
-        type_is_integral('lhs.type()'),
-        *operands_equal('lhs.type()',
-        'rhs.type()')
+        target_equal('lhs.value->type()'),
+        type_is_integral('lhs.value->type()'),
+        *operands_equal('lhs.value->type()',
+        'rhs.value->type()')
     ]),
     Instruction('ISub',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
-        target_equal('lhs.type()'),
-        type_is_integral('lhs.type()'),
-        *operands_equal('lhs.type()',
-        'rhs.type()')
+        target_equal('lhs.value->type()'),
+        type_is_integral('lhs.value->type()'),
+        *operands_equal('lhs.value->type()',
+        'rhs.value->type()')
     ]),
     Instruction('IMult',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
-        target_equal('lhs.type()'),
-        type_is_integral('lhs.type()'),
-        *operands_equal('lhs.type()',
-        'rhs.type()')
+        target_equal('lhs.value->type()'),
+        type_is_integral('lhs.value->type()'),
+        *operands_equal('lhs.value->type()',
+        'rhs.value->type()')
     ]),
     Instruction('IDiv',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
-        target_equal('lhs.type()'),
-        type_is_integral('lhs.type()'),
-        *operands_equal('lhs.type()',
-        'rhs.type()')
+        target_equal('lhs.value->type()'),
+        type_is_integral('lhs.value->type()'),
+        *operands_equal('lhs.value->type()',
+        'rhs.value->type()')
     ]),
     Instruction('IMod',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
-        target_equal('lhs.type()'),
-        type_is_integral('lhs.type()'),
-        *operands_equal('lhs.type()',
-        'rhs.type()')
+        target_equal('lhs.value->type()'),
+        type_is_integral('lhs.value->type()'),
+        *operands_equal('lhs.value->type()',
+        'rhs.value->type()')
     ]),
     Instruction('INeg',
-        'IR::Register&|target ! ASTValue|op',
+        'IR::Register&|target ! Located<NNPtr<Value>>|op',
     [
-        target_equal('op.type()'),
-        type_is_integral('op.type()')
+        target_equal('op.value->type()'),
+        type_is_integral('op.value->type()')
     ]),
     Instruction('FCmpNE',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
         type_must_be('target.type()', 'BoolType const'),
-        type_is_floating('lhs.type()'),
-        *operands_equal('lhs.type()',
-        'rhs.type()')
+        type_is_floating('lhs.value->type()'),
+        *operands_equal('lhs.value->type()',
+        'rhs.value->type()')
     ]),
     Instruction('FCmpEQ',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
         type_must_be('target.type()', 'BoolType const'),
-        type_is_floating('lhs.type()'),
-        *operands_equal('lhs.type()',
-        'rhs.type()')
+        type_is_floating('lhs.value->type()'),
+        *operands_equal('lhs.value->type()',
+        'rhs.value->type()')
     ]),
     Instruction('FCmpLT',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
         type_must_be('target.type()', 'BoolType const'),
-        type_is_floating('lhs.type()'),
-        *operands_equal('lhs.type()',
-        'rhs.type()')
+        type_is_floating('lhs.value->type()'),
+        *operands_equal('lhs.value->type()',
+        'rhs.value->type()')
     ]),
     Instruction('FCmpGT',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
         type_must_be('target.type()', 'BoolType const'),
-        type_is_floating('lhs.type()'),
-        *operands_equal('lhs.type()',
-        'rhs.type()')
+        type_is_floating('lhs.value->type()'),
+        *operands_equal('lhs.value->type()',
+        'rhs.value->type()')
     ]),
     Instruction('FCmpLE',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
         type_must_be('target.type()', 'BoolType const'),
-        type_is_floating('lhs.type()'),
-        *operands_equal('lhs.type()',
-        'rhs.type()')
+        type_is_floating('lhs.value->type()'),
+        *operands_equal('lhs.value->type()',
+        'rhs.value->type()')
     ]),
     Instruction('FCmpGE',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
         type_must_be('target.type()', 'BoolType const'),
-        type_is_floating('lhs.type()'),
-        *operands_equal('lhs.type()',
-        'rhs.type()')
+        type_is_floating('lhs.value->type()'),
+        *operands_equal('lhs.value->type()',
+        'rhs.value->type()')
     ]),
     Instruction('FAdd',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
-        target_equal('lhs.type()'),
-        type_is_floating('lhs.type()'),
-        *operands_equal('lhs.type()',
-        'rhs.type()')
+        target_equal('lhs.value->type()'),
+        type_is_floating('lhs.value->type()'),
+        *operands_equal('lhs.value->type()',
+        'rhs.value->type()')
     ]),
     Instruction('FSub',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
-        target_equal('lhs.type()'),
-        type_is_floating('lhs.type()'),
-        *operands_equal('lhs.type()',
-        'rhs.type()')
+        target_equal('lhs.value->type()'),
+        type_is_floating('lhs.value->type()'),
+        *operands_equal('lhs.value->type()',
+        'rhs.value->type()')
     ]),
     Instruction('FMult',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
-        target_equal('lhs.type()'),
-        type_is_floating('lhs.type()'),
-        *operands_equal('lhs.type()',
-        'rhs.type()')
+        target_equal('lhs.value->type()'),
+        type_is_floating('lhs.value->type()'),
+        *operands_equal('lhs.value->type()',
+        'rhs.value->type()')
     ]),
     Instruction('FDiv',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
-        target_equal('lhs.type()'),
-        type_is_floating('lhs.type()'),
-        *operands_equal('lhs.type()',
-        'rhs.type()')
+        target_equal('lhs.value->type()'),
+        type_is_floating('lhs.value->type()'),
+        *operands_equal('lhs.value->type()',
+        'rhs.value->type()')
     ]),
     Instruction('FMod',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
-        target_equal('lhs.type()'),
-        type_is_floating('lhs.type()'),
-        *operands_equal('lhs.type()',
-        'rhs.type()')
+        target_equal('lhs.value->type()'),
+        type_is_floating('lhs.value->type()'),
+        *operands_equal('lhs.value->type()',
+        'rhs.value->type()')
     ]),
     Instruction('FNeg',
-        'IR::Register&|target ! ASTValue|op',
+        'IR::Register&|target ! Located<NNPtr<Value>>|op',
     [
-        target_equal('op.type()'),
-        type_is_floating('op.type()')
+        target_equal('op.value->type()'),
+        type_is_floating('op.value->type()')
     ]),
     Instruction('BitXor',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
-        target_equal('lhs.type()'),
-        type_is_integral('lhs.type()'),
-        *operands_equal('lhs.type()',
-        'rhs.type()')
+        target_equal('lhs.value->type()'),
+        type_is_integral('lhs.value->type()'),
+        *operands_equal('lhs.value->type()',
+        'rhs.value->type()')
     ]),
     Instruction('BitOr',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
-        target_equal('lhs.type()'),
-        type_is_integral('lhs.type()'),
-        *operands_equal('lhs.type()',
-        'rhs.type()')
+        target_equal('lhs.value->type()'),
+        type_is_integral('lhs.value->type()'),
+        *operands_equal('lhs.value->type()',
+        'rhs.value->type()')
     ]),
     Instruction('BitAnd',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
-        target_equal('lhs.type()'),
-        type_is_integral('lhs.type()'),
-        *operands_equal('lhs.type()',
-        'rhs.type()')
+        target_equal('lhs.value->type()'),
+        type_is_integral('lhs.value->type()'),
+        *operands_equal('lhs.value->type()',
+        'rhs.value->type()')
     ]),
     Instruction('BitNot',
-        'IR::Register&|target ! ASTValue|op',
+        'IR::Register&|target ! Located<NNPtr<Value>>|op',
     [
-        target_equal('op.type()'),
-        type_is_integral('op.type()')
+        target_equal('op.value->type()'),
+        type_is_integral('op.value->type()')
     ]),
     Instruction('ShiftR',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
-        target_equal('lhs.type()'),
-        type_is_integral('lhs.type()'),
-        type_is_integral('lhs.type()')
+        target_equal('lhs.value->type()'),
+        type_is_integral('lhs.value->type()'),
+        type_is_integral('lhs.value->type()')
     ]),
     Instruction('ShiftL',
-        'IR::Register&|target ! ASTValue|lhs ! ASTValue|rhs',
+        'IR::Register&|target ! Located<NNPtr<Value>>|lhs ! Located<NNPtr<Value>>|rhs',
     [
-        target_equal('lhs.type()'),
-        type_is_integral('lhs.type()'),
-        type_is_integral('lhs.type()')
+        target_equal('lhs.value->type()'),
+        type_is_integral('lhs.value->type()'),
+        type_is_integral('lhs.value->type()')
     ]),
     Instruction('NoOpCast',
-        'IR::Register&|target ! ASTValue|op ! NNPtr<Type const>|newt',
+        'IR::Register&|target ! Located<NNPtr<Value>>|op ! NNPtr<Type const>|newt',
     [
         target_equal('*newt'),
     ]),
     Instruction('IntToInt',
-        'IR::Register&|target ! ASTValue|op ! NNPtr<IntType const>|newt',
+        'IR::Register&|target ! Located<NNPtr<Value>>|op ! NNPtr<IntType const>|newt',
     [
         target_equal('*newt'),
-        type_is_integral('op.type()')
+        type_is_integral('op.value->type()')
     ]),
     Instruction('IntToFloat',
-        'IR::Register&|target ! ASTValue|op ! NNPtr<FloatType const>|newt',
+        'IR::Register&|target ! Located<NNPtr<Value>>|op ! NNPtr<FloatType const>|newt',
     [
         target_equal('*newt'),
-        type_is_integral('op.type()')
+        type_is_integral('op.value->type()')
     ]),
     Instruction('FloatToFloat',
-        'IR::Register&|target ! ASTValue|op ! NNPtr<FloatType const>|newt',
+        'IR::Register&|target ! Located<NNPtr<Value>>|op ! NNPtr<FloatType const>|newt',
     [
         target_equal('*newt'),
-        type_is_floating('op.type()')
+        type_is_floating('op.value->type()')
     ]),
     Instruction('FloatToInt',
-        'IR::Register&|target ! ASTValue|op ! NNPtr<IntType const>|newt',
+        'IR::Register&|target ! Located<NNPtr<Value>>|op ! NNPtr<IntType const>|newt',
     [
         target_equal('*newt'),
-        type_is_floating('op.type()')
+        type_is_floating('op.value->type()')
     ]),
     Instruction('Call',
-        'IR::Register&|target ! NNPtr<Function const>|f ! std::vector<ASTValue>|args',
+        'IR::Register&|target ! NNPtr<Function const>|f ! std::vector<Located<NNPtr<Value>>>|args',
     [
         target_equal('*f->ty->ret'),
         'args.size() == f->ty->paramtys.size()'
@@ -310,19 +310,19 @@ instructions = [
         'static_cast<int>(mut) <= static_cast<int>(reg.mut)'
     ]),
     Instruction('DerefPtr',
-        'IR::Register&|target ! ASTValue|ptr',
+        'IR::Register&|target ! Located<NNPtr<Value>>|ptr',
     [
-        type_must_be('ptr.type()', 'PointerType const')
+        type_must_be('ptr.value->type()', 'PointerType const')
     ]),
     Instruction('PtrArith',
-        'IR::Register&|target ! ASTValue|ptr ! ASTValue|offset',
+        'IR::Register&|target ! Located<NNPtr<Value>>|ptr ! Located<NNPtr<Value>>|offset',
     [
-        type_must_be('ptr.type()', 'PointerType const'),
-        type_is_integral('offset.type()')
+        type_must_be('ptr.value->type()', 'PointerType const'),
+        type_is_integral('offset.value->type()')
     ]),
 
     Br('Return',
-        'ASTValue|value',
+        'Located<NNPtr<Value>>|value',
     [
     ]),
     Br('GotoBr',
@@ -330,9 +330,9 @@ instructions = [
     [
     ]),
     Br('CondBr',
-        'ASTValue|v ! NNPtr<Block>|true_b ! NNPtr<Block>|false_b',
+        'Located<NNPtr<Value>>|v ! NNPtr<Block>|true_b ! NNPtr<Block>|false_b',
     [
-        type_must_be('v.type()', 'BoolType const')
+        type_must_be('v.value->type()', 'BoolType const')
     ]),
 ]
 

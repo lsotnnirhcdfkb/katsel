@@ -16,9 +16,9 @@ Maybe<IR::DeclSymbol &> Codegen::Helpers::PathVisitor::resolve_decl_symbol(ASTNS
     return dret.fmap([](NNPtr<IR::DeclSymbol> i) -> IR::DeclSymbol & { return *i; });
 }
 
-Maybe<IR::ASTValue> Codegen::Helpers::PathVisitor::resolve_value(ASTNS::PathB &ast)  {
+Maybe<Located<NNPtr<IR::Value>>> Codegen::Helpers::PathVisitor::resolve_value(ASTNS::PathB &ast)  {
     pty = PathType::VALUE;
-    vret = Maybe<IR::ASTValue>();
+    vret = Maybe<Located<NNPtr<IR::Value>>>();
     ast.accept(*this);
     return vret;
 }
@@ -53,7 +53,7 @@ void Codegen::Helpers::PathVisitor::visit(ASTNS::Path &ast) {
             Maybe<Local> loc = locals.get()->get_local(vname);
 
             if (loc.has()) {
-                vret = IR::ASTValue(*loc.get().v, ast);
+                vret = Located<NNPtr<IR::Value>> { ast, *loc.get().v };
                 return;
             }
         } 
@@ -63,7 +63,7 @@ void Codegen::Helpers::PathVisitor::visit(ASTNS::Path &ast) {
 
         Maybe<IR::DeclSymbol &> m_last = trace_path_decl_only(unit.mod, ast.segments.cbegin(), ast.segments.cend() - 1);
         if (!m_last.has()) {
-            vret = Maybe<IR::ASTValue>();
+            vret = Maybe<Located<NNPtr<IR::Value>>>();
             return;
         }
 
@@ -76,9 +76,9 @@ void Codegen::Helpers::PathVisitor::visit(ASTNS::Path &ast) {
                 ERR_NO_MEMBER_IN(*last, ast.segments.back().span);
             else
                 ERR_UNDECL_SYMB(ast.segments.back().span);
-            vret = Maybe<IR::ASTValue>();
+            vret = Maybe<Located<NNPtr<IR::Value>>>();
         } else {
-            vret = IR::ASTValue(ret.get(), ast);
+            vret = Located<NNPtr<IR::Value>> { ast, ret.get() };
         }
     }
 }

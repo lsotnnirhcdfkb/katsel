@@ -100,17 +100,17 @@ bool Function::value_define() {
     }
 
     auto expr_cg (std::make_unique<Codegen::Helpers::ExprCodegen>(*ir_builder, *locals, *local_type_visitor, *local_path_visitor));
-    Maybe<IR::ASTValue> m_retval = expr_cg->expr(*ast.body);
+    Maybe<Located<NNPtr<IR::Value>>> m_retval = expr_cg->expr(*ast.body);
 
     locals->dec_scope();
 
     if (m_retval.has()) {
-        ir_builder->exit_block().branch(std::make_unique<IR::Instrs::Return>(IR::ASTValue(*ir_builder->fun().ret_reg, *ast.retty)));
+        ir_builder->exit_block().branch(std::make_unique<IR::Instrs::Return>(Located<NNPtr<IR::Value>> { *ast.retty, *ir_builder->fun().ret_reg }));
 
-        IR::ASTValue retval = m_retval.get();
+        Located<NNPtr<IR::Value>> retval = m_retval.get();
 
         retval = s1_data.fun->ty->ret->impl_cast(ir_builder->context(), ir_builder->fun(), ir_builder->cur_block(), retval);
-        if (s1_data.fun->ty->ret.as_raw() != &retval.type()) {
+        if (s1_data.fun->ty->ret.as_raw() != &retval.value->type()) {
             ERR_CONFLICT_RET_TY(retval, *s1_data.fun);
             errored = true;
         } else {

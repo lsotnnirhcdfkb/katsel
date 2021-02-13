@@ -1,12 +1,11 @@
 #pragma once
 
 #include <string>
+#include <sstream>
 #include "utils/ptr.h"
 #include "utils/file.h"
-#include "utils/format.h"
 
 namespace ASTNS { class AST; }
-namespace IR { struct ASTValue; }
 
 class Location {
 public:
@@ -25,7 +24,6 @@ public:
 
     Span(Location const &start, Location const &end);
 
-    Span(IR::ASTValue const &v);
     Span(ASTNS::AST const &v);
 
     inline std::string stringify() const {
@@ -33,7 +31,9 @@ public:
     }
 
     inline std::string as_rowcol() const {
-        return format("{}:{}:{}:{}:{}", file->filename, start.line, start.column, end.line, end.column);
+        std::stringstream ss;
+        ss << file->filename << ":" << start.line << ":" << start.column << ":" << end.line << ":" << end.column;
+        return ss.str();
     }
 };
 

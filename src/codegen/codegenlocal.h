@@ -60,13 +60,13 @@ namespace Codegen {
         public:
             PathVisitor(Maybe<Locals&> locals, IR::Unit &unit);
 
-            Maybe<IR::ASTValue> resolve_value(ASTNS::PathB &path);
+            Maybe<Located<NNPtr<IR::Value>>> resolve_value(ASTNS::PathB &path);
             Maybe<IR::DeclSymbol &> resolve_decl_symbol(ASTNS::PathB &path);
 
         private:
             enum class PathType { VALUE, DECLARED } pty;
 
-            Maybe<IR::ASTValue> vret;
+            Maybe<Located<NNPtr<IR::Value>>> vret;
             Maybe<NNPtr<IR::DeclSymbol>> dret;
             Maybe<NNPtr<Locals>> locals;
             IR::Unit &unit;
@@ -125,7 +125,7 @@ namespace Codegen {
         public:
             ExprCodegen(IR::Builder &ir_builder, Helpers::Locals &locals, TypeVisitor &type_visitor, PathVisitor &path_visitor);
 
-            Maybe<IR::ASTValue> expr(ASTNS::Expr &ast);
+            Maybe<Located<NNPtr<IR::Value>>> expr(ASTNS::Expr &ast);
 
         private:
             // EXPRCG METHODS START
@@ -156,7 +156,7 @@ namespace Codegen {
             StmtCodegen stmt_cg;
             NNPtr<TypeVisitor> type_visitor;
             NNPtr<PathVisitor> path_visitor;
-            Maybe<IR::ASTValue> ret;
+            Maybe<Located<NNPtr<IR::Value>>> ret;
         };
         // }}}
         // Param {{{
@@ -185,7 +185,7 @@ namespace Codegen {
         class ArgVisitor : public ASTNS::ArgBVisitor {
         public:
             ArgVisitor(ExprCodegen &expr_cg, std::vector<std::unique_ptr<ASTNS::Arg>> &args);
-            std::vector<IR::ASTValue> ret;
+            std::vector<Located<NNPtr<IR::Value>>> ret;
 
         private:
             NNPtr<ExprCodegen> expr_cg;
