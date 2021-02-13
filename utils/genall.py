@@ -38,8 +38,8 @@ jobs = [
 
     ('include/ir/visitor.h'        , 'PURE INSTR VISIT'      , lambda: instrgen.gen_pure_method_decls('Instruction')),
     ('include/ir/visitor.h'        , 'PURE BRANCH VISIT'     , lambda: instrgen.gen_pure_method_decls('Br')),
-    ('include/lower/lowerer.h'     , 'LOWER VISIT INSTR'     , lambda: instrgen.gen_method_decls('Instruction')),
-    ('include/lower/lowerer.h'     , 'LOWER VISIT BRANCH'    , lambda: instrgen.gen_method_decls('Br')),
+    ('src/lower/lowererlocal.h'    , 'LOWER VISIT INSTR'     , lambda: instrgen.gen_method_decls('Instruction')),
+    ('src/lower/lowererlocal.h'    , 'LOWER VISIT BRANCH'    , lambda: instrgen.gen_method_decls('Br')),
 
     ('include/message/errmsgs.h'   , 'ERRH'                  , errgen.gen_h),
     ('src/message/errmsgs.cpp'     , 'ERRCPP'                , errgen.gen_cpp),

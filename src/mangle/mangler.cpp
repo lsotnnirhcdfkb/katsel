@@ -86,7 +86,7 @@ namespace {
     };
 }
 
-static void mangle_function(std::stringstream &ss, IR::Function &f) {
+static void mangle_function(std::stringstream &ss, IR::Function const &f) {
     ss << "F";
 
     _Mangler t (ss);
@@ -98,13 +98,13 @@ static void mangle_function(std::stringstream &ss, IR::Function &f) {
     ss << "f";
 }
 
-static std::string mangle_path(IR::Function &f) {
+static std::string mangle_path(IR::Function const &f) {
     std::stringstream ss;
     ss << "_ksl_";
     mangle_function(ss, f);
     return ss.str();
 }
 
-std::string Mangle::NameMangler::mangle_name(IR::Function &f) {
+std::string Mangle::NameMangler::mangle_name(IR::Function const &f) {
     return mangle_path(f);
 }

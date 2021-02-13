@@ -1,26 +1,24 @@
 #include "lower/lowerer.h"
-#include "ir/type.h"
-#include "utils/assert.h"
-#include <memory>
-#include "utils/file.h"
-#include "ir/instruction.h"
-#include "ir/block.h"
+#include "lowererlocal.h"
 
-#include "llvm/IR/DerivedTypes.h"
+#include "ir/function.h"
+
 #include "llvm/IR/Verifier.h"
 
 #include "llvm/Transforms/InstCombine/InstCombine.h"
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/Transforms/Scalar/GVN.h"
 #include "llvm/Transforms/Utils.h"
+
 #include "llvm/Support/TargetRegistry.h"
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/Support/Host.h"
 #include "llvm/Target/TargetMachine.h"
 #include "llvm/Target/TargetOptions.h"
 
-/*
-Lower::Lowerer::Lowerer(IR::Unit const &unit): errored(false), unit(unit), builder(context), mod(unit.file->filename, context), fpm(&mod) {
+using namespace Lower;
+
+Lowerer::Lowerer(IR::Unit const &unit): unit(unit), mod(unit.file->filename, context), fpm(&mod) {
     fpm.add(llvm::createPromoteMemoryToRegisterPass());
     fpm.add(llvm::createInstructionCombiningPass());
     fpm.add(llvm::createReassociatePass());
@@ -30,11 +28,15 @@ Lower::Lowerer::Lowerer(IR::Unit const &unit): errored(false), unit(unit), build
     fpm.doInitialization();
 }
 
-void Lower::Lowerer::print_mod(llvm::raw_ostream &ostream) {
-    mod.print(ostream, nullptr);
+bool Lowerer::lower() {
+    LowerDeclSym lower_decl_sym (*this);
+
+    unit.mod.declsym_accept(lower_decl_sym);
+
+    return false;
 }
 
-bool Lower::Lowerer::objectify(llvm::raw_fd_ostream &ostream) {
+bool Lowerer::objectify(llvm::raw_fd_ostream &ostream) {
     llvm::InitializeAllTargetInfos();
     llvm::InitializeAllTargets();
     llvm::InitializeAllTargetMCs();
@@ -69,7 +71,27 @@ bool Lower::Lowerer::objectify(llvm::raw_fd_ostream &ostream) {
     return true;
 }
 
-void Lower::Lowerer::lower() {
+void Lowerer::print_mod(llvm::raw_ostream &ostream) {
+    mod.print(ostream, nullptr);
+}
+
+llvm::Function &Lowerer::get_function(IR::Function const &fun) {
+    auto found_llvm_fun = functions.find(fun);
+    if (found_llvm_fun == functions.end()) {
+        auto *fun_ty = static_cast<llvm::FunctionType*>(&fun.ty->to_llvmtype(context));
+        std::string fun_name = fun.name == "main" ? fun.name : mangler.mangle_name(fun);
+
+        llvm::Function *llvm_fun = llvm::Function::Create(fun_ty, llvm::Function::ExternalLinkage, fun_name, &mod);
+
+        functions[fun] = llvm_fun;
+        return *llvm_fun;
+    } else
+        return *found_llvm_fun->second;
+}
+
+/*
+
+void Lowerer::lower() {
     // TODO
     // for (std::unique_ptr<IR::Function> const &f : unit.functions) {
         // auto *fty = static_cast<llvm::FunctionType*>(f->ty->to_llvmtype(context));
@@ -82,69 +104,17 @@ void Lower::Lowerer::lower() {
 }
 
 
-void Lower::Lowerer::lower(IR::Function const &f) {
+void Lowerer::lower(IR::Function const &f) {
     if (f.prototypeonly)
         return;
 
     llvm::Function *fasllvm = functions.at(&f);
     for (std::unique_ptr<IR::Block> const &b : f.blocks) {
-        blocks[b.get()] = llvm::BasicBlock::Create(context, b->name, fasllvm);
     }
 
-    alloca_index = 0;
-    cur_function = fasllvm;
 
-    for (std::unique_ptr<IR::Block> const &b : f.blocks)
-        lower(*b);
 
-    for (std::unique_ptr<IR::Block> const &b : f.blocks) {
-        builder.SetInsertPoint(blocks[b.get()]);
-        if (b->br)
-            b->br->accept(*this);
-    }
 
-    blocks.clear();
-    values.clear();
 
-    llvm::verifyFunction(*fasllvm);
-    // fpm.run(*fasllvm);
-}
-
-void Lower::Lowerer::lower(IR::Block const &b) {
-    builder.SetInsertPoint(blocks[&b]);
-    for (std::unique_ptr<IR::Instrs::Instruction> const &i : b.instructions)
-        i->accept(*this);
-}
-
-llvm::Value& Lower::Lowerer::lower(IR::Value const &v) {
-    lvret = nullptr;
-    v.value_accept(*this);
-    return *lvret;
-}
-
-llvm::Value& Lower::Lowerer::lower(IR::ASTValue const &v) {
-    return lower(*v.val);
-}
-
-void Lower::Lowerer::value_visit(IR::ConstBool const &v) {
-    lvret = llvm::ConstantInt::get(&v.type().to_llvmtype(context), v.val);
-}
-void Lower::Lowerer::value_visit(IR::ConstFloat const &v) {
-    lvret = llvm::ConstantFP::get(&v.type().to_llvmtype(context), v.val);
-}
-void Lower::Lowerer::value_visit(IR::ConstInt const &v) {
-    lvret = llvm::ConstantInt::get(&v.type().to_llvmtype(context), v.val);
-}
-void Lower::Lowerer::value_visit(IR::ConstChar const &v) {
-    lvret = llvm::ConstantInt::get(&v.type().to_llvmtype(context), v.val);
-}
-void Lower::Lowerer::value_visit(IR::Function const &v) {
-    lvret = functions.at(v);
-}
-void Lower::Lowerer::value_visit(IR::Void const &v) {
-    report_abort_noh("lower_value called with v = Void");
-}
-void Lower::Lowerer::value_visit(IR::Instrs::Instruction const &v) {
-    lvret = values.at(v);
 }
 */
