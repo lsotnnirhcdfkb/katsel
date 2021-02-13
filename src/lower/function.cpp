@@ -31,6 +31,9 @@ void LowerFunction::lower() {
             block->br->accept(instr);
     }
 
+    builder.SetInsertPoint(entry_block);
+    builder.CreateBr(&get_block(*fun.blocks[0]));
+
     llvm::verifyFunction(*llvm_fun);
     // fpm.run(*fasllvm);
 

@@ -33,7 +33,7 @@ bool Lowerer::lower() {
 
     unit.mod.declsym_accept(lower_decl_sym);
 
-    return false;
+    return true;
 }
 
 bool Lowerer::objectify(llvm::raw_fd_ostream &ostream) {
