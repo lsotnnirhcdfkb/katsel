@@ -13,7 +13,7 @@ using namespace Lower;
 #define CREATE_INSTR(instr) fl.builder.Create##instr
 #define TARGET_REG() &fl.get_register(instr.target)
 #define LOWER(v) &fl.value_ref.lower(v)
-#define ASSIGN_TARGET(instr) CREATE_INSTR(Store)(TARGET_REG(), instr)
+#define ASSIGN_TARGET(instr) CREATE_INSTR(Store)(instr, TARGET_REG())
 
 #define LOWER_LHS_RHS() LOWER(*instr.lhs.value), LOWER(*instr.rhs.value)
 
