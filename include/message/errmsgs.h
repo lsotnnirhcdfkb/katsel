@@ -69,7 +69,7 @@ void E0013(Span const &next, std::string lookahead_type_name, Span const &lastto
 
 // E0014 - lhs-unsupported-op
 #define ERR_LHS_UNSUPPORTED_OP E0014
-void E0014(Located<NNPtr<IR::Value>> const &lhs, Located<ASTNS::BinaryOperator> const &op);
+void E0014(Located<NNPtr<IR::Value>> const &lhs, Span const &op);
 
 // E0015 - unary-unsupported-op
 #define ERR_UNARY_UNSUPPORTED_OP E0015
@@ -109,7 +109,7 @@ void E0023(ASTNS::AST const &ast, Located<NNPtr<IR::Value>> v, IR::Type const &n
 
 // E0024 - conflict-tys-binary-op
 #define ERR_CONFLICT_TYS_BINARY_OP E0024
-void E0024(Located<NNPtr<IR::Value>> const &lhs, Located<NNPtr<IR::Value>> const &rhs, Located<ASTNS::BinaryOperator> const &op);
+void E0024(Located<NNPtr<IR::Value>> const &lhs, Located<NNPtr<IR::Value>> const &rhs, Span const &op);
 
 // E0025 - cond-not-bool
 #define ERR_COND_NOT_BOOL E0025
@@ -177,11 +177,11 @@ void E0040(Span const &eq, Located<NNPtr<IR::Value>> const &lhs);
 
 // E0041 - assign-not-mut
 #define ERR_ASSIGN_NOT_MUT E0041
-void E0041(Located<NNPtr<IR::Value>> const &v, Span const &eq, IR::Instrs::DerefPtr const &target_deref);
+void E0041(Located<NNPtr<IR::Value>> const &v, Span const &eq, IR::Register const &reg);
 
 // E0042 - mut-addrof-nonmut-op
 #define ERR_MUT_ADDROF_NONMUT_OP E0042
-void E0042(Span const &op, IR::Instrs::DerefPtr const &as_deref);
+void E0042(Span const &op, IR::Register const &reg);
 
 // E0043 - no-suppress
 #define ERR_NO_SUPPRESS E0043

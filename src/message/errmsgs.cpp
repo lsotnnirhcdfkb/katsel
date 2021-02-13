@@ -170,12 +170,12 @@ e.underline(un);
 // E0014 - lhs-unsupported-op
 // | Left hand side of binary expression does not support
 // | operator
-void E0014(Located<NNPtr<IR::Value>> const &lhs, Located<ASTNS::BinaryOperator> const &op) {
-    Error e = Error(MsgType::ERROR, op.span, "E0014", "lhs-unsupported-op");
+void E0014(Located<NNPtr<IR::Value>> const &lhs, Span const &op) {
+    Error e = Error(MsgType::ERROR, op, "E0014", "lhs-unsupported-op");
     e.underline(Underline(lhs.span, '^')
         .note(format("lhs is of type {}", lhs.value->type()))
     );
-    e.underline(Underline(op.span, '^')
+    e.underline(Underline(op, '^')
         .error("unsupported binary operator for left operand")
     );
     e.report();
@@ -307,15 +307,15 @@ void E0023(ASTNS::AST const &ast, Located<NNPtr<IR::Value>> v, IR::Type const &n
 
 // E0024 - conflict-tys-binary-op
 // | Conflicting types to binary operator
-void E0024(Located<NNPtr<IR::Value>> const &lhs, Located<NNPtr<IR::Value>> const &rhs, Located<ASTNS::BinaryOperator> const &op) {
-    Error e = Error(MsgType::ERROR, op.span, "E0024", "conflict-tys-binary-op");
+void E0024(Located<NNPtr<IR::Value>> const &lhs, Located<NNPtr<IR::Value>> const &rhs, Span const &op) {
+    Error e = Error(MsgType::ERROR, op, "E0024", "conflict-tys-binary-op");
     e.underline(Underline(lhs.span, '~')
         .note(format("{}", lhs.value->type()))
     );
     e.underline(Underline(rhs.span, '~')
         .note(format("{}", rhs.value->type()))
     );
-    e.underline(Underline(op.span, '^')
+    e.underline(Underline(op, '^')
         .error("conflicting types to binary operator")
     );
     e.report();
@@ -513,14 +513,14 @@ void E0040(Span const &eq, Located<NNPtr<IR::Value>> const &lhs) {
 
 // E0041 - assign-not-mut
 // | Cannot assign to non-mutable lvalue
-void E0041(Located<NNPtr<IR::Value>> const &v, Span const &eq, IR::Instrs::DerefPtr const &target_deref) {
+void E0041(Located<NNPtr<IR::Value>> const &v, Span const &eq, IR::Register const &reg) {
     Error e = Error(MsgType::ERROR, v.span, "E0041", "assign-not-mut");
     e.underline(Underline(eq, '^')
         .error("cannot assign to immutable lvalue")
     );
     e.underline(Underline(v.span, '~')
     );
-    if (IR::DeclaredValue const *as_declared = dynamic_cast<IR::DeclaredValue const *>(target_deref.ptr.value.as_raw()))
+    if (IR::DeclaredValue const *as_declared = dynamic_cast<IR::DeclaredValue const *>(&reg))
         e.underline(Underline(as_declared->def_span(), '~')
             .note("variable declared immutable here"));
     e.report();
@@ -528,12 +528,12 @@ void E0041(Located<NNPtr<IR::Value>> const &v, Span const &eq, IR::Instrs::Deref
 
 // E0042 - mut-addrof-nonmut-op
 // | Cannot take a mutable pointer to non-mutable lvalue
-void E0042(Span const &op, IR::Instrs::DerefPtr const &as_deref) {
+void E0042(Span const &op, IR::Register const &reg) {
     Error e = Error(MsgType::ERROR, op, "E0042", "mut-addrof-nonmut-op");
     e.underline(Underline(op, '^')
         .error("cannot take mutable pointer to non-mutable lvalue")
     );
-    if (IR::DeclaredValue const *as_declared = dynamic_cast<IR::DeclaredValue const *>(as_deref.ptr.value.as_raw()))
+    if (IR::DeclaredValue const *as_declared = dynamic_cast<IR::DeclaredValue const *>(&reg))
         e.underline(Underline(as_declared->def_span(), '~')
             .note("value declared immutable here"));
     e.report();

@@ -65,7 +65,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::PointerType::bin_op(Codegen::Context &cgc, 
 #undef OP
 
         default:
-            ERR_LHS_UNSUPPORTED_OP(l, op);
+            ERR_LHS_UNSUPPORTED_OP(l, op.span);
             return Maybe<Located<NNPtr<IR::Value>>>();
     }
 }

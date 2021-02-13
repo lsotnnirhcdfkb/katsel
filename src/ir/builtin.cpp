@@ -26,7 +26,7 @@ static Maybe<Located<NNPtr<IR::Value>>> float_bin_op(BIN_OP_ARGS) {
     r = l.value->type().impl_cast(cgc, fun, cur_block, r);
 
     if (&l.value->type() != &r.value->type()) {
-        ERR_CONFLICT_TYS_BINARY_OP(l, r, op);
+        ERR_CONFLICT_TYS_BINARY_OP(l, r, op.span);
         return Maybe<Located<NNPtr<IR::Value>>>();
     }
 
@@ -44,7 +44,7 @@ static Maybe<Located<NNPtr<IR::Value>>> float_bin_op(BIN_OP_ARGS) {
         SUPPORT_OPERATOR_BASIC(BANGEQUAL, FCmpNE, cgc.get_bool_type())
 
         default:
-            ERR_LHS_UNSUPPORTED_OP(l, op);
+            ERR_LHS_UNSUPPORTED_OP(l, op.span);
             return Maybe<Located<NNPtr<IR::Value>>>();
     }
 }
@@ -66,7 +66,7 @@ static Maybe<Located<NNPtr<IR::Value>>> int_bin_op(BIN_OP_ARGS) {
     r = l.value->type().impl_cast(cgc, fun, cur_block, r);
 
     if (&l.value->type() != &r.value->type()) {
-        ERR_CONFLICT_TYS_BINARY_OP(l, r, op);
+        ERR_CONFLICT_TYS_BINARY_OP(l, r, op.span);
         return Maybe<Located<NNPtr<IR::Value>>>();
     }
 
@@ -89,7 +89,7 @@ static Maybe<Located<NNPtr<IR::Value>>> int_bin_op(BIN_OP_ARGS) {
         SUPPORT_OPERATOR_BASIC(DOUBLELESS, ShiftL, l.value->type())
 
         default:
-            ERR_LHS_UNSUPPORTED_OP(l, op);
+            ERR_LHS_UNSUPPORTED_OP(l, op.span);
             return Maybe<Located<NNPtr<IR::Value>>>();
     }
 }
@@ -325,7 +325,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::CharType::bin_op(BIN_OP_ARGS) const {
     l = r.value->type().impl_cast(cgc, fun, cur_block, l);
     r = l.value->type().impl_cast(cgc, fun, cur_block, r);
     if (&l.value->type() != &r.value->type()) {
-        ERR_CONFLICT_TYS_BINARY_OP(l, r, op);
+        ERR_CONFLICT_TYS_BINARY_OP(l, r, op.span);
         return Maybe<Located<NNPtr<IR::Value>>>();
     }
 
@@ -338,7 +338,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::CharType::bin_op(BIN_OP_ARGS) const {
         SUPPORT_OPERATOR_BASIC(BANGEQUAL, ICmpNE, cgc.get_bool_type())
 
         default:
-            ERR_LHS_UNSUPPORTED_OP(l, op);
+            ERR_LHS_UNSUPPORTED_OP(l, op.span);
             return Maybe<Located<NNPtr<Value>>>();
     }
 }
@@ -388,7 +388,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::BoolType::bin_op(Codegen::Context &cgc, Fun
     l = r.value->type().impl_cast(cgc, fun, cur_block, l);
     r = l.value->type().impl_cast(cgc, fun, cur_block, r);
     if (&l.value->type() != &r.value->type()) {
-        ERR_CONFLICT_TYS_BINARY_OP(l, r, op);
+        ERR_CONFLICT_TYS_BINARY_OP(l, r, op.span);
         return Maybe<Located<NNPtr<IR::Value>>>();
     }
 
@@ -400,7 +400,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::BoolType::bin_op(Codegen::Context &cgc, Fun
         SUPPORT_OPERATOR_BASIC(BANGEQUAL, ICmpNE, cgc.get_bool_type())
 
         default:
-            ERR_LHS_UNSUPPORTED_OP(l, op);
+            ERR_LHS_UNSUPPORTED_OP(l, op.span);
             return Maybe<Located<NNPtr<Value>>>();
     }
 }

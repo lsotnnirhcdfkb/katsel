@@ -42,7 +42,7 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::ShortCircuitExpr &ast) {
     Located<NNPtr<IR::Value>> lhs = m_lhs.get();
 
     if (!dynamic_cast<IR::BoolType const *>(&lhs.value->type())) {
-        // ERR_LHS_UNSUPPORTED_OP(lhs, ast.op); TODO: fix this
+        ERR_LHS_UNSUPPORTED_OP(lhs, ast.op.span);
         ret = Maybe<Located<NNPtr<IR::Value>>>();
         return;
     }
@@ -77,7 +77,7 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::ShortCircuitExpr &ast) {
     Located<NNPtr<IR::Value>> rhs = m_rhs.get();
 
     if (!dynamic_cast<IR::BoolType const *>(&rhs.value->type())) {
-        // ERR_CONFLICT_TYS_BINARY_OP(lhs, rhs, ast.op); // TODO: fix this
+        ERR_CONFLICT_TYS_BINARY_OP(lhs, rhs, ast.op.span);
         ret = Maybe<Located<NNPtr<IR::Value>>>();
         return;
     }
@@ -144,7 +144,11 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::AddrofExpr &ast) {
         return;
     }
 
-    // TODO: check for mutability
+    if (!as_register->mut && ast.mut) {
+        ERR_MUT_ADDROF_NONMUT_OP(ast.op.span, *as_register);
+        ret = Maybe<Located<NNPtr<IR::Value>>>();
+        return;
+    }
 
     IR::Register &ret_reg = ir_builder->fun().add_register(ir_builder->context().get_pointer_type(ast.mut, oper.value->type()), ast, false);
     ir_builder->cur_block()->add<IR::Instrs::Addrof>(ret_reg, *as_register, ast.mut);
@@ -355,7 +359,11 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::AssignmentExpr &ast) {
         return;
     }
 
-    // TODO: check for mutable register before assigning
+    if (!target_reg->mut) {
+        ERR_ASSIGN_NOT_MUT(rhs, ast.equal.span, *target_reg);
+        ret = Maybe<Located<NNPtr<IR::Value>>>();
+        return;
+    }
 
     IR::Type const &expect_type = target_reg->type();
     rhs = expect_type.impl_cast(ir_builder->context(), ir_builder->fun(), ir_builder->cur_block(), rhs);
@@ -454,7 +462,11 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::MethodCallExpr &ast) {
             return;
         }
 
-        // TODO: check for mut and non mut
+        if (!as_register->mut && method.this_mut) {
+            ERR_MUT_ADDROF_NONMUT_OP(ast.method.span, *as_register);
+            ret = Maybe<Located<NNPtr<IR::Value>>>();
+            return;
+        }
 
         IR::Register &reference_reg = ir_builder->fun().add_register(*method.this_arg_type, op.span, false);
         ir_builder->cur_block()->add<IR::Instrs::Addrof>(reference_reg, *as_register, method.this_mut);

@@ -89,32 +89,3 @@ llvm::Function &Lowerer::get_function(IR::Function const &fun) {
         return *found_llvm_fun->second;
 }
 
-/*
-
-void Lowerer::lower() {
-    // TODO
-    // for (std::unique_ptr<IR::Function> const &f : unit.functions) {
-        // auto *fty = static_cast<llvm::FunctionType*>(f->ty->to_llvmtype(context));
-        // std::string fname = f->name == "main" ? f->name : mangler.mangle_name(*f);
-        // auto *fllvm = llvm::Function::Create(fty, llvm::Function::ExternalLinkage, fname, &mod);
-        // functions[f.get()] = fllvm;
-    // }
-    // for (std::unique_ptr<IR::Function> const &f : unit.functions)
-        // lower(*f);
-}
-
-
-void Lowerer::lower(IR::Function const &f) {
-    if (f.prototypeonly)
-        return;
-
-    llvm::Function *fasllvm = functions.at(&f);
-    for (std::unique_ptr<IR::Block> const &b : f.blocks) {
-    }
-
-
-
-
-
-}
-*/
