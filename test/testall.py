@@ -199,7 +199,6 @@ try:
 
         write('\033[2K\033[1000D')
         if test_success:
-            write(f'\033[32mPASS! \033[0;36m{test_path}\033[0m\n')
             num_passed += 1
         else:
             num_failed += 1
