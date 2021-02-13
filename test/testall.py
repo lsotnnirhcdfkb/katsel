@@ -82,8 +82,8 @@ class Test:
         messages = []
 
         for line in stderr_lines:
-            if '!!!' in line or 'Aborted' in line or 'core dumped' in line:
-                self.failures.append('Compiler crash')
+            if '!!!' in line:
+                self.failures.append(f'Compiler internal error: {line}')
             else:
                 try:
                     messages.append(json.loads(line))
@@ -201,6 +201,7 @@ try:
 
         write('\033[2K\033[1000D')
         if test_success:
+            write(f'\033[32mPASS! \033[0;36m{test_path}\033[0m\n')
             num_passed += 1
         else:
             num_failed += 1
