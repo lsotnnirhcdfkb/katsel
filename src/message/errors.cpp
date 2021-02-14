@@ -42,7 +42,7 @@ Underline& Underline::addmsg(std::string const &type, NNPtr<char const> const co
 }
 // other internal errors {{{1
 void report_abort_noh(std::string const &message) {
-    std::cerr << "katselc is broken!!! : " << message << std::endl;
+    std::cerr << "!!! katselc is broken !!!: " << message << std::endl;
     std::cerr << "Aborting" << std::endl;
     std::abort();
 }
