@@ -24,7 +24,7 @@ void LowerFunction::lower() {
 
     for (std::unique_ptr<IR::Block> const &block : fun.blocks) {
         builder.SetInsertPoint(&get_block(*block));
-        for (std::unique_ptr<IR::Instrs::Instruction> const &i : block->instructions)
+        for (std::unique_ptr<IR::Instruction> const &i : block->instructions)
             i->accept(instr);
 
         if (block->br)
@@ -61,4 +61,15 @@ llvm::BasicBlock &LowerFunction::get_block(IR::Block const &block) {
         return *llvm_block;
     } else
         return *found_llvm_block->second;
+}
+
+llvm::Value &LowerFunction::get_instruction(IR::Instruction const &instr) {
+    auto found_llvm_value = instructions.find(instr);
+    if (found_llvm_value == instructions.end()) {
+        llvm::Value *llvm_value = llvm::UndefValue::get(&instr.type().to_llvm_type(lowerer.context));
+
+        instructions[instr] = llvm_value;
+        return *llvm_value;
+    } else
+        return *found_llvm_value->second;
 }

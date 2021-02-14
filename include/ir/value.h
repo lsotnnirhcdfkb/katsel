@@ -19,6 +19,7 @@ namespace IR {
     class BoolType;
     class FunctionType;
     class VoidType;
+    class Instruction;
 
 #define IR_VALUE_LIST(macro) \
     macro(ConstBool) \
@@ -27,6 +28,7 @@ namespace IR {
     macro(ConstFloat) \
     macro(Function) \
     macro(Register) \
+    macro(Instruction) \
     macro(Void)
 
     class ValueVisitor;

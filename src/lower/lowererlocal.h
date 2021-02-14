@@ -115,6 +115,7 @@ namespace Lower {
 
         llvm::AllocaInst &get_register(IR::Register const &reg);
         llvm::BasicBlock &get_block(IR::Block const &block);
+        llvm::Value &get_instruction(IR::Instruction const &instr);
 
         void lower();
 
@@ -125,6 +126,7 @@ namespace Lower {
         llvm::BasicBlock *entry_block;
 
         std::unordered_map<NNPtr<IR::Register const>, llvm::AllocaInst *> registers;
+        std::unordered_map<NNPtr<IR::Instruction const>, llvm::Value *> instructions;
         std::unordered_map<NNPtr<IR::Block const>, llvm::BasicBlock *> blocks;
     };
 }

@@ -17,21 +17,25 @@ namespace IR {
         Block(NNPtr<Function> fun, std::string name, size_t num);
 
         template <typename I, typename ... Args,
-                  typename = std::enable_if_t<std::is_base_of_v<Instrs::Instruction, I>>>
+                  typename = std::enable_if_t<std::is_base_of_v<Instruction, I>>>
         I& add(Args && ...args) {
             std::unique_ptr<I> instr = std::make_unique<I>(std::forward<Args>(args)...);
             I& raw = *instr;
+            raw.id = instr_index++;
             instructions.push_back(std::move(instr));
             return raw;
         }
-        void branch(std::unique_ptr<Instrs::Br> br);
+        void branch(std::unique_ptr<Br> br);
 
         std::string name;
         size_t num;
 
-        std::vector<std::unique_ptr<Instrs::Instruction>> instructions;
-        std::unique_ptr<Instrs::Br> br;
+        std::vector<std::unique_ptr<Instruction>> instructions;
+        std::unique_ptr<Br> br;
 
         NNPtr<IR::Function> fun;
+
+    private:
+        size_t instr_index;
     };
 }

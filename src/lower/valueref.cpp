@@ -23,3 +23,6 @@ void LowerValueRef::value_visit(IR::Register const &reg) {
 void LowerValueRef::value_visit(IR::Function const &fun) {
     res = &fl.lowerer.get_function(fun);
 }
+void LowerValueRef::value_visit(IR::Instruction const &instr) {
+    res = &fl.get_instruction(instr);
+}

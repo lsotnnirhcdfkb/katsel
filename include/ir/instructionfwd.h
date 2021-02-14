@@ -1,9 +1,9 @@
 #pragma once
 
 namespace IR {
+    class Instruction;
+    class Br;
     namespace Instrs {
-        class Instruction;
-        class Br;
         // INSTR FWD START
         class Copy;
         class Or;

@@ -16,9 +16,7 @@
 // static functions {{{1
 #define SUPPORT_OPERATOR_BASIC(op, instr, out_ty) \
     case ASTNS::BinaryOperator::op: { \
-        IR::Register &out = fun.add_register(out_ty, ast, false); \
-        cur_block->add<IR::Instrs::instr>(out, l, r); \
-        return Located<NNPtr<IR::Value>> { ast, out }; \
+        return Located<NNPtr<IR::Value>> { ast, cur_block->add<IR::Instrs::instr>(l, r) }; \
     }
 // float/int operations for reuse between generic float/int and concrete float/int types {{{2
 static Maybe<Located<NNPtr<IR::Value>>> float_bin_op(BIN_OP_ARGS) {
@@ -51,9 +49,7 @@ static Maybe<Located<NNPtr<IR::Value>>> float_bin_op(BIN_OP_ARGS) {
 static Maybe<Located<NNPtr<IR::Value>>> float_unary_op(UNARY_OP_ARGS) {
     switch (op.value) {
         case ASTNS::UnaryOperator::MINUS: {
-            IR::Register &out = fun.add_register(v.value->type(), ast, false);
-            cur_block->add<IR::Instrs::FNeg>(out, v);
-            return Located<NNPtr<IR::Value>> { ast, out };
+            return Located<NNPtr<IR::Value>> { ast, cur_block->add<IR::Instrs::FNeg>(v) };
         }
 
         default:
@@ -96,15 +92,11 @@ static Maybe<Located<NNPtr<IR::Value>>> int_bin_op(BIN_OP_ARGS) {
 static Maybe<Located<NNPtr<IR::Value>>> int_unary_op(UNARY_OP_ARGS) {
     switch (op.value) {
         case ASTNS::UnaryOperator::TILDE: {
-            IR::Register &out = fun.add_register(v.value->type(), ast, false);
-            cur_block->add<IR::Instrs::BitNot>(out, v);
-            return Located<NNPtr<IR::Value>> { ast, out };
+            return Located<NNPtr<IR::Value>> { ast, cur_block->add<IR::Instrs::BitNot>(v) };
         }
 
         case ASTNS::UnaryOperator::MINUS: {
-            IR::Register &out = fun.add_register(v.value->type(), ast, false);
-            cur_block->add<IR::Instrs::INeg>(out, v);
-            return Located<NNPtr<IR::Value>> { ast, out };
+            return Located<NNPtr<IR::Value>> { ast, cur_block->add<IR::Instrs::INeg>(v) };
         }
 
         default:
@@ -152,25 +144,19 @@ Maybe<Located<NNPtr<IR::Value>>> IR::FloatType::cast_from(Codegen::Context &cgc,
     if (&v.value->type() == this)
         return Located<NNPtr<IR::Value>> { ast, v.value };
 
-    IR::Register &out = fun.add_register(*this, ast, false);
-
     IntType const *sty (dynamic_cast<IntType const *>(&v.value->type()));
     if (sty) {
-        cur_block->add<IR::Instrs::IntToFloat>(out, v, this);
+        return Located<NNPtr<IR::Value>> { ast, cur_block->add<IR::Instrs::IntToFloat>(v, this) };
     } else if (dynamic_cast<FloatType const *>(&v.value->type())) {
-        cur_block->add<IR::Instrs::FloatToFloat>(out, v, this);
+        return Located<NNPtr<IR::Value>> { ast, cur_block->add<IR::Instrs::FloatToFloat>(v, this) };
     } else {
         ERR_INVALID_CAST(ast, v, *this);
         return Maybe<Located<NNPtr<IR::Value>>>();
     }
-
-    return Located<NNPtr<IR::Value>> { ast, out };
 }
 Located<NNPtr<IR::Value>> IR::FloatType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v) const {
     if (dynamic_cast<GenericFloatType const *>(&v.value->type())) {
-        IR::Register &out = fun.add_register(*this, v.span, false);
-        cur_block->add<IR::Instrs::FloatToFloat>(out, v, this);
-        return Located<NNPtr<IR::Value>> { v.span, out };
+        return Located<NNPtr<IR::Value>> { v.span, cur_block->add<IR::Instrs::FloatToFloat>(v, this) };
     }
 
     return v;
@@ -215,28 +201,19 @@ Maybe<Located<NNPtr<IR::Value>>> IR::IntType::cast_from(Codegen::Context &cgc, I
             sty_int = &newt;
             sty_char = nullptr;
 
-            IR::Register &to_int = fun.add_register(newt, v.span, false);
-            v = Located<NNPtr<IR::Value>> { v.span, to_int };
+            v = Located<NNPtr<IR::Value>> { v.span, cur_block->add<IR::Instrs::NoOpCast>(v, newt) };
 
-            cur_block->add<IR::Instrs::NoOpCast>(to_int, v, newt);
         } else if (sty_bool) {
             IR::IntType &newt (cgc.get_int_type(1, false));
             sty_int = &newt;
             sty_bool = nullptr;
 
-            IR::Register &to_int = fun.add_register(newt, v.span, false);
-            v = Located<NNPtr<IR::Value>> { v.span, to_int };
-
-            cur_block->add<IR::Instrs::NoOpCast>(to_int, v, newt);
+            v = Located<NNPtr<IR::Value>> { v.span, cur_block->add<IR::Instrs::NoOpCast>(v, newt) };
         }
 
-        IR::Register &out = fun.add_register(*this, v.span, false);
-        cur_block->add<IR::Instrs::IntToInt>(out, v, this);
-        return Located<NNPtr<IR::Value>> { ast, out };
+        return Located<NNPtr<IR::Value>> { ast, cur_block->add<IR::Instrs::IntToInt>(v, this) };
     } else if (sty_float) {
-        IR::Register &out = fun.add_register(*this, v.span, false);
-        cur_block->add<IR::Instrs::FloatToInt>(out, v, this);
-        return Located<NNPtr<IR::Value>> { ast, out };
+        return Located<NNPtr<IR::Value>> { ast, cur_block->add<IR::Instrs::FloatToInt>(v, this) };
     } else {
         ERR_INVALID_CAST(ast, v, *this);
         return Maybe<Located<NNPtr<IR::Value>>>();
@@ -244,9 +221,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::IntType::cast_from(Codegen::Context &cgc, I
 }
 Located<NNPtr<IR::Value>> IR::IntType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v) const {
     if (dynamic_cast<GenericIntType const *>(&v.value->type())) {
-        IR::Register &out = fun.add_register(*this, v.span, false);
-        cur_block->add<IR::Instrs::IntToInt>(out, v, this);
-        return Located<NNPtr<IR::Value>> { v.span, out };
+        return Located<NNPtr<IR::Value>> { v.span, cur_block->add<IR::Instrs::IntToInt>(v, this) };
     }
 
     return v;
@@ -360,12 +335,8 @@ Maybe<Located<NNPtr<IR::Value>>> IR::CharType::cast_from(Codegen::Context &cgc, 
 
     IR::IntType const &char_as_int_type (cgc.get_int_type(8, false));
 
-    IR::Register &as_int = fun.add_register(char_as_int_type, v.span, false);
-    cur_block->add<IR::Instrs::IntToInt>(as_int, v, char_as_int_type);
-
-    IR::Register &out = fun.add_register(*this, ast, false);
-    cur_block->add<IR::Instrs::NoOpCast>(out, Located<NNPtr<IR::Value>> { v.span, as_int }, this);
-    return Located<NNPtr<IR::Value>> { ast, out };
+    IR::Instrs::IntToInt &as_int = cur_block->add<IR::Instrs::IntToInt>(v, char_as_int_type);
+    return Located<NNPtr<IR::Value>> { ast, cur_block->add<IR::Instrs::NoOpCast>(Located<NNPtr<IR::Value>> { v.span, as_int }, this) };
 }
 Located<NNPtr<IR::Value>> IR::CharType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v) const {
     return v;
@@ -409,9 +380,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::BoolType::unary_op(Codegen::Context &cgc, I
 
     switch (op.value) {
         case ASTNS::UnaryOperator::BANG: {
-            IR::Register &out = fun.add_register(v.value->type(), ast, false);
-            cur_block->add<IR::Instrs::Not>(out, v);
-            return Located<NNPtr<IR::Value>> { ast, out };
+            return Located<NNPtr<IR::Value>> { ast, cur_block->add<IR::Instrs::Not>(v) };
          }
 
         default:
@@ -431,13 +400,9 @@ Maybe<Located<NNPtr<IR::Value>>> IR::BoolType::cast_from(Codegen::Context &cgc, 
 
     IR::IntType const &bool_as_int_type (cgc.get_int_type(1, false));
 
-    IR::Register &as_int = fun.add_register(bool_as_int_type, v.span, false);
-    cur_block->add<IR::Instrs::IntToInt>(as_int, v, bool_as_int_type);
+    IR::Instrs::IntToInt &as_int = cur_block->add<IR::Instrs::IntToInt>(v, bool_as_int_type);
 
-    IR::Register &out = fun.add_register(*this, ast, false);
-    cur_block->add<IR::Instrs::NoOpCast>(out, Located<NNPtr<IR::Value>> { v.span, as_int }, *this);
-
-    return Located<NNPtr<IR::Value>> { ast, out };
+    return Located<NNPtr<IR::Value>> { ast, cur_block->add<IR::Instrs::NoOpCast>(Located<NNPtr<IR::Value>> { v.span, as_int }, *this) };
 }
 Located<NNPtr<IR::Value>> IR::BoolType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v) const {
     return v;

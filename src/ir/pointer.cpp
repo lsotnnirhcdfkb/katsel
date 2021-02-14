@@ -38,23 +38,16 @@ Maybe<Located<NNPtr<IR::Value>>> IR::PointerType::bin_op(Codegen::Context &cgc, 
 
     switch (op.value) {
         case ASTNS::BinaryOperator::PLUS: {
-            IR::Register &out = fun.add_register(l.value->type(), ast, false);
-            cur_block->add<IR::Instrs::PtrArith>(out, l, r);
-            return Located<NNPtr<IR::Value>> { ast, out };
+            return Located<NNPtr<IR::Value>> { ast, cur_block->add<IR::Instrs::PtrArith>(l, r) };
         }
         case ASTNS::BinaryOperator::MINUS: {
-            IR::Register &negated = fun.add_register(r.value->type(), r.span, false);
-            cur_block->add<IR::Instrs::INeg>(negated, r);
-
-            IR::Register &out = fun.add_register(l.value->type(), ast, false);
-            cur_block->add<IR::Instrs::PtrArith>(out, l, Located<NNPtr<IR::Value>> { r.span, negated });
+            IR::Instrs::INeg &negated = cur_block->add<IR::Instrs::INeg>(r);
+            IR::Instrs::PtrArith &out = cur_block->add<IR::Instrs::PtrArith>(l, Located<NNPtr<IR::Value>> { r.span, negated });
             return Located<NNPtr<IR::Value>> { ast, out };
         }
 #define OP(op, instr) \
     case ASTNS::BinaryOperator::op: { \
-        IR::Register &out = fun.add_register(cgc.get_bool_type(), ast, false); \
-        cur_block->add<IR::Instrs::instr>(out, l, r); \
-        return Located<NNPtr<IR::Value>> { ast, out }; \
+        return Located<NNPtr<IR::Value>> { ast, cur_block->add<IR::Instrs::instr>(l, r) }; \
     }
         OP(GREATER, ICmpGT)
         OP(LESS, ICmpLT)
@@ -77,9 +70,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::PointerType::unary_op(Codegen::Context &cgc
 }
 Maybe<Located<NNPtr<IR::Value>>> IR::PointerType::cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast) const {
     if (dynamic_cast<IR::PointerType const *>(&v.value->type())) {
-        IR::Register &out = fun.add_register(*this, v.span, false);
-        cur_block->add<IR::Instrs::NoOpCast>(out, v, this);
-        return Located<NNPtr<IR::Value>> { ast, out };
+        return Located<NNPtr<IR::Value>> { ast, cur_block->add<IR::Instrs::NoOpCast>(v, this) };
     }
 
     ERR_INVALID_CAST(ast, v, *this);

@@ -86,8 +86,7 @@ class Test:
                 try:
                     messages.append(json.loads(line))
                 except json.decoder.JSONDecodeError as jexc:
-                    self.failures.append((f'JSON Decode Error: {jexc}\n'
-                                          f'on line: "{line}"'))
+                    self.failures.append(f'JSON Decode Error: {jexc} on line "{line}"')
 
         for expect in total_expects:
             expect_line = match_line(self.test_contents, expect)

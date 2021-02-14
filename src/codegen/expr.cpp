@@ -124,9 +124,7 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::DerefExpr &ast) {
         return;
     }
 
-    IR::Register &ret_reg = ir_builder->fun().add_register(*asptrty->ty, ast, false);
-    ir_builder->cur_block()->add<IR::Instrs::DerefPtr>(ret_reg, oper);
-    ret = Located<NNPtr<IR::Value>> { ast, ret_reg };
+    ret = Located<NNPtr<IR::Value>> { ast, ir_builder->cur_block()->add<IR::Instrs::DerefPtr>(oper) };
 }
 void Codegen::Helpers::ExprCodegen::visit(ASTNS::AddrofExpr &ast) {
     Maybe<Located<NNPtr<IR::Value>>> m_oper = expr(*ast.expr);
@@ -150,9 +148,7 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::AddrofExpr &ast) {
         return;
     }
 
-    IR::Register &ret_reg = ir_builder->fun().add_register(ir_builder->context().get_pointer_type(ast.mut, oper.value->type()), ast, false);
-    ir_builder->cur_block()->add<IR::Instrs::Addrof>(ret_reg, *as_register, ast.mut);
-    ret = Located<NNPtr<IR::Value>> { ast, ret_reg };
+    ret = Located<NNPtr<IR::Value>> { ast, ir_builder->cur_block()->add<IR::Instrs::Addrof>(*as_register, ast.mut) };
 }
 
 void Codegen::Helpers::ExprCodegen::visit(ASTNS::CallExpr &ast) {
@@ -197,9 +193,7 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::CallExpr &ast) {
         return;
     }
 
-    IR::Register &ret_reg = ir_builder->fun().add_register(*fty->ret, ast, false);
-    ir_builder->cur_block()->add<IR::Instrs::Call>(ret_reg, NNPtr<IR::Function const>(static_cast<IR::Function const *>(fun.value.as_raw())), args);
-    ret = Located<NNPtr<IR::Value>> { ast, ret_reg };
+    ret = Located<NNPtr<IR::Value>> { ast, ir_builder->cur_block()->add<IR::Instrs::Call>(NNPtr<IR::Function const>(static_cast<IR::Function const *>(fun.value.as_raw())), args) };
 }
 
 void Codegen::Helpers::ExprCodegen::visit(ASTNS::BoolLit &ast) {
@@ -221,9 +215,7 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::ThisExpr &ast) {
     Maybe<Local> m_loc = locals->get_local("this");
     if (m_loc.has()) {
         NNPtr<Local> local = m_loc.get();
-        IR::Register &ret_reg = ir_builder->fun().add_register(local->v->type(), ast, false);
-        ir_builder->cur_block()->add<IR::Instrs::DerefPtr>(ret_reg, Located<NNPtr<IR::Value>> { ast, *local->v });
-        ret = Located<NNPtr<IR::Value>> { ast, ret_reg };
+        ret = Located<NNPtr<IR::Value>> { ast, *local->v };
     } else {
         ERR_NO_THIS(ast.tok.span);
         ret = Maybe<Located<NNPtr<IR::Value>>>();
@@ -468,10 +460,7 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::MethodCallExpr &ast) {
             return;
         }
 
-        IR::Register &reference_reg = ir_builder->fun().add_register(*method.this_arg_type, op.span, false);
-        ir_builder->cur_block()->add<IR::Instrs::Addrof>(reference_reg, *as_register, method.this_mut);
-        
-        m_this_arg = Located<NNPtr<IR::Value>> { op.span, reference_reg };
+        m_this_arg = Located<NNPtr<IR::Value>> { op.span, ir_builder->cur_block()->add<IR::Instrs::Addrof>(*as_register, method.this_mut) };
     } else
         m_this_arg = op;
 
@@ -507,7 +496,5 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::MethodCallExpr &ast) {
         return;
     }
 
-    IR::Register &ret_reg = ir_builder->fun().add_register(*method.fun->ty->ret, ast, false);
-    ir_builder->cur_block()->add<IR::Instrs::Call>(ret_reg, method.fun, args);
-    ret = Located<NNPtr<IR::Value>> { ast, ret_reg };
+    ret = Located<NNPtr<IR::Value>> { ast, ir_builder->cur_block()->add<IR::Instrs::Call>(method.fun, args) };
 }
