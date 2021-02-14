@@ -29,7 +29,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::VoidType::cast_from(Codegen::Context &, IR:
     return Maybe<Located<NNPtr<Value>>>();
 }
 
-llvm::Type& IR::VoidType::to_llvmtype(llvm::LLVMContext &con) const {
+llvm::Type& IR::VoidType::to_llvm_type(llvm::LLVMContext &con) const {
     return *llvm::StructType::get(con);
 }
 Located<NNPtr<IR::Value>> IR::VoidType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v) const {
@@ -74,12 +74,12 @@ Maybe<Located<NNPtr<IR::Value>>> IR::FunctionType::cast_from(Codegen::Context &,
     return Maybe<Located<NNPtr<Value>>>();
 }
 
-llvm::Type& IR::FunctionType::to_llvmtype(llvm::LLVMContext &con) const {
+llvm::Type& IR::FunctionType::to_llvm_type(llvm::LLVMContext &con) const {
     std::vector<llvm::Type*> paramsasllvm;
     for (NNPtr<Type const> p : paramtys)
-        paramsasllvm.push_back(&p->to_llvmtype(con));
+        paramsasllvm.push_back(&p->to_llvm_type(con));
 
-    return *llvm::FunctionType::get(&ret->to_llvmtype(con), paramsasllvm, false);
+    return *llvm::FunctionType::get(&ret->to_llvm_type(con), paramsasllvm, false);
 }
 Located<NNPtr<IR::Value>> IR::FunctionType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v) const {
     return v;

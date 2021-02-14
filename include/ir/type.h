@@ -26,7 +26,7 @@ namespace Codegen {
         Maybe<Located<NNPtr<IR::Value>>> unary_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, Located<NNPtr<IR::Value>> operand, ASTNS::AST const &ast) const override; \
         Located<NNPtr<IR::Value>> impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v) const override; \
         Maybe<Located<NNPtr<IR::Value>>> cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast) const override; \
-        llvm::Type& to_llvmtype(llvm::LLVMContext &con) const override; \
+        llvm::Type& to_llvm_type(llvm::LLVMContext &con) const override; \
         void type_accept(IR::TypeVisitor &v) const override; \
         virtual Maybe<Method const> get_method(std::string const &name) const override; \
         virtual void add_method(std::string const &name, Method const &m) override; \
@@ -83,7 +83,7 @@ namespace IR {
 
         virtual Maybe<Located<NNPtr<IR::Value>>> cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast) const = 0;
 
-        virtual llvm::Type& to_llvmtype(llvm::LLVMContext &con) const = 0;
+        virtual llvm::Type& to_llvm_type(llvm::LLVMContext &con) const = 0;
 
         virtual void type_accept(TypeVisitor &v) const = 0;
 

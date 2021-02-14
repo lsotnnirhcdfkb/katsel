@@ -44,7 +44,7 @@ llvm::AllocaInst &LowerFunction::get_register(IR::Register const &reg) {
     auto found_alloca = registers.find(reg);
     if (found_alloca == registers.end()) {
         llvm::IRBuilder<> entry_builder (entry_block);
-        llvm::AllocaInst *alloca = entry_builder.CreateAlloca(&reg.type().to_llvmtype(lowerer.context));
+        llvm::AllocaInst *alloca = entry_builder.CreateAlloca(&reg.type().to_llvm_type(lowerer.context));
 
         registers[reg] = alloca;
         return *alloca;

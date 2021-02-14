@@ -78,7 +78,7 @@ SIGNATURE(FNeg) {
     ASSIGN_TARGET(CREATE_INSTR(FNeg)(LOWER(*instr.op.value)));
 }
 SIGNATURE(INeg) {
-    ASSIGN_TARGET(CREATE_INSTR(Sub)(llvm::ConstantInt::get(&instr.op.value->type().to_llvmtype(fl.lowerer.context), 0), LOWER(*instr.op.value)));
+    ASSIGN_TARGET(CREATE_INSTR(Sub)(llvm::ConstantInt::get(&instr.op.value->type().to_llvm_type(fl.lowerer.context), 0), LOWER(*instr.op.value)));
 }
 // Bitwise instructions {{{1
 SIGNATURE(BitXor) {
@@ -91,7 +91,7 @@ SIGNATURE(BitAnd) {
     ASSIGN_TARGET(CREATE_INSTR(And)(LOWER_LHS_RHS()));
 }
 SIGNATURE(BitNot) {
-    ASSIGN_TARGET(CREATE_INSTR(Xor)(llvm::ConstantInt::get(&instr.op.value->type().to_llvmtype(fl.lowerer.context), -1), LOWER(*instr.op.value)));
+    ASSIGN_TARGET(CREATE_INSTR(Xor)(llvm::ConstantInt::get(&instr.op.value->type().to_llvm_type(fl.lowerer.context), -1), LOWER(*instr.op.value)));
 }
 // Shift instructions {{{1
 SIGNATURE(ShiftR) {
@@ -102,15 +102,15 @@ SIGNATURE(ShiftL) {
 }
 // Type conversion instructions {{{1
 SIGNATURE(NoOpCast) {
-    ASSIGN_TARGET(CREATE_INSTR(BitCast)(LOWER(*instr.op.value), &instr.newt->to_llvmtype(fl.lowerer.context)));
+    ASSIGN_TARGET(CREATE_INSTR(BitCast)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context)));
 }
 SIGNATURE(FloatToFloat) {
     NNPtr<IR::FloatType const> bty = static_cast<IR::FloatType const *>(&instr.op.value->type());
 
     if (bty->size < instr.newt->size)
-        ASSIGN_TARGET(CREATE_INSTR(FPExt)(LOWER(*instr.op.value), &instr.newt->to_llvmtype(fl.lowerer.context)));
+        ASSIGN_TARGET(CREATE_INSTR(FPExt)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context)));
     else if (bty->size > instr.newt->size)
-        ASSIGN_TARGET(CREATE_INSTR(FPTrunc)(LOWER(*instr.op.value), &instr.newt->to_llvmtype(fl.lowerer.context)));
+        ASSIGN_TARGET(CREATE_INSTR(FPTrunc)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context)));
     else
         ASSIGN_TARGET(LOWER(*instr.op.value));
 }
@@ -118,26 +118,26 @@ SIGNATURE(IntToInt) {
     NNPtr<IR::IntType const> bty = static_cast<IR::IntType const *>(&instr.op.value->type());
     if (bty->size < instr.newt->size)
         if (bty->is_signed)
-            ASSIGN_TARGET(CREATE_INSTR(SExt)(LOWER(*instr.op.value), &instr.newt->to_llvmtype(fl.lowerer.context)));
+            ASSIGN_TARGET(CREATE_INSTR(SExt)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context)));
         else
-            ASSIGN_TARGET(CREATE_INSTR(ZExt)(LOWER(*instr.op.value), &instr.newt->to_llvmtype(fl.lowerer.context)));
+            ASSIGN_TARGET(CREATE_INSTR(ZExt)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context)));
     else if (bty->size > instr.newt->size)
-        ASSIGN_TARGET(CREATE_INSTR(Trunc)(LOWER(*instr.op.value), &instr.newt->to_llvmtype(fl.lowerer.context)));
+        ASSIGN_TARGET(CREATE_INSTR(Trunc)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context)));
     else
         ASSIGN_TARGET(LOWER(*instr.op.value));
 }
 SIGNATURE(IntToFloat) {
     NNPtr<IR::IntType const> bty = static_cast<IR::IntType const *>(&instr.op.value->type());
     if (bty->is_signed)
-        ASSIGN_TARGET(CREATE_INSTR(SIToFP)(LOWER(*instr.op.value), &instr.newt->to_llvmtype(fl.lowerer.context)));
+        ASSIGN_TARGET(CREATE_INSTR(SIToFP)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context)));
     else
-        ASSIGN_TARGET(CREATE_INSTR(UIToFP)(LOWER(*instr.op.value), &instr.newt->to_llvmtype(fl.lowerer.context)));
+        ASSIGN_TARGET(CREATE_INSTR(UIToFP)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context)));
 }
 SIGNATURE(FloatToInt) {
     if (instr.newt->is_signed)
-        ASSIGN_TARGET(CREATE_INSTR(FPToSI)(LOWER(*instr.op.value), &instr.newt->to_llvmtype(fl.lowerer.context)));
+        ASSIGN_TARGET(CREATE_INSTR(FPToSI)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context)));
     else
-        ASSIGN_TARGET(CREATE_INSTR(FPToUI)(LOWER(*instr.op.value), &instr.newt->to_llvmtype(fl.lowerer.context)));
+        ASSIGN_TARGET(CREATE_INSTR(FPToUI)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context)));
 }
 // Branch instructions {{{1
 SIGNATURE(Call) {

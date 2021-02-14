@@ -78,7 +78,7 @@ void Lowerer::print_mod(llvm::raw_ostream &ostream) {
 llvm::Function &Lowerer::get_function(IR::Function const &fun) {
     auto found_llvm_fun = functions.find(fun);
     if (found_llvm_fun == functions.end()) {
-        auto *fun_ty = static_cast<llvm::FunctionType*>(&fun.ty->to_llvmtype(context));
+        auto *fun_ty = static_cast<llvm::FunctionType*>(&fun.ty->to_llvm_type(context));
         std::string fun_name = fun.name == "main" ? fun.name : mangler.mangle_name(fun);
 
         llvm::Function *llvm_fun = llvm::Function::Create(fun_ty, llvm::Function::ExternalLinkage, fun_name, &mod);

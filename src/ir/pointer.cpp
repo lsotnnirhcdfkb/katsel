@@ -85,8 +85,8 @@ Maybe<Located<NNPtr<IR::Value>>> IR::PointerType::cast_from(Codegen::Context &cg
     ERR_INVALID_CAST(ast, v, *this);
     return Maybe<Located<NNPtr<Value>>>();
 }
-llvm::Type& IR::PointerType::to_llvmtype(llvm::LLVMContext &con) const {
-    return *llvm::PointerType::getUnqual(&ty->to_llvmtype(con));
+llvm::Type& IR::PointerType::to_llvm_type(llvm::LLVMContext &con) const {
+    return *llvm::PointerType::getUnqual(&ty->to_llvm_type(con));
 }
 Located<NNPtr<IR::Value>> IR::PointerType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v) const {
     return v;

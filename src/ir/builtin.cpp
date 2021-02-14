@@ -119,13 +119,13 @@ ASTNS::AST const &IR::FloatType::decl_ast() const {
     return *_decl_ast;
 }
 
-llvm::Type& IR::FloatType::to_llvmtype(llvm::LLVMContext &con) const {
+llvm::Type& IR::FloatType::to_llvm_type(llvm::LLVMContext &con) const {
     if (size == 32)
         return *llvm::Type::getFloatTy(con);
     else if (size == 64)
         return *llvm::Type::getDoubleTy(con);
     else
-        report_abort_noh(format("FloatType::to_llvmtype: size = {}", size));
+        report_abort_noh(format("FloatType::to_llvm_type: size = {}", size));
 }
 std::string IR::FloatType::name() const {
     if (size == 32)
@@ -181,7 +181,7 @@ ASTNS::AST const &IR::IntType::decl_ast() const {
     return *_decl_ast;
 }
 
-llvm::Type& IR::IntType::to_llvmtype(llvm::LLVMContext &con) const {
+llvm::Type& IR::IntType::to_llvm_type(llvm::LLVMContext &con) const {
     return *llvm::IntegerType::get(con, size);
 }
 std::string IR::IntType::name() const {
@@ -273,7 +273,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::GenericIntType::cast_from(Codegen::Context 
     ERR_INVALID_CAST(ast, v, *this);
     return Maybe<Located<NNPtr<Value>>>();
 }
-llvm::Type& IR::GenericIntType::to_llvmtype(llvm::LLVMContext &con) const {
+llvm::Type& IR::GenericIntType::to_llvm_type(llvm::LLVMContext &con) const {
     return *llvm::Type::getInt32Ty(con);
 }
 Located<NNPtr<IR::Value>> IR::GenericIntType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v) const {
@@ -300,7 +300,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::GenericFloatType::cast_from(Codegen::Contex
     ERR_INVALID_CAST(ast, v, *this);
     return Maybe<Located<NNPtr<Value>>>();
 }
-llvm::Type& IR::GenericFloatType::to_llvmtype(llvm::LLVMContext &con) const {
+llvm::Type& IR::GenericFloatType::to_llvm_type(llvm::LLVMContext &con) const {
     return *llvm::Type::getFloatTy(con);
 }
 
@@ -313,7 +313,7 @@ ASTNS::AST const &IR::CharType::decl_ast() const {
     return *_decl_ast;
 }
 
-llvm::Type& IR::CharType::to_llvmtype(llvm::LLVMContext &con) const {
+llvm::Type& IR::CharType::to_llvm_type(llvm::LLVMContext &con) const {
     return *llvm::Type::getInt8Ty(con);
 }
 std::string IR::CharType::name() const {
@@ -376,7 +376,7 @@ ASTNS::AST const &IR::BoolType::decl_ast() const {
     return *_decl_ast;
 }
 
-llvm::Type& IR::BoolType::to_llvmtype(llvm::LLVMContext &con) const {
+llvm::Type& IR::BoolType::to_llvm_type(llvm::LLVMContext &con) const {
     return *llvm::Type::getInt1Ty(con);
 }
 std::string IR::BoolType::name() const {

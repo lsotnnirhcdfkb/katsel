@@ -11,10 +11,10 @@ llvm::Value &LowerValueRef::lower(IR::Value const &v) {
     return *res;
 }
 
-void LowerValueRef::value_visit(IR::ConstBool  const &v) { res = llvm::ConstantInt   ::get(&v.type().to_llvmtype(fl.lowerer.context), v.val); }
-void LowerValueRef::value_visit(IR::ConstChar  const &v) { res = llvm::ConstantInt   ::get(&v.type().to_llvmtype(fl.lowerer.context), v.val); }
-void LowerValueRef::value_visit(IR::ConstInt   const &v) { res = llvm::ConstantInt   ::get(&v.type().to_llvmtype(fl.lowerer.context), v.val); }
-void LowerValueRef::value_visit(IR::ConstFloat const &v) { res = llvm::ConstantFP    ::get(&v.type().to_llvmtype(fl.lowerer.context), v.val); }
+void LowerValueRef::value_visit(IR::ConstBool  const &v) { res = llvm::ConstantInt   ::get(&v.type().to_llvm_type(fl.lowerer.context), v.val); }
+void LowerValueRef::value_visit(IR::ConstChar  const &v) { res = llvm::ConstantInt   ::get(&v.type().to_llvm_type(fl.lowerer.context), v.val); }
+void LowerValueRef::value_visit(IR::ConstInt   const &v) { res = llvm::ConstantInt   ::get(&v.type().to_llvm_type(fl.lowerer.context), v.val); }
+void LowerValueRef::value_visit(IR::ConstFloat const &v) { res = llvm::ConstantFP    ::get(&v.type().to_llvm_type(fl.lowerer.context), v.val); }
 void LowerValueRef::value_visit(IR::Void       const &v) { res = llvm::ConstantStruct::get(llvm::StructType::get(fl.lowerer.context)); }
 
 void LowerValueRef::value_visit(IR::Register const &reg) {
