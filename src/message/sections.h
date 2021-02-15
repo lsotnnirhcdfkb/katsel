@@ -1,4 +1,5 @@
 #pragma once
+
 #include "message/errors.h"
 #include "utils/location.h"
 
@@ -8,6 +9,7 @@ namespace Errors {
         public:
             struct Message {
                 Span location;
+                char underline_char;
                 std::string message;
                 std::string_view color;
             };

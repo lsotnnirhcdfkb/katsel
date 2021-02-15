@@ -23,9 +23,9 @@ class SimpleHighlight:
         output = []
         for message in self.messages:
             if len(message) == 2:
-                output.append(f'    sect->messages.push_back(Errors::Sections::Underlines::Message {{ {self.location}, {message[1]}, A_BOLD }});\n')
+                output.append(f'    sect->messages.push_back(Errors::Sections::Underlines::Message {{ {self.location}, \'{self.under}\', {message[1]}, A_BOLD }});\n')
             else:
-                output.append(f'    sect->messages.push_back(Errors::Sections::Underlines::Message {{ {self.location}, format({", ".join(message[1:])}), A_BOLD }});\n')
+                output.append(f'    sect->messages.push_back(Errors::Sections::Underlines::Message {{ {self.location}, \'{self.under}\', format({", ".join(message[1:])}), A_BOLD }});\n')
         return ''.join(output)
 class ValueDeclHighlight:
     def __init__(self, val, valuename, fallbackloc, under, type_, message=None):
@@ -42,7 +42,7 @@ class ValueDeclHighlight:
             message = 'format("{} declared here", {self.valuename})'
 
         output = (f'    if (IR::DeclaredValue const *as_declared = dynamic_cast<IR::DeclaredValue const *>({self.val}))\n'
-                  f'        sect->messages.push_back(Errors::Sections::Underlines::Message {{ as_declared->def_span(), {message}, A_BOLD }});\n')
+                  f'        sect->messages.push_back(Errors::Sections::Underlines::Message {{ as_declared->def_span(), \'{self.under}\', {message}, A_BOLD }});\n')
 
         return output
 # constants {{{1
