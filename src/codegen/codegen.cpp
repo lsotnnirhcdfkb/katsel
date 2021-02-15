@@ -13,10 +13,10 @@ namespace {
             success(true) {}
 
         // MAINCG METHODS START
-        void visit(ASTNS::ImplicitDecl &ast) override;
-        void visit(ASTNS::CU &ast) override;
-        void visit(ASTNS::ImplDecl &ast) override;
-        void visit(ASTNS::FunctionDecl &ast) override;
+        void ast_visit(ASTNS::ImplicitDecl &ast) override;
+        void ast_visit(ASTNS::CU &ast) override;
+        void ast_visit(ASTNS::ImplDecl &ast) override;
+        void ast_visit(ASTNS::FunctionDecl &ast) override;
         // MAINCG METHODS END
 
         // for reasons beyond my understanding, this member has to be
@@ -71,7 +71,7 @@ namespace {
 Maybe<std::unique_ptr<IR::Unit>> Codegen::codegen(NNPtr<ASTNS::CUB> cub) {
     _CG cg (cub->file);
 
-    cub->accept(cg);
+    cub->ast_accept(cg);
     cg.run();
 
     if (cg.success)
@@ -80,17 +80,17 @@ Maybe<std::unique_ptr<IR::Unit>> Codegen::codegen(NNPtr<ASTNS::CUB> cub) {
         return Maybe<std::unique_ptr<IR::Unit>>();
 }
 
-void _CG::visit(ASTNS::ImplicitDecl &ast) {}
+void _CG::ast_visit(ASTNS::ImplicitDecl &ast) {}
 
-void _CG::visit(ASTNS::CU &ast) {
+void _CG::ast_visit(ASTNS::CU &ast) {
     for (auto &decl : ast.decls) {
-        decl->accept(*this);
+        decl->ast_accept(*this);
     }
 }
 
-void _CG::visit(ASTNS::ImplDecl &ast) {
+void _CG::ast_visit(ASTNS::ImplDecl &ast) {
     codegens.push_back(std::make_unique<Codegen::Impl>(*unit, unit->context, ast));
 }
-void _CG::visit(ASTNS::FunctionDecl &ast) {
+void _CG::ast_visit(ASTNS::FunctionDecl &ast) {
     codegens.push_back(std::make_unique<Codegen::Function>(*unit, unit->context, ast, Maybe<NNPtr<IR::Type>>(), unit->mod));
 }

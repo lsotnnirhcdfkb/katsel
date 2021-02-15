@@ -13,18 +13,18 @@ Codegen::Helpers::StmtCodegen::StmtCodegen(IR::Builder &ir_builder, Locals &loca
     path_visitor(path_visitor) {}
 
 void Codegen::Helpers::StmtCodegen::stmt(ASTNS::Stmt &ast) {
-    ast.accept(*this);
+    ast.ast_accept(*this);
 }
-void Codegen::Helpers::StmtCodegen::visit(ASTNS::ExprStmt &ast) {
+void Codegen::Helpers::StmtCodegen::ast_visit(ASTNS::ExprStmt &ast) {
     Maybe<Located<NNPtr<IR::Value>>> res = expr_cg->expr(*ast.expr);
     if (!res.has())
         success = false;
 }
-void Codegen::Helpers::StmtCodegen::visit(ASTNS::VarStmt &ast) {
+void Codegen::Helpers::StmtCodegen::ast_visit(ASTNS::VarStmt &ast) {
     for (std::unique_ptr<ASTNS::VarStmtItem> &item : ast.items)
-        item->accept(*this);
+        item->ast_accept(*this);
 }
-void Codegen::Helpers::StmtCodegen::visit(ASTNS::RetStmt &ast) {
+void Codegen::Helpers::StmtCodegen::ast_visit(ASTNS::RetStmt &ast) {
     Maybe<Located<NNPtr<IR::Value>>> m_v = ast.expr ? expr_cg->expr(*ast.expr) : Maybe<Located<NNPtr<IR::Value>>>(Located<NNPtr<IR::Value>> { ast, ir_builder->context().get_void() });
     if (!m_v.has()) {
         success = false;

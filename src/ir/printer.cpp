@@ -147,54 +147,54 @@ namespace {
         // }}}
 
         // binary instructions {{{
-        void visit(IR::Instrs::Or const &i)     override { binary_instruction(i, "or", i.lhs, i.rhs); }
-        void visit(IR::Instrs::And const &i)    override { binary_instruction(i, "and", i.lhs, i.rhs); }
-        void visit(IR::Instrs::ICmpNE const &i) override { binary_instruction(i, "icmpne", i.lhs, i.rhs); }
-        void visit(IR::Instrs::ICmpEQ const &i) override { binary_instruction(i, "icmpeq", i.lhs, i.rhs); }
-        void visit(IR::Instrs::ICmpLT const &i) override { binary_instruction(i, "icmplt", i.lhs, i.rhs); }
-        void visit(IR::Instrs::ICmpGT const &i) override { binary_instruction(i, "icmpgt", i.lhs, i.rhs); }
-        void visit(IR::Instrs::ICmpLE const &i) override { binary_instruction(i, "icmple", i.lhs, i.rhs); }
-        void visit(IR::Instrs::ICmpGE const &i) override { binary_instruction(i, "icmpge", i.lhs, i.rhs); }
-        void visit(IR::Instrs::FCmpNE const &i) override { binary_instruction(i, "fcmpne", i.lhs, i.rhs); }
-        void visit(IR::Instrs::FCmpEQ const &i) override { binary_instruction(i, "fcmpeq", i.lhs, i.rhs); }
-        void visit(IR::Instrs::FCmpLT const &i) override { binary_instruction(i, "fcmplt", i.lhs, i.rhs); }
-        void visit(IR::Instrs::FCmpGT const &i) override { binary_instruction(i, "fcmpgt", i.lhs, i.rhs); }
-        void visit(IR::Instrs::FCmpLE const &i) override { binary_instruction(i, "fcmple", i.lhs, i.rhs); }
-        void visit(IR::Instrs::FCmpGE const &i) override { binary_instruction(i, "fcmpge", i.lhs, i.rhs); }
-        void visit(IR::Instrs::BitXor const &i) override { binary_instruction(i, "bitxor", i.lhs, i.rhs); }
-        void visit(IR::Instrs::BitOr const &i)  override { binary_instruction(i, "bitor", i.lhs, i.rhs); }
-        void visit(IR::Instrs::BitAnd const &i) override { binary_instruction(i, "bitand", i.lhs, i.rhs); }
-        void visit(IR::Instrs::ShiftR const &i) override { binary_instruction(i, "shiftr", i.lhs, i.rhs); }
-        void visit(IR::Instrs::ShiftL const &i) override { binary_instruction(i, "shiftl", i.lhs, i.rhs); }
-        void visit(IR::Instrs::IAdd const &i)   override { binary_instruction(i, "iadd", i.lhs, i.rhs); }
-        void visit(IR::Instrs::ISub const &i)   override { binary_instruction(i, "isub", i.lhs, i.rhs); }
-        void visit(IR::Instrs::IMult const &i)  override { binary_instruction(i, "imult", i.lhs, i.rhs); }
-        void visit(IR::Instrs::IDiv const &i)   override { binary_instruction(i, "idiv", i.lhs, i.rhs); }
-        void visit(IR::Instrs::IMod const &i)   override { binary_instruction(i, "imod", i.lhs, i.rhs); }
-        void visit(IR::Instrs::FAdd const &i)   override { binary_instruction(i, "fadd", i.lhs, i.rhs); }
-        void visit(IR::Instrs::FSub const &i)   override { binary_instruction(i, "fsub", i.lhs, i.rhs); }
-        void visit(IR::Instrs::FMult const &i)  override { binary_instruction(i, "fmult", i.lhs, i.rhs); }
-        void visit(IR::Instrs::FDiv const &i)   override { binary_instruction(i, "fdiv", i.lhs, i.rhs); }
-        void visit(IR::Instrs::FMod const &i)   override { binary_instruction(i, "fmod", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::Or const &i)     override { binary_instruction(i, "or", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::And const &i)    override { binary_instruction(i, "and", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::ICmpNE const &i) override { binary_instruction(i, "icmpne", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::ICmpEQ const &i) override { binary_instruction(i, "icmpeq", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::ICmpLT const &i) override { binary_instruction(i, "icmplt", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::ICmpGT const &i) override { binary_instruction(i, "icmpgt", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::ICmpLE const &i) override { binary_instruction(i, "icmple", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::ICmpGE const &i) override { binary_instruction(i, "icmpge", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::FCmpNE const &i) override { binary_instruction(i, "fcmpne", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::FCmpEQ const &i) override { binary_instruction(i, "fcmpeq", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::FCmpLT const &i) override { binary_instruction(i, "fcmplt", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::FCmpGT const &i) override { binary_instruction(i, "fcmpgt", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::FCmpLE const &i) override { binary_instruction(i, "fcmple", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::FCmpGE const &i) override { binary_instruction(i, "fcmpge", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::BitXor const &i) override { binary_instruction(i, "bitxor", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::BitOr const &i)  override { binary_instruction(i, "bitor", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::BitAnd const &i) override { binary_instruction(i, "bitand", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::ShiftR const &i) override { binary_instruction(i, "shiftr", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::ShiftL const &i) override { binary_instruction(i, "shiftl", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::IAdd const &i)   override { binary_instruction(i, "iadd", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::ISub const &i)   override { binary_instruction(i, "isub", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::IMult const &i)  override { binary_instruction(i, "imult", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::IDiv const &i)   override { binary_instruction(i, "idiv", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::IMod const &i)   override { binary_instruction(i, "imod", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::FAdd const &i)   override { binary_instruction(i, "fadd", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::FSub const &i)   override { binary_instruction(i, "fsub", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::FMult const &i)  override { binary_instruction(i, "fmult", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::FDiv const &i)   override { binary_instruction(i, "fdiv", i.lhs, i.rhs); }
+        void instr_visit(IR::Instrs::FMod const &i)   override { binary_instruction(i, "fmod", i.lhs, i.rhs); }
         // }}}
         // unary instructions {{{
-        void visit(IR::Instrs::Not const &i)       override { unary_instruction(i, "not", i.op); }
-        void visit(IR::Instrs::BitNot const &i)    override { unary_instruction(i, "bitnot", i.op); }
-        void visit(IR::Instrs::INeg const &i)      override { unary_instruction(i, "ineg", i.op); }
-        void visit(IR::Instrs::FNeg const &i)      override { unary_instruction(i, "fneg", i.op); }
+        void instr_visit(IR::Instrs::Not const &i)       override { unary_instruction(i, "not", i.op); }
+        void instr_visit(IR::Instrs::BitNot const &i)    override { unary_instruction(i, "bitnot", i.op); }
+        void instr_visit(IR::Instrs::INeg const &i)      override { unary_instruction(i, "ineg", i.op); }
+        void instr_visit(IR::Instrs::FNeg const &i)      override { unary_instruction(i, "fneg", i.op); }
         // }}}
         // cast instructions {{{
-        void visit(IR::Instrs::NoOpCast const &i)     override { cast_instruction(i, "noopcast", i.op, *i.newt); }
-        void visit(IR::Instrs::FloatToFloat const &i) override { cast_instruction(i, "ftof", i.op, *i.newt); }
-        void visit(IR::Instrs::IntToInt const &i)     override { cast_instruction(i, "itoi", i.op, *i.newt); }
-        void visit(IR::Instrs::IntToFloat const &i)   override { cast_instruction(i, "itof", i.op, *i.newt); }
-        void visit(IR::Instrs::FloatToInt const &i)   override { cast_instruction(i, "ftoi", i.op, *i.newt); }
+        void instr_visit(IR::Instrs::NoOpCast const &i)     override { cast_instruction(i, "noopcast", i.op, *i.newt); }
+        void instr_visit(IR::Instrs::FloatToFloat const &i) override { cast_instruction(i, "ftof", i.op, *i.newt); }
+        void instr_visit(IR::Instrs::IntToInt const &i)     override { cast_instruction(i, "itoi", i.op, *i.newt); }
+        void instr_visit(IR::Instrs::IntToFloat const &i)   override { cast_instruction(i, "itof", i.op, *i.newt); }
+        void instr_visit(IR::Instrs::FloatToInt const &i)   override { cast_instruction(i, "ftoi", i.op, *i.newt); }
         // }}}
         // pointer instructions {{{
-        void visit(IR::Instrs::DerefPtr const &i) override {
+        void instr_visit(IR::Instrs::DerefPtr const &i) override {
             unary_instruction(i, "derefptr", i.ptr);
         }
-        void visit(IR::Instrs::Addrof const &i) override {
+        void instr_visit(IR::Instrs::Addrof const &i) override {
             instr_reg(i.id, i.type());
             instr_name("addrof");
             i.reg.value_accept(*pr.vrp);
@@ -203,12 +203,12 @@ namespace {
             else       pr("const");
             pr(")");
         }
-        void visit(IR::Instrs::PtrArith const &i) override {
+        void instr_visit(IR::Instrs::PtrArith const &i) override {
             binary_instruction(i, "ptrarith", i.ptr, i.offset);
         }
         // }}}
 
-        void visit(IR::Instrs::Copy const &i)   override {
+        void instr_visit(IR::Instrs::Copy const &i)   override {
             instr_reg(i.id, i.type());
             instr_name("copy");
             i.target.value_accept(*pr.vrp);
@@ -216,7 +216,7 @@ namespace {
             i.val.value->value_accept(*pr.vrp);
             pr(")");
         }
-        void visit(IR::Instrs::Call const &i) override {
+        void instr_visit(IR::Instrs::Call const &i) override {
             instr_reg(i.id, i.type());
             instr_name("call");
             i.f->value_accept(*pr.vrp);
@@ -228,16 +228,16 @@ namespace {
         }
 
         // branches {{{
-        void visit(IR::Instrs::Return const &i) override {
+        void instr_visit(IR::Instrs::Return const &i) override {
             instr_name("return");
             i.value.value->value_accept(*pr.vrp);
             pr(")");
         }
-        void visit(IR::Instrs::GotoBr const &i) override {
+        void instr_visit(IR::Instrs::GotoBr const &i) override {
             instr_name("gotobr");
             pr(stringify_block(*i.to))(")");
         }
-        void visit(IR::Instrs::CondBr const &i) override {
+        void instr_visit(IR::Instrs::CondBr const &i) override {
             instr_name("condbr");
             i.v.value->value_accept(*pr.vrp);
             pr(", true=")(stringify_block(*i.true_b))
@@ -287,12 +287,12 @@ namespace {
             pr(": {\n");
 
             for (std::unique_ptr<IR::Instruction> const &instr : b.instructions) {
-                instr->accept(*pr.instrp);
+                instr->instr_accept(*pr.instrp);
                 pr(";\n");
             }
             if (b.br) {
                 pr("=>: ");
-                b.br->accept(*pr.instrp);
+                b.br->instr_accept(*pr.instrp);
                 pr(";\n");
             }
             pr("}\n");

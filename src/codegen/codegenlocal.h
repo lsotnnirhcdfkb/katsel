@@ -72,7 +72,7 @@ namespace Codegen {
             IR::Unit &unit;
 
             // PATH VISITOR START
-            void visit(ASTNS::Path &ast) override;
+            void ast_visit(ASTNS::Path &ast) override;
             // PATH VISITOR END
         };
         // }}}
@@ -90,9 +90,9 @@ namespace Codegen {
             NNPtr<PathVisitor> path_visitor;
         private:
             // TYPEVISITOR METHODS START
-            void visit(ASTNS::PathType &ast) override;
-            void visit(ASTNS::PointerType &ast) override;
-            void visit(ASTNS::ThisType &ast) override;
+            void ast_visit(ASTNS::PathType &ast) override;
+            void ast_visit(ASTNS::PointerType &ast) override;
+            void ast_visit(ASTNS::ThisType &ast) override;
             // TYPEVISITOR METHODS END
         };
         // }}}
@@ -107,10 +107,10 @@ namespace Codegen {
 
         private:
             // STMTCG METHODS START
-            void visit(ASTNS::VarStmt &ast) override;
-            void visit(ASTNS::VarStmtItem &ast) override;
-            void visit(ASTNS::ExprStmt &ast) override;
-            void visit(ASTNS::RetStmt &ast) override;
+            void ast_visit(ASTNS::VarStmt &ast) override;
+            void ast_visit(ASTNS::VarStmtItem &ast) override;
+            void ast_visit(ASTNS::ExprStmt &ast) override;
+            void ast_visit(ASTNS::RetStmt &ast) override;
             // STMTCG METHODS END
 
             NNPtr<IR::Builder> ir_builder;
@@ -129,26 +129,26 @@ namespace Codegen {
 
         private:
             // EXPRCG METHODS START
-            void visit(ASTNS::Block &ast) override;
-            void visit(ASTNS::IfExpr &ast) override;
-            void visit(ASTNS::WhileExpr &ast) override;
-            void visit(ASTNS::AssignmentExpr &ast) override;
-            void visit(ASTNS::ShortCircuitExpr &ast) override;
-            void visit(ASTNS::BinaryExpr &ast) override;
-            void visit(ASTNS::CastExpr &ast) override;
-            void visit(ASTNS::UnaryExpr &ast) override;
-            void visit(ASTNS::AddrofExpr &ast) override;
-            void visit(ASTNS::DerefExpr &ast) override;
-            void visit(ASTNS::CallExpr &ast) override;
-            void visit(ASTNS::FieldAccessExpr &ast) override;
-            void visit(ASTNS::MethodCallExpr &ast) override;
-            void visit(ASTNS::BoolLit &ast) override;
-            void visit(ASTNS::FloatLit &ast) override;
-            void visit(ASTNS::IntLit &ast) override;
-            void visit(ASTNS::CharLit &ast) override;
-            void visit(ASTNS::StringLit &ast) override;
-            void visit(ASTNS::ThisExpr &ast) override;
-            void visit(ASTNS::PathExpr &ast) override;
+            void ast_visit(ASTNS::Block &ast) override;
+            void ast_visit(ASTNS::IfExpr &ast) override;
+            void ast_visit(ASTNS::WhileExpr &ast) override;
+            void ast_visit(ASTNS::AssignmentExpr &ast) override;
+            void ast_visit(ASTNS::ShortCircuitExpr &ast) override;
+            void ast_visit(ASTNS::BinaryExpr &ast) override;
+            void ast_visit(ASTNS::CastExpr &ast) override;
+            void ast_visit(ASTNS::UnaryExpr &ast) override;
+            void ast_visit(ASTNS::AddrofExpr &ast) override;
+            void ast_visit(ASTNS::DerefExpr &ast) override;
+            void ast_visit(ASTNS::CallExpr &ast) override;
+            void ast_visit(ASTNS::FieldAccessExpr &ast) override;
+            void ast_visit(ASTNS::MethodCallExpr &ast) override;
+            void ast_visit(ASTNS::BoolLit &ast) override;
+            void ast_visit(ASTNS::FloatLit &ast) override;
+            void ast_visit(ASTNS::IntLit &ast) override;
+            void ast_visit(ASTNS::CharLit &ast) override;
+            void ast_visit(ASTNS::StringLit &ast) override;
+            void ast_visit(ASTNS::ThisExpr &ast) override;
+            void ast_visit(ASTNS::PathExpr &ast) override;
             // EXPRCG METHODS END
 
             NNPtr<IR::Builder> ir_builder;
@@ -172,8 +172,8 @@ namespace Codegen {
 
         private:
             // PARAMVISITOR METHODS START
-            void visit(ASTNS::Param &ast) override;
-            void visit(ASTNS::ThisParam &ast) override;
+            void ast_visit(ASTNS::Param &ast) override;
+            void ast_visit(ASTNS::ThisParam &ast) override;
             // PARAMVISITOR METHODS END
 
             NNPtr<Codegen::Context> context;
@@ -190,7 +190,7 @@ namespace Codegen {
         private:
             NNPtr<ExprCodegen> expr_cg;
             // ARGSVISITOR METHODS START
-            void visit(ASTNS::Arg &ast) override;
+            void ast_visit(ASTNS::Arg &ast) override;
             // ARGSVISITOR METHODS END
 
         };
@@ -302,7 +302,7 @@ namespace Codegen {
         bool value_define() override;
 
         // IMPL CG METHODS START
-        void visit(ASTNS::FunctionImplMember &ast) override;
+        void ast_visit(ASTNS::FunctionImplMember &ast) override;
         // IMPL CG METHODS END
 
     private:

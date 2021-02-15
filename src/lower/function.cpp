@@ -25,10 +25,10 @@ void LowerFunction::lower() {
     for (std::unique_ptr<IR::Block> const &block : fun.blocks) {
         builder.SetInsertPoint(&get_block(*block));
         for (std::unique_ptr<IR::Instruction> const &i : block->instructions)
-            i->accept(instr);
+            i->instr_accept(instr);
 
         if (block->br)
-            block->br->accept(instr);
+            block->br->instr_accept(instr);
     }
 
     builder.SetInsertPoint(entry_block);

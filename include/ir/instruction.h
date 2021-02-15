@@ -16,7 +16,7 @@ namespace IR {
     class Instruction : public Value {
     public:
         virtual ~Instruction() {};
-        virtual void accept(InstructionVisitor &v) const = 0;
+        virtual void instr_accept(InstructionVisitor &v) const = 0;
 
         void value_accept(ValueVisitor &v) const override;
 
@@ -26,7 +26,7 @@ namespace IR {
     class Br {
     public:
         virtual ~Br() {};
-        virtual void accept(BrVisitor &v) const = 0;
+        virtual void instr_accept(BrVisitor &v) const = 0;
     };
 
     namespace Instrs {
@@ -34,7 +34,7 @@ namespace IR {
         class Copy : public Instruction {
         public:
             Copy(IR::Register& target, Located<NNPtr<Value>> val);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             IR::Register& target;
             Located<NNPtr<Value>> val;
@@ -42,7 +42,7 @@ namespace IR {
         class Or : public Instruction {
         public:
             Or(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -50,7 +50,7 @@ namespace IR {
         class And : public Instruction {
         public:
             And(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -58,14 +58,14 @@ namespace IR {
         class Not : public Instruction {
         public:
             Not(Located<NNPtr<Value>> op);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> op;
         };
         class ICmpNE : public Instruction {
         public:
             ICmpNE(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -73,7 +73,7 @@ namespace IR {
         class ICmpEQ : public Instruction {
         public:
             ICmpEQ(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -81,7 +81,7 @@ namespace IR {
         class ICmpLT : public Instruction {
         public:
             ICmpLT(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -89,7 +89,7 @@ namespace IR {
         class ICmpGT : public Instruction {
         public:
             ICmpGT(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -97,7 +97,7 @@ namespace IR {
         class ICmpLE : public Instruction {
         public:
             ICmpLE(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -105,7 +105,7 @@ namespace IR {
         class ICmpGE : public Instruction {
         public:
             ICmpGE(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -113,7 +113,7 @@ namespace IR {
         class IAdd : public Instruction {
         public:
             IAdd(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -121,7 +121,7 @@ namespace IR {
         class ISub : public Instruction {
         public:
             ISub(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -129,7 +129,7 @@ namespace IR {
         class IMult : public Instruction {
         public:
             IMult(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -137,7 +137,7 @@ namespace IR {
         class IDiv : public Instruction {
         public:
             IDiv(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -145,7 +145,7 @@ namespace IR {
         class IMod : public Instruction {
         public:
             IMod(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -153,14 +153,14 @@ namespace IR {
         class INeg : public Instruction {
         public:
             INeg(Located<NNPtr<Value>> op);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> op;
         };
         class FCmpNE : public Instruction {
         public:
             FCmpNE(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -168,7 +168,7 @@ namespace IR {
         class FCmpEQ : public Instruction {
         public:
             FCmpEQ(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -176,7 +176,7 @@ namespace IR {
         class FCmpLT : public Instruction {
         public:
             FCmpLT(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -184,7 +184,7 @@ namespace IR {
         class FCmpGT : public Instruction {
         public:
             FCmpGT(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -192,7 +192,7 @@ namespace IR {
         class FCmpLE : public Instruction {
         public:
             FCmpLE(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -200,7 +200,7 @@ namespace IR {
         class FCmpGE : public Instruction {
         public:
             FCmpGE(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -208,7 +208,7 @@ namespace IR {
         class FAdd : public Instruction {
         public:
             FAdd(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -216,7 +216,7 @@ namespace IR {
         class FSub : public Instruction {
         public:
             FSub(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -224,7 +224,7 @@ namespace IR {
         class FMult : public Instruction {
         public:
             FMult(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -232,7 +232,7 @@ namespace IR {
         class FDiv : public Instruction {
         public:
             FDiv(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -240,7 +240,7 @@ namespace IR {
         class FMod : public Instruction {
         public:
             FMod(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -248,14 +248,14 @@ namespace IR {
         class FNeg : public Instruction {
         public:
             FNeg(Located<NNPtr<Value>> op);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> op;
         };
         class BitXor : public Instruction {
         public:
             BitXor(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -263,7 +263,7 @@ namespace IR {
         class BitOr : public Instruction {
         public:
             BitOr(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -271,7 +271,7 @@ namespace IR {
         class BitAnd : public Instruction {
         public:
             BitAnd(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -279,14 +279,14 @@ namespace IR {
         class BitNot : public Instruction {
         public:
             BitNot(Located<NNPtr<Value>> op);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> op;
         };
         class ShiftR : public Instruction {
         public:
             ShiftR(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -294,7 +294,7 @@ namespace IR {
         class ShiftL : public Instruction {
         public:
             ShiftL(Located<NNPtr<Value>> lhs, Located<NNPtr<Value>> rhs);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> lhs;
             Located<NNPtr<Value>> rhs;
@@ -302,7 +302,7 @@ namespace IR {
         class NoOpCast : public Instruction {
         public:
             NoOpCast(Located<NNPtr<Value>> op, NNPtr<Type const> newt);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> op;
             NNPtr<Type const> newt;
@@ -310,7 +310,7 @@ namespace IR {
         class IntToInt : public Instruction {
         public:
             IntToInt(Located<NNPtr<Value>> op, NNPtr<IntType const> newt);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> op;
             NNPtr<IntType const> newt;
@@ -318,7 +318,7 @@ namespace IR {
         class IntToFloat : public Instruction {
         public:
             IntToFloat(Located<NNPtr<Value>> op, NNPtr<FloatType const> newt);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> op;
             NNPtr<FloatType const> newt;
@@ -326,7 +326,7 @@ namespace IR {
         class FloatToFloat : public Instruction {
         public:
             FloatToFloat(Located<NNPtr<Value>> op, NNPtr<FloatType const> newt);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> op;
             NNPtr<FloatType const> newt;
@@ -334,7 +334,7 @@ namespace IR {
         class FloatToInt : public Instruction {
         public:
             FloatToInt(Located<NNPtr<Value>> op, NNPtr<IntType const> newt);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> op;
             NNPtr<IntType const> newt;
@@ -342,7 +342,7 @@ namespace IR {
         class Call : public Instruction {
         public:
             Call(NNPtr<Function const> f, std::vector<Located<NNPtr<Value>>> args);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             NNPtr<Function const> f;
             std::vector<Located<NNPtr<Value>>> args;
@@ -350,7 +350,7 @@ namespace IR {
         class Addrof : public Instruction {
         public:
             Addrof(IR::Register& reg, bool mut);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             IR::Register& reg;
             bool mut;
@@ -358,14 +358,14 @@ namespace IR {
         class DerefPtr : public Instruction {
         public:
             DerefPtr(Located<NNPtr<Value>> ptr);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> ptr;
         };
         class PtrArith : public Instruction {
         public:
             PtrArith(Located<NNPtr<Value>> ptr, Located<NNPtr<Value>> offset);
-            void accept(InstructionVisitor &v) const override;
+            void instr_accept(InstructionVisitor &v) const override;
             IR::Type const &type() const override;
             Located<NNPtr<Value>> ptr;
             Located<NNPtr<Value>> offset;
@@ -373,19 +373,19 @@ namespace IR {
         class Return : public Br {
         public:
             Return(Located<NNPtr<Value>> value);
-            void accept(BrVisitor &v) const override;
+            void instr_accept(BrVisitor &v) const override;
             Located<NNPtr<Value>> value;
         };
         class GotoBr : public Br {
         public:
             GotoBr(NNPtr<Block> to);
-            void accept(BrVisitor &v) const override;
+            void instr_accept(BrVisitor &v) const override;
             NNPtr<Block> to;
         };
         class CondBr : public Br {
         public:
             CondBr(Located<NNPtr<Value>> v, NNPtr<Block> true_b, NNPtr<Block> false_b);
-            void accept(BrVisitor &v) const override;
+            void instr_accept(BrVisitor &v) const override;
             Located<NNPtr<Value>> v;
             NNPtr<Block> true_b;
             NNPtr<Block> false_b;

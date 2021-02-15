@@ -103,7 +103,7 @@ int compile_file(OutFormats ofmt, NNPtr<char> filename) {
             return false;
 
         auto printv = std::make_unique<ASTNS::PrintVisitor>(os);
-        parsed->accept(*printv); // dereference to use constructor NNPtr(T &other)
+        parsed->ast_accept(*printv); // dereference to use constructor NNPtr(T &other)
 
         os.close();
         return true;

@@ -9,12 +9,12 @@ Codegen::Helpers::ParamVisitor::ParamVisitor::ParamVisitor(Codegen::Context &con
     type_visitor(type_visitor),
     index(0) {
     for (std::unique_ptr<ASTNS::ParamB> &p : params) {
-        p->accept(*this);
+        p->ast_accept(*this);
         ++index;
     }
 }
 
-void Codegen::Helpers::ParamVisitor::visit(ASTNS::Param &ast) {
+void Codegen::Helpers::ParamVisitor::ast_visit(ASTNS::Param &ast) {
     Maybe<IR::Type&> ty (type_visitor->type(*ast.type));
     if (ty.has()) {
         std::string name (ast.name.value.name);
@@ -26,7 +26,7 @@ void Codegen::Helpers::ParamVisitor::visit(ASTNS::Param &ast) {
     }
 }
 
-void Codegen::Helpers::ParamVisitor::visit(ASTNS::ThisParam &ast) {
+void Codegen::Helpers::ParamVisitor::ast_visit(ASTNS::ThisParam &ast) {
     if (!type_visitor->this_type.has()) {
         errored = true;
         ERR_TYPELESS_THIS(ast);
@@ -54,10 +54,10 @@ void Codegen::Helpers::ParamVisitor::visit(ASTNS::ThisParam &ast) {
 Codegen::Helpers::ArgVisitor::ArgVisitor::ArgVisitor(ExprCodegen &expr_cg, std::vector<std::unique_ptr<ASTNS::Arg>> &args):
     expr_cg(expr_cg) {
     for (std::unique_ptr<ASTNS::Arg> &a : args)
-        a->accept(*this);
+        a->ast_accept(*this);
 }
 
-void Codegen::Helpers::ArgVisitor::visit(ASTNS::Arg &ast) {
+void Codegen::Helpers::ArgVisitor::ast_visit(ASTNS::Arg &ast) {
     Maybe<Located<NNPtr<IR::Value>>> a = expr_cg->expr(*ast.expr);
     if (a.has())
         ret.push_back(a.get());

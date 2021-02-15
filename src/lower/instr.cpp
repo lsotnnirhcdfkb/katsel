@@ -9,7 +9,7 @@
 
 using namespace Lower;
 
-#define SIGNATURE(instr_class) void LowerInstr::visit(IR::Instrs::instr_class const &instr)
+#define SIGNATURE(instr_class) void LowerInstr::instr_visit(IR::Instrs::instr_class const &instr)
 #define CREATE_INSTR(instr) fl.builder.Create##instr
 #define LOWER(v) &fl.value_ref.lower(v)
 #define LOWER_LHS_RHS() LOWER(*instr.lhs.value), LOWER(*instr.rhs.value)

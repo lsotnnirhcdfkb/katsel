@@ -17,11 +17,11 @@ Codegen::Helpers::ExprCodegen::ExprCodegen(IR::Builder &ir_builder, Helpers::Loc
 
 Maybe<Located<NNPtr<IR::Value>>> Codegen::Helpers::ExprCodegen::expr(ASTNS::Expr &ast) {
     ret = Maybe<Located<NNPtr<IR::Value>>>();
-    ast.accept(*this);
+    ast.ast_accept(*this);
     return ret;
 }
 
-void Codegen::Helpers::ExprCodegen::visit(ASTNS::BinaryExpr &ast) {
+void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::BinaryExpr &ast) {
     Maybe<Located<NNPtr<IR::Value>>> m_lhs = expr(*ast.lhs);
     Maybe<Located<NNPtr<IR::Value>>> m_rhs = expr(*ast.rhs);
     if (!m_lhs.has() || !m_rhs.has()) {
@@ -32,7 +32,7 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::BinaryExpr &ast) {
     Located<NNPtr<IR::Value>> lhs = m_lhs.get(), rhs = m_rhs.get();
     ret = lhs.value->type().bin_op(ir_builder->context(), ir_builder->fun(), ir_builder->cur_block(), ast.op, lhs, rhs, ast);
 }
-void Codegen::Helpers::ExprCodegen::visit(ASTNS::ShortCircuitExpr &ast) {
+void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::ShortCircuitExpr &ast) {
     Maybe<Located<NNPtr<IR::Value>>> m_lhs = expr(*ast.lhs);
     if (!m_lhs.has()) {
         ret = Maybe<Located<NNPtr<IR::Value>>>();
@@ -96,7 +96,7 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::ShortCircuitExpr &ast) {
     ret = Located<NNPtr<IR::Value>> { ast, out };
 }
 
-void Codegen::Helpers::ExprCodegen::visit(ASTNS::UnaryExpr &ast) {
+void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::UnaryExpr &ast) {
     Maybe<Located<NNPtr<IR::Value>>> m_oper = expr(*ast.expr);
     if (!m_oper.has()) {
         ret = Maybe<Located<NNPtr<IR::Value>>>();
@@ -108,7 +108,7 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::UnaryExpr &ast) {
     ret = oper.value->type().unary_op(ir_builder->context(), ir_builder->fun(), ir_builder->cur_block(), ast.op, oper, ast);
 }
 
-void Codegen::Helpers::ExprCodegen::visit(ASTNS::DerefExpr &ast) {
+void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::DerefExpr &ast) {
     Maybe<Located<NNPtr<IR::Value>>> m_oper = expr(*ast.expr);
     if (!m_oper.has()) {
         ret = Maybe<Located<NNPtr<IR::Value>>>();
@@ -126,7 +126,7 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::DerefExpr &ast) {
 
     ret = Located<NNPtr<IR::Value>> { ast, ir_builder->cur_block()->add<IR::Instrs::DerefPtr>(oper) };
 }
-void Codegen::Helpers::ExprCodegen::visit(ASTNS::AddrofExpr &ast) {
+void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::AddrofExpr &ast) {
     Maybe<Located<NNPtr<IR::Value>>> m_oper = expr(*ast.expr);
     if (!m_oper.has()) {
         ret = Maybe<Located<NNPtr<IR::Value>>>();
@@ -151,7 +151,7 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::AddrofExpr &ast) {
     ret = Located<NNPtr<IR::Value>> { ast, ir_builder->cur_block()->add<IR::Instrs::Addrof>(*as_register, ast.mut) };
 }
 
-void Codegen::Helpers::ExprCodegen::visit(ASTNS::CallExpr &ast) {
+void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::CallExpr &ast) {
     Maybe<Located<NNPtr<IR::Value>>> m_fun = expr(*ast.callee);
     if (!m_fun.has()) {
         ret = Maybe<Located<NNPtr<IR::Value>>>();
@@ -196,22 +196,22 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::CallExpr &ast) {
     ret = Located<NNPtr<IR::Value>> { ast, ir_builder->cur_block()->add<IR::Instrs::Call>(NNPtr<IR::Function const>(static_cast<IR::Function const *>(fun.value.as_raw())), args) };
 }
 
-void Codegen::Helpers::ExprCodegen::visit(ASTNS::BoolLit &ast) {
+void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::BoolLit &ast) {
     ret = Located<NNPtr<IR::Value>> { ast, ir_builder->context().get_const_bool(ast.val.value.val) };
 }
-void Codegen::Helpers::ExprCodegen::visit(ASTNS::FloatLit &ast) {
+void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::FloatLit &ast) {
     ret = Located<NNPtr<IR::Value>> { ast, ir_builder->context().get_const_float(ir_builder->context().get_generic_float_type(), ast.val.value.val) };
 }
-void Codegen::Helpers::ExprCodegen::visit(ASTNS::IntLit &ast) {
+void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::IntLit &ast) {
     ret = Located<NNPtr<IR::Value>> { ast, ir_builder->context().get_const_int(ir_builder->context().get_generic_int_type(), ast.val.value.val) };
 }
-void Codegen::Helpers::ExprCodegen::visit(ASTNS::CharLit &ast) {
+void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::CharLit &ast) {
     ret = Located<NNPtr<IR::Value>> { ast, ir_builder->context().get_const_char(ast.val.value.val) };
 }
-void Codegen::Helpers::ExprCodegen::visit(ASTNS::StringLit &ast) {
+void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::StringLit &ast) {
     report_abort_noh("string literals are not supported yet");
 }
-void Codegen::Helpers::ExprCodegen::visit(ASTNS::ThisExpr &ast) {
+void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::ThisExpr &ast) {
     Maybe<Local> m_loc = locals->get_local("this");
     if (m_loc.has()) {
         NNPtr<Local> local = m_loc.get();
@@ -221,7 +221,7 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::ThisExpr &ast) {
         ret = Maybe<Located<NNPtr<IR::Value>>>();
     }
 }
-void Codegen::Helpers::ExprCodegen::visit(ASTNS::IfExpr &ast) {
+void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::IfExpr &ast) {
     Maybe<Located<NNPtr<IR::Value>>> m_cond = expr(*ast.cond);
     if (!m_cond.has()) {
         ret = Maybe<Located<NNPtr<IR::Value>>>();
@@ -294,7 +294,7 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::IfExpr &ast) {
 
     ret = Located<NNPtr<IR::Value>> { ast, ret_reg };
 }
-void Codegen::Helpers::ExprCodegen::visit(ASTNS::WhileExpr &ast) {
+void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::WhileExpr &ast) {
     locals->inc_scope();
 
     IR::Block &loop_check_cond = ir_builder->fun().add_block("loop_checkcond");
@@ -331,7 +331,7 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::WhileExpr &ast) {
     ret = Located<NNPtr<IR::Value>> { ast, ir_builder->context().get_void() };
 }
 
-void Codegen::Helpers::ExprCodegen::visit(ASTNS::AssignmentExpr &ast) {
+void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::AssignmentExpr &ast) {
     Maybe<Located<NNPtr<IR::Value>>> m_lhs = expr(*ast.target);
     Maybe<Located<NNPtr<IR::Value>>> m_rhs = expr(*ast.expr);
 
@@ -369,7 +369,7 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::AssignmentExpr &ast) {
     ir_builder->cur_block()->add<IR::Instrs::Copy>(*target_reg, rhs);
     ret = rhs;
 }
-void Codegen::Helpers::ExprCodegen::visit(ASTNS::CastExpr &ast) {
+void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::CastExpr &ast) {
     Maybe<Located<NNPtr<IR::Value>>> m_oper = expr(*ast.expr);
     if (!m_oper.has()) {
         ret = Maybe<Located<NNPtr<IR::Value>>>();
@@ -388,7 +388,7 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::CastExpr &ast) {
     ret = cast_to_ty->cast_from(ir_builder->context(), ir_builder->fun(), ir_builder->cur_block(), oper, ast);
 }
 
-void Codegen::Helpers::ExprCodegen::visit(ASTNS::Block &ast) {
+void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::Block &ast) {
     locals->inc_scope();
 
     for (auto stmt = ast.stmts.begin(); stmt != ast.stmts.end(); ++stmt) {
@@ -408,10 +408,10 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::Block &ast) {
     locals->dec_scope();
 }
 
-void Codegen::Helpers::ExprCodegen::visit(ASTNS::PathExpr &ast) {
+void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::PathExpr &ast) {
     ret = path_visitor->resolve_value(*ast.path);
 }
-void Codegen::Helpers::ExprCodegen::visit(ASTNS::FieldAccessExpr &ast) {
+void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::FieldAccessExpr &ast) {
     Maybe<Located<NNPtr<IR::Value>>> m_op = expr(*ast.operand);
     if (!m_op.has()) {
         return;
@@ -429,7 +429,7 @@ void Codegen::Helpers::ExprCodegen::visit(ASTNS::FieldAccessExpr &ast) {
     int ind = op.value->type().get_field_index(fieldName);
     // TODO: do this
 }
-void Codegen::Helpers::ExprCodegen::visit(ASTNS::MethodCallExpr &ast) {
+void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::MethodCallExpr &ast) {
     Maybe<Located<NNPtr<IR::Value>>> m_op = expr(*ast.operand);
     if (!m_op.has()) {
         return;

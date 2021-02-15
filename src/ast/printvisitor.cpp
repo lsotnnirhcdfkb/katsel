@@ -9,7 +9,7 @@
 template <typename T, typename = std::enable_if_t<std::is_base_of_v<ASTNS::AST, T>>>
 static void print_field(ASTNS::PrintVisitor &p, std::unique_ptr<T> const &ast) {
     if (ast)
-        ast->accept(p);
+        ast->ast_accept(p);
     else
         p.pai("nullptr\n");
 }
@@ -149,7 +149,7 @@ static void print_field(ASTNS::PrintVisitor &p, std::vector<T> const &v) {
 }
 
 // PRINTVISITOR START
-void ASTNS::PrintVisitor::visit(ASTNS::DeclList &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::DeclList &a) {
     pai("DeclList {\n");
     ++indent;
     pai("std::vector<std::unique_ptr<Decl>> decls = ");
@@ -157,7 +157,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::DeclList &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::StmtList &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::StmtList &a) {
     pai("StmtList {\n");
     ++indent;
     pai("std::vector<std::unique_ptr<Stmt>> stmts = ");
@@ -165,7 +165,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::StmtList &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::ParamList &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::ParamList &a) {
     pai("ParamList {\n");
     ++indent;
     pai("std::vector<std::unique_ptr<ParamB>> params = ");
@@ -173,7 +173,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::ParamList &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::ArgList &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::ArgList &a) {
     pai("ArgList {\n");
     ++indent;
     pai("std::vector<std::unique_ptr<Arg>> args = ");
@@ -181,7 +181,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::ArgList &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::VarStmtItemList &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::VarStmtItemList &a) {
     pai("VarStmtItemList {\n");
     ++indent;
     pai("std::vector<std::unique_ptr<VarStmtItem>> items = ");
@@ -189,7 +189,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::VarStmtItemList &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::ImplMemberList &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::ImplMemberList &a) {
     pai("ImplMemberList {\n");
     ++indent;
     pai("std::vector<std::unique_ptr<ImplMember>> members = ");
@@ -197,7 +197,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::ImplMemberList &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::PureLocation &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::PureLocation &a) {
     pai("PureLocation {\n");
     ++indent;
     pai("int dummy = ");
@@ -205,7 +205,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::PureLocation &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::ImplicitDecl &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::ImplicitDecl &a) {
     pai("ImplicitDecl {\n");
     ++indent;
     pai("int dummy = ");
@@ -213,7 +213,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::ImplicitDecl &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::CU &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::CU &a) {
     pai("CU {\n");
     ++indent;
     pai("std::vector<std::unique_ptr<Decl>> decls = ");
@@ -221,7 +221,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::CU &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::ImplDecl &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::ImplDecl &a) {
     pai("ImplDecl {\n");
     ++indent;
     pai("std::unique_ptr<Type> impl_for = ");
@@ -231,7 +231,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::ImplDecl &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::FunctionDecl &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::FunctionDecl &a) {
     pai("FunctionDecl {\n");
     ++indent;
     pai("std::unique_ptr<Type> retty = ");
@@ -245,7 +245,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::FunctionDecl &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::FunctionImplMember &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::FunctionImplMember &a) {
     pai("FunctionImplMember {\n");
     ++indent;
     pai("std::unique_ptr<FunctionDecl> fun = ");
@@ -253,7 +253,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::FunctionImplMember &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::VarStmt &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::VarStmt &a) {
     pai("VarStmt {\n");
     ++indent;
     pai("std::vector<std::unique_ptr<VarStmtItem>> items = ");
@@ -261,7 +261,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::VarStmt &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::VarStmtItem &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::VarStmtItem &a) {
     pai("VarStmtItem {\n");
     ++indent;
     pai("std::unique_ptr<Type> type = ");
@@ -277,7 +277,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::VarStmtItem &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::ExprStmt &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::ExprStmt &a) {
     pai("ExprStmt {\n");
     ++indent;
     pai("std::unique_ptr<Expr> expr = ");
@@ -285,7 +285,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::ExprStmt &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::RetStmt &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::RetStmt &a) {
     pai("RetStmt {\n");
     ++indent;
     pai("std::unique_ptr<Expr> expr = ");
@@ -293,7 +293,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::RetStmt &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::PathType &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::PathType &a) {
     pai("PathType {\n");
     ++indent;
     pai("std::unique_ptr<Path> path = ");
@@ -301,7 +301,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::PathType &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::PointerType &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::PointerType &a) {
     pai("PointerType {\n");
     ++indent;
     pai("bool mut = ");
@@ -311,7 +311,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::PointerType &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::ThisType &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::ThisType &a) {
     pai("ThisType {\n");
     ++indent;
     pai("Located<Tokens::This> th = ");
@@ -319,7 +319,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::ThisType &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::Arg &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::Arg &a) {
     pai("Arg {\n");
     ++indent;
     pai("std::unique_ptr<Expr> expr = ");
@@ -327,7 +327,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::Arg &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::Param &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::Param &a) {
     pai("Param {\n");
     ++indent;
     pai("std::unique_ptr<Type> type = ");
@@ -339,7 +339,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::Param &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::ThisParam &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::ThisParam &a) {
     pai("ThisParam {\n");
     ++indent;
     pai("bool ptr = ");
@@ -349,7 +349,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::ThisParam &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::Block &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::Block &a) {
     pai("Block {\n");
     ++indent;
     pai("std::vector<std::unique_ptr<Stmt>> stmts = ");
@@ -359,7 +359,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::Block &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::IfExpr &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::IfExpr &a) {
     pai("IfExpr {\n");
     ++indent;
     pai("Located<Tokens::If> iftok = ");
@@ -375,7 +375,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::IfExpr &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::WhileExpr &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::WhileExpr &a) {
     pai("WhileExpr {\n");
     ++indent;
     pai("std::unique_ptr<Expr> cond = ");
@@ -385,7 +385,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::WhileExpr &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::AssignmentExpr &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::AssignmentExpr &a) {
     pai("AssignmentExpr {\n");
     ++indent;
     pai("std::unique_ptr<Expr> target = ");
@@ -397,7 +397,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::AssignmentExpr &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::ShortCircuitExpr &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::ShortCircuitExpr &a) {
     pai("ShortCircuitExpr {\n");
     ++indent;
     pai("std::unique_ptr<Expr> lhs = ");
@@ -409,7 +409,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::ShortCircuitExpr &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::BinaryExpr &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::BinaryExpr &a) {
     pai("BinaryExpr {\n");
     ++indent;
     pai("std::unique_ptr<Expr> lhs = ");
@@ -421,7 +421,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::BinaryExpr &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::CastExpr &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::CastExpr &a) {
     pai("CastExpr {\n");
     ++indent;
     pai("std::unique_ptr<Type> type = ");
@@ -431,7 +431,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::CastExpr &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::UnaryExpr &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::UnaryExpr &a) {
     pai("UnaryExpr {\n");
     ++indent;
     pai("Located<UnaryOperator> op = ");
@@ -441,7 +441,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::UnaryExpr &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::AddrofExpr &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::AddrofExpr &a) {
     pai("AddrofExpr {\n");
     ++indent;
     pai("Located<Tokens::Amper> op = ");
@@ -453,7 +453,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::AddrofExpr &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::DerefExpr &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::DerefExpr &a) {
     pai("DerefExpr {\n");
     ++indent;
     pai("Located<Tokens::Star> op = ");
@@ -463,7 +463,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::DerefExpr &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::CallExpr &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::CallExpr &a) {
     pai("CallExpr {\n");
     ++indent;
     pai("std::unique_ptr<Expr> callee = ");
@@ -475,7 +475,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::CallExpr &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::FieldAccessExpr &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::FieldAccessExpr &a) {
     pai("FieldAccessExpr {\n");
     ++indent;
     pai("std::unique_ptr<Expr> operand = ");
@@ -487,7 +487,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::FieldAccessExpr &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::MethodCallExpr &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::MethodCallExpr &a) {
     pai("MethodCallExpr {\n");
     ++indent;
     pai("std::unique_ptr<Expr> operand = ");
@@ -503,7 +503,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::MethodCallExpr &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::BoolLit &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::BoolLit &a) {
     pai("BoolLit {\n");
     ++indent;
     pai("Located<Tokens::BoolLit> val = ");
@@ -511,7 +511,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::BoolLit &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::FloatLit &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::FloatLit &a) {
     pai("FloatLit {\n");
     ++indent;
     pai("Located<Tokens::FloatLit> val = ");
@@ -519,7 +519,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::FloatLit &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::IntLit &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::IntLit &a) {
     pai("IntLit {\n");
     ++indent;
     pai("Located<Tokens::IntLit> val = ");
@@ -527,7 +527,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::IntLit &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::CharLit &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::CharLit &a) {
     pai("CharLit {\n");
     ++indent;
     pai("Located<Tokens::CharLit> val = ");
@@ -535,7 +535,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::CharLit &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::StringLit &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::StringLit &a) {
     pai("StringLit {\n");
     ++indent;
     pai("Located<Tokens::StringLit> val = ");
@@ -543,7 +543,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::StringLit &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::ThisExpr &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::ThisExpr &a) {
     pai("ThisExpr {\n");
     ++indent;
     pai("Located<Tokens::This> tok = ");
@@ -551,7 +551,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::ThisExpr &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::PathExpr &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::PathExpr &a) {
     pai("PathExpr {\n");
     ++indent;
     pai("std::unique_ptr<Path> path = ");
@@ -559,7 +559,7 @@ void ASTNS::PrintVisitor::visit(ASTNS::PathExpr &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::visit(ASTNS::Path &a) {
+void ASTNS::PrintVisitor::ast_visit(ASTNS::Path &a) {
     pai("Path {\n");
     ++indent;
     pai("std::vector<Located<Tokens::Identifier>> segments = ");

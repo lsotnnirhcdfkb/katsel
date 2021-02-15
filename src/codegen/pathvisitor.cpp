@@ -12,14 +12,14 @@ Codegen::Helpers::PathVisitor::PathVisitor(Maybe<Locals&> locals, IR::Unit &unit
 Maybe<IR::DeclSymbol &> Codegen::Helpers::PathVisitor::resolve_decl_symbol(ASTNS::PathB &ast)  {
     pty = PathType::DECLARED;
     dret = Maybe<NNPtr<IR::DeclSymbol>>();
-    ast.accept(*this);
+    ast.ast_accept(*this);
     return dret.fmap([](NNPtr<IR::DeclSymbol> i) -> IR::DeclSymbol & { return *i; });
 }
 
 Maybe<Located<NNPtr<IR::Value>>> Codegen::Helpers::PathVisitor::resolve_value(ASTNS::PathB &ast)  {
     pty = PathType::VALUE;
     vret = Maybe<Located<NNPtr<IR::Value>>>();
-    ast.accept(*this);
+    ast.ast_accept(*this);
     return vret;
 }
 
@@ -43,7 +43,7 @@ static Maybe<IR::DeclSymbol &> trace_path_decl_only(IR::DeclSymbol &start, std::
     return *current;
 }
 
-void Codegen::Helpers::PathVisitor::visit(ASTNS::Path &ast) {
+void Codegen::Helpers::PathVisitor::ast_visit(ASTNS::Path &ast) {
     if (pty == PathType::DECLARED) {
         dret = trace_path_decl_only(unit.mod, ast.segments.cbegin(), ast.segments.cend()).fmap([](IR::DeclSymbol &i) { return NNPtr<IR::DeclSymbol>(i); });
     } else {

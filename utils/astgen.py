@@ -111,7 +111,7 @@ def gen_ast_decls():
 
             output.append(helpers.Field.as_fields(ast.fields, indent=4))
 
-            output.append(f'    virtual void accept({ast.base}Visitor &v) override;\n')
+            output.append(f'    virtual void ast_accept({ast.base}Visitor &v) override;\n')
             output.append( '    virtual Maybe<Span const> const &span() const override;\n')
             output.append(f'    {ast.name}(File const &file, Maybe<Span const> const &span, {helpers.Field.as_params(ast.fields)});\n')
 
@@ -122,7 +122,7 @@ def gen_ast_decls():
 
 
             output.append(f'    virtual ~{ast.name}() {{}}\n')
-            output.append(f'    virtual void accept({ast.name}Visitor &v) = 0;\n')
+            output.append(f'    virtual void ast_accept({ast.name}Visitor &v) = 0;\n')
             output.append(f'    {ast.name}(File const &file);\n')
             output.append( '};\n')
         else:
@@ -147,7 +147,7 @@ def gen_ast_defs():
 
             output.append(' {}\n')
 
-            output.append(f'void ASTNS::{ast.name}::accept(ASTNS::{ast.base}Visitor &v) {{ v.visit(*this); }}\n')
+            output.append(f'void ASTNS::{ast.name}::ast_accept(ASTNS::{ast.base}Visitor &v) {{ v.ast_visit(*this); }}\n')
             output.append(f'Maybe<Span const> const &ASTNS::{ast.name}::span() const {{ return _span; }}\n')
         elif isinstance(ast, ASTBase):
             output.append(f'ASTNS::{ast.name}::{ast.name}(File const &file): AST(file) {{}}\n')
@@ -171,7 +171,7 @@ def gen_visitor_decls():
             output.append(f'    virtual ~{ast.name}Visitor() {{}}\n')
             for _ast in asts:
                 if isinstance(_ast, AST) and _ast.base == ast.name:
-                    output.append(f'    virtual void visit(ASTNS::{_ast.name} &ast) = 0;\n')
+                    output.append(f'    virtual void ast_visit(ASTNS::{_ast.name} &ast) = 0;\n')
             output.append('};\n')
     return ''.join(output)
 # Generate overrided functions for visitor classes {{{3
@@ -182,7 +182,7 @@ def gen_visitor_methods(*bases):
             continue
 
         if (ast.base in bases or bases == ('all',)):
-            output.append(f'void visit(ASTNS::{ast.name} &ast) override;\n')
+            output.append(f'void ast_visit(ASTNS::{ast.name} &ast) override;\n')
 
     return''.join(output)
 # Generate inheriting classes {{{3
@@ -196,7 +196,7 @@ def gen_print_visitor_methods():
         if not isinstance(ast, AST):
             continue
 
-        output.append(          f'void ASTNS::PrintVisitor::visit(ASTNS::{ast.name} &a) {{\n')
+        output.append(          f'void ASTNS::PrintVisitor::ast_visit(ASTNS::{ast.name} &a) {{\n')
         output.append(          f'    pai("{ast.name} {{\\n");\n')
         output.append(           '    ++indent;\n')
         for field in ast.fields:

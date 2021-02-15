@@ -4,7 +4,7 @@
 #include "ir/instruction.h"
 #include "ir/block.h"
 
-void Codegen::Helpers::StmtCodegen::visit(ASTNS::VarStmtItem &ast) {
+void Codegen::Helpers::StmtCodegen::ast_visit(ASTNS::VarStmtItem &ast) {
     std::string varname = ast.name.value.name;
     Maybe<Codegen::Helpers::Local> var = locals->get_local(varname);
     if (var.has() && var.get().scopenum == locals->cur_scope) {

@@ -349,7 +349,7 @@ def gen_decls():
 
         output.append(    ( 'public:\n'
                            f'    {instruction.name}({helpers.Field.as_params(instruction.fields)});\n'
-                           f'    void accept({instruction.base()}Visitor &v) const override;\n'))
+                           f'    void instr_accept({instruction.base()}Visitor &v) const override;\n'))
 
         if isinstance(instruction, Instruction):
             output.append( f'    IR::Type const &type() const override;\n')
@@ -373,7 +373,7 @@ def gen_defs():
         for assertion in instruction.assertions:
             output.append(    f'    ASSERT({assertion})\n')
         output.append(         '}\n')
-        output.append(        f'void IR::Instrs::{instruction.name}::accept({instruction.base()}Visitor &v) const {{ v.visit(*this); }}\n')
+        output.append(        f'void IR::Instrs::{instruction.name}::instr_accept({instruction.base()}Visitor &v) const {{ v.instr_visit(*this); }}\n')
 
         if isinstance(instruction, Instruction):
             output.append(    f'IR::Type const &IR::Instrs::{instruction.name}::type() const {{ return {instruction.type}; }}\n')
@@ -386,7 +386,7 @@ def gen_method_decls(base):
     output = []
     for instr in instructions:
         if instr.base() == base:
-            output.append(f'void visit(IR::Instrs::{instr.name} const &i) override;\n')
+            output.append(f'void instr_visit(IR::Instrs::{instr.name} const &i) override;\n')
 
     return ''.join(output)
 
@@ -394,6 +394,6 @@ def gen_pure_method_decls(base):
     output = []
     for instr in instructions:
         if instr.base() == base:
-            output.append(f'virtual void visit(IR::Instrs::{instr.name} const &i) = 0;\n')
+            output.append(f'virtual void instr_visit(IR::Instrs::{instr.name} const &i) = 0;\n')
 
     return ''.join(output)

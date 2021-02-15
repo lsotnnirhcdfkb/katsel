@@ -13,7 +13,7 @@ bool Impl::type_declare() {
     return true;
 }
 
-void Impl::visit(ASTNS::FunctionImplMember &member) {
+void Impl::ast_visit(ASTNS::FunctionImplMember &member) {
     ASSERT(m_s1_data.has());
     auto &s1_data = m_s1_data.get();
 
@@ -40,7 +40,7 @@ bool Impl::value_declare() {
     };
 
     for (std::unique_ptr<ASTNS::ImplMember> &member : ast.members)
-        member->accept(*this);
+        member->ast_accept(*this);
 
     return !visit_errored;
 }
