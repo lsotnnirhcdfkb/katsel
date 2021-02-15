@@ -1,5 +1,4 @@
 #include "codegenlocal.h"
-#include "message/internal.h"
 #include "message/report_abort.h"
 #include "message/errmsgs.h"
 #include "ir/unit.h"

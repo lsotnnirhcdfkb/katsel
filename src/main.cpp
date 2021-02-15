@@ -14,7 +14,7 @@
 #include "utils/format.h"
 #include "lex/lexer.h"
 #include "message/ansistuff.h"
-#include "message/error.h"
+#include "message/errors.h"
 #include "ast/printvisitor.h"
 #include "codegen/codegen.h"
 #include "lower/lowerer.h"
@@ -185,15 +185,15 @@ int main(int argc, char *argv[]) {
 
             case 'e':
                 if (strcmp(optarg, "json") == 0)
-                    errformat = ErrorFormat::JSON;
+                    Errors::errformat = Errors::ErrorFormat::JSON;
                 else if (strcmp(optarg, "human") == 0)
-                    errformat = ErrorFormat::HUMAN;
+                    Errors::errformat = Errors::ErrorFormat::HUMAN;
                 else if (strcmp(optarg, "aligned") == 0)
-                    errformat = ErrorFormat::ALIGNED;
+                    Errors::errformat = Errors::ErrorFormat::ALIGNED;
                 else {
                     std::cerr << "Invalid argument for option -e: '" << optarg << "'\n";
                     std::cerr << "Defaulting to -ehuman\n";
-                    errformat = ErrorFormat::HUMAN;
+                    Errors::errformat = Errors::ErrorFormat::HUMAN;
                 }
                 break;
 

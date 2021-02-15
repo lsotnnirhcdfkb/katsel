@@ -8,7 +8,7 @@
 #include <iostream>
 #include <cstdlib>
 
-Errors::ErrorFormat errformat = Errors::ErrorFormat::HUMAN;
+Errors::ErrorFormat Errors::errformat = Errors::ErrorFormat::HUMAN;
 
 Errors::SimpleError::SimpleError(Type type, Span const &span, std::string const &code, std::string const &name):
     type(type), span(span),
