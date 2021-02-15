@@ -32,7 +32,7 @@ public:
 
     template <typename WithOp>
     inline void with(WithOp withop) const {
-        match<void>(withop, []{});
+        match(withop, []{});
     }
 
     bool has() const {

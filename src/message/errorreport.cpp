@@ -26,31 +26,6 @@ namespace {
         }
         return linen;
     }
-    // heading {{{2
-    std::string color_of_type(MsgType type) {
-        switch (type) {
-            case MsgType::ERROR:   return A_BOLD A_FG_RED;
-            case MsgType::WARNING: return A_BOLD A_FG_MAGENTA;
-        }
-    }
-    void print_heading(MsgType type, Span const &span) {
-        std::string msgtypestr;
-        std::string const msg_color = color_of_type(type);
-        switch (type) {
-            case MsgType::ERROR:
-                msgtypestr = attr(msg_color, "Error");
-                break;
-            case MsgType::WARNING:
-                msgtypestr = attr(msg_color, "Warning");
-                break;
-        }
-        std::string::const_iterator const fstart = span.start.file->source.cbegin();
-        std::cerr << format("{} at {}:{}:{}{}:\n", msgtypestr, attr(FILEPATH_COLOR, span.start.file->filename, true), get_line_n(fstart, span.start.iter), get_col_n(fstart, span.start.iter), reset_if_necessary().as_raw());
-    }
-    // final line {{{2
-    void print_final_line(std::string const &pad, MsgType type, std::string const &code, std::string const &name) {
-        std::cerr << format("{}==> [{}]: {}\n", pad, attr(A_BOLD, code), name);
-    }
     // printing lines {{{2
     void print_file_line(std::string const &pad, File const &file) {
         std::cerr << pad << "> " << attr(FILEPATH_COLOR, file.filename) << std::endl;
@@ -182,25 +157,5 @@ void Error::report() const {
     if (errformat == ErrorFormat::HUMAN) {
             print_line(sl, pad, underlines);
 
-    } else if (errformat == ErrorFormat::ALIGNED) {
-            int un_start_col = get_col_n(fstart, un.span.start.iter);
-            int un_end_col = get_col_n(fstart, un.span.end.iter);
-
-            for (auto i = lstart; i != lend; ++i)
-                if (i >= un.span.start.iter && i < un.span.end.iter)
-                    if (un.messages.size())
-                        std::cerr << attr(A_BOLD, attr(un.messages[0].color.as_raw(), std::string(1, *i)));
-                    else
-                        std::cerr << attr(A_BOLD, std::string(1, *i));
-                else
-                    std::cerr << *i;
-            std::cerr << std::endl;
-
-            std::cerr << pad << "| ";
-            if (un_end_col <= un_start_col)
-                un_end_col = un_start_col + 1;
-
-            std::cerr << std::string(un_start_col - 1, ' ') << attr(A_BOLD, attr(un.messages.size() ? un.messages[0].color.as_raw() : "", std::string(un_end_col - un_start_col, '^'))) << std::endl;
-        }
 
 */

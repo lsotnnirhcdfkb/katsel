@@ -37,10 +37,10 @@ void Underlines::report(int left_pad) const {
         }
 
         std::sort(showlines.begin(), showlines.end(), [] (ShowLine const &a, ShowLine const &b) {
-                return a.line < b.line;
+                    return a.line < b.line;
                 });
         std::stable_sort(showlines.begin(), showlines.end(), [] (ShowLine const &a, ShowLine const &b) {
-                return a.file->filename < b.file->filename;
+                    return a.file->filename < b.file->filename;
                 });
 
         for (size_t i = 0; i + 1 < showlines.size(); )
@@ -49,28 +49,24 @@ void Underlines::report(int left_pad) const {
             else
                 ++i;
 
-        Maybe<NNPtr<File const>> last_file;
-        int last_line_nr = -1;
+        Maybe<ShowLine> last_line_shown;
 
         for (auto const &cur_line : showlines) {
-            bool need_file_line = last_file.match(
-                    [&cur_line] (NNPtr<File const> file) { return file != cur_line.file; },
-                    [] { return true; });
-
-            if (need_file_line) {
-                print_file_line(left_pad, *cur_line.file);
-                last_line_nr = -1;
-            }
-
-            if (cur_line.line != last_line_nr + 1 && last_line_nr != -1)
-                print_elipsis_line(left_pad);
+            last_line_shown.with(
+                [&cur_line, &left_pad] (ShowLine last_line) {
+                    if (last_line.file != cur_line.file) {
+                        print_file_line(left_pad, *cur_line.file);
+                    } else if (last_line.line + 1 != cur_line.line) {
+                        print_elipsis_line(left_pad);
+                    }
+                }
+            );
 
             std::cerr << right_pad(left_pad - 1, cur_line.line) << " | ";
 
             // print_line(sl, left_pad, underlines);
 
-            last_file = Maybe<NNPtr<File const>>(NNPtr(*cur_line.file));
-            last_line_nr = cur_line.line;
+            last_line_shown = cur_line;
         }
 
     } else if (errformat == Errors::ErrorFormat::ALIGNED) {
