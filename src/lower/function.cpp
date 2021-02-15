@@ -66,6 +66,7 @@ llvm::BasicBlock &LowerFunction::get_block(IR::Block const &block) {
 llvm::Value &LowerFunction::get_instruction(IR::Instruction const &instr) {
     auto found_llvm_value = instructions.find(instr);
     if (found_llvm_value == instructions.end()) {
+        // TODO: fix undef values
         llvm::Value *llvm_value = llvm::UndefValue::get(&instr.type().to_llvm_type(lowerer.context));
 
         instructions[instr] = llvm_value;

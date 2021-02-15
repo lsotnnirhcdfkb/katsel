@@ -14,6 +14,8 @@ using namespace Lower;
 #define LOWER(v) &fl.value_ref.lower(v)
 #define LOWER_LHS_RHS() LOWER(*instr.lhs.value), LOWER(*instr.rhs.value)
 
+// TODO: make each instruction replace it's assigned undef value in LowerFunction::instructions
+
 // Constructor {{{1
 LowerInstr::LowerInstr(LowerFunction &fl): fl(fl) {}
 // Copy {{{1
