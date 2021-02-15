@@ -13,7 +13,8 @@ namespace Errors {
     class Section {
     public:
         virtual ~Section() = default;
-        virtual void report() const = 0;
+        virtual int left_pad() const = 0;
+        virtual void report(int left_pad) const = 0;
     };
 
     class SimpleError {
@@ -36,12 +37,12 @@ namespace Errors {
 
     class Error {
     public:
-        virtual ~Error();
+        virtual ~Error() = default;
         inline void report() const {
-            toBaseError().report();
+            toSimpleError().report();
         }
 
     protected:
-        virtual SimpleError toBaseError() const = 0;
+        virtual SimpleError toSimpleError() const = 0;
     };
 }

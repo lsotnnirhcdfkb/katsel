@@ -373,41 +373,6 @@ void Error::report() const {
         }
 
         print_final_line(pad, type, code, name);
-    } else {
-        auto format_location = [](Location const &l) -> std::string {
-            return format("{{{}, {}, {}, {}}}",
-                    jsonfield("file", quote(l.file->filename)),
-                    jsonfield("line", get_line_n(l.file->source.cbegin(), l.iter)),
-                    jsonfield("column", get_col_n(l.file->source.cbegin(), l.iter)),
-                    jsonfield("index", std::distance(l.file->source.cbegin(), l.iter)));
-        };
-
-        std::cerr << format("{{{}, {}, {}, {}, {}, ",
-            jsonfield("type", type == MsgType::ERROR ? "\"error\"" : "\"warning\""),
-            jsonfield("start", format_location(span.start)),
-            jsonfield("end", format_location(span.end)),
-            jsonfield("code", quote(code)),
-            jsonfield("name", quote(name)));
-
-        std::cerr << "\"underlines\":[";
-        bool f = true;
-        for (Underline const &u : underlines) {
-            if (!f) std::cerr << ",";
-            f = false;
-
-            std::cerr << "{\"start\":" << format_location(u.span.start) << ", \"end\": " << format_location(u.span.end) << ",\"char\":\"" << u.ch << "\"," << "\"messages\": [";
-
-            bool fm = true;
-            for (Message const &m : u.messages) {
-                if (!fm) std::cerr << ",";
-                fm = false;
-                std::cerr << "{\"type\":\"" << m.type << "\",\"text\":\"" << m.text << "\"}";
-            }
-            std::cerr << "]}";
-        }
-        std::cerr << "]";
-
-        std::cerr << "}\n";
-    }
+    } else 
 }
 */

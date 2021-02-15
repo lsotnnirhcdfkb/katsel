@@ -4,6 +4,7 @@
 #include "message/errmsgs.h"
 #include "ast/ast.h"
 #include "ir/function.h"
+#include "section.h"
 
 /*
 // ERRCPP START

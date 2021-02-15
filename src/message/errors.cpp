@@ -35,9 +35,14 @@ void Errors::SimpleError::report() const {
         }
         std::cerr << format("{}{}{} at {}{}{}:\n", if_ansi(msg_type_color), msg_type_str, if_ansi(A_RESET), if_ansi(A_FG_CYAN A_BOLD), span.start.as_rowcol(), if_ansi(A_RESET));
 
-        for (auto const &section : sections) {
-            section->report();
-        }
+        int left_pad = 0;
+        for (auto const &section : sections)
+            left_pad = std::max(section->left_pad(), left_pad);
+
+        for (auto const &section : sections)
+            section->report(left_pad);
+
+        std::cerr << format("{}==> [{}{}{}]: {}\n", std::string(left_pad, ' '), if_ansi(A_BOLD), code, if_ansi(A_RESET), name);
     } else {
         auto format_location = [](Location const &l) -> JSON::Object {
             return JSON::Object {
