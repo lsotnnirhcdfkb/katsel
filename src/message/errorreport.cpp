@@ -1,14 +1,13 @@
-#include "message/error.h"
-#include "errors.h"
+#include "message/errors.h"
+
 #include "message/ansistuff.h"
+
 #include "utils/format.h"
 #include "utils/file.h"
-#include <algorithm>
+
 #include <iostream>
-#include <iomanip>
 
-#define FILEPATH_COLOR A_BOLD A_FG_CYAN
-
+/*
 // helpers {{{1
 namespace {
     // structs {{{2
@@ -411,3 +410,4 @@ void Error::report() const {
         std::cerr << "}\n";
     }
 }
+*/

@@ -2,10 +2,10 @@
 #include "ir/module.h"
 #include "utils/format.h"
 #include "message/errmsgs.h"
-#include "errors.h"
 #include "ast/ast.h"
 #include "ir/function.h"
 
+/*
 // ERRCPP START
 // E0000 - unexpected-char
 // | The lexer found an unexpected character that could not begin
@@ -593,3 +593,4 @@ void W0002(Span const &obrace, Span const &cbrace) {
     e.report();
 }
 // ERRCPP END
+*/

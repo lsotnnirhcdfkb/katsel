@@ -14,6 +14,12 @@ public:
     NNPtr<File const> file;
 
     Location(std::string::const_iterator iter, int line, int column, NNPtr<File const> file);
+
+    inline std::string as_rowcol() const {
+        std::stringstream ss;
+        ss << file->filename << ":" << line << ":" << column;
+        return ss.str();
+    }
 };
 
 class Span {

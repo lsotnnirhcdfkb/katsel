@@ -66,3 +66,10 @@ void reset_terminal() {
 bool ansi_codes_enabled() {
     return ansi_codes;
 }
+
+std::string_view if_ansi(std::string_view str) {
+    if (ansi_codes_enabled())
+        return str;
+    else
+        return "";
+}

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string_view>
+
 #define A_RESET        "\033[0m"
 #define A_BOLD         "\033[1m"
 #define A_DIM          "\033[2m"
@@ -24,3 +26,5 @@ void enable_terminal_codes();
 void reset_terminal();
 
 bool ansi_codes_enabled();
+
+std::string_view if_ansi(std::string_view str);
