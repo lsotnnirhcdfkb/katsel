@@ -20,13 +20,12 @@ class SimpleHighlight:
         self.under = under
         self.messages = messages
     def generate(self):
-        output = [f'    e.underline(Underline({self.location}, \'{self.under}\')\n']
+        output = []
         for message in self.messages:
             if len(message) == 2:
-                output.append(f'        .{message[0]}({message[1]})\n')
+                output.append(f'    sect->messages.push_back(Errors::Sections::Underlines::Message {{ {self.location}, {message[1]}, A_BOLD }});\n')
             else:
-                output.append(f'        .{message[0]}(format({", ".join(message[1:])}))\n')
-        output.append('    );\n')
+                output.append(f'    sect->messages.push_back(Errors::Sections::Underlines::Message {{ {self.location}, format({", ".join(message[1:])}), A_BOLD }});\n')
         return ''.join(output)
 class ValueDeclHighlight:
     def __init__(self, val, valuename, fallbackloc, under, type_, message=None):
@@ -43,8 +42,7 @@ class ValueDeclHighlight:
             message = 'format("{} declared here", {self.valuename})'
 
         output = (f'    if (IR::DeclaredValue const *as_declared = dynamic_cast<IR::DeclaredValue const *>({self.val}))\n'
-                  f'        e.underline(Underline(as_declared->def_span(), \'{self.under}\')\n'
-                  f'            .{self.type}({message}));\n')
+                  f'        sect->messages.push_back(Errors::Sections::Underlines::Message {{ as_declared->def_span(), {message}, A_BOLD }});\n')
 
         return output
 # constants {{{1
@@ -129,22 +127,24 @@ errors = [
             highlights=[
                 SimpleHighlight('next', UNDER0, [('error', '"unexpected {}"', 'lookahead_type_name')]),
             ],
-            extra=(
-                "auto un (Underline(lasttok, '~'));\n"
-                'for (std::string const &expectation : expectations)\n'
-                '    un.hint(expectation);\n'
-                'e.underline(un);\n')),
+            extra=("" ""
+                # "auto un (Underline(lasttok, '~'));\n"
+                # 'for (std::string const &expectation : expectations)\n'
+                # '    un.hint(expectation);\n'
+                # 'e.underline(un);\n'
+                )),
         Msg('simple-invalid-syntax',
             desc='The parser found a syntax error and recovered by inserting a single token.',
             inputs='Span const &next, std::string lookahead_type_name, Span const &lasttok, std::initializer_list<std::string> const &expectations, std::string const &inserted_type', location='next',
             highlights=[
                 SimpleHighlight('next', UNDER0, [('error', '"unexpected {}"', 'lookahead_type_name'), ('note', '"parser recovered by inserting {} before this {}"', 'inserted_type', 'lookahead_type_name')]),
             ],
-            extra=(
-                "auto un (Underline(lasttok, '~'));\n"
-                'for (std::string const &expectation : expectations)\n'
-                '    un.hint(expectation);\n'
-                'e.underline(un);\n')),
+            extra=("" ""
+                # "auto un (Underline(lasttok, '~'));\n"
+                # 'for (std::string const &expectation : expectations)\n'
+                # '    un.hint(expectation);\n'
+                # 'e.underline(un);\n'
+                )),
         Msg('skipping-invalid-syntax',
             desc='The parser found a syntax error and recovered by replacing a sequence of tokens with a single token.',
             inputs='Span const &next, std::string lookahead_type_name, Span const &lasttok, std::initializer_list<std::string> const &expectations, Span const &replaced, std::string const &replacement_type', location='next',
@@ -152,11 +152,12 @@ errors = [
                 SimpleHighlight('next', UNDER0, [('error', '"unexpected {}"', 'lookahead_type_name')]),
                 SimpleHighlight('replaced', UNDER1, [('note', '"parser recovered by replacing this with {}"', 'replacement_type')], ),
             ],
-            extra=(
-                "auto un (Underline(lasttok, '~'));\n"
-                'for (std::string const &expectation : expectations)\n'
-                '    un.hint(expectation);\n'
-                'e.underline(un);\n')),
+            extra=("" ""
+                # "auto un (Underline(lasttok, '~'));\n"
+                # 'for (std::string const &expectation : expectations)\n'
+                # '    un.hint(expectation);\n'
+                # 'e.underline(un);\n'
+                )),
         Msg('lhs-unsupported-op',
             desc='Left hand side of binary expression does not support operator',
             inputs='Located<NNPtr<IR::Value>> const &lhs, Span const &op', location='op',
@@ -430,13 +431,15 @@ def gen_cpp():
         desc_wrapped = ''.join('// | ' + line + '\n' for line in textwrap.wrap(description, 60))
         output.append(        desc_wrapped)
         output.append(        f'void {code}({inputs}) {{\n')
-        output.append(        f'    Error e = Error(MsgType::{msgtype}, {location}, "{code}", "{name}");\n')
+        output.append(        f'    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::{msgtype}, {location}, "{code}", "{name}");\n')
+        output.append(         '    auto sect = std::make_unique<Errors::Sections::Underlines>();\n')
 
         for hi in highlights:
             output.append(hi.generate())
         if extra is not None:
             output.append(extra)
 
+        output.append(         '    e.section(std::move(sect));\n')
         output.append(         '    e.report();\n')
 
         output.append(         '}\n\n')
