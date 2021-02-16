@@ -113,7 +113,6 @@ void Underlines::report(int left_pad) const {
                     ++col;
                 }
                 std::cerr << "\n" A_RESET;
-                std::cerr << right_pad(left_pad, "") << "| ";
 
                 struct MessageLocation {
                     NNPtr<Message const> message;
@@ -173,48 +172,51 @@ void Underlines::report(int left_pad) const {
                 //     with +1 will only print the underline under the 'newline'
                 //     with +2 will print the underline under the 'newline', and the message to the right of it
 
-                for (unsigned int col = 1; col <= line.length() + 2;) {
-                    bool printed_message = false;
-                    for (auto const &located_message : located_line_messages) {
-                        if (located_message.row == 0 && located_message.start_col == col) {
-                            std::cerr << located_message.text;
-                            col = located_message.end_col();
-                            printed_message = true;
-                            break;
-                        }
-                    }
-
-                    if (!printed_message) {
-                        Underline const &u (char_underlines[col - 1]);
-                        std::cerr << if_ansi(u.color) << u.ch << if_ansi(A_RESET);
-                        ++col;
-                    }
-                }
-                std::cerr << "\n" A_RESET;
-
-                for (unsigned int row = 1; row <= max_message_row; ++row) {
+                if (line_messages.size()) {
                     std::cerr << right_pad(left_pad, "") << "| ";
                     for (unsigned int col = 1; col <= line.length() + 2;) {
-                        bool need_space = true;
+                        bool printed_message = false;
                         for (auto const &located_message : located_line_messages) {
-                            if (located_message.row == row && located_message.start_col == col) {
+                            if (located_message.row == 0 && located_message.start_col == col) {
                                 std::cerr << located_message.text;
                                 col = located_message.end_col();
-                                need_space = false;
+                                printed_message = true;
                                 break;
-                            } else if (located_message.row > row) {
-                                std::cerr << "|";
-                                ++col;
-                                need_space = false;
                             }
                         }
 
-                        if (need_space) {
-                            std::cerr << " ";
+                        if (!printed_message) {
+                            Underline const &u (char_underlines[col - 1]);
+                            std::cerr << if_ansi(u.color) << u.ch << if_ansi(A_RESET);
                             ++col;
                         }
                     }
                     std::cerr << "\n" A_RESET;
+
+                    for (unsigned int row = 1; row <= max_message_row; ++row) {
+                        std::cerr << right_pad(left_pad, "") << "| ";
+                        for (unsigned int col = 1; col <= line.length() + 2;) {
+                            bool need_space = true;
+                            for (auto const &located_message : located_line_messages) {
+                                if (located_message.row == row && located_message.start_col == col) {
+                                    std::cerr << located_message.text;
+                                    col = located_message.end_col();
+                                    need_space = false;
+                                    break;
+                                } else if (located_message.row > row) {
+                                    std::cerr << "|";
+                                    ++col;
+                                    need_space = false;
+                                }
+                            }
+
+                            if (need_space) {
+                                std::cerr << " ";
+                                ++col;
+                            }
+                        }
+                        std::cerr << "\n" A_RESET;
+                    }
                 }
             }
 
