@@ -31,9 +31,9 @@ enum class OutFormats {
 };
 
 // read a file {{{1
-std::unique_ptr<File> read_file(NNPtr<char> filename) {
+std::unique_ptr<File> read_file(std::string_view filename) {
     std::ifstream filein;
-    filein.open(filename.as_raw());
+    filein.open(std::string(filename));
 
     if (filein.is_open()) {
         std::string contents;
@@ -49,7 +49,7 @@ std::unique_ptr<File> read_file(NNPtr<char> filename) {
 
         filein.close();
 
-        return std::make_unique<File>(File {filename.as_raw(), contents});
+        return std::make_unique<File>(File {std::string(filename), contents});
     } else {
         std::perror("Could not open file");
         return nullptr;
@@ -59,7 +59,7 @@ std::unique_ptr<File> read_file(NNPtr<char> filename) {
 // open a file {{{1
 // llvm::raw_fd_ostream has no move assignment operator, no move constructor
 #define OPENFILE(p, extrepl) \
-    std::filesystem::path pathrepl (p.as_raw()); \
+    std::filesystem::path pathrepl (p); \
     pathrepl.replace_extension(extrepl); \
     std::string passtr (pathrepl.string()); \
     std::error_code ec; \
@@ -68,7 +68,7 @@ std::unique_ptr<File> read_file(NNPtr<char> filename) {
         llvm::errs() << "Could not open output file \"" << passtr << "\": " << ec.message() << "\n";
 
 // compile a file {{{1
-int compile_file(OutFormats ofmt, NNPtr<char> filename) {
+int compile_file(OutFormats ofmt, std::string_view filename) {
     auto source (read_file(filename));
     if (!source)
         return false;
@@ -211,7 +211,7 @@ int main(int argc, char *argv[]) {
 
     bool success = true;
     for (; optind < argc; ++optind) {
-        if (!compile_file(ofmt, NNPtr(*argv[optind])))
+        if (!compile_file(ofmt, argv[optind]))
             success = false;
     }
 
