@@ -22,6 +22,21 @@ void LowerFunction::lower() {
     llvm::Function *llvm_fun = &lowerer.get_function(fun);
     entry_block = llvm::BasicBlock::Create(lowerer.context, "lower_entry", llvm_fun);
 
+    builder.SetInsertPoint(entry_block);
+    undef_alloca = builder.CreateAlloca(builder.getInt8Ty(), nullptr, "undef_alloca");
+
+    unsigned int param_ind = 0;
+    while (param_ind < fun.param_regs.size()) {
+        llvm::Argument *llvm_param = llvm_fun->getArg(param_ind);
+        IR::Register const &param_reg = fun.param_regs[param_ind];
+
+        llvm::AllocaInst *alloca = builder.CreateAlloca(&param_reg.type().to_llvm_type(lowerer.context));
+        builder.CreateStore(llvm_param, alloca);
+        registers[param_reg] = alloca;
+
+        ++param_ind;
+    }
+
     for (std::unique_ptr<IR::Block> const &block : fun.blocks) {
         builder.SetInsertPoint(&get_block(*block));
         for (std::unique_ptr<IR::Instruction> const &i : block->instructions)
@@ -34,7 +49,10 @@ void LowerFunction::lower() {
     builder.SetInsertPoint(entry_block);
     builder.CreateBr(&get_block(*fun.blocks[0]));
 
+    undef_alloca->removeFromParent();
+
     llvm::verifyFunction(*llvm_fun);
+
     // fpm.run(*fasllvm);
 
     return;
@@ -66,11 +84,19 @@ llvm::BasicBlock &LowerFunction::get_block(IR::Block const &block) {
 llvm::Value &LowerFunction::get_instruction(IR::Instruction const &instr) {
     auto found_llvm_value = instructions.find(instr);
     if (found_llvm_value == instructions.end()) {
-        // TODO: fix undef values
-        llvm::Value *llvm_value = llvm::UndefValue::get(&instr.type().to_llvm_type(lowerer.context));
-
+        llvm::Value *llvm_value = builder.CreateLoad(undef_alloca);
         instructions[instr] = llvm_value;
         return *llvm_value;
     } else
         return *found_llvm_value->second;
+}
+
+void LowerFunction::set_instruction(IR::Instruction const &instr, llvm::Value *new_value) {
+    llvm::Value *old_value = &get_instruction(instr);
+    old_value->replaceAllUsesWith(new_value);
+
+    if (auto *old_instr = llvm::dyn_cast<llvm::Instruction>(old_value))
+        old_instr->removeFromParent();
+
+    instructions[instr] = new_value;
 }

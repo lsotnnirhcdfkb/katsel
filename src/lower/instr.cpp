@@ -13,37 +13,36 @@ using namespace Lower;
 #define CREATE_INSTR(instr) fl.builder.Create##instr
 #define LOWER(v) &fl.value_ref.lower(v)
 #define LOWER_LHS_RHS() LOWER(*instr.lhs.value), LOWER(*instr.rhs.value)
-
-// TODO: make each instruction replace it's assigned undef value in LowerFunction::instructions
+#define REPLACE(x) fl.set_instruction(instr, x)
 
 // Constructor {{{1
 LowerInstr::LowerInstr(LowerFunction &fl): fl(fl) {}
 // Copy {{{1
 SIGNATURE(Copy) {
-    CREATE_INSTR(Store)(LOWER(*instr.val.value), &fl.get_register(instr.target));
+    REPLACE(CREATE_INSTR(Store)(LOWER(*instr.val.value), &fl.get_register(instr.target)));
 }
 // Logical instructions {{{1
 SIGNATURE(Or) {
-    CREATE_INSTR(Or)(LOWER_LHS_RHS());
+    REPLACE(CREATE_INSTR(Or)(LOWER_LHS_RHS()));
 }
 SIGNATURE(And) {
-    CREATE_INSTR(And)(LOWER_LHS_RHS());
+    REPLACE(CREATE_INSTR(And)(LOWER_LHS_RHS()));
 }
 SIGNATURE(Not) {
-    CREATE_INSTR(ICmpEQ)(LOWER(*instr.op.value), llvm::ConstantInt::get(llvm::Type::getInt1Ty(fl.lowerer.context), 0));
+    REPLACE(CREATE_INSTR(ICmpEQ)(LOWER(*instr.op.value), llvm::ConstantInt::get(llvm::Type::getInt1Ty(fl.lowerer.context), 0)));
 }
 // Binary arithmetic instructions {{{1
 #define DEF_FLOAT_BIN_INSTR(name, llvm_instr) \
     SIGNATURE(name) { \
-        CREATE_INSTR(llvm_instr)(LOWER_LHS_RHS()); \
+        REPLACE(CREATE_INSTR(llvm_instr)(LOWER_LHS_RHS())); \
     }
 #define DEF_INT_BIN_INSTR(name, if_signed_instr, if_unsigned_instr) \
     SIGNATURE(name) { \
         NNPtr<IR::IntType const> intty (static_cast<IR::IntType const *>(&instr.lhs.value->type())); \
         if (intty->is_signed) { \
-            CREATE_INSTR(if_signed_instr)(LOWER_LHS_RHS()); \
+            REPLACE(CREATE_INSTR(if_signed_instr)(LOWER_LHS_RHS())); \
         } else { \
-            CREATE_INSTR(if_unsigned_instr)(LOWER_LHS_RHS()); \
+            REPLACE(CREATE_INSTR(if_unsigned_instr)(LOWER_LHS_RHS())); \
         } \
     }
 
@@ -74,69 +73,69 @@ DEF_INT_BIN_INSTR(IMod  , SRem   , URem   )
 #undef DEF_INT_BIN_INSTR
 // Unary arithmetic instructions {{{1
 SIGNATURE(FNeg) {
-    CREATE_INSTR(FNeg)(LOWER(*instr.op.value));
+    REPLACE(CREATE_INSTR(FNeg)(LOWER(*instr.op.value)));
 }
 SIGNATURE(INeg) {
-    CREATE_INSTR(Sub)(llvm::ConstantInt::get(&instr.op.value->type().to_llvm_type(fl.lowerer.context), 0), LOWER(*instr.op.value));
+    REPLACE(CREATE_INSTR(Sub)(llvm::ConstantInt::get(&instr.op.value->type().to_llvm_type(fl.lowerer.context), 0), LOWER(*instr.op.value)));
 }
 // Bitwise instructions {{{1
 SIGNATURE(BitXor) {
-    CREATE_INSTR(Xor)(LOWER_LHS_RHS());
+    REPLACE(CREATE_INSTR(Xor)(LOWER_LHS_RHS()));
 }
 SIGNATURE(BitOr) {
-    CREATE_INSTR(Or)(LOWER_LHS_RHS());
+    REPLACE(CREATE_INSTR(Or)(LOWER_LHS_RHS()));
 }
 SIGNATURE(BitAnd) {
-    CREATE_INSTR(And)(LOWER_LHS_RHS());
+    REPLACE(CREATE_INSTR(And)(LOWER_LHS_RHS()));
 }
 SIGNATURE(BitNot) {
-    CREATE_INSTR(Xor)(llvm::ConstantInt::get(&instr.op.value->type().to_llvm_type(fl.lowerer.context), -1), LOWER(*instr.op.value));
+    REPLACE(CREATE_INSTR(Xor)(llvm::ConstantInt::get(&instr.op.value->type().to_llvm_type(fl.lowerer.context), -1), LOWER(*instr.op.value)));
 }
 // Shift instructions {{{1
 SIGNATURE(ShiftR) {
-    CREATE_INSTR(LShr)(LOWER_LHS_RHS());
+    REPLACE(CREATE_INSTR(LShr)(LOWER_LHS_RHS()));
 }
 SIGNATURE(ShiftL) {
-    CREATE_INSTR(Shl)(LOWER_LHS_RHS());
+    REPLACE(CREATE_INSTR(Shl)(LOWER_LHS_RHS()));
 }
 // Type conversion instructions {{{1
 SIGNATURE(NoOpCast) {
-    CREATE_INSTR(BitCast)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context));
+    REPLACE(CREATE_INSTR(BitCast)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context)));
 }
 SIGNATURE(FloatToFloat) {
     NNPtr<IR::FloatType const> bty = static_cast<IR::FloatType const *>(&instr.op.value->type());
 
     if (bty->size < instr.newt->size)
-        CREATE_INSTR(FPExt)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context));
+        REPLACE(CREATE_INSTR(FPExt)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context)));
     else if (bty->size > instr.newt->size)
-        CREATE_INSTR(FPTrunc)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context));
+        REPLACE(CREATE_INSTR(FPTrunc)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context)));
     else
-        LOWER(*instr.op.value);
+        REPLACE(LOWER(*instr.op.value));
 }
 SIGNATURE(IntToInt) {
     NNPtr<IR::IntType const> bty = static_cast<IR::IntType const *>(&instr.op.value->type());
     if (bty->size < instr.newt->size)
         if (bty->is_signed)
-            CREATE_INSTR(SExt)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context));
+            REPLACE(CREATE_INSTR(SExt)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context)));
         else
-            CREATE_INSTR(ZExt)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context));
+            REPLACE(CREATE_INSTR(ZExt)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context)));
     else if (bty->size > instr.newt->size)
-        CREATE_INSTR(Trunc)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context));
+        REPLACE(CREATE_INSTR(Trunc)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context)));
     else
-        LOWER(*instr.op.value);
+        REPLACE(LOWER(*instr.op.value));
 }
 SIGNATURE(IntToFloat) {
     NNPtr<IR::IntType const> bty = static_cast<IR::IntType const *>(&instr.op.value->type());
     if (bty->is_signed)
-        CREATE_INSTR(SIToFP)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context));
+        REPLACE(CREATE_INSTR(SIToFP)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context)));
     else
-        CREATE_INSTR(UIToFP)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context));
+        REPLACE(CREATE_INSTR(UIToFP)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context)));
 }
 SIGNATURE(FloatToInt) {
     if (instr.newt->is_signed)
-        CREATE_INSTR(FPToSI)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context));
+        REPLACE(CREATE_INSTR(FPToSI)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context)));
     else
-        CREATE_INSTR(FPToUI)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context));
+        REPLACE(CREATE_INSTR(FPToUI)(LOWER(*instr.op.value), &instr.newt->to_llvm_type(fl.lowerer.context)));
 }
 // Branch instructions {{{1
 SIGNATURE(Call) {
@@ -146,15 +145,15 @@ SIGNATURE(Call) {
         args.push_back(LOWER(*v.value));
 
     llvm::Function *callee = static_cast<llvm::Function*>(LOWER(*static_cast<IR::Value const *>(instr.f.as_raw())));
-    CREATE_INSTR(Call)(callee, args);
+    REPLACE(CREATE_INSTR(Call)(callee, args));
 }
 // Pointer instruction {{{1
 SIGNATURE(DerefPtr) {
-    CREATE_INSTR(Load)(LOWER(*instr.ptr.value));
+    REPLACE(CREATE_INSTR(Load)(LOWER(*instr.ptr.value)));
 }
 SIGNATURE(Addrof) {
-    &fl.get_register(instr.reg);
+    REPLACE(&fl.get_register(instr.reg));
 }
 SIGNATURE(PtrArith) {
-    CREATE_INSTR(InBoundsGEP)(LOWER(*instr.ptr.value), { LOWER(*instr.offset.value) });
+    REPLACE(CREATE_INSTR(InBoundsGEP)(LOWER(*instr.ptr.value), { LOWER(*instr.offset.value) }));
 }
