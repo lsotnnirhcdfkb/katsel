@@ -64,7 +64,159 @@ void Underlines::report(int left_pad) const {
 
             std::cerr << right_pad(left_pad - 1, cur_line.line) << " | ";
 
-            // print_line(sl, left_pad, underlines);
+            {
+                std::string_view line (get_line(cur_line.file->source, cur_line.line).match(
+                                [] (std::string_view const &sv) {
+                                    return sv;
+                                },
+                                [] {
+                                    return std::string_view("");
+                                }));
+
+                struct Underline {
+                    std::string_view color;
+                    char ch;
+                };
+                std::vector<Underline> char_underlines;
+
+                for (std::string_view::const_iterator char_iter = line.cbegin(); char_iter <= line.cend(); ++char_iter) {
+                    Maybe<NNPtr<Message const>> char_message;
+                    for (Message const &message : messages) {
+                        bool in_message = false;
+                        if (message.location.start.iter == message.location.end.iter) {
+                            in_message = char_iter == &*message.location.start.iter;
+                        } else {
+                            in_message = char_iter >= &*message.location.start.iter && char_iter < &*message.location.end.iter;
+                        }
+
+                        if (in_message) {
+                            char_message = message;
+                            break;
+                        }
+                    }
+
+
+                    Underline current;
+                    if (char_message.has()) {
+                        current = { char_message.get()->color, char_message.get()->underline_char };
+                    } else {
+                        current = { A_RESET, ' ' };
+                    }
+
+                    char_underlines.push_back(current);
+                }
+
+                int col = 0;
+                for (auto iter = line.cbegin(); iter != line.cend(); ++iter) {
+                    auto const &u (char_underlines[col]);
+                    std::cerr << if_ansi(u.color) << *iter << if_ansi(A_RESET);
+                    ++col;
+                }
+                std::cerr << "\n" A_RESET;
+                std::cerr << right_pad(left_pad, "") << "| ";
+
+                struct MessageLocation {
+                    NNPtr<Message const> message;
+                    std::string text;
+                    unsigned int row;
+                    unsigned int start_col;
+
+                    MessageLocation(Message const &message, int row):
+                        message(message),
+                        row(row) {
+                        if (row == 0) {
+                            start_col = get_col_n(message.location.file->source.begin(), message.location.end.iter - 1) + 1;
+                            text = "-- " + message.message;
+                        } else {
+                            start_col = get_col_n(message.location.file->source.begin(), message.location.end.iter - 1);
+                            text = "`-- " + message.message;
+                        }
+                    }
+
+                    unsigned int end_col() const {
+                        return start_col + text.size();
+                    }
+                };
+                std::vector<MessageLocation> located_line_messages;
+                std::vector<NNPtr<Message const>> line_messages;
+
+                for (auto char_iter = line.cbegin(); char_iter <= line.cend(); ++char_iter)
+                    for (Message const &message : messages)
+                        if (char_iter == &*(message.location.end.iter - 1))
+                            line_messages.push_back(message);
+
+                unsigned int max_message_row = 0;
+                for (auto message = line_messages.crbegin(); message < line_messages.crend(); ++message) {
+                    unsigned int message_row = 0;
+                    while (true) {
+                        auto as_loc = MessageLocation(**message, message_row);
+                        bool overlapping = false;
+
+                        for (auto const &m : located_line_messages)
+                            if (m.row == message_row && as_loc.end_col() >= m.start_col) {
+                                overlapping = true;
+                                break;
+                            }
+
+                        if (!overlapping)
+                            break;
+                        else
+                            ++message_row;
+                    }
+
+                    max_message_row = std::max(message_row, max_message_row);
+                    located_line_messages.push_back(MessageLocation(**message, message_row));
+                }
+
+                // +2 because
+                //     with +0 will only print before the newline at the end of the line (get_line doesn't return a trailing newline)
+                //     with +1 will only print the underline under the 'newline'
+                //     with +2 will print the underline under the 'newline', and the message to the right of it
+
+                for (unsigned int col = 1; col <= line.length() + 2;) {
+                    bool printed_message = false;
+                    for (auto const &located_message : located_line_messages) {
+                        if (located_message.row == 0 && located_message.start_col == col) {
+                            std::cerr << located_message.text;
+                            col = located_message.end_col();
+                            printed_message = true;
+                            break;
+                        }
+                    }
+
+                    if (!printed_message) {
+                        Underline const &u (char_underlines[col - 1]);
+                        std::cerr << if_ansi(u.color) << u.ch << if_ansi(A_RESET);
+                        ++col;
+                    }
+                }
+                std::cerr << "\n" A_RESET;
+
+                for (unsigned int row = 1; row <= max_message_row; ++row) {
+                    std::cerr << right_pad(left_pad, "") << "| ";
+                    for (unsigned int col = 1; col <= line.length() + 2;) {
+                        bool need_space = true;
+                        for (auto const &located_message : located_line_messages) {
+                            if (located_message.row == row && located_message.start_col == col) {
+                                std::cerr << located_message.text;
+                                col = located_message.end_col();
+                                need_space = false;
+                                break;
+                            } else if (located_message.row > row) {
+                                std::cerr << "|";
+                                ++col;
+                                need_space = false;
+                            }
+                        }
+
+                        if (need_space) {
+                            std::cerr << " ";
+                            ++col;
+                        }
+                    }
+                    std::cerr << "\n" A_RESET;
+                }
+            }
 
             last_line_shown = cur_line;
         }

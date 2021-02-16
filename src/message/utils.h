@@ -57,4 +57,20 @@ namespace Errors {
             std::cerr << std::endl;
         }
     }
+
+    int get_col_n(std::string::const_iterator const &start, std::string::const_iterator loc) {
+        int coln = 1;
+
+        for (; loc != start && *(loc - 1) != '\n'; ++coln, --loc);
+
+        return coln;
+    }
+    int get_line_n(std::string::const_iterator const &start, std::string::const_iterator loc) {
+        int linen = 1; // current line will not have a newline to pass, but it still is a line
+        while (loc > start) {
+            if (*(loc - 1) == '\n') ++linen;
+            --loc;
+        }
+        return linen;
+    }
 }
