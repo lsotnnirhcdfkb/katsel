@@ -25,7 +25,7 @@ namespace IR {
             bool mut;
         };
 
-        Function(NNPtr<FunctionType> ty, std::string name, Span const &def_span, std::vector<Param> const &params);
+        Function(NNPtr<FunctionType> ty, std::string const &name, Span const &def_span, std::vector<Param> const &params);
 
         void add(std::unique_ptr<Block> block);
 
@@ -37,7 +37,7 @@ namespace IR {
         std::vector<std::unique_ptr<Block>> blocks;
         std::vector<std::unique_ptr<Register>> registers;
 
-        Block &add_block(std::string name);
+        Block &add_block(std::string const &name);
         Register &add_register(IR::Type const &ty, Span const &def_span, bool mut);
 
     private:
