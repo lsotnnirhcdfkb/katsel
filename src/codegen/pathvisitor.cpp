@@ -49,7 +49,7 @@ void Codegen::Helpers::PathVisitor::ast_visit(ASTNS::Path &ast) {
     } else {
         if (ast.segments.size() == 1 && locals.has()) {
             // look for local
-            std::string vname = ast.segments.back().value.name;
+            std::string const &vname = ast.segments.back().value.name;
             Maybe<Local> loc = locals.get()->get_local(vname);
 
             if (loc.has()) {

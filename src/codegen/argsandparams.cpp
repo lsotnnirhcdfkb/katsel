@@ -17,8 +17,7 @@ Codegen::Helpers::ParamVisitor::ParamVisitor::ParamVisitor(Codegen::Context &con
 void Codegen::Helpers::ParamVisitor::ast_visit(ASTNS::Param &ast) {
     Maybe<IR::Type&> ty (type_visitor->type(*ast.type));
     if (ty.has()) {
-        std::string name (ast.name.value.name);
-        IR::Function::Param p {ty.get(), std::move(name), ast, ast.mut};
+        IR::Function::Param p {ty.get(), ast.name.value.name, ast, ast.mut};
         ret.push_back(p);
     } else {
         errored = true;

@@ -418,7 +418,7 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::FieldAccessExpr &ast) {
 
     Located<NNPtr<IR::Value>> op = m_op.get();
 
-    std::string fieldName = ast.field.value.name;
+    std::string const &fieldName = ast.field.value.name;
     bool has = op.value->type().has_field(fieldName);
     if (!has) {
         ERR_NO_FIELD(op, ast.field.span);

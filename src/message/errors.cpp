@@ -21,7 +21,7 @@ Errors::SimpleError& Errors::SimpleError::section(std::unique_ptr<Section> secti
 
 void Errors::SimpleError::report() const {
     if (errformat == ErrorFormat::HUMAN || errformat == ErrorFormat::ALIGNED) {
-        std::string msg_type_str;
+        std::string_view msg_type_str;
         std::string_view msg_type_color;
         switch (type) {
             case Type::ERROR:

@@ -6,7 +6,7 @@
 #include "utils/format.h"
 #include "ast/ast.h"
 
-IR::Function::Function(NNPtr<IR::FunctionType> ty, std::string name, Span const &def_span, std::vector<IR::Function::Param> const &params):
+IR::Function::Function(NNPtr<IR::FunctionType> ty, std::string const &name, Span const &def_span, std::vector<IR::Function::Param> const &params):
     register_id(0),
     ret_reg(add_register(*ty->ret, def_span, true)),
     ty(ty),
@@ -34,7 +34,7 @@ IR::Type const &IR::Function::type() const {
     return *ty;
 }
 
-IR::Block& IR::Function::add_block(std::string name) {
+IR::Block& IR::Function::add_block(std::string const &name) {
     std::unique_ptr<Block> block = std::make_unique<Block>(this, name, block_i++);
     Block &blockraw = *block;
     blocks.push_back(std::move(block));

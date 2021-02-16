@@ -19,7 +19,7 @@ bool Function::value_declare() {
     auto path_visitor = std::make_unique<Helpers::PathVisitor>(Maybe<Helpers::Locals&>(), unit);
     auto type_visitor = std::make_unique<Helpers::TypeVisitor>(context, this_type, *path_visitor);
 
-    std::string fname (ast.name.value.name);
+    std::string const &fname (ast.name.value.name);
 
     Maybe<IR::Value &> declbefore = parent_symbol.get_value(fname);
     if (declbefore.has()) {
@@ -86,7 +86,7 @@ bool Function::value_define() {
 
     int param_i = 0;
     for (auto const &param : s1_data.params) {
-        std::string pname = param.name;
+        std::string const &pname = param.name;
         IR::Register &reg = ir_builder->fun().param_regs[param_i];
 
         Maybe<Helpers::Local> foundparam = locals->get_local(pname);

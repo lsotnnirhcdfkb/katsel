@@ -5,7 +5,7 @@
 #include "ir/block.h"
 
 void Codegen::Helpers::StmtCodegen::ast_visit(ASTNS::VarStmtItem &ast) {
-    std::string varname = ast.name.value.name;
+    std::string const &varname = ast.name.value.name;
     Maybe<Codegen::Helpers::Local> var = locals->get_local(varname);
     if (var.has() && var.get().scopenum == locals->cur_scope) {
         ERR_REDECL_VAR(ast.name.span, *var.get().v);
