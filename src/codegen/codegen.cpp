@@ -68,8 +68,8 @@ namespace {
     };
 }
 
-Maybe<std::unique_ptr<IR::Unit>> Codegen::codegen(NNPtr<ASTNS::CUB> cub) {
-    _CG cg (cub->file);
+Maybe<std::unique_ptr<IR::Unit>> Codegen::codegen(File const &file, NNPtr<ASTNS::CUB> cub) {
+    _CG cg (file);
 
     cub->ast_accept(cg);
     cg.run();

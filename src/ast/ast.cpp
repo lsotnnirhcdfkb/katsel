@@ -1,145 +1,132 @@
 #include "ast/ast.h"
 // ASTCPP START
-ASTNS::AST::AST(File const &file): file(file) {}
-ASTNS::CUB::CUB(File const &file): AST(file) {}
-ASTNS::Decl::Decl(File const &file): AST(file) {}
-ASTNS::ImplMember::ImplMember(File const &file): AST(file) {}
-ASTNS::Stmt::Stmt(File const &file): AST(file) {}
-ASTNS::Expr::Expr(File const &file): AST(file) {}
-ASTNS::Type::Type(File const &file): AST(file) {}
-ASTNS::ArgB::ArgB(File const &file): AST(file) {}
-ASTNS::ParamB::ParamB(File const &file): AST(file) {}
-ASTNS::VStmtIB::VStmtIB(File const &file): AST(file) {}
-ASTNS::PathB::PathB(File const &file): AST(file) {}
-ASTNS::ListB::ListB(File const &file): AST(file) {}
-ASTNS::DeclList::DeclList(File const &file, Maybe<Span const> const &span, std::vector<std::unique_ptr<Decl>> decls): ListB(file), _span(span), decls(std::move(decls)) {}
+ASTNS::DeclList::DeclList(Maybe<Span const> const &span, std::vector<std::unique_ptr<Decl>> decls): _span(span), decls(std::move(decls)) {}
 void ASTNS::DeclList::ast_accept(ASTNS::ListBVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::DeclList::span() const { return _span; }
-ASTNS::StmtList::StmtList(File const &file, Maybe<Span const> const &span, std::vector<std::unique_ptr<Stmt>> stmts): ListB(file), _span(span), stmts(std::move(stmts)) {}
+ASTNS::StmtList::StmtList(Maybe<Span const> const &span, std::vector<std::unique_ptr<Stmt>> stmts): _span(span), stmts(std::move(stmts)) {}
 void ASTNS::StmtList::ast_accept(ASTNS::ListBVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::StmtList::span() const { return _span; }
-ASTNS::ParamList::ParamList(File const &file, Maybe<Span const> const &span, std::vector<std::unique_ptr<ParamB>> params): ListB(file), _span(span), params(std::move(params)) {}
+ASTNS::ParamList::ParamList(Maybe<Span const> const &span, std::vector<std::unique_ptr<ParamB>> params): _span(span), params(std::move(params)) {}
 void ASTNS::ParamList::ast_accept(ASTNS::ListBVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::ParamList::span() const { return _span; }
-ASTNS::ArgList::ArgList(File const &file, Maybe<Span const> const &span, std::vector<std::unique_ptr<Arg>> args): ListB(file), _span(span), args(std::move(args)) {}
+ASTNS::ArgList::ArgList(Maybe<Span const> const &span, std::vector<std::unique_ptr<Arg>> args): _span(span), args(std::move(args)) {}
 void ASTNS::ArgList::ast_accept(ASTNS::ListBVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::ArgList::span() const { return _span; }
-ASTNS::VarStmtItemList::VarStmtItemList(File const &file, Maybe<Span const> const &span, std::vector<std::unique_ptr<VarStmtItem>> items): ListB(file), _span(span), items(std::move(items)) {}
+ASTNS::VarStmtItemList::VarStmtItemList(Maybe<Span const> const &span, std::vector<std::unique_ptr<VarStmtItem>> items): _span(span), items(std::move(items)) {}
 void ASTNS::VarStmtItemList::ast_accept(ASTNS::ListBVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::VarStmtItemList::span() const { return _span; }
-ASTNS::ImplMemberList::ImplMemberList(File const &file, Maybe<Span const> const &span, std::vector<std::unique_ptr<ImplMember>> members): ListB(file), _span(span), members(std::move(members)) {}
+ASTNS::ImplMemberList::ImplMemberList(Maybe<Span const> const &span, std::vector<std::unique_ptr<ImplMember>> members): _span(span), members(std::move(members)) {}
 void ASTNS::ImplMemberList::ast_accept(ASTNS::ListBVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::ImplMemberList::span() const { return _span; }
-ASTNS::PureLocationB::PureLocationB(File const &file): AST(file) {}
-ASTNS::PureLocation::PureLocation(File const &file, Maybe<Span const> const &span, int dummy): PureLocationB(file), _span(span), dummy(std::move(dummy)) {}
+ASTNS::PureLocation::PureLocation(Maybe<Span const> const &span, int dummy): _span(span), dummy(std::move(dummy)) {}
 void ASTNS::PureLocation::ast_accept(ASTNS::PureLocationBVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::PureLocation::span() const { return _span; }
-ASTNS::ImplicitDecl::ImplicitDecl(File const &file, Maybe<Span const> const &span, int dummy): Decl(file), _span(span), dummy(std::move(dummy)) {}
+ASTNS::ImplicitDecl::ImplicitDecl(Maybe<Span const> const &span, int dummy): _span(span), dummy(std::move(dummy)) {}
 void ASTNS::ImplicitDecl::ast_accept(ASTNS::DeclVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::ImplicitDecl::span() const { return _span; }
-ASTNS::CU::CU(File const &file, Maybe<Span const> const &span, std::vector<std::unique_ptr<Decl>> decls): CUB(file), _span(span), decls(std::move(decls)) {}
+ASTNS::CU::CU(Maybe<Span const> const &span, std::vector<std::unique_ptr<Decl>> decls): _span(span), decls(std::move(decls)) {}
 void ASTNS::CU::ast_accept(ASTNS::CUBVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::CU::span() const { return _span; }
-ASTNS::ImplDecl::ImplDecl(File const &file, Maybe<Span const> const &span, std::unique_ptr<Type> impl_for, std::vector<std::unique_ptr<ImplMember>> members): Decl(file), _span(span), impl_for(std::move(impl_for)), members(std::move(members)) {}
+ASTNS::ImplDecl::ImplDecl(Maybe<Span const> const &span, std::unique_ptr<Type> impl_for, std::vector<std::unique_ptr<ImplMember>> members): _span(span), impl_for(std::move(impl_for)), members(std::move(members)) {}
 void ASTNS::ImplDecl::ast_accept(ASTNS::DeclVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::ImplDecl::span() const { return _span; }
-ASTNS::FunctionDecl::FunctionDecl(File const &file, Maybe<Span const> const &span, std::unique_ptr<Type> retty, Located<Tokens::Identifier> name, std::vector<std::unique_ptr<ParamB>> params, std::unique_ptr<Block> body): Decl(file), _span(span), retty(std::move(retty)), name(std::move(name)), params(std::move(params)), body(std::move(body)) {}
+ASTNS::FunctionDecl::FunctionDecl(Maybe<Span const> const &span, std::unique_ptr<Type> retty, Located<Tokens::Identifier> name, std::vector<std::unique_ptr<ParamB>> params, std::unique_ptr<Block> body): _span(span), retty(std::move(retty)), name(std::move(name)), params(std::move(params)), body(std::move(body)) {}
 void ASTNS::FunctionDecl::ast_accept(ASTNS::DeclVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::FunctionDecl::span() const { return _span; }
-ASTNS::FunctionImplMember::FunctionImplMember(File const &file, Maybe<Span const> const &span, std::unique_ptr<FunctionDecl> fun): ImplMember(file), _span(span), fun(std::move(fun)) {}
+ASTNS::FunctionImplMember::FunctionImplMember(Maybe<Span const> const &span, std::unique_ptr<FunctionDecl> fun): _span(span), fun(std::move(fun)) {}
 void ASTNS::FunctionImplMember::ast_accept(ASTNS::ImplMemberVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::FunctionImplMember::span() const { return _span; }
-ASTNS::VarStmt::VarStmt(File const &file, Maybe<Span const> const &span, std::vector<std::unique_ptr<VarStmtItem>> items): Stmt(file), _span(span), items(std::move(items)) {}
+ASTNS::VarStmt::VarStmt(Maybe<Span const> const &span, std::vector<std::unique_ptr<VarStmtItem>> items): _span(span), items(std::move(items)) {}
 void ASTNS::VarStmt::ast_accept(ASTNS::StmtVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::VarStmt::span() const { return _span; }
-ASTNS::VarStmtItem::VarStmtItem(File const &file, Maybe<Span const> const &span, std::unique_ptr<Type> type, bool mut, Located<Tokens::Identifier> name, Maybe<Located<Tokens::Equal>> equal, std::unique_ptr<Expr> expr): VStmtIB(file), _span(span), type(std::move(type)), mut(std::move(mut)), name(std::move(name)), equal(std::move(equal)), expr(std::move(expr)) {}
+ASTNS::VarStmtItem::VarStmtItem(Maybe<Span const> const &span, std::unique_ptr<Type> type, bool mut, Located<Tokens::Identifier> name, Maybe<Located<Tokens::Equal>> equal, std::unique_ptr<Expr> expr): _span(span), type(std::move(type)), mut(std::move(mut)), name(std::move(name)), equal(std::move(equal)), expr(std::move(expr)) {}
 void ASTNS::VarStmtItem::ast_accept(ASTNS::VStmtIBVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::VarStmtItem::span() const { return _span; }
-ASTNS::ExprStmt::ExprStmt(File const &file, Maybe<Span const> const &span, std::unique_ptr<Expr> expr): Stmt(file), _span(span), expr(std::move(expr)) {}
+ASTNS::ExprStmt::ExprStmt(Maybe<Span const> const &span, std::unique_ptr<Expr> expr): _span(span), expr(std::move(expr)) {}
 void ASTNS::ExprStmt::ast_accept(ASTNS::StmtVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::ExprStmt::span() const { return _span; }
-ASTNS::RetStmt::RetStmt(File const &file, Maybe<Span const> const &span, std::unique_ptr<Expr> expr): Stmt(file), _span(span), expr(std::move(expr)) {}
+ASTNS::RetStmt::RetStmt(Maybe<Span const> const &span, std::unique_ptr<Expr> expr): _span(span), expr(std::move(expr)) {}
 void ASTNS::RetStmt::ast_accept(ASTNS::StmtVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::RetStmt::span() const { return _span; }
-ASTNS::PathType::PathType(File const &file, Maybe<Span const> const &span, std::unique_ptr<Path> path): Type(file), _span(span), path(std::move(path)) {}
+ASTNS::PathType::PathType(Maybe<Span const> const &span, std::unique_ptr<Path> path): _span(span), path(std::move(path)) {}
 void ASTNS::PathType::ast_accept(ASTNS::TypeVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::PathType::span() const { return _span; }
-ASTNS::PointerType::PointerType(File const &file, Maybe<Span const> const &span, bool mut, std::unique_ptr<Type> type): Type(file), _span(span), mut(std::move(mut)), type(std::move(type)) {}
+ASTNS::PointerType::PointerType(Maybe<Span const> const &span, bool mut, std::unique_ptr<Type> type): _span(span), mut(std::move(mut)), type(std::move(type)) {}
 void ASTNS::PointerType::ast_accept(ASTNS::TypeVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::PointerType::span() const { return _span; }
-ASTNS::ThisType::ThisType(File const &file, Maybe<Span const> const &span, Located<Tokens::This> th): Type(file), _span(span), th(std::move(th)) {}
+ASTNS::ThisType::ThisType(Maybe<Span const> const &span, Located<Tokens::This> th): _span(span), th(std::move(th)) {}
 void ASTNS::ThisType::ast_accept(ASTNS::TypeVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::ThisType::span() const { return _span; }
-ASTNS::Arg::Arg(File const &file, Maybe<Span const> const &span, std::unique_ptr<Expr> expr): ArgB(file), _span(span), expr(std::move(expr)) {}
+ASTNS::Arg::Arg(Maybe<Span const> const &span, std::unique_ptr<Expr> expr): _span(span), expr(std::move(expr)) {}
 void ASTNS::Arg::ast_accept(ASTNS::ArgBVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::Arg::span() const { return _span; }
-ASTNS::Param::Param(File const &file, Maybe<Span const> const &span, std::unique_ptr<Type> type, Located<Tokens::Identifier> name, bool mut): ParamB(file), _span(span), type(std::move(type)), name(std::move(name)), mut(std::move(mut)) {}
+ASTNS::Param::Param(Maybe<Span const> const &span, std::unique_ptr<Type> type, Located<Tokens::Identifier> name, bool mut): _span(span), type(std::move(type)), name(std::move(name)), mut(std::move(mut)) {}
 void ASTNS::Param::ast_accept(ASTNS::ParamBVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::Param::span() const { return _span; }
-ASTNS::ThisParam::ThisParam(File const &file, Maybe<Span const> const &span, bool ptr, bool mut): ParamB(file), _span(span), ptr(std::move(ptr)), mut(std::move(mut)) {}
+ASTNS::ThisParam::ThisParam(Maybe<Span const> const &span, bool ptr, bool mut): _span(span), ptr(std::move(ptr)), mut(std::move(mut)) {}
 void ASTNS::ThisParam::ast_accept(ASTNS::ParamBVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::ThisParam::span() const { return _span; }
-ASTNS::Block::Block(File const &file, Maybe<Span const> const &span, std::vector<std::unique_ptr<Stmt>> stmts, std::unique_ptr<Expr> ret): Expr(file), _span(span), stmts(std::move(stmts)), ret(std::move(ret)) {}
+ASTNS::Block::Block(Maybe<Span const> const &span, std::vector<std::unique_ptr<Stmt>> stmts, std::unique_ptr<Expr> ret): _span(span), stmts(std::move(stmts)), ret(std::move(ret)) {}
 void ASTNS::Block::ast_accept(ASTNS::ExprVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::Block::span() const { return _span; }
-ASTNS::IfExpr::IfExpr(File const &file, Maybe<Span const> const &span, Located<Tokens::If> iftok, Maybe<Located<Tokens::Else>> elsetok, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> trues, std::unique_ptr<Expr> falses): Expr(file), _span(span), iftok(std::move(iftok)), elsetok(std::move(elsetok)), cond(std::move(cond)), trues(std::move(trues)), falses(std::move(falses)) {}
+ASTNS::IfExpr::IfExpr(Maybe<Span const> const &span, Located<Tokens::If> iftok, Maybe<Located<Tokens::Else>> elsetok, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> trues, std::unique_ptr<Expr> falses): _span(span), iftok(std::move(iftok)), elsetok(std::move(elsetok)), cond(std::move(cond)), trues(std::move(trues)), falses(std::move(falses)) {}
 void ASTNS::IfExpr::ast_accept(ASTNS::ExprVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::IfExpr::span() const { return _span; }
-ASTNS::WhileExpr::WhileExpr(File const &file, Maybe<Span const> const &span, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> body): Expr(file), _span(span), cond(std::move(cond)), body(std::move(body)) {}
+ASTNS::WhileExpr::WhileExpr(Maybe<Span const> const &span, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> body): _span(span), cond(std::move(cond)), body(std::move(body)) {}
 void ASTNS::WhileExpr::ast_accept(ASTNS::ExprVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::WhileExpr::span() const { return _span; }
-ASTNS::AssignmentExpr::AssignmentExpr(File const &file, Maybe<Span const> const &span, std::unique_ptr<Expr> target, Located<AssignOperator> equal, std::unique_ptr<Expr> expr): Expr(file), _span(span), target(std::move(target)), equal(std::move(equal)), expr(std::move(expr)) {}
+ASTNS::AssignmentExpr::AssignmentExpr(Maybe<Span const> const &span, std::unique_ptr<Expr> target, Located<AssignOperator> equal, std::unique_ptr<Expr> expr): _span(span), target(std::move(target)), equal(std::move(equal)), expr(std::move(expr)) {}
 void ASTNS::AssignmentExpr::ast_accept(ASTNS::ExprVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::AssignmentExpr::span() const { return _span; }
-ASTNS::ShortCircuitExpr::ShortCircuitExpr(File const &file, Maybe<Span const> const &span, std::unique_ptr<Expr> lhs, Located<ShortCircuitOperator> op, std::unique_ptr<Expr> rhs): Expr(file), _span(span), lhs(std::move(lhs)), op(std::move(op)), rhs(std::move(rhs)) {}
+ASTNS::ShortCircuitExpr::ShortCircuitExpr(Maybe<Span const> const &span, std::unique_ptr<Expr> lhs, Located<ShortCircuitOperator> op, std::unique_ptr<Expr> rhs): _span(span), lhs(std::move(lhs)), op(std::move(op)), rhs(std::move(rhs)) {}
 void ASTNS::ShortCircuitExpr::ast_accept(ASTNS::ExprVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::ShortCircuitExpr::span() const { return _span; }
-ASTNS::BinaryExpr::BinaryExpr(File const &file, Maybe<Span const> const &span, std::unique_ptr<Expr> lhs, Located<BinaryOperator> op, std::unique_ptr<Expr> rhs): Expr(file), _span(span), lhs(std::move(lhs)), op(std::move(op)), rhs(std::move(rhs)) {}
+ASTNS::BinaryExpr::BinaryExpr(Maybe<Span const> const &span, std::unique_ptr<Expr> lhs, Located<BinaryOperator> op, std::unique_ptr<Expr> rhs): _span(span), lhs(std::move(lhs)), op(std::move(op)), rhs(std::move(rhs)) {}
 void ASTNS::BinaryExpr::ast_accept(ASTNS::ExprVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::BinaryExpr::span() const { return _span; }
-ASTNS::CastExpr::CastExpr(File const &file, Maybe<Span const> const &span, std::unique_ptr<Type> type, std::unique_ptr<Expr> expr): Expr(file), _span(span), type(std::move(type)), expr(std::move(expr)) {}
+ASTNS::CastExpr::CastExpr(Maybe<Span const> const &span, std::unique_ptr<Type> type, std::unique_ptr<Expr> expr): _span(span), type(std::move(type)), expr(std::move(expr)) {}
 void ASTNS::CastExpr::ast_accept(ASTNS::ExprVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::CastExpr::span() const { return _span; }
-ASTNS::UnaryExpr::UnaryExpr(File const &file, Maybe<Span const> const &span, Located<UnaryOperator> op, std::unique_ptr<Expr> expr): Expr(file), _span(span), op(std::move(op)), expr(std::move(expr)) {}
+ASTNS::UnaryExpr::UnaryExpr(Maybe<Span const> const &span, Located<UnaryOperator> op, std::unique_ptr<Expr> expr): _span(span), op(std::move(op)), expr(std::move(expr)) {}
 void ASTNS::UnaryExpr::ast_accept(ASTNS::ExprVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::UnaryExpr::span() const { return _span; }
-ASTNS::AddrofExpr::AddrofExpr(File const &file, Maybe<Span const> const &span, Located<Tokens::Amper> op, std::unique_ptr<Expr> expr, bool mut): Expr(file), _span(span), op(std::move(op)), expr(std::move(expr)), mut(std::move(mut)) {}
+ASTNS::AddrofExpr::AddrofExpr(Maybe<Span const> const &span, Located<Tokens::Amper> op, std::unique_ptr<Expr> expr, bool mut): _span(span), op(std::move(op)), expr(std::move(expr)), mut(std::move(mut)) {}
 void ASTNS::AddrofExpr::ast_accept(ASTNS::ExprVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::AddrofExpr::span() const { return _span; }
-ASTNS::DerefExpr::DerefExpr(File const &file, Maybe<Span const> const &span, Located<Tokens::Star> op, std::unique_ptr<Expr> expr): Expr(file), _span(span), op(std::move(op)), expr(std::move(expr)) {}
+ASTNS::DerefExpr::DerefExpr(Maybe<Span const> const &span, Located<Tokens::Star> op, std::unique_ptr<Expr> expr): _span(span), op(std::move(op)), expr(std::move(expr)) {}
 void ASTNS::DerefExpr::ast_accept(ASTNS::ExprVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::DerefExpr::span() const { return _span; }
-ASTNS::CallExpr::CallExpr(File const &file, Maybe<Span const> const &span, std::unique_ptr<Expr> callee, Located<Tokens::OParen> oparn, std::vector<std::unique_ptr<Arg>> args): Expr(file), _span(span), callee(std::move(callee)), oparn(std::move(oparn)), args(std::move(args)) {}
+ASTNS::CallExpr::CallExpr(Maybe<Span const> const &span, std::unique_ptr<Expr> callee, Located<Tokens::OParen> oparn, std::vector<std::unique_ptr<Arg>> args): _span(span), callee(std::move(callee)), oparn(std::move(oparn)), args(std::move(args)) {}
 void ASTNS::CallExpr::ast_accept(ASTNS::ExprVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::CallExpr::span() const { return _span; }
-ASTNS::FieldAccessExpr::FieldAccessExpr(File const &file, Maybe<Span const> const &span, std::unique_ptr<Expr> operand, Located<Tokens::Period> dot, Located<Tokens::Identifier> field): Expr(file), _span(span), operand(std::move(operand)), dot(std::move(dot)), field(std::move(field)) {}
+ASTNS::FieldAccessExpr::FieldAccessExpr(Maybe<Span const> const &span, std::unique_ptr<Expr> operand, Located<Tokens::Period> dot, Located<Tokens::Identifier> field): _span(span), operand(std::move(operand)), dot(std::move(dot)), field(std::move(field)) {}
 void ASTNS::FieldAccessExpr::ast_accept(ASTNS::ExprVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::FieldAccessExpr::span() const { return _span; }
-ASTNS::MethodCallExpr::MethodCallExpr(File const &file, Maybe<Span const> const &span, std::unique_ptr<Expr> operand, Located<Tokens::Period> dot, Located<Tokens::Identifier> method, Located<Tokens::OParen> oparn, std::vector<std::unique_ptr<Arg>> args): Expr(file), _span(span), operand(std::move(operand)), dot(std::move(dot)), method(std::move(method)), oparn(std::move(oparn)), args(std::move(args)) {}
+ASTNS::MethodCallExpr::MethodCallExpr(Maybe<Span const> const &span, std::unique_ptr<Expr> operand, Located<Tokens::Period> dot, Located<Tokens::Identifier> method, Located<Tokens::OParen> oparn, std::vector<std::unique_ptr<Arg>> args): _span(span), operand(std::move(operand)), dot(std::move(dot)), method(std::move(method)), oparn(std::move(oparn)), args(std::move(args)) {}
 void ASTNS::MethodCallExpr::ast_accept(ASTNS::ExprVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::MethodCallExpr::span() const { return _span; }
-ASTNS::BoolLit::BoolLit(File const &file, Maybe<Span const> const &span, Located<Tokens::BoolLit> val): Expr(file), _span(span), val(std::move(val)) {}
+ASTNS::BoolLit::BoolLit(Maybe<Span const> const &span, Located<Tokens::BoolLit> val): _span(span), val(std::move(val)) {}
 void ASTNS::BoolLit::ast_accept(ASTNS::ExprVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::BoolLit::span() const { return _span; }
-ASTNS::FloatLit::FloatLit(File const &file, Maybe<Span const> const &span, Located<Tokens::FloatLit> val): Expr(file), _span(span), val(std::move(val)) {}
+ASTNS::FloatLit::FloatLit(Maybe<Span const> const &span, Located<Tokens::FloatLit> val): _span(span), val(std::move(val)) {}
 void ASTNS::FloatLit::ast_accept(ASTNS::ExprVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::FloatLit::span() const { return _span; }
-ASTNS::IntLit::IntLit(File const &file, Maybe<Span const> const &span, Located<Tokens::IntLit> val): Expr(file), _span(span), val(std::move(val)) {}
+ASTNS::IntLit::IntLit(Maybe<Span const> const &span, Located<Tokens::IntLit> val): _span(span), val(std::move(val)) {}
 void ASTNS::IntLit::ast_accept(ASTNS::ExprVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::IntLit::span() const { return _span; }
-ASTNS::CharLit::CharLit(File const &file, Maybe<Span const> const &span, Located<Tokens::CharLit> val): Expr(file), _span(span), val(std::move(val)) {}
+ASTNS::CharLit::CharLit(Maybe<Span const> const &span, Located<Tokens::CharLit> val): _span(span), val(std::move(val)) {}
 void ASTNS::CharLit::ast_accept(ASTNS::ExprVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::CharLit::span() const { return _span; }
-ASTNS::StringLit::StringLit(File const &file, Maybe<Span const> const &span, Located<Tokens::StringLit> val): Expr(file), _span(span), val(std::move(val)) {}
+ASTNS::StringLit::StringLit(Maybe<Span const> const &span, Located<Tokens::StringLit> val): _span(span), val(std::move(val)) {}
 void ASTNS::StringLit::ast_accept(ASTNS::ExprVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::StringLit::span() const { return _span; }
-ASTNS::ThisExpr::ThisExpr(File const &file, Maybe<Span const> const &span, Located<Tokens::This> tok): Expr(file), _span(span), tok(std::move(tok)) {}
+ASTNS::ThisExpr::ThisExpr(Maybe<Span const> const &span, Located<Tokens::This> tok): _span(span), tok(std::move(tok)) {}
 void ASTNS::ThisExpr::ast_accept(ASTNS::ExprVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::ThisExpr::span() const { return _span; }
-ASTNS::PathExpr::PathExpr(File const &file, Maybe<Span const> const &span, std::unique_ptr<Path> path): Expr(file), _span(span), path(std::move(path)) {}
+ASTNS::PathExpr::PathExpr(Maybe<Span const> const &span, std::unique_ptr<Path> path): _span(span), path(std::move(path)) {}
 void ASTNS::PathExpr::ast_accept(ASTNS::ExprVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::PathExpr::span() const { return _span; }
-ASTNS::Path::Path(File const &file, Maybe<Span const> const &span, std::vector<Located<Tokens::Identifier>> segments): PathB(file), _span(span), segments(std::move(segments)) {}
+ASTNS::Path::Path(Maybe<Span const> const &span, std::vector<Located<Tokens::Identifier>> segments): _span(span), segments(std::move(segments)) {}
 void ASTNS::Path::ast_accept(ASTNS::PathBVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::Path::span() const { return _span; }
 // ASTCPP END

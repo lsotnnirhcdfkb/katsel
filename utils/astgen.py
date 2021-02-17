@@ -113,7 +113,7 @@ def gen_ast_decls():
 
             output.append(f'    virtual void ast_accept({ast.base}Visitor &v) override;\n')
             output.append( '    virtual Maybe<Span const> const &span() const override;\n')
-            output.append(f'    {ast.name}(File const &file, Maybe<Span const> const &span, {helpers.Field.as_params(ast.fields)});\n')
+            output.append(f'    {ast.name}(Maybe<Span const> const &span, {helpers.Field.as_params(ast.fields)});\n')
 
             output.append( '};\n')
         elif isinstance(ast, ASTBase):
@@ -123,15 +123,12 @@ def gen_ast_decls():
 
             output.append(f'    virtual ~{ast.name}() {{}}\n')
             output.append(f'    virtual void ast_accept({ast.name}Visitor &v) = 0;\n')
-            output.append(f'    {ast.name}(File const &file);\n')
             output.append( '};\n')
         else:
             output.append(('class AST {\n'
                            'public:\n'
-                           '    AST(File const &file);\n'
                            '    virtual ~AST() {}\n'
                            '    virtual Maybe<Span const> const &span() const = 0;\n'
-                           '    File const &file;\n'
                            '};\n'))
 
     return''.join(output)
@@ -140,19 +137,15 @@ def gen_ast_defs():
     output = []
     for ast in asts:
         if isinstance(ast, AST):
-            output.append(f'ASTNS::{ast.name}::{ast.name}(File const &file, Maybe<Span const> const &span, {helpers.Field.as_params(ast.fields)}): ')
+            output.append(f'ASTNS::{ast.name}::{ast.name}(Maybe<Span const> const &span, {helpers.Field.as_params(ast.fields)}): ')
 
-            output.append(f'{ast.base}(file), _span(span), ')
+            output.append(f'_span(span), ')
             output.append(', '.join(f'{field.name}(std::move({field.name}))' for field in ast.fields))
 
             output.append(' {}\n')
 
             output.append(f'void ASTNS::{ast.name}::ast_accept(ASTNS::{ast.base}Visitor &v) {{ v.ast_visit(*this); }}\n')
             output.append(f'Maybe<Span const> const &ASTNS::{ast.name}::span() const {{ return _span; }}\n')
-        elif isinstance(ast, ASTBase):
-            output.append(f'ASTNS::{ast.name}::{ast.name}(File const &file): AST(file) {{}}\n')
-        else:
-            output.append('ASTNS::AST::AST(File const &file): file(file) {}\n')
 
     return ''.join(output)
 # Generate AST forward decls {{{3
