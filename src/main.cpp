@@ -92,10 +92,12 @@ int compile_file(OutFormats ofmt, std::string_view filename) {
         return true;
     }
 
-    std::unique_ptr<ASTNS::CUB> parsed = Parse::parse(*lexer, *file);
+    auto m_parsed = Parse::parse(*lexer, *file);
 
-    if (!parsed)
+    if (!m_parsed.has())
         return false;
+
+    auto &parsed = m_parsed.get();
 
     if (ofmt == OutFormats::PARSE) {
         OPENFILE(filename, ".parsed.txt");

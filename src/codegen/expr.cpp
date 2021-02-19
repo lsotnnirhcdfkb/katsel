@@ -50,18 +50,14 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::ShortCircuitExpr &ast) {
     NNPtr<IR::Block> checkboth = ir_builder->fun().add_block("shortcircuit_checkboth");
     NNPtr<IR::Block> after = ir_builder->fun().add_block("shortcircuit_after");
 
-    bool value_if_skipped;
-
     switch (ast.op.value) {
         case ASTNS::ShortCircuitOperator::DOUBLEPIPE:
             // jump to skip when true
             ir_builder->cur_block()->branch(std::make_unique<IR::Instrs::CondBr>(lhs, skip, checkboth));
-            value_if_skipped = true;
             break;
         case ASTNS::ShortCircuitOperator::DOUBLEAMPER:
             // jump to skip when false
             ir_builder->cur_block()->branch(std::make_unique<IR::Instrs::CondBr>(lhs, checkboth, skip));
-            value_if_skipped = false;
             break;
     }
 

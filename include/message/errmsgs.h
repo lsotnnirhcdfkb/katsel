@@ -55,17 +55,17 @@ void E0009(Span const &tok);
 #define ERR_CHAR_AFTER_BACKSLASH E0010
 void E0010(Span const &tok);
 
-// E0011 - unrecoverable-invalid-syntax
-#define ERR_UNRECOVERABLE_INVALID_SYNTAX E0011
-void E0011(Span const &next, std::string lookahead_type_name, Span const &lasttok, std::initializer_list<std::string> const &expectations);
+// E0011 - expected-decl
+#define ERR_EXPECTED_DECL E0011
+void E0011(Span const &should_be_decl);
 
-// E0012 - simple-invalid-syntax
-#define ERR_SIMPLE_INVALID_SYNTAX E0012
-void E0012(Span const &next, std::string lookahead_type_name, Span const &lasttok, std::initializer_list<std::string> const &expectations, std::string const &inserted_type);
+// E0012 - expected
+#define ERR_EXPECTED E0012
+void E0012(Span const &expected, std::string const &name);
 
-// E0013 - skipping-invalid-syntax
-#define ERR_SKIPPING_INVALID_SYNTAX E0013
-void E0013(Span const &next, std::string lookahead_type_name, Span const &lasttok, std::initializer_list<std::string> const &expectations, Span const &replaced, std::string const &replacement_type);
+// E0013 - expected-impl-member
+#define ERR_EXPECTED_IMPL_MEMBER E0013
+void E0013(Span const &not_member);
 
 // E0014 - lhs-unsupported-op
 #define ERR_LHS_UNSUPPORTED_OP E0014

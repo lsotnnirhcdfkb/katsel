@@ -122,36 +122,32 @@ void E0010(Span const &tok) {
     e.report();
 }
 
-// E0011 - unrecoverable-invalid-syntax
-// | The parser found a syntax error and could not recover.
-void E0011(Span const &next, std::string lookahead_type_name, Span const &lasttok, std::initializer_list<std::string> const &expectations) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, next, "E0011", "unrecoverable-invalid-syntax");
+// E0011 - expected-decl
+// | Expected a declaration
+void E0011(Span const &should_be_decl) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, should_be_decl, "E0011", "expected-decl");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
-    sect->messages.push_back(Errors::Sections::Underlines::Message { next, '^', format("unexpected {}", lookahead_type_name), A_BOLD });
+    sect->messages.push_back(Errors::Sections::Underlines::Message { should_be_decl, '^', "expected a declaration", A_BOLD });
     e.section(std::move(sect));
     e.report();
 }
 
-// E0012 - simple-invalid-syntax
-// | The parser found a syntax error and recovered by inserting a
-// | single token.
-void E0012(Span const &next, std::string lookahead_type_name, Span const &lasttok, std::initializer_list<std::string> const &expectations, std::string const &inserted_type) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, next, "E0012", "simple-invalid-syntax");
+// E0012 - expected
+// | Expected something
+void E0012(Span const &expected, std::string const &name) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, expected, "E0012", "expected");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
-    sect->messages.push_back(Errors::Sections::Underlines::Message { next, '^', format("unexpected {}", lookahead_type_name), A_BOLD });
-    sect->messages.push_back(Errors::Sections::Underlines::Message { next, '^', format("parser recovered by inserting {} before this {}", inserted_type, lookahead_type_name), A_BOLD });
+    sect->messages.push_back(Errors::Sections::Underlines::Message { expected, '^', format("expected {}", name), A_BOLD });
     e.section(std::move(sect));
     e.report();
 }
 
-// E0013 - skipping-invalid-syntax
-// | The parser found a syntax error and recovered by replacing a
-// | sequence of tokens with a single token.
-void E0013(Span const &next, std::string lookahead_type_name, Span const &lasttok, std::initializer_list<std::string> const &expectations, Span const &replaced, std::string const &replacement_type) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, next, "E0013", "skipping-invalid-syntax");
+// E0013 - expected-impl-member
+// | Expected an 'impl' member
+void E0013(Span const &not_member) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, not_member, "E0013", "expected-impl-member");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
-    sect->messages.push_back(Errors::Sections::Underlines::Message { next, '^', format("unexpected {}", lookahead_type_name), A_BOLD });
-    sect->messages.push_back(Errors::Sections::Underlines::Message { replaced, '~', format("parser recovered by replacing this with {}", replacement_type), A_BOLD });
+    sect->messages.push_back(Errors::Sections::Underlines::Message { not_member, '^', "expected an 'impl' member", A_BOLD });
     e.section(std::move(sect));
     e.report();
 }

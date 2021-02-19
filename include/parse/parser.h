@@ -1,12 +1,13 @@
 #pragma once
 
 #include <memory>
+#include "utils/maybe.h"
 
 class Lexer;
 struct File;
-namespace ASTNS { class CUB; }
+namespace ASTNS { class CU; }
 
 namespace Parse {
-    std::unique_ptr<ASTNS::CUB> parse(Lexer &l, File &sourcefile);
+    Maybe<std::unique_ptr<ASTNS::CU>> parse(Lexer &l, File &sourcefile);
 }
 

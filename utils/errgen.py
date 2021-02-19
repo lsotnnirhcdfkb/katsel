@@ -5,14 +5,13 @@ import itertools
 
 # Msg class {{{1
 class Msg:
-    def __init__(self, name, *, desc, inputs, location, highlights, extra=None):
+    def __init__(self, name, *, desc, inputs, location, highlights):
         self.code = None
         self.name = name
         self.desc = desc
         self.inputs = inputs
         self.location = location
         self.highlights = highlights
-        self.extra = extra
 # types of highlights {{{1
 class SimpleHighlight:
     def __init__(self, location, under, messages):
@@ -121,43 +120,25 @@ errors = [
             highlights=[
                 SimpleHighlight('tok', UNDER0, [('error', '"non-newline after line continuation backslash"')]),
             ]),
-        Msg('unrecoverable-invalid-syntax',
-            desc='The parser found a syntax error and could not recover.',
-            inputs='Span const &next, std::string lookahead_type_name, Span const &lasttok, std::initializer_list<std::string> const &expectations', location='next',
+        Msg('expected-decl',
+            desc='Expected a declaration',
+            inputs='Span const &should_be_decl', location='should_be_decl',
             highlights=[
-                SimpleHighlight('next', UNDER0, [('error', '"unexpected {}"', 'lookahead_type_name')]),
-            ],
-            extra=("" ""
-                # "auto un (Underline(lasttok, '~'));\n"
-                # 'for (std::string const &expectation : expectations)\n'
-                # '    un.hint(expectation);\n'
-                # 'e.underline(un);\n'
-                )),
-        Msg('simple-invalid-syntax',
-            desc='The parser found a syntax error and recovered by inserting a single token.',
-            inputs='Span const &next, std::string lookahead_type_name, Span const &lasttok, std::initializer_list<std::string> const &expectations, std::string const &inserted_type', location='next',
+                SimpleHighlight('should_be_decl', UNDER0, [('error', '"expected a declaration"')]),
+            ]),
+        Msg('expected',
+            desc='Expected something',
+            inputs='Span const &expected, std::string const &name', location='expected',
             highlights=[
-                SimpleHighlight('next', UNDER0, [('error', '"unexpected {}"', 'lookahead_type_name'), ('note', '"parser recovered by inserting {} before this {}"', 'inserted_type', 'lookahead_type_name')]),
-            ],
-            extra=("" ""
-                # "auto un (Underline(lasttok, '~'));\n"
-                # 'for (std::string const &expectation : expectations)\n'
-                # '    un.hint(expectation);\n'
-                # 'e.underline(un);\n'
-                )),
-        Msg('skipping-invalid-syntax',
-            desc='The parser found a syntax error and recovered by replacing a sequence of tokens with a single token.',
-            inputs='Span const &next, std::string lookahead_type_name, Span const &lasttok, std::initializer_list<std::string> const &expectations, Span const &replaced, std::string const &replacement_type', location='next',
+                SimpleHighlight('expected', UNDER0, [('error', '"expected {}"', 'name')]),
+            ]),
+        Msg('expected-impl-member',
+            desc='Expected an \'impl\' member',
+            inputs='Span const &not_member', location='not_member',
             highlights=[
-                SimpleHighlight('next', UNDER0, [('error', '"unexpected {}"', 'lookahead_type_name')]),
-                SimpleHighlight('replaced', UNDER1, [('note', '"parser recovered by replacing this with {}"', 'replacement_type')], ),
-            ],
-            extra=("" ""
-                # "auto un (Underline(lasttok, '~'));\n"
-                # 'for (std::string const &expectation : expectations)\n'
-                # '    un.hint(expectation);\n'
-                # 'e.underline(un);\n'
-                )),
+                SimpleHighlight('not_member', UNDER0, [('error', '"expected an \'impl\' member"')]),
+            ]),
+
         Msg('lhs-unsupported-op',
             desc='Left hand side of binary expression does not support operator',
             inputs='Located<NNPtr<IR::Value>> const &lhs, Span const &op', location='op',
@@ -426,7 +407,7 @@ def gen_h():
     return ''.join(output)
 
 def gen_cpp():
-    def gen_message(code, name, msgtype, location, description, inputs, highlights, extra):
+    def gen_message(code, name, msgtype, location, description, inputs, highlights):
         output.append(        f'// {code} - {name}\n')
         desc_wrapped = ''.join('// | ' + line + '\n' for line in textwrap.wrap(description, 60))
         output.append(        desc_wrapped)
@@ -436,8 +417,6 @@ def gen_cpp():
 
         for hi in highlights:
             output.append(hi.generate())
-        if extra is not None:
-            output.append(extra)
 
         output.append(         '    e.section(std::move(sect));\n')
         output.append(         '    e.report();\n')
@@ -454,8 +433,7 @@ def gen_cpp():
         description = error.desc
         inputs = error.inputs
         highlights = error.highlights
-        extra = error.extra
-        gen_message(code, name, msgtype, location, description, inputs, highlights, extra)
+        gen_message(code, name, msgtype, location, description, inputs, highlights)
 
     for warning in warnings:
         code = 'W' + str(warning.code).zfill(PADAMT)
@@ -465,7 +443,6 @@ def gen_cpp():
         description = warning.desc
         inputs = warning.inputs
         highlights = warning.highlights
-        extra = warning.extra
-        gen_message(code, name, msgtype, location, description, inputs, highlights, extra)
+        gen_message(code, name, msgtype, location, description, inputs, highlights)
 
     return ''.join(output)
