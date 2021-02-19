@@ -108,7 +108,6 @@ namespace Codegen {
         private:
             // STMTCG METHODS START
             void ast_visit(ASTNS::VarStmt &ast) override;
-            void ast_visit(ASTNS::VarStmtItem &ast) override;
             void ast_visit(ASTNS::ExprStmt &ast) override;
             void ast_visit(ASTNS::RetStmt &ast) override;
             // STMTCG METHODS END

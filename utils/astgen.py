@@ -38,7 +38,6 @@ asts = [
     list_ast('StmtList', 'Stmt', 'stmts'),
     list_ast('ParamList', 'ParamB', 'params'),
     list_ast('ArgList', 'Arg', 'args'),
-    list_ast('VarStmtItemList', 'VarStmtItem', 'items'),
     list_ast('ImplMemberList', 'ImplMember', 'members'),
 
     # a class to keep track of locations of syntactic elements that don't matter (like
@@ -58,8 +57,7 @@ asts = [
 
     AST('FunctionImplMember', 'ImplMember', 'std::unique_ptr<FunctionDecl>|fun'),
 
-    AST('VarStmt'           , 'Stmt', 'std::vector<std::unique_ptr<VarStmtItem>>|items'),
-    AST('VarStmtItem'       , 'VStmtIB', 'std::unique_ptr<Type>|type ! bool|mut ! Located<Tokens::Identifier>|name ! Maybe<Located<Tokens::Equal>>|equal ! std::unique_ptr<Expr>|expr'),
+    AST('VarStmt'           , 'Stmt', 'std::unique_ptr<Type>|type ! bool|mut ! Located<Tokens::Identifier>|name ! Maybe<Located<Tokens::Equal>>|equal ! std::unique_ptr<Expr>|expr'),
 
     AST('ExprStmt'          , 'Stmt', 'std::unique_ptr<Expr>|expr'),
     AST('RetStmt'           , 'Stmt', 'std::unique_ptr<Expr>|expr'),
@@ -73,7 +71,7 @@ asts = [
     AST('Param'             , 'ParamB', 'std::unique_ptr<Type>|type ! Located<Tokens::Identifier>|name ! bool|mut'),
     AST('ThisParam'         , 'ParamB', 'bool|ptr ! bool|mut'),
 
-    AST('Block'             , 'Expr', 'std::vector<std::unique_ptr<Stmt>>|stmts ! std::unique_ptr<Expr>|ret'),
+    AST('Block'             , 'Expr', 'std::vector<std::unique_ptr<Stmt>>|stmts'),
     AST('IfExpr'            , 'Expr', 'Located<Tokens::If>|iftok ! Maybe<Located<Tokens::Else>>|elsetok ! std::unique_ptr<Expr>|cond ! std::unique_ptr<Expr>|trues ! std::unique_ptr<Expr>|falses'),
     AST('WhileExpr'         , 'Expr', 'std::unique_ptr<Expr>|cond ! std::unique_ptr<Expr>|body'),
 

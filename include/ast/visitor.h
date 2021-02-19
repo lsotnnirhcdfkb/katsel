@@ -73,7 +73,6 @@ namespace ASTNS {
     class VStmtIBVisitor {
     public:
         virtual ~VStmtIBVisitor() {}
-        virtual void ast_visit(ASTNS::VarStmtItem &ast) = 0;
     };
     class PathBVisitor {
     public:
@@ -87,7 +86,6 @@ namespace ASTNS {
         virtual void ast_visit(ASTNS::StmtList &ast) = 0;
         virtual void ast_visit(ASTNS::ParamList &ast) = 0;
         virtual void ast_visit(ASTNS::ArgList &ast) = 0;
-        virtual void ast_visit(ASTNS::VarStmtItemList &ast) = 0;
         virtual void ast_visit(ASTNS::ImplMemberList &ast) = 0;
     };
     class PureLocationBVisitor {

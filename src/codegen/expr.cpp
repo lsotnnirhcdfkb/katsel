@@ -392,10 +392,11 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::Block &ast) {
 
     ASTNS::AST &void_ast = ast.stmts.size() ? *static_cast<ASTNS::AST*>(ast.stmts[ast.stmts.size() - 1].get()) : *static_cast<ASTNS::AST*>(&ast);
 
-    if (ast.ret)
-        ret = expr(*ast.ret);
-    else
-        ret = Located<NNPtr<IR::Value>> { void_ast, ir_builder->context().get_void() };
+    // if (ast.ret)
+        // ret = expr(*ast.ret);
+    // else
+    // TODO: implicit returns, suppressed with ~
+    ret = Located<NNPtr<IR::Value>> { void_ast, ir_builder->context().get_void() };
 
     if (!stmt_cg.success)
         ret = Maybe<Located<NNPtr<IR::Value>>>();

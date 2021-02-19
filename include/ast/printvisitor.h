@@ -28,7 +28,6 @@ namespace ASTNS {
         void ast_visit(ASTNS::StmtList &ast) override;
         void ast_visit(ASTNS::ParamList &ast) override;
         void ast_visit(ASTNS::ArgList &ast) override;
-        void ast_visit(ASTNS::VarStmtItemList &ast) override;
         void ast_visit(ASTNS::ImplMemberList &ast) override;
         void ast_visit(ASTNS::PureLocation &ast) override;
         void ast_visit(ASTNS::ImplicitDecl &ast) override;
@@ -37,7 +36,6 @@ namespace ASTNS {
         void ast_visit(ASTNS::FunctionDecl &ast) override;
         void ast_visit(ASTNS::FunctionImplMember &ast) override;
         void ast_visit(ASTNS::VarStmt &ast) override;
-        void ast_visit(ASTNS::VarStmtItem &ast) override;
         void ast_visit(ASTNS::ExprStmt &ast) override;
         void ast_visit(ASTNS::RetStmt &ast) override;
         void ast_visit(ASTNS::PathType &ast) override;

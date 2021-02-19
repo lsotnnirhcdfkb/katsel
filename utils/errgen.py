@@ -363,7 +363,7 @@ warnings = [
         ]),
     Msg('immut-noinit',
         desc='Uninitialized immutable variable',
-        inputs='ASTNS::VarStmtItem const &ast', location='ast',
+        inputs='ASTNS::VarStmt const &ast', location='ast',
         highlights=[
             SimpleHighlight('ast', UNDER0, [('warning', '"uninitialized immutable variable will never be initialized"')]),
         ]),

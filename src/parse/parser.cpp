@@ -76,7 +76,7 @@ namespace {
 
             // TODO: parse function declaration without definition
 
-            TRY(body, std::unique_ptr<ASTNS::FunctionDecl>, blocked(&Parser::stmt_list, "function body"));
+            TRY(body, std::unique_ptr<ASTNS::FunctionDecl>, blocked(&Parser::stmt_list));
 
             TRY(maybe_line_end, std::unique_ptr<ASTNS::FunctionDecl>, optional_line_ending());
 
@@ -116,17 +116,59 @@ namespace {
             }
         }
         // statements {{{2
-        Maybe<std::unique_ptr<ASTNS::Block>> stmt_list(TokenPredicate stop, std::string const &what);
+        Maybe<std::unique_ptr<ASTNS::Block>> stmt_list(TokenPredicate stop) {
+            auto stmts = thing_list_no_separator<std::unique_ptr<ASTNS::Stmt>>(
+                stop,
+                [] (Maybe<Located<TokenData>> const &prev, Located<TokenData> const &next) {
+                    if (prev.has() && Tokens::is<Tokens::Newline>(prev.get().value))
+                        return true;
+                    else if (Tokens::is<Tokens::Var>(next.value) || Tokens::is<Tokens::Return>(next.value))
+                        return true;
+                    else
+                        return false;
+                },
+                &Parser::stmt
+            );
+            return std::make_unique<ASTNS::Block>(span_from_vec(stmts), std::move(stmts));
+        }
 
-        Maybe<std::unique_ptr<ASTNS::Stmt>> stmt();
-        Maybe<std::unique_ptr<ASTNS::VarStmt>> var_stmt();
+        Maybe<std::unique_ptr<ASTNS::Stmt>> stmt() {
+            if (consume_if<Tokens::Var>())
+                return var_stmt();
+            else if (consume_if<Tokens::Return>())
+                return ret_stmt();
+            else
+                return expr_stmt();
+        }
+        Maybe<std::unique_ptr<ASTNS::VarStmt>> var_stmt() {
+            Span var_tok = prev().get().span;
+
+            bool mut = consume_if<Tokens::Mut>();
+
+            TRY(name, std::unique_ptr<ASTNS::VarStmt>, expect<Tokens::Identifier>("variable name"));
+            TRY(type, std::unique_ptr<ASTNS::VarStmt>, type_annotation("variable type"));
+
+            std::unique_ptr<ASTNS::Expr> initializer = nullptr;
+            Maybe<Located<Tokens::Equal>> eq_tok;
+            if (consume_if<Tokens::Equal>()) {
+                auto prev_tok = prev().get();
+                eq_tok = Located<Tokens::Equal> { prev_tok.span, Tokens::as<Tokens::Equal>(prev_tok.value) };
+                TRY(inner_initializer, std::unique_ptr<ASTNS::VarStmt>, expr());
+                initializer = std::move(inner_initializer);
+            }
+
+            TRY(line_ending, std::unique_ptr<ASTNS::VarStmt>, line_ending());
+
+            Span stmt_span (var_tok.start, line_ending.end);
+            return std::make_unique<ASTNS::VarStmt>(stmt_span, std::move(type), mut, name, eq_tok, std::move(initializer));
+        }
         Maybe<std::unique_ptr<ASTNS::RetStmt>> ret_stmt();
         Maybe<std::unique_ptr<ASTNS::ExprStmt>> expr_stmt();
         // line endings {{{2
         Maybe<Span> line_ending();
 
         // the outer Maybe<...> is for error handling
-        // the innter Maybe<...> is because optional_line_ending sometimes doesn't return a span
+        // the inner Maybe<...> is because optional_line_ending sometimes doesn't return a span
         Maybe<Maybe<Span>> optional_line_ending();
         // blocks indented/braced {{{2
         // braced {{{3

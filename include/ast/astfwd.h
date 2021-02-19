@@ -50,7 +50,6 @@ namespace ASTNS {
     class StmtList;
     class ParamList;
     class ArgList;
-    class VarStmtItemList;
     class ImplMemberList;
     class PureLocationB;
     class PureLocation;
@@ -60,7 +59,6 @@ namespace ASTNS {
     class FunctionDecl;
     class FunctionImplMember;
     class VarStmt;
-    class VarStmtItem;
     class ExprStmt;
     class RetStmt;
     class PathType;

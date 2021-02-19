@@ -504,7 +504,7 @@ void W0000(Span const &semi) {
 
 // W0001 - Wimmut-noinit
 // | Uninitialized immutable variable
-void W0001(ASTNS::VarStmtItem const &ast) {
+void W0001(ASTNS::VarStmt const &ast) {
     Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::WARNING, ast, "W0001", "Wimmut-noinit");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { ast, '^', "uninitialized immutable variable will never be initialized", A_BOLD });

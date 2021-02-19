@@ -12,9 +12,6 @@ Maybe<Span const> const &ASTNS::ParamList::span() const { return _span; }
 ASTNS::ArgList::ArgList(Maybe<Span const> const &span, std::vector<std::unique_ptr<Arg>> args): _span(span), args(std::move(args)) {}
 void ASTNS::ArgList::ast_accept(ASTNS::ListBVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::ArgList::span() const { return _span; }
-ASTNS::VarStmtItemList::VarStmtItemList(Maybe<Span const> const &span, std::vector<std::unique_ptr<VarStmtItem>> items): _span(span), items(std::move(items)) {}
-void ASTNS::VarStmtItemList::ast_accept(ASTNS::ListBVisitor &v) { v.ast_visit(*this); }
-Maybe<Span const> const &ASTNS::VarStmtItemList::span() const { return _span; }
 ASTNS::ImplMemberList::ImplMemberList(Maybe<Span const> const &span, std::vector<std::unique_ptr<ImplMember>> members): _span(span), members(std::move(members)) {}
 void ASTNS::ImplMemberList::ast_accept(ASTNS::ListBVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::ImplMemberList::span() const { return _span; }
@@ -36,12 +33,9 @@ Maybe<Span const> const &ASTNS::FunctionDecl::span() const { return _span; }
 ASTNS::FunctionImplMember::FunctionImplMember(Maybe<Span const> const &span, std::unique_ptr<FunctionDecl> fun): _span(span), fun(std::move(fun)) {}
 void ASTNS::FunctionImplMember::ast_accept(ASTNS::ImplMemberVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::FunctionImplMember::span() const { return _span; }
-ASTNS::VarStmt::VarStmt(Maybe<Span const> const &span, std::vector<std::unique_ptr<VarStmtItem>> items): _span(span), items(std::move(items)) {}
+ASTNS::VarStmt::VarStmt(Maybe<Span const> const &span, std::unique_ptr<Type> type, bool mut, Located<Tokens::Identifier> name, Maybe<Located<Tokens::Equal>> equal, std::unique_ptr<Expr> expr): _span(span), type(std::move(type)), mut(std::move(mut)), name(std::move(name)), equal(std::move(equal)), expr(std::move(expr)) {}
 void ASTNS::VarStmt::ast_accept(ASTNS::StmtVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::VarStmt::span() const { return _span; }
-ASTNS::VarStmtItem::VarStmtItem(Maybe<Span const> const &span, std::unique_ptr<Type> type, bool mut, Located<Tokens::Identifier> name, Maybe<Located<Tokens::Equal>> equal, std::unique_ptr<Expr> expr): _span(span), type(std::move(type)), mut(std::move(mut)), name(std::move(name)), equal(std::move(equal)), expr(std::move(expr)) {}
-void ASTNS::VarStmtItem::ast_accept(ASTNS::VStmtIBVisitor &v) { v.ast_visit(*this); }
-Maybe<Span const> const &ASTNS::VarStmtItem::span() const { return _span; }
 ASTNS::ExprStmt::ExprStmt(Maybe<Span const> const &span, std::unique_ptr<Expr> expr): _span(span), expr(std::move(expr)) {}
 void ASTNS::ExprStmt::ast_accept(ASTNS::StmtVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::ExprStmt::span() const { return _span; }
@@ -66,7 +60,7 @@ Maybe<Span const> const &ASTNS::Param::span() const { return _span; }
 ASTNS::ThisParam::ThisParam(Maybe<Span const> const &span, bool ptr, bool mut): _span(span), ptr(std::move(ptr)), mut(std::move(mut)) {}
 void ASTNS::ThisParam::ast_accept(ASTNS::ParamBVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::ThisParam::span() const { return _span; }
-ASTNS::Block::Block(Maybe<Span const> const &span, std::vector<std::unique_ptr<Stmt>> stmts, std::unique_ptr<Expr> ret): _span(span), stmts(std::move(stmts)), ret(std::move(ret)) {}
+ASTNS::Block::Block(Maybe<Span const> const &span, std::vector<std::unique_ptr<Stmt>> stmts): _span(span), stmts(std::move(stmts)) {}
 void ASTNS::Block::ast_accept(ASTNS::ExprVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::Block::span() const { return _span; }
 ASTNS::IfExpr::IfExpr(Maybe<Span const> const &span, Located<Tokens::If> iftok, Maybe<Located<Tokens::Else>> elsetok, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> trues, std::unique_ptr<Expr> falses): _span(span), iftok(std::move(iftok)), elsetok(std::move(elsetok)), cond(std::move(cond)), trues(std::move(trues)), falses(std::move(falses)) {}

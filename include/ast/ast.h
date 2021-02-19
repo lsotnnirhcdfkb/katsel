@@ -103,14 +103,6 @@ namespace ASTNS {
         virtual Maybe<Span const> const &span() const override;
         ArgList(Maybe<Span const> const &span, std::vector<std::unique_ptr<Arg>> args);
     };
-    class VarStmtItemList : public ListB {
-    public:
-        Maybe<Span const> _span;
-        std::vector<std::unique_ptr<VarStmtItem>> items;
-        virtual void ast_accept(ListBVisitor &v) override;
-        virtual Maybe<Span const> const &span() const override;
-        VarStmtItemList(Maybe<Span const> const &span, std::vector<std::unique_ptr<VarStmtItem>> items);
-    };
     class ImplMemberList : public ListB {
     public:
         Maybe<Span const> _span;
@@ -179,22 +171,14 @@ namespace ASTNS {
     class VarStmt : public Stmt {
     public:
         Maybe<Span const> _span;
-        std::vector<std::unique_ptr<VarStmtItem>> items;
-        virtual void ast_accept(StmtVisitor &v) override;
-        virtual Maybe<Span const> const &span() const override;
-        VarStmt(Maybe<Span const> const &span, std::vector<std::unique_ptr<VarStmtItem>> items);
-    };
-    class VarStmtItem : public VStmtIB {
-    public:
-        Maybe<Span const> _span;
         std::unique_ptr<Type> type;
         bool mut;
         Located<Tokens::Identifier> name;
         Maybe<Located<Tokens::Equal>> equal;
         std::unique_ptr<Expr> expr;
-        virtual void ast_accept(VStmtIBVisitor &v) override;
+        virtual void ast_accept(StmtVisitor &v) override;
         virtual Maybe<Span const> const &span() const override;
-        VarStmtItem(Maybe<Span const> const &span, std::unique_ptr<Type> type, bool mut, Located<Tokens::Identifier> name, Maybe<Located<Tokens::Equal>> equal, std::unique_ptr<Expr> expr);
+        VarStmt(Maybe<Span const> const &span, std::unique_ptr<Type> type, bool mut, Located<Tokens::Identifier> name, Maybe<Located<Tokens::Equal>> equal, std::unique_ptr<Expr> expr);
     };
     class ExprStmt : public Stmt {
     public:
@@ -268,10 +252,9 @@ namespace ASTNS {
     public:
         Maybe<Span const> _span;
         std::vector<std::unique_ptr<Stmt>> stmts;
-        std::unique_ptr<Expr> ret;
         virtual void ast_accept(ExprVisitor &v) override;
         virtual Maybe<Span const> const &span() const override;
-        Block(Maybe<Span const> const &span, std::vector<std::unique_ptr<Stmt>> stmts, std::unique_ptr<Expr> ret);
+        Block(Maybe<Span const> const &span, std::vector<std::unique_ptr<Stmt>> stmts);
     };
     class IfExpr : public Expr {
     public:

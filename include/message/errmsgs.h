@@ -199,7 +199,7 @@ void W0000(Span const &semi);
 
 // W0001 - Wimmut-noinit
 #define WARN_IMMUT_NOINIT W0001
-void W0001(ASTNS::VarStmtItem const &ast);
+void W0001(ASTNS::VarStmt const &ast);
 
 // W0002 - Wblock-no-indent
 #define WARN_BLOCK_NO_INDENT W0002
