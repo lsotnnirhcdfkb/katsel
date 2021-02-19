@@ -162,8 +162,18 @@ namespace {
             Span stmt_span (var_tok.start, line_ending.end);
             return std::make_unique<ASTNS::VarStmt>(stmt_span, std::move(type), mut, name, eq_tok, std::move(initializer));
         }
-        Maybe<std::unique_ptr<ASTNS::RetStmt>> ret_stmt();
-        Maybe<std::unique_ptr<ASTNS::ExprStmt>> expr_stmt();
+        Maybe<std::unique_ptr<ASTNS::RetStmt>> ret_stmt() {
+            Span ret_tok = prev().get().span;
+            TRY(val, std::unique_ptr<ASTNS::RetStmt>, expr());
+            TRY(line_ending, std::unique_ptr<ASTNS::RetStmt>, line_ending());
+            Span total_span (ret_tok.start, line_ending.end);
+            return std::make_unique<ASTNS::RetStmt>(total_span, std::move(val));
+        }
+        Maybe<std::unique_ptr<ASTNS::ExprStmt>> expr_stmt() {
+            TRY(expr, std::unique_ptr<ASTNS::ExprStmt>, expr());
+            TRY(line_ending, std::unique_ptr<ASTNS::ExprStmt>, line_ending());
+            return std::make_unique<ASTNS::ExprStmt>(expr->span(), std::move(expr));
+        }
         // line endings {{{2
         Maybe<Span> line_ending();
 
