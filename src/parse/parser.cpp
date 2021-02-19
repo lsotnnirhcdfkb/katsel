@@ -105,7 +105,7 @@ namespace {
                     &Parser::impl_member
                 );
         }
-        // impl memeber {{{4
+        // impl member {{{4
         Maybe<std::unique_ptr<ASTNS::ImplMember>> impl_member() {
             if (consume_if<Tokens::Fun>()) {
                 TRY(fun_decl, std::unique_ptr<ASTNS::ImplMember>, function_decl());
@@ -175,11 +175,32 @@ namespace {
             return std::make_unique<ASTNS::ExprStmt>(expr->span(), std::move(expr));
         }
         // line endings {{{2
-        Maybe<Span> line_ending();
+        Maybe<Span> line_ending() {
+            if (consume_if<Tokens::Semicolon>()) {
+                Span semi = prev().get().span;
+                if (consume_if<Tokens::Semicolon>()) {
+                    Span newl = prev().get().span;
+                    return Span(semi.start, newl.end);
+                } else {
+                    return semi;
+                }
+            } else if (consume_if<Tokens::Newline>()) {
+                Span newl = prev().get().span;
+                return newl;
+            } else {
+                ERR_EXPECTED(peek().span, "line ending");
+                return Maybe<Span>();
+            }
+        }
 
-        // the outer Maybe<...> is for error handling
-        // the inner Maybe<...> is because optional_line_ending sometimes doesn't return a span
-        Maybe<Maybe<Span>> optional_line_ending();
+        // this Maybe is not for error handling, rather for the fact that optional_line_ending() doesn't always return a value
+        Maybe<Span> optional_line_ending() {
+            if (Tokens::is<Tokens::Newline>(peek().value) || Tokens::is<Tokens::Semicolon>(peek().value)) {
+                return line_ending();
+            } else {
+                return Maybe<Span>();
+            }
+        }
         // blocks indented/braced {{{2
         // braced {{{3
         template <typename ParseFun, typename ... Args>
