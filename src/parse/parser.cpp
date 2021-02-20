@@ -321,7 +321,7 @@ namespace {
         }
         // path {{{3
         Maybe<std::unique_ptr<ASTNS::PathType>> path_type(std::string const &what) {
-            TRY(path, std::unique_ptr<ASTNS::PathType>, path(what));
+            TRY(path, std::unique_ptr<ASTNS::PathType>, path_no_first());
             return std::make_unique<ASTNS::PathType>(path->span(), std::move(path));
         }
         // params {{{2
@@ -374,19 +374,21 @@ namespace {
         using PrefixParseFun = Maybe<std::unique_ptr<ASTNS::Expr>> (Parser::*)(Located<TokenData> const &);
         using InfixParseFun = Maybe<std::unique_ptr<ASTNS::Expr>> (Parser::*)(std::unique_ptr<ASTNS::Expr>, Located<TokenData> const &);
         std::map<size_t, PrefixParseFun> prefix_parsers {
-                {Tokens::index_of<Tokens::OParen>,    &Parser::primary_expr},
-                {Tokens::index_of<Tokens::FloatLit>,  &Parser::primary_expr},
-                {Tokens::index_of<Tokens::IntLit>,    &Parser::primary_expr},
-                {Tokens::index_of<Tokens::CharLit>,   &Parser::primary_expr},
-                {Tokens::index_of<Tokens::StringLit>, &Parser::primary_expr},
-                {Tokens::index_of<Tokens::This>,      &Parser::primary_expr},
-                {Tokens::index_of<Tokens::OParen>,    &Parser::primary_expr},
+                {Tokens::index_of<Tokens::OParen>    , &Parser::primary_expr},
+                {Tokens::index_of<Tokens::FloatLit>  , &Parser::primary_expr},
+                {Tokens::index_of<Tokens::IntLit>    , &Parser::primary_expr},
+                {Tokens::index_of<Tokens::CharLit>   , &Parser::primary_expr},
+                {Tokens::index_of<Tokens::StringLit> , &Parser::primary_expr},
+                {Tokens::index_of<Tokens::This>      , &Parser::primary_expr},
+                {Tokens::index_of<Tokens::OParen>    , &Parser::primary_expr},
 
-                {Tokens::index_of<Tokens::Tilde>,     &Parser::unary_expr},
-                {Tokens::index_of<Tokens::Minus>,     &Parser::unary_expr},
-                {Tokens::index_of<Tokens::Bang>,      &Parser::unary_expr},
-                {Tokens::index_of<Tokens::Star>,      &Parser::unary_expr},
-                {Tokens::index_of<Tokens::Amper>,     &Parser::addrof_expr},
+                {Tokens::index_of<Tokens::Tilde>     , &Parser::unary_expr},
+                {Tokens::index_of<Tokens::Minus>     , &Parser::unary_expr},
+                {Tokens::index_of<Tokens::Bang>      , &Parser::unary_expr},
+                {Tokens::index_of<Tokens::Star>      , &Parser::unary_expr},
+                {Tokens::index_of<Tokens::Amper>     , &Parser::addrof_expr},
+
+                {Tokens::index_of<Tokens::Identifier>, &Parser::path_expr},
         };
 
         std::map<size_t, std::pair<Precedence, InfixParseFun>> infix_parsers {
@@ -488,17 +490,21 @@ namespace {
             }
         }
         // path {{{3
-        Maybe<std::unique_ptr<ASTNS::Expr>> path_expr() {
-            TRY(path, std::unique_ptr<ASTNS::Expr>, path("path expression"));
+        Maybe<std::unique_ptr<ASTNS::Expr>> path_expr(Located<TokenData> const &first) {
+            TRY(path, std::unique_ptr<ASTNS::Expr>, path( Located<Tokens::Identifier> { first.span, Tokens::as<Tokens::Identifier>(first.value) }));
             return std::make_unique<ASTNS::PathExpr>(path->span(), std::move(path));
         }
         // paths {{{2
-        Maybe<std::unique_ptr<ASTNS::Path>> path(std::string const &what) {
-            std::vector<Located<Tokens::Identifier>> segments;
-            do {
+        Maybe<std::unique_ptr<ASTNS::Path>> path_no_first() {
+            TRY(first, std::unique_ptr<ASTNS::Path>, expect<Tokens::Identifier>("path"));
+            return path(first);
+        }
+        Maybe<std::unique_ptr<ASTNS::Path>> path(Located<Tokens::Identifier> const &first) {
+            std::vector<Located<Tokens::Identifier>> segments { first };
+            while (consume_if<Tokens::DoubleColon>()) {
                 TRY(seg, std::unique_ptr<ASTNS::Path>, expect<Tokens::Identifier>("path segment"))
                 segments.push_back(seg);
-            } while (consume_if<Tokens::DoubleColon>());
+            }
 
             return std::make_unique<ASTNS::Path>(span_from_vec(segments), std::move(segments));
         }
