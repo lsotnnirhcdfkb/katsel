@@ -323,9 +323,47 @@ namespace {
             return std::make_unique<ASTNS::PathType>(path->span(), std::move(path));
         }
         // params {{{2
-        Maybe<std::unique_ptr<ASTNS::ParamB>> param();
-        Maybe<std::unique_ptr<ASTNS::ThisParam>> this_param();
-        Maybe<std::unique_ptr<ASTNS::Param>> normal_param();
+        Maybe<std::unique_ptr<ASTNS::ParamB>> param() {
+            if (Tokens::is<Tokens::Identifier>(peek().value) ||
+                Tokens::is<Tokens::Mut>(peek().value))
+                return normal_param();
+            else if (Tokens::is<Tokens::Star>(peek().value) ||
+                Tokens::is<Tokens::This>(peek().value))
+                return this_param();
+            else {
+                ERR_EXPECTED(peek().span, "parameter");
+                return Maybe<std::unique_ptr<ASTNS::ParamB>>();
+            }
+        }
+        Maybe<std::unique_ptr<ASTNS::ThisParam>> this_param() {
+            Span star_or_iden = peek().span;
+
+            bool ptr = consume_if<Tokens::Star>();
+            bool mut;
+            if (ptr)
+                mut = consume_if<Tokens::Mut>();
+
+            TRY(this_tok, std::unique_ptr<ASTNS::ThisParam>, expect<Tokens::This>("'this'"));
+
+            Span end_span = prev().get().span;
+
+            return std::make_unique<ASTNS::ThisParam>(Span(star_or_iden.start, end_span.end), ptr, mut);
+        }
+        Maybe<std::unique_ptr<ASTNS::Param>> normal_param() {
+            bool mut = consume_if<Tokens::Mut>();
+
+            Maybe<Span> mut_loc = mut ? prev().get().span : Maybe<Span>();
+
+            TRY(name, std::unique_ptr<ASTNS::Param>, expect<Tokens::Identifier>("parameter name"));
+            TRY(type, std::unique_ptr<ASTNS::Param>, type_annotation("parameter type"));
+
+            Span total_loc (
+                mut_loc.has() ? mut_loc.get().start : name.span.start,
+                type->span().get().end
+            );
+
+            return std::make_unique<ASTNS::Param>(total_loc, std::move(type), name, mut);
+        }
         // expr {{{2
         Maybe<std::unique_ptr<ASTNS::Expr>> expr();
 
