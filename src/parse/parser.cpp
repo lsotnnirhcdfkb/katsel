@@ -1,13 +1,14 @@
 #include <memory>
 
 #include <functional>
+#include <map>
+#include <type_traits>
 
 #include "parse/parser.h"
 #include "lex/lexer.h"
 #include "ast/ast.h"
 #include "message/errmsgs.h"
 #include "lex/token.h"
-#include <type_traits>
 
 namespace {
     class Parser {
@@ -20,7 +21,7 @@ namespace {
             errored(false),
             next_token(l.next_token()) {
         }
-        // TODO: for if - else if chain rules, pass consumed token into function
+        // TODO: for if - else if chain rules (ie stmt, type), pass consumed token into function
         // entry point {{{2
         Maybe<std::unique_ptr<ASTNS::CU>> parse() {
             auto decls =
@@ -172,6 +173,7 @@ namespace {
         }
         Maybe<std::unique_ptr<ASTNS::ExprStmt>> expr_stmt() {
             TRY(expr, std::unique_ptr<ASTNS::ExprStmt>, expr());
+            // TODO: blocked exprs do not need line endings
             TRY(line_ending, std::unique_ptr<ASTNS::ExprStmt>, line_ending());
             return std::make_unique<ASTNS::ExprStmt>(expr->span(), std::move(expr));
         }
@@ -365,10 +367,44 @@ namespace {
             return std::make_unique<ASTNS::Param>(total_loc, std::move(type), name, mut);
         }
         // expr {{{2
-        Maybe<std::unique_ptr<ASTNS::Expr>> expr();
+        enum class Precedence {
+            NONE = 0,
+        };
 
-        Maybe<std::unique_ptr<ASTNS::Expr>> blocked_expr();
-        Maybe<std::unique_ptr<ASTNS::Expr>> not_blocked_expr();
+        using PrefixParseFun = Maybe<std::unique_ptr<ASTNS::Expr>> (Parser::*)(Located<TokenData> const &);
+        using InfixParseFun = Maybe<std::unique_ptr<ASTNS::Expr>> (Parser::*)(std::unique_ptr<ASTNS::Expr>, Located<TokenData> const &);
+        std::map<size_t, PrefixParseFun> prefix_parsers {
+                {Tokens::index_of<Tokens::OParen>,    &Parser::primary_expr},
+                {Tokens::index_of<Tokens::FloatLit>,  &Parser::primary_expr},
+                {Tokens::index_of<Tokens::IntLit>,    &Parser::primary_expr},
+                {Tokens::index_of<Tokens::CharLit>,   &Parser::primary_expr},
+                {Tokens::index_of<Tokens::StringLit>, &Parser::primary_expr},
+                {Tokens::index_of<Tokens::This>,      &Parser::primary_expr},
+                {Tokens::index_of<Tokens::OParen>,    &Parser::primary_expr},
+
+                {Tokens::index_of<Tokens::Tilde>,     &Parser::unary_expr},
+                {Tokens::index_of<Tokens::Minus>,     &Parser::unary_expr},
+                {Tokens::index_of<Tokens::Bang>,      &Parser::unary_expr},
+                {Tokens::index_of<Tokens::Star>,      &Parser::unary_expr},
+                {Tokens::index_of<Tokens::Amper>,     &Parser::addrof_expr},
+        };
+
+        std::map<size_t, std::pair<Precedence, InfixParseFun>> infix_parsers {
+
+        };
+
+        Maybe<std::unique_ptr<ASTNS::Expr>> expr() {
+            auto next (peek());
+            consume();
+
+            auto pf = prefix_parsers.find(next.value.index());
+            if (pf == prefix_parsers.end()) {
+                ERR_EXPECTED(next.span, "expression");
+                return Maybe<std::unique_ptr<ASTNS::Expr>>();
+            }
+
+            return (this->*(pf->second))(next);
+        }
 
         Maybe<std::unique_ptr<ASTNS::IfExpr>> if_expr();
         Maybe<std::unique_ptr<ASTNS::WhileExpr>> while_expr();
@@ -385,12 +421,77 @@ namespace {
         Maybe<std::unique_ptr<ASTNS::Expr>> addition_expr();
         Maybe<std::unique_ptr<ASTNS::Expr>> mult_expr();
         Maybe<std::unique_ptr<ASTNS::Expr>> cast_expr();
-        Maybe<std::unique_ptr<ASTNS::Expr>> unary_expr();
+
+        // unary {{{3
+        Maybe<std::unique_ptr<ASTNS::Expr>> unary_expr(Located<TokenData> const &prev) {
+            TRY(operand, std::unique_ptr<ASTNS::Expr>, expr());
+
+            Span span (prev.span.start, operand->span().get().end);
+
+            ASTNS::UnaryOperator op;
+            switch (prev.value.index()) {
+                case Tokens::index_of<Tokens::Tilde>:
+                    op = ASTNS::UnaryOperator::TILDE;
+                    break;
+                case Tokens::index_of<Tokens::Minus>:
+                    op = ASTNS::UnaryOperator::MINUS;
+                    break;
+                case Tokens::index_of<Tokens::Bang>:
+                    op = ASTNS::UnaryOperator::BANG;
+                    break;
+
+                case Tokens::index_of<Tokens::Star>:
+                    // special case, this needs to return a DerefExpr
+                    return std::make_unique<ASTNS::DerefExpr>(span, Located<Tokens::Star> { prev.span, Tokens::as<Tokens::Star>(prev.value) }, std::move(operand));
+
+                default:
+                    report_abort_noh("unreachable code reached");
+            }
+
+            return std::make_unique<ASTNS::UnaryExpr>(span, Located<ASTNS::UnaryOperator> { prev.span, op }, std::move(operand));
+        }
+        // addrof {{{3
+        Maybe<std::unique_ptr<ASTNS::Expr>> addrof_expr(Located<TokenData> const &amper) {
+            bool mut = consume_if<Tokens::Mut>();
+
+            TRY(operand, std::unique_ptr<ASTNS::Expr>, expr());
+
+            Span total (amper.span.start, operand->span().get().end);
+            Located<Tokens::Amper> amper_tok { amper.span, Tokens::as<Tokens::Amper>(amper.value) };
+            return std::make_unique<ASTNS::AddrofExpr>(total, amper_tok, std::move(operand), mut);
+        }
+        // call & field access & method call {{{3
         Maybe<std::unique_ptr<ASTNS::Expr>> call_expr();
-        Maybe<std::unique_ptr<ASTNS::Expr>> field_access_expr();
-        Maybe<std::unique_ptr<ASTNS::Expr>> method_call_expr();
-        Maybe<std::unique_ptr<ASTNS::Expr>> primary_expr();
-        Maybe<std::unique_ptr<ASTNS::Expr>> path_expr();
+        Maybe<std::unique_ptr<ASTNS::Expr>> field_or_method_call_expr();
+        // primary {{{3
+        Maybe<std::unique_ptr<ASTNS::Expr>> primary_expr(Located<TokenData> const &prev) {
+            switch (prev.value.index()) {
+#define A(a, b) \
+    case Tokens::index_of<Tokens::a>: \
+        return std::make_unique<ASTNS::b>(prev.span, Located<Tokens::a> { prev.span, Tokens::as<Tokens::a>(prev.value) });
+                A(BoolLit, BoolLit)
+                A(FloatLit, FloatLit)
+                A(IntLit, IntLit)
+                A(CharLit, CharLit)
+                A(StringLit, StringLit)
+                A(This, ThisExpr)
+#undef A
+
+                case Tokens::index_of<Tokens::OParen>: {
+                    TRY(e, std::unique_ptr<ASTNS::Expr>, expr());
+                    TRY(close, std::unique_ptr<ASTNS::Expr>, expect<Tokens::CParen>("')'"));
+                    return std::move(e);
+               }
+
+                default:
+                    report_abort_noh("unreachable code reached");
+            }
+        }
+        // path {{{3
+        Maybe<std::unique_ptr<ASTNS::Expr>> path_expr() {
+            TRY(path, std::unique_ptr<ASTNS::Expr>, path("path expression"));
+            return std::make_unique<ASTNS::PathExpr>(path->span(), std::move(path));
+        }
         // paths {{{2
         Maybe<std::unique_ptr<ASTNS::Path>> path(std::string const &what) {
             std::vector<Located<Tokens::Identifier>> segments;
