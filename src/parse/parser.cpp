@@ -392,7 +392,15 @@ namespace {
         Maybe<std::unique_ptr<ASTNS::Expr>> primary_expr();
         Maybe<std::unique_ptr<ASTNS::Expr>> path_expr();
         // paths {{{2
-        Maybe<std::unique_ptr<ASTNS::Path>> path(std::string const &what);
+        Maybe<std::unique_ptr<ASTNS::Path>> path(std::string const &what) {
+            std::vector<Located<Tokens::Identifier>> segments;
+            do {
+                TRY(seg, std::unique_ptr<ASTNS::Path>, expect<Tokens::Identifier>("path segment"))
+                segments.push_back(seg);
+            } while (consume_if<Tokens::DoubleColon>());
+
+            return std::make_unique<ASTNS::Path>(span_from_vec(segments), std::move(segments));
+        }
         // fields {{{2
         Lexer &lexer;
         File &source;
@@ -469,6 +477,32 @@ namespace {
             }
             for (auto i = vec.crbegin(); i != vec.crend(); ++i) {
                 Maybe<Span const> const &i_span = (*i)->span();
+                if (i_span.has()) {
+                    end = i_span.get().end;
+                    break;
+                }
+            }
+
+            Maybe<Span> span = start.has() && end.has()
+                ? Maybe<Span>(Span(start.get(), end.get()))
+                : Maybe<Span>();
+
+            return span;
+        }
+        template <typename T>
+        Maybe<Span> span_from_vec(std::vector<Located<T>> const &vec) {
+            Maybe<Location> start;
+            Maybe<Location> end;
+
+            for (auto i = vec.cbegin(); i != vec.cend(); ++i) {
+                Maybe<Span const> const &i_span = i->span;
+                if (i_span.has()) {
+                    start = i_span.get().start;
+                    break;
+                }
+            }
+            for (auto i = vec.crbegin(); i != vec.crend(); ++i) {
+                Maybe<Span const> const &i_span = i->span;
                 if (i_span.has()) {
                     end = i_span.get().end;
                     break;
