@@ -89,7 +89,7 @@ namespace {
 
             TRY(type, std::unique_ptr<ASTNS::ImplDecl>, type("implementation type"));
 
-            auto body = blocked(&Parser::impl_body);
+            TRY(body, std::unique_ptr<ASTNS::ImplDecl>, blocked(&Parser::impl_body));
 
             Span span (impl_tok.start, type->span().get().end);
             return std::make_unique<ASTNS::ImplDecl>(span, std::move(type), std::move(body));
@@ -202,15 +202,91 @@ namespace {
             }
         }
         // blocks indented/braced {{{2
+        template <typename T>
+        struct UnwrapParseRes {
+            using Result = T;
+        };
+        template <typename T>
+        struct UnwrapParseRes<Maybe<T>> {
+            using Result = T;
+        };
+
+        template <typename ParseFun, typename ... Args>
+        using MaybeUnwrappedFunParseRes =
+            Maybe<typename UnwrapParseRes<std::invoke_result_t<ParseFun, Parser *, TokenPredicate, Args...>>::Result>;
         // braced {{{3
         template <typename ParseFun, typename ... Args>
-        std::invoke_result_t<ParseFun, Parser *, TokenPredicate, Args...> braced(ParseFun fun, Args &&...args);
+        MaybeUnwrappedFunParseRes<ParseFun, Args...> braced(ParseFun fun, Args &&...args) {
+            enum class Braces {
+                BRACE,
+                BRACE_NL,
+                BRACE_NL_IND
+            };
+
+            using FuncRet = typename UnwrapParseRes<std::invoke_result_t<ParseFun, Parser *, TokenPredicate, Args...>>::Result;
+
+            TRY(obrace, FuncRet, expect<Tokens::OBrace>("'{'"));
+            Braces braces = Braces::BRACE;
+
+            if (consume_if<Tokens::Newline>()) {
+                braces = Braces::BRACE_NL;
+                if (consume_if<Tokens::Indent>()) {
+                    braces = Braces::BRACE_NL_IND;
+                }
+            }
+
+            auto stop_pred = [braces] (Located<TokenData> const &next) {
+                switch (braces) {
+                    case Braces::BRACE:
+                    case Braces::BRACE_NL:
+                        return Tokens::is<Tokens::CBrace>(next.value);
+
+                    case Braces::BRACE_NL_IND:
+                        return Tokens::is<Tokens::Dedent>(next.value);
+                }
+            };
+
+            auto inside_braces = std::invoke(fun, this, stop_pred, args...);
+
+            if (braces == Braces::BRACE_NL_IND)
+                expect<Tokens::Dedent>("dedent");
+
+            expect<Tokens::CBrace>("'}'");
+
+            return std::move(inside_braces);
+        }
         // indented {{{3
         template <typename ParseFun, typename ... Args>
-        std::invoke_result_t<ParseFun, Parser *, TokenPredicate, Args...> indented(ParseFun fun, Args &&...args);
+        MaybeUnwrappedFunParseRes<ParseFun, Args...> indented(ParseFun fun, Args &&...args) {
+            using FuncRet = typename UnwrapParseRes<std::invoke_result_t<ParseFun, Parser *, TokenPredicate, Args...>>::Result;
+
+            TRY(nl, FuncRet, expect<Tokens::Newline>("newline"));
+            TRY(indent, FuncRet, expect<Tokens::Indent>("indent"));
+
+            auto inside = std::invoke(fun, this,
+                [] (Located<TokenData> const &next) {
+                    return Tokens::is<Tokens::Dedent>(next.value);
+                },
+                args...);
+
+            TRY(dedent, FuncRet, expect<Tokens::Dedent>("dedent"));
+
+            return std::move(inside);
+        }
         // both {{{3
         template <typename ParseFun, typename ... Args>
-        std::invoke_result_t<ParseFun, Parser *, TokenPredicate, Args...> blocked(ParseFun fun, Args &&...args);
+        MaybeUnwrappedFunParseRes<ParseFun, Args...> blocked(ParseFun fun, Args &&...args) {
+            using FuncRet = typename UnwrapParseRes<std::invoke_result_t<ParseFun, Parser *, TokenPredicate, Args...>>::Result;
+
+            if (Tokens::is<Tokens::Newline>(peek().value)) {
+                return indented(fun, args...);
+            } else if (Tokens::is<Tokens::OBrace>(peek().value)) {
+                return braced(fun, args...);
+            } else {
+                ERR_EXPECTED(peek().span, "blocked"); // TODO: better message
+                return FuncRet();
+            }
+        }
         // types {{{2
         Maybe<std::unique_ptr<ASTNS::Type>> type_annotation(std::string const &what);
         Maybe<std::unique_ptr<ASTNS::Type>> type(std::string const &what);
