@@ -162,8 +162,17 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::CallExpr &ast) {
         return;
     }
 
-    Codegen::Helpers::ArgVisitor av (*this, ast.args);
-    std::vector<Located<NNPtr<IR::Value>>> args (av.ret);
+    bool argserr = false;
+
+    std::vector<Located<NNPtr<IR::Value>>> args;
+    for (auto const &arg_ast : ast.args) {
+        auto maybe_arg = expr(*arg_ast);
+        if (maybe_arg.has()) {
+            args.push_back(maybe_arg.get());
+        } else {
+            argserr = true;
+        }
+    }
 
     if (args.size() != fty->paramtys.size()) {
         ERR_WRONG_NUM_ARGS(*static_cast<IR::Function const *>(fun.value.as_raw()), *ast.callee, ast.oparn.span, args);
@@ -171,7 +180,6 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::CallExpr &ast) {
         return;
     }
 
-    bool argserr = false;
     auto i = args.begin();
     auto j = fty->paramtys.begin();
     for (; i != args.end() && j != fty->paramtys.end(); ++i, ++j) {
@@ -464,8 +472,15 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::MethodCallExpr &ast) {
 
     std::vector<Located<NNPtr<IR::Value>>> args { this_arg };
 
-    Codegen::Helpers::ArgVisitor av (*this, ast.args);
-    args.insert(args.end(), av.ret.begin(), av.ret.end());
+    bool argserr = false;
+    for (auto const &arg_ast : ast.args) {
+        auto maybe_arg = expr(*arg_ast);
+        if (maybe_arg.has()) {
+            args.push_back(maybe_arg.get());
+        } else {
+            argserr = true;
+        }
+    }
 
     std::vector<NNPtr<IR::Type const>> &paramtys (method.fun->ty->paramtys);
     if (args.size() != paramtys.size()) {
@@ -475,7 +490,6 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::MethodCallExpr &ast) {
     }
 
     // TODO: move this code somewhere else so that it does not have to be copied and pasted from visiting call exprs
-    bool argserr = false;
     auto i = args.begin();
     auto j = paramtys.begin();
     for (; i != args.end() && j != paramtys.end(); ++i, ++j) {

@@ -296,8 +296,6 @@ namespace {
         Maybe<std::unique_ptr<ASTNS::ThisType>> this_type();
         // path {{{3
         Maybe<std::unique_ptr<ASTNS::PathType>> path_type();
-        // arg {{{2
-        Maybe<std::unique_ptr<ASTNS::Arg>> arg();
         // params {{{2
         Maybe<std::unique_ptr<ASTNS::ParamB>> param();
         Maybe<std::unique_ptr<ASTNS::ThisParam>> this_param();

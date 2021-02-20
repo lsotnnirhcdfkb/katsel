@@ -28,7 +28,6 @@ asts = [
     ASTBase('Stmt'),
     ASTBase('Expr'),
     ASTBase('Type'),
-    ASTBase('ArgB'),
     ASTBase('ParamB'),
     ASTBase('VStmtIB'),
     ASTBase('PathB'),
@@ -37,7 +36,6 @@ asts = [
     list_ast('DeclList', 'Decl', 'decls'),
     list_ast('StmtList', 'Stmt', 'stmts'),
     list_ast('ParamList', 'ParamB', 'params'),
-    list_ast('ArgList', 'Arg', 'args'),
     list_ast('ImplMemberList', 'ImplMember', 'members'),
 
     # a class to keep track of locations of syntactic elements that don't matter (like
@@ -66,8 +64,6 @@ asts = [
     AST('PointerType'       , 'Type', 'bool|mut ! std::unique_ptr<Type>|type'),
     AST('ThisType'          , 'Type', 'Located<Tokens::This>|th'),
 
-    AST('Arg'               , 'ArgB', 'std::unique_ptr<Expr>|expr'),
-
     AST('Param'             , 'ParamB', 'std::unique_ptr<Type>|type ! Located<Tokens::Identifier>|name ! bool|mut'),
     AST('ThisParam'         , 'ParamB', 'bool|ptr ! bool|mut'),
 
@@ -82,9 +78,9 @@ asts = [
     AST('UnaryExpr'         , 'Expr', 'Located<UnaryOperator>|op ! std::unique_ptr<Expr>|expr'),
     AST('AddrofExpr'        , 'Expr', 'Located<Tokens::Amper>|op ! std::unique_ptr<Expr>|expr ! bool|mut'),
     AST('DerefExpr'         , 'Expr', 'Located<Tokens::Star>|op ! std::unique_ptr<Expr>|expr'),
-    AST('CallExpr'          , 'Expr', 'std::unique_ptr<Expr>|callee ! Located<Tokens::OParen>|oparn ! std::vector<std::unique_ptr<Arg>>|args'),
+    AST('CallExpr'          , 'Expr', 'std::unique_ptr<Expr>|callee ! Located<Tokens::OParen>|oparn ! std::vector<std::unique_ptr<Expr>>|args'),
     AST('FieldAccessExpr'   , 'Expr', 'std::unique_ptr<Expr>|operand ! Located<Tokens::Period>|dot ! Located<Tokens::Identifier>|field'),
-    AST('MethodCallExpr'    , 'Expr', 'std::unique_ptr<Expr>|operand ! Located<Tokens::Period>|dot ! Located<Tokens::Identifier>|method ! Located<Tokens::OParen>|oparn ! std::vector<std::unique_ptr<Arg>>|args'),
+    AST('MethodCallExpr'    , 'Expr', 'std::unique_ptr<Expr>|operand ! Located<Tokens::Period>|dot ! Located<Tokens::Identifier>|method ! Located<Tokens::OParen>|oparn ! std::vector<std::unique_ptr<Expr>>|args'),
     AST('BoolLit'           , 'Expr', 'Located<Tokens::BoolLit>|val'),
     AST('FloatLit'          , 'Expr', 'Located<Tokens::FloatLit>|val'),
     AST('IntLit'            , 'Expr', 'Located<Tokens::IntLit>|val'),

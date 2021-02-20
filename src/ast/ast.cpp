@@ -9,9 +9,6 @@ Maybe<Span const> const &ASTNS::StmtList::span() const { return _span; }
 ASTNS::ParamList::ParamList(Maybe<Span const> const &span, std::vector<std::unique_ptr<ParamB>> params): _span(span), params(std::move(params)) {}
 void ASTNS::ParamList::ast_accept(ASTNS::ListBVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::ParamList::span() const { return _span; }
-ASTNS::ArgList::ArgList(Maybe<Span const> const &span, std::vector<std::unique_ptr<Arg>> args): _span(span), args(std::move(args)) {}
-void ASTNS::ArgList::ast_accept(ASTNS::ListBVisitor &v) { v.ast_visit(*this); }
-Maybe<Span const> const &ASTNS::ArgList::span() const { return _span; }
 ASTNS::ImplMemberList::ImplMemberList(Maybe<Span const> const &span, std::vector<std::unique_ptr<ImplMember>> members): _span(span), members(std::move(members)) {}
 void ASTNS::ImplMemberList::ast_accept(ASTNS::ListBVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::ImplMemberList::span() const { return _span; }
@@ -51,9 +48,6 @@ Maybe<Span const> const &ASTNS::PointerType::span() const { return _span; }
 ASTNS::ThisType::ThisType(Maybe<Span const> const &span, Located<Tokens::This> th): _span(span), th(std::move(th)) {}
 void ASTNS::ThisType::ast_accept(ASTNS::TypeVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::ThisType::span() const { return _span; }
-ASTNS::Arg::Arg(Maybe<Span const> const &span, std::unique_ptr<Expr> expr): _span(span), expr(std::move(expr)) {}
-void ASTNS::Arg::ast_accept(ASTNS::ArgBVisitor &v) { v.ast_visit(*this); }
-Maybe<Span const> const &ASTNS::Arg::span() const { return _span; }
 ASTNS::Param::Param(Maybe<Span const> const &span, std::unique_ptr<Type> type, Located<Tokens::Identifier> name, bool mut): _span(span), type(std::move(type)), name(std::move(name)), mut(std::move(mut)) {}
 void ASTNS::Param::ast_accept(ASTNS::ParamBVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::Param::span() const { return _span; }
@@ -90,13 +84,13 @@ Maybe<Span const> const &ASTNS::AddrofExpr::span() const { return _span; }
 ASTNS::DerefExpr::DerefExpr(Maybe<Span const> const &span, Located<Tokens::Star> op, std::unique_ptr<Expr> expr): _span(span), op(std::move(op)), expr(std::move(expr)) {}
 void ASTNS::DerefExpr::ast_accept(ASTNS::ExprVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::DerefExpr::span() const { return _span; }
-ASTNS::CallExpr::CallExpr(Maybe<Span const> const &span, std::unique_ptr<Expr> callee, Located<Tokens::OParen> oparn, std::vector<std::unique_ptr<Arg>> args): _span(span), callee(std::move(callee)), oparn(std::move(oparn)), args(std::move(args)) {}
+ASTNS::CallExpr::CallExpr(Maybe<Span const> const &span, std::unique_ptr<Expr> callee, Located<Tokens::OParen> oparn, std::vector<std::unique_ptr<Expr>> args): _span(span), callee(std::move(callee)), oparn(std::move(oparn)), args(std::move(args)) {}
 void ASTNS::CallExpr::ast_accept(ASTNS::ExprVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::CallExpr::span() const { return _span; }
 ASTNS::FieldAccessExpr::FieldAccessExpr(Maybe<Span const> const &span, std::unique_ptr<Expr> operand, Located<Tokens::Period> dot, Located<Tokens::Identifier> field): _span(span), operand(std::move(operand)), dot(std::move(dot)), field(std::move(field)) {}
 void ASTNS::FieldAccessExpr::ast_accept(ASTNS::ExprVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::FieldAccessExpr::span() const { return _span; }
-ASTNS::MethodCallExpr::MethodCallExpr(Maybe<Span const> const &span, std::unique_ptr<Expr> operand, Located<Tokens::Period> dot, Located<Tokens::Identifier> method, Located<Tokens::OParen> oparn, std::vector<std::unique_ptr<Arg>> args): _span(span), operand(std::move(operand)), dot(std::move(dot)), method(std::move(method)), oparn(std::move(oparn)), args(std::move(args)) {}
+ASTNS::MethodCallExpr::MethodCallExpr(Maybe<Span const> const &span, std::unique_ptr<Expr> operand, Located<Tokens::Period> dot, Located<Tokens::Identifier> method, Located<Tokens::OParen> oparn, std::vector<std::unique_ptr<Expr>> args): _span(span), operand(std::move(operand)), dot(std::move(dot)), method(std::move(method)), oparn(std::move(oparn)), args(std::move(args)) {}
 void ASTNS::MethodCallExpr::ast_accept(ASTNS::ExprVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::MethodCallExpr::span() const { return _span; }
 ASTNS::BoolLit::BoolLit(Maybe<Span const> const &span, Located<Tokens::BoolLit> val): _span(span), val(std::move(val)) {}

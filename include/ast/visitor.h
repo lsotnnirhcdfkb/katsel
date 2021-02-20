@@ -59,11 +59,6 @@ namespace ASTNS {
         virtual void ast_visit(ASTNS::PointerType &ast) = 0;
         virtual void ast_visit(ASTNS::ThisType &ast) = 0;
     };
-    class ArgBVisitor {
-    public:
-        virtual ~ArgBVisitor() {}
-        virtual void ast_visit(ASTNS::Arg &ast) = 0;
-    };
     class ParamBVisitor {
     public:
         virtual ~ParamBVisitor() {}
@@ -85,7 +80,6 @@ namespace ASTNS {
         virtual void ast_visit(ASTNS::DeclList &ast) = 0;
         virtual void ast_visit(ASTNS::StmtList &ast) = 0;
         virtual void ast_visit(ASTNS::ParamList &ast) = 0;
-        virtual void ast_visit(ASTNS::ArgList &ast) = 0;
         virtual void ast_visit(ASTNS::ImplMemberList &ast) = 0;
     };
     class PureLocationBVisitor {

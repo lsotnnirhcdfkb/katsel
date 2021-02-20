@@ -46,11 +46,6 @@ namespace ASTNS {
         virtual ~Type() {}
         virtual void ast_accept(TypeVisitor &v) = 0;
     };
-    class ArgB : public AST {
-    public:
-        virtual ~ArgB() {}
-        virtual void ast_accept(ArgBVisitor &v) = 0;
-    };
     class ParamB : public AST {
     public:
         virtual ~ParamB() {}
@@ -94,14 +89,6 @@ namespace ASTNS {
         virtual void ast_accept(ListBVisitor &v) override;
         virtual Maybe<Span const> const &span() const override;
         ParamList(Maybe<Span const> const &span, std::vector<std::unique_ptr<ParamB>> params);
-    };
-    class ArgList : public ListB {
-    public:
-        Maybe<Span const> _span;
-        std::vector<std::unique_ptr<Arg>> args;
-        virtual void ast_accept(ListBVisitor &v) override;
-        virtual Maybe<Span const> const &span() const override;
-        ArgList(Maybe<Span const> const &span, std::vector<std::unique_ptr<Arg>> args);
     };
     class ImplMemberList : public ListB {
     public:
@@ -220,14 +207,6 @@ namespace ASTNS {
         virtual void ast_accept(TypeVisitor &v) override;
         virtual Maybe<Span const> const &span() const override;
         ThisType(Maybe<Span const> const &span, Located<Tokens::This> th);
-    };
-    class Arg : public ArgB {
-    public:
-        Maybe<Span const> _span;
-        std::unique_ptr<Expr> expr;
-        virtual void ast_accept(ArgBVisitor &v) override;
-        virtual Maybe<Span const> const &span() const override;
-        Arg(Maybe<Span const> const &span, std::unique_ptr<Expr> expr);
     };
     class Param : public ParamB {
     public:
@@ -349,10 +328,10 @@ namespace ASTNS {
         Maybe<Span const> _span;
         std::unique_ptr<Expr> callee;
         Located<Tokens::OParen> oparn;
-        std::vector<std::unique_ptr<Arg>> args;
+        std::vector<std::unique_ptr<Expr>> args;
         virtual void ast_accept(ExprVisitor &v) override;
         virtual Maybe<Span const> const &span() const override;
-        CallExpr(Maybe<Span const> const &span, std::unique_ptr<Expr> callee, Located<Tokens::OParen> oparn, std::vector<std::unique_ptr<Arg>> args);
+        CallExpr(Maybe<Span const> const &span, std::unique_ptr<Expr> callee, Located<Tokens::OParen> oparn, std::vector<std::unique_ptr<Expr>> args);
     };
     class FieldAccessExpr : public Expr {
     public:
@@ -371,10 +350,10 @@ namespace ASTNS {
         Located<Tokens::Period> dot;
         Located<Tokens::Identifier> method;
         Located<Tokens::OParen> oparn;
-        std::vector<std::unique_ptr<Arg>> args;
+        std::vector<std::unique_ptr<Expr>> args;
         virtual void ast_accept(ExprVisitor &v) override;
         virtual Maybe<Span const> const &span() const override;
-        MethodCallExpr(Maybe<Span const> const &span, std::unique_ptr<Expr> operand, Located<Tokens::Period> dot, Located<Tokens::Identifier> method, Located<Tokens::OParen> oparn, std::vector<std::unique_ptr<Arg>> args);
+        MethodCallExpr(Maybe<Span const> const &span, std::unique_ptr<Expr> operand, Located<Tokens::Period> dot, Located<Tokens::Identifier> method, Located<Tokens::OParen> oparn, std::vector<std::unique_ptr<Expr>> args);
     };
     class BoolLit : public Expr {
     public:

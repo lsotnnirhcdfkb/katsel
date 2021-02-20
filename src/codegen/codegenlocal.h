@@ -180,20 +180,6 @@ namespace Codegen {
             int index;
         };
         // }}}
-        // Arg {{{
-        class ArgVisitor : public ASTNS::ArgBVisitor {
-        public:
-            ArgVisitor(ExprCodegen &expr_cg, std::vector<std::unique_ptr<ASTNS::Arg>> &args);
-            std::vector<Located<NNPtr<IR::Value>>> ret;
-
-        private:
-            NNPtr<ExprCodegen> expr_cg;
-            // ARGSVISITOR METHODS START
-            void ast_visit(ASTNS::Arg &ast) override;
-            // ARGSVISITOR METHODS END
-
-        };
-        // }}}
     }
     // }}}
     // Codegen ABC {{{

@@ -173,14 +173,6 @@ void ASTNS::PrintVisitor::ast_visit(ASTNS::ParamList &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::ast_visit(ASTNS::ArgList &a) {
-    pai("ArgList {\n");
-    ++indent;
-    pai("std::vector<std::unique_ptr<Arg>> args = ");
-    print_field(*this, a.args);
-    --indent;
-    pai("}\n");
-}
 void ASTNS::PrintVisitor::ast_visit(ASTNS::ImplMemberList &a) {
     pai("ImplMemberList {\n");
     ++indent;
@@ -300,14 +292,6 @@ void ASTNS::PrintVisitor::ast_visit(ASTNS::ThisType &a) {
     ++indent;
     pai("Located<Tokens::This> th = ");
     print_field(*this, a.th);
-    --indent;
-    pai("}\n");
-}
-void ASTNS::PrintVisitor::ast_visit(ASTNS::Arg &a) {
-    pai("Arg {\n");
-    ++indent;
-    pai("std::unique_ptr<Expr> expr = ");
-    print_field(*this, a.expr);
     --indent;
     pai("}\n");
 }
@@ -452,7 +436,7 @@ void ASTNS::PrintVisitor::ast_visit(ASTNS::CallExpr &a) {
     print_field(*this, a.callee);
     pai("Located<Tokens::OParen> oparn = ");
     print_field(*this, a.oparn);
-    pai("std::vector<std::unique_ptr<Arg>> args = ");
+    pai("std::vector<std::unique_ptr<Expr>> args = ");
     print_field(*this, a.args);
     --indent;
     pai("}\n");
@@ -480,7 +464,7 @@ void ASTNS::PrintVisitor::ast_visit(ASTNS::MethodCallExpr &a) {
     print_field(*this, a.method);
     pai("Located<Tokens::OParen> oparn = ");
     print_field(*this, a.oparn);
-    pai("std::vector<std::unique_ptr<Arg>> args = ");
+    pai("std::vector<std::unique_ptr<Expr>> args = ");
     print_field(*this, a.args);
     --indent;
     pai("}\n");

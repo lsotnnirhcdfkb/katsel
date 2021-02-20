@@ -41,7 +41,6 @@ namespace ASTNS {
     class Stmt;
     class Expr;
     class Type;
-    class ArgB;
     class ParamB;
     class VStmtIB;
     class PathB;
@@ -49,7 +48,6 @@ namespace ASTNS {
     class DeclList;
     class StmtList;
     class ParamList;
-    class ArgList;
     class ImplMemberList;
     class PureLocationB;
     class PureLocation;
@@ -64,7 +62,6 @@ namespace ASTNS {
     class PathType;
     class PointerType;
     class ThisType;
-    class Arg;
     class Param;
     class ThisParam;
     class Block;
