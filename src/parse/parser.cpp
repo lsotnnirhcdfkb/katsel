@@ -20,6 +20,7 @@ namespace {
             errored(false),
             next_token(l.next_token()) {
         }
+        // TODO: for if - else if chain rules, pass consumed token into function
         // entry point {{{2
         Maybe<std::unique_ptr<ASTNS::CU>> parse() {
             auto decls =
@@ -288,14 +289,39 @@ namespace {
             }
         }
         // types {{{2
-        Maybe<std::unique_ptr<ASTNS::Type>> type_annotation(std::string const &what);
-        Maybe<std::unique_ptr<ASTNS::Type>> type(std::string const &what);
+        Maybe<std::unique_ptr<ASTNS::Type>> type_annotation(std::string const &what) {
+            TRY(colon, std::unique_ptr<ASTNS::Type>, expect<Tokens::Colon>(":"));
+            TRY(ty, std::unique_ptr<ASTNS::Type>, type(what));
+            return std::move(ty);
+        }
+        Maybe<std::unique_ptr<ASTNS::Type>> type(std::string const &what) {
+            if (consume_if<Tokens::Star>())
+                return pointer_type();
+            else if (consume_if<Tokens::This>())
+                return this_type();
+            else
+                return path_type(what);
+        }
         // pointer {{{3
-        Maybe<std::unique_ptr<ASTNS::PointerType>> pointer_type();
+        Maybe<std::unique_ptr<ASTNS::PointerType>> pointer_type() {
+            Span star = prev().get().span;
+            bool mut = consume_if<Tokens::Mut>();
+            TRY(ty, std::unique_ptr<ASTNS::PointerType>, type("pointed type"));
+
+            Span total (star.start, ty->span().get().end);
+            return std::make_unique<ASTNS::PointerType>(total, mut, std::move(ty));
+        }
         // this {{{3
-        Maybe<std::unique_ptr<ASTNS::ThisType>> this_type();
+        Maybe<std::unique_ptr<ASTNS::ThisType>> this_type() {
+            Located<TokenData> prev_tok = prev().get();
+            Located<Tokens::This> th { prev_tok.span, Tokens::as<Tokens::This>(prev_tok.value) };
+            return std::make_unique<ASTNS::ThisType>(th.span, th);
+        }
         // path {{{3
-        Maybe<std::unique_ptr<ASTNS::PathType>> path_type();
+        Maybe<std::unique_ptr<ASTNS::PathType>> path_type(std::string const &what) {
+            TRY(path, std::unique_ptr<ASTNS::PathType>, path(what));
+            return std::make_unique<ASTNS::PathType>(path->span(), std::move(path));
+        }
         // params {{{2
         Maybe<std::unique_ptr<ASTNS::ParamB>> param();
         Maybe<std::unique_ptr<ASTNS::ThisParam>> this_param();
@@ -328,7 +354,7 @@ namespace {
         Maybe<std::unique_ptr<ASTNS::Expr>> primary_expr();
         Maybe<std::unique_ptr<ASTNS::Expr>> path_expr();
         // paths {{{2
-        Maybe<std::unique_ptr<ASTNS::Path>> path();
+        Maybe<std::unique_ptr<ASTNS::Path>> path(std::string const &what);
         // fields {{{2
         Lexer &lexer;
         File &source;
