@@ -213,6 +213,9 @@ except KeyboardInterrupt:
 else:
     if num_failed == 0:
         write('\033[32;1mALL TESTS PASSED!\033[0m\n')
+    if num_passed == 0:
+        write('\033[31;1mBAD NEWS: ALL TESTS FAILED!\033[0m\n')
+        sys.exit(1)
     else:
         write(f'\033[31;1m{num_failed} tests failed\033[0m, \033[32;1m{num_passed} tests passed\033[0m\n')
         sys.exit(1)
