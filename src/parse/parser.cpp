@@ -697,7 +697,26 @@ namespace {
         // consume, consume_if, expect {{{3
         void consume() {
             prev_token = next_token;
-            next_token = lexer.next_token();
+
+            bool lastboom = false;
+            while (true) {
+                Located<TokenData> cur (lexer.next_token());
+
+                if (Tokens::is<Tokens::Error>(cur.value)) {
+                    errored = true;
+                    (*Tokens::as<Tokens::Error>(cur.value).errf)(cur.span);
+                } else if (lastboom && Tokens::is<Tokens::Newline>(cur.value))
+                    ;
+                else {
+                    next_token = cur;
+                    return;
+                }
+
+                if (Tokens::is<Tokens::Boom>(cur.value))
+                    lastboom = true;
+                else
+                    lastboom = false;
+            }
         }
 
         template <typename TokenType>
