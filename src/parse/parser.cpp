@@ -702,20 +702,19 @@ namespace {
             while (true) {
                 Located<TokenData> cur (lexer.next_token());
 
+                // TODO: janky code should become less janky
                 if (Tokens::is<Tokens::Error>(cur.value)) {
                     errored = true;
                     (*Tokens::as<Tokens::Error>(cur.value).errf)(cur.span);
                 } else if (lastboom && Tokens::is<Tokens::Newline>(cur.value))
                     ;
+                else if (Tokens::is<Tokens::Boom>(cur.value))
+                    lastboom = true;
                 else {
+                    lastboom = false;
                     next_token = cur;
                     return;
                 }
-
-                if (Tokens::is<Tokens::Boom>(cur.value))
-                    lastboom = true;
-                else
-                    lastboom = false;
             }
         }
 
