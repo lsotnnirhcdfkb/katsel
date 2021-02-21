@@ -141,8 +141,12 @@ void Underlines::report(int left_pad) const {
 
                 for (auto char_iter = line.cbegin(); char_iter <= line.cend(); ++char_iter)
                     for (Message const &message : messages)
-                        if (char_iter == &*(message.location.end.iter - 1))
+                        if (message.location.start.iter == message.location.end.iter) {
+                            if (char_iter == &*message.location.start.iter)
+                                line_messages.push_back(message);
+                        } else if (char_iter == &*(message.location.end.iter - 1)) {
                             line_messages.push_back(message);
+                        }
 
                 unsigned int max_message_row = 0;
                 for (auto message = line_messages.crbegin(); message < line_messages.crend(); ++message) {
