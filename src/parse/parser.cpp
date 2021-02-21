@@ -108,9 +108,9 @@ namespace {
         std::vector<std::unique_ptr<ASTNS::ImplMember>> impl_body(TokenPredicate stop) {
             return thing_list_no_separator<std::unique_ptr<ASTNS::ImplMember>>(
                     stop, // stop predicate
-                    [] (Maybe<Located<TokenData>> const &, Located<TokenData> const &peek) {
+                    [&stop] (Maybe<Located<TokenData>> const &, Located<TokenData> const &peek) {
                         if (Tokens::is<Tokens::Fun>(peek.value)) return true;
-                        else return false;
+                        else return stop(peek);
                     }, // synchronization predicate
                     &Parser::impl_member
                 );
@@ -129,16 +129,17 @@ namespace {
         Maybe<std::unique_ptr<ASTNS::Block>> stmt_list(TokenPredicate stop) {
             auto stmts = thing_list_no_separator<std::unique_ptr<ASTNS::Stmt>>(
                 stop,
-                [] (Maybe<Located<TokenData>> const &prev, Located<TokenData> const &next) {
+                [&stop] (Maybe<Located<TokenData>> const &prev, Located<TokenData> const &next) {
                     if (prev.has() && Tokens::is<Tokens::Newline>(prev.get().value))
                         return true;
                     else if (Tokens::is<Tokens::Var>(next.value) || Tokens::is<Tokens::Return>(next.value))
                         return true;
                     else
-                        return false;
+                        return stop(next);
                 },
                 &Parser::stmt
             );
+
             return std::make_unique<ASTNS::Block>(span_from_vec(stmts), std::move(stmts));
         }
 
