@@ -33,4 +33,4 @@ set_target_properties(katselc PROPERTIES
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO)
 
-target_compile_options(katselc PRIVATE -Wall -Wextra -Wpedantic -Wno-unused-parameter)
+target_compile_options(katselc PRIVATE -Wall -Wextra -Wpedantic)

@@ -256,7 +256,7 @@ namespace {
 
             expect<Tokens::CBrace>("'}'");
 
-            return std::move(inside_braces);
+            return inside_braces;
         }
         // indented {{{3
         template <typename ParseFun, typename ... Args>
@@ -274,7 +274,7 @@ namespace {
 
             TRY(dedent, FuncRet, expect<Tokens::Dedent>("dedent"));
 
-            return std::move(inside);
+            return inside;
         }
         // both {{{3
         template <typename ParseFun, typename ... Args>
@@ -367,6 +367,7 @@ namespace {
             return std::make_unique<ASTNS::Param>(total_loc, std::move(type), name, mut);
         }
         // expr {{{2
+        // tables {{{3
         enum class Precedence {
             NONE = 0,
         };
@@ -392,9 +393,30 @@ namespace {
         };
 
         std::map<size_t, std::pair<Precedence, InfixParseFun>> infix_parsers {
-
+            {Tokens::index_of<Tokens::Equal>         , {Precedence::NONE, &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::DoublePipe>    , {Precedence::NONE, &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::DoubleAmper>   , {Precedence::NONE, &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::BangEqual>     , {Precedence::NONE, &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::DoubleEqual>   , {Precedence::NONE, &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::Less>          , {Precedence::NONE, &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::Greater>       , {Precedence::NONE, &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::LessEqual>     , {Precedence::NONE, &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::GreaterEqual>  , {Precedence::NONE, &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::Caret>         , {Precedence::NONE, &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::Pipe>          , {Precedence::NONE, &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::Amper>         , {Precedence::NONE, &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::DoubleLess>    , {Precedence::NONE, &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::DoubleGreater> , {Precedence::NONE, &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::Plus>          , {Precedence::NONE, &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::Minus>         , {Precedence::NONE, &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::Star>          , {Precedence::NONE, &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::Slash>         , {Precedence::NONE, &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::Percent>       , {Precedence::NONE, &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::RightArrow>    , {Precedence::NONE, &Parser::cast_expr}},
+            {Tokens::index_of<Tokens::OParen>        , {Precedence::NONE, &Parser::call_expr}},
+            {Tokens::index_of<Tokens::Period>        , {Precedence::NONE, &Parser::field_or_method_call_expr}},
         };
-
+        // general expr {{{3
         Maybe<std::unique_ptr<ASTNS::Expr>> expr() {
             auto next (peek());
             consume();
@@ -405,25 +427,61 @@ namespace {
                 return Maybe<std::unique_ptr<ASTNS::Expr>>();
             }
 
-            return (this->*(pf->second))(next);
+            TRY(left, std::unique_ptr<ASTNS::Expr>, (this->*(pf->second))(next));
+
+            auto infix_token (peek());
+            auto infix_parser = infix_parsers.find(infix_token.value.index());
+
+            if (infix_parser == infix_parsers.end())
+                return std::move(left);
+
+            consume();
+            return (this->*(infix_parser->second.second))(std::move(left), infix_token);
         }
-
+        // if {{{3
         Maybe<std::unique_ptr<ASTNS::IfExpr>> if_expr();
+        // while {{{3
         Maybe<std::unique_ptr<ASTNS::WhileExpr>> while_expr();
+        // bin {{{3
+        Maybe<std::unique_ptr<ASTNS::Expr>> bin_expr(std::unique_ptr<ASTNS::Expr> left, Located<TokenData> const &op) {
+            TRY(right, std::unique_ptr<ASTNS::Expr>, expr());
+            Span total_span (left->span().get().start, right->span().get().end);
 
-        Maybe<std::unique_ptr<ASTNS::Expr>> assignment_expr();
-        Maybe<std::unique_ptr<ASTNS::Expr>> bin_or_expr();
-        Maybe<std::unique_ptr<ASTNS::Expr>> bin_and_expr();
-        Maybe<std::unique_ptr<ASTNS::Expr>> comp_eq_expr();
-        Maybe<std::unique_ptr<ASTNS::Expr>> comp_lgt_expr();
-        Maybe<std::unique_ptr<ASTNS::Expr>> bit_xor_expr();
-        Maybe<std::unique_ptr<ASTNS::Expr>> bit_or_expr();
-        Maybe<std::unique_ptr<ASTNS::Expr>> bit_and_expr();
-        Maybe<std::unique_ptr<ASTNS::Expr>> bit_shift_expr();
-        Maybe<std::unique_ptr<ASTNS::Expr>> addition_expr();
-        Maybe<std::unique_ptr<ASTNS::Expr>> mult_expr();
-        Maybe<std::unique_ptr<ASTNS::Expr>> cast_expr();
+            switch (op.value.index()) {
+#define MAKE(expr_ty, op_ty, op_val) \
+    return std::make_unique<ASTNS::expr_ty>(total_span, std::move(left), Located<ASTNS::op_ty> { op.span, ASTNS::op_ty::op_val }, std::move(right))
 
+                case Tokens::index_of<Tokens::Equal>: MAKE(AssignmentExpr, AssignOperator, EQUAL);
+
+                case Tokens::index_of<Tokens::DoublePipe>: MAKE(ShortCircuitExpr, ShortCircuitOperator, DOUBLEPIPE);
+                case Tokens::index_of<Tokens::DoubleAmper>: MAKE(ShortCircuitExpr, ShortCircuitOperator, DOUBLEAMPER);
+
+                case Tokens::index_of<Tokens::BangEqual>: MAKE(BinaryExpr, BinaryOperator, BANGEQUAL);
+                case Tokens::index_of<Tokens::DoubleEqual>: MAKE(BinaryExpr, BinaryOperator, DOUBLEEQUAL);
+                case Tokens::index_of<Tokens::Less>: MAKE(BinaryExpr, BinaryOperator, LESS);
+                case Tokens::index_of<Tokens::Greater>: MAKE(BinaryExpr, BinaryOperator, GREATER);
+                case Tokens::index_of<Tokens::LessEqual>: MAKE(BinaryExpr, BinaryOperator, LESSEQUAL);
+                case Tokens::index_of<Tokens::GreaterEqual>: MAKE(BinaryExpr, BinaryOperator, GREATEREQUAL);
+                case Tokens::index_of<Tokens::Caret>: MAKE(BinaryExpr, BinaryOperator, CARET);
+                case Tokens::index_of<Tokens::Pipe>: MAKE(BinaryExpr, BinaryOperator, PIPE);
+                case Tokens::index_of<Tokens::Amper>: MAKE(BinaryExpr, BinaryOperator, AMPER);
+                case Tokens::index_of<Tokens::DoubleLess>: MAKE(BinaryExpr, BinaryOperator, DOUBLELESS);
+                case Tokens::index_of<Tokens::DoubleGreater>: MAKE(BinaryExpr, BinaryOperator, DOUBLEGREATER);
+                case Tokens::index_of<Tokens::Star>: MAKE(BinaryExpr, BinaryOperator, STAR);
+                case Tokens::index_of<Tokens::Slash>: MAKE(BinaryExpr, BinaryOperator, SLASH);
+                case Tokens::index_of<Tokens::Plus>: MAKE(BinaryExpr, BinaryOperator, PLUS);
+                case Tokens::index_of<Tokens::Minus>: MAKE(BinaryExpr, BinaryOperator, MINUS);
+#undef MAKE
+
+                default:
+                    report_abort_noh("unreachable code reached");
+            }
+        }
+        // cast {{{3
+        Maybe<std::unique_ptr<ASTNS::Expr>> cast_expr(std::unique_ptr<ASTNS::Expr> operand, Located<TokenData> const &op) {
+            TRY(type, std::unique_ptr<ASTNS::Expr>, type("cast target"));
+            return std::make_unique<ASTNS::CastExpr>(Span(operand->span().get().start, type->span().get().end), std::move(type), std::move(operand));
+        }
         // unary {{{3
         Maybe<std::unique_ptr<ASTNS::Expr>> unary_expr(Located<TokenData> const &prev) {
             TRY(operand, std::unique_ptr<ASTNS::Expr>, expr());
@@ -463,8 +521,30 @@ namespace {
             return std::make_unique<ASTNS::AddrofExpr>(total, amper_tok, std::move(operand), mut);
         }
         // call & field access & method call {{{3
-        Maybe<std::unique_ptr<ASTNS::Expr>> call_expr();
-        Maybe<std::unique_ptr<ASTNS::Expr>> field_or_method_call_expr();
+        Maybe<std::unique_ptr<ASTNS::Expr>> call_expr(std::unique_ptr<ASTNS::Expr> callee, Located<TokenData> const &oparen) {
+            // TODO: args
+            TRY(cparen, std::unique_ptr<ASTNS::Expr>, expect<Tokens::CParen>("')'"));
+
+            Located<Tokens::OParen> oparen_downcasted { oparen.span, Tokens::as<Tokens::OParen>(oparen.value) };
+
+            return std::make_unique<ASTNS::CallExpr>(Span(callee->span().get().start, cparen.span.end), std::move(callee), oparen_downcasted, std::vector<std::unique_ptr<ASTNS::Expr>> {});
+        }
+        Maybe<std::unique_ptr<ASTNS::Expr>> field_or_method_call_expr(std::unique_ptr<ASTNS::Expr> operand, Located<TokenData> const &dot) {
+            TRY(name, std::unique_ptr<ASTNS::Expr>, expect<Tokens::Identifier>("field or method name"));
+            Location span_left (operand->span().get().start);
+
+            Located<Tokens::Period> dot_downcasted { dot.span, Tokens::as<Tokens::Period>(dot.value) };
+
+            if (consume_if<Tokens::OParen>()) {
+                Located<Tokens::OParen> oparen_downcasted { prev().get().span, Tokens::as<Tokens::OParen>(prev().get().value) };
+                // TODO: args
+                TRY(cparen, std::unique_ptr<ASTNS::Expr>, expect<Tokens::CParen>("')'"));
+
+                return std::make_unique<ASTNS::MethodCallExpr>(Span(span_left, cparen.span.end), std::move(operand), dot_downcasted, name, oparen_downcasted, std::vector<std::unique_ptr<ASTNS::Expr>> {});
+            } else {
+                return std::make_unique<ASTNS::FieldAccessExpr>(Span(span_left, name.span.end), std::move(operand), dot_downcasted, name);
+            }
+        }
         // primary {{{3
         Maybe<std::unique_ptr<ASTNS::Expr>> primary_expr(Located<TokenData> const &prev) {
             switch (prev.value.index()) {
@@ -636,7 +716,7 @@ namespace {
                 }
             }
 
-            return std::move(things);
+            return things;
         }
         // }}}1
     };
