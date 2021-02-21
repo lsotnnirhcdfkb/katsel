@@ -71,7 +71,13 @@ namespace {
 
             TRY(oparen, std::unique_ptr<ASTNS::FunctionDecl>, expect<Tokens::OParen>("'('"));
 
-            // TODO: parameters
+            std::vector<std::unique_ptr<ASTNS::ParamB>> params;
+            if (!Tokens::is<Tokens::CParen>(peek().value)) {
+                do {
+                    TRY(p, std::unique_ptr<ASTNS::FunctionDecl>, param());
+                    params.push_back(std::move(p));
+                } while (consume_if<Tokens::Comma>());
+            }
 
             // TODO: use "unclosed (" instead of "expected ')'"
             TRY(cparen, std::unique_ptr<ASTNS::FunctionDecl>, expect<Tokens::CParen>("')'"));
