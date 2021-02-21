@@ -402,6 +402,7 @@ namespace {
             {Tokens::index_of<Tokens::IntLit>    , &Parser::primary_expr},
             {Tokens::index_of<Tokens::CharLit>   , &Parser::primary_expr},
             {Tokens::index_of<Tokens::StringLit> , &Parser::primary_expr},
+            {Tokens::index_of<Tokens::BoolLit>   , &Parser::primary_expr},
             {Tokens::index_of<Tokens::This>      , &Parser::primary_expr},
             {Tokens::index_of<Tokens::OParen>    , &Parser::primary_expr},
 
