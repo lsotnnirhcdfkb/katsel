@@ -319,8 +319,12 @@ namespace {
                 return pointer_type();
             else if (consume_if<Tokens::This>())
                 return this_type();
-            else
+            else if (Tokens::is<Tokens::Identifier>(peek().value))
                 return path_type(what);
+            else {
+                ERR_EXPECTED(peek().span, what);
+                return Maybe<std::unique_ptr<ASTNS::Type>>();
+            }
         }
         // pointer {{{3
         Maybe<std::unique_ptr<ASTNS::PointerType>> pointer_type() {
