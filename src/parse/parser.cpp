@@ -88,7 +88,7 @@ namespace {
 
             TRY(body, std::unique_ptr<ASTNS::FunctionDecl>, blocked(&Parser::stmt_list));
 
-            TRY(maybe_line_end, std::unique_ptr<ASTNS::FunctionDecl>, optional_line_ending());
+            optional_line_ending();
 
             Span span (fun_tok.start, ret_type->span().has() ? ret_type->span().get().end : cparen.span.end);
             return std::make_unique<ASTNS::FunctionDecl>(span, std::move(ret_type), name, std::vector<std::unique_ptr<ASTNS::ParamB>> {}, std::move(body));
@@ -182,8 +182,17 @@ namespace {
         }
         Maybe<std::unique_ptr<ASTNS::ExprStmt>> expr_stmt() {
             TRY(expr, std::unique_ptr<ASTNS::ExprStmt>, expr(Precedence::NONE));
-            // TODO: blocked exprs do not need line endings
-            TRY(line_ending, std::unique_ptr<ASTNS::ExprStmt>, line_ending());
+
+            if (dynamic_cast<ASTNS::IfExpr*   >(expr.get()) ||
+                dynamic_cast<ASTNS::WhileExpr*>(expr.get()) ||
+                dynamic_cast<ASTNS::Block*    >(expr.get())) {
+                // exprs with blocks do not require a line ending
+                optional_line_ending();
+            } else {
+                // non-blocked exprs do require a line ending
+                TRY(line_ending, std::unique_ptr<ASTNS::ExprStmt>, line_ending());
+            }
+
             return std::make_unique<ASTNS::ExprStmt>(expr->span(), std::move(expr));
         }
         // line endings {{{2
