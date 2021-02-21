@@ -120,7 +120,7 @@ namespace {
                 TRY(fun_decl, std::unique_ptr<ASTNS::ImplMember>, function_decl());
                 return std::make_unique<ASTNS::FunctionImplMember>(fun_decl->span(), std::move(fun_decl));
             } else {
-                ERR_EXPECTED_IMPL_MEMBER(peek().span);
+                ERR_EXPECTED(peek().span, "\'impl\' member");
                 return Maybe<std::unique_ptr<ASTNS::ImplMember>>();
             }
         }

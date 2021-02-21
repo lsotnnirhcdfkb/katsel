@@ -126,13 +126,6 @@ errors = [
             highlights=[
                 SimpleHighlight('expected', UNDER0, [('error', '"expected {}"', 'name')]),
             ]),
-        Msg('expected-impl-member',
-            desc='Expected an \'impl\' member',
-            inputs='Span const &not_member', location='not_member',
-            highlights=[
-                SimpleHighlight('not_member', UNDER0, [('error', '"expected an \'impl\' member"')]),
-            ]),
-
         Msg('lhs-unsupported-op',
             desc='Left hand side of binary expression does not support operator',
             inputs='Located<NNPtr<IR::Value>> const &lhs, Span const &op', location='op',
