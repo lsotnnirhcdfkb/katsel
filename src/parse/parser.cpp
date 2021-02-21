@@ -82,7 +82,7 @@ namespace {
             // TODO: use "unclosed (" instead of "expected ')'"
             TRY(cparen, std::unique_ptr<ASTNS::FunctionDecl>, expect<Tokens::CParen>("')'"));
 
-            TRY(ret_type, std::unique_ptr<ASTNS::FunctionDecl>, type_annotation("function return type"));
+            TRY(ret_type, std::unique_ptr<ASTNS::FunctionDecl>, type_annotation());
 
             // TODO: parse function declaration without definition
 
@@ -97,7 +97,7 @@ namespace {
         Maybe<std::unique_ptr<ASTNS::ImplDecl>> impl_decl() {
             Span impl_tok = prev().get().span;
 
-            TRY(type, std::unique_ptr<ASTNS::ImplDecl>, type("implementation type"));
+            TRY(type, std::unique_ptr<ASTNS::ImplDecl>, type());
 
             TRY(body, std::unique_ptr<ASTNS::ImplDecl>, blocked(&Parser::impl_body));
 
@@ -156,7 +156,7 @@ namespace {
             bool mut = consume_if<Tokens::Mut>();
 
             TRY(name, std::unique_ptr<ASTNS::VarStmt>, expect<Tokens::Identifier>("variable name"));
-            TRY(type, std::unique_ptr<ASTNS::VarStmt>, type_annotation("variable type"));
+            TRY(type, std::unique_ptr<ASTNS::VarStmt>, type_annotation());
 
             std::unique_ptr<ASTNS::Expr> initializer = nullptr;
             Maybe<Located<Tokens::Equal>> eq_tok;
@@ -308,20 +308,20 @@ namespace {
             }
         }
         // types {{{2
-        Maybe<std::unique_ptr<ASTNS::Type>> type_annotation(std::string const &what) {
+        Maybe<std::unique_ptr<ASTNS::Type>> type_annotation() {
             TRY(colon, std::unique_ptr<ASTNS::Type>, expect<Tokens::Colon>(":"));
-            TRY(ty, std::unique_ptr<ASTNS::Type>, type(what));
+            TRY(ty, std::unique_ptr<ASTNS::Type>, type());
             return std::move(ty);
         }
-        Maybe<std::unique_ptr<ASTNS::Type>> type(std::string const &what) {
+        Maybe<std::unique_ptr<ASTNS::Type>> type() {
             if (consume_if<Tokens::Star>())
                 return pointer_type();
             else if (consume_if<Tokens::This>())
                 return this_type();
             else if (Tokens::is<Tokens::Identifier>(peek().value))
-                return path_type(what);
+                return path_type();
             else {
-                ERR_EXPECTED(peek().span, what);
+                ERR_EXPECTED(peek().span, "type");
                 return Maybe<std::unique_ptr<ASTNS::Type>>();
             }
         }
@@ -329,7 +329,7 @@ namespace {
         Maybe<std::unique_ptr<ASTNS::PointerType>> pointer_type() {
             Span star = prev().get().span;
             bool mut = consume_if<Tokens::Mut>();
-            TRY(ty, std::unique_ptr<ASTNS::PointerType>, type("pointed type"));
+            TRY(ty, std::unique_ptr<ASTNS::PointerType>, type());
 
             return std::make_unique<ASTNS::PointerType>(join_maybe_span(star, ty->span()), mut, std::move(ty));
         }
@@ -340,7 +340,7 @@ namespace {
             return std::make_unique<ASTNS::ThisType>(th.span, th);
         }
         // path {{{3
-        Maybe<std::unique_ptr<ASTNS::PathType>> path_type(std::string const &what) {
+        Maybe<std::unique_ptr<ASTNS::PathType>> path_type() {
             TRY(path, std::unique_ptr<ASTNS::PathType>, path());
             return std::make_unique<ASTNS::PathType>(path->span(), std::move(path));
         }
@@ -376,7 +376,7 @@ namespace {
             Maybe<Span> mut_loc = mut ? prev().get().span : Maybe<Span>();
 
             TRY(name, std::unique_ptr<ASTNS::Param>, expect<Tokens::Identifier>("parameter name"));
-            TRY(type, std::unique_ptr<ASTNS::Param>, type_annotation("parameter type"));
+            TRY(type, std::unique_ptr<ASTNS::Param>, type_annotation());
 
             return std::make_unique<ASTNS::Param>(join_maybe_span(mut_loc.has() ? mut_loc.get() : name.span, type->span()), std::move(type), name, mut);
         }
@@ -580,7 +580,7 @@ namespace {
         // cast {{{3
         Maybe<std::unique_ptr<ASTNS::Expr>> cast_expr(std::unique_ptr<ASTNS::Expr> operand) {
             assert_expect<Tokens::RightArrow>();
-            TRY(type, std::unique_ptr<ASTNS::Expr>, type("cast target"));
+            TRY(type, std::unique_ptr<ASTNS::Expr>, type());
             return std::make_unique<ASTNS::CastExpr>(join_maybe_span(operand->span(), type->span()), std::move(type), std::move(operand));
         }
         // unary {{{3
