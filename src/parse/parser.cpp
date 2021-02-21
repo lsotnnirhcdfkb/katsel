@@ -155,7 +155,7 @@ namespace {
             if (consume_if<Tokens::Equal>()) {
                 auto prev_tok = prev().get();
                 eq_tok = Located<Tokens::Equal> { prev_tok.span, Tokens::as<Tokens::Equal>(prev_tok.value) };
-                TRY(inner_initializer, std::unique_ptr<ASTNS::VarStmt>, expr());
+                TRY(inner_initializer, std::unique_ptr<ASTNS::VarStmt>, expr(Precedence::NONE));
                 initializer = std::move(inner_initializer);
             }
 
@@ -166,13 +166,13 @@ namespace {
         }
         Maybe<std::unique_ptr<ASTNS::RetStmt>> ret_stmt() {
             Span ret_tok = prev().get().span;
-            TRY(val, std::unique_ptr<ASTNS::RetStmt>, expr());
+            TRY(val, std::unique_ptr<ASTNS::RetStmt>, expr(Precedence::NONE));
             TRY(line_ending, std::unique_ptr<ASTNS::RetStmt>, line_ending());
             Span total_span (ret_tok.start, line_ending.end);
             return std::make_unique<ASTNS::RetStmt>(total_span, std::move(val));
         }
         Maybe<std::unique_ptr<ASTNS::ExprStmt>> expr_stmt() {
-            TRY(expr, std::unique_ptr<ASTNS::ExprStmt>, expr());
+            TRY(expr, std::unique_ptr<ASTNS::ExprStmt>, expr(Precedence::NONE));
             // TODO: blocked exprs do not need line endings
             TRY(line_ending, std::unique_ptr<ASTNS::ExprStmt>, line_ending());
             return std::make_unique<ASTNS::ExprStmt>(expr->span(), std::move(expr));
@@ -370,54 +370,68 @@ namespace {
         // tables {{{3
         enum class Precedence {
             NONE = 0,
+            ASSIGN = 1,
+            BIN_OR = 2,
+            BIN_AND = 3,
+            COMP_EQ = 4,
+            COMP_LGT = 5,
+            BIT_XOR = 6,
+            BIT_OR = 7,
+            BIT_AND = 7,
+            BIT_SHIFT = 8,
+            ADD = 9,
+            MULT = 10,
+            CAST = 11,
+            UNARY = 12,
+            CALL_FIELD_METHOD = 13,
         };
 
         using PrefixParseFun = Maybe<std::unique_ptr<ASTNS::Expr>> (Parser::*)(Located<TokenData> const &);
         using InfixParseFun = Maybe<std::unique_ptr<ASTNS::Expr>> (Parser::*)(std::unique_ptr<ASTNS::Expr>, Located<TokenData> const &);
         std::map<size_t, PrefixParseFun> prefix_parsers {
-                {Tokens::index_of<Tokens::OParen>    , &Parser::primary_expr},
-                {Tokens::index_of<Tokens::FloatLit>  , &Parser::primary_expr},
-                {Tokens::index_of<Tokens::IntLit>    , &Parser::primary_expr},
-                {Tokens::index_of<Tokens::CharLit>   , &Parser::primary_expr},
-                {Tokens::index_of<Tokens::StringLit> , &Parser::primary_expr},
-                {Tokens::index_of<Tokens::This>      , &Parser::primary_expr},
-                {Tokens::index_of<Tokens::OParen>    , &Parser::primary_expr},
+            {Tokens::index_of<Tokens::OParen>    , &Parser::primary_expr},
+            {Tokens::index_of<Tokens::FloatLit>  , &Parser::primary_expr},
+            {Tokens::index_of<Tokens::IntLit>    , &Parser::primary_expr},
+            {Tokens::index_of<Tokens::CharLit>   , &Parser::primary_expr},
+            {Tokens::index_of<Tokens::StringLit> , &Parser::primary_expr},
+            {Tokens::index_of<Tokens::This>      , &Parser::primary_expr},
+            {Tokens::index_of<Tokens::OParen>    , &Parser::primary_expr},
 
-                {Tokens::index_of<Tokens::Tilde>     , &Parser::unary_expr},
-                {Tokens::index_of<Tokens::Minus>     , &Parser::unary_expr},
-                {Tokens::index_of<Tokens::Bang>      , &Parser::unary_expr},
-                {Tokens::index_of<Tokens::Star>      , &Parser::unary_expr},
-                {Tokens::index_of<Tokens::Amper>     , &Parser::addrof_expr},
+            {Tokens::index_of<Tokens::Tilde>     , &Parser::unary_expr},
+            {Tokens::index_of<Tokens::Minus>     , &Parser::unary_expr},
+            {Tokens::index_of<Tokens::Bang>      , &Parser::unary_expr},
+            {Tokens::index_of<Tokens::Star>      , &Parser::unary_expr},
+            {Tokens::index_of<Tokens::Amper>     , &Parser::addrof_expr},
 
-                {Tokens::index_of<Tokens::Identifier>, &Parser::path_expr},
+            {Tokens::index_of<Tokens::Identifier>, &Parser::path_expr},
         };
 
         std::map<size_t, std::pair<Precedence, InfixParseFun>> infix_parsers {
-            {Tokens::index_of<Tokens::Equal>         , {Precedence::NONE, &Parser::bin_expr}},
-            {Tokens::index_of<Tokens::DoublePipe>    , {Precedence::NONE, &Parser::bin_expr}},
-            {Tokens::index_of<Tokens::DoubleAmper>   , {Precedence::NONE, &Parser::bin_expr}},
-            {Tokens::index_of<Tokens::BangEqual>     , {Precedence::NONE, &Parser::bin_expr}},
-            {Tokens::index_of<Tokens::DoubleEqual>   , {Precedence::NONE, &Parser::bin_expr}},
-            {Tokens::index_of<Tokens::Less>          , {Precedence::NONE, &Parser::bin_expr}},
-            {Tokens::index_of<Tokens::Greater>       , {Precedence::NONE, &Parser::bin_expr}},
-            {Tokens::index_of<Tokens::LessEqual>     , {Precedence::NONE, &Parser::bin_expr}},
-            {Tokens::index_of<Tokens::GreaterEqual>  , {Precedence::NONE, &Parser::bin_expr}},
-            {Tokens::index_of<Tokens::Caret>         , {Precedence::NONE, &Parser::bin_expr}},
-            {Tokens::index_of<Tokens::Pipe>          , {Precedence::NONE, &Parser::bin_expr}},
-            {Tokens::index_of<Tokens::Amper>         , {Precedence::NONE, &Parser::bin_expr}},
-            {Tokens::index_of<Tokens::DoubleLess>    , {Precedence::NONE, &Parser::bin_expr}},
-            {Tokens::index_of<Tokens::DoubleGreater> , {Precedence::NONE, &Parser::bin_expr}},
-            {Tokens::index_of<Tokens::Plus>          , {Precedence::NONE, &Parser::bin_expr}},
-            {Tokens::index_of<Tokens::Minus>         , {Precedence::NONE, &Parser::bin_expr}},
-            {Tokens::index_of<Tokens::Star>          , {Precedence::NONE, &Parser::bin_expr}},
-            {Tokens::index_of<Tokens::Slash>         , {Precedence::NONE, &Parser::bin_expr}},
-            {Tokens::index_of<Tokens::Percent>       , {Precedence::NONE, &Parser::bin_expr}},
-            {Tokens::index_of<Tokens::RightArrow>    , {Precedence::NONE, &Parser::cast_expr}},
-            {Tokens::index_of<Tokens::OParen>        , {Precedence::NONE, &Parser::call_expr}},
-            {Tokens::index_of<Tokens::Period>        , {Precedence::NONE, &Parser::field_or_method_call_expr}},
+            {Tokens::index_of<Tokens::Equal>         , {Precedence::ASSIGN           , &Parser::assign_expr}},
+            {Tokens::index_of<Tokens::DoublePipe>    , {Precedence::BIN_OR           , &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::DoubleAmper>   , {Precedence::BIN_AND          , &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::BangEqual>     , {Precedence::COMP_EQ          , &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::DoubleEqual>   , {Precedence::COMP_EQ          , &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::Less>          , {Precedence::COMP_LGT         , &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::Greater>       , {Precedence::COMP_LGT         , &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::LessEqual>     , {Precedence::COMP_LGT         , &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::GreaterEqual>  , {Precedence::COMP_LGT         , &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::Caret>         , {Precedence::BIT_XOR          , &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::Pipe>          , {Precedence::BIT_OR           , &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::Amper>         , {Precedence::BIT_AND          , &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::DoubleLess>    , {Precedence::BIT_SHIFT        , &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::DoubleGreater> , {Precedence::BIT_SHIFT        , &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::Plus>          , {Precedence::ADD              , &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::Minus>         , {Precedence::ADD              , &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::Star>          , {Precedence::MULT             , &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::Slash>         , {Precedence::MULT             , &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::Percent>       , {Precedence::MULT             , &Parser::bin_expr}},
+            {Tokens::index_of<Tokens::RightArrow>    , {Precedence::CAST             , &Parser::cast_expr}},
+            {Tokens::index_of<Tokens::OParen>        , {Precedence::CALL_FIELD_METHOD, &Parser::call_expr}},
+            {Tokens::index_of<Tokens::Period>        , {Precedence::CALL_FIELD_METHOD, &Parser::field_or_method_call_expr}},
         };
-        // general expr {{{3
-        Maybe<std::unique_ptr<ASTNS::Expr>> expr() {
+        // main expr function {{{3
+        Maybe<std::unique_ptr<ASTNS::Expr>> expr(Precedence prec) {
             auto next (peek());
             consume();
 
@@ -429,14 +443,28 @@ namespace {
 
             TRY(left, std::unique_ptr<ASTNS::Expr>, (this->*(pf->second))(next));
 
-            auto infix_token (peek());
-            auto infix_parser = infix_parsers.find(infix_token.value.index());
+            while (precedence_of(peek().value) > prec) {
+                auto infix_token (peek());
+                auto infix_parser = infix_parsers.find(infix_token.value.index());
+
+                if (infix_parser == infix_parsers.end())
+                    break;
+
+                consume();
+                TRY(_left, std::unique_ptr<ASTNS::Expr>, (this->*(infix_parser->second.second))(std::move(left), infix_token));
+                left = std::move(_left);
+            }
+
+            return std::move(left);
+        }
+        Precedence precedence_of(TokenData tok) {
+            size_t index = tok.index();
+            auto infix_parser = infix_parsers.find(index);
 
             if (infix_parser == infix_parsers.end())
-                return std::move(left);
-
-            consume();
-            return (this->*(infix_parser->second.second))(std::move(left), infix_token);
+                return Precedence::NONE;
+            else
+                return infix_parser->second.first;
         }
         // if {{{3
         Maybe<std::unique_ptr<ASTNS::IfExpr>> if_expr();
@@ -444,15 +472,12 @@ namespace {
         Maybe<std::unique_ptr<ASTNS::WhileExpr>> while_expr();
         // bin {{{3
         Maybe<std::unique_ptr<ASTNS::Expr>> bin_expr(std::unique_ptr<ASTNS::Expr> left, Located<TokenData> const &op) {
-            TRY(right, std::unique_ptr<ASTNS::Expr>, expr());
+            TRY(right, std::unique_ptr<ASTNS::Expr>, expr(precedence_of(op.value)));
             Span total_span (left->span().get().start, right->span().get().end);
 
             switch (op.value.index()) {
 #define MAKE(expr_ty, op_ty, op_val) \
     return std::make_unique<ASTNS::expr_ty>(total_span, std::move(left), Located<ASTNS::op_ty> { op.span, ASTNS::op_ty::op_val }, std::move(right))
-
-                case Tokens::index_of<Tokens::Equal>: MAKE(AssignmentExpr, AssignOperator, EQUAL);
-
                 case Tokens::index_of<Tokens::DoublePipe>: MAKE(ShortCircuitExpr, ShortCircuitOperator, DOUBLEPIPE);
                 case Tokens::index_of<Tokens::DoubleAmper>: MAKE(ShortCircuitExpr, ShortCircuitOperator, DOUBLEAMPER);
 
@@ -477,6 +502,24 @@ namespace {
                     report_abort_noh("unreachable code reached");
             }
         }
+
+        Maybe<std::unique_ptr<ASTNS::Expr>> assign_expr(std::unique_ptr<ASTNS::Expr> left, Located<TokenData> const &op) {
+            TRY(right, std::unique_ptr<ASTNS::Expr>, expr(Precedence::NONE));
+            Span total_span (left->span().get().start, right->span().get().end);
+
+            ASTNS::AssignOperator assign_op;
+            switch (op.value.index()) {
+                case Tokens::index_of<Tokens::Equal>:
+                    assign_op = ASTNS::AssignOperator::EQUAL;
+                    break;
+
+                default:
+                    report_abort_noh("unreachable code reached");
+            }
+
+            return std::make_unique<ASTNS::AssignmentExpr>(total_span, std::move(left), Located<ASTNS::AssignOperator> { op.span, assign_op }, std::move(right));
+        }
+
         // cast {{{3
         Maybe<std::unique_ptr<ASTNS::Expr>> cast_expr(std::unique_ptr<ASTNS::Expr> operand, Located<TokenData> const &op) {
             TRY(type, std::unique_ptr<ASTNS::Expr>, type("cast target"));
@@ -484,7 +527,7 @@ namespace {
         }
         // unary {{{3
         Maybe<std::unique_ptr<ASTNS::Expr>> unary_expr(Located<TokenData> const &prev) {
-            TRY(operand, std::unique_ptr<ASTNS::Expr>, expr());
+            TRY(operand, std::unique_ptr<ASTNS::Expr>, expr(Precedence::UNARY));
 
             Span span (prev.span.start, operand->span().get().end);
 
@@ -514,7 +557,7 @@ namespace {
         Maybe<std::unique_ptr<ASTNS::Expr>> addrof_expr(Located<TokenData> const &amper) {
             bool mut = consume_if<Tokens::Mut>();
 
-            TRY(operand, std::unique_ptr<ASTNS::Expr>, expr());
+            TRY(operand, std::unique_ptr<ASTNS::Expr>, expr(Precedence::UNARY));
 
             Span total (amper.span.start, operand->span().get().end);
             Located<Tokens::Amper> amper_tok { amper.span, Tokens::as<Tokens::Amper>(amper.value) };
@@ -560,7 +603,7 @@ namespace {
 #undef A
 
                 case Tokens::index_of<Tokens::OParen>: {
-                    TRY(e, std::unique_ptr<ASTNS::Expr>, expr());
+                    TRY(e, std::unique_ptr<ASTNS::Expr>, expr(Precedence::NONE));
                     TRY(close, std::unique_ptr<ASTNS::Expr>, expect<Tokens::CParen>("')'"));
                     return std::move(e);
                }
