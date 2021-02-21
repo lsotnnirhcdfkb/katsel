@@ -90,7 +90,7 @@ namespace {
 
             optional_line_ending();
 
-            Span span (fun_tok.start, ret_type->span().has() ? ret_type->span().get().end : cparen.span.end);
+            Span span (join_span(fun_tok, ret_type->span().has() ? ret_type->span().get() : cparen.span));
             return std::make_unique<ASTNS::FunctionDecl>(span, std::move(ret_type), name, std::vector<std::unique_ptr<ASTNS::ParamB>> {}, std::move(body));
         }
         // impl {{{3
@@ -101,8 +101,7 @@ namespace {
 
             TRY(body, std::unique_ptr<ASTNS::ImplDecl>, blocked(&Parser::impl_body));
 
-            Span span (impl_tok.start, type->span().get().end);
-            return std::make_unique<ASTNS::ImplDecl>(span, std::move(type), std::move(body));
+            return std::make_unique<ASTNS::ImplDecl>(join_maybe_span(impl_tok, type->span()), std::move(type), std::move(body));
         }
         // body {{{4
         std::vector<std::unique_ptr<ASTNS::ImplMember>> impl_body(TokenPredicate stop) {
@@ -332,8 +331,7 @@ namespace {
             bool mut = consume_if<Tokens::Mut>();
             TRY(ty, std::unique_ptr<ASTNS::PointerType>, type("pointed type"));
 
-            Span total (star.start, ty->span().get().end);
-            return std::make_unique<ASTNS::PointerType>(total, mut, std::move(ty));
+            return std::make_unique<ASTNS::PointerType>(join_maybe_span(star, ty->span()), mut, std::move(ty));
         }
         // this {{{3
         Maybe<std::unique_ptr<ASTNS::ThisType>> this_type() {
@@ -375,18 +373,12 @@ namespace {
         }
         Maybe<std::unique_ptr<ASTNS::Param>> normal_param() {
             bool mut = consume_if<Tokens::Mut>();
-
             Maybe<Span> mut_loc = mut ? prev().get().span : Maybe<Span>();
 
             TRY(name, std::unique_ptr<ASTNS::Param>, expect<Tokens::Identifier>("parameter name"));
             TRY(type, std::unique_ptr<ASTNS::Param>, type_annotation("parameter type"));
 
-            Span total_loc (
-                mut_loc.has() ? mut_loc.get().start : name.span.start,
-                type->span().get().end
-            );
-
-            return std::make_unique<ASTNS::Param>(total_loc, std::move(type), name, mut);
+            return std::make_unique<ASTNS::Param>(join_maybe_span(mut_loc.has() ? mut_loc.get() : name.span, type->span()), std::move(type), name, mut);
         }
         // expr {{{2
         // tables {{{3
@@ -430,6 +422,8 @@ namespace {
 
             {Tokens::index_of<Tokens::If>        , &Parser::if_expr},
             {Tokens::index_of<Tokens::While>     , &Parser::while_expr},
+
+            {Tokens::index_of<Tokens::OBrace>    , &Parser::braced_block_expr},
         };
 
         std::map<size_t, std::pair<Precedence, InfixParseFun>> infix_parsers = std::initializer_list<std::map<size_t, std::pair<Precedence, InfixParseFun>>>::value_type {
@@ -511,9 +505,7 @@ namespace {
                 }
             }
 
-            Location span_start (if_tok.span.start);
-            Location span_end (else_branch ? else_branch->span().get().end : if_branch->span().get().end);
-            return std::make_unique<ASTNS::IfExpr>(Span(span_start, span_end), if_tok, else_tok, std::move(cond), std::move(if_branch), std::move(else_branch));
+            return std::make_unique<ASTNS::IfExpr>(join_maybe_span(if_tok.span, else_branch ? else_branch->span() : if_branch->span()), if_tok, else_tok, std::move(cond), std::move(if_branch), std::move(else_branch));
         }
         // while {{{3
         Maybe<std::unique_ptr<ASTNS::Expr>> while_expr() {
@@ -522,10 +514,12 @@ namespace {
             TRY(cond, std::unique_ptr<ASTNS::Expr>, expr(Precedence::NONE));
             TRY(body, std::unique_ptr<ASTNS::Expr>, blocked(&Parser::stmt_list));
 
-            Location span_start (while_tok.span.start);
-            Location span_end (body->span().get().end);
-            return std::make_unique<ASTNS::WhileExpr>(Span(span_start, span_end), std::move(cond), std::move(body));
+            return std::make_unique<ASTNS::WhileExpr>(join_maybe_span(while_tok.span, body->span()), std::move(cond), std::move(body));
 
+        }
+        // block expr {{{3
+        Maybe<std::unique_ptr<ASTNS::Expr>> braced_block_expr() {
+            return braced(&Parser::stmt_list);
         }
         // bin {{{3
         Maybe<std::unique_ptr<ASTNS::Expr>> bin_expr(std::unique_ptr<ASTNS::Expr> left) {
@@ -533,7 +527,7 @@ namespace {
             consume();
 
             TRY(right, std::unique_ptr<ASTNS::Expr>, expr(precedence_of(op.value)));
-            Span total_span (left->span().get().start, right->span().get().end);
+            Maybe<Span const> total_span (join_maybe_span(left->span(), right->span()));
 
             switch (op.value.index()) {
 #define MAKE(expr_ty, op_ty, op_val) \
@@ -568,7 +562,7 @@ namespace {
             consume();
 
             TRY(right, std::unique_ptr<ASTNS::Expr>, expr(Precedence::NONE));
-            Span total_span (left->span().get().start, right->span().get().end);
+            Maybe<Span const> total_span (join_maybe_span(left->span(), right->span()));
 
             ASTNS::AssignOperator assign_op;
             switch (op.value.index()) {
@@ -587,7 +581,7 @@ namespace {
         Maybe<std::unique_ptr<ASTNS::Expr>> cast_expr(std::unique_ptr<ASTNS::Expr> operand) {
             assert_expect<Tokens::RightArrow>();
             TRY(type, std::unique_ptr<ASTNS::Expr>, type("cast target"));
-            return std::make_unique<ASTNS::CastExpr>(Span(operand->span().get().start, type->span().get().end), std::move(type), std::move(operand));
+            return std::make_unique<ASTNS::CastExpr>(join_maybe_span(operand->span(), type->span()), std::move(type), std::move(operand));
         }
         // unary {{{3
         Maybe<std::unique_ptr<ASTNS::Expr>> unary_expr() {
@@ -596,7 +590,7 @@ namespace {
 
             TRY(operand, std::unique_ptr<ASTNS::Expr>, expr(Precedence::UNARY));
 
-            Span span (prev.span.start, operand->span().get().end);
+            Maybe<Span const> span (join_maybe_span(prev.span, operand->span()));
 
             ASTNS::UnaryOperator op;
             switch (prev.value.index()) {
@@ -628,7 +622,7 @@ namespace {
 
             TRY(operand, std::unique_ptr<ASTNS::Expr>, expr(Precedence::UNARY));
 
-            Span total (amper.span.start, operand->span().get().end);
+            Maybe<Span const> total (join_maybe_span(amper.span, operand->span()));
             Located<Tokens::Amper> amper_tok { amper.span, Tokens::as<Tokens::Amper>(amper.value) };
             return std::make_unique<ASTNS::AddrofExpr>(total, amper_tok, std::move(operand), mut);
         }
@@ -646,13 +640,12 @@ namespace {
 
             Located<Tokens::OParen> oparen_downcasted { oparen.span, Tokens::as<Tokens::OParen>(oparen.value) };
 
-            return std::make_unique<ASTNS::CallExpr>(Span(callee->span().get().start, cparen.span.end), std::move(callee), oparen_downcasted, std::move(call_args));
+            return std::make_unique<ASTNS::CallExpr>(join_maybe_span(callee->span(), cparen.span), std::move(callee), oparen_downcasted, std::move(call_args));
         }
         Maybe<std::unique_ptr<ASTNS::Expr>> field_or_method_call_expr(std::unique_ptr<ASTNS::Expr> operand) {
             auto dot = assert_expect<Tokens::Period>();
 
             TRY(name, std::unique_ptr<ASTNS::Expr>, expect<Tokens::Identifier>("field or method name"));
-            Location span_left (operand->span().get().start);
 
             Located<Tokens::Period> dot_downcasted { dot.span, Tokens::as<Tokens::Period>(dot.value) };
 
@@ -667,9 +660,9 @@ namespace {
 
                 TRY(cparen, std::unique_ptr<ASTNS::Expr>, expect<Tokens::CParen>("')'"));
 
-                return std::make_unique<ASTNS::MethodCallExpr>(Span(span_left, cparen.span.end), std::move(operand), dot_downcasted, name, oparen_downcasted, std::move(call_args));
+                return std::make_unique<ASTNS::MethodCallExpr>(join_maybe_span(operand->span(), cparen.span), std::move(operand), dot_downcasted, name, oparen_downcasted, std::move(call_args));
             } else {
-                return std::make_unique<ASTNS::FieldAccessExpr>(Span(span_left, name.span.end), std::move(operand), dot_downcasted, name);
+                return std::make_unique<ASTNS::FieldAccessExpr>(join_maybe_span(operand->span(), name.span), std::move(operand), dot_downcasted, name);
             }
         }
         // args {{{3
@@ -870,6 +863,16 @@ namespace {
                 : Maybe<Span>();
 
             return span;
+        }
+        Span join_span(Span const &l, Span const &r) {
+            return Span(l.start, r.end);
+        }
+        Maybe<Span> join_maybe_span(Maybe<Span const> const &l, Maybe<Span const> const &r) {
+            if (l.has() && r.has()) {
+                return join_span(l.get(), r.get());
+            } else {
+                return Maybe<Span>();
+            }
         }
         // thing list {{{3
         template <typename Ret>
