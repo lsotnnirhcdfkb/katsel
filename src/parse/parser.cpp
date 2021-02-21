@@ -397,7 +397,7 @@ namespace {
 
         using PrefixParseFun = Maybe<std::unique_ptr<ASTNS::Expr>> (Parser::*)(Located<TokenData> const &);
         using InfixParseFun = Maybe<std::unique_ptr<ASTNS::Expr>> (Parser::*)(std::unique_ptr<ASTNS::Expr>, Located<TokenData> const &);
-        std::map<size_t, PrefixParseFun> prefix_parsers {
+        std::map<size_t, PrefixParseFun> prefix_parsers = std::initializer_list<std::map<size_t, PrefixParseFun>::value_type> {
             {Tokens::index_of<Tokens::OParen>    , &Parser::primary_expr},
             {Tokens::index_of<Tokens::FloatLit>  , &Parser::primary_expr},
             {Tokens::index_of<Tokens::IntLit>    , &Parser::primary_expr},
@@ -414,9 +414,12 @@ namespace {
             {Tokens::index_of<Tokens::Amper>     , &Parser::addrof_expr},
 
             {Tokens::index_of<Tokens::Identifier>, &Parser::path_expr},
+
+            {Tokens::index_of<Tokens::If>        , &Parser::if_expr},
+            {Tokens::index_of<Tokens::While>     , &Parser::while_expr},
         };
 
-        std::map<size_t, std::pair<Precedence, InfixParseFun>> infix_parsers {
+        std::map<size_t, std::pair<Precedence, InfixParseFun>> infix_parsers = std::initializer_list<std::map<size_t, std::pair<Precedence, InfixParseFun>>>::value_type {
             {Tokens::index_of<Tokens::Equal>         , {Precedence::ASSIGN           , &Parser::assign_expr}},
             {Tokens::index_of<Tokens::DoublePipe>    , {Precedence::BIN_OR           , &Parser::bin_expr}},
             {Tokens::index_of<Tokens::DoubleAmper>   , {Precedence::BIN_AND          , &Parser::bin_expr}},
@@ -477,9 +480,41 @@ namespace {
                 return infix_parser->second.first;
         }
         // if {{{3
-        Maybe<std::unique_ptr<ASTNS::IfExpr>> if_expr();
+        Maybe<std::unique_ptr<ASTNS::Expr>> if_expr(Located<TokenData> const &if_tok) {
+            Located<Tokens::If> if_downcasted { if_tok.span, Tokens::as<Tokens::If>(if_tok.value) };
+
+            TRY(cond, std::unique_ptr<ASTNS::Expr>, expr(Precedence::NONE));
+            TRY(if_branch, std::unique_ptr<ASTNS::Expr>, blocked(&Parser::stmt_list));
+
+            Maybe<Located<Tokens::Else>> else_downcasted;
+            std::unique_ptr<ASTNS::Expr> else_branch;
+            if (consume_if<Tokens::Else>()) {
+                else_downcasted = Located<Tokens::Else> { prev().get().span, Tokens::as<Tokens::Else>(prev().get().value) };
+
+                if (Tokens::is<Tokens::If>(peek().value)) {
+                    consume();
+                    TRY(_else_branch, std::unique_ptr<ASTNS::Expr>, if_expr(prev().get()));
+                    else_branch = std::move(_else_branch);
+                } else {
+                    TRY(_else_branch, std::unique_ptr<ASTNS::Expr>, blocked(&Parser::stmt_list));
+                    else_branch = std::move(_else_branch);
+                }
+            }
+
+            Location span_start (if_downcasted.span.start);
+            Location span_end (else_branch ? else_branch->span().get().end : if_branch->span().get().end);
+            return std::make_unique<ASTNS::IfExpr>(Span(span_start, span_end), if_downcasted, else_downcasted, std::move(cond), std::move(if_branch), std::move(else_branch));
+        }
         // while {{{3
-        Maybe<std::unique_ptr<ASTNS::WhileExpr>> while_expr();
+        Maybe<std::unique_ptr<ASTNS::Expr>> while_expr(Located<TokenData> const &while_tok) {
+            TRY(cond, std::unique_ptr<ASTNS::Expr>, expr(Precedence::NONE));
+            TRY(body, std::unique_ptr<ASTNS::Expr>, blocked(&Parser::stmt_list));
+
+            Location span_start (while_tok.span.start);
+            Location span_end (body->span().get().end);
+            return std::make_unique<ASTNS::WhileExpr>(Span(span_start, span_end), std::move(cond), std::move(body));
+
+        }
         // bin {{{3
         Maybe<std::unique_ptr<ASTNS::Expr>> bin_expr(std::unique_ptr<ASTNS::Expr> left, Located<TokenData> const &op) {
             TRY(right, std::unique_ptr<ASTNS::Expr>, expr(precedence_of(op.value)));
