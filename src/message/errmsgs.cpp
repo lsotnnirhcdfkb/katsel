@@ -122,41 +122,31 @@ void E0010(Span const &tok) {
     e.report();
 }
 
-// E0011 - expected-decl
-// | Expected a declaration
-void E0011(Span const &should_be_decl) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, should_be_decl, "E0011", "expected-decl");
-    auto sect = std::make_unique<Errors::Sections::Underlines>();
-    sect->messages.push_back(Errors::Sections::Underlines::Message { should_be_decl, '^', "expected a declaration", A_BOLD });
-    e.section(std::move(sect));
-    e.report();
-}
-
-// E0012 - expected
+// E0011 - expected
 // | Expected something
-void E0012(Span const &expected, std::string const &name) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, expected, "E0012", "expected");
+void E0011(Span const &expected, std::string const &name) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, expected, "E0011", "expected");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { expected, '^', format("expected {}", name), A_BOLD });
     e.section(std::move(sect));
     e.report();
 }
 
-// E0013 - expected-impl-member
+// E0012 - expected-impl-member
 // | Expected an 'impl' member
-void E0013(Span const &not_member) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, not_member, "E0013", "expected-impl-member");
+void E0012(Span const &not_member) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, not_member, "E0012", "expected-impl-member");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { not_member, '^', "expected an 'impl' member", A_BOLD });
     e.section(std::move(sect));
     e.report();
 }
 
-// E0014 - lhs-unsupported-op
+// E0013 - lhs-unsupported-op
 // | Left hand side of binary expression does not support
 // | operator
-void E0014(Located<NNPtr<IR::Value>> const &lhs, Span const &op) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, op, "E0014", "lhs-unsupported-op");
+void E0013(Located<NNPtr<IR::Value>> const &lhs, Span const &op) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, op, "E0013", "lhs-unsupported-op");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { lhs.span, '^', format("lhs is of type {}", lhs.value->type()), A_BOLD });
     sect->messages.push_back(Errors::Sections::Underlines::Message { op, '^', "unsupported binary operator for left operand", A_BOLD });
@@ -164,10 +154,10 @@ void E0014(Located<NNPtr<IR::Value>> const &lhs, Span const &op) {
     e.report();
 }
 
-// E0015 - unary-unsupported-op
+// E0014 - unary-unsupported-op
 // | Operand of unary expression does not support operator
-void E0015(Located<NNPtr<IR::Value>> const &operand, Located<ASTNS::UnaryOperator> const &op) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, op.span, "E0015", "unary-unsupported-op");
+void E0014(Located<NNPtr<IR::Value>> const &operand, Located<ASTNS::UnaryOperator> const &op) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, op.span, "E0014", "unary-unsupported-op");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { operand.span, '^', format("operand is of type {}", operand.value->type()), A_BOLD });
     sect->messages.push_back(Errors::Sections::Underlines::Message { op.span, '^', "unsupported unary operator", A_BOLD });
@@ -175,10 +165,10 @@ void E0015(Located<NNPtr<IR::Value>> const &operand, Located<ASTNS::UnaryOperato
     e.report();
 }
 
-// E0016 - call-noncallable
+// E0015 - call-noncallable
 // | Non-callable value called
-void E0016(Located<NNPtr<IR::Value>> const &func, Span const &oparn) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, oparn, "E0016", "call-noncallable");
+void E0015(Located<NNPtr<IR::Value>> const &func, Span const &oparn) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, oparn, "E0015", "call-noncallable");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { func.span, '^', "calling of non-callable value", A_BOLD });
     sect->messages.push_back(Errors::Sections::Underlines::Message { func.span, '^', format("value of type {}", func.value->type()), A_BOLD });
@@ -186,10 +176,10 @@ void E0016(Located<NNPtr<IR::Value>> const &func, Span const &oparn) {
     e.report();
 }
 
-// E0017 - incorrect-arg
+// E0016 - incorrect-arg
 // | Incorrect argument to function call
-void E0017(Located<NNPtr<IR::Value>> const &arg, IR::Type const &expected) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, arg.span, "E0017", "incorrect-arg");
+void E0016(Located<NNPtr<IR::Value>> const &arg, IR::Type const &expected) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, arg.span, "E0016", "incorrect-arg");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { arg.span, '^', "invalid argument to function call", A_BOLD });
     sect->messages.push_back(Errors::Sections::Underlines::Message { arg.span, '^', format("argument is of type {}", arg.value->type()), A_BOLD });
@@ -198,10 +188,10 @@ void E0017(Located<NNPtr<IR::Value>> const &arg, IR::Type const &expected) {
     e.report();
 }
 
-// E0018 - confl-tys-ifexpr
+// E0017 - confl-tys-ifexpr
 // | Conflicting types for branches of if expression
-void E0018(Located<NNPtr<IR::Value>> const &truev, Located<NNPtr<IR::Value>> const &falsev, Span const &iftok, Span const &elsetok) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, iftok, "E0018", "confl-tys-ifexpr");
+void E0017(Located<NNPtr<IR::Value>> const &truev, Located<NNPtr<IR::Value>> const &falsev, Span const &iftok, Span const &elsetok) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, iftok, "E0017", "confl-tys-ifexpr");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { iftok, '^', "conflicting types for branches of if expression", A_BOLD });
     sect->messages.push_back(Errors::Sections::Underlines::Message { truev.span, '~', format("{}", truev.value->type()), A_BOLD });
@@ -210,10 +200,10 @@ void E0018(Located<NNPtr<IR::Value>> const &truev, Located<NNPtr<IR::Value>> con
     e.report();
 }
 
-// E0019 - assign-conflict-tys
+// E0018 - assign-conflict-tys
 // | Assignment target and value do not have same type
-void E0019(Located<NNPtr<IR::Value>> const &lhs, Located<NNPtr<IR::Value>> const &rhs, Span const &eq) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, eq, "E0019", "assign-conflict-tys");
+void E0018(Located<NNPtr<IR::Value>> const &lhs, Located<NNPtr<IR::Value>> const &rhs, Span const &eq) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, eq, "E0018", "assign-conflict-tys");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { eq, '^', "conflicting types for assignment", A_BOLD });
     sect->messages.push_back(Errors::Sections::Underlines::Message { lhs.span, '~', format("{}", lhs.value->type()), A_BOLD });
@@ -222,10 +212,10 @@ void E0019(Located<NNPtr<IR::Value>> const &lhs, Located<NNPtr<IR::Value>> const
     e.report();
 }
 
-// E0020 - conflict-ret-ty
+// E0019 - conflict-ret-ty
 // | Conflicting return types
-void E0020(Located<NNPtr<IR::Value>> const &val, IR::Function const &f) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, val.span, "E0020", "conflict-ret-ty");
+void E0019(Located<NNPtr<IR::Value>> const &val, IR::Function const &f) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, val.span, "E0019", "conflict-ret-ty");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { val.span, '^', "conflicting return type", A_BOLD });
     sect->messages.push_back(Errors::Sections::Underlines::Message { val.span, '^', format("returning {}", val.value->type()), A_BOLD });
@@ -234,20 +224,20 @@ void E0020(Located<NNPtr<IR::Value>> const &val, IR::Function const &f) {
     e.report();
 }
 
-// E0021 - no-deref
+// E0020 - no-deref
 // | Cannot dereference non-pointer
-void E0021(Span const &op, Located<NNPtr<IR::Value>> const &val) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, val.span, "E0021", "no-deref");
+void E0020(Span const &op, Located<NNPtr<IR::Value>> const &val) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, val.span, "E0020", "no-deref");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { op, '^', format("dereferencing of non-pointer type {}", val.value->type()), A_BOLD });
     e.section(std::move(sect));
     e.report();
 }
 
-// E0022 - conflict-var-init-ty
+// E0021 - conflict-var-init-ty
 // | Conflicting type for variable initialization
-void E0022(Span const &eq, Span const &name, ASTNS::Type const &type_ast, Located<NNPtr<IR::Value>> const &init, IR::Type const &expected_type) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, eq, "E0022", "conflict-var-init-ty");
+void E0021(Span const &eq, Span const &name, ASTNS::Type const &type_ast, Located<NNPtr<IR::Value>> const &init, IR::Type const &expected_type) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, eq, "E0021", "conflict-var-init-ty");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { init.span, '^', "conflicting types for variable initialization", A_BOLD });
     sect->messages.push_back(Errors::Sections::Underlines::Message { init.span, '^', format("{}", init.value->type()), A_BOLD });
@@ -256,20 +246,20 @@ void E0022(Span const &eq, Span const &name, ASTNS::Type const &type_ast, Locate
     e.report();
 }
 
-// E0023 - invalid-cast
+// E0022 - invalid-cast
 // | Invalid cast
-void E0023(ASTNS::AST const &ast, Located<NNPtr<IR::Value>> v, IR::Type const &newty) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, ast, "E0023", "invalid-cast");
+void E0022(ASTNS::AST const &ast, Located<NNPtr<IR::Value>> v, IR::Type const &newty) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, ast, "E0022", "invalid-cast");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { ast, '^', format("invalid cast from {} to {}", v.value->type(), newty), A_BOLD });
     e.section(std::move(sect));
     e.report();
 }
 
-// E0024 - conflict-tys-binary-op
+// E0023 - conflict-tys-binary-op
 // | Conflicting types to binary operator
-void E0024(Located<NNPtr<IR::Value>> const &lhs, Located<NNPtr<IR::Value>> const &rhs, Span const &op) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, op, "E0024", "conflict-tys-binary-op");
+void E0023(Located<NNPtr<IR::Value>> const &lhs, Located<NNPtr<IR::Value>> const &rhs, Span const &op) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, op, "E0023", "conflict-tys-binary-op");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { lhs.span, '~', format("{}", lhs.value->type()), A_BOLD });
     sect->messages.push_back(Errors::Sections::Underlines::Message { rhs.span, '~', format("{}", rhs.value->type()), A_BOLD });
@@ -278,21 +268,21 @@ void E0024(Located<NNPtr<IR::Value>> const &lhs, Located<NNPtr<IR::Value>> const
     e.report();
 }
 
-// E0025 - cond-not-bool
+// E0024 - cond-not-bool
 // | Using a non-bool value as a condition
-void E0025(Located<NNPtr<IR::Value>> const &v) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, v.span, "E0025", "cond-not-bool");
+void E0024(Located<NNPtr<IR::Value>> const &v) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, v.span, "E0024", "cond-not-bool");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { v.span, '^', format("usage of {} as condition", v.value->type()), A_BOLD });
     e.section(std::move(sect));
     e.report();
 }
 
-// E0026 - ptr-arith-rhs-not-num
+// E0025 - ptr-arith-rhs-not-num
 // | Cannot do pointer arithmetic with non-integer as right-hand-
 // | side of expression
-void E0026(Located<NNPtr<IR::Value>> const &lhs, Located<ASTNS::BinaryOperator> const &optok, Located<NNPtr<IR::Value>> const &rhs) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, optok.span, "E0026", "ptr-arith-rhs-not-num");
+void E0025(Located<NNPtr<IR::Value>> const &lhs, Located<ASTNS::BinaryOperator> const &optok, Located<NNPtr<IR::Value>> const &rhs) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, optok.span, "E0025", "ptr-arith-rhs-not-num");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { rhs.span, '~', format("{}", rhs.value->type()), A_BOLD });
     sect->messages.push_back(Errors::Sections::Underlines::Message { optok.span, '^', "pointer arithmetic requires an integral right-hand operand", A_BOLD });
@@ -300,10 +290,10 @@ void E0026(Located<NNPtr<IR::Value>> const &lhs, Located<ASTNS::BinaryOperator> 
     e.report();
 }
 
-// E0027 - no-else-not-void
+// E0026 - no-else-not-void
 // | If expression with non-void true expression and no else case
-void E0027(Located<NNPtr<IR::Value>> const &truev, Span const &iftok) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, iftok, "E0027", "no-else-not-void");
+void E0026(Located<NNPtr<IR::Value>> const &truev, Span const &iftok) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, iftok, "E0026", "no-else-not-void");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { iftok, '^', "if expression with non-void true expression and no else case", A_BOLD });
     sect->messages.push_back(Errors::Sections::Underlines::Message { truev.span, '~', format("{}", truev.value->type()), A_BOLD });
@@ -311,20 +301,20 @@ void E0027(Located<NNPtr<IR::Value>> const &truev, Span const &iftok) {
     e.report();
 }
 
-// E0028 - typeless-this
+// E0027 - typeless-this
 // | 'this' parameter used outside of impl or class block
-void E0028(ASTNS::ThisParam const &p) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, p, "E0028", "typeless-this");
+void E0027(ASTNS::ThisParam const &p) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, p, "E0027", "typeless-this");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { p, '^', "'this' parameter not allowed outside of impl or class block", A_BOLD });
     e.section(std::move(sect));
     e.report();
 }
 
-// E0029 - wrong-num-args
+// E0028 - wrong-num-args
 // | Wrong number of arguments to function call
-void E0029(IR::Function const &func, ASTNS::AST const &func_ref_ast, Span const &oparn, std::vector<Located<NNPtr<IR::Value>>> const &args) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, oparn, "E0029", "wrong-num-args");
+void E0028(IR::Function const &func, ASTNS::AST const &func_ref_ast, Span const &oparn, std::vector<Located<NNPtr<IR::Value>>> const &args) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, oparn, "E0028", "wrong-num-args");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { oparn, '^', "wrong number of arguments to function call", A_BOLD });
     sect->messages.push_back(Errors::Sections::Underlines::Message { func.def_span(), '~', format("function expects {} arguments, but got {} arguments", func.ty->paramtys.size(), args.size()), A_BOLD });
@@ -332,10 +322,10 @@ void E0029(IR::Function const &func, ASTNS::AST const &func_ref_ast, Span const 
     e.report();
 }
 
-// E0030 - redecl-sym
+// E0029 - redecl-sym
 // | Symbol was redeclared
-void E0030(Span const &name, IR::Value const &val) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, name, "E0030", "redecl-sym");
+void E0029(Span const &name, IR::Value const &val) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, name, "E0029", "redecl-sym");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { name, '^', "redeclaration of symbol", A_BOLD });
     if (IR::DeclaredValue const *as_declared = dynamic_cast<IR::DeclaredValue const *>(&val))
@@ -344,20 +334,20 @@ void E0030(Span const &name, IR::Value const &val) {
     e.report();
 }
 
-// E0031 - undecl-symb
+// E0030 - undecl-symb
 // | Usage of undeclared symbol
-void E0031(Span const &path) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, path, "E0031", "undecl-symb");
+void E0030(Span const &path) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, path, "E0030", "undecl-symb");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { path, '^', "undeclared symbol", A_BOLD });
     e.section(std::move(sect));
     e.report();
 }
 
-// E0032 - redecl-param
+// E0031 - redecl-param
 // | Redeclaraion of parameter in function declaration
-void E0032(ASTNS::ParamB const &param, IR::Register const &prev) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, param, "E0032", "redecl-param");
+void E0031(ASTNS::ParamB const &param, IR::Register const &prev) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, param, "E0031", "redecl-param");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { param, '^', "redeclaration of parameter", A_BOLD });
     sect->messages.push_back(Errors::Sections::Underlines::Message { prev.def_span(), '~', "previous declaration", A_BOLD });
@@ -365,10 +355,10 @@ void E0032(ASTNS::ParamB const &param, IR::Register const &prev) {
     e.report();
 }
 
-// E0033 - redecl-var
+// E0032 - redecl-var
 // | Redeclaration of variable
-void E0033(Span const &name, IR::Register const &prev) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, name, "E0033", "redecl-var");
+void E0032(Span const &name, IR::Register const &prev) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, name, "E0032", "redecl-var");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { name, '^', "redeclaration of variable", A_BOLD });
     sect->messages.push_back(Errors::Sections::Underlines::Message { prev.def_span(), '~', "previous declaration", A_BOLD });
@@ -376,10 +366,10 @@ void E0033(Span const &name, IR::Register const &prev) {
     e.report();
 }
 
-// E0034 - not-a-type
+// E0033 - not-a-type
 // | Expected a type but path resolved to something else
-void E0034(Span const &notty, ASTNS::AST const &decl_ast) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, notty, "E0034", "not-a-type");
+void E0033(Span const &notty, ASTNS::AST const &decl_ast) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, notty, "E0033", "not-a-type");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { notty, '^', "not a type", A_BOLD });
     sect->messages.push_back(Errors::Sections::Underlines::Message { decl_ast, '~', "declared here", A_BOLD });
@@ -387,70 +377,70 @@ void E0034(Span const &notty, ASTNS::AST const &decl_ast) {
     e.report();
 }
 
-// E0035 - no-member-in
+// E0034 - no-member-in
 // | No member of a certain name within another member
-void E0035(IR::DeclSymbol const &prev, Span const &current) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, current, "E0035", "no-member-in");
+void E0034(IR::DeclSymbol const &prev, Span const &current) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, current, "E0034", "no-member-in");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { current, '^', format("no member called {} in {}", current.stringify(), prev), A_BOLD });
     e.section(std::move(sect));
     e.report();
 }
 
-// E0036 - no-this
+// E0035 - no-this
 // | Usage of 'this' outside method
-void E0036(Span const &th) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, th, "E0036", "no-this");
+void E0035(Span const &th) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, th, "E0035", "no-this");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { th, '^', "usage of 'this' outside method", A_BOLD });
     e.section(std::move(sect));
     e.report();
 }
 
-// E0037 - no-method
+// E0036 - no-method
 // | Accessing a method that doesn't exist
-void E0037(Located<NNPtr<IR::Value>> const &op, Span const &name) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, name, "E0037", "no-method");
+void E0036(Located<NNPtr<IR::Value>> const &op, Span const &name) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, name, "E0036", "no-method");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { name, '^', format("no method called '{}' on value of type {}", name.stringify(), op.value->type()), A_BOLD });
     e.section(std::move(sect));
     e.report();
 }
 
-// E0038 - no-field
+// E0037 - no-field
 // | Accessing a field that doesn't exist
-void E0038(Located<NNPtr<IR::Value>> const &op, Span const &name) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, name, "E0038", "no-field");
+void E0037(Located<NNPtr<IR::Value>> const &op, Span const &name) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, name, "E0037", "no-field");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { name, '^', format("no field called '{}' on value of type {}", name.stringify(), op.value->type()), A_BOLD });
     e.section(std::move(sect));
     e.report();
 }
 
-// E0039 - addrof-not-lvalue
+// E0038 - addrof-not-lvalue
 // | Taking an address of a non-lvalue is impossible
-void E0039(Span const &op, Located<NNPtr<IR::Value>> const &val) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, val.span, "E0039", "addrof-not-lvalue");
+void E0038(Span const &op, Located<NNPtr<IR::Value>> const &val) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, val.span, "E0038", "addrof-not-lvalue");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { op, '^', "taking address of non-lvalue", A_BOLD });
     e.section(std::move(sect));
     e.report();
 }
 
-// E0040 - assign-invalid-lhs
+// E0039 - assign-invalid-lhs
 // | Invalid assignment target
-void E0040(Span const &eq, Located<NNPtr<IR::Value>> const &lhs) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, eq, "E0040", "assign-invalid-lhs");
+void E0039(Span const &eq, Located<NNPtr<IR::Value>> const &lhs) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, eq, "E0039", "assign-invalid-lhs");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { eq, '^', "non-lvalue assignment", A_BOLD });
     e.section(std::move(sect));
     e.report();
 }
 
-// E0041 - assign-not-mut
+// E0040 - assign-not-mut
 // | Cannot assign to non-mutable lvalue
-void E0041(Located<NNPtr<IR::Value>> const &v, Span const &eq, IR::Register const &reg) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, v.span, "E0041", "assign-not-mut");
+void E0040(Located<NNPtr<IR::Value>> const &v, Span const &eq, IR::Register const &reg) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, v.span, "E0040", "assign-not-mut");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { eq, '^', "cannot assign to immutable lvalue", A_BOLD });
     if (IR::DeclaredValue const *as_declared = dynamic_cast<IR::DeclaredValue const *>(&reg))
@@ -459,10 +449,10 @@ void E0041(Located<NNPtr<IR::Value>> const &v, Span const &eq, IR::Register cons
     e.report();
 }
 
-// E0042 - mut-addrof-nonmut-op
+// E0041 - mut-addrof-nonmut-op
 // | Cannot take a mutable pointer to non-mutable lvalue
-void E0042(Span const &op, IR::Register const &reg) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, op, "E0042", "mut-addrof-nonmut-op");
+void E0041(Span const &op, IR::Register const &reg) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, op, "E0041", "mut-addrof-nonmut-op");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { op, '^', "cannot take mutable pointer to non-mutable lvalue", A_BOLD });
     if (IR::DeclaredValue const *as_declared = dynamic_cast<IR::DeclaredValue const *>(&reg))
@@ -471,21 +461,21 @@ void E0042(Span const &op, IR::Register const &reg) {
     e.report();
 }
 
-// E0043 - no-suppress
+// E0042 - no-suppress
 // | Cannot suppress an expression that is not the implicit
 // | return value of a block
-void E0043(Span const &dollar) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, dollar, "E0043", "no-suppress");
+void E0042(Span const &dollar) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, dollar, "E0042", "no-suppress");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { dollar, '^', "implicit return suppression not allowed here", A_BOLD });
     e.section(std::move(sect));
     e.report();
 }
 
-// E0044 - this-not-first
+// E0043 - this-not-first
 // | 'this' parameter is not the first parameter of a method
-void E0044(ASTNS::ThisParam const &ast) {
-    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, ast, "E0044", "this-not-first");
+void E0043(ASTNS::ThisParam const &ast) {
+    Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, ast, "E0043", "this-not-first");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { ast, '^', "'this' parameter must be the first parameter of a method", A_BOLD });
     e.section(std::move(sect));

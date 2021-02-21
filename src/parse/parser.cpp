@@ -59,7 +59,7 @@ namespace {
             else if (consume_if<Tokens::Impl>())
                 return impl_decl();
             else {
-                ERR_EXPECTED_DECL(peek().span);
+                ERR_EXPECTED(peek().span, "declaration");
                 return Maybe<std::unique_ptr<ASTNS::Decl>>();
             }
         }

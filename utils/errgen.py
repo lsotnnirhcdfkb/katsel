@@ -120,12 +120,6 @@ errors = [
             highlights=[
                 SimpleHighlight('tok', UNDER0, [('error', '"non-newline after line continuation backslash"')]),
             ]),
-        Msg('expected-decl',
-            desc='Expected a declaration',
-            inputs='Span const &should_be_decl', location='should_be_decl',
-            highlights=[
-                SimpleHighlight('should_be_decl', UNDER0, [('error', '"expected a declaration"')]),
-            ]),
         Msg('expected',
             desc='Expected something',
             inputs='Span const &expected, std::string const &name', location='expected',
