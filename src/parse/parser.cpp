@@ -70,7 +70,9 @@ namespace {
             TRY(name, std::unique_ptr<ASTNS::FunctionDecl>, expect<Tokens::Identifier>("function name"));
 
             TRY(oparen, std::unique_ptr<ASTNS::FunctionDecl>, expect<Tokens::OParen>("'('"));
+
             // TODO: parameters
+
             // TODO: use "unclosed (" instead of "expected ')'"
             TRY(cparen, std::unique_ptr<ASTNS::FunctionDecl>, expect<Tokens::CParen>("')'"));
 
@@ -565,12 +567,17 @@ namespace {
         }
         // call & field access & method call {{{3
         Maybe<std::unique_ptr<ASTNS::Expr>> call_expr(std::unique_ptr<ASTNS::Expr> callee, Located<TokenData> const &oparen) {
-            // TODO: args
+            std::vector<std::unique_ptr<ASTNS::Expr>> call_args;
+            if (!Tokens::is<Tokens::CParen>(peek().value)) {
+                TRY(_args, std::unique_ptr<ASTNS::Expr>, args());
+                call_args = std::move(_args);
+            }
+
             TRY(cparen, std::unique_ptr<ASTNS::Expr>, expect<Tokens::CParen>("')'"));
 
             Located<Tokens::OParen> oparen_downcasted { oparen.span, Tokens::as<Tokens::OParen>(oparen.value) };
 
-            return std::make_unique<ASTNS::CallExpr>(Span(callee->span().get().start, cparen.span.end), std::move(callee), oparen_downcasted, std::vector<std::unique_ptr<ASTNS::Expr>> {});
+            return std::make_unique<ASTNS::CallExpr>(Span(callee->span().get().start, cparen.span.end), std::move(callee), oparen_downcasted, std::move(call_args));
         }
         Maybe<std::unique_ptr<ASTNS::Expr>> field_or_method_call_expr(std::unique_ptr<ASTNS::Expr> operand, Located<TokenData> const &dot) {
             TRY(name, std::unique_ptr<ASTNS::Expr>, expect<Tokens::Identifier>("field or method name"));
@@ -580,13 +587,30 @@ namespace {
 
             if (consume_if<Tokens::OParen>()) {
                 Located<Tokens::OParen> oparen_downcasted { prev().get().span, Tokens::as<Tokens::OParen>(prev().get().value) };
-                // TODO: args
+
+                std::vector<std::unique_ptr<ASTNS::Expr>> call_args;
+                if (!Tokens::is<Tokens::CParen>(peek().value)) {
+                    TRY(_args, std::unique_ptr<ASTNS::Expr>, args());
+                    call_args = std::move(_args);
+                }
+
                 TRY(cparen, std::unique_ptr<ASTNS::Expr>, expect<Tokens::CParen>("')'"));
 
-                return std::make_unique<ASTNS::MethodCallExpr>(Span(span_left, cparen.span.end), std::move(operand), dot_downcasted, name, oparen_downcasted, std::vector<std::unique_ptr<ASTNS::Expr>> {});
+                return std::make_unique<ASTNS::MethodCallExpr>(Span(span_left, cparen.span.end), std::move(operand), dot_downcasted, name, oparen_downcasted, std::move(call_args));
             } else {
                 return std::make_unique<ASTNS::FieldAccessExpr>(Span(span_left, name.span.end), std::move(operand), dot_downcasted, name);
             }
+        }
+        // args {{{3
+        Maybe<std::vector<std::unique_ptr<ASTNS::Expr>>> args() {
+            std::vector<std::unique_ptr<ASTNS::Expr>> res;
+
+            do {
+                TRY(arg, std::vector<std::unique_ptr<ASTNS::Expr>>, expr(Precedence::NONE));
+                res.push_back(std::move(arg));
+            } while (consume_if<Tokens::Comma>());
+
+            return res;
         }
         // primary {{{3
         Maybe<std::unique_ptr<ASTNS::Expr>> primary_expr(Located<TokenData> const &prev) {
