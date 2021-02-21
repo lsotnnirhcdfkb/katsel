@@ -343,7 +343,7 @@ namespace {
         }
         // path {{{3
         Maybe<std::unique_ptr<ASTNS::PathType>> path_type(std::string const &what) {
-            TRY(path, std::unique_ptr<ASTNS::PathType>, path_no_first());
+            TRY(path, std::unique_ptr<ASTNS::PathType>, path());
             return std::make_unique<ASTNS::PathType>(path->span(), std::move(path));
         }
         // params {{{2
@@ -408,8 +408,8 @@ namespace {
             CALL_FIELD_METHOD = 13,
         };
 
-        using PrefixParseFun = Maybe<std::unique_ptr<ASTNS::Expr>> (Parser::*)(Located<TokenData> const &);
-        using InfixParseFun = Maybe<std::unique_ptr<ASTNS::Expr>> (Parser::*)(std::unique_ptr<ASTNS::Expr>, Located<TokenData> const &);
+        using PrefixParseFun = Maybe<std::unique_ptr<ASTNS::Expr>> (Parser::*)();
+        using InfixParseFun = Maybe<std::unique_ptr<ASTNS::Expr>> (Parser::*)(std::unique_ptr<ASTNS::Expr>);
         std::map<size_t, PrefixParseFun> prefix_parsers = std::initializer_list<std::map<size_t, PrefixParseFun>::value_type> {
             {Tokens::index_of<Tokens::OParen>    , &Parser::primary_expr},
             {Tokens::index_of<Tokens::FloatLit>  , &Parser::primary_expr},
@@ -459,7 +459,6 @@ namespace {
         // main expr function {{{3
         Maybe<std::unique_ptr<ASTNS::Expr>> expr(Precedence prec) {
             auto next (peek());
-            consume();
 
             auto pf = prefix_parsers.find(next.value.index());
             if (pf == prefix_parsers.end()) {
@@ -467,7 +466,7 @@ namespace {
                 return Maybe<std::unique_ptr<ASTNS::Expr>>();
             }
 
-            TRY(left, std::unique_ptr<ASTNS::Expr>, (this->*(pf->second))(next));
+            TRY(left, std::unique_ptr<ASTNS::Expr>, (this->*(pf->second))());
 
             while (precedence_of(peek().value) > prec) {
                 auto infix_token (peek());
@@ -476,8 +475,7 @@ namespace {
                 if (infix_parser == infix_parsers.end())
                     break;
 
-                consume();
-                TRY(_left, std::unique_ptr<ASTNS::Expr>, (this->*(infix_parser->second.second))(std::move(left), infix_token));
+                TRY(_left, std::unique_ptr<ASTNS::Expr>, (this->*(infix_parser->second.second))(std::move(left)));
                 left = std::move(_left);
             }
 
@@ -493,20 +491,19 @@ namespace {
                 return infix_parser->second.first;
         }
         // if {{{3
-        Maybe<std::unique_ptr<ASTNS::Expr>> if_expr(Located<TokenData> const &if_tok) {
-            Located<Tokens::If> if_downcasted { if_tok.span, Tokens::as<Tokens::If>(if_tok.value) };
+        Maybe<std::unique_ptr<ASTNS::Expr>> if_expr() {
+            Located<Tokens::If> if_tok = assert_expect<Tokens::If>();
 
             TRY(cond, std::unique_ptr<ASTNS::Expr>, expr(Precedence::NONE));
             TRY(if_branch, std::unique_ptr<ASTNS::Expr>, blocked(&Parser::stmt_list));
 
-            Maybe<Located<Tokens::Else>> else_downcasted;
+            Maybe<Located<Tokens::Else>> else_tok;
             std::unique_ptr<ASTNS::Expr> else_branch;
             if (consume_if<Tokens::Else>()) {
-                else_downcasted = Located<Tokens::Else> { prev().get().span, Tokens::as<Tokens::Else>(prev().get().value) };
+                else_tok = Located<Tokens::Else> { prev().get().span, Tokens::as<Tokens::Else>(prev().get().value) };
 
                 if (Tokens::is<Tokens::If>(peek().value)) {
-                    consume();
-                    TRY(_else_branch, std::unique_ptr<ASTNS::Expr>, if_expr(prev().get()));
+                    TRY(_else_branch, std::unique_ptr<ASTNS::Expr>, if_expr());
                     else_branch = std::move(_else_branch);
                 } else {
                     TRY(_else_branch, std::unique_ptr<ASTNS::Expr>, blocked(&Parser::stmt_list));
@@ -514,12 +511,14 @@ namespace {
                 }
             }
 
-            Location span_start (if_downcasted.span.start);
+            Location span_start (if_tok.span.start);
             Location span_end (else_branch ? else_branch->span().get().end : if_branch->span().get().end);
-            return std::make_unique<ASTNS::IfExpr>(Span(span_start, span_end), if_downcasted, else_downcasted, std::move(cond), std::move(if_branch), std::move(else_branch));
+            return std::make_unique<ASTNS::IfExpr>(Span(span_start, span_end), if_tok, else_tok, std::move(cond), std::move(if_branch), std::move(else_branch));
         }
         // while {{{3
-        Maybe<std::unique_ptr<ASTNS::Expr>> while_expr(Located<TokenData> const &while_tok) {
+        Maybe<std::unique_ptr<ASTNS::Expr>> while_expr() {
+            Located<Tokens::While> while_tok = assert_expect<Tokens::While>();
+
             TRY(cond, std::unique_ptr<ASTNS::Expr>, expr(Precedence::NONE));
             TRY(body, std::unique_ptr<ASTNS::Expr>, blocked(&Parser::stmt_list));
 
@@ -529,7 +528,10 @@ namespace {
 
         }
         // bin {{{3
-        Maybe<std::unique_ptr<ASTNS::Expr>> bin_expr(std::unique_ptr<ASTNS::Expr> left, Located<TokenData> const &op) {
+        Maybe<std::unique_ptr<ASTNS::Expr>> bin_expr(std::unique_ptr<ASTNS::Expr> left) {
+            auto op = peek();
+            consume();
+
             TRY(right, std::unique_ptr<ASTNS::Expr>, expr(precedence_of(op.value)));
             Span total_span (left->span().get().start, right->span().get().end);
 
@@ -561,7 +563,10 @@ namespace {
             }
         }
 
-        Maybe<std::unique_ptr<ASTNS::Expr>> assign_expr(std::unique_ptr<ASTNS::Expr> left, Located<TokenData> const &op) {
+        Maybe<std::unique_ptr<ASTNS::Expr>> assign_expr(std::unique_ptr<ASTNS::Expr> left) {
+            auto op = peek();
+            consume();
+
             TRY(right, std::unique_ptr<ASTNS::Expr>, expr(Precedence::NONE));
             Span total_span (left->span().get().start, right->span().get().end);
 
@@ -579,12 +584,16 @@ namespace {
         }
 
         // cast {{{3
-        Maybe<std::unique_ptr<ASTNS::Expr>> cast_expr(std::unique_ptr<ASTNS::Expr> operand, Located<TokenData> const &op) {
+        Maybe<std::unique_ptr<ASTNS::Expr>> cast_expr(std::unique_ptr<ASTNS::Expr> operand) {
+            assert_expect<Tokens::RightArrow>();
             TRY(type, std::unique_ptr<ASTNS::Expr>, type("cast target"));
             return std::make_unique<ASTNS::CastExpr>(Span(operand->span().get().start, type->span().get().end), std::move(type), std::move(operand));
         }
         // unary {{{3
-        Maybe<std::unique_ptr<ASTNS::Expr>> unary_expr(Located<TokenData> const &prev) {
+        Maybe<std::unique_ptr<ASTNS::Expr>> unary_expr() {
+            auto prev = peek();
+            consume();
+
             TRY(operand, std::unique_ptr<ASTNS::Expr>, expr(Precedence::UNARY));
 
             Span span (prev.span.start, operand->span().get().end);
@@ -612,7 +621,9 @@ namespace {
             return std::make_unique<ASTNS::UnaryExpr>(span, Located<ASTNS::UnaryOperator> { prev.span, op }, std::move(operand));
         }
         // addrof {{{3
-        Maybe<std::unique_ptr<ASTNS::Expr>> addrof_expr(Located<TokenData> const &amper) {
+        Maybe<std::unique_ptr<ASTNS::Expr>> addrof_expr() {
+            auto amper = assert_expect<Tokens::Amper>();
+
             bool mut = consume_if<Tokens::Mut>();
 
             TRY(operand, std::unique_ptr<ASTNS::Expr>, expr(Precedence::UNARY));
@@ -622,7 +633,9 @@ namespace {
             return std::make_unique<ASTNS::AddrofExpr>(total, amper_tok, std::move(operand), mut);
         }
         // call & field access & method call {{{3
-        Maybe<std::unique_ptr<ASTNS::Expr>> call_expr(std::unique_ptr<ASTNS::Expr> callee, Located<TokenData> const &oparen) {
+        Maybe<std::unique_ptr<ASTNS::Expr>> call_expr(std::unique_ptr<ASTNS::Expr> callee) {
+            auto oparen = assert_expect<Tokens::OParen>();
+
             std::vector<std::unique_ptr<ASTNS::Expr>> call_args;
             if (!Tokens::is<Tokens::CParen>(peek().value)) {
                 TRY(_args, std::unique_ptr<ASTNS::Expr>, args());
@@ -635,7 +648,9 @@ namespace {
 
             return std::make_unique<ASTNS::CallExpr>(Span(callee->span().get().start, cparen.span.end), std::move(callee), oparen_downcasted, std::move(call_args));
         }
-        Maybe<std::unique_ptr<ASTNS::Expr>> field_or_method_call_expr(std::unique_ptr<ASTNS::Expr> operand, Located<TokenData> const &dot) {
+        Maybe<std::unique_ptr<ASTNS::Expr>> field_or_method_call_expr(std::unique_ptr<ASTNS::Expr> operand) {
+            auto dot = assert_expect<Tokens::Period>();
+
             TRY(name, std::unique_ptr<ASTNS::Expr>, expect<Tokens::Identifier>("field or method name"));
             Location span_left (operand->span().get().start);
 
@@ -669,7 +684,10 @@ namespace {
             return res;
         }
         // primary {{{3
-        Maybe<std::unique_ptr<ASTNS::Expr>> primary_expr(Located<TokenData> const &prev) {
+        Maybe<std::unique_ptr<ASTNS::Expr>> primary_expr() {
+            auto prev = peek();
+            consume();
+
             switch (prev.value.index()) {
 #define A(a, b) \
     case Tokens::index_of<Tokens::a>: \
@@ -693,21 +711,17 @@ namespace {
             }
         }
         // path {{{3
-        Maybe<std::unique_ptr<ASTNS::Expr>> path_expr(Located<TokenData> const &first) {
-            TRY(path, std::unique_ptr<ASTNS::Expr>, path( Located<Tokens::Identifier> { first.span, Tokens::as<Tokens::Identifier>(first.value) }));
+        Maybe<std::unique_ptr<ASTNS::Expr>> path_expr() {
+            TRY(path, std::unique_ptr<ASTNS::Expr>, path());
             return std::make_unique<ASTNS::PathExpr>(path->span(), std::move(path));
         }
         // paths {{{2
-        Maybe<std::unique_ptr<ASTNS::Path>> path_no_first() {
-            TRY(first, std::unique_ptr<ASTNS::Path>, expect<Tokens::Identifier>("path"));
-            return path(first);
-        }
-        Maybe<std::unique_ptr<ASTNS::Path>> path(Located<Tokens::Identifier> const &first) {
-            std::vector<Located<Tokens::Identifier>> segments { first };
-            while (consume_if<Tokens::DoubleColon>()) {
+        Maybe<std::unique_ptr<ASTNS::Path>> path() {
+            std::vector<Located<Tokens::Identifier>> segments;
+            do {
                 TRY(seg, std::unique_ptr<ASTNS::Path>, expect<Tokens::Identifier>("path segment"))
                 segments.push_back(seg);
-            }
+            } while (consume_if<Tokens::DoubleColon>());
 
             return std::make_unique<ASTNS::Path>(span_from_vec(segments), std::move(segments));
         }
@@ -742,7 +756,7 @@ namespace {
         Maybe<Located<TokenData>> &prev() {
             return prev_token;
         }
-        // consume, consume_if, expect {{{3
+        // consume, consume_if, expect, assert_expect {{{3
         void consume() {
             prev_token = next_token;
 
@@ -788,6 +802,20 @@ namespace {
             } else {
                 ERR_EXPECTED(peek().span, what);
                 return Maybe<Located<TokenType>>();
+            }
+        }
+
+        template <typename TokenType>
+        Located<TokenType> assert_expect() {
+            if (peek().value.index() == Tokens::index_of<TokenType>) {
+                auto tok = peek();
+                auto tok_casted = Tokens::as<TokenType>(tok.value);
+                auto tok_span = Located<TokenType> { tok.span, tok_casted };
+                consume();
+
+                return tok_span;
+            } else {
+                report_abort_noh("assert_expect failed");
             }
         }
         // span {{{3
