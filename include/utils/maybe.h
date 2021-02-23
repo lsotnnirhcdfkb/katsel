@@ -9,8 +9,11 @@ class Maybe {
 public:
     Maybe(): data(not_t()) {}
 
-    template <typename U, typename = std::enable_if_t<std::is_constructible_v<T, U>>>
-    Maybe(U &&thing): data( with_t { std::forward<U>(thing) } ) {}
+    template <typename U, typename = std::enable_if_t<std::is_convertible_v<U, T>>>
+    Maybe(U &&thing): data(with_t { std::forward<U>(thing) }) {}
+
+    template <typename U, typename = std::enable_if_t<std::is_convertible_v<U, T>>>
+    Maybe(Maybe<U> &&thing): data(thing.has() ? static_cast<decltype(data)>(with_t { std::forward<U>(thing.get()) }) : static_cast<decltype(data)>(not_t {})) {}
 
     template <typename WithOp, typename NoOp, typename Ret = std::invoke_result_t<WithOp, T const &>>
     inline Ret match(WithOp withop, NoOp noop) const {

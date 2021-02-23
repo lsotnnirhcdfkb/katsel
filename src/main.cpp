@@ -18,6 +18,7 @@
 #include "ast/printvisitor.h"
 #include "codegen/codegen.h"
 #include "lower/lowerer.h"
+#include "utils/format.h"
 
 #include "llvm/Support/raw_ostream.h"
 
@@ -51,7 +52,7 @@ std::unique_ptr<File> read_file(std::string_view filename) {
 
         return std::make_unique<File>(File {std::string(filename), contents});
     } else {
-        std::perror("Could not open file");
+        std::perror(format("Could not open file {}", filename).c_str());
         return nullptr;
     }
 }
@@ -69,11 +70,11 @@ std::unique_ptr<File> read_file(std::string_view filename) {
 
 // compile a file {{{1
 int compile_file(OutFormats ofmt, std::string_view filename) {
-    auto source (read_file(filename));
-    if (!source)
+    auto file (read_file(filename));
+    if (!file)
         return false;
 
-    auto lexer = std::make_unique<Lexer>(*source);
+    auto lexer = std::make_unique<Lexer>(*file);
     if (ofmt == OutFormats::LEX) {
         OPENFILE(filename, ".lexed.txt");
         if (os.has_error())
@@ -91,11 +92,12 @@ int compile_file(OutFormats ofmt, std::string_view filename) {
         return true;
     }
 
-    auto parser = std::make_unique<Parser>(*lexer, *source);
-    std::unique_ptr<ASTNS::CUB> parsed = parser->parse();
+    auto m_parsed = Parse::parse(*lexer, *file);
 
-    if (!parsed)
+    if (!m_parsed.has())
         return false;
+
+    auto &parsed = m_parsed.get();
 
     if (ofmt == OutFormats::PARSE) {
         OPENFILE(filename, ".parsed.txt");
@@ -103,13 +105,13 @@ int compile_file(OutFormats ofmt, std::string_view filename) {
             return false;
 
         auto printv = std::make_unique<ASTNS::PrintVisitor>(os);
-        parsed->ast_accept(*printv); // dereference to use constructor NNPtr(T &other)
+        parsed->ast_accept(*printv);
 
         os.close();
         return true;
     }
 
-    auto m_unit = Codegen::codegen(*parsed);
+    auto m_unit = Codegen::codegen(*file, *parsed);
     if (!m_unit.has())
         return false;
 

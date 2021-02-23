@@ -50,18 +50,14 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::ShortCircuitExpr &ast) {
     NNPtr<IR::Block> checkboth = ir_builder->fun().add_block("shortcircuit_checkboth");
     NNPtr<IR::Block> after = ir_builder->fun().add_block("shortcircuit_after");
 
-    bool value_if_skipped;
-
     switch (ast.op.value) {
         case ASTNS::ShortCircuitOperator::DOUBLEPIPE:
             // jump to skip when true
             ir_builder->cur_block()->branch(std::make_unique<IR::Instrs::CondBr>(lhs, skip, checkboth));
-            value_if_skipped = true;
             break;
         case ASTNS::ShortCircuitOperator::DOUBLEAMPER:
             // jump to skip when false
             ir_builder->cur_block()->branch(std::make_unique<IR::Instrs::CondBr>(lhs, checkboth, skip));
-            value_if_skipped = false;
             break;
     }
 
@@ -166,8 +162,17 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::CallExpr &ast) {
         return;
     }
 
-    Codegen::Helpers::ArgVisitor av (*this, ast.args);
-    std::vector<Located<NNPtr<IR::Value>>> args (av.ret);
+    bool argserr = false;
+
+    std::vector<Located<NNPtr<IR::Value>>> args;
+    for (auto const &arg_ast : ast.args) {
+        auto maybe_arg = expr(*arg_ast);
+        if (maybe_arg.has()) {
+            args.push_back(maybe_arg.get());
+        } else {
+            argserr = true;
+        }
+    }
 
     if (args.size() != fty->paramtys.size()) {
         ERR_WRONG_NUM_ARGS(*static_cast<IR::Function const *>(fun.value.as_raw()), *ast.callee, ast.oparn.span, args);
@@ -175,7 +180,6 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::CallExpr &ast) {
         return;
     }
 
-    bool argserr = false;
     auto i = args.begin();
     auto j = fty->paramtys.begin();
     for (; i != args.end() && j != fty->paramtys.end(); ++i, ++j) {
@@ -396,10 +400,11 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::Block &ast) {
 
     ASTNS::AST &void_ast = ast.stmts.size() ? *static_cast<ASTNS::AST*>(ast.stmts[ast.stmts.size() - 1].get()) : *static_cast<ASTNS::AST*>(&ast);
 
-    if (ast.ret)
-        ret = expr(*ast.ret);
-    else
-        ret = Located<NNPtr<IR::Value>> { void_ast, ir_builder->context().get_void() };
+    // if (ast.ret)
+        // ret = expr(*ast.ret);
+    // else
+    // TODO: implicit returns, suppressed with ~
+    ret = Located<NNPtr<IR::Value>> { void_ast, ir_builder->context().get_void() };
 
     if (!stmt_cg.success)
         ret = Maybe<Located<NNPtr<IR::Value>>>();
@@ -467,8 +472,15 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::MethodCallExpr &ast) {
 
     std::vector<Located<NNPtr<IR::Value>>> args { this_arg };
 
-    Codegen::Helpers::ArgVisitor av (*this, ast.args);
-    args.insert(args.end(), av.ret.begin(), av.ret.end());
+    bool argserr = false;
+    for (auto const &arg_ast : ast.args) {
+        auto maybe_arg = expr(*arg_ast);
+        if (maybe_arg.has()) {
+            args.push_back(maybe_arg.get());
+        } else {
+            argserr = true;
+        }
+    }
 
     std::vector<NNPtr<IR::Type const>> &paramtys (method.fun->ty->paramtys);
     if (args.size() != paramtys.size()) {
@@ -478,7 +490,6 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::MethodCallExpr &ast) {
     }
 
     // TODO: move this code somewhere else so that it does not have to be copied and pasted from visiting call exprs
-    bool argserr = false;
     auto i = args.begin();
     auto j = paramtys.begin();
     for (; i != args.end() && j != paramtys.end(); ++i, ++j) {

@@ -18,8 +18,6 @@ class ASTSuperBase:
     def __init__(self):
         self.name ='AST'
 # Classes to generate {{{1
-def list_ast(name, type_, field_name):
-    return AST(name, 'ListB', f'std::vector<std::unique_ptr<{type_}>>|{field_name}')
 asts = [
     ASTSuperBase(),
     ASTBase('CUB'),
@@ -28,18 +26,9 @@ asts = [
     ASTBase('Stmt'),
     ASTBase('Expr'),
     ASTBase('Type'),
-    ASTBase('ArgB'),
     ASTBase('ParamB'),
     ASTBase('VStmtIB'),
     ASTBase('PathB'),
-
-    ASTBase('ListB'),
-    list_ast('DeclList', 'Decl', 'decls'),
-    list_ast('StmtList', 'Stmt', 'stmts'),
-    list_ast('ParamList', 'ParamB', 'params'),
-    list_ast('ArgList', 'Arg', 'args'),
-    list_ast('VarStmtItemList', 'VarStmtItem', 'items'),
-    list_ast('ImplMemberList', 'ImplMember', 'members'),
 
     # a class to keep track of locations of syntactic elements that don't matter (like
     # line endings where the location matters (so that other statements can use the line
@@ -58,8 +47,7 @@ asts = [
 
     AST('FunctionImplMember', 'ImplMember', 'std::unique_ptr<FunctionDecl>|fun'),
 
-    AST('VarStmt'           , 'Stmt', 'std::vector<std::unique_ptr<VarStmtItem>>|items'),
-    AST('VarStmtItem'       , 'VStmtIB', 'std::unique_ptr<Type>|type ! bool|mut ! Located<Tokens::Identifier>|name ! Maybe<Located<Tokens::Equal>>|equal ! std::unique_ptr<Expr>|expr'),
+    AST('VarStmt'           , 'Stmt', 'std::unique_ptr<Type>|type ! bool|mut ! Located<Tokens::Identifier>|name ! Maybe<Located<Tokens::Equal>>|equal ! std::unique_ptr<Expr>|expr'),
 
     AST('ExprStmt'          , 'Stmt', 'std::unique_ptr<Expr>|expr'),
     AST('RetStmt'           , 'Stmt', 'std::unique_ptr<Expr>|expr'),
@@ -68,12 +56,10 @@ asts = [
     AST('PointerType'       , 'Type', 'bool|mut ! std::unique_ptr<Type>|type'),
     AST('ThisType'          , 'Type', 'Located<Tokens::This>|th'),
 
-    AST('Arg'               , 'ArgB', 'std::unique_ptr<Expr>|expr'),
-
     AST('Param'             , 'ParamB', 'std::unique_ptr<Type>|type ! Located<Tokens::Identifier>|name ! bool|mut'),
     AST('ThisParam'         , 'ParamB', 'bool|ptr ! bool|mut'),
 
-    AST('Block'             , 'Expr', 'std::vector<std::unique_ptr<Stmt>>|stmts ! std::unique_ptr<Expr>|ret'),
+    AST('Block'             , 'Expr', 'std::vector<std::unique_ptr<Stmt>>|stmts'),
     AST('IfExpr'            , 'Expr', 'Located<Tokens::If>|iftok ! Maybe<Located<Tokens::Else>>|elsetok ! std::unique_ptr<Expr>|cond ! std::unique_ptr<Expr>|trues ! std::unique_ptr<Expr>|falses'),
     AST('WhileExpr'         , 'Expr', 'std::unique_ptr<Expr>|cond ! std::unique_ptr<Expr>|body'),
 
@@ -84,9 +70,9 @@ asts = [
     AST('UnaryExpr'         , 'Expr', 'Located<UnaryOperator>|op ! std::unique_ptr<Expr>|expr'),
     AST('AddrofExpr'        , 'Expr', 'Located<Tokens::Amper>|op ! std::unique_ptr<Expr>|expr ! bool|mut'),
     AST('DerefExpr'         , 'Expr', 'Located<Tokens::Star>|op ! std::unique_ptr<Expr>|expr'),
-    AST('CallExpr'          , 'Expr', 'std::unique_ptr<Expr>|callee ! Located<Tokens::OParen>|oparn ! std::vector<std::unique_ptr<Arg>>|args'),
+    AST('CallExpr'          , 'Expr', 'std::unique_ptr<Expr>|callee ! Located<Tokens::OParen>|oparn ! std::vector<std::unique_ptr<Expr>>|args'),
     AST('FieldAccessExpr'   , 'Expr', 'std::unique_ptr<Expr>|operand ! Located<Tokens::Period>|dot ! Located<Tokens::Identifier>|field'),
-    AST('MethodCallExpr'    , 'Expr', 'std::unique_ptr<Expr>|operand ! Located<Tokens::Period>|dot ! Located<Tokens::Identifier>|method ! Located<Tokens::OParen>|oparn ! std::vector<std::unique_ptr<Arg>>|args'),
+    AST('MethodCallExpr'    , 'Expr', 'std::unique_ptr<Expr>|operand ! Located<Tokens::Period>|dot ! Located<Tokens::Identifier>|method ! Located<Tokens::OParen>|oparn ! std::vector<std::unique_ptr<Expr>>|args'),
     AST('BoolLit'           , 'Expr', 'Located<Tokens::BoolLit>|val'),
     AST('FloatLit'          , 'Expr', 'Located<Tokens::FloatLit>|val'),
     AST('IntLit'            , 'Expr', 'Located<Tokens::IntLit>|val'),
@@ -113,7 +99,7 @@ def gen_ast_decls():
 
             output.append(f'    virtual void ast_accept({ast.base}Visitor &v) override;\n')
             output.append( '    virtual Maybe<Span const> const &span() const override;\n')
-            output.append(f'    {ast.name}(File const &file, Maybe<Span const> const &span, {helpers.Field.as_params(ast.fields)});\n')
+            output.append(f'    {ast.name}(Maybe<Span const> const &span, {helpers.Field.as_params(ast.fields)});\n')
 
             output.append( '};\n')
         elif isinstance(ast, ASTBase):
@@ -123,15 +109,12 @@ def gen_ast_decls():
 
             output.append(f'    virtual ~{ast.name}() {{}}\n')
             output.append(f'    virtual void ast_accept({ast.name}Visitor &v) = 0;\n')
-            output.append(f'    {ast.name}(File const &file);\n')
             output.append( '};\n')
         else:
             output.append(('class AST {\n'
                            'public:\n'
-                           '    AST(File const &file);\n'
                            '    virtual ~AST() {}\n'
                            '    virtual Maybe<Span const> const &span() const = 0;\n'
-                           '    File const &file;\n'
                            '};\n'))
 
     return''.join(output)
@@ -140,19 +123,15 @@ def gen_ast_defs():
     output = []
     for ast in asts:
         if isinstance(ast, AST):
-            output.append(f'ASTNS::{ast.name}::{ast.name}(File const &file, Maybe<Span const> const &span, {helpers.Field.as_params(ast.fields)}): ')
+            output.append(f'ASTNS::{ast.name}::{ast.name}(Maybe<Span const> const &span, {helpers.Field.as_params(ast.fields)}): ')
 
-            output.append(f'{ast.base}(file), _span(span), ')
+            output.append(f'_span(span), ')
             output.append(', '.join(f'{field.name}(std::move({field.name}))' for field in ast.fields))
 
             output.append(' {}\n')
 
             output.append(f'void ASTNS::{ast.name}::ast_accept(ASTNS::{ast.base}Visitor &v) {{ v.ast_visit(*this); }}\n')
             output.append(f'Maybe<Span const> const &ASTNS::{ast.name}::span() const {{ return _span; }}\n')
-        elif isinstance(ast, ASTBase):
-            output.append(f'ASTNS::{ast.name}::{ast.name}(File const &file): AST(file) {{}}\n')
-        else:
-            output.append('ASTNS::AST::AST(File const &file): file(file) {}\n')
 
     return ''.join(output)
 # Generate AST forward decls {{{3

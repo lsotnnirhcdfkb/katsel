@@ -1,18 +1,13 @@
 #pragma once
 
 #include <memory>
-#include "lex/token.h"
+#include "utils/maybe.h"
 
 class Lexer;
 struct File;
-namespace ASTNS { class CUB; }
+namespace ASTNS { class CU; }
 
-class Parser {
-public:
-    Parser(Lexer &l, File &sourcefile);
+namespace Parse {
+    Maybe<std::unique_ptr<ASTNS::CU>> parse(Lexer &l, File &sourcefile);
+}
 
-    std::unique_ptr<ASTNS::CUB> parse();
-
-    Lexer &lexer;
-    File &sourcefile;
-};

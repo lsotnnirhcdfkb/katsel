@@ -108,7 +108,6 @@ namespace Codegen {
         private:
             // STMTCG METHODS START
             void ast_visit(ASTNS::VarStmt &ast) override;
-            void ast_visit(ASTNS::VarStmtItem &ast) override;
             void ast_visit(ASTNS::ExprStmt &ast) override;
             void ast_visit(ASTNS::RetStmt &ast) override;
             // STMTCG METHODS END
@@ -179,20 +178,6 @@ namespace Codegen {
             NNPtr<Codegen::Context> context;
             NNPtr<TypeVisitor> type_visitor;
             int index;
-        };
-        // }}}
-        // Arg {{{
-        class ArgVisitor : public ASTNS::ArgBVisitor {
-        public:
-            ArgVisitor(ExprCodegen &expr_cg, std::vector<std::unique_ptr<ASTNS::Arg>> &args);
-            std::vector<Located<NNPtr<IR::Value>>> ret;
-
-        private:
-            NNPtr<ExprCodegen> expr_cg;
-            // ARGSVISITOR METHODS START
-            void ast_visit(ASTNS::Arg &ast) override;
-            // ARGSVISITOR METHODS END
-
         };
         // }}}
     }

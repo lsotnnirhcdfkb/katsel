@@ -149,54 +149,6 @@ static void print_field(ASTNS::PrintVisitor &p, std::vector<T> const &v) {
 }
 
 // PRINTVISITOR START
-void ASTNS::PrintVisitor::ast_visit(ASTNS::DeclList &a) {
-    pai("DeclList {\n");
-    ++indent;
-    pai("std::vector<std::unique_ptr<Decl>> decls = ");
-    print_field(*this, a.decls);
-    --indent;
-    pai("}\n");
-}
-void ASTNS::PrintVisitor::ast_visit(ASTNS::StmtList &a) {
-    pai("StmtList {\n");
-    ++indent;
-    pai("std::vector<std::unique_ptr<Stmt>> stmts = ");
-    print_field(*this, a.stmts);
-    --indent;
-    pai("}\n");
-}
-void ASTNS::PrintVisitor::ast_visit(ASTNS::ParamList &a) {
-    pai("ParamList {\n");
-    ++indent;
-    pai("std::vector<std::unique_ptr<ParamB>> params = ");
-    print_field(*this, a.params);
-    --indent;
-    pai("}\n");
-}
-void ASTNS::PrintVisitor::ast_visit(ASTNS::ArgList &a) {
-    pai("ArgList {\n");
-    ++indent;
-    pai("std::vector<std::unique_ptr<Arg>> args = ");
-    print_field(*this, a.args);
-    --indent;
-    pai("}\n");
-}
-void ASTNS::PrintVisitor::ast_visit(ASTNS::VarStmtItemList &a) {
-    pai("VarStmtItemList {\n");
-    ++indent;
-    pai("std::vector<std::unique_ptr<VarStmtItem>> items = ");
-    print_field(*this, a.items);
-    --indent;
-    pai("}\n");
-}
-void ASTNS::PrintVisitor::ast_visit(ASTNS::ImplMemberList &a) {
-    pai("ImplMemberList {\n");
-    ++indent;
-    pai("std::vector<std::unique_ptr<ImplMember>> members = ");
-    print_field(*this, a.members);
-    --indent;
-    pai("}\n");
-}
 void ASTNS::PrintVisitor::ast_visit(ASTNS::PureLocation &a) {
     pai("PureLocation {\n");
     ++indent;
@@ -256,14 +208,6 @@ void ASTNS::PrintVisitor::ast_visit(ASTNS::FunctionImplMember &a) {
 void ASTNS::PrintVisitor::ast_visit(ASTNS::VarStmt &a) {
     pai("VarStmt {\n");
     ++indent;
-    pai("std::vector<std::unique_ptr<VarStmtItem>> items = ");
-    print_field(*this, a.items);
-    --indent;
-    pai("}\n");
-}
-void ASTNS::PrintVisitor::ast_visit(ASTNS::VarStmtItem &a) {
-    pai("VarStmtItem {\n");
-    ++indent;
     pai("std::unique_ptr<Type> type = ");
     print_field(*this, a.type);
     pai("bool mut = ");
@@ -319,14 +263,6 @@ void ASTNS::PrintVisitor::ast_visit(ASTNS::ThisType &a) {
     --indent;
     pai("}\n");
 }
-void ASTNS::PrintVisitor::ast_visit(ASTNS::Arg &a) {
-    pai("Arg {\n");
-    ++indent;
-    pai("std::unique_ptr<Expr> expr = ");
-    print_field(*this, a.expr);
-    --indent;
-    pai("}\n");
-}
 void ASTNS::PrintVisitor::ast_visit(ASTNS::Param &a) {
     pai("Param {\n");
     ++indent;
@@ -354,8 +290,6 @@ void ASTNS::PrintVisitor::ast_visit(ASTNS::Block &a) {
     ++indent;
     pai("std::vector<std::unique_ptr<Stmt>> stmts = ");
     print_field(*this, a.stmts);
-    pai("std::unique_ptr<Expr> ret = ");
-    print_field(*this, a.ret);
     --indent;
     pai("}\n");
 }
@@ -470,7 +404,7 @@ void ASTNS::PrintVisitor::ast_visit(ASTNS::CallExpr &a) {
     print_field(*this, a.callee);
     pai("Located<Tokens::OParen> oparn = ");
     print_field(*this, a.oparn);
-    pai("std::vector<std::unique_ptr<Arg>> args = ");
+    pai("std::vector<std::unique_ptr<Expr>> args = ");
     print_field(*this, a.args);
     --indent;
     pai("}\n");
@@ -498,7 +432,7 @@ void ASTNS::PrintVisitor::ast_visit(ASTNS::MethodCallExpr &a) {
     print_field(*this, a.method);
     pai("Located<Tokens::OParen> oparn = ");
     print_field(*this, a.oparn);
-    pai("std::vector<std::unique_ptr<Arg>> args = ");
+    pai("std::vector<std::unique_ptr<Expr>> args = ");
     print_field(*this, a.args);
     --indent;
     pai("}\n");

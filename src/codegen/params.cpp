@@ -49,15 +49,3 @@ void Codegen::Helpers::ParamVisitor::ast_visit(ASTNS::ThisParam &ast) {
     IR::Function::Param p {ty, "this", ast, false};
     ret.push_back(p);
 }
-
-Codegen::Helpers::ArgVisitor::ArgVisitor::ArgVisitor(ExprCodegen &expr_cg, std::vector<std::unique_ptr<ASTNS::Arg>> &args):
-    expr_cg(expr_cg) {
-    for (std::unique_ptr<ASTNS::Arg> &a : args)
-        a->ast_accept(*this);
-}
-
-void Codegen::Helpers::ArgVisitor::ast_visit(ASTNS::Arg &ast) {
-    Maybe<Located<NNPtr<IR::Value>>> a = expr_cg->expr(*ast.expr);
-    if (a.has())
-        ret.push_back(a.get());
-}

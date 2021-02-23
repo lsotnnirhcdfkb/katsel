@@ -13,23 +13,15 @@ namespace ASTNS {
         public ASTNS::StmtVisitor,
         public ASTNS::ExprVisitor,
         public ASTNS::TypeVisitor,
-        public ASTNS::ArgBVisitor,
         public ASTNS::ParamBVisitor,
         public ASTNS::VStmtIBVisitor,
         public ASTNS::PathBVisitor,
-        public ASTNS::ListBVisitor,
         public ASTNS::PureLocationBVisitor
         // PRINTVISIT INHERIT END
     {
     public:
         PrintVisitor(llvm::raw_ostream &ostream);
         // PRINTVISIT METHODS START
-        void ast_visit(ASTNS::DeclList &ast) override;
-        void ast_visit(ASTNS::StmtList &ast) override;
-        void ast_visit(ASTNS::ParamList &ast) override;
-        void ast_visit(ASTNS::ArgList &ast) override;
-        void ast_visit(ASTNS::VarStmtItemList &ast) override;
-        void ast_visit(ASTNS::ImplMemberList &ast) override;
         void ast_visit(ASTNS::PureLocation &ast) override;
         void ast_visit(ASTNS::ImplicitDecl &ast) override;
         void ast_visit(ASTNS::CU &ast) override;
@@ -37,13 +29,11 @@ namespace ASTNS {
         void ast_visit(ASTNS::FunctionDecl &ast) override;
         void ast_visit(ASTNS::FunctionImplMember &ast) override;
         void ast_visit(ASTNS::VarStmt &ast) override;
-        void ast_visit(ASTNS::VarStmtItem &ast) override;
         void ast_visit(ASTNS::ExprStmt &ast) override;
         void ast_visit(ASTNS::RetStmt &ast) override;
         void ast_visit(ASTNS::PathType &ast) override;
         void ast_visit(ASTNS::PointerType &ast) override;
         void ast_visit(ASTNS::ThisType &ast) override;
-        void ast_visit(ASTNS::Arg &ast) override;
         void ast_visit(ASTNS::Param &ast) override;
         void ast_visit(ASTNS::ThisParam &ast) override;
         void ast_visit(ASTNS::Block &ast) override;

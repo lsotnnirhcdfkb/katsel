@@ -112,7 +112,7 @@ void Underlines::report(int left_pad) const {
                     std::cerr << if_ansi(u.color) << *iter << if_ansi(A_RESET);
                     ++col;
                 }
-                std::cerr << "\n" A_RESET;
+                std::cerr << A_RESET "\n";
 
                 struct MessageLocation {
                     NNPtr<Message const> message;
@@ -190,12 +190,14 @@ void Underlines::report(int left_pad) const {
                         }
 
                         if (!printed_message) {
-                            Underline const &u (char_underlines[col - 1]);
-                            std::cerr << if_ansi(u.color) << u.ch << if_ansi(A_RESET);
+                            if ((col - 1) < char_underlines.size()) {
+                                Underline const &u (char_underlines[col - 1]);
+                                std::cerr << if_ansi(u.color) << u.ch << if_ansi(A_RESET);
+                            }
                             ++col;
                         }
                     }
-                    std::cerr << "\n" A_RESET;
+                    std::cerr << A_RESET "\n";
 
                     for (unsigned int row = 1; row <= max_message_row; ++row) {
                         std::cerr << right_pad(left_pad, "") << "| ";
@@ -219,7 +221,7 @@ void Underlines::report(int left_pad) const {
                                 ++col;
                             }
                         }
-                        std::cerr << "\n" A_RESET;
+                        std::cerr << A_RESET "\n";
                     }
                 }
             }
