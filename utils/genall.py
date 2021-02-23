@@ -2,7 +2,7 @@
 #  Generate all the code everywhere necessary in this project
 
 import io, re
-import astgen, kwgen, parsegen, instrgen, errgen
+import astgen, kwgen, instrgen, errgen
 
 jobs = [
     ('src/lex/lexer.cpp'           , 'KWMATCH'               , kwgen.trie.generate),
@@ -14,12 +14,6 @@ jobs = [
 
     ('src/ast/printvisitor.cpp'    , 'PRINTVISITOR'          , astgen.gen_print_visitor_methods),
 
-    ('src/parse/parser.cpp'        , 'NONTERM ENUM'          , parsegen.gen_non_term_enum),
-    ('src/parse/parser.cpp'        , 'PARSESTACK ITEM TYPES' , parsegen.gen_non_term_types),
-    ('src/parse/parser.cpp'        , 'PARSERLOOP'            , parsegen.gen_loop),
-    ('src/parse/parser.cpp'        , 'GETGOTO'               , parsegen.gen_goto),
-    ('src/parse/parser.cpp'        , 'TOKEN INSERT'          , parsegen.gen_token_insert),
-
     ('include/ast/printvisitor.h'  , 'PRINTVISIT METHODS'    , lambda: astgen.gen_visitor_methods('all')),
     ('include/ast/printvisitor.h'  , 'PRINTVISIT INHERIT'    , astgen.gen_visitor_inherit_all),
 
@@ -27,7 +21,6 @@ jobs = [
     ('src/codegen/codegenlocal.h'  , 'STMTCG METHODS'        , lambda: astgen.gen_visitor_methods('Stmt', 'VStmtIB')),
     ('src/codegen/codegenlocal.h'  , 'EXPRCG METHODS'        , lambda: astgen.gen_visitor_methods('Expr')),
     ('src/codegen/codegenlocal.h'  , 'PARAMVISITOR METHODS'  , lambda: astgen.gen_visitor_methods('ParamB')),
-    ('src/codegen/codegenlocal.h'  , 'ARGSVISITOR METHODS'   , lambda: astgen.gen_visitor_methods('ArgB')),
     ('src/codegen/codegenlocal.h'  , 'PATH VISITOR'          , lambda: astgen.gen_visitor_methods('PathB')),
     ('src/codegen/codegenlocal.h'  , 'IMPL CG METHODS'       , lambda: astgen.gen_visitor_methods('ImplMember')),
     ('src/codegen/codegen.cpp'     , 'MAINCG METHODS'        , lambda: astgen.gen_visitor_methods('Decl', 'CUB')),

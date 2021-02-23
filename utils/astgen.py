@@ -18,8 +18,6 @@ class ASTSuperBase:
     def __init__(self):
         self.name ='AST'
 # Classes to generate {{{1
-def list_ast(name, type_, field_name):
-    return AST(name, 'ListB', f'std::vector<std::unique_ptr<{type_}>>|{field_name}')
 asts = [
     ASTSuperBase(),
     ASTBase('CUB'),
@@ -31,12 +29,6 @@ asts = [
     ASTBase('ParamB'),
     ASTBase('VStmtIB'),
     ASTBase('PathB'),
-
-    ASTBase('ListB'),
-    list_ast('DeclList', 'Decl', 'decls'),
-    list_ast('StmtList', 'Stmt', 'stmts'),
-    list_ast('ParamList', 'ParamB', 'params'),
-    list_ast('ImplMemberList', 'ImplMember', 'members'),
 
     # a class to keep track of locations of syntactic elements that don't matter (like
     # line endings where the location matters (so that other statements can use the line

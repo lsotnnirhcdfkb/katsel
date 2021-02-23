@@ -44,11 +44,6 @@ namespace ASTNS {
     class ParamB;
     class VStmtIB;
     class PathB;
-    class ListB;
-    class DeclList;
-    class StmtList;
-    class ParamList;
-    class ImplMemberList;
     class PureLocationB;
     class PureLocation;
     class ImplicitDecl;

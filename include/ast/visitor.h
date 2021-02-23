@@ -74,14 +74,6 @@ namespace ASTNS {
         virtual ~PathBVisitor() {}
         virtual void ast_visit(ASTNS::Path &ast) = 0;
     };
-    class ListBVisitor {
-    public:
-        virtual ~ListBVisitor() {}
-        virtual void ast_visit(ASTNS::DeclList &ast) = 0;
-        virtual void ast_visit(ASTNS::StmtList &ast) = 0;
-        virtual void ast_visit(ASTNS::ParamList &ast) = 0;
-        virtual void ast_visit(ASTNS::ImplMemberList &ast) = 0;
-    };
     class PureLocationBVisitor {
     public:
         virtual ~PureLocationBVisitor() {}

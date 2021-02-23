@@ -1,17 +1,5 @@
 #include "ast/ast.h"
 // ASTCPP START
-ASTNS::DeclList::DeclList(Maybe<Span const> const &span, std::vector<std::unique_ptr<Decl>> decls): _span(span), decls(std::move(decls)) {}
-void ASTNS::DeclList::ast_accept(ASTNS::ListBVisitor &v) { v.ast_visit(*this); }
-Maybe<Span const> const &ASTNS::DeclList::span() const { return _span; }
-ASTNS::StmtList::StmtList(Maybe<Span const> const &span, std::vector<std::unique_ptr<Stmt>> stmts): _span(span), stmts(std::move(stmts)) {}
-void ASTNS::StmtList::ast_accept(ASTNS::ListBVisitor &v) { v.ast_visit(*this); }
-Maybe<Span const> const &ASTNS::StmtList::span() const { return _span; }
-ASTNS::ParamList::ParamList(Maybe<Span const> const &span, std::vector<std::unique_ptr<ParamB>> params): _span(span), params(std::move(params)) {}
-void ASTNS::ParamList::ast_accept(ASTNS::ListBVisitor &v) { v.ast_visit(*this); }
-Maybe<Span const> const &ASTNS::ParamList::span() const { return _span; }
-ASTNS::ImplMemberList::ImplMemberList(Maybe<Span const> const &span, std::vector<std::unique_ptr<ImplMember>> members): _span(span), members(std::move(members)) {}
-void ASTNS::ImplMemberList::ast_accept(ASTNS::ListBVisitor &v) { v.ast_visit(*this); }
-Maybe<Span const> const &ASTNS::ImplMemberList::span() const { return _span; }
 ASTNS::PureLocation::PureLocation(Maybe<Span const> const &span, int dummy): _span(span), dummy(std::move(dummy)) {}
 void ASTNS::PureLocation::ast_accept(ASTNS::PureLocationBVisitor &v) { v.ast_visit(*this); }
 Maybe<Span const> const &ASTNS::PureLocation::span() const { return _span; }

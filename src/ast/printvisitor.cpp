@@ -149,38 +149,6 @@ static void print_field(ASTNS::PrintVisitor &p, std::vector<T> const &v) {
 }
 
 // PRINTVISITOR START
-void ASTNS::PrintVisitor::ast_visit(ASTNS::DeclList &a) {
-    pai("DeclList {\n");
-    ++indent;
-    pai("std::vector<std::unique_ptr<Decl>> decls = ");
-    print_field(*this, a.decls);
-    --indent;
-    pai("}\n");
-}
-void ASTNS::PrintVisitor::ast_visit(ASTNS::StmtList &a) {
-    pai("StmtList {\n");
-    ++indent;
-    pai("std::vector<std::unique_ptr<Stmt>> stmts = ");
-    print_field(*this, a.stmts);
-    --indent;
-    pai("}\n");
-}
-void ASTNS::PrintVisitor::ast_visit(ASTNS::ParamList &a) {
-    pai("ParamList {\n");
-    ++indent;
-    pai("std::vector<std::unique_ptr<ParamB>> params = ");
-    print_field(*this, a.params);
-    --indent;
-    pai("}\n");
-}
-void ASTNS::PrintVisitor::ast_visit(ASTNS::ImplMemberList &a) {
-    pai("ImplMemberList {\n");
-    ++indent;
-    pai("std::vector<std::unique_ptr<ImplMember>> members = ");
-    print_field(*this, a.members);
-    --indent;
-    pai("}\n");
-}
 void ASTNS::PrintVisitor::ast_visit(ASTNS::PureLocation &a) {
     pai("PureLocation {\n");
     ++indent;

@@ -61,43 +61,6 @@ namespace ASTNS {
         virtual ~PathB() {}
         virtual void ast_accept(PathBVisitor &v) = 0;
     };
-    class ListB : public AST {
-    public:
-        virtual ~ListB() {}
-        virtual void ast_accept(ListBVisitor &v) = 0;
-    };
-    class DeclList : public ListB {
-    public:
-        Maybe<Span const> _span;
-        std::vector<std::unique_ptr<Decl>> decls;
-        virtual void ast_accept(ListBVisitor &v) override;
-        virtual Maybe<Span const> const &span() const override;
-        DeclList(Maybe<Span const> const &span, std::vector<std::unique_ptr<Decl>> decls);
-    };
-    class StmtList : public ListB {
-    public:
-        Maybe<Span const> _span;
-        std::vector<std::unique_ptr<Stmt>> stmts;
-        virtual void ast_accept(ListBVisitor &v) override;
-        virtual Maybe<Span const> const &span() const override;
-        StmtList(Maybe<Span const> const &span, std::vector<std::unique_ptr<Stmt>> stmts);
-    };
-    class ParamList : public ListB {
-    public:
-        Maybe<Span const> _span;
-        std::vector<std::unique_ptr<ParamB>> params;
-        virtual void ast_accept(ListBVisitor &v) override;
-        virtual Maybe<Span const> const &span() const override;
-        ParamList(Maybe<Span const> const &span, std::vector<std::unique_ptr<ParamB>> params);
-    };
-    class ImplMemberList : public ListB {
-    public:
-        Maybe<Span const> _span;
-        std::vector<std::unique_ptr<ImplMember>> members;
-        virtual void ast_accept(ListBVisitor &v) override;
-        virtual Maybe<Span const> const &span() const override;
-        ImplMemberList(Maybe<Span const> const &span, std::vector<std::unique_ptr<ImplMember>> members);
-    };
     class PureLocationB : public AST {
     public:
         virtual ~PureLocationB() {}
