@@ -91,7 +91,7 @@ namespace {
             optional_line_ending();
 
             Span span (join_span(fun_tok, ret_type->span().has() ? ret_type->span().get() : cparen.span));
-            return std::make_unique<ASTNS::FunctionDecl>(span, std::move(ret_type), name, std::vector<std::unique_ptr<ASTNS::ParamB>> {}, std::move(body));
+            return std::make_unique<ASTNS::FunctionDecl>(span, std::move(ret_type), name, std::move(params), std::move(body));
         }
         // impl {{{3
         Maybe<std::unique_ptr<ASTNS::ImplDecl>> impl_decl() {
