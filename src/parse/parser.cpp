@@ -548,6 +548,7 @@ namespace {
                 case Tokens::index_of<Tokens::DoubleGreater>: MAKE(BinaryExpr, BinaryOperator, DOUBLEGREATER);
                 case Tokens::index_of<Tokens::Star>: MAKE(BinaryExpr, BinaryOperator, STAR);
                 case Tokens::index_of<Tokens::Slash>: MAKE(BinaryExpr, BinaryOperator, SLASH);
+                case Tokens::index_of<Tokens::Percent>: MAKE(BinaryExpr, BinaryOperator, PERCENT);
                 case Tokens::index_of<Tokens::Plus>: MAKE(BinaryExpr, BinaryOperator, PLUS);
                 case Tokens::index_of<Tokens::Minus>: MAKE(BinaryExpr, BinaryOperator, MINUS);
 #undef MAKE
