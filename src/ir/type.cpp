@@ -29,6 +29,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::VoidType::cast_from(Codegen::Context &, IR:
 }
 
 llvm::Type& IR::VoidType::to_llvm_type(llvm::LLVMContext &con) const {
+    // TODO: should be void in return types
     return *llvm::StructType::get(con);
 }
 Located<NNPtr<IR::Value>> IR::VoidType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v) const {

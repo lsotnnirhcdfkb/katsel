@@ -222,60 +222,6 @@ namespace Codegen {
         Maybe<S1Data> m_s1_data;
         Maybe<S2Data> m_s2_data;
     };
-    /*
-        class S0 : public Stage0CG {
-        public:
-            S0(IR::Unit &unit, Codegen::Context &context, ASTNS::FunctionDecl &ast, Maybe<NNPtr<IR::Type>> this_type, IR::DeclSymbol &parent_symbol);
-            Maybe<std::unique_ptr<CStage0CG>> type_declare() override;
-
-        private:
-            IR::Unit &unit;
-            Codegen::Context &context;
-            ASTNS::FunctionDecl &ast;
-
-            Maybe<NNPtr<IR::Type>> this_type;
-            IR::DeclSymbol &parent_symbol;
-        };
-        class S1 : public Stage1CG {
-        public:
-            S1(IR::Unit &unit, Codegen::Context &context, ASTNS::FunctionDecl &ast, Maybe<NNPtr<IR::Type>> this_type, IR::DeclSymbol &parent_symbol, std::unique_ptr<Helpers::PathVisitor> path_visitor, std::unique_ptr<Helpers::TypeVisitor> type_visitor);
-            Maybe<std::unique_ptr<CStage1CG>> value_declare() override;
-
-        private:
-            IR::Unit &unit;
-            Codegen::Context &context;
-            ASTNS::FunctionDecl &ast;
-
-            std::unique_ptr<Helpers::PathVisitor> path_visitor;
-            std::unique_ptr<Helpers::TypeVisitor> type_visitor;
-            Maybe<NNPtr<IR::Type>> this_type;
-            IR::DeclSymbol &parent_symbol;
-        };
-        class S2 : public Stage2CG {
-        public:
-            S2(IR::Unit &unit, ASTNS::FunctionDecl &ast, IR::Function &fun, std::unique_ptr<Helpers::PathVisitor> path_visitor, std::unique_ptr<Helpers::TypeVisitor> type_visitor, Maybe<NNPtr<IR::Type>> this_type, IR::DeclSymbol &parent_symbol, std::vector<Helpers::ParamVisitor::Param> &params, std::unique_ptr<Helpers::ExprCodegen> expr_cg, std::unique_ptr<Helpers::Locals> locals, IR::Block &entry_block, std::unique_ptr<IR::Builder> ir_builder);
-            Maybe<std::unique_ptr<CStage2CG>> value_define() override;
-
-        private:
-            IR::Unit &unit;
-            ASTNS::FunctionDecl &ast;
-            IR::Function &fun;
-
-            std::unique_ptr<Helpers::PathVisitor> path_visitor;
-            std::unique_ptr<Helpers::TypeVisitor> type_visitor;
-            Maybe<NNPtr<IR::Type>> this_type;
-            IR::DeclSymbol &parent_symbol;
-            std::vector<Helpers::ParamVisitor::Param> params;
-
-            std::unique_ptr<Helpers::ExprCodegen> expr_cg;
-
-            std::unique_ptr<Helpers::Locals> locals;
-
-            NNPtr<IR::Block> entry_block;
-
-            std::unique_ptr<IR::Builder> ir_builder;
-        };
-        */
     // }}}
     // Impl {{{
     class Impl : public CG, public ASTNS::ImplMemberVisitor {
