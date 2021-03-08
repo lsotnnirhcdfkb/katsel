@@ -42,7 +42,8 @@ namespace {
             if (errored) {
                 return Maybe<std::unique_ptr<ASTNS::CU>>();
             } else {
-                return std::make_unique<ASTNS::CU>(span_from_vec(decls), std::move(decls));
+                // fallback span is the eof token span
+                return std::make_unique<ASTNS::CU>(span_from_vec(decls, peek().span), std::move(decls));
             }
         }
         // typedefs/using {{{2
@@ -86,11 +87,11 @@ namespace {
 
             // TODO: parse function declaration without definition
 
-            TRY(body, std::unique_ptr<ASTNS::FunctionDecl>, blocked(&Parser::stmt_list));
+            TRY(body, std::unique_ptr<ASTNS::FunctionDecl>, blocked<true>(&Parser::stmt_list));
 
             optional_line_ending();
 
-            Span span (join_span(fun_tok, ret_type->span().has() ? ret_type->span().get() : cparen.span));
+            Span span (join_span(fun_tok, ret_type->span()));
             return std::make_unique<ASTNS::FunctionDecl>(span, std::move(ret_type), name, std::move(params), std::move(body));
         }
         // impl {{{3
@@ -101,7 +102,7 @@ namespace {
 
             TRY(body, std::unique_ptr<ASTNS::ImplDecl>, blocked(&Parser::impl_body));
 
-            return std::make_unique<ASTNS::ImplDecl>(join_maybe_span(impl_tok, type->span()), std::move(type), std::move(body));
+            return std::make_unique<ASTNS::ImplDecl>(join_span(impl_tok, type->span()), std::move(type), std::move(body));
         }
         // body {{{4
         std::vector<std::unique_ptr<ASTNS::ImplMember>> impl_body(TokenPredicate stop) {
@@ -125,7 +126,7 @@ namespace {
             }
         }
         // statements {{{2
-        Maybe<std::unique_ptr<ASTNS::Block>> stmt_list(TokenPredicate stop) {
+        Maybe<std::unique_ptr<ASTNS::Block>> stmt_list(TokenPredicate stop, Span const &fallback_span) {
             auto stmts = thing_list_no_separator<std::unique_ptr<ASTNS::Stmt>>(
                 stop,
                 [&stop] (Maybe<Located<TokenData>> const &prev, Located<TokenData> const &next) {
@@ -139,7 +140,7 @@ namespace {
                 &Parser::stmt
             );
 
-            return std::make_unique<ASTNS::Block>(span_from_vec(stmts), std::move(stmts));
+            return std::make_unique<ASTNS::Block>(span_from_vec(stmts, fallback_span), std::move(stmts));
         }
 
         Maybe<std::unique_ptr<ASTNS::Stmt>> stmt() {
@@ -231,53 +232,89 @@ namespace {
             using Result = T;
         };
 
+        template <bool PassFallbackSpan, typename ParseFun, typename ... Args>
+        struct ParseFunRes {
+            using Result = std::invoke_result_t<ParseFun, Parser *, TokenPredicate, Args...>;
+        };
+
         template <typename ParseFun, typename ... Args>
+        struct ParseFunRes<true, ParseFun, Args...> {
+            using Result = std::invoke_result_t<ParseFun, Parser *, TokenPredicate, Span, Args...>;
+        };
+
+        template <typename T>
+        using UnwrapParseResT = typename UnwrapParseRes<T>::Result;
+
+        template <bool PassFallbackSpan, typename ParseFun, typename ... Args>
+        using ParseFunResT = typename ParseFunRes<PassFallbackSpan, ParseFun, Args...>::Result;
+
+        template <bool PassFallbackSpan, typename ParseFun, typename ... Args>
         using MaybeUnwrappedFunParseRes =
-            Maybe<typename UnwrapParseRes<std::invoke_result_t<ParseFun, Parser *, TokenPredicate, Args...>>::Result>;
+            Maybe<UnwrapParseResT<ParseFunResT<PassFallbackSpan, ParseFun, Args...>>>;
         // braced {{{3
-        template <typename ParseFun, typename ... Args>
-        MaybeUnwrappedFunParseRes<ParseFun, Args...> braced(ParseFun fun, Args &&...args) {
-            using FuncRet = typename UnwrapParseRes<std::invoke_result_t<ParseFun, Parser *, TokenPredicate, Args...>>::Result;
+        template <bool PassFallbackSpan = false, typename ParseFun, typename ... Args>
+        MaybeUnwrappedFunParseRes<PassFallbackSpan, ParseFun, Args...> braced(ParseFun fun, Args &&...args) {
+            using FuncRet = UnwrapParseResT<ParseFunResT<PassFallbackSpan, ParseFun, Args...>>;
 
             TRY(obrace, FuncRet, expect<Tokens::OBrace>("'{'"));
 
-            auto stop_pred = [] (Located<TokenData> const &next) {
-                return Tokens::is<Tokens::CBrace>(next.value);
-            };
-
-            auto inside_braces = std::invoke(fun, this, stop_pred, args...);
+            auto inside = [&] () {
+                if constexpr (PassFallbackSpan)
+                    return std::invoke(fun, this,
+                        [] (Located<TokenData> const &next) {
+                            return Tokens::is<Tokens::CBrace>(next.value);
+                        },
+                        obrace.span,
+                        args...);
+                else
+                    return std::invoke(fun, this,
+                        [] (Located<TokenData> const &next) {
+                            return Tokens::is<Tokens::CBrace>(next.value);
+                        },
+                        args...);
+            }();
 
             expect<Tokens::CBrace>("'}'");
 
-            return inside_braces;
+            return inside;
         }
         // indented {{{3
-        template <typename ParseFun, typename ... Args>
-        MaybeUnwrappedFunParseRes<ParseFun, Args...> indented(ParseFun fun, Args &&...args) {
-            using FuncRet = typename UnwrapParseRes<std::invoke_result_t<ParseFun, Parser *, TokenPredicate, Args...>>::Result;
+        template <bool PassFallbackSpan = false, typename ParseFun, typename ... Args>
+        MaybeUnwrappedFunParseRes<PassFallbackSpan, ParseFun, Args...> indented(ParseFun fun, Args &&...args) {
+            using FuncRet = UnwrapParseResT<ParseFunResT<PassFallbackSpan, ParseFun, Args...>>;
 
             TRY(indent, FuncRet, expect<Tokens::Indent>("indent"));
 
-            auto inside = std::invoke(fun, this,
-                [] (Located<TokenData> const &next) {
-                    return Tokens::is<Tokens::Dedent>(next.value);
-                },
-                args...);
+            auto inside = [&] () {
+                if constexpr (PassFallbackSpan)
+                    return std::invoke(fun, this,
+                        [] (Located<TokenData> const &next) {
+                            return Tokens::is<Tokens::Dedent>(next.value);
+                        },
+                        indent.span,
+                        args...);
+                else
+                    return std::invoke(fun, this,
+                        [] (Located<TokenData> const &next) {
+                            return Tokens::is<Tokens::Dedent>(next.value);
+                        },
+                        args...);
+            }();
 
             TRY(dedent, FuncRet, expect<Tokens::Dedent>("dedent"));
 
             return inside;
         }
         // both {{{3
-        template <typename ParseFun, typename ... Args>
-        MaybeUnwrappedFunParseRes<ParseFun, Args...> blocked(ParseFun fun, Args &&...args) {
+        template <bool PassFallbackSpan = false, typename ParseFun, typename ... Args>
+        MaybeUnwrappedFunParseRes<PassFallbackSpan, ParseFun, Args...> blocked(ParseFun fun, Args &&...args) {
             if (Tokens::is<Tokens::Indent>(peek().value)) {
-                return indented(fun, args...);
+                return indented<PassFallbackSpan>(fun, args...);
             } else if (Tokens::is<Tokens::OBrace>(peek().value)) {
-                return braced(fun, args...);
+                return braced<PassFallbackSpan>(fun, args...);
             } else {
                 ERR_EXPECTED(peek().span, "blocked"); // TODO: better message
-                return MaybeUnwrappedFunParseRes<ParseFun, Args...>();
+                return MaybeUnwrappedFunParseRes<PassFallbackSpan, ParseFun, Args...>();
             }
         }
         // types {{{2
@@ -304,7 +341,7 @@ namespace {
             bool mut = consume_if<Tokens::Mut>();
             TRY(ty, std::unique_ptr<ASTNS::PointerType>, type());
 
-            return std::make_unique<ASTNS::PointerType>(join_maybe_span(star, ty->span()), mut, std::move(ty));
+            return std::make_unique<ASTNS::PointerType>(join_span(star, ty->span()), mut, std::move(ty));
         }
         // this {{{3
         Maybe<std::unique_ptr<ASTNS::ThisType>> this_type() {
@@ -351,7 +388,7 @@ namespace {
             TRY(name, std::unique_ptr<ASTNS::Param>, expect<Tokens::Identifier>("parameter name"));
             TRY(type, std::unique_ptr<ASTNS::Param>, type_annotation());
 
-            return std::make_unique<ASTNS::Param>(join_maybe_span(mut_loc.has() ? mut_loc.get() : name.span, type->span()), std::move(type), name, mut);
+            return std::make_unique<ASTNS::Param>(join_span(mut_loc.has() ? mut_loc.get() : name.span, type->span()), std::move(type), name, mut);
         }
         // expr {{{2
         // tables {{{3
@@ -462,7 +499,7 @@ namespace {
             Located<Tokens::If> if_tok = assert_expect<Tokens::If>();
 
             TRY(cond, std::unique_ptr<ASTNS::Expr>, expr(Precedence::NONE));
-            TRY(if_branch, std::unique_ptr<ASTNS::Expr>, blocked(&Parser::stmt_list));
+            TRY(if_branch, std::unique_ptr<ASTNS::Expr>, blocked<true>(&Parser::stmt_list));
 
             Maybe<Located<Tokens::Else>> else_tok;
             std::unique_ptr<ASTNS::Expr> else_branch;
@@ -473,26 +510,26 @@ namespace {
                     TRY(_else_branch, std::unique_ptr<ASTNS::Expr>, if_expr());
                     else_branch = std::move(_else_branch);
                 } else {
-                    TRY(_else_branch, std::unique_ptr<ASTNS::Expr>, blocked(&Parser::stmt_list));
+                    TRY(_else_branch, std::unique_ptr<ASTNS::Expr>, blocked<true>(&Parser::stmt_list));
                     else_branch = std::move(_else_branch);
                 }
             }
 
-            return std::make_unique<ASTNS::IfExpr>(join_maybe_span(if_tok.span, else_branch ? else_branch->span() : if_branch->span()), if_tok, else_tok, std::move(cond), std::move(if_branch), std::move(else_branch));
+            return std::make_unique<ASTNS::IfExpr>(join_span(if_tok.span, else_branch ? else_branch->span() : if_branch->span()), if_tok, else_tok, std::move(cond), std::move(if_branch), std::move(else_branch));
         }
         // while {{{3
         Maybe<std::unique_ptr<ASTNS::Expr>> while_expr() {
             Located<Tokens::While> while_tok = assert_expect<Tokens::While>();
 
             TRY(cond, std::unique_ptr<ASTNS::Expr>, expr(Precedence::NONE));
-            TRY(body, std::unique_ptr<ASTNS::Expr>, blocked(&Parser::stmt_list));
+            TRY(body, std::unique_ptr<ASTNS::Expr>, blocked<true>(&Parser::stmt_list));
 
-            return std::make_unique<ASTNS::WhileExpr>(join_maybe_span(while_tok.span, body->span()), std::move(cond), std::move(body));
+            return std::make_unique<ASTNS::WhileExpr>(join_span(while_tok.span, body->span()), std::move(cond), std::move(body));
 
         }
         // block expr {{{3
         Maybe<std::unique_ptr<ASTNS::Expr>> braced_block_expr() {
-            return braced(&Parser::stmt_list);
+            return braced<true>(&Parser::stmt_list);
         }
         // bin {{{3
         Maybe<std::unique_ptr<ASTNS::Expr>> bin_expr(std::unique_ptr<ASTNS::Expr> left) {
@@ -500,7 +537,7 @@ namespace {
             consume();
 
             TRY(right, std::unique_ptr<ASTNS::Expr>, expr(precedence_of(op.value)));
-            Maybe<Span const> total_span (join_maybe_span(left->span(), right->span()));
+            Span const total_span (join_span(left->span(), right->span()));
 
             switch (op.value.index()) {
 #define MAKE(expr_ty, op_ty, op_val) \
@@ -536,7 +573,7 @@ namespace {
             consume();
 
             TRY(right, std::unique_ptr<ASTNS::Expr>, expr(Precedence::NONE));
-            Maybe<Span const> total_span (join_maybe_span(left->span(), right->span()));
+            Span const total_span (join_span(left->span(), right->span()));
 
             ASTNS::AssignOperator assign_op;
             switch (op.value.index()) {
@@ -555,7 +592,7 @@ namespace {
         Maybe<std::unique_ptr<ASTNS::Expr>> cast_expr(std::unique_ptr<ASTNS::Expr> operand) {
             assert_expect<Tokens::RightArrow>();
             TRY(type, std::unique_ptr<ASTNS::Expr>, type());
-            return std::make_unique<ASTNS::CastExpr>(join_maybe_span(operand->span(), type->span()), std::move(type), std::move(operand));
+            return std::make_unique<ASTNS::CastExpr>(join_span(operand->span(), type->span()), std::move(type), std::move(operand));
         }
         // unary {{{3
         Maybe<std::unique_ptr<ASTNS::Expr>> unary_expr() {
@@ -564,7 +601,7 @@ namespace {
 
             TRY(operand, std::unique_ptr<ASTNS::Expr>, expr(Precedence::UNARY));
 
-            Maybe<Span const> span (join_maybe_span(prev.span, operand->span()));
+            Span const span (join_span(prev.span, operand->span()));
 
             ASTNS::UnaryOperator op;
             switch (prev.value.index()) {
@@ -596,7 +633,7 @@ namespace {
 
             TRY(operand, std::unique_ptr<ASTNS::Expr>, expr(Precedence::UNARY));
 
-            Maybe<Span const> total (join_maybe_span(amper.span, operand->span()));
+            Span const total (join_span(amper.span, operand->span()));
             Located<Tokens::Amper> amper_tok { amper.span, Tokens::as<Tokens::Amper>(amper.value) };
             return std::make_unique<ASTNS::AddrofExpr>(total, amper_tok, std::move(operand), mut);
         }
@@ -614,7 +651,7 @@ namespace {
 
             Located<Tokens::OParen> oparen_downcasted { oparen.span, Tokens::as<Tokens::OParen>(oparen.value) };
 
-            return std::make_unique<ASTNS::CallExpr>(join_maybe_span(callee->span(), cparen.span), std::move(callee), oparen_downcasted, std::move(call_args));
+            return std::make_unique<ASTNS::CallExpr>(join_span(callee->span(), cparen.span), std::move(callee), oparen_downcasted, std::move(call_args));
         }
         Maybe<std::unique_ptr<ASTNS::Expr>> field_or_method_call_expr(std::unique_ptr<ASTNS::Expr> operand) {
             auto dot = assert_expect<Tokens::Period>();
@@ -634,9 +671,9 @@ namespace {
 
                 TRY(cparen, std::unique_ptr<ASTNS::Expr>, expect<Tokens::CParen>("')'"));
 
-                return std::make_unique<ASTNS::MethodCallExpr>(join_maybe_span(operand->span(), cparen.span), std::move(operand), dot_downcasted, name, oparen_downcasted, std::move(call_args));
+                return std::make_unique<ASTNS::MethodCallExpr>(join_span(operand->span(), cparen.span), std::move(operand), dot_downcasted, name, oparen_downcasted, std::move(call_args));
             } else {
-                return std::make_unique<ASTNS::FieldAccessExpr>(join_maybe_span(operand->span(), name.span), std::move(operand), dot_downcasted, name);
+                return std::make_unique<ASTNS::FieldAccessExpr>(join_span(operand->span(), name.span), std::move(operand), dot_downcasted, name);
             }
         }
         // args {{{3
@@ -690,7 +727,7 @@ namespace {
                 segments.push_back(seg);
             } while (consume_if<Tokens::DoubleColon>());
 
-            return std::make_unique<ASTNS::Path>(span_from_vec(segments), std::move(segments));
+            return std::make_unique<ASTNS::Path>(span_from_vec(segments, segments[0].span), std::move(segments));
         }
         // fields {{{2
         Lexer &lexer;
@@ -787,7 +824,7 @@ namespace {
         }
         // span {{{3
         template <typename T>
-        Maybe<Span> span_from_vec(std::vector<std::unique_ptr<T>> const &vec) {
+        Span span_from_vec(std::vector<std::unique_ptr<T>> const &vec, Span const &fallback) {
             Maybe<Location> start;
             Maybe<Location> end;
 
@@ -806,14 +843,12 @@ namespace {
                 }
             }
 
-            Maybe<Span> span = start.has() && end.has()
-                ? Maybe<Span>(Span(start.get(), end.get()))
-                : Maybe<Span>();
-
-            return span;
+            return start.has() && end.has()
+                ? Span(start.get(), end.get())
+                : fallback;
         }
         template <typename T>
-        Maybe<Span> span_from_vec(std::vector<Located<T>> const &vec) {
+        Span span_from_vec(std::vector<Located<T>> const &vec, Span const &fallback) {
             Maybe<Location> start;
             Maybe<Location> end;
 
@@ -832,21 +867,12 @@ namespace {
                 }
             }
 
-            Maybe<Span> span = start.has() && end.has()
-                ? Maybe<Span>(Span(start.get(), end.get()))
-                : Maybe<Span>();
-
-            return span;
+            return start.has() && end.has()
+                ? Span(start.get(), end.get())
+                : fallback;
         }
         Span join_span(Span const &l, Span const &r) {
             return Span(l.start, r.end);
-        }
-        Maybe<Span> join_maybe_span(Maybe<Span const> const &l, Maybe<Span const> const &r) {
-            if (l.has() && r.has()) {
-                return join_span(l.get(), r.get());
-            } else {
-                return Maybe<Span>();
-            }
         }
         // thing list {{{3
         template <typename Ret>

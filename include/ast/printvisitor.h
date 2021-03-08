@@ -15,15 +15,12 @@ namespace ASTNS {
         public ASTNS::TypeVisitor,
         public ASTNS::ParamBVisitor,
         public ASTNS::VStmtIBVisitor,
-        public ASTNS::PathBVisitor,
-        public ASTNS::PureLocationBVisitor
+        public ASTNS::PathBVisitor
         // PRINTVISIT INHERIT END
     {
     public:
         PrintVisitor(llvm::raw_ostream &ostream);
         // PRINTVISIT METHODS START
-        void ast_visit(ASTNS::PureLocation &ast) override;
-        void ast_visit(ASTNS::ImplicitDecl &ast) override;
         void ast_visit(ASTNS::CU &ast) override;
         void ast_visit(ASTNS::ImplDecl &ast) override;
         void ast_visit(ASTNS::FunctionDecl &ast) override;

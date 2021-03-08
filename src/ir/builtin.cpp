@@ -106,10 +106,7 @@ static Maybe<Located<NNPtr<IR::Value>>> int_unary_op(UNARY_OP_ARGS) {
 }
 // Float and Int {{{1
 // Float {{{2
-IR::FloatType::FloatType(Codegen::Context &context, ASTNS::AST const &decl_ast, int size): Type(context), size(size), _decl_ast(decl_ast) {ASSERT(size == 32 || size == 64)}
-ASTNS::AST const &IR::FloatType::decl_ast() const {
-    return *_decl_ast;
-}
+IR::FloatType::FloatType(Codegen::Context &context, Maybe<ASTNS::AST const &> decl_ast, int size): Type(context), size(size) {ASSERT(size == 32 || size == 64)}
 
 llvm::Type& IR::FloatType::to_llvm_type(llvm::LLVMContext &con) const {
     if (size == 32)
@@ -162,10 +159,7 @@ Located<NNPtr<IR::Value>> IR::FloatType::impl_cast(Codegen::Context &cgc, IR::Fu
     return v;
 }
 // Int {{{2
-IR::IntType::IntType(Codegen::Context &context, ASTNS::AST const &decl_ast, int size, bool is_signed): Type(context), size(size), is_signed(is_signed), _decl_ast(decl_ast) {ASSERT(size == 1 || size == 8 || size == 16 || size == 32 || size == 64)}
-ASTNS::AST const &IR::IntType::decl_ast() const {
-    return *_decl_ast;
-}
+IR::IntType::IntType(Codegen::Context &context, Maybe<ASTNS::AST const &> decl_ast, int size, bool is_signed): Type(context), size(size), is_signed(is_signed) {ASSERT(size == 1 || size == 8 || size == 16 || size == 32 || size == 64)}
 
 llvm::Type& IR::IntType::to_llvm_type(llvm::LLVMContext &con) const {
     return *llvm::IntegerType::get(con, size);
@@ -228,9 +222,8 @@ Located<NNPtr<IR::Value>> IR::IntType::impl_cast(Codegen::Context &cgc, IR::Func
 }
 // Generic types {{{2
 // GenericInt {{{2
-IR::GenericIntType::GenericIntType(Codegen::Context &context, ASTNS::AST const &decl_ast): Type(context), _decl_ast(decl_ast) {}
-ASTNS::AST const &IR::GenericIntType::decl_ast() const {
-    return *_decl_ast;
+IR::GenericIntType::GenericIntType(Codegen::Context &context, Maybe<ASTNS::AST const &> decl_ast): Type(context) {
+    _init_decl_ast(decl_ast);
 }
 
 std::string IR::GenericIntType::name() const {
@@ -255,9 +248,8 @@ Located<NNPtr<IR::Value>> IR::GenericIntType::impl_cast(Codegen::Context &cgc, I
     return v;
 }
 // GenericFloat {{{2
-IR::GenericFloatType::GenericFloatType(Codegen::Context &context, ASTNS::AST const &decl_ast): Type(context), _decl_ast(decl_ast) {}
-ASTNS::AST const &IR::GenericFloatType::decl_ast() const {
-    return *_decl_ast;
+IR::GenericFloatType::GenericFloatType(Codegen::Context &context, Maybe<ASTNS::AST const &> decl_ast): Type(context) {
+    _init_decl_ast(decl_ast);
 }
 
 std::string IR::GenericFloatType::name() const {
@@ -283,9 +275,8 @@ Located<NNPtr<IR::Value>> IR::GenericFloatType::impl_cast(Codegen::Context &cgc,
     return v;
 }
 // Char {{{1
-IR::CharType::CharType(Codegen::Context &context, ASTNS::AST const &decl_ast): Type(context), _decl_ast(decl_ast) {}
-ASTNS::AST const &IR::CharType::decl_ast() const {
-    return *_decl_ast;
+IR::CharType::CharType(Codegen::Context &context, Maybe<ASTNS::AST const &> decl_ast): Type(context) {
+    _init_decl_ast(decl_ast);
 }
 
 llvm::Type& IR::CharType::to_llvm_type(llvm::LLVMContext &con) const {
@@ -342,9 +333,8 @@ Located<NNPtr<IR::Value>> IR::CharType::impl_cast(Codegen::Context &cgc, IR::Fun
     return v;
 }
 // Bool {{{1
-IR::BoolType::BoolType(Codegen::Context &context, ASTNS::AST const &decl_ast): Type(context), _decl_ast(decl_ast) {}
-ASTNS::AST const &IR::BoolType::decl_ast() const {
-    return *_decl_ast;
+IR::BoolType::BoolType(Codegen::Context &context, Maybe<ASTNS::AST const &> decl_ast): Type(context) {
+    _init_decl_ast(decl_ast);
 }
 
 llvm::Type& IR::BoolType::to_llvm_type(llvm::LLVMContext &con) const {
@@ -428,3 +418,10 @@ DERIVE_TYPE_NO_FIELDS(IR::GenericIntType)
 DERIVE_TYPE_NO_FIELDS(IR::GenericFloatType)
 DERIVE_TYPE_NO_FIELDS(IR::CharType)
 DERIVE_TYPE_NO_FIELDS(IR::BoolType)
+
+DERIVE_DECLSYMBOL_AST_IMPL(IR::FloatType)
+DERIVE_DECLSYMBOL_AST_IMPL(IR::IntType)
+DERIVE_DECLSYMBOL_AST_IMPL(IR::GenericIntType)
+DERIVE_DECLSYMBOL_AST_IMPL(IR::GenericFloatType)
+DERIVE_DECLSYMBOL_AST_IMPL(IR::CharType)
+DERIVE_DECLSYMBOL_AST_IMPL(IR::BoolType)

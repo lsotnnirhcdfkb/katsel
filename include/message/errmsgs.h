@@ -145,7 +145,7 @@ void E0032(Span const &name, IR::Register const &prev);
 
 // E0033 - not-a-type
 #define ERR_NOT_A_TYPE E0033
-void E0033(Span const &notty, ASTNS::AST const &decl_ast);
+void E0033(Span const &notty);
 
 // E0034 - no-member-in
 #define ERR_NO_MEMBER_IN E0034

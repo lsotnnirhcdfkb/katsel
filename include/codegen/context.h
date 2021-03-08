@@ -8,7 +8,7 @@
 namespace Codegen {
     class Context {
     public:
-        Context(File const &file);
+        Context();
 
         IR::FloatType& get_float_type(int size);
         IR::IntType& get_int_type(int size, bool is_signed);
@@ -27,8 +27,6 @@ namespace Codegen {
         IR::ConstChar& get_const_char(uint8_t value);
         IR::ConstBool& get_const_bool(bool value);
         IR::Void& get_void();
-
-        std::unique_ptr<ASTNS::ImplicitDecl> implicit_decl_ast;
 
     private:
         std::vector<std::unique_ptr<IR::Type>> types;

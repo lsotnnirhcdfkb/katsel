@@ -12,7 +12,6 @@ namespace ASTNS {
     class DeclVisitor {
     public:
         virtual ~DeclVisitor() {}
-        virtual void ast_visit(ASTNS::ImplicitDecl &ast) = 0;
         virtual void ast_visit(ASTNS::ImplDecl &ast) = 0;
         virtual void ast_visit(ASTNS::FunctionDecl &ast) = 0;
     };
@@ -73,11 +72,6 @@ namespace ASTNS {
     public:
         virtual ~PathBVisitor() {}
         virtual void ast_visit(ASTNS::Path &ast) = 0;
-    };
-    class PureLocationBVisitor {
-    public:
-        virtual ~PureLocationBVisitor() {}
-        virtual void ast_visit(ASTNS::PureLocation &ast) = 0;
     };
     // ASTVISITH END
 }

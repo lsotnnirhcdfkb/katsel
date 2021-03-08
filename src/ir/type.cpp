@@ -8,9 +8,8 @@
 #include "llvm/IR/DerivedTypes.h"
 #include "utils/format.h"
 
-IR::VoidType::VoidType(Codegen::Context &context, ASTNS::AST const &decl_ast): Type(context), _decl_ast(decl_ast) {}
-ASTNS::AST const &IR::VoidType::decl_ast() const {
-    return *_decl_ast;
+IR::VoidType::VoidType(Codegen::Context &context, Maybe<ASTNS::AST const &> decl_ast): Type(context) {
+    _init_decl_ast(decl_ast);
 }
 std::string IR::VoidType::name() const {
     return "void";
@@ -36,15 +35,8 @@ Located<NNPtr<IR::Value>> IR::VoidType::impl_cast(Codegen::Context &cgc, IR::Fun
     return v;
 }
 
-DERIVE_TYPE_METHOD_TABLE_IMPL(IR::VoidType)
-DERIVE_TYPE_METHOD_TABLE_IMPL(IR::FunctionType)
-
-DERIVE_TYPE_NO_FIELDS(IR::VoidType)
-DERIVE_TYPE_NO_FIELDS(IR::FunctionType)
-
-IR::FunctionType::FunctionType(Codegen::Context &context, ASTNS::AST const &decl_ast, Type const &ret, std::vector<NNPtr<Type const>> paramtys): Type(context), ret(ret), paramtys(paramtys), _decl_ast(decl_ast) {}
-ASTNS::AST const &IR::FunctionType::decl_ast() const {
-    return *_decl_ast;
+IR::FunctionType::FunctionType(Codegen::Context &context, Maybe<ASTNS::AST const &> decl_ast, Type const &ret, std::vector<NNPtr<Type const>> paramtys): Type(context), ret(ret), paramtys(paramtys), _decl_ast(decl_ast.has() ? Maybe<NNPtr<ASTNS::AST const>>(NNPtr(decl_ast.get())) : Maybe<NNPtr<ASTNS::AST> const>()) {
+    _init_decl_ast(decl_ast);
 }
 std::string IR::FunctionType::name() const {
     std::stringstream ss;
@@ -92,6 +84,16 @@ std::ostream& operator<<(std::ostream &os, IR::Type const &ty) {
 
 DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::VoidType)
 DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::FunctionType)
+
+DERIVE_DECLSYMBOL_AST_IMPL(IR::VoidType)
+DERIVE_DECLSYMBOL_AST_IMPL(IR::FunctionType)
+
+DERIVE_TYPE_METHOD_TABLE_IMPL(IR::VoidType)
+DERIVE_TYPE_METHOD_TABLE_IMPL(IR::FunctionType)
+
+DERIVE_TYPE_NO_FIELDS(IR::VoidType)
+DERIVE_TYPE_NO_FIELDS(IR::FunctionType)
+
 
 #define ACCEPT(cl) void IR::cl::type_accept(IR::TypeVisitor &v) const { v.type_visit(*this); }
 IR_TYPES(ACCEPT)

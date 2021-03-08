@@ -11,9 +11,8 @@
 
 #include "llvm/IR/DerivedTypes.h"
 
-IR::PointerType::PointerType(Codegen::Context &context, ASTNS::AST const &decl_ast, bool mut, Type const &ty): Type(context), ty(ty), mut(mut), _decl_ast(decl_ast) {}
-ASTNS::AST const &IR::PointerType::decl_ast() const {
-    return *_decl_ast;
+IR::PointerType::PointerType(Codegen::Context &context, Maybe<ASTNS::AST const &> decl_ast, bool mut, Type const &ty): Type(context), ty(ty), mut(mut) {
+    _init_decl_ast(decl_ast);
 }
 
 std::string IR::PointerType::name() const {
@@ -23,6 +22,7 @@ std::string IR::PointerType::name() const {
         return format("*{}", ty->name());
 }
 
+DERIVE_DECLSYMBOL_AST_IMPL(IR::PointerType)
 DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::PointerType)
 DERIVE_TYPE_METHOD_TABLE_IMPL(IR::PointerType)
 DERIVE_TYPE_NO_FIELDS(IR::PointerType)

@@ -33,6 +33,7 @@ namespace Codegen {
         virtual bool has_field(std::string const &name) const override; \
         virtual int get_field_index(std::string const &name) const override;
 
+
 #define DERIVE_TYPE_METHOD_TABLE_IMPL(cl) \
     Maybe<IR::Type::Method const> cl::get_method(std::string const &name) const { \
         auto m = methods.find(name); \
@@ -106,10 +107,10 @@ namespace IR {
     // Float {{{1
     class FloatType : public Type {
     public:
-        FloatType(Codegen::Context &context, ASTNS::AST const &decl_ast, int size);
+        FloatType(Codegen::Context &context, Maybe<ASTNS::AST const &> decl_ast, int size);
 
         std::string name() const override;
-        ASTNS::AST const &decl_ast() const override;
+        Maybe<ASTNS::AST const &> decl_ast() const override;
 
         int size;
 
@@ -118,17 +119,17 @@ namespace IR {
         DERIVE_TYPE_DECL()
 
     private:
-        NNPtr<ASTNS::AST const> _decl_ast;
+        DERIVE_DECLSYMBOL_AST_DECL()
 
         std::map<std::string, IR::Type::Method> methods;
     };
     // Int {{{1
     class IntType : public Type {
     public:
-        IntType(Codegen::Context &context, ASTNS::AST const &decl_ast, int size, bool is_signed);
+        IntType(Codegen::Context &context, Maybe<ASTNS::AST const &> decl_ast, int size, bool is_signed);
 
         std::string name() const override;
-        ASTNS::AST const &decl_ast() const override;
+        Maybe<ASTNS::AST const &> decl_ast() const override;
 
         DERIVE_TYPE_DECL()
 
@@ -138,43 +139,43 @@ namespace IR {
         DERIVE_DECLSYMBOL_ITEMS_DECL()
 
     private:
-        NNPtr<ASTNS::AST const> _decl_ast;
+        DERIVE_DECLSYMBOL_AST_DECL()
 
         std::map<std::string, IR::Type::Method> methods;
     };
     // Char {{{1
     class CharType : public Type {
     public:
-        CharType(Codegen::Context &context, ASTNS::AST const &decl_ast);
+        CharType(Codegen::Context &context, Maybe<ASTNS::AST const &> decl_ast);
 
         std::string name() const override;
 
         DERIVE_TYPE_DECL()
 
-        ASTNS::AST const &decl_ast() const override;
+        Maybe<ASTNS::AST const &> decl_ast() const override;
 
         DERIVE_DECLSYMBOL_ITEMS_DECL()
 
     private:
-        NNPtr<ASTNS::AST const> _decl_ast;
+        DERIVE_DECLSYMBOL_AST_DECL()
 
         std::map<std::string, IR::Type::Method> methods;
     };
     // Bool {{{1
     class BoolType : public Type {
     public:
-        BoolType(Codegen::Context &context, ASTNS::AST const &decl_ast);
+        BoolType(Codegen::Context &context, Maybe<ASTNS::AST const &> decl_ast);
 
         std::string name() const override;
 
         DERIVE_TYPE_DECL()
 
-        ASTNS::AST const &decl_ast() const override;
+        Maybe<ASTNS::AST const &> decl_ast() const override;
 
         DERIVE_DECLSYMBOL_ITEMS_DECL()
 
     private:
-        NNPtr<ASTNS::AST const> _decl_ast;
+        DERIVE_DECLSYMBOL_AST_DECL()
 
         std::map<std::string, IR::Type::Method> methods;
     };
@@ -184,42 +185,42 @@ namespace IR {
         NNPtr<Type const> ret;
         std::vector<NNPtr<Type const>> paramtys;
 
-        FunctionType(Codegen::Context &context, ASTNS::AST const &decl_ast, Type const &ret, std::vector<NNPtr<Type const>> paramtys);
+        FunctionType(Codegen::Context &context, Maybe<ASTNS::AST const &> decl_ast, Type const &ret, std::vector<NNPtr<Type const>> paramtys);
         std::string name() const override;
 
         DERIVE_TYPE_DECL()
 
-        ASTNS::AST const &decl_ast() const override;
+        Maybe<ASTNS::AST const &> decl_ast() const override;
 
         DERIVE_DECLSYMBOL_ITEMS_DECL()
 
     private:
-        NNPtr<ASTNS::AST const> _decl_ast;
+        DERIVE_DECLSYMBOL_AST_DECL()
 
         std::map<std::string, IR::Type::Method> methods;
     };
     // Void {{{1
     class VoidType : public Type {
     public:
-        VoidType(Codegen::Context &context, ASTNS::AST const &decl_ast);
+        VoidType(Codegen::Context &context, Maybe<ASTNS::AST const &> decl_ast);
 
         std::string name() const override;
 
         DERIVE_TYPE_DECL()
 
-        ASTNS::AST const &decl_ast() const override;
+        Maybe<ASTNS::AST const &> decl_ast() const override;
 
         DERIVE_DECLSYMBOL_ITEMS_DECL()
 
     private:
-        NNPtr<ASTNS::AST const> _decl_ast;
+        DERIVE_DECLSYMBOL_AST_DECL()
 
         std::map<std::string, IR::Type::Method> methods;
     };
     // Pointer {{{1
     class PointerType : public Type {
     public:
-        PointerType(Codegen::Context &context, ASTNS::AST const &decl_ast, bool mut, Type const &ty);
+        PointerType(Codegen::Context &context, Maybe<ASTNS::AST const &> decl_ast, bool mut, Type const &ty);
 
         std::string name() const override;
 
@@ -228,12 +229,12 @@ namespace IR {
         NNPtr<Type const> ty;
         bool mut;
 
-        ASTNS::AST const &decl_ast() const override;
+        Maybe<ASTNS::AST const &> decl_ast() const override;
 
         DERIVE_DECLSYMBOL_ITEMS_DECL()
 
     private:
-        NNPtr<ASTNS::AST const> _decl_ast;
+        DERIVE_DECLSYMBOL_AST_DECL()
 
         std::map<std::string, IR::Type::Method> methods;
     };
@@ -241,36 +242,36 @@ namespace IR {
     // Int {{{2
     class GenericIntType : public Type {
     public:
-        GenericIntType(Codegen::Context &context, ASTNS::AST const &decl_ast);
+        GenericIntType(Codegen::Context &context, Maybe<ASTNS::AST const &> decl_ast);
 
         std::string name() const override;
 
         DERIVE_TYPE_DECL()
 
-        ASTNS::AST const &decl_ast() const override;
+        Maybe<ASTNS::AST const &> decl_ast() const override;
 
         DERIVE_DECLSYMBOL_ITEMS_DECL()
 
     private:
-        NNPtr<ASTNS::AST const> _decl_ast;
+        DERIVE_DECLSYMBOL_AST_DECL()
 
         std::map<std::string, IR::Type::Method> methods;
     };
     // Float {{{2
     class GenericFloatType : public Type {
     public:
-        GenericFloatType(Codegen::Context &context, ASTNS::AST const &decl_ast);
+        GenericFloatType(Codegen::Context &context, Maybe<ASTNS::AST const &> decl_ast);
 
         std::string name() const override;
 
         DERIVE_TYPE_DECL()
 
-        ASTNS::AST const &decl_ast() const override;
+        Maybe<ASTNS::AST const &> decl_ast() const override;
 
         DERIVE_DECLSYMBOL_ITEMS_DECL()
 
     private:
-        NNPtr<ASTNS::AST const> _decl_ast;
+        DERIVE_DECLSYMBOL_AST_DECL()
 
         std::map<std::string, IR::Type::Method> methods;
     };

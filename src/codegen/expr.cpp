@@ -396,13 +396,17 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::Block &ast) {
 
     Maybe<Located<NNPtr<IR::Value>>> last_expr;
 
+    bool success = true;
     for (auto stmt = ast.stmts.begin(); stmt != ast.stmts.end(); ++stmt) {
         bool last = (stmt + 1) == ast.stmts.end();
         ASTNS::ExprStmt *as_expr = dynamic_cast<ASTNS::ExprStmt *>(stmt->get());
 
         if (last && as_expr) {
             auto e = expr(*as_expr->expr);
-            last_expr = e;
+            if (!e.has())
+                success = false;
+            else
+                last_expr = e;
         } else
             stmt_cg.stmt(**stmt);
     }

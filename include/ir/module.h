@@ -49,6 +49,20 @@ struct File;
         return decls; \
     }
 
+#define DERIVE_DECLSYMBOL_AST_DECL() \
+    private: \
+        Maybe<NNPtr<ASTNS::AST const>> _decl_ast; \
+        void _init_decl_ast(Maybe<ASTNS::AST const &> &a);
+
+#define DERIVE_DECLSYMBOL_AST_IMPL(cl) \
+    Maybe<ASTNS::AST const &> cl::decl_ast() const { \
+        return _decl_ast.has() ? *_decl_ast.get() : Maybe<ASTNS::AST const &>(); \
+    } \
+    void cl::_init_decl_ast(Maybe<ASTNS::AST const &> &a) { \
+        _decl_ast = a.has() ? Maybe<NNPtr<ASTNS::AST const>>(a.get()) : Maybe<NNPtr<ASTNS::AST const>>(); \
+    }
+
+
 namespace IR {
 #define DECLSYM_CLASS_LIST(macro) \
         macro(Type) \
@@ -56,7 +70,7 @@ namespace IR {
     class DeclSymbolVisitor;
     class DeclSymbol {
     public:
-        virtual ASTNS::AST const &decl_ast() const = 0;
+        virtual Maybe<ASTNS::AST const &> decl_ast() const = 0;
         virtual std::string name() const = 0;
 
         virtual void add_value(std::string const &name, Value &t) = 0;
@@ -73,9 +87,9 @@ namespace IR {
 
     class Module : public DeclSymbol {
     public:
-        Module(std::string const &name, NNPtr<ASTNS::AST> decl_ast);
+        Module(std::string const &name, Maybe<ASTNS::AST const &> decl_ast);
 
-        ASTNS::AST const & decl_ast() const override;
+        Maybe<ASTNS::AST const &> decl_ast() const override;
         std::string name() const override;
 
         virtual void declsym_accept(DeclSymbolVisitor &v) const override;
@@ -83,7 +97,7 @@ namespace IR {
         DERIVE_DECLSYMBOL_ITEMS_DECL()
 
     private:
-        NNPtr<ASTNS::AST> _decl_ast;
+        DERIVE_DECLSYMBOL_AST_DECL()
 
         std::string _name;
     };

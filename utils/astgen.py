@@ -30,17 +30,6 @@ asts = [
     ASTBase('VStmtIB'),
     ASTBase('PathB'),
 
-    # a class to keep track of locations of syntactic elements that don't matter (like
-    # line endings where the location matters (so that other statements can use the line
-    # ending as an ending position) but does not reduce down to an actual AST,
-    # so its location cannot be kept track of otherwise)
-    # it should never appear in the final AST, because no fields should have a PureLocationB
-    # or a PureLocation as a field
-    ASTBase('PureLocationB'),
-    AST('PureLocation', 'PureLocationB', 'int|dummy'),
-
-    AST('ImplicitDecl'      , 'Decl', 'int|dummy'),
-
     AST('CU'                , 'CUB', 'std::vector<std::unique_ptr<Decl>>|decls'),
     AST('ImplDecl'          , 'Decl', 'std::unique_ptr<Type>|impl_for!std::vector<std::unique_ptr<ImplMember>>|members'),
     AST('FunctionDecl'      , 'Decl', 'std::unique_ptr<Type>|retty ! Located<Tokens::Identifier>|name ! std::vector<std::unique_ptr<ParamB>>|params ! std::unique_ptr<Block>|body'),
@@ -93,13 +82,13 @@ def gen_ast_decls():
             output.append(f'class {ast.name} : public {ast.base} {{\n')
 
             output.append( 'public:\n')
-            output.append( '    Maybe<Span const> _span;\n')
+            output.append( '    Span const _span;\n')
 
             output.append(helpers.Field.as_fields(ast.fields, indent=4))
 
             output.append(f'    virtual void ast_accept({ast.base}Visitor &v) override;\n')
-            output.append( '    virtual Maybe<Span const> const &span() const override;\n')
-            output.append(f'    {ast.name}(Maybe<Span const> const &span, {helpers.Field.as_params(ast.fields)});\n')
+            output.append( '    virtual Span const &span() const override;\n')
+            output.append(f'    {ast.name}(Span const &span, {helpers.Field.as_params(ast.fields)});\n')
 
             output.append( '};\n')
         elif isinstance(ast, ASTBase):
@@ -114,7 +103,7 @@ def gen_ast_decls():
             output.append(('class AST {\n'
                            'public:\n'
                            '    virtual ~AST() {}\n'
-                           '    virtual Maybe<Span const> const &span() const = 0;\n'
+                           '    virtual Span const &span() const = 0;\n'
                            '};\n'))
 
     return''.join(output)
@@ -123,7 +112,7 @@ def gen_ast_defs():
     output = []
     for ast in asts:
         if isinstance(ast, AST):
-            output.append(f'ASTNS::{ast.name}::{ast.name}(Maybe<Span const> const &span, {helpers.Field.as_params(ast.fields)}): ')
+            output.append(f'ASTNS::{ast.name}::{ast.name}(Span const &span, {helpers.Field.as_params(ast.fields)}): ')
 
             output.append(f'_span(span), ')
             output.append(', '.join(f'{field.name}(std::move({field.name}))' for field in ast.fields))
@@ -131,7 +120,7 @@ def gen_ast_defs():
             output.append(' {}\n')
 
             output.append(f'void ASTNS::{ast.name}::ast_accept(ASTNS::{ast.base}Visitor &v) {{ v.ast_visit(*this); }}\n')
-            output.append(f'Maybe<Span const> const &ASTNS::{ast.name}::span() const {{ return _span; }}\n')
+            output.append(f'Span const &ASTNS::{ast.name}::span() const {{ return _span; }}\n')
 
     return ''.join(output)
 # Generate AST forward decls {{{3

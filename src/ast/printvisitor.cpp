@@ -149,22 +149,6 @@ static void print_field(ASTNS::PrintVisitor &p, std::vector<T> const &v) {
 }
 
 // PRINTVISITOR START
-void ASTNS::PrintVisitor::ast_visit(ASTNS::PureLocation &a) {
-    pai("PureLocation {\n");
-    ++indent;
-    pai("int dummy = ");
-    print_field(*this, a.dummy);
-    --indent;
-    pai("}\n");
-}
-void ASTNS::PrintVisitor::ast_visit(ASTNS::ImplicitDecl &a) {
-    pai("ImplicitDecl {\n");
-    ++indent;
-    pai("int dummy = ");
-    print_field(*this, a.dummy);
-    --indent;
-    pai("}\n");
-}
 void ASTNS::PrintVisitor::ast_visit(ASTNS::CU &a) {
     pai("CU {\n");
     ++indent;

@@ -3,16 +3,16 @@
 #include "ir/type.h"
 #include <ostream>
 
-IR::Module::Module(std::string const &name, NNPtr<ASTNS::AST> decl_ast): _decl_ast(decl_ast), _name(name) {}
-
-ASTNS::AST const &IR::Module::decl_ast() const {
-    return *_decl_ast;
+IR::Module::Module(std::string const &name, Maybe<ASTNS::AST const &> decl_ast): _name(name) {
+    _init_decl_ast(decl_ast);
 }
+
 std::string IR::Module::name() const {
     return _name;
 }
 
 DERIVE_DECLSYMBOL_ITEMS_IMPL(IR::Module)
+DERIVE_DECLSYMBOL_AST_IMPL(IR::Module)
 
 // do the dsaccept methods here, even though that doesn't really make sense with the file structure but whatever
 #define DSACCEPTMETHOD(cl) \

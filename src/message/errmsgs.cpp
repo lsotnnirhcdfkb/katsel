@@ -368,11 +368,10 @@ void E0032(Span const &name, IR::Register const &prev) {
 
 // E0033 - not-a-type
 // | Expected a type but path resolved to something else
-void E0033(Span const &notty, ASTNS::AST const &decl_ast) {
+void E0033(Span const &notty) {
     Errors::SimpleError e = Errors::SimpleError(Errors::SimpleError::Type::ERROR, notty, "E0033", "not-a-type");
     auto sect = std::make_unique<Errors::Sections::Underlines>();
     sect->messages.push_back(Errors::Sections::Underlines::Message { notty, '^', "not a type", A_BOLD });
-    sect->messages.push_back(Errors::Sections::Underlines::Message { decl_ast, '~', "declared here", A_BOLD });
     e.section(std::move(sect));
     e.report();
 }

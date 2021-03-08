@@ -4,7 +4,7 @@
 #include <iostream>
 #include "ast/ast.h"
 
-Codegen::Context::Context(File const &file): implicit_decl_ast(std::make_unique<ASTNS::ImplicitDecl>(Maybe<Span const>(), 0)), void_value(get_void_type()) {}
+Codegen::Context::Context(): void_value(get_void_type()) {}
 
 // getting types {{{1 TODO: make a template function to loop through things and either make operator== = default for all types or use a lambda to compare them
 #define CHECK_FIELD(field) (casted->field == field)
@@ -25,47 +25,47 @@ Codegen::Context::Context(File const &file): implicit_decl_ast(std::make_unique<
 GET_TYPE_DEF(FloatType, float_type,
         (int size),
         (CHECK_FIELD(size)),
-        (*this, *implicit_decl_ast, size))
+        (*this, Maybe<ASTNS::AST const &>(), size))
 
 GET_TYPE_DEF(IntType, int_type,
         (int size, bool is_signed),
         (CHECK_FIELD(size) && CHECK_FIELD(is_signed)),
-        (*this, *implicit_decl_ast, size, is_signed))
+        (*this, Maybe<ASTNS::AST const &>(), size, is_signed))
 
 GET_TYPE_DEF(CharType, char_type,
         (),
         true,
-        (*this, *implicit_decl_ast))
+        (*this, Maybe<ASTNS::AST const &>()))
 
 GET_TYPE_DEF(BoolType, bool_type,
         (),
         true,
-        (*this, *implicit_decl_ast))
+        (*this, Maybe<ASTNS::AST const &>()))
 
 GET_TYPE_DEF(GenericIntType, generic_int_type,
         (),
         true,
-        (*this, *implicit_decl_ast))
+        (*this, Maybe<ASTNS::AST const &>()))
 
 GET_TYPE_DEF(GenericFloatType, generic_float_type,
         (),
         true,
-        (*this, *implicit_decl_ast))
+        (*this, Maybe<ASTNS::AST const &>()))
 
 GET_TYPE_DEF(FunctionType, function_type,
         (IR::Type const &ret, std::vector<NNPtr<IR::Type const>> paramtys),
         (&ret == &*casted->ret  && CHECK_FIELD(paramtys)),
-        (*this, *implicit_decl_ast, ret, paramtys))
+        (*this, Maybe<ASTNS::AST const &>(), ret, paramtys))
 
 GET_TYPE_DEF(VoidType, void_type,
         (),
         true,
-        (*this, *implicit_decl_ast))
+        (*this, Maybe<ASTNS::AST const &>()))
 
 GET_TYPE_DEF(PointerType, pointer_type,
         (bool mut, IR::Type const &ty),
         (CHECK_FIELD(mut) && casted->ty.as_raw() == &ty),
-        (*this, *implicit_decl_ast, mut, ty))
+        (*this, Maybe<ASTNS::AST const &>(), mut, ty))
 
 #undef GET_TYPE_DEF
 #undef CHECK_FIELD

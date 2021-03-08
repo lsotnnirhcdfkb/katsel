@@ -275,10 +275,9 @@ errors = [
             ]),
         Msg('not-a-type',
             desc='Expected a type but path resolved to something else',
-            inputs='Span const &notty, ASTNS::AST const &decl_ast', location='notty',
+            inputs='Span const &notty', location='notty',
             highlights=[
                 SimpleHighlight('notty', UNDER0, [('error', '"not a type"')]),
-                SimpleHighlight('decl_ast', UNDER1, [('note', '"declared here"')]),
             ]),
         Msg('no-member-in',
             desc='No member of a certain name within another member',

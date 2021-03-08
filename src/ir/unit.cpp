@@ -7,7 +7,7 @@
 #include "ir/function.h"
 #include "ir/block.h"
 
-IR::Unit::Unit(File const &file): context(file), file(file), mod("", *context.implicit_decl_ast) {}
+IR::Unit::Unit(File const &file): context(), file(file), mod("", Maybe<ASTNS::AST const &>()) {}
 IR::Unit::~Unit() = default;
 
 void IR::Unit::print(llvm::raw_ostream &ostream) const {

@@ -13,7 +13,6 @@ namespace {
             success(true) {}
 
         // MAINCG METHODS START
-        void ast_visit(ASTNS::ImplicitDecl &ast) override;
         void ast_visit(ASTNS::CU &ast) override;
         void ast_visit(ASTNS::ImplDecl &ast) override;
         void ast_visit(ASTNS::FunctionDecl &ast) override;
@@ -79,8 +78,6 @@ Maybe<std::unique_ptr<IR::Unit>> Codegen::codegen(File const &file, NNPtr<ASTNS:
     else
         return Maybe<std::unique_ptr<IR::Unit>>();
 }
-
-void _CG::ast_visit(ASTNS::ImplicitDecl &ast) {}
 
 void _CG::ast_visit(ASTNS::CU &ast) {
     for (auto &decl : ast.decls) {
