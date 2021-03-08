@@ -4,6 +4,13 @@
 #include "utils/location.h"
 
 namespace Errors {
+    class Section {
+    public:
+        virtual ~Section() = default;
+        virtual int left_pad() const = 0;
+        virtual void report(int left_pad) const = 0;
+    };
+
     namespace Sections {
         class Underlines : public Section {
         public:

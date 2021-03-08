@@ -10,13 +10,7 @@ namespace Errors {
         HUMAN, JSON, ALIGNED
     } errformat;
 
-    class Section {
-    public:
-        virtual ~Section() = default;
-        virtual int left_pad() const = 0;
-        virtual void report(int left_pad) const = 0;
-    };
-
+    class Section;
     class SimpleError {
     public:
         enum class Type { ERROR, WARNING };
