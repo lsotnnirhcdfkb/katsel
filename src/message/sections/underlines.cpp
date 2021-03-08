@@ -204,15 +204,18 @@ void Underlines::report(int left_pad) const {
                         for (unsigned int col = 1; col <= line.length() + 2;) {
                             bool need_space = true;
                             for (auto const &located_message : located_line_messages) {
-                                if (located_message.row == row && located_message.start_col == col) {
-                                    std::cerr << located_message.text;
-                                    col = located_message.end_col();
-                                    need_space = false;
-                                    break;
-                                } else if (located_message.row > row) {
-                                    std::cerr << "|";
-                                    ++col;
-                                    need_space = false;
+                                if (located_message.start_col == col) {
+                                    if (located_message.row == row) {
+                                        std::cerr << located_message.text;
+                                        col = located_message.end_col();
+                                        need_space = false;
+                                        break;
+                                    } else if (located_message.row > row) {
+                                        std::cerr << "|";
+                                        ++col;
+                                        need_space = false;
+                                        break;
+                                    }
                                 }
                             }
 
