@@ -27,5 +27,4 @@ namespace Errors {
             void report(int left_pad) const override;
         };
     }
-
 }

@@ -16,14 +16,14 @@ namespace Errors {
         }
 
         template <typename T>
-        inline std::string right_pad(int pad, T const &t) {
+        inline std::string rjust(int pad, T const &t) {
             std::stringstream ss;
             ss << std::setw(pad) << std::right << t;
             return ss.str();
         }
 
         inline void print_file_line(int pad, File const &file) {
-            std::cerr << right_pad(pad, "") << "> " << file.filename << "\n";
+            std::cerr << rjust(pad, "") << "> " << file.filename << "\n";
         }
 
         inline void print_elipsis_line(int pad) {
@@ -50,27 +50,34 @@ namespace Errors {
         }
 
         inline void print_line(std::string const &str, int line, int pad) {
-            std::cerr << right_pad(pad - 1, line) << " | ";
+            std::cerr << rjust(pad - 1, line) << " | ";
             auto l = get_line(str, line);
             if (l.has())
                 std::cerr << l.get();
             std::cerr << std::endl;
         }
-    }
 
-    int get_col_n(std::string::const_iterator const &start, std::string::const_iterator loc) {
-        int coln = 1;
+        inline int get_col_n(std::string::const_iterator const &start, std::string::const_iterator loc) {
+            int coln = 1;
 
-        for (; loc != start && *(loc - 1) != '\n'; ++coln, --loc);
+            for (; loc != start && *(loc - 1) != '\n'; ++coln, --loc);
 
-        return coln;
-    }
-    int get_line_n(std::string::const_iterator const &start, std::string::const_iterator loc) {
-        int linen = 1; // current line will not have a newline to pass, but it still is a line
-        while (loc > start) {
-            if (*(loc - 1) == '\n') ++linen;
-            --loc;
+            return coln;
         }
-        return linen;
+        inline int get_line_n(std::string::const_iterator const &start, std::string::const_iterator loc) {
+            int linen = 1; // current line will not have a newline to pass, but it still is a line
+            while (loc > start) {
+                if (*(loc - 1) == '\n') ++linen;
+                --loc;
+            }
+            return linen;
+        }
+
+        template <typename T>
+        inline void print_line_prefix(int pad, T const &before, char separator, bool space_after=true) {
+            std::cerr << rjust(pad - 1, before) << " " << separator;
+            if (space_after)
+                std::cerr << " ";
+        }
     }
 }

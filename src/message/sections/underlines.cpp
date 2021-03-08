@@ -62,7 +62,7 @@ void Underlines::report(int left_pad) const {
                 }
             );
 
-            std::cerr << right_pad(left_pad - 1, cur_line.line) << " | ";
+            print_line_prefix(left_pad, cur_line.line, '|');
 
             {
                 std::string_view line (get_line(cur_line.file->source, cur_line.line).match(
@@ -177,7 +177,7 @@ void Underlines::report(int left_pad) const {
                 //     with +2 will print the underline under the 'newline', and the message to the right of it
 
                 if (line_messages.size()) {
-                    std::cerr << right_pad(left_pad, "") << "| ";
+                    std::cerr << rjust(left_pad, "") << "| ";
                     for (unsigned int col = 1; col <= line.length() + 2;) {
                         bool printed_message = false;
                         for (auto const &located_message : located_line_messages) {
@@ -200,7 +200,7 @@ void Underlines::report(int left_pad) const {
                     std::cerr << A_RESET "\n";
 
                     for (unsigned int row = 1; row <= max_message_row; ++row) {
-                        std::cerr << right_pad(left_pad, "") << "| ";
+                        print_line_prefix(left_pad, "", '|');
                         for (unsigned int col = 1; col <= line.length() + 2;) {
                             bool need_space = true;
                             for (auto const &located_message : located_line_messages) {
@@ -234,7 +234,7 @@ void Underlines::report(int left_pad) const {
 
     } else if (errformat == Errors::ErrorFormat::ALIGNED) {
         for (auto const &message : messages) {
-            std::string empty_pad (right_pad(left_pad, ""));
+            std::string empty_pad (rjust(left_pad, ""));
             std::cerr << empty_pad << format("> {}{}:{}:{}{}\n", if_ansi(A_FG_CYAN), message.location.file->filename, message.location.start.line, message.location.start.column, if_ansi(A_RESET));
             print_line(message.location.start.file->source, message.location.start.line, left_pad);
 
