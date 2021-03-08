@@ -198,7 +198,7 @@ namespace {
         Maybe<Span> line_ending() {
             if (consume_if<Tokens::Semicolon>()) {
                 Span semi = prev().get().span;
-                if (consume_if<Tokens::Semicolon>()) {
+                if (consume_if<Tokens::Newline>()) { // TODO: when lexer does not insert newline after ';', this will not be necessary
                     Span newl = prev().get().span;
                     return Span(semi.start, newl.end);
                 } else {
@@ -237,39 +237,15 @@ namespace {
         // braced {{{3
         template <typename ParseFun, typename ... Args>
         MaybeUnwrappedFunParseRes<ParseFun, Args...> braced(ParseFun fun, Args &&...args) {
-            enum class Braces {
-                BRACE,
-                BRACE_NL,
-                BRACE_NL_IND
-            };
-
             using FuncRet = typename UnwrapParseRes<std::invoke_result_t<ParseFun, Parser *, TokenPredicate, Args...>>::Result;
 
             TRY(obrace, FuncRet, expect<Tokens::OBrace>("'{'"));
-            Braces braces = Braces::BRACE;
 
-            if (consume_if<Tokens::Newline>()) {
-                braces = Braces::BRACE_NL;
-                if (consume_if<Tokens::Indent>()) {
-                    braces = Braces::BRACE_NL_IND;
-                }
-            }
-
-            auto stop_pred = [braces] (Located<TokenData> const &next) {
-                switch (braces) {
-                    case Braces::BRACE:
-                    case Braces::BRACE_NL:
-                        return Tokens::is<Tokens::CBrace>(next.value);
-
-                    case Braces::BRACE_NL_IND:
-                        return Tokens::is<Tokens::Dedent>(next.value);
-                }
+            auto stop_pred = [] (Located<TokenData> const &next) {
+                return Tokens::is<Tokens::CBrace>(next.value);
             };
 
             auto inside_braces = std::invoke(fun, this, stop_pred, args...);
-
-            if (braces == Braces::BRACE_NL_IND)
-                expect<Tokens::Dedent>("dedent");
 
             expect<Tokens::CBrace>("'}'");
 
@@ -280,7 +256,6 @@ namespace {
         MaybeUnwrappedFunParseRes<ParseFun, Args...> indented(ParseFun fun, Args &&...args) {
             using FuncRet = typename UnwrapParseRes<std::invoke_result_t<ParseFun, Parser *, TokenPredicate, Args...>>::Result;
 
-            TRY(nl, FuncRet, expect<Tokens::Newline>("newline"));
             TRY(indent, FuncRet, expect<Tokens::Indent>("indent"));
 
             auto inside = std::invoke(fun, this,
@@ -296,15 +271,13 @@ namespace {
         // both {{{3
         template <typename ParseFun, typename ... Args>
         MaybeUnwrappedFunParseRes<ParseFun, Args...> blocked(ParseFun fun, Args &&...args) {
-            using FuncRet = typename UnwrapParseRes<std::invoke_result_t<ParseFun, Parser *, TokenPredicate, Args...>>::Result;
-
-            if (Tokens::is<Tokens::Newline>(peek().value)) {
+            if (Tokens::is<Tokens::Indent>(peek().value)) {
                 return indented(fun, args...);
             } else if (Tokens::is<Tokens::OBrace>(peek().value)) {
                 return braced(fun, args...);
             } else {
                 ERR_EXPECTED(peek().span, "blocked"); // TODO: better message
-                return FuncRet();
+                return MaybeUnwrappedFunParseRes<ParseFun, Args...>();
             }
         }
         // types {{{2
@@ -426,7 +399,7 @@ namespace {
             {Tokens::index_of<Tokens::OBrace>    , &Parser::braced_block_expr},
         };
 
-        std::map<size_t, std::pair<Precedence, InfixParseFun>> infix_parsers = std::initializer_list<std::map<size_t, std::pair<Precedence, InfixParseFun>>>::value_type {
+        std::map<size_t, std::pair<Precedence, InfixParseFun>> infix_parsers = std::initializer_list<std::map<size_t, std::pair<Precedence, InfixParseFun>>::value_type> {
             {Tokens::index_of<Tokens::Equal>         , {Precedence::ASSIGN           , &Parser::assign_expr}},
             {Tokens::index_of<Tokens::DoublePipe>    , {Precedence::BIN_OR           , &Parser::bin_expr}},
             {Tokens::index_of<Tokens::DoubleAmper>   , {Precedence::BIN_AND          , &Parser::bin_expr}},

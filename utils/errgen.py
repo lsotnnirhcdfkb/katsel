@@ -53,11 +53,11 @@ PADAMT = 4
 RANGEMULT = 100
 # errors to generate {{{1
 errors = [
-        Msg('unexpected-char',
-            desc='The lexer found an unexpected character that could not begin a token.',
+        Msg('bad-char',
+            desc='The lexer found an unknown character that could not begin a token.',
             inputs='Span const &tok', location='tok',
             highlights=[
-                SimpleHighlight('tok', UNDER0, [('error', '"unexpected character"')]),
+                SimpleHighlight('tok', UNDER0, [('error', '"bad character"')]),
             ]),
         Msg('unterm-charlit',
             desc='The lexer found an unterminated character literal.',
@@ -71,7 +71,12 @@ errors = [
             highlights=[
                 SimpleHighlight('tok', UNDER0, [('error', '"unterminated string literal"')]),
             ]),
-
+        Msg('indent-block-cbrace',
+            desc="An indentation block cannot be closed with an explicit '}'",
+            inputs='Span const &tok', location='tok',
+            highlights=[
+                SimpleHighlight('tok', UNDER0, [('error', '"indentation block cannot be closed with explicit \'}\'"')]),
+            ]),
         Msg('invalid-numlit-base',
             desc='The lexer found an number literal that has an invalid base.',
             inputs='Span const &tok', location='tok',

@@ -19,21 +19,12 @@ namespace Tokens {
     struct CBrack {
         inline static std::string stringify() { return "']'"; }
     };
-    struct OBrace {
-        inline static std::string stringify() { return "'{'"; }
-    };
-    struct CBrace {
-        inline static std::string stringify() { return "'}'"; }
-    };
 
     struct Comma {
         inline static std::string stringify() { return "','"; }
     };
     struct Period {
         inline static std::string stringify() { return "'.'"; }
-    };
-    struct Semicolon {
-        inline static std::string stringify() { return "';'"; }
     };
     struct Question {
         inline static std::string stringify() { return "'?'"; }
@@ -237,14 +228,24 @@ namespace Tokens {
         inline static std::string stringify() { return "boom"; }
     };
 
-    struct Newline {
-        inline static std::string stringify() { return "newline"; }
+    struct OBrace {
+        inline static std::string stringify() { return "'{'"; }
     };
+    struct CBrace {
+        inline static std::string stringify() { return "'}'"; }
+    };
+    struct Semicolon {
+        inline static std::string stringify() { return "';'"; }
+    };
+
     struct Indent {
         inline static std::string stringify() { return "indent"; }
     };
     struct Dedent {
         inline static std::string stringify() { return "dedent"; }
+    };
+    struct Newline {
+        inline static std::string stringify() { return "newline"; }
     };
 
     struct _EOF {

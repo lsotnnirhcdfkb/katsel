@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <queue>
 
 #include "utils/file.h"
 #include "lex/token.h"
@@ -13,6 +14,10 @@ public:
     Located<TokenData> next_token();
 
 private:
+    void lex_more();
+    void add_token(Located<TokenData> const &tok);
+    std::queue<Located<TokenData>> token_backlog;
+
     bool at_end();
 
     char advance();
@@ -24,8 +29,8 @@ private:
 
     void start_to_end();
 
-    Located<TokenData> lex_digit(char current);
-    Located<TokenData> lex_identifier(bool apostrophes_allowed);
+    void lex_digit(char current);
+    void lex_identifier(bool apostrophes_allowed);
 
     Located<TokenData> make_token(TokenData const &t);
 
@@ -37,9 +42,11 @@ private:
     int endline;
     int endcolumn;
 
-    int indent;
-    bool dedenting;
-    std::vector<int> indentstack;
+    struct IndentFrame {
+        bool indentation_sensitive;
+        int level;
+    };
+    std::vector<IndentFrame> indent_stack;
 
     std::string::const_iterator srcstart;
     std::string::const_iterator srcend;

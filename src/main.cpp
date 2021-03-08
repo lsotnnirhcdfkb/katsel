@@ -85,7 +85,7 @@ int compile_file(OutFormats ofmt, std::string_view filename) {
             if (Tokens::is<Tokens::_EOF>(t.value))
                 break;
 
-            os << format("{}: ({}) '{}'", t.span.as_rowcol(), Tokens::stringify_type(t.value), t.span.stringify());
+            os << format("{}: ({}) '{}'\n", t.span.as_rowcol(), Tokens::stringify_type(t.value), t.span.stringify());
         }
 
         os.close();
