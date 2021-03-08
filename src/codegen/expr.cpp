@@ -394,17 +394,25 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::CastExpr &ast) {
 void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::Block &ast) {
     locals->inc_scope();
 
+    Maybe<Located<NNPtr<IR::Value>>> last_expr;
+
     for (auto stmt = ast.stmts.begin(); stmt != ast.stmts.end(); ++stmt) {
-        stmt_cg.stmt(**stmt);
+        bool last = (stmt + 1) == ast.stmts.end();
+        ASTNS::ExprStmt *as_expr = dynamic_cast<ASTNS::ExprStmt *>(stmt->get());
+
+        if (last && as_expr) {
+            auto e = expr(*as_expr->expr);
+            last_expr = e;
+        } else
+            stmt_cg.stmt(**stmt);
     }
 
-    ASTNS::AST &void_ast = ast.stmts.size() ? *static_cast<ASTNS::AST*>(ast.stmts[ast.stmts.size() - 1].get()) : *static_cast<ASTNS::AST*>(&ast);
-
-    // if (ast.ret)
-        // ret = expr(*ast.ret);
-    // else
-    // TODO: implicit returns, suppressed with ~
-    ret = Located<NNPtr<IR::Value>> { void_ast, ir_builder->context().get_void() };
+    if (last_expr.has()) {
+        ret = last_expr.get();
+    } else {
+        ASTNS::AST &void_ast = *(ast.stmts.size() ? static_cast<ASTNS::AST *>(ast.stmts[ast.stmts.size() - 1].get()) : static_cast<ASTNS::AST *>(&ast));
+        ret = Located<NNPtr<IR::Value>> { ast, ir_builder->context().get_void() };
+    }
 
     if (!stmt_cg.success)
         ret = Maybe<Located<NNPtr<IR::Value>>>();
