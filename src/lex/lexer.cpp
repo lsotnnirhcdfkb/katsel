@@ -211,6 +211,8 @@ void Lexer::lex_more() {
                     add_token(make_token(Tokens::Error { ERR_DEDENT_NOMATCH }));
             } else { // indent == last indentation level
                 if (start != srcstart) {
+                    // TODO: do not insert newline if last token is ';'
+                    // TODO: put newline span at last char of last line
                     add_token(make_token(Tokens::Newline {}));
                 }
             }
