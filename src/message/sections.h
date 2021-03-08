@@ -2,6 +2,7 @@
 
 #include "message/errors.h"
 #include "utils/location.h"
+#include "utils/maybe.h"
 
 namespace Errors {
     class Section {
@@ -22,6 +23,17 @@ namespace Errors {
             };
 
             std::vector<Message> messages;
+
+            int left_pad() const override;
+            void report(int left_pad) const override;
+        };
+
+        class Note : public Section {
+        public:
+            Note(Maybe<std::string> kind, std::string message);
+
+            Maybe<std::string> kind;
+            std::string message;
 
             int left_pad() const override;
             void report(int left_pad) const override;
