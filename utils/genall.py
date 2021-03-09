@@ -2,7 +2,7 @@
 #  Generate all the code everywhere necessary in this project
 
 import io, re
-import astgen, kwgen, instrgen, errgen
+import astgen, kwgen, instrgen
 
 jobs = [
     ('src/lex/lexer.cpp'           , 'KWMATCH'               , kwgen.trie.generate),
@@ -33,9 +33,6 @@ jobs = [
     ('include/ir/visitor.h'        , 'PURE BRANCH VISIT'     , lambda: instrgen.gen_pure_method_decls('Br')),
     ('src/lower/lowererlocal.h'    , 'LOWER VISIT INSTR'     , lambda: instrgen.gen_method_decls('Instruction')),
     ('src/lower/lowererlocal.h'    , 'LOWER VISIT BRANCH'    , lambda: instrgen.gen_method_decls('Br')),
-
-    ('include/message/errmsgs.h'   , 'ERRH'                  , errgen.gen_h),
-    ('src/message/errmsgs.cpp'     , 'ERRCPP'                , errgen.gen_cpp),
 ]
 
 skipped = 0
