@@ -35,3 +35,7 @@ class Field:
     @staticmethod
     def as_init_list(fields):
         return ', '.join(f'{field.name}({field.name})' for field in fields)
+
+    @staticmethod
+    def as_move_init_list(fields):
+        return ', '.join(f'{field.name}(std::move({field.name}))' for field in fields)

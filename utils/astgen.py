@@ -95,7 +95,6 @@ def gen_ast_decls():
             output.append(f'class {ast.name} : public AST {{\n')
             output.append( 'public:\n')
 
-
             output.append(f'    virtual ~{ast.name}() {{}}\n')
             output.append(f'    virtual void ast_accept({ast.name}Visitor &v) = 0;\n')
             output.append( '};\n')
@@ -115,7 +114,7 @@ def gen_ast_defs():
             output.append(f'ASTNS::{ast.name}::{ast.name}(Span const &span, {helpers.Field.as_params(ast.fields)}): ')
 
             output.append(f'_span(span), ')
-            output.append(', '.join(f'{field.name}(std::move({field.name}))' for field in ast.fields))
+            output.append(helpers.Field.as_move_init_list(ast.fields))
 
             output.append(' {}\n')
 
