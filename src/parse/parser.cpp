@@ -7,7 +7,6 @@
 #include "parse/parser.h"
 #include "lex/lexer.h"
 #include "ast/ast.h"
-#include "message/errmsgs.h"
 #include "lex/token.h"
 
 namespace {

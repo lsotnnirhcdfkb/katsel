@@ -1,6 +1,5 @@
 #include "codegenlocal.h"
 #include "ast/ast.h"
-#include "message/errmsgs.h"
 
 using Codegen::Function;
 

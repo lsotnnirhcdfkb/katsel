@@ -1,6 +1,5 @@
 #include "lex/lexer.h"
 #include "utils/assert.h"
-#include "message/errmsgs.h"
 
 // constructors {{{1
 Lexer::Lexer(File &sourcefile):
