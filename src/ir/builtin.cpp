@@ -2,6 +2,7 @@
 #include "ir/function.h"
 #include "ir/block.h"
 #include "ir/instruction.h"
+#include "message/errmsgs.h"
 #include "utils/format.h"
 #include "utils/assert.h"
 
