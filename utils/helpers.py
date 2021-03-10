@@ -28,6 +28,10 @@ class Field:
         return ', '.join(f'{field.type} {field.name}' for field in fields)
 
     @staticmethod
+    def as_ref_params(fields):
+        return ', '.join(f'{field.type} const &{field.name}' for field in fields)
+
+    @staticmethod
     def as_fields(fields, indent=0):
         indent_str = ' ' * indent
         return ''.join(f'{indent_str}{field.type} {field.name};\n' for field in fields)
