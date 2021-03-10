@@ -1,4 +1,5 @@
 #include "message/errors.h"
+#include "message/sections.h"
 #include "json.h"
 
 #include "message/ansistuff.h"
@@ -25,11 +26,11 @@ void Errors::SimpleError::report() const {
         std::string_view msg_type_color;
         switch (type) {
             case Type::ERROR:
-                msg_type_str = "Error";
+                msg_type_str = "error";
                 msg_type_color = A_BOLD A_FG_RED;
                 break;
             case Type::WARNING:
-                msg_type_str = "Warning";
+                msg_type_str = "warning";
                 msg_type_color = A_BOLD A_FG_MAGENTA;
                 break;
         }

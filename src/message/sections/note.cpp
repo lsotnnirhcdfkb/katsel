@@ -1,4 +1,4 @@
-#include "../sections.h"
+#include "message/sections.h"
 #include "../utils.h"
 #include "message/ansistuff.h"
 #include "utils/maybe.h"

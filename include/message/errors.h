@@ -39,6 +39,4 @@ namespace Errors {
     protected:
         virtual SimpleError toSimpleError() const = 0;
     };
-
-    // Errors
 }
