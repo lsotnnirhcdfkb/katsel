@@ -14,6 +14,7 @@ Errors::ErrorFormat Errors::errformat = Errors::ErrorFormat::HUMAN;
 Errors::SimpleError::SimpleError(Type type, Span const &span, std::string const &code, std::string const &name):
     type(type), span(span),
     code(code), name(name) {}
+Errors::SimpleError::~SimpleError() = default;
 
 Errors::SimpleError& Errors::SimpleError::section(std::unique_ptr<Section> section) {
     sections.push_back(std::move(section));
