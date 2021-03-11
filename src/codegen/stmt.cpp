@@ -61,7 +61,7 @@ void Codegen::Helpers::StmtCodegen::ast_visit(ASTNS::VarStmt &ast) {
     locals->add_local(varname, reg);
 }
 void Codegen::Helpers::StmtCodegen::ast_visit(ASTNS::RetStmt &ast) {
-    Maybe<Located<NNPtr<IR::Value>>> m_v = ast.expr ? expr_cg->expr(*ast.expr) : Maybe<Located<NNPtr<IR::Value>>>(Located<NNPtr<IR::Value>> { ast, ir_builder->context().get_void() });
+    Maybe<Located> m_v = ast.expr ? expr_cg->expr(*ast.expr) : Maybe<Located<NNPtr<IR::Value>>>(Located<NNPtr<IR::Value>>(ast, ir_builder->context().get_void()));
     if (!m_v.has()) {
         success = false;
         return;

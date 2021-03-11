@@ -72,6 +72,7 @@ def gen_defs():
     output = []
 
     for err in errors:
+        output.append(f'using Errors::{err.name};\n')
         output.append(f'{err.name}::{err.name}({helpers.Field.as_ref_params(err.fields)}): ')
         output.append(helpers.Field.as_init_list(err.fields))
         output.append(' {}\n')

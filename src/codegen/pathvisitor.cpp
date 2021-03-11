@@ -53,7 +53,7 @@ void Codegen::Helpers::PathVisitor::ast_visit(ASTNS::Path &ast) {
             Maybe<Local> loc = locals.get()->get_local(vname);
 
             if (loc.has()) {
-                vret = Located<NNPtr<IR::Value>> { ast, *loc.get().v };
+                vret = Located(ast, *loc.get().v);
                 return;
             }
         } 
@@ -78,7 +78,7 @@ void Codegen::Helpers::PathVisitor::ast_visit(ASTNS::Path &ast) {
                 ERR_UNDECL_SYMB(ast.segments.back().span);
             vret = Maybe<Located<NNPtr<IR::Value>>>();
         } else {
-            vret = Located<NNPtr<IR::Value>> { ast, ret.get() };
+            vret = Located(ast, ret.get());
         }
     }
 }

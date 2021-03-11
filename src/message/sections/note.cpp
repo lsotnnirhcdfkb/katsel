@@ -24,6 +24,5 @@ void Note::report(int left_pad) const {
             std::cerr << "note";
 
         std::cerr << if_ansi(A_RESET) << ": " << message << std::endl;
-
     }
 }

@@ -172,7 +172,7 @@ void ASTNS::PrintVisitor::ast_visit(ASTNS::FunctionDecl &a) {
     ++indent;
     pai("std::unique_ptr<Type> retty = ");
     print_field(*this, a.retty);
-    pai("Located<Tokens::Identifier> name = ");
+    pai("Located<Token> name = ");
     print_field(*this, a.name);
     pai("std::vector<std::unique_ptr<ParamB>> params = ");
     print_field(*this, a.params);
@@ -196,9 +196,9 @@ void ASTNS::PrintVisitor::ast_visit(ASTNS::VarStmt &a) {
     print_field(*this, a.type);
     pai("bool mut = ");
     print_field(*this, a.mut);
-    pai("Located<Tokens::Identifier> name = ");
+    pai("Located<Token> name = ");
     print_field(*this, a.name);
-    pai("Maybe<Located<Tokens::Equal>> equal = ");
+    pai("Maybe<Located<Token>> equal = ");
     print_field(*this, a.equal);
     pai("std::unique_ptr<Expr> expr = ");
     print_field(*this, a.expr);
@@ -242,7 +242,7 @@ void ASTNS::PrintVisitor::ast_visit(ASTNS::PointerType &a) {
 void ASTNS::PrintVisitor::ast_visit(ASTNS::ThisType &a) {
     pai("ThisType {\n");
     ++indent;
-    pai("Located<Tokens::This> th = ");
+    pai("Located<Token> th = ");
     print_field(*this, a.th);
     --indent;
     pai("}\n");
@@ -252,7 +252,7 @@ void ASTNS::PrintVisitor::ast_visit(ASTNS::Param &a) {
     ++indent;
     pai("std::unique_ptr<Type> type = ");
     print_field(*this, a.type);
-    pai("Located<Tokens::Identifier> name = ");
+    pai("Located<Token> name = ");
     print_field(*this, a.name);
     pai("bool mut = ");
     print_field(*this, a.mut);
@@ -280,9 +280,9 @@ void ASTNS::PrintVisitor::ast_visit(ASTNS::Block &a) {
 void ASTNS::PrintVisitor::ast_visit(ASTNS::IfExpr &a) {
     pai("IfExpr {\n");
     ++indent;
-    pai("Located<Tokens::If> iftok = ");
+    pai("Located<Token> iftok = ");
     print_field(*this, a.iftok);
-    pai("Maybe<Located<Tokens::Else>> elsetok = ");
+    pai("Maybe<Located<Token>> elsetok = ");
     print_field(*this, a.elsetok);
     pai("std::unique_ptr<Expr> cond = ");
     print_field(*this, a.cond);
@@ -362,7 +362,7 @@ void ASTNS::PrintVisitor::ast_visit(ASTNS::UnaryExpr &a) {
 void ASTNS::PrintVisitor::ast_visit(ASTNS::AddrofExpr &a) {
     pai("AddrofExpr {\n");
     ++indent;
-    pai("Located<Tokens::Amper> op = ");
+    pai("Located<Token> op = ");
     print_field(*this, a.op);
     pai("std::unique_ptr<Expr> expr = ");
     print_field(*this, a.expr);
@@ -374,7 +374,7 @@ void ASTNS::PrintVisitor::ast_visit(ASTNS::AddrofExpr &a) {
 void ASTNS::PrintVisitor::ast_visit(ASTNS::DerefExpr &a) {
     pai("DerefExpr {\n");
     ++indent;
-    pai("Located<Tokens::Star> op = ");
+    pai("Located<Token> op = ");
     print_field(*this, a.op);
     pai("std::unique_ptr<Expr> expr = ");
     print_field(*this, a.expr);
@@ -386,7 +386,7 @@ void ASTNS::PrintVisitor::ast_visit(ASTNS::CallExpr &a) {
     ++indent;
     pai("std::unique_ptr<Expr> callee = ");
     print_field(*this, a.callee);
-    pai("Located<Tokens::OParen> oparn = ");
+    pai("Located<Token> oparn = ");
     print_field(*this, a.oparn);
     pai("std::vector<std::unique_ptr<Expr>> args = ");
     print_field(*this, a.args);
@@ -398,9 +398,9 @@ void ASTNS::PrintVisitor::ast_visit(ASTNS::FieldAccessExpr &a) {
     ++indent;
     pai("std::unique_ptr<Expr> operand = ");
     print_field(*this, a.operand);
-    pai("Located<Tokens::Period> dot = ");
+    pai("Located<Token> dot = ");
     print_field(*this, a.dot);
-    pai("Located<Tokens::Identifier> field = ");
+    pai("Located<Token> field = ");
     print_field(*this, a.field);
     --indent;
     pai("}\n");
@@ -410,11 +410,11 @@ void ASTNS::PrintVisitor::ast_visit(ASTNS::MethodCallExpr &a) {
     ++indent;
     pai("std::unique_ptr<Expr> operand = ");
     print_field(*this, a.operand);
-    pai("Located<Tokens::Period> dot = ");
+    pai("Located<Token> dot = ");
     print_field(*this, a.dot);
-    pai("Located<Tokens::Identifier> method = ");
+    pai("Located<Token> method = ");
     print_field(*this, a.method);
-    pai("Located<Tokens::OParen> oparn = ");
+    pai("Located<Token> oparn = ");
     print_field(*this, a.oparn);
     pai("std::vector<std::unique_ptr<Expr>> args = ");
     print_field(*this, a.args);
@@ -424,7 +424,7 @@ void ASTNS::PrintVisitor::ast_visit(ASTNS::MethodCallExpr &a) {
 void ASTNS::PrintVisitor::ast_visit(ASTNS::BoolLit &a) {
     pai("BoolLit {\n");
     ++indent;
-    pai("Located<Tokens::BoolLit> val = ");
+    pai("Located<Token> val = ");
     print_field(*this, a.val);
     --indent;
     pai("}\n");
@@ -432,7 +432,7 @@ void ASTNS::PrintVisitor::ast_visit(ASTNS::BoolLit &a) {
 void ASTNS::PrintVisitor::ast_visit(ASTNS::FloatLit &a) {
     pai("FloatLit {\n");
     ++indent;
-    pai("Located<Tokens::FloatLit> val = ");
+    pai("Located<Token> val = ");
     print_field(*this, a.val);
     --indent;
     pai("}\n");
@@ -440,7 +440,7 @@ void ASTNS::PrintVisitor::ast_visit(ASTNS::FloatLit &a) {
 void ASTNS::PrintVisitor::ast_visit(ASTNS::IntLit &a) {
     pai("IntLit {\n");
     ++indent;
-    pai("Located<Tokens::IntLit> val = ");
+    pai("Located<Token> val = ");
     print_field(*this, a.val);
     --indent;
     pai("}\n");
@@ -448,7 +448,7 @@ void ASTNS::PrintVisitor::ast_visit(ASTNS::IntLit &a) {
 void ASTNS::PrintVisitor::ast_visit(ASTNS::CharLit &a) {
     pai("CharLit {\n");
     ++indent;
-    pai("Located<Tokens::CharLit> val = ");
+    pai("Located<Token> val = ");
     print_field(*this, a.val);
     --indent;
     pai("}\n");
@@ -456,7 +456,7 @@ void ASTNS::PrintVisitor::ast_visit(ASTNS::CharLit &a) {
 void ASTNS::PrintVisitor::ast_visit(ASTNS::StringLit &a) {
     pai("StringLit {\n");
     ++indent;
-    pai("Located<Tokens::StringLit> val = ");
+    pai("Located<Token> val = ");
     print_field(*this, a.val);
     --indent;
     pai("}\n");
@@ -464,7 +464,7 @@ void ASTNS::PrintVisitor::ast_visit(ASTNS::StringLit &a) {
 void ASTNS::PrintVisitor::ast_visit(ASTNS::ThisExpr &a) {
     pai("ThisExpr {\n");
     ++indent;
-    pai("Located<Tokens::This> tok = ");
+    pai("Located<Token> tok = ");
     print_field(*this, a.tok);
     --indent;
     pai("}\n");
@@ -480,7 +480,7 @@ void ASTNS::PrintVisitor::ast_visit(ASTNS::PathExpr &a) {
 void ASTNS::PrintVisitor::ast_visit(ASTNS::Path &a) {
     pai("Path {\n");
     ++indent;
-    pai("std::vector<Located<Tokens::Identifier>> segments = ");
+    pai("std::vector<Located<Token>> segments = ");
     print_field(*this, a.segments);
     --indent;
     pai("}\n");

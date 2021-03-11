@@ -48,4 +48,13 @@ template <typename T>
 struct Located {
     Span span;
     T value;
+
+    Located(Span const &span, T const &value): span(span), value(                value ) {}
+    Located(Span const &span, T      &&value): span(span), value(std::forward<T>(value)) {}
+
+    Located(Span const &span, Located<T> const &value): span(span), value(                value       ) {}
+    Located(Span const &span, Located<T>      &&value): span(span), value(std::forward<T>(value.value)) {}
+
+    Located(Located<T> const &span, T const &value): span(span.span), value(                value ) {}
+    Located(Located<T> const &span, T      &&value): span(span.span), value(std::forward<T>(value)) {}
 };

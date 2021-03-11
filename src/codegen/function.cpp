@@ -105,7 +105,7 @@ bool Function::value_define() {
     locals->dec_scope();
 
     if (m_retval.has()) {
-        ir_builder->exit_block().branch(std::make_unique<IR::Instrs::Return>(Located<NNPtr<IR::Value>> { *ast.retty, *ir_builder->fun().ret_reg }));
+        ir_builder->exit_block().branch(std::make_unique<IR::Instrs::Return>(Located(*ast.retty, *ir_builder->fun().ret_reg)));
 
         Located<NNPtr<IR::Value>> retval = m_retval.get();
 

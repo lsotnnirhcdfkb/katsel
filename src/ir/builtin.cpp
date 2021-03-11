@@ -16,7 +16,7 @@
 // static functions {{{1
 #define SUPPORT_OPERATOR_BASIC(op, instr, out_ty) \
     case ASTNS::BinaryOperator::op: { \
-        return Located<NNPtr<IR::Value>> { ast, cur_block->add<IR::Instrs::instr>(l, r) }; \
+        return Located(ast, cur_block->add<IR::Instrs::instr>(l, r)); \
     }
 // float/int operations for reuse between generic float/int and concrete float/int types {{{2
 static Maybe<Located<NNPtr<IR::Value>>> float_bin_op(BIN_OP_ARGS) {
@@ -49,7 +49,7 @@ static Maybe<Located<NNPtr<IR::Value>>> float_bin_op(BIN_OP_ARGS) {
 static Maybe<Located<NNPtr<IR::Value>>> float_unary_op(UNARY_OP_ARGS) {
     switch (op.value) {
         case ASTNS::UnaryOperator::MINUS: {
-            return Located<NNPtr<IR::Value>> { ast, cur_block->add<IR::Instrs::FNeg>(v) };
+            return Located(ast, cur_block->add<IR::Instrs::FNeg>(v));
         }
 
         default:
@@ -92,11 +92,11 @@ static Maybe<Located<NNPtr<IR::Value>>> int_bin_op(BIN_OP_ARGS) {
 static Maybe<Located<NNPtr<IR::Value>>> int_unary_op(UNARY_OP_ARGS) {
     switch (op.value) {
         case ASTNS::UnaryOperator::TILDE: {
-            return Located<NNPtr<IR::Value>> { ast, cur_block->add<IR::Instrs::BitNot>(v) };
+            return Located(ast, cur_block->add<IR::Instrs::BitNot>(v));
         }
 
         case ASTNS::UnaryOperator::MINUS: {
-            return Located<NNPtr<IR::Value>> { ast, cur_block->add<IR::Instrs::INeg>(v) };
+            return Located(ast, cur_block->add<IR::Instrs::INeg>(v));
         }
 
         default:
@@ -134,18 +134,18 @@ Maybe<Located<NNPtr<IR::Value>>> IR::FloatType::unary_op(Codegen::Context &cgc, 
 }
 Maybe<Located<NNPtr<IR::Value>>> IR::FloatType::cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast) const {
     if (&v.value->type() == this)
-        return Located<NNPtr<IR::Value>> { ast, v.value };
+        return Located(ast, v.value);
 
     v = impl_cast(cgc, fun, cur_block, v); // try implicit cast to self
 
     if (&v.value->type() == this)
-        return Located<NNPtr<IR::Value>> { ast, v.value };
+        return Located(ast, v.value);
 
     IntType const *sty (dynamic_cast<IntType const *>(&v.value->type()));
     if (sty) {
-        return Located<NNPtr<IR::Value>> { ast, cur_block->add<IR::Instrs::IntToFloat>(v, this) };
+        return Located(ast, cur_block->add<IR::Instrs::IntToFloat>(v, this));
     } else if (dynamic_cast<FloatType const *>(&v.value->type())) {
-        return Located<NNPtr<IR::Value>> { ast, cur_block->add<IR::Instrs::FloatToFloat>(v, this) };
+        return Located(ast, cur_block->add<IR::Instrs::FloatToFloat>(v, this));
     } else {
         ERR_INVALID_CAST(ast, v, *this);
         return Maybe<Located<NNPtr<IR::Value>>>();
@@ -153,7 +153,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::FloatType::cast_from(Codegen::Context &cgc,
 }
 Located<NNPtr<IR::Value>> IR::FloatType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v) const {
     if (dynamic_cast<GenericFloatType const *>(&v.value->type())) {
-        return Located<NNPtr<IR::Value>> { v.span, cur_block->add<IR::Instrs::FloatToFloat>(v, this) };
+        return Located(v.span, cur_block->add<IR::Instrs::FloatToFloat>(v, this));
     }
 
     return v;
@@ -177,12 +177,12 @@ Maybe<Located<NNPtr<IR::Value>>> IR::IntType::unary_op(Codegen::Context &cgc, IR
 }
 Maybe<Located<NNPtr<IR::Value>>> IR::IntType::cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast) const {
     if (&v.value->type() == this)
-        return Located<NNPtr<IR::Value>> { ast, v.value };
+        return Located(ast, v.value);
 
     v = impl_cast(cgc, fun, cur_block, v); // try implicit cast to self
 
     if (&v.value->type() == this)
-        return Located<NNPtr<IR::Value>> { ast, v.value };
+        return Located(ast, v.value);
 
     IntType const *sty_int (dynamic_cast<IntType const *> (&v.value->type()));
     FloatType const *sty_float (dynamic_cast<FloatType const *> (&v.value->type()));
@@ -195,19 +195,19 @@ Maybe<Located<NNPtr<IR::Value>>> IR::IntType::cast_from(Codegen::Context &cgc, I
             sty_int = &newt;
             sty_char = nullptr;
 
-            v = Located<NNPtr<IR::Value>> { v.span, cur_block->add<IR::Instrs::NoOpCast>(v, newt) };
+            v = Located(v.span, cur_block->add<IR::Instrs::NoOpCast>(v, newt));
 
         } else if (sty_bool) {
             IR::IntType &newt (cgc.get_int_type(1, false));
             sty_int = &newt;
             sty_bool = nullptr;
 
-            v = Located<NNPtr<IR::Value>> { v.span, cur_block->add<IR::Instrs::NoOpCast>(v, newt) };
+            v = Located(v.span, cur_block->add<IR::Instrs::NoOpCast>(v, newt));
         }
 
-        return Located<NNPtr<IR::Value>> { ast, cur_block->add<IR::Instrs::IntToInt>(v, this) };
+        return Located(ast, cur_block->add<IR::Instrs::IntToInt>(v, this));
     } else if (sty_float) {
-        return Located<NNPtr<IR::Value>> { ast, cur_block->add<IR::Instrs::FloatToInt>(v, this) };
+        return Located(ast, cur_block->add<IR::Instrs::FloatToInt>(v, this));
     } else {
         ERR_INVALID_CAST(ast, v, *this);
         return Maybe<Located<NNPtr<IR::Value>>>();
@@ -215,7 +215,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::IntType::cast_from(Codegen::Context &cgc, I
 }
 Located<NNPtr<IR::Value>> IR::IntType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v) const {
     if (dynamic_cast<GenericIntType const *>(&v.value->type())) {
-        return Located<NNPtr<IR::Value>> { v.span, cur_block->add<IR::Instrs::IntToInt>(v, this) };
+        return Located(v.span, cur_block->add<IR::Instrs::IntToInt>(v, this));
     }
 
     return v;
@@ -316,7 +316,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::CharType::unary_op(Codegen::Context &cgc, I
 }
 Maybe<Located<NNPtr<IR::Value>>> IR::CharType::cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast) const {
     if (&v.value->type() == this)
-        return Located<NNPtr<IR::Value>> { ast, v.value };
+        return Located(ast, v.value);
 
     IntType const *sty (dynamic_cast<IntType const *>(&v.value->type()));
     if (!sty) {
@@ -327,7 +327,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::CharType::cast_from(Codegen::Context &cgc, 
     IR::IntType const &char_as_int_type (cgc.get_int_type(8, false));
 
     IR::Instrs::IntToInt &as_int = cur_block->add<IR::Instrs::IntToInt>(v, char_as_int_type);
-    return Located<NNPtr<IR::Value>> { ast, cur_block->add<IR::Instrs::NoOpCast>(Located<NNPtr<IR::Value>> { v.span, as_int }, this) };
+    return Located(ast, cur_block->add<IR::Instrs::NoOpCast>(Located(v.span, as_int), this));
 }
 Located<NNPtr<IR::Value>> IR::CharType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v) const {
     return v;
@@ -370,7 +370,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::BoolType::unary_op(Codegen::Context &cgc, I
 
     switch (op.value) {
         case ASTNS::UnaryOperator::BANG: {
-            return Located<NNPtr<IR::Value>> { ast, cur_block->add<IR::Instrs::Not>(v) };
+            return Located(ast, cur_block->add<IR::Instrs::Not>(v));
          }
 
         default:
@@ -380,7 +380,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::BoolType::unary_op(Codegen::Context &cgc, I
 }
 Maybe<Located<NNPtr<IR::Value>>> IR::BoolType::cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast) const {
     if (&v.value->type() == this)
-        return Located<NNPtr<IR::Value>> { ast, v.value };
+        return Located(ast, v.value);
 
     IntType const *sty (dynamic_cast<IntType const *>(&v.value->type()));
     if (!sty) {
@@ -392,7 +392,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::BoolType::cast_from(Codegen::Context &cgc, 
 
     IR::Instrs::IntToInt &as_int = cur_block->add<IR::Instrs::IntToInt>(v, bool_as_int_type);
 
-    return Located<NNPtr<IR::Value>> { ast, cur_block->add<IR::Instrs::NoOpCast>(Located<NNPtr<IR::Value>> { v.span, as_int }, *this) };
+    return Located(ast, cur_block->add<IR::Instrs::NoOpCast>(Located(v.span, as_int), *this));
 }
 Located<NNPtr<IR::Value>> IR::BoolType::impl_cast(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v) const {
     return v;
