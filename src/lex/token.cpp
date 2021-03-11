@@ -39,16 +39,17 @@ bool Token::is() const {
     return std::holds_alternative<token_detail::TypeOfTy<ty>>(pimpl->data);
 }
 
-#define EXPLICIT_INSTANTIATION(name) \
-    template Token::is<TokenTypes::name> const (); \
-    template Token::as<TokenTypes::name> const ();
-#undef EXPLICIT_INSTANTIATION
-
 template <TokenType ty>
 token_detail::TypeOfTy<ty> const &Token::as() const {
     ASSERT(is<ty>());
     return std::get<token_detail::TypeOfTy<ty>>(pimpl->data);
 }
+
+#define EXPLICIT_INSTANTIATION(name) \
+    template bool Token::is<TokenType::name>() const; \
+    template TokenTypes::name const &Token::as<TokenType::name>() const;
+TOKEN_TYPES(EXPLICIT_INSTANTIATION)
+#undef EXPLICIT_INSTANTIATION
 
 template <typename TokenType>
 struct EnumFromTty;
