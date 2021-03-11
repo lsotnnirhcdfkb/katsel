@@ -168,12 +168,12 @@ namespace Errors {
     };
     class IncorrectArg : public Error {
     public:
-        IncorrectArg(Located<NNPtr<IR::Value>> const &arg, NNPtr<IR::Type> const &expected);
+        IncorrectArg(Located<NNPtr<IR::Value>> const &arg, NNPtr<IR::Type const> const &expected);
     private:
         static constexpr char const *CODE = "E0015";
         static constexpr char const *NAME = "incorrect-arg";
         Located<NNPtr<IR::Value>> arg;
-        NNPtr<IR::Type> expected;
+        NNPtr<IR::Type const> expected;
     protected:
         SimpleError toSimpleError() const override;
     };
@@ -204,12 +204,12 @@ namespace Errors {
     };
     class ConflictRetTy : public Error {
     public:
-        ConflictRetTy(Located<NNPtr<IR::Value>> const &val, NNPtr<IR::Function> const &f);
+        ConflictRetTy(Located<NNPtr<IR::Value>> const &val, NNPtr<IR::Function const> const &f);
     private:
         static constexpr char const *CODE = "E0018";
         static constexpr char const *NAME = "conflict-ret-ty";
         Located<NNPtr<IR::Value>> val;
-        NNPtr<IR::Function> f;
+        NNPtr<IR::Function const> f;
     protected:
         SimpleError toSimpleError() const override;
     };
@@ -226,7 +226,7 @@ namespace Errors {
     };
     class ConflictVarInitTy : public Error {
     public:
-        ConflictVarInitTy(Span const &eq, Span const &name, NNPtr<ASTNS::Type> const &type_ast, Located<NNPtr<IR::Value>> const &init, NNPtr<IR::Type> const &expected_type);
+        ConflictVarInitTy(Span const &eq, Span const &name, NNPtr<ASTNS::Type> const &type_ast, Located<NNPtr<IR::Value>> const &init, NNPtr<IR::Type const> const &expected_type);
     private:
         static constexpr char const *CODE = "E0020";
         static constexpr char const *NAME = "conflict-var-init-ty";
@@ -234,19 +234,19 @@ namespace Errors {
         Span name;
         NNPtr<ASTNS::Type> type_ast;
         Located<NNPtr<IR::Value>> init;
-        NNPtr<IR::Type> expected_type;
+        NNPtr<IR::Type const> expected_type;
     protected:
         SimpleError toSimpleError() const override;
     };
     class InvalidCast : public Error {
     public:
-        InvalidCast(NNPtr<ASTNS::AST> const &ast, Located<NNPtr<IR::Value>> const &v, NNPtr<IR::Type> const &newty);
+        InvalidCast(NNPtr<ASTNS::AST const> const &ast, Located<NNPtr<IR::Value>> const &v, NNPtr<IR::Type const> const &newty);
     private:
         static constexpr char const *CODE = "E0021";
         static constexpr char const *NAME = "invalid-cast";
-        NNPtr<ASTNS::AST> ast;
+        NNPtr<ASTNS::AST const> ast;
         Located<NNPtr<IR::Value>> v;
-        NNPtr<IR::Type> newty;
+        NNPtr<IR::Type const> newty;
     protected:
         SimpleError toSimpleError() const override;
     };
@@ -307,11 +307,11 @@ namespace Errors {
     };
     class WrongNumArgs : public Error {
     public:
-        WrongNumArgs(NNPtr<IR::Function> const &func, NNPtr<ASTNS::AST> const &func_ref_ast, Span const &oparn, std::vector<Located<NNPtr<IR::Value>>> const &args);
+        WrongNumArgs(NNPtr<IR::Function const> const &func, NNPtr<ASTNS::AST> const &func_ref_ast, Span const &oparn, std::vector<Located<NNPtr<IR::Value>>> const &args);
     private:
         static constexpr char const *CODE = "E0027";
         static constexpr char const *NAME = "wrong-num-args";
-        NNPtr<IR::Function> func;
+        NNPtr<IR::Function const> func;
         NNPtr<ASTNS::AST> func_ref_ast;
         Span oparn;
         std::vector<Located<NNPtr<IR::Value>>> args;

@@ -23,20 +23,20 @@ Maybe<Located<NNPtr<IR::Value>>> Codegen::Helpers::PathVisitor::resolve_value(AS
     return vret;
 }
 
-static Maybe<IR::DeclSymbol &> trace_path_decl_only(IR::DeclSymbol &start, std::vector<Located<Tokens::Identifier>>::const_iterator const tok_start, std::vector<Located<Tokens::Identifier>>::const_iterator const tok_end) {
+static Maybe<IR::DeclSymbol &> trace_path_decl_only(IR::DeclSymbol &start, std::vector<Located<Token>>::const_iterator const tok_start, std::vector<Located<Token>>::const_iterator const tok_end) {
     NNPtr<IR::DeclSymbol> prev = start;
     NNPtr<IR::DeclSymbol> current = start;
     for (auto cur_token = tok_start; cur_token != tok_end; ++cur_token) {
         prev = current;
-        auto m_current = current->get_decl_symbol(cur_token->value.name).fmap([](IR::DeclSymbol &ds) { return NNPtr<IR::DeclSymbol>(ds); });
+        auto m_current = current->get_decl_symbol(cur_token->value.as<TokenType::Identifier>().name).fmap([](IR::DeclSymbol &ds) { return NNPtr<IR::DeclSymbol>(ds); });
 
         if (m_current.has()) {
             current = m_current.get();
         } else {
             if (prev.as_raw() != &start)
-                Errors::NO_MEMBER_IN(*prev, cur_token->span);
+                Errors::NoMemberIn(*prev, cur_token->span).report();
             else
-                Errors::UNDECL_SYMB(cur_token->span);
+                Errors::UndeclSymb(cur_token->span).report();
             return Maybe<IR::DeclSymbol &>();
         }
     }
@@ -49,11 +49,11 @@ void Codegen::Helpers::PathVisitor::ast_visit(ASTNS::Path &ast) {
     } else {
         if (ast.segments.size() == 1 && locals.has()) {
             // look for local
-            std::string const &vname = ast.segments.back().value.name;
+            std::string const &vname = ast.segments.back().value.as<TokenType::Identifier>().name;
             Maybe<Local> loc = locals.get()->get_local(vname);
 
             if (loc.has()) {
-                vret = Located(ast, *loc.get().v);
+                vret = Located<NNPtr<IR::Value>>(ast, *loc.get().v);
                 return;
             }
         } 
@@ -69,16 +69,16 @@ void Codegen::Helpers::PathVisitor::ast_visit(ASTNS::Path &ast) {
 
         NNPtr<IR::DeclSymbol> last = m_last.get();
 
-        Maybe<IR::Value&> ret = last->get_value(ast.segments.back().value.name);
+        Maybe<IR::Value&> ret = last->get_value(ast.segments.back().value.as<TokenType::Identifier>().name);
 
         if (!ret.has()) {
             if (last.as_raw() != &unit.mod)
-                Errors::NO_MEMBER_IN(*last, ast.segments.back().span);
+                Errors::NoMemberIn(*last, ast.segments.back().span).report();
             else
-                Errors::UNDECL_SYMB(ast.segments.back().span);
+                Errors::UndeclSymb(ast.segments.back().span).report();
             vret = Maybe<Located<NNPtr<IR::Value>>>();
         } else {
-            vret = Located(ast, ret.get());
+            vret = Located<NNPtr<IR::Value>>(ast, ret.get());
         }
     }
 }

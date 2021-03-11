@@ -540,12 +540,12 @@ static Span make_span(std::string::const_iterator start, std::string::const_iter
 
     return Span(tokstart, tokend);
 }
-Located<TokenData> Lexer::make_token(TokenData data) {
+Located<Token> Lexer::make_token(Token data) {
     Span span (make_span(start, end, startline, startcolumn, endline, endcolumn, start == end, sourcefile));
-    return Located<TokenData> { span, std::move(data) };
+    return Located<Token> { span, std::move(data) };
 }
 template <typename T>
-Located<TokenData> Lexer::make_error_token() {
+Located<Token> Lexer::make_error_token() {
     Span span (make_span(start, end, startline, startcolumn, endline, endcolumn, start == end, sourcefile));
-    return Located<TokenData> { span, Tokens::Error { std::make_unique<T>(span) } };
+    return Located<Token> { span, TokenTypes::Error { std::make_unique<T>(span) } };
 }

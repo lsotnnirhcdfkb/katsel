@@ -17,7 +17,7 @@ Codegen::Helpers::ParamVisitor::ParamVisitor::ParamVisitor(Codegen::Context &con
 void Codegen::Helpers::ParamVisitor::ast_visit(ASTNS::Param &ast) {
     Maybe<IR::Type&> ty (type_visitor->type(*ast.type));
     if (ty.has()) {
-        IR::Function::Param p {ty.get(), ast.name.value.name, ast, ast.mut};
+        IR::Function::Param p {ty.get(), ast.name.value.as<TokenType::Identifier>().name, ast, ast.mut};
         ret.push_back(p);
     } else {
         errored = true;
@@ -28,13 +28,13 @@ void Codegen::Helpers::ParamVisitor::ast_visit(ASTNS::Param &ast) {
 void Codegen::Helpers::ParamVisitor::ast_visit(ASTNS::ThisParam &ast) {
     if (!type_visitor->this_type.has()) {
         errored = true;
-        Errors::TYPELESS_THIS(ast);
+        Errors::TypelessThis(ast).report();
         return;
     }
 
     if (index != 0) {
         errored = true;
-        Errors::THIS_NOT_FIRST(ast);
+        Errors::ThisNotFirst(ast).report();
         return;
     }
 

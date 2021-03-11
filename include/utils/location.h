@@ -49,12 +49,12 @@ struct Located {
     Span span;
     T value;
 
-    Located(Span const &span, T const &value): span(span), value(                value ) {}
-    Located(Span const &span, T      &&value): span(span), value(std::forward<T>(value)) {}
+    template <typename U = T, typename = std::enable_if_t<std::is_convertible_v<U, T>>>
+    Located(Span const &span, U &&value): span(span), value(std::forward<U>(value)) {}
+    
+    template <typename U = T, typename = std::enable_if_t<std::is_convertible_v<U, T>>>
+    Located(Span const &span, Located<U> &&value): span(span), value(std::forward<U>(value.value)) {}
 
-    Located(Span const &span, Located<T> const &value): span(span), value(                value       ) {}
-    Located(Span const &span, Located<T>      &&value): span(span), value(std::forward<T>(value.value)) {}
-
-    Located(Located<T> const &span, T const &value): span(span.span), value(                value ) {}
-    Located(Located<T> const &span, T      &&value): span(span.span), value(std::forward<T>(value)) {}
+    template <typename U = T, typename V, typename = std::enable_if_t<std::is_convertible_v<U, T>>>
+    Located(Located<V> const &span, U &&value): span(span.span), value(std::forward<U>(value)) {}
 };

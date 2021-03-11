@@ -5,6 +5,8 @@
 #include "utils/location.h"
 #include "utils/assert.h"
 
+#include "message/errmsgs.h"
+
 #include <string>
 #include <variant>
 #include <memory>
@@ -111,9 +113,7 @@ namespace TokenTypes {
 
     struct _EOF { };
     struct Error {
-        using ErrFunc = void (&)(Span const &);
-        using ErrFuncField = NNPtr<void(Span const &)>;
-        ErrFuncField errf;
+        std::unique_ptr<Errors::Error> err;
     };
 }
 

@@ -32,22 +32,22 @@ Maybe<Located<NNPtr<IR::Value>>> IR::PointerType::bin_op(Codegen::Context &cgc, 
 
     r = cgc.get_int_type(64, true).impl_cast(cgc, fun, cur_block, r);
     if (!dynamic_cast<IntType const *>(&r.value->type())) {
-        Errors::PTR_ARITH_RHS_NOT_NUM(l, op, r);
+        Errors::PtrArithRhsNotNum(l, op, r).report();
         return Maybe<Located<NNPtr<IR::Value>>>();
     }
 
     switch (op.value) {
         case ASTNS::BinaryOperator::PLUS: {
-            return Located(ast, cur_block->add<IR::Instrs::PtrArith>(l, r));
+            return Located<NNPtr<IR::Value>>(ast, cur_block->add<IR::Instrs::PtrArith>(l, r));
         }
         case ASTNS::BinaryOperator::MINUS: {
             IR::Instrs::INeg &negated = cur_block->add<IR::Instrs::INeg>(r);
-            IR::Instrs::PtrArith &out = cur_block->add<IR::Instrs::PtrArith>(l, Located(r.span, negated));
-            return Located(ast, out);
+            IR::Instrs::PtrArith &out = cur_block->add<IR::Instrs::PtrArith>(l, Located<NNPtr<IR::Value>>(r.span, negated));
+            return Located<NNPtr<IR::Value>>(ast, out);
         }
 #define OP(op, instr) \
     case ASTNS::BinaryOperator::op: { \
-        return Located(ast, cur_block->add<IR::Instrs::instr>(l, r)); \
+        return Located<NNPtr<IR::Value>>(ast, cur_block->add<IR::Instrs::instr>(l, r)); \
     }
         OP(GREATER, ICmpGT)
         OP(LESS, ICmpLT)
@@ -58,22 +58,22 @@ Maybe<Located<NNPtr<IR::Value>>> IR::PointerType::bin_op(Codegen::Context &cgc, 
 #undef OP
 
         default:
-            Errors::LHS_UNSUPPORTED_OP(l, op.span);
+            Errors::LhsUnsupportedOp(l, op.span).report();
             return Maybe<Located<NNPtr<IR::Value>>>();
     }
 }
 Maybe<Located<NNPtr<IR::Value>>> IR::PointerType::unary_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, Located<NNPtr<IR::Value>> operand, ASTNS::AST const &ast) const {
     ASSERT(&operand.value->type() == this);
 
-    Errors::UNARY_UNSUPPORTED_OP(operand, op);
+    Errors::UnaryUnsupportedOp(operand, op).report();
     return Maybe<Located<NNPtr<Value>>>();
 }
 Maybe<Located<NNPtr<IR::Value>>> IR::PointerType::cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast) const {
     if (dynamic_cast<IR::PointerType const *>(&v.value->type())) {
-        return Located(ast, cur_block->add<IR::Instrs::NoOpCast>(v, this));
+        return Located<NNPtr<IR::Value>>(ast, cur_block->add<IR::Instrs::NoOpCast>(v, this));
     }
 
-    Errors::INVALID_CAST(ast, v, *this);
+    Errors::InvalidCast(ast, v, *this).report();
     return Maybe<Located<NNPtr<Value>>>();
 }
 llvm::Type& IR::PointerType::to_llvm_type(llvm::LLVMContext &con) const {

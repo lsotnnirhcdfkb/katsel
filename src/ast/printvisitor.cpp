@@ -14,10 +14,6 @@ static void print_field(ASTNS::PrintVisitor &p, std::unique_ptr<T> const &ast) {
         p.pai("nullptr\n");
 }
 
-static void print_field(ASTNS::PrintVisitor &p, int i) {
-    p.pai(std::to_string(i));
-    p.pai("\n");
-}
 static void print_field(ASTNS::PrintVisitor &p, bool i) {
     p.pai(i ? "true" : "false");
     p.pai("\n");
@@ -39,84 +35,9 @@ static void print_field(ASTNS::PrintVisitor &p, Span const &s) {
     p.pai(format("span at {}: {}\n", s.as_rowcol(), s.stringify()));
 }
 
-// tokens {{{
-static void print_field(ASTNS::PrintVisitor &p, Tokens::OParen const &tok) { p.pai(Tokens::OParen::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::CParen const &tok) { p.pai(Tokens::CParen::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::OBrack const &tok) { p.pai(Tokens::OBrack::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::CBrack const &tok) { p.pai(Tokens::CBrack::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::OBrace const &tok) { p.pai(Tokens::OBrace::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::CBrace const &tok) { p.pai(Tokens::CBrace::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Comma const &tok) { p.pai(Tokens::Comma::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Period const &tok) { p.pai(Tokens::Period::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Semicolon const &tok) { p.pai(Tokens::Semicolon::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Question const &tok) { p.pai(Tokens::Question::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Colon const &tok) { p.pai(Tokens::Colon::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Bang const &tok) { p.pai(Tokens::Bang::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Plus const &tok) { p.pai(Tokens::Plus::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Minus const &tok) { p.pai(Tokens::Minus::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Star const &tok) { p.pai(Tokens::Star::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Slash const &tok) { p.pai(Tokens::Slash::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Percent const &tok) { p.pai(Tokens::Percent::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Equal const &tok) { p.pai(Tokens::Equal::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Greater const &tok) { p.pai(Tokens::Greater::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Less const &tok) { p.pai(Tokens::Less::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Tilde const &tok) { p.pai(Tokens::Tilde::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Amper const &tok) { p.pai(Tokens::Amper::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Pipe const &tok) { p.pai(Tokens::Pipe::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Caret const &tok) { p.pai(Tokens::Caret::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Dollar const &tok) { p.pai(Tokens::Dollar::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Hash const &tok) { p.pai(Tokens::Hash::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::RightArrow const &tok) { p.pai(Tokens::RightArrow::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::LeftArrow const &tok) { p.pai(Tokens::LeftArrow::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::DoublePlus const &tok) { p.pai(Tokens::DoublePlus::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::DoubleMinus const &tok) { p.pai(Tokens::DoubleMinus::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::DoubleGreater const &tok) { p.pai(Tokens::DoubleGreater::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::DoubleLess const &tok) { p.pai(Tokens::DoubleLess::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::DoubleAmper const &tok) { p.pai(Tokens::DoubleAmper::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::DoublePipe const &tok) { p.pai(Tokens::DoublePipe::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::DoubleEqual const &tok) { p.pai(Tokens::DoubleEqual::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::DoubleColon const &tok) { p.pai(Tokens::DoubleColon::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::PlusEqual const &tok) { p.pai(Tokens::PlusEqual::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::MinusEqual const &tok) { p.pai(Tokens::MinusEqual::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::StarEqual const &tok) { p.pai(Tokens::StarEqual::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::SlashEqual const &tok) { p.pai(Tokens::SlashEqual::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::BangEqual const &tok) { p.pai(Tokens::BangEqual::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::GreaterEqual const &tok) { p.pai(Tokens::GreaterEqual::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::LessEqual const &tok) { p.pai(Tokens::LessEqual::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::PercentEqual const &tok) { p.pai(Tokens::PercentEqual::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::DoubleLessEqual const &tok) { p.pai(Tokens::DoubleLessEqual::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::DoubleGreaterEqual const &tok) { p.pai(Tokens::DoubleGreaterEqual::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::AmperEqual const &tok) { p.pai(Tokens::AmperEqual::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::PipeEqual const &tok) { p.pai(Tokens::PipeEqual::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::CaretEqual const &tok) { p.pai(Tokens::CaretEqual::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Identifier const &tok) { p.pai(Tokens::Identifier::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::CharLit const &tok) { p.pai(Tokens::CharLit::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::StringLit const &tok) { p.pai(Tokens::StringLit::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::IntLit const &tok) { p.pai(Tokens::IntLit::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::FloatLit const &tok) { p.pai(Tokens::FloatLit::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::BoolLit const &tok) { p.pai(Tokens::BoolLit::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::This const &tok) { p.pai(Tokens::This::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Var const &tok) { p.pai(Tokens::Var::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Fun const &tok) { p.pai(Tokens::Fun::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Let const &tok) { p.pai(Tokens::Let::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Mut const &tok) { p.pai(Tokens::Mut::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Data const &tok) { p.pai(Tokens::Data::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Impl const &tok) { p.pai(Tokens::Impl::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Return const &tok) { p.pai(Tokens::Return::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::While const &tok) { p.pai(Tokens::While::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::For const &tok) { p.pai(Tokens::For::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::If const &tok) { p.pai(Tokens::If::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Else const &tok) { p.pai(Tokens::Else::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Case const &tok) { p.pai(Tokens::Case::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Break const &tok) { p.pai(Tokens::Break::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Continue const &tok) { p.pai(Tokens::Continue::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Boom const &tok) { p.pai(Tokens::Boom::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Newline const &tok) { p.pai(Tokens::Newline::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Indent const &tok) { p.pai(Tokens::Indent::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Dedent const &tok) { p.pai(Tokens::Dedent::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::_EOF const &tok) { p.pai(Tokens::_EOF::stringify()); p.pai("\n"); }
-static void print_field(ASTNS::PrintVisitor &p, Tokens::Error const &tok) { p.pai(Tokens::Error::stringify()); p.pai("\n"); }
-// }}}
+static void print_field(ASTNS::PrintVisitor &p, Token const &tok) {
+    p.pai(format("token: {}\n", tok.stringify_type()));
+}
 
 template <typename T>
 static void print_field(ASTNS::PrintVisitor &p, Located<T> const &l) {

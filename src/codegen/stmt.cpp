@@ -21,10 +21,10 @@ void Codegen::Helpers::StmtCodegen::ast_visit(ASTNS::ExprStmt &ast) {
         success = false;
 }
 void Codegen::Helpers::StmtCodegen::ast_visit(ASTNS::VarStmt &ast) {
-    std::string const &varname = ast.name.value.name;
+    std::string const &varname = ast.name.value.as<TokenType::Identifier>().name;
     Maybe<Codegen::Helpers::Local> var = locals->get_local(varname);
     if (var.has() && var.get().scopenum == locals->cur_scope) {
-        Errors::REDECL_VAR(ast.name.span, *var.get().v);
+        Errors::RedeclVar(ast.name.span, *var.get().v).report();
         success = false;
         return;
     }
@@ -50,18 +50,17 @@ void Codegen::Helpers::StmtCodegen::ast_visit(ASTNS::VarStmt &ast) {
 
         val = var_type->impl_cast(ir_builder->context(), ir_builder->fun(), ir_builder->cur_block(), val);
         if (&val.value->type() != var_type.as_raw()) {
-            Errors::CONFLICT_VAR_INIT_TY(ast.equal.get().span, ast.name.span, *ast.type, val, *var_type);
+            Errors::ConflictVarInitTy(ast.equal.get().span, ast.name.span, *ast.type, val, *var_type).report();
             success = false;
             return;
         }
         ir_builder->cur_block()->add<IR::Instrs::Copy>(reg, val);
-    } else if (!ast.mut) // no initializer, not mutable
-        WARN_IMMUT_NOINIT(ast);
+    }
 
     locals->add_local(varname, reg);
 }
 void Codegen::Helpers::StmtCodegen::ast_visit(ASTNS::RetStmt &ast) {
-    Maybe<Located> m_v = ast.expr ? expr_cg->expr(*ast.expr) : Maybe<Located<NNPtr<IR::Value>>>(Located<NNPtr<IR::Value>>(ast, ir_builder->context().get_void()));
+    Maybe<Located<NNPtr<IR::Value>>> m_v = ast.expr ? expr_cg->expr(*ast.expr) : Maybe<Located<NNPtr<IR::Value>>>(Located<NNPtr<IR::Value>>(ast, ir_builder->context().get_void()));
     if (!m_v.has()) {
         success = false;
         return;
@@ -71,7 +70,7 @@ void Codegen::Helpers::StmtCodegen::ast_visit(ASTNS::RetStmt &ast) {
 
     v = ir_builder->fun().ty->ret->impl_cast(ir_builder->context(), ir_builder->fun(), ir_builder->cur_block(), v);
     if (ir_builder->fun().ty->ret.as_raw() != &v.value->type()) {
-        Errors::CONFLICT_RET_TY(v, ir_builder->fun());
+        Errors::ConflictRetTy(v, ir_builder->fun()).report();
         success = false;
         return;
     }

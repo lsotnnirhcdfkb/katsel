@@ -60,7 +60,7 @@ namespace {
             else if (consume_if<TokenType::Impl>())
                 return impl_decl();
             else {
-                Errors::Expected(peek().span, "declaration");
+                Errors::Expected(peek().span, "declaration").report();
                 return Maybe<std::unique_ptr<ASTNS::Decl>>();
             }
         }
@@ -92,7 +92,7 @@ namespace {
             optional_line_ending();
 
             Span span (join_span(fun_tok, ret_type->span()));
-            return std::make_unique<ASTNS::FunctionDecl>(span, std::move(ret_type), Located(name, name.value.clone()), std::move(params), std::move(body));
+            return std::make_unique<ASTNS::FunctionDecl>(span, std::move(ret_type), Located<Token>(name, name.value.clone()), std::move(params), std::move(body));
         }
         // impl {{{3
         Maybe<std::unique_ptr<ASTNS::ImplDecl>> impl_decl() {
@@ -121,7 +121,7 @@ namespace {
                 TRY(fun_decl, std::unique_ptr<ASTNS::ImplMember>, function_decl());
                 return std::make_unique<ASTNS::FunctionImplMember>(fun_decl->span(), std::move(fun_decl));
             } else {
-                Errors::Expected(peek().span, "\'impl\' member");
+                Errors::Expected(peek().span, "\'impl\' member").report();
                 return Maybe<std::unique_ptr<ASTNS::ImplMember>>();
             }
         }
@@ -163,7 +163,7 @@ namespace {
             Maybe<Located<Token>> eq_tok;
             if (consume_if<TokenType::Equal>()) {
                 auto &prev_tok = prev().get();
-                eq_tok = Maybe<Located<Token>>(Located(prev_tok, prev_tok.value.clone()));
+                eq_tok = Maybe<Located<Token>>(Located<Token>(prev_tok, prev_tok.value.clone()));
 
                 TRY(inner_initializer, std::unique_ptr<ASTNS::VarStmt>, expr(Precedence::NONE));
                 initializer = std::move(inner_initializer);
@@ -172,7 +172,7 @@ namespace {
             TRY(line_ending, std::unique_ptr<ASTNS::VarStmt>, line_ending());
 
             Span stmt_span (var_tok.start, line_ending.end);
-            return std::make_unique<ASTNS::VarStmt>(stmt_span, std::move(type), mut, Located(name, name.value.clone()), std::move(eq_tok), std::move(initializer));
+            return std::make_unique<ASTNS::VarStmt>(stmt_span, std::move(type), mut, Located<Token>(name, name.value.clone()), std::move(eq_tok), std::move(initializer));
         }
         Maybe<std::unique_ptr<ASTNS::RetStmt>> ret_stmt() {
             Span ret_tok = prev().get().span;
@@ -210,7 +210,7 @@ namespace {
                 Span newl = prev().get().span;
                 return newl;
             } else {
-                Errors::Expected(peek().span, "line ending");
+                Errors::Expected(peek().span, "line ending").report();
                 return Maybe<Span>();
             }
         }
@@ -332,7 +332,7 @@ namespace {
             else if (peek().value.is<TokenType::Identifier>())
                 return path_type();
             else {
-                Errors::Expected(peek().span, "type");
+                Errors::Expected(peek().span, "type").report();
                 return Maybe<std::unique_ptr<ASTNS::Type>>();
             }
         }
@@ -347,7 +347,7 @@ namespace {
         // this {{{3
         Maybe<std::unique_ptr<ASTNS::ThisType>> this_type() {
             Located<Token> &prev_tok = prev().get();
-            return std::make_unique<ASTNS::ThisType>(prev_tok.span, Located(prev_tok.span, prev_tok.value.clone()));
+            return std::make_unique<ASTNS::ThisType>(prev_tok.span, Located<Token>(prev_tok.span, prev_tok.value.clone()));
         }
         // path {{{3
         Maybe<std::unique_ptr<ASTNS::PathType>> path_type() {
@@ -363,7 +363,7 @@ namespace {
                 peek().value.is<TokenType::This>())
                 return this_param();
             else {
-                Errors::Expected(peek().span, "parameter");
+                Errors::Expected(peek().span, "parameter").report();
                 return Maybe<std::unique_ptr<ASTNS::ParamB>>();
             }
         }
@@ -388,7 +388,7 @@ namespace {
             TRY(name, std::unique_ptr<ASTNS::Param>, expect<TokenType::Identifier>("parameter name"));
             TRY(type, std::unique_ptr<ASTNS::Param>, type_annotation());
 
-            return std::make_unique<ASTNS::Param>(join_span(mut_loc.has() ? mut_loc.get() : name.span, type->span()), std::move(type), Located(name, name.value.clone()), mut);
+            return std::make_unique<ASTNS::Param>(join_span(mut_loc.has() ? mut_loc.get() : name.span, type->span()), std::move(type), Located<Token>(name, name.value.clone()), mut);
         }
         // expr {{{2
         // tables {{{3
@@ -466,7 +466,7 @@ namespace {
 
             auto pf = prefix_parsers.find(next.value.type());
             if (pf == prefix_parsers.end()) {
-                Errors::Expected(next.span, "expression");
+                Errors::Expected(next.span, "expression").report();
                 return Maybe<std::unique_ptr<ASTNS::Expr>>();
             }
 
@@ -505,7 +505,7 @@ namespace {
             std::unique_ptr<ASTNS::Expr> else_branch;
             if (consume_if<TokenType::Else>()) {
                 auto &prev_tok = prev().get();
-                else_tok = Located(prev_tok, prev_tok.value.clone());
+                else_tok = Located<Token>(prev_tok, prev_tok.value.clone());
 
                 if (peek().value.is<TokenType::If>()) {
                     TRY(_else_branch, std::unique_ptr<ASTNS::Expr>, if_expr());
@@ -516,7 +516,7 @@ namespace {
                 }
             }
 
-            return std::make_unique<ASTNS::IfExpr>(join_span(if_tok.span, else_branch ? else_branch->span() : if_branch->span()), Located(if_tok, if_tok.value.clone()), std::move(else_tok), std::move(cond), std::move(if_branch), std::move(else_branch));
+            return std::make_unique<ASTNS::IfExpr>(join_span(if_tok.span, else_branch ? else_branch->span() : if_branch->span()), Located<Token>(if_tok, if_tok.value.clone()), std::move(else_tok), std::move(cond), std::move(if_branch), std::move(else_branch));
         }
         // while {{{3
         Maybe<std::unique_ptr<ASTNS::Expr>> while_expr() {
@@ -542,7 +542,7 @@ namespace {
 
             switch (op.value.type()) {
 #define MAKE(expr_ty, op_ty, op_val) \
-    return std::make_unique<ASTNS::expr_ty>(total_span, std::move(left), Located(op.span, ASTNS::op_ty::op_val), std::move(right))
+    return std::make_unique<ASTNS::expr_ty>(total_span, std::move(left), Located<ASTNS::op_ty>(op.span, ASTNS::op_ty::op_val), std::move(right))
                 case TokenType::DoublePipe: MAKE(ShortCircuitExpr, ShortCircuitOperator, DOUBLEPIPE);
                 case TokenType::DoubleAmper: MAKE(ShortCircuitExpr, ShortCircuitOperator, DOUBLEAMPER);
 
@@ -586,7 +586,7 @@ namespace {
                     report_abort_noh("unreachable code reached");
             }
 
-            return std::make_unique<ASTNS::AssignmentExpr>(total_span, std::move(left), Located(op.span, assign_op), std::move(right));
+            return std::make_unique<ASTNS::AssignmentExpr>(total_span, std::move(left), Located<ASTNS::AssignOperator>(op.span, assign_op), std::move(right));
         }
 
         // cast {{{3
@@ -618,13 +618,13 @@ namespace {
 
                 case TokenType::Star:
                     // special case, this needs to return a DerefExpr
-                    return std::make_unique<ASTNS::DerefExpr>(span, Located(prev.span, prev.value.clone()), std::move(operand));
+                    return std::make_unique<ASTNS::DerefExpr>(span, Located<Token>(prev.span, prev.value.clone()), std::move(operand));
 
                 default:
                     report_abort_noh("unreachable code reached");
             }
 
-            return std::make_unique<ASTNS::UnaryExpr>(span, Located(prev.span, op), std::move(operand));
+            return std::make_unique<ASTNS::UnaryExpr>(span, Located<ASTNS::UnaryOperator>(prev.span, op), std::move(operand));
         }
         // addrof {{{3
         Maybe<std::unique_ptr<ASTNS::Expr>> addrof_expr() {
@@ -635,7 +635,7 @@ namespace {
             TRY(operand, std::unique_ptr<ASTNS::Expr>, expr(Precedence::UNARY));
 
             Span const total (join_span(amper.span, operand->span()));
-            return std::make_unique<ASTNS::AddrofExpr>(total, Located(amper, amper.value.clone()), std::move(operand), mut);
+            return std::make_unique<ASTNS::AddrofExpr>(total, Located<Token>(amper, amper.value.clone()), std::move(operand), mut);
         }
         // call & field access & method call {{{3
         Maybe<std::unique_ptr<ASTNS::Expr>> call_expr(std::unique_ptr<ASTNS::Expr> callee) {
@@ -649,7 +649,7 @@ namespace {
 
             TRY(cparen, std::unique_ptr<ASTNS::Expr>, expect<TokenType::CParen>("')'"));
 
-            return std::make_unique<ASTNS::CallExpr>(join_span(callee->span(), cparen.span), std::move(callee), Located(oparen, oparen.value.clone()), std::move(call_args));
+            return std::make_unique<ASTNS::CallExpr>(join_span(callee->span(), cparen.span), std::move(callee), Located<Token>(oparen, oparen.value.clone()), std::move(call_args));
         }
         Maybe<std::unique_ptr<ASTNS::Expr>> field_or_method_call_expr(std::unique_ptr<ASTNS::Expr> operand) {
             auto const &dot = assert_expect<TokenType::Period>();
@@ -667,9 +667,9 @@ namespace {
 
                 TRY(cparen, std::unique_ptr<ASTNS::Expr>, expect<TokenType::CParen>("')'"));
 
-                return std::make_unique<ASTNS::MethodCallExpr>(join_span(operand->span(), cparen.span), std::move(operand), Located(dot, dot.value.clone()), Located(name, name.value.clone()), Located(oparen, oparen.value.clone()), std::move(call_args));
+                return std::make_unique<ASTNS::MethodCallExpr>(join_span(operand->span(), cparen.span), std::move(operand), Located<Token>(dot, dot.value.clone()), Located<Token>(name, name.value.clone()), Located<Token>(oparen, oparen.value.clone()), std::move(call_args));
             } else {
-                return std::make_unique<ASTNS::FieldAccessExpr>(join_span(operand->span(), name.span), std::move(operand), Located(dot, dot.value.clone()), Located(name, name.value.clone()));
+                return std::make_unique<ASTNS::FieldAccessExpr>(join_span(operand->span(), name.span), std::move(operand), Located<Token>(dot, dot.value.clone()), Located<Token>(name, name.value.clone()));
             }
         }
         // args {{{3
@@ -691,7 +691,7 @@ namespace {
             switch (prev.value.type()) {
 #define A(a, b) \
     case TokenType::a: \
-        return std::make_unique<ASTNS::b>(prev.span, Located(prev, prev.value.clone()));
+        return std::make_unique<ASTNS::b>(prev.span, Located<Token>(prev, prev.value.clone()));
                 A(BoolLit, BoolLit)
                 A(FloatLit, FloatLit)
                 A(IntLit, IntLit)
@@ -720,7 +720,7 @@ namespace {
             std::vector<Located<Token>> segments;
             do {
                 TRY(seg, std::unique_ptr<ASTNS::Path>, expect<TokenType::Identifier>("path segment"))
-                segments.push_back(Located(seg, seg.value.clone()));
+                segments.push_back(Located<Token>(seg, seg.value.clone()));
             } while (consume_if<TokenType::DoubleColon>());
 
             return std::make_unique<ASTNS::Path>(span_from_vec(segments, segments[0].span), std::move(segments));
@@ -767,7 +767,7 @@ namespace {
                 // TODO: janky code should become less janky
                 if (cur.value.is<TokenType::Error>()) {
                     errored = true;
-                    (*cur.value.as<TokenType::Error>().errf)(cur.span);
+                    cur.value.as<TokenType::Error>().err->report();
                 } else if (lastboom && cur.value.is<TokenType::Newline>())
                     ;
                 else if (cur.value.is<TokenType::Boom>())
@@ -798,7 +798,7 @@ namespace {
 
                 return tok;
             } else {
-                Errors::Expected(peek().span, what);
+                Errors::Expected(peek().span, what).report();
                 return Maybe<Located<Token> const &>();
             }
         }

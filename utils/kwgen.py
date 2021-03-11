@@ -50,10 +50,10 @@ class TrieNode:
 
     def generate(self):
         output = []
-        output.append('TokenData Lexer::get_identifier_type() {\n')
+        output.append('Token Lexer::get_identifier_type() {\n')
         output.append(self.__generate(1))
         output.append('\n')
-        output.append(f'{TrieNode.get_indent(1)}return Tokens::Identifier {{ std::string(start, end) }};\n')
+        output.append(f'{TrieNode.get_indent(1)}return TokenTypes::Identifier {{ std::string(start, end) }};\n')
         output.append('}\n')
         return ''.join(output)
 
@@ -65,7 +65,7 @@ class TrieNode:
         break_indent_str = self.get_indent(indent + 2)
 
         if self.tokentype is not None:
-            output.append(f'{body_indent_str}if (start + {self.length} == end) return Tokens::{self.tokentype} {{ {self.initializer} }};\n')
+            output.append(f'{body_indent_str}if (start + {self.length} == end) return TokenTypes::{self.tokentype} {{ {self.initializer} }};\n')
 
         if len(self.nodes) == 0:
             return ''.join(output)
@@ -81,7 +81,7 @@ class TrieNode:
             for ind, val in letters:
                 output.append(f' && *(start + {ind}) == \'{val}\'')
 
-            output.append(f') return Tokens::{cur.tokentype} {{ {cur.initializer} }};\n')
+            output.append(f') return TokenTypes::{cur.tokentype} {{ {cur.initializer} }};\n')
 
             return ''.join(output)
 

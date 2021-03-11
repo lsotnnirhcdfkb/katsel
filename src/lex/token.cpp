@@ -67,10 +67,14 @@ TokenType Token::type() const {
         }, pimpl->data);
 }
 
-template <typename TokenType>
-TokenType clone_ti(TokenType const &tt) {
-    // when error tokens are not copyable in the next commit, then this function needs to be modified to support copying them
+template <typename TT>
+TT clone_ti(TT const &tt) {
     return tt;
+}
+
+TokenTypes::Error clone_ti(TokenTypes::Error const &) {
+    // should not be used, the parser should report them immediately, and they shouldnt appear anywhere past the parser
+    report_abort_noh("clone error token");
 }
 
 Token Token::clone() const {
@@ -79,7 +83,7 @@ Token Token::clone() const {
             if constexpr (std::is_same_v<ArgTT, int>)
                 report_abort_noh("unreachable");
             else
-                return Token(clone_ti<ArgTT>(arg));
+                return Token(clone_ti(arg));
         }, pimpl->data);
 }
 
