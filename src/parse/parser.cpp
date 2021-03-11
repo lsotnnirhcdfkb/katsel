@@ -565,7 +565,7 @@ namespace {
 #undef MAKE
 
                 default:
-                    report_abort_noh("unreachable code reached");
+                    report_abort_noh("invalid binary operator");
             }
         }
 
@@ -583,7 +583,7 @@ namespace {
                     break;
 
                 default:
-                    report_abort_noh("unreachable code reached");
+                    report_abort_noh("invalid assign operator");
             }
 
             return std::make_unique<ASTNS::AssignmentExpr>(total_span, std::move(left), Located<ASTNS::AssignOperator>(op.span, assign_op), std::move(right));
@@ -621,7 +621,7 @@ namespace {
                     return std::make_unique<ASTNS::DerefExpr>(span, Located<Token>(prev.span, prev.value.clone()), std::move(operand));
 
                 default:
-                    report_abort_noh("unreachable code reached");
+                    report_abort_noh("invalid unary operator");
             }
 
             return std::make_unique<ASTNS::UnaryExpr>(span, Located<ASTNS::UnaryOperator>(prev.span, op), std::move(operand));
@@ -707,7 +707,7 @@ namespace {
                }
 
                 default:
-                    report_abort_noh("unreachable code reached");
+                    report_abort_noh("invalid primary expr");
             }
         }
         // path {{{3
