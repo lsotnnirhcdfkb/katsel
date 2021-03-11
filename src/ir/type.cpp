@@ -16,15 +16,15 @@ std::string IR::VoidType::name() const {
 }
 
 Maybe<Located<NNPtr<IR::Value>>> IR::VoidType::bin_op(Codegen::Context &, IR::Function &, NNPtr<IR::Block> &, Located<ASTNS::BinaryOperator> op, Located<NNPtr<IR::Value>> l, Located<NNPtr<IR::Value>> r, ASTNS::AST const &) const {
-    ERR_LHS_UNSUPPORTED_OP(l, op.span);
+    Errors::LHS_UNSUPPORTED_OP(l, op.span);
     return Maybe<Located<NNPtr<Value>>>();
 }
 Maybe<Located<NNPtr<IR::Value>>> IR::VoidType::unary_op(Codegen::Context &, IR::Function &, NNPtr<IR::Block> &, Located<ASTNS::UnaryOperator> op, Located<NNPtr<IR::Value>> operand, ASTNS::AST const &) const {
-    ERR_UNARY_UNSUPPORTED_OP(operand, op);
+    Errors::UNARY_UNSUPPORTED_OP(operand, op);
     return Maybe<Located<NNPtr<Value>>>();
 }
 Maybe<Located<NNPtr<IR::Value>>> IR::VoidType::cast_from(Codegen::Context &, IR::Function &, NNPtr<IR::Block> &, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast) const {
-    ERR_INVALID_CAST(ast, v, *this);
+    Errors::INVALID_CAST(ast, v, *this);
     return Maybe<Located<NNPtr<Value>>>();
 }
 
@@ -54,16 +54,16 @@ std::string IR::FunctionType::name() const {
 }
 
 Maybe<Located<NNPtr<IR::Value>>> IR::FunctionType::bin_op(Codegen::Context &, IR::Function &, NNPtr<IR::Block> &, Located<ASTNS::BinaryOperator> op, Located<NNPtr<IR::Value>> l, Located<NNPtr<IR::Value>> r, ASTNS::AST const &) const {
-    ERR_LHS_UNSUPPORTED_OP(l, op.span);
+    Errors::LHS_UNSUPPORTED_OP(l, op.span);
     return Maybe<Located<NNPtr<Value>>>();
 }
 Maybe<Located<NNPtr<IR::Value>>> IR::FunctionType::unary_op(Codegen::Context &, IR::Function &, NNPtr<IR::Block> &, Located<ASTNS::UnaryOperator> op, Located<NNPtr<IR::Value>> operand, ASTNS::AST const &) const {
-    ERR_UNARY_UNSUPPORTED_OP(operand, op);
+    Errors::UNARY_UNSUPPORTED_OP(operand, op);
     return Maybe<Located<NNPtr<Value>>>();
 }
 
 Maybe<Located<NNPtr<IR::Value>>> IR::FunctionType::cast_from(Codegen::Context &, IR::Function &, NNPtr<IR::Block> &, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast) const {
-    ERR_INVALID_CAST(ast, v, *this);
+    Errors::INVALID_CAST(ast, v, *this);
     return Maybe<Located<NNPtr<Value>>>();
 }
 

@@ -23,7 +23,7 @@ bool Function::value_declare() {
 
     Maybe<IR::Value &> declbefore = parent_symbol.get_value(fname);
     if (declbefore.has()) {
-        ERR_REDECL_SYM(ast.name.span, declbefore.get());
+        Errors::REDECL_SYM(ast.name.span, declbefore.get());
         return false;
     }
 
@@ -91,7 +91,7 @@ bool Function::value_define() {
 
         Maybe<Helpers::Local> foundparam = locals->get_local(pname);
         if (foundparam.has()) {
-            ERR_REDECL_PARAM(*param.ast, *foundparam.get().v);
+            Errors::REDECL_PARAM(*param.ast, *foundparam.get().v);
             errored = true;
         } else
             locals->add_local(pname, reg);
@@ -111,7 +111,7 @@ bool Function::value_define() {
 
         retval = s1_data.fun->ty->ret->impl_cast(ir_builder->context(), ir_builder->fun(), ir_builder->cur_block(), retval);
         if (s1_data.fun->ty->ret.as_raw() != &retval.value->type()) {
-            ERR_CONFLICT_RET_TY(retval, *s1_data.fun);
+            Errors::CONFLICT_RET_TY(retval, *s1_data.fun);
             errored = true;
         } else {
             ir_builder->cur_block()->add<IR::Instrs::Copy>(*ir_builder->fun().ret_reg, retval);

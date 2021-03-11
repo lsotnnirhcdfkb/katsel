@@ -28,13 +28,13 @@ void Codegen::Helpers::ParamVisitor::ast_visit(ASTNS::Param &ast) {
 void Codegen::Helpers::ParamVisitor::ast_visit(ASTNS::ThisParam &ast) {
     if (!type_visitor->this_type.has()) {
         errored = true;
-        ERR_TYPELESS_THIS(ast);
+        Errors::TYPELESS_THIS(ast);
         return;
     }
 
     if (index != 0) {
         errored = true;
-        ERR_THIS_NOT_FIRST(ast);
+        Errors::THIS_NOT_FIRST(ast);
         return;
     }
 

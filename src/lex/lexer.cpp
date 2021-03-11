@@ -113,7 +113,7 @@ void Lexer::lex_identifier(bool apostrophes_allowed) {
     Token data = get_identifier_type();
     add_token(make_token(std::move(data)));
 }
-//
+
 // next token {{{1
 Located<Token> Lexer::next_token() {
     while (token_backlog.size() == 0)
@@ -529,3 +529,23 @@ char Lexer::consumed() {
     return *(end - 1);
 }
 
+// making tokens {{{1
+static Span make_span(std::string::const_iterator start, std::string::const_iterator end,
+        int startline, int startcolumn,
+        int endline, int endcolumn,
+        bool end_inc, File const &sourcefile) {
+    Location tokstart (start, startline, startcolumn, sourcefile),
+     // not perfect: endcolumn should wrap around to the next line if the current character is a newline but whatever
+             tokend (end_inc ? end + 1 : end, endline, end_inc ? endcolumn + 1 : endcolumn, sourcefile);
+
+    return Span(tokstart, tokend);
+}
+Located<TokenData> Lexer::make_token(TokenData data) {
+    Span span (make_span(start, end, startline, startcolumn, endline, endcolumn, start == end, sourcefile));
+    return Located<TokenData> { span, std::move(data) };
+}
+template <typename T>
+Located<TokenData> Lexer::make_error_token() {
+    Span span (make_span(start, end, startline, startcolumn, endline, endcolumn, start == end, sourcefile));
+    return Located<TokenData> { span, Tokens::Error { std::make_unique<T>(span) } };
+}

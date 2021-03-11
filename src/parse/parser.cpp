@@ -60,7 +60,7 @@ namespace {
             else if (consume_if<TokenType::Impl>())
                 return impl_decl();
             else {
-                ERR_EXPECTED(peek().span, "declaration");
+                Errors::Expected(peek().span, "declaration");
                 return Maybe<std::unique_ptr<ASTNS::Decl>>();
             }
         }
@@ -121,7 +121,7 @@ namespace {
                 TRY(fun_decl, std::unique_ptr<ASTNS::ImplMember>, function_decl());
                 return std::make_unique<ASTNS::FunctionImplMember>(fun_decl->span(), std::move(fun_decl));
             } else {
-                ERR_EXPECTED(peek().span, "\'impl\' member");
+                Errors::Expected(peek().span, "\'impl\' member");
                 return Maybe<std::unique_ptr<ASTNS::ImplMember>>();
             }
         }
@@ -210,7 +210,7 @@ namespace {
                 Span newl = prev().get().span;
                 return newl;
             } else {
-                ERR_EXPECTED(peek().span, "line ending");
+                Errors::Expected(peek().span, "line ending");
                 return Maybe<Span>();
             }
         }
@@ -314,7 +314,7 @@ namespace {
             } else if (peek().value.is<TokenType::OBrace>()) {
                 return braced<PassFallbackSpan>(fun, args...);
             } else {
-                ERR_EXPECTED(peek().span, "blocked"); // TODO: better message
+                Errors::Expected(peek().span, "blocked"); // TODO: better message
                 return MaybeUnwrappedFunParseRes<PassFallbackSpan, ParseFun, Args...>();
             }
         }
@@ -332,7 +332,7 @@ namespace {
             else if (peek().value.is<TokenType::Identifier>())
                 return path_type();
             else {
-                ERR_EXPECTED(peek().span, "type");
+                Errors::Expected(peek().span, "type");
                 return Maybe<std::unique_ptr<ASTNS::Type>>();
             }
         }
@@ -363,7 +363,7 @@ namespace {
                 peek().value.is<TokenType::This>())
                 return this_param();
             else {
-                ERR_EXPECTED(peek().span, "parameter");
+                Errors::Expected(peek().span, "parameter");
                 return Maybe<std::unique_ptr<ASTNS::ParamB>>();
             }
         }
@@ -466,7 +466,7 @@ namespace {
 
             auto pf = prefix_parsers.find(next.value.type());
             if (pf == prefix_parsers.end()) {
-                ERR_EXPECTED(next.span, "expression");
+                Errors::Expected(next.span, "expression");
                 return Maybe<std::unique_ptr<ASTNS::Expr>>();
             }
 
@@ -798,7 +798,7 @@ namespace {
 
                 return tok;
             } else {
-                ERR_EXPECTED(peek().span, what);
+                Errors::Expected(peek().span, what);
                 return Maybe<Located<Token> const &>();
             }
         }

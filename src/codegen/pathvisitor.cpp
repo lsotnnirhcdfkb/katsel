@@ -34,9 +34,9 @@ static Maybe<IR::DeclSymbol &> trace_path_decl_only(IR::DeclSymbol &start, std::
             current = m_current.get();
         } else {
             if (prev.as_raw() != &start)
-                ERR_NO_MEMBER_IN(*prev, cur_token->span);
+                Errors::NO_MEMBER_IN(*prev, cur_token->span);
             else
-                ERR_UNDECL_SYMB(cur_token->span);
+                Errors::UNDECL_SYMB(cur_token->span);
             return Maybe<IR::DeclSymbol &>();
         }
     }
@@ -73,9 +73,9 @@ void Codegen::Helpers::PathVisitor::ast_visit(ASTNS::Path &ast) {
 
         if (!ret.has()) {
             if (last.as_raw() != &unit.mod)
-                ERR_NO_MEMBER_IN(*last, ast.segments.back().span);
+                Errors::NO_MEMBER_IN(*last, ast.segments.back().span);
             else
-                ERR_UNDECL_SYMB(ast.segments.back().span);
+                Errors::UNDECL_SYMB(ast.segments.back().span);
             vret = Maybe<Located<NNPtr<IR::Value>>>();
         } else {
             vret = Located(ast, ret.get());

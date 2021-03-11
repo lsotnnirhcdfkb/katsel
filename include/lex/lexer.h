@@ -18,6 +18,9 @@ private:
     void add_token(Located<Token> tok);
     std::queue<Located<Token>> token_backlog;
 
+    template <typename T>
+    Located<TokenData> make_error_token();
+
     bool at_end();
 
     char advance();

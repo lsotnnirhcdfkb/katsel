@@ -24,7 +24,7 @@ void Codegen::Helpers::StmtCodegen::ast_visit(ASTNS::VarStmt &ast) {
     std::string const &varname = ast.name.value.name;
     Maybe<Codegen::Helpers::Local> var = locals->get_local(varname);
     if (var.has() && var.get().scopenum == locals->cur_scope) {
-        ERR_REDECL_VAR(ast.name.span, *var.get().v);
+        Errors::REDECL_VAR(ast.name.span, *var.get().v);
         success = false;
         return;
     }
@@ -50,7 +50,7 @@ void Codegen::Helpers::StmtCodegen::ast_visit(ASTNS::VarStmt &ast) {
 
         val = var_type->impl_cast(ir_builder->context(), ir_builder->fun(), ir_builder->cur_block(), val);
         if (&val.value->type() != var_type.as_raw()) {
-            ERR_CONFLICT_VAR_INIT_TY(ast.equal.get().span, ast.name.span, *ast.type, val, *var_type);
+            Errors::CONFLICT_VAR_INIT_TY(ast.equal.get().span, ast.name.span, *ast.type, val, *var_type);
             success = false;
             return;
         }
@@ -71,7 +71,7 @@ void Codegen::Helpers::StmtCodegen::ast_visit(ASTNS::RetStmt &ast) {
 
     v = ir_builder->fun().ty->ret->impl_cast(ir_builder->context(), ir_builder->fun(), ir_builder->cur_block(), v);
     if (ir_builder->fun().ty->ret.as_raw() != &v.value->type()) {
-        ERR_CONFLICT_RET_TY(v, ir_builder->fun());
+        Errors::CONFLICT_RET_TY(v, ir_builder->fun());
         success = false;
         return;
     }

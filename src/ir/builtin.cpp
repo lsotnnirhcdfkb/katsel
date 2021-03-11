@@ -24,7 +24,7 @@ static Maybe<Located<NNPtr<IR::Value>>> float_bin_op(BIN_OP_ARGS) {
     r = l.value->type().impl_cast(cgc, fun, cur_block, r);
 
     if (&l.value->type() != &r.value->type()) {
-        ERR_CONFLICT_TYS_BINARY_OP(l, r, op.span);
+        Errors::CONFLICT_TYS_BINARY_OP(l, r, op.span);
         return Maybe<Located<NNPtr<IR::Value>>>();
     }
 
@@ -42,7 +42,7 @@ static Maybe<Located<NNPtr<IR::Value>>> float_bin_op(BIN_OP_ARGS) {
         SUPPORT_OPERATOR_BASIC(BANGEQUAL, FCmpNE, cgc.get_bool_type())
 
         default:
-            ERR_LHS_UNSUPPORTED_OP(l, op.span);
+            Errors::LHS_UNSUPPORTED_OP(l, op.span);
             return Maybe<Located<NNPtr<IR::Value>>>();
     }
 }
@@ -53,7 +53,7 @@ static Maybe<Located<NNPtr<IR::Value>>> float_unary_op(UNARY_OP_ARGS) {
         }
 
         default:
-            ERR_UNARY_UNSUPPORTED_OP(v, op);
+            Errors::UNARY_UNSUPPORTED_OP(v, op);
             return Maybe<Located<NNPtr<IR::Value>>>();
     }
 }
@@ -62,7 +62,7 @@ static Maybe<Located<NNPtr<IR::Value>>> int_bin_op(BIN_OP_ARGS) {
     r = l.value->type().impl_cast(cgc, fun, cur_block, r);
 
     if (&l.value->type() != &r.value->type()) {
-        ERR_CONFLICT_TYS_BINARY_OP(l, r, op.span);
+        Errors::CONFLICT_TYS_BINARY_OP(l, r, op.span);
         return Maybe<Located<NNPtr<IR::Value>>>();
     }
 
@@ -85,7 +85,7 @@ static Maybe<Located<NNPtr<IR::Value>>> int_bin_op(BIN_OP_ARGS) {
         SUPPORT_OPERATOR_BASIC(DOUBLELESS, ShiftL, l.value->type())
 
         default:
-            ERR_LHS_UNSUPPORTED_OP(l, op.span);
+            Errors::LHS_UNSUPPORTED_OP(l, op.span);
             return Maybe<Located<NNPtr<IR::Value>>>();
     }
 }
@@ -100,7 +100,7 @@ static Maybe<Located<NNPtr<IR::Value>>> int_unary_op(UNARY_OP_ARGS) {
         }
 
         default:
-            ERR_UNARY_UNSUPPORTED_OP(v, op);
+            Errors::UNARY_UNSUPPORTED_OP(v, op);
             return Maybe<Located<NNPtr<IR::Value>>>();
     }
 }
@@ -147,7 +147,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::FloatType::cast_from(Codegen::Context &cgc,
     } else if (dynamic_cast<FloatType const *>(&v.value->type())) {
         return Located(ast, cur_block->add<IR::Instrs::FloatToFloat>(v, this));
     } else {
-        ERR_INVALID_CAST(ast, v, *this);
+        Errors::INVALID_CAST(ast, v, *this);
         return Maybe<Located<NNPtr<IR::Value>>>();
     }
 }
@@ -209,7 +209,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::IntType::cast_from(Codegen::Context &cgc, I
     } else if (sty_float) {
         return Located(ast, cur_block->add<IR::Instrs::FloatToInt>(v, this));
     } else {
-        ERR_INVALID_CAST(ast, v, *this);
+        Errors::INVALID_CAST(ast, v, *this);
         return Maybe<Located<NNPtr<IR::Value>>>();
     }
 }
@@ -238,7 +238,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::GenericIntType::unary_op(UNARY_OP_ARGS) con
     return int_unary_op(cgc, fun, cur_block, op, v, ast);
 }
 Maybe<Located<NNPtr<IR::Value>>> IR::GenericIntType::cast_from(Codegen::Context &, IR::Function &, NNPtr<IR::Block> &, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast) const {
-    ERR_INVALID_CAST(ast, v, *this);
+    Errors::INVALID_CAST(ast, v, *this);
     return Maybe<Located<NNPtr<Value>>>();
 }
 llvm::Type& IR::GenericIntType::to_llvm_type(llvm::LLVMContext &con) const {
@@ -264,7 +264,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::GenericFloatType::unary_op(UNARY_OP_ARGS) c
     return float_unary_op(cgc, fun, cur_block, op, v, ast);
 }
 Maybe<Located<NNPtr<IR::Value>>> IR::GenericFloatType::cast_from(Codegen::Context &, IR::Function &, NNPtr<IR::Block> &, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast) const {
-    ERR_INVALID_CAST(ast, v, *this);
+    Errors::INVALID_CAST(ast, v, *this);
     return Maybe<Located<NNPtr<Value>>>();
 }
 llvm::Type& IR::GenericFloatType::to_llvm_type(llvm::LLVMContext &con) const {
@@ -291,7 +291,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::CharType::bin_op(BIN_OP_ARGS) const {
     l = r.value->type().impl_cast(cgc, fun, cur_block, l);
     r = l.value->type().impl_cast(cgc, fun, cur_block, r);
     if (&l.value->type() != &r.value->type()) {
-        ERR_CONFLICT_TYS_BINARY_OP(l, r, op.span);
+        Errors::CONFLICT_TYS_BINARY_OP(l, r, op.span);
         return Maybe<Located<NNPtr<IR::Value>>>();
     }
 
@@ -304,14 +304,14 @@ Maybe<Located<NNPtr<IR::Value>>> IR::CharType::bin_op(BIN_OP_ARGS) const {
         SUPPORT_OPERATOR_BASIC(BANGEQUAL, ICmpNE, cgc.get_bool_type())
 
         default:
-            ERR_LHS_UNSUPPORTED_OP(l, op.span);
+            Errors::LHS_UNSUPPORTED_OP(l, op.span);
             return Maybe<Located<NNPtr<Value>>>();
     }
 }
 Maybe<Located<NNPtr<IR::Value>>> IR::CharType::unary_op(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<ASTNS::UnaryOperator> op, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast) const {
     ASSERT(&v.value->type() == this)
 
-    ERR_UNARY_UNSUPPORTED_OP(v, op);
+    Errors::UNARY_UNSUPPORTED_OP(v, op);
     return Maybe<Located<NNPtr<Value>>>();
 }
 Maybe<Located<NNPtr<IR::Value>>> IR::CharType::cast_from(Codegen::Context &cgc, IR::Function &fun, NNPtr<IR::Block> &cur_block, Located<NNPtr<IR::Value>> v, ASTNS::AST const &ast) const {
@@ -320,7 +320,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::CharType::cast_from(Codegen::Context &cgc, 
 
     IntType const *sty (dynamic_cast<IntType const *>(&v.value->type()));
     if (!sty) {
-        ERR_INVALID_CAST(ast, v, *this);
+        Errors::INVALID_CAST(ast, v, *this);
         return Maybe<Located<NNPtr<IR::Value>>>();
     }
 
@@ -349,7 +349,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::BoolType::bin_op(Codegen::Context &cgc, Fun
     l = r.value->type().impl_cast(cgc, fun, cur_block, l);
     r = l.value->type().impl_cast(cgc, fun, cur_block, r);
     if (&l.value->type() != &r.value->type()) {
-        ERR_CONFLICT_TYS_BINARY_OP(l, r, op.span);
+        Errors::CONFLICT_TYS_BINARY_OP(l, r, op.span);
         return Maybe<Located<NNPtr<IR::Value>>>();
     }
 
@@ -361,7 +361,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::BoolType::bin_op(Codegen::Context &cgc, Fun
         SUPPORT_OPERATOR_BASIC(BANGEQUAL, ICmpNE, cgc.get_bool_type())
 
         default:
-            ERR_LHS_UNSUPPORTED_OP(l, op.span);
+            Errors::LHS_UNSUPPORTED_OP(l, op.span);
             return Maybe<Located<NNPtr<Value>>>();
     }
 }
@@ -374,7 +374,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::BoolType::unary_op(Codegen::Context &cgc, I
          }
 
         default:
-            ERR_UNARY_UNSUPPORTED_OP(v, op);
+            Errors::UNARY_UNSUPPORTED_OP(v, op);
             return Maybe<Located<NNPtr<Value>>>();
     }
 }
@@ -384,7 +384,7 @@ Maybe<Located<NNPtr<IR::Value>>> IR::BoolType::cast_from(Codegen::Context &cgc, 
 
     IntType const *sty (dynamic_cast<IntType const *>(&v.value->type()));
     if (!sty) {
-        ERR_INVALID_CAST(ast, v, *this);
+        Errors::INVALID_CAST(ast, v, *this);
         return Maybe<Located<NNPtr<IR::Value>>>();
     }
 

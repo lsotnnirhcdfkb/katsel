@@ -5,6 +5,7 @@ class Error:
     def __init__(self, name, fields):
         self.name = name
         self.fields = helpers.Field.process(fields)
+        self.num = None
 # errors {{{1
 errors = [
     Error('BadChar', 'Span|tok'),
@@ -51,6 +52,9 @@ errors = [
     Error('NoSuppress', 'Span|dollar'),
     Error('ThisNotFirst', 'NNPtr<ASTNS::ThisParam>|ast'),
 ]
+
+for err_i, err in enumerate(errors):
+    err.num = err_i
 # generating {{{1
 # decls {{{2
 def gen_decls():
@@ -61,6 +65,8 @@ def gen_decls():
         output.append( 'public:\n')
         output.append(f'    {err.name}({helpers.Field.as_ref_params(err.fields)});\n')
         output.append( 'private:\n')
+        output.append(f'    static constexpr char const *CODE = "E{str(err.num).zfill(4)}";\n')
+        output.append(f'    static constexpr char const *NAME = "{helpers.to_snake_case(err.name).replace("_", "-")}";\n')
         output.append(helpers.Field.as_fields(err.fields, indent=4))
         output.append( 'protected:\n')
         output.append( '    SimpleError toSimpleError() const override;\n')

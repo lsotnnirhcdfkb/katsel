@@ -16,6 +16,8 @@ namespace Errors {
     public:
         BadChar(Span const &tok);
     private:
+        static constexpr char const *CODE = "E0000";
+        static constexpr char const *NAME = "bad-char";
         Span tok;
     protected:
         SimpleError toSimpleError() const override;
@@ -24,6 +26,8 @@ namespace Errors {
     public:
         UntermCharlit(Span const &tok);
     private:
+        static constexpr char const *CODE = "E0001";
+        static constexpr char const *NAME = "unterm-charlit";
         Span tok;
     protected:
         SimpleError toSimpleError() const override;
@@ -32,6 +36,8 @@ namespace Errors {
     public:
         UntermStrlit(Span const &tok);
     private:
+        static constexpr char const *CODE = "E0002";
+        static constexpr char const *NAME = "unterm-strlit";
         Span tok;
     protected:
         SimpleError toSimpleError() const override;
@@ -40,6 +46,8 @@ namespace Errors {
     public:
         IndentBlockCbrace(Span const &tok);
     private:
+        static constexpr char const *CODE = "E0003";
+        static constexpr char const *NAME = "indent-block-cbrace";
         Span tok;
     protected:
         SimpleError toSimpleError() const override;
@@ -48,6 +56,8 @@ namespace Errors {
     public:
         InvalidNumlitBase(Span const &tok);
     private:
+        static constexpr char const *CODE = "E0004";
+        static constexpr char const *NAME = "invalid-numlit-base";
         Span tok;
     protected:
         SimpleError toSimpleError() const override;
@@ -56,6 +66,8 @@ namespace Errors {
     public:
         NondecimalFloatlit(Span const &tok);
     private:
+        static constexpr char const *CODE = "E0005";
+        static constexpr char const *NAME = "nondecimal-floatlit";
         Span tok;
     protected:
         SimpleError toSimpleError() const override;
@@ -64,6 +76,8 @@ namespace Errors {
     public:
         InvalidCharForBase(Span const &tok);
     private:
+        static constexpr char const *CODE = "E0006";
+        static constexpr char const *NAME = "invalid-char-for-base";
         Span tok;
     protected:
         SimpleError toSimpleError() const override;
@@ -72,6 +86,8 @@ namespace Errors {
     public:
         IntlitNoDigits(Span const &tok);
     private:
+        static constexpr char const *CODE = "E0007";
+        static constexpr char const *NAME = "intlit-no-digits";
         Span tok;
     protected:
         SimpleError toSimpleError() const override;
@@ -80,6 +96,8 @@ namespace Errors {
     public:
         MulticharCharlit(Span const &tok);
     private:
+        static constexpr char const *CODE = "E0008";
+        static constexpr char const *NAME = "multichar-charlit";
         Span tok;
     protected:
         SimpleError toSimpleError() const override;
@@ -88,6 +106,8 @@ namespace Errors {
     public:
         UntermMultilineComment(Span const &tok);
     private:
+        static constexpr char const *CODE = "E0009";
+        static constexpr char const *NAME = "unterm-multiline-comment";
         Span tok;
     protected:
         SimpleError toSimpleError() const override;
@@ -96,6 +116,8 @@ namespace Errors {
     public:
         DedentNomatch(Span const &tok);
     private:
+        static constexpr char const *CODE = "E0010";
+        static constexpr char const *NAME = "dedent-nomatch";
         Span tok;
     protected:
         SimpleError toSimpleError() const override;
@@ -104,6 +126,8 @@ namespace Errors {
     public:
         Expected(Span const &expected, std::string const &name);
     private:
+        static constexpr char const *CODE = "E0011";
+        static constexpr char const *NAME = "expected";
         Span expected;
         std::string name;
     protected:
@@ -113,6 +137,8 @@ namespace Errors {
     public:
         LhsUnsupportedOp(Located<NNPtr<IR::Value>> const &lhs, Span const &op);
     private:
+        static constexpr char const *CODE = "E0012";
+        static constexpr char const *NAME = "lhs-unsupported-op";
         Located<NNPtr<IR::Value>> lhs;
         Span op;
     protected:
@@ -122,6 +148,8 @@ namespace Errors {
     public:
         UnaryUnsupportedOp(Located<NNPtr<IR::Value>> const &operand, Located<ASTNS::UnaryOperator> const &op);
     private:
+        static constexpr char const *CODE = "E0013";
+        static constexpr char const *NAME = "unary-unsupported-op";
         Located<NNPtr<IR::Value>> operand;
         Located<ASTNS::UnaryOperator> op;
     protected:
@@ -131,6 +159,8 @@ namespace Errors {
     public:
         CallNoncallable(Located<NNPtr<IR::Value>> const &func, Span const &oparn);
     private:
+        static constexpr char const *CODE = "E0014";
+        static constexpr char const *NAME = "call-noncallable";
         Located<NNPtr<IR::Value>> func;
         Span oparn;
     protected:
@@ -140,6 +170,8 @@ namespace Errors {
     public:
         IncorrectArg(Located<NNPtr<IR::Value>> const &arg, NNPtr<IR::Type> const &expected);
     private:
+        static constexpr char const *CODE = "E0015";
+        static constexpr char const *NAME = "incorrect-arg";
         Located<NNPtr<IR::Value>> arg;
         NNPtr<IR::Type> expected;
     protected:
@@ -149,6 +181,8 @@ namespace Errors {
     public:
         ConflTysIfexpr(Located<NNPtr<IR::Value>> const &truev, Located<NNPtr<IR::Value>> const &falsev, Span const &iftok, Span const &elsetok);
     private:
+        static constexpr char const *CODE = "E0016";
+        static constexpr char const *NAME = "confl-tys-ifexpr";
         Located<NNPtr<IR::Value>> truev;
         Located<NNPtr<IR::Value>> falsev;
         Span iftok;
@@ -160,6 +194,8 @@ namespace Errors {
     public:
         AssignConflictTys(Located<NNPtr<IR::Value>> const &lhs, Located<NNPtr<IR::Value>> const &rhs, Span const &eq);
     private:
+        static constexpr char const *CODE = "E0017";
+        static constexpr char const *NAME = "assign-conflict-tys";
         Located<NNPtr<IR::Value>> lhs;
         Located<NNPtr<IR::Value>> rhs;
         Span eq;
@@ -170,6 +206,8 @@ namespace Errors {
     public:
         ConflictRetTy(Located<NNPtr<IR::Value>> const &val, NNPtr<IR::Function> const &f);
     private:
+        static constexpr char const *CODE = "E0018";
+        static constexpr char const *NAME = "conflict-ret-ty";
         Located<NNPtr<IR::Value>> val;
         NNPtr<IR::Function> f;
     protected:
@@ -179,6 +217,8 @@ namespace Errors {
     public:
         NoDeref(Span const &op, Located<NNPtr<IR::Value>> const &val);
     private:
+        static constexpr char const *CODE = "E0019";
+        static constexpr char const *NAME = "no-deref";
         Span op;
         Located<NNPtr<IR::Value>> val;
     protected:
@@ -188,6 +228,8 @@ namespace Errors {
     public:
         ConflictVarInitTy(Span const &eq, Span const &name, NNPtr<ASTNS::Type> const &type_ast, Located<NNPtr<IR::Value>> const &init, NNPtr<IR::Type> const &expected_type);
     private:
+        static constexpr char const *CODE = "E0020";
+        static constexpr char const *NAME = "conflict-var-init-ty";
         Span eq;
         Span name;
         NNPtr<ASTNS::Type> type_ast;
@@ -200,6 +242,8 @@ namespace Errors {
     public:
         InvalidCast(NNPtr<ASTNS::AST> const &ast, Located<NNPtr<IR::Value>> const &v, NNPtr<IR::Type> const &newty);
     private:
+        static constexpr char const *CODE = "E0021";
+        static constexpr char const *NAME = "invalid-cast";
         NNPtr<ASTNS::AST> ast;
         Located<NNPtr<IR::Value>> v;
         NNPtr<IR::Type> newty;
@@ -210,6 +254,8 @@ namespace Errors {
     public:
         ConflictTysBinaryOp(Located<NNPtr<IR::Value>> const &lhs, Located<NNPtr<IR::Value>> const &rhs, Span const &op);
     private:
+        static constexpr char const *CODE = "E0022";
+        static constexpr char const *NAME = "conflict-tys-binary-op";
         Located<NNPtr<IR::Value>> lhs;
         Located<NNPtr<IR::Value>> rhs;
         Span op;
@@ -220,6 +266,8 @@ namespace Errors {
     public:
         CondNotBool(Located<NNPtr<IR::Value>> const &v);
     private:
+        static constexpr char const *CODE = "E0023";
+        static constexpr char const *NAME = "cond-not-bool";
         Located<NNPtr<IR::Value>> v;
     protected:
         SimpleError toSimpleError() const override;
@@ -228,6 +276,8 @@ namespace Errors {
     public:
         PtrArithRhsNotNum(Located<NNPtr<IR::Value>> const &lhs, Located<ASTNS::BinaryOperator> const &optok, Located<NNPtr<IR::Value>> const &rhs);
     private:
+        static constexpr char const *CODE = "E0024";
+        static constexpr char const *NAME = "ptr-arith-rhs-not-num";
         Located<NNPtr<IR::Value>> lhs;
         Located<ASTNS::BinaryOperator> optok;
         Located<NNPtr<IR::Value>> rhs;
@@ -238,6 +288,8 @@ namespace Errors {
     public:
         NoElseNotVoid(Located<NNPtr<IR::Value>> const &truev, Span const &iftok);
     private:
+        static constexpr char const *CODE = "E0025";
+        static constexpr char const *NAME = "no-else-not-void";
         Located<NNPtr<IR::Value>> truev;
         Span iftok;
     protected:
@@ -247,6 +299,8 @@ namespace Errors {
     public:
         TypelessThis(NNPtr<ASTNS::ThisParam> const &p);
     private:
+        static constexpr char const *CODE = "E0026";
+        static constexpr char const *NAME = "typeless-this";
         NNPtr<ASTNS::ThisParam> p;
     protected:
         SimpleError toSimpleError() const override;
@@ -255,6 +309,8 @@ namespace Errors {
     public:
         WrongNumArgs(NNPtr<IR::Function> const &func, NNPtr<ASTNS::AST> const &func_ref_ast, Span const &oparn, std::vector<Located<NNPtr<IR::Value>>> const &args);
     private:
+        static constexpr char const *CODE = "E0027";
+        static constexpr char const *NAME = "wrong-num-args";
         NNPtr<IR::Function> func;
         NNPtr<ASTNS::AST> func_ref_ast;
         Span oparn;
@@ -266,6 +322,8 @@ namespace Errors {
     public:
         RedeclSym(Span const &name, NNPtr<IR::Value> const &val);
     private:
+        static constexpr char const *CODE = "E0028";
+        static constexpr char const *NAME = "redecl-sym";
         Span name;
         NNPtr<IR::Value> val;
     protected:
@@ -275,6 +333,8 @@ namespace Errors {
     public:
         UndeclSymb(Span const &path);
     private:
+        static constexpr char const *CODE = "E0029";
+        static constexpr char const *NAME = "undecl-symb";
         Span path;
     protected:
         SimpleError toSimpleError() const override;
@@ -283,6 +343,8 @@ namespace Errors {
     public:
         RedeclParam(NNPtr<ASTNS::ParamB> const &param, NNPtr<IR::Register> const &prev);
     private:
+        static constexpr char const *CODE = "E0030";
+        static constexpr char const *NAME = "redecl-param";
         NNPtr<ASTNS::ParamB> param;
         NNPtr<IR::Register> prev;
     protected:
@@ -292,6 +354,8 @@ namespace Errors {
     public:
         RedeclVar(Span const &name, NNPtr<IR::Register> const &prev);
     private:
+        static constexpr char const *CODE = "E0031";
+        static constexpr char const *NAME = "redecl-var";
         Span name;
         NNPtr<IR::Register> prev;
     protected:
@@ -301,6 +365,8 @@ namespace Errors {
     public:
         NotAType(Span const &notty);
     private:
+        static constexpr char const *CODE = "E0032";
+        static constexpr char const *NAME = "not-atype";
         Span notty;
     protected:
         SimpleError toSimpleError() const override;
@@ -309,6 +375,8 @@ namespace Errors {
     public:
         NoMemberIn(NNPtr<IR::DeclSymbol> const &prev, Span const &current);
     private:
+        static constexpr char const *CODE = "E0033";
+        static constexpr char const *NAME = "no-member-in";
         NNPtr<IR::DeclSymbol> prev;
         Span current;
     protected:
@@ -318,6 +386,8 @@ namespace Errors {
     public:
         NoThis(Span const &th);
     private:
+        static constexpr char const *CODE = "E0034";
+        static constexpr char const *NAME = "no-this";
         Span th;
     protected:
         SimpleError toSimpleError() const override;
@@ -326,6 +396,8 @@ namespace Errors {
     public:
         NoMethod(Located<NNPtr<IR::Value>> const &op, Span const &name);
     private:
+        static constexpr char const *CODE = "E0035";
+        static constexpr char const *NAME = "no-method";
         Located<NNPtr<IR::Value>> op;
         Span name;
     protected:
@@ -335,6 +407,8 @@ namespace Errors {
     public:
         NoField(Located<NNPtr<IR::Value>> const &op, Span const &name);
     private:
+        static constexpr char const *CODE = "E0036";
+        static constexpr char const *NAME = "no-field";
         Located<NNPtr<IR::Value>> op;
         Span name;
     protected:
@@ -344,6 +418,8 @@ namespace Errors {
     public:
         AddrofNotLvalue(Span const &op, Located<NNPtr<IR::Value>> const &val);
     private:
+        static constexpr char const *CODE = "E0037";
+        static constexpr char const *NAME = "addrof-not-lvalue";
         Span op;
         Located<NNPtr<IR::Value>> val;
     protected:
@@ -353,6 +429,8 @@ namespace Errors {
     public:
         AssignInvalidLhs(Span const &eq, Located<NNPtr<IR::Value>> const &lhs);
     private:
+        static constexpr char const *CODE = "E0038";
+        static constexpr char const *NAME = "assign-invalid-lhs";
         Span eq;
         Located<NNPtr<IR::Value>> lhs;
     protected:
@@ -362,6 +440,8 @@ namespace Errors {
     public:
         AssignNotMut(Located<NNPtr<IR::Value>> const &v, Span const &eq, NNPtr<IR::Register> const &reg);
     private:
+        static constexpr char const *CODE = "E0039";
+        static constexpr char const *NAME = "assign-not-mut";
         Located<NNPtr<IR::Value>> v;
         Span eq;
         NNPtr<IR::Register> reg;
@@ -372,6 +452,8 @@ namespace Errors {
     public:
         MutAddrofNonmutOp(Span const &op, NNPtr<IR::Register> const &reg);
     private:
+        static constexpr char const *CODE = "E0040";
+        static constexpr char const *NAME = "mut-addrof-nonmut-op";
         Span op;
         NNPtr<IR::Register> reg;
     protected:
@@ -381,6 +463,8 @@ namespace Errors {
     public:
         NoSuppress(Span const &dollar);
     private:
+        static constexpr char const *CODE = "E0041";
+        static constexpr char const *NAME = "no-suppress";
         Span dollar;
     protected:
         SimpleError toSimpleError() const override;
@@ -389,6 +473,8 @@ namespace Errors {
     public:
         ThisNotFirst(NNPtr<ASTNS::ThisParam> const &ast);
     private:
+        static constexpr char const *CODE = "E0042";
+        static constexpr char const *NAME = "this-not-first";
         NNPtr<ASTNS::ThisParam> ast;
     protected:
         SimpleError toSimpleError() const override;

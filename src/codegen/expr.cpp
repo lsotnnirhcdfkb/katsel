@@ -41,7 +41,7 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::ShortCircuitExpr &ast) {
     Located<NNPtr<IR::Value>> lhs = m_lhs.get();
 
     if (!dynamic_cast<IR::BoolType const *>(&lhs.value->type())) {
-        ERR_LHS_UNSUPPORTED_OP(lhs, ast.op.span);
+        Errors::LHS_UNSUPPORTED_OP(lhs, ast.op.span);
         ret = Maybe<Located<NNPtr<IR::Value>>>();
         return;
     }
@@ -72,7 +72,7 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::ShortCircuitExpr &ast) {
     Located<NNPtr<IR::Value>> rhs = m_rhs.get();
 
     if (!dynamic_cast<IR::BoolType const *>(&rhs.value->type())) {
-        ERR_CONFLICT_TYS_BINARY_OP(lhs, rhs, ast.op.span);
+        Errors::CONFLICT_TYS_BINARY_OP(lhs, rhs, ast.op.span);
         ret = Maybe<Located<NNPtr<IR::Value>>>();
         return;
     }
@@ -114,7 +114,7 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::DerefExpr &ast) {
 
     IR::PointerType const *asptrty (dynamic_cast<IR::PointerType const *>(&oper.value->type()));
     if (!asptrty) {
-        ERR_NO_DEREF(ast.op.span, oper);
+        Errors::NO_DEREF(ast.op.span, oper);
         ret = Maybe<Located<NNPtr<IR::Value>>>();
         return;
     }
@@ -132,13 +132,13 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::AddrofExpr &ast) {
 
     IR::Register *as_register = dynamic_cast<IR::Register *>(oper.value.as_raw());
     if (!as_register) {
-        ERR_ADDROF_NOT_LVALUE(ast.op.span, oper);
+        Errors::ADDROF_NOT_LVALUE(ast.op.span, oper);
         ret = Maybe<Located<NNPtr<IR::Value>>>();
         return;
     }
 
     if (!as_register->mut && ast.mut) {
-        ERR_MUT_ADDROF_NONMUT_OP(ast.op.span, *as_register);
+        Errors::MUT_ADDROF_NONMUT_OP(ast.op.span, *as_register);
         ret = Maybe<Located<NNPtr<IR::Value>>>();
         return;
     }
@@ -157,7 +157,7 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::CallExpr &ast) {
 
     IR::FunctionType const *fty = dynamic_cast<IR::FunctionType const *>(&fun.value->type());
     if (!fty) {
-        ERR_CALL_NONCALLABLE(fun, ast.oparn.span);
+        Errors::CALL_NONCALLABLE(fun, ast.oparn.span);
         ret = Maybe<Located<NNPtr<IR::Value>>>();
         return;
     }
@@ -175,7 +175,7 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::CallExpr &ast) {
     }
 
     if (args.size() != fty->paramtys.size()) {
-        ERR_WRONG_NUM_ARGS(*static_cast<IR::Function const *>(fun.value.as_raw()), *ast.callee, ast.oparn.span, args);
+        Errors::WRONG_NUM_ARGS(*static_cast<IR::Function const *>(fun.value.as_raw()), *ast.callee, ast.oparn.span, args);
         ret = Maybe<Located<NNPtr<IR::Value>>>();
         return;
     }
@@ -185,7 +185,7 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::CallExpr &ast) {
     for (; i != args.end() && j != fty->paramtys.end(); ++i, ++j) {
         *i = (*j)->impl_cast(ir_builder->context(), ir_builder->fun(), ir_builder->cur_block(), *i);
         if (&i->value->type() != &**j) {
-            ERR_INCORRECT_ARG(*i, **j);
+            Errors::INCORRECT_ARG(*i, **j);
             ret = Maybe<Located<NNPtr<IR::Value>>>();
             argserr = true;
         }
@@ -220,7 +220,7 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::ThisExpr &ast) {
         NNPtr<Local> local = m_loc.get();
         ret = Located(ast, *local->v);
     } else {
-        ERR_NO_THIS(ast.tok.span);
+        Errors::NO_THIS(ast.tok.span);
         ret = Maybe<Located<NNPtr<IR::Value>>>();
     }
 }
@@ -233,7 +233,7 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::IfExpr &ast) {
     Located<NNPtr<IR::Value>> cond = m_cond.get();
 
     if (!dynamic_cast<IR::BoolType const *>(&cond.value->type())) {
-        ERR_COND_NOT_BOOL(cond);
+        Errors::COND_NOT_BOOL(cond);
         ret = Maybe<Located<NNPtr<IR::Value>>>();
         return;
     }
@@ -281,13 +281,13 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::IfExpr &ast) {
         falsev = truev.value->type().impl_cast(ir_builder->context(), ir_builder->fun(), ir_builder->cur_block(), falsev);
 
         if (&truev.value->type() != &falsev.value->type()) {
-            ERR_CONFL_TYS_IFEXPR(truev, falsev, ast.iftok.span, ast.elsetok.get().span);
+            Errors::CONFL_TYS_IFEXPR(truev, falsev, ast.iftok.span, ast.elsetok.get().span);
             ret = Maybe<Located<NNPtr<IR::Value>>>();
             return;
         }
     } else {
         if (!dynamic_cast<IR::VoidType const *>(&truev.value->type())) {
-            ERR_NO_ELSE_NOT_VOID(truev, ast.iftok.span);
+            Errors::NO_ELSE_NOT_VOID(truev, ast.iftok.span);
             ret = Maybe<Located<NNPtr<IR::Value>>>();
             return;
         }
@@ -316,7 +316,7 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::WhileExpr &ast) {
     Located<NNPtr<IR::Value>> cond = m_cond.get();
 
     if (!dynamic_cast<IR::BoolType const *>(&cond.value->type())) {
-        ERR_COND_NOT_BOOL(cond);
+        Errors::COND_NOT_BOOL(cond);
         ret = Maybe<Located<NNPtr<IR::Value>>>();
         return;
     }
@@ -349,13 +349,13 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::AssignmentExpr &ast) {
     IR::Register *target_reg = dynamic_cast<IR::Register *>(lhs.value.as_raw());
 
     if (!target_reg) {
-        ERR_ASSIGN_INVALID_LHS(ast.equal.span, lhs);
+        Errors::ASSIGN_INVALID_LHS(ast.equal.span, lhs);
         ret = Maybe<Located<NNPtr<IR::Value>>>();
         return;
     }
 
     if (!target_reg->mut) {
-        ERR_ASSIGN_NOT_MUT(rhs, ast.equal.span, *target_reg);
+        Errors::ASSIGN_NOT_MUT(rhs, ast.equal.span, *target_reg);
         ret = Maybe<Located<NNPtr<IR::Value>>>();
         return;
     }
@@ -364,7 +364,7 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::AssignmentExpr &ast) {
     rhs = expect_type.impl_cast(ir_builder->context(), ir_builder->fun(), ir_builder->cur_block(), rhs);
 
     if (&expect_type != &rhs.value->type()) {
-        ERR_ASSIGN_CONFLICT_TYS(lhs, rhs, ast.equal.span);
+        Errors::ASSIGN_CONFLICT_TYS(lhs, rhs, ast.equal.span);
         ret = Maybe<Located<NNPtr<IR::Value>>>();
         return;
     }
@@ -438,7 +438,7 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::FieldAccessExpr &ast) {
     std::string const &fieldName = ast.field.value.name;
     bool has = op.value->type().has_field(fieldName);
     if (!has) {
-        ERR_NO_FIELD(op, ast.field.span);
+        Errors::NO_FIELD(op, ast.field.span);
         return;
     }
 
@@ -455,7 +455,7 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::MethodCallExpr &ast) {
 
     Maybe<IR::Type::Method const> m_method = op.value->type().get_method(ast.method.value.name);
     if (!m_method.has()) {
-        ERR_NO_METHOD(op, ast.method.span);
+        Errors::NO_METHOD(op, ast.method.span);
         return;
     }
 
@@ -465,13 +465,13 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::MethodCallExpr &ast) {
     if (method.this_ptr) {
         IR::Register *as_register = dynamic_cast<IR::Register *>(op.value.as_raw());
         if (!as_register) {
-            ERR_ADDROF_NOT_LVALUE(ast.dot.span, op);
+            Errors::ADDROF_NOT_LVALUE(ast.dot.span, op);
             ret = Maybe<Located<NNPtr<IR::Value>>>();
             return;
         }
 
         if (!as_register->mut && method.this_mut) {
-            ERR_MUT_ADDROF_NONMUT_OP(ast.method.span, *as_register);
+            Errors::MUT_ADDROF_NONMUT_OP(ast.method.span, *as_register);
             ret = Maybe<Located<NNPtr<IR::Value>>>();
             return;
         }
@@ -496,7 +496,7 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::MethodCallExpr &ast) {
 
     std::vector<NNPtr<IR::Type const>> &paramtys (method.fun->ty->paramtys);
     if (args.size() != paramtys.size()) {
-        ERR_WRONG_NUM_ARGS(*method.fun, ast, ast.oparn.span, args);
+        Errors::WRONG_NUM_ARGS(*method.fun, ast, ast.oparn.span, args);
         ret = Maybe<Located<NNPtr<IR::Value>>>();
         return;
     }
@@ -507,7 +507,7 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::MethodCallExpr &ast) {
     for (; i != args.end() && j != paramtys.end(); ++i, ++j) {
         *i = (*j)->impl_cast(ir_builder->context(), ir_builder->fun(), ir_builder->cur_block(), *i);
         if (&i->value->type() != j->as_raw()) {
-            ERR_INCORRECT_ARG(*i, **j);
+            Errors::INCORRECT_ARG(*i, **j);
             ret = Maybe<Located<NNPtr<IR::Value>>>();
             argserr = true;
         }
