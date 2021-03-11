@@ -534,7 +534,7 @@ namespace {
         }
         // bin {{{3
         Maybe<std::unique_ptr<ASTNS::Expr>> bin_expr(std::unique_ptr<ASTNS::Expr> left) {
-            auto &op = peek();
+            auto op = Located<Token>(peek(), peek().value.clone());
             consume();
 
             TRY(right, std::unique_ptr<ASTNS::Expr>, expr(precedence_of(op.value)));
@@ -570,7 +570,7 @@ namespace {
         }
 
         Maybe<std::unique_ptr<ASTNS::Expr>> assign_expr(std::unique_ptr<ASTNS::Expr> left) {
-            auto &op = peek();
+            auto op = Located<Token>(peek(), peek().value.clone());
             consume();
 
             TRY(right, std::unique_ptr<ASTNS::Expr>, expr(Precedence::NONE));
@@ -597,7 +597,7 @@ namespace {
         }
         // unary {{{3
         Maybe<std::unique_ptr<ASTNS::Expr>> unary_expr() {
-            auto &prev = peek();
+            auto prev = Located<Token>(peek(), peek().value.clone());
             consume();
 
             TRY(operand, std::unique_ptr<ASTNS::Expr>, expr(Precedence::UNARY));
@@ -685,7 +685,7 @@ namespace {
         }
         // primary {{{3
         Maybe<std::unique_ptr<ASTNS::Expr>> primary_expr() {
-            auto &prev = peek();
+            auto prev = Located<Token>(peek(), peek().value.clone());
             consume();
 
             switch (prev.value.type()) {
@@ -791,22 +791,22 @@ namespace {
         }
 
         template <TokenType TokenType>
-        Maybe<Located<Token> const &> expect(std::string const &what) {
+        Maybe<Located<Token>> expect(std::string const &what) {
             if (peek().value.type() == TokenType) {
-                auto &tok = peek();
+                auto tok = Located<Token>(peek(), peek().value.clone());
                 consume();
 
                 return tok;
             } else {
                 Errors::Expected(peek().span, what).report();
-                return Maybe<Located<Token> const &>();
+                return Maybe<Located<Token>>();
             }
         }
 
         template <TokenType TokenType>
-        Located<Token> const &assert_expect() {
+        Located<Token> assert_expect() {
             if (peek().value.type() == TokenType) {
-                auto &tok = peek();
+                auto tok = Located<Token>(peek(), peek().value.clone());
                 consume();
 
                 return tok;
