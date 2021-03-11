@@ -326,4 +326,3 @@ std::string Token::stringify_type() const {
                 return TokTyStringified<T>::value;
         }, pimpl->data);
 }
-
