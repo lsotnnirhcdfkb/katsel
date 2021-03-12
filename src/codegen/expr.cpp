@@ -157,7 +157,7 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::CallExpr &ast) {
 
     IR::FunctionType const *fty = dynamic_cast<IR::FunctionType const *>(&fun.value->type());
     if (!fty) {
-        Errors::CallNoncallable(fun, ast.oparn.span).report();
+        Errors::NoCall(fun, ast.oparn.span).report();
         ret = Maybe<Located<NNPtr<IR::Value>>>();
         return;
     }
@@ -175,7 +175,7 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::CallExpr &ast) {
     }
 
     if (args.size() != fty->paramtys.size()) {
-        Errors::WrongNumArgs(static_cast<IR::Function const &>(*fun.value), *ast.callee, ast.oparn.span, args).report();
+        Errors::WrongNumArgs(static_cast<IR::Function const &>(*fun.value), ast.oparn.span, args).report();
         ret = Maybe<Located<NNPtr<IR::Value>>>();
         return;
     }
@@ -496,7 +496,7 @@ void Codegen::Helpers::ExprCodegen::ast_visit(ASTNS::MethodCallExpr &ast) {
 
     std::vector<NNPtr<IR::Type const>> &paramtys (method.fun->ty->paramtys);
     if (args.size() != paramtys.size()) {
-        Errors::WrongNumArgs(*method.fun, ast, ast.oparn.span, args).report();
+        Errors::WrongNumArgs(*method.fun, ast.oparn.span, args).report();
         ret = Maybe<Located<NNPtr<IR::Value>>>();
         return;
     }

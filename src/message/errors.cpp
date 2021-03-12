@@ -20,6 +20,9 @@ Errors::SimpleError& Errors::SimpleError::section(std::unique_ptr<Section> secti
     sections.push_back(std::move(section));
     return *this;
 }
+Errors::SimpleError Errors::SimpleError::value() {
+    return std::move(*this);
+}
 
 void Errors::SimpleError::report() const {
     if (errformat == ErrorFormat::HUMAN || errformat == ErrorFormat::ALIGNED) {

@@ -124,12 +124,12 @@ namespace Errors {
     };
     class Expected : public Error {
     public:
-        Expected(Span const &expected, std::string const &name);
+        Expected(Span const &where, std::string const &what);
     private:
         static constexpr char const *CODE = "E0011";
         static constexpr char const *NAME = "expected";
-        Span expected;
-        std::string name;
+        Span where;
+        std::string what;
     protected:
         SimpleError toSimpleError() const override;
     };
@@ -155,12 +155,12 @@ namespace Errors {
     protected:
         SimpleError toSimpleError() const override;
     };
-    class CallNoncallable : public Error {
+    class NoCall : public Error {
     public:
-        CallNoncallable(Located<NNPtr<IR::Value>> const &func, Span const &oparn);
+        NoCall(Located<NNPtr<IR::Value>> const &func, Span const &oparn);
     private:
         static constexpr char const *CODE = "E0014";
-        static constexpr char const *NAME = "call-noncallable";
+        static constexpr char const *NAME = "no-call";
         Located<NNPtr<IR::Value>> func;
         Span oparn;
     protected:
@@ -307,12 +307,11 @@ namespace Errors {
     };
     class WrongNumArgs : public Error {
     public:
-        WrongNumArgs(NNPtr<IR::Function const> const &func, NNPtr<ASTNS::AST> const &func_ref_ast, Span const &oparn, std::vector<Located<NNPtr<IR::Value>>> const &args);
+        WrongNumArgs(NNPtr<IR::Function const> const &func, Span const &oparn, std::vector<Located<NNPtr<IR::Value>>> const &args);
     private:
         static constexpr char const *CODE = "E0027";
         static constexpr char const *NAME = "wrong-num-args";
         NNPtr<IR::Function const> func;
-        NNPtr<ASTNS::AST> func_ref_ast;
         Span oparn;
         std::vector<Located<NNPtr<IR::Value>>> args;
     protected:
@@ -361,12 +360,12 @@ namespace Errors {
     protected:
         SimpleError toSimpleError() const override;
     };
-    class NotAType : public Error {
+    class NotA_Type : public Error {
     public:
-        NotAType(Span const &notty);
+        NotA_Type(Span const &notty);
     private:
         static constexpr char const *CODE = "E0032";
-        static constexpr char const *NAME = "not-atype";
+        static constexpr char const *NAME = "not-a-type";
         Span notty;
     protected:
         SimpleError toSimpleError() const override;
@@ -459,21 +458,11 @@ namespace Errors {
     protected:
         SimpleError toSimpleError() const override;
     };
-    class NoSuppress : public Error {
-    public:
-        NoSuppress(Span const &dollar);
-    private:
-        static constexpr char const *CODE = "E0041";
-        static constexpr char const *NAME = "no-suppress";
-        Span dollar;
-    protected:
-        SimpleError toSimpleError() const override;
-    };
     class ThisNotFirst : public Error {
     public:
         ThisNotFirst(NNPtr<ASTNS::ThisParam> const &ast);
     private:
-        static constexpr char const *CODE = "E0042";
+        static constexpr char const *CODE = "E0041";
         static constexpr char const *NAME = "this-not-first";
         NNPtr<ASTNS::ThisParam> ast;
     protected:

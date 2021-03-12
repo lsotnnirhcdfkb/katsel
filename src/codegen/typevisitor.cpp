@@ -32,7 +32,7 @@ void Codegen::Helpers::TypeVisitor::ast_visit(ASTNS::PathType &ast) {
     IR::Type *as_type = dynamic_cast<IR::Type *>(&decl);
     if (!as_type) {
         ret = Maybe<NNPtr<IR::Type>>();
-        Errors::NotAType(*ast.path).report();
+        Errors::NotA_Type(*ast.path).report();
         return;
     } else {
         ret = Maybe<NNPtr<IR::Type>>(NNPtr<IR::Type>(*as_type));

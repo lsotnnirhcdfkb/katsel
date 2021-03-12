@@ -184,7 +184,7 @@ void Underlines::report(int left_pad) const {
                         bool printed_message = false;
                         for (auto const &located_message : located_line_messages) {
                             if (located_message.row == 0 && located_message.start_col == col) {
-                                std::cerr << located_message.text;
+                                std::cerr << if_ansi(located_message.message->color) << located_message.text << if_ansi(A_RESET);
                                 col = located_message.end_col();
                                 printed_message = true;
                                 break;
@@ -208,7 +208,7 @@ void Underlines::report(int left_pad) const {
                             for (auto const &located_message : located_line_messages) {
                                 if (located_message.start_col == col) {
                                     if (located_message.row == row) {
-                                        std::cerr << located_message.text;
+                                        std::cerr << if_ansi(located_message.message->color) << located_message.text << if_ansi(A_RESET);
                                         col = located_message.end_col();
                                         need_space = false;
                                         break;

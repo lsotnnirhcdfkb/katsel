@@ -17,10 +17,11 @@ namespace Errors {
         SimpleError(Type type, Span const &span, std::string const &code, std::string const &name);
         ~SimpleError();
 
-        SimpleError (SimpleError const &) = default;
-        SimpleError (SimpleError &&) = default;
+        SimpleError(SimpleError const &) = delete;
+        SimpleError(SimpleError &&) = default;
 
         SimpleError &section(std::unique_ptr<Section> section);
+        SimpleError value();
 
         void report() const;
 
